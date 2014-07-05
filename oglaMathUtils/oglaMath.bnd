@@ -1,0 +1,8 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_math
+Bundle-Version=1.0.0
+Bundle-Name=oglaMath
+Bundle-Vendor=Marcin Matula
+Bundle-ManifestVersion=2
+Export-Package=ogla.math
+

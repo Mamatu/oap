@@ -1,0 +1,7 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_axis_chart
+Bundle-Version=1.0.0
+Bundle-Name=AxisChart
+Bundle-Vendor=Marcin Matula
+Bundle-ManifestVersion=2
+Export-Package=*

@@ -1,0 +1,8 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_exview
+Bundle-Version=1.0.0
+Bundle-Name=APView
+Bundle-ManifestVersion=2
+Export-Package=ogla.exview.*;version=1.0.0
+Import-Package:*;
+Bundle-Vendor=Marcin Matula

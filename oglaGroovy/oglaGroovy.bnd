@@ -1,0 +1,9 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=ogla_groovy
+Bundle-Version=1.0.0
+Bundle-Name=oglaGroovy
+Bundle-Vendor=Marcin Matula
+Bundle-ManifestVersion=2
+Export-Package=*
+Import-Package=*
+Bundle-Activator=ogla.groovy.osgi.Activator

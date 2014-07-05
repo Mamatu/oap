@@ -1,0 +1,11 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_default_datacsv
+Bundle-Version=1.0.0
+Bundle-Name=DataCsv
+Bundle-ManifestVersion=2
+Bundle-Activator=ogla.datacsv.osgi.Activator
+Import-Package=*
+Private-Package=ogla.datacsv.osgi,ogla.datacsv
+Bundle-Vendor=Marcin Matula
+Plugin-Description=DataCsv allow to read data from csv files
+Plugin-Section=Data

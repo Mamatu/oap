@@ -1,0 +1,9 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_exdata
+Bundle-Version=1.0.0
+Bundle-Name=APData
+Bundle-ManifestVersion=2
+Export-Package=*;version=1.0.0
+Import-Package=*
+Plugin-Type=APApplication
+Bundle-Vendor=Marcin Matula

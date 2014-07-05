@@ -1,0 +1,11 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_circle_plot
+Bundle-Version=1.0.0
+Bundle-Name=CirclePlot
+Bundle-Vendor=Marcin Matula
+Bundle-ManifestVersion=2
+Plugin-Dependence=analysis_axis_chart
+Plugin-Section=Charts
+Bundle-Activator=ogla.plot.circle.osgi.Activator
+Import-Package=*
+Private-Package=ogla.plot.circle,ogla.plot.circle.osgi

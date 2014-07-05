@@ -1,0 +1,9 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_default_legend
+Bundle-Version=1.0.0
+Bundle-Name=Legend
+Bundle-Vendor=Marcin Matula
+Bundle-ManifestVersion=2
+Import-Package=*
+Private-Package=ogla.legend.osgi,ogla.legend
+Bundle-Activator=ogla.legend.osgi.Activator

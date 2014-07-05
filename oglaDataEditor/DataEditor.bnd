@@ -1,0 +1,11 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_default_dataeditor
+Bundle-Version=1.0.0
+Bundle-Name=DataEditor
+Bundle-ManifestVersion=2
+Bundle-Activator=analysis.dataeditor.osgi.Activator
+Import-Package=*
+Private-Package=analysis.dataeditor.osgi,analysis.dataeditor
+Bundle-Vendor=Marcin Matula
+Plugin-Description=Editor of data
+Plugin-Section=Data

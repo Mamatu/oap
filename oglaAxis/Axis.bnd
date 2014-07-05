@@ -1,0 +1,10 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_default_axis
+Bundle-Version=1.0.0
+Bundle-Name=Axis
+Bundle-Vendor=Marcin Matula
+Bundle-ManifestVersion=2
+Import-Package=*
+Private-Package=ogla.axis,ogla.axis.osgi,ogla.axis.util,ogla.axis.gui
+Bundle-Activator=ogla.axis.osgi.Activator
+Plugin-Type=APApplication

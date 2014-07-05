@@ -1,0 +1,11 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_default_label
+Bundle-Version=1.0.0
+Bundle-Name=Label
+Bundle-Vendor=Marcin Matula
+Bundle-ManifestVersion=2
+Import-Package=*
+Private-Package=ogla.label.osgi,ogla.label
+Bundle-Activator=ogla.label.osgi.Activator
+Bundle-ClassPath: .;jlatexmath-0.9.7.jar
+Include-Resource: dist/lib/jlatexmath-0.9.7.jar

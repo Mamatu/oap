@@ -1,0 +1,11 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=analysis_bar_plot
+Bundle-Version=1.0.0
+Bundle-Name=BarPlot
+Bundle-Vendor=Marcin Matula
+Bundle-ManifestVersion=2
+Plugin-Dependence=analysis_axis_chart
+Plugin-Section=Charts
+Bundle-Activator=ogla.plot.bar.osgi.Activator
+Import-Package=*
+Private-Package=ogla.plot.bar,ogla.plot.bar.osgi

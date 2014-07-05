@@ -1,0 +1,8 @@
+Manifest-Version=1.0
+Bundle-SymbolicName=PieChart
+Bundle-Version=1.0.0
+Bundle-Name=PieChart
+Bundle-Vendor=Analysis Team
+Bundle-ManifestVersion=2
+Bundle-Activator=analysis.piechart.osgi.Activator
+Export-Package=analysis.piechart.osgi,!analysis.piechart.osgi.run
