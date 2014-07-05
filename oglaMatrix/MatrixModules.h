@@ -1,0 +1,108 @@
+#ifndef OGLA_MATRIX_MODULE_H
+#define	OGLA_MATRIX_MODULE_H
+#include "Module.h"
+#include "Matrix.h"
+#include "Math.h"
+
+class MatrixModule;
+
+class MatrixAllocator : public utils::Module {
+    MatrixModule* m_matrixModule;
+public:
+    MatrixAllocator(MatrixModule* matrixModule);
+    virtual ~MatrixAllocator();
+    virtual math::Matrix* newReMatrix(intt columns, intt rows, floatt value = 0) = 0;
+    virtual math::Matrix* newImMatrix(intt columns, intt rows, floatt value = 0) = 0;
+    virtual math::Matrix* newMatrix(intt columns, intt rows, floatt value = 0) = 0;
+    virtual math::Matrix* newReValue(floatt value = 0);
+    virtual math::Matrix* newImValue(floatt value = 0);
+    virtual math::Matrix* newValue(floatt value = 0);
+    virtual bool isMatrix(math::Matrix* matrix) = 0;
+    virtual math::Matrix* newMatrixFromAsciiFile(const char* path) = 0;
+    virtual math::Matrix* newMatrixFromBinaryFile(const char* path) = 0;
+    virtual void deleteMatrix(math::Matrix* matrix) = 0;
+};
+
+class MatrixCopier : public utils::Module {
+    MatrixModule* m_matrixModule;
+public:
+    MatrixCopier(MatrixModule* matrixModule);
+    virtual ~MatrixCopier();
+    virtual void copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* src) = 0;
+    virtual void copyReMatrixToReMatrix(math::Matrix* dst, const math::Matrix* src) = 0;
+    virtual void copyImMatrixToImMatrix(math::Matrix* dst, const math::Matrix* src) = 0;
+    virtual void copy(floatt* dst, const floatt* src, intt length) = 0;
+
+    virtual void setReVector(math::Matrix* matrix, intt column, floatt* vector, intt length) = 0;
+    virtual void setTransposeReVector(math::Matrix* matrix, intt row, floatt* vector, intt length) = 0;
+    virtual void setImVector(math::Matrix* matrix, intt column, floatt* vector, intt length) = 0;
+    virtual void setTransposeImVector(math::Matrix* matrix, intt row, floatt* vector, intt length) = 0;
+
+    virtual void getReVector(floatt* vector, intt length, math::Matrix* matrix, intt column) = 0;
+    virtual void getTransposeReVector(floatt* vector, intt length, math::Matrix* matrix, intt row) = 0;
+    virtual void getImVector(floatt* vector, intt length, math::Matrix* matrix, intt column) = 0;
+    virtual void getTransposeImVector(floatt* vector, intt length, math::Matrix* matrix, intt row) = 0;
+
+    virtual void setVector(math::Matrix* matrix, intt column,
+            math::Matrix* vector, uintt rows) = 0;
+    virtual void getVector(math::Matrix* vector, uintt rows,
+            math::Matrix* matrix, intt column) = 0;
+
+};
+
+class MatrixUtils : public utils::Module {
+    MatrixModule* m_matrixModule;
+public:
+    MatrixUtils(MatrixModule* matrixModule);
+    virtual ~MatrixUtils();
+    void setIdentityMatrix(math::Matrix* matrix);
+    void setIdentityReMatrix(math::Matrix* matrix);
+    void setIdentityImMatrix(math::Matrix* matrix);
+    void setDiagonalMatrix(math::Matrix* matrix, floatt value);
+    void setDiagonalMatrix(math::Matrix* matrix, floatt revalue,floatt imvalue);
+    virtual void setDiagonalReMatrix(math::Matrix* matrix, floatt value) = 0;
+    virtual void setDiagonalImMatrix(math::Matrix* matrix, floatt value) = 0;
+    void setZeroMatrix(math::Matrix* matrix);
+    virtual void setZeroReMatrix(math::Matrix* matrix) = 0;
+    virtual void setZeroImMatrix(math::Matrix* matrix) = 0;
+    virtual intt getColumns(const math::Matrix* matrix) const = 0;
+    virtual intt getRows(const math::Matrix* matrix) const = 0;
+    bool isMatrix(const math::Matrix* matrix) const;
+    virtual bool isReMatrix(const math::Matrix* matrix) const = 0;
+    virtual bool isImMatrix(const math::Matrix* matrix) const = 0;
+};
+
+class MatrixPrinter : public utils::Module {
+    MatrixModule* m_matrixModule;
+public:
+    MatrixPrinter(MatrixModule* matrixModule);
+    ~MatrixPrinter();
+    virtual void getMatrixStr(std::string& str, const math::Matrix* matrix) = 0;
+    virtual void getReMatrixStr(std::string& str, const math::Matrix* matrix) = 0;
+    virtual void getImMatrixStr(std::string& str, const math::Matrix* matrix) = 0;
+    virtual void printMatrix(FILE* stream, const math::Matrix* matrix);
+    virtual void printMatrix(const std::string& text, const math::Matrix* matrix);
+    virtual void printReMatrix(FILE* stream, const math::Matrix* matrix);
+    virtual void printReMatrix(const math::Matrix* matrix);
+    virtual void printReMatrix(const std::string& text, const math::Matrix* matrix);
+    virtual void printImMatrix(FILE* stream, const math::Matrix* matrix);
+    virtual void printImMatrix(const math::Matrix* matrix);
+    virtual void printImMatrix(const std::string& text, const math::Matrix* matrix);
+};
+
+class MatrixModule : public utils::Module {
+public:
+    MatrixModule();
+    virtual ~MatrixModule();
+    virtual MatrixAllocator* getMatrixAllocator() = 0;
+    virtual MatrixCopier* getMatrixCopier() = 0;
+    virtual MatrixUtils* getMatrixUtils() = 0;
+    virtual MatrixPrinter* getMatrixPrinter() = 0;
+    math::Matrix* newMatrix(math::Matrix* matrix);
+    math::Matrix* newMatrix(math::Matrix* matrix, intt columns, intt rows);
+    void deleteMatrix(math::Matrix* matrix);
+};
+
+
+#endif	/* MATRIXMODULE_H */
+

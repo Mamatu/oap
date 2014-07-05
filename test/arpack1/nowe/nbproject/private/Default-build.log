@@ -1,0 +1,3 @@
+gcc -c period2BzT2.c -o period2BzT2.o
+gfortran -c maxeigp2.f -o maxeigp2.o
+gfortran -o prTz period2BzT2.o maxeigp2.o -L /usr/lib -Wl,--start-group /usr/lib/libarpack.so /usr/lib/libblas.so.3 /usr/lib/liblapack.so -Wl,--end-group 

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>HostTreePointerCreator.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaShibataCpu/Parameters.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaShibataCpu/Parameters.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaShibataCpu/RealTransferMatrixCpu.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaShibataCpu/RealTransferMatrixCpu.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaShibataCpu/TransferMatrix.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaShibataCpu/TransferMatrix.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaShibataCpu/TransferMatrixCpu.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaShibataCpu/TransferMatrixCpu.h</itemPath>
+      <itemPath>TreePointer.cpp</itemPath>
+      <itemPath>TreePointer.h</itemPath>
+      <itemPath>TreePointerCreator.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>/home/mmatula/Ogla/oglaUtils</pElem>
+            <pElem>/home/mmatula/Ogla/oglaServerUtils</pElem>
+            <pElem>/home/mmatula/Ogla/oglaMath</pElem>
+            <pElem>/home/mmatula/Ogla/oglaMatrixCpu</pElem>
+            <pElem>../oglaMatrix</pElem>
+          </incDir>
+          <warningLevel>3</warningLevel>
+        </ccTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="/home/mmatula/Ogla/oglaMath"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="/home/mmatula/Ogla/oglaMath"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="/home/mmatula/Ogla/oglaMatrixCpu"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="/home/mmatula/Ogla/oglaMatrixCpu"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrixCpu.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="/home/mmatula/Ogla/oglaUtils"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="/home/mmatula/Ogla/oglaUtils"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaUtils.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../oglaMatrix"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../oglaMatrix"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrix.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/Parameters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/Parameters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/RealTransferMatrixCpu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/RealTransferMatrixCpu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/TransferMatrix.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/TransferMatrix.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/TransferMatrixCpu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/TransferMatrixCpu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="HostTreePointerCreator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TreePointer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TreePointer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TreePointerCreator.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/Parameters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/Parameters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/RealTransferMatrixCpu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/RealTransferMatrixCpu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/TransferMatrix.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/TransferMatrix.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/TransferMatrixCpu.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaShibataCpu/TransferMatrixCpu.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="HostTreePointerCreator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TreePointer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TreePointer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TreePointerCreator.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

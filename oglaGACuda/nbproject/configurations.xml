@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/CudaExecution.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/CudaExecution.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/Functions.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/Functions.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/GAModuleCUDA.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/GAModuleCUDA.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/GAProcessCUDA.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/GAProcessCUDA.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/GARatingCUDA.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/GARatingCUDA.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/Makefile</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/Parameters.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/Parameters.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/cu_crossover.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/cu_kernel.cu</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/cu_mutation.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/cu_struct.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/cu_types.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/cu_utils.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>/home/mmatula/Ogla/oglaGACuda/Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <incDir>
+            <pElem>../wServer</pElem>
+            <pElem>../wUtils</pElem>
+            <pElem>../wGA</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>../oglaServerUtils</pElem>
+            <pElem>../oglaUtils</pElem>
+            <pElem>../oglaGA</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="/home/mmatula/wProject/oglaGA"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="/home/mmatula/wProject/oglaGA"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaGA.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="/home/mmatula/wProject/oglaUtils"
+                            CT="3"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="/home/mmatula/wProject/oglaUtils"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglautils.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="/home/mmatula/Ogla/oglaServerUtils"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="/home/mmatula/Ogla/oglaServerUtils"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaServerUtils.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../wGA"
+                        CT="2"
+                        CN="Debug"
+                        AC="true"
+                        BL="false"
+                        WD="../wGA"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libwGA.${CND_DLIB_EXT}">
+          </makeArtifact>
+          <makeArtifact PL="../wUtils"
+                        CT="2"
+                        CN="Debug"
+                        AC="true"
+                        BL="false"
+                        WD="../wUtils"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="/home/marcin/wProject/wServerApplication/dist/${CND_CONF}/${CND_PLATFORM}/libwUtils.${CND_DLIB_EXT}">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+      <item path="/home/mmatula/Ogla/oglaGACuda/CudaExecution.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/CudaExecution.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Functions.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GAModuleCUDA.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GAModuleCUDA.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GAProcessCUDA.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GAProcessCUDA.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GARatingCUDA.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GARatingCUDA.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Makefile"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Parameters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Parameters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_crossover.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_kernel.cu"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_mutation.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_struct.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_types.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_utils.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="/home/mmatula/Ogla/oglaGACuda/CudaExecution.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/CudaExecution.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Functions.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GAModuleCUDA.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GAModuleCUDA.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GAProcessCUDA.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GAProcessCUDA.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GARatingCUDA.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/GARatingCUDA.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Makefile"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Parameters.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/Parameters.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_crossover.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_kernel.cu"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_mutation.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_struct.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_types.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaGACuda/cu_utils.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

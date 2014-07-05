@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="HeaderFiles"
+                     displayName="Header Files"
+                     projectFiles="true">
+      </logicalFolder>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/IAdditionImpl.cpp</itemPath>
+      <itemPath>IDeterminant.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/IDotProductImpl.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/IExpImpl.cpp</itemPath>
+      <itemPath>IIraMethod.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/IMagnitudeImpl.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/IMultiplicationConstImpl.cpp</itemPath>
+      <itemPath>IQRDecomposition.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/ISimpleDiagonalizationImpl.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/ISubstractionImpl.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/ITensorProductImpl.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/ITransposeImpl.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/MathOperations.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/MathOperations.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/Matrix.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/Matrix.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/MatrixModules.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaMatrix/MatrixModules.h</itemPath>
+      <itemPath>MatrixStructure.h</itemPath>
+      <itemPath>MatrixStructureUtils.cpp</itemPath>
+      <itemPath>MatrixStructureUtils.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <incDir>
+            <pElem>/home/mmatula/Ogla/oglaMath</pElem>
+            <pElem>/home/mmatula/Ogla/oglaUtils</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>/home/mmatula/Ogla/oglaUtils</pElem>
+            <pElem>/home/mmatula/Ogla/oglaMath</pElem>
+          </incDir>
+          <commandLine>-ggdb3</commandLine>
+          <warningLevel>3</warningLevel>
+        </ccTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="/home/mmatula/Ogla/oglaUtils"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="/home/mmatula/Ogla/oglaUtils"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaUtils.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="/home/mmatula/Ogla/oglaMath"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="/home/mmatula/Ogla/oglaMath"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IAdditionImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IDotProductImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IExpImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IMagnitudeImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IMultiplicationConstImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/ISimpleDiagonalizationImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/ISubstractionImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/ITensorProductImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/ITransposeImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/MathOperations.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/MathOperations.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/Matrix.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/Matrix.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/MatrixModules.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/MatrixModules.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="IDeterminant.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="IIraMethod.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="IQRDecomposition.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="MatrixStructure.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="MatrixStructureUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="MatrixStructureUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IAdditionImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IDotProductImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IExpImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IMagnitudeImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/IMultiplicationConstImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/ISimpleDiagonalizationImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/ISubstractionImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/ITensorProductImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/ITransposeImpl.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/MathOperations.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/MathOperations.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/Matrix.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/Matrix.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/MatrixModules.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaMatrix/MatrixModules.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="IDeterminant.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="IIraMethod.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="IQRDecomposition.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="MatrixStructure.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="MatrixStructureUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="MatrixStructureUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/CoreInterfaces.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/CoreInterfaces.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/Loader.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/Loader.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/Makefile</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/OglaInterface.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/OglaInterface.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/OglaServer.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/OglaServer.h</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/Status.cpp</itemPath>
+      <itemPath>/home/mmatula/Ogla/oglaServerUtils/Status.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>../oglaUtils</pElem>
+          </incDir>
+          <warningLevel>3</warningLevel>
+        </ccTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibStdlibItem>DynamicLinking</linkerLibStdlibItem>
+            <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../oglaUtils"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../oglaUtils"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaUtils.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/CoreInterfaces.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/CoreInterfaces.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Loader.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Loader.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Makefile"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/OglaInterface.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/OglaInterface.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/OglaServer.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/OglaServer.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Status.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Status.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>../wUtils</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../wUtils"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../wUtils"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libwUtils.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibStdlibItem>DynamicLinking</linkerLibStdlibItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="/home/mmatula/wProject/wUtils"
+                        CT="3"
+                        CN="Debug"
+                        AC="true"
+                        BL="false"
+                        WD="/home/mmatula/wProject/wUtils"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libwutils.a">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/CoreInterfaces.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/CoreInterfaces.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Loader.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Loader.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Makefile"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/OglaInterface.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/OglaInterface.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/OglaServer.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/OglaServer.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Status.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="/home/mmatula/Ogla/oglaServerUtils/Status.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
