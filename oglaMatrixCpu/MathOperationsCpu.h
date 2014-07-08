@@ -179,7 +179,7 @@ namespace math {
             MatrixUtils* mu;
             MatrixAllocator* ma;
             MatrixCopier* mc;
-
+            floatt diff;
             math::Matrix* w;
             math::Matrix* f;
             math::Matrix* f1;
@@ -189,8 +189,10 @@ namespace math {
             math::Matrix* vs;
             math::Matrix* V;
             math::Matrix* EV;
+            math::Matrix* EV1;
             math::Matrix* EQ1;
             math::Matrix* EQ2;
+            math::Matrix* EQ3;
             math::Matrix* V1;
             math::Matrix* V2;
             math::Matrix* transposeV;

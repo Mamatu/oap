@@ -22,7 +22,7 @@
 #include "MathOperationsCpu.h"
 
 
-#define THREADS_COUNT 2
+#define THREADS_COUNT 4
 
 #define PRINT_INFO() fprintf(stderr,"%s %s : %d", __FUNCTION__,__FILE__,__LINE__);
 
@@ -158,21 +158,21 @@ int main1(int argc, char** argv) {
         0.000000, -21.117289, 0, 0.000000,
         0.000000, 0.000000, 0.000000, 0.0};
 
-    //math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
-    //math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
-    //math::Matrix* eh1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
-    //math::Matrix* eh2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
+    math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
+    math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
+    math::Matrix* eh1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
+    math::Matrix* eh2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
 
-    math::Matrix* h1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-    math::Matrix* h2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-    math::Matrix* eh1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-    math::Matrix* eh2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
+    //math::Matrix* h1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
+    //math::Matrix* h2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
+    //math::Matrix* eh1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
+    //math::Matrix* eh2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
 
 
     transferMatrixCpu.PrepareHamiltonian(eh1, h1, shibata::ORIENTATION_REAL_DIRECTION);
     transferMatrixCpu.PrepareHamiltonian(eh2, h2, shibata::ORIENTATION_REAL_DIRECTION);
 
-    int threadsCount = 1;
+    int threadsCount = 4;
     int spinsCount = 3; //25;
     int q[] = {-1, 1};
     int qCount = 2;
@@ -180,7 +180,7 @@ int main1(int argc, char** argv) {
     int M = 5;
     int l = pow(qCount, 2 * M);
     fprintf(stderr, "l = %llu\n", l);
-    math::Matrix* transferMatrix = hmm.newReMatrix(l, l);
+    math::Matrix* transferMatrix = hmm.newMatrix(l, l);
 
     //csetReOutputEntries(reoutputs);
     //transferMatrixCpu.setEntries(entries, count);
@@ -239,32 +239,59 @@ int main2(int argc, char** argv) {
     //    0.000000, 2.544110, -1.937579, 0.000000,
     //    0.000000, -1.937579, 2.544110, 0.000000,
     //    0.000000, 0.000000, 0.000000, 0.606531};
-    
-    
-    floatt b[16] = {0.286505, 0.000000, 0.000000, 0.000000,
+
+
+    floatt b[16] = {0.731616, 0.000000, 0.000000, 0.000000,
+        0.000000, 1.642603, -0.910987, 0.000000,
+        0.000000, -0.910987, 1.642603, 0.000000,
+        0.000000, 0.000000, 0.000000, 0.731616};
+
+    floatt b1[16] = {0.434598, 0.000000, 0.000000, 0.000000,
+        0.000000, 6.308546, -5.873948, 0.000000,
+        0.000000, -5.873948, 6.308546, 0.000000,
+        0.000000, 0.000000, 0.000000, 0.434598};
+
+
+    floatt b2[16] = {0, 0.000000, 0.000000, 0.000000,
+        0.000000, 0, -0.910987, 0.000000,
+        0.000000, -0.910987, 0, 0.000000,
+        0.000000, 0.000000, 0.000000, 0};
+
+    floatt z[16] = {0, 0.000000, 0.000000, 0.000000,
+        0.000000, 0, 0, 0.000000,
+        0.000000, 0, 0, 0.000000,
+        0.000000, 0.000000, 0.000000, 0};
+
+    //math::Matrix* h1 = host::NewReMatrixCopy(4, 4, (floatt*) b1);
+    //math::Matrix* h2 = host::NewReMatrixCopy(4, 4, (floatt*) b1);
+    //math::Matrix* eh1 = host::NewReMatrixCopy(4, 4, (floatt*) b1);
+    //math::Matrix* eh2 = host::NewReMatrixCopy(4, 4, (floatt*) b1);
+
+    //math::Matrix* h1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
+    //math::Matrix* h2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
+    //math::Matrix* eh1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
+    //math::Matrix* eh2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
+
+
+    floatt ab[16] = {0.286505, 0.000000, 0.000000, 0.000000,
         0.000000, 21.403793, -21.117289, 0.000000,
         0.000000, -21.117289, 21.403793, 0.000000,
         0.000000, 0.000000, 0.000000, 0.286505};
+    
+    math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) ab, (floatt*) z);
+    math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) ab, (floatt*) z);
+    math::Matrix* eh1 = host::NewMatrixCopy(4, 4, (floatt*) ab, (floatt*) z);
+    math::Matrix* eh2 = host::NewMatrixCopy(4, 4, (floatt*) ab, (floatt*) z);
 
-    floatt b1[16] = {0.606531, 0.000000, 0.000000, 0.000000,
-        0.000000, 2.544110, -1.937579, 0.000000,
-        0.000000, -1.937579, 2.544110, 0.000000,
-        0.000000, 0.000000, 0.000000, 0.606531};
-
-    //math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
-    //math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
-    //math::Matrix* eh1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
-    //math::Matrix* eh2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
-
-    math::Matrix* h1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-    math::Matrix* h2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-    math::Matrix* eh1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-    math::Matrix* eh2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
+    //math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
+    //math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
+    //math::Matrix* eh1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
+    //math::Matrix* eh2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
 
     transferMatrixCpu.PrepareHamiltonian(eh1, h1, shibata::ORIENTATION_REAL_DIRECTION);
     transferMatrixCpu.PrepareHamiltonian(eh2, h2, shibata::ORIENTATION_REAL_DIRECTION);
 
-    int threadsCount = 1;
+    int threadsCount = 4;
     int spinsCount = 3; //25;
     int q[] = {-1, 1};
     int qCount = 2;
@@ -272,7 +299,7 @@ int main2(int argc, char** argv) {
     int M = 2;
     int l = pow(qCount, 2 * M);
     fprintf(stderr, "l = %llu\n", l);
-    math::Matrix* transferMatrix = hmm.newReMatrix(1, l);
+    math::Matrix* transferMatrix = hmm.newMatrix(1, l);
 
     uintt realCount = 2048;
     floatt* imoutputs = new floatt[realCount];
@@ -295,8 +322,8 @@ int main2(int argc, char** argv) {
     transferMatrixCpu.setOutputMatrix(NULL);
 
     math::cpu::IraMethodCallback iram(&mo, 3 * l);
-    iram.setHSize(4);
-    iram.setRho(1. / 3.14);
+    iram.setHSize(16);
+    iram.setRho(1. / sqrt(2));
     iram.setMatrix(transferMatrix);
     iram.setThreadsCount(THREADS_COUNT);
     iram.registerCallback(Callback_f, &transferMatrixCpu);
@@ -306,7 +333,7 @@ int main2(int argc, char** argv) {
     iram.setReOutputValues(nvalues, eigenvaluesCount);
     iram.start();
     for (uintt fa = 0; fa < eigenvaluesCount; fa++) {
-        fprintf(stderr, "eigenvalue = %f\n", nvalues[fa]);
+        printf("eigenvalue = %f\n", nvalues[fa]);
     }
     return 0;
 }

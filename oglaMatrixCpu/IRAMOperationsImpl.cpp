@@ -45,6 +45,7 @@ namespace math {
             this->m_rho = 1. / 3.14;
             this->m_k = 0;
             this->m_wantedCount = 0;
+            diff = -10.552;
         }
 
         math::Matrix* IraMethod::getV() const {
@@ -90,14 +91,27 @@ namespace math {
                 mc->getVector(v, v->rows, EV, index);
                 multiply(EQ1, A, v, false);
                 m_mathOperations.multiply(EQ2, EV, &(b.re), &(b.im));
-                fprintf(stderr, "wanted == %f %f\n", b.re, b.im);
-                host::PrintMatrix("EQ1 = ", EQ1);
-                host::PrintMatrix("EQ2 = ", EQ2);
+                floatt d = 0;
+                m_mathOperations.magnitude(&d, EQ1);
+                floatt ad = 1. / d;
+                //m_mathOperations.multiply(EQ1, EQ1, &ad);
+                m_mathOperations.magnitude(&d, EQ2);
+                ad = 1. / d;
+                //m_mathOperations.multiply(EQ2, EQ2, &ad);
+                m_mathOperations.substract(EQ3, EQ1, EQ2);
+                m_mathOperations.magnitude(&d, EQ3);
+                //host::PrintMatrix("EQ1 =", EQ1);
+                //host::PrintMatrix("EQ2 =", EQ2);
+                if (d < diff || diff < 0) {
+                    diff = d;
+                    fprintf(stderr, "diff = %f \n", diff);
+                    fprintf(stderr, "ev = %f %f \n", b.re, b.im);
+
+                }
+                fprintf(stderr, "diA = %f \n", d);
+                fprintf(stderr, "evA = %f %f \n", b.re, b.im);
+
             }
-            for (int fa = 0; fa < unwanted.size(); ++fa) {
-                fprintf(stderr, "unwanted == %f %f\n", unwanted[fa].re, unwanted[fa].im);
-            }
-            abort();
             return true;
         }
 
@@ -141,7 +155,9 @@ namespace math {
                 V2 = m_matrixModule->newMatrix(A, m_k, A->rows);
                 EQ1 = m_matrixModule->newMatrix(A, 1, A->rows);
                 EQ2 = m_matrixModule->newMatrix(A, 1, A->rows);
+                EQ3 = m_matrixModule->newMatrix(A, 1, A->rows);
                 EV = m_matrixModule->newMatrix(A, m_k, A->rows);
+                EV1 = m_matrixModule->newMatrix(A, m_k, A->rows);
                 H = m_matrixModule->newMatrix(A, m_k, m_k);
                 HO = m_matrixModule->newMatrix(A, m_k, m_k);
                 H1 = m_matrixModule->newMatrix(A, m_k, m_k);
@@ -180,11 +196,15 @@ namespace math {
                 m_matrixModule->deleteMatrix(V1);
                 m_matrixModule->deleteMatrix(V2);
                 m_matrixModule->deleteMatrix(EV);
+                m_matrixModule->deleteMatrix(EV1);
                 m_matrixModule->deleteMatrix(R1);
                 m_matrixModule->deleteMatrix(R2);
                 m_matrixModule->deleteMatrix(QT);
                 m_matrixModule->deleteMatrix(Q1);
                 m_matrixModule->deleteMatrix(HO);
+                m_matrixModule->deleteMatrix(EQ1);
+                m_matrixModule->deleteMatrix(EQ2);
+                m_matrixModule->deleteMatrix(EQ3);
                 debugFunc();
             }
         }
@@ -193,7 +213,7 @@ namespace math {
             mu = m_matrixModule->getMatrixUtils();
             ma = m_matrixModule->getMatrixAllocator();
             mc = m_matrixModule->getMatrixCopier();
-
+            diff = -10.552;
             m_wantedCount = m_count;
             math::Matrix* A = m_matrix;
             //m_mathOperations.setThreadsCount(m_threadsCount);
@@ -219,13 +239,14 @@ namespace math {
                     int k = wanted.size();
                     for (intt fa = 0; fa < p; ++fa) {
                         mu->setDiagonalMatrix(I, unwanted[fa].re, unwanted[fa].im);
-                        fprintf(stderr, "%f %f \n", unwanted[fa].re, unwanted[fa].im);
                         PS(m_mathOperations.substract(I, H, I));
                         PS(m_mathOperations.qrDecomposition(Q1, R1, I));
                         PS(m_mathOperations.transpose(QT, Q1));
                         PS(m_mathOperations.dotProduct(HO, H, Q1));
                         PS(m_mathOperations.dotProduct(H, QT, HO));
                         PS(m_mathOperations.dotProduct(Q, QJ, Q1));
+                        PS(m_mathOperations.multiply(EV, V, Q));
+                        switchPointer(V, EV);
                         if (fa < p - 1) {
                             switchPointer(Q, QJ);
                         }
@@ -245,15 +266,11 @@ namespace math {
                     PS(m_mathOperations.multiply(f, f, &reqm_k, &imqm_k));
                     PS(m_mathOperations.add(f, f1, f));
                     mu->setZeroMatrix(v);
-                    m_mathOperations.setSubColumns(0, k);
-                    PS(m_mathOperations.multiply(EV, V, Q));
-                    switchPointer(V, EV);
-                    host::PrintMatrix("f =", f);
+                    //m_mathOperations.setSubColumns(0, k);
+
                     if (this->executeArnoldiFactorization(false, k - 1) == false) {
                         finish = true;
                     }
-                } else {
-                    finish = true;
                 }
             }
             for (uintt fa = 0; fa < m_count; fa++) {
@@ -322,6 +339,7 @@ namespace math {
                     PS(m_mathOperations.add(h, h, s));
                 }
                 mc->setVector(H, j + 1, h, j + 2);
+                fprintf(stderr, "%s %s %d \n", __FUNCTION__, __FILE__, __LINE__);
             }
             return true;
         }
@@ -366,7 +384,7 @@ namespace math {
         bool wayToSort(const Complex& i, const Complex& j) {
             floatt m1 = i.re * i.re + i.im * i.im;
             floatt m2 = j.re * j.re + j.im * j.im;
-            return i.re < j.re;
+            return m1 > m2;
         }
 
         void IraMethod::calculateH(int unwantedCount) {
@@ -375,7 +393,7 @@ namespace math {
             m_matrixModule->getMatrixUtils()->setIdentityMatrix(Q);
             m_matrixModule->getMatrixUtils()->setIdentityMatrix(QJ);
             m_matrixModule->getMatrixUtils()->setIdentityMatrix(I);
-            host::PrintMatrix("H1 =", H1);
+            //host::PrintMatrix("H =", H);
             for (uintt fa = 0; IsTriangular(H1, H1->columns - 1) == false; ++fa) {
                 floatt red = 0;
                 if (H1->reValues) {
@@ -386,23 +404,20 @@ namespace math {
                     imd = H1->imValues[H1->columns * H1->rows - 1];
                 }
                 m_matrixModule->getMatrixUtils()->setDiagonalMatrix(I, red, imd);
-                m_mathOperations.substract(H1, H1, I);
-                //host::PrintMatrix("H1 =", H1);
+                //m_mathOperations.substract(H1, H1, I);
                 //host::PrintMatrix("I =", I);
                 m_mathOperations.qrDecomposition(Q1, R1, H1);
                 m_mathOperations.multiply(H1, R1, Q1);
-                m_mathOperations.add(H1, H1, I);
+                //m_mathOperations.add(H1, H1, I);
                 m_mathOperations.multiply(Q, QJ, Q1);
                 switchPointer(Q, QJ);
             }
-            host::PrintMatrix("H1= ", H1);
-            host::PrintMatrix("Q= ", Q);
+            //host::PrintMatrix("H1 =", H1);
             int index = 0;
             math::Matrix* q = host::NewMatrix(1, Q->rows, 0);
             math::Matrix* q1 = host::NewMatrix(1, Q->rows, 0);
             math::Matrix* q2 = host::NewMatrix(1, Q->rows, 0);
             mc->getVector(q, q->rows, Q, index);
-            host::PrintMatrix("q =", q);
             m_mathOperations.multiply(q1, H, q);
             if (H1->imValues) {
                 m_mathOperations.multiply(q2, q, &H1->reValues[index * H1->columns + index],
@@ -410,8 +425,6 @@ namespace math {
             } else {
                 m_mathOperations.multiply(q2, q, &H1->reValues[index * H1->columns + index]);
             }
-            host::PrintMatrix("q1= ", q1);
-            host::PrintMatrix("q2= ", q2);
             switchPointer(Q, QJ);
             notSorted.clear();
             for (uintt fa = 0; fa < H1->columns; ++fa) {
@@ -475,7 +488,6 @@ namespace math {
 
         void IraMethodCallback::preMultiply(math::Matrix* a, math::Matrix* b,
                 math::Matrix* c) {
-            fprintf(stderr, "%s %s %d \n", __FUNCTION__, __FILE__, __LINE__);
             math::Matrix* v = c;
             m_count = 0;
             isFinish = false;
@@ -500,7 +512,6 @@ namespace math {
                         if (m_count >= m_realCount) {
                             m_count = m_count1;
                             m_rows1 = fa1;
-                            fprintf(stderr, "%s %s %d \n", __FUNCTION__, __FILE__, __LINE__);
                             return;
                         }
                     }
@@ -511,8 +522,6 @@ namespace math {
                 m_count1 = m_count;
             }
             m_rows1 = v->rows;
-
-            fprintf(stderr, "%s %s %d \n", __FUNCTION__, __FILE__, __LINE__);
             isFinish = true;
         }
 
@@ -535,7 +544,6 @@ namespace math {
             Data* data = (Data*) ptr;
             uintt m_index = data->m_beginIndex;
             for (uintt fa1 = data->m_brow; fa1 < data->m_erow; ++fa1) {
-                fprintf(stderr, "index =  %u %u %u %u \n", m_index, data->m_count2, data->m_brow, data->m_erow);
                 floatt rev = 0;
                 floatt imv = 0;
                 for (uintt fa = 0; fa < data->m_count2; ++fa) {
@@ -547,8 +555,6 @@ namespace math {
                 }
                 if (data->w->reValues) {
                     data->w->reValues[fa1] = rev;
-                    fprintf(stderr, "%f %u \n", rev, fa1);
-                    fprintf(stderr, "index1 =  %u \n", m_index);
                 }
                 if (data->w->imValues) {
                     data->w->imValues[fa1] = imv;
@@ -575,7 +581,6 @@ namespace math {
             for (uintt fa = 0; fa < m_threads.size(); ++fa) {
                 m_threads[fa]->thread.yield();
             }
-            fprintf(stderr, "row = %u %u \n", m_rows, m_rows1);
             m_rows = m_rows1;
         }
 

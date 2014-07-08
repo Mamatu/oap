@@ -8,8 +8,8 @@
 #ifndef OGLA_MATH_TYPES_H
 #define	OGLA_MATH_TYPES_H
 
-#define NORMAL_TYPES
-//#define EXTEDED_TYPES
+//#define NORMAL_TYPES
+#define EXTEDED_TYPES
 //#define RICH_TYPES
 
 #ifdef NORMAL_TYPES

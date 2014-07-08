@@ -16,23 +16,30 @@ namespace math {
                 math::Matrix* G) {
             m_matrixModule->getMatrixUtils()->setIdentityMatrix(G);
             m_matrixModule->getMatrixUtils()->setIdentityMatrix(GT);
-            floatt s = 0;
-            floatt is = 0;
-            floatt c = 0;
-            floatt ic = 0;
+            floatt reg = 0;
+            floatt img = 0;
+            floatt ref = 0;
+            floatt imf = 0;
             if (A->reValues) {
-                s = A->reValues[column + row * A->columns];
-                c = A->reValues[column + column * A->columns];
+                reg = A->reValues[column + row * A->columns];
+                ref = A->reValues[column + column * A->columns];
             }
             if (A->imValues) {
-                is = A->imValues[column + row * A->columns];
-                ic = A->imValues[column + column * A->columns];
+                img = A->imValues[column + row * A->columns];
+                imf = A->imValues[column + column * A->columns];
             }
-            floatt r = sqrt(c * c + s * s + is * is + ic * ic);
-            c = c / r;
-            ic = ic / r;
-            s = s / r;
-            is = is / r;
+            floatt r = sqrt(ref * ref + reg * reg + img * img + imf * imf);
+            floatt lf = sqrt(ref * ref + imf * imf);
+            floatt sign = 1;
+            floatt isign = 0;
+            if (fabs(ref) >= MATH_VALUE_LIMIT || fabs(imf) >= MATH_VALUE_LIMIT) {
+                sign = ref / lf;
+                isign = imf / lf;
+            }
+            floatt s = (sign * reg + img * isign) / r;
+            floatt is = (isign * reg - img * sign) / r;
+            floatt c = lf / r;
+            floatt ic = 0;
             if (G->reValues) {
                 G->reValues[column + row * A->columns] = -s;
                 G->reValues[column + column * A->columns] = c;
@@ -80,8 +87,8 @@ namespace math {
 
             host::CopyMatrix(R1, A);
             m_matrixModule->getMatrixUtils()->setIdentityMatrix(Q1);
-            for (uintt fa = 0; fa < A->columns - 1; fa++) {
-                for (uintt fb = A->rows - 1; fb > fa; fb--) {
+            for (uintt fa = 0; fa < A->columns - 1; ++fa) {
+                for (uintt fb = A->rows - 1; fb > fa; --fb) {
                     floatt rev = R1->reValues[fa + fb * R1->columns];
                     floatt imv = 0;
                     if (R1->imValues) {

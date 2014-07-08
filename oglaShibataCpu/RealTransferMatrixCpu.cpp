@@ -430,7 +430,6 @@ namespace shibata {
             // Allocation and intitialization of tree pointers
 
             // Main execution
-
             for (uintt fa = dataPtr->beginX; fa < dataPtr->endX; fa++) {
                 for (uintt fb = dataPtr->beginY; fb < dataPtr->endY; fb++) {
                     floatt* rev = NULL;
@@ -500,6 +499,7 @@ namespace shibata {
                 }
                 //increment(tmColumns, M, nvalues, false);
             }
+            //fprintf(stderr, "---------------\n");
             debugFunc();
         }
     }
