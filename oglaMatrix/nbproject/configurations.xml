@@ -66,32 +66,31 @@
             <pElem>/home/mmatula/Ogla/oglaUtils</pElem>
             <pElem>/home/mmatula/Ogla/oglaMath</pElem>
           </incDir>
-          <commandLine>-ggdb3</commandLine>
           <warningLevel>3</warningLevel>
         </ccTool>
         <linkerTool>
           <linkerLibItems>
             <linkerLibProjectItem>
-              <makeArtifact PL="/home/mmatula/Ogla/oglaUtils"
+              <makeArtifact PL="../oglaUtils"
                             CT="2"
-                            CN="Debug"
+                            CN="Release"
                             AC="true"
                             BL="true"
-                            WD="/home/mmatula/Ogla/oglaUtils"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            WD="../oglaUtils"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
                             OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaUtils.${CND_DLIB_EXT}">
               </makeArtifact>
             </linkerLibProjectItem>
             <linkerLibProjectItem>
-              <makeArtifact PL="/home/mmatula/Ogla/oglaMath"
+              <makeArtifact PL="../oglaMath"
                             CT="2"
-                            CN="Debug"
+                            CN="Release"
                             AC="true"
                             BL="true"
-                            WD="/home/mmatula/Ogla/oglaMath"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            WD="../oglaMath"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
                             OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}">
               </makeArtifact>
             </linkerLibProjectItem>
@@ -198,6 +197,10 @@
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>/home/mmatula/Ogla/oglaUtils</pElem>
+            <pElem>/home/mmatula/Ogla/oglaMath</pElem>
+          </incDir>
         </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
@@ -205,6 +208,35 @@
         <asmTool>
           <developmentMode>5</developmentMode>
         </asmTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../oglaMath"
+                            CT="2"
+                            CN="Release"
+                            AC="true"
+                            BL="true"
+                            WD="../oglaMath"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../oglaUtils"
+                            CT="2"
+                            CN="Release"
+                            AC="true"
+                            BL="true"
+                            WD="../oglaUtils"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaUtils.${CND_DLIB_EXT}">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+          <commandLine>-fPIC</commandLine>
+        </linkerTool>
       </compileType>
       <item path="/home/mmatula/Ogla/oglaMatrix/IAdditionImpl.cpp"
             ex="false"

@@ -1,6 +1,6 @@
 CPP_FILES = $(wildcard *.cpp)
 CU_FILES = $(wildcard *.cu)
-MODE := Debug
+MODE := Release
 PLATFORM := GNU-Linux-x86
 LD_CUDA_PATH:=/usr/local/cuda-6.0
 OCPP_FILES := $(addprefix build/$(MODE)/$(PLATFORM)/,$(notdir $(CPP_FILES:.cpp=.o)))
@@ -22,7 +22,7 @@ ifeq ($(MODE), Debug)
 endif
 
 ifeq ($(MODE), Release)
-	CXXOPTIONS := -c -O2
+	CXXOPTIONS := -c -fPIC -O2
 	NVCCOPTIONS := -O -arch=sm_30
 endif
 

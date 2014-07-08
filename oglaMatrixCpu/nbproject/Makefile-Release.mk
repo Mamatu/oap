@@ -66,11 +66,17 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=
+LDLIBSOPTIONS=-lpthread -Wl,-rpath,/home/mmatula/Ogla/oglaMatrix/dist/Release/GNU-Linux-x86 -L/home/mmatula/Ogla/oglaMatrix/dist/Release/GNU-Linux-x86 -loglaMatrix -Wl,-rpath,../oglaUtils/dist/Release/GNU-Linux-x86 -L../oglaUtils/dist/Release/GNU-Linux-x86 -loglaUtils -Wl,-rpath,../oglaMath/dist/Release/GNU-Linux-x86 -L../oglaMath/dist/Release/GNU-Linux-x86 -loglaMath
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrixCpu.${CND_DLIB_EXT}
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrixCpu.${CND_DLIB_EXT}: /home/mmatula/Ogla/oglaMatrix/dist/Release/GNU-Linux-x86/liboglaMatrix.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrixCpu.${CND_DLIB_EXT}: ../oglaUtils/dist/Release/GNU-Linux-x86/liboglaUtils.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrixCpu.${CND_DLIB_EXT}: ../oglaMath/dist/Release/GNU-Linux-x86/liboglaMath.so
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrixCpu.${CND_DLIB_EXT}: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
@@ -79,80 +85,83 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrixCpu.${CND_DLIB_EXT}: ${O
 ${OBJECTDIR}/_ext/852485519/AdditionImpl.o: /home/mmatula/Ogla/oglaMatrixCpu/AdditionImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/AdditionImpl.o /home/mmatula/Ogla/oglaMatrixCpu/AdditionImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/AdditionImpl.o /home/mmatula/Ogla/oglaMatrixCpu/AdditionImpl.cpp
 
 ${OBJECTDIR}/_ext/852485519/DotProductImpl.o: /home/mmatula/Ogla/oglaMatrixCpu/DotProductImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/DotProductImpl.o /home/mmatula/Ogla/oglaMatrixCpu/DotProductImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/DotProductImpl.o /home/mmatula/Ogla/oglaMatrixCpu/DotProductImpl.cpp
 
 ${OBJECTDIR}/_ext/852485519/ExpImpl.o: /home/mmatula/Ogla/oglaMatrixCpu/ExpImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/ExpImpl.o /home/mmatula/Ogla/oglaMatrixCpu/ExpImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/ExpImpl.o /home/mmatula/Ogla/oglaMatrixCpu/ExpImpl.cpp
 
 ${OBJECTDIR}/_ext/852485519/HostMatrixModules.o: /home/mmatula/Ogla/oglaMatrixCpu/HostMatrixModules.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/HostMatrixModules.o /home/mmatula/Ogla/oglaMatrixCpu/HostMatrixModules.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/HostMatrixModules.o /home/mmatula/Ogla/oglaMatrixCpu/HostMatrixModules.cpp
 
 ${OBJECTDIR}/_ext/852485519/MagnitudeImpl.o: /home/mmatula/Ogla/oglaMatrixCpu/MagnitudeImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/MagnitudeImpl.o /home/mmatula/Ogla/oglaMatrixCpu/MagnitudeImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/MagnitudeImpl.o /home/mmatula/Ogla/oglaMatrixCpu/MagnitudeImpl.cpp
 
 ${OBJECTDIR}/_ext/852485519/MathOperationsCpu.o: /home/mmatula/Ogla/oglaMatrixCpu/MathOperationsCpu.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/MathOperationsCpu.o /home/mmatula/Ogla/oglaMatrixCpu/MathOperationsCpu.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/MathOperationsCpu.o /home/mmatula/Ogla/oglaMatrixCpu/MathOperationsCpu.cpp
 
 ${OBJECTDIR}/_ext/852485519/MultiplicationConstImpl.o: /home/mmatula/Ogla/oglaMatrixCpu/MultiplicationConstImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/MultiplicationConstImpl.o /home/mmatula/Ogla/oglaMatrixCpu/MultiplicationConstImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/MultiplicationConstImpl.o /home/mmatula/Ogla/oglaMatrixCpu/MultiplicationConstImpl.cpp
 
 ${OBJECTDIR}/_ext/852485519/SimpleDiagonalizationImpl.o: /home/mmatula/Ogla/oglaMatrixCpu/SimpleDiagonalizationImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/SimpleDiagonalizationImpl.o /home/mmatula/Ogla/oglaMatrixCpu/SimpleDiagonalizationImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/SimpleDiagonalizationImpl.o /home/mmatula/Ogla/oglaMatrixCpu/SimpleDiagonalizationImpl.cpp
 
 ${OBJECTDIR}/_ext/852485519/SubstractionImpl.o: /home/mmatula/Ogla/oglaMatrixCpu/SubstractionImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/SubstractionImpl.o /home/mmatula/Ogla/oglaMatrixCpu/SubstractionImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/SubstractionImpl.o /home/mmatula/Ogla/oglaMatrixCpu/SubstractionImpl.cpp
 
 ${OBJECTDIR}/_ext/852485519/TensorProductImpl.o: /home/mmatula/Ogla/oglaMatrixCpu/TensorProductImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/TensorProductImpl.o /home/mmatula/Ogla/oglaMatrixCpu/TensorProductImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/TensorProductImpl.o /home/mmatula/Ogla/oglaMatrixCpu/TensorProductImpl.cpp
 
 ${OBJECTDIR}/_ext/852485519/TransposeImpl.o: /home/mmatula/Ogla/oglaMatrixCpu/TransposeImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/852485519
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/TransposeImpl.o /home/mmatula/Ogla/oglaMatrixCpu/TransposeImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/852485519/TransposeImpl.o /home/mmatula/Ogla/oglaMatrixCpu/TransposeImpl.cpp
 
 ${OBJECTDIR}/DeterminantImpl.o: DeterminantImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/DeterminantImpl.o DeterminantImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/DeterminantImpl.o DeterminantImpl.cpp
 
 ${OBJECTDIR}/HostMatrixStructure.o: HostMatrixStructure.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/HostMatrixStructure.o HostMatrixStructure.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/HostMatrixStructure.o HostMatrixStructure.cpp
 
 ${OBJECTDIR}/IRAMOperationsImpl.o: IRAMOperationsImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/IRAMOperationsImpl.o IRAMOperationsImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/IRAMOperationsImpl.o IRAMOperationsImpl.cpp
 
 ${OBJECTDIR}/QRDecompositionImpl.o: QRDecompositionImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/QRDecompositionImpl.o QRDecompositionImpl.cpp
+	$(COMPILE.cc) -O2 -I../oglaMath -I../oglaUtils -I../oglaServerUtils -I../oglaMatrix -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/QRDecompositionImpl.o QRDecompositionImpl.cpp
 
 # Subprojects
 .build-subprojects:
+	cd /home/mmatula/Ogla/oglaMatrix && ${MAKE}  -f Makefile CONF=Release
+	cd ../oglaUtils && ${MAKE}  -f Makefile CONF=Release
+	cd ../oglaMath && ${MAKE}  -f Makefile CONF=Release
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -161,6 +170,9 @@ ${OBJECTDIR}/QRDecompositionImpl.o: QRDecompositionImpl.cpp
 
 # Subprojects
 .clean-subprojects:
+	cd /home/mmatula/Ogla/oglaMatrix && ${MAKE}  -f Makefile CONF=Release clean
+	cd ../oglaUtils && ${MAKE}  -f Makefile CONF=Release clean
+	cd ../oglaMath && ${MAKE}  -f Makefile CONF=Release clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

@@ -57,8 +57,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-ggdb3
-CXXFLAGS=-ggdb3
+CCFLAGS=
+CXXFLAGS=
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -67,15 +67,15 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath,/home/mmatula/Ogla/oglaUtils/dist/Debug/GNU-Linux-x86 -L/home/mmatula/Ogla/oglaUtils/dist/Debug/GNU-Linux-x86 -loglaUtils -Wl,-rpath,/home/mmatula/Ogla/oglaMath/dist/Debug/GNU-Linux-x86 -L/home/mmatula/Ogla/oglaMath/dist/Debug/GNU-Linux-x86 -loglaMath
+LDLIBSOPTIONS=-Wl,-rpath,../oglaUtils/dist/Release/GNU-Linux-x86 -L../oglaUtils/dist/Release/GNU-Linux-x86 -loglaUtils -Wl,-rpath,../oglaMath/dist/Release/GNU-Linux-x86 -L../oglaMath/dist/Release/GNU-Linux-x86 -loglaMath
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrix.${CND_DLIB_EXT}
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrix.${CND_DLIB_EXT}: /home/mmatula/Ogla/oglaUtils/dist/Debug/GNU-Linux-x86/liboglaUtils.so
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrix.${CND_DLIB_EXT}: ../oglaUtils/dist/Release/GNU-Linux-x86/liboglaUtils.so
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrix.${CND_DLIB_EXT}: /home/mmatula/Ogla/oglaMath/dist/Debug/GNU-Linux-x86/liboglaMath.so
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrix.${CND_DLIB_EXT}: ../oglaMath/dist/Release/GNU-Linux-x86/liboglaMath.so
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMatrix.${CND_DLIB_EXT}: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
@@ -163,8 +163,8 @@ ${OBJECTDIR}/MatrixStructureUtils.o: MatrixStructureUtils.cpp
 
 # Subprojects
 .build-subprojects:
-	cd /home/mmatula/Ogla/oglaUtils && ${MAKE}  -f Makefile CONF=Debug
-	cd /home/mmatula/Ogla/oglaMath && ${MAKE}  -f Makefile CONF=Debug
+	cd ../oglaUtils && ${MAKE}  -f Makefile CONF=Release
+	cd ../oglaMath && ${MAKE}  -f Makefile CONF=Release
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -173,8 +173,8 @@ ${OBJECTDIR}/MatrixStructureUtils.o: MatrixStructureUtils.cpp
 
 # Subprojects
 .clean-subprojects:
-	cd /home/mmatula/Ogla/oglaUtils && ${MAKE}  -f Makefile CONF=Debug clean
-	cd /home/mmatula/Ogla/oglaMath && ${MAKE}  -f Makefile CONF=Debug clean
+	cd ../oglaUtils && ${MAKE}  -f Makefile CONF=Release clean
+	cd ../oglaMath && ${MAKE}  -f Makefile CONF=Release clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

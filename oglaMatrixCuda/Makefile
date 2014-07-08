@@ -1,6 +1,6 @@
 CPP_FILES = $(wildcard *.cpp)
 CU_FILES = $(wildcard *.cu)
-MODE := Debug
+MODE := Release
 PLATFORM := GNU-Linux-x86
 LD_CUDA_PATH:=/usr/local/cuda-6.0
 OCPP_FILES := $(addprefix build/$(MODE)/$(PLATFORM)/,$(notdir $(CPP_FILES:.cpp=.o)))
@@ -17,12 +17,12 @@ LIBS_DIRS := -L/usr/lib/nvidia-current -L/usr/lib -L/usr/local/lib -L/usr/local/
 LIBS := -lcudart -lcuda
 
 ifeq ($(MODE), Debug)
-	CXXOPTIONS := -c -g 
+	CXXOPTIONS := -c -g -fPIC
 	NVCCOPTIONS := -g -arch=sm_30
 endif
 
 ifeq ($(MODE), Release)
-	CXXOPTIONS := -c -O2	
+	CXXOPTIONS := -c -O2 -fPIC	
 	NVCCOPTIONS := -O2 -arch=sm_30
 endif
 

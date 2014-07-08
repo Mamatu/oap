@@ -341,7 +341,7 @@
       <item path="LHandle.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
-    <conf name="Release" type="3">
+    <conf name="Release" type="2">
       <toolsSet>
         <compilerSet>default</compilerSet>
         <dependencyChecking>true</dependencyChecking>
@@ -353,6 +353,8 @@
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
+          <architecture>2</architecture>
+          <commandLine>-fPIC</commandLine>
         </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
@@ -360,8 +362,12 @@
         <asmTool>
           <developmentMode>5</developmentMode>
         </asmTool>
-        <archiverTool>
-        </archiverTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibStdlibItem>DynamicLinking</linkerLibStdlibItem>
+            <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
+          </linkerLibItems>
+        </linkerTool>
       </compileType>
       <item path="/home/mmatula/Ogla/oglaUtils/Argument.cpp"
             ex="false"

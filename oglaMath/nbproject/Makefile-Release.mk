@@ -52,33 +52,35 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=
+LDLIBSOPTIONS=-Wl,-rpath,/home/mmatula/Ogla/oglaServerUtils/dist/Release/GNU-Linux-x86 -L/home/mmatula/Ogla/oglaServerUtils/dist/Release/GNU-Linux-x86 -loglaServerUtils
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglamath.a
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglamath.a: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}: /home/mmatula/Ogla/oglaServerUtils/dist/Release/GNU-Linux-x86/liboglaServerUtils.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglamath.a
-	${AR} -rv ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglamath.a ${OBJECTFILES} 
-	$(RANLIB) ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglamath.a
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -shared -fPIC
 
 ${OBJECTDIR}/_ext/1066224514/Math.o: /home/mmatula/Ogla/oglaMath/Math.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1066224514
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1066224514/Math.o /home/mmatula/Ogla/oglaMath/Math.cpp
+	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/1066224514/Math.o /home/mmatula/Ogla/oglaMath/Math.cpp
 
 # Subprojects
 .build-subprojects:
+	cd /home/mmatula/Ogla/oglaServerUtils && ${MAKE}  -f Makefile CONF=Release
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglamath.a
+	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}
 
 # Subprojects
 .clean-subprojects:
+	cd /home/mmatula/Ogla/oglaServerUtils && ${MAKE}  -f Makefile CONF=Release clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

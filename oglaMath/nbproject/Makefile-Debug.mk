@@ -52,13 +52,13 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath,/home/mmatula/Ogla/oglaServerUtils/dist/Debug/GNU-Linux-x86 -L/home/mmatula/Ogla/oglaServerUtils/dist/Debug/GNU-Linux-x86 -loglaServerUtils
+LDLIBSOPTIONS=-Wl,-rpath,/home/mmatula/Ogla/oglaServerUtils/dist/Release/GNU-Linux-x86 -L/home/mmatula/Ogla/oglaServerUtils/dist/Release/GNU-Linux-x86 -loglaServerUtils
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}: /home/mmatula/Ogla/oglaServerUtils/dist/Debug/GNU-Linux-x86/liboglaServerUtils.so
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}: /home/mmatula/Ogla/oglaServerUtils/dist/Release/GNU-Linux-x86/liboglaServerUtils.so
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaMath.${CND_DLIB_EXT}: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
@@ -71,7 +71,7 @@ ${OBJECTDIR}/_ext/1066224514/Math.o: /home/mmatula/Ogla/oglaMath/Math.cpp
 
 # Subprojects
 .build-subprojects:
-	cd /home/mmatula/Ogla/oglaServerUtils && ${MAKE}  -f Makefile CONF=Debug
+	cd /home/mmatula/Ogla/oglaServerUtils && ${MAKE}  -f Makefile CONF=Release
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -80,7 +80,7 @@ ${OBJECTDIR}/_ext/1066224514/Math.o: /home/mmatula/Ogla/oglaMath/Math.cpp
 
 # Subprojects
 .clean-subprojects:
-	cd /home/mmatula/Ogla/oglaServerUtils && ${MAKE}  -f Makefile CONF=Debug clean
+	cd /home/mmatula/Ogla/oglaServerUtils && ${MAKE}  -f Makefile CONF=Release clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

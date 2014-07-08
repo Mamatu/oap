@@ -52,11 +52,25 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=
+LDLIBSOPTIONS=-ldl -lpthread -Wl,-rpath,../oglaMatrix/dist/Release/GNU-Linux-x86 -L../oglaMatrix/dist/Release/GNU-Linux-x86 -loglaMatrix -Wl,-rpath,/home/mmatula/Ogla/oglaShibataCpu/dist/Release/GNU-Linux-x86 -L/home/mmatula/Ogla/oglaShibataCpu/dist/Release/GNU-Linux-x86 -loglaShibataCpu -Wl,-rpath,/home/mmatula/Ogla/oglaMatrixCpu/dist/Release/GNU-Linux-x86 -L/home/mmatula/Ogla/oglaMatrixCpu/dist/Release/GNU-Linux-x86 -loglaMatrixCpu /home/mmatula/Ogla/oglaMath/dist/Release/GNU-Linux-x86/liboglamath.a -Wl,-rpath,../oglaShibataCuda/dist/Release/GNU-Linux-x86 -L../oglaShibataCuda/dist/Release/GNU-Linux-x86 -loglaShibataCuda -Wl,-rpath,../oglaMatrixCuda/dist/Release/GNU-Linux-x86 -L../oglaMatrixCuda/dist/Release/GNU-Linux-x86 -loglaMatrixCuda -Wl,-rpath,../oglaUtils/dist/Release/GNU-Linux-x86 -L../oglaUtils/dist/Release/GNU-Linux-x86 -loglaUtils
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr: ../oglaMatrix/dist/Release/GNU-Linux-x86/liboglaMatrix.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr: /home/mmatula/Ogla/oglaShibataCpu/dist/Release/GNU-Linux-x86/liboglaShibataCpu.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr: /home/mmatula/Ogla/oglaMatrixCpu/dist/Release/GNU-Linux-x86/liboglaMatrixCpu.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr: /home/mmatula/Ogla/oglaMath/dist/Release/GNU-Linux-x86/liboglamath.a
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr: ../oglaShibataCuda/dist/Release/GNU-Linux-x86/liboglaShibataCuda.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr: ../oglaMatrixCuda/dist/Release/GNU-Linux-x86/liboglaMatrixCuda.so
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr: ../oglaUtils/dist/Release/GNU-Linux-x86/liboglaUtils.so
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
@@ -65,10 +79,17 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/oglashibatamgr: ${OBJECTFILES}
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
+	$(COMPILE.cc) -O2 -I/home/mmatula/Ogla/oglaShibataCpu -I/home/mmatula/Ogla/oglaMath -I/home/mmatula/Ogla/oglaMatrixCpu -I/home/mmatula/Ogla/oglaServerUtils -I/home/mmatula/Ogla/oglaUtils -I../oglaMatrix -I../oglaShibataCuda -I../oglaCuda -I../oglaMatrixCuda -I../oglaCore -I/usr/local/cuda-6.0/include -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
 
 # Subprojects
 .build-subprojects:
+	cd ../oglaMatrix && ${MAKE}  -f Makefile CONF=Release
+	cd /home/mmatula/Ogla/oglaShibataCpu && ${MAKE}  -f Makefile CONF=Release
+	cd /home/mmatula/Ogla/oglaMatrixCpu && ${MAKE}  -f Makefile CONF=Release
+	cd /home/mmatula/Ogla/oglaMath && ${MAKE}  -f Makefile CONF=Release
+	cd ../oglaShibataCuda && ${MAKE}  -f Makefile CONF=Release
+	cd ../oglaMatrixCuda && ${MAKE}  -f Makefile CONF=Release
+	cd ../oglaUtils && ${MAKE}  -f Makefile CONF=Release
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -77,6 +98,13 @@ ${OBJECTDIR}/main.o: main.cpp
 
 # Subprojects
 .clean-subprojects:
+	cd ../oglaMatrix && ${MAKE}  -f Makefile CONF=Release clean
+	cd /home/mmatula/Ogla/oglaShibataCpu && ${MAKE}  -f Makefile CONF=Release clean
+	cd /home/mmatula/Ogla/oglaMatrixCpu && ${MAKE}  -f Makefile CONF=Release clean
+	cd /home/mmatula/Ogla/oglaMath && ${MAKE}  -f Makefile CONF=Release clean
+	cd ../oglaShibataCuda && ${MAKE}  -f Makefile CONF=Release clean
+	cd ../oglaMatrixCuda && ${MAKE}  -f Makefile CONF=Release clean
+	cd ../oglaUtils && ${MAKE}  -f Makefile CONF=Release clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

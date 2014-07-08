@@ -10,7 +10,9 @@
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects>
                 <make-dep-project>/home/mmatula/wProject/wMatrix</make-dep-project>
+                <make-dep-project>../oglaUtils</make-dep-project>
                 <make-dep-project>/home/mmatula/Ogla/oglaUtils</make-dep-project>
+                <make-dep-project>../oglaMath</make-dep-project>
                 <make-dep-project>/home/mmatula/Ogla/oglaMatrix</make-dep-project>
                 <make-dep-project>/home/mmatula/Ogla/oglaMath</make-dep-project>
             </make-dep-projects>

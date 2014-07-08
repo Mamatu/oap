@@ -17,11 +17,11 @@ CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux-x86/package/liboglaMath.so.tar
 # Release configuration
 CND_PLATFORM_Release=GNU-Linux-x86
 CND_ARTIFACT_DIR_Release=dist/Release/GNU-Linux-x86
-CND_ARTIFACT_NAME_Release=liboglamath.a
-CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux-x86/liboglamath.a
+CND_ARTIFACT_NAME_Release=liboglaMath.so
+CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux-x86/liboglaMath.so
 CND_PACKAGE_DIR_Release=dist/Release/GNU-Linux-x86/package
-CND_PACKAGE_NAME_Release=oglaMath.tar
-CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux-x86/package/oglaMath.tar
+CND_PACKAGE_NAME_Release=liboglaMath.so.tar
+CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux-x86/package/liboglaMath.so.tar
 #
 # include compiler specific variables
 #

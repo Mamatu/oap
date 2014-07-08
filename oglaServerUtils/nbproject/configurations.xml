@@ -139,7 +139,7 @@
         <ccTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../wUtils</pElem>
+            <pElem>../oglaUtils</pElem>
           </incDir>
         </ccTool>
         <fortranCompilerTool>
@@ -150,19 +150,20 @@
         </asmTool>
         <linkerTool>
           <linkerLibItems>
+            <linkerLibStdlibItem>DynamicLinking</linkerLibStdlibItem>
+            <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
             <linkerLibProjectItem>
-              <makeArtifact PL="../wUtils"
+              <makeArtifact PL="../oglaUtils"
                             CT="2"
-                            CN="Debug"
-                            AC="true"
+                            CN="Release"
+                            AC="false"
                             BL="true"
-                            WD="../wUtils"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libwUtils.${CND_DLIB_EXT}">
+                            WD="../oglaUtils"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaUtils.${CND_DLIB_EXT}">
               </makeArtifact>
             </linkerLibProjectItem>
-            <linkerLibStdlibItem>DynamicLinking</linkerLibStdlibItem>
           </linkerLibItems>
         </linkerTool>
         <requiredProjects>

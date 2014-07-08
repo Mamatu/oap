@@ -56,13 +56,13 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath,../wUtils/dist/Debug/GNU-Linux-x86 -L../wUtils/dist/Debug/GNU-Linux-x86 -lwUtils -ldl
+LDLIBSOPTIONS=-ldl -lpthread -Wl,-rpath,../oglaUtils/dist/Release/GNU-Linux-x86 -L../oglaUtils/dist/Release/GNU-Linux-x86 -loglaUtils
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaServerUtils.${CND_DLIB_EXT}
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaServerUtils.${CND_DLIB_EXT}: ../wUtils/dist/Debug/GNU-Linux-x86/libwUtils.so
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaServerUtils.${CND_DLIB_EXT}: ../oglaUtils/dist/Release/GNU-Linux-x86/liboglaUtils.so
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaServerUtils.${CND_DLIB_EXT}: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
@@ -71,31 +71,31 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liboglaServerUtils.${CND_DLIB_EXT}: $
 ${OBJECTDIR}/_ext/708470008/CoreInterfaces.o: /home/mmatula/Ogla/oglaServerUtils/CoreInterfaces.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/708470008
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../wUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/CoreInterfaces.o /home/mmatula/Ogla/oglaServerUtils/CoreInterfaces.cpp
+	$(COMPILE.cc) -O2 -I../oglaUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/CoreInterfaces.o /home/mmatula/Ogla/oglaServerUtils/CoreInterfaces.cpp
 
 ${OBJECTDIR}/_ext/708470008/Loader.o: /home/mmatula/Ogla/oglaServerUtils/Loader.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/708470008
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../wUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/Loader.o /home/mmatula/Ogla/oglaServerUtils/Loader.cpp
+	$(COMPILE.cc) -O2 -I../oglaUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/Loader.o /home/mmatula/Ogla/oglaServerUtils/Loader.cpp
 
 ${OBJECTDIR}/_ext/708470008/OglaInterface.o: /home/mmatula/Ogla/oglaServerUtils/OglaInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/708470008
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../wUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/OglaInterface.o /home/mmatula/Ogla/oglaServerUtils/OglaInterface.cpp
+	$(COMPILE.cc) -O2 -I../oglaUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/OglaInterface.o /home/mmatula/Ogla/oglaServerUtils/OglaInterface.cpp
 
 ${OBJECTDIR}/_ext/708470008/OglaServer.o: /home/mmatula/Ogla/oglaServerUtils/OglaServer.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/708470008
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../wUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/OglaServer.o /home/mmatula/Ogla/oglaServerUtils/OglaServer.cpp
+	$(COMPILE.cc) -O2 -I../oglaUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/OglaServer.o /home/mmatula/Ogla/oglaServerUtils/OglaServer.cpp
 
 ${OBJECTDIR}/_ext/708470008/Status.o: /home/mmatula/Ogla/oglaServerUtils/Status.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/708470008
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -I../wUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/Status.o /home/mmatula/Ogla/oglaServerUtils/Status.cpp
+	$(COMPILE.cc) -O2 -I../oglaUtils -fPIC  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/_ext/708470008/Status.o /home/mmatula/Ogla/oglaServerUtils/Status.cpp
 
 # Subprojects
 .build-subprojects:
-	cd ../wUtils && ${MAKE}  -f Makefile CONF=Debug
+	cd ../oglaUtils && ${MAKE}  -f Makefile CONF=Release
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -104,7 +104,7 @@ ${OBJECTDIR}/_ext/708470008/Status.o: /home/mmatula/Ogla/oglaServerUtils/Status.
 
 # Subprojects
 .clean-subprojects:
-	cd ../wUtils && ${MAKE}  -f Makefile CONF=Debug clean
+	cd ../oglaUtils && ${MAKE}  -f Makefile CONF=Release clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl
