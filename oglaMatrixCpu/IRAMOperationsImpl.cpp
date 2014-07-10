@@ -90,7 +90,7 @@ namespace math {
                 Complex b = notSorted[index];
                 mc->getVector(v, v->rows, EV, index);
                 multiply(EQ1, A, v, false);
-                m_mathOperations.multiply(EQ2, EV, &(b.re), &(b.im));
+                m_mathOperations.multiply(EQ2, v, &(b.re), &(b.im));
                 floatt d = 0;
                 m_mathOperations.magnitude(&d, EQ1);
                 floatt ad = 1. / d;
@@ -213,6 +213,7 @@ namespace math {
             mu = m_matrixModule->getMatrixUtils();
             ma = m_matrixModule->getMatrixAllocator();
             mc = m_matrixModule->getMatrixCopier();
+
             diff = -10.552;
             m_wantedCount = m_count;
             math::Matrix* A = m_matrix;
@@ -245,12 +246,11 @@ namespace math {
                         PS(m_mathOperations.dotProduct(HO, H, Q1));
                         PS(m_mathOperations.dotProduct(H, QT, HO));
                         PS(m_mathOperations.dotProduct(Q, QJ, Q1));
-                        PS(m_mathOperations.multiply(EV, V, Q));
-                        switchPointer(V, EV);
-                        if (fa < p - 1) {
-                            switchPointer(Q, QJ);
-                        }
+                        switchPointer(Q, QJ);
                     }
+                    switchPointer(Q, QJ);
+                    PS(m_mathOperations.multiply(EV, V, Q));
+                    switchPointer(V, EV);
                     floatt reqm_k = Q->reValues[Q->columns * (Q->rows - 1) + k];
                     floatt imqm_k = 0;
                     if (Q->imValues) {
@@ -384,7 +384,7 @@ namespace math {
         bool wayToSort(const Complex& i, const Complex& j) {
             floatt m1 = i.re * i.re + i.im * i.im;
             floatt m2 = j.re * j.re + j.im * j.im;
-            return m1 > m2;
+            return m1 < m2;
         }
 
         void IraMethod::calculateH(int unwantedCount) {
