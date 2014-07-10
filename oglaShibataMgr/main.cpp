@@ -40,10 +40,10 @@ void setPauliMatrixX(math::Matrix* matrix) {
 }
 
 void setPauliMatrixY(math::Matrix* matrix) {
-    matrix->reValues[0] = 0;
-    matrix->reValues[1] = -1;
-    matrix->reValues[2] = 1;
-    matrix->reValues[3] = 0;
+    matrix->imValues[0] = 0;
+    matrix->imValues[1] = -1;
+    matrix->imValues[2] = 1;
+    matrix->imValues[3] = 0;
 }
 
 void setPauliMatrixZ(math::Matrix* matrix) {
@@ -218,123 +218,93 @@ int main1(int argc, char** argv) {
 }
 
 int main2(int argc, char** argv) {
+    if (argc <= 1) {
+        return 0;
+    }
+
     HostMatrixAllocator hmm;
     HostMatrixUtils mu;
     math::cpu::MathOperations mo;
     shibata::cpu::RealTransferMatrix transferMatrixCpu;
-    shibata::cuda::RealTransferMatrix transferMatrixCuda;
-    math::Matrix* identity = hmm.newReMatrix(2, 2);
-    mu.setIdentityReMatrix(identity);
-    math::Matrix* spin1 = hmm.newMatrix(2, 2);
-    math::Matrix* spin2 = hmm.newMatrix(2, 2);
-    math::Matrix* spin3 = hmm.newMatrix(2, 2);
-    math::Matrix* spin4 = hmm.newMatrix(2, 2);
-    math::Matrix* temp = hmm.newReMatrix(4, 4);
+    char* impath = NULL;
+    char* repath = NULL;
+    char* countc = argv[1];
+    if (argc > 2) {
+        char* repath = argv[2];
+        if (argc > 3) {
+            impath = argv[3];
+        }
+    }
+    int count = atoi(countc);
 
-    setPauliMatrixZ(spin1);
-    setPauliMatrixZ(spin3);
-    setPauliMatrixZ(spin4);
-
-    //floatt b[16] = {0.606531, 0.000000, 0.000000, 0.000000,
-    //    0.000000, 2.544110, -1.937579, 0.000000,
-    //    0.000000, -1.937579, 2.544110, 0.000000,
-    //    0.000000, 0.000000, 0.000000, 0.606531};
-
-
-    floatt b[16] = {0.731616, 0.000000, 0.000000, 0.000000,
-        0.000000, 1.642603, -0.910987, 0.000000,
-        0.000000, -0.910987, 1.642603, 0.000000,
-        0.000000, 0.000000, 0.000000, 0.731616};
-
-    floatt b1[16] = {0.434598, 0.000000, 0.000000, 0.000000,
-        0.000000, 6.308546, -5.873948, 0.000000,
-        0.000000, -5.873948, 6.308546, 0.000000,
-        0.000000, 0.000000, 0.000000, 0.434598};
-
-
-    floatt b2[16] = {0, 0.000000, 0.000000, 0.000000,
-        0.000000, 0, -0.910987, 0.000000,
-        0.000000, -0.910987, 0, 0.000000,
-        0.000000, 0.000000, 0.000000, 0};
-
-    floatt z[16] = {0, 0.000000, 0.000000, 0.000000,
-        0.000000, 0, 0, 0.000000,
-        0.000000, 0, 0, 0.000000,
-        0.000000, 0.000000, 0.000000, 0};
-
-    //math::Matrix* h1 = host::NewReMatrixCopy(4, 4, (floatt*) b1);
-    //math::Matrix* h2 = host::NewReMatrixCopy(4, 4, (floatt*) b1);
-    //math::Matrix* eh1 = host::NewReMatrixCopy(4, 4, (floatt*) b1);
-    //math::Matrix* eh2 = host::NewReMatrixCopy(4, 4, (floatt*) b1);
-
-    //math::Matrix* h1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-    //math::Matrix* h2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-    //math::Matrix* eh1 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-    //math::Matrix* eh2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
-
-
-    floatt ab[16] = {0.286505, 0.000000, 0.000000, 0.000000,
-        0.000000, 21.403793, -21.117289, 0.000000,
-        0.000000, -21.117289, 21.403793, 0.000000,
-        0.000000, 0.000000, 0.000000, 0.286505};
-    
-    math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) ab, (floatt*) z);
-    math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) ab, (floatt*) z);
-    math::Matrix* eh1 = host::NewMatrixCopy(4, 4, (floatt*) ab, (floatt*) z);
-    math::Matrix* eh2 = host::NewMatrixCopy(4, 4, (floatt*) ab, (floatt*) z);
-
-    //math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
-    //math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
-    //math::Matrix* eh1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
-    //math::Matrix* eh2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
-
-    transferMatrixCpu.PrepareHamiltonian(eh1, h1, shibata::ORIENTATION_REAL_DIRECTION);
-    transferMatrixCpu.PrepareHamiltonian(eh2, h2, shibata::ORIENTATION_REAL_DIRECTION);
+    math::Matrix* h1 = host::NewMatrix(4, 4, 0);
+    math::Matrix* h2 = host::NewMatrix(4, 4, 0);
+    math::Matrix* eh1 = host::NewMatrix(4, 4, 0);
+    math::Matrix* eh2 = host::NewMatrix(4, 4, 0);
 
     int threadsCount = 4;
     int spinsCount = 3; //25;
     int q[] = {-1, 1};
     int qCount = 2;
     int serieLimit = 25;
-    int M = 2;
+    int M = 8;
     int l = pow(qCount, 2 * M);
-    fprintf(stderr, "l = %llu\n", l);
     math::Matrix* transferMatrix = hmm.newMatrix(1, l);
 
-    uintt realCount = 2048;
-    floatt* imoutputs = new floatt[realCount];
-    floatt* reoutputs = new floatt[realCount];
-    uintt* entries = new uintt[2];
-    uintt count = 1;
-    entries[0] = 0;
-    entries[1] = 0;
 
-    transferMatrixCpu.setOutputMatrix(transferMatrix);
-    transferMatrixCpu.setThreadsCount(threadsCount);
-    transferMatrixCpu.setSerieLimit(serieLimit);
-    transferMatrixCpu.setSpinsCount(spinsCount);
-    transferMatrixCpu.setQuantums(q);
-    transferMatrixCpu.setQuantumsCount(qCount);
-    transferMatrixCpu.setTrotterNumber(M);
-    transferMatrixCpu.setExpHamiltonian1(eh1);
-    transferMatrixCpu.setExpHamiltonian2(eh2);
-    math::Status status = transferMatrixCpu.start();
-    transferMatrixCpu.setOutputMatrix(NULL);
+    math::Matrix* identity = host::NewMatrix(2, 2, 0);
+    host::SetIdentity(identity);
 
-    math::cpu::IraMethodCallback iram(&mo, 3 * l);
-    iram.setHSize(16);
-    iram.setRho(1. / sqrt(2));
-    iram.setMatrix(transferMatrix);
-    iram.setThreadsCount(THREADS_COUNT);
-    iram.registerCallback(Callback_f, &transferMatrixCpu);
-    uintt eigenvaluesCount = 2;
-    floatt nvalues[eigenvaluesCount];
-    memset(nvalues, 0, eigenvaluesCount * sizeof (floatt));
-    iram.setReOutputValues(nvalues, eigenvaluesCount);
-    iram.start();
-    for (uintt fa = 0; fa < eigenvaluesCount; fa++) {
-        printf("eigenvalue = %f\n", nvalues[fa]);
+    
+    
+    for (uintt fa = 0; fa < count; ++fa) {
+        if (repath) {
+            host::LoadMatrix(h1, repath, impath, fa);
+            host::LoadMatrix(h2, repath, impath, fa);
+        } else {
+
+        }
+        //math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
+        //math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
+        //math::Matrix* eh1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
+        //math::Matrix* eh2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
+
+        host::PrintMatrix("h1 =", h1);
+        host::PrintMatrix("h2 =", h2);
+
+        transferMatrixCpu.PrepareHamiltonian(eh1, h1, shibata::ORIENTATION_REAL_DIRECTION);
+        transferMatrixCpu.PrepareHamiltonian(eh2, h2, shibata::ORIENTATION_REAL_DIRECTION);
+
+        transferMatrixCpu.setOutputMatrix(transferMatrix);
+        transferMatrixCpu.setThreadsCount(threadsCount);
+        transferMatrixCpu.setSerieLimit(serieLimit);
+        transferMatrixCpu.setSpinsCount(spinsCount);
+        transferMatrixCpu.setQuantums(q);
+        transferMatrixCpu.setQuantumsCount(qCount);
+        transferMatrixCpu.setTrotterNumber(M);
+        transferMatrixCpu.setExpHamiltonian1(eh1);
+        transferMatrixCpu.setExpHamiltonian2(eh2);
+        math::Status status = transferMatrixCpu.start();
+        transferMatrixCpu.setOutputMatrix(NULL);
+
+        math::cpu::IraMethodCallback iram(&mo, 3 * l);
+        iram.setHSize(10);
+        iram.setRho(1. / sqrt(2));
+        iram.setMatrix(transferMatrix);
+        iram.setThreadsCount(THREADS_COUNT);
+        iram.registerCallback(Callback_f, &transferMatrixCpu);
+        uintt eigenvaluesCount = 2;
+        floatt nvalues[eigenvaluesCount];
+        memset(nvalues, 0, eigenvaluesCount * sizeof (floatt));
+        iram.setReOutputValues(nvalues, eigenvaluesCount);
+
+        iram.start();
+        for (uintt fa = 0; fa < eigenvaluesCount; fa++) {
+            printf("eigenvalue = %f\n", nvalues[fa]);
+        }
     }
+    host::DeleteMatrix(identity);
+
     return 0;
 }
 
