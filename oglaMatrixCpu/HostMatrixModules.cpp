@@ -903,4 +903,80 @@ namespace host {
         HostMatrixModules::GetInstance().getMatrixUtils()->setDiagonalReMatrix(matrix, a);
     }
 
+    char* load(const char* path, uintt& _size) {
+        FILE* file = fopen(path, "r");
+        fseek(file, 0, SEEK_END);
+        long int size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        char* buffer = new char[size + 1];
+        buffer[size] = 0;
+        fread(buffer, size, 1, file);
+        fclose(file);
+        _size = size;
+        return buffer;
+    }
+
+    void loadFloats(floatt* values, uintt count,
+            char* data, unsigned int size, char separator, uintt skip) {
+        char* ptr = &data[0];
+        uintt index = 0;
+        uintt index1 = 0;
+        bool c = false;
+        if (skip == index1) {
+            c = true;
+        }
+        for (uint fa = 0; fa < size; ++fa) {
+            if (data[fa] == separator) {
+                char* ptr1 = &data[fa];
+                if (c) {
+                    std::string s(ptr, ptr1 - ptr);
+                    floatt f = atof(s.c_str());
+                    values[index] = f;
+                }
+                ptr = &data[fa + 1];
+                index++;
+                if (index == count) {
+                    index = 0;
+                    index1++;
+                    if (skip == index1) {
+                        c = true;
+                    } else if (skip + 1 == index1) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    math::Matrix* LoadMatrix(uintt columns, uintt rows,
+            const char* repath, const char* impath) {
+        math::Matrix* matrix = NewMatrix(columns, rows, 0);
+        LoadMatrix(matrix, repath, impath);
+        return matrix;
+    }
+
+    void LoadMatrix(math::Matrix* matrix,
+            const char* repath, const char* impath) {
+        LoadMatrix(matrix, repath, impath, 0);
+    }
+
+    void LoadMatrix(math::Matrix* matrix,
+            const char* repath, const char* impath, uintt skipCount) {
+        if (NULL != matrix) {
+            uintt length = matrix->columns * matrix->rows;
+            uintt size;
+            char* b = NULL;
+            if (NULL != repath) {
+                b = load(repath, size);
+                loadFloats(matrix->reValues, length, b, size, ',', skipCount);
+                delete[] b;
+            }
+            if (NULL != impath) {
+                b = load(impath, size);
+                loadFloats(matrix->imValues, length, b, size, ',', skipCount);
+                delete[] b;
+            }
+        }
+    }
+
 };

@@ -196,6 +196,15 @@ namespace host {
     void SetReZero(math::Matrix* matrix);
     void SetImZero(math::Matrix* matrix);
     bool IsEquals(math::Matrix* matrix, math::Matrix* matrix1, floatt diff = 0.1);
+
+    math::Matrix* LoadMatrix(uintt columns, uintt rows,
+            const char* repath, const char* impath);
+    
+    void LoadMatrix(math::Matrix* matrix,
+            const char* repath, const char* impath);
+
+    void LoadMatrix(math::Matrix* matrix,
+            const char* repath, const char* impath, uintt skipCount);
 };
 
 
