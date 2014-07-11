@@ -9,9 +9,6 @@ class HostMatrixUtils : public MatrixUtils {
 public:
     HostMatrixUtils();
     ~HostMatrixUtils();
-    void fillMatrix(math::Matrix* output, floatt value);
-    void fillRePart(math::Matrix* output, floatt value);
-    void fillImPart(math::Matrix* output, floatt value);
     void getReValues(floatt* dst, math::Matrix* matrix, intt index, intt length);
     void getImValues(floatt* dst, math::Matrix* matrix, intt index, intt length);
     void setReValues(math::Matrix* matrix, floatt* src, intt index, intt length);
@@ -140,7 +137,7 @@ namespace host {
     math::Matrix* NewMatrixCopy(intt columns, intt rows);
     math::Matrix* NewMatrix(math::Matrix* matrix, floatt value);
     math::Matrix* NewMatrix(math::Matrix* matrix, intt columns, intt rows, floatt value);
-    math::Matrix* NewMatrix(intt columns, intt rows, floatt value);
+    math::Matrix* NewMatrix(intt columns, intt rows, floatt value = 0);
     math::Matrix* NewReMatrix(intt columns, intt rows, floatt value = 0);
     math::Matrix* NewImMatrix(intt columns, intt rows, floatt value = 0);
     void CopyMatrix(math::Matrix* dst, const math::Matrix* src);
@@ -195,6 +192,7 @@ namespace host {
     floatt GetTrace(math::Matrix* matrix);
     void SetReZero(math::Matrix* matrix);
     void SetImZero(math::Matrix* matrix);
+    void SetZero(math::Matrix* matrix);
     bool IsEquals(math::Matrix* matrix, math::Matrix* matrix1, floatt diff = 0.1);
 
     math::Matrix* LoadMatrix(uintt columns, uintt rows,

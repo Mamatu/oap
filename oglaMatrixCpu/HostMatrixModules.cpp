@@ -18,6 +18,23 @@
 #define ReIsNotNULL(m) m->reValues != NULL 
 #define ImIsNotNULL(m) m->imValues != NULL 
 
+inline void fillRePart(math::Matrix* output, floatt value) {
+    math::Memset(output->reValues, value, output->columns * output->rows);
+}
+
+inline void fillImPart(math::Matrix* output, floatt value) {
+    math::Memset(output->imValues, value, output->columns * output->rows);
+}
+
+inline void fillMatrix(math::Matrix* output, floatt value) {
+    if (output->reValues) {
+        fillRePart(output, value);
+    }
+    if (output->imValues) {
+        fillImPart(output, value);
+    }
+}
+
 HostMatrixAllocator::HostMatrices HostMatrixAllocator::hostMatrices;
 synchronization::Mutex HostMatrixAllocator::mutex;
 
@@ -66,68 +83,21 @@ math::Matrix* HostMatrixAllocator::createHostImMatrix(intt columns, intt rows, f
     return createHostMatrix(matrix, columns, rows, values, &matrix->imValues);
 }
 
-void HostMatrixUtils::fillRePart(math::Matrix* output, floatt value) {
-    math::Memset(output->reValues, value, output->columns * output->rows);
-}
-
-void HostMatrixUtils::fillImPart(math::Matrix* output, floatt value) {
-    math::Memset(output->imValues, value, output->columns * output->rows);
-}
-
-void HostMatrixUtils::fillMatrix(math::Matrix* output, floatt value) {
-    if (output->reValues) {
-        fillRePart(output, value);
-    }
-    if (output->imValues) {
-        fillImPart(output, value);
-    }
-}
-
 math::Matrix* HostMatrixAllocator::newMatrix(intt columns, intt rows, floatt value) {
-    math::Matrix* output = new math::Matrix();
-    intt length = columns*rows;
-    output->columns = columns;
-    output->rows = rows;
-    output->reValues = new floatt[length];
-    output->imValues = new floatt[length];
-    hmu.fillRePart(output, value);
-    if (output->imValues) {
-        hmu.fillImPart(output, value);
-    }
-    return output;
+    return host::NewMatrix(columns, rows, value);
 }
 
 math::Matrix* HostMatrixAllocator::newReMatrix(intt columns, intt rows, floatt value) {
-    math::Matrix* output = new math::Matrix();
-    intt length = columns*rows;
-    output->reValues = new floatt[length];
-    output->imValues = NULL;
-    output->columns = columns;
-    output->rows = rows;
-    hmu.fillRePart(output, value);
-    return output;
+    return host::NewReMatrix(columns, rows, value);
 }
 
 math::Matrix* HostMatrixAllocator::newImMatrix(intt columns, intt rows,
         floatt value) {
-    math::Matrix* output = new math::Matrix();
-    intt length = columns*rows;
-    output->columns = columns;
-    output->rows = rows;
-    output->reValues = NULL;
-    output->imValues = new floatt[length];
-    hmu.fillImPart(output, value);
-    return output;
+    return host::NewImMatrix(columns, rows, value);
 }
 
 void HostMatrixAllocator::deleteMatrix(math::Matrix* matrix) {
-    if (matrix->reValues != NULL) {
-        delete[] matrix->reValues;
-    }
-    if (matrix->imValues != NULL) {
-        delete[] matrix->imValues;
-    }
-    delete matrix;
+    host::DeleteMatrix(matrix);
 }
 
 void HostMatrixCopier::copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* src) {
@@ -596,19 +566,47 @@ namespace host {
     }
 
     math::Matrix* NewMatrix(intt columns, intt rows, floatt value) {
-        return HostMatrixModules::GetInstance().getMatrixAllocator()->newMatrix(columns, rows, value);
+        math::Matrix* output = new math::Matrix();
+        intt length = columns*rows;
+        output->columns = columns;
+        output->rows = rows;
+        output->reValues = new floatt[length];
+        output->imValues = new floatt[length];
+        fillRePart(output, value);
+        fillImPart(output, value);
+        return output;
     }
 
     math::Matrix* NewReMatrix(intt columns, intt rows, floatt value) {
-        return HostMatrixModules::GetInstance().getMatrixAllocator()->newReMatrix(columns, rows, value);
+        math::Matrix* output = new math::Matrix();
+        intt length = columns*rows;
+        output->reValues = new floatt[length];
+        output->imValues = NULL;
+        output->columns = columns;
+        output->rows = rows;
+        fillRePart(output, value);
+        return output;
     }
 
     math::Matrix* NewImMatrix(intt columns, intt rows, floatt value) {
-        return HostMatrixModules::GetInstance().getMatrixAllocator()->newImMatrix(columns, rows, value);
+        math::Matrix* output = new math::Matrix();
+        intt length = columns*rows;
+        output->columns = columns;
+        output->rows = rows;
+        output->reValues = NULL;
+        output->imValues = new floatt[length];
+        fillImPart(output, value);
+        return output;
     }
 
     void DeleteMatrix(math::Matrix* matrix) {
-        HostMatrixModules::GetInstance().getMatrixAllocator()->deleteMatrix(matrix);
+        if (matrix->reValues != NULL) {
+            delete[] matrix->reValues;
+        }
+        if (matrix->imValues != NULL) {
+            delete[] matrix->imValues;
+        }
+        delete matrix;
     }
 
     floatt GetReValue(const math::Matrix* matrix, intt column, intt row) {
@@ -871,6 +869,11 @@ namespace host {
         if (matrix->imValues) {
             memset(matrix->imValues, 0, matrix->columns * matrix->rows * sizeof (floatt));
         }
+    }
+
+    void SetZero(math::Matrix* matrix) {
+        SetReZero(matrix);
+        SetImZero(matrix);
     }
 
     bool IsEquals(math::Matrix* transferMatrix2, math::Matrix* transferMatrix1,
