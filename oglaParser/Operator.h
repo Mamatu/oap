@@ -5,10 +5,10 @@
  * Created on March 16, 2014, 4:14 PM
  */
 
-#ifndef OPERATOR_H
-#define	OPERATOR_H
+#ifndef OGLA_OPERATOR_H
+#define	OGLA_OPERATOR_H
 
-#include "MathStructure.h"
+#include "MatrixStructure.h"
 
 class Operator {
 protected:
@@ -18,8 +18,8 @@ public:
     virtual ~Operator();
     virtual int getWeight() = 0;
     virtual char getSymbol() = 0;
-    virtual bool setParams(const MathStructure* param1, const MathStructure* param2) = 0;
-    virtual bool execute(MathStructure** mathStructure) = 0;
+    virtual bool setParams(const MatrixStructure* param1, const MatrixStructure* param2) = 0;
+    virtual bool execute(MatrixStructure** mathStructure) = 0;
 };
 
 #endif	/* OPERATOR_H */

@@ -1,7 +1,10 @@
-#ifndef OGLA_MATRIX_OPERATIONS_CU_H
-#define	OGLA_MATRIX_OPERATIONS_CU_H
+#ifndef OGLA_KERNELS_OPERATIONS_H
+#define	OGLA_KERNELS_OPERATIONS_H
+
 #include "KernelExecutor.h"
+#include "Module.h"
 #include "MatrixStructure.h"
+#include "DeviceMatrixModules.h"
 
 namespace math {
     namespace cuda {

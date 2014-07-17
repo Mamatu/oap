@@ -73,10 +73,6 @@ namespace shibata {
         m_entriesCount = count;
     }
 
-    void TransferMatrix::setQuantums(int* qunatums) {
-        this->parameters.setQuantums(qunatums);
-    }
-
     void TransferMatrix::setSpinsCount(int spinsCount) {
         this->parameters.setSpinsCount(spinsCount);
     }

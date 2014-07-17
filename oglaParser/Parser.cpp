@@ -23,7 +23,7 @@ Parser::Parser(const Parser& orig) {
 Parser::~Parser() {
 }
 
-void Parser::setVariableValue(const std::string& name, MathStructure* complex) {
+void Parser::setVariableValue(const std::string& name, MatrixStructureUtils* complex) {
     this->variables[name] = complex;
 }
 
@@ -32,7 +32,7 @@ void Parser::setVariable(const std::string& name) {
 }
 
 void Parser::removeVariable(const std::string& name) {
-    std::map<std::string, MathStructure*>::iterator it = this->variables.find(name);
+    std::map<std::string, MatrixStructureUtils*>::iterator it = this->variables.find(name);
     this->variables.erase(it);
 }
 
@@ -56,12 +56,12 @@ void Parser::removeBracket(Brackets* bracket) {
     REMOVE(std::vector<Brackets*>, this->brackets, bracket);
 }
 
-void Parser::addMathStructureCreator(MathStructure::Allocator* allocator) {
+void Parser::addStructureUtils(MatrixStructureUtils* allocator) {
     this->mathStructuresCreators.push_back(allocator);
 }
 
-void Parser::removeMathStructureCreator(MathStructure::Allocator* allocator) {
-    REMOVE(std::vector<MathStructure::Allocator*>, this->mathStructuresCreators, allocator);
+void Parser::removeStructureUtils(MatrixStructureUtils* allocator) {
+    REMOVE(std::vector<MatrixStructureUtils*>, this->mathStructuresCreators, allocator);
 }
 
 void Parser::addFunction(Function* function) {
@@ -110,7 +110,7 @@ void Parser::parse(Code& code) {
                 if (this->parseComplex(equation, fa, code, na) == false) {
                     if (this->parseVariable(equation, fa, code, na) == false) {
                         if (this->parseBrackets(equation, fa, code, na) == false) {
-                            if (this->parseMathStructure(equation, fa, code, na) == false) {
+                            if (this->parseMatrixStructure(equation, fa, code, na) == false) {
                                 if (this->parseOperators(equation, fa, code, na) == false) {
                                     if (this->parseFunctions(equation, fa, code, na) == false) {
                                         parsed = false;
@@ -132,11 +132,11 @@ void Parser::parse(Code& code) {
     } while (na != code.size());
 }
 
-MathStructure* Parser::getParam(Code& code, int index) {
+MatrixStructure* Parser::getParam(Code& code, int index) {
     if (index < 0 || index > code.size()) {
         return NULL;
     }
-    MathStructure* param1 = NULL;
+    MatrixStructure* param1 = NULL;
     bool pb1 = (index >= 0);
     if (pb1) {
         Code::Item objParam1 = code.get(index);
@@ -147,7 +147,7 @@ MathStructure* Parser::getParam(Code& code, int index) {
         }
         objParam1 = code.get(index);
         if (objParam1.getType() == Code::MATH_STRUCTURE_ITEM) {
-            param1 = reinterpret_cast<MathStructureItem*> (objParam1.getGenericPtr());
+            param1 = reinterpret_cast<MatrixStructureItem*> (objParam1.getGenericPtr());
         } else if (objParam1.getType() == Code::VARIABLE_ITEM) {
             Variable* variableItem = reinterpret_cast<Variable*> (objParam1.getGenericPtr());
             Variable v = variableItem->mathStructure;
@@ -159,7 +159,7 @@ MathStructure* Parser::getParam(Code& code, int index) {
 }
 
 int Parser::examineOperators(OperatorsItem* operatorsItem,
-        MathStructure* param1, MathStructure* param2) {
+        MatrixStructure* param1, MatrixStructure* param2) {
     int index = -1;
     bool invalid = false;
     for (int fa = 0; fa < operatorsItem->operators.size(); fa++) {
@@ -184,28 +184,28 @@ void Parser::executeOperators(Code& code, int index) {
             this->executeOperators(code, nindex);
         }
     }
-    MathStructure* param1 = getParam(code, index - 1);
-    MathStructure* param2 = getParam(code, index + 1);
-    MathStructure* cparam1 = NULL;
+    MatrixStructure* param1 = getParam(code, index - 1);
+    MatrixStructure* param2 = getParam(code, index + 1);
+    MatrixStructure* cparam1 = NULL;
     if (param1 != NULL) {
         cparam1 = param1.createCopy();
     }
-    MathStructure cparam2 = NULL;
+    MatrixStructure cparam2 = NULL;
     if (param2 != NULL) {
         cparam2 = param2.createCopy();
     }
     Integer[] operatorsIndieces = this->examineOperators(operators(std::vector, cparam1, cparam2);
             Operator operatorImpl = this->getMostImportantOperator(operators(std::vector, operatorsIndieces);
     if (operatorImpl.setParams(cparam1, cparam2)) {
-        MathStructure result = operatorImpl.execute();
+        MatrixStructure result = operatorImpl.execute();
         if (cparam1 != NULL) {
-            code.set(index - 1, new MathStructureItem(result));
+            code.set(index - 1, new MatrixStructureItem(result));
                     code.remove(index);
             if (cparam2 != NULL) {
                 code.remove(index);
             }
         } else {
-            code.set(index, new MathStructureItem(result));
+            code.set(index, new MatrixStructureItem(result));
             if (cparam2 != NULL) {
 
                 code.remove(index + 1);
@@ -220,10 +220,10 @@ void Parser::executeFunctions(Code& code, int index) {
     FunctionItem.std::vector functions(std::vector = (FunctionItem.std::vector) code.get(index);
     if (code.get(index + 1).getType() == Code.Type.BRACKET_ITEM) {
         Code& codeInBrackets = ((BracketsItem) code.get(index + 1)).getCode();
-                std::vector<MathStructure> params = new Arraystd::vector<MathStructure>();
+                std::vector<MatrixStructure> params = new Arraystd::vector<MatrixStructure>();
                 bool mustBeRawCodeFunction = false;
         try {
-            MathStructure[] ms = this->execute1(codeInBrackets);
+            MatrixStructure[] ms = this->execute1(codeInBrackets);
                     params.addAll(Arrays.as(std::vector(ms));
         } catch (Exception ex) {
             mustBeRawCodeFunction = true;
@@ -240,8 +240,8 @@ void Parser::executeFunctions(Code& code, int index) {
                     if (functions(std::vector.get(fa).function.getParamsCount() == params.size()) {
 
                             if (functions(std::vector.get(fa).function.setParams(params, NULL) == true) {
-                                    MathStructure object = functions(std::vector.get(fa).function.execute();
-                                    code.set(index, new MathStructureItem(object));
+                                    MatrixStructure object = functions(std::vector.get(fa).function.execute();
+                                    code.set(index, new MatrixStructureItem(object));
                                     code.remove(index + 1);
                                     break;
                                 }
@@ -270,8 +270,8 @@ void Parser::executeFunctions(Code& code, int index) {
                             tempCode.clear();
 
                     if (functions(std::vector.get(fa).function.setParams(paramsItems, this) == true) {
-                            MathStructure object = functions(std::vector.get(fa).function.execute();
-                            code.set(index, new MathStructureItem(object));
+                            MatrixStructure object = functions(std::vector.get(fa).function.execute();
+                            code.set(index, new MatrixStructureItem(object));
                             code.remove(index + 1);
                             break;
                         } else {
@@ -285,10 +285,10 @@ void Parser::executeBracket(Code& code, int index) {
     try {
         BracketsItem bracketItem = (BracketsItem) code.get(index);
                 Code subCode = bracketItem.getCode();
-                MathStructure[] mathStructures = this->execute1(subCode);
-                code.set(index, new MathStructureItem(mathStructures[0]));
+                MatrixStructure[] mathStructures = this->execute1(subCode);
+                code.set(index, new MatrixStructureItem(mathStructures[0]));
         for (int fa = 1; fa < mathStructures.length; fa++) {
-            code.insert(index + fa, new MathStructureItem(mathStructures[fa]));
+            code.insert(index + fa, new MatrixStructureItem(mathStructures[fa]));
         }
     } catch (SyntaxErrorException see) {
 
@@ -297,24 +297,24 @@ void Parser::executeBracket(Code& code, int index) {
     }
 }
 
-void Parser::executeMathStructure(Code& code, int index) {
+void Parser::executeMatrixStructure(Code& code, int index) {
     try {
-        std::vector<MathStructure> mathStructures = new Arraystd::vector<MathStructure>();
+        std::vector<MatrixStructure> mathStructures = new Arraystd::vector<MatrixStructure>();
                 mathStructures.clear();
-                MathStructureCreatorItem.std::vector creatorItems = (MathStructureCreatorItem.std::vector) code.get(index);
-                MathStructure.Creator creator = creatorItems.get(0).creator;
+                MatrixStructureCreatorItem.std::vector creatorItems = (MatrixStructureCreatorItem.std::vector) code.get(index);
+                MatrixStructure.Creator creator = creatorItems.get(0).creator;
                 Code objs = creatorItems.code;
-                MathStructure[] mathStructuresArray = this->execute1(objs);
-                MathStructure mathStructure1 = NULL;
+                MatrixStructure[] mathStructuresArray = this->execute1(objs);
+                MatrixStructure mathStructure1 = NULL;
                 mathStructures.addAll(Arrays.as(std::vector(mathStructuresArray));
         if (creator.setParams(mathStructures) == true) {
             mathStructure1 = creator.create();
         }
         code.remove(index);
-                code.set(index, new MathStructureItem(mathStructure1));
+                code.set(index, new MatrixStructureItem(mathStructure1));
     } catch (SyntaxErrorException see) {
 
-        final Object object = code.get(index + 1);
+         Object object = code.get(index + 1);
                 final const std::string& scode = this->codes.get(object);
                 see.setInvalidCode(scode);
                 throw see;
@@ -334,7 +334,7 @@ bool Parser::parseComplex(const std::string& equation, int fa, Code& code, int n
         complexEndIndex = fb;
     }
     if (complex != NULL) {
-        code.set(na, new MathStructureItem(complex));
+        code.set(na, new MatrixStructureItem(complex));
                 codes.put(complex, complex.toconst std::string & ());
         if (complexEndIndex < equation.length()) {
 
@@ -363,7 +363,7 @@ bool Parser::parseVariable(const std::string& equation, int fa, Code& code, int 
         }
         variableEndIndex = fb;
     }
-    if (variableName != NULL) {
+    if (variableName.length() != 0) {
         Variable variable = new Variable(variableName);
                 code.set(na, new Variable(variable));
                 codes.put(variable, variable.toconst std::string & ());
@@ -375,7 +375,7 @@ bool Parser::parseVariable(const std::string& equation, int fa, Code& code, int 
                     equation = part2;
         }
     }
-    return (variableName != NULL);
+    return (variableName.length() != 0);
 }
 
 bool Parser::parseBrackets(const std::string& equation, int fa, Code& code, int na) {
@@ -402,12 +402,12 @@ bool Parser::parseBrackets(const std::string& equation, int fa, Code& code, int 
     return false;
 }
 
-bool Parser::parseMathStructure(const std::string& equation, int fa, Code& code, int na) {
+bool Parser::parseMatrixStructure(const std::string& equation, int fa, Code& code, int na) {
     bool status = false;
             bool isFirst = true;
-            MathStructureCreatorItem.List creatorList = null;
+            MatrixStructureCreatorItem.List creatorList = null;
     for (int f = 0; f<this->mathStructuresCreators.size(); f++) {
-        MathStructure::Allocator* mathStructureCreator = this->mathStructuresCreators[f];
+        MatrixStructure::Allocator* mathStructureCreator = this->mathStructuresCreators[f];
                 int fa1 = fa;
                 char symbol = equation[fa1];
         if (isFirst == true) {
@@ -418,8 +418,8 @@ bool Parser::parseMathStructure(const std::string& equation, int fa, Code& code,
                         Code subCode = new Code();
                         subCode.add(new EquationItem(part2));
                         this.parse(subCode);
-                        MathStructureCreatorItem.List creatorList1 = new MathStructureCreatorItem.List(subCode);
-                        creatorList1.add(new MathStructureCreatorItem(mathStructureCreator));
+                        MatrixStructureCreatorItem.List creatorList1 = new MatrixStructureCreatorItem.List(subCode);
+                        creatorList1.add(new MatrixStructureCreatorItem(mathStructureCreator));
                         creatorList = creatorList1;
                         code.set(na, creatorList1);
                 if (part3.length() > 0) {
@@ -432,7 +432,7 @@ bool Parser::parseMathStructure(const std::string& equation, int fa, Code& code,
             if (creatorList.get(0).creator.getBoundary().getLeftSymbol() == mathStructureCreator.getBoundary().getLeftSymbol()
                     && creatorList.get(0).creator.getBoundary().getRightSymbol() == mathStructureCreator.getBoundary().getRightSymbol()) {
 
-                creatorList.add(new MathStructureCreatorItem(mathStructureCreator));
+                creatorList.add(new MatrixStructureCreatorItem(mathStructureCreator));
             }
         }
     }
@@ -488,15 +488,15 @@ bool Parser::parseFunctions(const std::string& equation, int fa, Code& code, int
     return (functions(std::vector != NULL);
 }
 
-MathStructure[] Parser::execute(Object codeObject) {
+MatrixStructure* Parser::execute(Object codeObject) {
     Code& code1 = (Code) codeObject;
     Code& code = code1.createCopy();
-    MathStructure[] ms = execute1(code);
+    MatrixStructure[] ms = execute1(code);
 
     return ms;
 }
 
-MathStructure[] Parser::execute1(Code& code) {
+MatrixStructure* Parser::execute1(Code& code) {
     try {
         bool next = true;
         while (next) {
@@ -507,7 +507,7 @@ MathStructure[] Parser::execute1(Code& code) {
                 if (object.getType() == Code.Type.STRING_ITEM) {
                     const std::string&Item stringItem = (const std::string & Item) object;
                     if (variables.containsKey(stringItem.string)) {
-                        MathStructure mathStructure = variables.get(stringItem.string);
+                        MatrixStructure mathStructure = variables.get(stringItem.string);
                         if (mathStructure != NULL) {
                             code.set(fa, new Variable(new Variable(stringItem.string)));
                         }
@@ -526,13 +526,13 @@ MathStructure[] Parser::execute1(Code& code) {
                             fa = 0;
                 } else if (object.getType() == Code.Type.MATH_STRUCTURE_CREATOR_ITEMS) {
                     next = true;
-                            this->executeMathStructure(code, fa);
+                            this->executeMatrixStructure(code, fa);
                             fa = 0;
                 }
                 fa++;
             }
         }
-        std::vector<MathStructure> mathStructures = new Arraystd::vector<MathStructure>();
+        std::vector<MatrixStructure> mathStructures = new Arraystd::vector<MatrixStructure>();
         for (int fa = 0; fa < code.size(); fa++) {
             if (code.get(fa).getType() == Code.Type.VARIABLE_ITEM) {
                 Variable variableItem = (Variable) code.get(fa);
@@ -540,11 +540,11 @@ MathStructure[] Parser::execute1(Code& code) {
                         mathStructures.add(variableItem.variable.mathStructure);
             }
             if (code.get(fa).getType() == Code.Type.MATH_STRUCTURE_ITEM) {
-                MathStructure mathStructure = ((MathStructureItem) code.get(fa)).mathStructure;
+                MatrixStructure mathStructure = ((MatrixStructureItem) code.get(fa)).mathStructure;
                         mathStructures.add(mathStructure);
             }
         }
-        MathStructure[] a = new MathStructure[mathStructures.size()];
+        MatrixStructure[] a = new MatrixStructure[mathStructures.size()];
         return mathStructures.toArray(a);
     } catch (SyntaxErrorException see) {
 
@@ -552,7 +552,7 @@ MathStructure[] Parser::execute1(Code& code) {
     }
 }
 
-Object Parser::parse(const std::string& equation) {
+MatrixStructureItem* Parser::parse(const std::string& equation) {
     Code& code = new Code();
             code.add(new EquationItem(equation));
             this->parse(code);
@@ -560,8 +560,8 @@ Object Parser::parse(const std::string& equation) {
     return code;
 }
 
-MathStructure[] Parser::calculate(const std::string& equation) {
-    MathStructure[] out = NULL;
+MatrixStructure* Parser::calculate(const std::string& equation) {
+    MatrixStructure* out = NULL;
     codes.clear();
     Code& code = new Code();
     code.add(new EquationItem(equation));

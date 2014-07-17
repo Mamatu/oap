@@ -129,7 +129,7 @@ public:
 
 class MatrixStructureItem {
 public:
-    HostMatrixStructure* MatrixStructure;
+    MatrixStructure* matrixStructure;
 };
 
 #endif	/* CODE_H */

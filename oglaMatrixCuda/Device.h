@@ -35,7 +35,38 @@ extern "C" __device__ void CopyMatrix(MatrixStructure* dst,
     CopyImMatrix(dst, src, threadIndexX, threadIndexY);
 }
 
-extern "C" __device__ void SetReIdentity(MatrixStructure* dst,
+extern "C" __device__ void SetDiagonalReMatrix(MatrixStructure* dst,
+        uintt threadIndexX, uintt threadIndexY, floatt v) {
+    uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
+    if (threadIndexX == threadIndexY) {
+        dst->m_matrix->reValues[index] = v;
+    } else {
+        dst->m_matrix->reValues[index] = 0;
+    }
+}
+
+extern "C" __device__ void SetDiagonalImMatrix(MatrixStructure* dst,
+        uintt threadIndexX, uintt threadIndexY, floatt v) {
+    uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
+    if (threadIndexX == threadIndexY) {
+        dst->m_matrix->imValues[index] = v;
+    } else {
+        dst->m_matrix->imValues[index] = 0;
+    }
+}
+
+extern "C" __device__ void SetDiagonalMatrix(MatrixStructure* dst,
+        uintt threadIndexX, uintt threadIndexY, floatt v) {
+    uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
+    if (threadIndexX == threadIndexY) {
+        dst->m_matrix->reValues[index] = v;
+    } else {
+        dst->m_matrix->reValues[index] = 0;
+    }
+    dst->m_matrix->imValues[index] = 0;
+}
+
+extern "C" __device__ void SetIdentityReMatrix(MatrixStructure* dst,
         uintt threadIndexX, uintt threadIndexY) {
     uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
     if (threadIndexX == threadIndexY) {
@@ -45,7 +76,7 @@ extern "C" __device__ void SetReIdentity(MatrixStructure* dst,
     }
 }
 
-extern "C" __device__ void SetImIdentity(MatrixStructure* dst,
+extern "C" __device__ void SetIdentityImMatrix(MatrixStructure* dst,
         uintt threadIndexX, uintt threadIndexY) {
     uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
     if (threadIndexX == threadIndexY) {
@@ -66,7 +97,7 @@ extern "C" __device__ void SetIdentityMatrix(MatrixStructure* dst,
     dst->m_matrix->imValues[index] = 0;
 }
 
-extern "C" __device__ __forceinline__ void dotProductRe(
+extern "C" __device__ __forceinline__ void multiplyReMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -83,7 +114,7 @@ extern "C" __device__ __forceinline__ void dotProductRe(
     output->m_matrix->reValues[threadIndexX + output->m_subcolumns * threadIndexY] = retemp;
 }
 
-extern "C" __device__ __forceinline__ void dotProductIm(
+extern "C" __device__ __forceinline__ void multiplyImMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -100,7 +131,7 @@ extern "C" __device__ __forceinline__ void dotProductIm(
     output->m_matrix->reValues[threadIndexX + output->m_subcolumns * threadIndexY] = retemp;
 }
 
-extern "C" __device__ __forceinline__ void dotProductReIm(
+extern "C" __device__ __forceinline__ void multiplyMatrices(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -124,6 +155,13 @@ extern "C" __device__ __forceinline__ void dotProductReIm(
     }
     output->m_matrix->reValues[threadIndexX + outputColumns * threadIndexY] = retemp;
     output->m_matrix->imValues[threadIndexX + outputColumns * threadIndexY] = imtemp;
+}
+
+extern "C" __device__ __forceinline__ void dotProduct(
+        MatrixStructure* output,
+        MatrixStructure* params0, MatrixStructure* params1,
+        uintt threadIndexX, uintt threadIndexY) {
+    multiplyMatrices(output, params0, params1, threadIndexX, threadIndexY);
 }
 
 extern "C" __device__ __forceinline__ void addRe(
@@ -436,7 +474,7 @@ extern "C" __device__ void prepareGMatrix(math::Matrix* A,
     }
 }
 
-extern "C" __device__ __forceinline__ void qrRe(MatrixStructure* Q,
+extern "C" __device__ __forceinline__ void qrDecompositionRe(MatrixStructure* Q,
         MatrixStructure* R,
         MatrixStructure* A,
         MatrixStructure* R1,
@@ -455,9 +493,9 @@ extern "C" __device__ __forceinline__ void qrRe(MatrixStructure* Q,
                 if (threadIndexX == 0 && threadIndexY == 0) {
                     prepareGMatrix(A->m_matrix, fa, fb, G->m_matrix);
                 }
-                dotProductRe(R, G, R1, threadIndexX, threadIndexY);
+                multiplyReMatrix(R, G, R1, threadIndexX, threadIndexY);
                 transposeRe(GT, G, threadIndexX, threadIndexY);
-                dotProductRe(Q, Q1, GT, threadIndexX, threadIndexY);
+                multiplyReMatrix(Q, Q1, GT, threadIndexX, threadIndexY);
                 if (threadIndexX == 0 && threadIndexY == 0) {
                     switchPointer(R1, R);
                     switchPointer(Q1, Q);
@@ -467,7 +505,7 @@ extern "C" __device__ __forceinline__ void qrRe(MatrixStructure* Q,
     }
 }
 
-extern "C" __device__ __forceinline__ void qrIm(MatrixStructure* output0,
+extern "C" __device__ __forceinline__ void qrDecompositionIm(MatrixStructure* output0,
         MatrixStructure* output1,
         MatrixStructure * params0,
         MatrixStructure* G,
@@ -475,11 +513,35 @@ extern "C" __device__ __forceinline__ void qrIm(MatrixStructure* output0,
         uintt threadIndexX, uintt threadIndexY) {
 }
 
-extern "C" __device__ __forceinline__ void qrReIm(MatrixStructure* output0,
-        MatrixStructure* output1,
-        MatrixStructure * params0,
+extern "C" __device__ __forceinline__ void qrDecomposition(MatrixStructure* Q,
+        MatrixStructure* R,
+        MatrixStructure* A,
+        MatrixStructure* R1,
+        MatrixStructure* Q1,
         MatrixStructure* G,
-        MatrixStructure * GT) {
+        MatrixStructure * GT,
+        uintt threadIndexX, uintt threadIndexY) {
+    for (uintt fa = 0; fa < A->m_matrix->columns - 1; fa++) {
+        for (uintt fb = A->m_matrix->rows - 1; fb > fa; fb--) {
+            floatt v = R1->m_matrix->reValues[fa + fb * R1->m_matrix->columns];
+            if ((-MATH_VALUE_LIMIT < v &&
+                    v < MATH_VALUE_LIMIT) == false) {
+                SetIdentityMatrix(R1, threadIndexX, threadIndexY);
+                SetIdentityMatrix(G, threadIndexX, threadIndexY);
+                SetIdentityMatrix(GT, threadIndexX, threadIndexY);
+                if (threadIndexX == 0 && threadIndexY == 0) {
+                    prepareGMatrix(A->m_matrix, fa, fb, G->m_matrix);
+                }
+                multiplyReMatrix(R, G, R1, threadIndexX, threadIndexY);
+                transposeRe(GT, G, threadIndexX, threadIndexY);
+                multiplyReMatrix(Q, Q1, GT, threadIndexX, threadIndexY);
+                if (threadIndexX == 0 && threadIndexY == 0) {
+                    switchPointer(R1, R);
+                    switchPointer(Q1, Q);
+                }
+            }
+        }
+    }
 }
 
 extern "C" __device__ __forceinline__ void conjugateIm(MatrixStructure* output,

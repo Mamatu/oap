@@ -72,7 +72,7 @@ void DeviceMatrixUtils::printInfo(const math::Matrix* matrix) const {
     uintt columns = getColumns(matrix);
     bool bre = isReMatrix(matrix);
     bool bim = isImMatrix(matrix);
-    debug("matrix = %p,%u %u:%u, %u,%u \n", matrix, sizeof (matrix),
+    debug("matrix = %p,%u %u:%u, %d,%d \n", matrix, sizeof (matrix),
             rows, columns, bre, bim);
 }
 

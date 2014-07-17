@@ -9,20 +9,20 @@
 #define	VARIABLE_H
 
 
-#include "MathStructure.h"
+#include "MatrixStructure.h"
 #include <string>
 
 class Variable {
 public:
 
     std::string name;
-    MathStructure* mathStructure;
+    MatrixStructure* mathStructure;
     std::string path;
 
     Variable() : name(""), mathStructure(NULL), path("") {
     }
 
-    Variable(const std::string& _name, MathStructure* _mathStructure) :
+    Variable(const std::string& _name, MatrixStructure* _mathStructure) :
     name(_name), mathStructure(_mathStructure), path("") {
     }
 

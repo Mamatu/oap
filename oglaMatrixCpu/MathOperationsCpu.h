@@ -79,11 +79,11 @@ namespace math {
 
         class ExpOperation : public math::IExpOperation,
         public ThreadsCountProperty {
-            int serieLimit;
+            uintt serieLimit;
         protected:
-            DotProductOperation multiplicationOperation;
-            MultiplicationConstOperation multiplicationConstOperation;
-            AdditionOperation additionOperation;
+            DotProductOperation dotProduct;
+            MultiplicationConstOperation multiplication;
+            AdditionOperation addition;
         public:
             void execute();
             ExpOperation();

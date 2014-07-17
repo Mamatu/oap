@@ -48,10 +48,6 @@ namespace shibata {
         void setSerieLimit(int limit);
         int getSerieLimit() const;
 
-        bool isQuantums() const;
-        void setQuantums(int* qunatums);
-        int* getQunatums() const;
-
         bool isQuantumsCount() const;
         void setQuantumsCount(int qunatumsCount);
         int getQunatumsCount() const;
@@ -68,7 +64,6 @@ namespace shibata {
     private:
         Parameter<int> threadsCount;
         Parameter<int> serieLimit;
-        Parameter<int*> quantums;
         Parameter<int> quantumsCount;
         Parameter<int> spinsCount;
         Parameter<int> trotterNumber;

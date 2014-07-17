@@ -8,7 +8,7 @@
 #ifndef SERVERINTERFACES_H
 #define	SERVERINTERFACES_H
 
-#include <WrapperInterfaces.h>
+#include "WrapperInterfaces.h"
 
 namespace core {
 

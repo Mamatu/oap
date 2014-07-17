@@ -20,7 +20,6 @@ namespace shibata {
     }
 
     Parameters::Parameters(const Parameters& orig) {
-        this->quantums = orig.quantums;
         this->quantumsCount = orig.quantumsCount;
         this->serieLimit = orig.serieLimit;
         this->spinsCount = orig.spinsCount;
@@ -50,18 +49,6 @@ namespace shibata {
 
     int Parameters::getSerieLimit()const {
         return this->serieLimit.value;
-    }
-
-    bool Parameters::isQuantums() const {
-        return this->quantums.isAvailable;
-    }
-
-    void Parameters::setQuantums(int* qunatums) {
-        this->quantums.set(qunatums);
-    }
-
-    int* Parameters::getQunatums() const {
-        return this->quantums.value;
     }
 
     bool Parameters::isQuantumsCount() const {
@@ -101,8 +88,7 @@ namespace shibata {
     }
 
     bool Parameters::areAllAvailable() const {
-        return this->quantums.isAvailable &&
-                this->quantumsCount.isAvailable &&
+        return this->quantumsCount.isAvailable &&
                 this->serieLimit.isAvailable &&
                 this->spinsCount.isAvailable &&
                 this->threadsCount.isAvailable;

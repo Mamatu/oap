@@ -61,7 +61,8 @@ inline int pow(int a, int b) {
     return o;
 }
 
-math::Matrix* createHamiltonian(floatt J, math::Matrix* spin1, math::Matrix* spin2, math::Matrix* identity, math::Matrix* tempMatrix1) {
+math::Matrix* createHamiltonian(floatt J, math::Matrix* spin1,
+        math::Matrix* spin2, math::Matrix* identity, math::Matrix* tempMatrix1) {
     HostMatrixAllocator mhm;
     math::Matrix* tempMatrix2 = mhm.newReMatrix(4, 4);
     matrixOperations.tensorProduct(tempMatrix1, spin1, identity);
@@ -158,6 +159,9 @@ int main1(int argc, char** argv) {
         0.000000, -21.117289, 0, 0.000000,
         0.000000, 0.000000, 0.000000, 0.0};
 
+    floatt z[16] = {0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0};
+
     math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
     math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
     math::Matrix* eh1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) b1);
@@ -177,7 +181,7 @@ int main1(int argc, char** argv) {
     int q[] = {-1, 1};
     int qCount = 2;
     int serieLimit = 25;
-    int M = 5;
+    int M = 2;
     int l = pow(qCount, 2 * M);
     fprintf(stderr, "l = %llu\n", l);
     math::Matrix* transferMatrix = hmm.newMatrix(l, l);
@@ -188,7 +192,6 @@ int main1(int argc, char** argv) {
     transferMatrixCpu.setThreadsCount(threadsCount);
     transferMatrixCpu.setSerieLimit(serieLimit);
     transferMatrixCpu.setSpinsCount(spinsCount);
-    transferMatrixCpu.setQuantums(q);
     transferMatrixCpu.setQuantumsCount(qCount);
     transferMatrixCpu.setTrotterNumber(M);
     transferMatrixCpu.setExpHamiltonian1(eh1);
@@ -217,11 +220,47 @@ int main1(int argc, char** argv) {
     return 0;
 }
 
-int main2(int argc, char** argv) {
-    if (argc <= 1) {
-        return 0;
-    }
+void prepareH(math::Matrix* o,
+        math::Matrix* identity,
+        math::Matrix* spin1,
+        math::Matrix* spin2,
+        math::Matrix* spin3,
+        math::Matrix* temp,
+        math::Matrix* temp1,
+        uintt M,
+        floatt T, math::cpu::MathOperations& mo) {
+    floatt jx = -1;
+    floatt jy = -1;
+    floatt jz = -1;
+    mo.tensorProduct(temp, spin1, identity);
+    mo.tensorProduct(temp1, identity, spin1);
+    mo.add(o, temp, temp1);
 
+    host::SetZero(temp);
+    host::SetZero(temp1);
+
+    mo.tensorProduct(temp, spin3, identity);
+    mo.tensorProduct(temp1, identity, spin3);
+    mo.add(temp, temp1, temp);
+    mo.add(temp1, o, temp);
+
+    host::SetZero(temp);
+    host::SetZero(temp1);
+
+    mo.tensorProduct(temp, spin2, identity);
+    mo.tensorProduct(o, identity, spin2);
+    mo.add(temp, o, temp);
+
+    mo.multiply(o, temp1, temp);
+
+    floatt v = (-1. * 0.1);
+    host::PrintMatrix("o = ", o);
+    mo.multiply(temp1, temp1, &v);
+    mo.exp(o, temp1);
+    abort();
+}
+
+int main2(int argc, char** argv) {
     HostMatrixAllocator hmm;
     HostMatrixUtils mu;
     math::cpu::MathOperations mo;
@@ -229,13 +268,16 @@ int main2(int argc, char** argv) {
     char* impath = NULL;
     char* repath = NULL;
     char* countc = argv[1];
-    if (argc > 2) {
-        char* repath = argv[2];
-        if (argc > 3) {
-            impath = argv[3];
+    int count = 20;
+    if (argc > 1) {
+        count = atoi(countc);
+        if (argc > 2) {
+            repath = argv[2];
+            if (argc > 3) {
+                impath = argv[3];
+            }
         }
     }
-    int count = atoi(countc);
 
     math::Matrix* h1 = host::NewMatrix(4, 4, 0);
     math::Matrix* h2 = host::NewMatrix(4, 4, 0);
@@ -247,22 +289,42 @@ int main2(int argc, char** argv) {
     int q[] = {-1, 1};
     int qCount = 2;
     int serieLimit = 25;
-    int M = 8;
+    int M = 2;
+    floatt T = 2;
     int l = pow(qCount, 2 * M);
     math::Matrix* transferMatrix = hmm.newMatrix(1, l);
 
-
     math::Matrix* identity = host::NewMatrix(2, 2, 0);
+
+
+
     host::SetIdentity(identity);
 
-    
-    
+    math::Matrix* spin1 = host::NewMatrix(2, 2);
+    math::Matrix* spin2 = host::NewMatrix(2, 2);
+    math::Matrix* spin3 = host::NewMatrix(2, 2);
+    math::Matrix* spin4 = host::NewMatrix(2, 2);
+    math::Matrix* temp = host::NewMatrix(4, 4);
+    math::Matrix* temp1 = host::NewMatrix(4, 4);
+
+    setPauliMatrixX(spin1);
+    setPauliMatrixY(spin2);
+    setPauliMatrixZ(spin3);
+
+
     for (uintt fa = 0; fa < count; ++fa) {
         if (repath) {
             host::LoadMatrix(h1, repath, impath, fa);
             host::LoadMatrix(h2, repath, impath, fa);
         } else {
-
+            host::SetZero(h1);
+            host::SetZero(h2);
+            host::SetZero(temp);
+            host::SetZero(temp1);
+            prepareH(h1, identity, spin1, spin2, spin3,
+                    temp, temp1, M, 0.01 + (T * (floatt) fa) / (floatt) count, mo);
+            prepareH(h2, identity, spin1, spin2, spin3,
+                    temp, temp1, M, 0.01 + (T * (floatt) fa) / (floatt) count, mo);
         }
         //math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
         //math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
@@ -279,7 +341,6 @@ int main2(int argc, char** argv) {
         transferMatrixCpu.setThreadsCount(threadsCount);
         transferMatrixCpu.setSerieLimit(serieLimit);
         transferMatrixCpu.setSpinsCount(spinsCount);
-        transferMatrixCpu.setQuantums(q);
         transferMatrixCpu.setQuantumsCount(qCount);
         transferMatrixCpu.setTrotterNumber(M);
         transferMatrixCpu.setExpHamiltonian1(eh1);

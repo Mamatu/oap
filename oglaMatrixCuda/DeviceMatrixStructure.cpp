@@ -46,7 +46,6 @@ void DeviceMatrixStructureUtils::setMatrixToStructure(MatrixStructure* matrixStr
     this->setSubRows(matrixStructure, rows);
     this->setBeginColumn(matrixStructure, 0);
     this->setBeginRow(matrixStructure, 0);
-    fprintf(stderr, "AAAA!\n");
     matrix = this->getMatrix(matrixStructure);
     dmu.printInfo(matrix);
 }

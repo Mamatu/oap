@@ -4,7 +4,6 @@ namespace math {
     namespace cpu {
 
         void ExpOperation::execute() {
-            fprintf(stderr,"%s %s %d \n",__FUNCTION__,__FILE__,__LINE__);
             math::Matrix* matrix1 = this->m_matrix;
             MatrixAllocator& matrixAllocator = *m_matrixModule->getMatrixAllocator();
             MatrixCopier& matrixCopier = *m_matrixModule->getMatrixCopier();
@@ -17,28 +16,24 @@ namespace math {
             math::Matrix* m3 = matrix3;
             math::Matrix* m4 = matrix4;
             matrixCopier.copyMatrixToMatrix(this->m_output, matrix1);
-            HostMatrixPrinter printer;
-            printer.printReMatrix(matrix1);
-            serieLimit = 100;
-            fprintf(stderr,"%s %s %d \n",__FUNCTION__,__FILE__,__LINE__);
-            for (uint fa = 2; fa<this->serieLimit; fa++) {
-fprintf(stderr,"%s %s %d \n",__FUNCTION__,__FILE__,__LINE__);
+            serieLimit = 10;
+            for (uintt fa = 2; fa<this->serieLimit; ++fa) {
                 math::Matrix* mo = fa % 2 == 0 ? m3 : m2;
                 math::Matrix* mp = fa % 2 == 0 ? m2 : m3;
-                this->multiplicationOperation.setOutputMatrix(mo);
-                this->multiplicationOperation.setMatrix1(mp);
-                this->multiplicationOperation.setMatrix2(m1);
-                this->multiplicationOperation.start();
-                this->multiplicationConstOperation.setOutputMatrix(m4);
-                this->multiplicationConstOperation.setMatrix(mo);
+                this->dotProduct.setOutputMatrix(mo);
+                this->dotProduct.setMatrix1(mp);
+                this->dotProduct.setMatrix2(m1);
+                this->dotProduct.start();
+                this->multiplication.setOutputMatrix(m4);
+                this->multiplication.setMatrix(mo);
                 floatt temp = 1. / factorial;
-                this->multiplicationConstOperation.setReValue(&temp);
-                this->multiplicationConstOperation.start();
+                this->multiplication.setReValue(&temp);
+                this->multiplication.start();
                 factorial = factorial * (fa);
-                this->additionOperation.setOutputMatrix(this->m_output);
-                this->additionOperation.setMatrix1(this->m_output);
-                this->additionOperation.setMatrix2(m4);
-                this->additionOperation.start();
+                this->addition.setOutputMatrix(this->m_output);
+                this->addition.setMatrix1(this->m_output);
+                this->addition.setMatrix2(m4);
+                this->addition.start();
                 //matrixHostMem.PrintHostMatrix(this->output);
             }
             matrixAllocator.deleteMatrix(matrix2);

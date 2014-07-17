@@ -244,8 +244,8 @@ void Test_Transpose(int tc = 1) {
     //mo.setSubColumns(0, 1);
     mo.setThreadsCount(tc);
     mo.transpose(o, m1);
-    host::PrintMatrix("o =",o);
-    host::PrintMatrix("m1 = ",m1);
+    host::PrintMatrix("o =", o);
+    host::PrintMatrix("m1 = ", m1);
     host::DeleteMatrix(o);
     host::DeleteMatrix(m1);
     debugFunc();
@@ -559,7 +559,7 @@ int main(int argc, char** argv) {
     Test_Diagonalization();
     Test_TensorProduct();
     Test_DotProduct();*/
-    Test_Transpose(1);
+    //Test_Transpose(1);
     //Test_Det1();
     //Test_Det1();
     //Test_Det2();
@@ -570,6 +570,13 @@ int main(int argc, char** argv) {
     //Test_DotProduct();
     //Test_QRDecomposition();
     //Test_QRDecomposition1();
+
+    double** m = new double*[2];
+    double* vec = new double[3];
+    memset(vec, 0, sizeof (double)*3);
+    m[0] = vec;
+    m[1] = vec;
+    fprintf(stderr,"%f \n",m[0][1]);
     return 0;
 }
 

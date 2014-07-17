@@ -337,37 +337,23 @@ void HostMatrixCopier::setReVector(math::Matrix* matrix, intt column, floatt* ve
 }
 
 void HostMatrixCopier::setTransposeImVector(math::Matrix* matrix, intt row, floatt* vector, intt length) {
-    if (matrix->imValues) {
-        memcpy(&matrix->imValues[row * matrix->columns], vector, length * sizeof (floatt));
-    }
+    host::SetTransposeImVector(matrix, row, vector, length);
 }
 
 void HostMatrixCopier::setImVector(math::Matrix* matrix, intt column, floatt* vector, intt length) {
-    if (matrix->imValues) {
-        for (intt fa = 0; fa < length; fa++) {
-            matrix->imValues[column + matrix->columns * fa] = vector[fa];
-        }
-    }
+    host::SetImVector(matrix, column, vector, length);
 }
 
 void HostMatrixCopier::getTransposeReVector(floatt* vector, intt length, math::Matrix* matrix, intt row) {
-    if (matrix->reValues) {
-        memcpy(vector, &matrix->reValues[row * matrix->columns], length * sizeof (floatt));
-    }
+    host::GetTransposeReVector(vector, length, matrix, row);
 }
 
 void HostMatrixCopier::getReVector(floatt* vector, intt length, math::Matrix* matrix, intt column) {
-    if (matrix->reValues) {
-        for (intt fa = 0; fa < length; fa++) {
-            vector[fa] = matrix->reValues[column + matrix->columns * fa];
-        }
-    }
+    host::GetReVector(vector, length, matrix, column);
 }
 
 void HostMatrixCopier::getTransposeImVector(floatt* vector, intt length, math::Matrix* matrix, intt row) {
-    if (matrix->imValues) {
-        memcpy(vector, &matrix->imValues[row * matrix->columns], length * sizeof (floatt));
-    }
+    host::GetTransposeImVector(vector, length, matrix, row);
 }
 
 void HostMatrixCopier::setVector(math::Matrix* matrix, intt column,
@@ -742,13 +728,17 @@ namespace host {
     }
 
     void SetImVector(math::Matrix* matrix, intt column, floatt* vector, intt length) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->setImVector(matrix, column, vector, length);
+        if (matrix->imValues) {
+            for (intt fa = 0; fa < length; fa++) {
+                matrix->imValues[column + matrix->columns * fa] = vector[fa];
+            }
+        }
     }
 
     void SetTransposeImVector(math::Matrix* matrix, intt row, floatt* vector, intt length) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->setTransposeImVector(matrix, row, vector, length);
+        if (matrix->imValues) {
+            memcpy(&matrix->imValues[row * matrix->columns], vector, length * sizeof (floatt));
+        }
     }
 
     void SetReVector(math::Matrix* matrix, intt column, floatt* vector) {
@@ -782,13 +772,17 @@ namespace host {
     }
 
     void GetReVector(floatt* vector, intt length, math::Matrix* matrix, intt column) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->getReVector(vector, length, matrix, column);
+        if (matrix->reValues) {
+            for (intt fa = 0; fa < length; fa++) {
+                vector[fa] = matrix->reValues[column + matrix->columns * fa];
+            }
+        }
     }
 
     void GetTransposeReVector(floatt* vector, intt length, math::Matrix* matrix, intt row) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->getTransposeReVector(vector, length, matrix, row);
+        if (matrix->reValues) {
+            memcpy(vector, &matrix->reValues[row * matrix->columns], length * sizeof (floatt));
+        }
     }
 
     void GetImVector(floatt* vector, intt length, math::Matrix* matrix, intt column) {
@@ -797,8 +791,9 @@ namespace host {
     }
 
     void GetTransposeImVector(floatt* vector, intt length, math::Matrix* matrix, intt row) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->getTransposeImVector(vector, length, matrix, row);
+        if (matrix->imValues) {
+            memcpy(vector, &matrix->imValues[row * matrix->columns], length * sizeof (floatt));
+        }
     }
 
     void GetReVector(floatt* vector, math::Matrix* matrix, intt column) {

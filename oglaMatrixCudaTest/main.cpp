@@ -44,10 +44,7 @@ void Test_Det(math::cuda::MathOperations& mo) {
 }
 
 void Test_Multiply(math::cuda::MathOperations& mo) {
-
     debugFunc();
-
-
     DeviceMatrixAllocator dmm;
     HostMatrixAllocator hma;
     DeviceMatrixUtils dmu;
@@ -67,9 +64,8 @@ void Test_Multiply(math::cuda::MathOperations& mo) {
     dmu.printInfo(output);
 
     mo.multiply(output, m1, a);
-    dmu.printInfo(output);
-    dmu.printInfo(m1);
-    dmu.printInfo(m2);
+    //PrintMatrix("output =", output);
+    dmp.printReMatrix(output);
     mo.printMessage();
     dmm.deleteMatrix(m1);
     dmm.deleteMatrix(m2);

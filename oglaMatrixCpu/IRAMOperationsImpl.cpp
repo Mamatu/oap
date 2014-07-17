@@ -106,11 +106,9 @@ namespace math {
                     diff = d;
                     fprintf(stderr, "diff = %f \n", diff);
                     fprintf(stderr, "ev = %f %f \n", b.re, b.im);
-
                 }
                 fprintf(stderr, "diA = %f \n", d);
                 fprintf(stderr, "evA = %f %f \n", b.re, b.im);
-
             }
             return true;
         }

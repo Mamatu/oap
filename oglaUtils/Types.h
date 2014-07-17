@@ -4,7 +4,7 @@
 #include <string.h>
 #include "LHandle.h"
 
-//#define DEBUG
+#define DEBUG
 //#define DEBUG_MATRIX_OPERATIONS
 
 #define STREAM stdout
