@@ -1,7 +1,8 @@
+include ../project_generic.mk
+include module.mk
 OGLA_INCLUDES_PATHS := $(addprefix -I/$(OGLA_PATH)/, $(OGLA_INCLUDES))
 CU_FILES := $(wildcard *.cu)
 CPP_FILES := $(wildcard *.cpp)	
-CUDA_PATH := /usr/local/cuda-6.0
 OCPP_FILES := $(addprefix build/$(MODE)/$(PLATFORM)/,$(notdir $(CPP_FILES:.cpp=.o)))
 OCU_FILES := $(addprefix build/$(MODE)/$(PLATFORM)/,$(notdir $(CU_FILES:.cu=.o)))
 CXX := g++
@@ -14,10 +15,10 @@ LIBS := $(EXTRA_LIBS)
 
 ifeq ($(MODE), Debug)
 	CXXOPTIONS := -fPIC -c -g
-	NVCCOPTIONS := -g -arch=sm_30
+	NVCCOPTIONS := -g #-arch=sm_30
 endif
 
 ifeq ($(MODE), Release)
 	CXXOPTIONS := -c -fPIC -O2
-	NVCCOPTIONS := -O -arch=sm_30
+	NVCCOPTIONS := -O #-arch=sm_30
 endif

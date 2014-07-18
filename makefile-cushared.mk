@@ -1,5 +1,3 @@
-include ../project.mk
-include module.mk
 include ../makefile-core.mk
 
 dist/$(MODE)/$(PLATFORM)/$(TARGET) : $(OCPP_FILES) $(CU_FILES)

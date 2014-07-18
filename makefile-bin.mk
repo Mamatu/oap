@@ -1,5 +1,3 @@
-include ../project.mk
-include module.mk
 include ../makefile-core.mk
 
 OGLA_LIBS_PATHS_TEMP = $(shell ls $(OGLA_PATH)/dist/$(MODE)/$(PLATFORM)/lib/)
