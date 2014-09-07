@@ -11,7 +11,8 @@ namespace math {
         STATUS_OK,
         STATUS_INVALID_PARAMS,
         STATUS_ERROR,
-        STATUS_NOT_SUPPORTED_SUBMATRIX
+        STATUS_NOT_SUPPORTED_SUBMATRIX,
+        STATUS_NOT_SUPPORTED
     };
 
     const char* getStr(Status status);
@@ -21,7 +22,7 @@ namespace math {
     protected:
         uintt m_subrows[2];
         uintt m_subcolumns[2];
-        MatrixModule* m_matrixModule;
+        MatrixModule* m_module;
         MatrixStructureUtils* m_matrixStructureUtils;
         static bool CopyIm(math::Matrix* dst, math::Matrix* src,
                 MatrixCopier* matrixCopier, IMathOperation *thiz);
@@ -359,16 +360,6 @@ namespace math {
         IDeterminantOperation(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils);
         virtual ~IDeterminantOperation();
-    };
-
-    class IIraMethod : public MatrixOperationOutputValues {
-    protected:
-        Status beforeExecution();
-        virtual void execute() = 0;
-    public:
-        IIraMethod(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
-        virtual ~IIraMethod();
     };
 
     class IQRDecomposition : public MatrixOperationTwoOutputs {

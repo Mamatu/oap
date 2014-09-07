@@ -198,7 +198,7 @@ namespace shibata {
                 int t[2];
                 int b[2];
                 DeviceMatrixStructureUtils* dmsu =
-                        DeviceMatrixStructureUtils::GetInstance(&DeviceMatrixModules::getInstance());
+                        DeviceMatrixStructureUtils::GetInstance();
                 DeviceMatrixUtils dmu;
                 intt N = getSpinsCount();
                 intt M2 = getVirtualTime();
@@ -277,7 +277,7 @@ namespace shibata {
         void RealTransferMatrix::dealloc() {
             if (m_isAllocated == true) {
                 DeviceMatrixStructureUtils* dmsu =
-                        DeviceMatrixStructureUtils::GetInstance(&DeviceMatrixModules::getInstance());
+                        DeviceMatrixStructureUtils::GetInstance();
                 dmsu->deleteMatrixStructure(m_outputStructure);
                 device::DeleteDeviceValue(ddownIndeciesCount);
                 device::DeleteDeviceValue(dquantumsCount);

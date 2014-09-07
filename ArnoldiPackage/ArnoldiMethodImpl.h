@@ -1,26 +1,23 @@
 #ifndef CPU_ARNOLDIMETHODINTERNAL_H
 #define	CPU_ARNOLDIMETHODINTERNAL_H
 
-
-#include "ThreadsCpu.h"
 #include <vector>
-
-namespace math {
-    class MathOperations;
-};
+#include "ThreadsCpu.h"
+#include "IArnoldiMethod.h"
+#include "MathOperationsCpu.h"
 
 /**
  * Implementation of implicity reverse arnoldi method.
  * 
  */
-namespace cpu {
+namespace math {
 
-    class ArnoldiMethod :
+    class ArnoldiMethodCpu :
     public math::IArnoldiMethod,
     public ThreadsCountProperty {
-        MatrixUtils* mu;
-        MatrixAllocator* ma;
-        MatrixCopier* mc;
+        MatrixUtils* m_utils;
+        MatrixAllocator* m_allocator;
+        MatrixCopier* m_copier;
         floatt diff;
         math::Matrix* w;
         math::Matrix* f;
@@ -64,11 +61,12 @@ namespace cpu {
         uintt m_k;
         floatt m_rho;
         uintt m_wantedCount;
-        math::MathOperations* m_mathOperations;
+        math::MathOperationsCpu* m_operations;
         floatt getReDiagonal(math::Matrix* matrix, intt index);
         floatt getImDiagonal(math::Matrix* matrix, intt index);
         bool isEigenValue(math::Matrix* matrix, intt index);
         bool continueProcedure();
+        bool testProcedure(uintt fa);
         bool executeArnoldiFactorization(bool init = true, intt initj = 0);
         void calculateH(int i);
         math::Matrix* oldA;
@@ -82,11 +80,11 @@ namespace cpu {
         math::Matrix* getW() const;
         math::Matrix* getA() const;
     public:
-        ArnoldiMethod(math::MathOperations* mathOperations);
-        ArnoldiMethod(MatrixModule* matrixModule,
+        ArnoldiMethodCpu(math::MathOperationsCpu* mathOperations);
+        ArnoldiMethodCpu(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils,
-                math::MathOperations* mathOperations);
-        virtual ~ArnoldiMethod();
+                math::MathOperationsCpu* mathOperations);
+        virtual ~ArnoldiMethodCpu();
         void setHSize(uintt k);
         void setRho(floatt rho);
         virtual void multiply(math::Matrix* a, math::Matrix* b,
@@ -94,8 +92,8 @@ namespace cpu {
         void execute();
     };
 
-    class ArnoldiMethodCallback :
-    public ArnoldiMethod,
+    class ArnoldiMethodCallbackCpu :
+    public ArnoldiMethodCpu,
     public utils::CallbacksManager {
         floatt* m_reoutputs;
         floatt* m_reoutputs1;
@@ -128,8 +126,8 @@ namespace cpu {
         static void ThreadFunction(void* ptr);
         std::vector<Data*> m_threads;
     public:
-        Status beforeExecution();
-        Status afterExecution();
+        math::Status beforeExecution();
+        math::Status afterExecution();
 
         static const int EVENT_MATRIX_MULTIPLICATION;
 
@@ -145,17 +143,17 @@ namespace cpu {
             void setPointers(floatt* reoutputs, floatt* imoutpus,
                     uintt* matrixEntries);
             void setCount(uintt count);
-            friend class ArnoldiMethodCallback;
+            friend class ArnoldiMethodCallbackCpu;
         public:
             uintt getCount() const;
             floatt* getReOutputs() const;
             floatt* getImOutputs() const;
             uintt* getMatrixEntries() const;
-
         };
 
-        ArnoldiMethodCallback(MathOperations* mathOperations, uintt realCount);
-        virtual ~ArnoldiMethodCallback();
+        ArnoldiMethodCallbackCpu(MathOperationsCpu* mathOperations,
+                uintt realCount);
+        virtual ~ArnoldiMethodCallbackCpu();
         bool isFinish;
         void preMultiply(math::Matrix* a, math::Matrix* b,
                 math::Matrix* c);

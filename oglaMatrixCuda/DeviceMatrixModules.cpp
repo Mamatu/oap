@@ -15,35 +15,35 @@ inline void cuFree(CUdeviceptr ptr) {
 }
 
 DeviceMatrixAllocator::DeviceMatrixAllocator() :
-MatrixAllocator(&DeviceMatrixModules::getInstance()) {
+MatrixAllocator(DeviceMatrixModules::GetInstance()) {
 }
 
 DeviceMatrixAllocator::~DeviceMatrixAllocator() {
 }
 
 DeviceMatrixUtils::DeviceMatrixUtils() :
-MatrixUtils(&DeviceMatrixModules::getInstance()) {
+MatrixUtils(DeviceMatrixModules::GetInstance()) {
 }
 
 DeviceMatrixUtils::~DeviceMatrixUtils() {
 }
 
 DeviceMatrixCopier::DeviceMatrixCopier() :
-MatrixCopier(&DeviceMatrixModules::getInstance()) {
+MatrixCopier(DeviceMatrixModules::GetInstance()) {
 }
 
 DeviceMatrixCopier::~DeviceMatrixCopier() {
 }
 
 HDMatrixCopier::HDMatrixCopier() :
-MatrixCopier(&DeviceMatrixModules::getInstance()) {
+MatrixCopier(DeviceMatrixModules::GetInstance()) {
 }
 
 HDMatrixCopier::~HDMatrixCopier() {
 }
 
 DHMatrixCopier::DHMatrixCopier() :
-MatrixCopier(&DeviceMatrixModules::getInstance()) {
+MatrixCopier(DeviceMatrixModules::GetInstance()) {
 }
 
 DHMatrixCopier::~DHMatrixCopier() {
@@ -134,19 +134,19 @@ math::Matrix* DeviceMatrixAllocator::newMatrixFromBinaryFile(const char* path) {
 void DeviceMatrixPrinter::getReMatrixStr(std::string& str, const math::Matrix* matrix) {
     math::Matrix* matrix1 = device::NewHostMatrixCopyOfDeviceMatrix(matrix);
     hmp.getReMatrixStr(str, matrix1);
-    HostMatrixModules::GetInstance().getMatrixAllocator()->deleteMatrix(matrix1);
+    HostMatrixModules::GetInstance()->getMatrixAllocator()->deleteMatrix(matrix1);
 }
 
 void DeviceMatrixPrinter::getImMatrixStr(std::string& str, const math::Matrix* matrix) {
     math::Matrix* matrix1 = device::NewHostMatrixCopyOfDeviceMatrix(matrix);
     hmp.getImMatrixStr(str, matrix1);
-    HostMatrixModules::GetInstance().getMatrixAllocator()->deleteMatrix(matrix1);
+    HostMatrixModules::GetInstance()->getMatrixAllocator()->deleteMatrix(matrix1);
 }
 
 void DeviceMatrixPrinter::getMatrixStr(std::string& str, const math::Matrix* matrix) {
     math::Matrix* matrix1 = device::NewHostMatrixCopyOfDeviceMatrix(matrix);
     hmp.getMatrixStr(str, matrix1);
-    HostMatrixModules::GetInstance().getMatrixAllocator()->deleteMatrix(matrix1);
+    HostMatrixModules::GetInstance()->getMatrixAllocator()->deleteMatrix(matrix1);
 }
 
 void DeviceMatrixPrinter::printReMatrix(FILE* stream, const math::Matrix* matrix) {
@@ -192,53 +192,68 @@ math::Matrix* DeviceMatrixModules::newDeviceMatrix(math::Matrix* hostMatrix) {
     CUdeviceptr ptr = dma.allocMatrix(allocRe, allocIm, hostMatrix->columns, hostMatrix->rows);
     math::Matrix* mptr = reinterpret_cast<math::Matrix*> (ptr);
     if (allocRe && allocIm) {
-        hdmc.copyMatrixToMatrix(mptr, hostMatrix);
+        m_hdmc->copyMatrixToMatrix(mptr, hostMatrix);
     } else if (allocRe) {
-        hdmc.copyReMatrixToReMatrix(mptr, hostMatrix);
+        m_hdmc->copyReMatrixToReMatrix(mptr, hostMatrix);
     } else if (allocIm) {
-        hdmc.copyImMatrixToImMatrix(mptr, hostMatrix);
+        m_hdmc->copyImMatrixToImMatrix(mptr, hostMatrix);
     }
     return mptr;
 }
 
 MatrixAllocator* DeviceMatrixModules::getMatrixAllocator() {
-    return &dma;
+    return m_dma;
 }
 
 MatrixCopier* DeviceMatrixModules::getMatrixCopier() {
-    return &dmc;
+    return m_dmc;
 }
 
 MatrixUtils* DeviceMatrixModules::getMatrixUtils() {
-    return &dmu;
+    return m_dmu;
 }
 
 MatrixPrinter* DeviceMatrixModules::getMatrixPrinter() {
-    return &dmp;
+    return m_dmp;
 }
 
 HDMatrixCopier* DeviceMatrixModules::getHDCopier() {
-    return &hdmc;
+    return m_hdmc;
 }
 
 DHMatrixCopier* DeviceMatrixModules::getDHCopier() {
-    return &dhmc;
+    return m_dhmc;
 }
 
 DeviceMatrixModules::DeviceMatrixModules() {
+    m_dhmc = NULL;
+    m_dma = NULL;
+    m_dmc = NULL;
+    m_dmp = NULL;
+    m_dmu = NULL;
+    m_hdmc = NULL;
 }
 
 DeviceMatrixModules::~DeviceMatrixModules() {
 }
 
-DeviceMatrixModules DeviceMatrixModules::deviceMatrixMoules;
+DeviceMatrixModules* DeviceMatrixModules::deviceMatrixMoules = NULL;
 
-DeviceMatrixModules& DeviceMatrixModules::getInstance() {
+DeviceMatrixModules* DeviceMatrixModules::GetInstance() {
+    if (NULL == deviceMatrixMoules) {
+        deviceMatrixMoules = new DeviceMatrixModules();
+        deviceMatrixMoules->m_dma = new DeviceMatrixAllocator;
+        deviceMatrixMoules->m_dmc = new DeviceMatrixCopier;
+        deviceMatrixMoules->m_dmu = new DeviceMatrixUtils;
+        deviceMatrixMoules->m_dmp = new DeviceMatrixPrinter;
+        deviceMatrixMoules->m_hdmc = new HDMatrixCopier;
+        deviceMatrixMoules->m_dhmc = new DHMatrixCopier;
+    }
     return deviceMatrixMoules;
 }
 
 DeviceMatrixPrinter::DeviceMatrixPrinter() :
-MatrixPrinter(&DeviceMatrixModules::getInstance()) {
+MatrixPrinter(DeviceMatrixModules::GetInstance()) {
 }
 
 DeviceMatrixPrinter::~DeviceMatrixPrinter() {
@@ -266,26 +281,26 @@ namespace device {
         uintt rows = deviceUtils.getDeviceRows(matrix);
         math::Matrix * matrix1 = NULL;
         if (matrixRePtr != 0 && matrixImPtr != 0) {
-            matrix1 = HostMatrixModules::GetInstance().getMatrixAllocator()->newMatrix(columns, rows);
+            matrix1 = HostMatrixModules::GetInstance()->getMatrixAllocator()->newMatrix(columns, rows);
         } else if (matrixRePtr != 0) {
-            matrix1 = HostMatrixModules::GetInstance().getMatrixAllocator()->newReMatrix(columns, rows);
+            matrix1 = HostMatrixModules::GetInstance()->getMatrixAllocator()->newReMatrix(columns, rows);
         } else if (matrixImPtr != 0) {
-            matrix1 = HostMatrixModules::GetInstance().getMatrixAllocator()->newImMatrix(columns, rows);
+            matrix1 = HostMatrixModules::GetInstance()->getMatrixAllocator()->newImMatrix(columns, rows);
         }
-        DeviceMatrixModules::getInstance().getDHCopier()->copyMatrixToMatrix(matrix1, matrix);
+        DeviceMatrixModules::GetInstance()->getDHCopier()->copyMatrixToMatrix(matrix1, matrix);
         return matrix1;
     }
 
     math::Matrix* NewDeviceMatrix(math::Matrix* hostMatrix) {
-        return DeviceMatrixModules::getInstance().newDeviceMatrix(hostMatrix);
+        return DeviceMatrixModules::GetInstance()->newDeviceMatrix(hostMatrix);
     }
 
     void DeleteDeviceMatrix(math::Matrix* deviceMatrix) {
-        DeviceMatrixModules::getInstance().getMatrixAllocator()->deleteMatrix(deviceMatrix);
+        DeviceMatrixModules::GetInstance()->getMatrixAllocator()->deleteMatrix(deviceMatrix);
     }
 
     void CopyDeviceMatrixToHostMatrix(math::Matrix* hostMatrix, math::Matrix* deviceMatrix) {
-        DeviceMatrixModules::getInstance().getDHCopier()->copyMatrixToMatrix(hostMatrix, deviceMatrix);
+        DeviceMatrixModules::GetInstance()->getDHCopier()->copyMatrixToMatrix(hostMatrix, deviceMatrix);
     }
 
     void CopyHostToDevice(void* dst, const void* src, intt size) {

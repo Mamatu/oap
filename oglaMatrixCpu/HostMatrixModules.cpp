@@ -56,7 +56,7 @@ math::Matrix* HostMatrixAllocator::createHostMatrix(math::Matrix* matrix,
 }
 
 HostMatrixCopier::HostMatrixCopier() :
-MatrixCopier(&HostMatrixModules::GetInstance()) {
+MatrixCopier(HostMatrixModules::GetInstance()) {
 }
 
 HostMatrixCopier::~HostMatrixCopier() {
@@ -101,36 +101,15 @@ void HostMatrixAllocator::deleteMatrix(math::Matrix* matrix) {
 }
 
 void HostMatrixCopier::copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* src) {
-    const intt length1 = dst->columns * dst->rows;
-    const intt length2 = src->columns * src->rows;
-    const intt length = length1 < length2 ? length1 : length2;
-    intt bytesLength = length * sizeof (floatt);
-    if (ReIsNotNULL(dst) && ReIsNotNULL(src)) {
-        memcpy(dst->reValues, src->reValues, bytesLength);
-    }
-    if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
-        memcpy(dst->imValues, src->imValues, bytesLength);
-    }
+    host::CopyMatrix(dst, src);
 }
 
 void HostMatrixCopier::copyReMatrixToReMatrix(math::Matrix* dst, const math::Matrix* src) {
-    const intt length1 = dst->columns * dst->rows;
-    const intt length2 = src->columns * src->rows;
-    const intt length = length1 < length2 ? length1 : length2;
-    if (ReIsNotNULL(dst) && ReIsNotNULL(src)) {
-        memcpy(dst->reValues, src->reValues, length * sizeof (floatt));
-    } else {
-    }
+    host::CopyRe(dst, src);
 }
 
 void HostMatrixCopier::copyImMatrixToImMatrix(math::Matrix* dst, const math::Matrix* src) {
-    const intt length1 = dst->columns * dst->rows;
-    const intt length2 = src->columns * src->rows;
-    const intt length = length1 < length2 ? length1 : length2;
-    if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
-        memcpy(dst->imValues, src->imValues, length * sizeof (floatt));
-    } else {
-    }
+    host::CopyIm(dst, src);
 }
 
 void HostMatrixCopier::copy(floatt* dst, const floatt* src, intt length) {
@@ -138,21 +117,21 @@ void HostMatrixCopier::copy(floatt* dst, const floatt* src, intt length) {
 }
 
 HostMatrixUtils::HostMatrixUtils() :
-MatrixUtils(&HostMatrixModules::GetInstance()) {
+MatrixUtils(HostMatrixModules::GetInstance()) {
 }
 
 HostMatrixUtils::~HostMatrixUtils() {
 }
 
 HostMatrixAllocator::HostMatrixAllocator() :
-MatrixAllocator(&HostMatrixModules::GetInstance()) {
+MatrixAllocator(HostMatrixModules::GetInstance()) {
 }
 
 HostMatrixAllocator::~HostMatrixAllocator() {
 }
 
 HostMatrixPrinter::HostMatrixPrinter() :
-MatrixPrinter(&HostMatrixModules::GetInstance()) {
+MatrixPrinter(HostMatrixModules::GetInstance()) {
 }
 
 HostMatrixPrinter::~HostMatrixPrinter() {
@@ -246,26 +225,7 @@ void HostMatrixPrinter::getReMatrixStr(std::string& text, const math::Matrix* ma
 }
 
 void HostMatrixPrinter::getImMatrixStr(std::string& str, const math::Matrix* matrix) {
-    str = "";
-    if (matrix == NULL) {
-        return;
-    }
-    std::stringstream sstream;
-    str += "[";
-    for (int fb = 0; fb < matrix->rows; fb++) {
-        for (int fa = 0; fa < matrix->columns; fa++) {
-            sstream << matrix->imValues[fb * matrix->columns + fa];
-            str += sstream.str();
-            sstream.str("");
-            if (fa != matrix->columns - 1) {
-                str += ",";
-            }
-            if (fa == matrix->columns - 1 && fb != matrix->rows - 1) {
-                str += "\n";
-            }
-        }
-    }
-    str += "]";
+    host::GetImMatrixStr(str, matrix);
 }
 
 void HostMatrixUtils::getReValues(floatt* dst, math::Matrix* matrix, intt index, intt length) {
@@ -323,17 +283,11 @@ void HostMatrixUtils::setDiagonalImMatrix(math::Matrix* matrix, floatt value) {
 }
 
 void HostMatrixCopier::setTransposeReVector(math::Matrix* matrix, intt row, floatt* vector, intt length) {
-    if (matrix->reValues) {
-        memcpy(&matrix->reValues[row * matrix->columns], vector, length * sizeof (floatt));
-    }
+    host::SetTransposeReVector(matrix, row, vector, length);
 }
 
 void HostMatrixCopier::setReVector(math::Matrix* matrix, intt column, floatt* vector, intt length) {
-    if (matrix->reValues) {
-        for (intt fa = 0; fa < length; fa++) {
-            matrix->reValues[column + matrix->columns * fa] = vector[fa];
-        }
-    }
+    host::SetReVector(matrix, column, vector, length);
 }
 
 void HostMatrixCopier::setTransposeImVector(math::Matrix* matrix, intt row, floatt* vector, intt length) {
@@ -364,16 +318,12 @@ void HostMatrixCopier::setVector(math::Matrix* matrix, intt column,
 
 void HostMatrixCopier::getVector(math::Matrix* vector, uintt rows,
         math::Matrix* matrix, intt column) {
-    getReVector(vector->reValues, rows, matrix, column);
-    getImVector(vector->imValues, rows, matrix, column);
+    host::GetReVector(vector->reValues, rows, matrix, column);
+    host::GetImVector(vector->imValues, rows, matrix, column);
 }
 
 void HostMatrixCopier::getImVector(floatt* vector, intt length, math::Matrix* matrix, intt column) {
-    if (matrix->imValues) {
-        for (intt fa = 0; fa < length; fa++) {
-            vector[fa] = matrix->imValues[column + matrix->columns * fa];
-        }
-    }
+    host::GetImVector(vector, length, matrix, column);
 }
 
 math::Matrix* HostMatrixAllocator::newMatrixFromAsciiFile(const char* path) {
@@ -460,47 +410,57 @@ bool HostMatrixUtils::isImMatrix(const math::Matrix* matrix) const {
 }
 
 HostMatrixModules::HostMatrixModules() {
+    m_hma = NULL;
+    m_hmc = NULL;
+    m_hmp = NULL;
+    m_hmu = NULL;
 }
 
 HostMatrixModules::~HostMatrixModules() {
 }
 
 HostMatrixAllocator* HostMatrixModules::getMatrixAllocator() {
-    return &hma;
+    return m_hma;
 }
 
 HostMatrixCopier* HostMatrixModules::getMatrixCopier() {
-    return &hmc;
+    return m_hmc;
 }
 
 HostMatrixUtils* HostMatrixModules::getMatrixUtils() {
-    return &hmu;
+    return m_hmu;
 }
 
 HostMatrixPrinter* HostMatrixModules::getMatrixPrinter() {
-    return &hmp;
+    return m_hmp;
 }
 
-HostMatrixModules HostMatrixModules::hostMatrixModule;
+HostMatrixModules* HostMatrixModules::hostMatrixModule = NULL;
 
-HostMatrixModules& HostMatrixModules::GetInstance() {
+HostMatrixModules* HostMatrixModules::GetInstance() {
+    if (NULL == HostMatrixModules::hostMatrixModule) {
+        HostMatrixModules::hostMatrixModule = new HostMatrixModules();
+        HostMatrixModules::hostMatrixModule->m_hma = new HostMatrixAllocator();
+        HostMatrixModules::hostMatrixModule->m_hmc = new HostMatrixCopier();
+        HostMatrixModules::hostMatrixModule->m_hmp = new HostMatrixPrinter();
+        HostMatrixModules::hostMatrixModule->m_hmu = new HostMatrixUtils();
+    }
     return HostMatrixModules::hostMatrixModule;
 }
-
 
 namespace host {
 
     math::Matrix* NewMatrixCopy(const math::Matrix* matrix) {
         math::Matrix* output = NULL;
         if (matrix->reValues && matrix->imValues) {
-            output = HostMatrixModules::GetInstance().getMatrixAllocator()->newMatrix(matrix->columns, matrix->rows);
-            HostMatrixModules::GetInstance().getMatrixCopier()->copyMatrixToMatrix(output, matrix);
+            output = NewMatrix(matrix->columns, matrix->rows);
+            CopyMatrix(output, matrix);
         } else if (matrix->reValues) {
-            output = HostMatrixModules::GetInstance().getMatrixAllocator()->newReMatrix(matrix->columns, matrix->rows);
-            HostMatrixModules::GetInstance().getMatrixCopier()->copyReMatrixToReMatrix(output, matrix);
+            output = NewReMatrix(matrix->columns, matrix->rows);
+            CopyRe(output, matrix);
         } else if (matrix->imValues) {
-            output = HostMatrixModules::GetInstance().getMatrixAllocator()->newImMatrix(matrix->columns, matrix->rows);
-            HostMatrixModules::GetInstance().getMatrixCopier()->copyImMatrixToImMatrix(output, matrix);
+            output = HostMatrixModules::GetInstance()->getMatrixAllocator()->newImMatrix(matrix->columns, matrix->rows);
+            CopyIm(output, matrix);
         }
         return output;
     }
@@ -508,11 +468,11 @@ namespace host {
     math::Matrix* NewMatrix(math::Matrix* matrix, floatt value) {
         math::Matrix* output = NULL;
         if (matrix->reValues != NULL && matrix->imValues != NULL) {
-            output = HostMatrixModules::GetInstance().getMatrixAllocator()->newMatrix(matrix->columns, matrix->rows, value);
+            output = NewMatrix(matrix->columns, matrix->rows, value);
         } else if (matrix->reValues != NULL) {
-            output = HostMatrixModules::GetInstance().getMatrixAllocator()->newReMatrix(matrix->columns, matrix->rows, value);
+            output = NewReMatrix(matrix->columns, matrix->rows, value);
         } else if (matrix->imValues != NULL) {
-            output = HostMatrixModules::GetInstance().getMatrixAllocator()->newImMatrix(matrix->columns, matrix->rows, value);
+            output = NewImMatrix(matrix->columns, matrix->rows, value);
         } else {
             return NULL;
         }
@@ -521,11 +481,11 @@ namespace host {
     math::Matrix* NewMatrix(math::Matrix* matrix, intt columns, intt rows, floatt value) {
         math::Matrix* output = NULL;
         if (matrix->reValues != NULL && matrix->imValues != NULL) {
-            output = HostMatrixModules::GetInstance().getMatrixAllocator()->newMatrix(columns, rows, value);
+            output = NewMatrix(columns, rows, value);
         } else if (matrix->reValues != NULL) {
-            output = HostMatrixModules::GetInstance().getMatrixAllocator()->newReMatrix(columns, rows, value);
+            output = NewReMatrix(columns, rows, value);
         } else if (matrix->imValues != NULL) {
-            output = HostMatrixModules::GetInstance().getMatrixAllocator()->newImMatrix(columns, rows, value);
+            output = NewImMatrix(columns, rows, value);
         } else {
             return NULL;
         }
@@ -533,21 +493,21 @@ namespace host {
 
     math::Matrix* NewMatrixCopy(intt columns, intt rows,
             floatt* reArray, floatt* imArray) {
-        math::Matrix* output = HostMatrixModules::GetInstance().getMatrixAllocator()->newMatrix(columns, rows);
-        HostMatrixModules::GetInstance().getMatrixCopier()->copy(output->reValues, reArray, columns * rows);
-        HostMatrixModules::GetInstance().getMatrixCopier()->copy(output->imValues, imArray, columns * rows);
+        math::Matrix* output = HostMatrixModules::GetInstance()->getMatrixAllocator()->newMatrix(columns, rows);
+        HostMatrixModules::GetInstance()->getMatrixCopier()->copy(output->reValues, reArray, columns * rows);
+        HostMatrixModules::GetInstance()->getMatrixCopier()->copy(output->imValues, imArray, columns * rows);
         return output;
     }
 
     math::Matrix* NewReMatrixCopy(intt columns, intt rows, floatt* array) {
-        math::Matrix* output = HostMatrixModules::GetInstance().getMatrixAllocator()->newReMatrix(columns, rows);
-        HostMatrixModules::GetInstance().getMatrixCopier()->copy(output->reValues, array, columns * rows);
+        math::Matrix* output = HostMatrixModules::GetInstance()->getMatrixAllocator()->newReMatrix(columns, rows);
+        HostMatrixModules::GetInstance()->getMatrixCopier()->copy(output->reValues, array, columns * rows);
         return output;
     }
 
     math::Matrix* NewImMatrixCopy(intt columns, intt rows, floatt* array) {
-        math::Matrix* output = HostMatrixModules::GetInstance().getMatrixAllocator()->newImMatrix(columns, rows);
-        HostMatrixModules::GetInstance().getMatrixCopier()->copy(output->reValues, array, columns * rows);
+        math::Matrix* output = HostMatrixModules::GetInstance()->getMatrixAllocator()->newImMatrix(columns, rows);
+        HostMatrixModules::GetInstance()->getMatrixCopier()->copy(output->reValues, array, columns * rows);
         return output;
     }
 
@@ -622,36 +582,36 @@ namespace host {
     }
 
     void PrintMatrix(const std::string& text, const math::Matrix* matrix) {
-        HostMatrixModules::GetInstance().getMatrixPrinter()->printMatrix(text, matrix);
+        HostMatrixModules::GetInstance()->getMatrixPrinter()->printMatrix(text, matrix);
     }
 
     void PrintReMatrix(FILE* stream, const math::Matrix* matrix) {
-        HostMatrixModules::GetInstance().getMatrixPrinter()->printReMatrix(stream, matrix);
+        HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix(stream, matrix);
     }
 
     void PrintReMatrix(const math::Matrix* matrix) {
-        HostMatrixModules::GetInstance().getMatrixPrinter()->printReMatrix(matrix);
+        HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix(matrix);
     }
 
     void PrintReMatrix(const std::string& text, const math::Matrix* matrix) {
-        HostMatrixModules::GetInstance().getMatrixPrinter()->printReMatrix(text, matrix);
+        HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix(text, matrix);
     }
 
     void PrintImMatrix(FILE* stream, const math::Matrix* matrix) {
-        HostMatrixModules::GetInstance().getMatrixPrinter()->printImMatrix(stream, matrix);
+        HostMatrixModules::GetInstance()->getMatrixPrinter()->printImMatrix(stream, matrix);
     }
 
     void PrintImMatrix(const math::Matrix* matrix) {
-        HostMatrixModules::GetInstance().getMatrixPrinter()->printImMatrix(matrix);
+        HostMatrixModules::GetInstance()->getMatrixPrinter()->printImMatrix(matrix);
     }
 
     void PrintImMatrix(const std::string& text, const math::Matrix* matrix) {
-        HostMatrixModules::GetInstance().getMatrixPrinter()->printImMatrix(text, matrix);
+        HostMatrixModules::GetInstance()->getMatrixPrinter()->printImMatrix(text, matrix);
     }
 
     void Copy(math::Matrix* dst, const math::Matrix* src, const SubMatrix& subMatrix,
             intt column, intt row) {
-        HostMatrixCopier* copier = HostMatrixModules::GetInstance().getMatrixCopier();
+        HostMatrixCopier* copier = HostMatrixModules::GetInstance()->getMatrixCopier();
         intt rows = dst->rows;
         intt columns2 = subMatrix.m_columns;
         for (intt fa = 0; fa < rows; fa++) {
@@ -676,7 +636,7 @@ namespace host {
     }
 
     void Copy(math::Matrix* dst, const math::Matrix* src, intt column, intt row) {
-        HostMatrixCopier* copier = HostMatrixModules::GetInstance().getMatrixCopier();
+        HostMatrixCopier* copier = HostMatrixModules::GetInstance()->getMatrixCopier();
         uintt rows = src->rows;
         uintt columns = src->columns;
         for (uintt fa = 0; fa < rows; fa++) {
@@ -703,28 +663,51 @@ namespace host {
     }
 
     void CopyMatrix(math::Matrix* dst, const math::Matrix* src) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->copyMatrixToMatrix(dst, src);
+        const intt length1 = dst->columns * dst->rows;
+        const intt length2 = src->columns * src->rows;
+        const intt length = length1 < length2 ? length1 : length2;
+        intt bytesLength = length * sizeof (floatt);
+        if (ReIsNotNULL(dst) && ReIsNotNULL(src)) {
+            memcpy(dst->reValues, src->reValues, bytesLength);
+        }
+        if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
+            memcpy(dst->imValues, src->imValues, bytesLength);
+        }
     }
 
     void CopyRe(math::Matrix* dst, const math::Matrix* src) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->copyReMatrixToReMatrix(dst, src);
+        const intt length1 = dst->columns * dst->rows;
+        const intt length2 = src->columns * src->rows;
+        const intt length = length1 < length2 ? length1 : length2;
+        if (ReIsNotNULL(dst) && ReIsNotNULL(src)) {
+            memcpy(dst->reValues, src->reValues, length * sizeof (floatt));
+        } else {
+        }
     }
 
     void CopyIm(math::Matrix* dst, const math::Matrix* src) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->copyImMatrixToImMatrix(dst, src);
+        const intt length1 = dst->columns * dst->rows;
+        const intt length2 = src->columns * src->rows;
+        const intt length = length1 < length2 ? length1 : length2;
+        if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
+            memcpy(dst->imValues, src->imValues, length * sizeof (floatt));
+        } else {
+        }
     }
 
     void SetReVector(math::Matrix* matrix, intt column, floatt* vector, intt length) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->setReVector(matrix, column, vector, length);
+        if (matrix->reValues) {
+            for (intt fa = 0; fa < length; fa++) {
+                matrix->reValues[column + matrix->columns * fa] = vector[fa];
+            }
+        }
     }
 
     void SetTransposeReVector(math::Matrix* matrix, intt row, floatt* vector, intt length) {
+        if (matrix->reValues) {
+            memcpy(&matrix->reValues[row * matrix->columns], vector, length * sizeof (floatt));
+        }
 
-        HostMatrixModules::GetInstance().getMatrixCopier()->setTransposeReVector(matrix, row, vector, length);
     }
 
     void SetImVector(math::Matrix* matrix, intt column, floatt* vector, intt length) {
@@ -742,33 +725,46 @@ namespace host {
     }
 
     void SetReVector(math::Matrix* matrix, intt column, floatt* vector) {
-
         SetReVector(matrix, column, vector, matrix->rows);
     }
 
     void SetTransposeReVector(math::Matrix* matrix, intt row, floatt* vector) {
-
         SetTransposeReVector(matrix, row, vector, matrix->columns);
     }
 
     void SetImVector(math::Matrix* matrix, intt column, floatt* vector) {
-
         SetImVector(matrix, column, vector, matrix->rows);
     }
 
     void SetTransposeImVector(math::Matrix* matrix, intt row, floatt* vector) {
-
         SetTransposeImVector(matrix, row, vector, matrix->columns);
     }
 
     void GetReMatrixStr(std::string& text, const math::Matrix* matrix) {
-
-        HostMatrixModules::GetInstance().getMatrixPrinter()->getReMatrixStr(text, matrix);
+        HostMatrixModules::GetInstance()->getMatrixPrinter()->getReMatrixStr(text, matrix);
     }
 
-    void GetImMatrixStr(std::string& text, const math::Matrix* matrix) {
-
-        HostMatrixModules::GetInstance().getMatrixPrinter()->getImMatrixStr(text, matrix);
+    void GetImMatrixStr(std::string& str, const math::Matrix* matrix) {
+        str = "";
+        if (matrix == NULL) {
+            return;
+        }
+        std::stringstream sstream;
+        str += "[";
+        for (int fb = 0; fb < matrix->rows; fb++) {
+            for (int fa = 0; fa < matrix->columns; fa++) {
+                sstream << matrix->imValues[fb * matrix->columns + fa];
+                str += sstream.str();
+                sstream.str("");
+                if (fa != matrix->columns - 1) {
+                    str += ",";
+                }
+                if (fa == matrix->columns - 1 && fb != matrix->rows - 1) {
+                    str += "\n";
+                }
+            }
+        }
+        str += "]";
     }
 
     void GetReVector(floatt* vector, intt length, math::Matrix* matrix, intt column) {
@@ -786,8 +782,11 @@ namespace host {
     }
 
     void GetImVector(floatt* vector, intt length, math::Matrix* matrix, intt column) {
-
-        HostMatrixModules::GetInstance().getMatrixCopier()->getImVector(vector, length, matrix, column);
+        if (matrix->imValues) {
+            for (intt fa = 0; fa < length; fa++) {
+                vector[fa] = matrix->imValues[column + matrix->columns * fa];
+            }
+        }
     }
 
     void GetTransposeImVector(floatt* vector, intt length, math::Matrix* matrix, intt row) {
@@ -851,7 +850,7 @@ namespace host {
     }
 
     void SetIdentity(math::Matrix* matrix) {
-        HostMatrixModules::GetInstance().getMatrixUtils()->setIdentityMatrix(matrix);
+        HostMatrixModules::GetInstance()->getMatrixUtils()->setIdentityMatrix(matrix);
     }
 
     void SetReZero(math::Matrix* matrix) {
@@ -898,7 +897,7 @@ namespace host {
     }
 
     void SetReDiagonals(math::Matrix* matrix, floatt a) {
-        HostMatrixModules::GetInstance().getMatrixUtils()->setDiagonalReMatrix(matrix, a);
+        HostMatrixModules::GetInstance()->getMatrixUtils()->setDiagonalReMatrix(matrix, a);
     }
 
     char* load(const char* path, uintt& _size) {

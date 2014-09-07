@@ -14,11 +14,15 @@ LIBS_DIRS := -L/usr/lib/nvidia-current -L/usr/lib -L/usr/local/lib -L/usr/local/
 LIBS := $(EXTRA_LIBS)
 
 ifeq ($(MODE), Debug)
-	CXXOPTIONS := -fPIC -c -g
-	NVCCOPTIONS := -g #-arch=sm_30
+	CXXOPTIONS := -c -g -fPIC
+	CXXOPTIONS += $(EXTRA_CXXOPTIONS)
+	NVCCOPTIONS := -g
+	NVCCOPTIONS += $(EXTRA_NVCCOPTIONS)
 endif
 
 ifeq ($(MODE), Release)
-	CXXOPTIONS := -c -fPIC -O2
-	NVCCOPTIONS := -O #-arch=sm_30
+	CXXOPTIONS := -c -fPIC 
+	CXXOPTIONS += $(EXTRA_CXXOPTIONS)
+	NVCCOPTIONS := -O
+	NVCCOPTIONS += $(EXTRA_NVCCOPTIONS)
 endif

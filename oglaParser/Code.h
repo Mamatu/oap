@@ -64,6 +64,10 @@ public:
     template<typename T> void insert(int index, T* obj) {
         items.insert(items.begin() + index, Item(obj, obj->getType()));
     }
+
+    template<typename T> void set(int index, T* obj) {
+        items[index] = obj;
+    }
 private:
     Code(const Code& orig);
     void setString(const char* string);
@@ -125,11 +129,6 @@ public:
 
     VariableItem(Variable* _variable = NULL) : variable(_variable) {
     }
-};
-
-class MatrixStructureItem {
-public:
-    MatrixStructure* matrixStructure;
 };
 
 #endif	/* CODE_H */

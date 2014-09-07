@@ -6,8 +6,8 @@ namespace math {
             bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
             IDotProductOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
-        MatrixUtils* matrixUtils = m_matrixModule->getMatrixUtils();
-        MatrixCopier* matrixCopier = m_matrixModule->getMatrixCopier();
+        MatrixUtils* matrixUtils = m_module->getMatrixUtils();
+        MatrixCopier* matrixCopier = m_module->getMatrixCopier();
         if (isNotNull(matrix1, matrixUtils) == false ||
                 isNotNull(matrix2, matrixUtils) == false) {
             if (isNotNull(output, matrixUtils) == false) {

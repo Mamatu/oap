@@ -6,9 +6,10 @@
  */
 
 #include "HostMatrixStructure.h"
+#include "HostMatrixModules.h"
 
-HostMatrixStructureUtils::HostMatrixStructureUtils(MatrixModule* matrixModule) :
-MatrixStructureUtils(matrixModule) {
+HostMatrixStructureUtils::HostMatrixStructureUtils() :
+MatrixStructureUtils(HostMatrixModules::GetInstance()) {
 }
 
 math::Matrix* HostMatrixStructureUtils::getMatrix(MatrixStructure* matrixStructure) {
@@ -17,8 +18,6 @@ math::Matrix* HostMatrixStructureUtils::getMatrix(MatrixStructure* matrixStructu
 
 HostMatrixStructureUtils::~HostMatrixStructureUtils() {
 }
-
-HostMatrixStructureUtils* HostMatrixStructureUtils::m_hostMatrixStructureUtils = NULL;
 
 void HostMatrixStructureUtils::setSubColumns(MatrixStructure* matrixStructure,
         uintt columns) {
@@ -49,9 +48,11 @@ void HostMatrixStructureUtils::setMatrixToStructure(MatrixStructure* matrixStruc
     matrixStructure->m_beginRow = 0;
 }
 
-HostMatrixStructureUtils* HostMatrixStructureUtils::GetInstance(MatrixModule* matrixModule) {
-    if (m_hostMatrixStructureUtils == NULL) {
-        m_hostMatrixStructureUtils = new HostMatrixStructureUtils(matrixModule);
+HostMatrixStructureUtils* HostMatrixStructureUtils::m_hostMatrixStructureUtils = NULL;
+
+HostMatrixStructureUtils* HostMatrixStructureUtils::GetInstance() {
+    if (NULL == m_hostMatrixStructureUtils) {
+        m_hostMatrixStructureUtils = new HostMatrixStructureUtils();
     }
     return m_hostMatrixStructureUtils;
 }

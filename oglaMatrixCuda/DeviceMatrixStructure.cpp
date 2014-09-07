@@ -10,12 +10,8 @@
 
 DeviceMatrixStructureUtils* DeviceMatrixStructureUtils::m_deviceMatrixStructureUtils = NULL;
 
-DeviceMatrixStructureUtils::DeviceMatrixStructureUtils(MatrixModule* matrixModule) :
-MatrixStructureUtils(matrixModule) {
-}
-
 DeviceMatrixStructureUtils::DeviceMatrixStructureUtils() :
-MatrixStructureUtils(&DeviceMatrixModules::getInstance()) {
+MatrixStructureUtils(DeviceMatrixModules::GetInstance()) {
 }
 
 DeviceMatrixStructureUtils::~DeviceMatrixStructureUtils() {
@@ -80,9 +76,9 @@ bool DeviceMatrixStructureUtils::isValid(MatrixStructure* matrixStructure) {
     return true;
 }
 
-DeviceMatrixStructureUtils* DeviceMatrixStructureUtils::GetInstance(MatrixModule* matrixModule) {
+DeviceMatrixStructureUtils* DeviceMatrixStructureUtils::GetInstance() {
     if (m_deviceMatrixStructureUtils == NULL) {
-        m_deviceMatrixStructureUtils = new DeviceMatrixStructureUtils(matrixModule);
+        m_deviceMatrixStructureUtils = new DeviceMatrixStructureUtils();
     }
     return m_deviceMatrixStructureUtils;
 }

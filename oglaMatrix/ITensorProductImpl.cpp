@@ -17,7 +17,7 @@ namespace math {
             bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
             ITensorProductOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
-        MatrixUtils* matrixUtils = this->m_matrixModule->getMatrixUtils();
+        MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
         if (isNotNull(matrix1, matrixUtils) == false || isNotNull(matrix2, matrixUtils) == false) {
             if (isNotNull(output, matrixUtils) == false) {
                 executionPath = EXECUTION_NOTHING;

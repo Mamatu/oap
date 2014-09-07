@@ -1,3 +1,3 @@
-include ../project.mk
-TARGET := 
+include ../project_generic.mk
+TARGET := oglaParser
 INCLUDE_PATHS :=

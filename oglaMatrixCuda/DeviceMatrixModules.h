@@ -162,19 +162,19 @@ public:
 };
 
 class DeviceMatrixModules : public MatrixModule {
-    DeviceMatrixAllocator dma;
-    DeviceMatrixCopier dmc;
-    DeviceMatrixUtils dmu;
-    DeviceMatrixPrinter dmp;
-    HDMatrixCopier hdmc;
-    DHMatrixCopier dhmc;
-    static DeviceMatrixModules deviceMatrixMoules;
+    DeviceMatrixAllocator* m_dma;
+    DeviceMatrixCopier* m_dmc;
+    DeviceMatrixUtils* m_dmu;
+    DeviceMatrixPrinter* m_dmp;
+    HDMatrixCopier* m_hdmc;
+    DHMatrixCopier* m_dhmc;
+    static DeviceMatrixModules* deviceMatrixMoules;
 protected:
     DeviceMatrixModules();
     virtual ~DeviceMatrixModules();
 public:
     math::Matrix* newDeviceMatrix(math::Matrix* hostMatrix);
-    static DeviceMatrixModules& getInstance();
+    static DeviceMatrixModules* GetInstance();
     virtual MatrixAllocator* getMatrixAllocator();
     virtual MatrixCopier* getMatrixCopier();
     virtual HDMatrixCopier* getHDCopier();

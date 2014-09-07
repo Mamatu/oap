@@ -114,8 +114,8 @@ namespace shibata {
             HostMatrixPrinter hmp;
             ThreadData1* threadData1 = (ThreadData1*) ptr;
             if (threadData1->hamiltonian) {
-                math::cpu::ExpOperation expOperation;
-                math::cpu::MultiplicationConstOperation mco;
+                math::ExpOperationCpu expOperation;
+                math::MultiplicationConstOperationCpu mco;
                 mco.setMatrix(threadData1->hamiltonian);
                 floatt factor = -1. / threadData1->trotterNumber;
                 mco.setReValue(&factor);

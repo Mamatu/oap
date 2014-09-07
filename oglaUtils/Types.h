@@ -2,12 +2,13 @@
 #define	TYPES_H
 
 #include <string.h>
+#include <assert.h>
 #include "LHandle.h"
 
 #define DEBUG
 //#define DEBUG_MATRIX_OPERATIONS
 
-#define STREAM stdout
+#define STREAM stderr
 
 //typedef void* LHandle;
 
@@ -25,6 +26,8 @@ typedef unsigned int handle;
 
 #define debug(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); 
 
+#define debugAssert(x, ...) if(false == x) { fprintf(STREAM, "%s %s : %d  \n", __FUNCTION__,__FILE__,__LINE__); } assert(x);
+
 #define debugError(x, ...) fprintf(stderr, x, ##__VA_ARGS__); 
 
 #define debugFunc() fprintf(STREAM, "%s %s : %d  \n", __FUNCTION__,__FILE__,__LINE__); 
@@ -37,6 +40,8 @@ typedef unsigned int handle;
 #else
 
 #define debug( x, ...) 
+
+#define debugAssert(x, ...)
 
 #define debugError(x, ...)
 

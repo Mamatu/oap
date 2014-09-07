@@ -5,8 +5,8 @@
  * Created on June 14, 2014, 10:38 PM
  */
 
-#ifndef OGLA_DEVICE_H
-#define	OGLA_DEVICE_H
+#ifndef OGLA_CU_MATRIXPROCEDURES_H
+#define	OGLA_CU_MATRIXPROCEDURES_H
 
 #include <cuda.h>
 #include "cuda_runtime.h"
@@ -14,28 +14,28 @@
 #include "MatrixStructure.h"
 #include <stdio.h>
 
-extern "C" __device__ void CopyReMatrix(MatrixStructure* dst,
+extern "C" __device__ void CUDA_CopyReMatrix(MatrixStructure* dst,
         MatrixStructure* src,
         uintt threadIndexX, uintt threadIndexY) {
     dst->m_matrix->reValues[threadIndexX + dst->m_matrix->columns * threadIndexY] =
             src->m_matrix->reValues[threadIndexX + src->m_matrix->columns * threadIndexY];
 }
 
-extern "C" __device__ void CopyImMatrix(MatrixStructure* dst,
+extern "C" __device__ void CUDA_CopyImMatrix(MatrixStructure* dst,
         MatrixStructure* src,
         uintt threadIndexX, uintt threadIndexY) {
     dst->m_matrix->imValues[threadIndexX + dst->m_matrix->columns * threadIndexY] =
             src->m_matrix->imValues[threadIndexX + src->m_matrix->columns * threadIndexY];
 }
 
-extern "C" __device__ void CopyMatrix(MatrixStructure* dst,
+extern "C" __device__ void CUDA_CopyMatrix(MatrixStructure* dst,
         MatrixStructure* src,
         uintt threadIndexX, uintt threadIndexY) {
-    CopyReMatrix(dst, src, threadIndexX, threadIndexY);
-    CopyImMatrix(dst, src, threadIndexX, threadIndexY);
+    CUDA_CopyReMatrix(dst, src, threadIndexX, threadIndexY);
+    CUDA_CopyImMatrix(dst, src, threadIndexX, threadIndexY);
 }
 
-extern "C" __device__ void SetDiagonalReMatrix(MatrixStructure* dst,
+extern "C" __device__ void CUDA_SetDiagonalReMatrix(MatrixStructure* dst,
         uintt threadIndexX, uintt threadIndexY, floatt v) {
     uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
     if (threadIndexX == threadIndexY) {
@@ -45,7 +45,7 @@ extern "C" __device__ void SetDiagonalReMatrix(MatrixStructure* dst,
     }
 }
 
-extern "C" __device__ void SetDiagonalImMatrix(MatrixStructure* dst,
+extern "C" __device__ void CUDA_SetDiagonalImMatrix(MatrixStructure* dst,
         uintt threadIndexX, uintt threadIndexY, floatt v) {
     uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
     if (threadIndexX == threadIndexY) {
@@ -55,7 +55,7 @@ extern "C" __device__ void SetDiagonalImMatrix(MatrixStructure* dst,
     }
 }
 
-extern "C" __device__ void SetDiagonalMatrix(MatrixStructure* dst,
+extern "C" __device__ void CUDA_SetDiagonalMatrix(MatrixStructure* dst,
         uintt threadIndexX, uintt threadIndexY, floatt v) {
     uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
     if (threadIndexX == threadIndexY) {
@@ -66,7 +66,7 @@ extern "C" __device__ void SetDiagonalMatrix(MatrixStructure* dst,
     dst->m_matrix->imValues[index] = 0;
 }
 
-extern "C" __device__ void SetIdentityReMatrix(MatrixStructure* dst,
+extern "C" __device__ void CUDA_SetIdentityReMatrix(MatrixStructure* dst,
         uintt threadIndexX, uintt threadIndexY) {
     uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
     if (threadIndexX == threadIndexY) {
@@ -76,7 +76,7 @@ extern "C" __device__ void SetIdentityReMatrix(MatrixStructure* dst,
     }
 }
 
-extern "C" __device__ void SetIdentityImMatrix(MatrixStructure* dst,
+extern "C" __device__ void CUDA_SetIdentityImMatrix(MatrixStructure* dst,
         uintt threadIndexX, uintt threadIndexY) {
     uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
     if (threadIndexX == threadIndexY) {
@@ -86,7 +86,7 @@ extern "C" __device__ void SetIdentityImMatrix(MatrixStructure* dst,
     }
 }
 
-extern "C" __device__ void SetIdentityMatrix(MatrixStructure* dst,
+extern "C" __device__ void CUDA_SetIdentityMatrix(MatrixStructure* dst,
         uintt threadIndexX, uintt threadIndexY) {
     uintt index = threadIndexX + dst->m_matrix->columns * threadIndexY;
     if (threadIndexX == threadIndexY) {
@@ -97,7 +97,7 @@ extern "C" __device__ void SetIdentityMatrix(MatrixStructure* dst,
     dst->m_matrix->imValues[index] = 0;
 }
 
-extern "C" __device__ __forceinline__ void multiplyReMatrix(
+extern "C" __device__ __forceinline__ void CUDA_multiplyReMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -114,7 +114,7 @@ extern "C" __device__ __forceinline__ void multiplyReMatrix(
     output->m_matrix->reValues[threadIndexX + output->m_subcolumns * threadIndexY] = retemp;
 }
 
-extern "C" __device__ __forceinline__ void multiplyImMatrix(
+extern "C" __device__ __forceinline__ void CUDA_multiplyImMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -131,7 +131,7 @@ extern "C" __device__ __forceinline__ void multiplyImMatrix(
     output->m_matrix->reValues[threadIndexX + output->m_subcolumns * threadIndexY] = retemp;
 }
 
-extern "C" __device__ __forceinline__ void multiplyMatrices(
+extern "C" __device__ __forceinline__ void CUDA_multiplyMatrices(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -157,14 +157,14 @@ extern "C" __device__ __forceinline__ void multiplyMatrices(
     output->m_matrix->imValues[threadIndexX + outputColumns * threadIndexY] = imtemp;
 }
 
-extern "C" __device__ __forceinline__ void dotProduct(
+extern "C" __device__ __forceinline__ void CUDA_dotProduct(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
-    multiplyMatrices(output, params0, params1, threadIndexX, threadIndexY);
+    CUDA_multiplyMatrices(output, params0, params1, threadIndexX, threadIndexY);
 }
 
-extern "C" __device__ __forceinline__ void addRe(
+extern "C" __device__ __forceinline__ void CUDA_addReMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -179,7 +179,7 @@ extern "C" __device__ __forceinline__ void addRe(
             params1->m_matrix->reValues[index];
 }
 
-extern "C" __device__ __forceinline__ void addIm(
+extern "C" __device__ __forceinline__ void CUDA_addImMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -192,7 +192,7 @@ extern "C" __device__ __forceinline__ void addIm(
             params1->m_matrix->imValues[index];
 }
 
-extern "C" __device__ __forceinline__ void addReIm(
+extern "C" __device__ __forceinline__ void CUDA_addMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -208,7 +208,7 @@ extern "C" __device__ __forceinline__ void addReIm(
             params1->m_matrix->imValues[index];
 }
 
-extern "C" __device__ __forceinline__ void substractRe(
+extern "C" __device__ __forceinline__ void CUDA_substractReMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -223,7 +223,7 @@ extern "C" __device__ __forceinline__ void substractRe(
             params1->m_matrix->reValues[index];
 }
 
-extern "C" __device__ __forceinline__ void substractIm(
+extern "C" __device__ __forceinline__ void CUDA_substractImMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -236,7 +236,7 @@ extern "C" __device__ __forceinline__ void substractIm(
             params1->m_matrix->imValues[index];
 }
 
-extern "C" __device__ __forceinline__ void substractReIm(
+extern "C" __device__ __forceinline__ void CUDA_substractMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1,
         uintt threadIndexX, uintt threadIndexY) {
@@ -252,7 +252,7 @@ extern "C" __device__ __forceinline__ void substractReIm(
             params1->m_matrix->imValues[index];
 }
 
-extern "C" __device__ __forceinline__ void multiplyConstantRe(
+extern "C" __device__ __forceinline__ void CUDA_multiplyConstantReMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, floatt* value,
         uintt threadIndexX, uintt threadIndexY) {
@@ -264,7 +264,7 @@ extern "C" __device__ __forceinline__ void multiplyConstantRe(
             *(value);
 }
 
-extern "C" __device__ __forceinline__ void multiplyConstantIm(
+extern "C" __device__ __forceinline__ void CUDA_multiplyConstantImMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, floatt* value,
         uintt threadIndexX, uintt threadIndexY) {
@@ -275,7 +275,7 @@ extern "C" __device__ __forceinline__ void multiplyConstantIm(
             params0->m_matrix->imValues[index] * *(value);
 }
 
-extern "C" __device__ __forceinline__ void multiplyConstantReIm(
+extern "C" __device__ __forceinline__ void CUDA_multiplyConstantMatrix(
         MatrixStructure* output,
         MatrixStructure* params0, floatt* value,
         uintt threadIndexX, uintt threadIndexY) {
@@ -290,7 +290,7 @@ extern "C" __device__ __forceinline__ void multiplyConstantReIm(
             *(value);
 }
 
-extern "C" __device__ __forceinline__ void tensorProductRe(
+extern "C" __device__ __forceinline__ void UDA_tensorProductReMatrix(
         MatrixStructure* output,
         MatrixStructure* params0,
         MatrixStructure* params1,
@@ -318,7 +318,7 @@ extern "C" __device__ __forceinline__ void tensorProductRe(
             params1->m_matrix->reValues[index1];
 }
 
-extern "C" __device__ __forceinline__ void tensorProductIm(
+extern "C" __device__ __forceinline__ void CUDA_tensorProductImMatrix(
         MatrixStructure* output,
         MatrixStructure* params0,
         MatrixStructure* params1,
@@ -346,7 +346,7 @@ extern "C" __device__ __forceinline__ void tensorProductIm(
             params1->m_matrix->imValues[index1];
 }
 
-extern "C" __device__ __forceinline__ void tensorProductReIm(
+extern "C" __device__ __forceinline__ void CUDA_tensorProductMatrix(
         MatrixStructure* output,
         MatrixStructure* params0,
         MatrixStructure* params1,
@@ -377,7 +377,7 @@ extern "C" __device__ __forceinline__ void tensorProductReIm(
             params1->m_matrix->reValues[index1];
 }
 
-extern "C" __device__ __forceinline__ void transposeRe(
+extern "C" __device__ __forceinline__ void CUDA_transposeReMatrix(
         MatrixStructure* output,
         MatrixStructure* params0,
         uintt threadIndexX, uintt threadIndexY) {
@@ -388,7 +388,7 @@ extern "C" __device__ __forceinline__ void transposeRe(
     output->m_matrix->reValues[index] = params0->m_matrix->reValues[index1];
 }
 
-extern "C" __device__ __forceinline__ void transposeIm(
+extern "C" __device__ __forceinline__ void CUDA_transposeImMatrix(
         MatrixStructure* output,
         MatrixStructure* params0,
         uintt threadIndexX, uintt threadIndexY) {
@@ -399,7 +399,7 @@ extern "C" __device__ __forceinline__ void transposeIm(
     output->m_matrix->imValues[index] = -params0->m_matrix->imValues[index1];
 }
 
-extern "C" __device__ __forceinline__ void transposeReIm(
+extern "C" __device__ __forceinline__ void CUDA_transposeMatrix(
         MatrixStructure* output,
         MatrixStructure* params0,
         uintt threadIndexX, uintt threadIndexY) {
@@ -487,15 +487,15 @@ extern "C" __device__ __forceinline__ void qrDecompositionRe(MatrixStructure* Q,
             floatt v = R1->m_matrix->reValues[fa + fb * R1->m_matrix->columns];
             if ((-MATH_VALUE_LIMIT < v &&
                     v < MATH_VALUE_LIMIT) == false) {
-                SetIdentityMatrix(R1, threadIndexX, threadIndexY);
-                SetIdentityMatrix(G, threadIndexX, threadIndexY);
-                SetIdentityMatrix(GT, threadIndexX, threadIndexY);
+                CUDA_SetIdentityMatrix(R1, threadIndexX, threadIndexY);
+                CUDA_SetIdentityMatrix(G, threadIndexX, threadIndexY);
+                CUDA_SetIdentityMatrix(GT, threadIndexX, threadIndexY);
                 if (threadIndexX == 0 && threadIndexY == 0) {
                     prepareGMatrix(A->m_matrix, fa, fb, G->m_matrix);
                 }
-                multiplyReMatrix(R, G, R1, threadIndexX, threadIndexY);
-                transposeRe(GT, G, threadIndexX, threadIndexY);
-                multiplyReMatrix(Q, Q1, GT, threadIndexX, threadIndexY);
+                CUDA_multiplyReMatrix(R, G, R1, threadIndexX, threadIndexY);
+                CUDA_transposeReMatrix(GT, G, threadIndexX, threadIndexY);
+                CUDA_multiplyReMatrix(Q, Q1, GT, threadIndexX, threadIndexY);
                 if (threadIndexX == 0 && threadIndexY == 0) {
                     switchPointer(R1, R);
                     switchPointer(Q1, Q);
@@ -526,15 +526,15 @@ extern "C" __device__ __forceinline__ void qrDecomposition(MatrixStructure* Q,
             floatt v = R1->m_matrix->reValues[fa + fb * R1->m_matrix->columns];
             if ((-MATH_VALUE_LIMIT < v &&
                     v < MATH_VALUE_LIMIT) == false) {
-                SetIdentityMatrix(R1, threadIndexX, threadIndexY);
-                SetIdentityMatrix(G, threadIndexX, threadIndexY);
-                SetIdentityMatrix(GT, threadIndexX, threadIndexY);
+                CUDA_SetIdentityMatrix(R1, threadIndexX, threadIndexY);
+                CUDA_SetIdentityMatrix(G, threadIndexX, threadIndexY);
+                CUDA_SetIdentityMatrix(GT, threadIndexX, threadIndexY);
                 if (threadIndexX == 0 && threadIndexY == 0) {
                     prepareGMatrix(A->m_matrix, fa, fb, G->m_matrix);
                 }
-                multiplyReMatrix(R, G, R1, threadIndexX, threadIndexY);
-                transposeRe(GT, G, threadIndexX, threadIndexY);
-                multiplyReMatrix(Q, Q1, GT, threadIndexX, threadIndexY);
+                CUDA_multiplyReMatrix(R, G, R1, threadIndexX, threadIndexY);
+                CUDA_transposeReMatrix(GT, G, threadIndexX, threadIndexY);
+                CUDA_multiplyReMatrix(Q, Q1, GT, threadIndexX, threadIndexY);
                 if (threadIndexX == 0 && threadIndexY == 0) {
                     switchPointer(R1, R);
                     switchPointer(Q1, Q);

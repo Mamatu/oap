@@ -1,5 +1,5 @@
 CUDA_PATH := /usr/local/cuda-6.0
 MODE := Debug
-PLATFORM := lcoal
+PLATFORM := local
 EXTRA_CXXOPTIONS :=
 EXTRA_NVCCOPTIONS :=

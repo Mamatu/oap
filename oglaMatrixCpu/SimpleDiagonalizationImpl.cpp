@@ -20,56 +20,54 @@ if (threadData->params[1]->m_matrix->imValues[fa + columns * fb] != 0) {\
 }
 
 namespace math {
-    namespace cpu {
 
-        void DiagonalizationOperation::Execute(void* ptr) {
-            ThreadData<DiagonalizationOperation>* threadData = (ThreadData<DiagonalizationOperation>*) ptr;
-            int bcolumn = threadData->begins[0];
-            int ecolumn = threadData->ends[0];
-            int columns = threadData->params[0]->m_matrix->columns;
-            int rows = threadData->params[0]->m_matrix->rows;
-            if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL && threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
-                for (uint fa = bcolumn; fa < ecolumn; fa++) {
-                    for (uint fb = 0; fb < rows; fb++) {
-                        RE_DIAGONALIZE();
-                        IM_DIAGONALIZE();
-                    }
+    void DiagonalizationOperationCpu::Execute(void* ptr) {
+        ThreadData<DiagonalizationOperationCpu>* threadData = (ThreadData<DiagonalizationOperationCpu>*) ptr;
+        int bcolumn = threadData->begins[0];
+        int ecolumn = threadData->ends[0];
+        int columns = threadData->params[0]->m_matrix->columns;
+        int rows = threadData->params[0]->m_matrix->rows;
+        if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL && threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
+            for (uint fa = bcolumn; fa < ecolumn; fa++) {
+                for (uint fb = 0; fb < rows; fb++) {
+                    RE_DIAGONALIZE();
+                    IM_DIAGONALIZE();
                 }
-            } else if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL) {
-                for (uint fa = bcolumn; fa < ecolumn; fa++) {
-                    for (uint fb = 0; fb < rows; fb++) {
-                        RE_DIAGONALIZE();
-                    }
+            }
+        } else if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL) {
+            for (uint fa = bcolumn; fa < ecolumn; fa++) {
+                for (uint fb = 0; fb < rows; fb++) {
+                    RE_DIAGONALIZE();
                 }
-            } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
-                for (uint fa = bcolumn; fa < ecolumn; fa++) {
-                    for (uint fb = 0; fb < rows; fb++) {
-                        IM_DIAGONALIZE();
-                    }
+            }
+        } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
+            for (uint fa = bcolumn; fa < ecolumn; fa++) {
+                for (uint fb = 0; fb < rows; fb++) {
+                    IM_DIAGONALIZE();
                 }
             }
         }
+    }
 
-        void DiagonalizationOperation::execute() {
-            uintt* bmap = utils::mapper::allocMap(this->m_threadsCount);
-            uintt threadsCount = utils::mapper::createThreadsMap(bmap, 
-                    this->m_threadsCount, m_outputStructure->m_subrows);
-            ThreadData<DiagonalizationOperation>* threads = new ThreadData<DiagonalizationOperation>[threadsCount];
-            for (intt fa = 0; fa < threadsCount; fa++) {
-                threads[fa].outputs[0] = m_outputStructure;
-                threads[fa].params[0] = m_matrixStructure1;
-                threads[fa].params[1] = m_matrixStructure2;
-                threads[fa].calculateRanges(m_outputStructure, bmap, fa);
-                threads[fa].thiz = this;
-                threads[fa].thread.setFunction(DiagonalizationOperation::Execute, &threads[fa]);
-                threads[fa].thread.run((this->m_threadsCount == 1));
-            }
-            for (uint fa = 0; fa < threadsCount; fa++) {
-
-                threads[fa].thread.yield();
-            }
-            utils::mapper::freeMap(bmap);
-            delete[] threads;
+    void DiagonalizationOperationCpu::execute() {
+        uintt* bmap = utils::mapper::allocMap(this->m_threadsCount);
+        uintt threadsCount = utils::mapper::createThreadsMap(bmap,
+                this->m_threadsCount, m_outputStructure->m_subrows);
+        ThreadData<DiagonalizationOperationCpu>* threads = new ThreadData<DiagonalizationOperationCpu>[threadsCount];
+        for (intt fa = 0; fa < threadsCount; fa++) {
+            threads[fa].outputs[0] = m_outputStructure;
+            threads[fa].params[0] = m_matrixStructure1;
+            threads[fa].params[1] = m_matrixStructure2;
+            threads[fa].calculateRanges(m_outputStructure, bmap, fa);
+            threads[fa].thiz = this;
+            threads[fa].thread.setFunction(DiagonalizationOperationCpu::Execute, &threads[fa]);
+            threads[fa].thread.run((this->m_threadsCount == 1));
         }
+        for (uint fa = 0; fa < threadsCount; fa++) {
+
+            threads[fa].thread.yield();
+        }
+        utils::mapper::freeMap(bmap);
+        delete[] threads;
     }
 }

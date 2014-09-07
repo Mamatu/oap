@@ -8,7 +8,8 @@
 #include "MatrixModules.h"
 #include <stdio.h>
 
-MatrixAllocator::MatrixAllocator(MatrixModule* matrixModule) {
+MatrixAllocator::MatrixAllocator(MatrixModule* matrixModule) :
+m_matrixModule(matrixModule) {
 }
 
 MatrixAllocator::~MatrixAllocator() {

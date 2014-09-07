@@ -19,8 +19,8 @@ namespace math {
             bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
             IMultiplicationConstOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
-        MatrixUtils* matrixUtils = this->m_matrixModule->getMatrixUtils();
-        MatrixCopier* matrixCopier = this->m_matrixModule->getMatrixCopier();
+        MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
+        MatrixCopier* matrixCopier = this->m_module->getMatrixCopier();
         if (isNotNull(matrix1, matrixUtils) == false || value == 0) {
             if (isNotNull(output, matrixUtils) != false) {
                 executionPath = EXECUTION_ZEROS_TO_OUTPUT;

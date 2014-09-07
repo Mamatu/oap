@@ -86,16 +86,16 @@ public:
 };
 
 class HostMatrixModules : public MatrixModule {
-    HostMatrixAllocator hma;
-    HostMatrixCopier hmc;
-    HostMatrixUtils hmu;
-    HostMatrixPrinter hmp;
-    static HostMatrixModules hostMatrixModule;
+    HostMatrixAllocator* m_hma;
+    HostMatrixCopier* m_hmc;
+    HostMatrixUtils* m_hmu;
+    HostMatrixPrinter* m_hmp;
+    static HostMatrixModules* hostMatrixModule;
 protected:
     HostMatrixModules();
     virtual ~HostMatrixModules();
 public:
-    static HostMatrixModules& GetInstance();
+    static HostMatrixModules* GetInstance();
     HostMatrixAllocator* getMatrixAllocator();
     HostMatrixCopier* getMatrixCopier();
     HostMatrixUtils* getMatrixUtils();

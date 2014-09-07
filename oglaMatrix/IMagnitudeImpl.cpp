@@ -4,7 +4,7 @@ namespace math {
     Status IMagnitudeOperation::beforeExecution() {
         Status status = MatrixOperationOutputValue::beforeExecution();
         if (status == STATUS_OK) {
-            MatrixUtils* matrixUtils = this->m_matrixModule->getMatrixUtils();
+            MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
             bool isIm = matrixUtils->isImMatrix(this->m_matrix);
             bool isRe = matrixUtils->isReMatrix(this->m_matrix);
             if (isRe) {

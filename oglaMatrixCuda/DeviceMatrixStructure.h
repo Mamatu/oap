@@ -15,8 +15,8 @@ class DeviceMatrixStructureUtils : public MatrixStructureUtils {
     static DeviceMatrixStructureUtils* m_deviceMatrixStructureUtils;
     DeviceMatrixUtils dmu;
 protected:
-    DeviceMatrixStructureUtils(MatrixModule* matrixModule);
     DeviceMatrixStructureUtils();
+
     virtual ~DeviceMatrixStructureUtils();
     virtual void setMatrixToStructure(MatrixStructure* matrixStructure, math::Matrix* matrix);
 public:
@@ -28,7 +28,7 @@ public:
     virtual void setSubRows(MatrixStructure* matrixStructure, uintt rows);
     virtual void setBeginRow(MatrixStructure* matrixStructure, uintt beginRow);
     virtual bool isValid(MatrixStructure* matrixStructure);
-    static DeviceMatrixStructureUtils* GetInstance(MatrixModule* matrixModule);
+    static DeviceMatrixStructureUtils* GetInstance();
 
     virtual uintt getBeginColumn(MatrixStructure* matrixStructure) const;
     virtual uintt getBeginRow(MatrixStructure* matrixStructure) const;

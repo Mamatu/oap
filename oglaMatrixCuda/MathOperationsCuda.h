@@ -89,58 +89,6 @@ namespace math {
         };
 
         class MathOperations;
-        
-        class IraMethod : public math::IIraMethod {
-            math::Matrix* w;
-            math::Matrix* f;
-            math::Matrix* f1;
-            math::Matrix* vh;
-            math::Matrix* h;
-            math::Matrix* s;
-            math::Matrix* vs;
-            math::Matrix* V;
-            math::Matrix* V2;
-            math::Matrix* V1;
-            math::Matrix* transposeV;
-            math::Matrix* H;
-            math::Matrix* HC;
-            math::Matrix* H1;
-            math::Matrix* H2;
-            math::Matrix* A2;
-            math::Matrix* I;
-            math::Matrix* A;
-            math::Matrix* A1;
-            math::Matrix* v;
-            math::Matrix* Q1T;
-            math::Matrix* Q1;
-            math::Matrix* Q2;
-            math::Matrix* R1;
-            math::Matrix* R2;
-            math::Matrix* HO;
-            math::Matrix* HO1;
-            math::Matrix* Q;
-            math::Matrix* QJ;
-            std::vector<floatt> unwanted;
-            std::vector<floatt> wanted;
-            uintt m_k;
-            floatt m_rho;
-            uintt m_wantedCount;
-            MathOperations& m_mathOperations;
-            floatt getDiagonal(math::Matrix* matrix, intt index);
-            bool continueProcedure(math::Matrix* A, std::vector<floatt>& wanted);
-            bool executeArnoldiFactorization(bool init = true, intt initj = 0);
-            void selection(math::Matrix* H, std::vector<floatt>& unwanted,
-                    std::vector<floatt>& wanted, int i);
-        public:
-            IraMethod(MathOperations* mathOperations);
-            IraMethod(MatrixModule* matrixModule,
-                    MatrixStructureUtils* matrixStructureUtils,
-                    MathOperations* mathOperations);
-            ~IraMethod();
-            void setHSize(uintt k);
-            void setRho(floatt rho);
-            void execute();
-        };
 
         class MathOperations : public utils::Module, public ::cuda::DeviceInfo {
             AdditionOperation additionOperation;

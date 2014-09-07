@@ -5,13 +5,13 @@ namespace math {
     Status IDeterminantOperation::prepare(floatt* output, math::Matrix* matrix,
             bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
             ExecutionPath& executionPath) {
-        if (isNotNull(matrix, m_matrixModule->getMatrixUtils()) == true) {
+        if (isNotNull(matrix, m_module->getMatrixUtils()) == true) {
             executionPath = EXECUTION_NORMAL;
         } else {
             executionPath = EXECUTION_NOTHING;
         }
-        if (m_matrixModule->getMatrixUtils()->getColumns(matrix) !=
-                m_matrixModule->getMatrixUtils()->getRows(matrix)) {
+        if (m_module->getMatrixUtils()->getColumns(matrix) !=
+                m_module->getMatrixUtils()->getRows(matrix)) {
             return STATUS_INVALID_PARAMS;
         }
         return STATUS_OK;

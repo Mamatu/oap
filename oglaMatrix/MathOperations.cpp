@@ -51,7 +51,7 @@ namespace math {
     } else {
         return STATUS_OK;
     });
-    
+
     CLASS_BA(MatrixOperationOutputValue, if (this->m_output1 == NULL || this->m_matrix == NULL) {
         return STATUS_INVALID_PARAMS;
     } else {
@@ -94,7 +94,6 @@ namespace math {
     CLASS_INITIALIZATOR(IMagnitudeOperation, MatrixOperationOutputValue);
     CLASS_INITIALIZATOR(ITransposeOperation, MatrixOperationOutputMatrix);
     CLASS_INITIALIZATOR(IDeterminantOperation, MatrixOperationOutputValue);
-    CLASS_INITIALIZATOR(IIraMethod, MatrixOperationOutputValues);
     CLASS_INITIALIZATOR(IQRDecomposition, MatrixOperationTwoOutputs);
 
     void IMathOperation::setSubRows(uintt subrows[2]) {
@@ -142,7 +141,8 @@ namespace math {
     }
 
     IMathOperation::IMathOperation(MatrixModule* _matrixModule,
-            MatrixStructureUtils* _matrixStructureUtils) : m_matrixModule(_matrixModule),
+            MatrixStructureUtils* _matrixStructureUtils) :
+    m_module(_matrixModule),
     m_matrixStructureUtils(_matrixStructureUtils) {
         m_subrows[0] = -1;
         m_subrows[1] = -1;
@@ -155,7 +155,7 @@ namespace math {
 
     Status IMathOperation::start() {
         Status status = this->beforeExecution();
-        if (status == 0) {
+        if (status == STATUS_OK) {
             this->execute();
             status = this->afterExecution();
         }
@@ -216,7 +216,8 @@ namespace math {
         m_matrixStructureUtils->deleteMatrixStructure(m_outputStructure);
     }
 
-    MatrixOperationOutputValue::MatrixOperationOutputValue(MatrixModule* _matrixModule,
+    MatrixOperationOutputValue::MatrixOperationOutputValue(
+            MatrixModule* _matrixModule,
             MatrixStructureUtils* _matrixStructureUtils) :
     IMathOperation(_matrixModule, _matrixStructureUtils) {
         this->m_matrix = NULL;
@@ -230,7 +231,8 @@ namespace math {
         m_matrixStructureUtils->deleteMatrixStructure(m_matrixStructure);
     }
 
-    MatrixOperationOutputValues::MatrixOperationOutputValues(MatrixModule* _matrixModule,
+    MatrixOperationOutputValues::MatrixOperationOutputValues(
+            MatrixModule* _matrixModule,
             MatrixStructureUtils* _matrixStructureUtils) :
     IMathOperation(_matrixModule, _matrixStructureUtils) {
         this->m_matrix = NULL;
@@ -340,7 +342,7 @@ namespace math {
     void MatrixOperationOutputValues::setImOutputValues(floatt* values, uintt count) {
         this->m_imoutputs = values;
     }
-    
+
     void MatrixOperationTwoOutputs::setMatrix(Matrix* matrix) {
         this->m_matrix = matrix;
         this->m_matrixStructureUtils->setMatrix(m_matrixStructure, matrix);

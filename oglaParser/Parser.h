@@ -26,7 +26,7 @@ public:
     Parser(const Parser& orig);
     virtual ~Parser();
 private:
-    typedef std::vector<MatrixStructure*> MathStructures;
+    typedef std::vector<MatrixStructure*> MatrixStructures;
     std::vector<Operator*> operators;
     std::vector<MatrixStructureUtils*> mathStructuresUtils;
     std::vector<Function*> functions;
@@ -47,9 +47,6 @@ private:
     void addBracket(Brackets* bracket);
 
     void removeBracket(Brackets* bracket);
-
-    void addStructureUtils(MatrixStructureUtils* allocator);
-    void removeStructureUtils(MatrixStructureUtils* creator);
 
     void addFunction(Function* function);
 
@@ -73,7 +70,7 @@ private:
 
     void executeBracket(Code& code, int index);
 
-    void executeMathStructure(Code& code, int index);
+    void executeMatrixStructure(Code& code, int index);
 
     bool parseComplex(const std::string& equation, int fa, Code& code, int na);
 
@@ -81,22 +78,22 @@ private:
 
     bool parseBrackets(const std::string& equation, int fa, Code& code, int na);
 
-    bool parseMathStructure(const std::string& equation, int fa, Code& code, int n);
+    bool parseMatrixStructure(const std::string& equation, int fa, Code& code, int n);
 
     bool parseOperators(const std::string& equation, int fa, Code& code, int na);
 
     bool parseFunctions(const std::string& equation, int fa, Code& code, int na);
 
-    void execute(MathStructures& mathStructures);
+    void execute(MatrixStructures& mathStructures);
 
-    void execute1(Code& code, MathStructures& mathStructures);
+    void execute1(Code& code, MatrixStructures& mathStructures);
 
     void* parse(const std::string& equation);
 
-    void calculate(const std::string& equation, MathStructures& mathStructures);
+    void calculate(const std::string& equation, MatrixStructures& mathStructures);
 
     int examineOperators(OperatorsItem* operatorsItem,
-            MathStructure* param1, MathStructure* param2);
+            MatrixStructure* param1, MatrixStructure* param2);
 };
 
 #endif	/* PARSER_H */

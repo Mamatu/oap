@@ -234,9 +234,6 @@ __device__ void increment(intt* array, intt length, intt max, bool istorus = fal
         if (array[fa] >= max) {
             array[fa] = 0;
             if (fa >= length - 1) {
-                if (istorus) {
-                    increment(array, length, max, istorus);
-                }
                 return;
             }
             fa++;
@@ -254,9 +251,6 @@ __device__ void increment(char* array, intt length, intt max, bool istorus = fal
         if (array[fa] >= max) {
             array[fa] = 0;
             if (fa == length - 1) {
-                if (istorus) {
-                    increment(array, length, max, istorus);
-                }
                 return;
             }
             fa++;

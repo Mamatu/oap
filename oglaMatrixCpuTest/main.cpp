@@ -23,7 +23,7 @@ void Test_Addition(int tc = 1) {
     math::Matrix* matrix1 = host::NewReMatrixCopy(4, 4, array);
     math::Matrix* matrix2 = host::NewReMatrixCopy(4, 4, array);
     math::Matrix* output = hmm.newMatrix(4, 4);
-    math::cpu::AdditionOperation additionOperation;
+    math::AdditionOperationCpu additionOperation;
     additionOperation.setThreadsCount(tc);
     additionOperation.setOutputMatrix(output);
     additionOperation.setMatrix1(matrix1);
@@ -42,7 +42,7 @@ void Test_Substraction(int tc = 1) {
     math::Matrix* matrix1 = host::NewReMatrix(4, 4, 0);
     math::Matrix* matrix2 = host::NewReMatrixCopy(4, 4, array);
     math::Matrix* output = hmm.newMatrix(4, 4);
-    math::cpu::SubstracionOperation substractionOperation;
+    math::SubstracionOperationCpu substractionOperation;
     substractionOperation.setThreadsCount(tc);
     substractionOperation.setOutputMatrix(output);
     substractionOperation.setMatrix1(matrix1);
@@ -61,7 +61,7 @@ void Test_Addition1(int tc = 1) {
     math::Matrix* matrix1 = host::NewReMatrixCopy(4, 4, array);
     math::Matrix* matrix2 = host::NewReMatrixCopy(4, 4, array);
     math::Matrix* output = hmm.newMatrix(4, 4);
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     mo.setThreadsCount(tc);
     mo.setSubColumns(0, 2);
     mo.add(output, matrix1, matrix2);
@@ -90,7 +90,7 @@ void Test_Multiplication(int tc = 1) {
     mp.printReMatrix(stderr, matrix1);
     mp.printReMatrix(stderr, matrix2);
     math::Matrix* output = hmm.newMatrix(5, 5);
-    math::cpu::DotProductOperation multiplicationOperation;
+    math::DotProductOperationCpu multiplicationOperation;
     multiplicationOperation.setThreadsCount(tc);
     multiplicationOperation.setOutputMatrix(output);
     uintt a[] = {1, 2};
@@ -127,7 +127,7 @@ void Test_Diagonalization(int tc = 1) {
     mp.printReMatrix(matrix1);
     mp.printReMatrix(matrix2);
     math::Matrix* output = hmm.newMatrix(3, 3);
-    math::cpu::DiagonalizationOperation diagonalizationOperation;
+    math::DiagonalizationOperationCpu diagonalizationOperation;
     diagonalizationOperation.setThreadsCount(tc);
     diagonalizationOperation.setOutputMatrix(output);
     diagonalizationOperation.setMatrix1(matrix1);
@@ -148,7 +148,7 @@ void Test_TensorProduct(int tc = 1) {
     mp.printReMatrix(matrix1);
     mp.printReMatrix(matrix2);
     math::Matrix* output = hmm.newMatrix(4, 4);
-    math::cpu::TensorProductOperation tpOperation;
+    math::TensorProductOperationCpu tpOperation;
     tpOperation.setThreadsCount(tc);
     tpOperation.setOutputMatrix(output);
     tpOperation.setMatrix1(matrix1);
@@ -160,7 +160,7 @@ void Test_TensorProduct(int tc = 1) {
 
 void Test_Multiplication1(int tc = 1) {
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     HostMatrixUtils funcs;
     math::Matrix* m1 = hmm.newReMatrix(10, 10, 1);
     math::Matrix* m2 = hmm.newReMatrix(10, 10, 2);
@@ -178,7 +178,7 @@ void Test_Multiplication1(int tc = 1) {
 
 void Test_MultiplicationConst(int tc = 1) {
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     HostMatrixUtils funcs;
     math::Matrix* m1 = hmm.newReMatrix(10, 10, 1);
     floatt m2 = 2.f;
@@ -194,7 +194,7 @@ void Test_MultiplicationConst(int tc = 1) {
 
 void Test_SubMultiplication(int tc = 1) {
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     math::Matrix* o = host::NewReMatrix(10, 10, 0);
     math::Matrix* m1 = host::NewReMatrix(10, 10, 1);
     math::Matrix* m2 = host::NewReMatrix(10, 10, 1);
@@ -214,7 +214,7 @@ void Test_SubMultiplication(int tc = 1) {
 void Test_SubMultiplication1(int tc = 1) {
     debugFunc();
 
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     math::Matrix* o = host::NewReMatrix(1, 10, 0);
     math::Matrix* m1 = host::NewReMatrix(10, 10, 1);
     math::Matrix* m2 = host::NewReMatrix(1, 10, 1);
@@ -237,7 +237,7 @@ void Test_SubMultiplication1(int tc = 1) {
 
 void Test_Transpose(int tc = 1) {
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     math::Matrix* o = host::NewReMatrix(5, 10, 0);
     math::Matrix* m1 = host::NewReMatrix(10, 5, 1);
     mo.setSubRows(0, 4);
@@ -253,7 +253,7 @@ void Test_Transpose(int tc = 1) {
 
 void Test_Determinant(int tc = 1) {
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     floatt array[] = {
         -2, 2, -3,
         -1, 1, 3,
@@ -270,7 +270,7 @@ void Test_Determinant(int tc = 1) {
 
 void Test_Determinant2(int tc = 1) {
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     floatt array[] = {
         -5618.170, 5543.450, -1.932, 150.394,
         5545.490, -10936.100, 5615.610, 152.460,
@@ -288,7 +288,7 @@ void Test_Determinant2(int tc = 1) {
 
 void Test_Determinant3(int tc = 1) {
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     floatt array[] = {
         -5618.170, 5543.450, -1.932, 150.394,
         5545.490, -10936.100, 5615.610, 152.460,
@@ -306,7 +306,7 @@ void Test_Determinant3(int tc = 1) {
 
 void Test_Determinant1(int tc = 1) {
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     floatt array[] = {
         3, -5, 3,
         2, 1, -1,
@@ -323,7 +323,7 @@ void Test_Determinant1(int tc = 1) {
 
 void Test_Cut(int tc = 1) {
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     floatt array[] = {
         -2, 2, -3,
         -1, 1, 3,
@@ -358,7 +358,7 @@ void Test_DotProduct(int tc = 1) {
 
 
     debugFunc();
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     math::Matrix* A = host::NewReMatrixCopy(4, 4, Aa);
     math::Matrix* tq = host::NewReMatrixCopy(4, 4, tqa);
     math::Matrix* r = host::NewReMatrix(4, 4, 0);
@@ -398,7 +398,7 @@ void Test_Det1(int tc = 1) {
 
     math::Matrix* m = host::NewReMatrixCopy(16, 16, Aa);
 
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     floatt d = 1;
     mo.det(&d, m);
     fprintf(stderr, "det == %f \n", d);
@@ -426,7 +426,7 @@ void Test_Det2(int tc = 1) {
     math::Matrix* m = host::NewReMatrixCopy(5, 5, Aa);
 
     host::PrintReMatrix("m ==", m);
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     floatt d = 1;
     mo.det(&d, m);
     fprintf(stderr, "det == %f \n", d);
@@ -461,7 +461,7 @@ void Test_QRDet(int tc = 1) {
     math::Matrix* Q = host::NewReMatrix(16, 16);
     math::Matrix* R = host::NewReMatrix(16, 16);
 
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     mo.qrDecomposition(Q, R, A);
 
     host::PrintReMatrix("A = ", A);
@@ -487,7 +487,7 @@ void Test_Det3(int tc = 1) {
     math::Matrix* m = host::NewReMatrixCopy(4, 4, Aa);
 
     host::PrintReMatrix("m ==", m);
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     floatt d = 1;
     mo.det(&d, m);
     fprintf(stderr, "det == %f \n", d);
@@ -509,7 +509,7 @@ void Test_QRDecomposition(int tc = 1) {
     math::Matrix* Q = host::NewReMatrix(3, 3);
     math::Matrix* R = host::NewReMatrix(3, 3);
 
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     mo.qrDecomposition(Q, R, A);
 
     host::PrintReMatrix("A = ", A);
@@ -533,7 +533,7 @@ void Test_QRDecomposition1(int tc = 1) {
     math::Matrix* Q = host::NewReMatrix(4, 4);
     math::Matrix* R = host::NewReMatrix(4, 4);
 
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     mo.qrDecomposition(Q, R, A);
 
     host::PrintReMatrix("A = ", A);
@@ -570,13 +570,6 @@ int main(int argc, char** argv) {
     //Test_DotProduct();
     //Test_QRDecomposition();
     //Test_QRDecomposition1();
-
-    double** m = new double*[2];
-    double* vec = new double[3];
-    memset(vec, 0, sizeof (double)*3);
-    m[0] = vec;
-    m[1] = vec;
-    fprintf(stderr,"%f \n",m[0][1]);
     return 0;
 }
 

@@ -1,4 +1,5 @@
 #include <math.h>
+#include "MathOperationsCpu.h"
 #include "ArnoldiMethodImpl.h"
 #include "HostMatrixStructure.h"
 #include "MathOperationsCpu.h"
@@ -9,7 +10,7 @@
 #define PRINT_STATUS(d) d
 #endif
 
-namespace cpu {
+namespace math {
 
     bool IsTriangular(math::Matrix* matrix, uintt count) {
         uintt index = 0;
@@ -37,97 +38,99 @@ namespace cpu {
         a = temp;
     }
 
-    ArnoldiMethod::ArnoldiMethod(MatrixModule* matrixModule,
+    ArnoldiMethodCpu::ArnoldiMethodCpu(
+            MatrixModule* matrixModule,
             MatrixStructureUtils* matrixStructureUtils,
-            MathOperations* mathOperations) :
+            MathOperationsCpu* mathOperations) :
     IArnoldiMethod(matrixModule, matrixStructureUtils),
-    m_mathOperations(mathOperations) {
+    m_operations(mathOperations) {
         this->m_rho = 1. / 3.14;
         this->m_k = 0;
         this->m_wantedCount = 0;
         diff = -10.552;
     }
 
-    math::Matrix* ArnoldiMethod::getV() const {
+    math::Matrix* ArnoldiMethodCpu::getV() const {
         return this->v;
     }
 
-    math::Matrix* ArnoldiMethod::getW() const {
+    math::Matrix* ArnoldiMethodCpu::getW() const {
         return this->w;
     }
 
-    math::Matrix* ArnoldiMethod::getA() const {
+    math::Matrix* ArnoldiMethodCpu::getA() const {
         return this->A;
     }
 
-    ArnoldiMethod::ArnoldiMethod(MathOperations* mathOperations) :
-    IArnoldiMethod(&HostMatrixModules::GetInstance(),
-    HostMatrixStructureUtils::GetInstance(&HostMatrixModules::GetInstance())),
-    m_mathOperations(mathOperations) {
+    ArnoldiMethodCpu::ArnoldiMethodCpu(MathOperationsCpu* mathOperations) :
+    IArnoldiMethod(HostMatrixModules::GetInstance(),
+    HostMatrixStructureUtils::GetInstance()),
+    m_operations(mathOperations) {
         this->m_rho = 1. / 3.14;
         this->m_k = 0;
         this->m_wantedCount = 0;
         oldA = NULL;
     }
 
-    void ArnoldiMethod::setHSize(uintt k) {
+    void ArnoldiMethodCpu::setHSize(uintt k) {
         this->m_k = k;
     }
 
-    void ArnoldiMethod::setRho(floatt rho) {
+    void ArnoldiMethodCpu::setRho(floatt rho) {
         this->m_rho = rho;
     }
 
-    ArnoldiMethod::~ArnoldiMethod() {
+    ArnoldiMethodCpu::~ArnoldiMethodCpu() {
         dealloc();
     }
 
-    bool ArnoldiMethod::continueProcedure() {
-        int st = 0;
-        m_mathOperations->multiply(EV, V, Q);
+    bool ArnoldiMethodCpu::testProcedure(uintt fa) {
+        debug("fa = %d\n\n\n\n\n", fa);
+        uintt index = wantedIndecies[fa];
+        Complex b = notSorted[index];
+        m_copier->getVector(v, v->rows, EV, index);
+        multiply(EQ1, A, v, false);
+        m_operations->multiply(EQ2, v, &(b.re), &(b.im));
+        floatt d = 0;
+        m_operations->substract(EQ3, EQ1, EQ2);
+        host::PrintReMatrix("EQ1 =", EQ1);
+        host::PrintReMatrix("EQ2 =", EQ2);
+        m_operations->magnitude(&d, EQ3);
+        if (d < diff || diff < 0) {
+            diff = d;
+            fprintf(stderr, "diff = %f \n", diff);
+            fprintf(stderr, "ev = %f %f \n1", b.re, b.im);
+        }
+        fprintf(stderr, "diA = %f \n", d);
+        fprintf(stderr, "evA = %f %f \n", b.re, b.im);
+        debug("fa = %d\n\n\n\n\n", fa);
+    }
+
+    bool ArnoldiMethodCpu::continueProcedure() {
+        m_operations->multiply(EV, V, Q);
+        host::PrintReMatrix("V =", V);
+        host::PrintReMatrix("Q =", Q);
         for (uintt fa = 0; fa < wanted.size(); ++fa) {
-            uintt index = wantedIndecies[fa];
-            Complex b = notSorted[index];
-            mc->getVector(v, v->rows, EV, index);
-            multiply(EQ1, A, v, false);
-            m_mathOperations->multiply(EQ2, v, &(b.re), &(b.im));
-            floatt d = 0;
-            m_mathOperations->magnitude(&d, EQ1);
-            floatt ad = 1. / d;
-            //m_mathOperations->multiply(EQ1, EQ1, &ad);
-            m_mathOperations->magnitude(&d, EQ2);
-            ad = 1. / d;
-            //m_mathOperations->multiply(EQ2, EQ2, &ad);
-            m_mathOperations->substract(EQ3, EQ1, EQ2);
-            m_mathOperations->magnitude(&d, EQ3);
-            //host::PrintMatrix("EQ1 =", EQ1);
-            //host::PrintMatrix("EQ2 =", EQ2);
-            if (d < diff || diff < 0) {
-                diff = d;
-                fprintf(stderr, "diff = %f \n", diff);
-                fprintf(stderr, "ev = %f %f \n", b.re, b.im);
-            }
-            fprintf(stderr, "diA = %f \n", d);
-            fprintf(stderr, "evA = %f %f \n", b.re, b.im);
+            testProcedure(fa);
         }
         return true;
     }
 
-    floatt ArnoldiMethod::getReDiagonal(math::Matrix* matrix, intt index) {
+    floatt ArnoldiMethodCpu::getReDiagonal(math::Matrix* matrix, intt index) {
         if (matrix->reValues == NULL) {
             return 0;
         }
         return matrix->reValues[index + matrix->columns * index];
     }
 
-    floatt ArnoldiMethod::getImDiagonal(math::Matrix* matrix, intt index) {
+    floatt ArnoldiMethodCpu::getImDiagonal(math::Matrix* matrix, intt index) {
         if (matrix->imValues == NULL) {
             return 0;
         }
         return matrix->imValues[index + matrix->columns * index];
     }
 
-    bool ArnoldiMethod::isEigenValue(math::Matrix* matrix, intt index) {
+    bool ArnoldiMethodCpu::isEigenValue(math::Matrix* matrix, intt index) {
         floatt v = matrix->reValues[(index - 1) + matrix->columns * index];
         if (fabs(v) < MATH_VALUE_LIMIT) {
             return true;
@@ -135,82 +138,80 @@ namespace cpu {
         return false;
     }
 
-    void ArnoldiMethod::alloc(math::Matrix* A) {
-        if (oldA == NULL ||
-                (A->rows != oldA->rows && A->columns != oldA->columns)) {
+    void ArnoldiMethodCpu::alloc(math::Matrix* A) {
+        if (oldA == NULL || (A->rows != oldA->rows && A->columns != oldA->columns)) {
             dealloc();
-            debugFunc();
-            w = m_matrixModule->newMatrix(A, 1, A->rows);
-            v = m_matrixModule->newMatrix(A, 1, A->rows);
-            f = m_matrixModule->newMatrix(A, 1, A->rows);
-            f1 = m_matrixModule->newMatrix(A, 1, A->rows);
-            vh = m_matrixModule->newMatrix(A, 1, A->rows);
-            h = m_matrixModule->newMatrix(A, 1, m_k);
-            s = m_matrixModule->newMatrix(A, 1, m_k);
-            vs = m_matrixModule->newMatrix(A, 1, A->rows);
-            V = m_matrixModule->newMatrix(A, m_k, A->rows);
-            V1 = m_matrixModule->newMatrix(A, m_k, A->rows);
-            V2 = m_matrixModule->newMatrix(A, m_k, A->rows);
-            EQ1 = m_matrixModule->newMatrix(A, 1, A->rows);
-            EQ2 = m_matrixModule->newMatrix(A, 1, A->rows);
-            EQ3 = m_matrixModule->newMatrix(A, 1, A->rows);
-            EV = m_matrixModule->newMatrix(A, m_k, A->rows);
-            EV1 = m_matrixModule->newMatrix(A, m_k, A->rows);
-            H = m_matrixModule->newMatrix(A, m_k, m_k);
-            HO = m_matrixModule->newMatrix(A, m_k, m_k);
-            H1 = m_matrixModule->newMatrix(A, m_k, m_k);
-            Q = m_matrixModule->newMatrix(A, m_k, m_k);
-            Q1 = m_matrixModule->newMatrix(A, m_k, m_k);
-            QT = m_matrixModule->newMatrix(A, m_k, m_k);
-            R1 = m_matrixModule->newMatrix(A, m_k, m_k);
-            R2 = m_matrixModule->newMatrix(A, m_k, m_k);
-            QJ = m_matrixModule->newMatrix(A, m_k, m_k);
-            I = m_matrixModule->newMatrix(A, m_k, m_k);
-            A1 = m_matrixModule->newMatrix(A, A->columns, A->columns);
-            transposeV = m_matrixModule->newMatrix(A, A->rows, m_k);
+            debugAssert(m_k != 0);
+            w = m_module->newMatrix(A, 1, A->rows);
+            v = m_module->newMatrix(A, 1, A->rows);
+            f = m_module->newMatrix(A, 1, A->rows);
+            f1 = m_module->newMatrix(A, 1, A->rows);
+            vh = m_module->newMatrix(A, 1, A->rows);
+            h = m_module->newMatrix(A, 1, m_k);
+            s = m_module->newMatrix(A, 1, m_k);
+            vs = m_module->newMatrix(A, 1, A->rows);
+            V = m_module->newMatrix(A, m_k, A->rows);
+            V1 = m_module->newMatrix(A, m_k, A->rows);
+            V2 = m_module->newMatrix(A, m_k, A->rows);
+            EQ1 = m_module->newMatrix(A, 1, A->rows);
+            EQ2 = m_module->newMatrix(A, 1, A->rows);
+            EQ3 = m_module->newMatrix(A, 1, A->rows);
+            EV = m_module->newMatrix(A, m_k, A->rows);
+            EV1 = m_module->newMatrix(A, m_k, A->rows);
+            H = m_module->newMatrix(A, m_k, m_k);
+            HO = m_module->newMatrix(A, m_k, m_k);
+            H1 = m_module->newMatrix(A, m_k, m_k);
+            Q = m_module->newMatrix(A, m_k, m_k);
+            Q1 = m_module->newMatrix(A, m_k, m_k);
+            QT = m_module->newMatrix(A, m_k, m_k);
+            R1 = m_module->newMatrix(A, m_k, m_k);
+            R2 = m_module->newMatrix(A, m_k, m_k);
+            QJ = m_module->newMatrix(A, m_k, m_k);
+            I = m_module->newMatrix(A, m_k, m_k);
+            A1 = m_module->newMatrix(A, A->columns, A->columns);
+            transposeV = m_module->newMatrix(A, A->rows, m_k);
             oldA = A;
-            debugFunc();
         }
     }
 
-    void ArnoldiMethod::dealloc() {
+    void ArnoldiMethodCpu::dealloc() {
         if (oldA) {
             debugFunc();
-            m_matrixModule->deleteMatrix(w);
-            m_matrixModule->deleteMatrix(QJ);
-            m_matrixModule->deleteMatrix(Q);
-            m_matrixModule->deleteMatrix(f);
-            m_matrixModule->deleteMatrix(vh);
-            m_matrixModule->deleteMatrix(h);
-            m_matrixModule->deleteMatrix(s);
-            m_matrixModule->deleteMatrix(vs);
-            m_matrixModule->deleteMatrix(V);
-            m_matrixModule->deleteMatrix(H);
-            m_matrixModule->deleteMatrix(H1);
-            m_matrixModule->deleteMatrix(I);
-            m_matrixModule->deleteMatrix(v);
-            m_matrixModule->deleteMatrix(transposeV);
-            m_matrixModule->deleteMatrix(A1);
-            m_matrixModule->deleteMatrix(V1);
-            m_matrixModule->deleteMatrix(V2);
-            m_matrixModule->deleteMatrix(EV);
-            m_matrixModule->deleteMatrix(EV1);
-            m_matrixModule->deleteMatrix(R1);
-            m_matrixModule->deleteMatrix(R2);
-            m_matrixModule->deleteMatrix(QT);
-            m_matrixModule->deleteMatrix(Q1);
-            m_matrixModule->deleteMatrix(HO);
-            m_matrixModule->deleteMatrix(EQ1);
-            m_matrixModule->deleteMatrix(EQ2);
-            m_matrixModule->deleteMatrix(EQ3);
+            m_module->deleteMatrix(w);
+            m_module->deleteMatrix(QJ);
+            m_module->deleteMatrix(Q);
+            m_module->deleteMatrix(f);
+            m_module->deleteMatrix(vh);
+            m_module->deleteMatrix(h);
+            m_module->deleteMatrix(s);
+            m_module->deleteMatrix(vs);
+            m_module->deleteMatrix(V);
+            m_module->deleteMatrix(H);
+            m_module->deleteMatrix(H1);
+            m_module->deleteMatrix(I);
+            m_module->deleteMatrix(v);
+            m_module->deleteMatrix(transposeV);
+            m_module->deleteMatrix(A1);
+            m_module->deleteMatrix(V1);
+            m_module->deleteMatrix(V2);
+            m_module->deleteMatrix(EV);
+            m_module->deleteMatrix(EV1);
+            m_module->deleteMatrix(R1);
+            m_module->deleteMatrix(R2);
+            m_module->deleteMatrix(QT);
+            m_module->deleteMatrix(Q1);
+            m_module->deleteMatrix(HO);
+            m_module->deleteMatrix(EQ1);
+            m_module->deleteMatrix(EQ2);
+            m_module->deleteMatrix(EQ3);
             debugFunc();
         }
     }
 
-    void ArnoldiMethod::execute() {
-        mu = m_matrixModule->getMatrixUtils();
-        ma = m_matrixModule->getMatrixAllocator();
-        mc = m_matrixModule->getMatrixCopier();
+    void ArnoldiMethodCpu::execute() {
+        m_utils = m_module->getMatrixUtils();
+        m_allocator = m_module->getMatrixAllocator();
+        m_copier = m_module->getMatrixCopier();
 
         diff = -10.552;
         m_wantedCount = m_count;
@@ -219,10 +220,10 @@ namespace cpu {
         alloc(A);
         v->reValues[0] = 1;
         floatt tempLenght = 0;
-        m_mathOperations->magnitude(&tempLenght, v);
+        m_operations->magnitude(&tempLenght, v);
         tempLenght = 1. / tempLenght;
-        m_mathOperations->multiply(v, v, &tempLenght);
-        mc->setVector(V, 0, v, v->rows);
+        m_operations->multiply(v, v, &tempLenght);
+        m_copier->setVector(V, 0, v, v->rows);
         this->A = A;
         bool finish = false;
         this->executeArnoldiFactorization();
@@ -232,22 +233,22 @@ namespace cpu {
             wantedIndecies.clear();
             this->calculateH(H->columns - m_wantedCount);
             if (continueProcedure() == true) {
-                mu->setIdentityMatrix(Q);
-                mu->setIdentityMatrix(QJ);
+                m_utils->setIdentityMatrix(Q);
+                m_utils->setIdentityMatrix(QJ);
                 int p = unwanted.size();
                 int k = wanted.size();
                 for (intt fa = 0; fa < p; ++fa) {
-                    mu->setDiagonalMatrix(I, unwanted[fa].re, unwanted[fa].im);
-                    PRINT_STATUS(m_mathOperations->substract(I, H, I));
-                    PRINT_STATUS(m_mathOperations->qrDecomposition(Q1, R1, I));
-                    PRINT_STATUS(m_mathOperations->transpose(QT, Q1));
-                    PRINT_STATUS(m_mathOperations->dotProduct(HO, H, Q1));
-                    PRINT_STATUS(m_mathOperations->dotProduct(H, QT, HO));
-                    PRINT_STATUS(m_mathOperations->dotProduct(Q, QJ, Q1));
+                    m_utils->setDiagonalMatrix(I, unwanted[fa].re, unwanted[fa].im);
+                    PRINT_STATUS(m_operations->substract(I, H, I));
+                    PRINT_STATUS(m_operations->qrDecomposition(Q1, R1, I));
+                    PRINT_STATUS(m_operations->transpose(QT, Q1));
+                    PRINT_STATUS(m_operations->dotProduct(HO, H, Q1));
+                    PRINT_STATUS(m_operations->dotProduct(H, QT, HO));
+                    PRINT_STATUS(m_operations->dotProduct(Q, QJ, Q1));
                     switchPointer(Q, QJ);
                 }
                 switchPointer(Q, QJ);
-                PRINT_STATUS(m_mathOperations->multiply(EV, V, Q));
+                PRINT_STATUS(m_operations->multiply(EV, V, Q));
                 switchPointer(V, EV);
                 floatt reqm_k = Q->reValues[Q->columns * (Q->rows - 1) + k];
                 floatt imqm_k = 0;
@@ -259,13 +260,11 @@ namespace cpu {
                 if (H->imValues) {
                     imBm_k = H->imValues[H->columns * (k + 1) + k];
                 }
-                mc->getVector(v, v->rows, V, k);
-                PRINT_STATUS(m_mathOperations->multiply(f1, v, &reBm_k, &imBm_k));
-                PRINT_STATUS(m_mathOperations->multiply(f, f, &reqm_k, &imqm_k));
-                PRINT_STATUS(m_mathOperations->add(f, f1, f));
-                mu->setZeroMatrix(v);
-                //m_mathOperations->setSubColumns(0, k);
-
+                m_copier->getVector(v, v->rows, V, k);
+                PRINT_STATUS(m_operations->multiply(f1, v, &reBm_k, &imBm_k));
+                PRINT_STATUS(m_operations->multiply(f, f, &reqm_k, &imqm_k));
+                PRINT_STATUS(m_operations->add(f, f1, f));
+                m_utils->setZeroMatrix(v);
                 if (this->executeArnoldiFactorization(false, k - 1) == false) {
                     finish = true;
                 }
@@ -281,36 +280,35 @@ namespace cpu {
         }
     }
 
-    void ArnoldiMethod::multiply(math::Matrix* a, math::Matrix* b,
+    void ArnoldiMethodCpu::multiply(math::Matrix* a, math::Matrix* b,
             math::Matrix* c, bool first) {
-        PRINT_STATUS(m_mathOperations->dotProduct(a, b, c));
+        PRINT_STATUS(m_operations->dotProduct(a, b, c));
     }
 
-    bool ArnoldiMethod::executeArnoldiFactorization(bool init, intt initj) {
-        if (init) {
-            debugFunc();
+    bool ArnoldiMethodCpu::executeArnoldiFactorization(bool init, intt initj) {
+        if (true == init) {
             multiply(w, A, v, true);
-            debugFunc();
-            mc->setVector(V, 0, v, v->rows);
-            m_mathOperations->setSubRows(0, 1);
-            PRINT_STATUS(m_mathOperations->transpose(transposeV, V));
-            m_mathOperations->setSubColumns(0, 1);
-            PRINT_STATUS(m_mathOperations->dotProduct(h, transposeV, w));
-            PRINT_STATUS(m_mathOperations->dotProduct(vh, V, h));
-            PRINT_STATUS(m_mathOperations->substract(f, w, vh));
-            mc->setVector(H, 0, h, 1);
+            m_copier->setVector(V, 0, v, v->rows);
+            m_operations->setSubRows(0, 1);
+            PRINT_STATUS(m_operations->transpose(transposeV, V));
+            m_operations->setSubColumns(0, 1);
+            PRINT_STATUS(m_operations->dotProduct(h, transposeV, w));
+            PRINT_STATUS(m_operations->dotProduct(vh, V, h));
+            PRINT_STATUS(m_operations->substract(f, w, vh));
+            m_copier->setVector(H, 0, h, 1);
         }
         floatt mf = 0;
         floatt mh = 0;
         floatt B = 0;
         for (uintt j = initj; j < m_k - 1; j++) {
-            PRINT_STATUS(m_mathOperations->magnitude(&B, f));
+            PRINT_STATUS(m_operations->magnitude(&B, f));
+            host::PrintReMatrix("f =", f);
             if (fabs(B) < MATH_VALUE_LIMIT) {
                 return false;
             }
             floatt rB = 1. / B;
-            PRINT_STATUS(m_mathOperations->multiply(v, f, &rB));
-            mc->setVector(V, j + 1, v, v->rows);
+            PRINT_STATUS(m_operations->multiply(v, f, &rB));
+            m_copier->setVector(V, j + 1, v, v->rows);
 
             memset(&H->reValues[H->columns * (j + 1)], 0, H->columns *
                     sizeof (floatt));
@@ -319,45 +317,43 @@ namespace cpu {
                         sizeof (floatt));
             }
             H->reValues[(j) + H->columns * (j + 1)] = B;
-            debugFunc();
             multiply(w, A, v, false);
-            debugFunc();
-            m_mathOperations->setSubRows(initj, j + 2);
-            PRINT_STATUS(m_mathOperations->transpose(transposeV, V));
-            PRINT_STATUS(m_mathOperations->dotProduct(h, transposeV, w));
-            PRINT_STATUS(m_mathOperations->dotProduct(vh, V, h));
-            PRINT_STATUS(m_mathOperations->substract(f, w, vh));
-            PRINT_STATUS(m_mathOperations->magnitude(&mf, f));
-            PRINT_STATUS(m_mathOperations->magnitude(&mh, h));
+            m_operations->setSubRows(initj, j + 2);
+            PRINT_STATUS(m_operations->transpose(transposeV, V));
+            PRINT_STATUS(m_operations->dotProduct(h, transposeV, w));
+            PRINT_STATUS(m_operations->dotProduct(vh, V, h));
+            PRINT_STATUS(m_operations->substract(f, w, vh));
+            PRINT_STATUS(m_operations->magnitude(&mf, f));
+            PRINT_STATUS(m_operations->magnitude(&mh, h));
             if (mf < m_rho * mh) {
-                PRINT_STATUS(m_mathOperations->dotProduct(s, transposeV, f));
-                m_mathOperations->setSubColumns(initj, s->rows);
-                PRINT_STATUS(m_mathOperations->dotProduct(vs, V, s));
-                PRINT_STATUS(m_mathOperations->substract(f, f, vs));
-                PRINT_STATUS(m_mathOperations->add(h, h, s));
+                PRINT_STATUS(m_operations->dotProduct(s, transposeV, f));
+                m_operations->setSubColumns(initj, s->rows);
+                PRINT_STATUS(m_operations->dotProduct(vs, V, s));
+                PRINT_STATUS(m_operations->substract(f, f, vs));
+                PRINT_STATUS(m_operations->add(h, h, s));
             }
-            mc->setVector(H, j + 1, h, j + 2);
-            fprintf(stderr, "%s %s %d \n", __FUNCTION__, __FILE__, __LINE__);
+            m_copier->setVector(H, j + 1, h, j + 2);
         }
+        host::PrintReMatrix("H =", H);
         return true;
     }
 
-    Status ArnoldiMethodCallback::beforeExecution() {
+    math::Status ArnoldiMethodCallbackCpu::beforeExecution() {
         for (uintt fa = 0; fa < m_threadsCount; ++fa) {
             Data* thread = new Data();
             m_threads.push_back(thread);
         }
-        return ArnoldiMethod::beforeExecution();
+        return ArnoldiMethodCpu::beforeExecution();
     }
 
-    Status ArnoldiMethodCallback::afterExecution() {
+    math::Status ArnoldiMethodCallbackCpu::afterExecution() {
         for (uintt fa = 0; fa < m_threadsCount; ++fa) {
             delete m_threads[fa];
         }
-        return ArnoldiMethod::afterExecution();
+        return ArnoldiMethodCpu::afterExecution();
     }
 
-    floatt ArnoldiMethod::getLargestDiagonal(math::Matrix* H) const {
+    floatt ArnoldiMethodCpu::getLargestDiagonal(math::Matrix* H) const {
         floatt output = H->reValues[0];
         for (uintt fa = 1; fa < H->columns; ++fa) {
             floatt v = H->reValues[fa * H->columns + fa];
@@ -368,7 +364,7 @@ namespace cpu {
         return output;
     }
 
-    floatt ArnoldiMethod::getSmallestDiagonal(math::Matrix* H) const {
+    floatt ArnoldiMethodCpu::getSmallestDiagonal(math::Matrix* H) const {
         floatt output = H->reValues[0];
         for (uintt fa = 1; fa < H->columns; ++fa) {
             floatt v = H->reValues[fa * H->columns + fa];
@@ -385,14 +381,16 @@ namespace cpu {
         return m1 < m2;
     }
 
-    void ArnoldiMethod::calculateH(int unwantedCount) {
+    void ArnoldiMethodCpu::calculateH(int unwantedCount) {
         std::vector<Complex> values;
         host::CopyMatrix(H1, H);
-        m_matrixModule->getMatrixUtils()->setIdentityMatrix(Q);
-        m_matrixModule->getMatrixUtils()->setIdentityMatrix(QJ);
-        m_matrixModule->getMatrixUtils()->setIdentityMatrix(I);
-        //host::PrintMatrix("H =", H);
+        m_module->getMatrixUtils()->setIdentityMatrix(Q);
+        m_module->getMatrixUtils()->setIdentityMatrix(QJ);
+        m_module->getMatrixUtils()->setIdentityMatrix(I);
+        host::PrintReMatrix("H1 = ", H1);
+        debugFunc();
         for (uintt fa = 0; IsTriangular(H1, H1->columns - 1) == false; ++fa) {
+#if 0
             floatt red = 0;
             if (H1->reValues) {
                 red = H1->reValues[H1->columns * H1->rows - 1];
@@ -401,27 +399,29 @@ namespace cpu {
             if (H1->imValues) {
                 imd = H1->imValues[H1->columns * H1->rows - 1];
             }
-            m_matrixModule->getMatrixUtils()->setDiagonalMatrix(I, red, imd);
-            //m_mathOperations->substract(H1, H1, I);
-            //host::PrintMatrix("I =", I);
-            m_mathOperations->qrDecomposition(Q1, R1, H1);
-            m_mathOperations->multiply(H1, R1, Q1);
-            //m_mathOperations->add(H1, H1, I);
-            m_mathOperations->multiply(Q, QJ, Q1);
+            m_module->getMatrixUtils()->setDiagonalMatrix(I, red, imd);
+            m_operations->substract(H1, H1, I);
+#endif
+            m_operations->qrDecomposition(Q1, R1, H1);
+            m_operations->multiply(H1, R1, Q1);
+#if 0
+            m_operations->add(H1, H1, I);
+#endif
+            m_operations->multiply(Q, QJ, Q1);
             switchPointer(Q, QJ);
         }
-        //host::PrintMatrix("H1 =", H1);
+        debugFunc();
         int index = 0;
         math::Matrix* q = host::NewMatrix(1, Q->rows, 0);
         math::Matrix* q1 = host::NewMatrix(1, Q->rows, 0);
         math::Matrix* q2 = host::NewMatrix(1, Q->rows, 0);
-        mc->getVector(q, q->rows, Q, index);
-        m_mathOperations->multiply(q1, H, q);
+        m_copier->getVector(q, q->rows, Q, index);
+        m_operations->multiply(q1, H, q);
         if (H1->imValues) {
-            m_mathOperations->multiply(q2, q, &H1->reValues[index * H1->columns + index],
+            m_operations->multiply(q2, q, &H1->reValues[index * H1->columns + index],
                     &H1->imValues[index * H1->columns + index]);
         } else {
-            m_mathOperations->multiply(q2, q, &H1->reValues[index * H1->columns + index]);
+            m_operations->multiply(q2, q, &H1->reValues[index * H1->columns + index]);
         }
         switchPointer(Q, QJ);
         notSorted.clear();
@@ -451,9 +451,9 @@ namespace cpu {
         }
     }
 
-    ArnoldiMethodCallback::ArnoldiMethodCallback(MathOperations* mathOperations,
+    ArnoldiMethodCallbackCpu::ArnoldiMethodCallbackCpu(MathOperationsCpu* mathOperations,
             uintt realCount) :
-    ArnoldiMethod(mathOperations) {
+    ArnoldiMethodCpu(mathOperations) {
         m_event = new Event();
         m_realCount = realCount;
         m_reoutputs = new floatt[realCount];
@@ -465,7 +465,7 @@ namespace cpu {
         m_index = 0;
     }
 
-    ArnoldiMethodCallback::~ArnoldiMethodCallback() {
+    ArnoldiMethodCallbackCpu::~ArnoldiMethodCallbackCpu() {
         delete m_event;
         if (m_reoutputs) {
             delete[] m_reoutputs;
@@ -484,7 +484,7 @@ namespace cpu {
         }
     }
 
-    void ArnoldiMethodCallback::preMultiply(math::Matrix* a, math::Matrix* b,
+    void ArnoldiMethodCallbackCpu::preMultiply(math::Matrix* a, math::Matrix* b,
             math::Matrix* c) {
         math::Matrix* v = c;
         m_count = 0;
@@ -523,7 +523,7 @@ namespace cpu {
         isFinish = true;
     }
 
-    void ArnoldiMethodCallback::Data::calculate(uintt index, uintt count,
+    void ArnoldiMethodCallbackCpu::Data::calculate(uintt index, uintt count,
             uintt begin, uintt size, uint count2) {
         uintt diff = size / count;
         uintt dindex = diff*index;
@@ -538,7 +538,7 @@ namespace cpu {
         this->m_count2 = count2;
     }
 
-    void ArnoldiMethodCallback::ThreadFunction(void* ptr) {
+    void ArnoldiMethodCallbackCpu::ThreadFunction(void* ptr) {
         Data* data = (Data*) ptr;
         uintt m_index = data->m_beginIndex;
         for (uintt fa1 = data->m_brow; fa1 < data->m_erow; ++fa1) {
@@ -561,7 +561,7 @@ namespace cpu {
         return;
     }
 
-    void ArnoldiMethodCallback::postMultiply(math::Matrix* a, math::Matrix* b,
+    void ArnoldiMethodCallbackCpu::postMultiply(math::Matrix* a, math::Matrix* b,
             math::Matrix* c) {
         math::Matrix* w = a;
         for (uintt fa = 0; fa < m_threads.size(); ++fa) {
@@ -582,7 +582,7 @@ namespace cpu {
         m_rows = m_rows1;
     }
 
-    void ArnoldiMethodCallback::multiply(math::Matrix* a, math::Matrix* b,
+    void ArnoldiMethodCallbackCpu::multiply(math::Matrix* a, math::Matrix* b,
             math::Matrix* c, bool first) {
         if (first == false) {
             m_event->setPointers(m_reoutputs1, m_imoutputs1,
@@ -603,9 +603,9 @@ namespace cpu {
         }
     }
 
-    const int ArnoldiMethodCallback::EVENT_MATRIX_MULTIPLICATION = 0;
+    const int ArnoldiMethodCallbackCpu::EVENT_MATRIX_MULTIPLICATION = 0;
 
-    ArnoldiMethodCallback::Event::Event(floatt* reoutputs,
+    ArnoldiMethodCallbackCpu::Event::Event(floatt* reoutputs,
             floatt* imoutputs,
             uintt* matrixEntries, uintt count) {
         m_reoutputs = reoutputs;
@@ -614,17 +614,17 @@ namespace cpu {
         m_count = count;
     }
 
-    ArnoldiMethodCallback::Event::Event() {
+    ArnoldiMethodCallbackCpu::Event::Event() {
         m_reoutputs = NULL;
         m_imoutputs = NULL;
         m_matrixEntries = NULL;
         m_count = 0;
     }
 
-    ArnoldiMethodCallback::Event::~Event() {
+    ArnoldiMethodCallbackCpu::Event::~Event() {
     }
 
-    void ArnoldiMethodCallback::Event::setPointers(floatt* reoutputs,
+    void ArnoldiMethodCallbackCpu::Event::setPointers(floatt* reoutputs,
             floatt* imoutputs,
             uintt* matrixEntries) {
         m_reoutputs = reoutputs;
@@ -632,25 +632,25 @@ namespace cpu {
         m_matrixEntries = matrixEntries;
     }
 
-    void ArnoldiMethodCallback::Event::setCount(uintt count) {
+    void ArnoldiMethodCallbackCpu::Event::setCount(uintt count) {
         m_count = count;
         memset(m_reoutputs, 0, count * sizeof (floatt));
         memset(m_imoutputs, 0, count * sizeof (floatt));
     }
 
-    uintt ArnoldiMethodCallback::Event::getCount() const {
+    uintt ArnoldiMethodCallbackCpu::Event::getCount() const {
         return m_count;
     }
 
-    floatt* ArnoldiMethodCallback::Event::getReOutputs() const {
+    floatt* ArnoldiMethodCallbackCpu::Event::getReOutputs() const {
         return m_reoutputs;
     }
 
-    floatt* ArnoldiMethodCallback::Event::getImOutputs() const {
+    floatt* ArnoldiMethodCallbackCpu::Event::getImOutputs() const {
         return m_imoutputs;
     }
 
-    uintt* ArnoldiMethodCallback::Event::getMatrixEntries() const {
+    uintt* ArnoldiMethodCallbackCpu::Event::getMatrixEntries() const {
         return m_matrixEntries;
     }
 }

@@ -22,8 +22,8 @@ namespace math {
             bool(*HasInstance)(math::Matrix* matrix, MatrixUtils* matrixUtils),
             IAdditionOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
-        MatrixUtils* matrixUtils = m_matrixModule->getMatrixUtils();
-        MatrixCopier* matrixCopier = m_matrixModule->getMatrixCopier();
+        MatrixUtils* matrixUtils = m_module->getMatrixUtils();
+        MatrixCopier* matrixCopier = m_module->getMatrixCopier();
         if (HasInstance(matrix1, matrixUtils) == false &&
                 HasInstance(matrix2, matrixUtils) == false) {
             if (HasInstance(output, matrixUtils) != false) {

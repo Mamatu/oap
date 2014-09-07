@@ -29,8 +29,8 @@ namespace math {
         }
 
         AdditionOperation::AdditionOperation() :
-        math::IAdditionOperation(&DeviceMatrixModules::getInstance(),
-        DeviceMatrixStructureUtils::GetInstance(&DeviceMatrixModules::getInstance())) {
+        math::IAdditionOperation(DeviceMatrixModules::GetInstance(),
+        DeviceMatrixStructureUtils::GetInstance()) {
         }
 
         AdditionOperation::~AdditionOperation() {
@@ -85,8 +85,8 @@ namespace math {
         }
 
         SubstracionOperation::SubstracionOperation() :
-        math::ISubstracionOperation(&DeviceMatrixModules::getInstance(),
-        DeviceMatrixStructureUtils::GetInstance(&DeviceMatrixModules::getInstance())) {
+        math::ISubstracionOperation(DeviceMatrixModules::GetInstance(),
+        DeviceMatrixStructureUtils::GetInstance()) {
         }
 
         SubstracionOperation::~SubstracionOperation() {
@@ -108,8 +108,8 @@ namespace math {
         }
 
         DotProductOperation::DotProductOperation() :
-        math::IDotProductOperation(&DeviceMatrixModules::getInstance(),
-        DeviceMatrixStructureUtils::GetInstance(&DeviceMatrixModules::getInstance())) {
+        math::IDotProductOperation(DeviceMatrixModules::GetInstance(),
+        DeviceMatrixStructureUtils::GetInstance()) {
         }
 
         DotProductOperation::~DotProductOperation() {
@@ -130,8 +130,8 @@ namespace math {
         }
 
         MultiplicationConstOperation::MultiplicationConstOperation() :
-        math::IMultiplicationConstOperation(&DeviceMatrixModules::getInstance(),
-        DeviceMatrixStructureUtils::GetInstance(&DeviceMatrixModules::getInstance())) {
+        math::IMultiplicationConstOperation(DeviceMatrixModules::GetInstance(),
+        DeviceMatrixStructureUtils::GetInstance()) {
         }
 
         MultiplicationConstOperation::~MultiplicationConstOperation() {
@@ -153,8 +153,8 @@ namespace math {
         }
 
         ExpOperation::ExpOperation() :
-        math::IExpOperation(&DeviceMatrixModules::getInstance(),
-        DeviceMatrixStructureUtils::GetInstance(&DeviceMatrixModules::getInstance())) {
+        math::IExpOperation(DeviceMatrixModules::GetInstance(),
+        DeviceMatrixStructureUtils::GetInstance()) {
         }
 
         ExpOperation::~ExpOperation() {
@@ -168,8 +168,8 @@ namespace math {
         }
 
         DiagonalizationOperation::DiagonalizationOperation() :
-        math::IDiagonalizationOperation(&DeviceMatrixModules::getInstance(),
-        DeviceMatrixStructureUtils::GetInstance(&DeviceMatrixModules::getInstance())) {
+        math::IDiagonalizationOperation(DeviceMatrixModules::GetInstance(),
+        DeviceMatrixStructureUtils::GetInstance()) {
         }
 
         DiagonalizationOperation::~DiagonalizationOperation() {
