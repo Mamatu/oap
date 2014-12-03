@@ -39,10 +39,11 @@ extern "C" __device__ void CUDA_PrintMatrixS(MatrixStructure* ms) {
         printf("[");
         for (uintt fa = ms->m_beginColumn;
                 fa < ms->m_beginColumn + ms->m_subcolumns; ++fa) {
-            printf("%f,", ms->m_matrix->reValues[ms->m_beginColumn + fb * ms->m_subcolumns + fa]);
+            printf("(%f", ms->m_matrix->reValues[ms->m_beginColumn + fb * ms->m_subcolumns + fa]);
             if (ms->m_matrix->imValues) {
-                printf("%f,", ms->m_matrix->imValues[ms->m_beginColumn + fb * ms->m_subcolumns + fa]);
+                printf(",%f", ms->m_matrix->imValues[ms->m_beginColumn + fb * ms->m_subcolumns + fa]);
             }
+            printf(")");
         }
         printf("]");
         printf("\n");
@@ -53,10 +54,11 @@ extern "C" __device__ void CUDA_PrintMatrix(math::Matrix* m) {
     for (uintt fb = 0; fb < m->rows; ++fb) {
         printf("[");
         for (uintt fa = 0; fa < m->columns; ++fa) {
-            printf("%f,", m->reValues[fb * m->columns + fa]);
+            printf("(%f", m->reValues[fb * m->columns + fa]);
             if (m->imValues) {
-                printf("%f,", m->imValues[fb * m->columns + fa]);
+                printf(",%f", m->imValues[fb * m->columns + fa]);
             }
+            printf(")");
         }
         printf("]");
         printf("\n");
