@@ -24,5 +24,6 @@ namespace math {
         virtual void setRho(floatt rho) = 0;
     };
 }
+
 #endif	/* IARNOLDIMETHOD_H */
 

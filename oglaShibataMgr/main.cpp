@@ -12,6 +12,8 @@
 #include "DeviceMatrixModules.h"
 #include "Matrix.h"
 #include "KernelExecutor.h"
+#include "ArnoldiMethodProcess.h"
+#include "ArnoldiMethodDeviceImpl.h"
 #include "main.h"
 
 #include <cstdlib>
@@ -30,7 +32,7 @@
 
 
 using namespace std;
-math::cpu::MathOperations matrixOperations;
+math::MathOperationsCpu matrixOperations;
 
 void setPauliMatrixX(math::Matrix* matrix) {
     matrix->reValues[0] = 0;
@@ -81,7 +83,7 @@ void qrtest() {
 
 void qtest() {
     floatt aA[] = {0, 1, 1, 1, 0, 1, 1, 1, 0};
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     math::Matrix* A = host::NewReMatrixCopy(3, 3, (floatt*) aA);
     math::Matrix* m = host::NewReMatrix(3, 3, 0);
     //host::SetDiagonals(m, 2);
@@ -89,24 +91,17 @@ void qtest() {
     floatt d;
     mo.det(&d, A);
     fprintf(stderr, "f == %f \n", d);
-    math::cpu::IraMethod iram(&mo);
-    iram.setMatrix(A);
-    iram.setHSize(4);
-    iram.setRho(1. / 3.14);
-    floatt output[2];
-    iram.setReOutputValues(output, 2);
-    iram.start();
 }
 
 floatt* reoutpus = NULL;
 floatt* recount = 0;
 
 void Callback_f(int event, void* object, void* userPtr) {
-    if (event == math::cpu::IraMethodCallback::EVENT_MATRIX_MULTIPLICATION) {
+    if (event == math::ArnoldiMethodCallbackGpu::EVENT_MATRIX_MULTIPLICATION) {
         shibata::cpu::RealTransferMatrix* transferMatrixCpu =
                 reinterpret_cast<shibata::cpu::RealTransferMatrix*> (userPtr);
-        math::cpu::IraMethodCallback::Event* event =
-                reinterpret_cast<math::cpu::IraMethodCallback::Event*> (object);
+        math::ArnoldiMethodCallbackGpu::Event* event =
+                reinterpret_cast<math::ArnoldiMethodCallbackGpu::Event*> (object);
 
 #if 0
         if (reoutpus == NULL) {
@@ -134,7 +129,7 @@ int main1(int argc, char** argv) {
     //context.init();
     HostMatrixAllocator hmm;
     HostMatrixUtils mu;
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     shibata::cpu::RealTransferMatrix transferMatrixCpu;
     shibata::cuda::RealTransferMatrix transferMatrixCuda;
     math::Matrix* identity = hmm.newReMatrix(2, 2);
@@ -183,7 +178,7 @@ int main1(int argc, char** argv) {
     int serieLimit = 25;
     int M = 2;
     int l = pow(qCount, 2 * M);
-    fprintf(stderr, "l = %llu\n", l);
+    fprintf(stderr, "l = %d\n", l);
     math::Matrix* transferMatrix = hmm.newMatrix(l, l);
 
     //csetReOutputEntries(reoutputs);
@@ -199,19 +194,19 @@ int main1(int argc, char** argv) {
     math::Status status = transferMatrixCpu.start();
     //transferMatrixCpu.setOutputMatrix(NULL);
 
-    math::cpu::IraMethod/*Callback */iram(&mo/*, 16 * 3*/);
-    iram.setHSize(4);
+    api::ArnoldiPackage/*Callback */iram(api::ArnoldiPackage::ARNOLDI_CPU/*, 16 * 3*/);
+    iram.setHDimension(4);
     iram.setRho(1. / 3.14);
     iram.setMatrix(transferMatrix);
-    iram.setThreadsCount(THREADS_COUNT);
+    //iram.setThreadsCount(THREADS_COUNT);
     //iram.registerCallback(Callback_f, &transferMatrixCpu);
     uintt eigenvaluesCount = 2;
     floatt revalues[eigenvaluesCount];
     floatt imvalues[eigenvaluesCount];
     memset(revalues, 0, eigenvaluesCount * sizeof (floatt));
     memset(imvalues, 0, eigenvaluesCount * sizeof (floatt));
-    iram.setReOutputValues(revalues, eigenvaluesCount);
-    iram.setImOutputValues(imvalues, eigenvaluesCount);
+    //iram.setEigenvaluesBuffer(revalues, eigenvaluesCount);
+    //iram.setEigenvectorsBuffer(imvalues, eigenvaluesCount);
     iram.start();
     for (uintt fa = 0; fa < eigenvaluesCount; fa++) {
         fprintf(stderr, "eigenvalue = %f\n", revalues[fa]);
@@ -228,7 +223,7 @@ void prepareH(math::Matrix* o,
         math::Matrix* temp,
         math::Matrix* temp1,
         uintt M,
-        floatt T, math::cpu::MathOperations& mo) {
+        floatt T, math::MathOperationsCpu& mo) {
     floatt jx = -1;
     floatt jy = -1;
     floatt jz = -1;
@@ -257,13 +252,12 @@ void prepareH(math::Matrix* o,
     host::PrintMatrix("o = ", o);
     mo.multiply(temp1, temp1, &v);
     mo.exp(o, temp1);
-    abort();
 }
 
 int main2(int argc, char** argv) {
     HostMatrixAllocator hmm;
     HostMatrixUtils mu;
-    math::cpu::MathOperations mo;
+    math::MathOperationsCpu mo;
     shibata::cpu::RealTransferMatrix transferMatrixCpu;
     char* impath = NULL;
     char* repath = NULL;
@@ -348,7 +342,7 @@ int main2(int argc, char** argv) {
         math::Status status = transferMatrixCpu.start();
         transferMatrixCpu.setOutputMatrix(NULL);
 
-        math::cpu::IraMethodCallback iram(&mo, 3 * l);
+        /*math::cpu::IraMethodCallback iram(&mo, 3 * l);
         iram.setHSize(10);
         iram.setRho(1. / sqrt(2));
         iram.setMatrix(transferMatrix);
@@ -362,7 +356,7 @@ int main2(int argc, char** argv) {
         iram.start();
         for (uintt fa = 0; fa < eigenvaluesCount; fa++) {
             printf("eigenvalue = %f\n", nvalues[fa]);
-        }
+        }*/
     }
     host::DeleteMatrix(identity);
 

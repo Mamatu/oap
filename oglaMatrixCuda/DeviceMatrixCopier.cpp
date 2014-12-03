@@ -2,29 +2,29 @@
 
 void DeviceMatrixCopier::copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* src) {
     debugFuncBegin();
-    intt length1 = getDeviceColumns(dst) * getDeviceRows(dst);
-    intt length2 = getDeviceColumns(src) * getDeviceRows(src);
+    intt length1 = CudaUtils::GetDeviceColumns(dst) * CudaUtils::GetDeviceRows(dst);
+    intt length2 = CudaUtils::GetDeviceColumns(src) * CudaUtils::GetDeviceRows(src);
     length1 = length1 < length2 ? length1 : length2;
-    cuMemcpyDtoD(getReValuesAddress(dst), getReValuesAddress(src), length1 * sizeof (floatt));
-    cuMemcpyDtoD(getImValuesAddress(dst), getImValuesAddress(src), length1 * sizeof (floatt));
+    cuMemcpyDtoD(CudaUtils::GetReValuesAddress(dst), CudaUtils::GetReValuesAddress(src), length1 * sizeof (floatt));
+    cuMemcpyDtoD(CudaUtils::GetImValuesAddress(dst), CudaUtils::GetImValuesAddress(src), length1 * sizeof (floatt));
     debugFuncEnd();
 }
 
 void DeviceMatrixCopier::copyReMatrixToReMatrix(math::Matrix* dst, const math::Matrix* src) {
     debugFuncBegin();
-    intt length1 = getDeviceColumns(dst) * getDeviceRows(dst);
-    intt length2 = getDeviceColumns(src) * getDeviceRows(src);
+    intt length1 = CudaUtils::GetDeviceColumns(dst) * CudaUtils::GetDeviceRows(dst);
+    intt length2 = CudaUtils::GetDeviceColumns(src) * CudaUtils::GetDeviceRows(src);
     length1 = length1 < length2 ? length1 : length2;
-    cuMemcpyDtoD(getReValuesAddress(dst), getReValuesAddress(src), length1 * sizeof (floatt));
+    cuMemcpyDtoD(CudaUtils::GetReValuesAddress(dst), CudaUtils::GetReValuesAddress(src), length1 * sizeof (floatt));
     debugFuncEnd();
 }
 
 void DeviceMatrixCopier::copyImMatrixToImMatrix(math::Matrix* dst, const math::Matrix* src) {
     debugFuncBegin();
-    intt length1 = getDeviceColumns(dst) * getDeviceRows(dst);
-    intt length2 = getDeviceColumns(src) * getDeviceRows(src);
+    intt length1 = CudaUtils::GetDeviceColumns(dst) * CudaUtils::GetDeviceRows(dst);
+    intt length2 = CudaUtils::GetDeviceColumns(src) * CudaUtils::GetDeviceRows(src);
     length1 = length1 < length2 ? length1 : length2;
-    cuMemcpyDtoD(getImValuesAddress(dst), getImValuesAddress(src), length1 * sizeof (floatt));
+    cuMemcpyDtoD(CudaUtils::GetImValuesAddress(dst), CudaUtils::GetImValuesAddress(src), length1 * sizeof (floatt));
     debugFuncEnd();
 }
 
@@ -39,7 +39,7 @@ void DeviceMatrixCopier::copy(floatt* dst, const floatt* src, intt length) {
 void DeviceMatrixCopier::setReVector(math::Matrix* matrix, intt column, floatt* vector, intt length) {
     debugFuncBegin();
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
-    CUdeviceptr matrixRePtr = getReValuesAddress(matrix);
+    CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
     for (intt fa = 0; fa < length; fa++) {
         cuMemcpyDtoD(matrixRePtr + column + matrix->columns * fa,
                 vectorPtr + fa, sizeof (floatt));
@@ -50,7 +50,7 @@ void DeviceMatrixCopier::setReVector(math::Matrix* matrix, intt column, floatt* 
 void DeviceMatrixCopier::setTransposeReVector(math::Matrix* matrix, intt row, floatt* vector, intt length) {
     debugFuncBegin();
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
-    CUdeviceptr matrixRePtr = getReValuesAddress(matrix);
+    CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
     cuMemcpyDtoD(matrixRePtr + matrix->columns * row,
             vectorPtr, length * sizeof (floatt));
     debugFuncEnd();
@@ -59,7 +59,7 @@ void DeviceMatrixCopier::setTransposeReVector(math::Matrix* matrix, intt row, fl
 void DeviceMatrixCopier::setImVector(math::Matrix* matrix, intt column, floatt* vector, intt length) {
     debugFuncBegin();
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
-    CUdeviceptr matrixImPtr = getImValuesAddress(matrix);
+    CUdeviceptr matrixImPtr = CudaUtils::GetImValuesAddress(matrix);
     for (intt fa = 0; fa < length; fa++) {
         cuMemcpyDtoD(matrixImPtr + column + matrix->columns * fa,
                 vectorPtr + fa, sizeof (floatt));
@@ -70,7 +70,7 @@ void DeviceMatrixCopier::setImVector(math::Matrix* matrix, intt column, floatt* 
 void DeviceMatrixCopier::setTransposeImVector(math::Matrix* matrix, intt row, floatt* vector, intt length) {
     debugFuncBegin();
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
-    CUdeviceptr matrixImPtr = getImValuesAddress(matrix);
+    CUdeviceptr matrixImPtr = CudaUtils::GetImValuesAddress(matrix);
     cuMemcpyDtoD(matrixImPtr + matrix->columns * row,
             vectorPtr, length * sizeof (floatt));
     debugFuncEnd();
@@ -78,9 +78,9 @@ void DeviceMatrixCopier::setTransposeImVector(math::Matrix* matrix, intt row, fl
 
 void DeviceMatrixCopier::getReVector(floatt* vector, intt length, math::Matrix* matrix, intt column) {
     debugFuncBegin();
-    CUdeviceptr matrixRePtr = getReValuesAddress(matrix);
+    CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
-    intt columns = getDeviceColumns(matrix);
+    intt columns = CudaUtils::GetDeviceColumns(matrix);
     for (intt fa = 0; fa < length; fa++) {
         const CUdeviceptr matrixRePtr1 = matrixRePtr + fa * columns + column;
         cuMemcpyDtoD(vectorPtr + fa, matrixRePtr1, sizeof (floatt));
@@ -90,7 +90,7 @@ void DeviceMatrixCopier::getReVector(floatt* vector, intt length, math::Matrix* 
 
 void DeviceMatrixCopier::getTransposeReVector(floatt* vector, intt length, math::Matrix* matrix, intt row) {
     debugFuncBegin();
-    CUdeviceptr matrixRePtr = this->getReValuesAddress(matrix);
+    CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
     matrixRePtr = matrixRePtr + matrix->columns * row;
     cuMemcpyDtoD(vectorPtr, matrixRePtr, length * sizeof (floatt));
@@ -99,9 +99,9 @@ void DeviceMatrixCopier::getTransposeReVector(floatt* vector, intt length, math:
 
 void DeviceMatrixCopier::getImVector(floatt* vector, intt length, math::Matrix* matrix, intt column) {
     debugFuncBegin();
-    CUdeviceptr matrixImPtr = getImValuesAddress(matrix);
+    CUdeviceptr matrixImPtr = CudaUtils::GetImValuesAddress(matrix);
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
-    intt columns = getDeviceColumns(matrix);
+    intt columns = CudaUtils::GetDeviceColumns(matrix);
     for (intt fa = 0; fa < length; fa++) {
         const CUdeviceptr matrixImPtr1 = matrixImPtr + fa * columns + column;
         cuMemcpyDtoD(vectorPtr + fa, matrixImPtr1, sizeof (floatt));
@@ -111,7 +111,7 @@ void DeviceMatrixCopier::getImVector(floatt* vector, intt length, math::Matrix* 
 
 void DeviceMatrixCopier::getTransposeImVector(floatt* vector, intt length, math::Matrix* matrix, intt row) {
     debugFuncBegin();
-    CUdeviceptr matrixImPtr = this->getImValuesAddress(matrix);
+    CUdeviceptr matrixImPtr = CudaUtils::GetImValuesAddress(matrix);
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
     matrixImPtr = matrixImPtr + matrix->columns * row;
     cuMemcpyDtoD(vectorPtr, matrixImPtr, length * sizeof (floatt));

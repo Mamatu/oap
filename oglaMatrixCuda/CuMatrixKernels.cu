@@ -1,23 +1,12 @@
 #include "CuMatrixProcedures.h"
-#define DEBUG
-
-extern "C" __device__ void CUDA_PrintInfo(MatrixStructure* ms) {
-#ifdef DEBUG
-    printf("KERNELS ms == %llu %llu,%llu,%llu,%llu \n", ms, ms->m_beginColumn, ms->m_subcolumns,
-            ms->m_beginRow, ms->m_subrows);
-    printf("matrix == %llu %llu %llu\n", ms->m_matrix,
-            ms->m_matrix->columns, ms->m_matrix->rows);
-    printf("matrix1 == %llu %llu %llu \n", ms->m_matrix,
-            ms->m_matrix->reValues, ms->m_matrix->imValues);
-#endif
-}
+#include "CuMatrixUtils.h"
 
 extern "C" __global__ void CUDAKernel_DotProductRe(
         MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_multiplyReMatrix(output, params0, params1,
+    CUDA_multiplyReMatrices(output, params0, params1,
             threadIndexX, threadIndexY);
 }
 
@@ -26,7 +15,7 @@ extern "C" __global__ void CUDAKernel_DotProductIm(
         MatrixStructure* params0, MatrixStructure* params1) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_multiplyImMatrix(output, params0, params1,
+    CUDA_multiplyImMatrices(output, params0, params1,
             threadIndexX, threadIndexY);
 }
 

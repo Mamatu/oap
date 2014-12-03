@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void Test_Det(math::cuda::MathOperations& mo) {
+void Test_Det(math::MathOperationsCuda& mo) {
 
     debugFunc();
 
@@ -43,7 +43,7 @@ void Test_Det(math::cuda::MathOperations& mo) {
     debugFunc();
 }
 
-void Test_Multiply(math::cuda::MathOperations& mo) {
+void Test_Multiply(math::MathOperationsCuda& mo) {
     debugFunc();
     DeviceMatrixAllocator dmm;
     HostMatrixAllocator hma;
@@ -51,16 +51,16 @@ void Test_Multiply(math::cuda::MathOperations& mo) {
     DeviceMatrixPrinter dmp;
     math::Matrix* hm1 = hma.newReMatrix(100, 100, 1);
     math::Matrix* hm2 = hma.newReMatrix(100, 100, 2);
-    math::Matrix* m1 = device::NewDeviceMatrix(hm1);
-    math::Matrix* m2 = device::NewDeviceMatrix(hm2);
+    math::Matrix* m1 = cuda::NewDeviceMatrix(hm1);
+    math::Matrix* m2 = cuda::NewDeviceMatrix(hm2);
 
-    floatt* a = device::NewDeviceValue(2.);
+    floatt* a = CudaUtils::NewDeviceValue(2.);
     dmu.printInfo(m1);
     dmu.printInfo(m2);
     dmu.setIdentityMatrix(m2);
 
     math::Matrix* houtput = hma.newReMatrix(100, 100);
-    math::Matrix* output = device::NewDeviceMatrix(houtput);
+    math::Matrix* output = cuda::NewDeviceMatrix(houtput);
     dmu.printInfo(output);
 
     mo.multiply(output, m1, a);
@@ -78,9 +78,10 @@ int main(int argc, char** argv) {
     debugFuncBegin();
     cuda::Context context(1);
     context.init();
-    math::cuda::MathOperations mo;
+    math::MathOperationsCuda mo;
     mo.setDeviceInfo(context);
     Test_Multiply(mo);
+    Test_Det(mo);
     return 0;
 }
 

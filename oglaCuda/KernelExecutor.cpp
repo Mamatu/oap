@@ -131,7 +131,9 @@ namespace cuda {
         this->m_image = NULL;
     }
 
-    Kernel::Kernel(void* image, CUdevice cuDevicePtr) : m_params(NULL), m_paramsSize(0) {
+    Kernel::Kernel(void* image, CUdevice cuDevicePtr) :
+    m_params(NULL),
+    m_paramsSize(0) {
         this->m_blocksCount[0] = 1;
         this->m_blocksCount[1] = 1;
         this->m_threadsCount[0] = 1;
@@ -156,7 +158,7 @@ namespace cuda {
         debugFuncBegin();
         CUmodule cuModule = NULL;
         CUfunction cuFunction = NULL;
-        if (m_image) {
+        if (NULL != m_image) {
             printCuError(cuModuleLoadData(&cuModule, m_image));
         } else if (m_path.length() > 0) {
             printCuError(cuModuleLoad(&cuModule, m_path.c_str()));
@@ -169,14 +171,13 @@ namespace cuda {
             debug("Function name: %s \n", functionName);
             debug("Function handle: %p \n", cuFunction);
             PrintDeviceInfo(getDevice());
-            void** p = this->getParams();
+            debug(" Execution: \n");
+            debug(" --threads dim: %d, %d, %d \n", m_threadsCount[0], m_threadsCount[1], m_threadsCount[2]);
+            debug(" --grid size: %d, %d, %d \n", m_blocksCount[0], m_blocksCount[1], m_blocksCount[2]);
             printCuError(cuLaunchKernel(cuFunction,
                     this->m_blocksCount[0], this->m_blocksCount[1], this->m_blocksCount[2],
                     this->m_threadsCount[0], this->m_threadsCount[1], this->m_threadsCount[2],
                     0, NULL, this->getParams(), NULL));
-            debug(" Execution: \n");
-            debug(" --threads dim: %d, %d, %d \n", m_threadsCount[0], m_threadsCount[1], m_threadsCount[2]);
-            debug(" --grid size: %d, %d, %d \n", m_blocksCount[0], m_blocksCount[1], m_blocksCount[2]);
             debugFuncEnd();
         } else {
             debug("Module is incorrect %d;\n", cuModule);
@@ -190,7 +191,7 @@ namespace cuda {
     Kernel::~Kernel() {
     }
 
-    inline char* loadData(FILE * f) {
+    inline char* loadData(FILE* f) {
         if (f) {
             fseek(f, 0, SEEK_END);
             long int size = ftell(f);
@@ -328,5 +329,14 @@ namespace cuda {
         } else {
             abort();
         }
+    }
+
+    void Kernel::ExecuteKernel(const char* functionName,
+            void** params, ::cuda::Kernel& kernel, void* image) {
+        debugFuncBegin();
+        kernel.setImage(image);
+        kernel.setParams(params);
+        kernel.execute(functionName);
+        debugFuncEnd();
     }
 }

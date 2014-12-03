@@ -7,7 +7,8 @@
 
 #include "ArnoldiMethodProcess.h"
 #include "MathOperationsCpu.h"
-#include "ArnoldiMethodImpl.h"
+#include "ArnoldiMethodHostImpl.h"
+#include "ArnoldiMethodDeviceImpl.h"
 #include <math.h>
 
 namespace api {
@@ -44,15 +45,21 @@ namespace api {
         math::Status status = math::STATUS_ERROR;
         if (NULL == m_method) {
             m_method = newArnoldiMethod();
+        } else {
+            debugError("Method is not supoorted. Method = %p", m_method);
         }
         if (NULL != m_matrix) {
             m_state = STATE_STARTED;
             m_method->setMatrix(m_matrix);
-            m_method->setReOutputValues(m_reoutputs.m_outputs, m_reoutputs.m_count);
-            m_method->setImOutputValues(m_imoutputs.m_outputs, m_imoutputs.m_count);
+            m_method->setReOutputValues(m_reoutputs.m_outputs,
+                    m_reoutputs.m_count);
+            m_method->setImOutputValues(m_imoutputs.m_outputs,
+                    m_imoutputs.m_count);
             m_method->setHSize(m_hDimension);
             m_method->setRho(m_rho);
             status = m_method->start();
+        } else {
+            debugError("Not defined argument! Matrix = %p", m_matrix);
         }
         return status;
     }
@@ -95,10 +102,18 @@ namespace api {
     }
 
     math::IArnoldiMethod* ArnoldiPackage::newArnoldiMethod() const {
-        if (m_type == ARNOLDI_CPU) {
-            math::MathOperationsCpu* operations =
-                    new math::MathOperationsCpu();
-            return new math::ArnoldiMethodCpu(operations);
+        math::MathOperationsCpu* operationsCpu = NULL;
+        math::MathOperationsCuda* operationsCuda = NULL;
+        switch (m_type) {
+            case ARNOLDI_CPU:
+                operationsCpu = new math::MathOperationsCpu();
+                return new math::ArnoldiMethodCpu(operationsCpu);
+            case ARNOLDI_GPU:
+                operationsCuda = new math::MathOperationsCuda();
+                return new math::ArnoldiMethodGpu(operationsCuda);
+            case ARNOLDI_CALLBACK_CPU:
+                operationsCpu = new math::MathOperationsCpu();
+                return new math::ArnoldiMethodCallbackCpu(operationsCpu, 1);
         }
     }
 

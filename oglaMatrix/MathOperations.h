@@ -120,7 +120,7 @@ namespace math {
     protected:
         Matrix* m_matrix;
         MatrixStructure* m_matrixStructure;
-        floatt* m_reoutputs;
+        floatt* m_reoutputs;    
         floatt* m_imoutputs;
         uintt m_count;
         Status beforeExecution();
@@ -175,7 +175,7 @@ namespace math {
     public:
         IAdditionOperation(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils);
-        ~IAdditionOperation();
+        virtual ~IAdditionOperation();
     };
 
     class ISubstracionOperation : public TwoMatricesOperations {
@@ -199,7 +199,7 @@ namespace math {
     public:
         ISubstracionOperation(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils);
-        ~ISubstracionOperation();
+        virtual ~ISubstracionOperation();
     };
 
     class IDotProductOperation : public TwoMatricesOperations {
@@ -222,7 +222,7 @@ namespace math {
     public:
         IDotProductOperation(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils);
-        ~IDotProductOperation();
+        virtual ~IDotProductOperation();
     };
 
     class IMultiplicationConstOperation : public MatrixValueOperation {
@@ -247,7 +247,7 @@ namespace math {
     public:
         IMultiplicationConstOperation(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils);
-        ~IMultiplicationConstOperation();
+        virtual ~IMultiplicationConstOperation();
     };
 
     class IExpOperation : public MatrixOperationOutputMatrix {
@@ -257,7 +257,7 @@ namespace math {
     public:
         IExpOperation(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils);
-        ~IExpOperation();
+        virtual ~IExpOperation();
     };
 
     class IDiagonalizationOperation : public TwoMatricesOperations {
@@ -303,7 +303,7 @@ namespace math {
     public:
         ITensorProductOperation(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils);
-        ~ITensorProductOperation();
+        virtual ~ITensorProductOperation();
     };
 
     class IMagnitudeOperation : public MatrixOperationOutputValue {
@@ -320,7 +320,7 @@ namespace math {
     public:
         IMagnitudeOperation(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils);
-        ~IMagnitudeOperation();
+        virtual ~IMagnitudeOperation();
     };
 
     class ITransposeOperation : public MatrixOperationOutputMatrix {
@@ -337,7 +337,7 @@ namespace math {
     public:
         ITransposeOperation(MatrixModule* matrixModule,
                 MatrixStructureUtils* matrixStructureUtils);
-        ~ITransposeOperation();
+        virtual ~ITransposeOperation();
     };
 
     class IDeterminantOperation : public MatrixOperationOutputValue {

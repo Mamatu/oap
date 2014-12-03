@@ -265,12 +265,7 @@ void HostMatrixUtils::setZeroImMatrix(math::Matrix* matrix) {
 }
 
 void HostMatrixUtils::setDiagonalReMatrix(math::Matrix* matrix, floatt value) {
-    if (matrix->reValues) {
-        fillRePart(matrix, 0);
-        for (int fa = 0; fa < matrix->columns; fa++) {
-            matrix->reValues[fa * matrix->columns + fa] = value;
-        }
-    }
+    host::SetDiagonalReMatrix(matrix, value);
 }
 
 void HostMatrixUtils::setDiagonalImMatrix(math::Matrix* matrix, floatt value) {
@@ -870,6 +865,11 @@ namespace host {
         SetImZero(matrix);
     }
 
+    void SetIdentityMatrix(math::Matrix* matrix) {
+        SetDiagonalReMatrix(matrix, 1);
+        SetImZero(matrix);
+    }
+
     bool IsEquals(math::Matrix* transferMatrix2, math::Matrix* transferMatrix1,
             floatt diff) {
         for (intt fa = 0; fa < transferMatrix2->columns; fa++) {
@@ -896,8 +896,13 @@ namespace host {
         return o;
     }
 
-    void SetReDiagonals(math::Matrix* matrix, floatt a) {
-        HostMatrixModules::GetInstance()->getMatrixUtils()->setDiagonalReMatrix(matrix, a);
+    void SetDiagonalReMatrix(math::Matrix* matrix, floatt a) {
+        if (matrix->reValues) {
+            fillRePart(matrix, 0);
+            for (int fa = 0; fa < matrix->columns; fa++) {
+                matrix->reValues[fa * matrix->columns + fa] = a;
+            }
+        }
     }
 
     char* load(const char* path, uintt& _size) {

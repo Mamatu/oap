@@ -1,0 +1,1362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="0">
+      <df name="ArnoldiPackage">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <in>ArnoldiMethodDeviceImpl.cpp</in>
+        <in>ArnoldiMethodDeviceImpl.h</in>
+        <in>ArnoldiMethodHostImpl.cpp</in>
+        <in>ArnoldiMethodHostImpl.h</in>
+        <in>ArnoldiMethodProcess.cpp</in>
+        <in>ArnoldiMethodProcess.h</in>
+        <in>CuArnodliProcedures.h</in>
+        <in>CuArnoldiKernels.cu</in>
+        <in>IArnoldiMethod.cpp</in>
+        <in>IArnoldiMethod.h</in>
+        <in>InternalTypes.h</in>
+        <in>Procedures.cpp</in>
+        <in>Procedures.h</in>
+        <in>Types.h</in>
+      </df>
+      <df name="ArnoldiPackageTest">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="bin">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>main.cpp</in>
+        <in>main.h</in>
+      </df>
+      <df name="arpack1">
+        <in>period2Bz_MM.c</in>
+      </df>
+      <df name="bin">
+      </df>
+      <df name="dist">
+        <df name="Debug">
+          <df name="albert">
+            <df name="bin">
+            </df>
+            <df name="cubin">
+            </df>
+            <df name="dist">
+            </df>
+            <df name="lib">
+            </df>
+          </df>
+        </df>
+      </df>
+      <df name="docs">
+        <df name="specs">
+        </df>
+      </df>
+      <df name="groovy">
+        <df name="groovy-2.1.7">
+          <df name="bin">
+          </df>
+          <df name="conf">
+          </df>
+          <df name="embeddable">
+          </df>
+          <df name="indy">
+          </df>
+          <df name="lib">
+          </df>
+          <df name="META-INF">
+          </df>
+        </df>
+      </df>
+      <df name="JRpcTest">
+        <df name="src">
+          <df name="orgla">
+            <df name="rpc">
+              <df name="test">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="ogla">
+        <df name="data">
+          <df name="conf">
+          </df>
+          <df name="core">
+          </df>
+          <df name="help">
+          </df>
+          <df name="plugins">
+          </df>
+          <df name="tempspace">
+          </df>
+          <df name="virtualspace">
+          </df>
+        </df>
+        <df name="fwdir">
+          <df name="bs">
+            <df name="1">
+            </df>
+            <df name="10">
+            </df>
+            <df name="11">
+            </df>
+            <df name="12">
+            </df>
+            <df name="13">
+            </df>
+            <df name="14">
+            </df>
+            <df name="15">
+            </df>
+            <df name="16">
+            </df>
+            <df name="17">
+            </df>
+            <df name="18">
+            </df>
+            <df name="19">
+            </df>
+            <df name="2">
+            </df>
+            <df name="20">
+            </df>
+            <df name="21">
+            </df>
+            <df name="22">
+            </df>
+            <df name="23">
+            </df>
+            <df name="24">
+            </df>
+            <df name="25">
+            </df>
+            <df name="26">
+            </df>
+            <df name="27">
+            </df>
+            <df name="28">
+            </df>
+            <df name="29">
+            </df>
+            <df name="3">
+            </df>
+            <df name="30">
+            </df>
+            <df name="31">
+            </df>
+            <df name="32">
+            </df>
+            <df name="33">
+            </df>
+            <df name="34">
+            </df>
+            <df name="35">
+            </df>
+            <df name="36">
+            </df>
+            <df name="37">
+            </df>
+            <df name="4">
+            </df>
+            <df name="5">
+            </df>
+            <df name="6">
+            </df>
+            <df name="7">
+            </df>
+            <df name="8">
+            </df>
+            <df name="9">
+            </df>
+          </df>
+          <df name="data">
+          </df>
+          <df name="startlevel">
+          </df>
+        </df>
+        <df name="osgi">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="core">
+              <df name="main">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="ogla3D">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="g3d">
+              <df name="utils">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+          <df name="ogla">
+            <df name="g3d">
+              <df name="test">
+              </df>
+            </df>
+          </df>
+        </df>
+      </df>
+      <df name="oglaa">
+        <df name="data">
+          <df name="conf">
+          </df>
+          <df name="core">
+          </df>
+          <df name="help">
+          </df>
+          <df name="knopflerfish">
+            <df name="basicdriverlocator">
+            </df>
+            <df name="bundlerepository">
+            </df>
+            <df name="cm">
+            </df>
+            <df name="cm_cmd">
+            </df>
+            <df name="cm_desktop">
+            </df>
+            <df name="component">
+            </df>
+            <df name="connectors">
+            </df>
+            <df name="console">
+            </df>
+            <df name="consoletcp">
+            </df>
+            <df name="consoletelnet">
+            </df>
+            <df name="consoletty">
+            </df>
+            <df name="crimson">
+            </df>
+            <df name="demo1">
+            </df>
+            <df name="demo1client">
+            </df>
+            <df name="desktop">
+            </df>
+            <df name="device">
+            </df>
+            <df name="event">
+            </df>
+            <df name="frameworkcommands">
+            </df>
+            <df name="http">
+            </df>
+            <df name="httpconsole">
+            </df>
+            <df name="httproot">
+            </df>
+            <df name="io">
+            </df>
+            <df name="jsdk">
+            </df>
+            <df name="kf_metatype">
+            </df>
+            <df name="log">
+            </df>
+            <df name="logcommands">
+            </df>
+            <df name="measurement">
+            </df>
+            <df name="metatype">
+            </df>
+            <df name="position">
+            </df>
+            <df name="prefs">
+            </df>
+            <df name="provisioning">
+            </df>
+            <df name="remotefw">
+            </df>
+            <df name="sslj2sp">
+            </df>
+            <df name="trayicon">
+            </df>
+            <df name="trayicon_fw">
+            </df>
+            <df name="upnp">
+            </df>
+            <df name="useradmin">
+            </df>
+            <df name="util">
+            </df>
+            <df name="wireadmin">
+            </df>
+            <df name="xalan">
+            </df>
+            <df name="xerces">
+            </df>
+            <df name="xml">
+            </df>
+          </df>
+          <df name="plugins">
+          </df>
+          <df name="tempspace">
+          </df>
+          <df name="virtualspace">
+          </df>
+        </df>
+        <df name="executors">
+        </df>
+        <df name="fwdir">
+          <df name="bs">
+          </df>
+          <df name="data">
+          </df>
+          <df name="startlevel">
+          </df>
+        </df>
+        <df name="osgi">
+        </df>
+      </df>
+      <df name="oglaANN">
+      </df>
+      <df name="oglaApp">
+        <in>main.cpp</in>
+      </df>
+      <df name="oglaApplication">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+      </df>
+      <df name="oglaAxis">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="axis">
+              <df name="gui">
+              </df>
+              <df name="osgi">
+              </df>
+              <df name="util">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaAxisChart">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="axischart">
+              <df name="gui">
+              </df>
+              <df name="lists">
+              </df>
+              <df name="osgi">
+              </df>
+              <df name="plugin">
+                <df name="exporter">
+                </df>
+                <df name="image">
+                </df>
+                <df name="plotmanager">
+                </df>
+              </df>
+              <df name="util">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaAxisChart2D">
+        <df name="configuration">
+        </df>
+        <df name="help">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="axischart2D">
+              <df name="coordinates">
+              </df>
+              <df name="gui">
+              </df>
+              <df name="lists">
+              </df>
+              <df name="osgi">
+              </df>
+              <df name="plugin">
+                <df name="chartcomponent">
+                </df>
+                <df name="plotmanager">
+                </df>
+              </df>
+              <df name="popup">
+              </df>
+              <df name="util">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaAxisChart3D">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="axischart3D">
+              <df name="gui">
+              </df>
+              <df name="lists">
+              </df>
+              <df name="osgi">
+              </df>
+              <df name="plugin">
+                <df name="chartcomponent">
+                </df>
+                <df name="plotmanager">
+                </df>
+                <df name="projection">
+                </df>
+              </df>
+              <df name="util">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaBarPlot">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="plot">
+              <df name="bar">
+                <df name="osgi">
+                </df>
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaChart">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="chart">
+              <df name="gui">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaCirclePlot">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="plot">
+              <df name="circle">
+                <df name="osgi">
+                </df>
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaCore">
+        <df name="src">
+          <df name="ogla">
+            <df name="core">
+              <df name="application">
+              </df>
+              <df name="data">
+                <df name="listeners">
+                </df>
+                <df name="utils">
+                </df>
+              </df>
+              <df name="event">
+              </df>
+              <df name="gui">
+              </df>
+              <df name="osgi">
+              </df>
+              <df name="rpc">
+              </df>
+              <df name="ui">
+              </df>
+              <df name="util">
+              </df>
+              <df name="view">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaCore1">
+        <df name="configuration">
+        </df>
+        <df name="ogla">
+          <df name="core">
+          </df>
+        </df>
+        <df name="plugins">
+        </df>
+      </df>
+      <df name="oglaCuda">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="lib">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>CuUtils.h</in>
+        <in>KernelExecutor.cpp</in>
+        <in>KernelExecutor.h</in>
+      </df>
+      <df name="oglaData">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+      </df>
+      <df name="oglaDataCSV">
+        <df name="configuration">
+        </df>
+        <df name="help">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="datacsv">
+              <df name="osgi">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaDataEditor">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+      </df>
+      <df name="oglaDataFitting">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="datafitting">
+              <df name="operations">
+              </df>
+              <df name="osgi">
+              </df>
+              <df name="test">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaErrorPointPlot">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="plot">
+              <df name="errorpoint">
+                <df name="osgi">
+                </df>
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaGA">
+        <in>GAProcess.cpp</in>
+        <in>GAProcess.h</in>
+        <in>GATypes.cpp</in>
+        <in>GATypes.h</in>
+      </df>
+      <df name="oglaGACpu">
+        <in>Functions.cpp</in>
+        <in>Functions.h</in>
+      </df>
+      <df name="oglaGACuda">
+        <in>CudaExecution.cpp</in>
+        <in>CudaExecution.h</in>
+        <in>Functions.cpp</in>
+        <in>Functions.h</in>
+        <in>GAModuleCUDA.cpp</in>
+        <in>GAModuleCUDA.h</in>
+        <in>GAProcessCUDA.cpp</in>
+        <in>GAProcessCUDA.h</in>
+        <in>GARatingCUDA.cpp</in>
+        <in>GARatingCUDA.h</in>
+        <in>Parameters.cpp</in>
+        <in>Parameters.h</in>
+        <in>cu_crossover.h</in>
+        <in>cu_kernel.cu</in>
+        <in>cu_mutation.h</in>
+        <in>cu_struct.h</in>
+        <in>cu_types.h</in>
+        <in>cu_utils.h</in>
+      </df>
+      <df name="oglaGrid">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="grid">
+              <df name="gui">
+              </df>
+              <df name="osgi">
+              </df>
+              <df name="util">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaGrid3D">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+      </df>
+      <df name="oglaGroovy">
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="groovy">
+              <df name="osgi">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaGUI">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+      </df>
+      <df name="oglaLabel">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="label">
+              <df name="osgi">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaLegend">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="legend">
+              <df name="osgi">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaLinePlot">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="plot">
+              <df name="line">
+                <df name="osgi">
+                </df>
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaMath">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="lib">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>Math.cpp</in>
+        <in>Math.h</in>
+      </df>
+      <df name="oglaMathUtils">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="math">
+            </df>
+          </df>
+        </df>
+        <df name="test">
+          <df name="ogla">
+            <df name="math">
+              <df name="test">
+              </df>
+            </df>
+          </df>
+        </df>
+      </df>
+      <df name="oglaMatrix">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="lib">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>IAdditionImpl.cpp</in>
+        <in>IDeterminant.cpp</in>
+        <in>IDotProductImpl.cpp</in>
+        <in>IExpImpl.cpp</in>
+        <in>IMagnitudeImpl.cpp</in>
+        <in>IMultiplicationConstImpl.cpp</in>
+        <in>IQRDecomposition.cpp</in>
+        <in>ISimpleDiagonalizationImpl.cpp</in>
+        <in>ISubstractionImpl.cpp</in>
+        <in>ITensorProductImpl.cpp</in>
+        <in>ITransposeImpl.cpp</in>
+        <in>MathOperations.cpp</in>
+        <in>MathOperations.h</in>
+        <in>Matrix.cpp</in>
+        <in>Matrix.h</in>
+        <in>MatrixModules.cpp</in>
+        <in>MatrixModules.h</in>
+        <in>MatrixStructure.h</in>
+        <in>MatrixStructureUtils.cpp</in>
+        <in>MatrixStructureUtils.h</in>
+      </df>
+      <df name="oglaMatrixCpu">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="lib">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>AdditionImpl.cpp</in>
+        <in>DeterminantImpl.cpp</in>
+        <in>DotProductImpl.cpp</in>
+        <in>ExpImpl.cpp</in>
+        <in>HostMatrixModules.cpp</in>
+        <in>HostMatrixModules.h</in>
+        <in>HostMatrixStructure.cpp</in>
+        <in>HostMatrixStructure.h</in>
+        <in>Internal.h</in>
+        <in>MagnitudeImpl.cpp</in>
+        <in>MathOperationsCpu.cpp</in>
+        <in>MathOperationsCpu.h</in>
+        <in>MultiplicationConstImpl.cpp</in>
+        <in>QRDecompositionImpl.cpp</in>
+        <in>SimpleDiagonalizationImpl.cpp</in>
+        <in>SubstractionImpl.cpp</in>
+        <in>TensorProductImpl.cpp</in>
+        <in>ThreadsCpu.cpp</in>
+        <in>ThreadsCpu.h</in>
+        <in>TransposeImpl.cpp</in>
+      </df>
+      <df name="oglaMatrixCpuTest">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="bin">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>main.cpp</in>
+      </df>
+      <df name="oglaMatrixCuda">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <in>CuMatrixKernels.cu</in>
+        <in>CuMatrixProcedures.h</in>
+        <in>CuMatrixUtils.h</in>
+        <in>CudaUtils.cpp</in>
+        <in>CudaUtils.h</in>
+        <in>DHMatrixCopier.cpp</in>
+        <in>DeviceMatrixCopier.cpp</in>
+        <in>DeviceMatrixModules.cpp</in>
+        <in>DeviceMatrixModules.h</in>
+        <in>DeviceMatrixStructure.cpp</in>
+        <in>DeviceMatrixStructure.h</in>
+        <in>HDMatrixCopier.cpp</in>
+        <in>KernelsOperations.cpp</in>
+        <in>KernelsOperations.h</in>
+        <in>MathOperationsCuda.cpp</in>
+        <in>MathOperationsCuda.h</in>
+        <in>Parameters.cpp</in>
+        <in>Parameters.h</in>
+      </df>
+      <df name="oglaMatrixCudaTest">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="bin">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>main.cpp</in>
+      </df>
+      <df name="oglap">
+      </df>
+      <df name="oglaParser">
+        <in>Brackets.cpp</in>
+        <in>Brackets.h</in>
+        <in>Code.cpp</in>
+        <in>Code.h</in>
+        <in>Function.cpp</in>
+        <in>Function.h</in>
+        <in>Operator.cpp</in>
+        <in>Operator.h</in>
+        <in>Parser.cpp</in>
+        <in>Parser.h</in>
+        <in>Variable.cpp</in>
+        <in>Variable.h</in>
+      </df>
+      <df name="oglaPerspectivePlot">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="perspectiveplot">
+              <df name="osgi">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaPointPlot">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="plot">
+              <df name="point">
+                <df name="osgi">
+                </df>
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaPolarGrid">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="polar">
+              <df name="osgi">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaScala">
+        <df name="plugins">
+        </df>
+        <df name="src">
+          <df name="ogla">
+            <df name="scala">
+              <df name="osgi">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="test">
+        </df>
+      </df>
+      <df name="oglaServer">
+        <in>main.cpp</in>
+      </df>
+      <df name="oglaServerUtils">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="lib">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>CoreInterfaces.cpp</in>
+        <in>CoreInterfaces.h</in>
+        <in>Loader.cpp</in>
+        <in>Loader.h</in>
+        <in>OglaInterface.cpp</in>
+        <in>OglaInterface.h</in>
+        <in>OglaServer.cpp</in>
+        <in>OglaServer.h</in>
+        <in>Status.cpp</in>
+        <in>Status.h</in>
+      </df>
+      <df name="oglaShibataCpu">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="lib">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>HostTreePointerCreator.cpp</in>
+        <in>Parameters.cpp</in>
+        <in>Parameters.h</in>
+        <in>RealTransferMatrixCpu.cpp</in>
+        <in>RealTransferMatrixCpu.h</in>
+        <in>TransferMatrix.cpp</in>
+        <in>TransferMatrix.h</in>
+        <in>TransferMatrixCpu.cpp</in>
+        <in>TransferMatrixCpu.h</in>
+        <in>TreePointer.cpp</in>
+        <in>TreePointer.h</in>
+        <in>TreePointerCreator.h</in>
+      </df>
+      <df name="oglaShibataCuda">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <in>DeviceTreePointerCreator.cpp</in>
+        <in>DeviceTreePointerCreator.h</in>
+        <in>Kernels.cu</in>
+        <in>RealTransferMatrixCuda.cpp</in>
+        <in>RealTransferMatrixCuda.h</in>
+      </df>
+      <df name="oglaShibataMgr">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <in>main.cpp</in>
+        <in>main.h</in>
+      </df>
+      <df name="oglaUtils">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="lib">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>Argument.cpp</in>
+        <in>Argument.h</in>
+        <in>ArgumentReader.cpp</in>
+        <in>ArgumentReader.h</in>
+        <in>ArgumentWriter.cpp</in>
+        <in>ArgumentWriter.h</in>
+        <in>ArrayTools.cpp</in>
+        <in>ArrayTools.h</in>
+        <in>Async.cpp</in>
+        <in>Async.h</in>
+        <in>Buffer.cpp</in>
+        <in>Buffer.h</in>
+        <in>Callbacks.cpp</in>
+        <in>Callbacks.h</in>
+        <in>DynamicLoader.cpp</in>
+        <in>DynamicLoader.h</in>
+        <in>FunctionInfo.cpp</in>
+        <in>FunctionInfo.h</in>
+        <in>FunctionInfoImpl.cpp</in>
+        <in>FunctionInfoImpl.h</in>
+        <in>LHandle.cpp</in>
+        <in>LHandle.h</in>
+        <in>Module.cpp</in>
+        <in>Module.h</in>
+        <in>NumbersGenerator.cpp</in>
+        <in>NumbersGenerator.h</in>
+        <in>ObjectInfo.cpp</in>
+        <in>ObjectInfo.h</in>
+        <in>ObjectInfoImpl.cpp</in>
+        <in>ObjectInfoImpl.h</in>
+        <in>Reader.cpp</in>
+        <in>Reader.h</in>
+        <in>RpcBase.cpp</in>
+        <in>RpcBase.h</in>
+        <in>RpcImpl.cpp</in>
+        <in>RpcImpl.h</in>
+        <in>Serializable.cpp</in>
+        <in>Serializable.h</in>
+        <in>Socket.cpp</in>
+        <in>Socket.h</in>
+        <in>ThreadUtils.cpp</in>
+        <in>ThreadUtils.h</in>
+        <in>ThreadsMapper.cpp</in>
+        <in>ThreadsMapper.h</in>
+        <in>Types.h</in>
+        <in>WrapperInterfaces.cpp</in>
+        <in>WrapperInterfaces.h</in>
+        <in>Writer.cpp</in>
+        <in>Writer.h</in>
+      </df>
+      <df name="oglaV3D">
+        <df name="build">
+          <df name="Debug">
+            <df name="albert">
+            </df>
+          </df>
+        </df>
+        <df name="dist">
+          <df name="Debug">
+            <df name="albert">
+              <df name="bin">
+              </df>
+            </df>
+          </df>
+        </df>
+        <in>main.cpp</in>
+      </df>
+      <df name="oglaView">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+      </df>
+      <df name="PieChart">
+        <df name="configuration">
+        </df>
+        <df name="plugins">
+        </df>
+      </df>
+      <df name="pyWrapper">
+        <in>PythonApi.cpp</in>
+        <in>PythonApi.h</in>
+        <in>main.cpp</in>
+      </df>
+      <df name="QTM_AB">
+        <in>A_parametry.h</in>
+        <in>main.cpp</in>
+      </df>
+      <df name="re">
+        <in>main.cpp</in>
+      </df>
+      <df name="RpcTest">
+        <in>main.cpp</in>
+      </df>
+      <df name="RWTest">
+        <in>main.cpp</in>
+      </df>
+      <df name="scala-2.10.3">
+        <df name="bin">
+        </df>
+        <df name="doc">
+          <df name="tools">
+            <df name="css">
+            </df>
+            <df name="images">
+            </df>
+          </df>
+        </df>
+        <df name="examples">
+          <df name="actors">
+          </df>
+          <df name="monads">
+          </df>
+          <df name="parsing">
+            <df name="lambda">
+              <df name="test">
+              </df>
+            </df>
+          </df>
+          <df name="tcpoly">
+            <df name="monads">
+            </df>
+          </df>
+          <df name="xml">
+            <df name="phonebook">
+            </df>
+          </df>
+        </df>
+        <df name="lib">
+        </df>
+        <df name="man">
+          <df name="man1">
+          </df>
+        </df>
+        <df name="misc">
+          <df name="scala-devel">
+            <df name="plugins">
+            </df>
+          </df>
+        </df>
+        <df name="src">
+        </df>
+      </df>
+      <df name="SocketTest">
+        <in>main.cpp</in>
+      </df>
+      <df name="test">
+        <df name="arpack">
+          <in>A_parametry.h</in>
+          <in>maxeigZF3.f</in>
+          <in>period2Bz_MM.c</in>
+        </df>
+        <df name="arpack1">
+          <df name="nowe">
+            <in>A_parametry.h</in>
+            <in>maxeigp2.f</in>
+            <in>period2BzT2.c</in>
+          </df>
+        </df>
+      </df>
+      <df name="usr">
+        <df name="bin">
+        </df>
+        <df name="doc">
+        </df>
+        <df name="lib">
+        </df>
+      </df>
+      <in>macierzQTM.c</in>
+    </df>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>2</platform>
+      </toolsSet>
+      <compile>
+        <compiledirpicklist>
+          <compiledirpicklistitem>.</compiledirpicklistitem>
+          <compiledirpicklistitem>${AUTO_FOLDER}</compiledirpicklistitem>
+        </compiledirpicklist>
+        <compiledir>${AUTO_FOLDER}</compiledir>
+        <compilecommandpicklist>
+          <compilecommandpicklistitem>${MAKE} ${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${AUTO_COMPILE}</compilecommandpicklistitem>
+        </compilecommandpicklist>
+        <compilecommand>${AUTO_COMPILE}</compilecommand>
+      </compile>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_options>
+          <DebugOptions>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>"${OUTPUT_PATH}"</runcommand>
+        <rundir>.</rundir>
+        <buildfirst>false</buildfirst>
+        <terminal-type>0</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+  </confs>
+</configurationDescriptor>

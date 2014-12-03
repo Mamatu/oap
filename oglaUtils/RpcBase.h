@@ -75,24 +75,40 @@ namespace utils {
 
         LHandle connect(const char* address, uint16_t port);
 
-        void call(LHandle connectionID, const char** names, uint naemsCount, utils::Writer& input, utils::ArgumentType* args, uint argc, utils::Reader& output);
+        void call(LHandle connectionID, 
+            const char** names,  uint naemsCount, 
+            utils::Writer& input, utils::ArgumentType* args, 
+            uint argc, utils::Reader& output);
 
-        void call(LHandle connectionID, const char* functionName, utils::Writer& input, utils::ArgumentType* args, uint argc, utils::Reader& output);
+        void call(LHandle connectionID, const char* functionName,
+            utils::Writer& input, utils::ArgumentType* args, uint argc, 
+            utils::Reader& output);
 
-        void call(LHandle connectionID, LHandle functionID, utils::Writer& input, utils::ArgumentType* args, uint argc, utils::Reader& output);
+        void call(LHandle connectionID, 
+            LHandle functionID, 
+            utils::Writer& input, utils::
+            ArgumentType* args, uint argc, utils::Reader& output);
 
         void getRegisteredFunctions(uint connectionID);
 
-        LHandle registerCall(const char** names, uint namesCount, Function_f function, const utils::ArgumentType* inArgs, uint inArgc,
-                const utils::ArgumentType* outArgs = NULL, uint outArgc = 0, void* ptr = NULL, int rpcParameters = 0);
+        LHandle registerCall(const char** names, uint namesCount, 
+            Function_f function, const utils::ArgumentType* inArgs, uint inArgc,
+            const utils::ArgumentType* outArgs = NULL, uint outArgc = 0, 
+            void* ptr = NULL, int rpcParameters = 0);
 
-        LHandle registerCall(const char* functionName, Function_f function, const utils::ArgumentType* inArgs, uint inArgc,
-                const utils::ArgumentType* outArgs = NULL, uint outArgc = 0, void* ptr = NULL, int rpcParameters = 0);
+        LHandle registerCall(const char* functionName, Function_f function, 
+            const utils::ArgumentType* inArgs, uint inArgc,
+            const utils::ArgumentType* outArgs = NULL, 
+            uint outArgc = 0, void* ptr = NULL, int rpcParameters = 0);
 
         void unregisterCall(uint callHandle);
         
     private:
-        void call(LHandle connectionID, LHandle functionID, const char** names, uint naemsCount, utils::Writer& input, utils::ArgumentType* args, uint argc, utils::Reader& output);
+        void call(LHandle connectionID, LHandle functionID, 
+            const char** names, uint naemsCount, 
+            utils::Writer& input, utils::ArgumentType* args, 
+            uint argc, utils::Reader& output);
+        
         LHandle callbackHandle;
 
         class Strings {

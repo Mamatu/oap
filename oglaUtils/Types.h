@@ -24,11 +24,11 @@ typedef unsigned int handle;
 
 #ifdef DEBUG
 
-#define debug(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); 
+#define debug(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(stderr, "\n");
 
-#define debugAssert(x, ...) if(false == x) { fprintf(STREAM, "%s %s : %d  \n", __FUNCTION__,__FILE__,__LINE__); } assert(x);
+#define debugAssert(x, ...) if(false == x) { fprintf(STREAM, "%s %s : %d  \n", __FUNCTION__,__FILE__,__LINE__); } assert(x); fprintf(stderr, "\n");
 
-#define debugError(x, ...) fprintf(stderr, x, ##__VA_ARGS__); 
+#define debugError(x, ...) fprintf(stderr, x, ##__VA_ARGS__); fprintf(stderr, "\n");
 
 #define debugFunc() fprintf(STREAM, "%s %s : %d  \n", __FUNCTION__,__FILE__,__LINE__); 
 

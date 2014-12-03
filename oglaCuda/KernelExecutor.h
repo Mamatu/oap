@@ -77,6 +77,9 @@ namespace cuda {
         bool loadImage(const char* path);
         bool loadImage(const char** pathes);
         virtual void execute(const char* functionName);
+        
+        static void ExecuteKernel(const char* functionName,
+            void** params, ::cuda::Kernel& kernel, void* image);
     };
 
     class KernelMatrix : public Kernel {

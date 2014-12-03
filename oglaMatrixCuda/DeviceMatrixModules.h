@@ -1,44 +1,14 @@
 #ifndef OGLA_DEVICE_MATRIX_UTILS_H
 #define	OGLA_DEVICE_MATRIX_UTILS_H
 #include <stdio.h>
+#include <cuda.h>
+#include <map>
 #include "HostMatrixModules.h"
 #include "Matrix.h"
 #include "ThreadUtils.h"
-#include <cuda.h>
-#include <map>
+#include "CudaUtils.h"
 
-class DeviceUtils {
-public:
-    CUdeviceptr getReValuesAddress(const math::Matrix* matrix) const;
-    CUdeviceptr getImValuesAddress(const math::Matrix* matrix) const;
-    CUdeviceptr getColumnsAddress(const math::Matrix* matrix) const;
-    CUdeviceptr getRowsAddress(const math::Matrix* matrix) const;
-    floatt* getReValues(const math::Matrix* matrix) const;
-    floatt* getImValues(const math::Matrix* matrix) const;
-    uintt getDeviceColumns(const math::Matrix* matrix) const;
-    uintt getDeviceRows(const math::Matrix* matrix) const;
-    CUdeviceptr getReValuesAddress(CUdeviceptr matrix) const;
-    CUdeviceptr getImValuesAddress(CUdeviceptr matrix) const;
-    CUdeviceptr getColumnsAddress(CUdeviceptr matrix) const;
-    CUdeviceptr getRowsAddress(CUdeviceptr matrix) const;
-    floatt* getReValues(CUdeviceptr matrix) const;
-    floatt* getImValues(CUdeviceptr matrix) const;
-    intt getDeviceColumns(CUdeviceptr matrix) const;
-    intt getDeviceRows(CUdeviceptr matrix) const;
-    CUdeviceptr allocMatrix();
-    CUdeviceptr allocMatrix(bool allocRe, bool allocIm, intt columns,
-            intt rows, floatt revalue = 0, floatt imvalue = 0);
-    CUdeviceptr allocReMatrix(CUdeviceptr devicePtrMatrix,
-            intt columns, intt rows, floatt value);
-    CUdeviceptr allocImMatrix(CUdeviceptr devicePtrMatrix,
-            intt columns, intt rows, floatt value);
-    CUdeviceptr setReMatrixToNull(CUdeviceptr devicePtrMatrix);
-    CUdeviceptr setImMatrixToNull(CUdeviceptr devicePtrMatrix);
-    void setVariables(CUdeviceptr devicePtrMatrix,
-            intt columns, intt rows);
-};
-
-class DeviceMatrixAllocator : public MatrixAllocator, public DeviceUtils {
+class DeviceMatrixAllocator : public MatrixAllocator {
     HostMatrixAllocator hma;
     static synchronization::RecursiveMutex mutex;
     static void lock();
@@ -60,7 +30,7 @@ public:
     void deleteMatrix(math::Matrix* matrix);
 };
 
-class DeviceMatrixUtils : public MatrixUtils, public DeviceUtils {
+class DeviceMatrixUtils : public MatrixUtils {
     DeviceMatrixAllocator dma;
 public:
     DeviceMatrixUtils();
@@ -76,7 +46,7 @@ public:
     void printInfo(const math::Matrix* matrix) const;
 };
 
-class DeviceMatrixCopier : public MatrixCopier, public DeviceUtils {
+class DeviceMatrixCopier : public MatrixCopier {
 public:
     DeviceMatrixCopier();
     virtual ~DeviceMatrixCopier();
@@ -99,7 +69,7 @@ public:
 /**
  * This class allows to copy from Host to Device.
  */
-class HDMatrixCopier : public MatrixCopier, public DeviceUtils {
+class HDMatrixCopier : public MatrixCopier {
 public:
     HDMatrixCopier();
     virtual ~HDMatrixCopier();
@@ -122,7 +92,7 @@ public:
 /**
  * This class allows to copy from Device to Host.
  */
-class DHMatrixCopier : public MatrixCopier, public DeviceUtils {
+class DHMatrixCopier : public MatrixCopier {
 public:
     DHMatrixCopier();
     virtual ~DHMatrixCopier();
@@ -183,31 +153,29 @@ public:
     virtual MatrixPrinter* getMatrixPrinter();
 };
 
-namespace device {
-    math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
+namespace cuda {
+    
+    math::Matrix* NewDeviceMatrix(uintt columns, uintt rows);
+
     math::Matrix* NewDeviceMatrix(math::Matrix* hostMatrix);
-    template<typename T>T* NewDeviceValue(T v = 0);
-    template<typename T>void DeleteDeviceValue(T* valuePtr);
+    
+    math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
+
     void DeleteDeviceMatrix(math::Matrix* deviceMatrix);
-    void CopyDeviceMatrixToHostMatrix(math::Matrix* hostMatrix, math::Matrix* deviceMatrix);
-    void CopyHostToDevice(void* dst, const void* src, intt size);
-    void CopyDeviceToHost(void* dst, const void* src, intt size);
-    void CopyDeviceToDevice(void* dst, const void* src, intt size);
-    void* NewDevice(intt size);
-    void* NewDevice(intt size, const void* src);
-    void DeleteDevice(void* devicePtr);
-}
 
-template<typename T>T* device::NewDeviceValue(T v) {
-    T* valuePtr = NULL;
-    void* ptr = device::NewDevice(sizeof (T));
-    valuePtr = reinterpret_cast<T*> (ptr);
-    device::CopyHostToDevice(valuePtr, &v, sizeof (T));
-    return valuePtr;
-}
+    /**
+     * 
+     * @param dst
+     * @param src
+     */
+    void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src);
 
-template<typename T>void device::DeleteDeviceValue(T* valuePtr) {
-    device::DeleteDevice(valuePtr);
+    /**
+     * 
+     * @param dst
+     * @param src
+     */
+    void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
 }
 
 

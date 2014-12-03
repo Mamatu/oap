@@ -50,7 +50,7 @@ typedef unsigned long long uintt;
 #endif
 
 
-#define MATH_VALUE_LIMIT 0.000000000000000005
+#define MATH_VALUE_LIMIT 0.001f
 
 namespace math {
     void Memset(floatt* array, floatt value, intt length);
@@ -66,6 +66,11 @@ struct Complex {
     Complex(floatt re, floatt im) {
         this->re = re;
         this->im = im;
+    }
+    
+    Complex(const Complex& complex) {
+        re = complex.re;
+        im = complex.im;
     }
     
     floatt re;

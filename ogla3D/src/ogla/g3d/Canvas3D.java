@@ -82,7 +82,7 @@ public class Canvas3D extends GLJPanel implements GLEventListener {
         final GL gl = drawable.getGL();
         gl.glEnable(GL.GL_DEPTH_TEST);
         gl.glDepthFunc(GL.GL_LEQUAL);
-        gl.glShadeModel(GL.GL_SMOOTH);
+        gl.glShadeModel(GL.GL_SMOOTH_LINE_WIDTH_RANGE);
         gl.glClearColor(this.backcolor.x, this.backcolor.y, this.backcolor.z, 0f);
         gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
         this.glu = new GLU();

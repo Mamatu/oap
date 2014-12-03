@@ -34,6 +34,8 @@ public:
     virtual uintt getBeginRow(MatrixStructure* matrixStructure) const;
     virtual uintt getSubColumns(MatrixStructure* matrixStructure) const;
     virtual uintt getSubRows(MatrixStructure* matrixStructure) const;
+    
+    static MatrixStructure* CreateMatrixStructure(math::Matrix* matrix);
 };
 
 #endif	/* DEVICEMATRIXSTRUCTURE_H */

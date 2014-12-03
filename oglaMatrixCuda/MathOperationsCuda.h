@@ -13,103 +13,99 @@
 #include "KernelsOperations.h"
 #include "MathOperations.h"
 namespace math {
-    namespace cuda {
 
-        class KernelType : public ::cuda::DeviceInfo {
-        protected:
-            ::cuda::KernelMatrix m_kernel;
-        public:
-            void setDevice(CUdevice cuDecive);
-            void setDeviceInfo(const ::cuda::DeviceInfo& deviceInfo);
-            CUdevice getDevice() const;
-        };
+    class KernelType : public ::cuda::DeviceInfo {
+    protected:
+        ::cuda::KernelMatrix m_kernel;
+    public:
+        void setDevice(CUdevice cuDecive);
+        void setDeviceInfo(const ::cuda::DeviceInfo& deviceInfo);
+        CUdevice getDevice() const;
+    };
 
-        class AdditionOperation : public math::IAdditionOperation,
-        public KernelType {
-            KernelsOperations m_kernelOperation;
-        public:
-            math::Status beforeExecution();
-            void execute();
-            AdditionOperation();
-            ~AdditionOperation();
-        };
+    class AdditionOperationCuda : public math::IAdditionOperation,
+    public KernelType {
+        KernelsOperations m_kernelOperation;
+    public:
+        math::Status beforeExecution();
+        void execute();
+        AdditionOperationCuda();
+        ~AdditionOperationCuda();
+    };
 
-        class SubstracionOperation : public math::ISubstracionOperation,
-        public KernelType {
-            KernelsOperations m_kernelOperations;
-        public:
-            math::Status beforeExecution();
-            void execute();
-            SubstracionOperation();
-            ~SubstracionOperation();
-        };
+    class SubstracionOperationCuda : public math::ISubstracionOperation,
+    public KernelType {
+        KernelsOperations m_kernelOperations;
+    public:
+        math::Status beforeExecution();
+        void execute();
+        SubstracionOperationCuda();
+        ~SubstracionOperationCuda();
+    };
 
-        class DotProductOperation : public math::IDotProductOperation,
-        public KernelType {
-            KernelsOperations m_kernelOperation;
-        public:
-            math::Status beforeExecution();
-            void execute();
-            DotProductOperation();
-            ~DotProductOperation();
-        };
+    class DotProductOperationCuda : public math::IDotProductOperation,
+    public KernelType {
+        KernelsOperations m_kernelOperation;
+    public:
+        math::Status beforeExecution();
+        void execute();
+        DotProductOperationCuda();
+        ~DotProductOperationCuda();
+    };
 
-        class MultiplicationConstOperation : public math::IMultiplicationConstOperation,
-        public KernelType {
-            KernelsOperations m_kernelOperation;
-        public:
-            math::Status beforeExecution();
-            void execute();
-            MultiplicationConstOperation();
-            ~MultiplicationConstOperation();
-        };
+    class MultiplicationConstOperationCuda : public math::IMultiplicationConstOperation,
+    public KernelType {
+        KernelsOperations m_kernelOperation;
+    public:
+        math::Status beforeExecution();
+        void execute();
+        MultiplicationConstOperationCuda();
+        ~MultiplicationConstOperationCuda();
+    };
 
-        class ExpOperation : public math::IExpOperation, public KernelType {
-            KernelsOperations m_kernelOperation;
-            int serieLimit;
-        protected:
-            void setParamIn(void* inPtr, int index);
-            DotProductOperation multiplicationOperation;
-            MultiplicationConstOperation multiplicationConstOperation;
-            AdditionOperation additionOperation;
-        public:
-            void setSerieLimit(int serieLimit);
-            void execute();
-            ExpOperation();
-            ~ExpOperation();
-        };
+    class ExpOperationCuda : public math::IExpOperation, public KernelType {
+        KernelsOperations m_kernelOperation;
+        int serieLimit;
+    protected:
+        void setParamIn(void* inPtr, int index);
+        DotProductOperationCuda multiplicationOperation;
+        MultiplicationConstOperationCuda multiplicationConstOperation;
+        AdditionOperationCuda additionOperation;
+    public:
+        void setSerieLimit(int serieLimit);
+        void execute();
+        ExpOperationCuda();
+        ~ExpOperationCuda();
+    };
 
-        class DiagonalizationOperation : public math::IDiagonalizationOperation,
-        public KernelType {
-            KernelsOperations m_kernelOperation;
-        public:
-            void execute();
-            DiagonalizationOperation();
-            ~DiagonalizationOperation();
-        };
+    class DiagonalizationOperationCuda : public math::IDiagonalizationOperation,
+    public KernelType {
+        KernelsOperations m_kernelOperation;
+    public:
+        void execute();
+        DiagonalizationOperationCuda();
+        ~DiagonalizationOperationCuda();
+    };
 
-        class MathOperations;
-
-        class MathOperations : public utils::Module, public ::cuda::DeviceInfo {
-            AdditionOperation additionOperation;
-            SubstracionOperation substracionOperation;
-            DotProductOperation dotProductOperation;
-            MultiplicationConstOperation multiplicationConstOperation;
-            void registerDeviceInfo(::cuda::DeviceInfo* deviceInfo);
-            typedef std::vector<DeviceInfo*> DevicesInfos;
-            DevicesInfos devicesInfos;
-        public:
-            void setDevice(CUdevice cuDecive);
-            void setDeviceInfo(const ::cuda::DeviceInfo& deviceInfo);
-            CUdevice getDevice() const;
-            MathOperations();
-            math::Status add(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
-            math::Status substract(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
-            math::Status multiply(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
-            math::Status dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
-            math::Status multiply(math::Matrix* output, math::Matrix* matrix, floatt* value);
-        };
-    }
+    class MathOperationsCuda : public utils::Module, public ::cuda::DeviceInfo {
+        AdditionOperationCuda additionOperation;
+        SubstracionOperationCuda substracionOperation;
+        DotProductOperationCuda dotProductOperation;
+        MultiplicationConstOperationCuda multiplicationConstOperation;
+        void registerDeviceInfo(::cuda::DeviceInfo* deviceInfo);
+        typedef std::vector<DeviceInfo*> DevicesInfos;
+        DevicesInfos devicesInfos;
+    public:
+        void setDevice(CUdevice cuDecive);
+        void setDeviceInfo(const ::cuda::DeviceInfo& deviceInfo);
+        CUdevice getDevice() const;
+        MathOperationsCuda();
+        math::Status add(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
+        math::Status substract(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
+        math::Status multiply(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
+        math::Status dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
+        math::Status multiply(math::Matrix* output, math::Matrix* matrix, floatt* value);
+    };
 }
 
 #endif	/* MATRIXOPERATIONSCPU_H */

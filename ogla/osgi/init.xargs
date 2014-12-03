@@ -1,0 +1,5 @@
+--xargs props.xargs
+-Dorg.knopflerfish.gosg.jars=file:data/*
+-init
+-install ../data/core/oglaCore-bundle.jar
+-start ../data/core/oglaCore-bundle.jar

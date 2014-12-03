@@ -186,7 +186,8 @@ namespace host {
     void GetImVector(floatt* vector, math::Matrix* matrix, intt column);
     void GetTransposeImVector(floatt* vector, math::Matrix* matrix, intt row);
     void SetIdentity(math::Matrix* matrix);
-    void SetReDiagonals(math::Matrix* matrix, floatt a);
+    void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
+    void SetIdentityMatrix(math::Matrix* matrix);
     floatt SmallestDiff(math::Matrix* matrix, math::Matrix* matrix1);
     floatt LargestDiff(math::Matrix* matrix, math::Matrix* matrix1);
     floatt GetTrace(math::Matrix* matrix);
@@ -197,7 +198,7 @@ namespace host {
 
     math::Matrix* LoadMatrix(uintt columns, uintt rows,
             const char* repath, const char* impath);
-    
+
     void LoadMatrix(math::Matrix* matrix,
             const char* repath, const char* impath);
 

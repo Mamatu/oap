@@ -20,8 +20,11 @@ namespace api {
 
         enum Type {
             ARNOLDI_CPU,
-            ARNOLDI_CALLBACK_CPU
+            ARNOLDI_CALLBACK_CPU,
+            ARNOLDI_GPU,
+            ARNOLDI_CALLBACK_GPU,
         };
+
     private:
         State m_state;
         /*Not supported yet.*/
@@ -34,6 +37,7 @@ namespace api {
                 m_outputs = NULL;
                 m_count = 0;
             }
+
             T* m_outputs;
             size_t m_count;
         };
@@ -48,11 +52,12 @@ namespace api {
         uintt m_hDimension;
     private:
         math::IArnoldiMethod* newArnoldiMethod() const;
+
     public:
         ArnoldiPackage(Type type);
 
         virtual ~ArnoldiPackage();
-        
+
         void setRho(floatt rho);
 
         math::Status setMatrix(math::Matrix* matrix);
@@ -63,7 +68,7 @@ namespace api {
                 size_t count);
 
         math::Status setHDimension(uintt dimension);
-        
+
         math::Status setEigenvectorsBuffer(math::Matrix* outputs, size_t size);
 
         math::Status getState(const Buffer* buffer);
