@@ -2533,3 +2533,4 @@ dist/Debug/albert/cubin/liboglaMatrixCuda.cubin
 dist/Debug/albert/cubin/liboglaShibataCuda.cubin
 oglaMatrixCuda/dist/Debug/albert/liboglaMatrixCuda.cubin
 oglaShibataCuda/dist/Debug/albert/liboglaShibataCuda.cubin
+nbproject/private/private.xml
