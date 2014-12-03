@@ -2526,3 +2526,10 @@ oglaUtils/dist/Debug/albert/liboglaUtils.so
 /usr/bin/zjsdecode
 /usr/bin/zlib-flate
 /usr/bin/zsoelim
+*.cubin
+ArnoldiPackage/dist/Debug/albert/libArnoldiPackage.cubin
+dist/Debug/albert/cubin/libArnoldiPackage.cubin
+dist/Debug/albert/cubin/liboglaMatrixCuda.cubin
+dist/Debug/albert/cubin/liboglaShibataCuda.cubin
+oglaMatrixCuda/dist/Debug/albert/liboglaMatrixCuda.cubin
+oglaShibataCuda/dist/Debug/albert/liboglaShibataCuda.cubin
