@@ -2535,3 +2535,7 @@ oglaMatrixCuda/dist/Debug/albert/liboglaMatrixCuda.cubin
 oglaShibataCuda/dist/Debug/albert/liboglaShibataCuda.cubin
 nbproject/private/private.xml
 */*/*/*/*/*cubin
+ArnoldiPackageTest/build/Debug/albert/main.o
+ArnoldiPackageTest/dist/Debug/albert/arnoldiTest
+nbproject/configurations.xml
+nbproject/private/configurations.xml
