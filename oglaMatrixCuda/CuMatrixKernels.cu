@@ -23,7 +23,7 @@ extern "C" __global__ void CUDAKernel_DotProduct(MatrixStructure* output,
         MatrixStructure* params0, MatrixStructure* params1) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_multiplyMatrices(output, params0, params1,
+    CUDA_multiplyRealMatrices(output, params0, params1,
             threadIndexX, threadIndexY);
 }
 
@@ -148,7 +148,7 @@ extern "C" __global__ void CUDAKernel_Transpose(MatrixStructure* output,
         MatrixStructure* params0) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_transposeMatrix(output, params0,
+    CUDA_transposeRealMatrix(output, params0,
             threadIndexX, threadIndexY);
 }
 

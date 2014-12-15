@@ -316,4 +316,17 @@ namespace cuda {
             cuMemcpyHtoD(dstImPtr, src->imValues, length1 * sizeof (floatt));
         }
     }
+
+    void CopyHostArraysToDeviceMatrix(math::Matrix* dst, const floatt* rearray,
+            const floatt* imarray) {
+        uintt columns = CudaUtils::GetDeviceColumns(dst);
+        uintt rows = CudaUtils::GetDeviceRows(dst);
+        uintt length1 = columns * rows;
+        math::Matrix matrix;
+        matrix.reValues = const_cast<floatt*>(rearray);
+        matrix.imValues = const_cast<floatt*>(imarray);
+        matrix.columns = columns;
+        matrix.rows = rows;
+        CopyHostMatrixToDeviceMatrix(dst, &matrix);
+    }
 }

@@ -154,11 +154,11 @@ public:
 };
 
 namespace cuda {
-    
+
     math::Matrix* NewDeviceMatrix(uintt columns, uintt rows);
 
     math::Matrix* NewDeviceMatrix(math::Matrix* hostMatrix);
-    
+
     math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
 
     void DeleteDeviceMatrix(math::Matrix* deviceMatrix);
@@ -176,6 +176,14 @@ namespace cuda {
      * @param src
      */
     void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
+
+    /**
+     * 
+     * @param dst
+     * @param src
+     */
+    void CopyHostArraysToDeviceMatrix(math::Matrix* dst, const floatt* rearray, 
+        const floatt* imarray);
 }
 
 

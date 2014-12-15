@@ -11,10 +11,12 @@
 #include "CuUtils.h"
 
 #ifndef DEBUG
-#define PRINT(s, mo)
-#define PRIN_MATRIXT(s, mo)
+#define cuda_debug_structure(s, mo)
+#define cuda_debug_matrix(s, mo)
+#define cuda_debug(x, ...)
+#define cuda_debug_function()
 #else
-#define PRINT(s, mo) \
+#define cuda_debug_structure(s, mo) \
 {\
     if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
         && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
@@ -23,7 +25,7 @@
     }\
 }
 
-#define PRINT_MATRIX(s, mo) \
+#define cuda_debug_matrix(s, mo) \
 {\
     if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
         && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
@@ -31,6 +33,23 @@
         CUDA_PrintMatrix(mo);\
     }\
 }
+
+#define cuda_debug(arg, ...)\
+{\
+    if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
+        && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
+        printf(arg, ##__VA_ARGS__);\
+    }\
+}
+
+#define cuda_debug_function()\
+{\
+    if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
+        && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
+        printf("%s %s %d \n", __FUNCTION__,__FILE__,__LINE__);\
+    }\
+}
+
 #endif
 
 extern "C" __device__ void CUDA_PrintMatrixS(MatrixStructure* ms) {

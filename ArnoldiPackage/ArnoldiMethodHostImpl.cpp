@@ -10,7 +10,7 @@
 #define PRINT_STATUS(d) d
 #endif
 
-#define MIN_VALUE 0.00000000001
+#define MIN_VALUE 0.001
 
 namespace math {
 
@@ -87,7 +87,6 @@ namespace math {
     }
 
     bool ArnoldiMethodCpu::testProcedure(uintt fa) {
-        debug("fa = %d\n\n\n\n\n", fa);
         uintt index = wantedIndecies[fa];
         Complex b = notSorted[index];
         m_copier->getVector(v, v->rows, EV, index);
@@ -105,7 +104,6 @@ namespace math {
         }
         fprintf(stderr, "diA = %f \n", d);
         fprintf(stderr, "evA = %f %f \n", b.re, b.im);
-        debug("fa = %d\n\n\n\n\n", fa);
     }
 
     bool ArnoldiMethodCpu::continueProcedure() {
@@ -413,6 +411,7 @@ namespace math {
             m_operations->multiply(Q, QJ, Q1);
             switchPointer(Q, QJ);
         }
+        host::PrintReMatrix("H2 = ", H1);
         debugFunc();
         int index = 0;
         math::Matrix* q = host::NewMatrix(1, Q->rows, 0);

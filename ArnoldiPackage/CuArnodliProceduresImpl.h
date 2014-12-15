@@ -5,8 +5,8 @@
  * Created on August 17, 2014, 1:20 AM
  */
 
-#ifndef OGLA_CU_ARNOLDIPROCEDURES_H
-#define	OGLA_CU_ARNOLDIPROCEDURES_H
+#ifndef OGLA_CU_ARNOLDIPROCEDURESIMPL_H
+#define	OGLA_CU_ARNOLDIPROCEDURESIMPL_H
 
 #include <CuMatrixProcedures.h>
 #include <CuMatrixUtils.h>
@@ -39,27 +39,39 @@ __device__ bool CUDA_IsTriangular(MatrixStructure* matrix, uintt count) {
     }
 }
 
-__device__ void CUDA_CalculateH(MatrixStructure* Q, MatrixStructure* temp,
-        MatrixStructure* Q1, MatrixStructure* R, MatrixStructure* H,
-        MatrixStructure* temp1, MatrixStructure* temp2, MatrixStructure* temp3,
-        MatrixStructure* temp4) {
+__device__ void CUDA_CalculateHQ(MatrixStructure* H,
+        MatrixStructure* Q,
+        MatrixStructure* R,
+        MatrixStructure* temp,
+        MatrixStructure* temp1,
+        MatrixStructure* temp2,
+        MatrixStructure* temp3,
+        MatrixStructure* temp4,
+        MatrixStructure* temp5) {
     uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
     uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
     bool status = false;
-    PRINT("HAAA1",H);
+    CUDA_SetIdentityMatrix(temp->m_matrix, tx, ty);
     if (tx == 0 && ty == 0) {
         status = CUDA_IsTriangular(H, H->m_matrix->columns - 1);
     }
-    PRINT("HAAA2",H);
-    for (uintt fb = 0; status == false && fb < 1; ++fb) {
-        CUDA_QR(Q1, R, H, temp1, temp2, temp3, temp4, tx, ty);
-        CUDA_dotProduct(H, R, Q1, tx, ty);
-        CUDA_dotProduct(Q, temp, Q1, tx, ty);
+    uintt fb = 0;
+    for (; status == false && fb < 5; ++fb) {
+        CUDA_QR(Q, R, H, temp2, temp3, temp4, temp5, tx, ty);
+        CUDA_dotProduct(H, R, Q, tx, ty);
+        CUDA_dotProduct(temp1, Q, temp, tx, ty);
         if (tx == 0 && ty == 0) {
-            CUDA_switchPointer(Q, temp);
+            CUDA_switchPointer(&temp1, &temp);
             status = CUDA_IsTriangular(H, H->m_matrix->columns - 1);
         }
     }
+    // TODO: optymalization
+    if (fb % 2 == 0) {
+        CUDA_CopyMatrix(Q, temp, tx, ty);
+    } else {
+        CUDA_CopyMatrix(Q, temp1, tx, ty);
+    }
+    cuda_debug_structure("H", H);
 }
 
 struct Matrices {
@@ -104,7 +116,7 @@ __device__ void CUDA_execute(bool init, intt initj,
         if (0 == tx && 0 == ty) {
             CUDA_setSubRows(transposeV, 0, 1);
         }
-        CUDA_transposeMatrix(transposeV, V, tx, ty);
+        CUDA_transposeRealMatrix(transposeV, V, tx, ty);
         if (0 == tx && 0 == ty) {
             CUDA_setSubColumns(h, 0, 1);
         }
@@ -144,7 +156,7 @@ __device__ void CUDA_execute(bool init, intt initj,
         if (0 == tx && 0 == ty) {
             CUDA_setSubRows(transposeV, initj, fa + 2);
         }
-        CUDA_transposeMatrix(transposeV, V, tx, ty);
+        CUDA_transposeRealMatrix(transposeV, V, tx, ty);
         CUDA_dotProduct(h, transposeV, w, tx, ty);
         CUDA_dotProduct(vh, V, h, tx, ty);
         CUDA_substractMatrix(f, w, vh, tx, ty);

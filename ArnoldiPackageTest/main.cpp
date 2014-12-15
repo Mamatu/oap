@@ -20,7 +20,7 @@ void hostMain() {
 
     host::PrintReMatrix("INPUT =", m);
 
-    uintt count = 3;
+    uintt count = 2;
 
     floatt revs[count];
     floatt imvs[count];
@@ -67,7 +67,7 @@ void deviceMain() {
 }
 
 int main(int argc, char** argv) {
-    //hostMain();
+    hostMain();
     deviceMain();
     return 0;
 }

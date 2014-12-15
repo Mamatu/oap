@@ -1,6 +1,7 @@
 #include <math.h>
 #include "ArnoldiMethodDeviceImpl.h"
 #include "DeviceMatrixStructure.h"
+#include "ArnoldiProcedures.h"
 
 #ifdef DEBUG
 #define PRINT_STATUS(d) if(d!=0) { fprintf(stderr,"Status == %d \n",d); abort();}
@@ -13,7 +14,8 @@ const char* kernelsFiles[] = {
     NULL
 };
 
-#define MIN_VALUE 0.00000000001
+#define MIN_VALUE 0.001
+
 
 namespace math {
 
@@ -100,16 +102,7 @@ namespace math {
 
     void ArnoldiMethodGpu::MatrixData::alloc(math::Matrix* A, intt columns,
             intt rows, ArnoldiMethodGpu* thiz) {
-        if (HostMatrixModules::GetInstance()->getMatrixUtils()->isMatrix(A)) {
-            m_matrix = thiz->m_module->getMatrixAllocator()->newMatrix(columns, rows);
-            DeviceMatrixModules::GetInstance()->getHDCopier()->copyMatrixToMatrix(m_matrix, A);
-        } else if (HostMatrixModules::GetInstance()->getMatrixUtils()->isReMatrix(A)) {
-            m_matrix = thiz->m_module->getMatrixAllocator()->newReMatrix(columns, rows);
-            DeviceMatrixModules::GetInstance()->getHDCopier()->copyReMatrixToReMatrix(m_matrix, A);
-        } else if (HostMatrixModules::GetInstance()->getMatrixUtils()->isImMatrix(A)) {
-            m_matrix = thiz->m_module->getMatrixAllocator()->newImMatrix(columns, rows);
-            DeviceMatrixModules::GetInstance()->getHDCopier()->copyImMatrixToImMatrix(m_matrix, A);
-        }
+        m_matrix = cuda::NewDeviceMatrix(A);
         m_matrixStructure = thiz->m_matrixStructureUtils->newMatrixStructure();
         thiz->m_matrixStructureUtils->setMatrix(m_matrixStructure, m_matrix);
     }
@@ -201,12 +194,20 @@ namespace math {
         debugFunc();
         alloc(m_matrix);
         debugFunc();
+
+        floatt a[] = {209876.114322, 5543.454862, -1.931923, 150.393653,
+            5545.494910, 204558.192376, 5615.605322, 152.459566,
+            0.000000, 5615.551427, 209721.857008, 220.557474,
+            0.000000, 0.000000, 72.205295, 204259.343999};
+
+        cuda::CopyHostArraysToDeviceMatrix(H1.m_matrix, a, NULL);
+
         void* params[] = {
-            Q.getMatrixStructurePointer(),
-            QJ.getMatrixStructurePointer(),
-            Q1.getMatrixStructurePointer(),
-            R1.getMatrixStructurePointer(),
             H1.getMatrixStructurePointer(),
+            Q.getMatrixStructurePointer(),
+            R1.getMatrixStructurePointer(),
+            Q1.getMatrixStructurePointer(),
+            QJ.getMatrixStructurePointer(),
             Q2.getMatrixStructurePointer(),
             R2.getMatrixStructurePointer(),
             G.getMatrixStructurePointer(),
@@ -214,9 +215,9 @@ namespace math {
         };
         debugFunc();
         m_kernel.setThreadsCount(m_k, m_k);
-        DeviceMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("Q = ", Q.m_matrix);
-        cuda::Kernel::ExecuteKernel("CUDAKernel_CalculateH", params, m_kernel, m_image);
-        DeviceMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("Q = ", Q.m_matrix);
+        DeviceMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("H1 = ", H1.m_matrix);
+        CUDAKernel_CalculateHQ(params, m_kernel, m_image);
+        DeviceMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("H1 = ", H1.m_matrix);
         //cuda::Kernel::ExecuteKernel("CUDAKernel_Execute", params1, m_kernel, m_image);
         debugFunc();
         dealloc();
