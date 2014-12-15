@@ -93,10 +93,8 @@ namespace CudaUtils {
     }
 
     CUdeviceptr AllocMatrix() {
-        debugFuncBegin();
         CUdeviceptr devicePtrMatrix = 0;
         printCuError(cuMemAlloc(&devicePtrMatrix, sizeof (math::Matrix)));
-        debugFuncEnd();
         return devicePtrMatrix;
     }
 
@@ -120,49 +118,39 @@ namespace CudaUtils {
     }
 
     CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix, intt columns, intt rows, floatt value) {
-        debugFuncBegin();
         CUdeviceptr devicePtrReValues = 0;
         printCuError(cuMemAlloc(&devicePtrReValues, columns * rows * sizeof (floatt)));
         printCuError(cuMemcpyHtoD(GetReValuesAddress(devicePtrMatrix), &devicePtrReValues, sizeof (CUdeviceptr)));
         unsigned int dvalue = *reinterpret_cast<unsigned int*> (&value);
         cuMemsetD32(devicePtrReValues, dvalue, columns * rows);
-        debugFuncEnd();
         return devicePtrReValues;
     }
 
     CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix, intt columns, intt rows, floatt value) {
-        debugFuncBegin();
         CUdeviceptr devicePtrImValues = 0;
         printCuError(cuMemAlloc(&devicePtrImValues, columns * rows * sizeof (floatt)));
         printCuError(cuMemcpyHtoD(GetImValuesAddress(devicePtrMatrix), &devicePtrImValues, sizeof (CUdeviceptr)));
         unsigned int dvalue = *reinterpret_cast<unsigned int*> (&value);
         cuMemsetD32(devicePtrImValues, dvalue, columns * rows);
-        debugFuncEnd();
         return devicePtrImValues;
     }
 
     CUdeviceptr SetReMatrixToNull(CUdeviceptr devicePtrMatrix) {
-        debugFuncBegin();
         CUdeviceptr buffer = 0;
         printCuError(cuMemcpyHtoD(GetReValuesAddress(devicePtrMatrix), &buffer, sizeof (CUdeviceptr)));
-        debugFuncEnd();
         return 0;
     }
 
     CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix) {
-        debugFuncBegin();
         CUdeviceptr buffer = 0;
         printCuError(cuMemcpyHtoD(GetImValuesAddress(devicePtrMatrix), &buffer, sizeof (CUdeviceptr)));
-        debugFuncEnd();
         return 0;
     }
 
     void SetVariables(CUdeviceptr devicePtrMatrix,
             intt columns, intt rows) {
-        debugFuncBegin();
         printCuError(cuMemcpyHtoD(GetColumnsAddress(devicePtrMatrix), &columns, sizeof (intt)));
         printCuError(cuMemcpyHtoD(GetRowsAddress(devicePtrMatrix), &rows, sizeof (intt)));
-        debugFuncEnd();
     }
 
     void* NewDevice(intt size) {
@@ -186,7 +174,7 @@ namespace CudaUtils {
             DeleteDevice(deviecPtr);
         }
     }
-    
+
     void DeleteDevice(CUdeviceptr ptr) {
         if (ptr != 0) {
             cuMemFree(ptr);

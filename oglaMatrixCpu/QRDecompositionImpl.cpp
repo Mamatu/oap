@@ -14,7 +14,7 @@ namespace math {
             uintt column, uintt row,
             math::Matrix* G) {
         m_module->getMatrixUtils()->setIdentityMatrix(G);
-        m_module->getMatrixUtils()->setIdentityMatrix(GT);
+        m_module->getMatrixUtils()->setIdentityMatrix(m_GT);
         floatt reg = 0;
         floatt img = 0;
         floatt ref = 0;
@@ -63,82 +63,82 @@ namespace math {
         math::Matrix* tR1 = NULL;
         math::Matrix* tQ1 = NULL;
 
-        if (R1 != NULL && R1->rows != R->rows &&
-                R1->columns != R->columns) {
-            m_module->getMatrixAllocator()->deleteMatrix(R1);
-            m_module->getMatrixAllocator()->deleteMatrix(Q1);
-            m_module->getMatrixAllocator()->deleteMatrix(G);
-            m_module->getMatrixAllocator()->deleteMatrix(GT);
-            R1 = NULL;
-            Q1 = NULL;
-            G = NULL;
-            GT = NULL;
+        if (m_R1 != NULL && m_R1->rows != R->rows &&
+                m_R1->columns != R->columns) {
+            m_module->getMatrixAllocator()->deleteMatrix(m_R1);
+            m_module->getMatrixAllocator()->deleteMatrix(m_Q1);
+            m_module->getMatrixAllocator()->deleteMatrix(m_G);
+            m_module->getMatrixAllocator()->deleteMatrix(m_GT);
+            m_R1 = NULL;
+            m_Q1 = NULL;
+            m_G = NULL;
+            m_GT = NULL;
         }
-        if (R1 == NULL) {
-            R1 = m_module->newMatrix(A);
-            Q1 = m_module->newMatrix(A);
-            G = m_module->newMatrix(A);
-            GT = m_module->newMatrix(A);
+        if (m_R1 == NULL) {
+            m_R1 = m_module->newMatrix(A);
+            m_Q1 = m_module->newMatrix(A);
+            m_G = m_module->newMatrix(A);
+            m_GT = m_module->newMatrix(A);
         }
 
-        tR1 = R1;
-        tQ1 = Q1;
+        tR1 = m_R1;
+        tQ1 = m_Q1;
 
-        host::CopyMatrix(R1, A);
-        m_module->getMatrixUtils()->setIdentityMatrix(Q1);
+        host::CopyMatrix(m_R1, A);
+        m_module->getMatrixUtils()->setIdentityMatrix(m_Q1);
         for (uintt fa = 0; fa < A->columns - 1; ++fa) {
             for (uintt fb = A->rows - 1; fb > fa; --fb) {
-                floatt rev = R1->reValues[fa + fb * R1->columns];
+                floatt rev = m_R1->reValues[fa + fb * m_R1->columns];
                 floatt imv = 0;
-                if (R1->imValues) {
-                    imv = R1->imValues[fa + fb * R1->columns];
+                if (m_R1->imValues) {
+                    imv = m_R1->imValues[fa + fb * m_R1->columns];
                 }
                 if ((fabs(rev) < MATH_VALUE_LIMIT &&
                         fabs(imv) < MATH_VALUE_LIMIT)
                         == false) {
-                    prepareGMatrix(R1, fa, fb, G);
+                    prepareGMatrix(m_R1, fa, fb, m_G);
 
-                    dotProduct.setMatrix2(R1);
-                    dotProduct.setMatrix1(G);
+                    dotProduct.setMatrix2(m_R1);
+                    dotProduct.setMatrix1(m_G);
                     dotProduct.setOutputMatrix(R);
                     dotProduct.start();
 
-                    transpose.setMatrix(G);
-                    transpose.setOutputMatrix(GT);
+                    transpose.setMatrix(m_G);
+                    transpose.setOutputMatrix(m_GT);
                     transpose.start();
 
-                    dotProduct.setMatrix1(Q1);
-                    dotProduct.setMatrix2(GT);
+                    dotProduct.setMatrix2(m_GT);
+                    dotProduct.setMatrix1(m_Q1);
                     dotProduct.setOutputMatrix(Q);
                     dotProduct.start();
 
-                    switchPointer(R1, R);
-                    switchPointer(Q1, Q);
+                    switchPointer(m_R1, R);
+                    switchPointer(m_Q1, Q);
                 }
             }
         }
-        if (this->m_outputStructure1->m_matrix != Q1) {
-            host::CopyMatrix(this->m_outputStructure1->m_matrix, Q1);
+        if (this->m_outputStructure1->m_matrix != m_Q1) {
+            host::CopyMatrix(this->m_outputStructure1->m_matrix, m_Q1);
         }
-        if (this->m_outputStructure2->m_matrix != R1) {
-            host::CopyMatrix(this->m_outputStructure2->m_matrix, R1);
+        if (this->m_outputStructure2->m_matrix != m_R1) {
+            host::CopyMatrix(this->m_outputStructure2->m_matrix, m_R1);
         }
-        R1 = tR1;
-        Q1 = tQ1;
+        m_R1 = tR1;
+        m_Q1 = tQ1;
     }
 
     QRDecompositionCpu::QRDecompositionCpu() :
     IQRDecomposition(HostMatrixModules::GetInstance(),
     HostMatrixStructureUtils::GetInstance()),
-    R1(NULL), Q1(NULL), G(NULL), GT(NULL) {
+    m_R1(NULL), m_Q1(NULL), m_G(NULL), m_GT(NULL) {
     }
 
     QRDecompositionCpu::~QRDecompositionCpu() {
-        if (R1) {
-            m_module->getMatrixAllocator()->deleteMatrix(R1);
-            m_module->getMatrixAllocator()->deleteMatrix(Q1);
-            m_module->getMatrixAllocator()->deleteMatrix(G);
-            m_module->getMatrixAllocator()->deleteMatrix(GT);
+        if (m_R1) {
+            m_module->getMatrixAllocator()->deleteMatrix(m_R1);
+            m_module->getMatrixAllocator()->deleteMatrix(m_Q1);
+            m_module->getMatrixAllocator()->deleteMatrix(m_G);
+            m_module->getMatrixAllocator()->deleteMatrix(m_GT);
         }
     }
 }

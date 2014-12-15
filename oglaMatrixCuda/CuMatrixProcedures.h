@@ -529,11 +529,9 @@ extern "C" __device__ void CUDA_switchPointer(MatrixStructure** a, MatrixStructu
 }
 
 extern "C" __device__ void CUDA_prepareGMatrix(math::Matrix* A,
-        uintt column, uintt row,
-        math::Matrix* G,
-        uintt threadIndexX, uintt threadIndexY) {
-    CUDA_SetIdentityMatrix(G, threadIndexX, threadIndexY);
-    if (threadIndexX == 0 && threadIndexY == 0) {
+        uintt column, uintt row, math::Matrix* G, uintt tx, uintt ty) {
+    CUDA_SetIdentityMatrix(G, tx, ty);
+    if (tx == 0 && ty == 0) {
         floatt s = 0;
         floatt is = 0;
         floatt c = 0;
@@ -580,11 +578,10 @@ extern "C" __device__ __forceinline__ void CUDA_QRRe(MatrixStructure* Q,
             if ((-MATH_VALUE_LIMIT < v &&
                     v < MATH_VALUE_LIMIT) == false) {
                 CUDA_SetIdentityMatrixStr(R1, threadIndexX, threadIndexY);
-                CUDA_SetIdentityMatrixStr(G, threadIndexX, threadIndexY);
-                CUDA_SetIdentityMatrixStr(GT, threadIndexX, threadIndexY);
                 CUDA_prepareGMatrix(A->m_matrix, fa, fb, G->m_matrix,
                         threadIndexX, threadIndexY);
                 CUDA_multiplyReMatrices(R, G, R1, threadIndexX, threadIndexY);
+                CUDA_SetIdentityMatrixStr(GT, threadIndexX, threadIndexY);
                 CUDA_transposeReMatrix(GT, G, threadIndexX, threadIndexY);
                 CUDA_multiplyReMatrices(Q, Q1, GT, threadIndexX, threadIndexY);
                 if (threadIndexX == 0 && threadIndexY == 0) {
@@ -605,42 +602,48 @@ extern "C" __device__ __forceinline__ void CUDA_QRIm(
         uintt threadIndexX, uintt threadIndexY) {
 }
 
+__device__ uintt g_count;
+
 extern "C" __device__ __forceinline__ void CUDA_QR(
         MatrixStructure* Q,
         MatrixStructure* R,
         MatrixStructure* A,
-        MatrixStructure* temp,
-        MatrixStructure* temp1,
+        MatrixStructure* Q1,
+        MatrixStructure* R1,
         MatrixStructure* G,
-        MatrixStructure * GT,
-        uintt threadIndexX,
-        uintt threadIndexY) {
-    bool first = true;
+        MatrixStructure* GT,
+        uintt tx, uintt ty) {
     MatrixStructure* rQ = Q;
     MatrixStructure* rR = R;
+    g_count = 0;
     for (uintt fa = 0; fa < A->m_matrix->columns - 1; ++fa) {
         for (uintt fb = A->m_matrix->rows - 1; fb > fa; --fb) {
             floatt v = A->m_matrix->reValues[fa + fb * A->m_matrix->columns];
             if ((-0.001 < v && v < 0.001) == false) {
-                CUDA_prepareGMatrix(A->m_matrix, fa, fb, G->m_matrix,
-                        threadIndexX, threadIndexY);
-                if (first) {
-                    first = false;
-                    CUDA_multiplyMatrices(R, G, A, threadIndexX, threadIndexY);
+                if (g_count == 0) {
+                    CUDA_prepareGMatrix(A->m_matrix, fa, fb, G->m_matrix,
+                            tx, ty);
+                    CUDA_multiplyMatrices(R, G, A, tx, ty);
+                    CUDA_transposeMatrix(Q, G, tx, ty);
                 } else {
-                    CUDA_multiplyMatrices(R, G, temp1, threadIndexX, threadIndexY);
+                    CUDA_prepareGMatrix(R1->m_matrix, fa, fb, G->m_matrix,
+                            tx, ty);
+                    CUDA_transposeMatrix(GT, G, tx, ty);
+                    CUDA_multiplyMatrices(R, G, R1, tx, ty);
+                    CUDA_multiplyMatrices(Q, Q1, GT, tx, ty);
                 }
-                CUDA_transposeMatrix(GT, G, threadIndexX, threadIndexY);
-                CUDA_multiplyMatrices(Q, temp, GT, threadIndexX, threadIndexY);
-                if (threadIndexX == 0 && threadIndexY == 0) {
-                    CUDA_switchPointer(&temp1, &R);
-                    CUDA_switchPointer(&temp, &Q);
+                if (tx == 0 && ty == 0) {
+                    ++g_count;
                 }
+                CUDA_switchPointer(&R1, &R);
+                CUDA_switchPointer(&Q1, &Q);
             }
         }
     }
-    CUDA_CopyMatrix(rR, temp1, threadIndexX, threadIndexY);
-    CUDA_CopyMatrix(rQ, temp, threadIndexX, threadIndexY);
+    if (g_count % 2 != 0) {
+        CUDA_CopyMatrix(rQ, Q1, tx, ty);
+        CUDA_CopyMatrix(rR, R1, tx, ty);
+    }
 }
 
 extern "C" __device__ __forceinline__ void conjugateIm(MatrixStructure* output,

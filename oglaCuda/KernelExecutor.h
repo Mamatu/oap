@@ -13,7 +13,7 @@
 #include "Math.h"
 //#include "MatrixStructure.h"
 
-#define printCuError(cuResult) debug("%s %s : %d cuError == %d \n",__FUNCTION__,__FILE__,__LINE__,cuResult);
+#define printCuError(cuResult) if(cuResult != 0) { debug("%s %s : %d cuError == %d \n",__FUNCTION__,__FILE__,__LINE__,cuResult); }
 
 namespace cuda {
 

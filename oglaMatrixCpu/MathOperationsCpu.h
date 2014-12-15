@@ -118,10 +118,10 @@ namespace math {
     public IQRDecomposition,
     public ThreadsCountProperty {
         static void Execute(void* ptr);
-        math::Matrix* R1;
-        math::Matrix* Q1;
-        math::Matrix* G;
-        math::Matrix* GT;
+        math::Matrix* m_R1;
+        math::Matrix* m_Q1;
+        math::Matrix* m_G;
+        math::Matrix* m_GT;
         DotProductOperationCpu dotProduct;
         TransposeOperationCpu transpose;
         inline void prepareGMatrix(math::Matrix* A,

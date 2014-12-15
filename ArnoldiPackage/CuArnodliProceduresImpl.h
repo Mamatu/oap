@@ -39,6 +39,8 @@ __device__ bool CUDA_IsTriangular(MatrixStructure* matrix, uintt count) {
     }
 }
 
+__device__ bool g_status;
+
 __device__ void CUDA_CalculateHQ(MatrixStructure* H,
         MatrixStructure* Q,
         MatrixStructure* R,
@@ -50,19 +52,19 @@ __device__ void CUDA_CalculateHQ(MatrixStructure* H,
         MatrixStructure* temp5) {
     uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
     uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
-    bool status = false;
+    g_status = false;
     CUDA_SetIdentityMatrix(temp->m_matrix, tx, ty);
     if (tx == 0 && ty == 0) {
-        status = CUDA_IsTriangular(H, H->m_matrix->columns - 1);
+        g_status = CUDA_IsTriangular(H, H->m_matrix->columns - 1);
     }
     uintt fb = 0;
-    for (; status == false && fb < 5; ++fb) {
+    for (; g_status == false && fb < 1000; ++fb) {
         CUDA_QR(Q, R, H, temp2, temp3, temp4, temp5, tx, ty);
         CUDA_dotProduct(H, R, Q, tx, ty);
         CUDA_dotProduct(temp1, Q, temp, tx, ty);
+        CUDA_switchPointer(&temp1, &temp);
         if (tx == 0 && ty == 0) {
-            CUDA_switchPointer(&temp1, &temp);
-            status = CUDA_IsTriangular(H, H->m_matrix->columns - 1);
+            g_status = CUDA_IsTriangular(H, H->m_matrix->columns - 1);
         }
     }
     // TODO: optymalization
@@ -71,7 +73,6 @@ __device__ void CUDA_CalculateHQ(MatrixStructure* H,
     } else {
         CUDA_CopyMatrix(Q, temp1, tx, ty);
     }
-    cuda_debug_structure("H", H);
 }
 
 struct Matrices {

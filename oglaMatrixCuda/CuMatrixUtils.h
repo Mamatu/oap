@@ -15,6 +15,7 @@
 #define cuda_debug_matrix(s, mo)
 #define cuda_debug(x, ...)
 #define cuda_debug_function()
+#define cuda_debug_thread(tx, ty, arg, ...)
 #else
 #define cuda_debug_structure(s, mo) \
 {\
@@ -47,6 +48,15 @@
     if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
         && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
         printf("%s %s %d \n", __FUNCTION__,__FILE__,__LINE__);\
+    }\
+}
+
+#define cuda_debug_thread(tx, ty, arg, ...)\
+{\
+    if ((blockIdx.x * blockDim.x + threadIdx.x)==tx\
+        && (blockIdx.y * blockDim.y + threadIdx.y)==ty) {\
+        printf("%s %s %d Thread: %u %u: ", __FUNCTION__,__FILE__,__LINE__, tx, ty);\
+        printf(arg, ##__VA_ARGS__);\
     }\
 }
 
