@@ -11,7 +11,6 @@
 #include "Matrix.h"
 #include "ThreadUtils.h"
 #include "ThreadsMapper.h"
-#include "HostMatrixStructure.h"
 #include <math.h>
 
 #define ReIsNotNull(m) m->reValues != NULL
@@ -77,10 +76,8 @@ inline void printInfo(const char* function, const math::Matrix* output, const st
 namespace math {
 
     MathOperationsCpu::MathOperationsCpu() : utils::Module() {
-        m_subrows[0] = 0;
-        m_subrows[1] = 0;
-        m_subcolumns[0] = 0;
-        m_subcolumns[1] = 0;
+        m_subrows = -1;
+        m_subcolumns = -1;
         registerMathOperation(&additionOperation);
         registerMathOperation(&substracionOperation);
         registerMathOperation(&dotProductOperation);
@@ -131,6 +128,7 @@ namespace math {
         obj.setOutputMatrix(output);
         obj.setMatrix(arg1);
         obj.setReValue(value);
+
         math::Status status = obj.start();
         unsetSubRows();
         unsetSubColumns();
@@ -238,27 +236,23 @@ namespace math {
         this->serieLimit = serieLimit;
     }
 
-    void MathOperationsCpu::setSubRows(intt begin, intt end) {
-        m_subrows[0] = begin;
-        m_subrows[1] = end;
+    void MathOperationsCpu::setSubRows(intt subrows) {
+        m_subrows = subrows;
     }
 
-    void MathOperationsCpu::setSubColumns(intt begin, intt end) {
-        m_subcolumns[0] = begin;
-        m_subcolumns[1] = end;
+    void MathOperationsCpu::setSubColumns(intt subcolumns) {
+        m_subcolumns = subcolumns;
     }
 
     void MathOperationsCpu::unsetSubRows() {
-        this->m_subrows[0] = 0;
-        this->m_subrows[1] = 0;
+        this->m_subrows = MATH_UNDEFINED;
         for (unsigned int fa = 0; fa < operations.size(); fa++) {
             operations[fa]->unsetSubRows();
         }
     }
 
     void MathOperationsCpu::unsetSubColumns() {
-        this->m_subcolumns[0] = 0;
-        this->m_subcolumns[1] = 0;
+        this->m_subcolumns = MATH_UNDEFINED;
         for (unsigned int fa = 0; fa < operations.size(); fa++) {
             operations[fa]->unsetSubColumns();
         }
@@ -389,8 +383,7 @@ namespace math {
 
 #define GET(x,y,index) x+index*y 
 
-#define DEFAULT_CONSTRUCTOR(cname, bname) cname::cname():math::bname(HostMatrixModules::GetInstance(),\
-        HostMatrixStructureUtils::GetInstance()){} cname::~cname(){}
+#define DEFAULT_CONSTRUCTOR(cname, bname) cname::cname():math::bname(HostMatrixModules::GetInstance()){} cname::~cname(){}
 
 #define DEFAULT_CONSTRUCTOR_WITH_ARGS(cname,bname,code) cname::cname():math::bname(){code} cname::~cname(){}
 

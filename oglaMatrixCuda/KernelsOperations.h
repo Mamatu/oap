@@ -3,7 +3,6 @@
 
 #include "KernelExecutor.h"
 #include "Module.h"
-#include "MatrixStructure.h"
 #include "DeviceMatrixModules.h"
 
 namespace math {
@@ -15,36 +14,36 @@ namespace math {
         void executeKernel(const char* functionName, void** params,
                 ::cuda::Kernel& kernel);
     public:
-        void dotProductDeviceMatrices(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void dotProductDeviceReMatrices(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void dotProductDeviceImMatrices(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void addDeviceMatrices(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void addDeviceReMatrices(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void addDeviceImMatrices(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void substractDeviceMatrices(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void substractDeviceReMatrices(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void substractDeviceImMatrices(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void multiplyConstantDeviceMatrix(MatrixStructure* output,
-                MatrixStructure* matrix1, floatt* value, ::cuda::Kernel& kernel);
-        void multiplyConstantDeviceReMatrix(MatrixStructure* output,
-                MatrixStructure* matrix1, floatt* value, ::cuda::Kernel& kernel);
-        void multiplyConstantDeviceImMatrix(MatrixStructure* output,
-                MatrixStructure* matrix1, floatt* value, ::cuda::Kernel& kernel);
-        void expDeviceMatrix(MatrixStructure* output, MatrixStructure* matrix1,
+        void dotProductDeviceMatrices(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void dotProductDeviceReMatrices(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void dotProductDeviceImMatrices(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void addDeviceMatrices(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void addDeviceReMatrices(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void addDeviceImMatrices(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void substractDeviceMatrices(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void substractDeviceReMatrices(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void substractDeviceImMatrices(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void multiplyConstantDeviceMatrix(Matrix* output,
+                Matrix* matrix1, floatt* value, ::cuda::Kernel& kernel);
+        void multiplyConstantDeviceReMatrix(Matrix* output,
+                Matrix* matrix1, floatt* value, ::cuda::Kernel& kernel);
+        void multiplyConstantDeviceImMatrix(Matrix* output,
+                Matrix* matrix1, floatt* value, ::cuda::Kernel& kernel);
+        void expDeviceMatrix(Matrix* output, Matrix* matrix1,
                 ::cuda::Kernel& kernel);
-        void diagonalizeDeviceMatrix(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
-        void tensorProductDeviceMatrix(MatrixStructure* output,
-                MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel);
+        void diagonalizeDeviceMatrix(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
+        void tensorProductDeviceMatrix(Matrix* output,
+                Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel);
         KernelsOperations();
         virtual ~KernelsOperations();
     };

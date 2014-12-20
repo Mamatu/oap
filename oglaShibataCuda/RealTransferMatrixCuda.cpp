@@ -10,7 +10,6 @@
 #include <math.h>
 #include "RealTransferMatrixCuda.h"
 #include "DeviceMatrixModules.h"
-#include "DeviceMatrixStructure.h"
 #include <vector>
 
 namespace ShibataCuda {
@@ -81,7 +80,7 @@ namespace ShibataCuda {
         mustBeDestroyed[2] = false;
         mustBeDestroyed[3] = false;
         m_isAllocated = false;
-        m_outputStructure = NULL;
+        m_output = NULL;
     }
 
     RealTransferMatrix::RealTransferMatrix(const RealTransferMatrix& orig) {
@@ -195,8 +194,6 @@ namespace ShibataCuda {
         if (m_isAllocated == false) {
             int t[2];
             int b[2];
-            DeviceMatrixStructureUtils* dmsu =
-                    DeviceMatrixStructureUtils::GetInstance();
             DeviceMatrixUtils dmu;
             intt N = getSpinsCount();
             intt M2 = getVirtualTime();
@@ -214,10 +211,6 @@ namespace ShibataCuda {
             intt upIndeciesCount = 0;
             intt nspins = quantumsCount;
             intt nvalues = nspins*quantumsCount;
-            if (transferMatrix) {
-                m_outputStructure = dmsu->newMatrixStructure();
-                dmsu->setMatrix(m_outputStructure, transferMatrix);
-            }
             tmColumnsPtr = (intt**) CudaUtils::NewDevice(threadsCount * sizeof (intt*));
             tmRowsPtr = (intt**) CudaUtils::NewDevice(threadsCount * sizeof (intt*));
             tmRowsBitsPtr = (char**) CudaUtils::NewDevice(threadsCount * sizeof (char*));
@@ -274,9 +267,6 @@ namespace ShibataCuda {
 
     void RealTransferMatrix::dealloc() {
         if (m_isAllocated == true) {
-            DeviceMatrixStructureUtils* dmsu =
-                    DeviceMatrixStructureUtils::GetInstance();
-            dmsu->deleteMatrixStructure(m_outputStructure);
             CudaUtils::DeleteDeviceValue(ddownIndeciesCount);
             CudaUtils::DeleteDeviceValue(dquantumsCount);
             CudaUtils::DeleteDeviceValue(dM2);
@@ -303,7 +293,7 @@ namespace ShibataCuda {
         kernel.loadImage("liboglaShibataCuda.cubin");
         alloc(kernel);
         if (transferMatrix) {
-            void* params[] = {&m_outputStructure, &treePointers, &tmColumnsPtr,
+            void* params[] = {&m_output, &treePointers, &tmColumnsPtr,
                 &tmRowsPtr,
                 &tmRowsBitsPtr,
                 &dupIndecies, &ddownIndecies,

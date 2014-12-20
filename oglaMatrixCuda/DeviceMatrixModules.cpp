@@ -322,11 +322,12 @@ namespace cuda {
         uintt columns = CudaUtils::GetDeviceColumns(dst);
         uintt rows = CudaUtils::GetDeviceRows(dst);
         uintt length1 = columns * rows;
-        math::Matrix matrix;
-        matrix.reValues = const_cast<floatt*>(rearray);
-        matrix.imValues = const_cast<floatt*>(imarray);
-        matrix.columns = columns;
-        matrix.rows = rows;
+        math::Matrix matrix = {
+            columns, rows,
+            const_cast<floatt*> (rearray),
+            const_cast<floatt*> (imarray),
+            columns, rows
+        };
         CopyHostMatrixToDeviceMatrix(dst, &matrix);
     }
 }

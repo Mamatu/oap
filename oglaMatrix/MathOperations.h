@@ -1,7 +1,6 @@
 #ifndef OGLA_MATH_OPERATIONS_H
 #define	OGLA_MATH_OPERATIONS_H
 
-#include "MatrixStructureUtils.h"
 #include "WrapperInterfaces.h"
 #include "MatrixModules.h"
 
@@ -20,10 +19,9 @@ namespace math {
 
     class IMathOperation : public utils::Module {
     protected:
-        uintt m_subrows[2];
-        uintt m_subcolumns[2];
+        uintt m_subrows;
+        uintt m_subcolumns;
         MatrixModule* m_module;
-        MatrixStructureUtils* m_matrixStructureUtils;
         static bool CopyIm(math::Matrix* dst, math::Matrix* src,
                 MatrixCopier* matrixCopier, IMathOperation *thiz);
         static bool CopyRe(math::Matrix* dst, math::Matrix* src,
@@ -34,24 +32,19 @@ namespace math {
         virtual Status beforeExecution() = 0;
         virtual Status afterExecution() = 0;
     public:
-        void setSubRows(uintt subrows[2]);
-        void setSubColumns(uintt subcolumns[2]);
+        void setSubRows(uintt subrows);
+        void setSubColumns(uintt subcolumns);
         void unsetSubRows();
         void unsetSubColumns();
-        IMathOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IMathOperation(MatrixModule* matrixModule);
         virtual ~IMathOperation();
         Status start();
     };
 
     class TwoMatricesOperations : public IMathOperation {
     protected:
-        TwoMatricesOperations(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        TwoMatricesOperations(MatrixModule* matrixModule);
         virtual ~TwoMatricesOperations();
-        MatrixStructure* m_matrixStructure1;
-        MatrixStructure* m_matrixStructure2;
-        MatrixStructure* m_outputStructure;
         Matrix* m_matrix1;
         Matrix* m_matrix2;
         Matrix* m_output;
@@ -65,8 +58,6 @@ namespace math {
 
     class MatrixValueOperation : public IMathOperation {
     protected:
-        MatrixStructure* m_matrixStructure;
-        MatrixStructure* m_outputStructure;
         Matrix* m_matrix;
         Matrix* m_output;
         floatt* m_revalue;
@@ -74,8 +65,7 @@ namespace math {
         Status beforeExecution();
         Status afterExecution();
     public:
-        MatrixValueOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        MatrixValueOperation(MatrixModule* matrixModule);
         virtual ~MatrixValueOperation();
         void setMatrix(Matrix* matrix);
         void setReValue(floatt* value);
@@ -85,15 +75,12 @@ namespace math {
 
     class MatrixOperationOutputMatrix : public IMathOperation {
     protected:
-        MatrixStructure* m_matrixStructure;
-        MatrixStructure* m_outputStructure;
         Matrix* m_matrix;
         Matrix* m_output;
         Status beforeExecution();
         Status afterExecution();
     public:
-        MatrixOperationOutputMatrix(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        MatrixOperationOutputMatrix(MatrixModule* matrixModule);
         virtual ~MatrixOperationOutputMatrix();
         void setMatrix(Matrix* matrix);
         void setOutputMatrix(Matrix* matrix);
@@ -102,14 +89,12 @@ namespace math {
     class MatrixOperationOutputValue : public IMathOperation {
     protected:
         Matrix* m_matrix;
-        MatrixStructure* m_matrixStructure;
         floatt* m_output1;
         floatt* m_output2;
         Status beforeExecution();
         Status afterExecution();
     public:
-        MatrixOperationOutputValue(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        MatrixOperationOutputValue(MatrixModule* matrixModule);
         virtual ~MatrixOperationOutputValue();
         void setMatrix(Matrix* matrix);
         void setOutputValue1(floatt* value);
@@ -119,15 +104,13 @@ namespace math {
     class MatrixOperationOutputValues : public IMathOperation {
     protected:
         Matrix* m_matrix;
-        MatrixStructure* m_matrixStructure;
         floatt* m_reoutputs;    
         floatt* m_imoutputs;
         uintt m_count;
         Status beforeExecution();
         Status afterExecution();
     public:
-        MatrixOperationOutputValues(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        MatrixOperationOutputValues(MatrixModule* matrixModule);
         virtual ~MatrixOperationOutputValues();
         void setMatrix(Matrix* matrix);
         void setReOutputValues(floatt* revalue, uintt count);
@@ -136,17 +119,13 @@ namespace math {
 
     class MatrixOperationTwoOutputs : public IMathOperation {
     protected:
-        MatrixStructure* m_matrixStructure;
-        MatrixStructure* m_outputStructure1;
-        MatrixStructure* m_outputStructure2;
         Matrix* m_matrix;
         Matrix* m_output1;
         Matrix* m_output2;
         Status beforeExecution();
         Status afterExecution();
     public:
-        MatrixOperationTwoOutputs(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        MatrixOperationTwoOutputs(MatrixModule* matrixModule);
         virtual ~MatrixOperationTwoOutputs();
         void setMatrix(Matrix* matrix);
         void setOutputMatrix1(Matrix* matrix);
@@ -173,8 +152,7 @@ namespace math {
                 bool(*HasInstance)(math::Matrix* matrix, MatrixUtils* matrixUtils),
                 ExecutionPath& executionPath);
     public:
-        IAdditionOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IAdditionOperation(MatrixModule* matrixModule);
         virtual ~IAdditionOperation();
     };
 
@@ -197,8 +175,7 @@ namespace math {
                 bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
                 ISubstracionOperation::ExecutionPath& executionPath);
     public:
-        ISubstracionOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        ISubstracionOperation(MatrixModule* matrixModule);
         virtual ~ISubstracionOperation();
     };
 
@@ -220,8 +197,7 @@ namespace math {
                 bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
                 IDotProductOperation::ExecutionPath& executionPath);
     public:
-        IDotProductOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IDotProductOperation(MatrixModule* matrixModule);
         virtual ~IDotProductOperation();
     };
 
@@ -245,8 +221,7 @@ namespace math {
                 bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
                 IMultiplicationConstOperation::ExecutionPath& executionPath);
     public:
-        IMultiplicationConstOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IMultiplicationConstOperation(MatrixModule* matrixModule);
         virtual ~IMultiplicationConstOperation();
     };
 
@@ -255,8 +230,7 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     public:
-        IExpOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IExpOperation(MatrixModule* matrixModule);
         virtual ~IExpOperation();
     };
 
@@ -278,8 +252,7 @@ namespace math {
                 bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
                 IDiagonalizationOperation::ExecutionPath& executionPath);
     public:
-        IDiagonalizationOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IDiagonalizationOperation(MatrixModule* matrixModule);
         virtual ~IDiagonalizationOperation();
     };
 
@@ -301,8 +274,7 @@ namespace math {
                 bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
                 ITensorProductOperation::ExecutionPath& executionPath);
     public:
-        ITensorProductOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        ITensorProductOperation(MatrixModule* matrixModule);
         virtual ~ITensorProductOperation();
     };
 
@@ -318,8 +290,7 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     public:
-        IMagnitudeOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IMagnitudeOperation(MatrixModule* matrixModule);
         virtual ~IMagnitudeOperation();
     };
 
@@ -335,8 +306,7 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     public:
-        ITransposeOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        ITransposeOperation(MatrixModule* matrixModule);
         virtual ~ITransposeOperation();
     };
 
@@ -357,8 +327,7 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     public:
-        IDeterminantOperation(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IDeterminantOperation(MatrixModule* matrixModule);
         virtual ~IDeterminantOperation();
     };
 
@@ -374,8 +343,7 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     public:
-        IQRDecomposition(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IQRDecomposition(MatrixModule* matrixModule);
         virtual ~IQRDecomposition();
     };
 }

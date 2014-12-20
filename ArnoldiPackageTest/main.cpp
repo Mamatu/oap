@@ -11,7 +11,6 @@
 #include "main.h"
 #include "DeviceMatrixModules.h"
 #include "KernelExecutor.h"
-#include "DeviceMatrixStructure.h"
 
 using namespace std;
 
@@ -31,14 +30,14 @@ void hostMain() {
     arnoldi.setHDimension(4);
     arnoldi.setEigenvaluesBuffer(revs, imvs, count);
     arnoldi.start();
-
 }
 
 void deviceMain() {
     debugFunc();
     cuda::Context context;
     context.init();
-    double a[] = {214433.297977, 2219.609592, -134.466816, -214.483278,
+    double a[] = {
+        214433.297977, 2219.609592, -134.466816, -214.483278,
         2223.041761, 211089.984971, 7529.502618, 6196.955167,
         0.000000, 1986.994854, 132427.072620, -19347.582331,
         0.000000, 0.000000, 152975.411077, 1852.144012};

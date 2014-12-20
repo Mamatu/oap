@@ -63,7 +63,7 @@ void Test_Addition1(int tc = 1) {
     math::Matrix* output = hmm.newMatrix(4, 4);
     math::MathOperationsCpu mo;
     mo.setThreadsCount(tc);
-    mo.setSubColumns(0, 2);
+    mo.setSubColumns(2);
     mo.add(output, matrix1, matrix2);
     //printf("status == %d \n", additionOperation.start());
     host::PrintReMatrix(stderr, output);
@@ -94,7 +94,7 @@ void Test_Multiplication(int tc = 1) {
     multiplicationOperation.setThreadsCount(tc);
     multiplicationOperation.setOutputMatrix(output);
     uintt a[] = {1, 2};
-    multiplicationOperation.setSubColumns(a);
+    multiplicationOperation.setSubColumns(2);
     multiplicationOperation.setMatrix1(matrix1);
     multiplicationOperation.setMatrix2(matrix2);
     multiplicationOperation.setThreadsCount(tc);
@@ -184,7 +184,7 @@ void Test_MultiplicationConst(int tc = 1) {
     floatt m2 = 2.f;
     math::Matrix* output = hmm.newReMatrix(10, 10);
     mo.setThreadsCount(tc);
-    mo.setSubColumns(3, 4);
+    //mo.setSubColumns(3, 4);
     mo.multiply(output, m1, &m2);
     mp.printReMatrix(output);
     hmm.deleteMatrix(m1);
@@ -198,8 +198,8 @@ void Test_SubMultiplication(int tc = 1) {
     math::Matrix* o = host::NewReMatrix(10, 10, 0);
     math::Matrix* m1 = host::NewReMatrix(10, 10, 1);
     math::Matrix* m2 = host::NewReMatrix(10, 10, 1);
-    mo.setSubRows(0, 1);
-    mo.setSubColumns(0, 1);
+    mo.setSubRows(1);
+    mo.setSubColumns(1);
     mo.setThreadsCount(tc);
     mo.multiply(o, m1, m2);
     host::PrintReMatrix(o);
@@ -219,10 +219,10 @@ void Test_SubMultiplication1(int tc = 1) {
     math::Matrix* m1 = host::NewReMatrix(10, 10, 1);
     math::Matrix* m2 = host::NewReMatrix(1, 10, 1);
     //while (true) {
-    mo.setSubColumns(0, 5);
-    mo.setSubRows(0, 5);
-    //mo.setSubColumns(0, 5);
-    //mo.setSubColumns(0, 1);
+    mo.setSubColumns( 5);
+    mo.setSubRows(5);
+    //mo.setSubColumns(5);
+    //mo.setSubColumns(1);
     mo.setThreadsCount(tc);
     mo.multiply(o, m1, m2);
     host::PrintReMatrix(o);
@@ -240,7 +240,7 @@ void Test_Transpose(int tc = 1) {
     math::MathOperationsCpu mo;
     math::Matrix* o = host::NewReMatrix(5, 10, 0);
     math::Matrix* m1 = host::NewReMatrix(10, 5, 1);
-    mo.setSubRows(0, 4);
+    mo.setSubRows(4);
     //mo.setSubColumns(0, 1);
     mo.setThreadsCount(tc);
     mo.transpose(o, m1);

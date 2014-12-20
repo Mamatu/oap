@@ -1,7 +1,6 @@
 #include <cuda.h>
 #include "cuda_runtime.h"
 #include "cuda_runtime_api.h" 
-#include "MatrixStructure.h"
 #include "TreePointer.h"
 #include <stdio.h>
 
@@ -355,7 +354,7 @@ extern "C" __global__ void ExecuteTM1(
     }
 }
 
-extern "C" __global__ void ExecuteTM(MatrixStructure* transferMatrix,
+extern "C" __global__ void ExecuteTM(math::Matrix* transferMatrix,
         TreePointer*** treePointers1,
         intt** tmColumns1,
         intt** tmRows1, char** tmRowsBits1,
@@ -370,8 +369,8 @@ extern "C" __global__ void ExecuteTM(MatrixStructure* transferMatrix,
     intt* tmColumns = tmColumns1[index];
     intt* tmRows = tmRows1[index];
     char* tmRowsBits = tmRowsBits1[index];
-    uintt endColumn = threadIndexX + transferMatrix->m_beginColumn;
-    uintt endRow = threadIndexY + transferMatrix->m_beginRow;
+    uintt endColumn = threadIndexX;
+    uintt endRow = threadIndexY;
     intt M2 = *M2Ptr;
     uintt nvalues = *quantumsCountPtr * *quantumsCountPtr;
 
@@ -407,7 +406,7 @@ extern "C" __global__ void ExecuteTM(MatrixStructure* transferMatrix,
                     columnsIndeciesCount / quantumsCount, quantumsCount);
             levelIndex++;
         } else if (levelIndex == M2 - 1) {
-            finish = calculate(transferMatrix->m_matrix, fa, fb,
+            finish = calculate(transferMatrix, fa, fb,
                     &levelIndex, treePointers,
                     tmColumns, tmRows,
                     upIndecies, downIndecies,

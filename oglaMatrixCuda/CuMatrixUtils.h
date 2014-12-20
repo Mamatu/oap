@@ -9,23 +9,14 @@
 #define	OGLA_CU_MATRIXUTILS_H
 
 #include "CuUtils.h"
+#include "Matrix.h"
 
 #ifndef DEBUG
-#define cuda_debug_structure(s, mo)
 #define cuda_debug_matrix(s, mo)
 #define cuda_debug(x, ...)
 #define cuda_debug_function()
 #define cuda_debug_thread(tx, ty, arg, ...)
 #else
-#define cuda_debug_structure(s, mo) \
-{\
-    if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
-        && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
-        printf("%s = \n",s);\
-        CUDA_PrintMatrixS(mo);\
-    }\
-}
-
 #define cuda_debug_matrix(s, mo) \
 {\
     if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
@@ -61,23 +52,6 @@
 }
 
 #endif
-
-extern "C" __device__ void CUDA_PrintMatrixS(MatrixStructure* ms) {
-    for (uintt fb = ms->m_beginRow;
-            fb < ms->m_beginRow + ms->m_subrows; ++fb) {
-        printf("[");
-        for (uintt fa = ms->m_beginColumn;
-                fa < ms->m_beginColumn + ms->m_subcolumns; ++fa) {
-            printf("(%f", ms->m_matrix->reValues[ms->m_beginColumn + fb * ms->m_subcolumns + fa]);
-            if (ms->m_matrix->imValues) {
-                printf(",%f", ms->m_matrix->imValues[ms->m_beginColumn + fb * ms->m_subcolumns + fa]);
-            }
-            printf(")");
-        }
-        printf("]");
-        printf("\n");
-    }
-}
 
 extern "C" __device__ void CUDA_PrintMatrix(math::Matrix* m) {
     for (uintt fb = 0; fb < m->rows; ++fb) {

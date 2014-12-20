@@ -47,7 +47,9 @@ void _memset(floatt* s, floatt value, int n) {
 math::Matrix* HostMatrixAllocator::createHostMatrix(math::Matrix* matrix,
         intt columns, intt rows, floatt* values, floatt** valuesPtr) {
     *valuesPtr = values;
+    matrix->realColumns = columns;
     matrix->columns = columns;
+    matrix->realRows = rows;
     matrix->rows = rows;
     HostMatrixAllocator::mutex.lock();
     HostMatrixAllocator::hostMatrices.push_back(matrix);
@@ -72,7 +74,9 @@ inline void HostMatrixAllocator::initMatrix(math::Matrix* matrix) {
 math::Matrix* HostMatrixAllocator::createHostReMatrix(intt columns, intt rows, floatt* values) {
     math::Matrix* matrix = new math::Matrix();
     initMatrix(matrix);
+    matrix->realColumns = columns;
     matrix->columns = columns;
+    matrix->realRows = rows;
     matrix->rows = rows;
     return createHostMatrix(matrix, columns, rows, values, &matrix->reValues);
 }
@@ -509,7 +513,9 @@ namespace host {
     math::Matrix* NewMatrix(intt columns, intt rows, floatt value) {
         math::Matrix* output = new math::Matrix();
         intt length = columns*rows;
+        output->realColumns = columns;
         output->columns = columns;
+        output->realRows = rows;
         output->rows = rows;
         output->reValues = new floatt[length];
         output->imValues = new floatt[length];
@@ -523,7 +529,9 @@ namespace host {
         intt length = columns*rows;
         output->reValues = new floatt[length];
         output->imValues = NULL;
+        output->realColumns = columns;
         output->columns = columns;
+        output->realRows = rows;
         output->rows = rows;
         fillRePart(output, value);
         return output;
@@ -532,7 +540,9 @@ namespace host {
     math::Matrix* NewImMatrix(intt columns, intt rows, floatt value) {
         math::Matrix* output = new math::Matrix();
         intt length = columns*rows;
+        output->realColumns = columns;
         output->columns = columns;
+        output->realRows = rows;
         output->rows = rows;
         output->reValues = NULL;
         output->imValues = new floatt[length];
@@ -981,4 +991,24 @@ namespace host {
         }
     }
 
+    void SetSubs(math::Matrix* matrix, uintt subcolumns, uintt subrows) {
+        SetSubColumns(matrix, subcolumns);
+        SetSubRows(matrix, subrows);
+    }
+
+    void SetSubColumns(math::Matrix* matrix, uintt subcolumns) {
+        if (subcolumns == MATH_UNDEFINED) {
+            matrix->columns = matrix->realColumns;
+        } else {
+            matrix->columns = subcolumns;
+        }
+    }
+
+    void SetSubRows(math::Matrix* matrix, uintt subrows) {
+        if (subrows == MATH_UNDEFINED) {
+            matrix->rows = matrix->realRows;
+        } else {
+            matrix->rows = subrows;
+        }
+    }
 };

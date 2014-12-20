@@ -52,6 +52,8 @@ typedef unsigned long long uintt;
 
 #define MATH_VALUE_LIMIT 0.001f
 
+#define MATH_UNDEFINED static_cast<uintt>(-1)
+
 namespace math {
     void Memset(floatt* array, floatt value, intt length);
 }

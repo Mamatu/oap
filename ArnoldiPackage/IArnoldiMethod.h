@@ -17,8 +17,7 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     public:
-        IArnoldiMethod(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils);
+        IArnoldiMethod(MatrixModule* matrixModule);
         virtual ~IArnoldiMethod();
         virtual void setHSize(uintt k) = 0;
         virtual void setRho(floatt rho) = 0;

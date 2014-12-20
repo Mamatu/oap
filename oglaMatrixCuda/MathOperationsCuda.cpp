@@ -10,7 +10,6 @@
 #include "MathOperationsCuda.h"
 #include "KernelsOperations.h"
 #include "DeviceMatrixModules.h"
-#include "DeviceMatrixStructure.h"
 
 namespace math {
 
@@ -27,49 +26,48 @@ namespace math {
     }
 
     AdditionOperationCuda::AdditionOperationCuda() :
-    math::IAdditionOperation(DeviceMatrixModules::GetInstance(),
-    DeviceMatrixStructureUtils::GetInstance()) {
+    math::IAdditionOperation(DeviceMatrixModules::GetInstance()) {
     }
 
     AdditionOperationCuda::~AdditionOperationCuda() {
     }
 
     math::Status AdditionOperationCuda::beforeExecution() {
-        MatrixStructure* output = this->m_outputStructure;
-        uintt columns = m_matrixStructureUtils->getSubColumns(output);
-        uintt rows = m_matrixStructureUtils->getSubRows(output);
+        Matrix* output = this->m_output;
+        uintt columns = m_module->getMatrixUtils()->getColumns(output);
+        uintt rows = m_module->getMatrixUtils()->getRows(output);
         m_kernel.setMatrixSizes(columns, rows);
         return IAdditionOperation::beforeExecution();
     }
 
     math::Status SubstracionOperationCuda::beforeExecution() {
-        MatrixStructure* output = this->m_outputStructure;
-        uintt columns = m_matrixStructureUtils->getSubColumns(output);
-        uintt rows = m_matrixStructureUtils->getSubRows(output);
+        Matrix* output = this->m_output;
+        uintt columns = m_module->getMatrixUtils()->getColumns(output);
+        uintt rows = m_module->getMatrixUtils()->getRows(output);
         m_kernel.setMatrixSizes(columns, rows);
         return ISubstracionOperation::beforeExecution();
     }
 
     math::Status DotProductOperationCuda::beforeExecution() {
-        MatrixStructure* output = this->m_outputStructure;
-        uintt columns = m_matrixStructureUtils->getSubColumns(output);
-        uintt rows = m_matrixStructureUtils->getSubRows(output);
+        Matrix* output = this->m_output;
+        uintt columns = m_module->getMatrixUtils()->getColumns(output);
+        uintt rows = m_module->getMatrixUtils()->getRows(output);
         m_kernel.setMatrixSizes(columns, rows);
         return IDotProductOperation::beforeExecution();
     }
 
     math::Status MultiplicationConstOperationCuda::beforeExecution() {
-        MatrixStructure* output = this->m_outputStructure;
-        uintt columns = m_matrixStructureUtils->getSubColumns(output);
-        uintt rows = m_matrixStructureUtils->getSubRows(output);
+        Matrix* output = this->m_output;
+        uintt columns = m_module->getMatrixUtils()->getColumns(output);
+        uintt rows = m_module->getMatrixUtils()->getRows(output);
         m_kernel.setMatrixSizes(columns, rows);
         return IMultiplicationConstOperation::beforeExecution();
     }
 
     void AdditionOperationCuda::execute() {
-        MatrixStructure* output = this->m_outputStructure;
-        MatrixStructure* matrix1 = this->m_matrixStructure1;
-        MatrixStructure* matrix2 = this->m_matrixStructure2;
+        Matrix* output = this->m_output;
+        Matrix* matrix1 = this->m_matrix1;
+        Matrix* matrix2 = this->m_matrix2;
         DeviceMatrixUtils dmu;
         if (this->m_executionPathRe == AdditionOperationCuda::EXECUTION_NORMAL &&
                 this->m_executionPathIm == AdditionOperationCuda::EXECUTION_NORMAL) {
@@ -83,8 +81,7 @@ namespace math {
     }
 
     SubstracionOperationCuda::SubstracionOperationCuda() :
-    math::ISubstracionOperation(DeviceMatrixModules::GetInstance(),
-    DeviceMatrixStructureUtils::GetInstance()) {
+    math::ISubstracionOperation(DeviceMatrixModules::GetInstance()) {
     }
 
     SubstracionOperationCuda::~SubstracionOperationCuda() {
@@ -92,9 +89,9 @@ namespace math {
     }
 
     void SubstracionOperationCuda::execute() {
-        MatrixStructure* output = this->m_outputStructure;
-        MatrixStructure* matrix1 = this->m_matrixStructure1;
-        MatrixStructure* matrix2 = this->m_matrixStructure2;
+        Matrix* output = this->m_output;
+        Matrix* matrix1 = this->m_matrix1;
+        Matrix* matrix2 = this->m_matrix2;
         if (this->m_executionPathRe == SubstracionOperationCuda::EXECUTION_NORMAL &&
                 this->m_executionPathIm == SubstracionOperationCuda::EXECUTION_NORMAL) {
             m_kernelOperations.substractDeviceMatrices(output, matrix1, matrix2, m_kernel);
@@ -106,17 +103,16 @@ namespace math {
     }
 
     DotProductOperationCuda::DotProductOperationCuda() :
-    math::IDotProductOperation(DeviceMatrixModules::GetInstance(),
-    DeviceMatrixStructureUtils::GetInstance()) {
+    math::IDotProductOperation(DeviceMatrixModules::GetInstance()) {
     }
 
     DotProductOperationCuda::~DotProductOperationCuda() {
     }
 
     void DotProductOperationCuda::execute() {
-        MatrixStructure* output = this->m_outputStructure;
-        MatrixStructure* matrix1 = this->m_matrixStructure1;
-        MatrixStructure* matrix2 = this->m_matrixStructure2;
+        Matrix* output = this->m_output;
+        Matrix* matrix1 = this->m_matrix1;
+        Matrix* matrix2 = this->m_matrix2;
         if (this->m_executionPathRe == DotProductOperationCuda::EXECUTION_NORMAL &&
                 this->m_executionPathIm == DotProductOperationCuda::EXECUTION_NORMAL) {
             m_kernelOperation.dotProductDeviceMatrices(output, matrix1, matrix2, m_kernel);
@@ -128,8 +124,7 @@ namespace math {
     }
 
     MultiplicationConstOperationCuda::MultiplicationConstOperationCuda() :
-    math::IMultiplicationConstOperation(DeviceMatrixModules::GetInstance(),
-    DeviceMatrixStructureUtils::GetInstance()) {
+    math::IMultiplicationConstOperation(DeviceMatrixModules::GetInstance()) {
     }
 
     MultiplicationConstOperationCuda::~MultiplicationConstOperationCuda() {
@@ -137,8 +132,8 @@ namespace math {
     }
 
     void MultiplicationConstOperationCuda::execute() {
-        MatrixStructure* output = this->m_outputStructure;
-        MatrixStructure* matrix = this->m_matrixStructure;
+        Matrix* output = this->m_output;
+        Matrix* matrix = this->m_matrix;
         floatt* value = this->m_revalue;
         if (this->m_executionPathRe == MultiplicationConstOperationCuda::EXECUTION_NORMAL &&
                 this->m_executionPathIm == MultiplicationConstOperationCuda::EXECUTION_NORMAL) {
@@ -151,8 +146,7 @@ namespace math {
     }
 
     ExpOperationCuda::ExpOperationCuda() :
-    math::IExpOperation(DeviceMatrixModules::GetInstance(),
-    DeviceMatrixStructureUtils::GetInstance()) {
+    math::IExpOperation(DeviceMatrixModules::GetInstance()) {
     }
 
     ExpOperationCuda::~ExpOperationCuda() {
@@ -166,8 +160,7 @@ namespace math {
     }
 
     DiagonalizationOperationCuda::DiagonalizationOperationCuda() :
-    math::IDiagonalizationOperation(DeviceMatrixModules::GetInstance(),
-    DeviceMatrixStructureUtils::GetInstance()) {
+    math::IDiagonalizationOperation(DeviceMatrixModules::GetInstance()) {
     }
 
     DiagonalizationOperationCuda::~DiagonalizationOperationCuda() {

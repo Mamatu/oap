@@ -1,22 +1,22 @@
 #include "MathOperationsCpu.h"        
 #include "Internal.h"        
-#include "HostMatrixStructure.h"        
+
 namespace math {
 
     void AdditionOperationCpu::execute() {
         uintt threadsCount = utils::mapper::createThreadsMap(getBMap(),
                 this->m_threadsCount,
-                m_outputStructure->m_subcolumns,
-                m_outputStructure->m_subrows);
+                m_output->columns,
+                m_output->rows);
         ThreadData<AdditionOperationCpu>* threads = m_threadData;
         utils::mapper::ThreadsMap<uintt> map;
         for (uintt fa = 0; fa < threadsCount; fa++) {
-            threads[fa].outputs[0] = this->m_outputStructure;
-            threads[fa].params[0] = this->m_matrixStructure1;
-            threads[fa].params[1] = this->m_matrixStructure2;
+            threads[fa].outputs[0] = this->m_output;
+            threads[fa].params[0] = this->m_matrix1;
+            threads[fa].params[1] = this->m_matrix2;
             threads[fa].thiz = this;
             utils::mapper::getThreadsMap(map, getBMap(), fa);
-            threads[fa].calculateRanges(m_outputStructure, map);
+            threads[fa].calculateRanges(m_output, map);
             threads[fa].thread.setFunction(AdditionOperationCpu::Execute, &threads[fa]);
             threads[fa].thread.run((this->m_threadsCount == 1));
         }
@@ -38,30 +38,30 @@ namespace math {
             for (intt fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->m_matrix->reValues[index] =
-                            threadData->params[0]->m_matrix->reValues[index] +
-                            threadData->params[1]->m_matrix->reValues[index];
-                    threadData->outputs[0]->m_matrix->imValues[index] =
-                            threadData->params[0]->m_matrix->imValues[index] +
-                            threadData->params[1]->m_matrix->imValues[index];
+                    threadData->outputs[0]->reValues[index] =
+                            threadData->params[0]->reValues[index] +
+                            threadData->params[1]->reValues[index];
+                    threadData->outputs[0]->imValues[index] =
+                            threadData->params[0]->imValues[index] +
+                            threadData->params[1]->imValues[index];
                 }
             }
         } else if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL) {
             for (intt fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->m_matrix->reValues[index] =
-                            threadData->params[0]->m_matrix->reValues[index] +
-                            threadData->params[1]->m_matrix->reValues[index];
+                    threadData->outputs[0]->reValues[index] =
+                            threadData->params[0]->reValues[index] +
+                            threadData->params[1]->reValues[index];
                 }
             }
         } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
             for (intt fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->m_matrix->imValues[index] =
-                            threadData->params[0]->m_matrix->imValues[index] +
-                            threadData->params[1]->m_matrix->imValues[index];
+                    threadData->outputs[0]->imValues[index] =
+                            threadData->params[0]->imValues[index] +
+                            threadData->params[1]->imValues[index];
                 }
             }
         }
@@ -69,7 +69,7 @@ namespace math {
             for (intt fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->m_matrix->reValues[index] = 0;
+                    threadData->outputs[0]->reValues[index] = 0;
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace math {
             for (intt fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->m_matrix->imValues[index] = 0;
+                    threadData->outputs[0]->imValues[index] = 0;
                 }
             }
         }

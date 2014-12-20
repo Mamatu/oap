@@ -7,17 +7,18 @@ namespace math {
         uintt* bmap = utils::mapper::allocMap(this->m_threadsCount);
         uintt threadsCount = utils::mapper::createThreadsMap(bmap,
                 this->m_threadsCount,
-                m_outputStructure->m_matrix->columns,
-                m_outputStructure->m_matrix->rows);
+                m_output->columns,
+                m_output->rows);
         ThreadData<TensorProductOperationCpu>* threads =
                 new ThreadData<TensorProductOperationCpu>[threadsCount];
         for (uintt fa = 0; fa < threadsCount; fa++) {
-            threads[fa].outputs[0] = m_outputStructure;
-            threads[fa].params[0] = m_matrixStructure1;
-            threads[fa].params[1] = m_matrixStructure2;
-            threads[fa].calculateRanges(m_outputStructure, bmap, fa);
+            threads[fa].outputs[0] = m_output;
+            threads[fa].params[0] = m_matrix1;
+            threads[fa].params[1] = m_matrix2;
+            threads[fa].calculateRanges(m_output, bmap, fa);
             threads[fa].thiz = this;
-            threads[fa].thread.setFunction(TensorProductOperationCpu::Execute, &threads[fa]);
+            threads[fa].thread.setFunction(TensorProductOperationCpu::Execute,
+                    &threads[fa]);
             threads[fa].thread.run((this->m_threadsCount == 1));
         }
         for (uintt fa = 0; fa < threadsCount; fa++) {
@@ -34,11 +35,11 @@ namespace math {
         int end1 = threadData->ends[0];
         int begin2 = threadData->begins[1];
         int end2 = threadData->ends[1];
-        const intt columns = threadData->outputs[0]->m_matrix->columns;
-        const intt columns1 = threadData->params[0]->m_matrix->columns;
-        const intt columns2 = threadData->params[1]->m_matrix->columns;
-        const intt c1 = threadData->params[0]->m_matrix->columns;
-        const intt c2 = threadData->params[1]->m_matrix->columns;
+        const intt columns = threadData->outputs[0]->columns;
+        const intt columns1 = threadData->params[0]->columns;
+        const intt columns2 = threadData->params[1]->columns;
+        const intt c1 = threadData->params[0]->columns;
+        const intt c2 = threadData->params[1]->columns;
         if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL &&
                 threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
             for (intt fa = begin1; fa < end1; fa++) {
@@ -50,16 +51,16 @@ namespace math {
                     int index2 = (fa + columns * fb);
                     int index1 = (fa1 + columns1 * fb1);
                     int index = (fa2 + columns2 * fb2);
-                    threadData->outputs[0]->m_matrix->reValues[index2] =
-                            threadData->params[0]->m_matrix->reValues[index] *
-                            threadData->params[1]->m_matrix->reValues[index1] -
-                            threadData->params[0]->m_matrix->imValues[index] *
-                            threadData->params[1]->m_matrix->imValues[index1];
-                    threadData->outputs[0]->m_matrix->imValues[index2] =
-                            threadData->params[0]->m_matrix->reValues[index] *
-                            threadData->params[1]->m_matrix->imValues[index1] -
-                            threadData->params[0]->m_matrix->imValues[index] *
-                            threadData->params[1]->m_matrix->reValues[index1];
+                    threadData->outputs[0]->reValues[index2] =
+                            threadData->params[0]->reValues[index] *
+                            threadData->params[1]->reValues[index1] -
+                            threadData->params[0]->imValues[index] *
+                            threadData->params[1]->imValues[index1];
+                    threadData->outputs[0]->imValues[index2] =
+                            threadData->params[0]->reValues[index] *
+                            threadData->params[1]->imValues[index1] -
+                            threadData->params[0]->imValues[index] *
+                            threadData->params[1]->reValues[index1];
                 }
             }
         } else if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL) {
@@ -72,9 +73,9 @@ namespace math {
                     int index2 = (fa + columns * fb);
                     int index1 = (fa1 + columns1 * fb1);
                     int index = (fa2 + columns2 * fb2);
-                    threadData->outputs[0]->m_matrix->reValues[index2] =
-                            threadData->params[0]->m_matrix->reValues[index] *
-                            threadData->params[1]->m_matrix->reValues[index1];
+                    threadData->outputs[0]->reValues[index2] =
+                            threadData->params[0]->reValues[index] *
+                            threadData->params[1]->reValues[index1];
                 }
             }
         } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
@@ -87,9 +88,9 @@ namespace math {
                     int index2 = (fa + columns * fb);
                     int index1 = (fa1 + columns1 * fb1);
                     int index = (fa2 + columns2 * fb2);
-                    threadData->outputs[0]->m_matrix->reValues[index2] =
-                            -threadData->params[0]->m_matrix->imValues[index] *
-                            threadData->params[1]->m_matrix->imValues[index1];
+                    threadData->outputs[0]->reValues[index2] =
+                            -threadData->params[0]->imValues[index] *
+                            threadData->params[1]->imValues[index1];
                 }
             }
         }

@@ -204,6 +204,11 @@ namespace host {
 
     void LoadMatrix(math::Matrix* matrix,
             const char* repath, const char* impath, uintt skipCount);
+
+    void SetSubs(math::Matrix* matrix, uintt subcolumns, uintt subrows);
+    void SetSubColumns(math::Matrix* matrix, uintt subcolumns);
+    void SetSubRows(math::Matrix* matrix, uintt subrows);
+    
 };
 
 

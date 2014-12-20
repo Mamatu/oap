@@ -8,7 +8,6 @@
 #ifndef OGLA_VIRTUALTRANSFER_MATRIX_CUDA_H
 #define	OGLA_VIRTUALTRANSFER_MATRIX_CUDA_H
 
-#include "MatrixStructure.h"
 #include "TransferMatrix.h"
 #include "DeviceTreePointerCreator.h"
 #include "KernelExecutor.h"
@@ -48,7 +47,7 @@ namespace ShibataCuda {
         intt* dquantumsCount;
         intt* dM2;
         intt* dwidth;
-        MatrixStructure* m_outputStructure;
+        math::Matrix* m_output;
         std::vector<Pointers> vpointers;
         std::vector<TreePointer*> treePointersVec;
         HostMatrixUtils hmu;

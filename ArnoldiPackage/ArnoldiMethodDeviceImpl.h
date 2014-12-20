@@ -19,10 +19,8 @@ namespace math {
         floatt diff;
 
         class MatrixData {
-            MatrixStructure* m_matrixStructure;
         public:
             math::Matrix* m_matrix;
-            MatrixStructure** getMatrixStructurePointer();
             MatrixData();
             void alloc(math::Matrix* A, intt columns, intt rows, ArnoldiMethodGpu* thiz);
             void dealloc(ArnoldiMethodGpu* thiz);
@@ -94,7 +92,6 @@ namespace math {
     public:
         ArnoldiMethodGpu(math::MathOperationsCuda* mathOperations);
         ArnoldiMethodGpu(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils,
                 math::MathOperationsCuda* mathOperations);
         virtual ~ArnoldiMethodGpu();
         void setHSize(uintt k);

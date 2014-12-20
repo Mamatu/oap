@@ -15,6 +15,8 @@ namespace math {
      * Columns orientation 
      */
     struct Matrix {
+        uintt realColumns;
+        uintt realRows;
         floatt* reValues;
         floatt* imValues;
         uintt columns;

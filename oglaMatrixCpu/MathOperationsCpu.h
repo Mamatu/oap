@@ -167,8 +167,8 @@ namespace math {
         TransposeOperationCpu m_transposeOperation;
         DeterminantOperationCpu m_determinantOperation;
         QRDecompositionCpu m_qrDecomposition;
-        uintt m_subcolumns[2];
-        uintt m_subrows[2];
+        uintt m_subcolumns;
+        uintt m_subrows;
         void registerMathOperation(IMathOperation* mathOperation);
         void registerThreadsCountProperty(IMathOperation* mathOperation);
         std::vector<IMathOperation*> operations;
@@ -202,8 +202,8 @@ namespace math {
         void registerValueName(void* value, const std::string& name);
         void setThreadsCount(int threadsCount);
         void setSerieLimit(int serieLimit);
-        void setSubRows(intt begin, intt end);
-        void setSubColumns(intt begin, intt end);
+        void setSubRows(intt subrows);
+        void setSubColumns(intt subcolumns);
         void unsetSubRows();
         void unsetSubColumns();
         math::Status add(math::Matrix* output,

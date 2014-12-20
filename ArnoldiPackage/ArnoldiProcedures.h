@@ -12,11 +12,13 @@
 
 /**
  * 
- * @param params
+ * @param params 9 matrices, where 1. H matrix 2. Q matrix, 3. R matrix. Rest is auxaliary matrix.
  * @param kernel
  * @param image
  */
-void CUDAKernel_CalculateHQ(void** params, ::cuda::Kernel& kernel, void* image);
+void CuProcedure_CalculateTriangularH(void** params, ::cuda::Kernel& kernel, void* image);
+
+void CuProcedure_CalculateH(void** params, ::cuda::Kernel& kernel, void* image);
 
 #endif	/* CUPROCEDURES_H */
 

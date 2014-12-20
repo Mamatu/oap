@@ -2,7 +2,6 @@
 #define	OGLA_INTERNAL_TYPES_H
 #include "MathOperations.h"
 #include "ThreadsMapper.h"
-#include "HostMatrixStructure.h"
 
 #define MAX_OUTPUTS_NUMBER 2
 #define MAX_PARAMS_NUMBER 2
@@ -22,29 +21,27 @@ public:
         memset(ends, 0, MAX_ENDS_NUMBER * sizeof (int));
     }
 
-    void calculateRanges(const MatrixStructure* outputStructure, uintt* bmap,
+    void calculateRanges(const math::Matrix* output, uintt* bmap,
             uintt fa) {
         utils::mapper::ThreadsMap<uintt> tm;
         utils::mapper::getThreadsMap(tm, bmap, fa);
-        calculateRanges(outputStructure, tm);
+        calculateRanges(output, tm);
     }
 
-    void calculateRanges(const MatrixStructure* outputStructure,
+    void calculateRanges(const math::Matrix* output,
             utils::mapper::ThreadsMap<uintt>& map) {
-        begins[0] = outputStructure->m_beginColumn + map.beginColumn;
-        begins[1] = outputStructure->m_beginRow + map.beginRow;
-        ends[0] = outputStructure->m_beginColumn + map.endColumn;
-        ends[1] = outputStructure->m_beginRow + map.endRow;
+        begins[0] = map.beginColumn;
+        begins[1] = map.beginRow;
+        ends[0] = map.endColumn;
+        ends[1] = map.endRow;
         offset = ends[0] - begins[0];
     }
 
-
-    void* m_userDataPtr;
     utils::Thread thread;
+    void* m_userDataPtr;
     int index;
-    MatrixStructureUtils* matrixStructureUtils;
-    MatrixStructure* outputs[MAX_OUTPUTS_NUMBER];
-    MatrixStructure* params[MAX_PARAMS_NUMBER];
+    math::Matrix* outputs[MAX_OUTPUTS_NUMBER];
+    math::Matrix* params[MAX_PARAMS_NUMBER];
     floatt* valuesPtr[MAX_VALUES_NUMBER];
     Complex* complexPtr[MAX_VALUES_NUMBER];
     floatt values[MAX_VALUES_NUMBER];

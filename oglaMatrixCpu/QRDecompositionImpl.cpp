@@ -1,5 +1,4 @@
 #include "MathOperationsCpu.h"
-#include "HostMatrixStructure.h"
 #include "Internal.h"
 #include <math.h>
 namespace math {
@@ -56,9 +55,9 @@ namespace math {
     void QRDecompositionCpu::execute() {
         dotProduct.setThreadsCount(this->m_threadsCount);
         transpose.setThreadsCount(this->m_threadsCount);
-        math::Matrix* A = this->m_matrixStructure->m_matrix;
-        math::Matrix* Q = this->m_outputStructure1->m_matrix;
-        math::Matrix* R = this->m_outputStructure2->m_matrix;
+        math::Matrix* A = this->m_matrix;
+        math::Matrix* Q = this->m_output1;
+        math::Matrix* R = this->m_output2;
 
         math::Matrix* tR1 = NULL;
         math::Matrix* tQ1 = NULL;
@@ -117,19 +116,18 @@ namespace math {
                 }
             }
         }
-        if (this->m_outputStructure1->m_matrix != m_Q1) {
-            host::CopyMatrix(this->m_outputStructure1->m_matrix, m_Q1);
+        if (this->m_output1 != m_Q1) {
+            host::CopyMatrix(this->m_output1, m_Q1);
         }
-        if (this->m_outputStructure2->m_matrix != m_R1) {
-            host::CopyMatrix(this->m_outputStructure2->m_matrix, m_R1);
+        if (this->m_output2 != m_R1) {
+            host::CopyMatrix(this->m_output2, m_R1);
         }
         m_R1 = tR1;
         m_Q1 = tQ1;
     }
 
     QRDecompositionCpu::QRDecompositionCpu() :
-    IQRDecomposition(HostMatrixModules::GetInstance(),
-    HostMatrixStructureUtils::GetInstance()),
+    IQRDecomposition(HostMatrixModules::GetInstance()),
     m_R1(NULL), m_Q1(NULL), m_G(NULL), m_GT(NULL) {
     }
 

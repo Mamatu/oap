@@ -1,16 +1,18 @@
-#include "MathOperations.h"        
+#include "MathOperations.h"
+#include "HostMatrixModules.h"        
 namespace math {
 
     Status IMultiplicationConstOperation::beforeExecution() {
         Status status = MatrixValueOperation::beforeExecution();
         if (status == STATUS_OK) {
-            status = this->prepare(this->m_output, this->m_matrix, this->m_revalue, CopyRe, IsRe, m_executionPathRe);
+            status = this->prepare(this->m_output, this->m_matrix,
+                    this->m_revalue, CopyRe, IsRe, m_executionPathRe);
             if (status == STATUS_OK) {
-                status = this->prepare(this->m_output, this->m_matrix, this->m_revalue, CopyIm, IsIm, m_executionPathIm);
+                status = this->prepare(this->m_output, this->m_matrix,
+                        this->m_revalue, CopyIm, IsIm, m_executionPathIm);
             }
         }
-        m_matrixStructureUtils->setSub(this->m_outputStructure,
-                this->m_subcolumns, this->m_subrows);
+        host::SetSubs(m_output, m_subcolumns, m_subrows);
         return status;
     }
 

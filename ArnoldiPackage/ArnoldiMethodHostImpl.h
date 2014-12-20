@@ -86,7 +86,6 @@ namespace math {
     public:
         ArnoldiMethodCpu(math::MathOperationsCpu* mathOperations);
         ArnoldiMethodCpu(MatrixModule* matrixModule,
-                MatrixStructureUtils* matrixStructureUtils,
                 math::MathOperationsCpu* mathOperations);
         virtual ~ArnoldiMethodCpu();
         void setHSize(uintt k);

@@ -1,11 +1,11 @@
-#include "MathOperations.h"        
+#include "MathOperations.h"
+#include "HostMatrixModules.h"        
 namespace math {
 
     Status ITransposeOperation::beforeExecution() {
         Status status = MatrixOperationOutputMatrix::beforeExecution();
         if (status == STATUS_OK) {
-            m_matrixStructureUtils->setSub(m_outputStructure,
-                    m_subcolumns, m_subrows);
+            host::SetSubs(m_output, m_subcolumns, m_subrows);
             if (m_output != m_matrix) {
                 if (m_module->getMatrixUtils()->isMatrix(m_output) &&
                         m_module->getMatrixUtils()->isMatrix(m_matrix)) {

@@ -1,4 +1,5 @@
-#include "MathOperations.h"        
+#include "MathOperations.h"
+#include "HostMatrixModules.h"        
 namespace math {
 
     Status ISubstracionOperation::beforeExecution() {
@@ -10,10 +11,7 @@ namespace math {
                 status = this->beforeExecution(this->m_output, this->m_matrix1,
                         this->m_matrix2, CopyIm, IsIm, m_executionPathIm);
                 if (status == STATUS_OK) {
-                    m_matrixStructureUtils->setSubColumns(m_outputStructure,
-                            this->m_subcolumns);
-                    m_matrixStructureUtils->setSubRows(m_outputStructure,
-                            this->m_subrows);
+                    host::SetSubs(m_output, m_subcolumns, m_subrows);
                 }
             }
         }

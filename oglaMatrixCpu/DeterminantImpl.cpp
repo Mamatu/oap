@@ -4,10 +4,9 @@ namespace math {
 
     DeterminantOperationCpu::DeterminantOperationCpu() :
     math::IDeterminantOperation(
-    HostMatrixModules::GetInstance(),
-    HostMatrixStructureUtils::GetInstance()),
+    HostMatrixModules::GetInstance()),
     m_q(NULL), m_r(NULL) {
-
+        // not implemented
     }
 
     DeterminantOperationCpu::~DeterminantOperationCpu() {
@@ -20,20 +19,19 @@ namespace math {
     math::Status DeterminantOperationCpu::beforeExecution() {
         math::Status status = IDeterminantOperation::beforeExecution();
         if (status == math::STATUS_OK) {
-            if (m_matrixStructure->m_matrix->rows !=
-                    m_matrixStructure->m_matrix->columns) {
+            if (m_matrix->rows != m_matrix->columns) {
                 status = math::STATUS_NOT_SUPPORTED_SUBMATRIX;
             } else {
-                if (m_q != NULL && (m_q->rows != m_matrixStructure->m_matrix->rows ||
-                        m_q->columns != m_matrixStructure->m_matrix->columns)) {
+                if (m_q != NULL && (m_q->rows != m_matrix->rows ||
+                        m_q->columns != m_matrix->columns)) {
                     m_module->getMatrixAllocator()->deleteMatrix(m_q);
                     m_module->getMatrixAllocator()->deleteMatrix(m_r);
                     m_q = NULL;
                     m_r = NULL;
                 }
                 if (m_q == NULL) {
-                    m_q = m_module->newMatrix(m_matrixStructure->m_matrix);
-                    m_r = m_module->newMatrix(m_matrixStructure->m_matrix);
+                    m_q = m_module->newMatrix(m_matrix);
+                    m_r = m_module->newMatrix(m_matrix);
                 }
             }
         }

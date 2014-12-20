@@ -9,9 +9,8 @@
 
 namespace math {
 
-    IArnoldiMethod::IArnoldiMethod(MatrixModule* matrixModule,
-            MatrixStructureUtils* matrixStructureUtils) :
-    MatrixOperationOutputValues(matrixModule, matrixStructureUtils) {
+    IArnoldiMethod::IArnoldiMethod(MatrixModule* matrixModule) :
+    MatrixOperationOutputValues(matrixModule) {
     }
 
     IArnoldiMethod::~IArnoldiMethod() {

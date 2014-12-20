@@ -65,106 +65,106 @@ namespace math {
         ::cuda::Kernel::FreeImage(this->m_image);
     }
 
-    void KernelsOperations::dotProductDeviceMatrices(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::dotProductDeviceMatrices(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("DotProductKernelReIm", params, kernel);
     }
 
-    void KernelsOperations::dotProductDeviceReMatrices(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::dotProductDeviceReMatrices(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("DotProductKernelRe", params, kernel);
     }
 
-    void KernelsOperations::dotProductDeviceImMatrices(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::dotProductDeviceImMatrices(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("DotProductKernelIm", params, kernel);
     }
 
-    void KernelsOperations::addDeviceMatrices(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::addDeviceMatrices(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("AddKernelReIm", params, kernel);
     }
 
-    void KernelsOperations::addDeviceReMatrices(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::addDeviceReMatrices(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("AddKernelRe", params, kernel);
     }
 
-    void KernelsOperations::addDeviceImMatrices(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::addDeviceImMatrices(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("AddKernelIm", params, kernel);
     }
 
-    void KernelsOperations::substractDeviceMatrices(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::substractDeviceMatrices(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("SubstractKernel", params, kernel);
     }
 
-    void KernelsOperations::substractDeviceReMatrices(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::substractDeviceReMatrices(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("SubstractKernelRe", params, kernel);
     }
 
-    void KernelsOperations::substractDeviceImMatrices(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::substractDeviceImMatrices(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("SubstractKernelIm", params, kernel);
     }
 
-    void KernelsOperations::multiplyConstantDeviceMatrix(MatrixStructure* output,
-            MatrixStructure* matrix1, floatt* value, ::cuda::Kernel& kernel) {
+    void KernelsOperations::multiplyConstantDeviceMatrix(Matrix* output,
+            Matrix* matrix1, floatt* value, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &value};
         executeKernel("MultiplyConstantKernelReIm", params, kernel);
     }
 
-    void KernelsOperations::multiplyConstantDeviceReMatrix(MatrixStructure* output,
-            MatrixStructure* matrix1, floatt* value, ::cuda::Kernel& kernel) {
+    void KernelsOperations::multiplyConstantDeviceReMatrix(Matrix* output,
+            Matrix* matrix1, floatt* value, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &value};
         executeKernel("MultiplyConstantKernelRe", params, kernel);
     }
 
-    void KernelsOperations::multiplyConstantDeviceImMatrix(MatrixStructure* output,
-            MatrixStructure* matrix1, floatt* value, ::cuda::Kernel& kernel) {
+    void KernelsOperations::multiplyConstantDeviceImMatrix(Matrix* output,
+            Matrix* matrix1, floatt* value, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &value};
         executeKernel("MultiplyConstantKernelIm", params, kernel);
     }
 
-    void KernelsOperations::expDeviceMatrix(MatrixStructure* output,
-            MatrixStructure* matrix1, ::cuda::Kernel& kernel) {
+    void KernelsOperations::expDeviceMatrix(Matrix* output,
+            Matrix* matrix1, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1};
         executeKernel("ExpKernel", params, kernel);
     }
 
-    void KernelsOperations::diagonalizeDeviceMatrix(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::diagonalizeDeviceMatrix(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("DiagonalizationKernel", params, kernel);
     }
 
-    void KernelsOperations::tensorProductDeviceMatrix(MatrixStructure* output,
-            MatrixStructure* matrix1, MatrixStructure* matrix2, ::cuda::Kernel& kernel) {
+    void KernelsOperations::tensorProductDeviceMatrix(Matrix* output,
+            Matrix* matrix1, Matrix* matrix2, ::cuda::Kernel& kernel) {
         CONTROL_CRITICALS();
         void* params[] = {&output, &matrix1, &matrix2};
         executeKernel("TensorProductKernel", params, kernel);

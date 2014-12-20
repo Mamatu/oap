@@ -26,7 +26,7 @@ typedef unsigned int handle;
 
 #define debug(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(stderr, "\n");
 
-#define debugAssert(x, ...) if(false == x) { fprintf(STREAM, "%s %s : %d  \n", __FUNCTION__,__FILE__,__LINE__); } assert(x); fprintf(stderr, "\n");
+#define debugAssert(x) assert(x);
 
 #define debugError(x, ...) fprintf(stderr, x, ##__VA_ARGS__); fprintf(stderr, "\n");
 
@@ -41,7 +41,7 @@ typedef unsigned int handle;
 
 #define debug( x, ...) 
 
-#define debugAssert(x, ...)
+#define debugAssert(x)
 
 #define debugError(x, ...)
 

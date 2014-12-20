@@ -76,12 +76,11 @@ namespace math {
     });
 
 #define CLASS_INITIALIZATOR(class_name, base_class_name)\
-        class_name::class_name(MatrixModule* _matrixModule,\
-            MatrixStructureUtils* _matrixStructureUtils): \
-                base_class_name(_matrixModule, _matrixStructureUtils) {\
-        }\
-        class_name::~class_name() {\
-        }\
+class_name::class_name(MatrixModule* _matrixModule): \
+        base_class_name(_matrixModule) {\
+}\
+class_name::~class_name() {\
+}\
 
 
     CLASS_INITIALIZATOR(IAdditionOperation, TwoMatricesOperations);
@@ -96,36 +95,36 @@ namespace math {
     CLASS_INITIALIZATOR(IDeterminantOperation, MatrixOperationOutputValue);
     CLASS_INITIALIZATOR(IQRDecomposition, MatrixOperationTwoOutputs);
 
-    void IMathOperation::setSubRows(uintt subrows[2]) {
-        this->m_subrows[0] = subrows[0];
-        this->m_subrows[1] = subrows[1];
+    void IMathOperation::setSubRows(uintt subrows) {
+        this->m_subrows = subrows;
     }
 
-    void IMathOperation::setSubColumns(uintt subcolumns[2]) {
-        this->m_subcolumns[0] = subcolumns[0];
-        this->m_subcolumns[1] = subcolumns[1];
+    void IMathOperation::setSubColumns(uintt subcolumns) {
+        this->m_subcolumns = subcolumns;
     }
 
     void IMathOperation::unsetSubRows() {
-        this->m_subrows[0] = 0;
-        this->m_subrows[1] = 0;
+        this->m_subrows = MATH_UNDEFINED;
     }
 
     void IMathOperation::unsetSubColumns() {
-        this->m_subcolumns[0] = 0;
-        this->m_subcolumns[1] = 0;
+        this->m_subcolumns = MATH_UNDEFINED;
     }
 
-    bool IMathOperation::CopyIm(math::Matrix* dst, math::Matrix* src, MatrixCopier* matrixCopier, IMathOperation *thiz) {
-        if (thiz->m_subcolumns[0] == -1 && thiz->m_subrows[0] == -1) {
+    bool IMathOperation::CopyIm(math::Matrix* dst, math::Matrix* src,
+            MatrixCopier* matrixCopier, IMathOperation *thiz) {
+        if (thiz->m_subcolumns == MATH_UNDEFINED &&
+                thiz->m_subrows == MATH_UNDEFINED) {
             matrixCopier->copyImMatrixToImMatrix(dst, src);
         }
         bool b = !matrixCopier->isError();
         return b;
     }
 
-    bool IMathOperation::CopyRe(math::Matrix* dst, math::Matrix* src, MatrixCopier* matrixCopier, IMathOperation *thiz) {
-        if (thiz->m_subcolumns[0] == -1 && thiz->m_subrows[0] == -1) {
+    bool IMathOperation::CopyRe(math::Matrix* dst, math::Matrix* src,
+            MatrixCopier* matrixCopier, IMathOperation *thiz) {
+        if (thiz->m_subcolumns == MATH_UNDEFINED &&
+                thiz->m_subrows == MATH_UNDEFINED) {
             matrixCopier->copyReMatrixToReMatrix(dst, src);
         }
         bool b = !matrixCopier->isError();
@@ -140,14 +139,10 @@ namespace math {
         return matrixUtils->isReMatrix(matrix);
     }
 
-    IMathOperation::IMathOperation(MatrixModule* _matrixModule,
-            MatrixStructureUtils* _matrixStructureUtils) :
-    m_module(_matrixModule),
-    m_matrixStructureUtils(_matrixStructureUtils) {
-        m_subrows[0] = -1;
-        m_subrows[1] = -1;
-        m_subcolumns[0] = -1;
-        m_subcolumns[1] = -1;
+    IMathOperation::IMathOperation(MatrixModule* _matrixModule) :
+    m_module(_matrixModule) {
+        m_subrows = static_cast<uintt> (-1);
+        m_subcolumns = 0;
     }
 
     IMathOperation::~IMathOperation() {
@@ -162,135 +157,90 @@ namespace math {
         return status;
     }
 
-    TwoMatricesOperations::TwoMatricesOperations(MatrixModule* _matrixModule,
-            MatrixStructureUtils* _matrixStructureUtils) :
-    IMathOperation(_matrixModule, _matrixStructureUtils) {
+    TwoMatricesOperations::TwoMatricesOperations(MatrixModule* _matrixModule) :
+    IMathOperation(_matrixModule) {
         this->m_matrix1 = NULL;
         this->m_matrix2 = NULL;
         this->m_output = NULL;
-        m_matrixStructure1 = m_matrixStructureUtils->newMatrixStructure();
-        m_matrixStructure2 = m_matrixStructureUtils->newMatrixStructure();
-        m_outputStructure = m_matrixStructureUtils->newMatrixStructure();
     }
 
     TwoMatricesOperations::~TwoMatricesOperations() {
-        this->m_matrix1 = NULL;
-        this->m_matrix2 = NULL;
-        this->m_output = NULL;
-        m_matrixStructureUtils->deleteMatrixStructure(m_matrixStructure1);
-        m_matrixStructureUtils->deleteMatrixStructure(m_matrixStructure2);
-        m_matrixStructureUtils->deleteMatrixStructure(m_outputStructure);
+        // not implemented
     }
 
-    MatrixValueOperation::MatrixValueOperation(MatrixModule* _matrixModule,
-            MatrixStructureUtils* _matrixStructureUtils) :
-    IMathOperation(_matrixModule, _matrixStructureUtils) {
+    MatrixValueOperation::MatrixValueOperation(MatrixModule* _matrixModule) :
+    IMathOperation(_matrixModule) {
         this->m_matrix = NULL;
         this->m_output = NULL;
         this->m_revalue = NULL;
         this->m_imvalue = NULL;
-        m_matrixStructure = m_matrixStructureUtils->newMatrixStructure();
-        m_outputStructure = m_matrixStructureUtils->newMatrixStructure();
     }
 
     MatrixValueOperation::~MatrixValueOperation() {
-        this->m_matrix = NULL;
-        this->m_output = NULL;
-        m_matrixStructureUtils->deleteMatrixStructure(m_matrixStructure);
-        m_matrixStructureUtils->deleteMatrixStructure(m_outputStructure);
+        // not implemented
     }
 
-    MatrixOperationOutputMatrix::MatrixOperationOutputMatrix(MatrixModule* _matrixModule,
-            MatrixStructureUtils* _matrixStructureUtils) :
-    IMathOperation(_matrixModule, _matrixStructureUtils) {
+    MatrixOperationOutputMatrix::MatrixOperationOutputMatrix(
+            MatrixModule* _matrixModule) :
+    IMathOperation(_matrixModule) {
         this->m_matrix = NULL;
         this->m_output = NULL;
-        m_matrixStructure = m_matrixStructureUtils->newMatrixStructure();
-        m_outputStructure = m_matrixStructureUtils->newMatrixStructure();
     }
 
     MatrixOperationOutputMatrix::~MatrixOperationOutputMatrix() {
-        this->m_matrix = NULL;
-        this->m_output = NULL;
-        m_matrixStructureUtils->deleteMatrixStructure(m_matrixStructure);
-        m_matrixStructureUtils->deleteMatrixStructure(m_outputStructure);
+        // not implemented
     }
 
     MatrixOperationOutputValue::MatrixOperationOutputValue(
-            MatrixModule* _matrixModule,
-            MatrixStructureUtils* _matrixStructureUtils) :
-    IMathOperation(_matrixModule, _matrixStructureUtils) {
+            MatrixModule* _matrixModule) :
+    IMathOperation(_matrixModule) {
         this->m_matrix = NULL;
         this->m_output1 = 0;
-        m_matrixStructure = m_matrixStructureUtils->newMatrixStructure();
     }
 
     MatrixOperationOutputValue::~MatrixOperationOutputValue() {
-        this->m_matrix = NULL;
-        this->m_output1 = 0;
-        m_matrixStructureUtils->deleteMatrixStructure(m_matrixStructure);
+        // not implemented
     }
 
     MatrixOperationOutputValues::MatrixOperationOutputValues(
-            MatrixModule* _matrixModule,
-            MatrixStructureUtils* _matrixStructureUtils) :
-    IMathOperation(_matrixModule, _matrixStructureUtils) {
+            MatrixModule* _matrixModule) :
+    IMathOperation(_matrixModule) {
         this->m_matrix = NULL;
         this->m_reoutputs = NULL;
         this->m_imoutputs = NULL;
         this->m_count = 0;
-        m_matrixStructure = m_matrixStructureUtils->newMatrixStructure();
     }
 
     MatrixOperationOutputValues::~MatrixOperationOutputValues() {
-        this->m_matrix = NULL;
-        this->m_reoutputs = NULL;
-        this->m_imoutputs = NULL;
-        this->m_count = 0;
-        m_matrixStructureUtils->deleteMatrixStructure(m_matrixStructure);
+        // not implemented
     }
 
-    MatrixOperationTwoOutputs::MatrixOperationTwoOutputs(MatrixModule* _matrixModule,
-            MatrixStructureUtils* _matrixStructureUtils) :
-    IMathOperation(_matrixModule, _matrixStructureUtils),
-    m_matrixStructure(NULL), m_outputStructure1(NULL), m_outputStructure2(NULL) {
+    MatrixOperationTwoOutputs::MatrixOperationTwoOutputs(
+            MatrixModule* _matrixModule) :
+    IMathOperation(_matrixModule) {
         this->m_matrix = NULL;
         this->m_output1 = NULL;
         this->m_output2 = NULL;
-        m_matrixStructure = m_matrixStructureUtils->newMatrixStructure();
-        m_outputStructure1 = m_matrixStructureUtils->newMatrixStructure();
-        m_outputStructure2 = m_matrixStructureUtils->newMatrixStructure();
     }
 
     MatrixOperationTwoOutputs::~MatrixOperationTwoOutputs() {
-        this->m_matrix = NULL;
-        this->m_output1 = NULL;
-        this->m_output2 = NULL;
-        m_matrixStructureUtils->deleteMatrixStructure(m_matrixStructure);
-        m_matrixStructureUtils->deleteMatrixStructure(m_outputStructure1);
-        m_matrixStructureUtils->deleteMatrixStructure(m_outputStructure2);
+        // not implemented
     }
 
     void TwoMatricesOperations::setMatrix1(Matrix* matrix) {
         this->m_matrix1 = matrix;
-        this->m_matrixStructureUtils->setMatrix(this->m_matrixStructure1,
-                this->m_matrix1);
     }
 
     void TwoMatricesOperations::setMatrix2(Matrix* matrix) {
         this->m_matrix2 = matrix;
-        this->m_matrixStructureUtils->setMatrix(this->m_matrixStructure2,
-                this->m_matrix2);
     }
 
     void TwoMatricesOperations::setOutputMatrix(Matrix* matrix) {
         this->m_output = matrix;
-        this->m_matrixStructureUtils->setMatrix(m_outputStructure, matrix);
     }
 
     void MatrixValueOperation::setMatrix(Matrix* matrix) {
         this->m_matrix = matrix;
-        this->m_matrixStructureUtils->setMatrix(this->m_matrixStructure, matrix);
     }
 
     void MatrixValueOperation::setReValue(floatt* value) {
@@ -303,22 +253,18 @@ namespace math {
 
     void MatrixValueOperation::setOutputMatrix(Matrix* matrix) {
         this->m_output = matrix;
-        this->m_matrixStructureUtils->setMatrix(m_outputStructure, matrix);
     }
 
     void MatrixOperationOutputMatrix::setMatrix(Matrix* matrix) {
         this->m_matrix = matrix;
-        this->m_matrixStructureUtils->setMatrix(this->m_matrixStructure, matrix);
     }
 
     void MatrixOperationOutputMatrix::setOutputMatrix(Matrix* matrix) {
         this->m_output = matrix;
-        this->m_matrixStructureUtils->setMatrix(this->m_outputStructure, matrix);
     }
 
     void MatrixOperationOutputValue::setMatrix(Matrix* matrix) {
         this->m_matrix = matrix;
-        this->m_matrixStructureUtils->setMatrix(this->m_matrixStructure, matrix);
     }
 
     void MatrixOperationOutputValue::setOutputValue1(floatt* value) {
@@ -331,7 +277,6 @@ namespace math {
 
     void MatrixOperationOutputValues::setMatrix(Matrix* matrix) {
         this->m_matrix = matrix;
-        this->m_matrixStructureUtils->setMatrix(this->m_matrixStructure, matrix);
     }
 
     void MatrixOperationOutputValues::setReOutputValues(floatt* values, uintt count) {
@@ -345,16 +290,13 @@ namespace math {
 
     void MatrixOperationTwoOutputs::setMatrix(Matrix* matrix) {
         this->m_matrix = matrix;
-        this->m_matrixStructureUtils->setMatrix(m_matrixStructure, matrix);
     }
 
     void MatrixOperationTwoOutputs::setOutputMatrix1(Matrix* matrix) {
         this->m_output1 = matrix;
-        this->m_matrixStructureUtils->setMatrix(m_outputStructure1, matrix);
     }
 
     void MatrixOperationTwoOutputs::setOutputMatrix2(Matrix* matrix) {
         this->m_output2 = matrix;
-        this->m_matrixStructureUtils->setMatrix(m_outputStructure2, matrix);
     }
 }

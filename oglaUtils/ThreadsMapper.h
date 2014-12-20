@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 
+#include "Types.h"
+
 namespace utils {
     namespace mapper {
 
@@ -37,13 +39,17 @@ namespace utils {
         template<typename T> void createThreadsMap(T* array,
                 T blocksCount[2], T threadsCount[2],
                 T width, T height) {
+            debugAssert(threadsCount[0] != 0);
+            debugAssert(blocksCount[0] != 0);
+            debugAssert(blocksCount[1] != 0);
+            debugAssert(threadsCount[1] != 0);
             T threadsCountX = blocksCount[0] * threadsCount[0];
             T threadsCountY = blocksCount[1] * threadsCount[1];
             T widthPT = width / threadsCountX;
             T heightPT = height / threadsCountY;
             T bc = 0;
             T br = 0;
-            if (array) {
+            if (NULL != array) {
                 for (T fa = 0; fa < threadsCountX; fa++) {
                     for (T fb = 0; fb < threadsCountY; fb++) {
                         if (bc >= width) {

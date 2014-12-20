@@ -15,17 +15,17 @@
 
 #define THREADS_COUNT 512
 
-__device__ bool CUDA_IsTriangular(MatrixStructure* matrix, uintt count) {
+__device__ bool CUDA_IsTriangular(math::Matrix* matrix, uintt count) {
     uintt index = 0;
-    uintt columns = matrix->m_matrix->columns;
+    uintt columns = matrix->columns;
     for (uintt fa = 0; fa < columns - 1; ++fa) {
         floatt revalue = 0;
-        if (NULL != matrix->m_matrix->reValues) {
-            revalue = matrix->m_matrix->reValues[fa + columns * (fa + 1)];
+        if (NULL != matrix->reValues) {
+            revalue = matrix->reValues[fa + columns * (fa + 1)];
         }
         floatt imvalue = 0;
-        if (NULL != matrix->m_matrix->imValues) {
-            imvalue = matrix->m_matrix->imValues[fa + columns * (fa + 1)];
+        if (NULL != matrix->imValues) {
+            imvalue = matrix->imValues[fa + columns * (fa + 1)];
         }
         if ((-MIN_VALUE < revalue && revalue < MIN_VALUE) &&
                 (-MIN_VALUE < imvalue && imvalue < MIN_VALUE)) {
@@ -41,21 +41,21 @@ __device__ bool CUDA_IsTriangular(MatrixStructure* matrix, uintt count) {
 
 __device__ bool g_status;
 
-__device__ void CUDA_CalculateHQ(MatrixStructure* H,
-        MatrixStructure* Q,
-        MatrixStructure* R,
-        MatrixStructure* temp,
-        MatrixStructure* temp1,
-        MatrixStructure* temp2,
-        MatrixStructure* temp3,
-        MatrixStructure* temp4,
-        MatrixStructure* temp5) {
+__device__ void CUDA_CalculateTriangularH(math::Matrix* H,
+        math::Matrix* Q,
+        math::Matrix* R,
+        math::Matrix* temp,
+        math::Matrix* temp1,
+        math::Matrix* temp2,
+        math::Matrix* temp3,
+        math::Matrix* temp4,
+        math::Matrix* temp5) {
     uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
     uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
     g_status = false;
-    CUDA_SetIdentityMatrix(temp->m_matrix, tx, ty);
+    CUDA_SetIdentityMatrix(temp, tx, ty);
     if (tx == 0 && ty == 0) {
-        g_status = CUDA_IsTriangular(H, H->m_matrix->columns - 1);
+        g_status = CUDA_IsTriangular(H, H->columns - 1);
     }
     uintt fb = 0;
     for (; g_status == false && fb < 1000; ++fb) {
@@ -64,7 +64,7 @@ __device__ void CUDA_CalculateHQ(MatrixStructure* H,
         CUDA_dotProduct(temp1, Q, temp, tx, ty);
         CUDA_switchPointer(&temp1, &temp);
         if (tx == 0 && ty == 0) {
-            g_status = CUDA_IsTriangular(H, H->m_matrix->columns - 1);
+            g_status = CUDA_IsTriangular(H, H->columns - 1);
         }
     }
     // TODO: optymalization
@@ -76,50 +76,52 @@ __device__ void CUDA_CalculateHQ(MatrixStructure* H,
 }
 
 struct Matrices {
-    MatrixStructure* w;
-    MatrixStructure* A;
-    MatrixStructure* v;
-    MatrixStructure* f;
-    MatrixStructure* V;
-    MatrixStructure* transposeV;
-    MatrixStructure* s;
-    MatrixStructure* H;
-    MatrixStructure* h;
-    MatrixStructure* vh;
-    MatrixStructure* vs;
+    math::Matrix* w;
+    math::Matrix* A;
+    math::Matrix* v;
+    math::Matrix* f;
+    math::Matrix* V;
+    math::Matrix* transposeV;
+    math::Matrix* s;
+    math::Matrix* H;
+    math::Matrix* h;
+    math::Matrix* vh;
+    math::Matrix* vs;
 };
 
 __device__ void CUDA_Multiply() {
 
 }
 
-__device__ void CUDA_execute(bool init, intt initj,
+__device__ void CUDA_CalculateH() {
+    
+}
+
+__device__ void CUDA_CalculateH(bool init, intt initj,
         Matrices* matrices) {
-    MatrixStructure* w = matrices->w;
-    MatrixStructure* A = matrices->A;
-    MatrixStructure* v = matrices->v;
-    MatrixStructure* f = matrices->f;
-    MatrixStructure* V = matrices->V;
-    MatrixStructure* transposeV = matrices->transposeV;
-    MatrixStructure* s = matrices->s;
-    MatrixStructure* H = matrices->H;
-    MatrixStructure* h = matrices->h;
-    MatrixStructure* vh = matrices->vh;
-    MatrixStructure* vs = matrices->vs;
+    math::Matrix* w = matrices->w;
+    math::Matrix* A = matrices->A;
+    math::Matrix* v = matrices->v;
+    math::Matrix* f = matrices->f;
+    math::Matrix* V = matrices->V;
+    math::Matrix* transposeV = matrices->transposeV;
+    math::Matrix* s = matrices->s;
+    math::Matrix* H = matrices->H;
+    math::Matrix* h = matrices->h;
+    math::Matrix* vh = matrices->vh;
+    math::Matrix* vs = matrices->vs;
     floatt m_rho = 0;
-    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-    uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    const uintt tx = threadIndexX;
-    const uintt ty = threadIndexY;
+    uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
+    uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
     if (true == init) {
         CUDA_multiplyReMatrices(w, A, v, tx, ty);
-        CUDA_setVector(V, 0, v, v->m_matrix->rows, tx);
+        CUDA_setVector(V, 0, v, v->rows, tx);
         if (0 == tx && 0 == ty) {
-            CUDA_setSubRows(transposeV, 0, 1);
+            // to do CUDA_setSubRows(transposeV, 0, 1);
         }
-        CUDA_transposeRealMatrix(transposeV, V, tx, ty);
+        CUDA_transposeMatrix(transposeV, V, tx, ty);
         if (0 == tx && 0 == ty) {
-            CUDA_setSubColumns(h, 0, 1);
+            // to do CUDA_setSubColumns(h, 0, 1);
         }
         CUDA_dotProduct(h, transposeV, w, tx, ty);
         CUDA_dotProduct(vh, V, h, tx, ty);
@@ -142,22 +144,22 @@ __device__ void CUDA_execute(bool init, intt initj,
         }
         floatt rB = 1. / B;
         CUDA_multiplyConstantMatrix(v, f, &rB, tx, ty);
-        CUDA_setVector(V, fa + 1, v, v->m_matrix->rows, tx);
+        CUDA_setVector(V, fa + 1, v, v->rows, tx);
 
-        memset(&H->m_matrix->reValues[H->m_matrix->columns * (fa + 1)], 0,
-                H->m_matrix->columns * sizeof (floatt));
-        if (H->m_matrix->imValues) {
-            memset(&H->m_matrix->imValues[H->m_matrix->columns * (fa + 1)], 0,
-                    H->m_matrix->columns * sizeof (floatt));
+        memset(&H->reValues[H->columns * (fa + 1)], 0,
+                H->columns * sizeof (floatt));
+        if (H->imValues) {
+            memset(&H->imValues[H->columns * (fa + 1)], 0,
+                    H->columns * sizeof (floatt));
         }
         if (0 == tx && 0 == ty) {
-            H->m_matrix->reValues[(fa) + H->m_matrix->columns * (fa + 1)] = B;
+            H->reValues[(fa) + H->columns * (fa + 1)] = B;
         }
         CUDA_dotProduct(w, A, v, tx, ty);
         if (0 == tx && 0 == ty) {
-            CUDA_setSubRows(transposeV, initj, fa + 2);
+            // to do CUDA_setSubRows(transposeV, initj, fa + 2);
         }
-        CUDA_transposeRealMatrix(transposeV, V, tx, ty);
+        CUDA_transposeMatrix(transposeV, V, tx, ty);
         CUDA_dotProduct(h, transposeV, w, tx, ty);
         CUDA_dotProduct(vh, V, h, tx, ty);
         CUDA_substractMatrix(f, w, vh, tx, ty);
@@ -166,13 +168,13 @@ __device__ void CUDA_execute(bool init, intt initj,
             mf = CUDA_sum(buffer, length);
         }
         CUDA_magnitude(h, buffer, length);
-        if (0 == threadIndexX && 0 == threadIndexY) {
+        if (0 == tx && 0 == ty) {
             mh = CUDA_sum(buffer, length);
         }
         if (mf < m_rho * mh) {
             CUDA_dotProduct(s, transposeV, f, tx, ty);
             if (0 == tx && 0 == ty) {
-                CUDA_setSubColumns(vs, initj, s->m_matrix->rows);
+                // to do CUDA_setSubColumns(vs, initj, s->rows);
             }
             CUDA_dotProduct(vs, V, s, tx, ty);
             CUDA_substractMatrix(f, f, vs, tx, ty);

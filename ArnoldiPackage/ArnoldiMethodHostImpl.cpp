@@ -1,7 +1,6 @@
 #include <math.h>
 #include "MathOperationsCpu.h"
 #include "ArnoldiMethodHostImpl.h"
-#include "HostMatrixStructure.h"
 #include "MathOperationsCpu.h"
 
 #ifdef DEBUG
@@ -42,9 +41,8 @@ namespace math {
 
     ArnoldiMethodCpu::ArnoldiMethodCpu(
             MatrixModule* matrixModule,
-            MatrixStructureUtils* matrixStructureUtils,
             MathOperationsCpu* mathOperations) :
-    IArnoldiMethod(matrixModule, matrixStructureUtils),
+    IArnoldiMethod(matrixModule),
     m_operations(mathOperations) {
         this->m_rho = 1. / 3.14;
         this->m_k = 0;
@@ -65,8 +63,7 @@ namespace math {
     }
 
     ArnoldiMethodCpu::ArnoldiMethodCpu(MathOperationsCpu* mathOperations) :
-    IArnoldiMethod(HostMatrixModules::GetInstance(),
-    HostMatrixStructureUtils::GetInstance()),
+    IArnoldiMethod(HostMatrixModules::GetInstance()),
     m_operations(mathOperations) {
         this->m_rho = 1. / 3.14;
         this->m_k = 0;
@@ -289,9 +286,9 @@ namespace math {
         if (true == init) {
             multiply(w, A, v, true);
             m_copier->setVector(V, 0, v, v->rows);
-            m_operations->setSubRows(0, 1);
+            m_operations->setSubRows(1);
             PRINT_STATUS(m_operations->transpose(transposeV, V));
-            m_operations->setSubColumns(0, 1);
+            m_operations->setSubColumns(1);
             PRINT_STATUS(m_operations->dotProduct(h, transposeV, w));
             PRINT_STATUS(m_operations->dotProduct(vh, V, h));
             PRINT_STATUS(m_operations->substract(f, w, vh));
@@ -318,7 +315,7 @@ namespace math {
             }
             H->reValues[(j) + H->columns * (j + 1)] = B;
             multiply(w, A, v, false);
-            m_operations->setSubRows(initj, j + 2);
+            // to do m_operations->setSubRows(initj, j + 2);
             PRINT_STATUS(m_operations->transpose(transposeV, V));
             PRINT_STATUS(m_operations->dotProduct(h, transposeV, w));
             PRINT_STATUS(m_operations->dotProduct(vh, V, h));
@@ -327,7 +324,7 @@ namespace math {
             PRINT_STATUS(m_operations->magnitude(&mh, h));
             if (mf < m_rho * mh) {
                 PRINT_STATUS(m_operations->dotProduct(s, transposeV, f));
-                m_operations->setSubColumns(initj, s->rows);
+                // to do m_operations->setSubColumns(initj, s->rows);
                 PRINT_STATUS(m_operations->dotProduct(vs, V, s));
                 PRINT_STATUS(m_operations->substract(f, f, vs));
                 PRINT_STATUS(m_operations->add(h, h, s));

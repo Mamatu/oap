@@ -11,9 +11,6 @@
 #include "TransferMatrix.h"
 #include "TreePointerCreator.h"
 
-
-
-
 namespace shibata {
     namespace cpu {
 
