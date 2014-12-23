@@ -12,7 +12,13 @@ extern "C" __global__ void CUDAKernel_CalculateTriangularH(math::Matrix* H,
 }
 
 extern "C" __global__ void CUDAKernel_CalculateH(bool init, intt initj,
-        Matrices* matrices) {
+        math::Matrix* w, math::Matrix* A, math::Matrix* v,
+        math::Matrix* f, math::Matrix* V, math::Matrix* transposeV,
+        math::Matrix* s, math::Matrix* H, math::Matrix* h,
+        math::Matrix* vh, math::Matrix* vs) {
     CUDA_DEBUG();
-    CUDA_CalculateH(init, initj, matrices);
+    CUDA_CalculateH(init, initj,
+            w, A, v,
+            f, V, transposeV,
+            s, H, h, vh, vs);
 }

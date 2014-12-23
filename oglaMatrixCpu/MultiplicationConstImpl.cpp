@@ -1,5 +1,5 @@
 #include "MathOperationsCpu.h"
-#include "Internal.h"
+#include "ThreadData.h"
 namespace math {
 
     void MultiplicationConstOperationCpu::execute() {
@@ -20,7 +20,7 @@ namespace math {
             } else {
                 threads[fa].valuesPtr[1] = NULL;
             }
-            threads[fa].calculateRanges(m_output, getBMap(), fa);
+            threads[fa].calculateRanges(m_subcolumns, m_subrows, getBMap(), fa);
             threads[fa].thiz = this;
             threads[fa].thread.setFunction(
                     MultiplicationConstOperationCpu::Execute, &threads[fa]);

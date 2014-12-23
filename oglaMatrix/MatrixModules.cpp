@@ -121,8 +121,8 @@ math::Matrix* MatrixAllocator::newValue(floatt value) {
 }
 
 math::Matrix* MatrixModule::newMatrix(math::Matrix* matrix,
-        intt columns,
-        intt rows) {
+        uintt columns,
+        uintt rows) {
     math::Matrix* output = NULL;
     if (this->getMatrixUtils()->isMatrix(matrix)) {
         output = this->getMatrixAllocator()->newMatrix(columns, rows);

@@ -1,4 +1,6 @@
 OGLA_PATH = /home/mmatula/Ogla
+GTEST_DIR = /home/mmatula/Ogla/gmock-1.7.0/gtest
+GMOCK_DIR = /home/mmatula/Ogla/gmock-1.7.0
 ifeq ($(PROJECT), albert)
 include $(OGLA_PATH)/project_albert.mk
 else ifeq ($(PROJECT), samsung)
@@ -23,3 +25,4 @@ OGLA_INCLUDES += oglaMatrixCudaTest
 #OGLA_INCLUDES += oglaParser
 OGLA_INCLUDES += ArnoldiPackageTest
 OGLA_INCLUDES += oglaV3D
+OGLA_INCLUDES += oglaTests

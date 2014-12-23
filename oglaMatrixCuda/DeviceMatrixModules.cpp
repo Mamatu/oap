@@ -43,11 +43,11 @@ MatrixCopier(DeviceMatrixModules::GetInstance()) {
 DHMatrixCopier::~DHMatrixCopier() {
 }
 
-intt DeviceMatrixUtils::getColumns(const math::Matrix* matrix) const {
+uintt DeviceMatrixUtils::getColumns(const math::Matrix* matrix) const {
     return CudaUtils::GetDeviceColumns(matrix);
 }
 
-intt DeviceMatrixUtils::getRows(const math::Matrix* matrix) const {
+uintt DeviceMatrixUtils::getRows(const math::Matrix* matrix) const {
     return CudaUtils::GetDeviceRows(matrix);
 }
 
@@ -87,21 +87,21 @@ void DeviceMatrixAllocator::unlock() {
     DeviceMatrixAllocator::mutex.unlock();
 }
 
-math::Matrix* DeviceMatrixAllocator::newMatrix(intt columns, intt rows, floatt value) {
+math::Matrix* DeviceMatrixAllocator::newMatrix(uintt columns, uintt rows, floatt value) {
     debugFuncBegin();
     CUdeviceptr deviceMatrix = CudaUtils::AllocMatrix(true, true, columns, rows, value, value);
     debugFuncEnd();
     return reinterpret_cast<math::Matrix*> (deviceMatrix);
 }
 
-math::Matrix* DeviceMatrixAllocator::newReMatrix(intt columns, intt rows, floatt value) {
+math::Matrix* DeviceMatrixAllocator::newReMatrix(uintt columns, uintt rows, floatt value) {
     debugFuncBegin();
     CUdeviceptr deviceMatrix = CudaUtils::AllocMatrix(true, false, columns, rows, value, value);
     debugFuncEnd();
     return reinterpret_cast<math::Matrix*> (deviceMatrix);
 }
 
-math::Matrix* DeviceMatrixAllocator::newImMatrix(intt columns, intt rows, floatt value) {
+math::Matrix* DeviceMatrixAllocator::newImMatrix(uintt columns, uintt rows, floatt value) {
     debugFuncBegin();
     CUdeviceptr deviceMatrix = CudaUtils::AllocMatrix(false, true, columns, rows, value, value);
     debugFuncEnd();
@@ -272,12 +272,17 @@ namespace cuda {
         return matrix1;
     }
 
-    math::Matrix* NewDeviceMatrix(math::Matrix* hostMatrix) {
+    math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix) {
+        return NewDeviceMatrix(hostMatrix, hostMatrix->columns, hostMatrix->rows);
+    }
+
+    math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix,
+            uintt columns, uintt rows) {
         bool allocRe = hostMatrix->reValues != NULL;
         bool allocIm = hostMatrix->imValues != NULL;
-        CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, hostMatrix->columns, hostMatrix->rows);
+        CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm,
+                columns, rows);
         math::Matrix* mptr = reinterpret_cast<math::Matrix*> (ptr);
-        CopyHostMatrixToDeviceMatrix(mptr, hostMatrix);
         return mptr;
     }
 

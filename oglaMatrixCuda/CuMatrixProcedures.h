@@ -595,21 +595,18 @@ extern "C" __device__ __forceinline__ void conjugateIm(math::Matrix* output,
 }
 
 extern "C" __device__ __forceinline__ void conjugateIm1(math::Matrix * output,
-        uintt threadIndexX, uintt threadIndexY) {
-    threadIndexX = threadIndexX;
-    threadIndexY = threadIndexY;
-    uintt index = threadIndexX + output->columns * threadIndexY;
+        uintt tx, uintt ty) {
+    uintt index = tx + output->columns * ty;
     output->imValues[index] = -output->imValues[index];
 }
 
 extern "C" __device__ void CUDA_magnitude(math::Matrix* dst, floatt* buffer,
         uintt length) {
-    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-    uintt beginx = threadIndexX;
+    uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
     for (uintt fa = 0; fa < length; ++fa) {
         const floatt v1 = dst->reValues[fa] * dst->reValues[fa];
         const floatt v2 = dst->imValues[fa] * dst->imValues[fa];
-        buffer[threadIndexX] += v1 + v2;
+        buffer[tx] += v1 + v2;
     }
 }
 
@@ -634,13 +631,13 @@ extern "C" __device__ void CUDA_magnitudeIm(math::Matrix* dst, floatt* buffer,
 }
 
 extern "C" __device__ void CUDA_setSubRows(math::Matrix* matrix,
-        uintt row) {
-    matrix->rows = row;
+        uintt brow, uintt erow) {
+    matrix->rows = erow;
 }
 
 extern "C" __device__ void CUDA_setSubColumns(math::Matrix* matrix,
-        uintt column) {
-    matrix->columns = column;
+        uintt bcolumn, uintt ecolumn) {
+    matrix->columns = ecolumn;
 }
 
 extern "C" __device__ void CUDA_setVector(math::Matrix* V, uintt index,

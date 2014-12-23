@@ -5,7 +5,7 @@ namespace math {
     Status ITransposeOperation::beforeExecution() {
         Status status = MatrixOperationOutputMatrix::beforeExecution();
         if (status == STATUS_OK) {
-            host::SetSubs(m_output, m_subcolumns, m_subrows);
+            host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
             if (m_output != m_matrix) {
                 if (m_module->getMatrixUtils()->isMatrix(m_output) &&
                         m_module->getMatrixUtils()->isMatrix(m_matrix)) {

@@ -91,9 +91,11 @@ namespace math {
     m_matrix(NULL) {
     }
 
-    void ArnoldiMethodGpu::MatrixData::alloc(math::Matrix* A, intt columns,
+    void ArnoldiMethodGpu::MatrixData::alloc(math::Matrix* A,
+            intt columns,
             intt rows, ArnoldiMethodGpu* thiz) {
-        m_matrix = cuda::NewDeviceMatrix(A);
+        m_matrix = cuda::NewDeviceMatrix(A,
+                static_cast<uintt> (columns), static_cast<uintt> (rows));
     }
 
     void ArnoldiMethodGpu::MatrixData::dealloc(ArnoldiMethodGpu* thiz) {
@@ -191,9 +193,9 @@ namespace math {
         cuda::CopyHostArraysToDeviceMatrix(H1.m_matrix, a, NULL);
 
         void* params[] = {
-            H1.m_matrix, Q.m_matrix, R1.m_matrix,
-            Q1.m_matrix, QJ.m_matrix, Q2.m_matrix,
-            R2.m_matrix, G.m_matrix, GT.m_matrix
+            &H1.m_matrix, &Q.m_matrix, &R1.m_matrix,
+            &Q1.m_matrix, &QJ.m_matrix, &Q2.m_matrix,
+            &R2.m_matrix, &G.m_matrix, &GT.m_matrix
         };
         debugFunc();
         m_kernel.setThreadsCount(m_k, m_k);

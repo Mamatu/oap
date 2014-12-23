@@ -11,7 +11,7 @@ namespace math {
                 status = this->beforeExecution(this->m_output, this->m_matrix1,
                         this->m_matrix2, CopyIm, IsIm, m_executionPathIm);
                 if (status == STATUS_OK) {
-                    host::SetSubs(m_output, m_subcolumns, m_subrows);
+                    host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
                 }
             }
         }

@@ -21,9 +21,9 @@ class DeviceMatrixAllocator : public MatrixAllocator {
 public:
     DeviceMatrixAllocator();
     ~DeviceMatrixAllocator();
-    math::Matrix* newReMatrix(intt columns, intt rows, floatt value = 0);
-    math::Matrix* newImMatrix(intt columns, intt rows, floatt value = 0);
-    math::Matrix* newMatrix(intt columns, intt rows, floatt value = 0);
+    math::Matrix* newReMatrix(uintt columns, uintt rows, floatt value = 0);
+    math::Matrix* newImMatrix(uintt columns, uintt rows, floatt value = 0);
+    math::Matrix* newMatrix(uintt columns, uintt rows, floatt value = 0);
     bool isMatrix(math::Matrix* matrix);
     math::Matrix* newMatrixFromAsciiFile(const char* path);
     math::Matrix* newMatrixFromBinaryFile(const char* path);
@@ -39,8 +39,8 @@ public:
     void setDiagonalImMatrix(math::Matrix* matrix, floatt value);
     void setZeroReMatrix(math::Matrix* matrix);
     void setZeroImMatrix(math::Matrix* matrix);
-    intt getColumns(const math::Matrix* matrix) const;
-    intt getRows(const math::Matrix* matrix) const;
+    uintt getColumns(const math::Matrix* matrix) const;
+    uintt getRows(const math::Matrix* matrix) const;
     bool isReMatrix(const math::Matrix* matrix) const;
     bool isImMatrix(const math::Matrix* matrix) const;
     void printInfo(const math::Matrix* matrix) const;
@@ -53,17 +53,17 @@ public:
     void copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* src);
     void copyReMatrixToReMatrix(math::Matrix* dst, const math::Matrix* src);
     void copyImMatrixToImMatrix(math::Matrix* dst, const math::Matrix* src);
-    void copy(floatt* dst, const floatt* src, intt length);
-    void setReVector(math::Matrix* matrix, intt column, floatt* vector, intt length);
-    void setTransposeReVector(math::Matrix* matrix, intt row, floatt* vector, intt length);
-    void setImVector(math::Matrix* matrix, intt column, floatt* vector, intt length);
-    void setTransposeImVector(math::Matrix* matrix, intt row, floatt* vector, intt length);
-    void getReVector(floatt* vector, intt length, math::Matrix* matrix, intt column);
-    void getTransposeReVector(floatt* vector, intt length, math::Matrix* matrix, intt row);
-    void getImVector(floatt* vector, intt length, math::Matrix* matrix, intt column);
-    void getTransposeImVector(floatt* vector, intt length, math::Matrix* matrix, intt row);
-    void setVector(math::Matrix* matrix, intt column, math::Matrix* vector, uintt rows);
-    void getVector(math::Matrix* vector, uintt rows, math::Matrix* matrix, intt column);
+    void copy(floatt* dst, const floatt* src, uintt length);
+    void setReVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length);
+    void setTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length);
+    void setImVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length);
+    void setTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length);
+    void getReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column);
+    void getTransposeReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row);
+    void getImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column);
+    void getTransposeImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row);
+    void setVector(math::Matrix* matrix, uintt column, math::Matrix* vector, uintt rows);
+    void getVector(math::Matrix* vector, uintt rows, math::Matrix* matrix, uintt column);
 };
 
 /**
@@ -76,17 +76,17 @@ public:
     void copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* src);
     void copyReMatrixToReMatrix(math::Matrix* dst, const math::Matrix* src);
     void copyImMatrixToImMatrix(math::Matrix* dst, const math::Matrix* src);
-    void copy(floatt* dst, const floatt* src, intt length);
-    void setReVector(math::Matrix* matrix, intt column, floatt* vector, intt length);
-    void setTransposeReVector(math::Matrix* matrix, intt row, floatt* vector, intt length);
-    void setImVector(math::Matrix* matrix, intt column, floatt* vector, intt length);
-    void setTransposeImVector(math::Matrix* matrix, intt row, floatt* vector, intt length);
-    void getReVector(floatt* vector, intt length, math::Matrix* matrix, intt column);
-    void getTransposeReVector(floatt* vector, intt length, math::Matrix* matrix, intt row);
-    void getImVector(floatt* vector, intt length, math::Matrix* matrix, intt column);
-    void getTransposeImVector(floatt* vector, intt length, math::Matrix* matrix, intt row);
-    void setVector(math::Matrix* matrix, intt column, math::Matrix* vector, uintt rows);
-    void getVector(math::Matrix* vector, uintt rows, math::Matrix* matrix, intt column);
+    void copy(floatt* dst, const floatt* src, uintt length);
+    void setReVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length);
+    void setTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length);
+    void setImVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length);
+    void setTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length);
+    void getReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column);
+    void getTransposeReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row);
+    void getImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column);
+    void getTransposeImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row);
+    void setVector(math::Matrix* matrix, uintt column, math::Matrix* vector, uintt rows);
+    void getVector(math::Matrix* vector, uintt rows, math::Matrix* matrix, uintt column);
 };
 
 /**
@@ -99,18 +99,18 @@ public:
     void copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* src);
     void copyReMatrixToReMatrix(math::Matrix* dst, const math::Matrix* src);
     void copyImMatrixToImMatrix(math::Matrix* dst, const math::Matrix* src);
-    void copy(floatt* dst, const floatt* src, intt length);
-    void setReVector(math::Matrix* matrix, intt column, floatt* vector, intt length);
-    void setTransposeReVector(math::Matrix* matrix, intt row, floatt* vector, intt length);
-    void setImVector(math::Matrix* matrix, intt column, floatt* vector, intt length);
-    void setTransposeImVector(math::Matrix* matrix, intt row, floatt* vector, intt length);
-    void getReVector(floatt* vector, intt length, math::Matrix* matrix, intt column);
-    void getTransposeReVector(floatt* vector, intt length, math::Matrix* matrix, intt row);
-    void getImVector(floatt* vector, intt length, math::Matrix* matrix, intt column);
-    void getTransposeImVector(floatt* vector, intt length, math::Matrix* matrix, intt row);
+    void copy(floatt* dst, const floatt* src, uintt length);
+    void setReVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length);
+    void setTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length);
+    void setImVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length);
+    void setTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length);
+    void getReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column);
+    void getTransposeReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row);
+    void getImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column);
+    void getTransposeImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row);
 
-    void setVector(math::Matrix* matrix, intt column, math::Matrix* vector, uintt rows);
-    void getVector(math::Matrix* vector, uintt rows, math::Matrix* matrix, intt column);
+    void setVector(math::Matrix* matrix, uintt column, math::Matrix* vector, uintt rows);
+    void getVector(math::Matrix* vector, uintt rows, math::Matrix* matrix, uintt column);
 };
 
 class DeviceMatrixPrinter : public MatrixPrinter {
@@ -157,7 +157,10 @@ namespace cuda {
 
     math::Matrix* NewDeviceMatrix(uintt columns, uintt rows);
 
-    math::Matrix* NewDeviceMatrix(math::Matrix* hostMatrix);
+    math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix);
+
+    math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, 
+        uintt columns, uintt rows);
 
     math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
 

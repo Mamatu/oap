@@ -1,5 +1,5 @@
 #include "MathOperationsCpu.h"
-#include "Internal.h"
+#include "ThreadData.h"
 #include <math.h>
 namespace math {
 

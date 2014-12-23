@@ -1,5 +1,5 @@
 #include "MathOperationsCpu.h"
-#include "Internal.h"
+#include "ThreadData.h"
 
 #define RE_DIAGONALIZE()\
 if (threadData->params[1]->reValues[fa + columns * fb] != 0) {\
@@ -58,7 +58,7 @@ namespace math {
             threads[fa].outputs[0] = m_output;
             threads[fa].params[0] = m_matrix1;
             threads[fa].params[1] = m_matrix2;
-            threads[fa].calculateRanges(m_output, bmap, fa);
+            threads[fa].calculateRanges(m_subcolumns, m_subrows, bmap, fa);
             threads[fa].thiz = this;
             threads[fa].thread.setFunction(DiagonalizationOperationCpu::Execute, &threads[fa]);
             threads[fa].thread.run((this->m_threadsCount == 1));

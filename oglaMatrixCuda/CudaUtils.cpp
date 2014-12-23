@@ -63,9 +63,19 @@ namespace CudaUtils {
         return reinterpret_cast<CUdeviceptr> (&matrix->columns);
     }
 
+    CUdeviceptr GetRealColumnsAddress(CUdeviceptr matrixptr) {
+        math::Matrix* matrix = reinterpret_cast<math::Matrix*> (matrixptr);
+        return reinterpret_cast<CUdeviceptr> (&matrix->realColumns);
+    }
+
     CUdeviceptr GetRowsAddress(CUdeviceptr matrixptr) {
         math::Matrix* matrix = reinterpret_cast<math::Matrix*> (matrixptr);
         return reinterpret_cast<CUdeviceptr> (&matrix->rows);
+    }
+
+    CUdeviceptr GetRealRowsAddress(CUdeviceptr matrixptr) {
+        math::Matrix* matrix = reinterpret_cast<math::Matrix*> (matrixptr);
+        return reinterpret_cast<CUdeviceptr> (&matrix->realRows);
     }
 
     floatt* GetReValues(CUdeviceptr matrix) {
@@ -80,14 +90,14 @@ namespace CudaUtils {
         return imValues;
     }
 
-    intt GetDeviceColumns(CUdeviceptr matrix) {
-        intt columns = 0;
+    uintt GetDeviceColumns(CUdeviceptr matrix) {
+        uintt columns = 0;
         cuMemcpyDtoH(&columns, GetColumnsAddress(matrix), sizeof (int));
         return columns;
     }
 
-    intt GetDeviceRows(CUdeviceptr matrix) {
-        intt rows = 0;
+    uintt GetDeviceRows(CUdeviceptr matrix) {
+        uintt rows = 0;
         cuMemcpyDtoH(&rows, GetRowsAddress(matrix), sizeof (int));
         return rows;
     }
@@ -98,8 +108,8 @@ namespace CudaUtils {
         return devicePtrMatrix;
     }
 
-    CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, intt columns,
-            intt rows, floatt revalue, floatt imvalue) {
+    CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns,
+            uintt rows, floatt revalue, floatt imvalue) {
         CUdeviceptr matrix = AllocMatrix();
         CUdeviceptr matrixRe = 0;
         CUdeviceptr matrixIm = 0;
@@ -117,7 +127,7 @@ namespace CudaUtils {
         return matrix;
     }
 
-    CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix, intt columns, intt rows, floatt value) {
+    CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value) {
         CUdeviceptr devicePtrReValues = 0;
         printCuError(cuMemAlloc(&devicePtrReValues, columns * rows * sizeof (floatt)));
         printCuError(cuMemcpyHtoD(GetReValuesAddress(devicePtrMatrix), &devicePtrReValues, sizeof (CUdeviceptr)));
@@ -126,7 +136,7 @@ namespace CudaUtils {
         return devicePtrReValues;
     }
 
-    CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix, intt columns, intt rows, floatt value) {
+    CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value) {
         CUdeviceptr devicePtrImValues = 0;
         printCuError(cuMemAlloc(&devicePtrImValues, columns * rows * sizeof (floatt)));
         printCuError(cuMemcpyHtoD(GetImValuesAddress(devicePtrMatrix), &devicePtrImValues, sizeof (CUdeviceptr)));
@@ -148,19 +158,21 @@ namespace CudaUtils {
     }
 
     void SetVariables(CUdeviceptr devicePtrMatrix,
-            intt columns, intt rows) {
-        printCuError(cuMemcpyHtoD(GetColumnsAddress(devicePtrMatrix), &columns, sizeof (intt)));
-        printCuError(cuMemcpyHtoD(GetRowsAddress(devicePtrMatrix), &rows, sizeof (intt)));
+            uintt columns, uintt rows) {
+        printCuError(cuMemcpyHtoD(GetColumnsAddress(devicePtrMatrix), &columns, sizeof (uintt)));
+        printCuError(cuMemcpyHtoD(GetRealColumnsAddress(devicePtrMatrix), &columns, sizeof (uintt)));
+        printCuError(cuMemcpyHtoD(GetRowsAddress(devicePtrMatrix), &rows, sizeof (uintt)));
+        printCuError(cuMemcpyHtoD(GetRealRowsAddress(devicePtrMatrix), &rows, sizeof (uintt)));
     }
 
-    void* NewDevice(intt size) {
+    void* NewDevice(uintt size) {
         CUdeviceptr devicePtr;
         cuMemAlloc(&devicePtr, size);
         cuMemsetD32(devicePtr, 0, size);
         return reinterpret_cast<void*> (devicePtr);
     }
 
-    void* NewDevice(intt size, const void* src) {
+    void* NewDevice(uintt size, const void* src) {
         static unsigned int count = 0;
         void* devPtr = NewDevice(size);
         CopyHostToDevice(devPtr, src, size);
@@ -181,17 +193,17 @@ namespace CudaUtils {
         }
     }
 
-    void CopyHostToDevice(void* dst, const void* src, intt size) {
+    void CopyHostToDevice(void* dst, const void* src, uintt size) {
         CUdeviceptr dstPtr = reinterpret_cast<CUdeviceptr> (dst);
         cuMemcpyHtoD(dstPtr, src, size);
     }
 
-    void CopyDeviceToHost(void* dst, const void* src, intt size) {
+    void CopyDeviceToHost(void* dst, const void* src, uintt size) {
         CUdeviceptr srcPtr = reinterpret_cast<CUdeviceptr> (src);
         cuMemcpyDtoH(dst, srcPtr, size);
     }
 
-    void CopyDeviceToDevice(void* dst, const void* src, intt size) {
+    void CopyDeviceToDevice(void* dst, const void* src, uintt size) {
         CUdeviceptr dstPtr = reinterpret_cast<CUdeviceptr> (dst);
         CUdeviceptr srcPtr = reinterpret_cast<CUdeviceptr> (src);
         cuMemcpyDtoD(dstPtr, srcPtr, size);

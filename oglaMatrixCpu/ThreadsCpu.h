@@ -10,7 +10,7 @@
 
 #include "ThreadUtils.h"
 #include "HostMatrixModules.h"
-#include "Internal.h"
+#include "ThreadData.h"
 
 class ThreadsCountProperty {
 protected:

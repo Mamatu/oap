@@ -28,7 +28,7 @@ namespace CudaUtils {
      * @param size
      * @return 
      */
-    void* NewDevice(intt size);
+    void* NewDevice(uintt size);
 
     /**
      * 
@@ -36,7 +36,7 @@ namespace CudaUtils {
      * @param src
      * @return 
      */
-    void* NewDevice(intt size, const void* src);
+    void* NewDevice(uintt size, const void* src);
 
     /**
      * 
@@ -52,7 +52,7 @@ namespace CudaUtils {
      * @param src
      * @param size
      */
-    void CopyHostToDevice(void* dst, const void* src, intt size);
+    void CopyHostToDevice(void* dst, const void* src, uintt size);
 
     /**
      * 
@@ -60,7 +60,7 @@ namespace CudaUtils {
      * @param src
      * @param size
      */
-    void CopyDeviceToHost(void* dst, const void* src, intt size);
+    void CopyDeviceToHost(void* dst, const void* src, uintt size);
 
     /**
      * 
@@ -68,7 +68,7 @@ namespace CudaUtils {
      * @param src
      * @param size
      */
-    void CopyDeviceToDevice(void* dst, const void* src, intt size);
+    void CopyDeviceToDevice(void* dst, const void* src, uintt size);
 
     /**
      * 
@@ -136,12 +136,14 @@ namespace CudaUtils {
      * @return 
      */
     CUdeviceptr GetColumnsAddress(CUdeviceptr matrix);
+    CUdeviceptr GetRealColumnsAddress(CUdeviceptr matrix);
     /**
      * 
      * @param matrix
      * @return 
      */
     CUdeviceptr GetRowsAddress(CUdeviceptr matrix);
+    CUdeviceptr GetRealRowsAddress(CUdeviceptr matrix);
     /**
      * 
      * @param matrix
@@ -159,13 +161,13 @@ namespace CudaUtils {
      * @param matrix
      * @return 
      */
-    intt GetDeviceColumns(CUdeviceptr matrix);
+    uintt GetDeviceColumns(CUdeviceptr matrix);
     /**
      * 
      * @param matrix
      * @return 
      */
-    intt GetDeviceRows(CUdeviceptr matrix);
+    uintt GetDeviceRows(CUdeviceptr matrix);
     /**
      * 
      * @return 
@@ -181,8 +183,8 @@ namespace CudaUtils {
      * @param imvalue
      * @return 
      */
-    CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, intt columns,
-            intt rows, floatt revalue = 0, floatt imvalue = 0);
+    CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns,
+            uintt rows, floatt revalue = 0, floatt imvalue = 0);
     /**
      * 
      * @param devicePtrMatrix
@@ -192,7 +194,7 @@ namespace CudaUtils {
      * @return 
      */
     CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix,
-            intt columns, intt rows, floatt value);
+            uintt columns, uintt rows, floatt value);
     /**
      * 
      * @param devicePtrMatrix
@@ -202,7 +204,7 @@ namespace CudaUtils {
      * @return 
      */
     CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix,
-            intt columns, intt rows, floatt value);
+            uintt columns, uintt rows, floatt value);
     /**
      * 
      * @param devicePtrMatrix
@@ -222,7 +224,7 @@ namespace CudaUtils {
      * @param rows
      */
     void SetVariables(CUdeviceptr devicePtrMatrix,
-            intt columns, intt rows);
+            uintt columns, uintt rows);
 }
 
 template<typename T>T* CudaUtils::NewDeviceValue(T v) {

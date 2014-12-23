@@ -17,7 +17,7 @@ namespace math {
                         IsIm,
                         m_executionPathIm);
                 if (status == STATUS_OK) {
-                    host::SetSubs(m_output, m_subcolumns, m_subrows);
+                    host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
                 }
             }
         }

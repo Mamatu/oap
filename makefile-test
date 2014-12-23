@@ -1,0 +1,23 @@
+include ../makefile-core.mk
+
+OGLA_LIBS_PATHS_TEMP = $(shell ls $(OGLA_PATH)/dist/$(MODE)/$(PLATFORM)/lib/)
+OGLA_LIBS_PATHS = $(addprefix $(OGLA_PATH)/dist/$(MODE)/$(PLATFORM)/lib/, $(OGLA_LIBS_PATHS_TEMP))
+
+
+dist/$(MODE)/$(PLATFORM)/$(TARGET) : $(OCPP_FILES)
+	mkdir -p dist/$(MODE)/$(PLATFORM)/bin/
+	$(CXX) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest-all.cc
+	$(CXX) -isystem ${GTEST_DIR}/include -I${GTEST_DIR} -pthread -c ${GTEST_DIR}/src/gtest_main.cc
+	ar -rv libgtest.a gtest-all.o gtest_main.o
+	$(CXX) -fPIC libgtest.a $(OCPP_FILES) -L/usr/lib -L/usr/local/lib -lpthread -ldl $(OGLA_LIBS_PATHS) $(LIBS_DIRS) $(LIBS) -o $@
+	cp $@ $(OGLA_PATH)/dist/$(MODE)/$(PLATFORM)/bin/
+build/$(MODE)/$(PLATFORM)/%.o : %.cpp
+	mkdir -p build/$(MODE)/$(PLATFORM)/
+	$(CXX) $(CXXOPTIONS) -I $(GTEST_DIR)/include -I $(GMOCK_DIR)/include $(INCLUDE_DIRS) $< -o $@
+clean:
+	rm -f dist/$(MODE)/$(PLATFORM)/*
+	rm -f build/$(MODE)/$(PLATFORM)/*
+	rm -f libgtest.a
+	rm -f libgtest_main.a
+	rm -f libgtest.o
+	rm -f libgtest_main.o

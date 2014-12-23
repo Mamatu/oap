@@ -1,5 +1,5 @@
 #include "MathOperationsCpu.h"
-#include "Internal.h"
+#include "ThreadData.h"
 namespace math {
 
     void TensorProductOperationCpu::execute() {
@@ -15,7 +15,7 @@ namespace math {
             threads[fa].outputs[0] = m_output;
             threads[fa].params[0] = m_matrix1;
             threads[fa].params[1] = m_matrix2;
-            threads[fa].calculateRanges(m_output, bmap, fa);
+            threads[fa].calculateRanges(m_subcolumns, m_subrows, bmap, fa);
             threads[fa].thiz = this;
             threads[fa].thread.setFunction(TensorProductOperationCpu::Execute,
                     &threads[fa]);

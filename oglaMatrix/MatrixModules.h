@@ -11,9 +11,9 @@ class MatrixAllocator : public utils::Module {
 public:
     MatrixAllocator(MatrixModule* matrixModule);
     virtual ~MatrixAllocator();
-    virtual math::Matrix* newReMatrix(intt columns, intt rows, floatt value = 0) = 0;
-    virtual math::Matrix* newImMatrix(intt columns, intt rows, floatt value = 0) = 0;
-    virtual math::Matrix* newMatrix(intt columns, intt rows, floatt value = 0) = 0;
+    virtual math::Matrix* newReMatrix(uintt columns, uintt rows, floatt value = 0) = 0;
+    virtual math::Matrix* newImMatrix(uintt columns, uintt rows, floatt value = 0) = 0;
+    virtual math::Matrix* newMatrix(uintt columns, uintt rows, floatt value = 0) = 0;
     virtual math::Matrix* newReValue(floatt value = 0);
     virtual math::Matrix* newImValue(floatt value = 0);
     virtual math::Matrix* newValue(floatt value = 0);
@@ -31,22 +31,22 @@ public:
     virtual void copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* src) = 0;
     virtual void copyReMatrixToReMatrix(math::Matrix* dst, const math::Matrix* src) = 0;
     virtual void copyImMatrixToImMatrix(math::Matrix* dst, const math::Matrix* src) = 0;
-    virtual void copy(floatt* dst, const floatt* src, intt length) = 0;
+    virtual void copy(floatt* dst, const floatt* src, uintt length) = 0;
 
-    virtual void setReVector(math::Matrix* matrix, intt column, floatt* vector, intt length) = 0;
-    virtual void setTransposeReVector(math::Matrix* matrix, intt row, floatt* vector, intt length) = 0;
-    virtual void setImVector(math::Matrix* matrix, intt column, floatt* vector, intt length) = 0;
-    virtual void setTransposeImVector(math::Matrix* matrix, intt row, floatt* vector, intt length) = 0;
+    virtual void setReVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length) = 0;
+    virtual void setTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length) = 0;
+    virtual void setImVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length) = 0;
+    virtual void setTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length) = 0;
 
-    virtual void getReVector(floatt* vector, intt length, math::Matrix* matrix, intt column) = 0;
-    virtual void getTransposeReVector(floatt* vector, intt length, math::Matrix* matrix, intt row) = 0;
-    virtual void getImVector(floatt* vector, intt length, math::Matrix* matrix, intt column) = 0;
-    virtual void getTransposeImVector(floatt* vector, intt length, math::Matrix* matrix, intt row) = 0;
+    virtual void getReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column) = 0;
+    virtual void getTransposeReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row) = 0;
+    virtual void getImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column) = 0;
+    virtual void getTransposeImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row) = 0;
 
-    virtual void setVector(math::Matrix* matrix, intt column,
+    virtual void setVector(math::Matrix* matrix, uintt column,
             math::Matrix* vector, uintt rows) = 0;
     virtual void getVector(math::Matrix* vector, uintt rows,
-            math::Matrix* matrix, intt column) = 0;
+            math::Matrix* matrix, uintt column) = 0;
 
 };
 
@@ -65,8 +65,8 @@ public:
     void setZeroMatrix(math::Matrix* matrix);
     virtual void setZeroReMatrix(math::Matrix* matrix) = 0;
     virtual void setZeroImMatrix(math::Matrix* matrix) = 0;
-    virtual intt getColumns(const math::Matrix* matrix) const = 0;
-    virtual intt getRows(const math::Matrix* matrix) const = 0;
+    virtual uintt getColumns(const math::Matrix* matrix) const = 0;
+    virtual uintt getRows(const math::Matrix* matrix) const = 0;
     bool isMatrix(const math::Matrix* matrix) const;
     virtual bool isReMatrix(const math::Matrix* matrix) const = 0;
     virtual bool isImMatrix(const math::Matrix* matrix) const = 0;
@@ -99,7 +99,7 @@ public:
     virtual MatrixUtils* getMatrixUtils() = 0;
     virtual MatrixPrinter* getMatrixPrinter() = 0;
     math::Matrix* newMatrix(math::Matrix* matrix);
-    math::Matrix* newMatrix(math::Matrix* matrix, intt columns, intt rows);
+    math::Matrix* newMatrix(math::Matrix* matrix, uintt columns, uintt rows);
     void deleteMatrix(math::Matrix* matrix);
 };
 

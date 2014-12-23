@@ -1,5 +1,5 @@
 #include "MathOperationsCpu.h"
-#include "Internal.h"
+#include "ThreadData.h"
 namespace math {
 
     void ExpOperationCpu::execute() {

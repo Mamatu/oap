@@ -19,8 +19,31 @@ namespace math {
 
     class IMathOperation : public utils::Module {
     protected:
-        uintt m_subrows;
-        uintt m_subcolumns;
+        /**
+         * \brief Contains information about user specified 
+         *        range of rows. 
+         * 
+         * \details m_subrows[0] is begin row,
+         *          m_subrows[1] is the next row after last row.
+         *          m_subrows[1] - is default supported, 
+         *          m_subrows[0] can be supported by procedure's implementation.
+         */
+        uintt m_subrows[2];
+        
+        /**
+         * \brief Contains information about user specified 
+         *        range of rows. 
+         * 
+         * \details m_subcolumns[0] is begin row,
+         *          m_subcolumns[1] is the next row after last row.
+         *          m_subcolumns[1] - is default supported, 
+         *          m_subcolumns[0] can be supported by procedure's implementation.
+         */
+        uintt m_subcolumns[2];
+        
+        /**
+         * \brief Pointer to value
+         */
         MatrixModule* m_module;
         static bool CopyIm(math::Matrix* dst, math::Matrix* src,
                 MatrixCopier* matrixCopier, IMathOperation *thiz);
@@ -34,6 +57,8 @@ namespace math {
     public:
         void setSubRows(uintt subrows);
         void setSubColumns(uintt subcolumns);
+        void setSubRows(uintt subrows[2]);
+        void setSubColumns(uintt subcolumns[2]);
         void unsetSubRows();
         void unsetSubColumns();
         IMathOperation(MatrixModule* matrixModule);
@@ -189,7 +214,11 @@ namespace math {
         };
         ExecutionPath m_executionPathRe;
         ExecutionPath m_executionPathIm;
+
+        uintt m_offset[2];
+
         Status beforeExecution();
+        Status afterExecution();
         virtual void execute() = 0;
     private:
         Status beforeExecution(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
@@ -199,6 +228,8 @@ namespace math {
     public:
         IDotProductOperation(MatrixModule* matrixModule);
         virtual ~IDotProductOperation();
+        void setOffset(uintt offset);
+        void setOffset(uintt boffset, uintt eoffset);
     };
 
     class IMultiplicationConstOperation : public MatrixValueOperation {
@@ -296,7 +327,6 @@ namespace math {
 
     class ITransposeOperation : public MatrixOperationOutputMatrix {
     protected:
-
         enum ExecutionPath {
             EXECUTION_NORMAL,
             EXECUTION_NOTHING

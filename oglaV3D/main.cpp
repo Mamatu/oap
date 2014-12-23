@@ -13,28 +13,30 @@
 
 using namespace std;
 
-/*
- * 
- */
+bool handlePendingEvents() {
+    SDL_Event keyEvent;
+    while (SDL_PollEvent(&keyEvent) == 1) {
+        if (keyEvent.type == SDL_KEYDOWN
+                && keyEvent.key.keysym.sym == SDLK_ESCAPE) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main(int argc, char** argv) {
-    /* Information about the current video settings. */
     const SDL_VideoInfo* info = NULL;
-    /* Dimensions of our window. */
     int width = 0;
     int height = 0;
-    /* Color depth in bits of our window. */
     int bpp = 0;
-    /* Flags we will pass into SDL_SetVideoMode. */
-    int flags = 0;
+    int flags = SDL_RESIZABLE;
 
-    /* First, initialize SDL's video subsystem. */
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         /* Failed, exit. */
         fprintf(stderr, "Video initialization failed: %s\n",
                 SDL_GetError());
     }
 
-    /* Let's get some video information. */
     info = SDL_GetVideoInfo();
 
     if (!info) {
@@ -59,10 +61,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Video mode set failed: %s\n",
                 SDL_GetError());
     }
-    
-    
-    while(true){}
-    
+    while (handlePendingEvents()) {
+    }
     return 0;
 }
 

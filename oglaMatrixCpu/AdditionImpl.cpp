@@ -1,5 +1,5 @@
 #include "MathOperationsCpu.h"        
-#include "Internal.h"        
+#include "ThreadData.h"        
 
 namespace math {
 
@@ -16,7 +16,7 @@ namespace math {
             threads[fa].params[1] = this->m_matrix2;
             threads[fa].thiz = this;
             utils::mapper::getThreadsMap(map, getBMap(), fa);
-            threads[fa].calculateRanges(m_output, map);
+            threads[fa].calculateRanges(map);
             threads[fa].thread.setFunction(AdditionOperationCpu::Execute, &threads[fa]);
             threads[fa].thread.run((this->m_threadsCount == 1));
         }

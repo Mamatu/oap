@@ -1,5 +1,5 @@
 #include "MathOperationsCpu.h"
-#include "Internal.h"
+#include "ThreadData.h"
 namespace math {
 
     void SubstracionOperationCpu::execute() {
@@ -12,7 +12,7 @@ namespace math {
             threads[fa].params[1] = m_matrix2;
             threads[fa].thiz = this;
             threads[fa].thread.setFunction(SubstracionOperationCpu::Execute, &threads[fa]);
-            threads[fa].calculateRanges(m_output, getBMap(), fa);
+            threads[fa].calculateRanges(m_subcolumns, m_subrows, getBMap(), fa);
             threads[fa].thread.run((this->m_threadsCount == 1));
         }
         for (uint fa = 0; fa < threadsCount; fa++) {

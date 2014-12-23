@@ -41,7 +41,8 @@ __device__ bool CUDA_IsTriangular(math::Matrix* matrix, uintt count) {
 
 __device__ bool g_status;
 
-__device__ void CUDA_CalculateTriangularH(math::Matrix* H,
+__device__ void CUDA_CalculateTriangularH(
+        math::Matrix* H,
         math::Matrix* Q,
         math::Matrix* R,
         math::Matrix* temp,
@@ -75,41 +76,19 @@ __device__ void CUDA_CalculateTriangularH(math::Matrix* H,
     }
 }
 
-struct Matrices {
-    math::Matrix* w;
-    math::Matrix* A;
-    math::Matrix* v;
-    math::Matrix* f;
-    math::Matrix* V;
-    math::Matrix* transposeV;
-    math::Matrix* s;
-    math::Matrix* H;
-    math::Matrix* h;
-    math::Matrix* vh;
-    math::Matrix* vs;
-};
-
 __device__ void CUDA_Multiply() {
 
 }
 
 __device__ void CUDA_CalculateH() {
-    
+
 }
 
 __device__ void CUDA_CalculateH(bool init, intt initj,
-        Matrices* matrices) {
-    math::Matrix* w = matrices->w;
-    math::Matrix* A = matrices->A;
-    math::Matrix* v = matrices->v;
-    math::Matrix* f = matrices->f;
-    math::Matrix* V = matrices->V;
-    math::Matrix* transposeV = matrices->transposeV;
-    math::Matrix* s = matrices->s;
-    math::Matrix* H = matrices->H;
-    math::Matrix* h = matrices->h;
-    math::Matrix* vh = matrices->vh;
-    math::Matrix* vs = matrices->vs;
+        math::Matrix* w, math::Matrix* A, math::Matrix* v,
+        math::Matrix* f, math::Matrix* V, math::Matrix* transposeV,
+        math::Matrix* s, math::Matrix* H, math::Matrix* h,
+        math::Matrix* vh, math::Matrix* vs) {
     floatt m_rho = 0;
     uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
     uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
@@ -117,11 +96,11 @@ __device__ void CUDA_CalculateH(bool init, intt initj,
         CUDA_multiplyReMatrices(w, A, v, tx, ty);
         CUDA_setVector(V, 0, v, v->rows, tx);
         if (0 == tx && 0 == ty) {
-            // to do CUDA_setSubRows(transposeV, 0, 1);
+            CUDA_setSubRows(transposeV, 0, 1);
         }
         CUDA_transposeMatrix(transposeV, V, tx, ty);
         if (0 == tx && 0 == ty) {
-            // to do CUDA_setSubColumns(h, 0, 1);
+            CUDA_setSubColumns(h, 0, 1);
         }
         CUDA_dotProduct(h, transposeV, w, tx, ty);
         CUDA_dotProduct(vh, V, h, tx, ty);

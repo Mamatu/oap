@@ -12,7 +12,7 @@ namespace math {
                         this->m_revalue, CopyIm, IsIm, m_executionPathIm);
             }
         }
-        host::SetSubs(m_output, m_subcolumns, m_subrows);
+        host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
         return status;
     }
 

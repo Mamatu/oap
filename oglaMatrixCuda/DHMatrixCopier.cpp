@@ -24,26 +24,26 @@ void DHMatrixCopier::copyImMatrixToImMatrix(math::Matrix* dst, const math::Matri
     }
 }
 
-void DHMatrixCopier::copy(floatt* dst, const floatt* src, intt length) {
+void DHMatrixCopier::copy(floatt* dst, const floatt* src, uintt length) {
     debugFuncBegin();
     CUdeviceptr srcPtr = reinterpret_cast<CUdeviceptr> (src);
     cuMemcpyDtoH(dst, srcPtr, length * sizeof (floatt));
     debugFuncEnd();
 }
 
-void DHMatrixCopier::setReVector(math::Matrix* matrix, intt column,
-        floatt* vector, intt length) {
+void DHMatrixCopier::setReVector(math::Matrix* matrix, uintt column,
+        floatt* vector, uintt length) {
     debugFuncBegin();
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
-    for (intt fa = 0; fa < length; fa++) {
+    for (uintt fa = 0; fa < length; fa++) {
         cuMemcpyDtoH(&matrix->reValues[column + matrix->columns * fa],
                 vectorPtr + fa, sizeof (floatt));
     }
     debugFuncEnd();
 }
 
-void DHMatrixCopier::setTransposeReVector(math::Matrix* matrix, intt row,
-        floatt* vector, intt length) {
+void DHMatrixCopier::setTransposeReVector(math::Matrix* matrix, uintt row,
+        floatt* vector, uintt length) {
     debugFuncBegin();
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
     cuMemcpyDtoH(&matrix->reValues[matrix->columns * row],
@@ -51,19 +51,19 @@ void DHMatrixCopier::setTransposeReVector(math::Matrix* matrix, intt row,
     debugFuncEnd();
 }
 
-void DHMatrixCopier::setImVector(math::Matrix* matrix, intt column,
-        floatt* vector, intt length) {
+void DHMatrixCopier::setImVector(math::Matrix* matrix, uintt column,
+        floatt* vector, uintt length) {
     debugFuncBegin();
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
-    for (intt fa = 0; fa < length; fa++) {
+    for (uintt fa = 0; fa < length; fa++) {
         cuMemcpyDtoH(&matrix->imValues[column + matrix->columns * fa],
                 vectorPtr + fa, sizeof (floatt));
     }
     debugFuncEnd();
 }
 
-void DHMatrixCopier::setTransposeImVector(math::Matrix* matrix, intt row,
-        floatt* vector, intt length) {
+void DHMatrixCopier::setTransposeImVector(math::Matrix* matrix, uintt row,
+        floatt* vector, uintt length) {
     debugFuncBegin();
     CUdeviceptr vectorPtr = reinterpret_cast<CUdeviceptr> (vector);
     cuMemcpyDtoH(&matrix->reValues[matrix->columns * row],
@@ -71,20 +71,20 @@ void DHMatrixCopier::setTransposeImVector(math::Matrix* matrix, intt row,
     debugFuncEnd();
 }
 
-void DHMatrixCopier::getReVector(floatt* vector, intt length,
-        math::Matrix* matrix, intt column) {
+void DHMatrixCopier::getReVector(floatt* vector, uintt length,
+        math::Matrix* matrix, uintt column) {
     debugFuncBegin();
     CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
-    intt columns = CudaUtils::GetDeviceColumns(matrix);
-    for (intt fa = 0; fa < length; fa++) {
+    uintt columns = CudaUtils::GetDeviceColumns(matrix);
+    for (uintt fa = 0; fa < length; fa++) {
         const CUdeviceptr matrixRePtr1 = matrixRePtr + fa * columns + column;
         cuMemcpyDtoH(vector + fa, matrixRePtr1, sizeof (floatt));
     }
     debugFuncEnd();
 }
 
-void DHMatrixCopier::getTransposeReVector(floatt* vector, intt length,
-        math::Matrix* matrix, intt row) {
+void DHMatrixCopier::getTransposeReVector(floatt* vector, uintt length,
+        math::Matrix* matrix, uintt row) {
     debugFuncBegin();
     CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
     matrixRePtr = matrixRePtr + matrix->columns * row;
@@ -92,20 +92,20 @@ void DHMatrixCopier::getTransposeReVector(floatt* vector, intt length,
     debugFuncEnd();
 }
 
-void DHMatrixCopier::getImVector(floatt* vector, intt length,
-        math::Matrix* matrix, intt column) {
+void DHMatrixCopier::getImVector(floatt* vector, uintt length,
+        math::Matrix* matrix, uintt column) {
     debugFuncBegin();
     CUdeviceptr matrixRePtr = CudaUtils::GetImValuesAddress(matrix);
-    intt columns = CudaUtils::GetDeviceColumns(matrix);
-    for (intt fa = 0; fa < length; fa++) {
+    uintt columns = CudaUtils::GetDeviceColumns(matrix);
+    for (uintt fa = 0; fa < length; fa++) {
         const CUdeviceptr matrixRePtr1 = matrixRePtr + fa * columns + column;
         cuMemcpyDtoH(vector + fa, matrixRePtr1, sizeof (floatt));
     }
     debugFuncEnd();
 }
 
-void DHMatrixCopier::getTransposeImVector(floatt* vector, intt length,
-        math::Matrix* matrix, intt row) {
+void DHMatrixCopier::getTransposeImVector(floatt* vector, uintt length,
+        math::Matrix* matrix, uintt row) {
     debugFuncBegin();
     CUdeviceptr matrixRePtr = CudaUtils::GetImValuesAddress(matrix);
     matrixRePtr = matrixRePtr + matrix->columns * row;

@@ -1,5 +1,5 @@
 #include "MathOperationsCpu.h"
-#include "Internal.h"
+#include "ThreadData.h"
 #include <math.h>
 namespace math {
 
@@ -11,7 +11,7 @@ namespace math {
             for (intt fa = threadData->begins[0]; fa < threadData->ends[0]; fa++) {
                 floatt v1 = threadData->params[0]->reValues[fa] *
                         threadData->params[0]->reValues[fa];
-                floatt v2 = threadData->params[0]->imValues[fa] * 
+                floatt v2 = threadData->params[0]->imValues[fa] *
                         threadData->params[0]->imValues[fa];
                 output += v1 + v2;
             }
@@ -36,7 +36,7 @@ namespace math {
         ThreadData<MagnitudeOperationCpu>* threads = new ThreadData<MagnitudeOperationCpu>[threadsCount];
         for (intt fa = 0; fa < threadsCount; fa++) {
             threads[fa].params[0] = m_matrix;
-            threads[fa].calculateRanges(m_matrix, bmap, fa);
+            threads[fa].calculateRanges(m_subcolumns, m_subrows, bmap, fa);
             threads[fa].thiz = this;
             threads[fa].thread.setFunction(MagnitudeOperationCpu::Execute, &threads[fa]);
             threads[fa].thread.run((this->m_threadsCount == 1));
