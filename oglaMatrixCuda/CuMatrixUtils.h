@@ -10,9 +10,13 @@
 
 #include "CuUtils.h"
 #include "Matrix.h"
+#include "Buffer.h"
+#include "MatrixEx.h"
 
 #ifndef DEBUG
 #define cuda_debug_matrix(s, mo)
+#define cuda_debug_buffer(s, buffer, len)
+#define cuda_debug_matrix_ex(s, mo)
 #define cuda_debug(x, ...)
 #define cuda_debug_function()
 #define cuda_debug_thread(tx, ty, arg, ...)
@@ -23,6 +27,24 @@
         && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
         printf("%s = \n",s);\
         CUDA_PrintMatrix(mo);\
+    }\
+}
+
+#define cuda_debug_matrix_ex(s, mo) \
+{\
+    if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
+        && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
+        printf("%s = \n",s);\
+        CUDA_PrintMatrixEx(mo);\
+    }\
+}
+
+#define cuda_debug_buffer(s, buffer, len) \
+{\
+    if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
+        && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
+        printf("%s = \n",s);\
+        CUDA_PrintBuffer(buffer, len);\
     }\
 }
 
@@ -65,6 +87,18 @@ extern "C" __device__ void CUDA_PrintMatrix(math::Matrix* m) {
         }
         printf("]");
         printf("\n");
+    }
+}
+
+extern "C" __device__ void CUDA_PrintMatrixEx(const MatrixEx& m) {
+    printf("columns: %u %u \n", m.bcolumn, m.ecolumn);
+    printf("rows: %u %u \n", m.brow, m.erow);
+    printf("offset: %u %u \n", m.boffset, m.eoffset);
+}
+
+extern "C" __device__ void CUDA_PrintBuffer(floatt* buffer, uintt length) {
+    for (uintt fa = 0; fa < length; ++fa) {
+        printf("buffer[%u] = %f \n", fa, buffer[fa]);
     }
 }
 

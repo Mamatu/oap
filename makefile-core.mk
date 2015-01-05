@@ -21,7 +21,7 @@ ifeq ($(MODE), Debug)
 endif
 
 ifeq ($(MODE), Release)
-	CXXOPTIONS := -c -fPIC 
+	CXXOPTIONS := -c -O2 -fPIC
 	CXXOPTIONS += $(EXTRA_CXXOPTIONS)
 	NVCCOPTIONS := -O
 	NVCCOPTIONS += $(EXTRA_NVCCOPTIONS)

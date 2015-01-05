@@ -2,16 +2,10 @@
 
 //#define KERNEL_FILE "/home/mmatula/Ogla/oglaMatrixCuda/dist/Debug/GNU-Linux-x86/liboglaMatrixCuda.cubin"
 
-#define KERNEL_FILE 
-#define KERNEL_FILE_1 
-const char* kernelsFiles[] = {
-    "/home/mmatula/Ogla/oglaMatrixCuda/dist/Debug/GNU-Linux-x86/liboglaMatrixCuda.cubin",
-    NULL
-};
 #include <string.h>
 #include <linux/fs.h>
 #include <cuda_runtime_api.h>
-#include "Types.h"
+#include "DebugLogs.h"
 
 enum OperationType {
     OPERATION_ADDITION,
@@ -54,7 +48,8 @@ namespace math {
 
     KernelsOperations::KernelsOperations() : utils::Module() {
         this->m_dma = new DeviceMatrixAllocator();
-        m_image = ::cuda::Kernel::LoadImage(kernelsFiles);
+        debugAssert("Not defined path" == NULL);
+        m_image = ::cuda::Kernel::LoadImage("");
         if (m_image == NULL) {
             this->addMessageLine("Cubin file was not found.");
         }

@@ -7,11 +7,10 @@
 
 #include <cstdlib>
 #include "Matrix.h"
-#include "MathOperationsCuda.h"
 
 using namespace std;
 
-void Test_Det(math::MathOperationsCuda& mo) {
+void Test_Det() {
 
     debugFunc();
 
@@ -43,7 +42,7 @@ void Test_Det(math::MathOperationsCuda& mo) {
     debugFunc();
 }
 
-void Test_Multiply(math::MathOperationsCuda& mo) {
+void Test_Multiply() {
     debugFunc();
     DeviceMatrixAllocator dmm;
     HostMatrixAllocator hma;
@@ -54,7 +53,7 @@ void Test_Multiply(math::MathOperationsCuda& mo) {
     math::Matrix* m1 = cuda::NewDeviceMatrix(hm1);
     math::Matrix* m2 = cuda::NewDeviceMatrix(hm2);
 
-    floatt* a = CudaUtils::NewDeviceValue(2.);
+    floatt* a = CudaUtils::AllocDeviceObj(2.);
     dmu.printInfo(m1);
     dmu.printInfo(m2);
     dmu.setIdentityMatrix(m2);
@@ -63,10 +62,10 @@ void Test_Multiply(math::MathOperationsCuda& mo) {
     math::Matrix* output = cuda::NewDeviceMatrix(houtput);
     dmu.printInfo(output);
 
-    mo.multiply(output, m1, a);
+    //mo.multiply(output, m1, a);
     //PrintMatrix("output =", output);
     dmp.printReMatrix(output);
-    mo.printMessage();
+    //mo.printMessage();
     dmm.deleteMatrix(m1);
     dmm.deleteMatrix(m2);
     dmm.deleteMatrix(output);

@@ -8,7 +8,7 @@
 #ifndef PARAMETERS_H
 #define	PARAMETERS_H
 
-#include "Types.h"
+#include "DebugLogs.h"
 #include "Math.h"
 
 class Parameters {

@@ -8,7 +8,7 @@
 #ifndef ARRAYTOOLS_H
 #define	ARRAYTOOLS_H
 
-#include "Types.h"
+#include "DebugLogs.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

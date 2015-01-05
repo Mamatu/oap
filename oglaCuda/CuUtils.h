@@ -13,7 +13,7 @@
 #include "cuda_runtime_api.h" 
 #include <stdio.h>
 
-#include "Types.h"
+#include "DebugLogs.h"
 
 #ifdef DEBUG
 #define CUDA_DEBUG() \

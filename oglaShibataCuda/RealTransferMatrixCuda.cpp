@@ -211,23 +211,23 @@ namespace ShibataCuda {
             intt upIndeciesCount = 0;
             intt nspins = quantumsCount;
             intt nvalues = nspins*quantumsCount;
-            tmColumnsPtr = (intt**) CudaUtils::NewDevice(threadsCount * sizeof (intt*));
-            tmRowsPtr = (intt**) CudaUtils::NewDevice(threadsCount * sizeof (intt*));
-            tmRowsBitsPtr = (char**) CudaUtils::NewDevice(threadsCount * sizeof (char*));
+            tmColumnsPtr = (intt**) CudaUtils::AllocDeviceMem(threadsCount * sizeof (intt*));
+            tmRowsPtr = (intt**) CudaUtils::AllocDeviceMem(threadsCount * sizeof (intt*));
+            tmRowsBitsPtr = (char**) CudaUtils::AllocDeviceMem(threadsCount * sizeof (char*));
 
             treePointers = (TreePointer***)
-                    CudaUtils::NewDevice(threadsCount *
+                    CudaUtils::AllocDeviceMem(threadsCount *
                     sizeof (TreePointer**));
 
             for (uintt fa = 0; fa < threadsCount; ++fa) {
-                intt* tmColumns = (intt*) CudaUtils::NewDevice(M * sizeof (intt));
-                intt* tmRows = (intt*) CudaUtils::NewDevice(M * sizeof (intt));
-                char* tmRowsBits = (char*) CudaUtils::NewDevice(M2 * sizeof (char));
+                intt* tmColumns = (intt*) CudaUtils::AllocDeviceMem(M * sizeof (intt));
+                intt* tmRows = (intt*) CudaUtils::AllocDeviceMem(M * sizeof (intt));
+                char* tmRowsBits = (char*) CudaUtils::AllocDeviceMem(M2 * sizeof (char));
                 CudaUtils::CopyHostToDevice(&tmColumnsPtr[fa], &tmColumns, sizeof (intt*));
                 CudaUtils::CopyHostToDevice(&tmRowsPtr[fa], &tmRows, sizeof (intt*));
                 CudaUtils::CopyHostToDevice(&tmRowsBitsPtr[fa], &tmRowsBits, sizeof (char*));
 
-                TreePointer** treePointers1 = (TreePointer**) CudaUtils::NewDevice(M2 *
+                TreePointer** treePointers1 = (TreePointer**) CudaUtils::AllocDeviceMem(M2 *
                         sizeof (TreePointer*));
                 Pointers pointers = {tmColumns, tmRows, tmRowsBits, treePointers1};
                 vpointers.push_back(pointers);
@@ -244,13 +244,13 @@ namespace ShibataCuda {
             }
 
             dupIndecies =
-                    (intt*) CudaUtils::NewDevice(upIndeciesCount * sizeof (intt), upIndecies);
+                    (intt*) CudaUtils::AllocDeviceMem(upIndeciesCount * sizeof (intt), upIndecies);
             ddownIndecies =
-                    (intt*) CudaUtils::NewDevice(downIndeciesCount * sizeof (intt), downIndecies);
-            ddownIndeciesCount = (intt*) CudaUtils::NewDeviceValue(downIndeciesCount);
-            dquantumsCount = (intt*) CudaUtils::NewDeviceValue(quantumsCount);
-            dM2 = (intt*) CudaUtils::NewDeviceValue(M2);
-            dwidth = (intt*) CudaUtils::NewDeviceValue(width);
+                    (intt*) CudaUtils::AllocDeviceMem(downIndeciesCount * sizeof (intt), downIndecies);
+            ddownIndeciesCount = (intt*) CudaUtils::AllocDeviceObj(downIndeciesCount);
+            dquantumsCount = (intt*) CudaUtils::AllocDeviceObj(quantumsCount);
+            dM2 = (intt*) CudaUtils::AllocDeviceObj(M2);
+            dwidth = (intt*) CudaUtils::AllocDeviceObj(width);
             uintt rows = dmu.getColumns(expHamiltonian1);
             uintt columns = dmu.getColumns(expHamiltonian2);
             for (intt fa = 0; fa < rows; fa++) {
@@ -267,18 +267,18 @@ namespace ShibataCuda {
 
     void RealTransferMatrix::dealloc() {
         if (m_isAllocated == true) {
-            CudaUtils::DeleteDeviceValue(ddownIndeciesCount);
-            CudaUtils::DeleteDeviceValue(dquantumsCount);
-            CudaUtils::DeleteDeviceValue(dM2);
+            CudaUtils::FreeDeviceObj(ddownIndeciesCount);
+            CudaUtils::FreeDeviceObj(dquantumsCount);
+            CudaUtils::FreeDeviceObj(dM2);
             for (uint fa = 0; fa < vpointers.size(); fa++) {
-                CudaUtils::DeleteDevice(vpointers[fa].tmColumns);
-                CudaUtils::DeleteDevice(vpointers[fa].tmRows);
-                CudaUtils::DeleteDevice(vpointers[fa].tmRowsBits);
-                CudaUtils::DeleteDevice(vpointers[fa].treePointers1);
+                CudaUtils::FreeDeviceMem(vpointers[fa].tmColumns);
+                CudaUtils::FreeDeviceMem(vpointers[fa].tmRows);
+                CudaUtils::FreeDeviceMem(vpointers[fa].tmRowsBits);
+                CudaUtils::FreeDeviceMem(vpointers[fa].treePointers1);
             }
-            CudaUtils::DeleteDevice(tmColumnsPtr);
-            CudaUtils::DeleteDevice(tmRowsPtr);
-            CudaUtils::DeleteDevice(tmRowsBitsPtr);
+            CudaUtils::FreeDeviceMem(tmColumnsPtr);
+            CudaUtils::FreeDeviceMem(tmRowsPtr);
+            CudaUtils::FreeDeviceMem(tmRowsBitsPtr);
             for (uintt fa = 0; fa < treePointersVec.size(); fa++) {
                 m_treePointerCreator.destroy(treePointersVec[fa]);
             }

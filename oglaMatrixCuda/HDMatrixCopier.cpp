@@ -11,7 +11,7 @@ void HDMatrixCopier::copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* s
 }
 
 void HDMatrixCopier::copyReMatrixToReMatrix(math::Matrix* dst, const math::Matrix* src) {
-    uintt length1 = CudaUtils::GetDeviceColumns(dst) * CudaUtils::GetDeviceRows(dst);
+    uintt length1 = CudaUtils::GetColumns(dst) * CudaUtils::GetRows(dst);
     uintt length2 = src->columns * src->rows;
     length1 = length1 < length2 ? length1 : length2;
     CUdeviceptr dstRePtr = reinterpret_cast<CUdeviceptr> (CudaUtils::GetReValues(dst));
@@ -21,7 +21,7 @@ void HDMatrixCopier::copyReMatrixToReMatrix(math::Matrix* dst, const math::Matri
 }
 
 void HDMatrixCopier::copyImMatrixToImMatrix(math::Matrix* dst, const math::Matrix* src) {
-    uintt length1 = CudaUtils::GetDeviceColumns(dst) * CudaUtils::GetDeviceRows(dst);
+    uintt length1 = CudaUtils::GetColumns(dst) * CudaUtils::GetRows(dst);
     uintt length2 = src->columns * src->rows;
     length1 = length1 < length2 ? length1 : length2;
     CUdeviceptr dstImPtr = reinterpret_cast<CUdeviceptr> (CudaUtils::GetImValues(dst));

@@ -1,5 +1,5 @@
 #include "ArrayTools.h"
-#include "Types.h"
+#include "DebugLogs.h"
 #include <string.h>
 
 #define memcpy(dst,src,size)\

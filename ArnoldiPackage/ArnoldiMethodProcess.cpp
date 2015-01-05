@@ -103,14 +103,12 @@ namespace api {
 
     math::IArnoldiMethod* ArnoldiPackage::newArnoldiMethod() const {
         math::MathOperationsCpu* operationsCpu = NULL;
-        math::MathOperationsCuda* operationsCuda = NULL;
         switch (m_type) {
             case ARNOLDI_CPU:
                 operationsCpu = new math::MathOperationsCpu();
                 return new math::ArnoldiMethodCpu(operationsCpu);
             case ARNOLDI_GPU:
-                operationsCuda = new math::MathOperationsCuda();
-                return new math::ArnoldiMethodGpu(operationsCuda);
+                return new math::ArnoldiMethodGpu();
             case ARNOLDI_CALLBACK_CPU:
                 operationsCpu = new math::MathOperationsCpu();
                 return new math::ArnoldiMethodCallbackCpu(operationsCpu, 1);

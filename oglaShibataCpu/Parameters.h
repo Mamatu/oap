@@ -8,7 +8,7 @@
 #ifndef OGLA_PARAMETERS_SHIBATA_CPU_H
 #define	OGLA_PARAMETERS_SHIBATA_CPU_H
 
-#include "Types.h"
+#include "DebugLogs.h"
 #include "Matrix.h"
 
 namespace shibata {

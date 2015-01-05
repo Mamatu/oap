@@ -8,7 +8,7 @@
 #ifndef APIINTERACE_H
 #define	APIINTERACE_H
 
-#include "Types.h"
+#include "DebugLogs.h"
 #include "Status.h"
 #include "Argument.h"
 #include "Writer.h"

@@ -221,6 +221,7 @@ void ArnoldiMethodCpu::execute() {
     tempLenght = 1. / tempLenght;
     m_operations->multiply(v, v, &tempLenght);
     m_copier->setVector(V, 0, v, v->rows);
+    host::PrintReMatrix(V);
     this->A = A;
     bool finish = false;
     this->executeArnoldiFactorization();
@@ -447,6 +448,9 @@ void ArnoldiMethodCpu::calculateH(int unwantedCount) {
             }
         }
     }
+    host::DeleteMatrix(q);
+    host::DeleteMatrix(q1);
+    host::DeleteMatrix(q2);
 }
 
 ArnoldiMethodCallbackCpu::ArnoldiMethodCallbackCpu(MathOperationsCpu* mathOperations,

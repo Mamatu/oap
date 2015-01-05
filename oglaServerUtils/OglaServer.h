@@ -9,7 +9,7 @@
 #define	OGLASERVER_H
 
 #include <map>
-#include "Types.h"
+#include "DebugLogs.h"
 #include "RpcImpl.h"
 #include "Argument.h"
 #include "Status.h"

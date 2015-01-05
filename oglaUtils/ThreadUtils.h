@@ -9,7 +9,7 @@
 #define	OGLA_THREAD_UTILS_H
 
 #include <pthread.h>
-#include "Types.h"
+#include "DebugLogs.h"
 
 namespace utils {
 

@@ -17,7 +17,7 @@ DeviceTreePointerCreator::~DeviceTreePointerCreator() {
 TreePointer* DeviceTreePointerCreator::create(intt levelIndex,
         math::Matrix* matrix1,
         math::Matrix* matrix2) {
-    TreePointer* treePointer = (TreePointer*) CudaUtils::NewDevice(sizeof (TreePointer));
+    TreePointer* treePointer = (TreePointer*) CudaUtils::AllocDeviceMem(sizeof (TreePointer));
     DeviceMatrixUtils dmu;
     intt zero = 0;
     CudaUtils::CopyHostToDevice(&treePointer->count, &zero, sizeof (zero));
@@ -40,9 +40,9 @@ TreePointer* DeviceTreePointerCreator::create(intt levelIndex,
         CudaUtils::CopyHostToDevice(&treePointer->type, &type, sizeof (type));
         realCount = dmu.getColumns(matrix2);
     }
-    intt* nodeValue = (intt*) CudaUtils::NewDevice(realCount * sizeof (intt));
-    floatt* revalues = (floatt*) CudaUtils::NewDevice(realCount * sizeof (floatt));
-    floatt* imvalues = (floatt*) CudaUtils::NewDevice(realCount * sizeof (floatt));
+    intt* nodeValue = (intt*) CudaUtils::AllocDeviceMem(realCount * sizeof (intt));
+    floatt* revalues = (floatt*) CudaUtils::AllocDeviceMem(realCount * sizeof (floatt));
+    floatt* imvalues = (floatt*) CudaUtils::AllocDeviceMem(realCount * sizeof (floatt));
     CUdeviceptr ptr1 = reinterpret_cast<CUdeviceptr> (nodeValue);
     CUdeviceptr ptr2 = reinterpret_cast<CUdeviceptr> (revalues);
     CUdeviceptr ptr3 = reinterpret_cast<CUdeviceptr> (revalues);
@@ -62,9 +62,9 @@ void DeviceTreePointerCreator::destroy(TreePointer* treePointer) {
     CudaUtils::CopyDeviceToHost(&nodeValue, &treePointer->nodeValue, sizeof (intt*));
     CudaUtils::CopyDeviceToHost(&revalues, &treePointer->reValues, sizeof (floatt*));
     CudaUtils::CopyDeviceToHost(&imvalues, &treePointer->imValues, sizeof (floatt*));
-    CudaUtils::DeleteDevice(nodeValue);
-    CudaUtils::DeleteDevice(revalues);
-    CudaUtils::DeleteDevice(imvalues);
-    CudaUtils::DeleteDevice(treePointer);
+    CudaUtils::FreeDeviceMem(nodeValue);
+    CudaUtils::FreeDeviceMem(revalues);
+    CudaUtils::FreeDeviceMem(imvalues);
+    CudaUtils::FreeDeviceMem(treePointer);
 }
 

@@ -10,7 +10,7 @@
 #include <queue>
 #include <map>
 #include <string>
-#include "Types.h"
+#include "DebugLogs.h"
 #include <stdio.h>
 
 #define CONTROL_CRITICALS() //if(this->isCriticalError()){return;}

@@ -8,7 +8,7 @@
 #ifndef LOADER_H
 #define	LOADER_H
 
-#include "Types.h"
+#include "DebugLogs.h"
 #include "WrapperInterfaces.h"
 #include "DynamicLoader.h"
 #include <algorithm>

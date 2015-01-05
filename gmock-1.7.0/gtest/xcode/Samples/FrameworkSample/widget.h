@@ -27,30 +27,33 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Author: wan@google.com (Zhanyong Wan)
-
-// Google Mock - a framework for writing C++ mock classes.
+// Author: preston.a.jackson@gmail.com (Preston Jackson)
 //
-// This file tests code in gmock.cc.
+// Google Test - FrameworkSample
+// widget.h
+//
 
+// Widget is a very simple class used for demonstrating the use of gtest. It
+// simply stores two values a string and an integer, which are returned via
+// public accessors in multiple forms.
 
-#include <string>
-#include "gtest/gtest.h"
-#include "MatrixEq.h"
-#include "HostMatrixModules.h"
-#include "MathOperationsCpu.h"
+#import <string>
 
+class Widget {
+ public:
+  Widget(int number, const std::string& name);
+  ~Widget();
 
-class OglaProceduresTests : public testing::Test {
-public:
-   
-    virtual void SetUp() {
-    }
+  // Public accessors to number data
+  float GetFloatValue() const;
+  int GetIntValue() const;
 
-    virtual void TearDown() {
-    }
+  // Public accessors to the string data
+  std::string GetStringValue() const;
+  void GetCharPtrValue(char* buffer, size_t max_size) const;
+
+ private:
+  // Data members
+  float number_;
+  std::string name_;
 };
-
-TEST_F(OglaProceduresTests, OffsetSet) {
-  
-}

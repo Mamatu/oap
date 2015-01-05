@@ -11,7 +11,7 @@
 #include <string.h>
 #include <string>
 #include <vector>
-#include "Types.h"
+#include "DebugLogs.h"
 
 namespace utils {
 

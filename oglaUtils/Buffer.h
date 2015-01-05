@@ -8,7 +8,7 @@
 #ifndef OGLA_BUFFER_H
 #define	OGLA_BUFFER_H
 
-#include "Types.h"
+#include "DebugLogs.h"
 #include "Argument.h"
 #include "Serializable.h"
 

@@ -5,6 +5,7 @@
 #include <map>
 #include "HostMatrixModules.h"
 #include "Matrix.h"
+#include "MatrixEx.h"
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
 
@@ -155,38 +156,59 @@ public:
 
 namespace cuda {
 
-    math::Matrix* NewDeviceMatrix(uintt columns, uintt rows);
+math::Matrix* NewDeviceMatrix(uintt columns, uintt rows);
 
-    math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix);
+math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix);
 
-    math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, 
-        uintt columns, uintt rows);
+math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix,
+    uintt columns, uintt rows);
 
-    math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
+math::Matrix* NewDeviceMatrix(bool allocRe, bool allocIm,
+    uintt columns, uintt rows);
 
-    void DeleteDeviceMatrix(math::Matrix* deviceMatrix);
+math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
 
-    /**
-     * 
-     * @param dst
-     * @param src
-     */
-    void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src);
+void DeleteDeviceMatrix(math::Matrix* deviceMatrix);
 
-    /**
-     * 
-     * @param dst
-     * @param src
-     */
-    void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
+/**
+ * 
+ * @param dst
+ * @param src
+ */
+void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src);
 
-    /**
-     * 
-     * @param dst
-     * @param src
-     */
-    void CopyHostArraysToDeviceMatrix(math::Matrix* dst, const floatt* rearray, 
-        const floatt* imarray);
+/**
+ * 
+ * @param dst
+ * @param src
+ */
+void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
+
+void CopyDeviceMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
+
+/**
+ * 
+ * @param dst
+ * @param src
+ */
+void CopyHostArraysToDeviceMatrix(math::Matrix* dst, const floatt* rearray,
+    const floatt* imarray);
+
+MatrixEx** NewDeviceMatrixEx(uintt count);
+void DeleteDeviceMatrixEx(MatrixEx** matrixEx);
+void SetMatrixEx(MatrixEx** deviceMatrixEx, const uintt* buffer, uintt count);
+
+MatrixEx* NewDeviceMatrixEx();
+void DeleteDeviceMatrixEx(MatrixEx* matrixEx);
+void SetMatrixEx(MatrixEx* deviceMatrixEx, const MatrixEx* hostMatrixEx);
+
+void PrintReMatrix(FILE* stream, const math::Matrix* matrix);
+void PrintReMatrix(const math::Matrix* matrix);
+void PrintReMatrix(const std::string& text, const math::Matrix* matrix);
+void PrintImMatrix(FILE* stream, const math::Matrix* matrix);
+void PrintImMatrix(const math::Matrix* matrix);
+void PrintImMatrix(const std::string& text, const math::Matrix* matrix);
+
 }
 
 

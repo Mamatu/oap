@@ -13,7 +13,7 @@
 #include "Math.h"
 //#include "MatrixStructure.h"
 
-#define printCuError(cuResult) if(cuResult != 0) { debug("%s %s : %d cuError == %d \n",__FUNCTION__,__FILE__,__LINE__,cuResult); }
+#define printCuError(cuResult) if(cuResult != 0) { debug("\n\n %s %s : %d cuError == %d \n\n",__FUNCTION__,__FILE__,__LINE__,cuResult); }
 
 namespace cuda {
 
@@ -55,11 +55,10 @@ namespace cuda {
         int m_paramsSize;
         void* m_image;
         std::string m_path;
-        intt m_threadsCount[3];
-        intt m_blocksCount[3];
+        uintt m_threadsCount[3];
+        uintt m_blocksCount[3];
+        uintt m_sharedMemoryInBytes;
         inline void realeseImage();
-    protected:
-        void getDeviceProperties(CUdevprop& cuDevprop, CUdevice* cuDevicePtr);
     public:
         Kernel();
         virtual ~Kernel();
@@ -69,7 +68,8 @@ namespace cuda {
         Kernel(void* image, CUdevice cuDevicePtr);
         void setThreadsCount(intt x, intt y);
         void setBlocksCount(intt x, intt y);
-        int sharedMemorySize;
+        void setDimensions(uintt w, uintt h);
+        void setSharedMemory(uintt sizeInBytes);
         void setParams(void** params);
         int getParamsCount() const;
         void** getParams() const;

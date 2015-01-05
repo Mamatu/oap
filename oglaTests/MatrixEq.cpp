@@ -21,3 +21,15 @@ bool operator==(const math::Matrix& m1, const math::Matrix& m2) {
     return true;
 }
 
+bool IsEqual(const MatrixEx& matrixEx, const uintt* buffer) {
+    if (matrixEx.bcolumn == buffer[0]
+        && matrixEx.ecolumn == buffer[1]
+        && matrixEx.brow == buffer[2]
+        && matrixEx.erow == buffer[3]
+        && matrixEx.boffset == buffer[4]
+        && matrixEx.eoffset == buffer[5]) {
+        return true;
+    }
+    return false;
+}
+

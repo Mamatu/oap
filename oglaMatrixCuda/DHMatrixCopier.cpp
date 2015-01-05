@@ -6,7 +6,7 @@ void DHMatrixCopier::copyMatrixToMatrix(math::Matrix* dst, const math::Matrix* s
 
 void DHMatrixCopier::copyReMatrixToReMatrix(math::Matrix* dst, const math::Matrix* src) {
     uintt length1 = dst->columns * dst->rows;
-    uintt length2 = CudaUtils::GetDeviceColumns(src) * CudaUtils::GetDeviceRows(src);
+    uintt length2 = CudaUtils::GetColumns(src) * CudaUtils::GetRows(src);
     length1 = length1 < length2 ? length1 : length2;
     CUdeviceptr srcRePtr = reinterpret_cast<CUdeviceptr> (CudaUtils::GetReValues(src));
     if (srcRePtr != 0 && dst->reValues != NULL) {
@@ -16,7 +16,7 @@ void DHMatrixCopier::copyReMatrixToReMatrix(math::Matrix* dst, const math::Matri
 
 void DHMatrixCopier::copyImMatrixToImMatrix(math::Matrix* dst, const math::Matrix* src) {
     uintt length1 = dst->columns * dst->rows;
-    uintt length2 = CudaUtils::GetDeviceColumns(src) * CudaUtils::GetDeviceRows(src);
+    uintt length2 = CudaUtils::GetColumns(src) * CudaUtils::GetRows(src);
     length1 = length1 < length2 ? length1 : length2;
     CUdeviceptr srcImPtr = reinterpret_cast<CUdeviceptr> (CudaUtils::GetImValues(src));
     if (srcImPtr != 0 && dst->imValues != NULL) {
@@ -75,7 +75,7 @@ void DHMatrixCopier::getReVector(floatt* vector, uintt length,
         math::Matrix* matrix, uintt column) {
     debugFuncBegin();
     CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
-    uintt columns = CudaUtils::GetDeviceColumns(matrix);
+    uintt columns = CudaUtils::GetColumns(matrix);
     for (uintt fa = 0; fa < length; fa++) {
         const CUdeviceptr matrixRePtr1 = matrixRePtr + fa * columns + column;
         cuMemcpyDtoH(vector + fa, matrixRePtr1, sizeof (floatt));
@@ -96,7 +96,7 @@ void DHMatrixCopier::getImVector(floatt* vector, uintt length,
         math::Matrix* matrix, uintt column) {
     debugFuncBegin();
     CUdeviceptr matrixRePtr = CudaUtils::GetImValuesAddress(matrix);
-    uintt columns = CudaUtils::GetDeviceColumns(matrix);
+    uintt columns = CudaUtils::GetColumns(matrix);
     for (uintt fa = 0; fa < length; fa++) {
         const CUdeviceptr matrixRePtr1 = matrixRePtr + fa * columns + column;
         cuMemcpyDtoH(vector + fa, matrixRePtr1, sizeof (floatt));

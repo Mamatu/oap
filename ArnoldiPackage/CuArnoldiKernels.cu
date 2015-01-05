@@ -9,16 +9,21 @@ extern "C" __global__ void CUDAKernel_CalculateTriangularH(math::Matrix* H,
         math::Matrix* temp4, math::Matrix* temp5) {
     CUDA_DEBUG();
     CUDA_CalculateTriangularH(H, Q, R, temp, temp1, temp2, temp3, temp4, temp5);
+    CUDA_DEBUG();
 }
 
-extern "C" __global__ void CUDAKernel_CalculateH(bool init, intt initj,
-        math::Matrix* w, math::Matrix* A, math::Matrix* v,
+#if 0
+
+extern "C" __global__ void CUDAKernel_CalculateH(
+        math::Matrix* H, math::Matrix* A,
+        math::Matrix* w, math::Matrix* v,
         math::Matrix* f, math::Matrix* V, math::Matrix* transposeV,
-        math::Matrix* s, math::Matrix* H, math::Matrix* h,
-        math::Matrix* vh, math::Matrix* vs) {
+        math::Matrix* s, math::Matrix* vs,
+        math::Matrix* h, math::Matrix* vh) {
     CUDA_DEBUG();
-    CUDA_CalculateH(init, initj,
-            w, A, v,
+    CUDA_CalculateH(true, 0, H, A,
+            w, v,
             f, V, transposeV,
-            s, H, h, vh, vs);
+            s, vs, h, vh);
 }
+#endif
