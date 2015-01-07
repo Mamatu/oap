@@ -16,6 +16,121 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
+#define cuda_compare_re(buffer, m1, m2)\
+uintt index = tx * 2;\
+uintt c = length & 1;\
+if (tx < length / 2) {\
+    buffer[tx] = m1->reValues[index] == m2->reValues[index];\
+    buffer[tx] += m1->reValues[index + 1] == m2->reValues[index + 1];\
+    if (c == 1 && tx == length - 2) {buffer[tx] += m1->reValues[index + 2] == m2->reValues[index + 2];}\
+}\
+length = length / 2;
+
+#define cuda_compare_real(buffer, m1, m2)\
+uintt index = tx * 2;\
+uintt c = length & 1;\
+if (tx < length / 2) {\
+    buffer[tx] = m1->reValues[index] == m2->reValues[index];\
+    buffer[tx] += m1->imValues[index] == m2->imValues[index];\
+    buffer[tx] += m1->reValues[index + 1] == m2->reValues[index + 1];\
+    buffer[tx] += m1->imValues[index + 1] == m2->imValues[index + 1];\
+    if (c == 1 && tx == length - 2) {\
+        buffer[tx] += m1->reValues[index + 2] == m2->reValues[index + 2];\
+        buffer[tx] += m1->imValues[index + 2] == m2->imValues[index + 2];\
+    }\
+}\
+length = length / 2;
+
+#define cuda_compare_im(buffer, m1, m2)\
+uintt index = tx * 2;\
+uintt c = length & 1;\
+if (tx < length / 2) {\
+    buffer[tx] += m1->imValues[index] == m2->imValues[index];\
+    buffer[tx] += m1->imValues[index + 1] == m2->imValues[index + 1];\
+    if (c == 1 && tx == length - 2) {\
+        buffer[tx] += m1->imValues[index + 2] == m2->imValues[index + 2];\
+    }\
+}\
+length = length / 2;
+
+
+#define cuda_eq_step_2(buffer)\
+uintt index = tx * 2;\
+uintt c = length & 1;\
+if (tx < length / 2) {\
+    buffer[tx] = buffer[index] + buffer[index + 1];\
+    if (c == 1 && index == length - 3) {buffer[tx] += buffer[index + 2];}\
+}\
+length = length / 2;
+
+extern "C" __device__ void CUDA_compareRealMatrix(
+    uintt& sum,
+    math::Matrix* matrix1,
+    math::Matrix* matrix2,
+    int* buffer,
+    uintt tx, uintt ty) {
+    tx = tx > ty ? tx : ty;
+    uintt length = matrix1->columns * matrix2->rows;
+    cuda_compare_real(buffer, matrix1, matrix2);
+    __syncthreads();
+    do {
+        cuda_eq_step_2(buffer);
+        __syncthreads();
+    } while (length > 1);
+    sum = buffer[0] / 2;
+}
+
+extern "C" __device__ void CUDA_compareImMatrix(
+    uintt& sum,
+    math::Matrix* matrix1,
+    math::Matrix* matrix2,
+    int* buffer,
+    uintt tx, uintt ty) {
+    tx = tx > ty ? tx : ty;
+    uintt length = matrix1->columns * matrix2->rows;
+    cuda_compare_im(buffer, matrix1, matrix2);
+    __syncthreads();
+    do {
+        cuda_eq_step_2(buffer);
+        __syncthreads();
+    } while (length > 1);
+    sum = buffer[0];
+}
+
+extern "C" __device__ void CUDA_compareReMatrix(
+    uintt& sum,
+    math::Matrix* matrix1,
+    math::Matrix* matrix2,
+    int* buffer,
+    uintt tx, uintt ty) {
+    tx = tx > ty ? tx : ty;
+    uintt length = matrix1->columns * matrix2->rows;
+    cuda_compare_re(buffer, matrix1, matrix2);
+    __syncthreads();
+    do {
+        cuda_eq_step_2(buffer);
+        __syncthreads();
+    } while (length > 1);
+    sum = buffer[0];
+}
+
+extern "C" __device__ void CUDA_compare(
+    uintt& sum,
+    math::Matrix* matrix1,
+    math::Matrix* matrix2,
+    int* buffer,
+    uintt tx, uintt ty) {
+    bool isre = matrix1->reValues != NULL;
+    bool isim = matrix1->imValues != NULL;
+    if (isre && isim) {
+        CUDA_compareRealMatrix(sum, matrix1, matrix2, buffer, tx, ty);
+    } else if (isre) {
+        CUDA_compareReMatrix(sum, matrix1, matrix2, buffer, tx, ty);
+    } else if (isim) {
+        CUDA_compareImMatrix(sum, matrix1, matrix2, buffer, tx, ty);
+    }
+}
+
 extern "C" __device__ void CUDA_CopyReMatrix(
     math::Matrix* dst,
     math::Matrix* src,
@@ -86,7 +201,7 @@ extern "C" __device__ void CUDA_setDiagonalMatrix(
     if (NULL != dst->reValues) {
         CUDA_setDiagonalReMatrix(dst, rev, threadIndexX, threadIndexY);
     } else if (NULL != dst->imValues) {
-        CUDA_setDiagonalReMatrix(dst, imv, threadIndexX, threadIndexY);
+        CUDA_setDiagonalImMatrix(dst, imv, threadIndexX, threadIndexY);
     }
 }
 
@@ -134,10 +249,6 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyReMatricesEx(
     }
     output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
     __syncthreads();
-    cuda_debug_matrix("output", output);
-    cuda_debug_matrix("p0", params0);
-    cuda_debug_matrix("p1", params1);
-    cuda_debug_matrix_ex("mex", matrixEx);
 }
 
 extern "C" __device__ __forceinline__ void CUDA_multiplyImMatricesEx(
@@ -216,17 +327,11 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyReMatrices(
     const uintt offset = columns1;
     floatt retemp = 0;
     for (intt fa1 = 0; fa1 < offset; fa1++) {
-        cuda_debug_function();
         retemp += params0->reValues[fa1 + columns1 * threadIndexY] *
             params1->reValues[fa1 * columns2 + threadIndexX];
     }
-    cuda_debug_function();
     output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
     __syncthreads();
-
-    cuda_debug_matrix("o", output);
-    cuda_debug_matrix("params0", params0);
-    cuda_debug_matrix("params1", params1);
 }
 
 extern "C" __device__ __forceinline__ void CUDA_multiplyImMatrices(
@@ -282,7 +387,6 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyMatrices(
     uintt threadIndexY) {
     bool isre = output->reValues != NULL;
     bool isim = output->imValues != NULL;
-    cuda_debug_function();
     if (isre && isim) {
         CUDA_multiplyRealMatrices(output, params0, params1, threadIndexX, threadIndexY);
     } else if (isre) {
@@ -290,7 +394,6 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyMatrices(
     } else if (isim) {
         CUDA_multiplyImMatrices(output, params0, params1, threadIndexX, threadIndexY);
     }
-    cuda_debug_function();
 }
 
 extern "C" __device__ __forceinline__ void CUDA_dotProduct(
@@ -308,7 +411,7 @@ extern "C" __device__ __forceinline__ void CUDA_dotProductEx(
     CUDA_multiplyMatricesEx(output, params0, params1, matrixEx, threadIndexX, threadIndexY);
 }
 
-extern "C" __device__ __forceinline__ void CUDA_addReMatrix(
+extern "C" __device__ __forceinline__ void CUDA_addReMatrices(
     math::Matrix* output,
     math::Matrix* params0, math::Matrix* params1,
     uintt threadIndexX, uintt threadIndexY) {
@@ -320,12 +423,27 @@ extern "C" __device__ __forceinline__ void CUDA_addReMatrix(
     __syncthreads();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_addImMatrix(
+extern "C" __device__ __forceinline__ void CUDA_addImMatrices(
     math::Matrix* output,
     math::Matrix* params0, math::Matrix* params1,
     uintt threadIndexX, uintt threadIndexY) {
     uintt offset = output->columns;
     uintt index = threadIndexX + offset * threadIndexY;
+    output->imValues[index] =
+        params0->imValues[index] +
+        params1->imValues[index];
+    __syncthreads();
+}
+
+extern "C" __device__ __forceinline__ void CUDA_addRealMatrices(
+    math::Matrix* output,
+    math::Matrix* params0, math::Matrix* params1,
+    uintt threadIndexX, uintt threadIndexY) {
+    uintt offset = output->columns;
+    uintt index = threadIndexX + offset * threadIndexY;
+    output->reValues[index] =
+        params0->reValues[index] +
+        params1->reValues[index];
     output->imValues[index] =
         params0->imValues[index] +
         params1->imValues[index];
@@ -336,15 +454,15 @@ extern "C" __device__ __forceinline__ void CUDA_addMatrix(
     math::Matrix* output,
     math::Matrix* params0, math::Matrix* params1,
     uintt threadIndexX, uintt threadIndexY) {
-    uintt offset = output->columns;
-    uintt index = threadIndexX + offset * threadIndexY;
-    output->reValues[index] =
-        params0->reValues[index] +
-        params1->reValues[index];
-    output->imValues[index] =
-        params0->imValues[index] +
-        params1->imValues[index];
-    __syncthreads();
+    bool isre = output->reValues != NULL;
+    bool isim = output->imValues != NULL;
+    if (isre && isim) {
+        CUDA_addRealMatrices(output, params0, params1, threadIndexX, threadIndexY);
+    } else if (isre) {
+        CUDA_addReMatrices(output, params0, params1, threadIndexX, threadIndexY);
+    } else if (isim) {
+        CUDA_addImMatrices(output, params0, params1, threadIndexX, threadIndexY);
+    }
 }
 
 extern "C" __device__ __forceinline__ void CUDA_substractReMatrices(
@@ -541,9 +659,9 @@ extern "C" __device__ __forceinline__ void CUDA_transposeReMatrixEx(
     math::Matrix* params0,
     const MatrixEx& matrixEx,
     uintt threadIndexX, uintt threadIndexY) {
-    if (threadIndexY < matrixEx.erow) {
-        uintt index = threadIndexX + matrixEx.ecolumn * threadIndexY;
-        uintt index1 = threadIndexX * matrixEx.ecolumn + threadIndexY;
+    if (threadIndexY < matrixEx.erow && threadIndexX < matrixEx.ecolumn) {
+        uintt index = threadIndexX + output->columns * threadIndexY;
+        uintt index1 = threadIndexX * params0->columns + threadIndexY;
         output->reValues[index] = params0->reValues[index1];
     }
     __syncthreads();
@@ -554,9 +672,9 @@ extern "C" __device__ __forceinline__ void CUDA_transposeImMatrixEx(
     math::Matrix* params0,
     const MatrixEx& matrixEx,
     uintt threadIndexX, uintt threadIndexY) {
-    if (threadIndexY < matrixEx.erow) {
-        uintt index = threadIndexX + matrixEx.ecolumn * threadIndexY;
-        uintt index1 = threadIndexX * matrixEx.ecolumn + threadIndexY;
+    if (threadIndexY < matrixEx.erow && threadIndexX < matrixEx.ecolumn) {
+        uintt index = threadIndexX + output->columns * threadIndexY;
+        uintt index1 = threadIndexX * params0->columns + threadIndexY;
         output->imValues[index] = -params0->imValues[index1];
     }
     __syncthreads();
@@ -567,9 +685,9 @@ extern "C" __device__ __forceinline__ void CUDA_transposeRealMatrixEx(
     math::Matrix* params0,
     const MatrixEx& matrixEx,
     uintt threadIndexX, uintt threadIndexY) {
-    if (threadIndexY < matrixEx.erow) {
-        uintt index = threadIndexX + matrixEx.ecolumn * threadIndexY;
-        uintt index1 = threadIndexX * matrixEx.ecolumn + threadIndexY;
+    if (threadIndexY < matrixEx.erow && threadIndexX < matrixEx.ecolumn) {
+        uintt index = threadIndexX + output->columns * threadIndexY;
+        uintt index1 = threadIndexX * params0->columns + threadIndexY;
         output->reValues[index] = params0->reValues[index1];
         output->imValues[index] = -params0->imValues[index1];
     }
@@ -700,6 +818,8 @@ extern "C" __device__ void CUDA_prepareGMatrix(math::Matrix* A,
     __syncthreads();
 }
 
+__device__ uintt g_count;
+
 extern "C" __device__ __forceinline__ void CUDA_QRRe(math::Matrix* Q,
     math::Matrix* R,
     math::Matrix* A,
@@ -730,15 +850,48 @@ extern "C" __device__ __forceinline__ void CUDA_QRRe(math::Matrix* Q,
 }
 
 extern "C" __device__ __forceinline__ void CUDA_QRIm(
-    math::Matrix* output0,
-    math::Matrix* output1,
-    math::Matrix * params0,
+    math::Matrix* Q,
+    math::Matrix* R,
+    math::Matrix* A,
+    math::Matrix* Q1,
+    math::Matrix* R1,
     math::Matrix* G,
-    math::Matrix * GT,
-    uintt threadIndexX, uintt threadIndexY) {
+    math::Matrix* GT,
+    uintt tx, uintt ty) {
+    math::Matrix* rQ = Q;
+    math::Matrix* rR = R;
+    if (tx == 0 && ty == 0) {
+        g_count = 0;
+    }
+    for (uintt fa = 0; fa < A->columns - 1; ++fa) {
+        for (uintt fb = A->rows - 1; fb > fa; --fb) {
+            floatt v = A->reValues[fa + fb * A->columns];
+            if ((-0.001 < v && v < 0.001) == false) {
+                if (g_count == 0) {
+                    CUDA_prepareGMatrix(A, fa, fb, G,
+                        tx, ty);
+                    CUDA_multiplyMatrices(R, G, A, tx, ty);
+                    CUDA_transposeImMatrix(Q, G, tx, ty);
+                } else {
+                    CUDA_prepareGMatrix(R1, fa, fb, G,
+                        tx, ty);
+                    CUDA_transposeImMatrix(GT, G, tx, ty);
+                    CUDA_multiplyImMatrices(R, G, R1, tx, ty);
+                    CUDA_multiplyImMatrices(Q, Q1, GT, tx, ty);
+                }
+                if (tx == 0 && ty == 0) {
+                    ++g_count;
+                }
+                CUDA_switchPointer(&R1, &R);
+                CUDA_switchPointer(&Q1, &Q);
+            }
+        }
+    }
+    if (g_count & 1 == 1) {
+        CUDA_CopyMatrix(rQ, Q1, tx, ty);
+        CUDA_CopyMatrix(rR, R1, tx, ty);
+    }
 }
-
-__device__ uintt g_count;
 
 extern "C" __device__ __forceinline__ void CUDA_QR(
     math::Matrix* Q,
@@ -818,8 +971,8 @@ uintt c = length & 1;\
 if (tx < length / 2) {\
     buffer[tx] = values[index] * values[index] + values[index + 1] * values[index + 1];\
     if (c == 1 && tx == length - 2) {buffer[tx] += values[index + 2] * values[index + 2];}\
-    length = length / 2;\
-}
+}\
+length = length / 2;
 
 #define cuda_magnite_step_2(buffer)\
 uintt index = tx * 2;\
@@ -827,8 +980,8 @@ uintt c = length & 1;\
 if (tx < length / 2) {\
     buffer[tx] = buffer[index] + buffer[index + 1];\
     if (c == 1 && index == length - 3) {buffer[tx] += buffer[index + 2];}\
-    length = length / 2;\
-}
+}\
+length = length / 2;
 
 extern "C" __device__ void CUDA_magnitudeReal(floatt& value, math::Matrix* src,
     floatt* buffer,
@@ -840,10 +993,10 @@ extern "C" __device__ void CUDA_magnitudeReal(floatt& value, math::Matrix* src,
     uintt length = src->columns * src->rows;
     cuda_magnite_step_real(buffer, src->reValues, src->imValues);
     __syncthreads();
-    while (length > 1) {
+    do {
         cuda_magnite_step_2(buffer);
         __syncthreads();
-    }
+    } while (length > 1);
     value = sqrt(buffer[0]);
 }
 
@@ -857,10 +1010,10 @@ extern "C" __device__ void CUDA_magnitudeRe(floatt& value, math::Matrix* src,
     tx = tx > ty ? tx : ty;
     cuda_magnite_step(buffer, src->reValues);
     __syncthreads();
-    for (int fa = 0; fa < 2000 && length > 1; ++fa) {
+    do {
         cuda_magnite_step_2(buffer);
         __syncthreads();
-    }
+    } while (length > 1);
     value = sqrt(buffer[0]);
 }
 
@@ -874,10 +1027,10 @@ extern "C" __device__ void CUDA_magnitudeIm(floatt& value, math::Matrix* src,
     tx = tx > ty ? tx : ty;
     cuda_magnite_step(buffer, src->imValues);
     __syncthreads();
-    while (length > 1) {
+    do {
         cuda_magnite_step_2(buffer);
         __syncthreads();
-    }
+    } while (length > 1);
     value = sqrt(buffer[0]);
 }
 
@@ -963,10 +1116,10 @@ extern "C" __device__ void CUDA_setSubColumns(math::Matrix* matrix,
     matrix->columns = ecolumn;
 }
 
-extern "C" __device__ void CUDA_setVector(math::Matrix* V, uintt index,
+extern "C" __device__ void CUDA_setVector(math::Matrix* V, uintt column,
     math::Matrix* v, uintt length, uintt tx, uintt ty) {
     if (ty < length) {
-        uintt index1 = ty * V->columns + index + tx;
+        uintt index1 = ty * V->columns + column + tx;
         uintt index2 = ty * v->columns + tx;
         if (V->reValues != NULL && v->reValues != NULL) {
             V->reValues[index1] = v->reValues[index2];
@@ -978,11 +1131,16 @@ extern "C" __device__ void CUDA_setVector(math::Matrix* V, uintt index,
     __syncthreads();
 }
 
-extern "C" __device__ void CUDA_getVector(floatt* vector, uintt length,
-    math::Matrix* matrix, uintt column, uintt tx) {
-    if (matrix->reValues) {
-        for (uintt fa = 0; fa < length; fa++) {
-            vector[fa] = matrix->reValues[column + matrix->columns * fa];
+extern "C" __device__ void CUDA_getVector(math::Matrix* v, uintt length,
+    math::Matrix* V, uintt column, uintt tx, uintt ty) {
+    if (ty < length) {
+        uintt index1 = ty * V->columns + column + tx;
+        uintt index2 = ty * v->columns + tx;
+        if (V->reValues != NULL && v->reValues != NULL) {
+            v->reValues[index2] = V->reValues[index1];
+        }
+        if (V->imValues != NULL && v->imValues != NULL) {
+            v->imValues[index2] = V->imValues[index1];
         }
     }
     __syncthreads();

@@ -91,22 +91,22 @@ bool ArnoldiMethodCpu::testProcedure(uintt fa) {
     m_operations->multiply(EQ2, v, &(b.re), &(b.im));
     floatt d = 0;
     m_operations->substract(EQ3, EQ1, EQ2);
-    host::PrintReMatrix("EQ1 =", EQ1);
-    host::PrintReMatrix("EQ2 =", EQ2);
+    //host::PrintReMatrix("EQ1 =", EQ1);
+    //host::PrintReMatrix("EQ2 =", EQ2);
     m_operations->magnitude(&d, EQ3);
     if (d < diff || diff < 0) {
         diff = d;
-        fprintf(stderr, "diff = %f \n", diff);
-        fprintf(stderr, "ev = %f %f \n1", b.re, b.im);
+        //    fprintf(stderr, "diff = %f \n", diff);
+        //    fprintf(stderr, "ev = %f %f \n1", b.re, b.im);
     }
-    fprintf(stderr, "diA = %f \n", d);
-    fprintf(stderr, "evA = %f %f \n", b.re, b.im);
+    //fprintf(stderr, "diA = %f \n", d);
+    //fprintf(stderr, "evA = %f %f \n", b.re, b.im);
 }
 
 bool ArnoldiMethodCpu::continueProcedure() {
     m_operations->multiply(EV, V, Q);
-    host::PrintReMatrix("V =", V);
-    host::PrintReMatrix("Q =", Q);
+    //host::PrintReMatrix("V =", V);
+    //host::PrintReMatrix("Q =", Q);
     for (uintt fa = 0; fa < wanted.size(); ++fa) {
         testProcedure(fa);
     }
@@ -221,7 +221,6 @@ void ArnoldiMethodCpu::execute() {
     tempLenght = 1. / tempLenght;
     m_operations->multiply(v, v, &tempLenght);
     m_copier->setVector(V, 0, v, v->rows);
-    host::PrintReMatrix(V);
     this->A = A;
     bool finish = false;
     this->executeArnoldiFactorization();
@@ -300,13 +299,13 @@ bool ArnoldiMethodCpu::executeArnoldiFactorization(bool init, intt initj) {
     floatt B = 0;
     for (uintt j = initj; j < m_k - 1; j++) {
         PRINT_STATUS(m_operations->magnitude(&B, f));
+        host::PrintReMatrix("hf = ", f);
         if (fabs(B) < MATH_VALUE_LIMIT) {
             return false;
         }
         floatt rB = 1. / B;
         PRINT_STATUS(m_operations->multiply(v, f, &rB));
         m_copier->setVector(V, j + 1, v, v->rows);
-
         memset(&H->reValues[H->columns * (j + 1)], 0, H->columns *
             sizeof (floatt));
         if (H->imValues) {
@@ -380,12 +379,10 @@ bool wayToSort(const Complex& i, const Complex& j) {
 void ArnoldiMethodCpu::calculateH(int unwantedCount) {
     std::vector<Complex> values;
     host::CopyMatrix(H1, H);
-    HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("H1", H1);
+    HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("hH1", H1);
     m_module->getMatrixUtils()->setIdentityMatrix(Q);
     m_module->getMatrixUtils()->setIdentityMatrix(QJ);
     m_module->getMatrixUtils()->setIdentityMatrix(I);
-    host::PrintReMatrix("H1 = ", H1);
-    debugFunc();
     for (uintt fa = 0; IsTriangular(H1, H1->columns - 1) == false; ++fa) {
 #if 0
         floatt red = 0;
@@ -407,8 +404,6 @@ void ArnoldiMethodCpu::calculateH(int unwantedCount) {
         m_operations->multiply(Q, QJ, Q1);
         switchPointer(Q, QJ);
     }
-    host::PrintReMatrix("H2 = ", H1);
-    debugFunc();
     int index = 0;
     math::Matrix* q = host::NewMatrix(1, Q->rows, 0);
     math::Matrix* q1 = host::NewMatrix(1, Q->rows, 0);
@@ -432,7 +427,7 @@ void ArnoldiMethodCpu::calculateH(int unwantedCount) {
         values.push_back(c);
         notSorted.push_back(c);
     }
-    HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("H1", H1);
+    HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("hH1", H1);
     std::sort(values.begin(), values.end(), wayToSort);
     for (uintt fa = 0; fa < values.size(); ++fa) {
         Complex value = values[fa];

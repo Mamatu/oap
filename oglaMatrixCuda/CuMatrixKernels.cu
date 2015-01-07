@@ -24,7 +24,6 @@ extern "C" __global__ void CUDAKernel_DotProduct(math::Matrix* output,
         math::Matrix* params0, math::Matrix* params1) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    cuda_debug_function();
     CUDA_multiplyMatrices(output, params0, params1,
             threadIndexX, threadIndexY);
 }
@@ -60,7 +59,7 @@ extern "C" __global__ void CUDAKernel_AddRe(
         math::Matrix* params0, math::Matrix* params1) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_addReMatrix(output, params0, params1,
+    CUDA_addReMatrices(output, params0, params1,
             threadIndexX, threadIndexY);
 }
 
@@ -69,11 +68,11 @@ extern "C" __global__ void CUDAKernel_AddIm(
         math::Matrix* params0, math::Matrix* params1) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_addImMatrix(output, params0, params1,
+    CUDA_addImMatrices(output, params0, params1,
             threadIndexX, threadIndexY);
 }
 
-extern "C" __global__ void CUDAKernel_AddReal(
+extern "C" __global__ void CUDAKernel_Add(
         math::Matrix* output,
         math::Matrix* params0, math::Matrix* params1) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
@@ -134,8 +133,7 @@ extern "C" __global__ void CUDAKernel_MultiplyConstant(math::Matrix* output,
         math::Matrix* params0, floatt re, floatt im) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_multiplyConstantMatrix(output, params0,
-            re, im,
+    CUDA_multiplyConstantMatrix(output, params0, re, im,
             threadIndexX, threadIndexY);
 }
 
@@ -216,23 +214,35 @@ extern "C" __global__ void CUDAKernel_Magnitude(floatt* value,
 
 extern "C" __global__ void CUDAKernel_QRRe(math::Matrix* output0,
         math::Matrix* output1,
-        math::Matrix* params0) {
+        math::Matrix* params0,
+        math::Matrix* aux0, math::Matrix* aux1,
+        math::Matrix* aux2, math::Matrix* aux3) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+    CUDA_QRRe(output0, output1, params0, aux0, aux1, aux2, aux3,
+            threadIndexX, threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_QRIm(math::Matrix* output0,
         math::Matrix* output1,
-        math::Matrix* params0) {
+        math::Matrix* params0,
+        math::Matrix* aux0, math::Matrix* aux1,
+        math::Matrix* aux2, math::Matrix* aux3) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+    CUDA_QRIm(output0, output1, params0, aux0, aux1, aux2, aux3,
+            threadIndexX, threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_QR(math::Matrix* output0,
         math::Matrix* output1,
-        math::Matrix* params0) {
+        math::Matrix* params0,
+        math::Matrix* aux0, math::Matrix* aux1,
+        math::Matrix* aux2, math::Matrix* aux3) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+    CUDA_QR(output0, output1, params0, aux0, aux1, aux2, aux3,
+            threadIndexX, threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_SetVector(math::Matrix* output, uintt index,
@@ -242,8 +252,42 @@ extern "C" __global__ void CUDAKernel_SetVector(math::Matrix* output, uintt inde
     CUDA_setVector(output, index, params0, length, threadIndexX, threadIndexY);
 }
 
+extern "C" __global__ void CUDAKernel_GetVector(math::Matrix* output, uintt length,
+        math::Matrix* params0, uintt index) {
+    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
+    uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+    CUDA_getVector(output, length, params0, index, threadIndexX, threadIndexY);
+}
+
 extern "C" __global__ void CUDAKernel_SetIdentity(math::Matrix* matrix) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
     CUDA_setIdentityMatrix(matrix, threadIndexX, threadIndexY);
+}
+
+extern "C" __global__ void CUDAKernel_SetDiagonal(math::Matrix* matrix,
+        floatt re, floatt im) {
+    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
+    uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+    CUDA_setDiagonalMatrix(matrix, re, im, threadIndexX, threadIndexY);
+}
+
+extern "C" __global__ void CUDAKernel_EqRe(uintt* sum,
+        math::Matrix* matrix1,
+        math::Matrix* matrix2,
+        int* buffer) {
+    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
+    uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+    CUDA_compareReMatrix(*sum, matrix1, matrix2, buffer,
+            threadIndexX, threadIndexY);
+}
+
+extern "C" __global__ void CUDAKernel_Compare(uintt* sum,
+        math::Matrix* matrix1,
+        math::Matrix* matrix2,
+        int* buffer) {
+    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
+    uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+    CUDA_compare(*sum, matrix1, matrix2, buffer,
+            threadIndexX, threadIndexY);
 }

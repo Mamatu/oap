@@ -34,8 +34,7 @@ void hostMain() {
 
 void deviceMain() {
     debugFunc();
-    cuda::Context context;
-    context.init();
+    cuda::Context::Instance().init();
     math::Matrix* m = host::NewReMatrixCopy(16, 16, tm16);
 
     //[215589.901030, -4.613732, 2867.286904, -2441.909650
@@ -48,7 +47,7 @@ void deviceMain() {
     debug("Host matrix = %p", m);
     //debug("Device matrix = %p", dm);
 
-    uintt count = 3;
+    uintt count = 2;
     floatt revs[count];
     floatt imvs[count];
     api::ArnoldiPackage arnoldi(api::ArnoldiPackage::ARNOLDI_GPU);
@@ -57,6 +56,7 @@ void deviceMain() {
     arnoldi.setEigenvaluesBuffer(revs, imvs, count);
     debug("Start = %d", arnoldi.start());
     debugFunc();
+    cuda::Context::Instance().destroy();
 }
 
 int main(int argc, char** argv) {

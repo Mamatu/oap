@@ -13,6 +13,7 @@
 #include "DebugLogs.h"
 #include "ThreadsMapper.h"
 
+#define KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
 
 namespace cuda {
 
@@ -20,17 +21,15 @@ void PrintDeviceInfo(CUdevice cudevice) {
     CUdevprop cuDevprop;
     printCuError(cuDeviceGetProperties(&cuDevprop, cudevice));
     debug("Device properties: \n --Max grid size: %d, %d, %d.\n --Max threads dim: %d, %d, %d",
-        cuDevprop.maxGridSize[0], cuDevprop.maxGridSize[1],
-        cuDevprop.maxGridSize[2], cuDevprop.maxThreadsDim[0], cuDevprop.maxThreadsDim[1],
-        cuDevprop.maxThreadsDim[2]);
+        cuDevprop.maxGridSize[0], cuDevprop.maxGridSize[1], cuDevprop.maxGridSize[2],
+        cuDevprop.maxThreadsDim[0], cuDevprop.maxThreadsDim[1], cuDevprop.maxThreadsDim[2]);
     debug(" --Max threads per block: %d", cuDevprop.maxThreadsPerBlock);
     debug(" --Register per block: %d", cuDevprop.regsPerBlock);
     debug(" --Shared memory per block: %d", cuDevprop.sharedMemPerBlock);
 }
 
-bool wasInit = false;
-
 void Init() {
+    static bool wasInit = false;
     debugFuncBegin();
     if (wasInit == false) {
         wasInit = true;
@@ -77,13 +76,20 @@ void DefaultDeviceInfo::setDeviceInfo(const DeviceInfo& deviceInfo) {
     setDevice(deviceInfo.getDevice());
 }
 
-Context::Context(int _deviceIndex) : context(NULL), deviceIndex(_deviceIndex) {
+Context::Context(int _deviceIndex) :
+context(NULL), deviceIndex(_deviceIndex) {
+}
+
+Context Context::m_Context;
+
+Context& Context::Instance() {
+    return Context::m_Context;
 }
 
 void Context::init() {
     Init();
     if (context == NULL) {
-        int count = 0;
+        int count = 2;
         printCuError(cuDeviceGetCount(&count));
         debug("Devices count: %d \n", count);
         if (deviceIndex < count) {
@@ -173,7 +179,9 @@ void Kernel::execute(const char* functionName) {
     }
     CUmodule cuModule = NULL;
     CUfunction cuFunction = NULL;
+#ifdef KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
     debug("Function name: %s", functionName);
+#endif
     if (NULL != m_image) {
         printCuError(cuModuleLoadData(&cuModule, m_image));
     } else if (m_path.length() > 0) {
@@ -181,9 +189,7 @@ void Kernel::execute(const char* functionName) {
     }
     if (NULL != cuModule) {
         printCuError(cuModuleGetFunction(&cuFunction, cuModule, functionName));
-        debug("threads dim: %d, %d, %d", m_threadsCount[0], m_threadsCount[1], m_threadsCount[2]);
-        debug("grid size: %d, %d, %d", m_blocksCount[0], m_blocksCount[1], m_blocksCount[2]);
-#if 0
+#ifdef KERNEL_EXECUTOR_LOGS
         debug("Load kernel: %s", functionName);
         debug("Image: %p", m_image);
         debug("Module handle: %p", cuModule);

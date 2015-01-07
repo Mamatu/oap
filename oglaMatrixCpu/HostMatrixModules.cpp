@@ -225,7 +225,7 @@ void HostMatrixPrinter::getReMatrixStr(std::string& text, const math::Matrix* ma
             }
         }
     }
-    text += "]";
+    text += "]\n";
 }
 
 void HostMatrixPrinter::getImMatrixStr(std::string& str, const math::Matrix* matrix) {

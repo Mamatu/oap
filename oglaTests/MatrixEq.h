@@ -10,6 +10,7 @@
 
 #include "Matrix.h"
 #include "MatrixEx.h"
+
 bool operator==(const math::Matrix& m1, const math::Matrix& m2);
 
 bool IsEqual(const MatrixEx& matrixEx, const uintt* buffer);

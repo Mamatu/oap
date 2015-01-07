@@ -13,8 +13,6 @@
 
 #define MIN_VALUE 0.001
 
-#define THREADS_COUNT 512
-
 __device__ bool CUDA_IsTriangular(math::Matrix* matrix, uintt count) {
     uintt index = 0;
     uintt columns = matrix->columns;
@@ -56,9 +54,6 @@ __device__ void CUDA_CalculateTriangularH(
     uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
     g_status = false;
     CUDA_SetIdentityMatrix(temp, tx, ty);
-    cuda_debug_function();
-    cuda_debug_matrix("temp", temp);
-
     if (tx == 0 && ty == 0) {
         g_status = CUDA_IsTriangular(H, H->columns - 1);
     }
@@ -67,11 +62,7 @@ __device__ void CUDA_CalculateTriangularH(
         CUDA_QR(Q, R, H, temp2, temp3, temp4, temp5, tx, ty);
         CUDA_dotProduct(H, R, Q, tx, ty);
         CUDA_dotProduct(temp1, Q, temp, tx, ty);
-        cuda_debug_function();
-        cuda_debug_matrix("temp", temp);
         CUDA_switchPointer(&temp1, &temp);
-        cuda_debug_function();
-        cuda_debug_matrix("temp", temp);
         if (tx == 0 && ty == 0) {
             g_status = CUDA_IsTriangular(H, H->columns - 1);
         }
@@ -79,8 +70,6 @@ __device__ void CUDA_CalculateTriangularH(
     // TODO: optymalization
     if (fb & 1 == 0) {
         CUDA_CopyMatrix(Q, temp, tx, ty);
-        cuda_debug_function();
-        cuda_debug_matrix("temp", temp);
     } else {
         CUDA_CopyMatrix(Q, temp1, tx, ty);
     }
@@ -258,7 +247,7 @@ __device__ void CUDA_CalculateH(
             matrixEx.eoffset = initj + 2;
             CUDA_dotProductEx(vs, V, s, matrixEx, tx, ty);
             CUDA_substractRealMatrices(f, f, vs, tx, ty);
-            CUDA_addMatrix(h, h, s, tx, ty);
+            CUDA_addRealMatrices(h, h, s, tx, ty);
         }
         CUDA_setVector(H, fa + 1, h, fa + 2, tx);
     }
@@ -335,7 +324,7 @@ __device__ void CUDA_Eigens(
             CUDA_getVector(v, v->rows, V, k);
             CUDA_multiplyConstantRealMatrix(f1, v, &reBm_k, &imBm_k);
             CUDA_multiplyConstantRealMatrix(f, f, &reqm_k, &imqm_k);
-            CUDA_addMatrix(f, f1, f);
+            CUDA_addRealMatrices(f, f1, f);
             CUDA_setZeroMatrix(v);
             bool status = CUDA_CalculateH(H, A,
                 w, v,

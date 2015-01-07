@@ -40,14 +40,17 @@ ArnoldiMethodGpu::~ArnoldiMethodGpu() {
 }
 
 void ArnoldiMethodGpu::execute() {
+    m_wantedCount = m_count;
     outputs.realColumns = m_wantedCount;
     outputs.columns = m_wantedCount;
     outputs.realRows = 1;
     outputs.rows = 1;
     outputs.imValues = NULL;
     outputs.reValues = new floatt[m_wantedCount];
-    m_wantedCount = m_count;
     cuHArnoldi.execute(&outputs, m_matrix, m_k, m_wantedCount);
+    for (uintt fa = 0; fa < m_wantedCount; ++fa) {
+        debug("eig[%u] = %f", fa, outputs.reValues[fa]);
+    }
 #if 0    
     debugFunc();
     m_image = ::cuda::Kernel::LoadImage(kernelsFiles);

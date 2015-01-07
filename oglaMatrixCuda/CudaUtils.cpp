@@ -3,7 +3,6 @@
 #include <string.h>
 #include <vector>
 #include <algorithm>
-#include <netdb.h>
 #include <map>
 
 namespace CudaUtils {

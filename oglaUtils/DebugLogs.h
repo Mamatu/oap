@@ -8,7 +8,7 @@
 #define DEBUG
 //#define DEBUG_MATRIX_OPERATIONS
 
-#define STREAM stderr
+#define STREAM stdout
 
 //typedef void* LHandle;
 
@@ -24,7 +24,7 @@ typedef unsigned int handle;
 
 #ifdef DEBUG
 
-#define debug(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(stderr, "\n");
+#define debug(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
 
 #define debugAssert(x) assert(x);
 

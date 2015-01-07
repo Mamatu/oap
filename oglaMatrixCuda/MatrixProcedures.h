@@ -3,50 +3,99 @@
 
 #include "Matrix.h"
 #include "MatrixEx.h"
+#include "CudaUtils.h"
 
-void CuMatrix_dotProduct(math::Matrix* ouput,
-    math::Matrix* params0, math::Matrix* params1);
+class CuMatrix {
+public:
+    CuMatrix();
+    virtual ~CuMatrix();
 
-void CuMatrix_dotProductEx(math::Matrix* ouput,
-    math::Matrix* params0, math::Matrix* params1,
-    MatrixEx* matrixEx);
+    void dotProduct(math::Matrix* ouput,
+        math::Matrix* params0, math::Matrix* params1);
 
-void CuMatrix_transposeMatrixEx(math::Matrix* output,
-    math::Matrix* params0, MatrixEx* matrixEx);
+    void dotProductEx(math::Matrix* ouput,
+        math::Matrix* params0, math::Matrix* params1,
+        MatrixEx* matrixEx);
 
-void CuMatrix_transposeMatrix(math::Matrix* output,
-    math::Matrix* params0);
+    void transposeMatrixEx(math::Matrix* output,
+        math::Matrix* params0, MatrixEx* matrixEx);
 
-void CuMatrix_substractMatrix(math::Matrix* output,
-    math::Matrix* params0, math::Matrix* params1);
+    void transposeMatrix(math::Matrix* output,
+        math::Matrix* params0);
 
-void CuMatrix_addMatrix(math::Matrix* output,
-    math::Matrix* params0, math::Matrix* params1);
+    void substract(math::Matrix* output,
+        math::Matrix* params0, math::Matrix* params1);
 
-void CuMatrix_setVector(math::Matrix* output, uintt index,
-    math::Matrix* params0, uintt length);
+    void addMatrix(math::Matrix* output,
+        math::Matrix* params0, math::Matrix* params1);
 
-void CuMatrix_getVector(math::Matrix* vector, uintt rows,
-    math::Matrix* matrix, uintt column);
+    void setVector(math::Matrix* output, uintt column,
+        math::Matrix* params0, uintt length);
 
-void CuMatrix_magnitude(floatt& output, math::Matrix* params0);
+    void getVector(math::Matrix* vector, uintt length,
+        math::Matrix* matrix, uintt column);
 
-void CuMatrix_multiplyConstantMatrix(math::Matrix* v,
-    math::Matrix* f, floatt re);
+    void magnitude(floatt& output, math::Matrix* params0);
 
-void CuMatrix_multiplyConstantMatrix(math::Matrix* v,
-    math::Matrix* f, floatt re, floatt im);
+    void multiplyConstantMatrix(math::Matrix* v,
+        math::Matrix* f, floatt re);
 
-void CuMatrix_setDiagonalMatrix(math::Matrix* matrix, floatt* re, floatt* im);
+    void multiplyConstantMatrix(math::Matrix* v,
+        math::Matrix* f, floatt re, floatt im);
 
-void CuMatrix_setIdentity(math::Matrix* matrix);
+    void setDiagonal(math::Matrix* matrix, floatt re, floatt im);
 
-void CuMatrix_setZeroMatrix(math::Matrix* matrix);
+    void setIdentity(math::Matrix* matrix);
 
-void CuMatrix_QR(math::Matrix* Q,
-    math::Matrix* R, math::Matrix* H,
-    math::Matrix* R1, math::Matrix* Q1,
-    math::Matrix* G, math::Matrix * GT);
+    void setZeroMatrix(math::Matrix* matrix);
+
+    bool compare(math::Matrix* matrix1, math::Matrix* matrix2);
+
+    void QR(math::Matrix* Q,
+        math::Matrix* R, math::Matrix* H,
+        math::Matrix* R1, math::Matrix* Q1,
+        math::Matrix* G, math::Matrix * GT);
+private:
+    floatt* m_magniuteOutput;
+    uintt* m_dcompareOutput;
+
+    template<typename T> class CuBuffer {
+    public:
+        T* m_buffer;
+        uintt m_size;
+
+        CuBuffer();
+        virtual ~CuBuffer();
+
+        void realloc(uintt size);
+    };
+
+    CuBuffer<int> m_compareBuffer;
+    CuBuffer<floatt> m_magnitudeBuffer;
+};
+
+template<typename T> CuMatrix::CuBuffer<T>::CuBuffer() :
+m_buffer(NULL),
+m_size(0) {
+    // not implemented
+}
+
+template<typename T> CuMatrix::CuBuffer<T>::~CuBuffer() {
+    if (m_buffer != NULL) {
+        CudaUtils::FreeDeviceMem(m_buffer);
+    }
+}
+
+template<typename T> void CuMatrix::CuBuffer<T>::realloc(uintt size) {
+    if (size > m_size) {
+        if (m_buffer != NULL) {
+            CudaUtils::FreeDeviceMem(m_buffer);
+        }
+        m_buffer = static_cast<T*> (CudaUtils::AllocDeviceMem(size));
+        m_size = size;
+    }
+}
+
 
 
 #endif	/* MATRIXPROCEDURES_H */

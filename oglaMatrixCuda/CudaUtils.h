@@ -8,6 +8,8 @@
 #ifndef CUDAUTILS_H
 #define	CUDAUTILS_H
 
+#include <cuda.h>
+
 namespace CudaUtils {
 
 /**

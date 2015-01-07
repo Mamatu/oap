@@ -8,7 +8,6 @@
 #include "MatrixProcedures.h"
 #include "KernelExecutor.h"
 #include "DebugLogs.h"
-#include "CudaUtils.h"
 #include "ThreadsMapper.h"
 
 class CuMatrixModule {
@@ -78,9 +77,20 @@ void CuMatrixModule::Init() {
     GetInstance().init();
 }
 
-void CuMatrix_dotProduct(math::Matrix* output,
-    math::Matrix* params0, math::Matrix* params1) {
+CuMatrix::CuMatrix() {
+    cuda::Context::Instance().init();
     CuMatrixModule::Init();
+    m_magniuteOutput = CudaUtils::AllocDeviceObj<floatt>(0);
+    m_dcompareOutput = CudaUtils::AllocDeviceObj<uintt>(0);
+}
+
+CuMatrix::~CuMatrix() {
+    CudaUtils::FreeDeviceObj(m_magniuteOutput);
+    CudaUtils::FreeDeviceObj(m_dcompareOutput);
+}
+
+void CuMatrix::dotProduct(math::Matrix* output,
+    math::Matrix* params0, math::Matrix* params1) {
     const uintt w = CudaUtils::GetColumns(output);
     const uintt h = CudaUtils::GetRows(output);
     void* params[] = {&output, &params0, &params1};
@@ -88,10 +98,9 @@ void CuMatrix_dotProduct(math::Matrix* output,
         w, h, params, 0);
 }
 
-void CuMatrix_dotProductEx(math::Matrix* output,
+void CuMatrix::dotProductEx(math::Matrix* output,
     math::Matrix* params0, math::Matrix* params1,
     MatrixEx* matrixEx) {
-    CuMatrixModule::Init();
     void* params[] = {&output, &params0, &params1, &matrixEx};
     const uintt w = CudaUtils::GetColumns(matrixEx);
     const uintt h = CudaUtils::GetRows(matrixEx);
@@ -99,9 +108,8 @@ void CuMatrix_dotProductEx(math::Matrix* output,
         w, h, params, 0);
 }
 
-void CuMatrix_transposeMatrixEx(math::Matrix* output,
+void CuMatrix::transposeMatrixEx(math::Matrix* output,
     math::Matrix* params0, MatrixEx* matrixEx) {
-    CuMatrixModule::Init();
     void* params[] = {&output, &params0, &matrixEx};
     const uintt w = CudaUtils::GetColumns(matrixEx);
     const uintt h = CudaUtils::GetRows(matrixEx);
@@ -109,9 +117,8 @@ void CuMatrix_transposeMatrixEx(math::Matrix* output,
         "CUDAKernel_TransposeEx", w, h, params, 0);
 }
 
-void CuMatrix_transposeMatrix(math::Matrix* output,
+void CuMatrix::transposeMatrix(math::Matrix* output,
     math::Matrix* params0) {
-    CuMatrixModule::Init();
     void* params[] = {&output, &params0};
     const uintt w = CudaUtils::GetColumns(output);
     const uintt h = CudaUtils::GetRows(output);
@@ -119,9 +126,8 @@ void CuMatrix_transposeMatrix(math::Matrix* output,
         "CUDAKernel_Transpose", w, h, params, 0);
 }
 
-void CuMatrix_substractMatrix(math::Matrix* output,
+void CuMatrix::substract(math::Matrix* output,
     math::Matrix* params0, math::Matrix* params1) {
-    CuMatrixModule::Init();
     void* params[] = {&output, &params0, &params1};
     const uintt w = CudaUtils::GetColumns(output);
     const uintt h = CudaUtils::GetRows(output);
@@ -129,9 +135,8 @@ void CuMatrix_substractMatrix(math::Matrix* output,
         "CUDAKernel_Substract", w, h, params, 0);
 }
 
-void CuMatrix_addMatrix(math::Matrix* output,
+void CuMatrix::addMatrix(math::Matrix* output,
     math::Matrix* params0, math::Matrix* params1) {
-    CuMatrixModule::Init();
     void* params[] = {&output, &params0, &params1};
     const uintt w = CudaUtils::GetColumns(output);
     const uintt h = CudaUtils::GetRows(output);
@@ -139,38 +144,43 @@ void CuMatrix_addMatrix(math::Matrix* output,
         "CUDAKernel_Add", w, h, params, 0);
 }
 
-void CuMatrix_setVector(math::Matrix* V, uintt index,
+void CuMatrix::setVector(math::Matrix* V, uintt column,
     math::Matrix* v, uintt length) {
-    CuMatrixModule::Init();
     const uintt w = CudaUtils::GetColumns(v);
     const uintt h = CudaUtils::GetRows(v);
-    void* params[] = {&V, &index, &v, &length};
+    void* params[] = {&V, &column, &v, &length};
     CuMatrixModule::GetInstance().execute(
         "CUDAKernel_SetVector", w, h, params, 0);
 }
 
-void CuMatrix_magnitude(floatt& output, math::Matrix* param0) {
-    CuMatrixModule::Init();
-    floatt* doutput = CudaUtils::AllocDeviceObj<floatt>(0);
+void CuMatrix::getVector(math::Matrix* vector, uintt length,
+    math::Matrix* matrix, uintt column) {
+    const uintt w = CudaUtils::GetColumns(vector);
+    const uintt h = CudaUtils::GetRows(vector);
+    void* params[] = {&vector, &length, &matrix, &column};
+    CuMatrixModule::GetInstance().execute(
+        "CUDAKernel_GetVector", w, h, params, 0);
+}
+
+void CuMatrix::magnitude(floatt& output, math::Matrix* param0) {
     const uintt w = CudaUtils::GetColumns(param0);
     const uintt h = CudaUtils::GetRows(param0);
-    floatt* buffer = reinterpret_cast<floatt*>
-        (CudaUtils::AllocDeviceMem(sizeof (floatt) * w * h / 2));
-    void* params[] = {&doutput, &param0, &buffer};
+    m_magnitudeBuffer.realloc(sizeof (floatt) * w * h / 2);
+    void* params[] = {&m_magniuteOutput, &param0, &m_magnitudeBuffer.m_buffer};
     CuMatrixModule::GetInstance().execute(
         "CUDAKernel_Magnitude", w, h, params, 0);
-    CudaUtils::CopyDeviceToHost(&output, doutput, sizeof (floatt));
-    CudaUtils::FreeDeviceObj(doutput);
-    CudaUtils::FreeDeviceMem(buffer);
+    CudaUtils::CopyDeviceToHost(&output, m_magniuteOutput, sizeof (floatt));
 }
 
-void CuMatrix_setDiagonalMatrix(math::Matrix* v, floatt* re, floatt* im) {
-    CuMatrixModule::Init();
-    debugAssert("not implemented" == NULL);
+void CuMatrix::setDiagonal(math::Matrix* matrix, floatt re, floatt im) {
+    const uintt w = CudaUtils::GetColumns(matrix);
+    const uintt h = CudaUtils::GetRows(matrix);
+    void* params[] = {&matrix, &re, &im};
+    CuMatrixModule::GetInstance().execute(
+        "CUDAKernel_SetDiagonal", w, h, params, 0);
 }
 
-void CuMatrix_setIdentity(math::Matrix* matrix) {
-    CuMatrixModule::Init();
+void CuMatrix::setIdentity(math::Matrix* matrix) {
     void* params[] = {&matrix};
     const uintt w = CudaUtils::GetColumns(matrix);
     const uintt h = CudaUtils::GetRows(matrix);
@@ -178,22 +188,27 @@ void CuMatrix_setIdentity(math::Matrix* matrix) {
         "CUDAKernel_SetIdentity", w, h, params, 0);
 }
 
-void CuMatrix_setZeroMatrix(math::Matrix* matrix) {
-    CuMatrixModule::Init();
-    debugAssert("not implemented" == NULL);
+void CuMatrix::setZeroMatrix(math::Matrix* matrix) {
+    CudaUtils::SetZeroMatrix(matrix, true, true);
 }
 
-void CuMatrix_QR(math::Matrix* Q,
+void CuMatrix::QR(math::Matrix* Q,
     math::Matrix* R, math::Matrix* H,
-    math::Matrix* R1, math::Matrix* Q1,
-    math::Matrix* G, math::Matrix * GT) {
-    CuMatrixModule::Init();
-    debugAssert("not implemented" == NULL);
+    math::Matrix* aux0, math::Matrix* aux1,
+    math::Matrix* aux2, math::Matrix * aux3) {
+    void* params[] = {
+                      &Q, &R, &H,
+                      &aux0, &aux1,
+                      &aux2, &aux3
+    };
+    const uintt w = CudaUtils::GetColumns(H);
+    const uintt h = CudaUtils::GetRows(H);
+    CuMatrixModule::GetInstance().execute(
+        "CUDAKernel_QR", w, h, params, 0);
 }
 
-void CuMatrix_multiplyConstantMatrix(math::Matrix* output,
+void CuMatrix::multiplyConstantMatrix(math::Matrix* output,
     math::Matrix* params0, floatt re) {
-    CuMatrixModule::Init();
     void* params[] = {&output, &params0, &re};
     const uintt w = CudaUtils::GetColumns(output);
     const uintt h = CudaUtils::GetRows(output);
@@ -201,17 +216,28 @@ void CuMatrix_multiplyConstantMatrix(math::Matrix* output,
         "CUDAKernel_MultiplyConstantRe", w, h, params, 0);
 }
 
-void CuMatrix_multiplyConstantMatrix(math::Matrix* output,
+void CuMatrix::multiplyConstantMatrix(math::Matrix* output,
     math::Matrix* params0, floatt re, floatt im) {
-    CuMatrixModule::Init();
     void* params[] = {&output, &params0, &re, &im};
     const uintt w = CudaUtils::GetColumns(output);
     const uintt h = CudaUtils::GetRows(output);
     CuMatrixModule::GetInstance().execute(
-        "CUDAKernel_MultiplyConstantReal", w, h, params, 0);
-
+        "CUDAKernel_MultiplyConstant", w, h, params, 0);
 }
 
-void CuMatrix_getVector(math::Matrix* vector, uintt rows,
-    math::Matrix* matrix, uintt column) {
+bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
+    if (matrix1 == matrix2) {
+        return true;
+    }
+    const uintt w = CudaUtils::GetColumns(matrix1);
+    const uintt h = CudaUtils::GetRows(matrix1);
+    uintt size = w * h * sizeof (int) / 2;
+    m_compareBuffer.realloc(size);
+    void* params[] = {&m_dcompareOutput, &matrix1, &matrix2, &m_compareBuffer.m_buffer};
+    CuMatrixModule::GetInstance().execute(
+        "CUDAKernel_Compare", w, h, params, 0);
+    uintt hsum;
+    CudaUtils::CopyDeviceToHost(&hsum, m_dcompareOutput, sizeof (uintt));
+
+    return hsum == w * h;
 }

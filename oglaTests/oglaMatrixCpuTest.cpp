@@ -35,8 +35,8 @@
 
 
 #include <string>
-#include "gtest/gtest.h"
 #include "MatrixEq.h"
+#include "gtest/gtest.h"
 #include "HostMatrixModules.h"
 #include "MathOperationsCpu.h"
 
@@ -58,12 +58,13 @@ public:
 
     virtual void TearDown() {
         if (output != NULL && eq_output != NULL) {
-            host::PrintReMatrix("output", output);
-            host::PrintReMatrix("eq_output", eq_output);
-            EXPECT_TRUE(*output == *eq_output);
+            bool testPassed = *output == *eq_output;
+            if (!testPassed) {
+                host::PrintReMatrix("output", output);
+                host::PrintReMatrix("eq_output", eq_output);
+            }
+            EXPECT_TRUE(testPassed);
         } else {
-            fprintf(stderr,"value = %f \n", value);
-            fprintf(stderr,"eq_value = %f \n", eq_value);
             EXPECT_EQ(eq_value, value);
         }
         host::DeleteMatrix(matrix1);

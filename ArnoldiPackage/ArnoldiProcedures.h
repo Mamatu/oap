@@ -12,25 +12,30 @@
 #include "MatrixEx.h"
 #include "Matrix.h"
 #include "KernelExecutor.h"
+#include "MatrixProcedures.h"
 
 class CuHArnoldi {
-    
     void initVvector();
-    
+
+    bool continueProcedure();
+
     void calculateTriangularH();
 
     void calculateTriangularHEigens(uintt unwantedCount);
 
     bool executeArnoldiFactorization(bool init, intt initj,
-        MatrixEx** dMatrixEx);
+        MatrixEx** dMatrixEx, floatt m_rho);
 public:
     CuHArnoldi();
     virtual ~CuHArnoldi();
 
     void execute(math::Matrix* outputs, math::Matrix* hostA,
-        uintt k, uintt wantedCount);
+        uintt k, uintt wantedCount, floatt rho = 1. / 3.14);
+
+    virtual void multiply(math::Matrix* w, math::Matrix* A, math::Matrix* v);
 
 private:
+    CuMatrix m_cuMatrix;
     math::Matrix* w;
     math::Matrix* f;
     math::Matrix* f1;
@@ -78,10 +83,11 @@ private:
     std::vector<Complex> wanted;
     std::vector<Complex> unwanted;
     std::vector<uintt> wantedIndecies;
+    std::vector<Complex> notSorted;
 
     void* m_image;
     cuda::Kernel m_kernel;
-    
+
     uintt m_transposeVcolumns;
     uintt m_hrows;
     uintt m_scolumns;
