@@ -16,6 +16,7 @@ OGLA_INCLUDES += oglaCuda
 OGLA_INCLUDES += oglaMatrix
 OGLA_INCLUDES += oglaMatrixCpu
 OGLA_INCLUDES += oglaMatrixCuda
+OGLA_INCLUDES += oglaCudaTests
 OGLA_INCLUDES += oglaShibataCpu
 OGLA_INCLUDES += oglaShibataCuda
 #OGLA_INCLUDES += oglaShibataMgr

@@ -32,7 +32,7 @@ public:
     void execute(math::Matrix* outputs, math::Matrix* hostA,
         uintt k, uintt wantedCount, floatt rho = 1. / 3.14);
 
-    virtual void multiply(math::Matrix* w, math::Matrix* A, math::Matrix* v);
+    virtual void multiply(math::Matrix* w, math::Matrix* v);
 
 private:
     CuMatrix m_cuMatrix;
@@ -108,6 +108,9 @@ private:
     void dealloc3();
     void dealloc4();
     void copy(math::Matrix* hostA);
+};
+
+class CuHArnoldiCallback {
 };
 
 

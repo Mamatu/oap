@@ -14,6 +14,7 @@
 #include "ThreadsMapper.h"
 
 #define KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
+#define KERNEL_EXECUTOR_LOGS
 
 namespace cuda {
 

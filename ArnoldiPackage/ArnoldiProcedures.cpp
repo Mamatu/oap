@@ -4,8 +4,8 @@
 #include "DeviceMatrixModules.h"
 
 const char* kernelsFiles[] = {
-    "/home/mmatula/Ogla/ArnoldiPackage/dist/Debug/albert/libArnoldiPackage.cubin",
-    NULL
+                              "/home/mmatula/Ogla/ArnoldiPackage/dist/Debug/albert/libArnoldiPackage.cubin",
+                              NULL
 };
 
 bool wayToSort(const Complex& i, const Complex& j) {
@@ -33,9 +33,9 @@ CuHArnoldi::~CuHArnoldi() {
 void CuHArnoldi::calculateTriangularH() {
     cuda::PrintReMatrix("dH1 =", H1);
     void* params[] = {
-        &H1, &Q, &R1,
-        &Q1, &QJ, &Q2,
-        &R2, &G, &GT
+                      &H1, &Q, &R1,
+                      &Q1, &QJ, &Q2,
+                      &R2, &G, &GT
     };
     m_kernel.setDimensions(m_Hcolumns, m_Hrows);
     cuda::Kernel::ExecuteKernel("CUDAKernel_CalculateTriangularH",
@@ -97,14 +97,14 @@ void CuHArnoldi::calculateTriangularHEigens(uintt unwantedCount) {
     }
 }
 
-void CuHArnoldi::multiply(math::Matrix* w, math::Matrix* A, math::Matrix* v) {
+void CuHArnoldi::multiply(math::Matrix* w, math::Matrix* v) {
     m_cuMatrix.dotProduct(w, A, v);
 }
 
 bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
     MatrixEx** dMatrixEx, floatt m_rho) {
     if (init) {
-        multiply(w, A, v);
+        multiply(w, v);
         m_cuMatrix.setVector(V, 0, v, m_vrows);
         m_cuMatrix.transposeMatrixEx(transposeV, V, dMatrixEx[0]);
         m_cuMatrix.dotProductEx(h, transposeV, w, dMatrixEx[1]);
@@ -126,7 +126,7 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
         m_cuMatrix.setVector(V, fa + 1, v, m_vrows);
         CudaUtils::SetZeroRow(H, fa + 1, true, true);
         CudaUtils::SetReValue(H, (fa) + m_Hcolumns * (fa + 1), B);
-        multiply(w, A, v);
+        multiply(w, v);
         MatrixEx matrixEx = {0, m_transposeVcolumns, initj, fa + 2, 0, 0};
         cuda::SetMatrixEx(dMatrixEx[2], &matrixEx);
         m_cuMatrix.transposeMatrixEx(transposeV, V, dMatrixEx[2]);
@@ -171,11 +171,11 @@ void CuHArnoldi::execute(math::Matrix* outputs,
     {
         const uintt initj = 0;
         uintt buffer[] = {
-            0, m_transposeVcolumns, 0, 1, 0, 0,
-            0, 1, 0, m_hrows, 0, m_transposeVcolumns,
-            0, 0, 0, 0, 0, 0,
-            0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
-            0, m_vscolumns, 0, m_vsrows, initj, initj + 2
+                          0, m_transposeVcolumns, 0, 1, 0, 0,
+                          0, 1, 0, m_hrows, 0, m_transposeVcolumns,
+                          0, 0, 0, 0, 0, 0,
+                          0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
+                          0, m_vscolumns, 0, m_vsrows, initj, initj + 2
         };
         cuda::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
         executeArnoldiFactorization(true, 0, dMatrixExs, rho);
@@ -225,11 +225,11 @@ void CuHArnoldi::execute(math::Matrix* outputs,
             {
                 const uintt initj = k - 1;
                 uintt buffer[] = {
-                    0, m_transposeVcolumns, 0, 1, 0, 0,
-                    0, 1, 0, m_hrows, 0, m_transposeVcolumns,
-                    0, 0, 0, 0, 0, 0,
-                    0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
-                    0, m_vscolumns, 0, m_vsrows, initj, initj + 2
+                                  0, m_transposeVcolumns, 0, 1, 0, 0,
+                                  0, 1, 0, m_hrows, 0, m_transposeVcolumns,
+                                  0, 0, 0, 0, 0, 0,
+                                  0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
+                                  0, m_vscolumns, 0, m_vsrows, initj, initj + 2
                 };
                 cuda::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
                 status = executeArnoldiFactorization(false, k - 1,
