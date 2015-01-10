@@ -53,6 +53,7 @@
     if ((blockIdx.x * blockDim.x + threadIdx.x)==0\
         && (blockIdx.y * blockDim.y + threadIdx.y)==0) {\
         printf(arg, ##__VA_ARGS__);\
+        printf("\n");\
     }\
 }
 

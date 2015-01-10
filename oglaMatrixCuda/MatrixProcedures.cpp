@@ -238,6 +238,5 @@ bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
         "CUDAKernel_Compare", w, h, params, 0);
     uintt hsum;
     CudaUtils::CopyDeviceToHost(&hsum, m_dcompareOutput, sizeof (uintt));
-
     return hsum == w * h;
 }

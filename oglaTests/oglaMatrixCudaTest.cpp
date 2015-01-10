@@ -632,7 +632,7 @@ TEST_F(OglaMatrixCudaTests, CompareReMatrixTest1) {
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_FALSE(result);
+    EXPECT_TRUE(result);
 }
 
 TEST_F(OglaMatrixCudaTests, CompareReMatrixTest1Fail) {
