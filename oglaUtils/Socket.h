@@ -31,32 +31,103 @@
 
 namespace utils {
 
-    class Socket;
+class Socket {
+public:
+    Socket(bool createSocket = true);
+    Socket(int socketID);
+    virtual ~Socket();
 
-    typedef void (*server_callback_f)(Socket* server, Socket* client, const char* buffer, int size, void* data_ptr);
+    virtual bool connect() = 0;
 
-    class Socket {
-    protected:
-	std::string address;
-	int16_t port;
-	int socketID;
-	Socket(int _socketID);
+    void close();
 
-	static void Receive(Socket* socket, void* buffer, int size);
-	static void SetAddress(sockaddr_in* socketAddress, const char* address, int16_t port);
+protected:
+    void initID(bool createSocket = true);
 
+    int getID() const;
+    sockaddr_in* getSockaddr() const;
+    sockaddr_in* m_socketAddress;
+    int16_t m_port;
+private:
+    int m_socketID;
+};
+
+class Server : public Socket {
+public:
+    Server(int16_t port);
+    virtual ~Server();
+
+    bool connect();
+
+protected:
+    virtual void OnData(Socket* client, const char* buffer, int size) = 0;
+
+    class ServerClient : public Socket {
     public:
-	virtual ~Socket();
-
-	static Socket* CreateClient(const char* address, int16_t port);
-	static Socket* CreateServer(int16_t port, server_callback_f server_callback, void* data_ptr);
-
-	void send(const char* buffer, int size);
-	void send(utils::Serializable* serialize);
-
-	bool connect();
-	void close();
+        ServerClient(int socketID, Server* server);
+        bool connect();
+        void receive(void* buffer, size_t size);
+    private:
+        Server* m_server;
     };
+    friend class ServerClient;
+
+    void registerClient(ServerClient* serverClient);
+    void unregisterClient(ServerClient* serverClient);
+private:
+    volatile bool isDestroyed;
+    synchronization::Cond cond;
+    synchronization::Mutex mutex;
+
+    class ThreadData {
+    public:
+        ThreadData(Server* _server, int _index, ServerClient* _client);
+        ServerClient* m_client;
+        int m_index;
+        Server* m_server;
+    };
+
+    class ClientData {
+    public:
+        utils::Thread* m_thread;
+        ThreadData* m_threadData;
+        ServerClient* m_client;
+        bool operator==(const ClientData& clientData);
+        bool operator==(const Server::ServerClient* serverClient);
+
+        ClientData(utils::Thread* thread,
+            ThreadData* threadData, ServerClient* client,
+            bool shouldBeDeallocated = false);
+        ~ClientData();
+        void release();
+    private:
+        bool m_isReleased;
+        bool m_shouldBeDeallocated;
+    };
+
+    typedef std::vector<ClientData> Clients;
+    Clients m_clients;
+    void invokeCallback(Socket* client, const char* buffer, int size);
+    static void Execute(void* ptr);
+};
+
+class Client : public Socket {
+public:
+
+    Client(const char* address, int16_t port);
+
+    void send(const char* buffer, size_t size);
+    void send(utils::Serializable* serialize);
+
+    bool connect();
+private:
+
+    void init(const char* address, int16_t port);
+    void initAddress(const char* address, int16_t port);
+    std::string m_address;
+
+};
+
 }
 
 #endif	/* SOCKET_H */

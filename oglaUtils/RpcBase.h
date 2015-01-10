@@ -138,7 +138,9 @@ namespace utils {
         uint16_t port;
         uint initID;
 
-        utils::Socket* server;
+        utils::Server* server;
+        class ServerImpl;
+        friend class ServerImpl;
         std::vector<utils::Socket*> clinets;
 
         synchronization::RecursiveMutex mutex;
@@ -186,14 +188,13 @@ namespace utils {
         static void UnregisterFunctionEvent(LHandle actionID, LHandle connectionID, Reader& reader, RpcBase* rpc);
         static void GetRegisteredFunctions(LHandle actionID, LHandle connectionID, Reader& reader, RpcBase* rpc);
 
-        static void ServerExecution(Socket* server, Socket* client, const char* buffer, int size, void* data_ptr);
-        static void ServerSubExecution(RpcBase* rpc, int type, Reader& reader, void* data_ptr);
+        static void ServerSubExecution(RpcBase* rpc, int type, Reader& reader);
 
         void sendFunctionEvent(LHandle socketID, LHandle clientID);
         void putFunctionEvent(Writer& writer, LHandle socketID, LHandle clientID);
 
         static void CallbackImpl(int event, void* eventObj, void* user_ptr);
-        utils::Socket* getSocket(LHandle clinetID);
+        utils::Client* getSocket(LHandle clinetID);
         RpcBase(const RpcBase& orig);
     };
 }

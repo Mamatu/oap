@@ -33,7 +33,7 @@ namespace utils {
         this->setBuffer(ptr, size);
     }
 
-    void Buffer::getBuffer(char** bytes, unsigned int& size) const {
+    void Buffer::getBufferCopy(char** bytes, unsigned int& size) const {
         if (bytes != NULL) {
             int realSize = this->getSize();
             (*bytes) = new char[realSize];
@@ -64,6 +64,6 @@ namespace utils {
 
     void Buffer::getBuffer(char** bytes) const {
         unsigned int size = 0;
-        this->getBuffer(bytes, size);
+        this->getBufferCopy(bytes, size);
     }
 }

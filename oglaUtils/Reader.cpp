@@ -133,7 +133,7 @@ namespace utils {
         if (this->buffer != NULL) {
             delete[] (this->buffer);
         }
-        reader.getBuffer(&(this->buffer), this->size);
+        reader.getBufferCopy(&(this->buffer), this->size);
     }
 
     unsigned int Reader::getSize() const {

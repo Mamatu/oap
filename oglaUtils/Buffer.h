@@ -24,7 +24,7 @@ namespace utils {
         void getBufferBytes(char* bytes, unsigned int size) const;
         void setBuffer(const char* bytes, unsigned int size);
         void setBuffer(Buffer* buffer);
-        void getBuffer(char** bytes, unsigned int& size) const;
+        void getBufferCopy(char** bytes, unsigned int& size) const;
         void getBuffer(char** bytes) const;
         void extendBuffer(const char* bytes, unsigned int size);
         void extendBuffer(Buffer* buffer);
