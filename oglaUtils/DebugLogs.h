@@ -4,6 +4,7 @@
 #include <string.h>
 #include <assert.h>
 #include "LHandle.h"
+#include "BacktraceUtils.h"
 
 #define DEBUG
 //#define DEBUG_MATRIX_OPERATIONS
@@ -36,6 +37,8 @@ typedef unsigned int handle;
 
 #define debugFuncEnd() fprintf(STREAM, "-- %s %s : %d \n", __FUNCTION__,__FILE__,__LINE__); 
 
+#define debugPrintStack() BacktraceUtils::GetInstance().printBacktrace();
+
 
 #else
 
@@ -50,6 +53,8 @@ typedef unsigned int handle;
 #define debugFuncBegin() 
 
 #define debugFuncEnd() 
+
+#define debugPrintStack()
 
 #endif
 
