@@ -55,7 +55,11 @@ public:
         math::Matrix* R, math::Matrix* H,
         math::Matrix* R1, math::Matrix* Q1,
         math::Matrix* G, math::Matrix * GT);
+    
+    CUresult getStatus() const;
+    
 private:
+    CUresult m_cuResult;
     floatt* m_magniuteOutput;
     uintt* m_dcompareOutput;
 

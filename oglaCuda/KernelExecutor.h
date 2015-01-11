@@ -13,7 +13,8 @@
 #include "Math.h"
 //#include "MatrixStructure.h"
 
-#define printCuError(cuResult) if(cuResult != 0) { debug("\n\n %s %s : %d cuError == %d \n\n",__FUNCTION__,__FILE__,__LINE__,cuResult); }
+#define printCuError(cuResult) if(cuResult != 0) {debug("\n\n %s %s : %d cuError == %d \n\n",__FUNCTION__,__FILE__,__LINE__,cuResult); }
+#define printCuErrorStatus(status, cuResult) if(cuResult != 0) {status = cuResult; debug("\n\n %s %s : %d cuError == %d \n\n",__FUNCTION__,__FILE__,__LINE__,cuResult); }
 
 namespace cuda {
 
@@ -37,7 +38,12 @@ public:
     void setDevice(CUdevice cuDecive);
     void setDeviceInfo(const DeviceInfo& deviceInfo);
     CUdevice getDevice() const;
-    void getDeviceProperties(CUdevprop& cuDevprop);
+    void getDeviceProperties(CUdevprop& cuDevprop) const;
+    uint getMaxThreadsPerBlock() const;
+    uint getThreadsX() const;
+    uint getThreadsY() const;
+    uint getBlocksX() const;
+    uint getBlocksY() const;
 };
 
 class Context : public DefaultDeviceInfo {
@@ -80,22 +86,12 @@ public:
     void setImage(void* image);
     bool loadImage(const char* path);
     bool loadImage(const char** pathes);
-    virtual void execute(const char* functionName);
+    virtual CUresult execute(const char* functionName);
 
-    static void ExecuteKernel(const char* functionName,
+    static CUresult ExecuteKernel(const char* functionName,
         void** params, ::cuda::Kernel& kernel, void* image);
 };
 
-class KernelMatrix : public Kernel {
-    uintt m_width;
-    uintt m_height;
-public:
-    void getThreadsBlocks(int threads[2], int blokcs[2]);
-    void setMatrixSizes(uintt width, uintt height);
-    KernelMatrix();
-    virtual ~KernelMatrix();
-    void execute(const char* functionName);
-};
 }
 #endif	/* KERNELEXECUTOR_H */
 

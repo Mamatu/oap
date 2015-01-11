@@ -50,7 +50,7 @@ DefaultDeviceInfo::DefaultDeviceInfo() : m_cuDevice(0) {
 }
 
 DefaultDeviceInfo::DefaultDeviceInfo(const DefaultDeviceInfo& orig) :
-m_cuDevice(orig.m_cuDevice) {
+    m_cuDevice(orig.m_cuDevice) {
 }
 
 DefaultDeviceInfo::~DefaultDeviceInfo() {
@@ -61,8 +61,38 @@ CUdevice DefaultDeviceInfo::getDevice() const {
     return m_cuDevice;
 }
 
-void DefaultDeviceInfo::getDeviceProperties(CUdevprop& cuDevprop) {
+void DefaultDeviceInfo::getDeviceProperties(CUdevprop& cuDevprop) const {
     printCuError(cuDeviceGetProperties(&cuDevprop, m_cuDevice));
+}
+
+uint DefaultDeviceInfo::getMaxThreadsPerBlock() const {
+    CUdevprop cuDevprop;
+    getDeviceProperties(cuDevprop);
+    return cuDevprop.maxThreadsPerBlock;
+}
+
+uint DefaultDeviceInfo::getThreadsX() const {
+    CUdevprop cuDevprop;
+    getDeviceProperties(cuDevprop);
+    return cuDevprop.maxThreadsDim[0];
+}
+
+uint DefaultDeviceInfo::getThreadsY() const {
+    CUdevprop cuDevprop;
+    getDeviceProperties(cuDevprop);
+    return cuDevprop.maxThreadsDim[1];
+}
+
+uint DefaultDeviceInfo::getBlocksX() const {
+    CUdevprop cuDevprop;
+    getDeviceProperties(cuDevprop);
+    return cuDevprop.maxGridSize[0];
+}
+
+uint DefaultDeviceInfo::getBlocksY() const {
+    CUdevprop cuDevprop;
+    getDeviceProperties(cuDevprop);
+    return cuDevprop.maxGridSize[1];
 }
 
 void DefaultDeviceInfo::setDevice(CUdevice cuDecive) {
@@ -78,7 +108,7 @@ void DefaultDeviceInfo::setDeviceInfo(const DeviceInfo& deviceInfo) {
 }
 
 Context::Context(int _deviceIndex) :
-context(NULL), deviceIndex(_deviceIndex) {
+    context(NULL), deviceIndex(_deviceIndex) {
 }
 
 Context Context::m_Context;
@@ -152,8 +182,8 @@ Kernel::Kernel() : m_params(NULL), m_paramsSize(0) {
 }
 
 Kernel::Kernel(void* image, CUdevice cuDevicePtr) :
-m_params(NULL),
-m_paramsSize(0) {
+    m_params(NULL),
+    m_paramsSize(0) {
     this->m_blocksCount[0] = 1;
     this->m_blocksCount[1] = 1;
     this->m_threadsCount[0] = 1;
@@ -174,7 +204,8 @@ void Kernel::setImage(void* image) {
     this->m_image = image;
 }
 
-void Kernel::execute(const char* functionName) {
+CUresult Kernel::execute(const char* functionName) {
+    CUresult status = CUDA_SUCCESS;
     if (NULL == m_image && m_path.length() == 0) {
         debugError("Error: image and path not defined. Function name: %s \n", functionName);
     }
@@ -184,12 +215,12 @@ void Kernel::execute(const char* functionName) {
     debug("Function name: %s", functionName);
 #endif
     if (NULL != m_image) {
-        printCuError(cuModuleLoadData(&cuModule, m_image));
+        printCuErrorStatus(status,cuModuleLoadData(&cuModule, m_image));
     } else if (m_path.length() > 0) {
-        printCuError(cuModuleLoad(&cuModule, m_path.c_str()));
+        printCuErrorStatus(status,cuModuleLoad(&cuModule, m_path.c_str()));
     }
     if (NULL != cuModule) {
-        printCuError(cuModuleGetFunction(&cuFunction, cuModule, functionName));
+        printCuErrorStatus(status,cuModuleGetFunction(&cuFunction, cuModule, functionName));
 #ifdef KERNEL_EXECUTOR_LOGS
         debug("Load kernel: %s", functionName);
         debug("Image: %p", m_image);
@@ -200,7 +231,7 @@ void Kernel::execute(const char* functionName) {
         debug(" --threads dim: %d, %d, %d", m_threadsCount[0], m_threadsCount[1], m_threadsCount[2]);
         debug(" --grid size: %d, %d, %d", m_blocksCount[0], m_blocksCount[1], m_blocksCount[2]);
 #endif
-        printCuError(cuLaunchKernel(cuFunction,
+        printCuErrorStatus(status,cuLaunchKernel(cuFunction,
             m_blocksCount[0], m_blocksCount[1], m_blocksCount[2],
             m_threadsCount[0], m_threadsCount[1], m_threadsCount[2],
             m_sharedMemoryInBytes, NULL, this->getParams(), NULL));
@@ -211,6 +242,7 @@ void Kernel::execute(const char* functionName) {
             debug("Module is incorrect %d %s;", cuModule, m_path.c_str());
         }
     }
+    return status;
 }
 
 Kernel::~Kernel() {
@@ -291,73 +323,10 @@ void Kernel::realeseImage() {
     }
 }
 
-void KernelMatrix::setMatrixSizes(uintt width, uintt height) {
-    m_width = width;
-    m_height = height;
-}
-
-KernelMatrix::KernelMatrix() : m_width(0), m_height(0) {
-}
-
-KernelMatrix::~KernelMatrix() {
-}
-
-void KernelMatrix::getThreadsBlocks(int threads[2], int blocks[2]) {
-    if (m_width > 0 && m_height > 0) {
-        CUdevprop prop;
-        getDeviceProperties(prop);
-        int threadsX = m_width;
-        int threadsY = m_height;
-        int blocksX = 1;
-        int blocksY = 1;
-        int m = threadsX * threadsY;
-        if (m > prop.maxThreadsPerBlock) {
-            floatt factor = 2;
-            if (m % 2 == 0) {
-                factor = 2;
-            } else if (m % 3 == 0) {
-                factor = 3;
-            } else if (m % 5 == 0) {
-                factor = 5;
-            }
-            while (threadsX * threadsY > prop.maxThreadsPerBlock) {
-                threadsX = threadsX / factor;
-                threadsY = threadsY / factor;
-                blocksX = blocksX * factor;
-                blocksY = blocksY * factor;
-            }
-        }
-        threads[0] = threadsX;
-        threads[1] = threadsY;
-        blocks[0] = blocksX;
-        blocks[1] = blocksY;
-    } else {
-        threads[0] = 0;
-        threads[1] = 0;
-        blocks[0] = 0;
-        blocks[1] = 0;
-    }
-}
-
-void KernelMatrix::execute(const char* functionName) {
-    debugFuncBegin();
-    int threads[2];
-    int blocks[2];
-    getThreadsBlocks(threads, blocks);
-    if (threads[0] != 0) {
-        setThreadsCount(threads[0], threads[1]);
-        setBlocksCount(blocks[0], blocks[1]);
-        Kernel::execute(functionName);
-        debugFuncEnd();
-    } else {
-        abort();
-    }
-}
-
-void Kernel::ExecuteKernel(const char* functionName,
+CUresult Kernel::ExecuteKernel(const char* functionName,
     void** params, ::cuda::Kernel& kernel, void* image) {
     kernel.setImage(image);
     kernel.setParams(params);
-    kernel.execute(functionName);
+    return kernel.execute(functionName);
 }
 }
