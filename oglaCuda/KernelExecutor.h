@@ -40,10 +40,10 @@ public:
     CUdevice getDevice() const;
     void getDeviceProperties(CUdevprop& cuDevprop) const;
     uint getMaxThreadsPerBlock() const;
-    uint getThreadsX() const;
-    uint getThreadsY() const;
-    uint getBlocksX() const;
-    uint getBlocksY() const;
+    uint getMaxThreadsX() const;
+    uint getMaxThreadsY() const;
+    uint getMaxBlocksX() const;
+    uint getMaxBlocksY() const;
 };
 
 class Context : public DefaultDeviceInfo {
@@ -72,6 +72,10 @@ class Kernel : public DefaultDeviceInfo {
 public:
     Kernel();
     virtual ~Kernel();
+    uint getThreadsX() const;
+    uint getThreadsY() const;
+    uint getBlocksX() const;
+    uint getBlocksY() const;
     static void* LoadImage(const char* path);
     static void* LoadImage(const char** pathes);
     static void FreeImage(void* image);

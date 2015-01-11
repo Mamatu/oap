@@ -71,25 +71,25 @@ uint DefaultDeviceInfo::getMaxThreadsPerBlock() const {
     return cuDevprop.maxThreadsPerBlock;
 }
 
-uint DefaultDeviceInfo::getThreadsX() const {
+uint DefaultDeviceInfo::getMaxThreadsX() const {
     CUdevprop cuDevprop;
     getDeviceProperties(cuDevprop);
     return cuDevprop.maxThreadsDim[0];
 }
 
-uint DefaultDeviceInfo::getThreadsY() const {
+uint DefaultDeviceInfo::getMaxThreadsY() const {
     CUdevprop cuDevprop;
     getDeviceProperties(cuDevprop);
     return cuDevprop.maxThreadsDim[1];
 }
 
-uint DefaultDeviceInfo::getBlocksX() const {
+uint DefaultDeviceInfo::getMaxBlocksX() const {
     CUdevprop cuDevprop;
     getDeviceProperties(cuDevprop);
     return cuDevprop.maxGridSize[0];
 }
 
-uint DefaultDeviceInfo::getBlocksY() const {
+uint DefaultDeviceInfo::getMaxBlocksY() const {
     CUdevprop cuDevprop;
     getDeviceProperties(cuDevprop);
     return cuDevprop.maxGridSize[1];
@@ -155,6 +155,22 @@ void Kernel::setBlocksCount(intt x, intt y) {
     m_blocksCount[2] = 1;
 }
 
+uint Kernel::getThreadsX() const {
+    return m_threadsCount[0];
+}
+
+uint Kernel::getThreadsY() const {
+    return m_threadsCount[1];
+}
+
+uint Kernel::getBlocksX() const {
+    return m_blocksCount[0];
+}
+
+uint Kernel::getBlocksY() const {
+    return m_blocksCount[1];
+}
+
 void Kernel::setDimensions(uintt w, uintt h) {
     CUdevprop devprop;
     getDeviceProperties(devprop);
@@ -215,12 +231,12 @@ CUresult Kernel::execute(const char* functionName) {
     debug("Function name: %s", functionName);
 #endif
     if (NULL != m_image) {
-        printCuErrorStatus(status,cuModuleLoadData(&cuModule, m_image));
+        printCuErrorStatus(status, cuModuleLoadData(&cuModule, m_image));
     } else if (m_path.length() > 0) {
-        printCuErrorStatus(status,cuModuleLoad(&cuModule, m_path.c_str()));
+        printCuErrorStatus(status, cuModuleLoad(&cuModule, m_path.c_str()));
     }
     if (NULL != cuModule) {
-        printCuErrorStatus(status,cuModuleGetFunction(&cuFunction, cuModule, functionName));
+        printCuErrorStatus(status, cuModuleGetFunction(&cuFunction, cuModule, functionName));
 #ifdef KERNEL_EXECUTOR_LOGS
         debug("Load kernel: %s", functionName);
         debug("Image: %p", m_image);
@@ -228,10 +244,10 @@ CUresult Kernel::execute(const char* functionName) {
         debug("Function handle: %p", cuFunction);
         PrintDeviceInfo(getDevice());
         debug(" Execution:");
-        debug(" --threads dim: %d, %d, %d", m_threadsCount[0], m_threadsCount[1], m_threadsCount[2]);
-        debug(" --grid size: %d, %d, %d", m_blocksCount[0], m_blocksCount[1], m_blocksCount[2]);
+        debug(" --threads counts: %d, %d, %d", m_threadsCount[0], m_threadsCount[1], m_threadsCount[2]);
+        debug(" --blocks counts: %d, %d, %d", m_blocksCount[0], m_blocksCount[1], m_blocksCount[2]);
 #endif
-        printCuErrorStatus(status,cuLaunchKernel(cuFunction,
+        printCuErrorStatus(status, cuLaunchKernel(cuFunction,
             m_blocksCount[0], m_blocksCount[1], m_blocksCount[2],
             m_threadsCount[0], m_threadsCount[1], m_threadsCount[2],
             m_sharedMemoryInBytes, NULL, this->getParams(), NULL));
