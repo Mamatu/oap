@@ -2564,3 +2564,17 @@ gmock-1.7.0/README
 gmock-1.7.0/scripts
 gmock-1.7.0/src
 gmock-1.7.0/test
+./oglaTests/gtest-all.o
+./oglaTests/gtest_main.o
+ArnoldiPackage/build/Debug/albert/ArnoldiMethodDeviceImpl.o
+ArnoldiPackage/build/Debug/albert/ArnoldiMethodHostImpl.o
+ArnoldiPackage/build/Debug/albert/ArnoldiMethodProcess.o
+ArnoldiPackage/build/Debug/albert/ArnoldiProcedures.o
+ArnoldiPackage/build/Debug/albert/IArnoldiMethod.o
+ArnoldiPackage/build/Debug/albert/Procedures.o
+./ArnoldiPackage/build/Debug/albert/ArnoldiMethodDeviceImpl.o
+./ArnoldiPackage/build/Debug/albert/ArnoldiMethodHostImpl.o
+./ArnoldiPackage/build/Debug/albert/ArnoldiMethodProcess.o
+./ArnoldiPackage/build/Debug/albert/ArnoldiProcedures.o
+./ArnoldiPackage/build/Debug/albert/IArnoldiMethod.o
+./ArnoldiPackage/build/Debug/albert/Procedures.o
