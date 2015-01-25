@@ -150,7 +150,7 @@ extern "C" __global__ void CUDAKernel_TensorProductRe(math::Matrix* output,
         math::Matrix* params1) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    UDA_tensorProductReMatrix(output, params0, params1,
+    CUDA_tensorProductReMatrix(output, params0, params1,
             threadIndexX, threadIndexY);
 }
 
@@ -219,8 +219,8 @@ extern "C" __global__ void CUDAKernel_QRRe(math::Matrix* output0,
         math::Matrix* aux2, math::Matrix* aux3) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_QRRe(output0, output1, params0, aux0, aux1, aux2, aux3,
-            threadIndexX, threadIndexY);
+    //CUDA_QRRe(output0, output1, params0, aux0, aux1, aux2, aux3,
+      //      threadIndexX, threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_QRIm(math::Matrix* output0,
@@ -230,8 +230,8 @@ extern "C" __global__ void CUDAKernel_QRIm(math::Matrix* output0,
         math::Matrix* aux2, math::Matrix* aux3) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_QRIm(output0, output1, params0, aux0, aux1, aux2, aux3,
-            threadIndexX, threadIndexY);
+    //CUDA_QRIm(output0, output1, params0, aux0, aux1, aux2, aux3,
+    //        threadIndexX, threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_QR(math::Matrix* output0,

@@ -1,6 +1,4 @@
 #include <cuda.h>
-#include "cuda_runtime.h"
-#include "cuda_runtime_api.h" 
 #include "TreePointer.h"
 #include <stdio.h>
 
