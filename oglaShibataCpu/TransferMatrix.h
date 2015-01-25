@@ -18,7 +18,7 @@
 typedef std::vector<std::pair<int, int> > IntegersPairs;
 
 
-namespace shibata {
+namespace shibataCpu {
 
     enum Orientation {
         ORIENTATION_REAL_DIRECTION,
@@ -75,7 +75,7 @@ namespace shibata {
         floatt* m_imoutputEntries;
         uintt* m_entries;
         uintt m_entriesCount;
-        shibata::Parameters parameters;
+        shibataCpu::Parameters parameters;
     private:
         TransferMatrix(const TransferMatrix& orig);
     };

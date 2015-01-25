@@ -9,6 +9,8 @@
 #define	CUDAUTILS_H
 
 #include <cuda.h>
+#include "Matrix.h"
+#include "MatrixEx.h"
 
 namespace CudaUtils {
 

@@ -11,7 +11,7 @@
 #include "TransferMatrix.h"
 #include "TreePointerCreator.h"
 
-namespace shibata {
+namespace shibataCpu {
     namespace cpu {
 
         class Data {
@@ -26,7 +26,7 @@ namespace shibata {
             floatt* m_imoutputEntries;
             uintt m_entriesCount;
             uintt* m_entries;
-            shibata::Parameters* parameters;
+            shibataCpu::Parameters* parameters;
             int beginX;
             int beginY;
             int endX;
@@ -35,7 +35,7 @@ namespace shibata {
 
         typedef void (*ExecuteTM_f)(Data* dataPtr, void* ptr);
 
-        class TransferMatrix : public ::shibata::TransferMatrix {
+        class TransferMatrix : public ::shibataCpu::TransferMatrix {
             HostMatrixAllocator hmm;
             TransferMatrix(const TransferMatrix& orig);
         public:

@@ -20,23 +20,23 @@ namespace cuda {
 
 void Init();
 
-class DeviceInfo {
+class CuDevice {
 public:
-    DeviceInfo();
-    virtual ~DeviceInfo();
+    CuDevice();
+    virtual ~CuDevice();
     virtual void setDevice(CUdevice cuDecive) = 0;
-    virtual void setDeviceInfo(const DeviceInfo& deviceInfo) = 0;
+    virtual void setDeviceInfo(const CuDevice& deviceInfo) = 0;
     virtual CUdevice getDevice() const = 0;
 };
 
-class DefaultDeviceInfo : public DeviceInfo {
+class DefaultDeviceInfo : public CuDevice {
     CUdevice m_cuDevice;
 public:
     DefaultDeviceInfo();
     DefaultDeviceInfo(const DefaultDeviceInfo& orig);
     virtual ~DefaultDeviceInfo();
     void setDevice(CUdevice cuDecive);
-    void setDeviceInfo(const DeviceInfo& deviceInfo);
+    void setDeviceInfo(const CuDevice& deviceInfo);
     CUdevice getDevice() const;
     void getDeviceProperties(CUdevprop& cuDevprop) const;
     uint getMaxThreadsPerBlock() const;
@@ -44,6 +44,7 @@ public:
     uint getMaxThreadsY() const;
     uint getMaxBlocksX() const;
     uint getMaxBlocksY() const;
+    uint getSharedMemorySize() const;
 };
 
 class Context : public DefaultDeviceInfo {
@@ -92,7 +93,13 @@ public:
     bool loadImage(const char** pathes);
     virtual CUresult execute(const char* functionName);
 
-    static CUresult ExecuteKernel(const char* functionName,
+    void setThreadsBlocks(uintt blocks[2], uintt threads[2],
+        uintt w, uintt h);
+
+    static void SetThreadsBlocks(uintt blocks[2], uintt threads[2],
+        uintt w, uintt h, uintt maxThreadsPerBlock);
+        
+    static CUresult Execute(const char* functionName,
         void** params, ::cuda::Kernel& kernel, void* image);
 };
 

@@ -9,7 +9,7 @@
 #define	OGLA_MATH_TYPES_H
 
 //#define NORMAL_TYPES
-#define EXTEDED_TYPES
+//#define EXTENDED_TYPES
 //#define RICH_TYPES
 
 #ifdef NORMAL_TYPES
@@ -17,7 +17,7 @@
 #define NORMAL_INT_TYPES
 #endif
 
-#ifdef EXTEDED_TYPES
+#ifdef EXTENDED_TYPES
 #define EXTENDED_FLOAT_TYPE
 #define EXTENDED_INT_TYPES
 #endif

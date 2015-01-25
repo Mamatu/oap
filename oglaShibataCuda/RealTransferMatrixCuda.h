@@ -12,9 +12,9 @@
 #include "DeviceTreePointerCreator.h"
 #include "KernelExecutor.h"
 
-namespace ShibataCuda {
+namespace shibataCuda {
 
-    class RealTransferMatrix : public shibata::TransferMatrix {
+    class RealTransferMatrix : public shibataCpu::TransferMatrix {
     public:
         RealTransferMatrix();
         virtual ~RealTransferMatrix();
@@ -34,7 +34,7 @@ namespace ShibataCuda {
             TreePointer** treePointers1;
         };
         bool m_isAllocated;
-        void alloc(::cuda::KernelMatrix& kernel);
+        void alloc(::cuda::Kernel& kernel);
         void dealloc();
 
         intt** tmColumnsPtr;
@@ -61,7 +61,7 @@ namespace ShibataCuda {
         inline int getIndex(char* spinValueIndex, int spin1Index, int qc, int count);
         inline int getValue(int* matrix, int index);
         void transformMatrixOrientation(math::Matrix* dst, math::Matrix* src,
-                shibata::Orientation orientation);
+                shibataCpu::Orientation orientation);
         HostMatrixAllocator hmm;
         RealTransferMatrix(const RealTransferMatrix& orig);
     };

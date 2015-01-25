@@ -27,7 +27,7 @@ public:
             m_subrows = matrix->rows;
             return *this;
         }
-        
+
         math::Matrix* operator->() const {
             return m_matrix;
         }
@@ -51,26 +51,28 @@ public:
     }
 
     void calculateRanges(uintt columns[2], uintt rows[2],
-            uintt* bmap, uintt fa) {
+        uintt* bmap, uintt fa) {
         utils::mapper::ThreadsMap<uintt> tm;
         utils::mapper::getThreadsMap(tm, bmap, fa);
         calculateRanges(columns[0], rows[0], tm);
     }
 
     void calculateRanges(uintt beginColumn, uintt beginRow,
-            uintt* bmap, uintt fa) {
+        uintt* bmap, uintt fa) {
         utils::mapper::ThreadsMap<uintt> tm;
         utils::mapper::getThreadsMap(tm, bmap, fa);
         calculateRanges(beginRow, beginColumn, tm);
     }
 
     void calculateRanges(uintt beginColumn, uintt beginRow,
-            utils::mapper::ThreadsMap<uintt>& map) {
+        utils::mapper::ThreadsMap<uintt>& map) {
         begins[0] = beginColumn + map.beginColumn;
         begins[1] = beginRow + map.beginRow;
         ends[0] = beginColumn + map.endColumn;
         ends[1] = beginRow + map.endRow;
         offset = ends[0] - begins[0];
+        assert(begins[0] < ends[0]);
+        assert(begins[1] < ends[1]);
     }
 
     void calculateRanges(utils::mapper::ThreadsMap<uintt>& map) {

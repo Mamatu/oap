@@ -64,7 +64,7 @@ inline int pow(int a, int b) {
 }
 
 math::Matrix* createHamiltonian(floatt J, math::Matrix* spin1,
-        math::Matrix* spin2, math::Matrix* identity, math::Matrix* tempMatrix1) {
+    math::Matrix* spin2, math::Matrix* identity, math::Matrix* tempMatrix1) {
     HostMatrixAllocator mhm;
     math::Matrix* tempMatrix2 = mhm.newReMatrix(4, 4);
     matrixOperations.tensorProduct(tempMatrix1, spin1, identity);
@@ -97,29 +97,18 @@ floatt* reoutpus = NULL;
 floatt* recount = 0;
 
 void Callback_f(int event, void* object, void* userPtr) {
-    if (event == math::ArnoldiMethodCallbackGpu::EVENT_MATRIX_MULTIPLICATION) {
-        shibata::cpu::RealTransferMatrix* transferMatrixCpu =
-                reinterpret_cast<shibata::cpu::RealTransferMatrix*> (userPtr);
+    /*if (event == math::ArnoldiMethodCallbackGpu::EVENT_MATRIX_MULTIPLICATION) {
+        shibataCpu::cpu::RealTransferMatrix* transferMatrixCpu =
+                reinterpret_cast<shibataCpu::cpu::RealTransferMatrix*> (userPtr);
         math::ArnoldiMethodCallbackGpu::Event* event =
                 reinterpret_cast<math::ArnoldiMethodCallbackGpu::Event*> (object);
-
-#if 0
-        if (reoutpus == NULL) {
-            reoutpus = new floatt[event->getCount()];
-            recount = event->getCount();
-        } else if (recount < event->getCount()) {
-            delete[] reoutpus;
-            reoutpus = new floatt[event->getCount()];
-            recount = event->getCount();
-        }
-#endif
 
         transferMatrixCpu->setEntries(event->getMatrixEntries(),
                 event->getCount());
         transferMatrixCpu->setReOutputEntries(event->getReOutputs());
         transferMatrixCpu->setImOutputEntries(event->getImOutputs());
         transferMatrixCpu->start();
-    }
+    }*/
 }
 
 int main1(int argc, char** argv) {
@@ -130,8 +119,8 @@ int main1(int argc, char** argv) {
     HostMatrixAllocator hmm;
     HostMatrixUtils mu;
     math::MathOperationsCpu mo;
-    shibata::cpu::RealTransferMatrix transferMatrixCpu;
-    shibata::cuda::RealTransferMatrix transferMatrixCuda;
+    shibataCpu::RealTransferMatrix transferMatrixCpu;
+    shibataCuda::RealTransferMatrix transferMatrixCuda;
     math::Matrix* identity = hmm.newReMatrix(2, 2);
     mu.setIdentityReMatrix(identity);
     math::Matrix* spin1 = hmm.newReMatrix(2, 2);
@@ -168,8 +157,8 @@ int main1(int argc, char** argv) {
     //math::Matrix* eh2 = host::NewReMatrixCopy(4, 4, (floatt*) b);
 
 
-    transferMatrixCpu.PrepareHamiltonian(eh1, h1, shibata::ORIENTATION_REAL_DIRECTION);
-    transferMatrixCpu.PrepareHamiltonian(eh2, h2, shibata::ORIENTATION_REAL_DIRECTION);
+    transferMatrixCpu.PrepareHamiltonian(eh1, h1, shibataCpu::ORIENTATION_REAL_DIRECTION);
+    transferMatrixCpu.PrepareHamiltonian(eh2, h2, shibataCpu::ORIENTATION_REAL_DIRECTION);
 
     int threadsCount = 4;
     int spinsCount = 3; //25;
@@ -216,14 +205,14 @@ int main1(int argc, char** argv) {
 }
 
 void prepareH(math::Matrix* o,
-        math::Matrix* identity,
-        math::Matrix* spin1,
-        math::Matrix* spin2,
-        math::Matrix* spin3,
-        math::Matrix* temp,
-        math::Matrix* temp1,
-        uintt M,
-        floatt T, math::MathOperationsCpu& mo) {
+    math::Matrix* identity,
+    math::Matrix* spin1,
+    math::Matrix* spin2,
+    math::Matrix* spin3,
+    math::Matrix* temp,
+    math::Matrix* temp1,
+    uintt M,
+    floatt T, math::MathOperationsCpu& mo) {
     floatt jx = -1;
     floatt jy = -1;
     floatt jz = -1;
@@ -258,7 +247,7 @@ int main2(int argc, char** argv) {
     HostMatrixAllocator hmm;
     HostMatrixUtils mu;
     math::MathOperationsCpu mo;
-    shibata::cpu::RealTransferMatrix transferMatrixCpu;
+    shibataCpu::RealTransferMatrix transferMatrixCpu;
     char* impath = NULL;
     char* repath = NULL;
     char* countc = argv[1];
@@ -316,9 +305,9 @@ int main2(int argc, char** argv) {
             host::SetZero(temp);
             host::SetZero(temp1);
             prepareH(h1, identity, spin1, spin2, spin3,
-                    temp, temp1, M, 0.01 + (T * (floatt) fa) / (floatt) count, mo);
+                temp, temp1, M, 0.01 + (T * (floatt) fa) / (floatt) count, mo);
             prepareH(h2, identity, spin1, spin2, spin3,
-                    temp, temp1, M, 0.01 + (T * (floatt) fa) / (floatt) count, mo);
+                temp, temp1, M, 0.01 + (T * (floatt) fa) / (floatt) count, mo);
         }
         //math::Matrix* h1 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
         //math::Matrix* h2 = host::NewMatrixCopy(4, 4, (floatt*) b, (floatt*) z);
@@ -328,8 +317,8 @@ int main2(int argc, char** argv) {
         host::PrintMatrix("h1 =", h1);
         host::PrintMatrix("h2 =", h2);
 
-        transferMatrixCpu.PrepareHamiltonian(eh1, h1, shibata::ORIENTATION_REAL_DIRECTION);
-        transferMatrixCpu.PrepareHamiltonian(eh2, h2, shibata::ORIENTATION_REAL_DIRECTION);
+        transferMatrixCpu.PrepareHamiltonian(eh1, h1, shibataCpu::ORIENTATION_REAL_DIRECTION);
+        transferMatrixCpu.PrepareHamiltonian(eh2, h2, shibataCpu::ORIENTATION_REAL_DIRECTION);
 
         transferMatrixCpu.setOutputMatrix(transferMatrix);
         transferMatrixCpu.setThreadsCount(threadsCount);

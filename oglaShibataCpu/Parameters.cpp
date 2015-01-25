@@ -7,7 +7,7 @@
 
 #include "Parameters.h"
 
-namespace shibata {
+namespace shibataCpu {
 
     Parameters::Parameters() {
         this->serieLimit.set(100);

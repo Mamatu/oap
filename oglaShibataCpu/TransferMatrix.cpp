@@ -7,7 +7,7 @@
 
 #include "TransferMatrix.h"
 
-namespace shibata {
+namespace shibataCpu {
 
     void TransferMatrix::PrepareHamiltonian(math::Matrix* dst, math::Matrix* src,
             Orientation orientation) {

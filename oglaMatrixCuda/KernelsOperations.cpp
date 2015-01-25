@@ -4,7 +4,6 @@
 
 #include <string.h>
 #include <linux/fs.h>
-#include <cuda_runtime_api.h>
 #include "DebugLogs.h"
 
 enum OperationType {
@@ -42,7 +41,7 @@ namespace math {
 
     void KernelsOperations::executeKernel(const char* functionName,
             void** params, ::cuda::Kernel& kernel) {
-        ::cuda::Kernel::ExecuteKernel(functionName,
+        ::cuda::Kernel::Execute(functionName,
                 params, kernel, m_image);
     }
 

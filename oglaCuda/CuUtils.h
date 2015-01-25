@@ -9,8 +9,6 @@
 #define	CU_UTILS_H
 
 #include <cuda.h>
-#include "cuda_runtime.h"
-#include "cuda_runtime_api.h" 
 #include <stdio.h>
 
 #include "DebugLogs.h"

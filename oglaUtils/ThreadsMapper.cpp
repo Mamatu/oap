@@ -25,5 +25,7 @@ void SetThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w, uintt h,
         index = index == 0 ? 1 : 0;
     }
 }
+
 }
+
 }

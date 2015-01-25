@@ -272,22 +272,32 @@ extern "C" __global__ void CUDAKernel_SetDiagonal(math::Matrix* matrix,
     CUDA_setDiagonalMatrix(matrix, re, im, threadIndexX, threadIndexY);
 }
 
-extern "C" __global__ void CUDAKernel_EqRe(uintt* sum,
+extern "C" __global__ void CUDAKernel_CompareRe(int* sums,
         math::Matrix* matrix1,
         math::Matrix* matrix2,
         int* buffer) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_compareReMatrix(*sum, matrix1, matrix2, buffer,
+    CUDA_compareReMatrix(sums, matrix1, matrix2, buffer,
             threadIndexX, threadIndexY);
 }
 
-extern "C" __global__ void CUDAKernel_Compare(uintt* sum,
+extern "C" __global__ void CUDAKernel_Compare(int* sums,
         math::Matrix* matrix1,
         math::Matrix* matrix2,
         int* buffer) {
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_compare(*sum, matrix1, matrix2, buffer,
+    CUDA_compare(sums, matrix1, matrix2, buffer,
+            threadIndexX, threadIndexY);
+}
+
+extern "C" __global__ void CUDAKernel_CompareOpt(int* sums,
+        math::Matrix* matrix1,
+        math::Matrix* matrix2) {
+    extern __shared__ int shBuffer[];
+    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
+    uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+    CUDA_compare(sums, matrix1, matrix2, shBuffer,
             threadIndexX, threadIndexY);
 }

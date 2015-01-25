@@ -11,7 +11,7 @@
 #include "DebugLogs.h"
 #include "Matrix.h"
 
-namespace shibata {
+namespace shibataCpu {
 
     class Parameters {
     public:

@@ -12,7 +12,7 @@
 #include "DeviceMatrixModules.h"
 #include <vector>
 
-namespace ShibataCuda {
+namespace shibataCuda {
     inline void createUpIndecies(intt row, int columns, intt qc, intt* pows,
             int chainLength, intt** columnsIndecies, intt& columnsSize) {
         intt sp1 = row / pows[chainLength - 1];
@@ -73,7 +73,7 @@ namespace ShibataCuda {
         }
     }
 
-    RealTransferMatrix::RealTransferMatrix() : ::shibata::TransferMatrix() {
+    RealTransferMatrix::RealTransferMatrix() : ::shibataCpu::TransferMatrix() {
         tempSpins = NULL;
         mustBeDestroyed[0] = false;
         mustBeDestroyed[1] = false;
@@ -163,8 +163,8 @@ namespace ShibataCuda {
     }
 
     void RealTransferMatrix::transformMatrixOrientation(math::Matrix* dst,
-            math::Matrix* src, shibata::Orientation orientation) {
-        if (orientation == shibata::ORIENTATION_REAL_DIRECTION) {
+            math::Matrix* src, shibataCpu::Orientation orientation) {
+        if (orientation == shibataCpu::ORIENTATION_REAL_DIRECTION) {
             int spinsCount = src->rows;
             int qc = this->parameters.getQunatumsCount();
             tempSpins = tempSpins == NULL ? ArrayTools::create<char>(spinsCount, 0) : tempSpins;
@@ -190,7 +190,7 @@ namespace ShibataCuda {
         }
     }
 
-    void RealTransferMatrix::alloc(::cuda::KernelMatrix& kernel) {
+    void RealTransferMatrix::alloc(::cuda::Kernel& kernel) {
         if (m_isAllocated == false) {
             int t[2];
             int b[2];
@@ -198,7 +198,8 @@ namespace ShibataCuda {
             intt N = getSpinsCount();
             intt M2 = getVirtualTime();
             intt M = M2 / 2;
-            kernel.getThreadsBlocks(t, b);
+            assert("line below - check" == NULL);
+            //kernel.getThreadsBlocks(t, b);
             int threadsCount = t[0] * t[1] * b[0] * b[1];
             intt width = t[0] * b[0];
             intt* pows = new intt[N * M2];
@@ -289,7 +290,7 @@ namespace ShibataCuda {
     math::Status RealTransferMatrix::execute() {
         math::Status status = math::STATUS_OK;
         // Allocation and intitialization of tree pointers
-        ::cuda::KernelMatrix kernel;
+        ::cuda::Kernel kernel;
         kernel.loadImage("liboglaShibataCuda.cubin");
         alloc(kernel);
         if (transferMatrix) {

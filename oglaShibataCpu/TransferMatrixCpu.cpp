@@ -10,7 +10,7 @@
 #include "TransferMatrixCpu.h"
 #include "ThreadsMapper.h"
 
-namespace shibata {
+namespace shibataCpu {
     namespace cpu {
 
         Data::Data(uintt index) {
@@ -63,7 +63,7 @@ namespace shibata {
             }
         }
 
-        TransferMatrix::TransferMatrix() : shibata::TransferMatrix() {
+        TransferMatrix::TransferMatrix() : shibataCpu::TransferMatrix() {
             bmap = NULL;
             m_threadsCount1 = 0;
             begins = NULL;

@@ -9,8 +9,6 @@
 #define	OGLA_CU_MATRIXPROCEDURES_H
 
 #include <cuda.h>
-#include "cuda_runtime.h"
-#include "cuda_runtime_api.h"
 #include "CuMatrixUtils.h"
 #include <stdio.h>
 #include "Matrix.h"
@@ -68,7 +66,7 @@ extern "C" __device__ void CUDA_setDiagonalMatrix(
     }
 }
 
-extern "C" __device__ __forceinline__ void UDA_tensorProductReMatrix(
+extern "C" __device__ __forceinline__ void CUDA_tensorProductReMatrix(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,

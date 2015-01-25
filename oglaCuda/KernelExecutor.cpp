@@ -13,8 +13,8 @@
 #include "DebugLogs.h"
 #include "ThreadsMapper.h"
 
-#define KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
-#define KERNEL_EXECUTOR_LOGS
+//#define KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
+#define KERNEL_EXTENDED_INFO 1
 
 namespace cuda {
 
@@ -26,24 +26,21 @@ void PrintDeviceInfo(CUdevice cudevice) {
         cuDevprop.maxThreadsDim[0], cuDevprop.maxThreadsDim[1], cuDevprop.maxThreadsDim[2]);
     debug(" --Max threads per block: %d", cuDevprop.maxThreadsPerBlock);
     debug(" --Register per block: %d", cuDevprop.regsPerBlock);
-    debug(" --Shared memory per block: %d", cuDevprop.sharedMemPerBlock);
+    debug(" --Shared memory per block in bytes: %d", cuDevprop.sharedMemPerBlock);
 }
 
 void Init() {
     static bool wasInit = false;
-    debugFuncBegin();
     if (wasInit == false) {
         wasInit = true;
-        debugFunc();
         printCuError(cuInit(0));
     }
-    debugFuncEnd();
 }
 
-DeviceInfo::DeviceInfo() {
+CuDevice::CuDevice() {
 }
 
-DeviceInfo::~DeviceInfo() {
+CuDevice::~CuDevice() {
 }
 
 DefaultDeviceInfo::DefaultDeviceInfo() : m_cuDevice(0) {
@@ -95,15 +92,17 @@ uint DefaultDeviceInfo::getMaxBlocksY() const {
     return cuDevprop.maxGridSize[1];
 }
 
-void DefaultDeviceInfo::setDevice(CUdevice cuDecive) {
-    debugFuncBegin();
-    debug("%p %d \n", this, cuDecive);
-    //PrintDeviceInfo(cuDecive);
-    this->m_cuDevice = m_cuDevice;
-    debugFuncEnd();
+uint DefaultDeviceInfo::getSharedMemorySize() const {
+    CUdevprop cuDevprop;
+    getDeviceProperties(cuDevprop);
+    return cuDevprop.sharedMemPerBlock;
 }
 
-void DefaultDeviceInfo::setDeviceInfo(const DeviceInfo& deviceInfo) {
+void DefaultDeviceInfo::setDevice(CUdevice cuDecive) {
+    this->m_cuDevice = m_cuDevice;
+}
+
+void DefaultDeviceInfo::setDeviceInfo(const CuDevice& deviceInfo) {
     setDevice(deviceInfo.getDevice());
 }
 
@@ -123,6 +122,7 @@ void Context::init() {
         int count = 2;
         printCuError(cuDeviceGetCount(&count));
         debug("Devices count: %d \n", count);
+        deviceIndex = count - 1;
         if (deviceIndex < count) {
             CUdevice device = 0;
             printCuError(cuDeviceGet(&device, deviceIndex));
@@ -227,9 +227,6 @@ CUresult Kernel::execute(const char* functionName) {
     }
     CUmodule cuModule = NULL;
     CUfunction cuFunction = NULL;
-#ifdef KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
-    debug("Function name: %s", functionName);
-#endif
     if (NULL != m_image) {
         printCuErrorStatus(status, cuModuleLoadData(&cuModule, m_image));
     } else if (m_path.length() > 0) {
@@ -237,7 +234,7 @@ CUresult Kernel::execute(const char* functionName) {
     }
     if (NULL != cuModule) {
         printCuErrorStatus(status, cuModuleGetFunction(&cuFunction, cuModule, functionName));
-#ifdef KERNEL_EXECUTOR_LOGS
+#if KERNEL_EXTENDED_INFO==1
         debug("Load kernel: %s", functionName);
         debug("Image: %p", m_image);
         debug("Module handle: %p", cuModule);
@@ -339,10 +336,21 @@ void Kernel::realeseImage() {
     }
 }
 
-CUresult Kernel::ExecuteKernel(const char* functionName,
+void Kernel::setThreadsBlocks(uintt blocks[2], uintt threads[2],
+    uintt w, uintt h) {
+    SetThreadsBlocks(blocks, threads, w, h, getSharedMemorySize());
+}
+
+void Kernel::SetThreadsBlocks(uintt blocks[2], uintt threads[2],
+    uintt w, uintt h, uintt maxThreadsPerBlock) {
+    utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
+}
+
+CUresult Kernel::Execute(const char* functionName,
     void** params, ::cuda::Kernel& kernel, void* image) {
     kernel.setImage(image);
     kernel.setParams(params);
     return kernel.execute(functionName);
 }
+
 }
