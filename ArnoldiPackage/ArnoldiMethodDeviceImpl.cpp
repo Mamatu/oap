@@ -46,7 +46,7 @@ void ArnoldiMethodGpu::execute() {
     outputs.realRows = 1;
     outputs.rows = 1;
     outputs.imValues = NULL;
-    outputs.reValues = new floatt[m_wantedCount];
+    outputs.reValues = m_reoutputs;
     cuHArnoldi.execute(&outputs, m_matrix, m_k, m_wantedCount);
     for (uintt fa = 0; fa < m_wantedCount; ++fa) {
         debug("eig[%u] = %f", fa, outputs.reValues[fa]);

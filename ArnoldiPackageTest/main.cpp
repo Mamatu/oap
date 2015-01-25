@@ -15,7 +15,7 @@
 using namespace std;
 
 void hostMain() {
-    math::Matrix* m = host::NewReMatrixCopy(16, 16, tm16);
+    math::Matrix* m = host::NewReMatrixCopy(64, 64, tm64);
 
     host::PrintReMatrix("INPUT =", m);
 
@@ -27,7 +27,7 @@ void hostMain() {
     api::ArnoldiPackage arnoldi(api::ArnoldiPackage::ARNOLDI_CPU);
 
     arnoldi.setMatrix(m);
-    arnoldi.setHDimension(4);
+    arnoldi.setHDimension(8);
     arnoldi.setEigenvaluesBuffer(revs, imvs, count);
     arnoldi.start();
 }
@@ -35,7 +35,7 @@ void hostMain() {
 void deviceMain() {
     debugFunc();
     cuda::Context::Instance().init();
-    math::Matrix* m = host::NewReMatrixCopy(16, 16, tm16);
+    math::Matrix* m = host::NewReMatrixCopy(64, 64, tm64);
 
     //[215589.901030, -4.613732, 2867.286904, -2441.909650
     //    0.000000, 210191.120185, 5990.606945, -4906.898751
@@ -52,7 +52,7 @@ void deviceMain() {
     floatt imvs[count];
     api::ArnoldiPackage arnoldi(api::ArnoldiPackage::ARNOLDI_GPU);
     arnoldi.setMatrix(m);
-    arnoldi.setHDimension(4);
+    arnoldi.setHDimension(8);
     arnoldi.setEigenvaluesBuffer(revs, imvs, count);
     debug("Start = %d", arnoldi.start());
     debugFunc();

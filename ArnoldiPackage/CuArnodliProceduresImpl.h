@@ -30,14 +30,8 @@ __device__ bool CUDA_IsTriangular(math::Matrix* matrix, uintt count) {
             ++index;
         }
     }
-    if (index >= count) {
-        return true;
-    } else {
-        return false;
-    }
+    return index >= count;
 }
-
-__device__ bool g_status;
 
 __device__ void CUDA_CalculateTriangularH(
     math::Matrix* H,
@@ -49,23 +43,18 @@ __device__ void CUDA_CalculateTriangularH(
     math::Matrix* temp3,
     math::Matrix* temp4,
     math::Matrix* temp5) {
-    cuda_debug_function();
     uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
     uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
-    g_status = false;
+    bool status = false;
     CUDA_SetIdentityMatrix(temp, tx, ty);
-    if (tx == 0 && ty == 0) {
-        g_status = CUDA_IsTriangular(H, H->columns - 1);
-    }
+    status = CUDA_IsTriangular(H, H->columns - 1);
     uintt fb = 0;
-    for (; g_status == false && fb < 1000; ++fb) {
+    for (; status == false && fb < 10000; ++fb) {
         CUDA_QR(Q, R, H, temp2, temp3, temp4, temp5, tx, ty);
         CUDA_dotProduct(H, R, Q, tx, ty);
         CUDA_dotProduct(temp1, Q, temp, tx, ty);
         CUDA_switchPointer(&temp1, &temp);
-        if (tx == 0 && ty == 0) {
-            g_status = CUDA_IsTriangular(H, H->columns - 1);
-        }
+        status = CUDA_IsTriangular(H, H->columns - 1);
     }
     // TODO: optymalization
     if (fb & 1 == 0) {
@@ -73,7 +62,7 @@ __device__ void CUDA_CalculateTriangularH(
     } else {
         CUDA_CopyMatrix(Q, temp1, tx, ty);
     }
-    cuda_debug_function();
+    //cuda_debug_function();
 }
 #if 0
 

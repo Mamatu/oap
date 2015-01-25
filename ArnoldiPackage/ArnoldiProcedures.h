@@ -34,7 +34,7 @@ public:
 
     virtual void multiply(math::Matrix* w, math::Matrix* v);
 
-private:
+protected:
     CuMatrix m_cuMatrix;
     math::Matrix* w;
     math::Matrix* f;
@@ -44,22 +44,16 @@ private:
     math::Matrix* s;
     math::Matrix* vs;
     math::Matrix* V;
-    math::Matrix* EV;
-    math::Matrix* EV1;
-    math::Matrix* EQ1;
-    math::Matrix* EQ2;
-    math::Matrix* EQ3;
+    math::Matrix* transposeV;
     math::Matrix* V1;
     math::Matrix* V2;
-    math::Matrix* transposeV;
     math::Matrix* H;
     math::Matrix* HC;
     math::Matrix* H1;
     math::Matrix* H2;
+    math::Matrix* A1;
     math::Matrix* A2;
     math::Matrix* I;
-    math::Matrix* A;
-    math::Matrix* A1;
     math::Matrix* v;
     math::Matrix* QT;
     math::Matrix* Q1;
@@ -75,7 +69,13 @@ private:
     math::Matrix* q2;
     math::Matrix* GT;
     math::Matrix* G;
-
+    math::Matrix* EV;
+    math::Matrix* EV1;
+    math::Matrix* EQ1;
+    math::Matrix* EQ2;
+    math::Matrix* EQ3;
+private:
+    math::Matrix* A;
     bool m_wasAllocated;
     uintt m_Acolumns;
     uintt m_Arows;
@@ -110,9 +110,18 @@ private:
     void copy(math::Matrix* hostA);
 };
 
-class CuHArnoldiCallback {
-};
+class CuHArnoldiCallback : public CuHArnoldi {
+public:
+    typedef void (*MultiplyFunc) (math::Matrix* w, math::Matrix* v, void* userData);
 
+    void multiply(math::Matrix* w, math::Matrix* v);
+
+    void setCallback(MultiplyFunc multiplyFunc, void* userData);
+
+private:
+    MultiplyFunc m_multiplyFunc;
+    void* m_userData;
+};
 
 #endif	/* CUPROCEDURES_H */
 

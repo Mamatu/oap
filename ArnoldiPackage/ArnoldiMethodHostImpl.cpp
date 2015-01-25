@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdio.h>
 #include "MathOperationsCpu.h"
 #include "ArnoldiMethodHostImpl.h"
 #include "MathOperationsCpu.h"
@@ -26,11 +27,7 @@ bool IsTriangular(math::Matrix* matrix, uintt count) {
             index++;
         }
     }
-    if (index >= count) {
-        return true;
-    } else {
-        return false;
-    }
+    return index >= count;
 }
 
 inline void switchPointer(math::Matrix*& a, math::Matrix*& b) {
@@ -42,8 +39,8 @@ inline void switchPointer(math::Matrix*& a, math::Matrix*& b) {
 ArnoldiMethodCpu::ArnoldiMethodCpu(
     MatrixModule* matrixModule,
     MathOperationsCpu* mathOperations) :
-IArnoldiMethod(matrixModule),
-m_operations(mathOperations) {
+    IArnoldiMethod(matrixModule),
+    m_operations(mathOperations) {
     this->m_rho = 1. / 3.14;
     this->m_k = 0;
     this->m_wantedCount = 0;
@@ -63,8 +60,8 @@ math::Matrix* ArnoldiMethodCpu::getA() const {
 }
 
 ArnoldiMethodCpu::ArnoldiMethodCpu(MathOperationsCpu* mathOperations) :
-IArnoldiMethod(HostMatrixModules::GetInstance()),
-m_operations(mathOperations) {
+    IArnoldiMethod(HostMatrixModules::GetInstance()),
+    m_operations(mathOperations) {
     this->m_rho = 1. / 3.14;
     this->m_k = 0;
     this->m_wantedCount = 0;
@@ -299,7 +296,6 @@ bool ArnoldiMethodCpu::executeArnoldiFactorization(bool init, intt initj) {
     floatt B = 0;
     for (uintt j = initj; j < m_k - 1; j++) {
         PRINT_STATUS(m_operations->magnitude(&B, f));
-        host::PrintReMatrix("hf = ", f);
         if (fabs(B) < MATH_VALUE_LIMIT) {
             return false;
         }
@@ -379,11 +375,10 @@ bool wayToSort(const Complex& i, const Complex& j) {
 void ArnoldiMethodCpu::calculateH(int unwantedCount) {
     std::vector<Complex> values;
     host::CopyMatrix(H1, H);
-    HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("hH1", H1);
     m_module->getMatrixUtils()->setIdentityMatrix(Q);
     m_module->getMatrixUtils()->setIdentityMatrix(QJ);
     m_module->getMatrixUtils()->setIdentityMatrix(I);
-    for (uintt fa = 0; IsTriangular(H1, H1->columns - 1) == false; ++fa) {
+    for (uintt fa = 0; IsTriangular(H1, H1->columns - 1) == false && fa < 10000; ++fa) {
 #if 0
         floatt red = 0;
         if (H1->reValues) {
@@ -427,7 +422,6 @@ void ArnoldiMethodCpu::calculateH(int unwantedCount) {
         values.push_back(c);
         notSorted.push_back(c);
     }
-    HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix("hH1", H1);
     std::sort(values.begin(), values.end(), wayToSort);
     for (uintt fa = 0; fa < values.size(); ++fa) {
         Complex value = values[fa];
@@ -450,7 +444,7 @@ void ArnoldiMethodCpu::calculateH(int unwantedCount) {
 
 ArnoldiMethodCallbackCpu::ArnoldiMethodCallbackCpu(MathOperationsCpu* mathOperations,
     uintt realCount) :
-ArnoldiMethodCpu(mathOperations) {
+    ArnoldiMethodCpu(mathOperations) {
     m_event = new Event();
     m_realCount = realCount;
     m_reoutputs = new floatt[realCount];

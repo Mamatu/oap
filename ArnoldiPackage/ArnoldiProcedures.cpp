@@ -2,10 +2,11 @@
 #include <algorithm>
 #include "ArnoldiProcedures.h"
 #include "DeviceMatrixModules.h"
+#include "Callbacks.h"
 
 const char* kernelsFiles[] = {
-                              "/home/mmatula/Ogla/ArnoldiPackage/dist/Debug/albert/libArnoldiPackage.cubin",
-                              NULL
+    "/home/mmatula/Ogla/ArnoldiPackage/dist/Debug/albert/libArnoldiPackage.cubin",
+    NULL
 };
 
 bool wayToSort(const Complex& i, const Complex& j) {
@@ -15,10 +16,10 @@ bool wayToSort(const Complex& i, const Complex& j) {
 }
 
 CuHArnoldi::CuHArnoldi() :
-m_wasAllocated(false),
-m_Acolumns(0),
-m_Arows(0),
-m_k(0) {
+    m_wasAllocated(false),
+    m_Acolumns(0),
+    m_Arows(0),
+    m_k(0) {
     m_image = cuda::Kernel::LoadImage(kernelsFiles);
 }
 
@@ -31,16 +32,14 @@ CuHArnoldi::~CuHArnoldi() {
 }
 
 void CuHArnoldi::calculateTriangularH() {
-    cuda::PrintReMatrix("dH1 =", H1);
     void* params[] = {
-                      &H1, &Q, &R1,
-                      &Q1, &QJ, &Q2,
-                      &R2, &G, &GT
+        &H1, &Q, &R1,
+        &Q1, &QJ, &Q2,
+        &R2, &G, &GT
     };
     m_kernel.setDimensions(m_Hcolumns, m_Hrows);
-    cuda::Kernel::ExecuteKernel("CUDAKernel_CalculateTriangularH",
+    cuda::Kernel::Execute("CUDAKernel_CalculateTriangularH",
         params, m_kernel, m_image);
-    cuda::PrintReMatrix("dH1 =", H1);
 }
 
 void aux_switchPointer(math::Matrix** a, math::Matrix** b) {
@@ -117,7 +116,6 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
     floatt B = 0;
     for (uintt fa = initj; fa < m_k - 1; ++fa) {
         m_cuMatrix.magnitude(B, f);
-        cuda::PrintReMatrix("df = ", f);
         if (fabs(B) < MATH_VALUE_LIMIT) {
             return false;
         }
@@ -171,11 +169,11 @@ void CuHArnoldi::execute(math::Matrix* outputs,
     {
         const uintt initj = 0;
         uintt buffer[] = {
-                          0, m_transposeVcolumns, 0, 1, 0, 0,
-                          0, 1, 0, m_hrows, 0, m_transposeVcolumns,
-                          0, 0, 0, 0, 0, 0,
-                          0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
-                          0, m_vscolumns, 0, m_vsrows, initj, initj + 2
+            0, m_transposeVcolumns, 0, 1, 0, 0,
+            0, 1, 0, m_hrows, 0, m_transposeVcolumns,
+            0, 0, 0, 0, 0, 0,
+            0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
+            0, m_vscolumns, 0, m_vsrows, initj, initj + 2
         };
         cuda::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
         executeArnoldiFactorization(true, 0, dMatrixExs, rho);
@@ -186,7 +184,6 @@ void CuHArnoldi::execute(math::Matrix* outputs,
         wantedIndecies.clear();
         calculateTriangularHEigens(k - wantedCount);
         if (continueProcedure() == true) {
-            debugFunc();
             m_cuMatrix.setIdentity(Q);
             m_cuMatrix.setIdentity(QJ);
             uintt p = outputs->columns - wantedCount;
@@ -225,11 +222,11 @@ void CuHArnoldi::execute(math::Matrix* outputs,
             {
                 const uintt initj = k - 1;
                 uintt buffer[] = {
-                                  0, m_transposeVcolumns, 0, 1, 0, 0,
-                                  0, 1, 0, m_hrows, 0, m_transposeVcolumns,
-                                  0, 0, 0, 0, 0, 0,
-                                  0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
-                                  0, m_vscolumns, 0, m_vsrows, initj, initj + 2
+                    0, m_transposeVcolumns, 0, 1, 0, 0,
+                    0, 1, 0, m_hrows, 0, m_transposeVcolumns,
+                    0, 0, 0, 0, 0, 0,
+                    0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
+                    0, m_vscolumns, 0, m_vsrows, initj, initj + 2
                 };
                 cuda::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
                 status = executeArnoldiFactorization(false, k - 1,
@@ -384,3 +381,14 @@ void CuHArnoldi::dealloc4() {
 void CuHArnoldi::copy(math::Matrix* hostA) {
     cuda::CopyHostMatrixToDeviceMatrix(A, hostA);
 }
+
+void CuHArnoldiCallback::multiply(math::Matrix* w, math::Matrix* v) {
+    m_multiplyFunc(w, v, m_userData);
+}
+
+void CuHArnoldiCallback::setCallback(CuHArnoldiCallback::MultiplyFunc multiplyFunc,
+    void* userData) {
+    m_multiplyFunc = multiplyFunc;
+    m_userData = userData;
+}
+
