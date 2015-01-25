@@ -6,23 +6,23 @@ CPP_FILES := $(wildcard *.cpp)
 OCPP_FILES := $(addprefix build/$(MODE)/$(PLATFORM)/,$(notdir $(CPP_FILES:.cpp=.o)))
 OCU_FILES := $(addprefix build/$(MODE)/$(PLATFORM)/,$(notdir $(CU_FILES:.cu=.o)))
 CXX := g++
-NVCC := $(CUDA_PATH)/bin/nvcc
-INCLUDE_DIRS := -I/usr/local/cuda/include -I/usr/local/cuda-6.0/include  -I/usr/include -I/usr/X11R6/include $(OGLA_INCLUDES_PATHS)
+NVCC := $(CUDA_PATH)/bin/nvcc --compiler-bindir /usr/bin/gcc-4.8
+INCLUDE_DIRS := -I/usr/local/cuda/include -I/usr/include $(OGLA_INCLUDES_PATHS)
 INCLUDE_DIRS += $(INCLUDE_PATHS)
-NVCC_INCLUDE_DIRS := -I/usr/local/cuda/include -I/usr/local/cuda-6.0/include
-LIBS_DIRS := -L/usr/lib/nvidia-current -L/usr/lib -L/usr/local/lib -L/usr/local/cuda-6.0/lib64 -L/usr/lib/i386-linux-gnu
+NVCC_INCLUDE_DIRS := -I/usr/local/cuda/include
+LIBS_DIRS := -L/usr/lib/nvidia-current -L/usr/lib -L/usr/local/cuda/lib64
 LIBS := $(EXTRA_LIBS)
 
 ifeq ($(MODE), Debug)
-	CXXOPTIONS := -c -g -fPIC
+	CXXOPTIONS := -c -g -fPIC -D$(TYPES) -D$(KERNEL_INFO)
 	CXXOPTIONS += $(EXTRA_CXXOPTIONS)
-	NVCCOPTIONS := -g
+	NVCCOPTIONS := -g -G -DEXTENDED_TYPES
 	NVCCOPTIONS += $(EXTRA_NVCCOPTIONS)
 endif
 
 ifeq ($(MODE), Release)
-	CXXOPTIONS := -c -O2 -fPIC
+	CXXOPTIONS := -c -O2 -fPIC -D$(TYPES) -D$(KERNEL_INFO)
 	CXXOPTIONS += $(EXTRA_CXXOPTIONS)
-	NVCCOPTIONS := -O2
+	NVCCOPTIONS := -O2 -DEXTENDED_TYPES
 	NVCCOPTIONS += $(EXTRA_NVCCOPTIONS)
 endif
