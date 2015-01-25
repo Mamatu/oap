@@ -65,7 +65,7 @@ if (tindex < length / 2) {\
 length = length / 2;
 
 extern "C" __device__ void CUDA_compareRealMatrix(
-    uintt& sum,
+    int* sum,
     math::Matrix* matrix1,
     math::Matrix* matrix2,
     int* buffer,
@@ -78,11 +78,11 @@ extern "C" __device__ void CUDA_compareRealMatrix(
         cuda_compare_step_2(buffer);
         __syncthreads();
     } while (length > 1);
-    sum = buffer[0] / 2;
+    sum[gridDim.x * blockDim.y + blockDim.x] = buffer[0] / 2;
 }
 
 extern "C" __device__ void CUDA_compareImMatrix(
-    uintt& sum,
+    int* sum,
     math::Matrix* matrix1,
     math::Matrix* matrix2,
     int* buffer,
@@ -95,11 +95,11 @@ extern "C" __device__ void CUDA_compareImMatrix(
         cuda_compare_step_2(buffer);
         __syncthreads();
     } while (length > 1);
-    sum = buffer[0];
+    sum[gridDim.x * blockDim.y + blockDim.x] = buffer[0];
 }
 
 extern "C" __device__ void CUDA_compareReMatrix(
-    uintt& sum,
+    int* sum,
     math::Matrix* matrix1,
     math::Matrix* matrix2,
     int* buffer,
@@ -112,11 +112,11 @@ extern "C" __device__ void CUDA_compareReMatrix(
         cuda_compare_step_2(buffer);
         __syncthreads();
     } while (length > 1);
-    sum = buffer[0];
+    sum[gridDim.x * blockDim.y + blockDim.x] = buffer[0];
 }
 
 extern "C" __device__ void CUDA_compare(
-    uintt& sum,
+    int* sum,
     math::Matrix* matrix1,
     math::Matrix* matrix2,
     int* buffer,

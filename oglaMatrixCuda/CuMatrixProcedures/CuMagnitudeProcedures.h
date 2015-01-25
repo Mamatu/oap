@@ -120,7 +120,7 @@ extern "C" __device__ void CUDA_magnitudeReOpt(floatt& value, math::Matrix* src,
         cuda_magnite_step_2(buffer);
     }
     value = sqrt(buffer[0]);
-}
+}   
 
 extern "C" __device__ void CUDA_magnitudeImOpt(floatt& value, math::Matrix* src,
     uintt tx, uintt ty) {
