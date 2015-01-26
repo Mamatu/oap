@@ -197,15 +197,15 @@ bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
     m_kernel.setThreadsCount(threads[0], threads[1]);
     m_kernel.setSharedMemory(size);
 
-    m_dcompareOutputBuffer.realloc(blocks[0] * blocks[1]);
-    m_hcompareOutputBuffer.realloc(blocks[0] * blocks[1]);
+    m_dcompareOutputBuffer.realloc(sizeof (int) * blocks[0] * blocks[1]);
+    m_hcompareOutputBuffer.realloc(sizeof (int) * blocks[0] * blocks[1]);
 
     void* params[] = {&m_dcompareOutputBuffer.m_buffer, &matrix1, &matrix2};
 
     m_cuResult = ::cuda::Kernel::Execute("CUDAKernel_CompareOpt", params, m_kernel, m_image);
 
     CudaUtils::CopyDeviceToHost(m_hcompareOutputBuffer.m_buffer,
-        m_dcompareOutputBuffer.m_buffer, sizeof (int)*blocks[0] * blocks[1]);
+        m_dcompareOutputBuffer.m_buffer, sizeof (int) * blocks[0] * blocks[1]);
 
     uintt outcome = 0;
     for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {

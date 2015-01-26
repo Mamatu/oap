@@ -78,7 +78,7 @@ extern "C" __device__ void CUDA_compareRealMatrix(
         cuda_compare_step_2(buffer);
         __syncthreads();
     } while (length > 1);
-    sum[gridDim.x * blockDim.y + blockDim.x] = buffer[0] / 2;
+    sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0] / 2;
 }
 
 extern "C" __device__ void CUDA_compareImMatrix(
@@ -95,7 +95,7 @@ extern "C" __device__ void CUDA_compareImMatrix(
         cuda_compare_step_2(buffer);
         __syncthreads();
     } while (length > 1);
-    sum[gridDim.x * blockDim.y + blockDim.x] = buffer[0];
+    sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
 }
 
 extern "C" __device__ void CUDA_compareReMatrix(
@@ -112,7 +112,7 @@ extern "C" __device__ void CUDA_compareReMatrix(
         cuda_compare_step_2(buffer);
         __syncthreads();
     } while (length > 1);
-    sum[gridDim.x * blockDim.y + blockDim.x] = buffer[0];
+    sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
 }
 
 extern "C" __device__ void CUDA_compare(
