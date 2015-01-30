@@ -2596,3 +2596,4 @@ ArnoldiPackage/build/Debug/albert/Procedures.o
 ./oglaCudaTests/module.mk
 ./oglaShibataMgr/dist/
 
+!oglaCuda/KernelExecutor.cpp
