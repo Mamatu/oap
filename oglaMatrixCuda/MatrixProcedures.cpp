@@ -25,6 +25,7 @@ CUresult CuMatrix::execute(const char* functionName,
 
 CuMatrix::CuMatrix() : m_cuResult(CUDA_SUCCESS),
     m_dcompareOutputBuffer(CuMatrix::CUDA),
+    m_dcompareBuffer(CuMatrix::CUDA),
     m_hcompareOutputBuffer(CuMatrix::HOST),
     m_magnitudeBuffer(CuMatrix::CUDA) {
     m_pathes[0] = "/home/mmatula/Ogla/oglaMatrixCuda/dist/Debug/GNU-Linux-x86/liboglaMatrixCuda.cubin";
@@ -189,23 +190,29 @@ bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
     }
     const uintt w = CudaUtils::GetColumns(matrix1);
     const uintt h = CudaUtils::GetRows(matrix1);
-    uintt size = w * h * sizeof (int) / 2;
     uintt blocks[2];
     uintt threads[2];
-    m_kernel.setThreadsBlocks(blocks, threads, w, h);
+
+    m_kernel.calculateThreadsBlocks(blocks, threads, w, h);
+
+    assert(threads[0] * threads[1] * sizeof (int) < m_kernel.getSharedMemorySize());
+
     m_kernel.setBlocksCount(blocks[0], blocks[1]);
     m_kernel.setThreadsCount(threads[0], threads[1]);
-    m_kernel.setSharedMemory(size);
+    m_kernel.setSharedMemory(threads[0] * threads[1] * sizeof (int));
 
-    m_dcompareOutputBuffer.realloc(sizeof (int) * blocks[0] * blocks[1]);
-    m_hcompareOutputBuffer.realloc(sizeof (int) * blocks[0] * blocks[1]);
+    uintt outputSize = sizeof (int) * blocks[0] * blocks[1];
+
+    m_dcompareOutputBuffer.realloc(outputSize);
+    m_hcompareOutputBuffer.realloc(outputSize);
 
     void* params[] = {&m_dcompareOutputBuffer.m_buffer, &matrix1, &matrix2};
 
-    m_cuResult = ::cuda::Kernel::Execute("CUDAKernel_CompareOpt", params, m_kernel, m_image);
+    m_cuResult = ::cuda::Kernel::Execute("CUDAKernel_CompareOpt", params,
+        m_kernel, m_image);
 
     CudaUtils::CopyDeviceToHost(m_hcompareOutputBuffer.m_buffer,
-        m_dcompareOutputBuffer.m_buffer, sizeof (int) * blocks[0] * blocks[1]);
+        m_dcompareOutputBuffer.m_buffer, outputSize);
 
     uintt outcome = 0;
     for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {

@@ -1,0 +1,37 @@
+set breakpoint pending on
+set height 0
+
+define def_break
+    break CuCompareOptProcedures.h : $arg0 if threadIdx.x == 0 && threadIdx.y == 0 && blockIdx.x == $arg1 && blockIdx.y == $arg2
+end
+
+define def_break1
+    break CuCompareOptProcedures.h : $arg0 if threadIdx.x == 0 && threadIdx.y == 0
+end
+
+def_break1 104
+command
+    info cuda threads
+    continue
+end
+
+def_break1 91
+command
+    p *buffer@sharedLength
+    p sharedLength
+    p xlength
+    info cuda sms
+    continue
+end
+
+b MatrixProcedures.cpp : 221
+command
+p outcome
+p w*h
+p *m_hcompareOutputBuffer.m_buffer@blocks[0]*blocks[1]
+continue
+end
+
+r --gtest_filter=*Compare*CompareReMatrixTestBigData
+info breakpoints
+q

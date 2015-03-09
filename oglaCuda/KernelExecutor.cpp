@@ -174,8 +174,7 @@ uint Kernel::getBlocksY() const {
 void Kernel::setDimensions(uintt w, uintt h) {
     CUdevprop devprop;
     getDeviceProperties(devprop);
-    utils::mapper::SetThreadsBlocks(m_blocksCount, m_threadsCount, w, h,
-        devprop.maxThreadsPerBlock);
+    calculateThreadsBlocks(m_blocksCount, m_threadsCount, w, h);
 }
 
 void Kernel::setSharedMemory(uintt sizeInBytes) {
@@ -255,6 +254,7 @@ CUresult Kernel::execute(const char* functionName) {
             debug("Module is incorrect %d %s;", cuModule, m_path.c_str());
         }
     }
+    resetParameters();
     return status;
 }
 
@@ -336,9 +336,19 @@ void Kernel::realeseImage() {
     }
 }
 
-void Kernel::setThreadsBlocks(uintt blocks[2], uintt threads[2],
+void Kernel::resetParameters() {
+    this->m_blocksCount[0] = 1;
+    this->m_blocksCount[1] = 1;
+    this->m_blocksCount[2] = 1;
+    this->m_threadsCount[0] = 1;
+    this->m_threadsCount[1] = 1;
+    this->m_threadsCount[2] = 1;
+    m_sharedMemoryInBytes = 0;
+}
+
+void Kernel::calculateThreadsBlocks(uintt blocks[2], uintt threads[2],
     uintt w, uintt h) {
-    SetThreadsBlocks(blocks, threads, w, h, getSharedMemorySize());
+    SetThreadsBlocks(blocks, threads, w, h, getMaxThreadsPerBlock());
 }
 
 void Kernel::SetThreadsBlocks(uintt blocks[2], uintt threads[2],

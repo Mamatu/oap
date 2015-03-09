@@ -69,7 +69,8 @@ class Kernel : public DefaultDeviceInfo {
     uintt m_threadsCount[3];
     uintt m_blocksCount[3];
     uintt m_sharedMemoryInBytes;
-    inline void realeseImage();
+    void realeseImage();
+    void resetParameters();
 public:
     Kernel();
     virtual ~Kernel();
@@ -93,7 +94,7 @@ public:
     bool loadImage(const char** pathes);
     virtual CUresult execute(const char* functionName);
 
-    void setThreadsBlocks(uintt blocks[2], uintt threads[2],
+    void calculateThreadsBlocks(uintt blocks[2], uintt threads[2],
         uintt w, uintt h);
 
     static void SetThreadsBlocks(uintt blocks[2], uintt threads[2],

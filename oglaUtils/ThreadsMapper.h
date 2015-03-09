@@ -13,10 +13,11 @@
 #include "Math.h"
 
 namespace utils {
+
 namespace mapper {
 
 void SetThreadsBlocks(uintt blocks[2], uintt threads[2], 
-    uintt w, uintt h, uintt threadsLimit, uintt factor = 2);
+    uintt w, uintt h, uintt threadsLimit);
 
 template<typename T> struct ThreadsMap {
     T beginColumn;

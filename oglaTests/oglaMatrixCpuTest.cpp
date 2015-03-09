@@ -35,12 +35,11 @@
 
 
 #include <string>
-#include "MatrixEq.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "MockUtils.h"
 #include "HostMatrixModules.h"
 #include "MathOperationsCpu.h"
-
-
 
 class OglaMatrixTests : public testing::Test {
 public:
@@ -58,12 +57,7 @@ public:
 
     virtual void TearDown() {
         if (output != NULL && eq_output != NULL) {
-            bool testPassed = *output == *eq_output;
-            if (!testPassed) {
-                host::PrintReMatrix("output", output);
-                host::PrintReMatrix("eq_output", eq_output);
-            }
-            EXPECT_TRUE(testPassed);
+            EXPECT_THAT(output, MatrixIsEqual(eq_output));
         } else {
             EXPECT_EQ(eq_value, value);
         }

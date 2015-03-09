@@ -1,3 +1,4 @@
+
 // Copyright 2008, Google Inc.
 // All rights reserved.
 //
@@ -33,37 +34,56 @@
 //
 // This file tests code in gmock.cc.
 
-
 #include <string>
-#include <stdio.h>
-#include <pthread.h>
-#include "gtest/gtest.h"
-#include "TestProcedures.h"
-#include "gmock/gmock-generated-function-mockers.h"
 
-class oglaCudaTests : public testing::Test {
+#include "MockUtils.h"
+#include "MatrixProcedures.h"
+#include "oglaCudaStub.h"
+#include "MathOperationsCpu.h"
+#include "HostMatrixModules.h"
+#include "DeviceMatrixModules.h"
+#include "CuMatrixProcedures/CuCompareUtils.h"
+
+class OglaCoverTests : public OglaCudaStub {
 public:
+};
 
-    CuTest cuTest;
-    CUresult status;
+class CompareStubImpl : public OglaCudaStub::KernelStub {
+public:
+    math::Matrix* matrix;
 
-    virtual void SetUp() {
-        cuda::Context::Instance().init();
-        status = CUDA_SUCCESS;
+    CompareStubImpl(uintt columns, uintt rows) {
+        this->matrix = host::NewReMatrix(columns, rows, 0);
+        calculateDims(columns, rows);
     }
 
-    virtual void TearDown() {
-        cuda::Context::Instance().destroy();
+    virtual ~CompareStubImpl() {
+        host::DeleteMatrix(matrix);
+    }
+
+    void execute() {
+        if (NULL != matrix) {
+            uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix->columns);
+            CompareMatrix(matrix, xlength,
+                matrix->reValues[index] = 1; matrix->reValues[index + 1] = 1;,
+                matrix->reValues[index + 2] = 1);
+        }
     }
 };
-/*
-TEST_F(oglaCudaTests, SyncBlocksAtomicTest) {
-    bool c = cuTest.test2();
-    EXPECT_EQ(true, c);
+
+TEST_F(OglaCoverTests, CoverTestTest) {
+    CompareStubImpl compareStubImpl(64, 32);
+    EXPECT_THAT(compareStubImpl.matrix, MatrixValuesAreEqual(0));
 }
 
-TEST_F(oglaCudaTests, SyncBlocksTest) {
-    bool c = cuTest.test1();
-    EXPECT_EQ(true, c);
-}*/
+TEST_F(OglaCoverTests, CompareReMatrixFixedSizeCoverTest) {
+    CompareStubImpl compareStubImpl(64, 32);
+    executeKernelSync(&compareStubImpl);
+    EXPECT_THAT(compareStubImpl.matrix, MatrixValuesAreEqual(1));
+}
 
+TEST_F(OglaCoverTests, CompareReMatrixCoverTest) {
+    CompareStubImpl compareStubImpl(50, 32);
+    executeKernelSync(&compareStubImpl);
+    EXPECT_THAT(compareStubImpl.matrix, MatrixValuesAreEqual(1));
+}

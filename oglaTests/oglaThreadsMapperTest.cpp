@@ -52,7 +52,6 @@ public:
 TEST_F(OglaProceduresTests, MultiplicationOffsetSet) {
     uintt blocks[2];
     uintt threads[2];
-    utils::mapper::SetThreadsBlocks(blocks, threads, 128, 256, 128);
-    printf("blocks %u %u \n", blocks[0], blocks[1]);
-    printf("threads %u %u \n", threads[0], threads[1]);
+    utils::mapper::SetThreadsBlocks(blocks, threads, 20, 20, 10);
+    //EXPECT_EQ();
 }

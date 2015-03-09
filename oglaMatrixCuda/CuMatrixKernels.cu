@@ -298,6 +298,5 @@ extern "C" __global__ void CUDAKernel_CompareOpt(int* sums,
     extern __shared__ int shBuffer[];
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_compare(sums, matrix1, matrix2, shBuffer,
-            threadIndexX, threadIndexY);
+    CUDA_compareOpt(sums, matrix1, matrix2, shBuffer);
 }

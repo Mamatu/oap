@@ -8,9 +8,13 @@
 #ifndef CU_SYNC_H
 #define	CU_SYNC_H
 
-#include <cuda.h>
 #include <stdio.h>
+#include "CuCore.h"
+#include "DebugLogs.h"
 
+#define DEBUG
+
+/*
 __device__ int aux;
 
 extern "C" __device__ void __syncblocks(int* syncBufferIn, int* syncBufferOut) {
@@ -45,6 +49,17 @@ extern "C" __device__ void __syncblocksAtomic(int* mutex) {
         }
     }
 }
+*/
 
-#endif	
+#ifdef __CUDACC__
+#ifdef DEBUG
+#define cuda_lock() __threadfence(); __syncthreads();
+#else
+#define cuda_lock() __syncthreads();
+#endif
+#else
+#define cuda_lock() 
+#endif
 
+
+#endif

@@ -88,6 +88,7 @@ private:
     };
 
     Buffer<int> m_dcompareOutputBuffer;
+    Buffer<int> m_dcompareBuffer;
     Buffer<int> m_hcompareOutputBuffer;
     Buffer<floatt> m_magnitudeBuffer;
 
@@ -145,8 +146,6 @@ template<typename T> T* CuMatrix::Buffer<T>::alloc(uintt size) {
         return new T[size];
     }
 }
-
-
 
 #endif	/* MATRIXPROCEDURES_H */
 
