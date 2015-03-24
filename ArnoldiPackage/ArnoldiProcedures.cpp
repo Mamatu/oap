@@ -161,7 +161,7 @@ void CuHArnoldi::execute(math::Matrix* outputs,
     const uintt dMatrixExCount = 5;
     MatrixEx** dMatrixExs = cuda::NewDeviceMatrixEx(dMatrixExCount);
     alloc(hostA, k);
-    floatt diff = -10.552;
+    floatt diff = -10.552; // hardcode to do
     {
         initVvector();
     }
@@ -391,4 +391,3 @@ void CuHArnoldiCallback::setCallback(CuHArnoldiCallback::MultiplyFunc multiplyFu
     m_multiplyFunc = multiplyFunc;
     m_userData = userData;
 }
-

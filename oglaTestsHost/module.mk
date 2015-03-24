@@ -1,4 +1,4 @@
 include ../project_generic.mk
-TARGET := oglaTests
+TARGET := oglaTestsHost
 INCLUDE_PATHS :=
 EXTRA_LIBS :=

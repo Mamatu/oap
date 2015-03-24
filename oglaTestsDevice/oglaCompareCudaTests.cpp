@@ -42,7 +42,6 @@
 #include "HostMatrixModules.h"
 #include "DeviceMatrixModules.h"
 #include "KernelExecutor.h"
-#include "CuMatrixProcedures/CuCompareUtils.h"
 
 class OglaCompareCudaTests : public testing::Test {
 public:

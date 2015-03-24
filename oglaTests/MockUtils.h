@@ -11,59 +11,53 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "Matrix.h"
-#include "MatrixEx.h"
+#include "Utils.h"
+#include "MatchersImpl.h"
 
-using ::testing::PrintToString;
-using ::testing::MakeMatcher;
-using ::testing::Matcher;
-using ::testing::MatcherInterface;
-using ::testing::MatchResultListener;
-
-
-namespace utils {
-
-class Compare {
-public:
-
-    Compare();
-
-    virtual ~Compare();
-
-    virtual bool rule(const floatt& arg1, const floatt& arg2) = 0;
-
-    bool compare(math::Matrix* matrix, floatt d);
-};
-
-bool isEqual(const MatrixEx& matrixEx, const uintt* buffer);
-
-bool areEqual(math::Matrix* matrix, int d);
-
-bool areNotEqual(math::Matrix* matrix, int d);
-
+inline bool operator==(const math::Matrix& m1, const math::Matrix& m2) {
+    if (m1.columns != m2.columns || m1.rows != m2.rows) {
+        return false;
+    }
+    for (uintt fa = 0; fa < m1.columns; ++fa) {
+        for (uintt fb = 0; fb < m1.rows; ++fb) {
+            if (m1.reValues[fa + fb * m1.columns] != m2.reValues[fa + fb * m2.columns]) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
-
-bool operator==(const math::Matrix& m1, const math::Matrix& m2);
 
 MATCHER_P(MatrixIsEqual, matrix1, "") {
     return (*arg) == (*matrix1);
 }
 
-class MatrixValuesAreEqualMatcher : public MatcherInterface<math::Matrix*> {
-    floatt m_value;
-public:
-
-    MatrixValuesAreEqualMatcher(floatt value);
-
-    virtual bool MatchAndExplain(math::Matrix* matrix, MatchResultListener* listener) const;
-
-    virtual void DescribeTo(::std::ostream* os) const;
-
-    virtual void DescribeNegationTo(::std::ostream* os) const;
-};
-
 inline Matcher<math::Matrix*> MatrixValuesAreEqual(floatt value) {
-  return MakeMatcher(new MatrixValuesAreEqualMatcher(value));
+    return MakeMatcher(new MatrixValuesAreEqualMatcher(value));
+}
+
+inline Matcher<floatt> IsEqualSum(floatt* buffer, size_t length, const std::string& extra = "") {
+    return MakeMatcher(new BufferSumIsEqualMatcher<floatt>(buffer, length, extra));
+}
+
+inline Matcher<uintt> IsEqualSum(uintt* buffer, size_t length, const std::string& extra = "") {
+    return MakeMatcher(new BufferSumIsEqualMatcher<uintt>(buffer, length, extra));
+}
+
+inline Matcher<int> IsEqualSum(int* buffer, size_t length, const std::string& extra = "") {
+    return MakeMatcher(new BufferSumIsEqualMatcher<int>(buffer, length, extra));
+}
+
+inline Matcher<floatt> IsEqualSum(floatt sum, floatt* buffer, size_t length, const std::string& extra = "") {
+    return MakeMatcher(new BufferSumIsEqualMatcherSum<floatt>(sum, buffer, length, extra));
+}
+
+inline Matcher<uintt> IsEqualSum(uintt sum, uintt* buffer, size_t length, const std::string& extra = "") {
+    return MakeMatcher(new BufferSumIsEqualMatcherSum<uintt>(sum, buffer, length, extra));
+}
+
+inline Matcher<int> IsEqualSum(int sum, int* buffer, size_t length, const std::string& extra = "") {
+    return MakeMatcher(new BufferSumIsEqualMatcherSum<int>(sum, buffer, length, extra));
 }
 
 MATCHER_P(MatrixValuesAreNotEqual, value, "") {
@@ -76,4 +70,3 @@ MATCHER_P(MatrixExIsEqual, buffer, "") {
 
 
 #endif	/* MATRIXEQ_H */
-

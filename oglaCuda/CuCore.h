@@ -10,12 +10,15 @@
 
 #include <cuda.h>
 
-#ifdef __CUDACC__
-#define __hostdeviceinline__ __device__ __forceinline__
-#define __hostdevice__ __device__
+#ifndef CUDATEST
+#define __hostdeviceinline__ extern "C" __device__ __forceinline__
+#define __hostdevice__ extern "C" __device__
 #else
-#define __hostdeviceinline__
-#define __hostdevice__
+
+#include "Dim3.h"
+
+#define __hostdeviceinline__ __inline__
+#define __hostdevice__ __inline__
 #endif
 
 #endif	/* CUCORE_H */

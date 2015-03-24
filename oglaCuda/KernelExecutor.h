@@ -8,7 +8,7 @@
 #ifndef OGLA_KERNEL_EXECUTOR_H
 #define	OGLA_KERNEL_EXECUTOR_H
 
-#include <cuda.h>
+#include "CuCore.h"
 #include <string>
 #include "Math.h"
 //#include "MatrixStructure.h"

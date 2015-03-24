@@ -1,4 +1,4 @@
 include ../project_generic.mk
-TARGET := oglashibatamgr
+TARGET := oglaTestsDevice
 INCLUDE_PATHS :=
-EXTRA_LIBS := -lcuda
+EXTRA_LIBS :=

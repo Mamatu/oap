@@ -1,14 +1,17 @@
 include project_generic.mk
 
-.PHONY: subdirs $(OGLA_INCLUDES)
-subdirs: $(OGLA_INCLUDES)
-.PHONY: clean
-$(OGLA_INCLUDES):
+.PHONY: subdirs $(OGLA_MODULES)
+subdirs: $(OGLA_MODULES)
+$(OGLA_MODULES):
 	mkdir -p dist/$(MODE)/$(PLATFORM)/lib
 	mkdir -p dist/$(MODE)/$(PLATFORM)/cubin
 	mkdir -p dist/$(MODE)/$(PLATFORM)/bin
 	$(MAKE) -C $@
-clean:	
+.PHONY: clean
+clean:
+	for dir in $(OGLA_MODULES); do \
+          $(MAKE) -C $$dir clean; \
+        done
 	rm -rf */dist/$(MODE)/$(PLATFORM)/*
 	rm -rf */build/$(MODE)/$(PLATFORM)/*
 	rm -rf dist/$(MODE)/$(PLATFORM)/lib/*

@@ -218,6 +218,9 @@ bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
     for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {
         outcome += m_hcompareOutputBuffer.m_buffer[fa];
     }
+    fprintf(stderr,"o = %d \n", outcome);
+    fprintf(stderr,"w = %d \n", w);
+    fprintf(stderr,"h = %d \n", h);
     return outcome == w * h;
 }
 

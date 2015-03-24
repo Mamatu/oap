@@ -15,44 +15,6 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-extern "C" __hostdeviceinline__ void cuda_CompareBuffer(int* buffer,
-    uintt sharedIndex, uintt sharedLength) {
-    CalculateSumStep(buffer, sharedIndex, sharedLength);
-}
-
-extern "C" __hostdeviceinline__ void cuda_CompareRealOpt(int* buffer,
-    math::Matrix* m1, math::Matrix* m2,
-    uintt sharedIndex, uintt sharedLength, uintt xlength) {
-
-    CompareMatrix(m1, xlength,
-        buffer[sharedIndex] = m1->reValues[index] == m2->reValues[index];
-        buffer[sharedIndex] += m1->imValues[index] == m2->imValues[index];
-        buffer[sharedIndex] += m1->reValues[index + 1] == m2->reValues[index + 1];
-        buffer[sharedIndex] += m1->imValues[index + 1] == m2->imValues[index + 1];,
-        buffer[sharedIndex] += m1->reValues[index + 2] == m2->reValues[index + 2];
-        buffer[sharedIndex] += m1->imValues[index + 2] == m2->imValues[index + 2];);
-}
-
-extern "C" __hostdeviceinline__ void cuda_CompareReOpt(int* buffer,
-    math::Matrix* m1, math::Matrix* m2,
-    uintt sharedIndex, uintt sharedLength, uintt xlength) {
-
-    CompareMatrix(m1, xlength,
-        buffer[sharedIndex] = m1->reValues[index] == m2->reValues[index];
-        buffer[sharedIndex] += m1->reValues[index + 1] == m2->reValues[index + 1];,
-        buffer[sharedIndex] += m1->reValues[index + 2] == m2->reValues[index + 2];);
-}
-
-extern "C" __hostdeviceinline__ void cuda_CompareImOpt(int* buffer,
-    math::Matrix* m1, math::Matrix* m2,
-    uintt sharedIndex, uintt sharedLength, uintt xlength) {
-
-    CompareMatrix(m1, xlength,
-        buffer[sharedIndex] = m1->imValues[index] == m2->imValues[index];
-        buffer[sharedIndex] += m1->imValues[index + 1] == m2->imValues[index + 1];,
-        buffer[sharedIndex] += m1->imValues[index + 2] == m2->imValues[index + 2];);
-}
-
 extern "C" __device__ void CUDA_compareOptRealMatrix(
     int* sum,
     math::Matrix* matrix1,
@@ -62,13 +24,13 @@ extern "C" __device__ void CUDA_compareOptRealMatrix(
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-    cuda_CompareRealOpt(buffer, matrix1, matrix2, sharedIndex, sharedLength, xlength);
+    cuda_CompareRealOpt(buffer, matrix1, matrix2, sharedIndex, xlength);
     sharedLength = sharedLength / 2;
-    cuda_lock();
+    __syncthreads();
     do {
-        cuda_CompareBuffer(buffer, sharedIndex, sharedLength);
+        cuda_CompareBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
-        cuda_lock();
+        __syncthreads();
     } while (sharedLength > 1);
     if (threadIdx.x == 0 && threadIdx.y == 0) {
         sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
@@ -84,16 +46,17 @@ extern "C" __device__ void CUDA_compareOptReMatrix(
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-    cuda_CompareReOpt(buffer, matrix1, matrix2, sharedIndex, sharedLength, xlength);
-    sharedLength = sharedLength / 2;
-    cuda_lock();
+    cuda_CompareReOpt(buffer, matrix1, matrix2, sharedIndex, xlength);
+    __syncthreads();
     do {
-        cuda_CompareBuffer(buffer, sharedIndex, sharedLength);
+        cuda_CompareBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
-        cuda_lock();
+        __syncthreads();
     } while (sharedLength > 1);
+
     if (threadIdx.x == 0 && threadIdx.y == 0) {
         sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
+        printf("sum = %d\n", sum[gridDim.x * blockIdx.y + blockIdx.x]);
     }
 }
 
@@ -106,13 +69,13 @@ extern "C" __device__ void CUDA_compareOptImMatrix(
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-    cuda_CompareImOpt(buffer, matrix1, matrix2, sharedIndex, sharedLength, xlength);
+    cuda_CompareImOpt(buffer, matrix1, matrix2, sharedIndex, xlength);
     sharedLength = sharedLength / 2;
-    cuda_lock();
+    __syncthreads();
     do {
-        cuda_CompareBuffer(buffer, sharedIndex, sharedLength);
+        cuda_CompareBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
-        cuda_lock();
+        __syncthreads();
     } while (sharedLength > 1);
     if (threadIdx.x == 0 && threadIdx.y == 0) {
         sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];

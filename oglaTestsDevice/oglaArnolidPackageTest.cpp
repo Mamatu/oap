@@ -34,7 +34,6 @@
 //
 // This file tests code in gmock.cc.
 
-
 #include <string>
 #include "gtest/gtest.h"
 #include "ArnoldiMethodProcess.h"

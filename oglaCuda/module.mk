@@ -1,3 +1,4 @@
 include ../project_generic.mk
 TARGET := liboglaCuda
-INCLUDE_PATHS := -lcudart -lcuda
+INCLUDE_PATHS :=
+EXTRA_LIBS := -lcuda
