@@ -2787,3 +2787,5 @@ oglaa/data/knopflerfish/component/component_api-2.0.0.jar
 ./ogla3D/plugins/Analysis3D-bundle.jar
 ./oglaMathUtils/plugins/oglaMath-bundle.jar
 ./oglaMathUtils/plugins/AnalysisMath-bundle.jar
+oglaTestsDevice/dist/
+oglaTestsHost/dist/
