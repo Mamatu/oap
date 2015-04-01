@@ -52,14 +52,16 @@ public:
 
     bool compare(math::Matrix* matrix1, math::Matrix* matrix2);
 
+    bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2);
+
+    uintt getCompareOperationSum() const;
+    
     void QR(math::Matrix* Q,
         math::Matrix* R, math::Matrix* H,
         math::Matrix* R1, math::Matrix* Q1,
         math::Matrix* G, math::Matrix * GT);
 
     CUresult getStatus() const;
-
-
 
 private:
     CUresult m_cuResult;
@@ -106,6 +108,8 @@ private:
     const char* m_pathes[3];
     void* m_image;
     uintt m_maxThreadsPerBlock;
+    uintt m_compareOperationOutput;
+    CuMatrix(const CuMatrix&);
 };
 
 template<typename T> CuMatrix::Buffer<T>::Buffer(CuMatrix::Type type) :

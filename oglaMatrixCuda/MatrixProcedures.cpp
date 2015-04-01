@@ -27,7 +27,8 @@ CuMatrix::CuMatrix() : m_cuResult(CUDA_SUCCESS),
     m_dcompareOutputBuffer(CuMatrix::CUDA),
     m_dcompareBuffer(CuMatrix::CUDA),
     m_hcompareOutputBuffer(CuMatrix::HOST),
-    m_magnitudeBuffer(CuMatrix::CUDA) {
+    m_magnitudeBuffer(CuMatrix::CUDA),
+    m_compareOperationOutput(0) {
     m_pathes[0] = "/home/mmatula/Ogla/oglaMatrixCuda/dist/Debug/GNU-Linux-x86/liboglaMatrixCuda.cubin";
     m_pathes[1] = "/home/mmatula/Ogla/oglaMatrixCuda/dist/Debug/albert/liboglaMatrixCuda.cubin";
     m_pathes[2] = NULL;
@@ -185,9 +186,11 @@ void CuMatrix::multiplyConstantMatrix(math::Matrix* output,
 }
 
 bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
+
     if (matrix1 == matrix2) {
         return true;
     }
+
     const uintt w = CudaUtils::GetColumns(matrix1);
     const uintt h = CudaUtils::GetRows(matrix1);
     uintt blocks[2];
@@ -218,10 +221,54 @@ bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
     for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {
         outcome += m_hcompareOutputBuffer.m_buffer[fa];
     }
-    fprintf(stderr,"o = %d \n", outcome);
-    fprintf(stderr,"w = %d \n", w);
-    fprintf(stderr,"h = %d \n", h);
+
+    m_compareOperationOutput = outcome;
     return outcome == w * h;
+}
+
+bool CuMatrix::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2) {
+
+    if (matrix1 == matrix2) {
+        return true;
+    }
+
+    const uintt w = CudaUtils::GetColumns(matrix1);
+    const uintt h = CudaUtils::GetRows(matrix1);
+    uintt blocks[2];
+    uintt threads[2];
+
+    m_kernel.calculateThreadsBlocks(blocks, threads, w / 2, h);
+
+    assert(threads[0] * threads[1] * sizeof (int) < m_kernel.getSharedMemorySize());
+
+    m_kernel.setBlocksCount(blocks[0], blocks[1]);
+    m_kernel.setThreadsCount(threads[0], threads[1]);
+    m_kernel.setSharedMemory(threads[0] * threads[1] * sizeof (int));
+
+    uintt outputSize = sizeof (int) * blocks[0] * blocks[1];
+
+    m_dcompareOutputBuffer.realloc(outputSize);
+    m_hcompareOutputBuffer.realloc(outputSize);
+
+    void* params[] = {&m_dcompareOutputBuffer.m_buffer, &matrix1, &matrix2};
+
+    m_cuResult = ::cuda::Kernel::Execute("CUDAKernel_CompareOptVer2", params,
+        m_kernel, m_image);
+
+    CudaUtils::CopyDeviceToHost(m_hcompareOutputBuffer.m_buffer,
+        m_dcompareOutputBuffer.m_buffer, outputSize);
+
+    uintt outcome = 0;
+    for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {
+        outcome += m_hcompareOutputBuffer.m_buffer[fa];
+    }
+
+    m_compareOperationOutput = outcome;
+    return outcome == w * h;
+}
+
+uintt CuMatrix::getCompareOperationSum() const {
+    return m_compareOperationOutput;
 }
 
 CUresult CuMatrix::getStatus() const {

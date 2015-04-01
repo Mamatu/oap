@@ -18,19 +18,27 @@
 
 namespace utils {
 
-template<typename T> void PrintArray(std::string& output, T* array, size_t length) {
-    std::vector<std::pair<uintt, floatt> > valuesVec;
+template <typename T> class OccurencesList : public std::vector<std::pair<uintt, T> > {
+};
+
+template<typename T> void PrepareOccurencesList(OccurencesList<T>& occurencesList,
+    T* array, size_t length) {
     for (size_t fa = 0; fa < length; ++fa) {
         floatt value = array[fa];
-        if (valuesVec.size() == 0 || valuesVec[valuesVec.size() - 1].second != value) {
-            valuesVec.push_back(std::make_pair<uintt, floatt>(1, value));
+        if (occurencesList.size() == 0 || occurencesList[occurencesList.size() - 1].second != value) {
+            occurencesList.push_back(std::make_pair<uintt, floatt>(1, value));
         } else {
-            valuesVec[valuesVec.size() - 1].first++;
+            occurencesList[occurencesList.size() - 1].first++;
         }
     }
+}
+
+template<typename T> void PrintArray(std::string& output, T* array, size_t length) {
+    OccurencesList<T> valuesVec;
+    PrepareOccurencesList(valuesVec, array, length);
     output = "[";
+    std::stringstream sstream;
     for (size_t fa = 0; fa < valuesVec.size(); ++fa) {
-        std::stringstream sstream;
         sstream << valuesVec[fa].second;
         if (valuesVec[fa].first > 0) {
             sstream << " times " << valuesVec[fa].first;
@@ -39,8 +47,13 @@ template<typename T> void PrintArray(std::string& output, T* array, size_t lengt
             sstream << ", ";
         }
         output += sstream.str();
+        sstream.str("");
     }
-    output += "]";
+    sstream.str("");
+    sstream << length;
+    output += "] (length ";
+    output += sstream.str();
+    output += ")";
 }
 
 inline void PrintMatrix(std::string& output, math::Matrix* matrix) {
@@ -123,6 +136,21 @@ inline bool areNotEqual(math::Matrix* matrix, int d) {
     return compareImpl.compare(matrix, d);
 }
 
+typedef std::pair<size_t, size_t> Range;
+
+template<typename T> class Ranges : public std::vector<std::pair<T, Range> > {
+};
+
+template<typename T> bool isMatched(T* array, size_t length,
+    const Ranges<T>& matched, const Ranges<T>& notmatched) {
+}
+
+//template<typename T> typedef typename std::vector<std::pair<T, Range<T> > > Ranges<T>;
+
+//template<typename T> bool isMatched(T* array, size_t length) {
+
+//}
+
 template<typename T> T getSum(T* buffer, size_t length) {
     T output = 0;
     for (uintt fa = 0; fa < length; ++fa) {
@@ -132,6 +160,7 @@ template<typename T> T getSum(T* buffer, size_t length) {
 }
 
 #ifdef CUDATEST
+
 inline std::string gridDimToStr(const Dim3& dim3) {
     std::ostringstream s;
     s << "gridDim = [" << dim3.x << ", " << dim3.y << ", " << dim3.z << "]";

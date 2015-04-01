@@ -89,12 +89,17 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTest1) {
     cuda::CopyHostArraysToDeviceMatrix(matrix1, hArray, NULL);
     cuda::CopyHostArraysToDeviceMatrix(matrix2, hArray, NULL);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(resultVer1);
+    EXPECT_TRUE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }
 
 TEST_F(OglaCompareCudaTests, CompareReMatrixTest1Fail) {
@@ -129,12 +134,17 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTest1Fail) {
     cuda::CopyHostArraysToDeviceMatrix(matrix1, hArray1, NULL);
     cuda::CopyHostArraysToDeviceMatrix(matrix2, hArray2, NULL);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_FALSE(result);
+    EXPECT_FALSE(resultVer1);
+    EXPECT_FALSE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }
 
 TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData) {
@@ -145,12 +155,17 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData) {
     math::Matrix* matrix1 = cuda::NewDeviceMatrix(true, false, columns, rows);
     math::Matrix* matrix2 = cuda::NewDeviceMatrix(true, false, columns, rows);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(resultVer1);
+    EXPECT_TRUE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }
 
 TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData1) {
@@ -161,12 +176,17 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData1) {
     math::Matrix* matrix1 = cuda::NewDeviceMatrix(true, false, columns, rows);
     math::Matrix* matrix2 = cuda::NewDeviceMatrix(true, false, columns, rows);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(resultVer1);
+    EXPECT_TRUE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }
 
 TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData2) {
@@ -177,12 +197,17 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData2) {
     math::Matrix* matrix1 = cuda::NewDeviceMatrix(true, false, columns, rows);
     math::Matrix* matrix2 = cuda::NewDeviceMatrix(true, false, columns, rows);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(resultVer1);
+    EXPECT_TRUE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }
 
 TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData3) {
@@ -193,12 +218,17 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData3) {
     math::Matrix* matrix1 = cuda::NewDeviceMatrix(true, false, columns, rows);
     math::Matrix* matrix2 = cuda::NewDeviceMatrix(true, false, columns, rows);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(resultVer1);
+    EXPECT_TRUE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }
 
 TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData3Fail) {
@@ -211,12 +241,17 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData3Fail) {
 
     CudaUtils::SetReValue(matrix1, columns * rows - 1, 10);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_FALSE(result);
+    EXPECT_FALSE(resultVer1);
+    EXPECT_FALSE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }
 
 TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData4) {
@@ -227,12 +262,17 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData4) {
     math::Matrix* matrix1 = cuda::NewDeviceMatrix(true, false, columns, rows);
     math::Matrix* matrix2 = cuda::NewDeviceMatrix(true, false, columns, rows);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_TRUE(result);
+    EXPECT_TRUE(resultVer1);
+    EXPECT_TRUE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }
 
 TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData4Fail) {
@@ -245,12 +285,17 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTestBigData4Fail) {
 
     CudaUtils::SetReValue(matrix1, columns * rows - 1, 10);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_FALSE(result);
+    EXPECT_FALSE(resultVer1);
+    EXPECT_FALSE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }
 
 TEST_F(OglaCompareCudaTests, CompareReMatrixTest5Fail) {
@@ -263,10 +308,15 @@ TEST_F(OglaCompareCudaTests, CompareReMatrixTest5Fail) {
 
     CudaUtils::SetReValue(matrix1, columns * rows - 1, 10);
 
-    bool result = cuMatrix->compare(matrix1, matrix2);
+    bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
+    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
+    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     cuda::DeleteDeviceMatrix(matrix1);
     cuda::DeleteDeviceMatrix(matrix2);
 
-    EXPECT_FALSE(result);
+    EXPECT_FALSE(resultVer1);
+    EXPECT_FALSE(resultVer2);
+    EXPECT_EQ(outcomeVer2, outcomeVer1);
 }

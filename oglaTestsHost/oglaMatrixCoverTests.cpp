@@ -41,8 +41,35 @@
 #include "MathOperationsCpu.h"
 #include "HostMatrixModules.h"
 #include "CuMatrixProcedures/CuCompareUtils.h"
+#include "CuMatrixProcedures/CuCompareUtils2.h"
 
 const int ct = 32;
+
+class AlgoVersion {
+public:
+
+    enum Type {
+        VERSION_1 = 1,
+        VERSION_2 = 2
+    };
+
+private:
+    Type m_version;
+
+public:
+
+    AlgoVersion(Type version) : m_version(version) {
+        // not implemented
+    }
+
+    Type getVersion() const {
+        return m_version;
+    }
+
+    int getFactor() const {
+        return m_version;
+    }
+};
 
 class OglaCoverTests : public OglaCudaStub {
 public:
@@ -58,44 +85,34 @@ public:
     }
 
     static int getExpectedResult(uintt columns, uintt rows,
-        const Dim3& gridDim, const Dim3& blockIdx, const Dim3& blockDim) {
+        const Dim3& gridDim, const Dim3& blockIdx, const Dim3& blockDim,
+        const AlgoVersion& algoVersion) {
 
-        int factor = 1;
+        int factor = algoVersion.getFactor();
 
         if (gridDim.x == 1 && gridDim.y == 1) {
-            return columns * rows * factor;
+            return columns * rows;
         }
 
-        uintt rdimx = columns % blockDim.x;
-        uintt rdimy = rows % blockDim.y;
-        if (rdimx == 0) {
-            rdimx = columns / blockDim.x;
-            if (rdimx < 32) {
-                rdimx = blockDim.x;
-            }
-        }
-        
-        if (rdimy == 0) {
-            rdimy = rows / blockDim.y;
-            if (rdimy < 32) {
-                rdimy = blockDim.y;
-            }
+        uintt xlength = GetLength(blockIdx.x, blockDim.x, columns / factor);
+        uintt ylength = GetLength(blockIdx.y, blockDim.y, rows);
+
+        uintt rest = 0;
+
+        if (algoVersion.getVersion() == AlgoVersion::VERSION_2
+            && xlength % 2 != 0 && columns % 2 != 0) {
+            rest = 3;
+            --xlength;
         }
 
-        if (blockIdx.x < gridDim.x - 1 && blockIdx.y < gridDim.y - 1) {
-            return blockDim.x * blockDim.y * factor;
-        } else if (blockIdx.x == gridDim.x - 1 && blockIdx.y == gridDim.y - 1) {
-            return rdimx * rdimy * factor;
-        } else if (blockIdx.x == gridDim.x - 1) {
-            return blockDim.y * rdimx * factor;
-        } else if (blockIdx.y == gridDim.y - 1) {
-            return blockDim.x * rdimy * factor;
-        }
+        return (xlength * factor + rest) * ylength;
     }
 
-    static int getExpectedResult(math::Matrix* matrix,
-        const Dim3& gridDim, const Dim3& blockIdx, const Dim3& blockDim) {
-        return getExpectedResult(matrix->columns, matrix->rows, gridDim, blockIdx, blockDim);
+    static int getExpectedResult(math::Matrix* matrix, const Dim3& gridDim,
+        const Dim3& blockIdx, const Dim3& blockDim,
+        const AlgoVersion& algoVersion) {
+        return getExpectedResult(matrix->columns, matrix->rows, gridDim,
+            blockIdx, blockDim, algoVersion);
     }
 
 };
@@ -109,9 +126,12 @@ public:
     int* m_sums;
     size_t m_sumsLength;
 
-    CompareStubImpl(uintt columns, uintt rows) {
+    AlgoVersion m_algoVersion;
+
+    CompareStubImpl(uintt columns, uintt rows, AlgoVersion::Type algoVersion) :
+        m_algoVersion(algoVersion) {
         m_matrix = host::NewReMatrix(columns, rows, 0);
-        calculateDims(columns, rows);
+        calculateDims(columns / m_algoVersion.getFactor(), rows);
         m_bufferLength = blockDim.x * blockDim.y;
         m_sumsLength = gridDim.x * gridDim.y;
         m_buffer = new int[m_bufferLength];
@@ -128,9 +148,14 @@ public:
 
     void execute() {
         if (NULL != m_matrix) {
-            uintt xlength = GetLength(blockIdx.x, blockDim.x, m_matrix->columns);
+            uintt xlength = GetLength(blockIdx.x, blockDim.x,
+                m_matrix->columns / m_algoVersion.getFactor());
             uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-            cuda_CompareReOpt(m_buffer, m_matrix, m_matrix, sharedIndex, xlength);
+            if (m_algoVersion.getVersion() == AlgoVersion::VERSION_1) {
+                cuda_CompareReOpt(m_buffer, m_matrix, m_matrix, sharedIndex, xlength);
+            } else if (m_algoVersion.getVersion() == AlgoVersion::VERSION_2) {
+                cuda_CompareReOptVer2(m_buffer, m_matrix, m_matrix, sharedIndex, xlength);
+            }
         }
     }
 
@@ -139,7 +164,7 @@ public:
             int actualSum = utils::getSum(m_buffer, m_bufferLength);
             m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;
             int expectedSum = OglaCoverTests::getExpectedResult(m_matrix,
-                gridDim, blockIdx, blockDim);
+                gridDim, blockIdx, blockDim, m_algoVersion);
             EXPECT_THAT(actualSum, IsEqualSum(expectedSum, m_buffer, m_bufferLength,
                 utils::cudaDimsToStr()));
             memset(m_buffer, 0, sizeof (int) * m_bufferLength);
@@ -158,59 +183,59 @@ public:
     }
 };
 
-TEST_F(OglaCoverTests, CoverTestTest) {
+TEST_F(OglaCoverTests, CoverTestTestAlgoVer1) {
     uintt columns = 64;
     uintt rows = 32;
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     EXPECT_THAT(compareStubImpl.m_matrix, MatrixValuesAreEqual(0));
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixOneBlockCoverTest) {
+TEST_F(OglaCoverTests, CompareReMatrixOneBlockCoverTestAlgoVer1) {
     uintt columns = 32;
     uintt rows = 32;
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     executeKernelSync(&compareStubImpl);
     uintt expected = columns * rows;
     uintt sum = compareStubImpl.getSum();
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixFixedSizeCoverTest) {
+TEST_F(OglaCoverTests, CompareReMatrixFixedSizeCoverTestAlgoVer1) {
     uintt columns = 64;
     uintt rows = 32;
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     executeKernelSync(&compareStubImpl);
     uintt expected = columns * rows;
     uintt sum = compareStubImpl.getSum();
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixCoverTest) {
+TEST_F(OglaCoverTests, CompareReMatrixCoverTestAlgoVer1) {
     uint columns = 50;
     uintt rows = 32;
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     executeKernelSync(&compareStubImpl);
     uintt expected = columns * rows;
     uintt sum = compareStubImpl.getSum();
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixCoverBigDataTest) {
+TEST_F(OglaCoverTests, CompareReMatrixCoverBigDataTestAlgoVer1) {
     uint columns = 90;
     uintt rows = 50;
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     executeKernelSync(&compareStubImpl);
     uintt expected = columns * rows;
     uintt sum = compareStubImpl.getSum();
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData) {
+TEST_F(OglaCoverTests, CompareReMatrixTestBigDataAlgoVer1) {
 
     uintt columns = 50;
     uintt rows = 32;
 
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     executeKernelSync(&compareStubImpl);
 
     uintt expected = columns * rows;
@@ -219,12 +244,12 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData1) {
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData1AlgoVer1) {
 
     uintt columns = 50;
     uintt rows = 50;
 
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     executeKernelSync(&compareStubImpl);
 
     uintt expected = columns * rows;
@@ -233,12 +258,12 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData2) {
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData2AlgoVer1) {
 
     uintt columns = 70;
     uintt rows = 70;
 
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     executeKernelSync(&compareStubImpl);
 
     uintt expected = columns * rows;
@@ -247,12 +272,12 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData3) {
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData3AlgoVer1) {
 
     uintt columns = 111;
     uintt rows = 111;
 
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     executeKernelSync(&compareStubImpl);
 
     uintt expected = columns * rows;
@@ -261,12 +286,157 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData3) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData4) {
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData3LAlgoVer1) {
+
+    uintt columns = 11;
+    uintt rows = 11;
+
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
+    executeKernelSync(&compareStubImpl);
+
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData4AlgoVer1) {
 
     uintt columns = 1000;
     uintt rows = 1000;
 
-    CompareStubImpl compareStubImpl(columns, rows);
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
+    executeKernelSync(&compareStubImpl);
+
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CoverTestTestAlgoVer2) {
+    uintt columns = 64;
+    uintt rows = 32;
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    EXPECT_THAT(compareStubImpl.m_matrix, MatrixValuesAreEqual(0));
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixOneBlockCoverTestAlgoVer2) {
+    uintt columns = 32;
+    uintt rows = 32;
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    executeKernelSync(&compareStubImpl);
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixFixedSizeCoverTestAlgoVer2) {
+    uintt columns = 64;
+    uintt rows = 32;
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    executeKernelSync(&compareStubImpl);
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixCoverTestAlgoVer2) {
+    uint columns = 50;
+    uintt rows = 32;
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    executeKernelSync(&compareStubImpl);
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixCoverBigDataTestAlgoVer2) {
+    uint columns = 90;
+    uintt rows = 50;
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    executeKernelSync(&compareStubImpl);
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixTestBigDataAlgoVer2) {
+
+    uintt columns = 50;
+    uintt rows = 32;
+
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    executeKernelSync(&compareStubImpl);
+
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData1AlgoVer2) {
+
+    uintt columns = 50;
+    uintt rows = 50;
+
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    executeKernelSync(&compareStubImpl);
+
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData2AlgoVer2) {
+
+    uintt columns = 70;
+    uintt rows = 70;
+
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    executeKernelSync(&compareStubImpl);
+
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData3AlgoVer2) {
+
+    uintt columns = 111;
+    uintt rows = 111;
+
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    executeKernelSync(&compareStubImpl);
+
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData3LAlgoVer2) {
+
+    uintt columns = 11;
+    uintt rows = 11;
+
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
+    executeKernelSync(&compareStubImpl);
+
+    uintt expected = columns * rows;
+    uintt sum = compareStubImpl.getSum();
+
+    EXPECT_EQ(expected, sum);
+}
+
+TEST_F(OglaCoverTests, CompareReMatrixTestBigData4AlgoVer2) {
+
+    uintt columns = 1000;
+    uintt rows = 1000;
+
+    CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
     executeKernelSync(&compareStubImpl);
 
     uintt expected = columns * rows;

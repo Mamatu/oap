@@ -16,6 +16,7 @@
 
 #include "CuMatrixProcedures/CuCompareProcedures.h"
 #include "CuMatrixProcedures/CuCompareOptProcedures.h"
+#include "CuMatrixProcedures/CuCompareOptProcedures2.h"
 #include "CuMatrixProcedures/CuCopyProcedures.h"
 #include "CuMatrixProcedures/CuDotProductProcedures.h"
 #include "CuMatrixProcedures/CuMultiplicationProcedures.h"
