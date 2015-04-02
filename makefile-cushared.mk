@@ -8,7 +8,7 @@ dist/$(MODE)/$(PLATFORM)/$(TARGET) : $(OCPP_FILES) $(CU_FILES)
 	cp $@.cubin $(OGLA_PATH)/dist/$(MODE)/$(PLATFORM)/cubin/
 build/$(MODE)/$(PLATFORM)/%.o : %.cpp
 	mkdir -p build/$(MODE)/$(PLATFORM)/
-	$(CXX) $(LIBS_DIRS) $(LIBS) $(CXXOPTIONS) $(INCLUDE_DIRS) $< -o $@
+	$(CXX) $(SANITIZER_COMPILATION) $(LIBS_DIRS) $(LIBS) $(CXXOPTIONS) $(INCLUDE_DIRS) $< -o $@
 clean:
 	rm -f dist/$(MODE)/$(PLATFORM)/*
 	rm -f build/$(MODE)/$(PLATFORM)/*

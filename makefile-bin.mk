@@ -9,7 +9,7 @@ dist/$(MODE)/$(PLATFORM)/$(TARGET) : $(OCPP_FILES)
 	cp $@ $(OGLA_PATH)/dist/$(MODE)/$(PLATFORM)/bin/
 build/$(MODE)/$(PLATFORM)/%.o : %.cpp
 	mkdir -p build/$(MODE)/$(PLATFORM)/
-	$(CXX) $(CXXOPTIONS) $(INCLUDE_DIRS) $< -o $@
+	$(CXX) $(SANITIZER_COMPILATION) $(CXXOPTIONS) $(INCLUDE_DIRS) $< -o $@
 clean:
 	rm -f dist/$(MODE)/$(PLATFORM)/*
 	rm -f build/$(MODE)/$(PLATFORM)/*
