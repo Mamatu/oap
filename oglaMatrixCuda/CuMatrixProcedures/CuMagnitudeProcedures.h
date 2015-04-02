@@ -92,67 +92,6 @@ extern "C" __device__ void CUDA_magnitudeIm(floatt& value, math::Matrix* src,
     value = sqrt(buffer[0]);
 }
 
-extern "C" __device__ void CUDA_magnitudeRealOpt(floatt& value, math::Matrix* src,
-    uintt tx, uintt ty) {
-    if (tx == 0 && ty == 0) {
-        value = 0;
-    }
-    extern __shared__ floatt buffer[];
-    uintt length = src->columns * src->rows;
-    uintt tindex = tx + src->columns * ty;
-    cuda_magnite_step_real(buffer, src->reValues, src->imValues);
-    while (length > 1) {
-        cuda_magnite_step_2(buffer);
-    }
-    value = sqrt(buffer[0]);
-}
-
-extern "C" __device__ void CUDA_magnitudeReOpt(floatt& value, math::Matrix* src,
-    uintt tx, uintt ty) {
-    if (tx == 0 && ty == 0) {
-        value = 0;
-    }
-    extern __shared__ floatt buffer[];
-    uintt length = src->columns * src->rows;
-    uintt tindex = tx + src->columns * ty;
-    cuda_magnite_step(buffer, src->reValues);
-    while (length > 1) {
-        cuda_magnite_step_2(buffer);
-    }
-    value = sqrt(buffer[0]);
-}   
-
-extern "C" __device__ void CUDA_magnitudeImOpt(floatt& value, math::Matrix* src,
-    uintt tx, uintt ty) {
-    if (tx == 0 && ty == 0) {
-        value = 0;
-    }
-    extern __shared__ floatt buffer[];
-    uintt length = src->columns * src->rows;
-    uintt tindex = tx + src->columns * ty;
-    cuda_magnite_step(buffer, src->imValues);
-    while (length > 1) {
-        cuda_magnite_step_2(buffer);
-    }
-    value = sqrt(buffer[0]);
-}
-
-extern "C" __device__ void CUDA_magnitudeOpt(floatt& value, math::Matrix* src,
-    uintt tx, uintt ty) {
-    if (tx == 0 && ty == 0) {
-        value = 0;
-    }
-    bool isre = src->reValues != NULL;
-    bool isim = src->imValues != NULL;
-    if (isre && isim) {
-        CUDA_magnitudeRealOpt(value, src, tx, ty);
-    } else if (isre) {
-        CUDA_magnitudeReOpt(value, src, tx, ty);
-    } else if (isim) {
-        CUDA_magnitudeImOpt(value, src, tx, ty);
-    }
-}
-
 extern "C" __device__ void CUDA_magnitude(floatt& value, math::Matrix* src,
     floatt* buffer,
     uintt tx, uintt ty) {

@@ -26,6 +26,8 @@
 #include "CuMatrixProcedures/CuIdentityProcedures.h"
 #include "CuMatrixProcedures/CuQRProcedures.h"
 #include "CuMatrixProcedures/CuMagnitudeProcedures.h"
+#include "CuMatrixProcedures/CuMagnitudeOptProcedures.h"
+#include "CuMatrixProcedures/CuMagnitudeOptProcedures2.h"
 
 extern "C" __device__ void CUDA_setDiagonalReMatrix(
     math::Matrix* dst,
