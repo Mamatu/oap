@@ -576,7 +576,10 @@ TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixTest) {
     floatt output;
     mocpu.magnitude(&output, matrix);
     printf("host_output = %f \n", output);
-    //EXPECT_EQ(output, doutput);
+
+    host::DeleteMatrix(matrix);
+    cuda::DeleteDeviceMatrix(dparam0);
+    EXPECT_EQ(output, doutput);
 }
 
 TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixTest1) {
@@ -605,6 +608,9 @@ TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixTest1) {
     floatt output;
     mocpu.magnitude(&output, matrix);
     printf("host_output = %f \n", output);
-    //EXPECT_EQ(output, doutput);
+
+    host::DeleteMatrix(matrix);
+    cuda::DeleteDeviceMatrix(dparam0);
+    EXPECT_EQ(output, doutput);
 }
 

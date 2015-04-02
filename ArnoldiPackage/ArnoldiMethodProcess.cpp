@@ -6,7 +6,6 @@
  */
 
 #include "ArnoldiMethodProcess.h"
-#include "MathOperationsCpu.h"
 #include "ArnoldiMethodHostImpl.h"
 #include "ArnoldiMethodDeviceImpl.h"
 #include <math.h>
@@ -16,6 +15,7 @@ namespace api {
 ArnoldiPackage::ArnoldiPackage(ArnoldiPackage::Type type) :
     m_type(type),
     m_method(NULL),
+    m_operationsCpu(NULL),
     m_matrix(NULL),
     m_rho(sqrt(2.)),
     m_hDimension(0) {
@@ -26,7 +26,8 @@ ArnoldiPackage::ArnoldiPackage(const ArnoldiPackage& orig) {
 }
 
 ArnoldiPackage::~ArnoldiPackage() {
-    // not implemented
+    delete m_method;
+    delete m_operationsCpu;
 }
 
 math::Status ArnoldiPackage::start() {
@@ -89,17 +90,16 @@ math::Status ArnoldiPackage::setEigenvectorsBuffer(math::Matrix* outputs,
     return math::STATUS_OK;
 }
 
-math::IArnoldiMethod* ArnoldiPackage::newArnoldiMethod() const {
-    math::MathOperationsCpu* operationsCpu = NULL;
+math::IArnoldiMethod* ArnoldiPackage::newArnoldiMethod() {
     switch (m_type) {
         case ARNOLDI_CPU:
-            operationsCpu = new math::MathOperationsCpu();
-            return new math::ArnoldiMethodCpu(operationsCpu);
+            m_operationsCpu = new math::MathOperationsCpu();
+            return new math::ArnoldiMethodCpu(m_operationsCpu);
         case ARNOLDI_GPU:
             return new math::ArnoldiMethodGpu();
         case ARNOLDI_CALLBACK_CPU:
-            operationsCpu = new math::MathOperationsCpu();
-            return new math::ArnoldiMethodCallbackCpu(operationsCpu, 1);
+            m_operationsCpu = new math::MathOperationsCpu();
+            return new math::ArnoldiMethodCallbackCpu(m_operationsCpu, 1);
     }
 }
 

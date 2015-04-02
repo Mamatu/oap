@@ -65,7 +65,7 @@ ArnoldiMethodCpu::ArnoldiMethodCpu(MathOperationsCpu* mathOperations) :
     this->m_rho = 1. / 3.14;
     this->m_k = 0;
     this->m_wantedCount = 0;
-    oldA = NULL;
+    m_oldA = NULL;
 }
 
 void ArnoldiMethodCpu::setHSize(uintt k) {
@@ -133,7 +133,7 @@ bool ArnoldiMethodCpu::isEigenValue(math::Matrix* matrix, intt index) {
 }
 
 void ArnoldiMethodCpu::alloc(math::Matrix* A) {
-    if (oldA == NULL || (A->rows != oldA->rows && A->columns != oldA->columns)) {
+    if (m_oldA == NULL || (A->rows != m_oldA->rows || A->columns != m_oldA->columns)) {
         dealloc();
         debugAssert(m_k != 0);
         w = m_module->newMatrix(A, 1, A->rows);
@@ -164,17 +164,18 @@ void ArnoldiMethodCpu::alloc(math::Matrix* A) {
         I = m_module->newMatrix(A, m_k, m_k);
         A1 = m_module->newMatrix(A, A->columns, A->columns);
         transposeV = m_module->newMatrix(A, A->rows, m_k);
-        oldA = A;
+        m_oldA = A;
     }
 }
 
 void ArnoldiMethodCpu::dealloc() {
-    if (oldA) {
+    if (m_oldA != NULL) {
         debugFunc();
         m_module->deleteMatrix(w);
         m_module->deleteMatrix(QJ);
         m_module->deleteMatrix(Q);
         m_module->deleteMatrix(f);
+        m_module->deleteMatrix(f1);
         m_module->deleteMatrix(vh);
         m_module->deleteMatrix(h);
         m_module->deleteMatrix(s);

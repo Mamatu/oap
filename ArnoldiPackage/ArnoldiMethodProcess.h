@@ -12,6 +12,7 @@
 #include "InternalTypes.h"
 #include "MathOperations.h"
 #include "IArnoldiMethod.h"
+#include "MathOperationsCpu.h"
 
 namespace api {
 
@@ -47,11 +48,12 @@ private:
     Outputs<math::Matrix> m_outputsVector;
     Type m_type;
     math::IArnoldiMethod* m_method;
+    math::MathOperationsCpu* m_operationsCpu;
     math::Matrix* m_matrix;
     floatt m_rho;
     uintt m_hDimension;
 private:
-    math::IArnoldiMethod* newArnoldiMethod() const;
+    math::IArnoldiMethod* newArnoldiMethod();
 
 public:
     ArnoldiPackage(Type type);

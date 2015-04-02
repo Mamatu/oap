@@ -73,7 +73,7 @@ namespace math {
         bool testProcedure(uintt fa);
         bool executeArnoldiFactorization(bool init = true, intt initj = 0);
         void calculateH(int i);
-        math::Matrix* oldA;
+        math::Matrix* m_oldA;
         void alloc(math::Matrix* A);
         void dealloc();
         floatt getLargestDiagonal(math::Matrix* H) const;

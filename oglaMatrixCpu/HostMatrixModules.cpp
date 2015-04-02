@@ -14,9 +14,57 @@
 #include <linux/fs.h>
 #include "ArrayTools.h"
 #include "Writer.h"
+#include "ReferencesCounter.h"
 
 #define ReIsNotNULL(m) m->reValues != NULL 
 #define ImIsNotNULL(m) m->imValues != NULL 
+
+
+#ifdef DEBUG
+
+std::ostream& operator<<(std::ostream& output, const math::Matrix*& matrix) {
+    return output << matrix << ", [" << matrix->columns << ", " << matrix->rows << "]";
+}
+
+class MatricesCounter : public ReferencesCounter<math::Matrix*> {
+public:
+
+    MatricesCounter() : ReferencesCounter("MatricesCounter") {
+    }
+
+    static MatricesCounter& GetInstance();
+
+protected:
+
+    virtual math::Matrix* createObject() {
+        return new math::Matrix();
+    }
+
+    virtual void destroyObject(math::Matrix*& t) {
+        delete t;
+    }
+
+private:
+    static MatricesCounter m_matricesCounter;
+};
+
+MatricesCounter MatricesCounter::m_matricesCounter;
+
+MatricesCounter& MatricesCounter::GetInstance() {
+    return MatricesCounter::m_matricesCounter;
+}
+
+#define NEW_MATRIX() MatricesCounter::GetInstance().create();
+
+#define DELETE_MATRIX(matrix) MatricesCounter::GetInstance().destroy(matrix);
+
+#elif RELEASE
+
+#define NEW_MATRIX() new math::Matrix();
+
+#define DELETE_MATRIX(matrix) delete matrix;
+
+#endif
 
 inline void fillRePart(math::Matrix* output, floatt value) {
     math::Memset(output->reValues, value, output->columns * output->rows);
@@ -58,7 +106,7 @@ math::Matrix* HostMatrixAllocator::createHostMatrix(math::Matrix* matrix,
 }
 
 HostMatrixCopier::HostMatrixCopier() :
-MatrixCopier(HostMatrixModules::GetInstance()) {
+    MatrixCopier(HostMatrixModules::GetInstance()) {
 }
 
 HostMatrixCopier::~HostMatrixCopier() {
@@ -121,21 +169,21 @@ void HostMatrixCopier::copy(floatt* dst, const floatt* src, uintt length) {
 }
 
 HostMatrixUtils::HostMatrixUtils() :
-MatrixUtils(HostMatrixModules::GetInstance()) {
+    MatrixUtils(HostMatrixModules::GetInstance()) {
 }
 
 HostMatrixUtils::~HostMatrixUtils() {
 }
 
 HostMatrixAllocator::HostMatrixAllocator() :
-MatrixAllocator(HostMatrixModules::GetInstance()) {
+    MatrixAllocator(HostMatrixModules::GetInstance()) {
 }
 
 HostMatrixAllocator::~HostMatrixAllocator() {
 }
 
 HostMatrixPrinter::HostMatrixPrinter() :
-MatrixPrinter(HostMatrixModules::GetInstance()) {
+    MatrixPrinter(HostMatrixModules::GetInstance()) {
 }
 
 HostMatrixPrinter::~HostMatrixPrinter() {
@@ -516,7 +564,7 @@ math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, floatt* array) {
 }
 
 math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value) {
-    math::Matrix* output = new math::Matrix();
+    math::Matrix* output = NEW_MATRIX();
     uintt length = columns*rows;
     output->realColumns = columns;
     output->columns = columns;
@@ -530,7 +578,7 @@ math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value) {
 }
 
 math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value) {
-    math::Matrix* output = new math::Matrix();
+    math::Matrix* output = NEW_MATRIX();
     uintt length = columns*rows;
     output->reValues = new floatt[length];
     output->imValues = NULL;
@@ -543,7 +591,7 @@ math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value) {
 }
 
 math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value) {
-    math::Matrix* output = new math::Matrix();
+    math::Matrix* output = NEW_MATRIX();
     uintt length = columns*rows;
     output->realColumns = columns;
     output->columns = columns;
@@ -565,7 +613,7 @@ void DeleteMatrix(math::Matrix* matrix) {
     if (matrix->imValues != NULL) {
         delete[] matrix->imValues;
     }
-    delete matrix;
+    DELETE_MATRIX(matrix);
 }
 
 floatt GetReValue(const math::Matrix* matrix, uintt column, uintt row) {
