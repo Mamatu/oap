@@ -55,7 +55,7 @@ public:
     bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2);
 
     uintt getCompareOperationSum() const;
-    
+
     void QR(math::Matrix* Q,
         math::Matrix* R, math::Matrix* H,
         math::Matrix* R1, math::Matrix* Q1,

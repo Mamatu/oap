@@ -37,22 +37,17 @@ CuMatrix::CuMatrix() : m_cuResult(CUDA_SUCCESS),
 }
 
 void CuMatrix::init() {
-    if (!m_isIntialized) {
-        m_isIntialized = true;
-        cuda::Context::Instance().init();
-        m_image = ::cuda::Kernel::LoadImage(m_pathes);
-        CUdevprop devprop;
-        m_kernel.getDeviceProperties(devprop);
-        m_maxThreadsPerBlock = devprop.maxThreadsPerBlock;
-    }
+    cuda::Context::Instance().init();
+    m_image = ::cuda::Kernel::LoadImage(m_pathes);
+    CUdevprop devprop;
+    m_kernel.getDeviceProperties(devprop);
+    m_maxThreadsPerBlock = devprop.maxThreadsPerBlock;
 }
 
 CuMatrix::~CuMatrix() {
     CudaUtils::FreeDeviceObj(m_magniuteOutput);
-    if (m_isIntialized) {
-        cuda::Kernel::FreeImage(m_image);
-        cuda::Context::Instance().destroy();
-    }
+    cuda::Kernel::FreeImage(m_image);
+    cuda::Context::Instance().destroy();
 }
 
 void CuMatrix::dotProduct(math::Matrix* output,
