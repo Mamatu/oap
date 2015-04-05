@@ -12,6 +12,7 @@
 #include "ArrayTools.h"
 #include "DebugLogs.h"
 #include "ThreadsMapper.h"
+#include <cstdlib>
 
 //#define KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
 #define KERNEL_EXTENDED_INFO 1
@@ -275,29 +276,76 @@ inline char* loadData(FILE* f) {
     return NULL;
 }
 
-inline char* loadData(const char** pathes) {
-    while (pathes != NULL && *pathes != NULL) {
-        FILE* f = fopen(*pathes, "rb");
-        if (f != NULL) {
-            char* data = loadData(f);
+typedef std::vector<std::string> Strings;
+
+void split(Strings& pathes, const std::string& env, char c) {
+    size_t pindex = 0;
+    size_t index = 0;
+    while ((index = env.find(c, pindex)) != std::string::npos) {
+        pathes.push_back(env.substr(pindex, index - pindex));
+    }
+    pathes.push_back(env.substr(pindex, env.length() - pindex));
+}
+
+void getSysPathes(Strings& pathes) {
+    char* cenvs = ::getenv("CUBIN_PATHES");
+    if (cenvs != NULL) {
+        std::string env = cenvs;
+        split(pathes, env, ':');
+    }
+}
+
+inline char* readData(const char* path) {
+    FILE* f = fopen(path, "rb");
+    if (f != NULL) {
+        char* data = loadData(f);
+        return data;
+    }
+    return NULL;
+}
+
+inline char* readData(const char* path, const Strings& sysPathes) {
+    for (size_t fa = 0; fa < sysPathes.size(); ++fa) {
+        std::string p = sysPathes[fa] + "/" + path;
+        char* data = readData(p.c_str());
+        if (data != NULL) {
             return data;
+        }
+    }
+}
+
+inline char* loadData(const char** pathes, bool extraSysPathes = true) {
+    std::vector<std::string> sysPathes;
+    if (extraSysPathes) {
+        getSysPathes(sysPathes);
+    }
+    while (pathes != NULL && *pathes != NULL) {
+        char* data = readData(*pathes);
+        if (data != NULL) {
+            return data;
+        }
+        if (extraSysPathes) {
+            data = readData(*pathes, sysPathes);
+            if (data != NULL) {
+                return data;
+            }
         }
         ++pathes;
     }
     return NULL;
 }
 
-inline char* loadData(const char* path) {
+inline char* loadData(const char* path, bool extraSysPathes = true) {
     const char* pathes[] = {path, NULL};
-    return loadData(pathes);
+    return loadData(pathes, extraSysPathes);
 }
 
 void* Kernel::LoadImage(const char* path) {
-    return loadData(path);
+    return loadData(path, true);
 }
 
 void* Kernel::LoadImage(const char** pathes) {
-    return loadData(pathes);
+    return loadData(pathes, true);
 }
 
 void Kernel::FreeImage(void* image) {
