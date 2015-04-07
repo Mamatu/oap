@@ -38,6 +38,16 @@ public:
 
     void magnitude(floatt& output, math::Matrix* params0);
 
+    void magnitudeOpt(floatt& output, math::Matrix* params0);
+
+    void magnitudeOptVer2(floatt& output, math::Matrix* params0);
+
+    void magnitude2(floatt& output, math::Matrix* params0);
+
+    void magnitude2Opt(floatt& output, math::Matrix* params0);
+
+    void magnitude2OptVer2(floatt& output, math::Matrix* params0);
+
     void multiplyConstantMatrix(math::Matrix* v,
         math::Matrix* f, floatt re);
 
@@ -64,6 +74,14 @@ public:
     CUresult getStatus() const;
 
 private:
+
+    bool compareProcedure(const char* cuKernelName,
+        math::Matrix* matrix1, math::Matrix* matrix2,
+        uintt w, uintt h, uintt wthreads, uintt hthreads);
+
+    floatt magnitude2Procedure(const char* cuKernelName,
+        math::Matrix* matrix1, uintt wthreads, uintt hthreads);
+
     CUresult m_cuResult;
     floatt* m_magniuteOutput;
 
@@ -93,6 +111,9 @@ private:
     Buffer<int> m_dcompareBuffer;
     Buffer<int> m_hcompareOutputBuffer;
     Buffer<floatt> m_magnitudeBuffer;
+    Buffer<floatt> m_dmagnitudeOutputBuffer;
+    Buffer<floatt> m_dmagnitudeBuffer;
+    Buffer<floatt> m_hmagnitudeOutputBuffer;
 
     template<typename T1> friend class Buffer;
 
@@ -144,11 +165,12 @@ template<typename T> void CuMatrix::Buffer<T>::free(T* buffer) {
 }
 
 template<typename T> T* CuMatrix::Buffer<T>::alloc(uintt size) {
-    if (m_type == CuMatrix::CUDA) {
-        return static_cast<T*> (CudaUtils::AllocDeviceMem(size));
-    } else if (m_type == CuMatrix::HOST) {
-        return new T[size];
-    }
+    switch (m_type) {
+        case CuMatrix::CUDA:
+            return static_cast<T*> (CudaUtils::AllocDeviceMem(size));
+        case CuMatrix::HOST:
+            return new T[size];
+    };
 }
 
 #endif	/* MATRIXPROCEDURES_H */

@@ -55,7 +55,7 @@ extern "C" __device__ void CUDA_magnitudeReal(floatt& value, math::Matrix* src,
         cuda_magnite_step_2(buffer);
         __syncthreads();
     } while (length > 1);
-    value = sqrt(buffer[0]);
+    value = buffer[0];
 }
 
 extern "C" __device__ void CUDA_magnitudeRe(floatt& value, math::Matrix* src,
@@ -72,7 +72,7 @@ extern "C" __device__ void CUDA_magnitudeRe(floatt& value, math::Matrix* src,
         cuda_magnite_step_2(buffer);
         __syncthreads();
     } while (length > 1);
-    value = sqrt(buffer[0]);
+    value = buffer[0];
 }
 
 extern "C" __device__ void CUDA_magnitudeIm(floatt& value, math::Matrix* src,
@@ -89,7 +89,7 @@ extern "C" __device__ void CUDA_magnitudeIm(floatt& value, math::Matrix* src,
         cuda_magnite_step_2(buffer);
         __syncthreads();
     } while (length > 1);
-    value = sqrt(buffer[0]);
+    value = buffer[0];
 }
 
 extern "C" __device__ void CUDA_magnitude(floatt& value, math::Matrix* src,

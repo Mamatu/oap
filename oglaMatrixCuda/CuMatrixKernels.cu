@@ -220,7 +220,7 @@ extern "C" __global__ void CUDAKernel_QRRe(math::Matrix* output0,
     uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
     uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
     //CUDA_QRRe(output0, output1, params0, aux0, aux1, aux2, aux3,
-      //      threadIndexX, threadIndexY);
+    //      threadIndexX, threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_QRIm(math::Matrix* output0,
@@ -295,17 +295,23 @@ extern "C" __global__ void CUDAKernel_Compare(int* sums,
 extern "C" __global__ void CUDAKernel_CompareOpt(int* sums,
         math::Matrix* matrix1,
         math::Matrix* matrix2) {
-    extern __shared__ int shBuffer[];
-    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-    uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_compareOpt(sums, matrix1, matrix2, shBuffer);
+    extern __shared__ int sharedBufferInt[];
+    CUDA_compareOpt(sums, matrix1, matrix2, sharedBufferInt);
 }
 
 extern "C" __global__ void CUDAKernel_CompareOptVer2(int* sums,
         math::Matrix* matrix1,
         math::Matrix* matrix2) {
-    extern __shared__ int shBuffer[];
-    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-    uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-    CUDA_compareOptVer2(sums, matrix1, matrix2, shBuffer);
+    extern __shared__ int sharedBufferInt[];
+    CUDA_compareOptVer2(sums, matrix1, matrix2, sharedBufferInt);
+}
+
+extern "C" __global__ void CUDAKernel_MagitudeOpt(floatt* sums, math::Matrix* matrix) {
+    extern __shared__ floatt sharedBufferFloat[];
+    CUDA_magnitudeOpt(sums, matrix, sharedBufferFloat);
+}
+
+extern "C" __global__ void CUDAKernel_MagitudeOptVer2(floatt* sums, math::Matrix* matrix) {
+    extern __shared__ floatt sharedBufferFloat[];
+    CUDA_magnitudeOptVer2(sums, matrix, sharedBufferFloat);
 }
