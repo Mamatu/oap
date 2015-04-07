@@ -14,6 +14,16 @@
 #include "KernelExecutor.h"
 #include "MatrixProcedures.h"
 
+namespace ArnUtils {
+
+bool SortLargestValues(const Complex& i, const Complex& j);
+
+bool SortSmallestValues(const Complex& i, const Complex& j);
+
+typedef bool (*SortType)(const Complex& i, const Complex& j);
+
+}
+
 class CuHArnoldi {
     void initVvector();
 
@@ -34,6 +44,8 @@ public:
 
     virtual void multiply(math::Matrix* w, math::Matrix* v);
 
+    void setSortType(ArnUtils::SortType sortType);
+    
 protected:
     CuMatrix m_cuMatrix;
     math::Matrix* w;
@@ -84,6 +96,7 @@ private:
     std::vector<Complex> unwanted;
     std::vector<uintt> wantedIndecies;
     std::vector<Complex> notSorted;
+    ArnUtils::SortType m_sortType;
 
     void* m_image;
     cuda::Kernel m_kernel;

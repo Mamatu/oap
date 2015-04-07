@@ -5,21 +5,31 @@
 #include "Callbacks.h"
 
 const char* kernelsFiles[] = {
-    "/home/mmatula/Ogla/ArnoldiPackage/dist/Debug/albert/libArnoldiPackage.cubin",
+    "libArnoldiPackage.cubin",
     NULL
 };
+namespace ArnUtils {
 
-bool wayToSort(const Complex& i, const Complex& j) {
+bool SortLargestValues(const Complex& i, const Complex& j) {
     floatt m1 = i.re * i.re + i.im * i.im;
     floatt m2 = j.re * j.re + j.im * j.im;
     return m1 < m2;
+}
+
+bool SortSmallestValues(const Complex& i, const Complex& j) {
+    floatt m1 = i.re * i.re + i.im * i.im;
+    floatt m2 = j.re * j.re + j.im * j.im;
+    return m1 > m2;
+}
+
 }
 
 CuHArnoldi::CuHArnoldi() :
     m_wasAllocated(false),
     m_Acolumns(0),
     m_Arows(0),
-    m_k(0) {
+    m_k(0),
+    m_sortType(ArnUtils::SortLargestValues) {
     m_image = cuda::Kernel::LoadImage(kernelsFiles);
 }
 
@@ -40,6 +50,10 @@ void CuHArnoldi::calculateTriangularH() {
     m_kernel.setDimensions(m_Hcolumns, m_Hrows);
     cuda::Kernel::Execute("CUDAKernel_CalculateTriangularH",
         params, m_kernel, m_image);
+}
+
+void CuHArnoldi::setSortType(ArnUtils::SortType sortType) {
+    m_sortType = sortType;
 }
 
 void aux_switchPointer(math::Matrix** a, math::Matrix** b) {
@@ -79,7 +93,7 @@ void CuHArnoldi::calculateTriangularHEigens(uintt unwantedCount) {
         values.push_back(c);
         notSorted.push_back(c);
     }
-    std::sort(values.begin(), values.end(), wayToSort);
+    std::sort(values.begin(), values.end(), m_sortType);
     for (uintt fa = 0; fa < values.size(); ++fa) {
         Complex value = values[fa];
         if (fa < unwantedCount) {
