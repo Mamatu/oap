@@ -71,7 +71,7 @@ public:
     }
 };
 
-class OglaCoverTests : public OglaCudaStub {
+class OglaCompareTests : public OglaCudaStub {
 public:
 
     virtual void SetUp() {
@@ -163,7 +163,7 @@ public:
         if (contextChange == OglaCudaStub::KernelStub::CUDA_BLOCK) {
             int actualSum = utils::getSum(m_buffer, m_bufferLength);
             m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;
-            int expectedSum = OglaCoverTests::getExpectedResult(m_matrix,
+            int expectedSum = OglaCompareTests::getExpectedResult(m_matrix,
                 gridDim, blockIdx, blockDim, m_algoVersion);
             EXPECT_THAT(actualSum, IsEqualSum(expectedSum, m_buffer, m_bufferLength,
                 utils::cudaDimsToStr()));
@@ -183,14 +183,14 @@ public:
     }
 };
 
-TEST_F(OglaCoverTests, CoverTestTestAlgoVer1) {
+TEST_F(OglaCompareTests, CoverTestTestAlgoVer1) {
     uintt columns = 64;
     uintt rows = 32;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
     EXPECT_THAT(compareStubImpl.m_matrix, MatrixValuesAreEqual(0));
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixOneBlockCoverTestAlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixOneBlockCoverTestAlgoVer1) {
     uintt columns = 32;
     uintt rows = 32;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
@@ -200,7 +200,7 @@ TEST_F(OglaCoverTests, CompareReMatrixOneBlockCoverTestAlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixFixedSizeCoverTestAlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixFixedSizeCoverTestAlgoVer1) {
     uintt columns = 64;
     uintt rows = 32;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
@@ -210,7 +210,7 @@ TEST_F(OglaCoverTests, CompareReMatrixFixedSizeCoverTestAlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixCoverTestAlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixCoverTestAlgoVer1) {
     uint columns = 50;
     uintt rows = 32;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
@@ -220,7 +220,7 @@ TEST_F(OglaCoverTests, CompareReMatrixCoverTestAlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixCoverBigDataTestAlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixCoverBigDataTestAlgoVer1) {
     uint columns = 90;
     uintt rows = 50;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
@@ -230,7 +230,7 @@ TEST_F(OglaCoverTests, CompareReMatrixCoverBigDataTestAlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigDataAlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigDataAlgoVer1) {
 
     uintt columns = 50;
     uintt rows = 32;
@@ -244,7 +244,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigDataAlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData1AlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData1AlgoVer1) {
 
     uintt columns = 50;
     uintt rows = 50;
@@ -258,7 +258,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData1AlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData2AlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData2AlgoVer1) {
 
     uintt columns = 70;
     uintt rows = 70;
@@ -272,7 +272,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData2AlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData3AlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData3AlgoVer1) {
 
     uintt columns = 111;
     uintt rows = 111;
@@ -286,7 +286,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData3AlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData3LAlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData3LAlgoVer1) {
 
     uintt columns = 11;
     uintt rows = 11;
@@ -300,7 +300,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData3LAlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData4AlgoVer1) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData4AlgoVer1) {
 
     uintt columns = 1000;
     uintt rows = 1000;
@@ -314,14 +314,14 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData4AlgoVer1) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CoverTestTestAlgoVer2) {
+TEST_F(OglaCompareTests, CoverTestTestAlgoVer2) {
     uintt columns = 64;
     uintt rows = 32;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
     EXPECT_THAT(compareStubImpl.m_matrix, MatrixValuesAreEqual(0));
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixOneBlockCoverTestAlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixOneBlockCoverTestAlgoVer2) {
     uintt columns = 32;
     uintt rows = 32;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
@@ -331,7 +331,7 @@ TEST_F(OglaCoverTests, CompareReMatrixOneBlockCoverTestAlgoVer2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixFixedSizeCoverTestAlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixFixedSizeCoverTestAlgoVer2) {
     uintt columns = 64;
     uintt rows = 32;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
@@ -341,7 +341,7 @@ TEST_F(OglaCoverTests, CompareReMatrixFixedSizeCoverTestAlgoVer2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixCoverTestAlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixCoverTestAlgoVer2) {
     uint columns = 50;
     uintt rows = 32;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
@@ -351,7 +351,7 @@ TEST_F(OglaCoverTests, CompareReMatrixCoverTestAlgoVer2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixCoverBigDataTestAlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixCoverBigDataTestAlgoVer2) {
     uint columns = 90;
     uintt rows = 50;
     CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
@@ -361,7 +361,7 @@ TEST_F(OglaCoverTests, CompareReMatrixCoverBigDataTestAlgoVer2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigDataAlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigDataAlgoVer2) {
 
     uintt columns = 50;
     uintt rows = 32;
@@ -375,7 +375,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigDataAlgoVer2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData1AlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData1AlgoVer2) {
 
     uintt columns = 50;
     uintt rows = 50;
@@ -389,7 +389,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData1AlgoVer2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData2AlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData2AlgoVer2) {
 
     uintt columns = 70;
     uintt rows = 70;
@@ -403,7 +403,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData2AlgoVer2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData3AlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData3AlgoVer2) {
 
     uintt columns = 111;
     uintt rows = 111;
@@ -417,7 +417,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData3AlgoVer2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData3LAlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData3LAlgoVer2) {
 
     uintt columns = 11;
     uintt rows = 11;
@@ -431,7 +431,7 @@ TEST_F(OglaCoverTests, CompareReMatrixTestBigData3LAlgoVer2) {
     EXPECT_EQ(expected, sum);
 }
 
-TEST_F(OglaCoverTests, CompareReMatrixTestBigData4AlgoVer2) {
+TEST_F(OglaCompareTests, CompareReMatrixTestBigData4AlgoVer2) {
 
     uintt columns = 1000;
     uintt rows = 1000;

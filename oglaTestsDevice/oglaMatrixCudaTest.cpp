@@ -569,17 +569,21 @@ TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixTest) {
     math::Matrix* matrix = host::NewMatrixCopy(1, 10, hArray, NULL);
     math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, false, 1, 10);
     cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
-    floatt doutput;
-    cuMatrix->magnitude(doutput, dparam0);
-    printf("device_output = %f \n", doutput);
-
     floatt output;
+    floatt doutput;
+    floatt doutput1;
+    floatt doutput2;
+    cuMatrix->magnitude(doutput, dparam0);
+    cuMatrix->magnitudeOpt(doutput1, dparam0);
+    cuMatrix->magnitudeOptVer2(doutput2, dparam0);
+    
     mocpu.magnitude(&output, matrix);
-    printf("host_output = %f \n", output);
-
+    
     host::DeleteMatrix(matrix);
     cuda::DeleteDeviceMatrix(dparam0);
-    EXPECT_EQ(output, doutput);
+    EXPECT_DOUBLE_EQ(doutput, output);
+    EXPECT_DOUBLE_EQ(doutput1, output);
+    EXPECT_DOUBLE_EQ(doutput2, output);
 }
 
 TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixTest1) {
@@ -602,15 +606,19 @@ TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixTest1) {
     math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, false, 1, 10);
     cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
     floatt doutput;
+    floatt doutput1;
+    floatt doutput2;
     cuMatrix->magnitude(doutput, dparam0);
-    printf("device_output = %f \n", doutput);
-
+    cuMatrix->magnitudeOpt(doutput1, dparam0);
+    cuMatrix->magnitudeOptVer2(doutput2, dparam0);
+    
     floatt output;
     mocpu.magnitude(&output, matrix);
-    printf("host_output = %f \n", output);
-
+    
     host::DeleteMatrix(matrix);
     cuda::DeleteDeviceMatrix(dparam0);
-    EXPECT_EQ(output, doutput);
+    EXPECT_DOUBLE_EQ(output, doutput);
+    EXPECT_DOUBLE_EQ(output, doutput1);
+    EXPECT_DOUBLE_EQ(output, doutput2);
 }
 
