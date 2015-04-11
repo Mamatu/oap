@@ -51,14 +51,14 @@ public:
         }
 
     protected:
-        virtual void execute() = 0;
+        virtual void execute(const Dim3& threadIdx) = 0;
 
         enum ContextChnage {
             CUDA_THREAD,
             CUDA_BLOCK
         };
 
-        virtual void onChange(ContextChnage contextChnage) {
+        virtual void onChange(ContextChnage contextChnage, const Dim3& threadIdx) {
         }
 
         friend class OglaCudaStub;
@@ -72,6 +72,7 @@ public:
      * @param cudaStub
      */
     void executeKernelSync(KernelStub* cudaStub) {
+        Dim3 threadIdx;
         for (uintt blockIdxY = 0; blockIdxY < gridDim.y; ++blockIdxY) {
             for (uintt blockIdxX = 0; blockIdxX < gridDim.x; ++blockIdxX) {
                 for (uintt threadIdxY = 0; threadIdxY < blockDim.y; ++threadIdxY) {
@@ -80,16 +81,17 @@ public:
                         threadIdx.y = threadIdxY;
                         blockIdx.x = blockIdxX;
                         blockIdx.y = blockIdxY;
-                        cudaStub->execute();
-                        cudaStub->onChange(OglaCudaStub::KernelStub::CUDA_THREAD);
+                        ThreadIdx::m_threadIdxs[pthread_self()].threadIdx = threadIdx;
+                        cudaStub->execute(threadIdx);
+                        cudaStub->onChange(OglaCudaStub::KernelStub::CUDA_THREAD, threadIdx);
                     }
                 }
-                cudaStub->onChange(OglaCudaStub::KernelStub::CUDA_BLOCK);
+                cudaStub->onChange(OglaCudaStub::KernelStub::CUDA_BLOCK, threadIdx);
             }
         }
     }
 
-    void executeKernel(KernelStub* cudaStub) {
+    void executeKernelAsync(KernelStub* cudaStub) {
         // not implemented
     }
 };

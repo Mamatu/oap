@@ -13,7 +13,9 @@
 #ifdef CUDATEST
 
 #include <stdlib.h>
+#include <map>
 #include "Math.h"
+#include <pthread.h>
 
 class Dim3 {
 public:
@@ -52,13 +54,22 @@ public:
     size_t z;
 };
 
-extern Dim3 threadIdx;
 extern Dim3 blockIdx;
 extern Dim3 blockDim;
 extern Dim3 gridDim;
 
-
 void ResetCudaCtx();
+
+class ThreadIdx {
+public:
+    Dim3 threadIdx;
+
+    void clear();
+
+    typedef std::map<pthread_t, ThreadIdx> ThreadIdxs;
+
+    static ThreadIdxs m_threadIdxs;
+};
 
 #endif
 

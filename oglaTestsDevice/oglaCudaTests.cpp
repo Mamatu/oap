@@ -56,6 +56,7 @@ public:
         cuda::Context::Instance().destroy();
     }
 };
+
 /*
 TEST_F(oglaCudaTests, SyncBlocksAtomicTest) {
     bool c = cuTest.test2();

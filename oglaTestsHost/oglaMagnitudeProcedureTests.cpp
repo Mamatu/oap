@@ -114,7 +114,7 @@ public:
         delete[] m_sums;
     }
 
-    void execute() {
+    void execute(const Dim3& threadIdx) {
         if (NULL != m_matrix) {
             uintt xlength = GetLength(blockIdx.x, blockDim.x,
                 m_matrix->columns / m_algoVersion.getFactor());
@@ -127,7 +127,7 @@ public:
         }
     }
 
-    void onChange(OglaCudaStub::KernelStub::ContextChnage contextChange) {
+    void onChange(OglaCudaStub::KernelStub::ContextChnage contextChange, const Dim3& threadIdx) {
         if (contextChange == OglaCudaStub::KernelStub::CUDA_BLOCK) {
             int actualSum = utils::getSum(m_buffer, m_bufferLength);
             m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;

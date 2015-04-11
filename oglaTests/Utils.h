@@ -185,7 +185,7 @@ inline std::string threadIdxToStr(const Dim3& dim3) {
     return s.str();
 }
 
-inline std::string cudaDimsToStr() {
+inline std::string cudaDimsToStr(const Dim3& threadIdx) {
     std::string output = " ";
     output += threadIdxToStr(threadIdx) + " ";
     output += blockIdxToStr(blockIdx) + " ";
