@@ -1,5 +1,5 @@
 #ifndef OGLA_CUMATRIXPROCEDURES_H
-#define	OGLA_CUMATRIXPROCEDURES_H
+#define OGLA_CUMATRIXPROCEDURES_H
 
 #include "Matrix.h"
 #include "MatrixEx.h"
@@ -7,171 +7,169 @@
 #include "KernelExecutor.h"
 
 class CuMatrix {
-public:
-    CuMatrix();
-    virtual ~CuMatrix();
+ public:
+  CuMatrix();
+  virtual ~CuMatrix();
 
-    void dotProduct(math::Matrix* ouput,
-        math::Matrix* params0, math::Matrix* params1);
+  void dotProduct(math::Matrix* ouput, math::Matrix* params0,
+                  math::Matrix* params1);
 
-    void dotProductEx(math::Matrix* ouput,
-        math::Matrix* params0, math::Matrix* params1,
-        MatrixEx* matrixEx);
+  void dotProductEx(math::Matrix* ouput, math::Matrix* params0,
+                    math::Matrix* params1, MatrixEx* matrixEx);
 
-    void transposeMatrixEx(math::Matrix* output,
-        math::Matrix* params0, MatrixEx* matrixEx);
+  void dotProductOpt(math::Matrix* ouput, math::Matrix* params0,
+                     math::Matrix* params1);
 
-    void transposeMatrix(math::Matrix* output,
-        math::Matrix* params0);
+  void dotProductExOpt(math::Matrix* ouput, math::Matrix* params0,
+                       math::Matrix* params1, MatrixEx* matrixEx);
 
-    void substract(math::Matrix* output,
-        math::Matrix* params0, math::Matrix* params1);
+  void transposeMatrixEx(math::Matrix* output, math::Matrix* params0,
+                         MatrixEx* matrixEx);
 
-    void addMatrix(math::Matrix* output,
-        math::Matrix* params0, math::Matrix* params1);
+  void transposeMatrix(math::Matrix* output, math::Matrix* params0);
 
-    void setVector(math::Matrix* output, uintt column,
-        math::Matrix* params0, uintt length);
+  void substract(math::Matrix* output, math::Matrix* params0,
+                 math::Matrix* params1);
 
-    void getVector(math::Matrix* vector, uintt length,
-        math::Matrix* matrix, uintt column);
+  void addMatrix(math::Matrix* output, math::Matrix* params0,
+                 math::Matrix* params1);
 
-    void magnitude(floatt& output, math::Matrix* params0);
+  void setVector(math::Matrix* output, uintt column, math::Matrix* params0,
+                 uintt length);
 
-    void magnitudeOpt(floatt& output, math::Matrix* params0);
+  void getVector(math::Matrix* vector, uintt length, math::Matrix* matrix,
+                 uintt column);
 
-    void magnitudeOptVer2(floatt& output, math::Matrix* params0);
+  void magnitude(floatt& output, math::Matrix* params0);
 
-    void magnitude2(floatt& output, math::Matrix* params0);
+  void magnitudeOpt(floatt& output, math::Matrix* params0);
 
-    void magnitude2Opt(floatt& output, math::Matrix* params0);
+  void magnitudeOptVer2(floatt& output, math::Matrix* params0);
 
-    void magnitude2OptVer2(floatt& output, math::Matrix* params0);
+  void magnitude2(floatt& output, math::Matrix* params0);
 
-    void multiplyConstantMatrix(math::Matrix* v,
-        math::Matrix* f, floatt re);
+  void magnitude2Opt(floatt& output, math::Matrix* params0);
 
-    void multiplyConstantMatrix(math::Matrix* v,
-        math::Matrix* f, floatt re, floatt im);
+  void magnitude2OptVer2(floatt& output, math::Matrix* params0);
 
-    void setDiagonal(math::Matrix* matrix, floatt re, floatt im);
+  void multiplyConstantMatrix(math::Matrix* v, math::Matrix* f, floatt re);
 
-    void setIdentity(math::Matrix* matrix);
+  void multiplyConstantMatrix(math::Matrix* v, math::Matrix* f, floatt re,
+                              floatt im);
 
-    void setZeroMatrix(math::Matrix* matrix);
+  void setDiagonal(math::Matrix* matrix, floatt re, floatt im);
 
-    bool compare(math::Matrix* matrix1, math::Matrix* matrix2);
+  void setIdentity(math::Matrix* matrix);
 
-    bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2);
+  void setZeroMatrix(math::Matrix* matrix);
 
-    uintt getCompareOperationSum() const;
+  bool compare(math::Matrix* matrix1, math::Matrix* matrix2);
 
-    void QR(math::Matrix* Q,
-        math::Matrix* R, math::Matrix* H,
-        math::Matrix* R1, math::Matrix* Q1,
-        math::Matrix* G, math::Matrix * GT);
+  bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2);
 
-    CUresult getStatus() const;
+  uintt getCompareOperationSum() const;
 
-private:
+  void QR(math::Matrix* Q, math::Matrix* R, math::Matrix* H, math::Matrix* R1,
+          math::Matrix* Q1, math::Matrix* G, math::Matrix* GT);
 
-    bool compareProcedure(const char* cuKernelName,
-        math::Matrix* matrix1, math::Matrix* matrix2,
-        uintt w, uintt h, uintt wthreads, uintt hthreads);
+  CUresult getStatus() const;
 
-    floatt magnitude2Procedure(const char* cuKernelName,
-        math::Matrix* matrix1, uintt wthreads, uintt hthreads);
+ private:
+  bool compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
+                        math::Matrix* matrix2, uintt w, uintt h, uintt wthreads,
+                        uintt hthreads);
 
-    CUresult m_cuResult;
-    floatt* m_magniuteOutput;
+  floatt magnitude2Procedure(const char* cuKernelName, math::Matrix* matrix1,
+                             uintt wthreads, uintt hthreads);
 
-    enum Type {
-        HOST,
-        CUDA
-    };
+  CUresult m_cuResult;
+  floatt* m_magniuteOutput;
 
-    template<typename T> class Buffer {
-    public:
-        T* m_buffer;
-        uintt m_size;
+  enum Type { HOST, CUDA };
 
-        Buffer(CuMatrix::Type type);
-        ~Buffer();
+  template <typename T>
+  class Buffer {
+   public:
+    T* m_buffer;
+    uintt m_size;
 
-        void realloc(uintt size);
+    Buffer(CuMatrix::Type type);
+    ~Buffer();
 
-    private:
-        Type m_type;
-        void free(T* buffer);
-        T* alloc(uintt size);
+    void realloc(uintt size);
 
-    };
+   private:
+    Type m_type;
+    void free(T* buffer);
+    T* alloc(uintt size);
+  };
 
-    Buffer<int> m_dcompareOutputBuffer;
-    Buffer<int> m_dcompareBuffer;
-    Buffer<int> m_hcompareOutputBuffer;
-    Buffer<floatt> m_magnitudeBuffer;
-    Buffer<floatt> m_dmagnitudeOutputBuffer;
-    Buffer<floatt> m_dmagnitudeBuffer;
-    Buffer<floatt> m_hmagnitudeOutputBuffer;
+  Buffer<int> m_dcompareOutputBuffer;
+  Buffer<int> m_dcompareBuffer;
+  Buffer<int> m_hcompareOutputBuffer;
+  Buffer<floatt> m_magnitudeBuffer;
+  Buffer<floatt> m_dmagnitudeOutputBuffer;
+  Buffer<floatt> m_dmagnitudeBuffer;
+  Buffer<floatt> m_hmagnitudeOutputBuffer;
 
-    template<typename T1> friend class Buffer;
+  template <typename T1>
+  friend class Buffer;
 
-private:
-    void init();
-    CUresult execute(const char* functionName,
-        uintt w, uintt h,
-        void** params,
-        uintt sharedMemory);
+ private:
+  void init();
+  CUresult execute(const char* functionName, uintt w, uintt h, void** params,
+                   uintt sharedMemory);
 
-    bool m_isIntialized;
-    cuda::Kernel m_kernel;
-    const char* m_pathes[3];
-    void* m_image;
-    uintt m_maxThreadsPerBlock;
-    uintt m_compareOperationOutput;
-    CuMatrix(const CuMatrix&);
+  bool m_isIntialized;
+  cuda::Kernel m_kernel;
+  const char* m_pathes[3];
+  void* m_image;
+  uintt m_maxThreadsPerBlock;
+  uintt m_compareOperationOutput;
+  CuMatrix(const CuMatrix&);
 };
 
-template<typename T> CuMatrix::Buffer<T>::Buffer(CuMatrix::Type type) :
-m_buffer(NULL),
-m_size(0),
-m_type(type) {
-    // not implemented
+template <typename T>
+CuMatrix::Buffer<T>::Buffer(CuMatrix::Type type)
+    : m_buffer(NULL), m_size(0), m_type(type) {
+  // not implemented
 }
 
-template<typename T> CuMatrix::Buffer<T>::~Buffer() {
-    if (m_buffer != NULL && m_type == CUDA) {
-        free(m_buffer);
+template <typename T>
+CuMatrix::Buffer<T>::~Buffer() {
+  if (m_buffer != NULL && m_type == CUDA) {
+    free(m_buffer);
+  }
+}
+
+template <typename T>
+void CuMatrix::Buffer<T>::realloc(uintt size) {
+  if (size > m_size) {
+    if (m_buffer != NULL) {
+      free(m_buffer);
     }
+    m_buffer = alloc(size);
+    m_size = size;
+  }
 }
 
-template<typename T> void CuMatrix::Buffer<T>::realloc(uintt size) {
-    if (size > m_size) {
-        if (m_buffer != NULL) {
-            free(m_buffer);
-        }
-        m_buffer = alloc(size);
-        m_size = size;
-    }
+template <typename T>
+void CuMatrix::Buffer<T>::free(T* buffer) {
+  if (m_type == CuMatrix::CUDA) {
+    CudaUtils::FreeDeviceMem(m_buffer);
+  } else if (m_type == CuMatrix::HOST) {
+    delete[] buffer;
+  }
 }
 
-template<typename T> void CuMatrix::Buffer<T>::free(T* buffer) {
-    if (m_type == CuMatrix::CUDA) {
-        CudaUtils::FreeDeviceMem(m_buffer);
-    } else if (m_type == CuMatrix::HOST) {
-        delete[] buffer;
-    }
+template <typename T>
+T* CuMatrix::Buffer<T>::alloc(uintt size) {
+  switch (m_type) {
+    case CuMatrix::CUDA:
+      return static_cast<T*>(CudaUtils::AllocDeviceMem(size));
+    case CuMatrix::HOST:
+      return new T[size];
+  };
 }
 
-template<typename T> T* CuMatrix::Buffer<T>::alloc(uintt size) {
-    switch (m_type) {
-        case CuMatrix::CUDA:
-            return static_cast<T*> (CudaUtils::AllocDeviceMem(size));
-        case CuMatrix::HOST:
-            return new T[size];
-    };
-}
-
-#endif	/* MATRIXPROCEDURES_H */
-
+#endif /* MATRIXPROCEDURES_H */
