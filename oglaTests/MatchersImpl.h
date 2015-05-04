@@ -28,7 +28,7 @@ public:
 
     virtual bool MatchAndExplain(math::Matrix* matrix, MatchResultListener* listener) const {
         std::string v;
-        utils::PrintMatrix(v, matrix);
+        matrixUtils::PrintMatrix(v, matrix);
         (*listener) << v;
         return utils::areEqual(matrix, m_value);
     }
@@ -54,7 +54,7 @@ public:
     BufferSumIsEqualMatcher(T* buffer, size_t length, const std::string& extra = "") :
     m_buffer(buffer),
     m_length(length) {
-        utils::PrintArray(m_stringRepresentation, m_buffer, m_length);
+        matrixUtils::PrintArray(m_stringRepresentation, m_buffer, m_length);
         m_expectedSum = utils::getSum(m_buffer, m_length);
         m_extra = extra;
     }
@@ -83,7 +83,7 @@ public:
 
     virtual bool MatchAndExplain(T actualSum, MatchResultListener* listener) const {
         std::string v;
-        utils::PrintArray(v, BufferSumIsEqualMatcher<T>::m_buffer, BufferSumIsEqualMatcher<T>::m_length);
+        matrixUtils::PrintArray(v, BufferSumIsEqualMatcher<T>::m_buffer, BufferSumIsEqualMatcher<T>::m_length);
         (*listener) << v;
         return BufferSumIsEqualMatcher<T>::m_expectedSum == actualSum;
     }

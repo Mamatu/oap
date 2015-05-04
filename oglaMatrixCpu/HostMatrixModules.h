@@ -134,12 +134,13 @@ namespace host {
             floatt* reArray, floatt* imArray);
     math::Matrix* NewReMatrixCopy(uintt columns, uintt rows, floatt* reArray);
     math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, floatt* imArray);
-    math::Matrix* NewMatrixCopy(uintt columns, uintt rows);
     math::Matrix* NewMatrix(math::Matrix* matrix, floatt value);
     math::Matrix* NewMatrix(math::Matrix* matrix, uintt columns, uintt rows, floatt value);
     math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
+    math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows, floatt value = 0);
     math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value = 0);
     math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value = 0);
+    math::Matrix* NewMatrix(const std::string& text);
     void CopyMatrix(math::Matrix* dst, const math::Matrix* src);
     /**
      * Copy data to dst matrix which has one column and row less than
@@ -166,6 +167,7 @@ namespace host {
     void PrintReMatrix(const math::Matrix* matrix);
     void PrintReMatrix(const std::string& text, const math::Matrix* matrix);
     void PrintMatrix(const std::string& text, const math::Matrix* matrix);
+    void PrintMatrix(const math::Matrix* matrix);
     void PrintImMatrix(FILE* stream, const math::Matrix* matrix);
     void PrintImMatrix(const math::Matrix* matrix);
     void PrintImMatrix(const std::string& text, const math::Matrix* matrix);

@@ -34,7 +34,6 @@
 //
 // This file tests code in gmock.cc.
 
-
 #include <string>
 #include "gtest/gtest.h"
 #include "MockUtils.h"
@@ -45,580 +44,558 @@
 #include "KernelExecutor.h"
 
 class OglaMatrixCudaTests : public testing::Test {
-public:
-    math::Matrix* output;
-    math::Matrix* eq_output;
-    CuMatrix* cuMatrix;
-    CUresult status;
+ public:
+  math::Matrix* output;
+  math::Matrix* eq_output;
+  CuMatrix* cuMatrix;
+  CUresult status;
 
-    virtual void SetUp() {
-        status = CUDA_SUCCESS;
-        cuda::Context::Instance().init();
-        output = NULL;
-        eq_output = NULL;
-        cuMatrix = new CuMatrix();
-    }
+  virtual void SetUp() {
+    status = CUDA_SUCCESS;
+    cuda::Context::Instance().init();
+    output = NULL;
+    eq_output = NULL;
+    cuMatrix = new CuMatrix();
+  }
 
-    virtual void TearDown() {
-        cuda::Context::Instance().destroy();
-        delete cuMatrix;
-        if (output != NULL && eq_output != NULL) {
-            EXPECT_THAT(output, MatrixIsEqual(eq_output));
-        }
-        EXPECT_EQ(status, CUDA_SUCCESS);
-        host::DeleteMatrix(output);
-        host::DeleteMatrix(eq_output);
+  virtual void TearDown() {
+    cuda::Context::Instance().destroy();
+    delete cuMatrix;
+    if (output != NULL && eq_output != NULL) {
+      EXPECT_THAT(output, MatrixIsEqual(eq_output));
     }
+    EXPECT_EQ(status, CUDA_SUCCESS);
+    host::DeleteMatrix(output);
+    host::DeleteMatrix(eq_output);
+  }
 };
 
 TEST_F(OglaMatrixCudaTests, SetVectorTest) {
-    floatt hArray[] = {
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hArray[] = {
+      5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hOutputArray[] = {
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hOutputArray[] = {
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hVArray[] = {
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-    };
+  floatt hVArray[] = {
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  };
 
-    output = host::NewReMatrixCopy(10, 10, hArray);
-    math::Matrix* V = cuda::NewDeviceMatrix(output, 10, 10);
-    math::Matrix* v = cuda::NewDeviceMatrix(output, 1, 10);
-    cuda::CopyHostArraysToDeviceMatrix(v, hVArray, NULL);
-    cuda::CopyHostMatrixToDeviceMatrix(V, output);
+  output = host::NewReMatrixCopy(10, 10, hArray);
+  math::Matrix* V = cuda::NewDeviceMatrix(output, 10, 10);
+  math::Matrix* v = cuda::NewDeviceMatrix(output, 1, 10);
+  cuda::CopyHostArraysToDeviceMatrix(v, hVArray, NULL);
+  cuda::CopyHostMatrixToDeviceMatrix(V, output);
 
-    cuMatrix->setVector(V, 0, v, 10);
-    cuda::CopyDeviceMatrixToHostMatrix(output, V);
+  cuMatrix->setVector(V, 0, v, 10);
+  cuda::CopyDeviceMatrixToHostMatrix(output, V);
 
-    cuda::DeleteDeviceMatrix(V);
-    cuda::DeleteDeviceMatrix(v);
+  cuda::DeleteDeviceMatrix(V);
+  cuda::DeleteDeviceMatrix(v);
 
-    eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
+  eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, SetVectorTest1) {
-    floatt hArray[] = {
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hArray[] = {
+      5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hOutputArray[] = {
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hOutputArray[] = {
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hVArray[] = {
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-    };
+  floatt hVArray[] = {
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  };
 
-    output = host::NewReMatrixCopy(10, 10, hArray);
-    math::Matrix* V = cuda::NewDeviceMatrix(output, 10, 10);
-    math::Matrix* v = cuda::NewDeviceMatrix(output, 2, 10);
-    cuda::CopyHostArraysToDeviceMatrix(v, hVArray, NULL);
-    cuda::CopyHostMatrixToDeviceMatrix(V, output);
+  output = host::NewReMatrixCopy(10, 10, hArray);
+  math::Matrix* V = cuda::NewDeviceMatrix(output, 10, 10);
+  math::Matrix* v = cuda::NewDeviceMatrix(output, 2, 10);
+  cuda::CopyHostArraysToDeviceMatrix(v, hVArray, NULL);
+  cuda::CopyHostMatrixToDeviceMatrix(V, output);
 
-    cuMatrix->setVector(V, 0, v, 10);
-    cuda::CopyDeviceMatrixToHostMatrix(output, V);
+  cuMatrix->setVector(V, 0, v, 10);
+  cuda::CopyDeviceMatrixToHostMatrix(output, V);
 
-    cuda::DeleteDeviceMatrix(V);
-    cuda::DeleteDeviceMatrix(v);
+  cuda::DeleteDeviceMatrix(V);
+  cuda::DeleteDeviceMatrix(v);
 
-    eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
+  eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, GetVectorTest) {
-    floatt hArray[] = {
-        5,
-        5,
-        5,
-        5,
-        5,
-        0,
-        0,
-        0,
-        0,
-        0,
-    };
+  floatt hArray[] = {
+      5, 5, 5, 5, 5, 0, 0, 0, 0, 0,
+  };
 
-    floatt hVArray[] = {
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hVArray[] = {
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hOutputArray[] = {
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-    };
+  floatt hOutputArray[] = {
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  };
 
-    output = host::NewReMatrixCopy(1, 10, hArray);
-    math::Matrix* V = cuda::NewDeviceMatrix(output, 10, 10);
-    math::Matrix* v = cuda::NewDeviceMatrix(output, 1, 10);
-    cuda::CopyHostArraysToDeviceMatrix(v, hArray, NULL);
-    cuda::CopyHostArraysToDeviceMatrix(V, hVArray, NULL);
+  output = host::NewReMatrixCopy(1, 10, hArray);
+  math::Matrix* V = cuda::NewDeviceMatrix(output, 10, 10);
+  math::Matrix* v = cuda::NewDeviceMatrix(output, 1, 10);
+  cuda::CopyHostArraysToDeviceMatrix(v, hArray, NULL);
+  cuda::CopyHostArraysToDeviceMatrix(V, hVArray, NULL);
 
-    cuMatrix->getVector(v, 10, V, 0);
-    cuda::CopyDeviceMatrixToHostMatrix(output, v);
+  cuMatrix->getVector(v, 10, V, 0);
+  cuda::CopyDeviceMatrixToHostMatrix(output, v);
 
-    cuda::DeleteDeviceMatrix(V);
-    cuda::DeleteDeviceMatrix(v);
+  cuda::DeleteDeviceMatrix(V);
+  cuda::DeleteDeviceMatrix(v);
 
-    eq_output = host::NewReMatrixCopy(1, 10, hOutputArray);
+  eq_output = host::NewReMatrixCopy(1, 10, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, GetVectorTest1) {
-    floatt hArray[] = {
-        5, 0,
-        5, 0,
-        5, 0,
-        5, 0,
-        5, 0,
-        0, 0,
-        0, 0,
-        0, 0,
-        0, 0,
-        0, 0,
-    };
+  floatt hArray[] = {
+      5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hVArray[] = {
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hVArray[] = {
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hOutputArray[] = {
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-        1, 1,
-    };
+  floatt hOutputArray[] = {
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  };
 
-    output = host::NewReMatrixCopy(2, 10, hArray);
-    math::Matrix* V = cuda::NewDeviceMatrix(output, 10, 10);
-    math::Matrix* v = cuda::NewDeviceMatrix(output, 2, 10);
-    cuda::CopyHostArraysToDeviceMatrix(v, hArray, NULL);
-    cuda::CopyHostArraysToDeviceMatrix(V, hVArray, NULL);
+  output = host::NewReMatrixCopy(2, 10, hArray);
+  math::Matrix* V = cuda::NewDeviceMatrix(output, 10, 10);
+  math::Matrix* v = cuda::NewDeviceMatrix(output, 2, 10);
+  cuda::CopyHostArraysToDeviceMatrix(v, hArray, NULL);
+  cuda::CopyHostArraysToDeviceMatrix(V, hVArray, NULL);
 
-    cuMatrix->getVector(v, 10, V, 0);
-    cuda::CopyDeviceMatrixToHostMatrix(output, v);
+  cuMatrix->getVector(v, 10, V, 0);
+  cuda::CopyDeviceMatrixToHostMatrix(output, v);
 
-    cuda::DeleteDeviceMatrix(V);
-    cuda::DeleteDeviceMatrix(v);
+  cuda::DeleteDeviceMatrix(V);
+  cuda::DeleteDeviceMatrix(v);
 
-    eq_output = host::NewReMatrixCopy(2, 10, hOutputArray);
+  eq_output = host::NewReMatrixCopy(2, 10, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, SetIdentityReMatrixTest) {
-    floatt hArray[] = {
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hArray[] = {
+      5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hOutputArray[] = {
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    };
+  floatt hOutputArray[] = {
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  };
 
-    output = host::NewReMatrixCopy(10, 10, hArray);
-    math::Matrix* matrix = cuda::NewDeviceMatrix(output, 10, 10);
-    cuda::CopyHostArraysToDeviceMatrix(matrix, hArray, NULL);
-    cuMatrix->setIdentity(matrix);
-    cuda::CopyDeviceMatrixToHostMatrix(output, matrix);
+  output = host::NewReMatrixCopy(10, 10, hArray);
+  math::Matrix* matrix = cuda::NewDeviceMatrix(output, 10, 10);
+  cuda::CopyHostArraysToDeviceMatrix(matrix, hArray, NULL);
+  cuMatrix->setIdentity(matrix);
+  cuda::CopyDeviceMatrixToHostMatrix(output, matrix);
 
-    cuda::DeleteDeviceMatrix(matrix);
+  cuda::DeleteDeviceMatrix(matrix);
 
-    eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
+  eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, SetDiagonalReMatrixTest) {
-    floatt hArray[] = {
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hArray[] = {
+      5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hOutputArray[] = {
-        2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 2, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 2, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 2, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 2, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 2, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 2, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 2, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-    };
+  floatt hOutputArray[] = {
+      2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+  };
 
-    output = host::NewReMatrixCopy(10, 10, hArray);
-    math::Matrix* matrix = cuda::NewDeviceMatrix(output, 10, 10);
-    cuda::CopyHostArraysToDeviceMatrix(matrix, hArray, NULL);
-    cuMatrix->setDiagonal(matrix, 2, 0);
-    cuda::CopyDeviceMatrixToHostMatrix(output, matrix);
+  output = host::NewReMatrixCopy(10, 10, hArray);
+  math::Matrix* matrix = cuda::NewDeviceMatrix(output, 10, 10);
+  cuda::CopyHostArraysToDeviceMatrix(matrix, hArray, NULL);
+  cuMatrix->setDiagonal(matrix, 2, 0);
+  cuda::CopyDeviceMatrixToHostMatrix(output, matrix);
 
-    cuda::DeleteDeviceMatrix(matrix);
+  cuda::DeleteDeviceMatrix(matrix);
 
-    eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
+  eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, MultiplyConstantReMatrixTest) {
-    floatt hArray[] = {
-        1, 0, 2, 0, 0, 0, 0, 0, 0, 0,
-        0, 1, 0, 2, 0, 0, 0, 0, 0, 0,
-        0, 0, 1, 0, 2, 0, 0, 0, 0, 0,
-        0, 0, 0, 1, 0, 2, 0, 0, 0, 0,
-        0, 0, 0, 0, 1, 0, 2, 0, 0, 0,
-        0, 0, 0, 0, 0, 1, 0, 2, 0, 0,
-        0, 0, 0, 0, 0, 0, 1, 0, 2, 0,
-        0, 0, 0, 0, 0, 0, 0, 1, 0, 2,
-        0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    };
+  floatt hArray[] = {
+      1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+  };
 
-    floatt hOutputArray[] = {
-        5, 0, 10, 0, 0, 0, 0, 0, 0, 0,
-        0, 5, 0, 10, 0, 0, 0, 0, 0, 0,
-        0, 0, 5, 0, 10, 0, 0, 0, 0, 0,
-        0, 0, 0, 5, 0, 10, 0, 0, 0, 0,
-        0, 0, 0, 0, 5, 0, 10, 0, 0, 0,
-        0, 0, 0, 0, 0, 5, 0, 10, 0, 0,
-        0, 0, 0, 0, 0, 0, 5, 0, 10, 0,
-        0, 0, 0, 0, 0, 0, 0, 5, 0, 10,
-        0, 0, 0, 0, 0, 0, 0, 0, 5, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
-    };
+  floatt hOutputArray[] = {
+      5, 0, 10, 0, 0,  0, 0,  0, 0,  0, 0, 5, 0, 10, 0, 0,  0, 0,  0, 0,
+      0, 0, 5,  0, 10, 0, 0,  0, 0,  0, 0, 0, 0, 5,  0, 10, 0, 0,  0, 0,
+      0, 0, 0,  0, 5,  0, 10, 0, 0,  0, 0, 0, 0, 0,  0, 5,  0, 10, 0, 0,
+      0, 0, 0,  0, 0,  0, 5,  0, 10, 0, 0, 0, 0, 0,  0, 0,  0, 5,  0, 10,
+      0, 0, 0,  0, 0,  0, 0,  0, 5,  0, 0, 0, 0, 0,  0, 0,  0, 0,  0, 5,
+  };
 
-    output = host::NewReMatrixCopy(10, 10, hArray);
-    math::Matrix* doutput = cuda::NewDeviceMatrix(output, 10, 10);
-    math::Matrix* dparam0 = cuda::NewDeviceMatrix(output, 10, 10);
-    cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  output = host::NewReMatrixCopy(10, 10, hArray);
+  math::Matrix* doutput = cuda::NewDeviceMatrix(output, 10, 10);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(output, 10, 10);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
 
-    cuMatrix->multiplyConstantMatrix(doutput, dparam0, 5);
+  cuMatrix->multiplyConstantMatrix(doutput, dparam0, 5);
 
-    cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
-    eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
+  cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
+  eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, TransponseReMatrixExTest1) {
-    floatt hArray[] = {
-        1, 1, 1, 0,
-        1, 1, 0, 1,
-        1, 1, 0, 0,
-        1, 1, 0, 0,
-        1, 1, 0, 0,
-        1, 1, 0, 0,
-        1, 1, 0, 0,
-        1, 1, 0, 0,
-        1, 1, 0, 0,
-        1, 1, 0, 0,
-    };
+  floatt hArray[] = {
+      1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+      1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+  };
 
-    floatt hOutputArray[] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hOutputArray[] = {
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    output = host::NewReMatrixCopy(10, 4, hArray);
-    math::Matrix* doutput = cuda::NewDeviceMatrix(output, 10, 4);
-    math::Matrix* dparam0 = cuda::NewDeviceMatrix(output, 4, 10);
-    cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  output = host::NewReMatrixCopy(10, 4, hArray);
+  math::Matrix* doutput = cuda::NewDeviceMatrix(output, 10, 4);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(output, 4, 10);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
 
-    MatrixEx* matrixEx = cuda::NewDeviceMatrixEx();
-    MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
-    cuda::SetMatrixEx(matrixEx, &hMatrixEx);
+  MatrixEx* matrixEx = cuda::NewDeviceMatrixEx();
+  MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
+  cuda::SetMatrixEx(matrixEx, &hMatrixEx);
 
-    cuMatrix->transposeMatrixEx(doutput, dparam0, matrixEx);
+  cuMatrix->transposeMatrixEx(doutput, dparam0, matrixEx);
 
-    cuda::DeleteDeviceMatrixEx(matrixEx);
-    cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
-    eq_output = host::NewReMatrixCopy(10, 4, hOutputArray);
+  cuda::DeleteDeviceMatrixEx(matrixEx);
+  cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
+  eq_output = host::NewReMatrixCopy(10, 4, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, TransponseReMatrixExTest2) {
-    floatt hArray[] = {
-        1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 1, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 1, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 2, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hArray[] = {
+      1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 2, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hOutputArray[] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hOutputArray[] = {
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    output = host::NewReMatrixCopy(10, 10, hArray);
-    math::Matrix* doutput = cuda::NewDeviceMatrix(output, 10, 10);
-    math::Matrix* dparam0 = cuda::NewDeviceMatrix(output, 10, 10);
-    cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  output = host::NewReMatrixCopy(10, 10, hArray);
+  math::Matrix* doutput = cuda::NewDeviceMatrix(output, 10, 10);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(output, 10, 10);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
 
-    MatrixEx* matrixEx = cuda::NewDeviceMatrixEx();
-    MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
-    cuda::SetMatrixEx(matrixEx, &hMatrixEx);
+  MatrixEx* matrixEx = cuda::NewDeviceMatrixEx();
+  MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
+  cuda::SetMatrixEx(matrixEx, &hMatrixEx);
 
-    cuMatrix->transposeMatrixEx(doutput, dparam0, matrixEx);
+  cuMatrix->transposeMatrixEx(doutput, dparam0, matrixEx);
 
-    cuda::DeleteDeviceMatrixEx(matrixEx);
-    cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
-    eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
+  cuda::DeleteDeviceMatrixEx(matrixEx);
+  cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
+  eq_output = host::NewReMatrixCopy(10, 10, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, TransponseReMatrixExTest3) {
-    floatt hArray[] = {
-        1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 1, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 1, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 2, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hArray[] = {
+      1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 2, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    floatt hOutputArray[] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
+  floatt hOutputArray[] = {
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
-    output = host::NewReMatrixCopy(10, 4, hArray);
-    math::Matrix* doutput = cuda::NewDeviceMatrix(output, 10, 4);
-    math::Matrix* dparam0 = cuda::NewDeviceMatrix(output, 10, 10);
-    cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  output = host::NewReMatrixCopy(10, 4, hArray);
+  math::Matrix* doutput = cuda::NewDeviceMatrix(output, 10, 4);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(output, 10, 10);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
 
-    MatrixEx* matrixEx = cuda::NewDeviceMatrixEx();
-    MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
-    cuda::SetMatrixEx(matrixEx, &hMatrixEx);
+  MatrixEx* matrixEx = cuda::NewDeviceMatrixEx();
+  MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
+  cuda::SetMatrixEx(matrixEx, &hMatrixEx);
 
-    cuMatrix->transposeMatrixEx(doutput, dparam0, matrixEx);
+  cuMatrix->transposeMatrixEx(doutput, dparam0, matrixEx);
 
-    cuda::DeleteDeviceMatrixEx(matrixEx);
-    cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
-    eq_output = host::NewReMatrixCopy(10, 4, hOutputArray);
+  cuda::DeleteDeviceMatrixEx(matrixEx);
+  cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
+  eq_output = host::NewReMatrixCopy(10, 4, hOutputArray);
 }
 
 TEST_F(OglaMatrixCudaTests, MatrixExTest) {
-    MatrixEx** dMatrixExs = cuda::NewDeviceMatrixEx(5);
-    uintt buffer[] = {
-        0, 10, 0, 1, 0, 0,
-        0, 1, 0, 15, 0, 20,
-        0, 0, 0, 0, 0, 0,
-        0, 25, 30, 35, 0, 40,
-        0, 1, 0, 2, 3, 5
-    };
-    cuda::SetMatrixEx(dMatrixExs, buffer, 5);
-    MatrixEx matrixEx;
+  MatrixEx** dMatrixExs = cuda::NewDeviceMatrixEx(5);
+  uintt buffer[] = {0, 10, 0, 1, 0,  0,  0,  1, 0,  15, 0, 20, 0, 0, 0,
+                    0, 0,  0, 0, 25, 30, 35, 0, 40, 0,  1, 0,  2, 3, 5};
+  cuda::SetMatrixEx(dMatrixExs, buffer, 5);
+  MatrixEx matrixEx;
 
-    CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[0], sizeof (MatrixEx));
-    EXPECT_THAT(matrixEx, MatrixExIsEqual(buffer));
+  CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[0], sizeof(MatrixEx));
+  EXPECT_THAT(matrixEx, MatrixExIsEqual(buffer));
 
-    CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[1], sizeof (MatrixEx));
-    EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[6]));
+  CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[1], sizeof(MatrixEx));
+  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[6]));
 
-    CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[2], sizeof (MatrixEx));
-    EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[12]));
+  CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[2], sizeof(MatrixEx));
+  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[12]));
 
-    CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[3], sizeof (MatrixEx));
-    EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[18]));
+  CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[3], sizeof(MatrixEx));
+  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[18]));
 
-    CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[4], sizeof (MatrixEx));
-    EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[24]));
+  CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[4], sizeof(MatrixEx));
+  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[24]));
 }
 
 TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixTest) {
-    floatt hArray[] = {
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-    };
+  floatt hArray[] = {
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  };
 
-    math::MathOperationsCpu mocpu;
+  math::MathOperationsCpu mocpu;
 
-    math::Matrix* matrix = host::NewMatrixCopy(1, 10, hArray, NULL);
-    math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, false, 1, 10);
-    cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
-    floatt output;
-    floatt doutput;
-    floatt doutput1;
-    floatt doutput2;
-    cuMatrix->magnitude(doutput, dparam0);
-    cuMatrix->magnitudeOpt(doutput1, dparam0);
-    cuMatrix->magnitudeOptVer2(doutput2, dparam0);
-    
-    mocpu.magnitude(&output, matrix);
-    
-    host::DeleteMatrix(matrix);
-    cuda::DeleteDeviceMatrix(dparam0);
-    EXPECT_DOUBLE_EQ(doutput, output);
-    EXPECT_DOUBLE_EQ(doutput1, output);
-    EXPECT_DOUBLE_EQ(doutput2, output);
+  math::Matrix* matrix = host::NewMatrixCopy(1, 10, hArray, NULL);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, false, 1, 10);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  floatt output;
+  floatt doutput;
+  floatt doutput1;
+  floatt doutput2;
+  cuMatrix->magnitude(doutput, dparam0);
+  cuMatrix->magnitudeOpt(doutput1, dparam0);
+  cuMatrix->magnitudeOptVer2(doutput2, dparam0);
+
+  mocpu.magnitude(&output, matrix);
+
+  host::DeleteMatrix(matrix);
+  cuda::DeleteDeviceMatrix(dparam0);
+  EXPECT_DOUBLE_EQ(doutput, output);
+  EXPECT_DOUBLE_EQ(doutput1, output);
+  EXPECT_DOUBLE_EQ(doutput2, output);
 }
 
 TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixTest1) {
-    floatt hArray[] = {
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-    };
+  floatt hArray[] = {
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+  };
 
-    math::MathOperationsCpu mocpu;
+  math::MathOperationsCpu mocpu;
 
-    math::Matrix* matrix = host::NewMatrixCopy(1, 10, hArray, NULL);
-    math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, false, 1, 10);
-    cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
-    floatt doutput;
-    floatt doutput1;
-    floatt doutput2;
-    cuMatrix->magnitude(doutput, dparam0);
-    cuMatrix->magnitudeOpt(doutput1, dparam0);
-    cuMatrix->magnitudeOptVer2(doutput2, dparam0);
-    
-    floatt output;
-    mocpu.magnitude(&output, matrix);
-    
-    host::DeleteMatrix(matrix);
-    cuda::DeleteDeviceMatrix(dparam0);
-    EXPECT_DOUBLE_EQ(output, doutput);
-    EXPECT_DOUBLE_EQ(output, doutput1);
-    EXPECT_DOUBLE_EQ(output, doutput2);
+  math::Matrix* matrix = host::NewMatrixCopy(1, 10, hArray, NULL);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, false, 1, 10);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  floatt doutput;
+  floatt doutput1;
+  floatt doutput2;
+  cuMatrix->magnitude(doutput, dparam0);
+  cuMatrix->magnitudeOpt(doutput1, dparam0);
+  cuMatrix->magnitudeOptVer2(doutput2, dparam0);
+
+  floatt output;
+  mocpu.magnitude(&output, matrix);
+
+  host::DeleteMatrix(matrix);
+  cuda::DeleteDeviceMatrix(dparam0);
+  EXPECT_DOUBLE_EQ(output, doutput);
+  EXPECT_DOUBLE_EQ(output, doutput1);
+  EXPECT_DOUBLE_EQ(output, doutput2);
 }
 
+TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixTest2) {
+  floatt hArray[] = {
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
+
+  math::MathOperationsCpu mocpu;
+
+  math::Matrix* matrix = host::NewMatrixCopy(1, 10, hArray, NULL);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, false, 1, 10);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  floatt doutput;
+  floatt doutput1;
+  floatt doutput2;
+  cuMatrix->magnitude(doutput, dparam0);
+  cuMatrix->magnitudeOpt(doutput1, dparam0);
+  cuMatrix->magnitudeOptVer2(doutput2, dparam0);
+
+  floatt output;
+  mocpu.magnitude(&output, matrix);
+
+  host::DeleteMatrix(matrix);
+  cuda::DeleteDeviceMatrix(dparam0);
+  EXPECT_DOUBLE_EQ(0, doutput);
+  EXPECT_DOUBLE_EQ(output, doutput);
+  EXPECT_DOUBLE_EQ(output, doutput1);
+  EXPECT_DOUBLE_EQ(output, doutput2);
+}
+
+TEST_F(OglaMatrixCudaTests, MagnitudeReMatrixBigDataTest) {
+  size_t length = 16001;
+
+  floatt* hArray = new floatt[length];
+  memset(hArray, 0, sizeof(floatt) * length);
+  hArray[4] = 3;
+
+  math::MathOperationsCpu mocpu;
+
+  math::Matrix* matrix = host::NewMatrixCopy(1, length, hArray, NULL);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, false, 1, length);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  floatt doutput;
+  floatt doutput1;
+  floatt doutput2;
+  cuMatrix->magnitude(doutput, dparam0);
+  cuMatrix->magnitudeOpt(doutput1, dparam0);
+  cuMatrix->magnitudeOptVer2(doutput2, dparam0);
+
+  floatt output;
+  mocpu.magnitude(&output, matrix);
+
+  host::DeleteMatrix(matrix);
+  cuda::DeleteDeviceMatrix(dparam0);
+  EXPECT_DOUBLE_EQ(3, doutput);
+  EXPECT_DOUBLE_EQ(output, doutput);
+  EXPECT_DOUBLE_EQ(output, doutput1);
+  EXPECT_DOUBLE_EQ(output, doutput2);
+  delete[] hArray;
+}
+
+TEST_F(OglaMatrixCudaTests, MagnitudeRealMatrixBigDataTest) {
+  size_t length = 16001;
+
+  floatt* hArray = new floatt[length];
+  floatt* hArray1 = new floatt[length];
+  memset(hArray, 0, sizeof(floatt) * length);
+  memset(hArray1, 0, sizeof(floatt) * length);
+  hArray[4] = 3;
+
+  math::MathOperationsCpu mocpu;
+
+  math::Matrix* matrix = host::NewMatrixCopy(1, length, hArray, hArray1);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, true, 1, length);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, hArray1);
+  floatt doutput = 100;
+  floatt doutput1 = 100;
+  floatt doutput2 = 100;
+  cuMatrix->magnitude(doutput, dparam0);
+  cuMatrix->magnitudeOpt(doutput1, dparam0);
+  cuMatrix->magnitudeOptVer2(doutput2, dparam0);
+
+  floatt output;
+  mocpu.magnitude(&output, matrix);
+
+  host::DeleteMatrix(matrix);
+  cuda::DeleteDeviceMatrix(dparam0);
+  EXPECT_DOUBLE_EQ(3, doutput);
+  EXPECT_DOUBLE_EQ(output, doutput);
+  EXPECT_DOUBLE_EQ(output, doutput1);
+  EXPECT_DOUBLE_EQ(output, doutput2);
+  delete[] hArray;
+  delete[] hArray1;
+}
+
+TEST_F(OglaMatrixCudaTests, MagnitudeRealMatrixBigDataTest1) {
+  size_t length = 16384;
+
+  floatt* hArray = new floatt[length];
+  floatt* hArray1 = new floatt[length];
+  memset(hArray, 0, sizeof(floatt) * length);
+  memset(hArray1, 0, sizeof(floatt) * length);
+
+  math::MathOperationsCpu mocpu;
+
+  math::Matrix* matrix = host::NewMatrixCopy(1, length, hArray, hArray1);
+  math::Matrix* dparam0 = cuda::NewDeviceMatrix(true, true, 1, length);
+  cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, hArray1);
+  floatt doutput = 1;
+  floatt doutput1 = 1;
+  floatt doutput2 = 1;
+  cuMatrix->magnitude(doutput, dparam0);
+  cuMatrix->magnitudeOpt(doutput1, dparam0);
+  cuMatrix->magnitudeOptVer2(doutput2, dparam0);
+
+  floatt output;
+  mocpu.magnitude(&output, matrix);
+
+  host::DeleteMatrix(matrix);
+  cuda::DeleteDeviceMatrix(dparam0);
+  EXPECT_DOUBLE_EQ(0, doutput);
+  EXPECT_DOUBLE_EQ(output, doutput);
+  EXPECT_DOUBLE_EQ(output, doutput1);
+  EXPECT_DOUBLE_EQ(output, doutput2);
+  delete[] hArray;
+  delete[] hArray1;
+}
+
+TEST_F(OglaMatrixCudaTests, MagnitudeRealMatrixBigDataTest2) {
+  std::string text =
+      "(columns=1, rows=16384) [0, -0.25 <repeats 2 times>, 0, -0.25, 0 "
+      "<repeats 3 times>, -0.25, 0 <repeats 7 times>, -0.25, 0 <repeats 15 "
+      "times>, -0.25, 0 <repeats 95 times>, -0.25, 0 <repeats 127 times>, "
+      "-0.25, 0 <repeats 255 times>, -0.25, 0 <repeats 511 times>, -0.25, 0 "
+      "<repeats 1023 times>, -0.25, 0 <repeats 2047 times>, -0.25, 0 <repeats "
+      "4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats "
+      "16384 times>] (length=16384)";
+
+  math::Matrix* matrix = host::NewMatrix(text);
+  math::Matrix* dmatrix = cuda::NewDeviceMatrix(matrix);
+
+  cuda::CopyHostMatrixToDeviceMatrix(dmatrix, matrix);
+
+  floatt doutput = 10;
+  floatt doutput1 = 10;
+  floatt doutput2 = 10;
+
+  cuMatrix->magnitude(doutput, dmatrix);
+  cuMatrix->magnitudeOpt(doutput1, dmatrix);
+  cuMatrix->magnitudeOptVer2(doutput2, dmatrix);
+
+  EXPECT_DOUBLE_EQ(0.9013878188659973, doutput);
+  EXPECT_DOUBLE_EQ(0.9013878188659973, doutput1);
+  EXPECT_DOUBLE_EQ(0.9013878188659973, doutput2);
+
+  cuda::DeleteDeviceMatrix(dmatrix);
+  host::DeleteMatrix(matrix);
+}

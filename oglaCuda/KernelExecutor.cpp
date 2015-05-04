@@ -120,7 +120,7 @@ Context& Context::Instance() {
 void Context::init() {
     Init();
     if (context == NULL) {
-        int count = 2;
+        int count = 0;
         printCuError(cuDeviceGetCount(&count));
         debug("Devices count: %d \n", count);
         deviceIndex = count - 1;
@@ -243,6 +243,7 @@ CUresult Kernel::execute(const char* functionName) {
         debug(" Execution:");
         debug(" --threads counts: %d, %d, %d", m_threadsCount[0], m_threadsCount[1], m_threadsCount[2]);
         debug(" --blocks counts: %d, %d, %d", m_blocksCount[0], m_blocksCount[1], m_blocksCount[2]);
+        debug(" --shared memory in bytes: %d", m_sharedMemoryInBytes);
 #endif
         printCuErrorStatus(status, cuLaunchKernel(cuFunction,
             m_blocksCount[0], m_blocksCount[1], m_blocksCount[2],

@@ -11,27 +11,6 @@
 #include <CuMatrixProcedures.h>
 #include <CuMatrixUtils.h>
 
-#define MIN_VALUE 0.001
-
-__device__ bool CUDA_IsTriangular(math::Matrix* matrix, uintt count) {
-    uintt index = 0;
-    uintt columns = matrix->columns;
-    for (uintt fa = 0; fa < columns - 1; ++fa) {
-        floatt revalue = 0;
-        if (NULL != matrix->reValues) {
-            revalue = matrix->reValues[fa + columns * (fa + 1)];
-        }
-        floatt imvalue = 0;
-        if (NULL != matrix->imValues) {
-            imvalue = matrix->imValues[fa + columns * (fa + 1)];
-        }
-        if ((-MIN_VALUE < revalue && revalue < MIN_VALUE) &&
-            (-MIN_VALUE < imvalue && imvalue < MIN_VALUE)) {
-            ++index;
-        }
-    }
-    return index >= count;
-}
 
 __device__ void CUDA_CalculateTriangularH(
     math::Matrix* H,
@@ -47,14 +26,14 @@ __device__ void CUDA_CalculateTriangularH(
     uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
     bool status = false;
     CUDA_SetIdentityMatrix(temp, tx, ty);
-    status = CUDA_IsTriangular(H, H->columns - 1);
+    status = CUDA_isUpperTriangular(H);
     uintt fb = 0;
     for (; status == false && fb < 10000; ++fb) {
         CUDA_QR(Q, R, H, temp2, temp3, temp4, temp5, tx, ty);
         CUDA_dotProduct(H, R, Q, tx, ty);
         CUDA_dotProduct(temp1, Q, temp, tx, ty);
         CUDA_switchPointer(&temp1, &temp);
-        status = CUDA_IsTriangular(H, H->columns - 1);
+        status = CUDA_isUpperTriangular(H);
     }
     // TODO: optymalization
     if (fb & 1 == 0) {

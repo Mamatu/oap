@@ -3,54 +3,69 @@
 #include "ArnoldiProcedures.h"
 
 #ifdef DEBUG
-#define PRINT_STATUS(d) if(d!=0) { fprintf(stderr,"Status == %d \n",d); abort();}
+#define PRINT_STATUS(d)                    \
+  if (d != 0) {                            \
+    fprintf(stderr, "Status == %d \n", d); \
+    abort();                               \
+  }
 #else
 #define PRINT_STATUS(d) d
 #endif
 #define MIN_VALUE 0.001
 
-
 namespace math {
 
-ArnoldiMethodGpu::ArnoldiMethodGpu() :
-IArnoldiMethod(DeviceMatrixModules::GetInstance()) {
-    this->m_rho = 1. / 3.14;
-    this->m_k = 0;
-    this->m_wantedCount = 0;
+ArnoldiMethodGpu::ArnoldiMethodGpu()
+    : IArnoldiMethod(DeviceMatrixModules::GetInstance()) {
+  this->m_rho = 1. / 3.14;
+  this->m_k = 0;
+  this->m_wantedCount = 0;
 }
 
-ArnoldiMethodGpu::ArnoldiMethodGpu(
-    MatrixModule* matrixModule) :
-IArnoldiMethod(matrixModule) {
-    this->m_rho = 1. / 3.14;
-    this->m_k = 0;
-    this->m_wantedCount = 0;
+ArnoldiMethodGpu::ArnoldiMethodGpu(MatrixModule* matrixModule)
+    : IArnoldiMethod(matrixModule) {
+  this->m_rho = 1. / 3.14;
+  this->m_k = 0;
+  this->m_wantedCount = 0;
 }
 
-void ArnoldiMethodGpu::setHSize(uintt k) {
-    this->m_k = k;
-}
+void ArnoldiMethodGpu::setHSize(uintt k) { this->m_k = k; }
 
-void ArnoldiMethodGpu::setRho(floatt rho) {
-    this->m_rho = rho;
-}
+void ArnoldiMethodGpu::setRho(floatt rho) { this->m_rho = rho; }
 
-ArnoldiMethodGpu::~ArnoldiMethodGpu() {
-    // not implemented
+ArnoldiMethodGpu::~ArnoldiMethodGpu() { cuda::DeleteDeviceMatrix(m_dmatrix); }
+
+void ArnoldiMethodGpu::SetupMatrixInfo() {
+  if (m_matrix->columns != m_matrixInfo.m_matrixDim.columns ||
+      m_matrix->rows != m_matrixInfo.m_matrixDim.rows ||
+      m_matrixInfo.isRe != (m_matrix->reValues != NULL) ||
+      m_matrixInfo.isIm != (m_matrix->imValues != NULL)) {
+    cuda::DeleteDeviceMatrix(m_dmatrix);
+    m_dmatrix =
+        cuda::NewDeviceMatrix(m_matrix, m_matrix->columns, m_matrix->rows);
+    m_matrixInfo.m_matrixDim.columns = m_matrix->columns;
+    m_matrixInfo.m_matrixDim.rows = m_matrix->rows;
+    m_matrixInfo.isRe = m_matrix->reValues != NULL;
+    m_matrixInfo.isIm = m_matrix->imValues != NULL;
+  }
+  cuda::CopyHostMatrixToDeviceMatrix(m_dmatrix, m_matrix);
 }
 
 void ArnoldiMethodGpu::execute() {
-    m_wantedCount = m_count;
-    outputs.realColumns = m_wantedCount;
-    outputs.columns = m_wantedCount;
-    outputs.realRows = 1;
-    outputs.rows = 1;
-    outputs.imValues = NULL;
-    outputs.reValues = m_reoutputs;
-    cuHArnoldi.execute(&outputs, m_matrix, m_k, m_wantedCount);
-    for (uintt fa = 0; fa < m_wantedCount; ++fa) {
-        debug("eig[%u] = %f", fa, outputs.reValues[fa]);
-    }
+  SetupMatrixInfo();
+  m_wantedCount = m_count;
+  outputs.realColumns = m_wantedCount;
+  outputs.columns = m_wantedCount;
+  outputs.realRows = 1;
+  outputs.rows = 1;
+  outputs.imValues = NULL;
+  outputs.reValues = m_reoutputs;
+  cuHArnoldi.setMatrix(m_dmatrix);
+  cuHArnoldi.setOutputs(&outputs);
+  cuHArnoldi.execute(m_k, m_wantedCount, m_matrixInfo);
+  for (uintt fa = 0; fa < m_wantedCount; ++fa) {
+    debug("eig[%u] = %f", fa, outputs.reValues[fa]);
+  }
 #if 0    
     debugFunc();
     m_image = ::cuda::Kernel::LoadImage(kernelsFiles);
@@ -83,8 +98,8 @@ void ArnoldiMethodGpu::execute() {
     };
     CuProcedure_CalculateTriangularH(params1, m_kernel, m_image);
 #endif
-    //cuda::Kernel::ExecuteKernel("CUDAKernel_Execute", params1, m_kernel, m_image);
-    debugFunc();
+  // cuda::Kernel::ExecuteKernel("CUDAKernel_Execute", params1, m_kernel,
+  // m_image);
+  debugFunc();
 }
-
 }

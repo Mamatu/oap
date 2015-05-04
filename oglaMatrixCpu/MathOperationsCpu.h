@@ -124,7 +124,7 @@ public ThreadsCountProperty {
     math::Matrix* m_GT;
     DotProductOperationCpu dotProduct;
     TransposeOperationCpu transpose;
-    inline void prepareGMatrix(math::Matrix* A,
+    inline void prepareGMatrix(math::Matrix* Matrix,
         uintt column, uintt row,
         math::Matrix* G);
 protected:

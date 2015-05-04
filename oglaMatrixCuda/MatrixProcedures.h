@@ -6,6 +6,8 @@
 #include "CudaUtils.h"
 #include "KernelExecutor.h"
 
+/*@mamatu todo optimalization - columns and rows should be taken from host
+ * structures.*/
 class CuMatrix {
  public:
   CuMatrix();
@@ -72,6 +74,8 @@ class CuMatrix {
   void QR(math::Matrix* Q, math::Matrix* R, math::Matrix* H, math::Matrix* R1,
           math::Matrix* Q1, math::Matrix* G, math::Matrix* GT);
 
+  bool isUpperTriangular(math::Matrix* matrix);
+
   CUresult getStatus() const;
 
  private:
@@ -82,6 +86,8 @@ class CuMatrix {
   floatt magnitude2Procedure(const char* cuKernelName, math::Matrix* matrix1,
                              uintt wthreads, uintt hthreads);
 
+  floatt magnitude2Procedure_GetOutput(uintt blocks[2], uintt outputSize) const;
+
   CUresult m_cuResult;
   floatt* m_magniuteOutput;
 
@@ -91,17 +97,18 @@ class CuMatrix {
   class Buffer {
    public:
     T* m_buffer;
-    uintt m_size;
+    uintt m_length;
 
     Buffer(CuMatrix::Type type);
     ~Buffer();
 
-    void realloc(uintt size);
+    void realloc(uintt length);
+    size_t GetSizeOfType() const { return sizeof(T); }
 
    private:
     Type m_type;
     void free(T* buffer);
-    T* alloc(uintt size);
+    T* alloc(uintt length);
   };
 
   Buffer<int> m_dcompareOutputBuffer;
@@ -111,14 +118,18 @@ class CuMatrix {
   Buffer<floatt> m_dmagnitudeOutputBuffer;
   Buffer<floatt> m_dmagnitudeBuffer;
   Buffer<floatt> m_hmagnitudeOutputBuffer;
+  Buffer<int> m_disuppertriangularOutputBuffer;
+  Buffer<int> m_hisuppertriangularOutputBuffer;
 
   template <typename T1>
   friend class Buffer;
 
  private:
   void init();
+
+  void prepareDims(uintt w, uintt h);
   CUresult execute(const char* functionName, uintt w, uintt h, void** params,
-                   uintt sharedMemory);
+                   uintt sharedMemory, bool _prepareDims = true);
 
   bool m_isIntialized;
   cuda::Kernel m_kernel;
@@ -131,7 +142,7 @@ class CuMatrix {
 
 template <typename T>
 CuMatrix::Buffer<T>::Buffer(CuMatrix::Type type)
-    : m_buffer(NULL), m_size(0), m_type(type) {
+    : m_buffer(NULL), m_length(0), m_type(type) {
   // not implemented
 }
 
@@ -143,13 +154,13 @@ CuMatrix::Buffer<T>::~Buffer() {
 }
 
 template <typename T>
-void CuMatrix::Buffer<T>::realloc(uintt size) {
-  if (size > m_size) {
+void CuMatrix::Buffer<T>::realloc(uintt length) {
+  if (length > m_length) {
     if (m_buffer != NULL) {
       free(m_buffer);
     }
-    m_buffer = alloc(size);
-    m_size = size;
+    m_buffer = alloc(length);
+    m_length = length;
   }
 }
 
@@ -163,12 +174,12 @@ void CuMatrix::Buffer<T>::free(T* buffer) {
 }
 
 template <typename T>
-T* CuMatrix::Buffer<T>::alloc(uintt size) {
+T* CuMatrix::Buffer<T>::alloc(uintt length) {
   switch (m_type) {
     case CuMatrix::CUDA:
-      return static_cast<T*>(CudaUtils::AllocDeviceMem(size));
+      return static_cast<T*>(CudaUtils::AllocDeviceMem(length * sizeof(T)));
     case CuMatrix::HOST:
-      return new T[size];
+      return new T[length];
   };
 }
 

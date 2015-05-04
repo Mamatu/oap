@@ -10,13 +10,20 @@
 #include "ThreadsMapper.h"
 #include <math.h>
 
-CUresult CuMatrix::execute(const char* functionName, uintt w, uintt h,
-                           void** params, uintt sharedMemory) {
+void CuMatrix::prepareDims(uintt w, uintt h) {
   uintt blocks[2];
   uintt threads[2];
   utils::mapper::SetThreadsBlocks(blocks, threads, w, h, m_maxThreadsPerBlock);
   m_kernel.setBlocksCount(blocks[0], blocks[1]);
   m_kernel.setThreadsCount(threads[0], threads[1]);
+}
+
+CUresult CuMatrix::execute(const char* functionName, uintt w, uintt h,
+                           void** params, uintt sharedMemory,
+                           bool _prepareDims) {
+  if (_prepareDims) {
+    prepareDims(w, h);
+  }
   m_kernel.setSharedMemory(sharedMemory);
   return ::cuda::Kernel::Execute(functionName, params, m_kernel, m_image);
 }
@@ -30,6 +37,8 @@ CuMatrix::CuMatrix()
       m_dcompareBuffer(CuMatrix::CUDA),
       m_hcompareOutputBuffer(CuMatrix::HOST),
       m_magnitudeBuffer(CuMatrix::CUDA),
+      m_disuppertriangularOutputBuffer(CuMatrix::CUDA),
+      m_hisuppertriangularOutputBuffer(CuMatrix::HOST),
       m_compareOperationOutput(0) {
   m_pathes[0] = "liboglaMatrixCuda.cubin";
   m_pathes[2] = NULL;
@@ -80,6 +89,7 @@ void CuMatrix::dotProductOpt(math::Matrix* output, math::Matrix* params0,
   if (isRe && isIm) {
     size = size * 2;
   }
+  size = size + 3;
   m_cuResult =
       execute("CUDAKernel_DotProductOpt", ocolumns, orows, params, size);
 }
@@ -97,6 +107,7 @@ void CuMatrix::dotProductExOpt(math::Matrix* output, math::Matrix* params0,
   if (isRe && isIm) {
     size = size * 2;
   }
+  size = size + 3;
   m_cuResult =
       execute("CUDAKernel_DotProductExOpt", ocolumns, orows, params, size);
 }
@@ -164,18 +175,13 @@ void CuMatrix::magnitudeOptVer2(floatt& output, math::Matrix* param0) {
 }
 
 void CuMatrix::magnitude2(floatt& output, math::Matrix* param0) {
-  const uintt w = CudaUtils::GetColumns(param0);
-  const uintt h = CudaUtils::GetRows(param0);
-  m_magnitudeBuffer.realloc(sizeof(floatt) * w * h / 2);
-  void* params[] = {&m_magniuteOutput, &param0, &m_magnitudeBuffer.m_buffer};
-  m_cuResult = execute("CUDAKernel_Magnitude", w, h, params, 0);
-  CudaUtils::CopyDeviceToHost(&output, m_magniuteOutput, sizeof(floatt));
+  magnitude2Opt(output, param0);
 }
 
 void CuMatrix::magnitude2Opt(floatt& output, math::Matrix* params0) {
   const uintt w = CudaUtils::GetColumns(params0);
   const uintt h = CudaUtils::GetRows(params0);
-  output = magnitude2Procedure("CUDAKernel_MagitudeOpt", params0, w, h);
+  output = magnitude2Procedure("CUDAKernel_MagnitudeOpt", params0, w, h);
 }
 
 void CuMatrix::magnitude2OptVer2(floatt& output, math::Matrix* params0) {
@@ -183,9 +189,9 @@ void CuMatrix::magnitude2OptVer2(floatt& output, math::Matrix* params0) {
   const uintt h = CudaUtils::GetRows(params0);
   if (w > 1) {
     output =
-        magnitude2Procedure("CUDAKernel_MagitudeOptVer2", params0, w / 2, h);
+        magnitude2Procedure("CUDAKernel_MagnitudeOptVer2", params0, w / 2, h);
   } else {
-    output = magnitude2Procedure("CUDAKernel_MagitudeOpt", params0, w, h);
+    output = magnitude2Procedure("CUDAKernel_MagnitudeOpt", params0, w, h);
   }
 }
 
@@ -215,6 +221,10 @@ void CuMatrix::QR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
   const uintt w = CudaUtils::GetColumns(H);
   const uintt h = CudaUtils::GetRows(H);
   m_cuResult = execute("CUDAKernel_QR", w, h, params, 0);
+}
+
+bool CuMatrix::isUpperTriangular(math::Matrix* matrix) {
+  void* params[] = {&matrix};
 }
 
 void CuMatrix::multiplyConstantMatrix(math::Matrix* output,
@@ -277,17 +287,18 @@ bool CuMatrix::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
   m_kernel.setThreadsCount(threads[0], threads[1]);
   m_kernel.setSharedMemory(threads[0] * threads[1] * sizeof(int));
 
-  uintt outputSize = sizeof(int) * blocks[0] * blocks[1];
+  uintt outputLength = blocks[0] * blocks[1];
 
-  m_dcompareOutputBuffer.realloc(outputSize);
-  m_hcompareOutputBuffer.realloc(outputSize);
+  m_dcompareOutputBuffer.realloc(outputLength);
+  m_hcompareOutputBuffer.realloc(outputLength);
 
   void* params[] = {&m_dcompareOutputBuffer.m_buffer, &matrix1, &matrix2};
 
   m_cuResult = ::cuda::Kernel::Execute(cuKernelName, params, m_kernel, m_image);
 
-  CudaUtils::CopyDeviceToHost(m_hcompareOutputBuffer.m_buffer,
-                              m_dcompareOutputBuffer.m_buffer, outputSize);
+  CudaUtils::CopyDeviceToHost(
+      m_hcompareOutputBuffer.m_buffer, m_dcompareOutputBuffer.m_buffer,
+      outputLength * m_hcompareOutputBuffer.GetSizeOfType());
 
   uintt outcome = 0;
   for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {
@@ -313,19 +324,25 @@ floatt CuMatrix::magnitude2Procedure(const char* cuKernelName,
   m_kernel.setThreadsCount(threads[0], threads[1]);
   m_kernel.setSharedMemory(threads[0] * threads[1] * sizeof(floatt));
 
-  uintt outputSize = sizeof(floatt) * blocks[0] * blocks[1];
+  uintt outputLength = blocks[0] * blocks[1];
 
-  m_dmagnitudeOutputBuffer.realloc(outputSize);
-  m_hmagnitudeOutputBuffer.realloc(outputSize);
+  m_dmagnitudeOutputBuffer.realloc(outputLength);
+  m_hmagnitudeOutputBuffer.realloc(outputLength);
 
   void* params[] = {&m_dmagnitudeOutputBuffer.m_buffer, &matrix};
 
   m_cuResult = ::cuda::Kernel::Execute(cuKernelName, params, m_kernel, m_image);
 
-  CudaUtils::CopyDeviceToHost(m_hmagnitudeOutputBuffer.m_buffer,
-                              m_dmagnitudeOutputBuffer.m_buffer, outputSize);
+  return magnitude2Procedure_GetOutput(blocks, outputLength);
+}
 
-  uintt outcome = 0;
+floatt CuMatrix::magnitude2Procedure_GetOutput(uintt blocks[2],
+                                               uintt outputLength) const {
+  CudaUtils::CopyDeviceToHost(
+      m_hmagnitudeOutputBuffer.m_buffer, m_dmagnitudeOutputBuffer.m_buffer,
+      outputLength * m_dmagnitudeOutputBuffer.GetSizeOfType());
+
+  floatt outcome = 0;
   for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {
     outcome += m_hmagnitudeOutputBuffer.m_buffer[fa];
   }

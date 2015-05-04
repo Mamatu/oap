@@ -14,63 +14,11 @@
 #include "Dim3.h"
 
 #include "Matrix.h"
+#include "MatrixUtils.h"
 #include "MatrixEx.h"
 
 namespace utils {
 
-template <typename T> class OccurencesList : public std::vector<std::pair<uintt, T> > {
-};
-
-template<typename T> void PrepareOccurencesList(OccurencesList<T>& occurencesList,
-    T* array, size_t length) {
-    for (size_t fa = 0; fa < length; ++fa) {
-        floatt value = array[fa];
-        if (occurencesList.size() == 0 || occurencesList[occurencesList.size() - 1].second != value) {
-            occurencesList.push_back(std::make_pair<uintt, floatt>(1, value));
-        } else {
-            occurencesList[occurencesList.size() - 1].first++;
-        }
-    }
-}
-
-template<typename T> void PrintArray(std::string& output, T* array, size_t length) {
-    OccurencesList<T> valuesVec;
-    PrepareOccurencesList(valuesVec, array, length);
-    output = "[";
-    std::stringstream sstream;
-    for (size_t fa = 0; fa < valuesVec.size(); ++fa) {
-        sstream << valuesVec[fa].second;
-        if (valuesVec[fa].first > 0) {
-            sstream << " times " << valuesVec[fa].first;
-        }
-        if (fa < valuesVec.size() - 1) {
-            sstream << ", ";
-        }
-        output += sstream.str();
-        sstream.str("");
-    }
-    sstream.str("");
-    sstream << length;
-    output += "] (length ";
-    output += sstream.str();
-    output += ")";
-}
-
-inline void PrintMatrix(std::string& output, math::Matrix* matrix) {
-    std::stringstream sstream;
-    sstream << "(" << matrix->columns << ", " << matrix->rows << ") ";
-    output = sstream.str();
-    size_t length = matrix->columns * matrix->rows;
-    std::string output1;
-    if (matrix->reValues != NULL) {
-        PrintArray(output1, matrix->reValues, length);
-        output += output1 + " ";
-    }
-    if (matrix->imValues != NULL) {
-        PrintArray(output1, matrix->imValues, length);
-        output += output1;
-    }
-}
 
 class Compare {
 public:

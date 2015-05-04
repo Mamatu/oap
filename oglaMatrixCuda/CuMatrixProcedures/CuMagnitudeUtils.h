@@ -1,4 +1,4 @@
-/* 
+/*
  * File: CuCommonUtils.h
  * Author: mmatula
  *

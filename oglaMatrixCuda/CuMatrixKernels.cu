@@ -60,39 +60,21 @@ extern "C" __global__ void CUDAKernel_DotProductReOpt(math::Matrix* output,
                                                       math::Matrix* params0,
                                                       math::Matrix* params1) {
   extern __shared__ floatt bufferFloat[];
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  floatt* buffer1 = &bufferFloat[0];
-  floatt* buffer2 = &bufferFloat[params0->rows * output->columns];
-  CUDA_multiplyReMatricesOpt(output, params0, params1, threadIndexX,
-                             threadIndexY, buffer1, buffer2);
+  CUDA_dotProductReOpt(output, params0, params1, bufferFloat);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductImOpt(math::Matrix* output,
                                                       math::Matrix* params0,
                                                       math::Matrix* params1) {
   extern __shared__ floatt bufferFloat[];
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  floatt* buffer1 = &bufferFloat[0];
-  floatt* buffer2 = &bufferFloat[params0->rows * output->columns];
-  CUDA_multiplyImMatricesOpt(output, params0, params1, threadIndexX,
-                             threadIndexY, buffer1, buffer2);
+  CUDA_dotProductImOpt(output, params0, params1, bufferFloat);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductOpt(math::Matrix* output,
                                                     math::Matrix* params0,
                                                     math::Matrix* params1) {
   extern __shared__ floatt bufferFloat[];
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  floatt* buffer1Re = &bufferFloat[0];
-  floatt* buffer1Im = &bufferFloat[params0->rows * output->columns];
-  floatt* buffer2Re = &bufferFloat[params0->rows * output->columns * 2];
-  floatt* buffer2Im = &bufferFloat[params0->rows * output->columns * 2 +
-                                   output->rows * params1->columns];
-  CUDA_multiplyMatricesOpt(output, params0, params1, threadIndexX, threadIndexY,
-                           buffer1Re, buffer1Im, buffer2Re, buffer2Im);
+  CUDA_dotProductOpt(output, params0, params1, bufferFloat);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductReExpOpt(math::Matrix* output,
@@ -100,12 +82,7 @@ extern "C" __global__ void CUDAKernel_DotProductReExpOpt(math::Matrix* output,
                                                          math::Matrix* params1,
                                                          MatrixEx* matrixEx) {
   extern __shared__ floatt bufferFloat[];
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  floatt* buffer1 = &bufferFloat[0];
-  floatt* buffer2 = &bufferFloat[params0->rows * output->columns];
-  CUDA_multiplyReMatricesExOpt(output, params0, params1, *matrixEx,
-                               threadIndexX, threadIndexY, buffer1, buffer2);
+  CUDA_dotProductReExOpt(output, params0, params1, *matrixEx, bufferFloat);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductImExpOpt(math::Matrix* output,
@@ -113,12 +90,7 @@ extern "C" __global__ void CUDAKernel_DotProductImExpOpt(math::Matrix* output,
                                                          math::Matrix* params1,
                                                          MatrixEx* matrixEx) {
   extern __shared__ floatt bufferFloat[];
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  floatt* buffer1 = &bufferFloat[0];
-  floatt* buffer2 = &bufferFloat[params0->rows * output->columns];
-  CUDA_multiplyImMatricesExOpt(output, params0, params1, *matrixEx,
-                               threadIndexX, threadIndexY, buffer1, buffer2);
+  CUDA_dotProductImExOpt(output, params0, params1, *matrixEx, bufferFloat);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductExOpt(math::Matrix* output,
@@ -126,16 +98,7 @@ extern "C" __global__ void CUDAKernel_DotProductExOpt(math::Matrix* output,
                                                       math::Matrix* params1,
                                                       MatrixEx* matrixEx) {
   extern __shared__ floatt bufferFloat[];
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  floatt* buffer1Re = &bufferFloat[0];
-  floatt* buffer1Im = &bufferFloat[params0->rows * output->columns];
-  floatt* buffer2Re = &bufferFloat[params0->rows * output->columns * 2];
-  floatt* buffer2Im = &bufferFloat[params0->rows * output->columns * 2 +
-                                   output->rows * params1->columns];
-  CUDA_multiplyMatricesExOpt(output, params0, params1, *matrixEx, threadIndexX,
-                             threadIndexY, buffer1Re, buffer1Im, buffer2Re,
-                             buffer2Im);
+  CUDA_dotProductExOpt(output, params0, params1, *matrixEx, bufferFloat);
 }
 
 extern "C" __global__ void CUDAKernel_AddRe(math::Matrix* output,
@@ -292,9 +255,7 @@ extern "C" __global__ void CUDAKernel_TransposeEx(math::Matrix* output,
 extern "C" __global__ void CUDAKernel_Magnitude(floatt* value,
                                                 math::Matrix* params0,
                                                 floatt* buffer) {
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  CUDA_magnitude(*value, params0, buffer, threadIndexX, threadIndexY);
+  CUDA_magnitudeOpt(value, params0, buffer);
 }
 
 extern "C" __global__ void CUDAKernel_QRRe(
@@ -392,14 +353,20 @@ extern "C" __global__ void CUDAKernel_CompareOptVer2(int* sums,
   CUDA_compareOptVer2(sums, matrix1, matrix2, sharedBufferInt);
 }
 
-extern "C" __global__ void CUDAKernel_MagitudeOpt(floatt* sums,
+extern "C" __global__ void CUDAKernel_MagnitudeOpt(floatt* sums,
                                                   math::Matrix* matrix) {
   extern __shared__ floatt bufferFloat[];
   CUDA_magnitudeOpt(sums, matrix, bufferFloat);
 }
 
-extern "C" __global__ void CUDAKernel_MagitudeOptVer2(floatt* sums,
+extern "C" __global__ void CUDAKernel_MagnitudeOptVer2(floatt* sums,
                                                       math::Matrix* matrix) {
   extern __shared__ floatt bufferFloat[];
   CUDA_magnitudeOptVer2(sums, matrix, bufferFloat);
+}
+
+extern "C" __global__ void CUDAKernel_IsUpperTriangular(int* outcome,
+                                                        math::Matrix* matrix) {
+  int is = CUDA_isUpperTriangular(matrix);
+  (*outcome) = is;
 }

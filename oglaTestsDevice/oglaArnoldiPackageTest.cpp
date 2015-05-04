@@ -35,6 +35,7 @@
 // This file tests code in gmock.cc.
 
 #include <string>
+#include <stdlib.h>
 #include "gtest/gtest.h"
 #include "ArnoldiMethodProcess.h"
 #include "MatricesExamples.h"
@@ -151,10 +152,4 @@ TEST_F(OglaArnoldiPackageTests, matrices64x64ev2) {
   EqualsExpectations(imvs, imvs1, count, 1);
 
   host::DeleteMatrix(m);
-}
-
-TEST_F(OglaArnoldiPackageTests, TEST1) {
-  math::Matrix* m = host::NewReMatrixCopy(64, 64, tm64);
-  uintt count = 2;
-  uintt h = 8;
 }

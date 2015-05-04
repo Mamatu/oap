@@ -33,25 +33,85 @@
 //
 // This file tests code in gmock.cc.
 
-
 #include <string>
 #include <stdio.h>
+#include <math.h>
 #include "gtest/gtest.h"
 #include "ThreadsMapper.h"
 
-class OglaProceduresTests : public testing::Test {
-public:
+class OglaThreadsMapperTests : public testing::Test {
+ public:
+  int m_columns;
+  int m_rows;
+  int m_threadsLimit;
+  int m_threadsLimitSqrt;
 
-    virtual void SetUp() {
-    }
+  uintt m_blocks[2];
+  uintt m_threads[2];
 
-    virtual void TearDown() {
-    }
+  virtual void SetUp() {
+    m_columns = -1;
+    m_rows = -1;
+    m_threadsLimit = 1024;
+    m_threadsLimitSqrt = sqrt(m_threadsLimit);
+    m_threads[0] = 0;
+    m_threads[1] = 0;
+    m_blocks[0] = 0;
+    m_blocks[1] = 0;
+  }
+
+  virtual void TearDown() {}
+
+  void execute() {
+    utils::mapper::SetThreadsBlocks(m_blocks, m_threads, m_columns, m_rows,
+                                    m_threadsLimit);
+
+    EXPECT_GE(m_threadsLimit, m_threads[0] * m_threads[1]);
+  }
 };
 
-TEST_F(OglaProceduresTests, MultiplicationOffsetSet) {
-    uintt blocks[2];
-    uintt threads[2];
-    utils::mapper::SetThreadsBlocks(blocks, threads, 20, 20, 10);
-    //EXPECT_EQ();
+TEST_F(OglaThreadsMapperTests, Test1) {
+  m_columns = 20;
+  m_rows = 20;
+  execute();
+  EXPECT_EQ(1, m_blocks[0]);
+  EXPECT_EQ(1, m_blocks[1]);
+  EXPECT_EQ(m_columns, m_threads[0]);
+  EXPECT_EQ(m_rows, m_threads[1]);
+}
+
+TEST_F(OglaThreadsMapperTests, Test2) {
+  m_columns = 256;
+  m_rows = 256;
+  execute();
+  EXPECT_EQ(8, m_blocks[0]);
+  EXPECT_EQ(8, m_blocks[1]);
+  EXPECT_EQ(m_threadsLimitSqrt, m_threads[0]);
+  EXPECT_EQ(m_threadsLimitSqrt, m_threads[1]);
+  EXPECT_GE(m_columns, m_blocks[0] * m_threads[0]);
+  EXPECT_GE(m_rows, m_blocks[1] * m_threads[1]);
+}
+
+TEST_F(OglaThreadsMapperTests, Test3) {
+  m_columns = 1;
+  m_rows = 16438;
+  execute();
+  EXPECT_EQ(1, m_blocks[0]);
+  EXPECT_EQ(514, m_blocks[1]);
+  EXPECT_EQ(1, m_threads[0]);
+  EXPECT_EQ(m_threadsLimitSqrt, m_threads[1]);
+  EXPECT_LE(m_columns, m_blocks[0] * m_threads[0]);
+  EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
+}
+
+TEST_F(OglaThreadsMapperTests, Test4) {
+  m_columns = 16384;
+  m_rows = 2;
+  execute();
+  //EXPECT_EQ(32, m_blocks[0]);
+  //EXPECT_EQ(514, m_blocks[1]);
+  EXPECT_EQ(m_threadsLimitSqrt, m_threads[0]);
+  EXPECT_EQ(2, m_threads[1]);
+  EXPECT_LE(m_columns, m_blocks[0] * m_threads[0]);
+  EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
 }
