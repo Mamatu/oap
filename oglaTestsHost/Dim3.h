@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   Dim3.h
  * Author: mmatula
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef DIM3_H
-#define	DIM3_H
+#define DIM3_H
 
 #include <cuda.h>
 
@@ -15,43 +15,42 @@
 #include <stdlib.h>
 #include <map>
 #include "Math.h"
-#include <pthread.h>
+#include "ThreadUtils.h"
 
 class Dim3 {
-public:
+ public:
+  Dim3() {
+    x = 0;
+    y = 0;
+    z = 1;
+  }
 
-    Dim3() {
-        x = 0;
-        y = 0;
-        z = 1;
-    }
+  Dim3(size_t tuple[2]) {
+    x = tuple[0];
+    y = tuple[1];
+    z = 1;
+  }
 
-    Dim3(size_t tuple[2]) {
-        x = tuple[0];
-        y = tuple[1];
-        z = 1;
-    }
+  Dim3(uintt tuple[2]) {
+    x = tuple[0];
+    y = tuple[1];
+    z = 1;
+  }
 
-    Dim3(uintt tuple[2]) {
-        x = tuple[0];
-        y = tuple[1];
-        z = 1;
-    }
+  Dim3(size_t x, size_t y) {
+    this->x = x;
+    this->y = y;
+    z = 1;
+  }
 
-    Dim3(size_t x, size_t y) {
-        this->x = x;
-        this->y = y;
-        z = 1;
-    }
+  void clear() {
+    x = 0;
+    y = 0;
+  }
 
-    void clear() {
-        x = 0;
-        y = 0;
-    }
-
-    size_t x;
-    size_t y;
-    size_t z;
+  size_t x;
+  size_t y;
+  size_t z;
 };
 
 extern Dim3 blockIdx;
@@ -61,17 +60,31 @@ extern Dim3 gridDim;
 void ResetCudaCtx();
 
 class ThreadIdx {
-public:
-    Dim3 threadIdx;
+  Dim3 m_threadIdx;
 
-    void clear();
+  class BarrierMutex {
+   public:
+    utils::sync::Barrier m_barrier;
+    utils::sync::Mutex m_mutex;
+  };
 
-    typedef std::map<pthread_t, ThreadIdx> ThreadIdxs;
+  typedef std::map<pthread_t, BarrierMutex*> Barriers;
+  static Barriers m_barriers;
+  static utils::sync::Mutex m_barriersMutex;
 
-    static ThreadIdxs m_threadIdxs;
+ public:
+  typedef std::map<pthread_t, ThreadIdx> ThreadIdxs;
+  static ThreadIdxs m_threadIdxs;
+
+  void setThreadIdx(const Dim3& dim3);
+  const Dim3& getThreadIdx() const;
+  void createBarrier(const std::vector<pthread_t>& threads);
+  void destroyBarrier(const std::vector<pthread_t>& threads);
+  void wait();
+
+  void clear();
 };
 
 #endif
 
-#endif	/* DIM3_H */
-
+#endif /* DIM3_H */

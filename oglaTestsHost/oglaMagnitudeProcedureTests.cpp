@@ -42,6 +42,7 @@
 #include "HostMatrixModules.h"
 #include "CuMatrixProcedures/CuMagnitudeUtils.h"
 #include "CuMatrixProcedures/CuMagnitudeUtils2.h"
+#include "CuMatrixProcedures/CuMagnitudeOptProcedures.h"
 #include <math.h>
 
 class AlgoVersion {
@@ -103,7 +104,7 @@ class MagnitudeStubImpl : public OglaCudaStub::KernelStub {
                                 m_matrix->columns / m_algoVersion.getFactor());
       uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
       if (m_algoVersion.getVersion() == AlgoVersion::VERSION_1) {
-        cuda_MagnitudeReOpt(m_buffer, m_matrix, sharedIndex, xlength);
+        cuda_MagnitudeReOpt(m_buffer, m_matrix, sharedIndex);
       } else if (m_algoVersion.getVersion() == AlgoVersion::VERSION_2) {
         cuda_MagnitudeReOptVer2(m_buffer, m_matrix, sharedIndex, xlength);
       }

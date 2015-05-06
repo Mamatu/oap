@@ -7,15 +7,47 @@ Dim3 blockDim;
 Dim3 gridDim;
 
 void ResetCudaCtx() {
-    blockIdx.clear();
-    blockDim.clear();
-    gridDim.clear();
+  blockIdx.clear();
+  blockDim.clear();
+  gridDim.clear();
 }
 
 ThreadIdx::ThreadIdxs ThreadIdx::m_threadIdxs;
 
-void ThreadIdx::clear() {
-    threadIdx.clear();
+void ThreadIdx::clear() { m_threadIdx.clear(); }
+
+void ThreadIdx::setThreadIdx(const Dim3& dim3) { m_threadIdx = dim3; }
+
+const Dim3& ThreadIdx::getThreadIdx() const { return m_threadIdx; }
+
+void ThreadIdx::createBarrier(const std::vector<pthread_t>& threads) {
+  m_barriersMutex.lock();
+  BarrierMutex* bm = NULL;
+  for (size_t fa = 0; fa < threads.size(); ++fa) {
+    if (fa == 0) {
+      bm = new BarrierMutex();
+      bm->m_barrier.init(threads.size());
+    }
+    m_barriers[threads[fa]] = bm;
+  }
+  m_barriersMutex.unlock();
 }
+
+void ThreadIdx::destroyBarrier(const std::vector<pthread_t>& threads) {
+  m_barriersMutex.lock();
+  for (size_t fa = 0; fa < threads.size(); ++fa) {
+    if (fa == 0) {
+      delete m_barriers[threads[fa]];
+    }
+    m_barriers.erase(threads[fa]);
+  }
+  m_barriersMutex.unlock();
+}
+
+void ThreadIdx::wait() { m_barriers[pthread_self()]->m_barrier.wait(); }
+
+ThreadIdx::Barriers ThreadIdx::m_barriers;
+utils::sync::Mutex ThreadIdx::m_barriersMutex;
+
 
 #endif

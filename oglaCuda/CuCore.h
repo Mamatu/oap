@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   CuCore.h
  * Author: mmatula
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef CU_CORE_H
-#define	CU_CORE_H
+#define CU_CORE_H
 
 #include <cuda.h>
 
@@ -15,18 +15,22 @@
 #define __hostdeviceinline__ extern "C" __device__ __forceinline__
 #define __hostdevice__ extern "C" __device__
 
+#define threads_sync() __syncthreads()
+
 #define CUDA_TEST_CODE()
 
 #else
 
 #include "Dim3.h"
+#include <pthread.h>
 
-#define CUDA_TEST_CODE() Dim3 threadIdx = ThreadIdx::m_threadIdxs[pthread_self()].threadIdx;
+#define CUDA_TEST_CODE() Dim3 threadIdx = ThreadIdx::m_threadIdxs[pthread_self()].getThreadIdx();
 
 #define __hostdeviceinline__ __inline__
 #define __hostdevice__ __inline__
 
+#define threads_sync() ThreadIdx::m_threadIdxs[pthread_self()].wait();
+
 #endif
 
-#endif	/* CUCORE_H */
-
+#endif /* CUCORE_H */

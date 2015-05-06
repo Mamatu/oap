@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   CuMatrixUtils.h
  * Author: mmatula
  *
@@ -9,9 +9,12 @@
 #define	OGLA_CU_MATRIXUTILS_H
 
 #include "CuUtils.h"
+#include "CuCore.h"
 #include "Matrix.h"
 #include "Buffer.h"
 #include "MatrixEx.h"
+
+#ifndef CUDATEST
 
 extern "C" __device__ void CUDA_PrintMatrix(math::Matrix* m) {
     for (uintt fb = 0; fb < m->rows; ++fb) {
@@ -54,6 +57,8 @@ extern "C" __device__ void CUDA_PrintMatrixEx(const MatrixEx& m) {
         CUDA_PrintMatrixEx(mo);\
     }\
 }
+
+#endif
 
 #endif
 

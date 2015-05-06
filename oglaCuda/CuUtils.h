@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   CuUtils.h
  * Author: mmatula
  *
@@ -11,7 +11,10 @@
 #include <cuda.h>
 #include <stdio.h>
 #include "Math.h"
+#include "CuCore.h"
 #include "CuSync.h"
+
+#ifndef CUDATEST
 
 #ifdef DEBUG
 #define CUDA_DEBUG() \
@@ -133,6 +136,8 @@ extern "C" __device__ void CUDA_PrintInt(uintt v) {
     printf("\n");
 }
 
+
+#endif
 
 #endif	/* CUUTILS_H */
 
