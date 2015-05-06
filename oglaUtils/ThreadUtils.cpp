@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   mutex.cpp
  * Author: marcin
- * 
+ *
  * Created on 26 December 2012, 20:38
  */
 
@@ -9,126 +9,125 @@
 
 namespace utils {
 
-    Thread::Thread() {
-    }
+Thread::Thread() : m_iscond(false), m_isonethread(true) {}
 
-    Thread::~Thread() {
-    }
+Thread::~Thread() {}
 
-    void Thread::setFunction(ThreadFunction_f _function, void* _ptr) {
-        this->function = _function;
-        this->ptr = _ptr;
-    }
+void Thread::onRun(pthread_t threadId) {}
 
-    void* Thread::Execute(void* ptr) {
-        Thread* thread = (Thread*) (ptr);
-        thread->function(thread->ptr);
-        void* retVal = NULL;
-        if (thread->externalThread) {
-            pthread_exit(retVal);
-        }
-    }
-
-    void Thread::run(bool inTheSameThread) {
-        externalThread = !inTheSameThread;
-        if (externalThread == true) {
-            pthread_create(&thread, 0, Thread::Execute, this);
-        } else {
-            Thread::Execute(this);
-        }
-    }
-
-    void Thread::yield() {
-        if (externalThread == true) {
-            void* o = NULL;
-            pthread_join(thread, &o);
-        }
-    }
+void Thread::setFunction(ThreadFunction_f _function, void* _ptr) {
+  this->m_function = _function;
+  this->m_ptr = _ptr;
 }
 
-namespace synchronization {
-
-    Mutex::Mutex() : ptr_mutex(NULL) {
-        pthread_mutex_init(&mutex, 0);
-        ptr_mutex = &mutex;
+void* Thread::Execute(void* ptr) {
+  Thread* thread = (Thread*)(ptr);
+  if (!thread->m_isonethread) {
+    thread->m_mutex.lock();
+    if (thread->m_iscond == false) {
+      thread->m_cond.wait(thread->m_mutex);
     }
+    thread->m_mutex.unlock();
+  }
+  thread->m_function(thread->m_ptr);
+  void* retVal = NULL;
+  pthread_exit(retVal);
+}
 
-    Mutex::~Mutex() {
-        if (ptr_mutex != NULL) {
-            pthread_mutex_destroy(ptr_mutex);
-        }
-    }
+void Thread::run(bool inTheSameThreead) {
+  m_isonethread = inTheSameThreead;
+  if (!m_isonethread) {
+    pthread_create(&m_thread, 0, Thread::Execute, this);
+  } else {
+    m_thread = pthread_self();
+  }
+  onRun(m_thread);
+  if (!m_isonethread) {
+    m_mutex.lock();
+    m_iscond = true;
+    m_cond.signal();
+    m_mutex.unlock();
+  } else {
+    Execute(this);
+  }
+}
 
-    void Mutex::lock() {
-        pthread_mutex_lock(ptr_mutex);
-    }
+void Thread::yield() {
+  if (m_isonethread == false) {
+    void* o = NULL;
+    pthread_join(m_thread, &o);
+  }
+}
 
-    void Mutex::unlock() {
-        pthread_mutex_unlock(ptr_mutex);
-    }
+namespace sync {
 
-    RecursiveMutex::RecursiveMutex() : Mutex() {
-        pthread_mutexattr_init(&mutexattr);
-        pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE);
-        pthread_mutex_init(&mutex, &mutexattr);
-    }
+Mutex::Mutex() : ptr_mutex(NULL) {
+  pthread_mutex_init(&mutex, 0);
+  ptr_mutex = &mutex;
+}
 
-    RecursiveMutex::~RecursiveMutex() {
-        if (ptr_mutexattr != NULL) {
-            pthread_mutexattr_destroy(ptr_mutexattr);
-        }
-    }
+Mutex::~Mutex() {
+  if (ptr_mutex != NULL) {
+    pthread_mutex_destroy(ptr_mutex);
+  }
+}
 
-    Cond::Cond() {
-        pthread_cond_init(&cond, 0);
-    }
+void Mutex::lock() { pthread_mutex_lock(ptr_mutex); }
 
-    Cond::~Cond() {
-        pthread_cond_destroy(&cond);
-    }
+void Mutex::unlock() { pthread_mutex_unlock(ptr_mutex); }
 
-    void Cond::wait(Mutex* mutex) {
-        if (mutex != NULL) {
-            pthread_cond_wait(&cond, mutex->ptr_mutex);
-        }
-    }
+RecursiveMutex::RecursiveMutex() : Mutex() {
+  pthread_mutexattr_init(&mutexattr);
+  pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE);
+  pthread_mutex_init(&mutex, &mutexattr);
+}
 
-    void Cond::wait(Mutex& mutex) {
-        pthread_cond_wait(&cond, mutex.ptr_mutex);
-    }
+RecursiveMutex::~RecursiveMutex() {
+  if (ptr_mutexattr != NULL) {
+    pthread_mutexattr_destroy(ptr_mutexattr);
+  }
+}
 
-    void Cond::broadcast() {
-        pthread_cond_broadcast(&cond);
-    }
+Cond::Cond() { pthread_cond_init(&cond, 0); }
 
-    void Cond::signal() {
-        pthread_cond_signal(&cond);
-    }
+Cond::~Cond() { pthread_cond_destroy(&cond); }
 
-    Barrier::Barrier() : ptr_barrier(NULL) {
-    }
+void Cond::wait(Mutex* mutex) {
+  if (mutex != NULL) {
+    pthread_cond_wait(&cond, mutex->ptr_mutex);
+  }
+}
 
-    Barrier::~Barrier() {
-        if (ptr_barrier) {
-            pthread_barrier_destroy(ptr_barrier);
-            ptr_barrier = NULL;
-        }
-    }
+void Cond::wait(Mutex& mutex) { pthread_cond_wait(&cond, mutex.ptr_mutex); }
 
-    Barrier::Barrier(int count) : ptr_barrier(NULL) {
-        this->init(count);
-    }
+void Cond::broadcast() { pthread_cond_broadcast(&cond); }
 
-    void Barrier::init(int count) {
-        if (this->ptr_barrier != NULL) {
-            pthread_barrier_destroy(ptr_barrier);
-            ptr_barrier = NULL;
-        }
-        pthread_barrier_init(&(this->barrier), 0, count);
-        this->ptr_barrier = &(this->barrier);
-    }
+void Cond::signal() { pthread_cond_signal(&cond); }
 
-    void Barrier::wait() {
-        pthread_barrier_wait(this->ptr_barrier);
-    }
+Barrier::Barrier() : m_init(false) {}
+
+Barrier::~Barrier() {
+  if (m_init) {
+    pthread_barrier_destroy(&m_barrier);
+    m_init = false;
+  }
+}
+
+Barrier::Barrier(int count) : m_init(false) { this->init(count); }
+
+void Barrier::init(int count) {
+  if (m_init) {
+    pthread_barrier_destroy(&m_barrier);
+  }
+  pthread_barrier_init(&(this->m_barrier), 0, count);
+  m_init = true;
+}
+
+void Barrier::wait() { pthread_barrier_wait(&m_barrier); }
+
+Semaphore::Semaphore() { sem_init(&m_sem, 0, 0); }
+Semaphore::~Semaphore() { sem_destroy(&m_sem); }
+void Semaphore::wait() { sem_wait(&m_sem); }
+void Semaphore::signal() { sem_post(&m_sem); }
+}
 }

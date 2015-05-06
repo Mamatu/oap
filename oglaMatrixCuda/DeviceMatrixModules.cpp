@@ -6,7 +6,7 @@
 #include <netdb.h>
 #include <map>
 
-synchronization::RecursiveMutex DeviceMatrixAllocator::mutex;
+utils::sync::RecursiveMutex DeviceMatrixAllocator::mutex;
 
 DeviceMatrixAllocator::DeviceMatrixAllocator()
     : MatrixAllocator(DeviceMatrixModules::GetInstance()) {}

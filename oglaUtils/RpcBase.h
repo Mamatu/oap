@@ -126,7 +126,7 @@ namespace utils {
         class InputsDict {
             typedef std::map<LHandle, Writer*> InputsMap;
             InputsMap inputsMap;
-            synchronization::RecursiveMutex mutex;
+            utils::sync::RecursiveMutex mutex;
         public:
             void add(LHandle id, Serializable* serialize);
             int count(LHandle id);
@@ -143,11 +143,11 @@ namespace utils {
         friend class ServerImpl;
         std::vector<utils::Socket*> clinets;
 
-        synchronization::RecursiveMutex mutex;
-        synchronization::RecursiveMutex callsMutex;
-        synchronization::Cond cond;
-        synchronization::Cond serverCond;
-        synchronization::Mutex serverMutex;
+        utils::sync::RecursiveMutex mutex;
+        utils::sync::RecursiveMutex callsMutex;
+        utils::sync::Cond cond;
+        utils::sync::Cond serverCond;
+        utils::sync::Mutex serverMutex;
 
         typedef std::map<Strings, std::pair<int, OglaFunction*> > FunctionsMap;
 
@@ -167,7 +167,7 @@ namespace utils {
         SocketsWriters socketsWriters;
         InputsDict inputsDict;
         Addresses addresses;
-        synchronization::Mutex outputsMutex;
+        utils::sync::Mutex outputsMutex;
 
         void broadcast(LHandle id, void* ptr);
         void* waintOnOutput(LHandle id);

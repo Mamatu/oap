@@ -76,8 +76,8 @@ protected:
     void unregisterClient(ServerClient* serverClient);
 private:
     volatile bool isDestroyed;
-    synchronization::Cond cond;
-    synchronization::Mutex mutex;
+    utils::sync::Cond cond;
+    utils::sync::Mutex mutex;
 
     class ThreadData {
     public:

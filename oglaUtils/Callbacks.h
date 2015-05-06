@@ -27,7 +27,7 @@ namespace utils {
         void invoke(int event, void* object);
 
     private:
-        synchronization::Mutex mutex;
+        utils::sync::Mutex mutex;
 
         struct CallbackInfo {
             Callback_f* callback;

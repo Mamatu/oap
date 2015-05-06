@@ -9,6 +9,7 @@
 #define	ASYNC_H
 
 #include "Callbacks.h"
+#include "ThreadUtils.h"
 #include <queue>
 
 namespace utils {
@@ -33,8 +34,8 @@ namespace utils {
         };
 
         pthread_t thread;
-        synchronization::Mutex mutex;
-        synchronization::Cond cond;
+        utils::sync::Mutex mutex;
+        utils::sync::Cond cond;
         bool stoped;
         std::queue<Action*> actions;
 

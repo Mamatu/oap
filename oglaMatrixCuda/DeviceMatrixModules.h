@@ -11,7 +11,7 @@
 
 class DeviceMatrixAllocator : public MatrixAllocator {
     HostMatrixAllocator hma;
-    static synchronization::RecursiveMutex mutex;
+    static utils::sync::RecursiveMutex mutex;
     static void lock();
     static void unlock();
     friend class DeviceMatrixUtils;

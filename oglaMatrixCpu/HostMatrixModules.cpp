@@ -78,7 +78,7 @@ inline void fillMatrix(math::Matrix* output, floatt value) {
 }
 
 HostMatrixAllocator::HostMatrices HostMatrixAllocator::hostMatrices;
-synchronization::Mutex HostMatrixAllocator::mutex;
+utils::sync::Mutex HostMatrixAllocator::mutex;
 
 void _memset(floatt* s, floatt value, int n) {
   for (int fa = 0; fa < n; fa++) {

@@ -19,7 +19,7 @@ namespace core {
 
     template<class T> class Creator {
     private:
-        synchronization::Mutex mutex;
+        utils::sync::Mutex mutex;
     protected:
         virtual T* newInstance() = 0;
         virtual void deleteInstance(T* object) = 0;

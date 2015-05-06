@@ -157,7 +157,7 @@ namespace utils {
         class FunctionsList {
         public:
             FunctionsList();
-            synchronization::Mutex functionsMutex;
+            utils::sync::Mutex functionsMutex;
             std::vector<OglaFunction*> functions;
             utils::Callbacks callbacks;
         };

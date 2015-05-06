@@ -59,7 +59,7 @@ class HostMatrixAllocator : public MatrixAllocator {
     HostMatrixCopier hmc;
     typedef std::vector<math::Matrix*> HostMatrices;
     static HostMatrices hostMatrices;
-    static synchronization::Mutex mutex;
+    static utils::sync::Mutex mutex;
     static math::Matrix* createHostMatrix(math::Matrix* matrix, uintt columns, uintt rows, floatt* values, floatt** valuesPtr);
     static void initMatrix(math::Matrix* matrix);
     static math::Matrix* createHostReMatrix(uintt columns, uintt rows, floatt* values);
