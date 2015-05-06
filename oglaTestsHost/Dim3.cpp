@@ -44,10 +44,19 @@ void ThreadIdx::destroyBarrier(const std::vector<pthread_t>& threads) {
   m_barriersMutex.unlock();
 }
 
-void ThreadIdx::wait() { m_barriers[pthread_self()]->m_barrier.wait(); }
+void ThreadIdx::wait() {
+  if (m_barriers.count(pthread_self()) > 0) {
+    if (m_barriers[pthread_self()] != NULL) {
+      m_barriers[pthread_self()]->m_barrier.wait();
+    } else {
+      debugAssert(m_barriers.count(pthread_self()) > 0);
+    }
+  } else {
+    debugAssert(m_barriers[pthread_self()] != NULL);
+  }
+}
 
 ThreadIdx::Barriers ThreadIdx::m_barriers;
 utils::sync::Mutex ThreadIdx::m_barriersMutex;
-
 
 #endif

@@ -85,29 +85,68 @@ class OglaCudaStub : public testing::Test {
     class ThreadImpl : public utils::Thread {
       Dim3 m_threadIdx;
       KernelStub* m_cudaStub;
+      std::vector<pthread_t>& m_pthreads;
+      utils::sync::Barrier& m_barrier;
+      utils::sync::Cond m_cond;
+      utils::sync::Mutex m_mutex;
+      bool m_cancontinue;
 
      public:
-      ThreadImpl(KernelStub* cudaStub, const Dim3& threadIdx)
-          : m_cudaStub(cudaStub), m_threadIdx(threadIdx) {}
+      ThreadImpl(KernelStub* cudaStub, const Dim3& threadIdx,
+                 std::vector<pthread_t>& pthreads,
+                 utils::sync::Barrier& barrier)
+          : m_cudaStub(cudaStub),
+            m_threadIdx(threadIdx),
+            m_pthreads(pthreads),
+            m_barrier(barrier) {
+        m_cancontinue = false;
+      }
 
       virtual ~ThreadImpl() {}
+
+      void setThreadIdx(const Dim3& threadIdx) { m_threadIdx = threadIdx; }
+
+      void waitOn() {
+        m_mutex.lock();
+        if (m_cancontinue == false) {
+          m_cond.wait(m_mutex);
+        }
+        m_cancontinue = false;
+        m_mutex.unlock();
+      }
 
      protected:
       static void Execute(void* ptr) {
         ThreadImpl* threadImpl = static_cast<ThreadImpl*>(ptr);
-        threadImpl->m_cudaStub->execute(threadImpl->m_threadIdx);
-        threadImpl->m_cudaStub->onChange(OglaCudaStub::KernelStub::CUDA_THREAD,
-                                         threadImpl->m_threadIdx);
+        for (int fa = 0; fa < gridDim.x * gridDim.y; ++fa) {
+          threadImpl->m_barrier.wait();
+          threadImpl->m_cudaStub->execute(threadImpl->m_threadIdx);
+          threadImpl->m_cudaStub->onChange(
+              OglaCudaStub::KernelStub::CUDA_THREAD, threadImpl->m_threadIdx);
+
+          threadImpl->m_mutex.lock();
+          threadImpl->m_cancontinue = true;
+          threadImpl->m_cond.signal();
+          threadImpl->m_mutex.unlock();
+        }
       }
 
       virtual void onRun(pthread_t threadId) {
         setFunction(ThreadImpl::Execute, this);
         ThreadIdx::m_threadIdxs[threadId].setThreadIdx(m_threadIdx);
+        m_pthreads.push_back(threadId);
+        if (m_threadIdx.x == blockDim.x - 1 &&
+            m_threadIdx.y == blockDim.y - 1) {
+          ThreadIdx::createBarrier(m_pthreads);
+        }
       }
     };
     Dim3 threadIdx;
 
     std::vector<utils::Thread*> threads;
+    std::vector<pthread_t> pthreads;
+    utils::sync::Barrier barrier;
+    barrier.init(blockDim.y * blockDim.x + 1);
 
     for (uintt blockIdxY = 0; blockIdxY < gridDim.y; ++blockIdxY) {
       for (uintt blockIdxX = 0; blockIdxX < gridDim.x; ++blockIdxX) {
@@ -118,19 +157,29 @@ class OglaCudaStub : public testing::Test {
             blockIdx.x = blockIdxX;
             blockIdx.y = blockIdxY;
 
-            ThreadImpl* thread = new ThreadImpl(cudaStub, threadIdx);
-            threads.push_back(thread);
-            thread->run();
+            if (blockIdx.x == 0 && blockIdx.y == 0) {
+              ThreadImpl* thread =
+                  new ThreadImpl(cudaStub, threadIdx, pthreads, barrier);
+              threads.push_back(thread);
+              thread->run();
+            }
           }
         }
+        barrier.wait();
         for (size_t fa = 0; fa < threads.size(); ++fa) {
-          threads[fa]->yield();
-          delete threads[fa];
+          dynamic_cast<ThreadImpl*>(threads[fa])->waitOn();
         }
-        threads.clear();
         cudaStub->onChange(OglaCudaStub::KernelStub::CUDA_BLOCK, threadIdx);
       }
     }
+    for (size_t fa = 0; fa < threads.size(); ++fa) {
+      threads[fa]->yield();
+      delete threads[fa];
+    }
+    threads.clear();
+
+    ThreadIdx::destroyBarrier(pthreads);
+    pthreads.clear();
   }
 };
 
