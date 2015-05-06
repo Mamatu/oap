@@ -26,12 +26,16 @@ void* Thread::Execute(void* ptr) {
     thread->m_mutex.lock();
     if (thread->m_iscond == false) {
       thread->m_cond.wait(thread->m_mutex);
+      thread->m_iscond = false;
     }
     thread->m_mutex.unlock();
   }
   thread->m_function(thread->m_ptr);
-  void* retVal = NULL;
-  pthread_exit(retVal);
+
+  if (!thread->m_isonethread) {
+    void* retVal = NULL;
+    pthread_exit(retVal);
+  }
 }
 
 void Thread::run(bool inTheSameThreead) {
@@ -119,7 +123,7 @@ void Barrier::init(int count) {
   if (m_init) {
     pthread_barrier_destroy(&m_barrier);
   }
-  pthread_barrier_init(&(this->m_barrier), 0, count);
+  pthread_barrier_init(&m_barrier, NULL, count);
   m_init = true;
 }
 
