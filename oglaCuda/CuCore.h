@@ -29,7 +29,7 @@
 #define __hostdeviceinline__ __inline__
 #define __hostdevice__ __inline__
 
-#define threads_sync() ThreadIdx::m_threadIdxs[pthread_self()].wait();
+#define threads_sync() ThreadIdx::wait();
 
 #endif
 
