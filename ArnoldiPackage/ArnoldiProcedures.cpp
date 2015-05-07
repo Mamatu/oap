@@ -104,6 +104,7 @@ void CuHArnoldi::calculateTriangularH() {
 }
 
 void CuHArnoldi::calculateTriangularHInDevice() {
+  CudaUtils::PrintMatrix("H1", H1);
   void* params[] = {&H1, &Q, &R1, &Q1, &QJ, &Q2, &R2, &G, &GT};
   m_kernel.setDimensions(m_Hcolumns, m_Hrows);
   cuda::Kernel::Execute("CUDAKernel_CalculateTriangularH", params, m_kernel,
@@ -189,8 +190,8 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
     m_cuMatrix.multiplyConstantMatrix(v, f, rB);
     CudaUtils::PrintMatrix("v", v);
     CudaUtils::PrintMatrix("f", f);
-    fprintf(stderr,"rB = %f \n",rB);
-    fprintf(stderr,"B = %f \n",B);
+    fprintf(stderr, "rB = %f \n", rB);
+    fprintf(stderr, "B = %f \n", B);
     m_cuMatrix.setVector(V, fa + 1, v, m_vrows);
     CudaUtils::SetZeroRow(H, fa + 1, true, true);
     CudaUtils::SetReValue(H, (fa) + m_Hcolumns * (fa + 1), B);

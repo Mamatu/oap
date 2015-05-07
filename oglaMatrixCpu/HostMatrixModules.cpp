@@ -517,7 +517,7 @@ math::Matrix* NewMatrixCopy(const math::Matrix* matrix) {
   return output;
 }
 
-math::Matrix* NewMatrix(math::Matrix* matrix, floatt value) {
+math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value) {
   math::Matrix* output = NULL;
   if (matrix->reValues != NULL && matrix->imValues != NULL) {
     output = NewMatrix(matrix->columns, matrix->rows, value);
@@ -530,7 +530,7 @@ math::Matrix* NewMatrix(math::Matrix* matrix, floatt value) {
   }
 }
 
-math::Matrix* NewMatrix(math::Matrix* matrix, uintt columns, uintt rows,
+math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows,
                         floatt value) {
   math::Matrix* output = NULL;
   if (matrix->reValues != NULL && matrix->imValues != NULL) {

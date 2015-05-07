@@ -29,6 +29,7 @@
 #include "CuMatrixProcedures/CuIsUpperTriangularProcedures.h"
 #include "CuMatrixProcedures/CuMagnitudeOptProcedures.h"
 #include "CuMatrixProcedures/CuMagnitudeOptProcedures2.h"
+#include "CuMatrixProcedures/CuTriangularH.h"
 
 extern "C" __device__ void CUDA_setDiagonalReMatrix(
     math::Matrix* dst,

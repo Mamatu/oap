@@ -9,6 +9,7 @@
 #define	CUMAGNITUDEOPTPROCEDURES2_H
 
 #include <cuda.h>
+#include "CuCore.h"
 #include "CuMagnitudeUtils2.h"
 #include "CuMatrixUtils.h"
 #include <stdio.h>
@@ -22,11 +23,11 @@ extern "C" __device__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::Ma
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_MagnitudeRealOptVer2(buffer, matrix1, sharedIndex, xlength);
-    __syncthreads();
+    threads_sync();
     do {
         cuda_MagnitudeBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
-        __syncthreads();
+        threads_sync();
     } while (sharedLength > 1);
     if (threadIdx.x == 0 && threadIdx.y == 0) {
         sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
@@ -40,11 +41,11 @@ extern "C" __device__ void CUDA_magnitudeOptReMatrixVer2(floatt* sum, math::Matr
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_MagnitudeReOptVer2(buffer, matrix1, sharedIndex, xlength);
-    __syncthreads();
+    threads_sync();
     do {
         cuda_MagnitudeBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
-        __syncthreads();
+        threads_sync();
     } while (sharedLength > 1);
 
     if (threadIdx.x == 0 && threadIdx.y == 0) {
@@ -59,11 +60,11 @@ extern "C" __device__ void CUDA_magnitudeOptImMatrixVer2(floatt* sum, math::Matr
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_MagnitudeImOptVer2(buffer, matrix1, sharedIndex, xlength);
-    __syncthreads();
+    threads_sync();
     do {
         cuda_MagnitudeBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
-        __syncthreads();
+        threads_sync();
     } while (sharedLength > 1);
     if (threadIdx.x == 0 && threadIdx.y == 0) {
         sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];

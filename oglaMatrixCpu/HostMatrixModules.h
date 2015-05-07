@@ -134,8 +134,8 @@ namespace host {
             floatt* reArray, floatt* imArray);
     math::Matrix* NewReMatrixCopy(uintt columns, uintt rows, floatt* reArray);
     math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, floatt* imArray);
-    math::Matrix* NewMatrix(math::Matrix* matrix, floatt value);
-    math::Matrix* NewMatrix(math::Matrix* matrix, uintt columns, uintt rows, floatt value);
+    math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value);
+    math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows, floatt value);
     math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
     math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows, floatt value = 0);
     math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value = 0);

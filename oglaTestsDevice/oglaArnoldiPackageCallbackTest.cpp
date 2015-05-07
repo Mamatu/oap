@@ -273,7 +273,7 @@ TEST_F(OglaArnoldiPackageCallbackTests, TestData2) {
       Data* data = static_cast<Data*>(userData);
       data->load();
       cuda::CopyDeviceMatrixToHostMatrix(data->hostV, v);
-      EXPECT_THAT(data->hostV, MatrixIsEqual(data->refV));
+      ASSERT_THAT(data->hostV, MatrixIsEqual(data->refV));
       CudaUtils::PrintMatrix("v", v);
       printf("\n");
       host::PrintMatrix("data->hostV", data->hostV);

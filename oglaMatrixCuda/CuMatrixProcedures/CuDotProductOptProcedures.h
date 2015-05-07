@@ -31,13 +31,13 @@ __hostdevice__ void CUDA_dotProductReExOpt(math::Matrix* output,
   setSharedMatrixRe(buffer1, buffer2, params0, params1, offset, threadIndexX,
                     threadIndexY);
 
-  __syncthreads();
+  threads_sync();
   for (intt fa1 = matrixEx.boffset; fa1 < matrixEx.eoffset; fa1++) {
     retemp += buffer1[(fa1 - matrixEx.boffset) + columns1 * threadIndexY] *
               buffer2[(fa1 - matrixEx.boffset) * columns2 + threadIndexX];
   }
   output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-  __syncthreads();
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_dotProductImExOpt(math::Matrix* output,
@@ -57,13 +57,13 @@ __hostdevice__ void CUDA_dotProductImExOpt(math::Matrix* output,
 
   setSharedMatrixIm(buffer1, buffer2, params0, params1, offset, threadIndexX,
                     threadIndexY);
-  __syncthreads();
+  threads_sync();
   for (intt fa1 = matrixEx.boffset; fa1 < matrixEx.eoffset; fa1++) {
     retemp += -buffer1[(fa1 - matrixEx.boffset) + columns1 * threadIndexY] *
               buffer2[(fa1 - matrixEx.boffset) * columns2 + threadIndexX];
   }
   output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-  __syncthreads();
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_dotProductRealExOpt(math::Matrix* output,
@@ -89,7 +89,7 @@ __hostdevice__ void CUDA_dotProductRealExOpt(math::Matrix* output,
 
   setSharedMatrixReal(buffer1Re, buffer1Im, buffer2Re, buffer2Im, params0,
                       params1, offset, threadIndexX, threadIndexY);
-  __syncthreads();
+  threads_sync();
   for (intt fa1 = matrixEx.boffset; fa1 < matrixEx.eoffset; fa1++) {
     retemp += buffer1Re[(fa1 - matrixEx.boffset) + columns1 * threadIndexY] *
               buffer2Re[(fa1 - matrixEx.boffset) * columns2 + threadIndexX];
@@ -102,7 +102,7 @@ __hostdevice__ void CUDA_dotProductRealExOpt(math::Matrix* output,
   }
   output->reValues[threadIndexX + outputColumns * threadIndexY] = retemp;
   output->imValues[threadIndexX + outputColumns * threadIndexY] = imtemp;
-  __syncthreads();
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_dotProductExOpt(math::Matrix* output,
@@ -137,13 +137,13 @@ __hostdevice__ void CUDA_dotProductReOpt(math::Matrix* output,
 
   setSharedMatrixRe(buffer1, buffer2, params0, params1, offset, threadIndexX,
                     threadIndexY);
-  __syncthreads();
+  threads_sync();
   for (intt fa1 = 0; fa1 < offset; fa1++) {
     retemp += buffer1[fa1 + columns1 * threadIndexY] *
               buffer2[fa1 * columns2 + threadIndexX];
   }
   output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-  __syncthreads();
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_dotProductImOpt(math::Matrix* output,
@@ -162,13 +162,13 @@ __hostdevice__ void CUDA_dotProductImOpt(math::Matrix* output,
 
   setSharedMatrixIm(buffer1, buffer2, params0, params1, offset, threadIndexX,
                     threadIndexY);
-  __syncthreads();
+  threads_sync();
   for (uintt fa1 = 0; fa1 < offset; ++fa1) {
     retemp += -buffer1[fa1 + columns1 * threadIndexY] *
               buffer2[fa1 * columns2 + threadIndexX];
   }
   output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-  __syncthreads();
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_dotProductRealOpt(math::Matrix* output,
@@ -194,7 +194,7 @@ __hostdevice__ void CUDA_dotProductRealOpt(math::Matrix* output,
 
   setSharedMatrixReal(buffer1Re, buffer1Im, buffer2Re, buffer2Im, params0,
                       params1, offset, threadIndexX, threadIndexY);
-  __syncthreads();
+  threads_sync();
   for (intt fa1 = 0; fa1 < offset; fa1++) {
     retemp += buffer1Re[fa1 + blockDim.x * threadIdx.y] *
               buffer2Re[fa1 * columns2 + threadIdx.x];
@@ -207,7 +207,7 @@ __hostdevice__ void CUDA_dotProductRealOpt(math::Matrix* output,
   }
   output->reValues[threadIndexX + outputColumns * threadIndexY] = retemp;
   output->imValues[threadIndexX + outputColumns * threadIndexY] = imtemp;
-  __syncthreads();
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_dotProductOpt(math::Matrix* output,

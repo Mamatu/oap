@@ -8,7 +8,7 @@
 #ifndef CUCOMPAREPROCEDURES_H
 #define	CUCOMPAREPROCEDURES_H
 
-
+#include "CuCore.h"
 #include <cuda.h>
 #include "cuda_runtime.h"
 #include "cuda_runtime_api.h"
@@ -64,7 +64,7 @@ if (tindex < length / 2) {\
 }\
 length = length / 2;
 
-extern "C" __device__ void CUDA_compareRealMatrix(
+__hostdevice__ void CUDA_compareRealMatrix(
     int* sum,
     math::Matrix* matrix1,
     math::Matrix* matrix2,
@@ -74,16 +74,16 @@ extern "C" __device__ void CUDA_compareRealMatrix(
     uintt length = matrix1->columns * matrix1->rows;
     if (tindex < length) {
         cuda_compare_real(buffer, matrix1, matrix2);
-        __syncthreads();
+        threads_sync();
         do {
             cuda_compare_step_2(buffer);
-            __syncthreads();
+            threads_sync();
         } while (length > 1);
         sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0] / 2;
     }
 }
 
-extern "C" __device__ void CUDA_compareImMatrix(
+__hostdevice__ void CUDA_compareImMatrix(
     int* sum,
     math::Matrix* matrix1,
     math::Matrix* matrix2,
@@ -93,16 +93,16 @@ extern "C" __device__ void CUDA_compareImMatrix(
     uintt length = matrix1->columns * matrix1->rows;
     if (tindex < length) {
         cuda_compare_im(buffer, matrix1, matrix2);
-        __syncthreads();
+        threads_sync();
         do {
             cuda_compare_step_2(buffer);
-            __syncthreads();
+            threads_sync();
         } while (length > 1);
         sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
     }
 }
 
-extern "C" __device__ void CUDA_compareReMatrix(
+__hostdevice__ void CUDA_compareReMatrix(
     int* sum,
     math::Matrix* matrix1,
     math::Matrix* matrix2,
@@ -112,16 +112,16 @@ extern "C" __device__ void CUDA_compareReMatrix(
     uintt length = matrix1->columns * matrix1->rows;
     if (tindex < length) {
         cuda_compare_re(buffer, matrix1, matrix2);
-        __syncthreads();
+        threads_sync();
         do {
             cuda_compare_step_2(buffer);
-            __syncthreads();
+            threads_sync();
         } while (length > 1);
         sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
     }
 }
 
-extern "C" __device__ void CUDA_compare(
+__hostdevice__ void CUDA_compare(
     int* sum,
     math::Matrix* matrix1,
     math::Matrix* matrix2,

@@ -8,27 +8,29 @@
 #ifndef CUCOPYPROCEDURES_H
 #define	CUCOPYPROCEDURES_H
 
-extern "C" __device__ void CUDA_CopyReMatrix(
+#include "CuCore.h"
+
+__hostdevice__ void CUDA_CopyReMatrix(
     math::Matrix* dst,
     math::Matrix* src,
     uintt threadIndexX,
     uintt threadIndexY) {
     dst->reValues[threadIndexX + dst->columns * threadIndexY] =
         src->reValues[threadIndexX + src->columns * threadIndexY];
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ void CUDA_CopyImMatrix(
+__hostdevice__ void CUDA_CopyImMatrix(
     math::Matrix* dst,
     math::Matrix* src,
     uintt threadIndexX,
     uintt threadIndexY) {
     dst->imValues[threadIndexX + dst->columns * threadIndexY] =
         src->imValues[threadIndexX + src->columns * threadIndexY];
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ void CUDA_CopyMatrix(
+__hostdevice__ void CUDA_CopyMatrix(
     math::Matrix* dst,
     math::Matrix* src,
     uintt threadIndexX,

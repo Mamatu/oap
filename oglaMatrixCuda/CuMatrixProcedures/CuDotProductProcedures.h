@@ -8,7 +8,9 @@
 #ifndef CUDOTPRODUCTPROCEDURES_H
 #define CUDOTPRODUCTPROCEDURES_H
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyReMatricesEx(
+#include "CuCore.h"
+
+__hostdevice__ __forceinline__ void CUDA_multiplyReMatricesEx(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -24,10 +26,10 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyReMatricesEx(
               params1->reValues[fa1 * columns2 + threadIndexX];
   }
   output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-  __syncthreads();
+  threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyImMatricesEx(
+__hostdevice__ __forceinline__ void CUDA_multiplyImMatricesEx(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -43,10 +45,10 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyImMatricesEx(
               params1->imValues[fa1 * columns2 + threadIndexX];
   }
   output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-  __syncthreads();
+  threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyRealMatricesEx(
+__hostdevice__ __forceinline__ void CUDA_multiplyRealMatricesEx(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -71,10 +73,10 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyRealMatricesEx(
   }
   output->reValues[threadIndexX + outputColumns * threadIndexY] = retemp;
   output->imValues[threadIndexX + outputColumns * threadIndexY] = imtemp;
-  __syncthreads();
+  threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyMatricesEx(
+__hostdevice__ __forceinline__ void CUDA_multiplyMatricesEx(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -95,7 +97,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyMatricesEx(
   }
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyReMatrices(
+__hostdevice__ __forceinline__ void CUDA_multiplyReMatrices(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -110,10 +112,10 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyReMatrices(
               params1->reValues[fa1 * columns2 + threadIndexX];
   }
   output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-  __syncthreads();
+  threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyImMatrices(
+__hostdevice__ __forceinline__ void CUDA_multiplyImMatrices(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -128,10 +130,10 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyImMatrices(
               params1->imValues[fa1 * columns2 + threadIndexX];
   }
   output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-  __syncthreads();
+  threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyRealMatrices(
+__hostdevice__ __forceinline__ void CUDA_multiplyRealMatrices(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -155,10 +157,10 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyRealMatrices(
   }
   output->reValues[threadIndexX + outputColumns * threadIndexY] = retemp;
   output->imValues[threadIndexX + outputColumns * threadIndexY] = imtemp;
-  __syncthreads();
+  threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyMatrices(
+__hostdevice__ __forceinline__ void CUDA_multiplyMatrices(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -178,7 +180,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyMatrices(
   }
 }
 
-extern "C" __device__ __forceinline__ void CUDA_dotProduct(
+__hostdevice__ __forceinline__ void CUDA_dotProduct(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -187,7 +189,7 @@ extern "C" __device__ __forceinline__ void CUDA_dotProduct(
   CUDA_multiplyMatrices(output, params0, params1, threadIndexX, threadIndexY);
 }
 
-extern "C" __device__ __forceinline__ void CUDA_dotProductEx(
+__hostdevice__ __forceinline__ void CUDA_dotProductEx(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,

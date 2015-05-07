@@ -8,13 +8,15 @@
 #ifndef CUQRPROCEDURES_H
 #define	CUQRPROCEDURES_H
 
-extern "C" __device__ void CUDA_switchPointer(math::Matrix** a, math::Matrix** b) {
+#include "CuCore.h"
+
+__hostdevice__ void CUDA_switchPointer(math::Matrix** a, math::Matrix** b) {
     math::Matrix* temp = *b;
     *b = *a;
     *a = temp;
 }
 
-extern "C" __device__ void CUDA_prepareGMatrix(math::Matrix* A,
+__hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A,
     uintt column, uintt row, math::Matrix* G, uintt tx, uintt ty) {
     CUDA_SetIdentityMatrix(G, tx, ty);
     if (tx == 0 && ty == 0) {
@@ -48,10 +50,10 @@ extern "C" __device__ void CUDA_prepareGMatrix(math::Matrix* A,
             G->imValues[(row) + (column) * A->columns] = is;
         }
     }
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_QR(
+__hostdevice__ __forceinline__ void CUDA_QR(
     math::Matrix* Q,
     math::Matrix* R,
     math::Matrix* A,

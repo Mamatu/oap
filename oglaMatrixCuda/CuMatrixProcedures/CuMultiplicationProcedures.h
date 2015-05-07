@@ -15,7 +15,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantReMatrix(
     uintt index = threadIndexX + threadIndexY * output->columns;
     output->reValues[index] =
         params0->reValues[index] * re;
-    __syncthreads();
+    threads_sync();
 }
 
 extern "C" __device__ __forceinline__ void CUDA_multiplyConstantImMatrix(
@@ -25,7 +25,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantImMatrix(
     uintt index = threadIndexX + threadIndexY * output->columns;
     output->imValues[index] =
         params0->imValues[index] * im;
-    __syncthreads();
+    threads_sync();
 }
 
 extern "C" __device__ __forceinline__ void CUDA_multiplyConstantRealMatrix(
@@ -38,7 +38,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantRealMatrix(
         params0->reValues[index] * re;
     output->imValues[index] =
         params0->imValues[index] * im;
-    __syncthreads();
+    threads_sync();
 }
 
 extern "C" __device__ __forceinline__ void CUDA_multiplyConstantMatrix(
