@@ -21,7 +21,7 @@ __hostdevice__ void cuda_MagnitudeBuffer(floatt* buffer, uintt sharedIndex,
       threadIdx.y < ylength) {
     int c = sharedLength & 1;
     buffer[sharedIndex] += buffer[sharedIndex + sharedLength / 2];
-    if (c == 1 && sharedIndex + sharedLength / 2 == sharedLength - 2) {
+    if (c == 1 && sharedIndex == sharedLength / 2 - 1) {
       buffer[sharedIndex] += buffer[sharedLength - 1];
     }
   }

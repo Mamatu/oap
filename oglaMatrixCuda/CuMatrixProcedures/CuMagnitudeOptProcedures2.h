@@ -22,7 +22,6 @@ extern "C" __device__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::Ma
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_MagnitudeRealOptVer2(buffer, matrix1, sharedIndex, xlength);
-    sharedLength = sharedLength / 2;
     __syncthreads();
     do {
         cuda_MagnitudeBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
@@ -60,7 +59,6 @@ extern "C" __device__ void CUDA_magnitudeOptImMatrixVer2(floatt* sum, math::Matr
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_MagnitudeImOptVer2(buffer, matrix1, sharedIndex, xlength);
-    sharedLength = sharedLength / 2;
     __syncthreads();
     do {
         cuda_MagnitudeBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);

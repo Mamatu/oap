@@ -1,4 +1,4 @@
-/* 
+/*
  * File: CuCommonUtils.h
  * Author: mmatula
  *
@@ -17,10 +17,10 @@ __hostdevice__ void cuda_MagnitudeBufferVer2(floatt* buffer,
     uintt sharedIndex, uintt sharedLength, uintt xlength, uintt ylength) {
     CUDA_TEST_CODE();
 
-    if (sharedIndex < sharedLength / 2 && threadIdx.x < xlength && threadIdx.y < ylength) {
+    if (sharedIndex < sharedLength && threadIdx.x < xlength && threadIdx.y < ylength) {
         int c = sharedLength & 1;
-        buffer[sharedIndex] += buffer[sharedIndex + sharedLength / 2];
-        if (c == 1 && sharedIndex + sharedLength / 2 == sharedLength - 2) {
+        buffer[sharedIndex] += buffer[sharedIndex + sharedLength];
+        if (c == 1 && sharedIndex + sharedLength == sharedLength*2 - 2) {
             buffer[sharedIndex] += buffer[sharedLength - 1];
         }
     }

@@ -25,7 +25,6 @@ extern "C" __device__ void CUDA_compareOptRealMatrix(
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_CompareRealOpt(buffer, matrix1, matrix2, sharedIndex, xlength);
-    sharedLength = sharedLength / 2;
     __syncthreads();
     do {
         cuda_CompareBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
@@ -69,7 +68,6 @@ extern "C" __device__ void CUDA_compareOptImMatrix(
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_CompareImOpt(buffer, matrix1, matrix2, sharedIndex, xlength);
-    sharedLength = sharedLength / 2;
     __syncthreads();
     do {
         cuda_CompareBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);

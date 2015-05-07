@@ -80,7 +80,7 @@ class ThreadIdx {
   const Dim3& getThreadIdx() const;
   static void createBarrier(const std::vector<pthread_t>& threads);
   static void destroyBarrier(const std::vector<pthread_t>& threads);
-  void wait();
+  static void wait();
 
   void clear();
 };
