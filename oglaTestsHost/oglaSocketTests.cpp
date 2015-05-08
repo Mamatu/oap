@@ -33,7 +33,6 @@
 //
 // This file tests code in gmock.cc.
 
-
 #include <string>
 #include <stdio.h>
 #include <pthread.h>
@@ -41,100 +40,116 @@
 #include "Socket.h"
 #include "gmock/gmock-generated-function-mockers.h"
 
+class P1Data {
+ public:
+  P1Data(utils::sync::CondBool& cbool, utils::sync::CondBool& cbool1)
+      : m_cbool(cbool), m_cbool1(cbool1) {}
+  utils::sync::CondBool& m_cbool;
+  utils::sync::CondBool& m_cbool1;
+  std::pair<bool, bool> flags1;
+};
+
+class P2Data {
+ public:
+  P2Data(utils::sync::CondBool& cbool, utils::sync::CondBool& cbool1)
+      : m_cbool(cbool), m_cbool1(cbool1) {
+    flag2 = false;
+  }
+  utils::sync::CondBool& m_cbool;
+  utils::sync::CondBool& m_cbool1;
+  bool flag2;
+};
+
 class ServerImpl : public utils::Server {
-public:
+ public:
+  static std::vector<int> values;
 
-    static std::vector<int> values;
+  ServerImpl(int16_t port, P1Data* p1Data) : Server(port), m_p1Data(p1Data) {}
 
-    ServerImpl(int16_t port) : Server(port) {
+  bool Compare(const std::vector<int>& values) { return m_values == values; }
 
-    }
+  P1Data* m_p1Data;
 
-    bool Compare(const std::vector<int>& values) {
-        return m_values == values;
-    }
+ protected:
+  void OnData(Socket* client, const char* buffer, int size) {
+    utils::Reader reader(buffer, size);
+    m_values.push_back(reader.readInt());
+    m_values.push_back(reader.readInt());
+    this->close();
+    m_p1Data->m_cbool.signal();
+  }
 
-protected:
-
-    void OnData(Socket* client, const char* buffer, int size) {
-        utils::Reader reader(buffer, size);
-        m_values.push_back(reader.readInt());
-        m_values.push_back(reader.readInt());
-    }
-private:
-    std::vector<int> m_values;
-
+ private:
+  std::vector<int> m_values;
 };
 
 std::vector<int> ServerImpl::values;
 
 class OglaSocketTests : public testing::Test {
-public:
+ public:
+  utils::Client* client;
+  utils::Server* server;
 
-    utils::Client* client;
-    utils::Server* server;
+  virtual void SetUp() { ServerImpl::values.clear(); }
 
-    virtual void SetUp() {
-        ServerImpl::values.clear();
-    }
-
-    virtual void TearDown() {
-    }
+  virtual void TearDown() {}
 };
 
 void* Execute1(void* ptr) {
-    debug("Server");
-    ServerImpl* server = new ServerImpl(5000);
-    bool connected = server->connect();
-    debug("connected server = %d", connected);
-    if (connected) {
-        sleep(1);
-        server->close();
-    }
-    std::pair<bool, bool>* flag1 = static_cast<std::pair<bool, bool>*> (ptr);
-    (*flag1).first = connected;
-    (*flag1).second = server->Compare(ServerImpl::values);
-    delete server;
-    pthread_exit(0);
+  debug("Server");
+  P1Data* p1Data = static_cast<P1Data*>(ptr);
+  ServerImpl* server = new ServerImpl(5000, p1Data);
+  bool connected = server->connect();
+  debug("connected server = %d", connected);
+  p1Data->m_cbool.wait();
+  std::pair<bool, bool>* flag1 = &p1Data->flags1;
+  (*flag1).first = connected;
+  (*flag1).second = server->Compare(ServerImpl::values);
+  delete server;
+  pthread_exit(0);
 }
 
 void* Execute2(void* ptr) {
-    debug("Client");
-    utils::Client* client = new utils::Client("127.0.0.1", 5000);
-    sleep(1);
-    bool connected = client->connect();
+  P2Data* p2Data = static_cast<P2Data*>(ptr);
+  debug("Client");
+  utils::Client* client = new utils::Client("127.0.0.1", 5000);
+  bool connected = false;
+  do {
+    connected = client->connect();
     debug("connected client = %d", connected);
-    if (connected) {
-        utils::Writer writer;
-        for (int fa = 0; fa < ServerImpl::values.size(); ++fa) {
-            writer.write(ServerImpl::values[fa]);
-        }
-        client->send(&writer);
-        client->close();
+  } while (connected == false);
+  if (connected) {
+    utils::Writer writer;
+    for (int fa = 0; fa < ServerImpl::values.size(); ++fa) {
+      writer.write(ServerImpl::values[fa]);
     }
-    sleep(1);
-    delete client;
-    bool* flag2 = static_cast<bool*> (ptr);
-    (*flag2) = connected;
-    pthread_exit(0);
+    client->send(&writer);
+    client->close();
+  }
+  delete client;
+  bool* flag2 = &p2Data->flag2;
+  (*flag2) = connected;
+  pthread_exit(0);
 }
 
 TEST_F(OglaSocketTests, SocketCommunication1) {
-    return;
-    pthread_t threads[2];
+  pthread_t threads[2];
 
-    ServerImpl::values.push_back(10);
-    ServerImpl::values.push_back(3);
+  ServerImpl::values.push_back(10);
+  ServerImpl::values.push_back(3);
 
-    std::pair<bool, bool> flags1;
-    bool flag2 = false;
-    pthread_create(&threads[0], 0, Execute1, &flags1);
-    sleep(1);
-    pthread_create(&threads[1], 0, Execute2, &flag2);
-    void* o;
-    pthread_join(threads[0], &o);
-    pthread_join(threads[1], &o);
-    EXPECT_TRUE(flags1.first);
-    EXPECT_TRUE(flags1.second);
-    EXPECT_TRUE(flag2);
+  utils::sync::CondBool cbool;
+  utils::sync::CondBool cbool1;
+
+  P1Data p1Data(cbool, cbool1);
+  P2Data p2Data(cbool, cbool1);
+
+  pthread_create(&threads[0], 0, Execute1, &p1Data);
+  pthread_create(&threads[1], 0, Execute2, &p2Data);
+  void* o;
+  pthread_join(threads[0], &o);
+  pthread_join(threads[1], &o);
+  EXPECT_TRUE(p1Data.flags1.first);
+  EXPECT_TRUE(p1Data.flags1.second);
+  EXPECT_TRUE(p2Data.flag2);
 }

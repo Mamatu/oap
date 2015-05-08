@@ -41,10 +41,13 @@ class RecursiveMutex : public Mutex {
 };
 
 class MutexLocker {
-  utils::sync::Mutex m_mutex;
+  utils::sync::Mutex& m_mutex;
 
  public:
-  inline MutexLocker() { m_mutex.lock(); }
+  inline MutexLocker(utils::sync::Mutex& mutex) : m_mutex(mutex) {
+    m_mutex.lock();
+  }
+
   inline ~MutexLocker() { m_mutex.unlock(); }
 };
 
@@ -82,6 +85,19 @@ class Barrier {
   void init(int count);
   ~Barrier();
   void wait();
+};
+
+class CondBool {
+  utils::sync::Cond m_cond;
+  utils::sync::Mutex m_mutex;
+  bool m_shouldlocked;
+
+ public:
+  CondBool();
+  ~CondBool();
+  void wait();
+  void signal();
+  void broadcast();
 };
 }
 

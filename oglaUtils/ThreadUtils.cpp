@@ -133,5 +133,30 @@ Semaphore::Semaphore() { sem_init(&m_sem, 0, 0); }
 Semaphore::~Semaphore() { sem_destroy(&m_sem); }
 void Semaphore::wait() { sem_wait(&m_sem); }
 void Semaphore::signal() { sem_post(&m_sem); }
+
+CondBool::CondBool() { m_shouldlocked = true; }
+CondBool::~CondBool() {}
+
+void CondBool::wait() {
+  m_mutex.lock();
+  if (m_shouldlocked) {
+    m_cond.wait(m_mutex);
+  }
+  m_shouldlocked = true;
+  m_mutex.unlock();
+}
+
+void CondBool::signal() {
+  m_mutex.lock();
+  m_shouldlocked = false;
+  m_cond.signal();
+  m_mutex.unlock();
+}
+void CondBool::broadcast() {
+  m_mutex.lock();
+  m_shouldlocked = false;
+  m_cond.broadcast();
+  m_mutex.unlock();
+}
 }
 }

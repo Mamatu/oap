@@ -66,6 +66,8 @@ Server::~Server() {
     m_clients.clear();
 }
 
+void QueueAction(void* userPtr);
+
 bool Server::connect() {
     listen(getID(), 5);
     socklen_t s = sizeof (sockaddr_in);
