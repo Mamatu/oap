@@ -18,7 +18,15 @@ namespace ArnUtils {
 
 bool SortLargestValues(const Complex& i, const Complex& j);
 
+bool SortLargestReValues(const Complex& i, const Complex& j);
+
+bool SortLargestImValues(const Complex& i, const Complex& j);
+
 bool SortSmallestValues(const Complex& i, const Complex& j);
+
+bool SortSmallestReValues(const Complex& i, const Complex& j);
+
+bool SortSmallestImValues(const Complex& i, const Complex& j);
 
 typedef bool (*SortType)(const Complex& i, const Complex& j);
 

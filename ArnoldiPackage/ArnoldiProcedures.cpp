@@ -10,13 +10,29 @@ namespace ArnUtils {
 bool SortLargestValues(const Complex& i, const Complex& j) {
   floatt m1 = i.re * i.re + i.im * i.im;
   floatt m2 = j.re * j.re + j.im * j.im;
-  return m1 > m2;
+  return m1 < m2;
+}
+
+bool SortLargestReValues(const Complex& i, const Complex& j) {
+  return i.re < j.re;
+}
+
+bool SortLargestImValues(const Complex& i, const Complex& j) {
+  return i.im < j.im;
 }
 
 bool SortSmallestValues(const Complex& i, const Complex& j) {
   floatt m1 = i.re * i.re + i.im * i.im;
   floatt m2 = j.re * j.re + j.im * j.im;
-  return m1 < m2;
+  return m1 > m2;
+}
+
+bool SortSmallestReValues(const Complex& i, const Complex& j) {
+  return i.re > j.re;
+}
+
+bool SortSmallestImValues(const Complex& i, const Complex& j) {
+  return i.im > j.im;
 }
 
 MatrixInfo::MatrixInfo() : isRe(false), isIm(false) {
