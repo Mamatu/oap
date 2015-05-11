@@ -65,6 +65,16 @@ TEST_F(OglaMatrixParserTests, Test2) {
   }
 }
 
+TEST_F(OglaMatrixParserTests, Test2WithSeprator) {
+  std::string text = "[0 <repeat 10 times>,1,2|3,4,5|6,7 | 8    | 9,10]";
+
+  this->setText(text);
+  this->parseArray(1);
+  for (int fa = 0; fa < 10; ++fa) {
+    EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
+  }
+}
+
 TEST_F(OglaMatrixParserTests, Test3) {
   std::string text =
       "(columns=5, rows=6) [0 <repeat 10 times>,1,2,3,4,5,6,7,8,9,10]";
@@ -113,6 +123,41 @@ TEST_F(OglaMatrixParserTests, Test5) {
       <repeats 3 times>, -0.25, 0 <repeats 7 times>, -0.25, 0 <repeats 15 \
       times>, -0.25, 0 <repeats 95 times>, -0.25, 0 <repeats 127 times>, \
       -0.25, 0 <repeats 255 times>, -0.25, 0 <repeats 511 times>, -0.25, 0 \
+      <repeats 1023 times>, -0.25, 0 <repeats 2047 times>, -0.25, 0 <repeats \
+      4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats \
+      16384 times>] (length=16384)";
+
+  this->setText(text);
+  this->parseArray(2);
+  for (int fa = 0; fa < 16384; ++fa) {
+    EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
+  }
+
+  uintt columns = 0;
+  uintt rows = 0;
+  EXPECT_TRUE(this->getColumns(columns));
+  EXPECT_TRUE(this->getRows(rows));
+  EXPECT_EQ(1, columns);
+  EXPECT_EQ(16384, rows);
+
+  this->parseArray(1);
+  EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(2));
+  EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(4));
+  EXPECT_DOUBLE_EQ(double(0), this->getValue(5));
+
+  floatt* array = matrixUtils::CreateArray(text, 1);
+  EXPECT_DOUBLE_EQ(double(-0.25), array[2]);
+  EXPECT_DOUBLE_EQ(double(-0.25), array[4]);
+  EXPECT_DOUBLE_EQ(double(0), array[5]);
+  delete[] array;
+}
+
+TEST_F(OglaMatrixParserTests, Test5withSeparator) {
+  std::string text =
+      "(columns=1, rows=16384) [-3.25, -0.25 <repeats 2 times>, 0, -0.25, 0 \
+      <repeats 3 times>, -0.25, 0 <repeats 7 times>, -0.25, 0 <repeats 15 \
+      times>, -0.25| 0 <repeats 95 times>, -0.25, 0 <repeats 127 times>, \
+      -0.25, 0 <repeats 255 times>, -0.25 | 0 <repeats 511 times>| -0.25, 0 \
       <repeats 1023 times>, -0.25, 0 <repeats 2047 times>, -0.25, 0 <repeats \
       4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats \
       16384 times>] (length=16384)";

@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <limits>
 #include "Matrix.h"
 
 namespace matrixUtils {
@@ -30,7 +31,8 @@ void PrepareOccurencesList(OccurencesList<T>& occurencesList, T* array,
 }
 
 template <typename T>
-void PrintArray(std::string& output, T* array, size_t length) {
+void PrintArray(std::string& output, T* array, size_t length,
+                size_t sectionLength = std::numeric_limits<size_t>::max()) {
   OccurencesList<T> valuesVec;
   PrepareOccurencesList(valuesVec, array, length);
   output = "[";
@@ -41,7 +43,11 @@ void PrintArray(std::string& output, T* array, size_t length) {
       sstream << " <repeats " << valuesVec[fa].first << " times>";
     }
     if (fa < valuesVec.size() - 1) {
-      sstream << ", ";
+      if (fa % sectionLength != 0 || (fa == 0 && sectionLength > 1)) {
+        sstream << ", ";
+      } else if (fa > 0 || sectionLength == 1) {
+        sstream << " | ";
+      }
     }
     output += sstream.str();
     sstream.str("");
@@ -60,11 +66,11 @@ inline void PrintMatrix(std::string& output, const math::Matrix* matrix) {
   size_t length = matrix->columns * matrix->rows;
   std::string output1;
   if (matrix->reValues != NULL) {
-    PrintArray(output1, matrix->reValues, length);
+    PrintArray(output1, matrix->reValues, length, matrix->columns);
     output += output1 + " ";
   }
   if (matrix->imValues != NULL) {
-    PrintArray(output1, matrix->imValues, length);
+    PrintArray(output1, matrix->imValues, length, matrix->columns);
     output += output1;
   }
 }

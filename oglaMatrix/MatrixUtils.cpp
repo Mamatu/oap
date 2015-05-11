@@ -80,7 +80,7 @@ void Parser::getArray(std::vector<floatt>& array,
   size_t pos = 0;
   size_t pos1 = std::string::npos;
   do {
-    pos1 = arrayStr.find(",", pos);
+    pos1 = arrayStr.find_first_of(",|", pos);
     std::string elementStr = arrayStr.substr(pos, pos1 - pos);
     std::string::iterator it = std::remove_if(
         elementStr.begin(), elementStr.end(), (int (*)(int))std::isspace);
