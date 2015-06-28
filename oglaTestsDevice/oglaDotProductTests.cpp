@@ -54,7 +54,7 @@ public:
 
     virtual void SetUp() {
         status = CUDA_SUCCESS;
-        cuda::Context::Instance().init();
+        cuda::Context::Instance().create();
         output = NULL;
         eq_output = NULL;
         cuMatrix = new CuMatrix();

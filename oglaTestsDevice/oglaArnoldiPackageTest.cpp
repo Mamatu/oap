@@ -42,56 +42,30 @@
 #include "KernelExecutor.h"
 #include "HostMatrixModules.h"
 #include "DeviceMatrixModules.h"
-
-class Float {
- public:
-  Float(floatt value, floatt bound = 0) {
-    m_value = value;
-    m_bound = bound;
-  }
-
-  floatt m_value;
-  floatt m_bound;
-
-  bool operator==(const Float& value) {
-    return (value.m_value - m_bound <= m_value &&
-            m_value <= value.m_value + m_bound) ||
-           (value.m_value - value.m_bound <= m_value &&
-            m_value <= value.m_value + value.m_bound);
-  }
-};
-
-bool operator==(const Float& value1, const Float& value) {
-  return (value.m_value - value1.m_bound <= value1.m_value &&
-          value1.m_value <= value.m_value + value1.m_bound) ||
-         (value.m_value - value.m_bound <= value1.m_value &&
-          value1.m_value <= value.m_value + value.m_bound);
-}
+#include "ArnoldiProcedures.h"
 
 class OglaArnoldiPackageTests : public testing::Test {
  public:
   void EqualsExpectations(floatt* houtput, floatt* doutput, size_t count,
                           floatt bound = 0) {
     for (size_t fa = 0; fa < count; ++fa) {
-      Float f1(houtput[fa], bound);
-      Float f2(doutput[fa], bound);
-      debug("f1 = %f", f1.m_value);
-      debug("f2 = %f", f2.m_value);
-      EXPECT_TRUE(f1 == f2);
+      EXPECT_DOUBLE_EQ(houtput[fa], doutput[fa]);
     }
   }
 
   api::ArnoldiPackage* arnoldiCpu;
-  api::ArnoldiPackage* arnoldiCuda;
+  CuHArnoldiDefault* arnoldiCuda;
 
   virtual void SetUp() {
+    cuda::Context::Instance().create();
     arnoldiCpu = new api::ArnoldiPackage(api::ArnoldiPackage::ARNOLDI_CPU);
-    arnoldiCuda = new api::ArnoldiPackage(api::ArnoldiPackage::ARNOLDI_GPU);
+    arnoldiCuda = new CuHArnoldiDefault;
   }
 
   virtual void TearDown() {
-    delete arnoldiCpu;
     delete arnoldiCuda;
+    delete arnoldiCpu;
+    cuda::Context::Instance().destroy();
   }
 };
 
@@ -110,14 +84,21 @@ TEST_F(OglaArnoldiPackageTests, matrices16x16ev2) {
   arnoldiCpu->setEigenvaluesBuffer(revs, imvs, count);
   arnoldiCpu->start();
 
-  cuda::Context::Instance().init();
+  math::Matrix outputs;
 
+  uintt wanted = 1;
+
+  outputs.reValues = revs1;
+  outputs.imValues = imvs1;
+  outputs.columns = wanted;
+
+  arnoldiCuda->setRho(1. / 3.14);
+  arnoldiCuda->setSortType(ArnUtils::SortLargestReValues);
+  arnoldiCuda->setOutputs(&outputs);
   arnoldiCuda->setMatrix(m);
-  arnoldiCuda->setHDimension(h);
-  arnoldiCuda->setEigenvaluesBuffer(revs1, imvs1, count);
-  arnoldiCuda->start();
+  ArnUtils::MatrixInfo matrixInfo(true, true, 16, 16);
+  arnoldiCuda->execute(h, wanted, matrixInfo);
 
-  cuda::Context::Instance().destroy();
   EqualsExpectations(revs, revs1, count, 1);
   EqualsExpectations(imvs, imvs1, count, 1);
 
@@ -139,14 +120,20 @@ TEST_F(OglaArnoldiPackageTests, matrices64x64ev2) {
   arnoldiCpu->setEigenvaluesBuffer(revs, imvs, count);
   arnoldiCpu->start();
 
-  cuda::Context::Instance().init();
+  math::Matrix outputs;
 
+  uintt wanted = 1;
+
+  outputs.reValues = revs1;
+  outputs.imValues = imvs1;
+  outputs.columns = wanted;
+
+  arnoldiCuda->setRho(1. / 3.14);
+  arnoldiCuda->setSortType(ArnUtils::SortLargestReValues);
+  arnoldiCuda->setOutputs(&outputs);
   arnoldiCuda->setMatrix(m);
-  arnoldiCuda->setHDimension(h);
-  arnoldiCuda->setEigenvaluesBuffer(revs1, imvs1, count);
-  arnoldiCuda->start();
-
-  cuda::Context::Instance().destroy();
+  ArnUtils::MatrixInfo matrixInfo(true, true, 64, 64);
+  arnoldiCuda->execute(h, wanted, matrixInfo);
 
   EqualsExpectations(revs, revs1, count, 1);
   EqualsExpectations(imvs, imvs1, count, 1);

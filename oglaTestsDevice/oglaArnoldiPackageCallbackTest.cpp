@@ -45,25 +45,13 @@
 #include "HostMatrixModules.h"
 #include "DeviceMatrixModules.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixModules.h"
+#include "ArnoldiMethodHostImpl.h"
+#include "matrix1.h"
+#include "matrix2.h"
+#include "matrix3.h"
+#include "matrix4.h"
+#include "matrix5.h"
 
-class Float {
- public:
-  Float(floatt value, floatt bound = 0) {
-    m_value = value;
-    m_bound = bound;
-  }
-
-  floatt m_value;
-  floatt m_bound;
-
-  bool operator==(const Float& value) {
-    return (value.m_value - m_bound <= m_value &&
-            m_value <= value.m_value + m_bound) ||
-           (value.m_value - value.m_bound <= m_value &&
-            m_value <= value.m_value + value.m_bound);
-  }
-};
 
 class OglaArnoldiPackageCallbackTests : public testing::Test {
  public:
@@ -71,6 +59,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
   CuMatrix* cuMatrix;
 
   virtual void SetUp() {
+    cuda::Context::Instance().create();
     arnoldiCuda = new CuHArnoldiCallback();
     cuMatrix = new CuMatrix();
   }
@@ -78,6 +67,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
   virtual void TearDown() {
     delete arnoldiCuda;
     delete cuMatrix;
+    cuda::Context::Instance().destroy();
   }
 
   class Data {
@@ -195,6 +185,102 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
     loadBlock(f, block, index);
     fclose(f);
   }
+
+  void defaultTest(floatt value, const std::string& path, uintt hdim = 32,
+                   floatt tolerance = 0.01) {
+    OglaArnoldiPackageCallbackTests::Data data(path);
+    class MultiplyFunc {
+     public:
+      static void multiply(math::Matrix* w, math::Matrix* v, void* userData) {
+        Data* data = static_cast<Data*>(userData);
+        data->load();
+        cuda::CopyDeviceMatrixToHostMatrix(data->hostV, v);
+        ASSERT_THAT(data->hostV, MatrixIsEqual(data->refV));
+        CudaUtils::PrintMatrix("v", v);
+        printf("\n");
+        host::PrintMatrix("data->hostV", data->hostV);
+        printf("\n");
+        host::PrintMatrix("data->refV", data->refV);
+        printf("\n");
+        host::PrintMatrix("data->refW", data->refW);
+        printf("\n");
+        cuda::CopyHostMatrixToDeviceMatrix(w, data->refW);
+      }
+    };
+    floatt revalues[2] = {0, 0};
+    floatt imvalues[2] = {0, 0};
+
+    math::Matrix outputs;
+
+    uintt wanted = 1;
+
+    outputs.reValues = revalues;
+    outputs.imValues = imvalues;
+    outputs.columns = wanted;
+
+    arnoldiCuda->setCallback(MultiplyFunc::multiply, &data);
+    arnoldiCuda->setRho(1. / 3.14);
+    arnoldiCuda->setSortType(ArnUtils::SortSmallestReValues);
+    arnoldiCuda->setOutputs(&outputs);
+    ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
+                                    data.getElementsCount());
+    arnoldiCuda->execute(hdim, wanted, matrixInfo);
+    EXPECT_DOUBLE_EQ(value, revalues[0]);
+    EXPECT_DOUBLE_EQ(0, revalues[1]);
+    EXPECT_DOUBLE_EQ(0, imvalues[0]);
+    EXPECT_DOUBLE_EQ(0, imvalues[1]);
+  }
+
+  void triangularityTest(const std::string& matrixStr) {
+    math::Matrix* matrix = host::NewMatrix(matrixStr);
+    triangularityTest(matrix);
+    host::DeleteMatrix(matrix);
+  }
+
+  void triangularityTest(const math::Matrix* matrix) {
+    floatt limit = 0.001;
+    for (int fa = 0; fa < matrix->columns - 1; ++fa) {
+      floatt value = matrix->reValues[(fa + 1) * matrix->columns + fa];
+      bool islower = value < limit;
+      bool isgreater = -limit < value;
+      EXPECT_TRUE(islower) << value << " is greater than " << limit
+                           << " index= " << fa << ", " << fa + 1;
+      EXPECT_TRUE(isgreater) << value << " is lower than " << -limit
+                             << " index= " << fa << ", " << fa + 1;
+    }
+  }
+
+  void triangularityHostTest(const std::string& inputStr,
+                             const std::string& outputStr) {
+    math::MathOperationsCpu operations;
+    math::Matrix* H = host::NewMatrix(inputStr);
+    host::PrintMatrix("H", H);
+    math::Matrix* H1 = host::NewMatrix(H, H->columns, H->rows);
+    math::Matrix* Q = host::NewMatrix(H, H->columns, H->rows);
+    math::Matrix* QJ = host::NewMatrix(H, H->columns, H->rows);
+    math::Matrix* Q1 = host::NewMatrix(H, H->columns, H->rows);
+    math::Matrix* R1 = host::NewMatrix(H, H->columns, H->rows);
+    math::Matrix* I = host::NewMatrix(H, H->columns, H->rows);
+
+    math::CalculateTriangular(&operations, HostMatrixModules::GetInstance(), H,
+                              H1, Q, QJ, Q1, R1, I);
+
+    math::Matrix* output = host::NewMatrix(outputStr);
+    host::PrintMatrix("output", output);
+    host::PrintMatrix("H", H1);
+    EXPECT_THAT(H1, MatrixIsEqual(output));
+
+    triangularityTest(H1);
+
+    host::DeleteMatrix(H);
+    host::DeleteMatrix(H1);
+    host::DeleteMatrix(Q);
+    host::DeleteMatrix(QJ);
+    host::DeleteMatrix(Q1);
+    host::DeleteMatrix(R1);
+    host::DeleteMatrix(I);
+    host::DeleteMatrix(output);
+  }
 };
 
 TEST_F(OglaArnoldiPackageCallbackTests, MagnitudeTest) {
@@ -226,85 +312,49 @@ TEST_F(OglaArnoldiPackageCallbackTests, MagnitudeTest) {
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData1) {
-  OglaArnoldiPackageCallbackTests::Data data("../../../data/data1");
-  class MultiplyFunc {
-   public:
-    static void multiply(math::Matrix* w, math::Matrix* v, void* userData) {
-      Data* data = static_cast<Data*>(userData);
-      data->load();
-      cuda::CopyDeviceMatrixToHostMatrix(data->hostV, v);
-      EXPECT_THAT(data->hostV, MatrixIsEqual(data->refV));
-      CudaUtils::PrintMatrix("v", v);
-      host::PrintMatrix("data->hostV", data->hostV);
-      host::PrintMatrix("data->hostW", data->hostW);
-      host::PrintMatrix("data->refW", data->refW);
-      cuda::CopyHostMatrixToDeviceMatrix(w, data->refW);
-    }
-  };
-  floatt revalues[2] = {0, 0};
-  floatt imvalues[2] = {0, 0};
-
-  math::Matrix outputs;
-
-  uintt wanted = 1;
-
-  outputs.reValues = revalues;
-  outputs.imValues = imvalues;
-  outputs.columns = wanted;
-
-  arnoldiCuda->setCallback(MultiplyFunc::multiply, &data);
-  arnoldiCuda->setRho(1. / 3.14);
-  arnoldiCuda->setSortType(ArnUtils::SortSmallestValues);
-  arnoldiCuda->setOutputs(&outputs);
-  ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
-                                  data.getElementsCount());
-  arnoldiCuda->execute(32, wanted, matrixInfo);
-  EXPECT_DOUBLE_EQ(-3.25, revalues[0]);
-  EXPECT_DOUBLE_EQ(0, revalues[1]);
-  EXPECT_DOUBLE_EQ(0, imvalues[0]);
-  EXPECT_DOUBLE_EQ(0, imvalues[1]);
+  defaultTest(-3.25, "../../../data/data1");
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData2) {
-  OglaArnoldiPackageCallbackTests::Data data("../../../data/data2");
-  class MultiplyFunc {
-   public:
-    static void multiply(math::Matrix* w, math::Matrix* v, void* userData) {
-      Data* data = static_cast<Data*>(userData);
-      data->load();
-      cuda::CopyDeviceMatrixToHostMatrix(data->hostV, v);
-      ASSERT_THAT(data->hostV, MatrixIsEqual(data->refV));
-      CudaUtils::PrintMatrix("v", v);
-      printf("\n");
-      host::PrintMatrix("data->hostV", data->hostV);
-      printf("\n");
-      host::PrintMatrix("data->refV", data->refV);
-      printf("\n");
-      host::PrintMatrix("data->refW", data->refW);
-      printf("\n");
-      cuda::CopyHostMatrixToDeviceMatrix(w, data->refW);
-    }
-  };
-  floatt revalues[2] = {0, 0};
-  floatt imvalues[2] = {0, 0};
+  defaultTest(-4.257104, "../../../data/data2");
+}
 
-  math::Matrix outputs;
+TEST_F(OglaArnoldiPackageCallbackTests, TestData3) {
+  defaultTest(-5.519614, "../../../data/data3");
+}
 
-  uintt wanted = 1;
+TEST_F(OglaArnoldiPackageCallbackTests, TestData4) {
+  defaultTest(-6.976581, "../../../data/data4");
+}
 
-  outputs.reValues = revalues;
-  outputs.imValues = imvalues;
-  outputs.columns = wanted;
+TEST_F(OglaArnoldiPackageCallbackTests, TestData5) {
+  defaultTest(-8.503910, "../../../data/data5");
+}
 
-  arnoldiCuda->setCallback(MultiplyFunc::multiply, &data);
-  arnoldiCuda->setRho(1. / 3.14);
-  arnoldiCuda->setSortType(ArnUtils::SortSmallestValues);
-  arnoldiCuda->setOutputs(&outputs);
-  ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
-                                  data.getElementsCount());
-  arnoldiCuda->execute(32, wanted, matrixInfo);
-  EXPECT_DOUBLE_EQ(-4.257104, revalues[0]);
-  EXPECT_DOUBLE_EQ(0, revalues[1]);
-  EXPECT_DOUBLE_EQ(0, imvalues[0]);
-  EXPECT_DOUBLE_EQ(0, imvalues[1]);
+TEST_F(OglaArnoldiPackageCallbackTests, TestData6) {
+  defaultTest(-10.064733, "../../../data/data6");
+}
+
+TEST_F(OglaArnoldiPackageCallbackTests, TestData7) {
+  defaultTest(-13.235305, "../../../data/data7");
+}
+
+TEST_F(OglaArnoldiPackageCallbackTests, UpperTriangularMatrixTest1Count10000) {
+  triangularityTest(matrix1Str);
+}
+
+TEST_F(OglaArnoldiPackageCallbackTests, UpperTriangularMatrixTest2Count10000) {
+  triangularityTest(matrix2Str);
+}
+
+TEST_F(OglaArnoldiPackageCallbackTests, UpperTriangularMatrixTest3Count50000) {
+  triangularityTest(matrix3Str);
+}
+
+TEST_F(OglaArnoldiPackageCallbackTests, UpperTriangularMatrixTest3Count100000) {
+  triangularityTest(matrix4Str);
+}
+
+TEST_F(OglaArnoldiPackageCallbackTests, UpperTriangularTestHost20000) {
+  triangularityHostTest(matrix5AStr, matrix5BStr);
 }

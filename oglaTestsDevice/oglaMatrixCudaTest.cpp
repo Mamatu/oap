@@ -42,6 +42,7 @@
 #include "HostMatrixModules.h"
 #include "DeviceMatrixModules.h"
 #include "KernelExecutor.h"
+#include "matrix6.h"
 
 class OglaMatrixCudaTests : public testing::Test {
  public:
@@ -52,7 +53,7 @@ class OglaMatrixCudaTests : public testing::Test {
 
   virtual void SetUp() {
     status = CUDA_SUCCESS;
-    cuda::Context::Instance().init();
+    cuda::Context::Instance().create();
     output = NULL;
     eq_output = NULL;
     cuMatrix = new CuMatrix();
@@ -581,7 +582,6 @@ TEST_F(OglaMatrixCudaTests, MagnitudeRealMatrixBigDataTest2) {
 
   math::Matrix* matrix = host::NewMatrix(text);
   math::Matrix* dmatrix = cuda::NewDeviceMatrix(matrix);
-
   cuda::CopyHostMatrixToDeviceMatrix(dmatrix, matrix);
 
   floatt doutput = 10;
@@ -598,4 +598,24 @@ TEST_F(OglaMatrixCudaTests, MagnitudeRealMatrixBigDataTest2) {
 
   cuda::DeleteDeviceMatrix(dmatrix);
   host::DeleteMatrix(matrix);
+}
+
+
+TEST_F(OglaMatrixCudaTests, DotProductBigDataTest) {
+
+  math::Matrix* Q = host::NewMatrix(Qstr);
+  math::Matrix* QJ = host::NewMatrix(QJstr);
+
+  math::Matrix* dQJ = cuda::NewDeviceMatrix(QJ);
+  math::Matrix* dQ = cuda::NewDeviceMatrix(Q);
+  math::Matrix* doutput = cuda::NewDeviceMatrix(Q);
+
+  cuMatrix->dotProduct(doutput, dQ, dQJ);
+  cuMatrix->dotProduct(doutput, dQJ, dQ);
+
+  cuda::DeleteDeviceMatrix(dQJ);
+  cuda::DeleteDeviceMatrix(dQ);
+  cuda::DeleteDeviceMatrix(doutput);
+  host::DeleteMatrix(Q);
+  host::DeleteMatrix(QJ);
 }

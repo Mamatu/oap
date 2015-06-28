@@ -48,7 +48,7 @@ public:
     CUresult status;
 
     virtual void SetUp() {
-        cuda::Context::Instance().init();
+        cuda::Context::Instance().create();
         status = CUDA_SUCCESS;
     }
 
