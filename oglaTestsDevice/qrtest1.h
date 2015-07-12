@@ -1,6 +1,7 @@
 #ifndef QRTEST1
 #define QRTEST1
 
+// Generated from ArnoldiPackage procedure. Step 3.
 namespace qrtest1 {
 
 const char* matrix =

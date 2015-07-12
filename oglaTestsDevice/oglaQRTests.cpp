@@ -1,5 +1,3 @@
-
-
 // Copyright 2008, Google Inc.
 // All rights reserved.
 //
@@ -47,6 +45,7 @@
 #include "qrtest2.h"
 #include "qrtest3.h"
 #include "qrtest4.h"
+#include "qrtest5.h"
 
 class OglaQRTests : public testing::Test {
  public:
@@ -70,11 +69,15 @@ class OglaQRTests : public testing::Test {
     math::Matrix* hmatrix = host::NewMatrix(matrix);
     math::Matrix* hmatrix1 = host::NewMatrix(matrix);
 
+    math::Matrix* hrmatrix = host::NewMatrix(matrix);
+    math::Matrix* hrmatrix1 = host::NewMatrix(matrix);
+
     math::Matrix* temp1 = cuda::NewDeviceMatrix(matrix);
     math::Matrix* temp2 = cuda::NewDeviceMatrix(matrix);
     math::Matrix* temp3 = cuda::NewDeviceMatrix(matrix);
     math::Matrix* temp4 = cuda::NewDeviceMatrix(matrix);
     math::Matrix* dmatrix = cuda::NewDeviceMatrixCopy(matrix);
+    math::Matrix* drmatrix = cuda::NewDeviceMatrixCopy(matrix);
 
     math::Matrix* eq_q = host::NewMatrix(qr1q);
     math::Matrix* q = host::NewMatrix(eq_q);
@@ -96,8 +99,10 @@ class OglaQRTests : public testing::Test {
     cuda::CopyHostMatrixToDeviceMatrix(dq, eq_q);
 
     m_cuMatrix->dotProduct(dmatrix, dq, dr);
+    m_cuMatrix->dotProduct(drmatrix, dr, dq);
 
     cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
+    cuda::CopyDeviceMatrixToHostMatrix(hrmatrix, drmatrix);
 
     EXPECT_THAT(matrix, MatrixIsEqual(hmatrix));
 
@@ -105,20 +110,26 @@ class OglaQRTests : public testing::Test {
     cuda::CopyHostMatrixToDeviceMatrix(dq, q);
 
     m_cuMatrix->dotProduct(dmatrix, dq, dr);
+    m_cuMatrix->dotProduct(drmatrix, dr, dq);
 
     cuda::CopyDeviceMatrixToHostMatrix(hmatrix1, dmatrix);
+    cuda::CopyDeviceMatrixToHostMatrix(hrmatrix1, drmatrix);
 
     EXPECT_THAT(matrix, MatrixIsEqual(hmatrix1));
+    EXPECT_THAT(hrmatrix, MatrixIsEqual(hrmatrix1));
 
     host::DeleteMatrix(matrix);
     host::DeleteMatrix(hmatrix);
+    host::DeleteMatrix(hrmatrix);
     host::DeleteMatrix(hmatrix1);
+    host::DeleteMatrix(hrmatrix1);
 
     cuda::DeleteDeviceMatrix(temp1);
     cuda::DeleteDeviceMatrix(temp2);
     cuda::DeleteDeviceMatrix(temp3);
     cuda::DeleteDeviceMatrix(temp4);
     cuda::DeleteDeviceMatrix(dmatrix);
+    cuda::DeleteDeviceMatrix(drmatrix);
 
     host::DeleteMatrix(q);
     host::DeleteMatrix(eq_q);
@@ -144,4 +155,8 @@ TEST_F(OglaQRTests, Test3) {
 
 TEST_F(OglaQRTests, Test4) {
   executeTest(qrtest4::matrix, qrtest4::qref, qrtest4::rref);
+}
+
+TEST_F(OglaQRTests, Test5) {
+  executeTest(qrtest5::matrix, qrtest5::qref, qrtest5::rref);
 }
