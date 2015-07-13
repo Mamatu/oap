@@ -15,6 +15,7 @@
 
 #include "Matrix.h"
 #include "HostMatrixModules.h"
+#include "HostMatrixModules.h"
 #include "MatrixUtils.h"
 #include "MatrixEx.h"
 
@@ -96,7 +97,7 @@ inline bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
         floatt im1 = (m1.imValues[index]);
         floatt im2 = (m2.imValues[index]);
 
-        if (!AlmostEquals(im1, im2, 0.0001)) {
+        if (!AlmostEquals(im1, im2, 0.001)) {
           status = false;
           if (*output == NULL) {
             (*output) = create(m1);
@@ -108,6 +109,32 @@ inline bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
     }
   }
   return status;
+}
+
+inline bool IsIdentityMatrix(const math::Matrix& m1,
+                    math::Matrix** output) {
+    math::Matrix* matrix = host::NewMatrix(&m1);
+    host::SetIdentity(matrix);
+    bool isequal = IsEqual(m1, *matrix, output);
+    host::DeleteMatrix(matrix);
+    return isequal;
+}
+
+inline bool IsDiagonalMatrix(const math::Matrix& m1, floatt value,
+                    math::Matrix** output) {
+    math::Matrix* matrix = host::NewMatrix(&m1);
+    host::SetDiagonalMatrix(matrix, value);
+    bool isequal = IsEqual(m1, *matrix, output);
+    host::DeleteMatrix(matrix);
+    return isequal;
+}
+
+inline bool IsIdentityMatrix(const math::Matrix& m1) {
+    return IsIdentityMatrix(m1, NULL);
+}
+
+inline bool IsDiagonalMatrix(const math::Matrix& m1, floatt value) {
+    return IsDiagonalMatrix(m1, value, NULL);
 }
 
 inline bool isEqual(const MatrixEx& matrixEx, const uintt* buffer) {

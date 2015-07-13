@@ -46,6 +46,10 @@
 #include "qrtest3.h"
 #include "qrtest4.h"
 #include "qrtest5.h"
+#include "qrtest6.h"
+#include "qrtest7.h"
+#include "qrtest8.h"
+#include "qrtest9.h"
 
 class OglaQRTests : public testing::Test {
  public:
@@ -61,6 +65,24 @@ class OglaQRTests : public testing::Test {
   virtual void TearDown() {
     cuda::Context::Instance().destroy();
     delete m_cuMatrix;
+  }
+
+  void executeOrthogonalityTest(math::Matrix* q, math::Matrix* dq) {
+    math::Matrix* tdq = cuda::NewDeviceMatrixCopy(q);
+    math::Matrix* doutput = cuda::NewDeviceMatrixCopy(q);
+    math::Matrix* doutput1 = cuda::NewDeviceMatrixCopy(q);
+    math::Matrix* houtput = host::NewMatrix(q);
+
+    m_cuMatrix->transposeMatrix(tdq, dq);
+    m_cuMatrix->dotProduct(doutput, tdq, dq);
+    cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
+
+    EXPECT_THAT(houtput, MatrixIsIdentity());
+
+    cuda::DeleteDeviceMatrix(tdq);
+    cuda::DeleteDeviceMatrix(doutput);
+    cuda::DeleteDeviceMatrix(doutput1);
+    host::DeleteMatrix(houtput);
   }
 
   void executeTest(const std::string& qr1matrix, const std::string& qr1q,
@@ -118,6 +140,8 @@ class OglaQRTests : public testing::Test {
     EXPECT_THAT(matrix, MatrixIsEqual(hmatrix1));
     EXPECT_THAT(hrmatrix, MatrixIsEqual(hrmatrix1));
 
+    executeOrthogonalityTest(q, dq);
+
     host::DeleteMatrix(matrix);
     host::DeleteMatrix(hmatrix);
     host::DeleteMatrix(hrmatrix);
@@ -159,4 +183,20 @@ TEST_F(OglaQRTests, Test4) {
 
 TEST_F(OglaQRTests, Test5) {
   executeTest(qrtest5::matrix, qrtest5::qref, qrtest5::rref);
+}
+
+TEST_F(OglaQRTests, Test6) {
+  executeTest(qrtest6::matrix, qrtest6::qref, qrtest6::rref);
+}
+
+TEST_F(OglaQRTests, Test7) {
+  executeTest(qrtest7::matrix, qrtest7::qref, qrtest7::rref);
+}
+
+TEST_F(OglaQRTests, Test8) {
+  executeTest(qrtest8::matrix, qrtest8::qref, qrtest8::rref);
+}
+
+TEST_F(OglaQRTests, Test9) {
+  executeTest(qrtest9::matrix, qrtest9::qref, qrtest9::rref);
 }

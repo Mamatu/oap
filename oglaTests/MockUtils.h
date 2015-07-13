@@ -21,6 +21,14 @@ inline Matcher<math::Matrix*> MatrixIsEqual(math::Matrix* matrix) {
   return MakeMatcher(new MatrixIsEqualMatcher(matrix));
 }
 
+inline Matcher<math::Matrix*> MatrixIsDiagonal(floatt value) {
+  return MakeMatcher(new MatrixIsDiagonalMatcher(value));
+}
+
+inline Matcher<math::Matrix*> MatrixIsIdentity() {
+  return MakeMatcher(new MatrixIsIdentityMatcher());
+}
+
 inline Matcher<math::Matrix*> MatrixValuesAreEqual(floatt value) {
   return MakeMatcher(new MatrixValuesAreEqualMatcher(value));
 }

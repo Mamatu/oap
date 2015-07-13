@@ -70,6 +70,47 @@ class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
   }
 };
 
+class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {
+  floatt m_value;
+
+ public:
+  MatrixIsDiagonalMatcher(floatt value) : m_value(value) {}
+
+  virtual bool MatchAndExplain(math::Matrix* matrix,
+                               MatchResultListener* listener) const {
+    math::Matrix* diffmatrix = NULL;
+    std::string matrixStr;
+    bool isequal = utils::IsDiagonalMatrix((*matrix), m_value, &diffmatrix);
+    matrixUtils::PrintMatrix(matrixStr, diffmatrix);
+    if (!isequal) {
+      (*listener) << "Diff is = " << matrixStr;
+    }
+    host::DeleteMatrix(diffmatrix);
+    return isequal;
+  }
+
+  virtual void DescribeTo(::std::ostream* os) const {
+    *os << "Matrix is diagonal.";
+  }
+
+  virtual void DescribeNegationTo(::std::ostream* os) const {
+    *os << "Matrix is not diagonal.";
+  }
+};
+
+class MatrixIsIdentityMatcher : public MatrixIsDiagonalMatcher {
+ public:
+  MatrixIsIdentityMatcher() : MatrixIsDiagonalMatcher(1.f) {}
+
+  virtual void DescribeTo(::std::ostream* os) const {
+    *os << "Matrix is identity.";
+  }
+
+  virtual void DescribeNegationTo(::std::ostream* os) const {
+    *os << "Matrix is not identity.";
+  }
+};
+
 template <typename T>
 class BufferSumIsEqualMatcher : public MatcherInterface<T> {
  protected:
