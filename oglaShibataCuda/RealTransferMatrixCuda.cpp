@@ -291,7 +291,7 @@ namespace shibataCuda {
         math::Status status = math::STATUS_OK;
         // Allocation and intitialization of tree pointers
         ::cuda::Kernel kernel;
-        kernel.loadImage("liboglaShibataCuda.cubin");
+        kernel.load("liboglaShibataCuda.cubin");
         alloc(kernel);
         if (transferMatrix) {
             void* params[] = {&m_output, &treePointers, &tmColumnsPtr,
@@ -300,7 +300,7 @@ namespace shibataCuda {
                 &dupIndecies, &ddownIndecies,
                 &ddownIndeciesCount, &dquantumsCount, &dM2, &dwidth};
             kernel.setParams(params);
-            kernel.loadImage("/home/mmatula/Ogla/oglaShibataCuda/\
+            kernel.load("/home/mmatula/Ogla/oglaShibataCuda/\
 dist/Debug/GNU-Linux-x86/liboglaShibataCuda.cubin");
             kernel.execute("ExecuteTM");
         } else {
@@ -321,7 +321,7 @@ dist/Debug/GNU-Linux-x86/liboglaShibataCuda.cubin");
                 &dwidth
             };
             kernel.setParams(params);
-            kernel.loadImage("/home/mmatula/Ogla/oglaShibataCuda/\
+            kernel.load("/home/mmatula/Ogla/oglaShibataCuda/\
 dist/Debug/GNU-Linux-x86/liboglaShibataCuda.cubin");
             kernel.execute("ExecuteTM1");
         }
