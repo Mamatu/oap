@@ -69,7 +69,7 @@ class OglaMagnitudeTests : public OglaCudaStub {
   virtual void TearDown() { OglaCudaStub::TearDown(); }
 };
 
-class MagnitudeStub : public OglaCudaStub::KernelStub {
+class MagnitudeStub : public KernelStub {
  public:
   AlgoVersion m_algoVersion;
 
@@ -122,9 +122,9 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
     }
   }
 
-  void onChange(OglaCudaStub::KernelStub::ContextChnage contextChange,
+  void onChange(KernelStub::ContextChnage contextChange,
                 const Dim3& threadIdx) {
-    if (contextChange == OglaCudaStub::KernelStub::CUDA_BLOCK) {
+    if (contextChange == KernelStub::CUDA_BLOCK) {
       floatt actualSum = utils::getSum(m_buffer, m_bufferLength);
       m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;
       memset(m_buffer, 0, sizeof(floatt) * m_bufferLength);

@@ -117,7 +117,7 @@ public:
 
 };
 
-class CompareStubImpl : public OglaCudaStub::KernelStub {
+class CompareStubImpl : public KernelStub {
 public:
     math::Matrix* m_matrix;
     int* m_buffer;
@@ -159,8 +159,8 @@ public:
         }
     }
 
-    void onChange(OglaCudaStub::KernelStub::ContextChnage contextChange, const Dim3& threadIdx) {
-        if (contextChange == OglaCudaStub::KernelStub::CUDA_BLOCK) {
+    void onChange(KernelStub::ContextChnage contextChange, const Dim3& threadIdx) {
+        if (contextChange == KernelStub::CUDA_BLOCK) {
             int actualSum = utils::getSum(m_buffer, m_bufferLength);
             m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;
             int expectedSum = OglaCompareTests::getExpectedResult(m_matrix,
