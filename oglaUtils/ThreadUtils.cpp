@@ -117,9 +117,9 @@ Barrier::~Barrier() {
   }
 }
 
-Barrier::Barrier(int count) : m_init(false) { this->init(count); }
+Barrier::Barrier(unsigned int count) : m_init(false) { this->init(count); }
 
-void Barrier::init(int count) {
+void Barrier::init(unsigned int count) {
   if (m_init) {
     pthread_barrier_destroy(&m_barrier);
   }

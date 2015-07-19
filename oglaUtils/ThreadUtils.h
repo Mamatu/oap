@@ -81,8 +81,8 @@ class Barrier {
 
  public:
   Barrier();
-  Barrier(int count);
-  void init(int count);
+  Barrier(unsigned int count);
+  void init(unsigned int count);
   ~Barrier();
   void wait();
 };
