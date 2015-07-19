@@ -89,7 +89,7 @@ CuHArnoldi::CuHArnoldi()
       EQ1(NULL),
       EQ2(NULL),
       EQ3(NULL) {
-  m_image = cuda::Kernel::LoadImage(kernelsFiles);
+  m_kernel.load(kernelsFiles);
   m_calculateTriangularHPtr = NULL;
 }
 
@@ -97,7 +97,7 @@ CuHArnoldi::~CuHArnoldi() {
   dealloc1();
   dealloc2();
   dealloc3();
-  cuda::Kernel::FreeImage(m_image);
+  m_kernel.unload();
 }
 
 void CuHArnoldi::calculateTriangularH() {
@@ -105,12 +105,17 @@ void CuHArnoldi::calculateTriangularH() {
   m_cuMatrix.setIdentity(Q1);
   status = m_cuMatrix.isUpperTriangular(H1);
   uintt fb = 0;
-  for (; status == false && fb < 10000; ++fb) {
+  CudaUtils::PrintMatrix("H1=", H1, false, false);
+  for (; fb < 20000; ++fb) {
     m_cuMatrix.QR(Q, R1, H1, Q2, R2, G, GT);
+    CudaUtils::PrintMatrix("H=", H1, false, false);
+    CudaUtils::PrintMatrix("Q=", Q);
+    CudaUtils::PrintMatrix("R=", R1);
     m_cuMatrix.dotProduct(H1, R1, Q);
     m_cuMatrix.dotProduct(QJ, Q, Q1);
     switchPointer(&QJ, &Q1);
     status = m_cuMatrix.isUpperTriangular(H1);
+    //if (fb == 200) {abort();}
   }
   if (fb & 1 == 0) {
     cuda::CopyDeviceMatrixToDeviceMatrix(Q, Q1);
@@ -120,11 +125,11 @@ void CuHArnoldi::calculateTriangularH() {
 }
 
 void CuHArnoldi::calculateTriangularHInDevice() {
-  CudaUtils::PrintMatrix("H1", H1);
+  CudaUtils::PrintMatrix("BH1", H1, false, false);
   void* params[] = {&H1, &Q, &R1, &Q1, &QJ, &Q2, &R2, &G, &GT};
   m_kernel.setDimensions(m_Hcolumns, m_Hrows);
-  cuda::Kernel::Execute("CUDAKernel_CalculateTriangularH", params, m_kernel,
-                        m_image);
+  cuda::Kernel::Execute("CUDAKernel_CalculateTriangularH", params, m_kernel);
+  CudaUtils::PrintMatrix("AH1", H1);
 }
 
 void CuHArnoldi::setSortType(ArnUtils::SortType sortType) {
@@ -204,8 +209,6 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
     }
     floatt rB = 1. / B;
     m_cuMatrix.multiplyConstantMatrix(v, f, rB);
-    CudaUtils::PrintMatrix("v", v);
-    CudaUtils::PrintMatrix("f", f);
     fprintf(stderr, "rB = %f \n", rB);
     fprintf(stderr, "B = %f \n", B);
     m_cuMatrix.setVector(V, fa + 1, v, m_vrows);
@@ -224,7 +227,7 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
       m_cuMatrix.dotProductEx(s, transposeV, f, dMatrixEx[3]);
       m_cuMatrix.dotProductEx(vs, V, s, dMatrixEx[4]);
       m_cuMatrix.substract(f, f, vs);
-      m_cuMatrix.addMatrix(h, h, s);
+      m_cuMatrix.add(h, h, s);
     }
     m_cuMatrix.setVector(H, fa + 1, h, fa + 2);
   }
@@ -310,7 +313,7 @@ void CuHArnoldi::execute(uintt k, uintt wantedCount,
       m_cuMatrix.getVector(v, m_vrows, V, k);
       m_cuMatrix.multiplyConstantMatrix(f1, v, reBm_k, imBm_k);
       m_cuMatrix.multiplyConstantMatrix(f, f, reqm_k, imqm_k);
-      m_cuMatrix.addMatrix(f, f1, f);
+      m_cuMatrix.add(f, f1, f);
       m_cuMatrix.setZeroMatrix(v);
 
       {

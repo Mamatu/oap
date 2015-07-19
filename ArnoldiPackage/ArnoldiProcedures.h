@@ -81,9 +81,10 @@ class CuHArnoldi {
 
   bool shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
                            const ArnUtils::MatrixInfo& m2) const;
-
  public:
+
   CuHArnoldi();
+
   virtual ~CuHArnoldi();
 
   void setRho(floatt rho = 1. / 3.14);
