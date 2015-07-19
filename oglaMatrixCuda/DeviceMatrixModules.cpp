@@ -262,6 +262,12 @@ math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix) {
   return NewDeviceMatrix(hostMatrix, hostMatrix->columns, hostMatrix->rows);
 }
 
+math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
+    math::Matrix* dmatrix = cuda::NewDeviceMatrix(hostMatrix);
+    cuda::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
+    return dmatrix;
+}
+
 math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns,
                               uintt rows) {
   bool allocRe = hostMatrix->reValues != NULL;

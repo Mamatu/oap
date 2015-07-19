@@ -160,6 +160,8 @@ math::Matrix* NewDeviceMatrix(uintt columns, uintt rows);
 
 math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix);
 
+math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix);
+
 math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix,
     uintt columns, uintt rows);
 

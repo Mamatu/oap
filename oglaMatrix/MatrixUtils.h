@@ -18,10 +18,10 @@ class OccurencesList : public std::vector<std::pair<uintt, T> > {};
 
 template <typename T>
 void PrepareOccurencesList(OccurencesList<T>& occurencesList, T* array,
-                           size_t length) {
+                           size_t length, bool repeats) {
   for (size_t fa = 0; fa < length; ++fa) {
     floatt value = array[fa];
-    if (occurencesList.size() == 0 ||
+    if (repeats == false || occurencesList.size() == 0 ||
         occurencesList[occurencesList.size() - 1].second != value) {
       occurencesList.push_back(std::make_pair<uintt, floatt>(1, value));
     } else {
@@ -32,9 +32,10 @@ void PrepareOccurencesList(OccurencesList<T>& occurencesList, T* array,
 
 template <typename T>
 void PrintArray(std::string& output, T* array, size_t length,
+                bool repeats = true, bool pipe = true, bool endl = true,
                 size_t sectionLength = std::numeric_limits<size_t>::max()) {
   OccurencesList<T> valuesVec;
-  PrepareOccurencesList(valuesVec, array, length);
+  PrepareOccurencesList(valuesVec, array, length, repeats);
   output = "[";
   std::stringstream sstream;
   for (size_t fa = 0; fa < valuesVec.size(); ++fa) {
@@ -43,10 +44,16 @@ void PrintArray(std::string& output, T* array, size_t length,
       sstream << " <repeats " << valuesVec[fa].first << " times>";
     }
     if (fa < valuesVec.size() - 1) {
-      if (fa % sectionLength != 0 || (fa == 0 && sectionLength > 1)) {
+      bool notEndLine = (fa + 1) % sectionLength != 0;
+      if (notEndLine) {
         sstream << ", ";
-      } else if (fa > 0 || sectionLength == 1) {
+      } else if (!pipe && !notEndLine) {
+        sstream << ", ";
+      } else if (pipe && !notEndLine) {
         sstream << " | ";
+      }
+      if (!notEndLine && endl) {
+        sstream << std::endl;
       }
     }
     output += sstream.str();
@@ -55,10 +62,15 @@ void PrintArray(std::string& output, T* array, size_t length,
   sstream.str("");
   sstream << "] (" << ID_LENGTH << "=" << length;
   output += sstream.str();
-  output += ")";
+  output += ")\n";
 }
 
-inline void PrintMatrix(std::string& output, const math::Matrix* matrix) {
+inline void PrintMatrix(std::string& output, const math::Matrix* matrix,
+                        bool repeats = true, bool pipe = true,
+                        bool endl = true) {
+  if (matrix == NULL) {
+    return;
+  }
   std::stringstream sstream;
   sstream << "(" << ID_COLUMNS << "=" << matrix->columns << ", " << ID_ROWS
           << "=" << matrix->rows << ") ";
@@ -66,11 +78,13 @@ inline void PrintMatrix(std::string& output, const math::Matrix* matrix) {
   size_t length = matrix->columns * matrix->rows;
   std::string output1;
   if (matrix->reValues != NULL) {
-    PrintArray(output1, matrix->reValues, length, matrix->columns);
+    PrintArray(output1, matrix->reValues, length, repeats, pipe, endl,
+               matrix->columns);
     output += output1 + " ";
   }
   if (matrix->imValues != NULL) {
-    PrintArray(output1, matrix->imValues, length, matrix->columns);
+    PrintArray(output1, matrix->imValues, length, repeats, pipe, endl,
+               matrix->columns);
     output += output1;
   }
 }
@@ -112,7 +126,8 @@ class Parser {
   const floatt* getData() const;
 };
 
-floatt* CreateArray(const std::string& text, unsigned int which);
+std::pair<floatt*, size_t> CreateArray(const std::string& text,
+                                       unsigned int which);
 };
 
 #endif  // MATRIXUTILS_H

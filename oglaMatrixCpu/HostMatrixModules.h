@@ -134,8 +134,8 @@ namespace host {
             floatt* reArray, floatt* imArray);
     math::Matrix* NewReMatrixCopy(uintt columns, uintt rows, floatt* reArray);
     math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, floatt* imArray);
-    math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value);
-    math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows, floatt value);
+    math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value = 0);
+    math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows, floatt value = 0);
     math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
     math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows, floatt value = 0);
     math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value = 0);
@@ -161,6 +161,7 @@ namespace host {
     void SetReValue(const math::Matrix* matrix, uintt column, uintt row, floatt value);
     floatt GetImValue(const math::Matrix* matrix, uintt column, uintt row);
     void SetImValue(const math::Matrix* matrix, uintt column, uintt row, floatt value);
+    void GetMatrixStr(std::string& text, const math::Matrix* matrix);
     void GetReMatrixStr(std::string& text, const math::Matrix* matrix);
     void GetImMatrixStr(std::string& text, const math::Matrix* matrix);
     void PrintReMatrix(FILE* stream, const math::Matrix* matrix);
@@ -188,7 +189,6 @@ namespace host {
     void GetImVector(floatt* vector, math::Matrix* matrix, uintt column);
     void GetTransposeImVector(floatt* vector, math::Matrix* matrix, uintt row);
     void SetIdentity(math::Matrix* matrix);
-    void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
     void SetIdentityMatrix(math::Matrix* matrix);
     floatt SmallestDiff(math::Matrix* matrix, math::Matrix* matrix1);
     floatt LargestDiff(math::Matrix* matrix, math::Matrix* matrix1);
@@ -214,6 +214,10 @@ namespace host {
     void SetSubColumnsSafe(math::Matrix* matrix, uintt subcolumns);
     void SetSubRowsSafe(math::Matrix* matrix, uintt subrows);
     
+    void SetDiagonalMatrix(math::Matrix* matrix, floatt a);
+    void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
+    void SetDiagonalImMatrix(math::Matrix* matrix, floatt a);
+
 };
 
 

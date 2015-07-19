@@ -256,10 +256,10 @@ floatt GetImDiagonal(math::Matrix* m, uintt index);
 void SetZeroMatrix(math::Matrix* matrix, bool re = true, bool im = true);
 void SetZeroRow(math::Matrix* matrix, uintt index, bool re = true, bool im = true);
 
-void GetMatrixStr(std::string& output, const math::Matrix* matrix);
-void PrintMatrix(FILE* stream, const math::Matrix* matrix);
-void PrintMatrix(const math::Matrix* matrix);
-void PrintMatrix(const std::string& output, const math::Matrix* matrix);
+void GetMatrixStr(std::string& output, const math::Matrix* matrix, bool repeats = true, bool pipe = true, bool endl = true);
+void PrintMatrix(FILE* stream, const math::Matrix* matrix, bool repeats = true, bool pipe = true, bool endl = true);
+void PrintMatrix(const math::Matrix* matrix, bool repeats = true, bool pipe = true, bool endl = true);
+void PrintMatrix(const std::string& output, const math::Matrix* matrix, bool repeats = true, bool pipe = true, bool endl = true);
 
 }
 

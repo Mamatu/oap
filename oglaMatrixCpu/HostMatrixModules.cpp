@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <sstream>
+#include <math.h>
 #include <linux/fs.h>
 #include "MatrixUtils.h"
 #include "ArrayTools.h"
@@ -841,9 +842,12 @@ void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector) {
   SetTransposeImVector(matrix, row, vector, matrix->columns);
 }
 
+void GetMatrixStr(std::string& text, const math::Matrix* matrix) {
+    matrixUtils::PrintMatrix(text, matrix);
+}
+
 void GetReMatrixStr(std::string& text, const math::Matrix* matrix) {
-  HostMatrixModules::GetInstance()->getMatrixPrinter()->getReMatrixStr(text,
-                                                                       matrix);
+  HostMatrixModules::GetInstance()->getMatrixPrinter()->getReMatrixStr(text, matrix);
 }
 
 void GetImMatrixStr(std::string& str, const math::Matrix* matrix) {
@@ -1007,6 +1011,11 @@ floatt GetTrace(math::Matrix* matrix) {
   return o;
 }
 
+void SetDiagonalMatrix(math::Matrix* matrix, floatt a) {
+    SetDiagonalReMatrix(matrix, a);
+    SetDiagonalImMatrix(matrix, a);
+}
+
 void SetDiagonalReMatrix(math::Matrix* matrix, floatt a) {
   if (matrix->reValues) {
     fillRePart(matrix, 0);
@@ -1014,6 +1023,15 @@ void SetDiagonalReMatrix(math::Matrix* matrix, floatt a) {
       matrix->reValues[fa * matrix->columns + fa] = a;
     }
   }
+}
+
+void SetDiagonalImMatrix(math::Matrix* matrix, floatt a) {
+    if (matrix->imValues) {
+      fillImPart(matrix, 0);
+      for (int fa = 0; fa < matrix->columns; fa++) {
+        matrix->imValues[fa * matrix->columns + fa] = a;
+      }
+    }
 }
 
 char* load(const char* path, uintt& _size) {
@@ -1139,17 +1157,39 @@ math::Matrix* NewMatrix(const std::string& text) {
   matrixUtils::Parser parser(text);
   uintt columns = 0;
   uintt rows = 0;
-  if (parser.getColumns(columns) == false) {
-    return NULL;
+  bool iscolumns = false;
+  bool isrows = false;
+  if (parser.getColumns(columns) == true) {
+    iscolumns = true;
   }
-  if (parser.getRows(rows) == false) {
-    return NULL;
+  if (parser.getRows(rows) == true) {
+    isrows = true;
   }
-  floatt* revalues = matrixUtils::CreateArray(text, 1);
-  floatt* imvalues = matrixUtils::CreateArray(text, 2);
+  std::pair<floatt*, size_t> pairRe = matrixUtils::CreateArray(text, 1);
+  std::pair<floatt*, size_t> pairIm = matrixUtils::CreateArray(text, 2);
+  debugAssert(pairRe.first == NULL || pairIm.first == NULL ||
+              pairRe.second == pairIm.second);
+  floatt* revalues = pairRe.first;
+  floatt* imvalues = pairIm.first;
+
+  if ((iscolumns && isrows) == false) {
+    size_t sq = sqrt(pairRe.second);
+    columns = sq;
+    rows = sq;
+    iscolumns = true;
+    isrows = true;
+  } else if (iscolumns) {
+    rows = pairRe.second - columns;
+    isrows = true;
+  } else if (isrows) {
+    columns = pairRe.second - rows;
+    iscolumns = true;
+  }
+
   if (revalues == NULL && imvalues == NULL) {
     return NULL;
   }
+
   math::Matrix* matrix = NEW_MATRIX();
   matrix->columns = columns;
   matrix->realColumns = columns;

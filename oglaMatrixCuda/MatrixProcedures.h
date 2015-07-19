@@ -13,16 +13,27 @@ class CuMatrix {
   CuMatrix();
   virtual ~CuMatrix();
 
-  void dotProduct(math::Matrix* ouput, math::Matrix* params0,
-                  math::Matrix* params1);
+  inline void dotProduct(math::Matrix* output, math::Matrix* params0,
+                         math::Matrix* params1);
 
-  void dotProductEx(math::Matrix* ouput, math::Matrix* params0,
-                    math::Matrix* params1, MatrixEx* matrixEx);
+  void dotProduct(math::Matrix* output, math::Matrix* params0,
+                  math::Matrix* params1, uintt columns, uintt rows);
 
-  void dotProductOpt(math::Matrix* ouput, math::Matrix* params0,
-                     math::Matrix* params1);
+  inline void dotProductEx(math::Matrix* output, math::Matrix* params0,
+                           math::Matrix* params1, MatrixEx* matrixEx);
 
-  void dotProductExOpt(math::Matrix* ouput, math::Matrix* params0,
+  void dotProductEx(math::Matrix* output, math::Matrix* params0,
+                    math::Matrix* params1, MatrixEx* matrixEx, uintt columns,
+                    uintt rows);
+
+  inline void dotProductOpt(math::Matrix* output, math::Matrix* params0,
+                            math::Matrix* params1);
+
+  void dotProductOpt(math::Matrix* output, math::Matrix* params0,
+                     math::Matrix* params1, uintt ocolumns, uintt orows,
+                     uintt p1rows, uintt p2columns);
+
+  void dotProductExOpt(math::Matrix* output, math::Matrix* params0,
                        math::Matrix* params1, MatrixEx* matrixEx);
 
   void transposeMatrixEx(math::Matrix* output, math::Matrix* params0,
@@ -30,11 +41,17 @@ class CuMatrix {
 
   void transposeMatrix(math::Matrix* output, math::Matrix* params0);
 
-  void substract(math::Matrix* output, math::Matrix* params0,
-                 math::Matrix* params1);
+  inline void substract(math::Matrix* output, math::Matrix* params0,
+                        math::Matrix* params1);
 
-  void addMatrix(math::Matrix* output, math::Matrix* params0,
-                 math::Matrix* params1);
+  void substract(math::Matrix* output, math::Matrix* params0,
+                 math::Matrix* params1, uintt columns, uintt rows);
+
+  inline void add(math::Matrix* output, math::Matrix* params0,
+                  math::Matrix* params1);
+
+  void add(math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+           uintt columns, uintt rows);
 
   void setVector(math::Matrix* output, uintt column, math::Matrix* params0,
                  uintt length);
@@ -121,6 +138,8 @@ class CuMatrix {
   Buffer<int> m_disuppertriangularOutputBuffer;
   Buffer<int> m_hisuppertriangularOutputBuffer;
 
+  int* m_doutputIsTriangular;
+
   template <typename T1>
   friend class Buffer;
 
@@ -134,10 +153,18 @@ class CuMatrix {
   bool m_isIntialized;
   cuda::Kernel m_kernel;
   const char* m_pathes[3];
-  void* m_image;
   uintt m_maxThreadsPerBlock;
   uintt m_compareOperationOutput;
   CuMatrix(const CuMatrix&);
+  uintt m_columns;
+  bool m_isSetColumns;
+  uintt m_rows;
+  bool m_isSetRows;
+
+  inline void resetFlags() {
+    m_isSetRows = false;
+    m_isSetColumns = false;
+  }
 };
 
 template <typename T>
@@ -181,6 +208,43 @@ T* CuMatrix::Buffer<T>::alloc(uintt length) {
     case CuMatrix::HOST:
       return new T[length];
   };
+}
+
+inline void CuMatrix::dotProduct(math::Matrix* output, math::Matrix* params0,
+                                 math::Matrix* params1) {
+  const uintt columns = CudaUtils::GetColumns(output);
+  const uintt rows = CudaUtils::GetRows(output);
+  dotProduct(output, params0, params1, columns, rows);
+}
+
+inline void CuMatrix::dotProductEx(math::Matrix* output, math::Matrix* params0,
+                                   math::Matrix* params1, MatrixEx* matrixEx) {
+  const uintt columns = CudaUtils::GetColumns(matrixEx);
+  const uintt rows = CudaUtils::GetRows(matrixEx);
+  dotProductEx(output, params0, params1, matrixEx, columns, rows);
+}
+
+inline void CuMatrix::dotProductOpt(math::Matrix* output, math::Matrix* params0,
+                                    math::Matrix* params1) {
+  const uintt ocolumns = CudaUtils::GetColumns(output);
+  const uintt orows = CudaUtils::GetRows(output);
+  const uintt p1rows = CudaUtils::GetRows(params0);
+  const uintt p2columns = CudaUtils::GetColumns(params1);
+  dotProductOpt(output, params0, params1, ocolumns, orows, p1rows, p2columns);
+}
+
+inline void CuMatrix::substract(math::Matrix* output, math::Matrix* params0,
+                                math::Matrix* params1) {
+  const uintt columns = CudaUtils::GetColumns(output);
+  const uintt rows = CudaUtils::GetRows(output);
+  substract(output, params0, params1, columns, rows);
+}
+
+inline void CuMatrix::add(math::Matrix* output, math::Matrix* params0,
+                          math::Matrix* params1) {
+  const uintt columns = CudaUtils::GetColumns(output);
+  const uintt rows = CudaUtils::GetRows(output);
+  add(output, params0, params1, columns, rows);
 }
 
 #endif /* MATRIXPROCEDURES_H */

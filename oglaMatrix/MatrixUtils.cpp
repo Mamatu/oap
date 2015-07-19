@@ -115,8 +115,8 @@ void Parser::parseFloatsElement(std::vector<floatt>& array,
   size_t pos = elementStr.find("<");
   size_t pos1 = elementStr.find(">");
   std::string partStr = elementStr.substr(pos, pos1 - pos);
-  size_t posDigit1 = partStr.find_first_of("-0123456789");
-  size_t posDigit2 = partStr.find_first_not_of("-0123456789", posDigit1);
+  size_t posDigit1 = partStr.find_first_of(".-0123456789");
+  size_t posDigit2 = partStr.find_first_not_of(".-0123456789", posDigit1);
   int count = atoi(partStr.substr(posDigit1, posDigit2 - posDigit1).c_str());
   std::string sub = elementStr.substr(0, pos);
   const floatt value = satof(sub.c_str());
@@ -141,14 +141,15 @@ size_t Parser::getLength() const { return m_array.size(); }
 
 const floatt* Parser::getData() const { return m_array.data(); }
 
-floatt* CreateArray(const std::string& text, unsigned int which) {
+std::pair<floatt*, size_t> CreateArray(const std::string& text,
+                                       unsigned int which) {
   Parser parser(text);
   if (parser.parseArray(which) == false) {
-    return NULL;
+    return std::make_pair<floatt*, size_t>(NULL, 0);
   }
   size_t length = parser.getLength();
   floatt* array = new floatt[length];
   memcpy(array, parser.getData(), length * sizeof(floatt));
-  return array;
+  return std::make_pair<floatt*, size_t>(array, length);
 }
 }

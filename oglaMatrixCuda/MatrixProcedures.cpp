@@ -25,7 +25,8 @@ CUresult CuMatrix::execute(const char* functionName, uintt w, uintt h,
     prepareDims(w, h);
   }
   m_kernel.setSharedMemory(sharedMemory);
-  return ::cuda::Kernel::Execute(functionName, params, m_kernel, m_image);
+  resetFlags();
+  return ::cuda::Kernel::Execute(functionName, params, m_kernel);
 }
 
 CuMatrix::CuMatrix()
@@ -44,11 +45,11 @@ CuMatrix::CuMatrix()
   m_pathes[2] = NULL;
   init();
   m_magniuteOutput = CudaUtils::AllocDeviceObj<floatt>(0);
+  m_doutputIsTriangular = CudaUtils::AllocDeviceObj<int>(0);
 }
 
 void CuMatrix::init() {
-  cuda::Context::Instance().init();
-  m_image = ::cuda::Kernel::LoadImage(m_pathes);
+  m_kernel.load(m_pathes);
   CUdevprop devprop;
   m_kernel.getDeviceProperties(devprop);
   m_maxThreadsPerBlock = devprop.maxThreadsPerBlock;
@@ -56,40 +57,34 @@ void CuMatrix::init() {
 
 CuMatrix::~CuMatrix() {
   CudaUtils::FreeDeviceObj(m_magniuteOutput);
-  cuda::Kernel::FreeImage(m_image);
-  cuda::Context::Instance().destroy();
+  CudaUtils::FreeDeviceObj(m_doutputIsTriangular);
+  m_kernel.unload();
 }
 
 void CuMatrix::dotProduct(math::Matrix* output, math::Matrix* params0,
-                          math::Matrix* params1) {
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
+                          math::Matrix* params1, uintt columns, uintt rows) {
   void* params[] = {&output, &params0, &params1};
-  m_cuResult = execute("CUDAKernel_DotProduct", w, h, params, 0);
+  m_cuResult = execute("CUDAKernel_DotProduct", columns, rows, params, 0);
 }
 
 void CuMatrix::dotProductEx(math::Matrix* output, math::Matrix* params0,
-                            math::Matrix* params1, MatrixEx* matrixEx) {
+                            math::Matrix* params1, MatrixEx* matrixEx,
+                            uintt columns, uintt rows) {
   void* params[] = {&output, &params0, &params1, &matrixEx};
-  const uintt w = CudaUtils::GetColumns(matrixEx);
-  const uintt h = CudaUtils::GetRows(matrixEx);
-  m_cuResult = execute("CUDAKernel_DotProductEx", w, h, params, 0);
+  m_cuResult = execute("CUDAKernel_DotProductEx", columns, rows, params, 0);
 }
 
 void CuMatrix::dotProductOpt(math::Matrix* output, math::Matrix* params0,
-                             math::Matrix* params1) {
+                             math::Matrix* params1, uintt ocolumns, uintt orows,
+                             uintt p1rows, uintt p2columns) {
   void* params[] = {&output, &params0, &params1};
   bool isRe = CudaUtils::GetReValues(output) != NULL;
   bool isIm = CudaUtils::GetImValues(output) != NULL;
-  const uintt ocolumns = CudaUtils::GetColumns(output);
-  const uintt orows = CudaUtils::GetRows(output);
-  const uintt p1rows = CudaUtils::GetRows(params0);
-  const uintt p2columns = CudaUtils::GetColumns(params1);
   uintt size = (ocolumns * p1rows + orows * p2columns) * sizeof(floatt);
   if (isRe && isIm) {
     size = size * 2;
   }
-  size = size + 3;
+  size = size * 3;
   m_cuResult =
       execute("CUDAKernel_DotProductOpt", ocolumns, orows, params, size);
 }
@@ -107,7 +102,7 @@ void CuMatrix::dotProductExOpt(math::Matrix* output, math::Matrix* params0,
   if (isRe && isIm) {
     size = size * 2;
   }
-  size = size + 3;
+  size = size * 3;
   m_cuResult =
       execute("CUDAKernel_DotProductExOpt", ocolumns, orows, params, size);
 }
@@ -128,19 +123,15 @@ void CuMatrix::transposeMatrix(math::Matrix* output, math::Matrix* params0) {
 }
 
 void CuMatrix::substract(math::Matrix* output, math::Matrix* params0,
-                         math::Matrix* params1) {
+                         math::Matrix* params1, uintt columns, uintt rows) {
   void* params[] = {&output, &params0, &params1};
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
-  m_cuResult = execute("CUDAKernel_Substract", w, h, params, 0);
+  m_cuResult = execute("CUDAKernel_Substract", columns, rows, params, 0);
 }
 
-void CuMatrix::addMatrix(math::Matrix* output, math::Matrix* params0,
-                         math::Matrix* params1) {
+void CuMatrix::add(math::Matrix* output, math::Matrix* params0,
+                   math::Matrix* params1, uintt columns, uintt rows) {
   void* params[] = {&output, &params0, &params1};
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
-  m_cuResult = execute("CUDAKernel_Add", w, h, params, 0);
+  m_cuResult = execute("CUDAKernel_Add", columns, rows, params, 0);
 }
 
 void CuMatrix::setVector(math::Matrix* V, uintt column, math::Matrix* v,
@@ -224,7 +215,13 @@ void CuMatrix::QR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
 }
 
 bool CuMatrix::isUpperTriangular(math::Matrix* matrix) {
-  void* params[] = {&matrix};
+  int result = -10;
+  void* params[] = {&m_doutputIsTriangular, &matrix};
+  const uintt w = CudaUtils::GetColumns(matrix);
+  const uintt h = CudaUtils::GetRows(matrix);
+  m_cuResult = execute("CUDAKernel_IsUpperTriangular", w, h, params, 0);
+  CudaUtils::CopyDeviceToHost(&result, m_doutputIsTriangular, sizeof(int));
+  return result == 1;
 }
 
 void CuMatrix::multiplyConstantMatrix(math::Matrix* output,
@@ -252,8 +249,7 @@ bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
   const uintt w = CudaUtils::GetColumns(matrix1);
   const uintt h = CudaUtils::GetRows(matrix1);
 
-  return compareProcedure("CUDAKernel_CompareOpt", matrix1, matrix2, w, h, w,
-                          h);
+  return compareProcedure("CUDAKernel_CompareOpt", matrix1, matrix2, w, h, w, h);
 }
 
 bool CuMatrix::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2) {
@@ -294,7 +290,7 @@ bool CuMatrix::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
 
   void* params[] = {&m_dcompareOutputBuffer.m_buffer, &matrix1, &matrix2};
 
-  m_cuResult = ::cuda::Kernel::Execute(cuKernelName, params, m_kernel, m_image);
+  m_cuResult = ::cuda::Kernel::Execute(cuKernelName, params, m_kernel);
 
   CudaUtils::CopyDeviceToHost(
       m_hcompareOutputBuffer.m_buffer, m_dcompareOutputBuffer.m_buffer,
@@ -331,7 +327,7 @@ floatt CuMatrix::magnitude2Procedure(const char* cuKernelName,
 
   void* params[] = {&m_dmagnitudeOutputBuffer.m_buffer, &matrix};
 
-  m_cuResult = ::cuda::Kernel::Execute(cuKernelName, params, m_kernel, m_image);
+  m_cuResult = ::cuda::Kernel::Execute(cuKernelName, params, m_kernel);
 
   return magnitude2Procedure_GetOutput(blocks, outputLength);
 }
