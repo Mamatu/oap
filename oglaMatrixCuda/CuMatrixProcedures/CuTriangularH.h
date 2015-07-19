@@ -24,9 +24,9 @@ __hostdevice__ void CUDA_CalculateTriangularH(
   }
   // TODO: optymalization
   if (fb & 1 == 0) {
-    CUDA_CopyMatrix(Q, temp, tx, ty);
+    CUDA_copyMatrix(Q, temp, tx, ty);
   } else {
-    CUDA_CopyMatrix(Q, temp1, tx, ty);
+    CUDA_copyMatrix(Q, temp1, tx, ty);
   }
   // cuda_debug_function();
 }

@@ -10,7 +10,7 @@
 
 #include "CuCore.h"
 
-__hostdevice__ void CUDA_CopyReMatrix(
+__hostdevice__ void CUDA_copyReMatrix(
     math::Matrix* dst,
     math::Matrix* src,
     uintt threadIndexX,
@@ -21,7 +21,7 @@ __hostdevice__ void CUDA_CopyReMatrix(
     threads_sync();
 }
 
-__hostdevice__ void CUDA_CopyImMatrix(
+__hostdevice__ void CUDA_copyImMatrix(
     math::Matrix* dst,
     math::Matrix* src,
     uintt threadIndexX,
@@ -32,17 +32,17 @@ __hostdevice__ void CUDA_CopyImMatrix(
     threads_sync();
 }
 
-__hostdevice__ void CUDA_CopyMatrix(
+__hostdevice__ void CUDA_copyMatrix(
     math::Matrix* dst,
     math::Matrix* src,
     uintt threadIndexX,
     uintt threadIndexY) {
     CUDA_TEST_INIT();
     if (dst->reValues) {
-        CUDA_CopyReMatrix(dst, src, threadIndexX, threadIndexY);
+        CUDA_copyReMatrix(dst, src, threadIndexX, threadIndexY);
     }
     if (dst->imValues) {
-        CUDA_CopyImMatrix(dst, src, threadIndexX, threadIndexY);
+        CUDA_copyImMatrix(dst, src, threadIndexX, threadIndexY);
     }
 }
 
