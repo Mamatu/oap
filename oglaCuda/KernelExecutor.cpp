@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   KernelExecutor.cpp
  * Author: mmatula
- * 
+ *
  * Created on January 19, 2014, 9:47 AM
  */
 
@@ -15,7 +15,7 @@
 #include <cstdlib>
 
 //#define KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
-#define KERNEL_EXTENDED_INFO 1
+#define KERNEL_EXTENDED_INFO 0
 
 namespace cuda {
 
@@ -108,7 +108,7 @@ void DefaultDeviceInfo::setDeviceInfo(const CuDevice& deviceInfo) {
 }
 
 Context::Context(int _deviceIndex) :
-    context(NULL), deviceIndex(_deviceIndex) {
+    deviceIndex(_deviceIndex) {
 }
 
 Context Context::m_Context;
@@ -117,9 +117,8 @@ Context& Context::Instance() {
     return Context::m_Context;
 }
 
-void Context::init() {
+void Context::create() {
     Init();
-    if (context == NULL) {
         int count = 0;
         printCuError(cuDeviceGetCount(&count));
         debug("Devices count: %d \n", count);
@@ -128,15 +127,17 @@ void Context::init() {
             CUdevice device = 0;
             printCuError(cuDeviceGet(&device, deviceIndex));
             setDevice(device);
+            CUcontext context;
             printCuError(cuCtxCreate(&context, CU_CTX_SCHED_AUTO, device));
+            m_contexts.push(context);
         }
-    }
 }
 
 void Context::destroy() {
-    if (context != NULL) {
+    if (!m_contexts.empty()) {
+        CUcontext context = m_contexts.top();
+        m_contexts.pop();
         printCuError(cuCtxDestroy(context));
-        context = NULL;
     }
 }
 
@@ -186,7 +187,7 @@ void Kernel::setParams(void** params) {
     m_params = params;
 }
 
-Kernel::Kernel() : m_params(NULL), m_paramsSize(0) {
+Kernel::Kernel() : m_params(NULL), m_paramsSize(0),m_image(NULL),m_cuModule(NULL) {
     this->m_blocksCount[0] = 1;
     this->m_blocksCount[1] = 1;
     this->m_blocksCount[2] = 1;
@@ -194,18 +195,6 @@ Kernel::Kernel() : m_params(NULL), m_paramsSize(0) {
     this->m_threadsCount[1] = 1;
     this->m_threadsCount[2] = 1;
     m_sharedMemoryInBytes = 0;
-    this->m_image = NULL;
-}
-
-Kernel::Kernel(void* image, CUdevice cuDevicePtr) :
-    m_params(NULL),
-    m_paramsSize(0) {
-    this->m_blocksCount[0] = 1;
-    this->m_blocksCount[1] = 1;
-    this->m_threadsCount[0] = 1;
-    this->m_threadsCount[1] = 1;
-    m_sharedMemoryInBytes = 0;
-    this->m_image = image;
 }
 
 int Kernel::getParamsCount() const {
@@ -216,8 +205,27 @@ void** Kernel::getParams() const {
     return this->m_params;
 }
 
+void Kernel::unloadCuModule() {
+    if (m_cuModule != NULL) {
+        cuModuleUnload(m_cuModule);
+        m_cuModule = NULL;
+    }
+}
+
+void Kernel::loadCuModule(){
+    unloadCuModule();
+    if (NULL != m_image) {
+        printCuError(cuModuleLoadData(&m_cuModule, m_image));
+    }
+}
+
+void Kernel::unload() {
+    unloadCuModule();
+}
+
 void Kernel::setImage(void* image) {
     this->m_image = image;
+    //loadCuModule();
 }
 
 CUresult Kernel::execute(const char* functionName) {
@@ -225,19 +233,15 @@ CUresult Kernel::execute(const char* functionName) {
     if (NULL == m_image && m_path.length() == 0) {
         debugError("Error: image and path not defined. Function name: %s \n", functionName);
     }
-    CUmodule cuModule = NULL;
+
+    loadCuModule();
     CUfunction cuFunction = NULL;
-    if (NULL != m_image) {
-        printCuErrorStatus(status, cuModuleLoadData(&cuModule, m_image));
-    } else if (m_path.length() > 0) {
-        printCuErrorStatus(status, cuModuleLoad(&cuModule, m_path.c_str()));
-    }
-    if (NULL != cuModule) {
-        printCuErrorStatus(status, cuModuleGetFunction(&cuFunction, cuModule, functionName));
+    if (NULL != m_cuModule) {
+        printCuErrorStatus(status, cuModuleGetFunction(&cuFunction, m_cuModule, functionName));
 #if KERNEL_EXTENDED_INFO==1
         debug("Load kernel: %s", functionName);
         debug("Image: %p", m_image);
-        debug("Module handle: %p", cuModule);
+        debug("Module handle: %p", m_cuModule);
         debug("Function handle: %p", cuFunction);
         PrintDeviceInfo(getDevice());
         debug(" Execution:");
@@ -251,16 +255,20 @@ CUresult Kernel::execute(const char* functionName) {
             m_sharedMemoryInBytes, NULL, this->getParams(), NULL));
     } else {
         if (NULL != m_image) {
-            debug("Module is incorrect %p %p;", cuModule, m_image);
+            debug("Module is incorrect %p %p;", m_cuModule, m_image);
         } else if (m_path.length() > 0) {
-            debug("Module is incorrect %d %s;", cuModule, m_path.c_str());
+            debug("Module is incorrect %d %s;", m_cuModule, m_path.c_str());
         }
+        abort();
     }
+    unloadCuModule();
     resetParameters();
     return status;
 }
 
 Kernel::~Kernel() {
+    unloadCuModule();
+    releaseImage();
 }
 
 inline char* loadData(FILE* f) {
@@ -315,7 +323,7 @@ inline char* readData(const char* path, const Strings& sysPathes) {
     }
 }
 
-inline char* loadData(const char** pathes, bool extraSysPathes = true) {
+inline char* loadData(std::string& loadedPath, const char** pathes, bool extraSysPathes = true) {
     std::vector<std::string> sysPathes;
     if (extraSysPathes) {
         getSysPathes(sysPathes);
@@ -323,11 +331,13 @@ inline char* loadData(const char** pathes, bool extraSysPathes = true) {
     while (pathes != NULL && *pathes != NULL) {
         char* data = readData(*pathes);
         if (data != NULL) {
+            loadedPath = *pathes;
             return data;
         }
         if (extraSysPathes) {
             data = readData(*pathes, sysPathes);
             if (data != NULL) {
+                loadedPath = *pathes;
                 return data;
             }
         }
@@ -338,15 +348,16 @@ inline char* loadData(const char** pathes, bool extraSysPathes = true) {
 
 inline char* loadData(const char* path, bool extraSysPathes = true) {
     const char* pathes[] = {path, NULL};
-    return loadData(pathes, extraSysPathes);
+    std::string lpath;
+    return loadData(lpath, pathes, extraSysPathes);
 }
 
 void* Kernel::LoadImage(const char* path) {
     return loadData(path, true);
 }
 
-void* Kernel::LoadImage(const char** pathes) {
-    return loadData(pathes, true);
+void* Kernel::LoadImage(std::string& path, const char** pathes) {
+    return loadData(path, pathes, true);
 }
 
 void Kernel::FreeImage(void* image) {
@@ -354,32 +365,33 @@ void Kernel::FreeImage(void* image) {
     delete[] data;
 }
 
-bool Kernel::loadImage(const char* path) {
-    m_image = loadData(path);
+bool Kernel::load(const char* path) {
+    setImage(loadData(path));
 #ifdef DEBUG
     if (m_image == NULL) {
-        debug("Image with path: %s, doens't exist.\n", path);
+        debug("Cannot load %s.\n", path);
     } else {
-        debug("Image with path: %s, exist.\n", path);
+        debug("Loaded %s.\n", path);
     }
 #endif
     return m_image != NULL;
 }
 
-bool Kernel::loadImage(const char** pathes) {
-    m_image = loadData(pathes);
+bool Kernel::load(const char** pathes) {
+    std::string path;
+    setImage(loadData(path, pathes));
 #ifdef DEBUG
     if (m_image == NULL) {
-        debug("Image with path:, doens't exist.\n");
+        debug("Cannot load %s.\n", path.c_str());
     } else {
-        debug("Image with path: , exist\n");
+        debug("Loaded %s.\n", path.c_str());
     }
 #endif
     return m_image != NULL;
 }
 
-void Kernel::realeseImage() {
-    if (m_image) {
+void Kernel::releaseImage() {
+    if (m_image != NULL) {
         char* data = (char*) m_image;
         delete[] data;
     }
@@ -406,8 +418,7 @@ void Kernel::SetThreadsBlocks(uintt blocks[2], uintt threads[2],
 }
 
 CUresult Kernel::Execute(const char* functionName,
-    void** params, ::cuda::Kernel& kernel, void* image) {
-    kernel.setImage(image);
+    void** params, ::cuda::Kernel& kernel) {
     kernel.setParams(params);
     return kernel.execute(functionName);
 }
