@@ -17,14 +17,18 @@
 
 #define threads_sync() __syncthreads()
 
-#define CUDA_TEST_CODE()
+#define CUDA_TEST_INIT()
+
+#define CUDA_TEST_CODE(code)
 
 #else
 
 #include "Dim3.h"
 #include <pthread.h>
 
-#define CUDA_TEST_CODE() Dim3 threadIdx = ThreadIdx::m_threadIdxs[pthread_self()].getThreadIdx();
+#define CUDA_TEST_INIT() Dim3 threadIdx = ThreadIdx::m_threadIdxs[pthread_self()].getThreadIdx();
+
+#define CUDA_TEST_CODE(code) code
 
 #define __hostdeviceinline__ __inline__
 #define __hostdevice__ __inline__

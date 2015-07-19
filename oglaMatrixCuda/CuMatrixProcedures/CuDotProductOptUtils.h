@@ -8,6 +8,7 @@ __hostdeviceinline__ void setSharedMatrixReal(
     floatt* buffer1Re, floatt* buffer1Im, floatt* buffer2Re, floatt* buffer2Im,
     math::Matrix* params0, math::Matrix* params1, uintt offset,
     uintt threadIndexX, uintt threadIndexY) {
+  CUDA_TEST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   for (intt fa1 = 0; fa1 < offset; fa1++) {

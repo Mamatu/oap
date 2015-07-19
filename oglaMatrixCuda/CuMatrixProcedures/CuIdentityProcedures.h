@@ -12,6 +12,7 @@
 
 __hostdevice__ void CUDA_SetIdentityReMatrix(math::Matrix* dst,
     uintt threadIndexX, uintt threadIndexY) {
+    CUDA_TEST_INIT();
     uintt index = threadIndexX + dst->columns * threadIndexY;
     floatt v = threadIndexX == threadIndexY ? 1 : 0;
     dst->reValues[index] = v;
@@ -20,6 +21,7 @@ __hostdevice__ void CUDA_SetIdentityReMatrix(math::Matrix* dst,
 
 __hostdevice__ void CUDA_SetIdentityImMatrix(math::Matrix* dst,
     uintt threadIndexX, uintt threadIndexY) {
+    CUDA_TEST_INIT();
     uintt index = threadIndexX + dst->columns * threadIndexY;
     floatt v = threadIndexX == threadIndexY ? 1 : 0;
     dst->imValues[index] = v;
@@ -28,6 +30,7 @@ __hostdevice__ void CUDA_SetIdentityImMatrix(math::Matrix* dst,
 
 __hostdevice__ void CUDA_SetIdentityMatrix(math::Matrix* dst,
     uintt threadIndexX, uintt threadIndexY) {
+    CUDA_TEST_INIT();
     uintt index = threadIndexX + dst->columns * threadIndexY;
     floatt v = threadIndexX == threadIndexY ? 1 : 0;
     dst->reValues[index] = v;

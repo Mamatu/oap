@@ -15,6 +15,7 @@ __hostdevice__ void CUDA_CopyReMatrix(
     math::Matrix* src,
     uintt threadIndexX,
     uintt threadIndexY) {
+    CUDA_TEST_INIT();
     dst->reValues[threadIndexX + dst->columns * threadIndexY] =
         src->reValues[threadIndexX + src->columns * threadIndexY];
     threads_sync();
@@ -25,6 +26,7 @@ __hostdevice__ void CUDA_CopyImMatrix(
     math::Matrix* src,
     uintt threadIndexX,
     uintt threadIndexY) {
+    CUDA_TEST_INIT();
     dst->imValues[threadIndexX + dst->columns * threadIndexY] =
         src->imValues[threadIndexX + src->columns * threadIndexY];
     threads_sync();
@@ -35,6 +37,7 @@ __hostdevice__ void CUDA_CopyMatrix(
     math::Matrix* src,
     uintt threadIndexX,
     uintt threadIndexY) {
+    CUDA_TEST_INIT();
     if (dst->reValues) {
         CUDA_CopyReMatrix(dst, src, threadIndexX, threadIndexY);
     }

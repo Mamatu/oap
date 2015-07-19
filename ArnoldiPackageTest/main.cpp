@@ -34,7 +34,7 @@ void hostMain() {
 
 void deviceMain() {
     debugFunc();
-    cuda::Context::Instance().init();
+    cuda::Context::Instance().create();
     math::Matrix* m = host::NewReMatrixCopy(64, 64, tm64);
 
     //[215589.901030, -4.613732, 2867.286904, -2441.909650

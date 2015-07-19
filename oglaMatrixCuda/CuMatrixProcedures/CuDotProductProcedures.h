@@ -10,13 +10,10 @@
 
 #include "CuCore.h"
 
-__hostdevice__ __forceinline__ void CUDA_multiplyReMatricesEx(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    const MatrixEx& matrixEx,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_multiplyReMatricesEx(
+    math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+    const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
+  CUDA_TEST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt offset = columns1;
@@ -29,13 +26,10 @@ __hostdevice__ __forceinline__ void CUDA_multiplyReMatricesEx(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_multiplyImMatricesEx(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    const MatrixEx& matrixEx,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_multiplyImMatricesEx(
+    math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+    const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
+  CUDA_TEST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt offset = columns1;
@@ -48,13 +42,10 @@ __hostdevice__ __forceinline__ void CUDA_multiplyImMatricesEx(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_multiplyRealMatricesEx(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    const MatrixEx& matrixEx,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_multiplyRealMatricesEx(
+    math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+    const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
+  CUDA_TEST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt outputColumns = output->realColumns;
@@ -76,13 +67,10 @@ __hostdevice__ __forceinline__ void CUDA_multiplyRealMatricesEx(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_multiplyMatricesEx(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    const MatrixEx& matrixEx,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_multiplyMatricesEx(
+    math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+    const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
+  CUDA_TEST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   if (isre && isim) {
@@ -97,12 +85,12 @@ __hostdevice__ __forceinline__ void CUDA_multiplyMatricesEx(
   }
 }
 
-__hostdevice__ __forceinline__ void CUDA_multiplyReMatrices(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_multiplyReMatrices(math::Matrix* output,
+                                            math::Matrix* params0,
+                                            math::Matrix* params1,
+                                            uintt threadIndexX,
+                                            uintt threadIndexY) {
+  CUDA_TEST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt offset = columns1;
@@ -115,12 +103,12 @@ __hostdevice__ __forceinline__ void CUDA_multiplyReMatrices(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_multiplyImMatrices(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_multiplyImMatrices(math::Matrix* output,
+                                            math::Matrix* params0,
+                                            math::Matrix* params1,
+                                            uintt threadIndexX,
+                                            uintt threadIndexY) {
+  CUDA_TEST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt offset = columns1;
@@ -133,12 +121,12 @@ __hostdevice__ __forceinline__ void CUDA_multiplyImMatrices(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_multiplyRealMatrices(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_multiplyRealMatrices(math::Matrix* output,
+                                              math::Matrix* params0,
+                                              math::Matrix* params1,
+                                              uintt threadIndexX,
+                                              uintt threadIndexY) {
+  CUDA_TEST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt outputColumns = output->realColumns;
@@ -160,12 +148,12 @@ __hostdevice__ __forceinline__ void CUDA_multiplyRealMatrices(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_multiplyMatrices(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_multiplyMatrices(math::Matrix* output,
+                                          math::Matrix* params0,
+                                          math::Matrix* params1,
+                                          uintt threadIndexX,
+                                          uintt threadIndexY) {
+  CUDA_TEST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   if (isre && isim) {
@@ -180,22 +168,19 @@ __hostdevice__ __forceinline__ void CUDA_multiplyMatrices(
   }
 }
 
-__hostdevice__ __forceinline__ void CUDA_dotProduct(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_dotProduct(math::Matrix* output, math::Matrix* params0,
+                                    math::Matrix* params1, uintt threadIndexX,
+                                    uintt threadIndexY) {
+  CUDA_TEST_INIT();
   CUDA_multiplyMatrices(output, params0, params1, threadIndexX, threadIndexY);
 }
 
-__hostdevice__ __forceinline__ void CUDA_dotProductEx(
-    math::Matrix* output,
-    math::Matrix* params0,
-    math::Matrix* params1,
-    const MatrixEx& matrixEx,
-    uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_dotProductEx(math::Matrix* output,
+                                      math::Matrix* params0,
+                                      math::Matrix* params1,
+                                      const MatrixEx& matrixEx,
+                                      uintt threadIndexX, uintt threadIndexY) {
+  CUDA_TEST_INIT();
   CUDA_multiplyMatricesEx(output, params0, params1, matrixEx, threadIndexX,
                           threadIndexY);
 }

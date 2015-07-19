@@ -18,6 +18,7 @@
 
 extern "C" __device__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::Matrix* matrix1,
     floatt* buffer) {
+    CUDA_TEST_INIT();
     uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
@@ -36,6 +37,7 @@ extern "C" __device__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::Ma
 
 extern "C" __device__ void CUDA_magnitudeOptReMatrixVer2(floatt* sum, math::Matrix* matrix1,
     floatt* buffer) {
+    CUDA_TEST_INIT();
     uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
@@ -55,6 +57,7 @@ extern "C" __device__ void CUDA_magnitudeOptReMatrixVer2(floatt* sum, math::Matr
 
 extern "C" __device__ void CUDA_magnitudeOptImMatrixVer2(floatt* sum, math::Matrix* matrix1,
     floatt* buffer) {
+    CUDA_TEST_INIT();
     uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
@@ -73,6 +76,7 @@ extern "C" __device__ void CUDA_magnitudeOptImMatrixVer2(floatt* sum, math::Matr
 
 extern "C" __device__ void CUDA_magnitudeOptVer2(floatt* sum,
     math::Matrix* matrix1, floatt* buffer) {
+    CUDA_TEST_INIT();
     bool isre = matrix1->reValues != NULL;
     bool isim = matrix1->imValues != NULL;
     if (isre && isim) {

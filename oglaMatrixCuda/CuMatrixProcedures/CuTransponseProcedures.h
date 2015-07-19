@@ -10,9 +10,12 @@
 
 #include "CuCore.h"
 
-__hostdevice__ __forceinline__ void CUDA_transposeReMatrixEx(
-    math::Matrix* output, math::Matrix* params0, const MatrixEx& matrixEx,
-    uintt threadIndexX, uintt threadIndexY) {
+__hostdevice__ void CUDA_transposeReMatrixEx(math::Matrix* output,
+                                             math::Matrix* params0,
+                                             const MatrixEx& matrixEx,
+                                             uintt threadIndexX,
+                                             uintt threadIndexY) {
+  CUDA_TEST_INIT();
   if (threadIndexY < matrixEx.erow && threadIndexX < matrixEx.ecolumn) {
     uintt index = threadIndexX + output->columns * threadIndexY;
     uintt index1 = threadIndexX * params0->columns + threadIndexY;
@@ -21,9 +24,12 @@ __hostdevice__ __forceinline__ void CUDA_transposeReMatrixEx(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_transposeImMatrixEx(
-    math::Matrix* output, math::Matrix* params0, const MatrixEx& matrixEx,
-    uintt threadIndexX, uintt threadIndexY) {
+__hostdevice__ void CUDA_transposeImMatrixEx(math::Matrix* output,
+                                             math::Matrix* params0,
+                                             const MatrixEx& matrixEx,
+                                             uintt threadIndexX,
+                                             uintt threadIndexY) {
+  CUDA_TEST_INIT();
   if (threadIndexY < matrixEx.erow && threadIndexX < matrixEx.ecolumn) {
     uintt index = threadIndexX + output->columns * threadIndexY;
     uintt index1 = threadIndexX * params0->columns + threadIndexY;
@@ -32,9 +38,12 @@ __hostdevice__ __forceinline__ void CUDA_transposeImMatrixEx(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_transposeRealMatrixEx(
-    math::Matrix* output, math::Matrix* params0, const MatrixEx& matrixEx,
-    uintt threadIndexX, uintt threadIndexY) {
+__hostdevice__ void CUDA_transposeRealMatrixEx(math::Matrix* output,
+                                               math::Matrix* params0,
+                                               const MatrixEx& matrixEx,
+                                               uintt threadIndexX,
+                                               uintt threadIndexY) {
+  CUDA_TEST_INIT();
   if (threadIndexY < matrixEx.erow && threadIndexX < matrixEx.ecolumn) {
     uintt index = threadIndexX + output->columns * threadIndexY;
     uintt index1 = threadIndexX * params0->columns + threadIndexY;
@@ -44,9 +53,12 @@ __hostdevice__ __forceinline__ void CUDA_transposeRealMatrixEx(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_transposeMatrixEx(
-    math::Matrix* output, math::Matrix* params0, const MatrixEx& matrixEx,
-    uintt threadIndexX, uintt threadIndexY) {
+__hostdevice__ void CUDA_transposeMatrixEx(math::Matrix* output,
+                                           math::Matrix* params0,
+                                           const MatrixEx& matrixEx,
+                                           uintt threadIndexX,
+                                           uintt threadIndexY) {
+  CUDA_TEST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   if (isre && isim) {
@@ -61,27 +73,32 @@ __hostdevice__ __forceinline__ void CUDA_transposeMatrixEx(
   }
 }
 
-__hostdevice__ __forceinline__ void CUDA_transposeReMatrix(
-    math::Matrix* output, math::Matrix* params0, uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_transposeReMatrix(math::Matrix* output,
+                                           math::Matrix* params0,
+                                           uintt threadIndexX,
+                                           uintt threadIndexY) {
   uintt index = threadIndexX + output->columns * threadIndexY;
   uintt index1 = threadIndexX * output->columns + threadIndexY;
   output->reValues[index] = params0->reValues[index1];
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_transposeImMatrix(
-    math::Matrix* output, math::Matrix* params0, uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_transposeImMatrix(math::Matrix* output,
+                                           math::Matrix* params0,
+                                           uintt threadIndexX,
+                                           uintt threadIndexY) {
+  CUDA_TEST_INIT();
   uintt index = threadIndexX + output->columns * threadIndexY;
   uintt index1 = threadIndexX * output->columns + threadIndexY;
   output->imValues[index] = -params0->imValues[index1];
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_transposeRealMatrix(
-    math::Matrix* output, math::Matrix* params0, uintt threadIndexX,
-    uintt threadIndexY) {
+__hostdevice__ void CUDA_transposeRealMatrix(math::Matrix* output,
+                                             math::Matrix* params0,
+                                             uintt threadIndexX,
+                                             uintt threadIndexY) {
+  CUDA_TEST_INIT();
   uintt index = threadIndexX + output->columns * threadIndexY;
   uintt index1 = threadIndexX * output->columns + threadIndexY;
   output->reValues[index] = params0->reValues[index1];
@@ -89,10 +106,11 @@ __hostdevice__ __forceinline__ void CUDA_transposeRealMatrix(
   threads_sync();
 }
 
-__hostdevice__ __forceinline__ void CUDA_transposeMatrix(math::Matrix* output,
-                                                         math::Matrix* params0,
-                                                         uintt threadIndexX,
-                                                         uintt threadIndexY) {
+__hostdevice__ void CUDA_transposeMatrix(math::Matrix* output,
+                                         math::Matrix* params0,
+                                         uintt threadIndexX,
+                                         uintt threadIndexY) {
+  CUDA_TEST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   if (isre && isim) {
@@ -104,19 +122,17 @@ __hostdevice__ __forceinline__ void CUDA_transposeMatrix(math::Matrix* output,
   }
 }
 
-__hostdevice__ __forceinline__ void transposeHIm(math::Matrix* output,
-                                                 math::Matrix* params0,
-                                                 uintt threadIndexX,
-                                                 uintt threadIndexY) {
+__hostdevice__ void transposeHIm(math::Matrix* output, math::Matrix* params0,
+                                 uintt threadIndexX, uintt threadIndexY) {
+  CUDA_TEST_INIT();
   uintt index = threadIndexX + output->columns * threadIndexY;
   uintt index1 = threadIndexX * output->columns + threadIndexY;
   output->imValues[index] = -params0->imValues[index1];
 }
 
-__hostdevice__ __forceinline__ void transposeHReIm(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   uintt threadIndexX,
-                                                   uintt threadIndexY) {
+__hostdevice__ void transposeHReIm(math::Matrix* output, math::Matrix* params0,
+                                   uintt threadIndexX, uintt threadIndexY) {
+  CUDA_TEST_INIT();
   uintt index = threadIndexX + output->columns * threadIndexY;
   uintt index1 = threadIndexX * output->columns + threadIndexY;
   output->reValues[index] = params0->reValues[index1];

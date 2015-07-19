@@ -12,6 +12,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantReMatrix(
     math::Matrix* output,
     math::Matrix* params0, floatt re,
     uintt threadIndexX, uintt threadIndexY) {
+    CUDA_TEST_INIT();
     uintt index = threadIndexX + threadIndexY * output->columns;
     output->reValues[index] =
         params0->reValues[index] * re;
@@ -22,6 +23,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantImMatrix(
     math::Matrix* output,
     math::Matrix* params0, floatt im,
     uintt threadIndexX, uintt threadIndexY) {
+    CUDA_TEST_INIT();
     uintt index = threadIndexX + threadIndexY * output->columns;
     output->imValues[index] =
         params0->imValues[index] * im;
@@ -33,6 +35,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantRealMatrix(
     math::Matrix* params0,
     floatt re, floatt im,
     uintt threadIndexX, uintt threadIndexY) {
+    CUDA_TEST_INIT();
     uintt index = threadIndexX + threadIndexY * output->columns;
     output->reValues[index] =
         params0->reValues[index] * re;
@@ -45,6 +48,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantMatrix(
     math::Matrix* output, math::Matrix* params0,
     floatt re, floatt im,
     uintt threadIndexX, uintt threadIndexY) {
+    CUDA_TEST_INIT();
     bool isre = output->reValues != NULL;
     bool isim = output->imValues != NULL;
     if (isre && isim) {

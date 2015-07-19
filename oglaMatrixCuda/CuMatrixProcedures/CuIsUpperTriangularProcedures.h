@@ -9,6 +9,7 @@
 
 /*@mamatu todo optimalization */
 __hostdevice__ int CUDA_isUpperRealTriangular(math::Matrix* matrix) {
+  CUDA_TEST_INIT();
   uintt index = 0;
   int count = matrix->columns - 1;
   uintt columns = matrix->columns;
@@ -25,6 +26,7 @@ __hostdevice__ int CUDA_isUpperRealTriangular(math::Matrix* matrix) {
 
 /*@mamatu todo optimalization */
 __hostdevice__ int CUDA_isUpperReTriangular(math::Matrix* matrix) {
+  CUDA_TEST_INIT();
   uintt index = 0;
   int count = matrix->columns - 1;
   uintt columns = matrix->columns;
@@ -39,6 +41,7 @@ __hostdevice__ int CUDA_isUpperReTriangular(math::Matrix* matrix) {
 
 /*@mamatu todo optimalization */
 __hostdevice__ int CUDA_isUpperImTriangular(math::Matrix* matrix) {
+  CUDA_TEST_INIT();
   uintt index = 0;
   int count = matrix->columns - 1;
   uintt columns = matrix->columns;
@@ -52,6 +55,7 @@ __hostdevice__ int CUDA_isUpperImTriangular(math::Matrix* matrix) {
 }
 
 __hostdevice__ int CUDA_isUpperTriangular(math::Matrix* matrix) {
+  CUDA_TEST_INIT();
   bool isre = matrix->reValues != NULL;
   bool isim = matrix->imValues != NULL;
   if (isre && isim) {
