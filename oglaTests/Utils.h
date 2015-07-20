@@ -88,9 +88,9 @@ inline bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
           status = false;
           if (*output == NULL) {
             (*output) = create(m1);
-            (*output)->reValues[index] =
-                fabs(m1.reValues[index] - m2.reValues[index]);
           }
+          (*output)->reValues[index] =
+              fabs(m1.reValues[index] - m2.reValues[index]);
         }
       }
       if (m1.imValues != NULL && m2.imValues != NULL) {
@@ -101,9 +101,9 @@ inline bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
           status = false;
           if (*output == NULL) {
             (*output) = create(m1);
-            (*output)->imValues[index] =
-                fabs(m1.imValues[index] - m2.imValues[index]);
           }
+          (*output)->imValues[index] =
+              fabs(m1.imValues[index] - m2.imValues[index]);
         }
       }
     }
@@ -111,30 +111,29 @@ inline bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
   return status;
 }
 
-inline bool IsIdentityMatrix(const math::Matrix& m1,
-                    math::Matrix** output) {
-    math::Matrix* matrix = host::NewMatrix(&m1);
-    host::SetIdentity(matrix);
-    bool isequal = IsEqual(m1, *matrix, output);
-    host::DeleteMatrix(matrix);
-    return isequal;
+inline bool IsIdentityMatrix(const math::Matrix& m1, math::Matrix** output) {
+  math::Matrix* matrix = host::NewMatrix(&m1);
+  host::SetIdentity(matrix);
+  bool isequal = IsEqual(m1, *matrix, output);
+  host::DeleteMatrix(matrix);
+  return isequal;
 }
 
 inline bool IsDiagonalMatrix(const math::Matrix& m1, floatt value,
-                    math::Matrix** output) {
-    math::Matrix* matrix = host::NewMatrix(&m1);
-    host::SetDiagonalMatrix(matrix, value);
-    bool isequal = IsEqual(m1, *matrix, output);
-    host::DeleteMatrix(matrix);
-    return isequal;
+                             math::Matrix** output) {
+  math::Matrix* matrix = host::NewMatrix(&m1);
+  host::SetDiagonalMatrix(matrix, value);
+  bool isequal = IsEqual(m1, *matrix, output);
+  host::DeleteMatrix(matrix);
+  return isequal;
 }
 
 inline bool IsIdentityMatrix(const math::Matrix& m1) {
-    return IsIdentityMatrix(m1, NULL);
+  return IsIdentityMatrix(m1, NULL);
 }
 
 inline bool IsDiagonalMatrix(const math::Matrix& m1, floatt value) {
-    return IsDiagonalMatrix(m1, value, NULL);
+  return IsDiagonalMatrix(m1, value, NULL);
 }
 
 inline bool isEqual(const MatrixEx& matrixEx, const uintt* buffer) {
