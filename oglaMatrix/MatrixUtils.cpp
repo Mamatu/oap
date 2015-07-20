@@ -46,7 +46,10 @@ bool Parser::getValue(uintt& value, const std::string& id) const {
   return true;
 }
 
-floatt Parser::satof(const std::string& str) const {
+bool Parser::satof(floatt& output, const std::string& str) const {
+  if (str.find_first_not_of(".-0123456789") != std::string::npos) {
+    return false;
+  }
   floatt value = 1;
   int index = 0;
   if (str[0] == '-') {
@@ -54,7 +57,8 @@ floatt Parser::satof(const std::string& str) const {
     index = 1;
   }
   const char* cs = str.c_str();
-  return value * atof(cs + index);
+  output = value * atof(cs + index);
+  return true;
 }
 
 bool Parser::getArrayStr(std::string& array, unsigned int which) const {
@@ -75,7 +79,7 @@ bool Parser::getArrayStr(std::string& array, unsigned int which) const {
   array = m_text.substr(pos, pos1 - pos);
 }
 
-void Parser::getArray(std::vector<floatt>& array,
+bool Parser::getArray(std::vector<floatt>& array,
                       const std::string& arrayStr) const {
   size_t pos = 0;
   size_t pos1 = std::string::npos;
@@ -85,17 +89,20 @@ void Parser::getArray(std::vector<floatt>& array,
     std::string::iterator it = std::remove_if(
         elementStr.begin(), elementStr.end(), (int (*)(int))std::isspace);
     elementStr.erase(it, elementStr.end());
-    parseElement(array, elementStr);
+    if (parseElement(array, elementStr) == false) {
+      return false;
+    }
     pos = pos1 + 1;
   } while (pos1 != std::string::npos);
+  return true;
 }
 
-void Parser::parseElement(std::vector<floatt>& array,
+bool Parser::parseElement(std::vector<floatt>& array,
                           const std::string& elementStr) const {
   if (isOneElement(elementStr)) {
-    parseFloatElement(array, elementStr);
+    return parseFloatElement(array, elementStr);
   } else {
-    parseFloatsElement(array, elementStr);
+    return parseFloatsElement(array, elementStr);
   }
 }
 
@@ -104,13 +111,17 @@ bool Parser::isOneElement(const std::string& elementStr) const {
          elementStr.find(">") == std::string::npos;
 }
 
-void Parser::parseFloatElement(std::vector<floatt>& array,
+bool Parser::parseFloatElement(std::vector<floatt>& array,
                                const std::string& elementStr) const {
-  const floatt v = satof(elementStr.c_str());
-  array.push_back(v);
+  floatt v = 0;
+  bool status = satof(v, elementStr.c_str());
+  if (status) {
+    array.push_back(v);
+  }
+  return status;
 }
 
-void Parser::parseFloatsElement(std::vector<floatt>& array,
+bool Parser::parseFloatsElement(std::vector<floatt>& array,
                                 const std::string& elementStr) const {
   size_t pos = elementStr.find("<");
   size_t pos1 = elementStr.find(">");
@@ -119,10 +130,14 @@ void Parser::parseFloatsElement(std::vector<floatt>& array,
   size_t posDigit2 = partStr.find_first_not_of(".-0123456789", posDigit1);
   int count = atoi(partStr.substr(posDigit1, posDigit2 - posDigit1).c_str());
   std::string sub = elementStr.substr(0, pos);
-  const floatt value = satof(sub.c_str());
-  for (int fa = 0; fa < count; ++fa) {
-    array.push_back(value);
+  floatt value;
+  bool status = satof(value, sub.c_str());
+  if (status) {
+    for (int fa = 0; fa < count; ++fa) {
+      array.push_back(value);
+    }
   }
+  return status;
 }
 
 bool Parser::parseArray(unsigned int which) {
@@ -131,7 +146,9 @@ bool Parser::parseArray(unsigned int which) {
     return false;
   }
   m_array.clear();
-  getArray(m_array, arrayStr);
+  if (getArray(m_array, arrayStr) == false) {
+    return false;
+  }
   return true;
 }
 

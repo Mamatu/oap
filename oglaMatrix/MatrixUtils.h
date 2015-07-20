@@ -97,18 +97,18 @@ class Parser {
  protected:
   bool getValue(uintt& value, const std::string& id) const;
   bool getArrayStr(std::string& array, unsigned int which) const;
-  void getArray(std::vector<floatt>& array, const std::string& arrayStr) const;
+  bool getArray(std::vector<floatt>& array, const std::string& arrayStr) const;
 
-  void parseElement(std::vector<floatt>& array,
+  bool parseElement(std::vector<floatt>& array,
                     const std::string& elementStr) const;
 
   bool isOneElement(const std::string& elementStr) const;
-  void parseFloatElement(std::vector<floatt>& array,
+  bool parseFloatElement(std::vector<floatt>& array,
                          const std::string& elementStr) const;
-  void parseFloatsElement(std::vector<floatt>& array,
+  bool parseFloatsElement(std::vector<floatt>& array,
                           const std::string& elementStr) const;
 
-  floatt satof(const std::string& str) const;
+  bool satof(floatt& output, const std::string& str) const;
 
  public:
   Parser();

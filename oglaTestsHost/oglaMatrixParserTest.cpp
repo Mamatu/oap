@@ -50,7 +50,7 @@ TEST_F(OglaMatrixParserTests, Test1) {
   std::string text = "[0,1,2,3,4,5,6,7,8,9,10]";
 
   this->setText(text);
-  this->parseArray(1);
+  EXPECT_TRUE(this->parseArray(1));
   for (int fa = 0; fa <= 10; ++fa) {
     EXPECT_DOUBLE_EQ(double(fa), this->getValue(fa));
   }
@@ -60,7 +60,7 @@ TEST_F(OglaMatrixParserTests, Test2) {
   std::string text = "[0 <repeat 10 times>,1,2,3,4,5,6,7,8,9,10]";
 
   this->setText(text);
-  this->parseArray(1);
+  EXPECT_TRUE(this->parseArray(1));
   for (int fa = 0; fa < 10; ++fa) {
     EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
   }
@@ -70,7 +70,7 @@ TEST_F(OglaMatrixParserTests, Test2WithSeprator) {
   std::string text = "[0 <repeat 10 times>,1,2|3,4,5|6,7 | 8    | 9,10]";
 
   this->setText(text);
-  this->parseArray(1);
+  EXPECT_TRUE(this->parseArray(1));
   for (int fa = 0; fa < 10; ++fa) {
     EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
   }
@@ -81,7 +81,7 @@ TEST_F(OglaMatrixParserTests, Test3) {
       "(columns=5, rows=6) [0 <repeat 10 times>,1,2,3,4,5,6,7,8,9,10]";
 
   this->setText(text);
-  this->parseArray(1);
+  EXPECT_TRUE(this->parseArray(1));
   for (int fa = 0; fa < 10; ++fa) {
     EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
   }
@@ -100,7 +100,7 @@ TEST_F(OglaMatrixParserTests, Test4) {
       "times>,1,2,3,4,5,6,7,8,9,10]";
 
   this->setText(text);
-  this->parseArray(2);
+  EXPECT_TRUE(this->parseArray(2));
   for (int fa = 0; fa < 10; ++fa) {
     EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
   }
@@ -112,7 +112,7 @@ TEST_F(OglaMatrixParserTests, Test4) {
   EXPECT_EQ(5, columns);
   EXPECT_EQ(6, rows);
 
-  this->parseArray(1);
+  EXPECT_TRUE(this->parseArray(1));
   for (int fa = 0; fa <= 10; ++fa) {
     EXPECT_DOUBLE_EQ(double(fa), this->getValue(fa));
   }
@@ -129,7 +129,7 @@ TEST_F(OglaMatrixParserTests, Test5) {
       16384 times>] (length=16384)";
 
   this->setText(text);
-  this->parseArray(2);
+  EXPECT_TRUE(this->parseArray(2));
   for (int fa = 0; fa < 16384; ++fa) {
     EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
   }
@@ -141,7 +141,7 @@ TEST_F(OglaMatrixParserTests, Test5) {
   EXPECT_EQ(1, columns);
   EXPECT_EQ(16384, rows);
 
-  this->parseArray(1);
+  EXPECT_TRUE(this->parseArray(1));
   EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(2));
   EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(4));
   EXPECT_DOUBLE_EQ(double(0), this->getValue(5));
@@ -164,7 +164,7 @@ TEST_F(OglaMatrixParserTests, Test5withSeparator) {
       16384 times>] (length=16384)";
 
   this->setText(text);
-  this->parseArray(2);
+  EXPECT_TRUE(this->parseArray(2));
   for (int fa = 0; fa < 16384; ++fa) {
     EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
   }
@@ -176,7 +176,7 @@ TEST_F(OglaMatrixParserTests, Test5withSeparator) {
   EXPECT_EQ(1, columns);
   EXPECT_EQ(16384, rows);
 
-  this->parseArray(1);
+  EXPECT_TRUE(this->parseArray(1));
   EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(2));
   EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(4));
   EXPECT_DOUBLE_EQ(double(0), this->getValue(5));
@@ -186,6 +186,36 @@ TEST_F(OglaMatrixParserTests, Test5withSeparator) {
   EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[4]);
   EXPECT_DOUBLE_EQ(double(0), arrayLength.first[5]);
   delete[] arrayLength.first;
+}
+
+TEST_F(OglaMatrixParserTests, Test6) {
+  std::string text =
+      "[0.81649658092773, -0.49236596391733, -0.30151134457776, "
+      "0.40824829046386, 0.86164043685533, -0.30151134457776, "
+      "0.40824829046386, 0.12309149097933, 0.90453403373329]";
+
+  this->setText(text);
+
+  EXPECT_TRUE(this->parseArray(1));
+  EXPECT_DOUBLE_EQ(double(0.81649658092773), this->getValue(0));
+  EXPECT_DOUBLE_EQ(double(-0.49236596391733), this->getValue(1));
+  EXPECT_DOUBLE_EQ(double(-0.30151134457776), this->getValue(2));
+  EXPECT_DOUBLE_EQ(double(0.40824829046386), this->getValue(3));
+  EXPECT_DOUBLE_EQ(double(0.86164043685533), this->getValue(4));
+  EXPECT_DOUBLE_EQ(double(-0.30151134457776), this->getValue(5));
+  EXPECT_DOUBLE_EQ(double(0.40824829046386), this->getValue(6));
+  EXPECT_DOUBLE_EQ(double(0.12309149097933), this->getValue(7));
+  EXPECT_DOUBLE_EQ(double(0.90453403373329), this->getValue(8));
+}
+
+TEST_F(OglaMatrixParserTests, FailParsingTest1) {
+  std::string text =
+      "[0.81649658092773, _0.49236596391733, -0.30151134457776, "
+      "0.40824829046386, 0.86164043685533, -0.30151134457776, "
+      "0.40824829046386, 0.12309149097933, 0.90453403373329]";
+
+  this->setText(text);
+  EXPECT_FALSE(this->parseArray(1));
 }
 
 TEST_F(OglaMatrixParserTests, TestBigData) {
