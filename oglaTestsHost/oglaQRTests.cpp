@@ -45,6 +45,8 @@
 #include "KernelExecutor.h"
 #include "CuMatrixProcedures/CuQRProcedures.h"
 #include "qrtest1.h"
+#include "qrtest2.h"
+#include "qrtest3.h"
 
 class OglaQRTests : public OglaCudaStub {
  public:
@@ -74,7 +76,7 @@ class OglaQRTests : public OglaCudaStub {
       calculateDims(m_matrix->columns, m_matrix->rows);
     }
     void execute(const Dim3& threadIdx) {
-      CUDA_QR(m_q, m_r, m_matrix, m_temp1, m_temp2, m_temp3, m_temp4);
+      CUDA_QRGR(m_q, m_r, m_matrix, m_temp1, m_temp2, m_temp3, m_temp4);
     }
   };
 
@@ -117,4 +119,12 @@ class OglaQRTests : public OglaCudaStub {
 
 TEST_F(OglaQRTests, Test1) {
   executeTest(host::qrtest1::matrix, host::qrtest1::qref, host::qrtest1::rref);
+}
+
+TEST_F(OglaQRTests, Test2) {
+  executeTest(host::qrtest2::matrix, host::qrtest2::qref, host::qrtest2::rref);
+}
+
+TEST_F(OglaQRTests, Test3) {
+  executeTest(host::qrtest3::matrix, host::qrtest3::qref, host::qrtest3::rref);
 }

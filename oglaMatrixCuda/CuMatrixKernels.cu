@@ -284,7 +284,7 @@ extern "C" __global__ void CUDAKernel_QR(math::Matrix* output0,
                                          math::Matrix* aux0, math::Matrix* aux1,
                                          math::Matrix* aux2,
                                          math::Matrix* aux3) {
-  CUDA_QR(output0, output1, params0, aux0, aux1, aux2, aux3);
+  CUDA_QRGR(output0, output1, params0, aux0, aux1, aux2, aux3);
 }
 
 extern "C" __global__ void CUDAKernel_SetVector(math::Matrix* output,

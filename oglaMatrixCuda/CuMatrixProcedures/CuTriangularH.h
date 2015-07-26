@@ -16,7 +16,7 @@ __hostdevice__ void CUDA_CalculateTriangularH(
   status = CUDA_isUpperTriangular(H);
   uintt fb = 0;
   for (; status == false && fb < 15000; ++fb) {
-    CUDA_QR(Q, R, H, temp2, temp3, temp4, temp5);
+    CUDA_QRGR(Q, R, H, temp2, temp3, temp4, temp5);
     CUDA_dotProduct(H, R, Q, tx, ty);
     CUDA_dotProduct(temp1, Q, temp, tx, ty);
     CUDA_switchPointer(&temp1, &temp);
