@@ -1,1 +1,1 @@
-../makefile-cushared.mk
+../makefile-shared.mk

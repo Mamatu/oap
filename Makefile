@@ -10,8 +10,8 @@ $(OGLA_MODULES):
 .PHONY: clean
 clean:
 	for dir in $(OGLA_MODULES); do \
-          $(MAKE) -C $$dir clean; \
-        done
+	$(MAKE) -C $$dir clean; \
+	done
 	rm -rf */dist/$(MODE)/$(PLATFORM)/*
 	rm -rf */build/$(MODE)/$(PLATFORM)/*
 	rm -rf dist/$(MODE)/$(PLATFORM)/lib/*

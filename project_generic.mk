@@ -6,8 +6,10 @@ ifeq ($(PROJECT), albert)
 include $(OGLA_PATH)/project_albert.mk
 else ifeq ($(PROJECT), samsung)
 include $(OGLA_PATH)/project_samsung.mk
+else ifeq ($(PROJECT), lenovo)
+include $(OGLA_PATH)/project_lenovo.mk
 else
-include $(OGLA_PATH)/project_albert.mk
+include $(OGLA_PATH)/project_lenovo.mk
 endif
 
 ifeq ($(TYPES), extended)
