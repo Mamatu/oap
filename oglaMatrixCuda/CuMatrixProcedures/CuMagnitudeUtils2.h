@@ -14,21 +14,21 @@
 #include "CuMagnitudeUtilsCommon.h"
 
 __hostdevice__ void cuda_MagnitudeBufferVer2(floatt* buffer,
-    uintt sharedIndex, uintt sharedLength, uintt xlength, uintt ylength) {
+    uintt bufferIndex, uintt bufferLength, uintt xlength, uintt ylength) {
     CUDA_TEST_INIT();
 
-    if (sharedIndex < sharedLength && threadIdx.x < xlength && threadIdx.y < ylength) {
-        int c = sharedLength & 1;
-        buffer[sharedIndex] += buffer[sharedIndex + sharedLength];
-        if (c == 1 && sharedIndex + sharedLength == sharedLength*2 - 2) {
-            buffer[sharedIndex] += buffer[sharedLength - 1];
+    if (bufferIndex < bufferLength && threadIdx.x < xlength && threadIdx.y < ylength) {
+        int c = bufferLength & 1;
+        buffer[bufferIndex] += buffer[bufferIndex + bufferLength];
+        if (c == 1 && bufferIndex + bufferLength == bufferLength*2 - 2) {
+            buffer[bufferIndex] += buffer[bufferLength - 1];
         }
     }
 }
 
 __hostdevice__ void cuda_MagnitudeRealOptVer2(floatt* buffer,
     math::Matrix* m1,
-    uintt sharedIndex, uintt xlength) {
+    uintt bufferIndex, uintt xlength) {
     CUDA_TEST_INIT();
 
     const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
@@ -38,12 +38,12 @@ __hostdevice__ void cuda_MagnitudeRealOptVer2(floatt* buffer,
     if (inScope) {
         uintt index = GetMatrixIndex2(threadIdx, blockIdx, blockDim, m1->columns);
         bool isOdd = (m1->columns & 1) && (xlength & 1);
-        buffer[sharedIndex] = m1->reValues[index] * m1->reValues[index]
+        buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index]
             + m1->imValues[index] * m1->imValues[index]
             + m1->reValues[index + 1] * m1->reValues[index + 1]
             + m1->imValues[index + 1] * m1->imValues[index + 1];
         if (isOdd && threadIdx.x == xlength - 1) {
-            buffer[sharedIndex] += m1->reValues[index + 2] * m1->reValues[index + 2]
+            buffer[bufferIndex] += m1->reValues[index + 2] * m1->reValues[index + 2]
                 + m1->imValues[index + 2] * m1->imValues[index + 2];
         }
     }
@@ -51,7 +51,7 @@ __hostdevice__ void cuda_MagnitudeRealOptVer2(floatt* buffer,
 
 __hostdevice__ void cuda_MagnitudeReOptVer2(floatt* buffer,
     math::Matrix* m1,
-    uintt sharedIndex, uintt xlength) {
+    uintt bufferIndex, uintt xlength) {
     CUDA_TEST_INIT();
 
     const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
@@ -61,17 +61,17 @@ __hostdevice__ void cuda_MagnitudeReOptVer2(floatt* buffer,
     if (inScope) {
         uintt index = GetMatrixIndex2(threadIdx, blockIdx, blockDim, m1->columns);
         bool isOdd = (m1->columns & 1) && (xlength & 1);
-        buffer[sharedIndex] = m1->reValues[index] * m1->reValues[index]
+        buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index]
             + m1->reValues[index + 1] * m1->reValues[index + 1];
         if (isOdd && threadIdx.x == xlength - 1) {
-            buffer[sharedIndex] += m1->reValues[index + 2] * m1->reValues[index + 2];
+            buffer[bufferIndex] += m1->reValues[index + 2] * m1->reValues[index + 2];
         }
     }
 }
 
 __hostdevice__ void cuda_MagnitudeImOptVer2(floatt* buffer,
     math::Matrix* m1,
-    uintt sharedIndex, uintt xlength) {
+    uintt bufferIndex, uintt xlength) {
     CUDA_TEST_INIT();
 
     const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
@@ -81,10 +81,10 @@ __hostdevice__ void cuda_MagnitudeImOptVer2(floatt* buffer,
     if (inScope) {
         uintt index = GetMatrixIndex2(threadIdx, blockIdx, blockDim, m1->columns);
         bool isOdd = (m1->columns & 1) && (xlength & 1);
-        buffer[sharedIndex] = m1->imValues[index] * m1->imValues[index]
+        buffer[bufferIndex] = m1->imValues[index] * m1->imValues[index]
             + m1->imValues[index + 1] * m1->imValues[index + 1];
         if (isOdd && threadIdx.x == xlength - 1) {
-            buffer[sharedIndex] += m1->imValues[index + 2] * m1->imValues[index + 2];
+            buffer[bufferIndex] += m1->imValues[index + 2] * m1->imValues[index + 2];
         }
     }
 }
