@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream& output, const math::Matrix*& matrix) {
 
 class MatricesCounter : public ReferencesCounter<math::Matrix*> {
  public:
-  MatricesCounter() : ReferencesCounter("MatricesCounter") {}
+  MatricesCounter() : ReferencesCounter<math::Matrix*>("MatricesCounter") {}
 
   static MatricesCounter& GetInstance();
 

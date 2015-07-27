@@ -23,7 +23,7 @@
 namespace core {
 
 class ObjectLoader : public Loader<utils::OglaObject> {
-    Loader::Callback* callback;
+    Loader<utils::OglaObject>::Callback* callback;
 
 public:
     utils::Callbacks callbacksManager;
@@ -33,7 +33,7 @@ public:
 
 ObjectLoader::ObjectLoader(OglaServer* root) : Loader<utils::OglaObject>("LoadObjects", "UnloadObject", "GetObjectsCount") {
 
-    class CallbackImpl1 : public Loader::Callback {
+    class CallbackImpl1 : public Loader<utils::OglaObject>::Callback {
     public:
         uint count;
         OglaServer* root;
