@@ -77,6 +77,7 @@ bool Parser::getArrayStr(std::string& array, unsigned int which) const {
   }
   ++pos;
   array = m_text.substr(pos, pos1 - pos);
+  return true;
 }
 
 bool Parser::getArray(std::vector<floatt>& array,
