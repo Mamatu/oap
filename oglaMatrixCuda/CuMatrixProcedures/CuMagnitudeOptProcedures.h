@@ -21,10 +21,10 @@ __hostdevice__ void CUDA_magnitudeOptRealMatrix(floatt* sum, math::Matrix* matri
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-    cuda_MagnitudeRealOpt(buffer, matrix1, sharedIndex);
+    cuda_MagnitudeRealOpt(buffer, sharedIndex, matrix1);
     threads_sync();
     do {
-        cuda_MagnitudeBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
+        cuda_SumBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
         threads_sync();
     } while (sharedLength > 1);
@@ -40,10 +40,10 @@ __hostdevice__ void CUDA_magnitudeOptReMatrix(floatt* sum, math::Matrix* matrix1
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-    cuda_MagnitudeReOpt(buffer, matrix1, sharedIndex);
+    cuda_MagnitudeReOpt(buffer, sharedIndex, matrix1);
     threads_sync();
     do {
-        cuda_MagnitudeBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
+        cuda_SumBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
         threads_sync();
     } while (sharedLength > 1);
@@ -59,10 +59,10 @@ __hostdevice__ void CUDA_magnitudeOptImMatrix(floatt* sum, math::Matrix* matrix1
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-    cuda_MagnitudeImOpt(buffer, matrix1, sharedIndex);
+    cuda_MagnitudeImOpt(buffer, sharedIndex, matrix1);
     threads_sync();
     do {
-        cuda_MagnitudeBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
+        cuda_SumBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
         threads_sync();
     } while (sharedLength > 1);

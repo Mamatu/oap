@@ -115,9 +115,9 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
                                 m_matrix->columns / m_algoVersion.getFactor());
       uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
       if (m_algoVersion.getVersion() == AlgoVersion::VERSION_1) {
-        cuda_MagnitudeReOpt(m_buffer, m_matrix, sharedIndex);
+        cuda_MagnitudeReOpt(m_buffer, sharedIndex, m_matrix);
       } else if (m_algoVersion.getVersion() == AlgoVersion::VERSION_2) {
-        cuda_MagnitudeReOptVer2(m_buffer, m_matrix, sharedIndex, xlength);
+        cuda_MagnitudeReOptVer2(m_buffer, sharedIndex, m_matrix, xlength);
       }
     }
   }

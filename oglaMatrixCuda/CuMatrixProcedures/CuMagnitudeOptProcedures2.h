@@ -23,10 +23,10 @@ extern "C" __device__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::Ma
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-    cuda_MagnitudeRealOptVer2(buffer, matrix1, sharedIndex, xlength);
+    cuda_MagnitudeRealOptVer2(buffer, sharedIndex, matrix1, xlength);
     threads_sync();
     do {
-        cuda_MagnitudeBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
+        cuda_SumBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
         threads_sync();
     } while (sharedLength > 1);
@@ -42,10 +42,10 @@ extern "C" __device__ void CUDA_magnitudeOptReMatrixVer2(floatt* sum, math::Matr
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-    cuda_MagnitudeReOptVer2(buffer, matrix1, sharedIndex, xlength);
+    cuda_MagnitudeReOptVer2(buffer, sharedIndex, matrix1, xlength);
     threads_sync();
     do {
-        cuda_MagnitudeBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
+        cuda_SumBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
         threads_sync();
     } while (sharedLength > 1);
@@ -62,10 +62,10 @@ extern "C" __device__ void CUDA_magnitudeOptImMatrixVer2(floatt* sum, math::Matr
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
     uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-    cuda_MagnitudeImOptVer2(buffer, matrix1, sharedIndex, xlength);
+    cuda_MagnitudeImOptVer2(buffer, sharedIndex, matrix1, xlength);
     threads_sync();
     do {
-        cuda_MagnitudeBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
+        cuda_SumBufferVer2(buffer, sharedIndex, sharedLength, xlength, ylength);
         sharedLength = sharedLength / 2;
         threads_sync();
     } while (sharedLength > 1);

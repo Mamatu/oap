@@ -13,7 +13,7 @@
 #include "Matrix.h"
 #include "CuMagnitudeUtilsCommon.h"
 
-__hostdevice__ void cuda_MagnitudeBufferVer2(floatt* buffer,
+__hostdevice__ void cuda_SumBufferVer2(floatt* buffer,
     uintt bufferIndex, uintt bufferLength, uintt xlength, uintt ylength) {
     CUDA_TEST_INIT();
 
@@ -26,9 +26,8 @@ __hostdevice__ void cuda_MagnitudeBufferVer2(floatt* buffer,
     }
 }
 
-__hostdevice__ void cuda_MagnitudeRealOptVer2(floatt* buffer,
-    math::Matrix* m1,
-    uintt bufferIndex, uintt xlength) {
+__hostdevice__ void cuda_MagnitudeRealOptVer2(floatt* buffer, uintt bufferIndex,
+    math::Matrix* m1, uintt xlength) {
     CUDA_TEST_INIT();
 
     const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
@@ -49,9 +48,8 @@ __hostdevice__ void cuda_MagnitudeRealOptVer2(floatt* buffer,
     }
 }
 
-__hostdevice__ void cuda_MagnitudeReOptVer2(floatt* buffer,
-    math::Matrix* m1,
-    uintt bufferIndex, uintt xlength) {
+__hostdevice__ void cuda_MagnitudeReOptVer2(floatt* buffer, uintt bufferIndex,
+    math::Matrix* m1, uintt xlength) {
     CUDA_TEST_INIT();
 
     const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
@@ -69,9 +67,8 @@ __hostdevice__ void cuda_MagnitudeReOptVer2(floatt* buffer,
     }
 }
 
-__hostdevice__ void cuda_MagnitudeImOptVer2(floatt* buffer,
-    math::Matrix* m1,
-    uintt bufferIndex, uintt xlength) {
+__hostdevice__ void cuda_MagnitudeImOptVer2(floatt* buffer, uintt bufferIndex,
+    math::Matrix* m1, uintt xlength) {
     CUDA_TEST_INIT();
 
     const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
