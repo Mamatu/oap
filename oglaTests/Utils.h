@@ -190,31 +190,31 @@ T getSum(T* buffer, size_t length) {
 
 #ifdef CUDATEST
 
-inline std::string gridDimToStr(const Dim3& dim3) {
+inline std::string gridDimToStr(const dim3& dim3) {
   std::ostringstream s;
   s << "gridDim = [" << dim3.x << ", " << dim3.y << ", " << dim3.z << "]";
   return s.str();
 }
 
-inline std::string blockDimToStr(const Dim3& dim3) {
+inline std::string blockDimToStr(const dim3& dim3) {
   std::ostringstream s;
   s << "blockDim = [" << dim3.x << ", " << dim3.y << ", " << dim3.z << "]";
   return s.str();
 }
 
-inline std::string blockIdxToStr(const Dim3& dim3) {
+inline std::string blockIdxToStr(const dim3& dim3) {
   std::ostringstream s;
   s << "blockIdx = [" << dim3.x << ", " << dim3.y << ", " << dim3.z << "]";
   return s.str();
 }
 
-inline std::string threadIdxToStr(const Dim3& dim3) {
+inline std::string threadIdxToStr(const dim3& dim3) {
   std::ostringstream s;
   s << "threadIdx = [" << dim3.x << ", " << dim3.y << ", " << dim3.z << "]";
   return s.str();
 }
 
-inline std::string cudaDimsToStr(const Dim3& threadIdx) {
+inline std::string cudaDimsToStr(const dim3& threadIdx) {
   std::string output = " ";
   output += threadIdxToStr(threadIdx) + " ";
   output += blockIdxToStr(blockIdx) + " ";

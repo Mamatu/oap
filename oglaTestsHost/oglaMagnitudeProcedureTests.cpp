@@ -109,7 +109,7 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
 
   virtual ~MagnitudeUtilsStubImpl() {}
 
-  void execute(const Dim3& threadIdx) {
+  void execute(const dim3& threadIdx) {
     if (NULL != m_matrix) {
       uintt xlength = GetLength(blockIdx.x, blockDim.x,
                                 m_matrix->columns / m_algoVersion.getFactor());
@@ -123,7 +123,7 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
   }
 
   void onChange(KernelStub::ContextChnage contextChange,
-                const Dim3& threadIdx) {
+                const dim3& threadIdx) {
     if (contextChange == KernelStub::CUDA_BLOCK) {
       floatt actualSum = utils::getSum(m_buffer, m_bufferLength);
       m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;
@@ -146,7 +146,7 @@ class MagnitudeStubImpl : public MagnitudeStub {
 
   virtual ~MagnitudeStubImpl() {}
 
-  void execute(const Dim3& threadIdx) {
+  void execute(const dim3& threadIdx) {
     if (NULL != m_matrix) {
       CUDA_magnitudeOpt(m_sums, m_matrix, m_buffer);
     }

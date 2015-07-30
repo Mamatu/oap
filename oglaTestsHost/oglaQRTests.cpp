@@ -75,7 +75,7 @@ class OglaQRTests : public OglaCudaStub {
       m_temp4 = temp4;
       calculateDims(m_matrix->columns, m_matrix->rows);
     }
-    void execute(const Dim3& threadIdx) {
+    void execute(const dim3& threadIdx) {
       CUDA_QRGR(m_q, m_r, m_matrix, m_temp1, m_temp2, m_temp3, m_temp4);
     }
   };

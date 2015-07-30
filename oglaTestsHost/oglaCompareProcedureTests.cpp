@@ -85,7 +85,7 @@ public:
     }
 
     static int getExpectedResult(uintt columns, uintt rows,
-        const Dim3& gridDim, const Dim3& blockIdx, const Dim3& blockDim,
+        const dim3& gridDim, const dim3& blockIdx, const dim3& blockDim,
         const AlgoVersion& algoVersion) {
 
         int factor = algoVersion.getFactor();
@@ -108,8 +108,8 @@ public:
         return (xlength * factor + rest) * ylength;
     }
 
-    static int getExpectedResult(math::Matrix* matrix, const Dim3& gridDim,
-        const Dim3& blockIdx, const Dim3& blockDim,
+    static int getExpectedResult(math::Matrix* matrix, const dim3& gridDim,
+        const dim3& blockIdx, const dim3& blockDim,
         const AlgoVersion& algoVersion) {
         return getExpectedResult(matrix->columns, matrix->rows, gridDim,
             blockIdx, blockDim, algoVersion);
@@ -146,7 +146,7 @@ public:
         delete[] m_sums;
     }
 
-    void execute(const Dim3& threadIdx) {
+    void execute(const dim3& threadIdx) {
         if (NULL != m_matrix) {
             uintt xlength = GetLength(blockIdx.x, blockDim.x,
                 m_matrix->columns / m_algoVersion.getFactor());
@@ -159,7 +159,7 @@ public:
         }
     }
 
-    void onChange(KernelStub::ContextChnage contextChange, const Dim3& threadIdx) {
+    void onChange(KernelStub::ContextChnage contextChange, const dim3& threadIdx) {
         if (contextChange == KernelStub::CUDA_BLOCK) {
             int actualSum = utils::getSum(m_buffer, m_bufferLength);
             m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;

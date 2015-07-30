@@ -2,9 +2,9 @@
 
 #ifdef CUDATEST
 
-Dim3 blockIdx;
-Dim3 blockDim;
-Dim3 gridDim;
+dim3 blockIdx;
+dim3 blockDim;
+dim3 gridDim;
 
 void ResetCudaCtx() {
   blockIdx.clear();
@@ -16,9 +16,9 @@ ThreadIdx::ThreadIdxs ThreadIdx::m_threadIdxs;
 
 void ThreadIdx::clear() { m_threadIdx.clear(); }
 
-void ThreadIdx::setThreadIdx(const Dim3& dim3) { m_threadIdx = dim3; }
+void ThreadIdx::setThreadIdx(const dim3& dim3) { m_threadIdx = dim3; }
 
-const Dim3& ThreadIdx::getThreadIdx() const { return m_threadIdx; }
+const uint3& ThreadIdx::getThreadIdx() const { return m_threadIdx; }
 
 void ThreadIdx::createBarrier(const std::vector<pthread_t>& threads) {
   m_barriersMutex.lock();

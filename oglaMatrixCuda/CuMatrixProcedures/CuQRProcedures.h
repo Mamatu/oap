@@ -13,6 +13,7 @@
 #include "CuTransponseProcedures.h"
 #include "CuDotProductProcedures.h"
 #include "CuIdentityProcedures.h"
+#include "CuMagnitudeUtils.h"
 
 __hostdevice__ void CUDA_switchPointer(math::Matrix** a, math::Matrix** b) {
   CUDA_TEST_INIT();

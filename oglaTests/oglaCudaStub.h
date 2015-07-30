@@ -22,7 +22,7 @@ class KernelStub {
  public:
   virtual ~KernelStub() {}
 
-  void setDims(const Dim3& _gridDim, const Dim3& _blockDim) {
+  void setDims(const dim3& _gridDim, const dim3& _blockDim) {
     blockDim = _blockDim;
     gridDim = _gridDim;
   }
@@ -35,11 +35,11 @@ class KernelStub {
   }
 
  protected:
-  virtual void execute(const Dim3& threadIdx) = 0;
+  virtual void execute(const dim3& threadIdx) = 0;
 
   enum ContextChnage { CUDA_THREAD, CUDA_BLOCK };
 
-  virtual void onChange(ContextChnage contextChnage, const Dim3& threadIdx) {}
+  virtual void onChange(ContextChnage contextChnage, const dim3& threadIdx) {}
 
   friend class OglaCudaStub;
   friend class ThreadImpl;
@@ -70,7 +70,7 @@ class OglaCudaStub : public testing::Test {
 };
 
 class ThreadImpl : public utils::Thread {
-  Dim3 m_threadIdx;
+  dim3 m_threadIdx;
   KernelStub* m_cudaStub;
   std::vector<pthread_t>* m_pthreads;
   utils::sync::Barrier* m_barrier;
@@ -83,7 +83,7 @@ class ThreadImpl : public utils::Thread {
     m_cancontinue = false;
   }
 
-  void set(KernelStub* cudaStub, const Dim3& threadIdx,
+  void set(KernelStub* cudaStub, const dim3& threadIdx,
            std::vector<pthread_t>* pthreads, utils::sync::Barrier* barrier) {
     m_cudaStub = cudaStub;
     m_threadIdx = threadIdx;
@@ -93,7 +93,7 @@ class ThreadImpl : public utils::Thread {
 
   virtual ~ThreadImpl() {}
 
-  void setThreadIdx(const Dim3& threadIdx) { m_threadIdx = threadIdx; }
+  void setThreadIdx(const dim3& threadIdx) { m_threadIdx = threadIdx; }
 
   void waitOn() {
     m_mutex.lock();
@@ -131,7 +131,7 @@ class ThreadImpl : public utils::Thread {
 };
 
 inline void OglaCudaStub::executeKernelSync(KernelStub* cudaStub) {
-  Dim3 threadIdx;
+  dim3 threadIdx;
   for (uintt blockIdxY = 0; blockIdxY < gridDim.y; ++blockIdxY) {
     for (uintt blockIdxX = 0; blockIdxX < gridDim.x; ++blockIdxX) {
       for (uintt threadIdxY = 0; threadIdxY < blockDim.y; ++threadIdxY) {
@@ -151,7 +151,7 @@ inline void OglaCudaStub::executeKernelSync(KernelStub* cudaStub) {
 }
 
 inline void OglaCudaStub::executeKernelAsync(KernelStub* cudaStub) {
-  Dim3 threadIdx;
+  dim3 threadIdx;
 
   std::vector<ThreadImpl*> threads;
   std::vector<pthread_t> pthreads;
