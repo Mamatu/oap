@@ -71,15 +71,13 @@ __hostdeviceinline__ void cuda_calculateLocaIdx(uint3& lthreadIdx,
   CUDA_TEST_INIT();
 
   lthreadIdx.x = column;
-  lthreadIdx.y = threadIdx.y * m1->rows;
-  if (lthreadIdx.y >= blockDim.y) {
-    lthreadIdx.y = lthreadIdx.y % blockDim.y;
-    lblockIdx.y = lthreadIdx.y / blockDim.y;
-  }
+  lthreadIdx.y = threadIdx.x + threadIdx.y * blockDim.x;
+  lblockIdx.y = lthreadIdx.y / blockDim.y;
+  lthreadIdx.y = lthreadIdx.y % blockDim.y;
 }
 
-__hostdevice__ void cuda_MagnitudeVectorReOpt(floatt* buffer, uintt bufferIndex,
-                                              math::Matrix* m1, uintt column) {
+__hostdevice__ void cuda_MagnitudeRealVecOpt(floatt* buffer, uintt bufferIndex,
+                                             math::Matrix* m1, uintt column) {
   CUDA_TEST_INIT();
 
   uint3 lthreadIdx = threadIdx;
@@ -88,10 +86,45 @@ __hostdevice__ void cuda_MagnitudeVectorReOpt(floatt* buffer, uintt bufferIndex,
 
   const bool inScope =
       GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < m1->rows &&
-      GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) < m1->columns;
+      GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
+  if (inScope) {
+    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
+    buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index] +
+                          m1->imValues[index] * m1->imValues[index];
+  }
+}
+
+__hostdevice__ void cuda_MagnitudeReVecOpt(floatt* buffer, uintt bufferIndex,
+                                           math::Matrix* m1, uintt column) {
+  CUDA_TEST_INIT();
+
+  uint3 lthreadIdx = threadIdx;
+  dim3 lblockIdx = blockIdx;
+  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
+
+  const bool inScope =
+      GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < m1->rows &&
+      GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
   if (inScope) {
     uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
     buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index];
+  }
+}
+
+__hostdevice__ void cuda_MagnitudeImVecOpt(floatt* buffer, uintt bufferIndex,
+                                           math::Matrix* m1, uintt column) {
+  CUDA_TEST_INIT();
+
+  uint3 lthreadIdx = threadIdx;
+  dim3 lblockIdx = blockIdx;
+  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
+
+  const bool inScope =
+      GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < m1->rows &&
+      GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
+  if (inScope) {
+    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
+    buffer[bufferIndex] = m1->imValues[index] * m1->imValues[index];
   }
 }
 
