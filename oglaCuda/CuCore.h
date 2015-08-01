@@ -10,7 +10,22 @@
 
 #include <cuda.h>
 
-#ifndef CUDATEST
+#ifdef CUDATEST
+
+#include "Dim3.h"
+#include <pthread.h>
+
+#define __hostdeviceinline__ __inline__
+#define __hostdevice__ __inline__
+
+#define CUDA_TEST_INIT() uint3 threadIdx = ThreadIdx::m_threadIdxs[pthread_self()].getThreadIdx();
+
+#define CUDA_TEST_CODE(code) code
+
+
+#define threads_sync() ThreadIdx::wait();
+
+#else
 
 #define __hostdeviceinline__ extern "C" __device__ __forceinline__
 #define __hostdevice__ extern "C" __device__
@@ -21,20 +36,5 @@
 
 #define CUDA_TEST_CODE(code)
 
-#else
-
-#include "Dim3.h"
-#include <pthread.h>
-
-#define CUDA_TEST_INIT() uint3 threadIdx = ThreadIdx::m_threadIdxs[pthread_self()].getThreadIdx();
-
-#define CUDA_TEST_CODE(code) code
-
-#define __hostdeviceinline__ __inline__
-#define __hostdevice__ __inline__
-
-#define threads_sync() ThreadIdx::wait();
-
 #endif
-
 #endif /* CUCORE_H */
