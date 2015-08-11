@@ -128,4 +128,66 @@ __hostdevice__ void cuda_MagnitudeImVecOpt(floatt* buffer, uintt bufferIndex,
   }
 }
 
+__hostdevice__ void cuda_MagnitudeRealVecOptEx(floatt* buffer,
+                                               uintt bufferIndex,
+                                               math::Matrix* m1, uintt column,
+                                               uintt row1, uintt row2) {
+  CUDA_TEST_INIT();
+
+  uint3 lthreadIdx = threadIdx;
+  dim3 lblockIdx = blockIdx;
+  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
+
+  uintt matrixYIndex = GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim);
+
+  const bool inScope =
+      matrixYIndex >= row1 && matrixYIndex < row2 &&
+      GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
+  if (inScope) {
+    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
+    buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index] +
+                          m1->imValues[index] * m1->imValues[index];
+  }
+}
+
+__hostdevice__ void cuda_MagnitudeReVecOptEx(floatt* buffer, uintt bufferIndex,
+                                             math::Matrix* m1, uintt column,
+                                             uintt row1, uintt row2) {
+  CUDA_TEST_INIT();
+
+  uint3 lthreadIdx = threadIdx;
+  dim3 lblockIdx = blockIdx;
+  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
+
+  uintt matrixYIndex = GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim);
+
+  const bool inScope =
+      matrixYIndex >= row1 && matrixYIndex < row2 &&
+      GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
+  if (inScope) {
+    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
+    buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index];
+  }
+}
+
+__hostdevice__ void cuda_MagnitudeImVecOptEx(floatt* buffer, uintt bufferIndex,
+                                             math::Matrix* m1, uintt column,
+                                             uintt row1, uintt row2) {
+  CUDA_TEST_INIT();
+
+  uint3 lthreadIdx = threadIdx;
+  dim3 lblockIdx = blockIdx;
+  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
+
+  uintt matrixYIndex = GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim);
+
+  const bool inScope =
+      matrixYIndex >= row1 && matrixYIndex < row2 &&
+      GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
+  if (inScope) {
+    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
+    buffer[bufferIndex] = m1->imValues[index] * m1->imValues[index];
+  }
+}
+
 #endif /* CUCOMMONUTILS_H */

@@ -31,6 +31,7 @@ __hostdevice__ void CUDA_magnitudeOptRealVec(floatt* sum, math::Matrix* matrix1,
   if (threadIdx.x == 0 && threadIdx.y == 0) {
     sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
   }
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_magnitudeOptReVec(floatt* sum, math::Matrix* matrix1,
@@ -50,6 +51,7 @@ __hostdevice__ void CUDA_magnitudeOptReVec(floatt* sum, math::Matrix* matrix1,
   if (threadIdx.x == 0 && threadIdx.y == 0) {
     sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
   }
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_magnitudeOptImVec(floatt* sum, math::Matrix* matrix1,
@@ -69,6 +71,7 @@ __hostdevice__ void CUDA_magnitudeOptImVec(floatt* sum, math::Matrix* matrix1,
   if (threadIdx.x == 0 && threadIdx.y == 0) {
     sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
   }
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_magnitudeOptVec(floatt* sum, math::Matrix* matrix1,
@@ -84,4 +87,105 @@ __hostdevice__ void CUDA_magnitudeOptVec(floatt* sum, math::Matrix* matrix1,
     CUDA_magnitudeOptImVec(sum, matrix1, column, buffer);
   }
 }
+
+/*********************************************************************************************/
+
+__hostdevice__ void CUDA_magnitudeOptRealVecEx(floatt* sum,
+                                               math::Matrix* matrix1,
+                                               uintt column, uintt row1,
+                                               uintt row2, floatt* buffer) {
+  CUDA_TEST_INIT();
+  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt sharedLength = xlength * ylength;
+  uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
+  cuda_MagnitudeRealVecOptEx(buffer, sharedIndex, matrix1, column, row1, row2);
+  threads_sync();
+  do {
+    cuda_SumBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
+    sharedLength = sharedLength / 2;
+    threads_sync();
+  } while (sharedLength > 1);
+  if (threadIdx.x == 0 && threadIdx.y == 0) {
+    sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
+  }
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_magnitudeOptReVecEx(floatt* sum, math::Matrix* matrix1,
+                                             uintt column, uintt row1,
+                                             uintt row2, floatt* buffer) {
+  CUDA_TEST_INIT();
+  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt sharedLength = xlength * ylength;
+  uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
+  cuda_MagnitudeReVecOptEx(buffer, sharedIndex, matrix1, column, row1, row2);
+  threads_sync();
+  do {
+    cuda_SumBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
+    sharedLength = sharedLength / 2;
+    threads_sync();
+  } while (sharedLength > 1);
+  if (threadIdx.x == 0 && threadIdx.y == 0) {
+    sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
+  }
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_magnitudeOptImVecEx(floatt* sum, math::Matrix* matrix1,
+                                             uintt column, uintt row1,
+                                             uintt row2, floatt* buffer) {
+  CUDA_TEST_INIT();
+  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt sharedLength = xlength * ylength;
+  uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
+  cuda_MagnitudeImVecOptEx(buffer, sharedIndex, matrix1, column, row1, row2);
+  threads_sync();
+  do {
+    cuda_SumBuffer(buffer, sharedIndex, sharedLength, xlength, ylength);
+    sharedLength = sharedLength / 2;
+    threads_sync();
+  } while (sharedLength > 1);
+  if (threadIdx.x == 0 && threadIdx.y == 0) {
+    sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
+  }
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_getMagnitude(floatt* output, floatt* sums) {
+  for (uintt fa = 0; fa < gridDim.x; ++fa) {
+    for (uintt fb = 0; fb < gridDim.y; ++fb) {
+      (*output) += sums[gridDim.x * fb + fa];
+    }
+  }
+  (*output) = sqrtf((*output));
+}
+
+__hostdevice__ void CUDA_getSgn(floatt* output, floatt x) {
+  if (x < 0) {
+    (*output) = -1;
+  } else if (x > 0) {
+    (*output) = 1;
+  } else {
+    (*output) = 0;
+  }
+}
+
+__hostdevice__ void CUDA_magnitudeOptVecEx(floatt* sum, math::Matrix* matrix1,
+                                           uintt column, uintt row1, uintt row2,
+                                           floatt* buffer) {
+  CUDA_TEST_INIT();
+  bool isre = matrix1->reValues != NULL;
+  bool isim = matrix1->imValues != NULL;
+  if (isre && isim) {
+    CUDA_magnitudeOptRealVecEx(sum, matrix1, column, row1, row2, buffer);
+  } else if (isre) {
+    CUDA_magnitudeOptReVecEx(sum, matrix1, column, row1, row2, buffer);
+  } else if (isim) {
+    CUDA_magnitudeOptImVecEx(sum, matrix1, column, row1, row2, buffer);
+  }
+}
+
 #endif /* CUMAGNITUDEPROCEDURES_H */

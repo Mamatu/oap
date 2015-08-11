@@ -47,7 +47,12 @@
 
 class AlgoInfo {
  public:
-  enum Type { MATRIX_MAGNITUDE, MATRIX_MAGNITUDE_OPT, MATRIX_VECTOR_MAGNITUDE };
+  enum Type {
+    MATRIX_MAGNITUDE,
+    MATRIX_MAGNITUDE_OPT,
+    MATRIX_VECTOR_MAGNITUDE,
+    MATRIX_VECTOR_MAGNITUDE_EX
+  };
 
  private:
   Type m_version;
@@ -61,6 +66,8 @@ class AlgoInfo {
     } else if (version == AlgoInfo::MATRIX_MAGNITUDE_OPT) {
       m_factor = 2;
     } else if (version == AlgoInfo::MATRIX_VECTOR_MAGNITUDE) {
+      m_factor = 1;
+    } else if (version == AlgoInfo::MATRIX_VECTOR_MAGNITUDE_EX) {
       m_factor = 1;
     }
   }
@@ -78,7 +85,21 @@ class OglaMagnitudeTests : public OglaCudaStub {
 
   void executeMatrixMagnitudeTest(floatt* hArray, uintt columns, uintt rows);
   void executeMatrixMagnitudeTest(math::Matrix* matrix);
-  void executeVectorMagnitudeTest(math::Matrix* matrix, uintt column, floatt outcome);
+  floatt executeVectorMagnitudeEx(math::Matrix* matrix, uintt column,
+                                  uintt row1, uintt row2);
+  floatt executeVectorMagnitudeExTest(math::Matrix* matrix, uintt column,
+                                  floatt outcome, uintt row1, uintt row2);
+  floatt executeVectorMagnitude(math::Matrix* matrix, uintt column);
+  floatt executeVectorMagnitudeTest(math::Matrix* matrix, uintt column,
+                                  floatt outcome);
+
+  floatt calculateMagnitude(uintt begin, uintt end) {
+    floatt output = 0;
+    for (uintt fa = begin; fa < end; ++fa) {
+        output = output + fa * fa;
+    }
+    return sqrt(output);
+  }
 };
 
 class MagnitudeStub : public KernelStub {
@@ -87,6 +108,8 @@ class MagnitudeStub : public KernelStub {
 
   math::Matrix* m_matrix;
   uintt m_column;
+  uintt m_row1;
+  uintt m_row2;
   floatt* m_buffer;
   size_t m_bufferLength;
 
@@ -94,10 +117,13 @@ class MagnitudeStub : public KernelStub {
   size_t m_sumsLength;
 
   MagnitudeStub(math::Matrix* matrix, uintt columns, uintt rows,
-                AlgoInfo::Type algoType, uintt column = 0)
+                AlgoInfo::Type algoType, uintt column = 0, uintt row1 = 0,
+                uintt row2 = 0)
       : m_algoInfo(algoType) {
     m_matrix = matrix;
     m_column = column;
+    m_row1 = row1;
+    m_row2 = row2;
     int factor = m_algoInfo.getFactor();
     debugAssert(factor != 0);
     calculateDims(columns / factor, rows);
@@ -120,8 +146,9 @@ class MagnitudeStub : public KernelStub {
 class MagnitudeUtilsStubImpl : public MagnitudeStub {
  public:
   MagnitudeUtilsStubImpl(math::Matrix* matrix, uintt columns, uintt rows,
-                         AlgoInfo::Type algoType, uintt column = 0)
-      : MagnitudeStub(matrix, columns, rows, algoType, column) {}
+                         AlgoInfo::Type algoType, uintt column = 0,
+                         uintt row1 = 0, uintt row2 = 0)
+      : MagnitudeStub(matrix, columns, rows, algoType, column, row1, row2) {}
 
   virtual ~MagnitudeUtilsStubImpl() {}
 
@@ -139,6 +166,9 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
           break;
         case AlgoInfo::MATRIX_VECTOR_MAGNITUDE:
           cuda_MagnitudeReVecOpt(m_buffer, sharedIndex, m_matrix, m_column);
+          break;
+        case AlgoInfo::MATRIX_VECTOR_MAGNITUDE_EX:
+          cuda_MagnitudeReVecOptEx(m_buffer, sharedIndex, m_matrix, m_column, m_row1, m_row2);
           break;
       }
     }
@@ -202,15 +232,52 @@ void OglaMagnitudeTests::executeMatrixMagnitudeTest(floatt* hArray,
   host::DeleteMatrix(matrix);
 }
 
-void OglaMagnitudeTests::executeVectorMagnitudeTest(math::Matrix* matrix,
-                                                    uintt column, floatt outcome) {
-  MagnitudeUtilsStubImpl magitudeStubImpl(
-      matrix, matrix->columns, matrix->rows, AlgoInfo::MATRIX_VECTOR_MAGNITUDE, column);
+floatt OglaMagnitudeTests::executeVectorMagnitude(math::Matrix* matrix,
+                                                    uintt column) {
+  MagnitudeUtilsStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows,
+                                          AlgoInfo::MATRIX_VECTOR_MAGNITUDE,
+                                          column);
   executeKernelSync(&magitudeStubImpl);
 
   floatt doutput = magitudeStubImpl.getSum();
 
-  EXPECT_DOUBLE_EQ(outcome, doutput);
+  return doutput;
+}
+
+floatt OglaMagnitudeTests::executeVectorMagnitudeTest(math::Matrix* matrix,
+                                                    uintt column,
+                                                    floatt eq_output) {
+
+  floatt doutput = executeVectorMagnitude(matrix, column);
+
+  EXPECT_DOUBLE_EQ(eq_output, doutput);
+
+  return doutput;
+}
+
+floatt OglaMagnitudeTests::executeVectorMagnitudeEx(math::Matrix* matrix,
+                                                    uintt column,
+                                                    uintt row1, uintt row2) {
+  MagnitudeUtilsStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows,
+                                          AlgoInfo::MATRIX_VECTOR_MAGNITUDE_EX,
+                                          column, row1, row2);
+  executeKernelSync(&magitudeStubImpl);
+
+  floatt doutput = magitudeStubImpl.getSum();
+
+  return doutput;
+}
+
+floatt OglaMagnitudeTests::executeVectorMagnitudeExTest(math::Matrix* matrix,
+                                                    uintt column,
+                                                    floatt eq_output,
+                                                    uintt row1, uintt row2) {
+
+  floatt doutput = executeVectorMagnitudeEx(matrix, column, row1, row2);
+
+  EXPECT_DOUBLE_EQ(eq_output, doutput);
+
+  return doutput;
 }
 
 TEST_F(OglaMagnitudeTests, MagnitudeUtilsColumns1) {
@@ -450,7 +517,7 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeIncreased9x9) {
 
   floatt eq_output = 0;
 
-  for(uintt fa = 1; fa <= 9; ++fa) {
+  for (uintt fa = 1; fa <= 9; ++fa) {
     eq_output += fa * fa;
   }
 
@@ -480,13 +547,104 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeIncreased8x8) {
 
   floatt eq_output = 0;
 
-  for(uintt fa = 1; fa <= 8; ++fa) {
+  for (uintt fa = 1; fa <= 8; ++fa) {
     eq_output += fa * fa;
   }
 
   eq_output = sqrt(eq_output);
 
   executeVectorMagnitudeTest(matrix, 4, eq_output);
+
+  host::DeleteMatrix(matrix);
+}
+
+TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited9x9) {
+  floatt hArray[] = {
+      0, 0, 1, 0, 1, 0, 0, 0, 0,
+      0, 0, 1, 0, 2, 0, 0, 0, 0,
+      0, 0, 1, 0, 3, 0, 0, 0, 0,
+      0, 0, 1, 0, 4, 0, 0, 0, 0,
+      0, 0, 1, 0, 5, 0, 0, 0, 0,
+      0, 0, 1, 0, 6, 0, 0, 0, 0,
+      0, 0, 1, 0, 7, 0, 0, 0, 0,
+      0, 0, 1, 0, 8, 0, 0, 0, 0,
+      0, 0, 1, 0, 9, 0, 0, 0, 0,
+  };
+
+  int columns = 9;
+  int rows = 9;
+
+  math::Matrix* matrix = host::NewMatrixCopy(columns, rows, hArray, NULL);
+
+  floatt eq_output = 0;
+  floatt eq_output1 = 0;
+
+  eq_output = calculateMagnitude(2, 10);
+  eq_output1 = calculateMagnitude(1, 10);
+
+  floatt doutput = executeVectorMagnitudeExTest(matrix, 4, eq_output, 1, 9);
+
+  EXPECT_THAT(doutput, testing::Not(testing::DoubleEq(eq_output1)));
+
+  host::DeleteMatrix(matrix);
+}
+
+TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited8x8) {
+  floatt hArray[] = {
+      0, 0, 1, 0, 1, 0, 0, 0,
+      0, 0, 1, 0, 2, 0, 0, 0,
+      0, 0, 1, 0, 3, 0, 0, 0,
+      0, 0, 1, 0, 4, 0, 0, 0,
+      0, 0, 1, 0, 5, 0, 0, 0,
+      0, 0, 1, 0, 6, 0, 0, 0,
+      0, 0, 1, 0, 7, 0, 0, 0,
+      0, 0, 1, 0, 8, 0, 0, 0,
+  };
+
+  int columns = 8;
+  int rows = 8;
+
+  math::Matrix* matrix = host::NewMatrixCopy(columns, rows, hArray, NULL);
+
+  floatt eq_output = 0;
+  floatt eq_output1 = 0;
+
+  eq_output = calculateMagnitude(2, 9);
+  eq_output1 = calculateMagnitude(1, 9);
+
+  floatt doutput = executeVectorMagnitudeExTest(matrix, 4, eq_output, 1, 8);
+
+  EXPECT_THAT(doutput, testing::Not(testing::DoubleEq(eq_output1)));
+
+  host::DeleteMatrix(matrix);
+}
+
+TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited8x8Ver1) {
+  floatt hArray[] = {
+      0, 0, 1, 0, 1, 0, 0, 0,
+      0, 0, 1, 0, 2, 0, 0, 0,
+      0, 0, 1, 0, 3, 0, 0, 0,
+      0, 0, 1, 0, 4, 0, 0, 0,
+      0, 0, 1, 0, 5, 0, 0, 0,
+      0, 0, 1, 0, 6, 0, 0, 0,
+      0, 0, 1, 0, 7, 0, 0, 0,
+      0, 0, 1, 0, 8, 0, 0, 0,
+  };
+
+  int columns = 8;
+  int rows = 8;
+
+  math::Matrix* matrix = host::NewMatrixCopy(columns, rows, hArray, NULL);
+
+  floatt eq_output = 0;
+  floatt eq_output1 = 0;
+
+  eq_output = calculateMagnitude(2, 8);
+  eq_output1 = calculateMagnitude(1, 8);
+
+  floatt doutput = executeVectorMagnitudeExTest(matrix, 4, eq_output, 1, 7);
+
+  EXPECT_THAT(doutput, testing::Not(testing::DoubleEq(eq_output1)));
 
   host::DeleteMatrix(matrix);
 }
