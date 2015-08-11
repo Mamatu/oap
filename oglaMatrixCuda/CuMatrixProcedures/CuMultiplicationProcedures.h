@@ -8,7 +8,9 @@
 #ifndef CUMULTIPLICATIONPROCEDURES_H
 #define	CUMULTIPLICATIONPROCEDURES_H
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyConstantReMatrix(
+#include "CuCore.h"
+
+__hostdevice__ void CUDA_multiplyConstantReMatrix(
     math::Matrix* output,
     math::Matrix* params0, floatt re,
     uintt threadIndexX, uintt threadIndexY) {
@@ -19,7 +21,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantReMatrix(
     threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyConstantImMatrix(
+__hostdevice__ void CUDA_multiplyConstantImMatrix(
     math::Matrix* output,
     math::Matrix* params0, floatt im,
     uintt threadIndexX, uintt threadIndexY) {
@@ -30,7 +32,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantImMatrix(
     threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyConstantRealMatrix(
+__hostdevice__ void CUDA_multiplyConstantRealMatrix(
     math::Matrix* output,
     math::Matrix* params0,
     floatt re, floatt im,
@@ -44,7 +46,7 @@ extern "C" __device__ __forceinline__ void CUDA_multiplyConstantRealMatrix(
     threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_multiplyConstantMatrix(
+__hostdevice__ void CUDA_multiplyConstantMatrix(
     math::Matrix* output, math::Matrix* params0,
     floatt re, floatt im,
     uintt threadIndexX, uintt threadIndexY) {
