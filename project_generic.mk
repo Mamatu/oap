@@ -14,9 +14,9 @@ endif
 
 ifeq ($(TYPES), extended)
 TYPES := EXTENDED_TYPES
-else ifeq ($(PROJECT), rich)
+else ifeq ($(TYPES), rich)
 TYPES := RICH_TYPES
-else ifeq ($(PROJECT), normal)
+else ifeq ($(TYPES), normal)
 TYPES := NORMAL_TYPES
 else
 TYPES := EXTENDED_TYPES
