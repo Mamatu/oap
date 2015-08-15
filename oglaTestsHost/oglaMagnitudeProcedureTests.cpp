@@ -584,7 +584,7 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited9x9) {
 
   floatt doutput = executeVectorMagnitudeExTest(matrix, 4, eq_output, 1, 9);
 
-  EXPECT_THAT(doutput, testing::Not(testing::DoubleEq(eq_output1)));
+  EXPECT_THAT(doutput, testing::Not(eq_output1));
 
   host::DeleteMatrix(matrix);
 }
@@ -614,7 +614,7 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited8x8) {
 
   floatt doutput = executeVectorMagnitudeExTest(matrix, 4, eq_output, 1, 8);
 
-  EXPECT_THAT(doutput, testing::Not(testing::DoubleEq(eq_output1)));
+  EXPECT_THAT(doutput, testing::Not(eq_output1));
 
   host::DeleteMatrix(matrix);
 }
@@ -644,7 +644,7 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited8x8Ver1) {
 
   floatt doutput = executeVectorMagnitudeExTest(matrix, 4, eq_output, 1, 7);
 
-  EXPECT_THAT(doutput, testing::Not(testing::DoubleEq(eq_output1)));
+  EXPECT_THAT(doutput, testing::Not(eq_output1));
 
   host::DeleteMatrix(matrix);
 }
