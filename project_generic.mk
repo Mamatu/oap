@@ -12,6 +12,16 @@ else
 include $(OGLA_PATH)/project_lenovo.mk
 endif
 
+ifeq ($(TYPES), extended)
+TYPES := EXTENDED_TYPES
+else ifeq ($(TYPES), rich)
+TYPES := RICH_TYPES
+else ifeq ($(TYPES), normal)
+TYPES := NORMAL_TYPES
+else
+TYPES := EXTENDED_TYPES
+endif
+
 ifeq ($(KERNEL_INFO), 1)
 KERNEL_INFO := KERNEL_EXTENDED_INFO=1
 else ifeq ($(KERNEL_INFO), 0)
