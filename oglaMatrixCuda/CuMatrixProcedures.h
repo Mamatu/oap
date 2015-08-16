@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include "Matrix.h"
 #include "MatrixEx.h"
+#include "CuCore.h"
 
 #include "CuMatrixProcedures/CuCompareProcedures.h"
 #include "CuMatrixProcedures/CuCompareOptProcedures.h"
@@ -31,7 +32,7 @@
 #include "CuMatrixProcedures/CuMagnitudeOptProcedures2.h"
 #include "CuMatrixProcedures/CuTriangularH.h"
 
-extern "C" __device__ void CUDA_setDiagonalReMatrix(
+__hostdevice__ void CUDA_setDiagonalReMatrix(
     math::Matrix* dst,
     floatt v,
     uintt threadIndexX,
@@ -42,10 +43,10 @@ extern "C" __device__ void CUDA_setDiagonalReMatrix(
     } else {
         dst->reValues[index] = 0;
     }
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ void CUDA_setDiagonalImMatrix(
+__hostdevice__ void CUDA_setDiagonalImMatrix(
     math::Matrix* dst,
     floatt v,
     uintt threadIndexX,
@@ -56,10 +57,10 @@ extern "C" __device__ void CUDA_setDiagonalImMatrix(
     } else {
         dst->imValues[index] = 0;
     }
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ void CUDA_setDiagonalMatrix(
+__hostdevice__ void CUDA_setDiagonalMatrix(
     math::Matrix* dst,
     floatt rev,
     floatt imv,
@@ -72,7 +73,7 @@ extern "C" __device__ void CUDA_setDiagonalMatrix(
     }
 }
 
-extern "C" __device__ __forceinline__ void CUDA_tensorProductReMatrix(
+__hostdeviceinline__ void CUDA_tensorProductReMatrix(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -96,10 +97,10 @@ extern "C" __device__ __forceinline__ void CUDA_tensorProductReMatrix(
     output->reValues[index2] =
         params0->reValues[index] *
         params1->reValues[index1];
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_tensorProductImMatrix(
+__hostdeviceinline__ void CUDA_tensorProductImMatrix(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -123,10 +124,10 @@ extern "C" __device__ __forceinline__ void CUDA_tensorProductImMatrix(
     output->reValues[index2] =
         -params0->imValues[index] *
         params1->imValues[index1];
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void CUDA_tensorProductMatrix(
+__hostdeviceinline__ void CUDA_tensorProductMatrix(
     math::Matrix* output,
     math::Matrix* params0,
     math::Matrix* params1,
@@ -153,33 +154,33 @@ extern "C" __device__ __forceinline__ void CUDA_tensorProductMatrix(
         params1->imValues[index1] -
         params0->imValues[index] *
         params1->reValues[index1];
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ __forceinline__ void conjugateIm(math::Matrix* output,
+__hostdeviceinline__ void conjugateIm(math::Matrix* output,
     math::Matrix * params0,
     uintt threadIndexX, uintt threadIndexY) {
     uintt index = threadIndexX + output->columns * threadIndexY;
     output->imValues[index] = -params0->imValues[index];
 }
 
-extern "C" __device__ __forceinline__ void conjugateIm1(math::Matrix * output,
+__hostdeviceinline__ void conjugateIm1(math::Matrix * output,
     uintt tx, uintt ty) {
     uintt index = tx + output->columns * ty;
     output->imValues[index] = -output->imValues[index];
 }
 
-extern "C" __device__ void CUDA_setSubRows(math::Matrix* matrix,
+__hostdevice__ void CUDA_setSubRows(math::Matrix* matrix,
     uintt brow, uintt erow) {
     matrix->rows = erow;
 }
 
-extern "C" __device__ void CUDA_setSubColumns(math::Matrix* matrix,
+__hostdevice__ void CUDA_setSubColumns(math::Matrix* matrix,
     uintt bcolumn, uintt ecolumn) {
     matrix->columns = ecolumn;
 }
 
-extern "C" __device__ void CUDA_setVector(math::Matrix* V, uintt column,
+__hostdevice__ void CUDA_setVector(math::Matrix* V, uintt column,
     math::Matrix* v, uintt length, uintt tx, uintt ty) {
     if (ty < length) {
         uintt index1 = ty * V->columns + column + tx;
@@ -191,10 +192,10 @@ extern "C" __device__ void CUDA_setVector(math::Matrix* V, uintt column,
             V->imValues[index1] = v->imValues[index2];
         }
     }
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ void CUDA_getVector(math::Matrix* v, uintt length,
+__hostdevice__ void CUDA_getVector(math::Matrix* v, uintt length,
     math::Matrix* V, uintt column, uintt tx, uintt ty) {
     if (ty < length) {
         uintt index1 = ty * V->columns + column + tx;
@@ -206,10 +207,10 @@ extern "C" __device__ void CUDA_getVector(math::Matrix* v, uintt length,
             v->imValues[index2] = V->imValues[index1];
         }
     }
-    __syncthreads();
+    threads_sync();
 }
 
-extern "C" __device__ void CUDA_setZeroMatrix(math::Matrix* matrix,
+__hostdevice__ void CUDA_setZeroMatrix(math::Matrix* matrix,
     uintt tx, uintt ty) {
     if (tx < matrix->columns && ty < matrix->rows) {
         if (NULL != matrix->reValues) {
@@ -221,7 +222,7 @@ extern "C" __device__ void CUDA_setZeroMatrix(math::Matrix* matrix,
     }
 }
 
-extern "C" __device__ void CUDA_setIdentityMatrix(math::Matrix* matrix,
+__hostdevice__ void CUDA_setIdentityMatrix(math::Matrix* matrix,
     uintt tx, uintt ty) {
     floatt v = 0;
     if (tx == ty) {
@@ -237,21 +238,21 @@ extern "C" __device__ void CUDA_setIdentityMatrix(math::Matrix* matrix,
     }
 }
 
-__device__ floatt CUDA_getReDiagonal(math::Matrix* matrix, intt index) {
+__hostdevice__ floatt CUDA_getReDiagonal(math::Matrix* matrix, intt index) {
     if (matrix->reValues == NULL) {
         return 0;
     }
     return matrix->reValues[index + matrix->columns * index];
 }
 
-__device__ floatt CUDA_getImDiagonal(math::Matrix* matrix, intt index) {
+__hostdevice__ floatt CUDA_getImDiagonal(math::Matrix* matrix, intt index) {
     if (matrix->imValues == NULL) {
         return 0;
     }
     return matrix->imValues[index + matrix->columns * index];
 }
 
-extern "C" __device__ floatt CUDA_sum(floatt* buffer, uintt count) {
+__hostdevice__ floatt CUDA_sum(floatt* buffer, uintt count) {
     floatt sum = 0;
     for (uintt fa = 0; fa < count; ++fa) {
         sum += buffer[fa];
