@@ -367,3 +367,12 @@ extern "C" __global__ void CUDAKernel_IsUpperTriangular(int* outcome,
   int is = CUDA_isUpperTriangular(matrix);
   (*outcome) = is;
 }
+
+extern "C" __global__ void CUDAKernel_CalculateTriangularH(math::Matrix* H,
+        math::Matrix* Q, math::Matrix* R,
+        math::Matrix* temp, math::Matrix* temp1,
+        math::Matrix* temp2, math::Matrix* temp3,
+        math::Matrix* temp4, math::Matrix* temp5) {
+    CUDA_CalculateTriangularH(H, Q, R, temp, temp1, temp2, temp3, temp4, temp5);
+}
+
