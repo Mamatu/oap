@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <algorithm>
 #include "gtest/gtest.h"
 #include "MockUtils.h"
 #include "ArnoldiProcedures.h"
@@ -51,7 +52,6 @@
 #include "matrix3.h"
 #include "matrix4.h"
 #include "matrix5.h"
-
 
 class OglaArnoldiPackageCallbackTests : public testing::Test {
  public:
@@ -171,13 +171,37 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
     return out;
   }
 
+  template <typename T>
+  static void copySafely(floatt* block, int size, int elementsCount, FILE* f) {
+    T* tmpBuffer = new T[elementsCount];
+    fread(tmpBuffer, elementsCount * size, 1, f);
+    for (uintt fa = 0; fa < elementsCount; ++fa) {
+        block[fa] = tmpBuffer[fa];
+    }
+    delete[] tmpBuffer;
+  }
+
+  static void readBlock(floatt* block, int size, int elementsCount, FILE* f) {
+    if (sizeof(floatt) == size) {
+      fread(block, elementsCount * size, 1, f);
+    } else {
+      if (size == 4) {
+        copySafely<float>(block, size, elementsCount, f);
+      } else if (size == 8) {
+        copySafely<double>(block, size, elementsCount, f);
+      } else {
+        debugAssert("Size not implemented.");
+      }
+    }
+  }
+
   static void loadBlock(FILE* f, floatt* block, int index) {
     int blocksCount = loadBlocksCount(f);
     int elementsCount = loadElementsCount(f);
     int size = loadSize(f);
     fseek(f, 3 * sizeof(int), SEEK_SET);
     fseek(f, index * elementsCount * size, SEEK_CUR);
-    fread(block, elementsCount * size, 1, f);
+    readBlock(block, size, elementsCount, f);
   }
 
   static void loadBlock(const std::string& path, floatt* block, int index) {
