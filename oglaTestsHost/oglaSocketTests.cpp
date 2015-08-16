@@ -149,6 +149,9 @@ TEST_F(OglaSocketTests, SocketCommunication1) {
   void* o;
   pthread_join(threads[0], &o);
   pthread_join(threads[1], &o);
+
+  ServerImpl::values.clear();
+
   EXPECT_TRUE(p1Data.flags1.first);
   EXPECT_TRUE(p1Data.flags1.second);
   EXPECT_TRUE(p2Data.flag2);
