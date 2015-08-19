@@ -843,11 +843,12 @@ void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector) {
 }
 
 void GetMatrixStr(std::string& text, const math::Matrix* matrix) {
-    matrixUtils::PrintMatrix(text, matrix);
+  matrixUtils::PrintMatrix(text, matrix);
 }
 
 void GetReMatrixStr(std::string& text, const math::Matrix* matrix) {
-  HostMatrixModules::GetInstance()->getMatrixPrinter()->getReMatrixStr(text, matrix);
+  HostMatrixModules::GetInstance()->getMatrixPrinter()->getReMatrixStr(text,
+                                                                       matrix);
 }
 
 void GetImMatrixStr(std::string& str, const math::Matrix* matrix) {
@@ -1012,8 +1013,8 @@ floatt GetTrace(math::Matrix* matrix) {
 }
 
 void SetDiagonalMatrix(math::Matrix* matrix, floatt a) {
-    SetDiagonalReMatrix(matrix, a);
-    SetDiagonalImMatrix(matrix, a);
+  SetDiagonalReMatrix(matrix, a);
+  SetDiagonalImMatrix(matrix, a);
 }
 
 void SetDiagonalReMatrix(math::Matrix* matrix, floatt a) {
@@ -1026,12 +1027,12 @@ void SetDiagonalReMatrix(math::Matrix* matrix, floatt a) {
 }
 
 void SetDiagonalImMatrix(math::Matrix* matrix, floatt a) {
-    if (matrix->imValues) {
-      fillImPart(matrix, 0);
-      for (int fa = 0; fa < matrix->columns; fa++) {
-        matrix->imValues[fa * matrix->columns + fa] = a;
-      }
+  if (matrix->imValues) {
+    fillImPart(matrix, 0);
+    for (int fa = 0; fa < matrix->columns; fa++) {
+      matrix->imValues[fa * matrix->columns + fa] = a;
     }
+  }
 }
 
 char* load(const char* path, uintt& _size) {
@@ -1178,10 +1179,10 @@ math::Matrix* NewMatrix(const std::string& text) {
     rows = sq;
     iscolumns = true;
     isrows = true;
-  } else if (iscolumns) {
+  } else if (iscolumns && !isrows) {
     rows = pairRe.second - columns;
     isrows = true;
-  } else if (isrows) {
+  } else if (isrows && !iscolumns) {
     columns = pairRe.second - rows;
     iscolumns = true;
   }
