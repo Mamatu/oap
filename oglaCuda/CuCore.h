@@ -17,6 +17,7 @@
 
 #define __hostdeviceinline__ __inline__
 #define __hostdevice__ __inline__
+#define __shared__
 
 #define CUDA_TEST_INIT() uint3 threadIdx = ThreadIdx::m_threadIdxs[pthread_self()].getThreadIdx();
 
