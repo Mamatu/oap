@@ -47,7 +47,7 @@ bool Parser::getValue(uintt& value, const std::string& id) const {
 }
 
 bool Parser::satof(floatt& output, const std::string& str) const {
-  if (str.find_first_not_of(".-0123456789") != std::string::npos) {
+  if (str.find_first_not_of(".-0123456789e") != std::string::npos) {
     return false;
   }
   floatt value = 1;
