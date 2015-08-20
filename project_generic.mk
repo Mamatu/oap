@@ -4,6 +4,8 @@ GMOCK_DIR = /home/mmatula/Ogla/gmock-1.7.0
 
 ifeq ($(PROJECT), albert)
 include $(OGLA_PATH)/project_albert.mk
+else ifeq ($(PROJECT), teslac2050)
+include $(OGLA_PATH)/project_teslac2050.mk
 else ifeq ($(PROJECT), samsung)
 include $(OGLA_PATH)/project_samsung.mk
 else ifeq ($(PROJECT), lenovo)
