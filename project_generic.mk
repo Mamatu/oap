@@ -8,6 +8,8 @@ else ifeq ($(PROJECT), samsung)
 include $(OGLA_PATH)/project_samsung.mk
 else ifeq ($(PROJECT), lenovo)
 include $(OGLA_PATH)/project_lenovo.mk
+else ifeq ($(PROJECT), gpp44)
+include $(OGLA_PATH)/project_gpp44.mk
 else
 include $(OGLA_PATH)/project_lenovo.mk
 endif
