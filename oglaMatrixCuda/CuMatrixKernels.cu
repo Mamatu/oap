@@ -258,7 +258,7 @@ extern "C" __global__ void CUDAKernel_Magnitude(floatt* value,
   CUDA_magnitudeOpt(value, params0, buffer);
 }
 
-extern "C" __global__ void CUDAKernel_QRRe(
+extern "C" __global__ void CUDAKernel_QRGRRe(
     math::Matrix* output0, math::Matrix* output1, math::Matrix* params0,
     math::Matrix* aux0, math::Matrix* aux1, math::Matrix* aux2,
     math::Matrix* aux3) {
@@ -268,7 +268,7 @@ extern "C" __global__ void CUDAKernel_QRRe(
   //      threadIndexX, threadIndexY);
 }
 
-extern "C" __global__ void CUDAKernel_QRIm(
+extern "C" __global__ void CUDAKernel_QRGRIm(
     math::Matrix* output0, math::Matrix* output1, math::Matrix* params0,
     math::Matrix* aux0, math::Matrix* aux1, math::Matrix* aux2,
     math::Matrix* aux3) {
@@ -278,13 +278,50 @@ extern "C" __global__ void CUDAKernel_QRIm(
   //        threadIndexX, threadIndexY);
 }
 
-extern "C" __global__ void CUDAKernel_QR(math::Matrix* output0,
-                                         math::Matrix* output1,
-                                         math::Matrix* params0,
-                                         math::Matrix* aux0, math::Matrix* aux1,
-                                         math::Matrix* aux2,
-                                         math::Matrix* aux3) {
+extern "C" __global__ void CUDAKernel_QRGR(
+    math::Matrix* output0, math::Matrix* output1, math::Matrix* params0,
+    math::Matrix* aux0, math::Matrix* aux1, math::Matrix* aux2,
+    math::Matrix* aux3) {
   CUDA_QRGR(output0, output1, params0, aux0, aux1, aux2, aux3);
+}
+
+extern "C" __global__ void CUDAKernel_QRHTRe(
+    math::Matrix* output0, math::Matrix* output1, math::Matrix* params0,
+    math::Matrix* aux0, math::Matrix* aux1, math::Matrix* aux2,
+    math::Matrix* aux3) {
+  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
+  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+  // CUDA_QRHTRe(output0, output1, params0, aux0, aux1, aux2, aux3,
+  //      threadIndexX, threadIndexY);
+}
+
+extern "C" __global__ void CUDAKernel_QRHTIm(
+    math::Matrix* output0, math::Matrix* output1, math::Matrix* params0,
+    math::Matrix* aux0, math::Matrix* aux1, math::Matrix* aux2,
+    math::Matrix* aux3) {
+  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
+  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+  // CUDA_QRHTIm(output0, output1, params0, aux0, aux1, aux2, aux3,
+  //        threadIndexX, threadIndexY);
+}
+
+extern "C" __global__ void CUDAKernel_QRHT(math::Matrix* Q, math::Matrix* R,
+                                           math::Matrix* A, math::Matrix* AT,
+                                           floatt* sum, floatt* buffer,
+                                           math::Matrix* P, math::Matrix* I,
+                                           math::Matrix* v, math::Matrix* vt,
+                                           math::Matrix* vvt) {
+  CUDA_QRHT(Q, R, A, AT, sum, buffer, P, I, v, vt, vvt);
+}
+
+extern "C" __global__ void CUDAKernel_QRHTOpt(math::Matrix* Q, math::Matrix* R,
+                                              math::Matrix* A, math::Matrix* AT,
+                                              math::Matrix* P, math::Matrix* I,
+                                              math::Matrix* v, math::Matrix* vt,
+                                              math::Matrix* vvt) {
+  floatt* sum = NULL;
+  floatt* buffer = NULL;
+  CUDA_QRHT(Q, R, A, AT, sum, buffer, P, I, v, vt, vvt);
 }
 
 extern "C" __global__ void CUDAKernel_SetVector(math::Matrix* output,
@@ -351,13 +388,13 @@ extern "C" __global__ void CUDAKernel_CompareOptVer2(int* sums,
 }
 
 extern "C" __global__ void CUDAKernel_MagnitudeOpt(floatt* sums,
-                                                  math::Matrix* matrix) {
+                                                   math::Matrix* matrix) {
   extern __shared__ floatt bufferFloat[];
   CUDA_magnitudeOpt(sums, matrix, bufferFloat);
 }
 
 extern "C" __global__ void CUDAKernel_MagnitudeOptVer2(floatt* sums,
-                                                      math::Matrix* matrix) {
+                                                       math::Matrix* matrix) {
   extern __shared__ floatt bufferFloat[];
   CUDA_magnitudeOptVer2(sums, matrix, bufferFloat);
 }
@@ -368,11 +405,9 @@ extern "C" __global__ void CUDAKernel_IsUpperTriangular(int* outcome,
   (*outcome) = is;
 }
 
-extern "C" __global__ void CUDAKernel_CalculateTriangularH(math::Matrix* H,
-        math::Matrix* Q, math::Matrix* R,
-        math::Matrix* temp, math::Matrix* temp1,
-        math::Matrix* temp2, math::Matrix* temp3,
-        math::Matrix* temp4, math::Matrix* temp5) {
-    CUDA_CalculateTriangularH(H, Q, R, temp, temp1, temp2, temp3, temp4, temp5);
+extern "C" __global__ void CUDAKernel_CalculateTriangularH(
+    math::Matrix* H, math::Matrix* Q, math::Matrix* R, math::Matrix* temp,
+    math::Matrix* temp1, math::Matrix* temp2, math::Matrix* temp3,
+    math::Matrix* temp4, math::Matrix* temp5) {
+  CUDA_CalculateTriangularH(H, Q, R, temp, temp1, temp2, temp3, temp4, temp5);
 }
-
