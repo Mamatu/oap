@@ -98,7 +98,7 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
   uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
   math::Matrix* rQ = Q;
   math::Matrix* rR = R;
-  CUDA_copyMatrix(R1, A, tx, ty);
+  CUDA_copyMatrix(R1, A);
   uintt count = 0;
   for (uintt fa = 0; fa < A->columns; ++fa) {
     for (uintt fb = A->rows - 1; fb > fa; --fb) {
@@ -119,8 +119,8 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
     }
   }
   if (count & 1 == 1) {
-    CUDA_copyMatrix(rQ, Q1, tx, ty);
-    CUDA_copyMatrix(rR, R1, tx, ty);
+    CUDA_copyMatrix(rQ, Q1);
+    CUDA_copyMatrix(rR, R1);
   }
 }
 
@@ -137,7 +137,7 @@ __hostdevice__ void CUDA_QRHT(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
     floatt a21 = A->reValues[A->columns * row + column];
     floatt sgna21 = 0;
     CUDA_getSgn(&sgna21, a21);
-    CUDA_magnitudeOptRealVecEx(sum, A, column, row + 1, A->rows, buffer);
+    CUDA_magnitudeOptVecEx(sum, A, column, row + 1, A->rows, buffer);
     floatt sum = 0;
     CUDA_getMagnitude(&sum, buffer);
     floatt alpha = -sgna21 * sum;
