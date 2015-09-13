@@ -281,7 +281,6 @@ void getSysPathes(Strings& pathes) {
   if (cenvs != NULL) {
     std::string env = cenvs;
     split(pathes, env, ':');
-    free(cenvs);
   }
 }
 
