@@ -44,7 +44,7 @@
 #include "gmock/gmock-generated-function-mockers.h"
 
 typedef std::pair<uintt, uintt> Index;
-typedef std::pair<floatt, Index> ValueIndex;
+typedef std::pair<Complex, Index> ValueIndex;
 typedef std::vector<ValueIndex> ValueIndexVec;
 
 class OglaCudaUtilsTests : public testing::Test {
@@ -67,9 +67,17 @@ class OglaCudaUtilsTests : public testing::Test {
   }
 
   void executeSetGetValueTest(bool isre, bool isim, uintt columns, uintt rows,
-                              floatt expected) {
+                              floatt reexpected, floatt imexpected) {
     ValueIndexVec vec;
-    ValueIndex index = ValueIndex(expected, Index(0, 0));
+    ValueIndex index = ValueIndex(Complex(reexpected, imexpected), Index(0, 0));
+    vec.push_back(index);
+    executeSetGetValueTest(isre, isim, columns, rows, vec);
+  }
+
+  void executeSetGetValueTest(bool isre, bool isim, uintt columns, uintt rows,
+                              floatt reexpected) {
+    ValueIndexVec vec;
+    ValueIndex index = ValueIndex(Complex(reexpected, 0), Index(0, 0));
     vec.push_back(index);
     executeSetGetValueTest(isre, isim, columns, rows, vec);
   }
@@ -86,19 +94,22 @@ class OglaCudaUtilsTests : public testing::Test {
     uintt columns = CudaUtils::GetColumns(matrix);
     for (ValueIndexVec::const_iterator it = expecteds.begin();
          it != expecteds.end(); ++it) {
-      float expectedValue = it->first;
       uintt index = it->second.first + columns * it->second.second;
-      CudaUtils::SetReValue(matrix, index, expectedValue);
-      float value = CudaUtils::GetReValue(matrix, index);
-      EXPECT_EQ(expectedValue, value);
+      CudaUtils::SetReValue(matrix, index, it->first.re);
+      CudaUtils::SetImValue(matrix, index, it->first.im);
+      floatt revalue = CudaUtils::GetReValue(matrix, index);
+      floatt imvalue = CudaUtils::GetImValue(matrix, index);
+      EXPECT_DOUBLE_EQ(it->first.re, revalue);
+      EXPECT_DOUBLE_EQ(it->first.im, imvalue);
     }
 
     for (ValueIndexVec::const_iterator it = expecteds.begin();
          it != expecteds.end(); ++it) {
-      float expectedValue = it->first;
       uintt index = it->second.first + columns * it->second.second;
-      float value = CudaUtils::GetReValue(matrix, index);
-      EXPECT_EQ(expectedValue, value);
+      floatt revalue = CudaUtils::GetReValue(matrix, index);
+      floatt imvalue = CudaUtils::GetImValue(matrix, index);
+      EXPECT_DOUBLE_EQ(it->first.re, revalue);
+      EXPECT_DOUBLE_EQ(it->first.im, imvalue);
     }
     CudaUtils::PrintMatrix(matrix);
   }

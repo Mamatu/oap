@@ -160,6 +160,12 @@ void Kernel::setDimensions(uintt w, uintt h) {
   calculateThreadsBlocks(m_blocksCount, m_threadsCount, w, h);
 }
 
+void Kernel::setDimensionsDevice(math::Matrix* dmatrix) {
+    uintt columns = CudaUtils::GetColumns(dmatrix);
+    uintt rows = CudaUtils::GetRows(dmatrix);
+    setDimensions(columns, rows);
+}
+
 void Kernel::setSharedMemory(uintt sizeInBytes) {
   m_sharedMemoryInBytes = sizeInBytes;
 }
@@ -389,6 +395,13 @@ void Kernel::resetParameters() {
 void Kernel::calculateThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w,
                                     uintt h) {
   SetThreadsBlocks(blocks, threads, w, h, getMaxThreadsPerBlock());
+}
+
+void Kernel::calculateThreadsBlocksDevice(uintt blocks[2], uintt threads[2],
+    math::Matrix* dmatrix) {
+    uintt columns = CudaUtils::GetColumns(dmatrix);
+    uintt rows = CudaUtils::GetRows(dmatrix);
+    calculateThreadsBlocks(blocks, threads, columns, rows);
 }
 
 void Kernel::SetThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w,

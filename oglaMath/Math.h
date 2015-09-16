@@ -65,6 +65,11 @@ struct Complex {
         im = 0;
     }
 
+    Complex(floatt re) {
+        this->re = re;
+        this->im = 0;
+    }
+
     Complex(floatt re, floatt im) {
         this->re = re;
         this->im = im;

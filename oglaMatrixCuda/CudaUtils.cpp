@@ -265,7 +265,7 @@ floatt GetReValue(math::Matrix* m, uintt index) {
 }
 
 void SetImValue(math::Matrix* m, uintt index, floatt value) {
-  floatt* array = GetReValues(m);
+  floatt* array = GetImValues(m);
   cuMemcpyHtoD(reinterpret_cast<CUdeviceptr>(&array[index]), &value,
                sizeof(floatt));
 }

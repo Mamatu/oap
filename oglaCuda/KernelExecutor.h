@@ -12,6 +12,8 @@
 #include <string>
 #include <stack>
 #include "Math.h"
+#include "Matrix.h"
+#include "CudaUtils.h"
 //#include "MatrixStructure.h"
 
 #define printCuError(cuResult) if(cuResult != 0) {debug("\n\n %s %s : %d cuError == %d \n\n",__FUNCTION__,__FILE__,__LINE__,cuResult); abort();}
@@ -89,6 +91,7 @@ public:
     void setThreadsCount(intt x, intt y);
     void setBlocksCount(intt x, intt y);
     void setDimensions(uintt w, uintt h);
+    void setDimensionsDevice(math::Matrix* dmatrix);
     void setSharedMemory(uintt sizeInBytes);
     void setParams(void** params);
     int getParamsCount() const;
@@ -100,6 +103,9 @@ public:
 
     void calculateThreadsBlocks(uintt blocks[2], uintt threads[2],
         uintt w, uintt h);
+
+    void calculateThreadsBlocksDevice(uintt blocks[2], uintt threads[2],
+        math::Matrix* dmatrix);
 
     static void SetThreadsBlocks(uintt blocks[2], uintt threads[2],
         uintt w, uintt h, uintt maxThreadsPerBlock);
