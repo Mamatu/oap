@@ -243,7 +243,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
     outputs.columns = wanted;
 
     arnoldiCuda->setCallback(MultiplyFunc::multiply, &data);
-    arnoldiCuda->setRho(1. / 3.14);
+    arnoldiCuda->setRho(1. / 3.14159265359);
     arnoldiCuda->setSortType(ArnUtils::SortSmallestReValues);
     arnoldiCuda->setOutputs(&outputs);
     ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
@@ -339,12 +339,20 @@ TEST_F(OglaArnoldiPackageCallbackTests, TestData1) {
   defaultTest(-3.25, "../../../data/data1");
 }
 
-TEST_F(OglaArnoldiPackageCallbackTests, TestData2) {
-  defaultTest(-4.257104, "../../../data/data2");
+TEST_F(OglaArnoldiPackageCallbackTests, TestData2Dim32x32) {
+  defaultTest(-4.257104, "../../../data/data2", 32);
 }
 
-TEST_F(OglaArnoldiPackageCallbackTests, TestData3) {
-  defaultTest(-5.519614, "../../../data/data3");
+TEST_F(OglaArnoldiPackageCallbackTests, TestData2Dim64x64) {
+  defaultTest(-4.257104, "../../../data/data2", 64);
+}
+
+TEST_F(OglaArnoldiPackageCallbackTests, TestData3Dim32x32) {
+  defaultTest(-5.519614, "../../../data/data3", 32);
+}
+
+TEST_F(OglaArnoldiPackageCallbackTests, TestData3Dim64x64) {
+  defaultTest(-5.519614, "../../../data/data3", 64);
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData4) {
