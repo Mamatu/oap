@@ -102,7 +102,6 @@ public:
     HostMatrixPrinter* getMatrixPrinter();
 };
 
-
 namespace host {
 
     class SubMatrix {
@@ -129,19 +128,113 @@ namespace host {
         uintt m_columns;
         uintt m_rows;
     };
+
+    /**
+     * @brief NewMatrixCopy
+     * @param matrix
+     * @return
+     */
     math::Matrix* NewMatrixCopy(const math::Matrix* matrix);
+
+    /**
+     * @brief NewMatrixCopy
+     * @param columns
+     * @param rows
+     * @param reArray
+     * @param imArray
+     * @return
+     */
     math::Matrix* NewMatrixCopy(uintt columns, uintt rows,
             floatt* reArray, floatt* imArray);
+
+    /**
+     * @brief NewReMatrixCopy
+     * @param columns
+     * @param rows
+     * @param reArray
+     * @return
+     */
     math::Matrix* NewReMatrixCopy(uintt columns, uintt rows, floatt* reArray);
+
+    /**
+     * @brief NewImMatrixCopy
+     * @param columns
+     * @param rows
+     * @param imArray
+     * @return
+     */
     math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, floatt* imArray);
+
+    /**
+     * @brief NewMatrix
+     * @param matrix
+     * @param value
+     * @return
+     */
     math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value = 0);
+
+    /**
+     * @brief NewMatrix
+     * @param matrix
+     * @param columns
+     * @param rows
+     * @param value
+     * @return
+     */
     math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows, floatt value = 0);
+
+    /**
+     * @brief NewMatrix
+     * @param columns
+     * @param rows
+     * @param value
+     * @return
+     */
     math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
+
+    /**
+     * @brief NewMatrix
+     * @param isre
+     * @param isim
+     * @param columns
+     * @param rows
+     * @param value
+     * @return
+     */
     math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows, floatt value = 0);
+
+    /**
+     * @brief NewReMatrix
+     * @param columns
+     * @param rows
+     * @param value
+     * @return
+     */
     math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value = 0);
+
+    /**
+     * @brief NewImMatrix
+     * @param columns
+     * @param rows
+     * @param value
+     * @return
+     */
     math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value = 0);
+
+    /**
+     * @brief NewMatrix
+     * @param text
+     * @return
+     */
     math::Matrix* NewMatrix(const std::string& text);
+
+    /**
+     * @brief CopyMatrix
+     * @param dst
+     * @param src
+     */
     void CopyMatrix(math::Matrix* dst, const math::Matrix* src);
+
     /**
      * Copy data to dst matrix which has one column and row less than
      * src matrix. Row and column which will be omitted are added as params..
@@ -151,73 +244,440 @@ namespace host {
      * @param row index of row which will be omitted
      */
     void Copy(math::Matrix* dst, const math::Matrix* src, uintt column, uintt row);
+
+    /**
+     * @brief Copy
+     * @param dst
+     * @param src
+     * @param subMatrix
+     * @param column
+     * @param row
+     */
     void Copy(math::Matrix* dst, const math::Matrix* src, const SubMatrix& subMatrix,
             uintt column, uintt row);
+
+    /**
+     * @brief CopyRe
+     * @param dst
+     * @param src
+     */
     void CopyRe(math::Matrix* dst, const math::Matrix* src);
+
+    /**
+     * @brief CopyIm
+     * @param dst
+     * @param src
+     */
     void CopyIm(math::Matrix* dst, const math::Matrix* src);
 
+    /**
+     * @brief DeleteMatrix
+     * @param matrix
+     */
     void DeleteMatrix(math::Matrix* matrix);
+
+    /**
+     * @brief GetReValue
+     * @param matrix
+     * @param column
+     * @param row
+     * @return
+     */
     floatt GetReValue(const math::Matrix* matrix, uintt column, uintt row);
+
+    /**
+     * @brief SetReValue
+     * @param matrix
+     * @param column
+     * @param row
+     * @param value
+     */
     void SetReValue(const math::Matrix* matrix, uintt column, uintt row, floatt value);
+
+    /**
+     * @brief GetImValue
+     * @param matrix
+     * @param column
+     * @param row
+     * @return
+     */
     floatt GetImValue(const math::Matrix* matrix, uintt column, uintt row);
+
+    /**
+     * @brief SetImValue
+     * @param matrix
+     * @param column
+     * @param row
+     * @param value
+     */
     void SetImValue(const math::Matrix* matrix, uintt column, uintt row, floatt value);
+
+    /**
+     * @brief GetMatrixStr
+     * @param text
+     * @param matrix
+     */
     void GetMatrixStr(std::string& text, const math::Matrix* matrix);
+
+    /**
+     * @brief GetReMatrixStr
+     * @param text
+     * @param matrix
+     */
     void GetReMatrixStr(std::string& text, const math::Matrix* matrix);
+
+    /**
+     * @brief GetImMatrixStr
+     * @param text
+     * @param matrix
+     */
     void GetImMatrixStr(std::string& text, const math::Matrix* matrix);
+
+    /**
+     * @brief PrintReMatrix
+     * @param stream
+     * @param matrix
+     */
     void PrintReMatrix(FILE* stream, const math::Matrix* matrix);
+
+    /**
+     * @brief PrintReMatrix
+     * @param matrix
+     */
     void PrintReMatrix(const math::Matrix* matrix);
+
+    /**
+     * @brief PrintReMatrix
+     * @param text
+     * @param matrix
+     */
     void PrintReMatrix(const std::string& text, const math::Matrix* matrix);
+
+    /**
+     * @brief PrintMatrix
+     * @param text
+     * @param matrix
+     */
     void PrintMatrix(const std::string& text, const math::Matrix* matrix);
+
+    /**
+     * @brief PrintMatrix
+     * @param matrix
+     */
     void PrintMatrix(const math::Matrix* matrix);
+
+    /**
+     * @brief PrintImMatrix
+     * @param stream
+     * @param matrix
+     */
     void PrintImMatrix(FILE* stream, const math::Matrix* matrix);
+
+    /**
+     * @brief PrintImMatrix
+     * @param matrix
+     */
     void PrintImMatrix(const math::Matrix* matrix);
+
+    /**
+     * @brief PrintImMatrix
+     * @param text
+     * @param matrix
+     */
     void PrintImMatrix(const std::string& text, const math::Matrix* matrix);
+
+    /**
+     * @brief SetReVector
+     * @param matrix
+     * @param column
+     * @param vector
+     * @param length
+     */
     void SetReVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length);
+
+    /**
+     * @brief SetTransposeReVector
+     * @param matrix
+     * @param row
+     * @param vector
+     * @param length
+     */
     void SetTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length);
+
+    /**
+     * @brief SetImVector
+     * @param matrix
+     * @param column
+     * @param vector
+     * @param length
+     */
     void SetImVector(math::Matrix* matrix, uintt column, floatt* vector, uintt length);
+
+    /**
+     * @brief SetTransposeImVector
+     * @param matrix
+     * @param row
+     * @param vector
+     * @param length
+     */
     void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector, uintt length);
+
+    /**
+     * @brief SetReVector
+     * @param matrix
+     * @param column
+     * @param vector
+     */
     void SetReVector(math::Matrix* matrix, uintt column, floatt* vector);
+
+    /**
+     * @brief SetTransposeReVector
+     * @param matrix
+     * @param row
+     * @param vector
+     */
     void SetTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector);
+
+    /**
+     * @brief SetImVector
+     * @param matrix
+     * @param column
+     * @param vector
+     */
     void SetImVector(math::Matrix* matrix, uintt column, floatt* vector);
+
+    /**
+     * @brief SetTransposeImVector
+     * @param matrix
+     * @param row
+     * @param vector
+     */
     void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector);
+
+    /**
+     * @brief GetReVector
+     * @param vector
+     * @param length
+     * @param matrix
+     * @param column
+     */
     void GetReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column);
+
+    /**
+     * @brief GetTransposeReVector
+     * @param vector
+     * @param length
+     * @param matrix
+     * @param row
+     */
     void GetTransposeReVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row);
+
+    /**
+     * @brief GetImVector
+     * @param vector
+     * @param length
+     * @param matrix
+     * @param column
+     */
     void GetImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt column);
+
+    /**
+     * @brief GetTransposeImVector
+     * @param vector
+     * @param length
+     * @param matrix
+     * @param row
+     */
     void GetTransposeImVector(floatt* vector, uintt length, math::Matrix* matrix, uintt row);
+
+    /**
+     * @brief GetReVector
+     * @param vector
+     * @param matrix
+     * @param column
+     */
     void GetReVector(floatt* vector, math::Matrix* matrix, uintt column);
+
+    /**
+     * @brief GetTransposeReVector
+     * @param vector
+     * @param matrix
+     * @param row
+     */
     void GetTransposeReVector(floatt* vector, math::Matrix* matrix, uintt row);
+
+    /**
+     * @brief GetImVector
+     * @param vector
+     * @param matrix
+     * @param column
+     */
     void GetImVector(floatt* vector, math::Matrix* matrix, uintt column);
+
+    /**
+     * @brief GetTransposeImVector
+     * @param vector
+     * @param matrix
+     * @param row
+     */
     void GetTransposeImVector(floatt* vector, math::Matrix* matrix, uintt row);
+
+    /**
+     * @brief SetIdentity
+     * @param matrix
+     */
     void SetIdentity(math::Matrix* matrix);
+
+    /**
+     * @brief SetIdentityMatrix
+     * @param matrix
+     */
     void SetIdentityMatrix(math::Matrix* matrix);
+
+    /**
+     * @brief SmallestDiff
+     * @param matrix
+     * @param matrix1
+     * @return
+     */
     floatt SmallestDiff(math::Matrix* matrix, math::Matrix* matrix1);
+
+    /**
+     * @brief LargestDiff
+     * @param matrix
+     * @param matrix1
+     * @return
+     */
     floatt LargestDiff(math::Matrix* matrix, math::Matrix* matrix1);
+
+    /**
+     * @brief GetTrace
+     * @param matrix
+     * @return
+     */
     floatt GetTrace(math::Matrix* matrix);
+
+    /**
+     * @brief SetReZero
+     * @param matrix
+     */
     void SetReZero(math::Matrix* matrix);
+
+    /**
+     * @brief SetImZero
+     * @param matrix
+     */
     void SetImZero(math::Matrix* matrix);
+
+    /**
+     * @brief SetZero
+     * @param matrix
+     */
     void SetZero(math::Matrix* matrix);
+
+    /**
+     * @brief IsEquals
+     * @param matrix
+     * @param matrix1
+     * @param diff
+     * @return
+     */
     bool IsEquals(math::Matrix* matrix, math::Matrix* matrix1, floatt diff = 0.1);
 
+    /**
+     * @brief LoadMatrix
+     * @param columns
+     * @param rows
+     * @param repath
+     * @param impath
+     * @return
+     */
     math::Matrix* LoadMatrix(uintt columns, uintt rows,
             const char* repath, const char* impath);
 
+    /**
+     * @brief LoadMatrix
+     * @param matrix
+     * @param repath
+     * @param impath
+     */
     void LoadMatrix(math::Matrix* matrix,
             const char* repath, const char* impath);
 
+    /**
+     * @brief LoadMatrix
+     * @param matrix
+     * @param repath
+     * @param impath
+     * @param skipCount
+     */
     void LoadMatrix(math::Matrix* matrix,
             const char* repath, const char* impath, uintt skipCount);
 
+    /**
+     * @brief SetSubs
+     * @param matrix
+     * @param subcolumns
+     * @param subrows
+     */
     void SetSubs(math::Matrix* matrix, uintt subcolumns, uintt subrows);
+
+    /**
+     * @brief SetSubColumns
+     * @param matrix
+     * @param subcolumns
+     */
     void SetSubColumns(math::Matrix* matrix, uintt subcolumns);
+
+    /**
+     * @brief SetSubRows
+     * @param matrix
+     * @param subrows
+     */
     void SetSubRows(math::Matrix* matrix, uintt subrows);
+
+    /**
+     * @brief SetSubsSafe
+     * @param matrix
+     * @param subcolumns
+     * @param subrows
+     */
     void SetSubsSafe(math::Matrix* matrix, uintt subcolumns, uintt subrows);
+
+    /**
+     * @brief SetSubColumnsSafe
+     * @param matrix
+     * @param subcolumns
+     */
     void SetSubColumnsSafe(math::Matrix* matrix, uintt subcolumns);
+
+    /**
+     * @brief SetSubRowsSafe
+     * @param matrix
+     * @param subrows
+     */
     void SetSubRowsSafe(math::Matrix* matrix, uintt subrows);
     
+    /**
+     * @brief SetDiagonalMatrix
+     * @param matrix
+     * @param a
+     */
     void SetDiagonalMatrix(math::Matrix* matrix, floatt a);
-    void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
-    void SetDiagonalImMatrix(math::Matrix* matrix, floatt a);
 
+    /**
+     * @brief SetDiagonalReMatrix
+     * @param matrix
+     * @param a
+     */
+    void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
+
+    /**
+     * @brief SetDiagonalImMatrix
+     * @param matrix
+     * @param a
+     */
+    void SetDiagonalImMatrix(math::Matrix* matrix, floatt a);
 };
 
 
