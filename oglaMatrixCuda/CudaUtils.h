@@ -187,11 +187,6 @@ uintt GetRows(const MatrixEx* matrix);
 
 /**
  *
- * @return
- */
-CUdeviceptr AllocMatrix();
-/**
- *
  * @param allocRe
  * @param allocIm
  * @param columns

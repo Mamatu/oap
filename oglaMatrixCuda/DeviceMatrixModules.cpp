@@ -40,33 +40,49 @@ math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
   return dmatrix;
 }
 
+typedef std::pair<uintt, uintt> MatrixDim;
+typedef std::pair<bool, bool> MatrixStr;
+typedef std::pair<MatrixDim, MatrixStr> MatrixInfo;
+typedef std::map<const math::Matrix*, MatrixInfo> MatrixInfos;
+
+MatrixInfos globalMatrixInfos;
+
+math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
+                          floatt revalue = 0.f, floatt imvalue = 0.f) {
+  CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, columns, rows);
+  math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
+  globalMatrixInfos[mptr] =
+      MatrixInfo(MatrixDim(columns, rows), MatrixStr(allocRe, allocIm));
+  return mptr;
+}
+
 math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns,
                               uintt rows) {
   bool allocRe = hostMatrix->reValues != NULL;
   bool allocIm = hostMatrix->imValues != NULL;
-  CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, columns, rows);
-  math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
-  return mptr;
+  return allocMatrix(allocRe, allocIm, columns, rows);
 }
 
 math::Matrix* NewDeviceMatrix(bool isRe, bool isIm, uintt columns, uintt rows) {
   debugAssert(isRe != false || isIm != false);
-  CUdeviceptr ptr = CudaUtils::AllocMatrix(isRe, isIm, columns, rows);
-  math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
-  return mptr;
+  return allocMatrix(isRe, isIm, columns, rows);
 }
 
-math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue, floatt imvalue) {
+math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue,
+                              floatt imvalue) {
   debugFuncBegin();
-  CUdeviceptr dMatrixPtr =
-      CudaUtils::AllocMatrix(true, true, columns, rows, revalue, imvalue);
-  math::Matrix* dmatrix = reinterpret_cast<math::Matrix*>(dMatrixPtr);
+  math::Matrix* dmatrix =
+      allocMatrix(true, true, columns, rows, revalue, imvalue);
   debugFuncEnd();
   return dmatrix;
 }
 
 void DeleteDeviceMatrix(math::Matrix* dMatrix) {
   if (dMatrix != NULL) {
+    MatrixInfos::iterator it = globalMatrixInfos.find(dMatrix);
+    if (globalMatrixInfos.end() != it) {
+      globalMatrixInfos.erase(it);
+    }
     CUdeviceptr rePtr = CudaUtils::GetReValuesAddress(dMatrix);
     CUdeviceptr imPtr = CudaUtils::GetImValuesAddress(dMatrix);
     CUdeviceptr matrixPtr = reinterpret_cast<CUdeviceptr>(dMatrix);
@@ -74,6 +90,14 @@ void DeleteDeviceMatrix(math::Matrix* dMatrix) {
     CudaUtils::FreeDeviceMem(imPtr);
     CudaUtils::FreeDeviceMem(rePtr);
   }
+}
+
+uintt GetColumns(const math::Matrix* dMatrix) {
+  return globalMatrixInfos[dMatrix].first.first;
+}
+
+uintt GetRows(const math::Matrix* dMatrix) {
+  return globalMatrixInfos[dMatrix].first.second;
 }
 
 void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src) {

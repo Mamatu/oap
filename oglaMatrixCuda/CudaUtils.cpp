@@ -134,15 +134,17 @@ uintt GetRows(const MatrixEx* matrixEx) {
   return erows - brows;
 }
 
-CUdeviceptr AllocMatrix() {
-  CUdeviceptr devicePtrMatrix = 0;
-  printCuError(cuMemAlloc(&devicePtrMatrix, sizeof(math::Matrix)));
-  return devicePtrMatrix;
-}
-
 CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
                         floatt revalue, floatt imvalue) {
-  CUdeviceptr matrix = AllocMatrix();
+  class InternalAllocator {
+   public:
+    static CUdeviceptr allocMatrix() {
+      CUdeviceptr devicePtrMatrix = 0;
+      printCuError(cuMemAlloc(&devicePtrMatrix, sizeof(math::Matrix)));
+      return devicePtrMatrix;
+    }
+  };
+  CUdeviceptr matrix = InternalAllocator::allocMatrix();
   CUdeviceptr matrixRe = 0;
   CUdeviceptr matrixIm = 0;
   if (allocRe) {
@@ -317,7 +319,8 @@ void SetZeroRow(math::Matrix* matrix, uintt index, bool re, bool im) {
   }
 }
 
-void printHostMatrix(std::string& output, const math::Matrix* dmatrix, bool repeats, bool pipe, bool endl) {
+void printHostMatrix(std::string& output, const math::Matrix* dmatrix,
+                     bool repeats, bool pipe, bool endl) {
   uintt columns = CudaUtils::GetColumns(dmatrix);
   uintt rows = CudaUtils::GetRows(dmatrix);
   bool isre = CudaUtils::GetReValues(dmatrix) != NULL;
@@ -328,19 +331,25 @@ void printHostMatrix(std::string& output, const math::Matrix* dmatrix, bool repe
   host::DeleteMatrix(hmatrix);
 }
 
-void GetMatrixStr(std::string& output, math::Matrix* matrix, bool repeats, bool pipe, bool endl) {
+void GetMatrixStr(std::string& output, math::Matrix* matrix, bool repeats,
+                  bool pipe, bool endl) {
   printHostMatrix(output, matrix, repeats, pipe, endl);
 }
 
-void PrintMatrix(FILE* stream, const math::Matrix* matrix, bool repeats, bool pipe, bool endl) {
+void PrintMatrix(FILE* stream, const math::Matrix* matrix, bool repeats,
+                 bool pipe, bool endl) {
   std::string output;
   printHostMatrix(output, matrix, repeats, pipe, endl);
   fprintf(stream, "%s CUDA \n", output.c_str());
 }
 
-void PrintMatrix(const math::Matrix* matrix, bool repeats, bool pipe, bool endl) { PrintMatrix("", matrix, repeats, pipe, endl); }
+void PrintMatrix(const math::Matrix* matrix, bool repeats, bool pipe,
+                 bool endl) {
+  PrintMatrix("", matrix, repeats, pipe, endl);
+}
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix, bool repeats, bool pipe, bool endl) {
+void PrintMatrix(const std::string& text, const math::Matrix* matrix,
+                 bool repeats, bool pipe, bool endl) {
   std::string output;
   printHostMatrix(output, matrix, repeats, pipe, endl);
   printf("%s %s CUDA \n", text.c_str(), output.c_str());

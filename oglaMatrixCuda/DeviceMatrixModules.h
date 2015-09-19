@@ -27,6 +27,11 @@ math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue = 0.f,
  */
 math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix);
 
+
+uintt GetColumns(const math::Matrix* dMatrix);
+
+uintt GetRows(const math::Matrix* dMatrix);
+
 /**
  * @brief NewDeviceMatrixCopy
  * @param hostMatrix
