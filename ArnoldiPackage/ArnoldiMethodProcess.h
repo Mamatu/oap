@@ -8,6 +8,7 @@
 #ifndef ARNOLDIMETHODPROCESS_H
 #define	ARNOLDIMETHODPROCESS_H
 
+
 #include "Types.h"
 #include "InternalTypes.h"
 #include "MathOperations.h"
@@ -28,7 +29,7 @@ public:
 
 private:
     State m_state;
-    /*Not supported yet.*/
+
     ArnoldiPackage(const ArnoldiPackage& orig);
 
     template<typename T> class Outputs {

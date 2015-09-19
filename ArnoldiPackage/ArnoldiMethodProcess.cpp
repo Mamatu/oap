@@ -7,8 +7,8 @@
 
 #include "ArnoldiMethodProcess.h"
 #include "ArnoldiMethodHostImpl.h"
-#include "ArnoldiMethodDeviceImpl.h"
 #include <math.h>
+
 
 namespace api {
 
@@ -96,7 +96,7 @@ math::IArnoldiMethod* ArnoldiPackage::newArnoldiMethod() {
             m_operationsCpu = new math::MathOperationsCpu();
             return new math::ArnoldiMethodCpu(m_operationsCpu);
         case ARNOLDI_GPU:
-            return new math::ArnoldiMethodGpu();
+            return NULL;
         case ARNOLDI_CALLBACK_CPU:
             m_operationsCpu = new math::MathOperationsCpu();
             return new math::ArnoldiMethodCallbackCpu(m_operationsCpu, 1);

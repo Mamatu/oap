@@ -13,7 +13,6 @@
 #include "Matrix.h"
 #include "KernelExecutor.h"
 #include "ArnoldiMethodProcess.h"
-#include "ArnoldiMethodDeviceImpl.h"
 #include "main.h"
 
 #include <cstdlib>

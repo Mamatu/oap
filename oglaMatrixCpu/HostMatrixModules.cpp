@@ -278,7 +278,7 @@ void HostMatrixPrinter::getReMatrixStr(std::string& text,
 
 void HostMatrixPrinter::getImMatrixStr(std::string& str,
                                        const math::Matrix* matrix) {
-  host::GetImMatrixStr(str, matrix);
+
 }
 
 void HostMatrixUtils::getReValues(floatt* dst, math::Matrix* matrix,
@@ -679,34 +679,6 @@ void PrintMatrix(const std::string& text, const math::Matrix* matrix) {
 }
 
 void PrintMatrix(const math::Matrix* matrix) { PrintMatrix("", matrix); }
-
-void PrintReMatrix(FILE* stream, const math::Matrix* matrix) {
-  HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix(stream,
-                                                                      matrix);
-}
-
-void PrintReMatrix(const math::Matrix* matrix) {
-  HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix(matrix);
-}
-
-void PrintReMatrix(const std::string& text, const math::Matrix* matrix) {
-  HostMatrixModules::GetInstance()->getMatrixPrinter()->printReMatrix(text,
-                                                                      matrix);
-}
-
-void PrintImMatrix(FILE* stream, const math::Matrix* matrix) {
-  HostMatrixModules::GetInstance()->getMatrixPrinter()->printImMatrix(stream,
-                                                                      matrix);
-}
-
-void PrintImMatrix(const math::Matrix* matrix) {
-  HostMatrixModules::GetInstance()->getMatrixPrinter()->printImMatrix(matrix);
-}
-
-void PrintImMatrix(const std::string& text, const math::Matrix* matrix) {
-  HostMatrixModules::GetInstance()->getMatrixPrinter()->printImMatrix(text,
-                                                                      matrix);
-}
 
 void Copy(math::Matrix* dst, const math::Matrix* src,
           const SubMatrix& subMatrix, uintt column, uintt row) {

@@ -16,63 +16,6 @@
 #define ReIsNotNull(m) m->reValues != NULL
 #define ImIsNotNull(m) m->imValues != NULL
 
-inline void printInfo(const char* function,
-    const math::Matrix* output, const math::Matrix* arg1, const math::Matrix* arg2) {
-    std::string temp;
-    fprintf(stdout, "Function: %s\n", function);
-    host::GetReMatrixStr(temp, output);
-    fprintf(stdout, "output = %s\n", temp.c_str());
-    host::GetReMatrixStr(temp, arg1);
-    fprintf(stdout, "arg1 = %s\n", temp.c_str());
-    host::GetReMatrixStr(temp, arg2);
-    fprintf(stdout, "arg2 = %s\n\n", temp.c_str());
-}
-
-inline void printInfo(const char* function, const math::Matrix* output, const math::Matrix* arg1,
-    floatt* arg2) {
-    std::string temp;
-    fprintf(stdout, "Function: %s\n", function);
-    host::GetReMatrixStr(temp, output);
-    fprintf(stdout, "output = %s\n", temp.c_str());
-    host::GetReMatrixStr(temp, arg1);
-    fprintf(stdout, "arg1 = %s\n", temp.c_str());
-    fprintf(stdout, "arg2 = %f\n\n", *arg2);
-}
-
-inline void printInfo(const char* function, const math::Matrix* output, const math::Matrix* arg1) {
-    std::string temp;
-    fprintf(stdout, "Function: %s\n", function);
-    host::GetReMatrixStr(temp, output);
-    fprintf(stdout, "output = %s\n", temp.c_str());
-    host::GetReMatrixStr(temp, arg1);
-    fprintf(stdout, "arg1 = %s\n\n", temp.c_str());
-}
-
-inline void printInfo(const char* function, floatt* output, const math::Matrix* arg1, floatt* arg2) {
-    std::string temp;
-    fprintf(stdout, "Function: %s\n", function);
-    fprintf(stdout, "output = %s\n", temp.c_str());
-    host::GetReMatrixStr(temp, arg1);
-    fprintf(stdout, "arg1 = %s\n", temp.c_str());
-    fprintf(stdout, "arg2 = %f\n\n", *arg2);
-}
-
-inline void printInfo(const char* function, floatt* output, const math::Matrix* arg1) {
-    std::string temp;
-    fprintf(stdout, "Function: %s\n", function);
-    fprintf(stdout, "output = %f\n", *output);
-    host::GetReMatrixStr(temp, arg1);
-    fprintf(stdout, "arg1 = %s\n\n", temp.c_str());
-}
-
-inline void printInfo(const char* function, const math::Matrix* output, const std::string& arg1) {
-    std::string temp;
-    fprintf(stdout, "Function: %s \n", function);
-    host::GetReMatrixStr(temp, output);
-    fprintf(stdout, "output = %s \n", temp.c_str());
-    fprintf(stdout, "arg1 = %s \n\n", arg1.c_str());
-}
-
 namespace math {
 
 MathOperationsCpu::MathOperationsCpu() : utils::Module() {

@@ -7,6 +7,7 @@
 
 #include "DeviceTreePointerCreator.h"
 #include "DeviceMatrixModules.h"
+#include "CudaUtils.h"
 
 DeviceTreePointerCreator::DeviceTreePointerCreator() {
 }
@@ -18,7 +19,6 @@ TreePointer* DeviceTreePointerCreator::create(intt levelIndex,
         math::Matrix* matrix1,
         math::Matrix* matrix2) {
     TreePointer* treePointer = (TreePointer*) CudaUtils::AllocDeviceMem(sizeof (TreePointer));
-    DeviceMatrixUtils dmu;
     intt zero = 0;
     CudaUtils::CopyHostToDevice(&treePointer->count, &zero, sizeof (zero));
     CudaUtils::CopyHostToDevice(&treePointer->index, &zero, sizeof (zero));
@@ -30,7 +30,7 @@ TreePointer* DeviceTreePointerCreator::create(intt levelIndex,
                 sizeof (matrix1->rows));
         TreePointerType type = TYPE_COLUMN;
         CudaUtils::CopyHostToDevice(&treePointer->type, &type, sizeof (type));
-        realCount = dmu.getRows(matrix1);
+        realCount = CudaUtils::GetRows(matrix1);
     } else {
         CudaUtils::CopyHostToDevice(&treePointer->matrix, &matrix2,
                 sizeof (matrix2));
@@ -38,7 +38,7 @@ TreePointer* DeviceTreePointerCreator::create(intt levelIndex,
                 sizeof (matrix2->columns));
         TreePointerType type = TYPE_ROW;
         CudaUtils::CopyHostToDevice(&treePointer->type, &type, sizeof (type));
-        realCount = dmu.getColumns(matrix2);
+        realCount = CudaUtils::GetColumns(matrix2);
     }
     intt* nodeValue = (intt*) CudaUtils::AllocDeviceMem(realCount * sizeof (intt));
     floatt* revalues = (floatt*) CudaUtils::AllocDeviceMem(realCount * sizeof (floatt));

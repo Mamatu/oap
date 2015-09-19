@@ -313,47 +313,6 @@ namespace host {
     void SetImValue(const math::Matrix* matrix, uintt column, uintt row, floatt value);
 
     /**
-     * @brief GetMatrixStr
-     * @param text
-     * @param matrix
-     */
-    void GetMatrixStr(std::string& text, const math::Matrix* matrix);
-
-    /**
-     * @brief GetReMatrixStr
-     * @param text
-     * @param matrix
-     */
-    void GetReMatrixStr(std::string& text, const math::Matrix* matrix);
-
-    /**
-     * @brief GetImMatrixStr
-     * @param text
-     * @param matrix
-     */
-    void GetImMatrixStr(std::string& text, const math::Matrix* matrix);
-
-    /**
-     * @brief PrintReMatrix
-     * @param stream
-     * @param matrix
-     */
-    void PrintReMatrix(FILE* stream, const math::Matrix* matrix);
-
-    /**
-     * @brief PrintReMatrix
-     * @param matrix
-     */
-    void PrintReMatrix(const math::Matrix* matrix);
-
-    /**
-     * @brief PrintReMatrix
-     * @param text
-     * @param matrix
-     */
-    void PrintReMatrix(const std::string& text, const math::Matrix* matrix);
-
-    /**
      * @brief PrintMatrix
      * @param text
      * @param matrix
