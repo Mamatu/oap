@@ -88,14 +88,28 @@ class CuMatrix {
 
   uintt getCompareOperationSum() const;
 
-  void QR(math::Matrix* Q, math::Matrix* R, math::Matrix* H, math::Matrix* R1,
-          math::Matrix* Q1, math::Matrix* G, math::Matrix* GT);
+  void QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H, math::Matrix* R1,
+            math::Matrix* Q1, math::Matrix* G, math::Matrix* GT);
+
+  void QRHT(math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* AT,
+            math::Matrix* P, math::Matrix* I, math::Matrix* v, math::Matrix* vt,
+            math::Matrix* vvt);
+
+  void QRHTOpt(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
+               math::Matrix* AT, math::Matrix* P, math::Matrix* I,
+               math::Matrix* v, math::Matrix* vt, math::Matrix* vvt);
 
   bool isUpperTriangular(math::Matrix* matrix);
 
   CUresult getStatus() const;
 
  private:
+  enum QRType { NORMAL, OPT };
+
+  void qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* R, math::Matrix* A,
+                   math::Matrix* AT, math::Matrix* P, math::Matrix* I,
+                   math::Matrix* v, math::Matrix* vt, math::Matrix* vvt);
+
   bool compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
                         math::Matrix* matrix2, uintt w, uintt h, uintt wthreads,
                         uintt hthreads);
@@ -137,6 +151,8 @@ class CuMatrix {
   Buffer<floatt> m_hmagnitudeOutputBuffer;
   Buffer<int> m_disuppertriangularOutputBuffer;
   Buffer<int> m_hisuppertriangularOutputBuffer;
+  Buffer<floatt> m_dqrSums;
+  Buffer<floatt> m_dqrBuffer;
 
   int* m_doutputIsTriangular;
 
@@ -152,7 +168,6 @@ class CuMatrix {
 
   bool m_isIntialized;
   cuda::Kernel m_kernel;
-  const char* m_pathes[3];
   uintt m_maxThreadsPerBlock;
   uintt m_compareOperationOutput;
   CuMatrix(const CuMatrix&);

@@ -8,12 +8,13 @@
 #include "MatrixProcedures.h"
 #include "DebugLogs.h"
 #include "ThreadsMapper.h"
+#include "HostMatrixKernels.h"
 #include <math.h>
 
 void CuMatrix::prepareDims(uintt w, uintt h) {
   uintt blocks[2];
   uintt threads[2];
-  utils::mapper::SetThreadsBlocks(blocks, threads, w, h, m_maxThreadsPerBlock);
+  m_kernel.calculateThreadsBlocks(blocks, threads, w, h);
   m_kernel.setBlocksCount(blocks[0], blocks[1]);
   m_kernel.setThreadsCount(threads[0], threads[1]);
 }
@@ -40,16 +41,16 @@ CuMatrix::CuMatrix()
       m_magnitudeBuffer(CuMatrix::CUDA),
       m_disuppertriangularOutputBuffer(CuMatrix::CUDA),
       m_hisuppertriangularOutputBuffer(CuMatrix::HOST),
+      m_dqrSums(CuMatrix::CUDA),
+      m_dqrBuffer(CuMatrix::CUDA),
       m_compareOperationOutput(0) {
-  m_pathes[0] = "liboglaMatrixCuda.cubin";
-  m_pathes[2] = NULL;
   init();
   m_magniuteOutput = CudaUtils::AllocDeviceObj<floatt>(0);
   m_doutputIsTriangular = CudaUtils::AllocDeviceObj<int>(0);
 }
 
 void CuMatrix::init() {
-  m_kernel.load(m_pathes);
+  m_kernel.load("liboglaMatrixCuda.cubin");
   CUdevprop devprop;
   m_kernel.getDeviceProperties(devprop);
   m_maxThreadsPerBlock = devprop.maxThreadsPerBlock;
@@ -205,13 +206,30 @@ void CuMatrix::setZeroMatrix(math::Matrix* matrix) {
   m_cuResult = CUDA_SUCCESS;
 }
 
-void CuMatrix::QR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
-                  math::Matrix* aux0, math::Matrix* aux1, math::Matrix* aux2,
-                  math::Matrix* aux3) {
+void CuMatrix::QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
+                    math::Matrix* aux0, math::Matrix* aux1, math::Matrix* aux2,
+                    math::Matrix* aux3) {
   void* params[] = {&Q, &R, &H, &aux0, &aux1, &aux2, &aux3};
+  uint maxThreads = m_kernel.getMaxThreadsPerBlock();
   const uintt w = CudaUtils::GetColumns(H);
   const uintt h = CudaUtils::GetRows(H);
-  m_cuResult = execute("CUDAKernel_QR", w, h, params, 0);
+  if (maxThreads >= w * h) {
+    m_cuResult = execute("CUDAKernel_QRGR", w, h, params, 0);
+  } else {
+    m_cuResult = HOSTKernel_QRGR(Q, R, H, aux0, aux1, aux2, aux3, m_kernel);
+  }
+}
+
+void CuMatrix::QRHT(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
+                    math::Matrix* AT, math::Matrix* P, math::Matrix* I,
+                    math::Matrix* v, math::Matrix* vt, math::Matrix* vvt) {
+  qrProcedure(NORMAL, Q, R, A, AT, P, I, v, vt, vvt);
+}
+
+void CuMatrix::QRHTOpt(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
+                       math::Matrix* AT, math::Matrix* P, math::Matrix* I,
+                       math::Matrix* v, math::Matrix* vt, math::Matrix* vvt) {
+  qrProcedure(OPT, Q, R, A, AT, P, I, v, vt, vvt);
 }
 
 bool CuMatrix::isUpperTriangular(math::Matrix* matrix) {
@@ -249,7 +267,8 @@ bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
   const uintt w = CudaUtils::GetColumns(matrix1);
   const uintt h = CudaUtils::GetRows(matrix1);
 
-  return compareProcedure("CUDAKernel_CompareOpt", matrix1, matrix2, w, h, w, h);
+  return compareProcedure("CUDAKernel_CompareOpt", matrix1, matrix2, w, h, w,
+                          h);
 }
 
 bool CuMatrix::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2) {
@@ -344,6 +363,35 @@ floatt CuMatrix::magnitude2Procedure_GetOutput(uintt blocks[2],
   }
 
   return outcome;
+}
+
+void CuMatrix::qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* R,
+                           math::Matrix* A, math::Matrix* AT, math::Matrix* P,
+                           math::Matrix* I, math::Matrix* v, math::Matrix* vt,
+                           math::Matrix* vvt) {
+  uintt blocks[2];
+  uintt threads[2];
+  const uintt w = CudaUtils::GetColumns(A);
+  const uintt h = CudaUtils::GetRows(A);
+
+  m_kernel.calculateThreadsBlocks(blocks, threads, w, h);
+  m_kernel.setBlocksCount(blocks[0], blocks[1]);
+  m_kernel.setThreadsCount(threads[0], threads[1]);
+
+  m_dqrSums.realloc(blocks[0] * blocks[1]);
+
+  if (qrType == OPT) {
+    m_kernel.setSharedMemory(h * sizeof(floatt));
+    void* params[] = {&Q, &R, &A, &AT, &m_dqrSums.m_buffer, &P, &I, &v, &vt,
+                      &vvt};
+    m_cuResult =
+        ::cuda::Kernel::Execute("CUDAKernel_QRHTOpt", params, m_kernel);
+  } else {
+    m_dqrBuffer.realloc(h);
+    void* params[] = {&Q, &R, &A, &AT, &m_dqrSums.m_buffer,
+                      &m_dqrBuffer.m_buffer, &P, &I, &v, &vt, &vvt};
+    m_cuResult = ::cuda::Kernel::Execute("CUDAKernel_QRHT", params, m_kernel);
+  }
 }
 
 uintt CuMatrix::getCompareOperationSum() const {
