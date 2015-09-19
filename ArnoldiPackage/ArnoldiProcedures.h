@@ -156,7 +156,7 @@ class CuHArnoldi {
   ArnUtils::SortType m_sortType;
 
   void* m_image;
-  cuda::Kernel m_kernel;
+  device::Kernel m_kernel;
 
   uintt m_transposeVcolumns;
   uintt m_hrows;

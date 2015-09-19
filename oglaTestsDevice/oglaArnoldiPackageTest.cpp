@@ -57,7 +57,7 @@ class OglaArnoldiPackageTests : public testing::Test {
   CuHArnoldiDefault* arnoldiCuda;
 
   virtual void SetUp() {
-    cuda::Context::Instance().create();
+    device::Context::Instance().create();
     arnoldiCpu = new api::ArnoldiPackage(api::ArnoldiPackage::ARNOLDI_CPU);
     arnoldiCuda = new CuHArnoldiDefault;
   }
@@ -65,7 +65,7 @@ class OglaArnoldiPackageTests : public testing::Test {
   virtual void TearDown() {
     delete arnoldiCuda;
     delete arnoldiCpu;
-    cuda::Context::Instance().destroy();
+    device::Context::Instance().destroy();
   }
 };
 

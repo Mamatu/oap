@@ -52,18 +52,18 @@ class OglaCudaUtilsTests : public testing::Test {
   CuTest cuTest;
   CUresult status;
 
-  cuda::Kernel* m_kernel;
+  device::Kernel* m_kernel;
 
   virtual void SetUp() {
-    cuda::Context::Instance().create();
+    device::Context::Instance().create();
     status = CUDA_SUCCESS;
-    m_kernel = new cuda::Kernel();
+    m_kernel = new device::Kernel();
     m_kernel->load("liboglaMatrixCuda.cubin");
   }
 
   virtual void TearDown() {
     delete m_kernel;
-    cuda::Context::Instance().destroy();
+    device::Context::Instance().destroy();
   }
 
   void executeSetGetValueTest(bool isre, bool isim, uintt columns, uintt rows,
@@ -84,9 +84,9 @@ class OglaCudaUtilsTests : public testing::Test {
 
   void executeSetGetValueTest(bool isre, bool isim, uintt columns, uintt rows,
                               const ValueIndexVec& expecteds) {
-    math::Matrix* matrix = cuda::NewDeviceMatrix(isre, isim, columns, rows);
+    math::Matrix* matrix = device::NewDeviceMatrix(isre, isim, columns, rows);
     executeSetGetValueTest(matrix, expecteds);
-    cuda::DeleteDeviceMatrix(matrix);
+    device::DeleteDeviceMatrix(matrix);
   }
 
   void executeSetGetValueTest(math::Matrix* matrix,
@@ -155,11 +155,11 @@ TEST_F(OglaCudaUtilsTests, SetGetValuesMatrix2) {
   vec.push_back(ValueIndex(c, Index(column, column)));
   vec.push_back(ValueIndex(c, Index(row, row)));
   vec.push_back(ValueIndex(s, Index(row, column)));
-  math::Matrix* matrix = cuda::NewDeviceMatrix(true, true, 64, 64);
+  math::Matrix* matrix = device::NewDeviceMatrix(true, true, 64, 64);
   m_kernel->setDimensionsDevice(matrix);
   DEVICEKernel_SetIdentity(matrix, *m_kernel);
   executeSetGetValueTest(matrix, vec);
-  cuda::DeleteDeviceMatrix(matrix);
+  device::DeleteDeviceMatrix(matrix);
 }
 
 TEST_F(OglaCudaUtilsTests, SetGetValuesMatrix3) {
@@ -172,9 +172,9 @@ TEST_F(OglaCudaUtilsTests, SetGetValuesMatrix3) {
   vec.push_back(ValueIndex(c, Index(column, column)));
   vec.push_back(ValueIndex(c, Index(row, row)));
   vec.push_back(ValueIndex(s, Index(row, column)));
-  math::Matrix* matrix = cuda::NewDeviceMatrix(true, true, 32, 32);
+  math::Matrix* matrix = device::NewDeviceMatrix(true, true, 32, 32);
   m_kernel->setDimensionsDevice(matrix);
   DEVICEKernel_SetIdentity(matrix, *m_kernel);
   executeSetGetValueTest(matrix, vec);
-  cuda::DeleteDeviceMatrix(matrix);
+  device::DeleteDeviceMatrix(matrix);
 }

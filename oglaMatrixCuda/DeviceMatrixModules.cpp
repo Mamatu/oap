@@ -6,7 +6,7 @@
 #include <netdb.h>
 #include <map>
 
-namespace cuda {
+namespace device {
 
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
@@ -26,7 +26,7 @@ math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
         HostMatrixModules::GetInstance()->getMatrixAllocator()->newImMatrix(
             columns, rows);
   }
-  cuda::CopyDeviceMatrixToHostMatrix(matrix1, matrix);
+  device::CopyDeviceMatrixToHostMatrix(matrix1, matrix);
   return matrix1;
 }
 
@@ -35,8 +35,8 @@ math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix) {
 }
 
 math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
-  math::Matrix* dmatrix = cuda::NewDeviceMatrix(hostMatrix);
-  cuda::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
+  math::Matrix* dmatrix = device::NewDeviceMatrix(hostMatrix);
+  device::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
   return dmatrix;
 }
 

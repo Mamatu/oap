@@ -118,9 +118,9 @@ void CuHArnoldi::calculateTriangularH() {
     //if (fb == 200) {abort();}
   }
   if (fb & 1 == 0) {
-    cuda::CopyDeviceMatrixToDeviceMatrix(Q, Q1);
+    device::CopyDeviceMatrixToDeviceMatrix(Q, Q1);
   } else {
-    cuda::CopyDeviceMatrixToDeviceMatrix(Q, QJ);
+    device::CopyDeviceMatrixToDeviceMatrix(Q, QJ);
   }
 }
 
@@ -128,7 +128,7 @@ void CuHArnoldi::calculateTriangularHInDevice() {
   CudaUtils::PrintMatrix("BH1", H1, false, false);
   void* params[] = {&H1, &Q, &R1, &Q1, &QJ, &Q2, &R2, &G, &GT};
   m_kernel.setDimensions(m_Hcolumns, m_Hrows);
-  cuda::Kernel::Execute("CUDAKernel_CalculateTriangularH", params, m_kernel);
+  device::Kernel::Execute("CUDAKernel_CalculateTriangularH", params, m_kernel);
   CudaUtils::PrintMatrix("AH1", H1);
 }
 
@@ -144,7 +144,7 @@ void aux_switchPointer(math::Matrix** a, math::Matrix** b) {
 
 void CuHArnoldi::calculateTriangularHEigens(uintt unwantedCount) {
   std::vector<Complex> values;
-  cuda::CopyDeviceMatrixToDeviceMatrix(H1, H);
+  device::CopyDeviceMatrixToDeviceMatrix(H1, H);
   m_cuMatrix.setIdentity(Q);
   m_cuMatrix.setIdentity(QJ);
   m_cuMatrix.setIdentity(I);
@@ -216,7 +216,7 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
     CudaUtils::SetReValue(H, (fa) + m_Hcolumns * (fa + 1), B);
     multiply(w, v);
     MatrixEx matrixEx = {0, m_transposeVcolumns, initj, fa + 2, 0, 0};
-    cuda::SetMatrixEx(dMatrixEx[2], &matrixEx);
+    device::SetMatrixEx(dMatrixEx[2], &matrixEx);
     m_cuMatrix.transposeMatrixEx(transposeV, V, dMatrixEx[2]);
     m_cuMatrix.dotProduct(h, transposeV, w);
     m_cuMatrix.dotProduct(vh, V, h);
@@ -260,7 +260,7 @@ void CuHArnoldi::execute(uintt k, uintt wantedCount,
   setCalculateTriangularHPtr(k);
 
   const uintt dMatrixExCount = 5;
-  MatrixEx** dMatrixExs = cuda::NewDeviceMatrixEx(dMatrixExCount);
+  MatrixEx** dMatrixExs = device::NewDeviceMatrixEx(dMatrixExCount);
   alloc(matrixInfo, k);
 
   m_matrixInfo = matrixInfo;
@@ -274,7 +274,7 @@ void CuHArnoldi::execute(uintt k, uintt wantedCount,
                       m_transposeVcolumns, 0, 0, 0, 0, 0, 0, 0, m_scolumns,
                       initj, initj + 2, 0, m_transposeVcolumns, 0, m_vscolumns,
                       0, m_vsrows, initj, initj + 2};
-    cuda::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
+    device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
     status = executeArnoldiFactorization(true, 0, dMatrixExs, m_rho);
   }
   for (intt fax = 0; fax == 0 || status == true; ++fax) {
@@ -322,7 +322,7 @@ void CuHArnoldi::execute(uintt k, uintt wantedCount,
                           0, m_transposeVcolumns, 0, 0, 0, 0, 0, 0, 0,
                           m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
                           0, m_vscolumns, 0, m_vsrows, initj, initj + 2};
-        cuda::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
+        device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
         status = executeArnoldiFactorization(false, k - 1, dMatrixExs, m_rho);
       }
     }
@@ -335,7 +335,7 @@ void CuHArnoldi::execute(uintt k, uintt wantedCount,
       m_outputs->imValues[fa] = wanted[fa].im;
     }
   }
-  cuda::DeleteDeviceMatrixEx(dMatrixExs);
+  device::DeleteDeviceMatrixEx(dMatrixExs);
 }
 
 bool CuHArnoldi::shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
@@ -378,102 +378,102 @@ void CuHArnoldi::alloc(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
 }
 
 void CuHArnoldi::alloc1(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
-  w = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  w = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                             matrixInfo.m_matrixDim.rows);
-  v = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  v = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                             matrixInfo.m_matrixDim.rows);
   m_vrows = matrixInfo.m_matrixDim.rows;
-  f = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  f = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                             matrixInfo.m_matrixDim.rows);
-  f1 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  f1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                              matrixInfo.m_matrixDim.rows);
-  vh = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  vh = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                              matrixInfo.m_matrixDim.rows);
-  vs = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  vs = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                              matrixInfo.m_matrixDim.rows);
-  EQ1 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  EQ1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                               matrixInfo.m_matrixDim.rows);
-  EQ2 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  EQ2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                               matrixInfo.m_matrixDim.rows);
-  EQ3 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  EQ3 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                               matrixInfo.m_matrixDim.rows);
 }
 
 void CuHArnoldi::alloc2(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
-  V = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  V = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                             matrixInfo.m_matrixDim.rows);
-  V1 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  V1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                              matrixInfo.m_matrixDim.rows);
-  V2 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  V2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                              matrixInfo.m_matrixDim.rows);
-  EV = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  EV = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                              matrixInfo.m_matrixDim.rows);
-  EV1 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  EV1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                               matrixInfo.m_matrixDim.rows);
-  transposeV = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm,
+  transposeV = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm,
                                      matrixInfo.m_matrixDim.rows, k);
 }
 
 void CuHArnoldi::alloc3(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
-  h = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
-  s = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
-  H = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  G = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  GT = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  HO = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  H1 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  Q1 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  Q2 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  QT = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  R1 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  R2 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  QJ = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  I = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  Q = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  q = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
-  q1 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
-  q2 = cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
+  h = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
+  s = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
+  H = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  G = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  GT = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  HO = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  H1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  Q1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  Q2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  QT = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  R1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  R2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  QJ = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  I = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  Q = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  q = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
+  q1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
+  q2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
 }
 
 void CuHArnoldi::dealloc1() {
-  cuda::DeleteDeviceMatrix(w);
-  cuda::DeleteDeviceMatrix(v);
-  cuda::DeleteDeviceMatrix(f);
-  cuda::DeleteDeviceMatrix(f1);
-  cuda::DeleteDeviceMatrix(vh);
-  cuda::DeleteDeviceMatrix(vs);
-  cuda::DeleteDeviceMatrix(EQ1);
-  cuda::DeleteDeviceMatrix(EQ2);
-  cuda::DeleteDeviceMatrix(EQ3);
+  device::DeleteDeviceMatrix(w);
+  device::DeleteDeviceMatrix(v);
+  device::DeleteDeviceMatrix(f);
+  device::DeleteDeviceMatrix(f1);
+  device::DeleteDeviceMatrix(vh);
+  device::DeleteDeviceMatrix(vs);
+  device::DeleteDeviceMatrix(EQ1);
+  device::DeleteDeviceMatrix(EQ2);
+  device::DeleteDeviceMatrix(EQ3);
 }
 
 void CuHArnoldi::dealloc2() {
-  cuda::DeleteDeviceMatrix(V);
-  cuda::DeleteDeviceMatrix(V1);
-  cuda::DeleteDeviceMatrix(V2);
-  cuda::DeleteDeviceMatrix(EV);
-  cuda::DeleteDeviceMatrix(EV1);
-  cuda::DeleteDeviceMatrix(transposeV);
+  device::DeleteDeviceMatrix(V);
+  device::DeleteDeviceMatrix(V1);
+  device::DeleteDeviceMatrix(V2);
+  device::DeleteDeviceMatrix(EV);
+  device::DeleteDeviceMatrix(EV1);
+  device::DeleteDeviceMatrix(transposeV);
 }
 
 void CuHArnoldi::dealloc3() {
-  cuda::DeleteDeviceMatrix(h);
-  cuda::DeleteDeviceMatrix(s);
-  cuda::DeleteDeviceMatrix(H);
-  cuda::DeleteDeviceMatrix(G);
-  cuda::DeleteDeviceMatrix(GT);
-  cuda::DeleteDeviceMatrix(HO);
-  cuda::DeleteDeviceMatrix(H1);
-  cuda::DeleteDeviceMatrix(Q1);
-  cuda::DeleteDeviceMatrix(Q2);
-  cuda::DeleteDeviceMatrix(QT);
-  cuda::DeleteDeviceMatrix(R1);
-  cuda::DeleteDeviceMatrix(R2);
-  cuda::DeleteDeviceMatrix(QJ);
-  cuda::DeleteDeviceMatrix(I);
-  cuda::DeleteDeviceMatrix(Q);
-  cuda::DeleteDeviceMatrix(q1);
-  cuda::DeleteDeviceMatrix(q2);
+  device::DeleteDeviceMatrix(h);
+  device::DeleteDeviceMatrix(s);
+  device::DeleteDeviceMatrix(H);
+  device::DeleteDeviceMatrix(G);
+  device::DeleteDeviceMatrix(GT);
+  device::DeleteDeviceMatrix(HO);
+  device::DeleteDeviceMatrix(H1);
+  device::DeleteDeviceMatrix(Q1);
+  device::DeleteDeviceMatrix(Q2);
+  device::DeleteDeviceMatrix(QT);
+  device::DeleteDeviceMatrix(R1);
+  device::DeleteDeviceMatrix(R2);
+  device::DeleteDeviceMatrix(QJ);
+  device::DeleteDeviceMatrix(I);
+  device::DeleteDeviceMatrix(Q);
+  device::DeleteDeviceMatrix(q1);
+  device::DeleteDeviceMatrix(q2);
 }
 
 void CuHArnoldiDefault::multiply(math::Matrix* w, math::Matrix* v) {

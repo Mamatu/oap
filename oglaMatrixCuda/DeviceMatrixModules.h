@@ -9,7 +9,7 @@
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
 
-namespace cuda {
+namespace device {
 
 /**
  * @brief NewDeviceMatrix

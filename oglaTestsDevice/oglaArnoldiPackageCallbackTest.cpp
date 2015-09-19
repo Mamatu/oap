@@ -59,7 +59,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
   CuMatrix* cuMatrix;
 
   virtual void SetUp() {
-    cuda::Context::Instance().create();
+    device::Context::Instance().create();
     arnoldiCuda = new CuHArnoldiCallback();
     cuMatrix = new CuMatrix();
   }
@@ -67,7 +67,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
   virtual void TearDown() {
     delete arnoldiCuda;
     delete cuMatrix;
-    cuda::Context::Instance().destroy();
+    device::Context::Instance().destroy();
   }
 
   class Data {
@@ -218,7 +218,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
       static void multiply(math::Matrix* w, math::Matrix* v, void* userData) {
         Data* data = static_cast<Data*>(userData);
         data->load();
-        cuda::CopyDeviceMatrixToHostMatrix(data->hostV, v);
+        device::CopyDeviceMatrixToHostMatrix(data->hostV, v);
         ASSERT_THAT(data->hostV, MatrixIsEqual(data->refV));
         CudaUtils::PrintMatrix("v", v);
         printf("\n");
@@ -228,7 +228,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
         printf("\n");
         host::PrintMatrix("data->refW", data->refW);
         printf("\n");
-        cuda::CopyHostMatrixToDeviceMatrix(w, data->refW);
+        device::CopyHostMatrixToDeviceMatrix(w, data->refW);
       }
     };
     floatt revalues[2] = {0, 0};
@@ -317,9 +317,9 @@ TEST_F(OglaArnoldiPackageCallbackTests, MagnitudeTest) {
   uintt columns = data.refW->columns;
   uintt rows = data.refW->rows;
 
-  math::Matrix* dmatrix = cuda::NewDeviceMatrix(isre, isim, columns, rows);
+  math::Matrix* dmatrix = device::NewDeviceMatrix(isre, isim, columns, rows);
 
-  cuda::CopyHostMatrixToDeviceMatrix(dmatrix, data.refW);
+  device::CopyHostMatrixToDeviceMatrix(dmatrix, data.refW);
 
   floatt output = -1;
   floatt doutput = -1;
@@ -332,7 +332,7 @@ TEST_F(OglaArnoldiPackageCallbackTests, MagnitudeTest) {
   EXPECT_DOUBLE_EQ(3.25, doutput);
   EXPECT_DOUBLE_EQ(output, doutput);
 
-  cuda::DeleteDeviceMatrix(dmatrix);
+  device::DeleteDeviceMatrix(dmatrix);
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData1) {

@@ -34,7 +34,7 @@ namespace shibataCuda {
             TreePointer** treePointers1;
         };
         bool m_isAllocated;
-        void alloc(::cuda::Kernel& kernel);
+        void alloc(::device::Kernel& kernel);
         void dealloc();
 
         intt** tmColumnsPtr;

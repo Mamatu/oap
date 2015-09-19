@@ -5,7 +5,7 @@
 
 class CuTest {
     void* m_image;
-    cuda::Kernel m_kernel;
+    device::Kernel m_kernel;
     CUresult m_cuResult;
 public:
     CuTest();

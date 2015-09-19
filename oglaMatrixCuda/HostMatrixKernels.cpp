@@ -10,7 +10,7 @@ void aux_switchPointer(math::Matrix** a, math::Matrix** b) {
 }
 
 inline CUresult host_prepareGMatrix(math::Matrix* A, uintt column, uintt row,
-                                    math::Matrix* G, cuda::Kernel& kernel) {
+                                    math::Matrix* G, device::Kernel& kernel) {
   CUresult result = DEVICEKernel_SetIdentity(G, kernel);
   if (result != CUDA_SUCCESS) {
     //return result;
@@ -78,10 +78,10 @@ inline CUresult host_prepareGMatrix(math::Matrix* A, uintt column, uintt row,
 
 CUresult HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
                          math::Matrix* Q1, math::Matrix* R1, math::Matrix* G,
-                         math::Matrix* GT, cuda::Kernel& kernel) {
+                         math::Matrix* GT, device::Kernel& kernel) {
   math::Matrix* rQ = Q;
   math::Matrix* rR = R;
-  cuda::CopyDeviceMatrixToDeviceMatrix(R1, A);
+  device::CopyDeviceMatrixToDeviceMatrix(R1, A);
   uintt count = 0;
   uintt Acolumns = CudaUtils::GetColumns(A);
   uintt Arows = CudaUtils::GetRows(A);
@@ -104,8 +104,8 @@ CUresult HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
     }
   }
   if (count & 1 == 1) {
-    cuda::CopyDeviceMatrixToDeviceMatrix(rQ, Q1);
-    cuda::CopyDeviceMatrixToDeviceMatrix(rR, R1);
+    device::CopyDeviceMatrixToDeviceMatrix(rQ, Q1);
+    device::CopyDeviceMatrixToDeviceMatrix(rR, R1);
   }
   return CUDA_SUCCESS;
 }

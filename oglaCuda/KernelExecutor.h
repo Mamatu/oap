@@ -19,7 +19,7 @@
 #define printCuError(cuResult) if(cuResult != 0) {debug("\n\n %s %s : %d cuError == %d \n\n",__FUNCTION__,__FILE__,__LINE__,cuResult); abort();}
 #define printCuErrorStatus(status, cuResult) if(cuResult != 0) {status = cuResult; debug("\n\n %s %s : %d cuError == %d \n\n",__FUNCTION__,__FILE__,__LINE__,cuResult); abort();}
 
-namespace cuda {
+namespace device {
 
 void Init();
 
@@ -111,7 +111,7 @@ public:
         uintt w, uintt h, uintt maxThreadsPerBlock);
         
     static CUresult Execute(const char* functionName,
-        void** params, ::cuda::Kernel& kernel);
+        void** params, ::device::Kernel& kernel);
 };
 
 }

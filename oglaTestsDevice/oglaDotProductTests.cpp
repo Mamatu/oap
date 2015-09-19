@@ -54,14 +54,14 @@ public:
 
     virtual void SetUp() {
         status = CUDA_SUCCESS;
-        cuda::Context::Instance().create();
+        device::Context::Instance().create();
         output = NULL;
         eq_output = NULL;
         cuMatrix = new CuMatrix();
     }
 
     virtual void TearDown() {
-        cuda::Context::Instance().destroy();
+        device::Context::Instance().destroy();
         delete cuMatrix;
         if (output != NULL && eq_output != NULL) {
             EXPECT_THAT(output, MatrixIsEqual(eq_output));

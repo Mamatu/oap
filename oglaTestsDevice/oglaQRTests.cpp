@@ -58,30 +58,30 @@ class OglaQRTests : public testing::Test {
 
   virtual void SetUp() {
     status = CUDA_SUCCESS;
-    cuda::Context::Instance().create();
+    device::Context::Instance().create();
     m_cuMatrix = new CuMatrix();
   }
 
   virtual void TearDown() {
-    cuda::Context::Instance().destroy();
+    device::Context::Instance().destroy();
     delete m_cuMatrix;
   }
 
   void executeOrthogonalityTest(math::Matrix* q, math::Matrix* dq) {
-    math::Matrix* tdq = cuda::NewDeviceMatrixCopy(q);
-    math::Matrix* doutput = cuda::NewDeviceMatrixCopy(q);
-    math::Matrix* doutput1 = cuda::NewDeviceMatrixCopy(q);
+    math::Matrix* tdq = device::NewDeviceMatrixCopy(q);
+    math::Matrix* doutput = device::NewDeviceMatrixCopy(q);
+    math::Matrix* doutput1 = device::NewDeviceMatrixCopy(q);
     math::Matrix* houtput = host::NewMatrix(q);
 
     m_cuMatrix->transposeMatrix(tdq, dq);
     m_cuMatrix->dotProduct(doutput, tdq, dq);
-    cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
+    device::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
     EXPECT_THAT(houtput, MatrixIsIdentity());
 
-    cuda::DeleteDeviceMatrix(tdq);
-    cuda::DeleteDeviceMatrix(doutput);
-    cuda::DeleteDeviceMatrix(doutput1);
+    device::DeleteDeviceMatrix(tdq);
+    device::DeleteDeviceMatrix(doutput);
+    device::DeleteDeviceMatrix(doutput1);
     host::DeleteMatrix(houtput);
   }
 
@@ -94,48 +94,48 @@ class OglaQRTests : public testing::Test {
     math::Matrix* hrmatrix = host::NewMatrix(matrix);
     math::Matrix* hrmatrix1 = host::NewMatrix(matrix);
 
-    math::Matrix* temp1 = cuda::NewDeviceMatrix(matrix);
-    math::Matrix* temp2 = cuda::NewDeviceMatrix(matrix);
-    math::Matrix* temp3 = cuda::NewDeviceMatrix(matrix);
-    math::Matrix* temp4 = cuda::NewDeviceMatrix(matrix);
-    math::Matrix* dmatrix = cuda::NewDeviceMatrixCopy(matrix);
-    math::Matrix* drmatrix = cuda::NewDeviceMatrixCopy(matrix);
+    math::Matrix* temp1 = device::NewDeviceMatrix(matrix);
+    math::Matrix* temp2 = device::NewDeviceMatrix(matrix);
+    math::Matrix* temp3 = device::NewDeviceMatrix(matrix);
+    math::Matrix* temp4 = device::NewDeviceMatrix(matrix);
+    math::Matrix* dmatrix = device::NewDeviceMatrixCopy(matrix);
+    math::Matrix* drmatrix = device::NewDeviceMatrixCopy(matrix);
 
     math::Matrix* eq_q = host::NewMatrix(qr1q);
     math::Matrix* q = host::NewMatrix(eq_q);
-    math::Matrix* dq = cuda::NewDeviceMatrix(q);
+    math::Matrix* dq = device::NewDeviceMatrix(q);
 
     math::Matrix* eq_r = host::NewMatrix(qr1r);
     math::Matrix* r = host::NewMatrix(eq_r);
-    math::Matrix* dr = cuda::NewDeviceMatrix(r);
+    math::Matrix* dr = device::NewDeviceMatrix(r);
 
     m_cuMatrix->QRGR(dq, dr, dmatrix, temp1, temp2, temp3, temp4);
 
-    cuda::CopyDeviceMatrixToHostMatrix(r, dr);
-    cuda::CopyDeviceMatrixToHostMatrix(q, dq);
+    device::CopyDeviceMatrixToHostMatrix(r, dr);
+    device::CopyDeviceMatrixToHostMatrix(q, dq);
 
     EXPECT_THAT(q, MatrixIsEqual(eq_q));
     EXPECT_THAT(r, MatrixIsEqual(eq_r));
 
-    cuda::CopyHostMatrixToDeviceMatrix(dr, eq_r);
-    cuda::CopyHostMatrixToDeviceMatrix(dq, eq_q);
+    device::CopyHostMatrixToDeviceMatrix(dr, eq_r);
+    device::CopyHostMatrixToDeviceMatrix(dq, eq_q);
 
     m_cuMatrix->dotProduct(dmatrix, dq, dr);
     m_cuMatrix->dotProduct(drmatrix, dr, dq);
 
-    cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
-    cuda::CopyDeviceMatrixToHostMatrix(hrmatrix, drmatrix);
+    device::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
+    device::CopyDeviceMatrixToHostMatrix(hrmatrix, drmatrix);
 
     EXPECT_THAT(matrix, MatrixIsEqual(hmatrix));
 
-    cuda::CopyHostMatrixToDeviceMatrix(dr, r);
-    cuda::CopyHostMatrixToDeviceMatrix(dq, q);
+    device::CopyHostMatrixToDeviceMatrix(dr, r);
+    device::CopyHostMatrixToDeviceMatrix(dq, q);
 
     m_cuMatrix->dotProduct(dmatrix, dq, dr);
     m_cuMatrix->dotProduct(drmatrix, dr, dq);
 
-    cuda::CopyDeviceMatrixToHostMatrix(hmatrix1, dmatrix);
-    cuda::CopyDeviceMatrixToHostMatrix(hrmatrix1, drmatrix);
+    device::CopyDeviceMatrixToHostMatrix(hmatrix1, dmatrix);
+    device::CopyDeviceMatrixToHostMatrix(hrmatrix1, drmatrix);
 
     EXPECT_THAT(matrix, MatrixIsEqual(hmatrix1));
     EXPECT_THAT(hrmatrix, MatrixIsEqual(hrmatrix1));
@@ -148,20 +148,20 @@ class OglaQRTests : public testing::Test {
     host::DeleteMatrix(hmatrix1);
     host::DeleteMatrix(hrmatrix1);
 
-    cuda::DeleteDeviceMatrix(temp1);
-    cuda::DeleteDeviceMatrix(temp2);
-    cuda::DeleteDeviceMatrix(temp3);
-    cuda::DeleteDeviceMatrix(temp4);
-    cuda::DeleteDeviceMatrix(dmatrix);
-    cuda::DeleteDeviceMatrix(drmatrix);
+    device::DeleteDeviceMatrix(temp1);
+    device::DeleteDeviceMatrix(temp2);
+    device::DeleteDeviceMatrix(temp3);
+    device::DeleteDeviceMatrix(temp4);
+    device::DeleteDeviceMatrix(dmatrix);
+    device::DeleteDeviceMatrix(drmatrix);
 
     host::DeleteMatrix(q);
     host::DeleteMatrix(eq_q);
-    cuda::DeleteDeviceMatrix(dq);
+    device::DeleteDeviceMatrix(dq);
 
     host::DeleteMatrix(r);
     host::DeleteMatrix(eq_r);
-    cuda::DeleteDeviceMatrix(dr);
+    device::DeleteDeviceMatrix(dr);
   }
 };
 

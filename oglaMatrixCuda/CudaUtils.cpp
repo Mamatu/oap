@@ -326,7 +326,7 @@ void printHostMatrix(std::string& output, const math::Matrix* dmatrix,
   bool isre = CudaUtils::GetReValues(dmatrix) != NULL;
   bool isim = CudaUtils::GetImValues(dmatrix) != NULL;
   math::Matrix* hmatrix = host::NewMatrix(isre, isim, columns, rows);
-  cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
+  device::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
   matrixUtils::PrintMatrix(output, hmatrix, repeats, pipe, endl);
   host::DeleteMatrix(hmatrix);
 }

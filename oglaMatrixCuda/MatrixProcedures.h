@@ -167,7 +167,7 @@ class CuMatrix {
                    uintt sharedMemory, bool _prepareDims = true);
 
   bool m_isIntialized;
-  cuda::Kernel m_kernel;
+  device::Kernel m_kernel;
   uintt m_maxThreadsPerBlock;
   uintt m_compareOperationOutput;
   CuMatrix(const CuMatrix&);

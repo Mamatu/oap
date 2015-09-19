@@ -17,7 +17,7 @@
 //#define KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
 #define KERNEL_EXTENDED_INFO 0
 
-namespace cuda {
+namespace device {
 
 void PrintDeviceInfo(CUdevice cudevice) {
   CUdevprop cuDevprop;
@@ -410,7 +410,7 @@ void Kernel::SetThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w,
 }
 
 CUresult Kernel::Execute(const char* functionName, void** params,
-                         ::cuda::Kernel& kernel) {
+                         ::device::Kernel& kernel) {
   kernel.setParams(params);
   return kernel.execute(functionName);
 }
