@@ -1,5 +1,3 @@
-
-
 // Copyright 2008, Google Inc.
 // All rights reserved.
 //
@@ -56,63 +54,126 @@ class OglaQRTests : public OglaCudaStub {
 
   class QRStub : public KernelStub {
    public:
+    math::Matrix* m_matrix;
+    math::Matrix* m_eq;
+    math::Matrix* m_er;
+    QRStub(math::Matrix* eq, math::Matrix* er, math::Matrix* matrix)
+        : m_eq(eq), m_er(er), m_matrix(matrix) {}
+    virtual ~QRStub() {}
+
+    virtual math::Matrix* getQ() const = 0;
+    virtual math::Matrix* getR() const = 0;
+  };
+
+  class QRGRStub : public QRStub {
+   public:
     math::Matrix* m_q;
     math::Matrix* m_r;
-    math::Matrix* m_matrix;
     math::Matrix* m_temp1;
     math::Matrix* m_temp2;
     math::Matrix* m_temp3;
     math::Matrix* m_temp4;
-    QRStub(math::Matrix* q, math::Matrix* r, math::Matrix* matrix,
-           math::Matrix* temp1, math::Matrix* temp2, math::Matrix* temp3,
-           math::Matrix* temp4) {
-      m_q = q;
-      m_r = r;
-      m_matrix = matrix;
-      m_temp1 = temp1;
-      m_temp2 = temp2;
-      m_temp3 = temp3;
-      m_temp4 = temp4;
+
+    QRGRStub(math::Matrix* eq_q, math::Matrix* eq_r, math::Matrix* matrix)
+        : QRStub(eq_q, eq_r, matrix) {
+      m_q = host::NewMatrix(eq_q);
+      m_r = host::NewMatrix(eq_r);
+      m_temp1 = host::NewMatrix(matrix);
+      m_temp2 = host::NewMatrix(matrix);
+      m_temp3 = host::NewMatrix(matrix);
+      m_temp4 = host::NewMatrix(matrix);
       calculateDims(m_matrix->columns, m_matrix->rows);
     }
+
+    virtual ~QRGRStub() {
+      host::DeleteMatrix(m_q);
+      host::DeleteMatrix(m_r);
+      host::DeleteMatrix(m_temp1);
+      host::DeleteMatrix(m_temp2);
+      host::DeleteMatrix(m_temp3);
+      host::DeleteMatrix(m_temp4);
+    }
+
     void execute(const dim3& threadIdx) {
       CUDA_QRGR(m_q, m_r, m_matrix, m_temp1, m_temp2, m_temp3, m_temp4);
     }
+
+    virtual math::Matrix* getQ() const { return m_q; }
+    virtual math::Matrix* getR() const { return m_r; }
   };
+
+  class QRHTStub : public QRStub {
+   public:
+    math::Matrix* Q;
+    math::Matrix* R;
+    math::Matrix* A;
+    math::Matrix* AT;
+    floatt sum;
+    floatt* buffer;
+    math::Matrix* P;
+    math::Matrix* I;
+    math::Matrix* v;
+    math::Matrix* vt;
+    math::Matrix* vvt;
+
+    QRHTStub(math::Matrix* eq_q, math::Matrix* eq_r, math::Matrix* matrix)
+        : QRStub(eq_q, eq_r, matrix) {
+      R = host::NewMatrix(eq_r);
+      Q = host::NewMatrix(eq_q);
+      A = host::NewMatrix(matrix);
+      AT = host::NewMatrix(matrix);
+      P = host::NewMatrix(matrix);
+      I = host::NewMatrix(matrix);
+      v = host::NewMatrix(matrix, 1, matrix->rows);
+      vt = host::NewMatrix(matrix, matrix->columns, 1);
+      vvt = host::NewMatrix(matrix);
+      buffer = new floatt[matrix->columns];
+    }
+
+    virtual ~QRHTStub() {
+      host::DeleteMatrix(R);
+      host::DeleteMatrix(Q);
+      host::DeleteMatrix(A);
+      host::DeleteMatrix(AT);
+      host::DeleteMatrix(P);
+      host::DeleteMatrix(I);
+      host::DeleteMatrix(v);
+      host::DeleteMatrix(vt);
+      host::DeleteMatrix(vvt);
+      delete[] buffer;
+    }
+
+    void execute(const dim3& threadIdx) {
+      CUDA_QRHT(R, Q, A, AT, &sum, buffer, P, I, v, vt, vvt);
+    }
+
+    virtual math::Matrix* getQ() const { return Q; }
+    virtual math::Matrix* getR() const { return R; }
+  };
+
+  void ExpectThatQRIsEqual(QRStub* qrStub, math::Matrix* eq_q,
+                           math::Matrix* eq_r) {
+    EXPECT_THAT(qrStub->getQ(), MatrixIsEqual(eq_q));
+    EXPECT_THAT(qrStub->getR(), MatrixIsEqual(eq_r));
+  }
 
   void executeTest(const std::string& matrixStr, const std::string& qrefStr,
                    const std::string& rrefStr) {
     math::Matrix* matrix = host::NewMatrix(matrixStr);
-
-    math::Matrix* temp1 = host::NewMatrix(matrix);
-    math::Matrix* temp2 = host::NewMatrix(matrix);
-    math::Matrix* temp3 = host::NewMatrix(matrix);
-    math::Matrix* temp4 = host::NewMatrix(matrix);
-
     math::Matrix* eq_q = host::NewMatrix(qrefStr);
-    math::Matrix* q = host::NewMatrix(eq_q);
-
     math::Matrix* eq_r = host::NewMatrix(rrefStr);
-    math::Matrix* r = host::NewMatrix(eq_r);
 
-    QRStub qrStub(q, r, matrix, temp1, temp2, temp3, temp4);
+    QRGRStub qrgrStub(matrix, eq_q, eq_r);
+    QRHTStub qrhtStub(matrix, eq_q, eq_r);
 
-    executeKernelAsync(&qrStub);
+    executeKernelAsync(&qrgrStub);
+    executeKernelAsync(&qrhtStub);
 
-    EXPECT_THAT(q, MatrixIsEqual(eq_q));
-    EXPECT_THAT(r, MatrixIsEqual(eq_r));
+    ExpectThatQRIsEqual(&qrgrStub, eq_q, eq_r);
+    ExpectThatQRIsEqual(&qrhtStub, eq_q, eq_r);
 
     host::DeleteMatrix(matrix);
-
-    host::DeleteMatrix(temp1);
-    host::DeleteMatrix(temp2);
-    host::DeleteMatrix(temp3);
-    host::DeleteMatrix(temp4);
-
-    host::DeleteMatrix(q);
     host::DeleteMatrix(eq_q);
-
-    host::DeleteMatrix(r);
     host::DeleteMatrix(eq_r);
   }
 };

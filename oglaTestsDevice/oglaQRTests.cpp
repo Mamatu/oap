@@ -109,7 +109,7 @@ class OglaQRTests : public testing::Test {
     math::Matrix* r = host::NewMatrix(eq_r);
     math::Matrix* dr = cuda::NewDeviceMatrix(r);
 
-    m_cuMatrix->QR(dq, dr, dmatrix, temp1, temp2, temp3, temp4);
+    m_cuMatrix->QRGR(dq, dr, dmatrix, temp1, temp2, temp3, temp4);
 
     cuda::CopyDeviceMatrixToHostMatrix(r, dr);
     cuda::CopyDeviceMatrixToHostMatrix(q, dq);
