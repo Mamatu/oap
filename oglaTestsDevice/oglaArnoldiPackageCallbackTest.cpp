@@ -210,7 +210,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
     fclose(f);
   }
 
-  void defaultTest(floatt value, const std::string& path, uintt hdim = 32,
+  void executeArnoldiTest(floatt value, const std::string& path, uintt hdim = 32,
                    floatt tolerance = 0.01) {
     OglaArnoldiPackageCallbackTests::Data data(path);
     class MultiplyFunc {
@@ -336,39 +336,39 @@ TEST_F(OglaArnoldiPackageCallbackTests, MagnitudeTest) {
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData1) {
-  defaultTest(-3.25, "../../../data/data1");
+  executeArnoldiTest(-3.25, "../../../data/data1");
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData2Dim32x32) {
-  defaultTest(-4.257104, "../../../data/data2", 32);
+  executeArnoldiTest(-4.257104, "../../../data/data2", 32);
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData2Dim64x64) {
-  defaultTest(-4.257104, "../../../data/data2", 64);
+  executeArnoldiTest(-4.257104, "../../../data/data2", 64);
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData3Dim32x32) {
-  defaultTest(-5.519614, "../../../data/data3", 32);
+  executeArnoldiTest(-5.519614, "../../../data/data3", 32);
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData3Dim64x64) {
-  defaultTest(-5.519614, "../../../data/data3", 64);
+  executeArnoldiTest(-5.519614, "../../../data/data3", 64);
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData4) {
-  defaultTest(-6.976581, "../../../data/data4");
+  executeArnoldiTest(-6.976581, "../../../data/data4");
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData5) {
-  defaultTest(-8.503910, "../../../data/data5");
+  executeArnoldiTest(-8.503910, "../../../data/data5");
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData6) {
-  defaultTest(-10.064733, "../../../data/data6");
+  executeArnoldiTest(-10.064733, "../../../data/data6");
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, TestData7) {
-  defaultTest(-13.235305, "../../../data/data7");
+  executeArnoldiTest(-13.235305, "../../../data/data7");
 }
 
 TEST_F(OglaArnoldiPackageCallbackTests, UpperTriangularMatrixTest1Count10000) {
