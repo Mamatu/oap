@@ -31,7 +31,7 @@ void TransposeOperationCpu::Execute(void* ptr) {
             for (uintt fb = bcolumn; fb < ecolumn; fb++) {
                 floatt value = m_matrix->reValues[fb * columns + fa];
                 //m_output->reValues[fa * columns1 + fb] = value;
-                SetRe(m_output, fb, columns1, fa, value);
+                SetRe(m_output, fb, fa, value);
             }
         }
     } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
