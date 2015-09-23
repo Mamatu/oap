@@ -23,7 +23,6 @@
 
 #define CUDA_TEST_CODE(code) code
 
-
 #define threads_sync() ThreadIdx::wait();
 
 #else

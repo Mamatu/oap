@@ -69,6 +69,10 @@ bool wasGetRangeIm(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
                    uintt brow, uintt erow);
 bool wasGetAllRe(const math::Matrix* matrix);
 bool wasGetAllIm(const math::Matrix* matrix);
+uintt getSetValuesCountRe(const math::Matrix* matrix);
+uintt getSetValuesCountIm(const math::Matrix* matrix);
+uintt getGetValuesCountRe(const math::Matrix* matrix);
+uintt getGetValuesCountIm(const math::Matrix* matrix);
 };
 
 #define SetRe(m, c, r, v)              \
