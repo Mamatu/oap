@@ -1,4 +1,4 @@
-CUDA_PATH := /usr/local/cuda-6.0
+CUDA_PATH := /usr/local/cuda
 MODE := Debug
 PLATFORM := albert
 EXTRA_CXXOPTIONS :=
