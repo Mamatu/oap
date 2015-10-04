@@ -105,12 +105,8 @@ void CuHArnoldi::calculateTriangularH() {
   m_cuMatrix.setIdentity(Q1);
   status = m_cuMatrix.isUpperTriangular(H1);
   uintt fb = 0;
-  CudaUtils::PrintMatrix("H1=", H1, false, false);
-  for (; fb < 20000; ++fb) {
-    m_cuMatrix.QR(Q, R1, H1, Q2, R2, G, GT);
-    CudaUtils::PrintMatrix("H=", H1, false, false);
-    CudaUtils::PrintMatrix("Q=", Q);
-    CudaUtils::PrintMatrix("R=", R1);
+  for (; fb < 600; ++fb) {
+    m_cuMatrix.QRGR(Q, R1, H1, Q2, R2, G, GT);
     m_cuMatrix.dotProduct(H1, R1, Q);
     m_cuMatrix.dotProduct(QJ, Q, Q1);
     switchPointer(&QJ, &Q1);
@@ -290,7 +286,7 @@ void CuHArnoldi::execute(uintt k, uintt wantedCount,
       for (intt fa = 0; fa < p; ++fa) {
         m_cuMatrix.setDiagonal(I, unwanted[fa].re, unwanted[fa].im);
         m_cuMatrix.substract(I, H, I);
-        m_cuMatrix.QR(Q1, R1, I, Q, R2, G, GT);
+        m_cuMatrix.QRGR(Q1, R1, I, Q, R2, G, GT);
         m_cuMatrix.transposeMatrix(QT, Q1);
         m_cuMatrix.dotProduct(HO, H, Q1);
         m_cuMatrix.dotProduct(H, QT, HO);
