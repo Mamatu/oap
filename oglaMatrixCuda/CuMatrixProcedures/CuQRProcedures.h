@@ -1,9 +1,9 @@
 /*
- * File:   CuQRProcedures.h
- * Author: mmatula
- *
- * Created on January 8, 2015, 9:26 PM
- */
+* File:   CuQRProcedures.h
+* Author: mmatula
+*
+* Created on January 8, 2015, 9:26 PM
+*/
 
 #ifndef CUQRPROCEDURES_H
 #define CUQRPROCEDURES_H
@@ -62,12 +62,12 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
     floatt c = 0;
     floatt ic = 0;
     if (NULL != A->reValues) {
-      s = A->reValues[column + row * A->columns];
-      c = A->reValues[column + column * A->columns];
+      s = GetRe(A, column, row);
+      c = GetRe(A, column, column);
     }
     if (NULL != A->imValues) {
-      is = A->imValues[column + row * A->columns];
-      ic = A->imValues[column + column * A->columns];
+      is = GetIm(A, column, row);
+      ic = GetIm(A, column, column);
     }
     floatt r = sqrtf(c * c + s * s + is * is + ic * ic);
     c = c / r;
@@ -75,17 +75,20 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
     s = s / r;
     is = is / r;
     if (NULL != G->reValues) {
-      G->reValues[column + row * A->columns] = -s;
-      G->reValues[column + (column)*A->columns] = c;
-      G->reValues[(row) + (row)*A->columns] = c;
-      G->reValues[(row) + (column)*A->columns] = s;
+      SetRe(G, column, row, -s);
+      SetRe(G, column, column, c);
+      SetRe(G, row, row, c);
+      SetRe(G, row, column, s);
     }
     if (NULL != G->imValues) {
-      G->imValues[column + row * A->columns] = -is;
-      G->imValues[column + (column)*A->columns] = ic;
-      G->imValues[(row) + (row)*A->columns] = ic;
-      G->imValues[(row) + (column)*A->columns] = is;
+      SetIm(G, column, row, -is);
+      SetIm(G, column, column, ic);
+      SetIm(G, row, row, ic);
+      SetIm(G, row, column, is);
     }
+    CUDA_TEST_CODE(EXPECT_EQ(4, test::getSetValuesCountRe(G)););
+    CUDA_TEST_CODE(EXPECT_EQ(5, test::getSetValuesCountIm(G)););
+    Reset(G);
   }
   threads_sync();
 }
@@ -102,7 +105,7 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
   uintt count = 0;
   for (uintt fa = 0; fa < A->columns; ++fa) {
     for (uintt fb = A->rows - 1; fb > fa; --fb) {
-      floatt v = A->reValues[fa + fb * A->columns];
+      floatt v = GetRe(A, fa, fb);
       if ((-0.0001 < v && v < 0.0001) == false) {
         CUDA_prepareGMatrix(R1, fa, fb, G, tx, ty);
         CUDA_multiplyMatrices(R, G, R1, tx, ty);

@@ -160,6 +160,8 @@ inline void OglaCudaStub::executeKernelAsync(KernelStub* cudaStub) {
   //threads.resize(blockDim.x * blockDim.y);
   pthreads.reserve(blockDim.x * blockDim.y);
 
+  debugAssert(gridDim.y != 0 && gridDim.x != 0 && blockDim.y != 0 && blockDim.x != 0);
+
   for (uintt blockIdxY = 0; blockIdxY < gridDim.y; ++blockIdxY) {
     for (uintt blockIdxX = 0; blockIdxX < gridDim.x; ++blockIdxX) {
       for (uintt threadIdxY = 0; threadIdxY < blockDim.y; ++threadIdxY) {

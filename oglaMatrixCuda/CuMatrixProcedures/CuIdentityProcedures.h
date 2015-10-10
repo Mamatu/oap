@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   CuIdentityProcedures.h
  * Author: mmatula
  *
@@ -6,39 +6,38 @@
  */
 
 #ifndef CUIDENTITYPROCEDURES_H
-#define	CUIDENTITYPROCEDURES_H
+#define CUIDENTITYPROCEDURES_H
 
 #include "CuCore.h"
 
 __hostdevice__ void CUDA_SetIdentityReMatrix(math::Matrix* dst,
-    uintt threadIndexX, uintt threadIndexY) {
-    CUDA_TEST_INIT();
-    uintt index = threadIndexX + dst->columns * threadIndexY;
-    floatt v = threadIndexX == threadIndexY ? 1 : 0;
-    dst->reValues[index] = v;
-    threads_sync();
+                                             uintt threadIndexX,
+                                             uintt threadIndexY) {
+  CUDA_TEST_INIT();
+  floatt v = threadIndexX == threadIndexY ? 1 : 0;
+  SetRe(dst, threadIndexX, threadIndexY, v);
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_SetIdentityImMatrix(math::Matrix* dst,
-    uintt threadIndexX, uintt threadIndexY) {
-    CUDA_TEST_INIT();
-    uintt index = threadIndexX + dst->columns * threadIndexY;
-    floatt v = threadIndexX == threadIndexY ? 1 : 0;
-    dst->imValues[index] = v;
-    threads_sync();
+                                             uintt threadIndexX,
+                                             uintt threadIndexY) {
+  CUDA_TEST_INIT();
+  floatt v = threadIndexX == threadIndexY ? 1 : 0;
+  SetIm(dst, threadIndexX, threadIndexY, v);
+  threads_sync();
 }
 
 __hostdevice__ void CUDA_SetIdentityMatrix(math::Matrix* dst,
-    uintt threadIndexX, uintt threadIndexY) {
-    CUDA_TEST_INIT();
-    uintt index = threadIndexX + dst->columns * threadIndexY;
-    floatt v = threadIndexX == threadIndexY ? 1 : 0;
-    dst->reValues[index] = v;
-    if (NULL != dst->imValues) {
-        dst->imValues[index] = 0;
-    }
-    threads_sync();
+                                           uintt threadIndexX,
+                                           uintt threadIndexY) {
+  CUDA_TEST_INIT();
+  floatt v = threadIndexX == threadIndexY ? 1 : 0;
+  SetRe(dst, threadIndexX, threadIndexY, v);
+  if (NULL != dst->imValues) {
+    SetIm(dst, threadIndexX, threadIndexY, 0);
+  }
+  threads_sync();
 }
 
-#endif	/* CUIDENTITYPROCEDURES_H */
-
+#endif /* CUIDENTITYPROCEDURES_H */
