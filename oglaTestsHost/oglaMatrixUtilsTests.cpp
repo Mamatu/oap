@@ -40,6 +40,12 @@
 #include "MatrixAPI.h"
 #include "HostMatrixModules.h"
 
+namespace host {
+namespace qrtest1 {
+extern const char* matrix;
+}
+}
+
 class OglaMatrixUtilsTests : public testing::Test {
  public:
   virtual void SetUp() {}
@@ -66,6 +72,22 @@ TEST_F(OglaMatrixUtilsTests, SetAllValuesTest) {
     }
   }
   EXPECT_TRUE(test::wasSetAllRe(matrix));
+  host::DeleteMatrix(matrix);
+}
+
+TEST_F(OglaMatrixUtilsTests, GetValuesTest) {
+  math::Matrix* matrix = host::NewMatrix(host::qrtest1::matrix);
+  EXPECT_EQ(4, GetRe(matrix, 0, 0));
+  EXPECT_EQ(2, GetRe(matrix, 1, 0));
+  EXPECT_EQ(4, GetReIndex(matrix, 0));
+  EXPECT_EQ(2, GetReIndex(matrix, 1));
+  EXPECT_EQ(2, GetReIndex(matrix, 2));
+  EXPECT_EQ(2, GetReIndex(matrix, 3));
+  EXPECT_EQ(4, GetReIndex(matrix, 4));
+  EXPECT_EQ(2, GetReIndex(matrix, 5));
+  EXPECT_EQ(2, GetReIndex(matrix, 6));
+  EXPECT_EQ(2, GetReIndex(matrix, 7));
+  EXPECT_EQ(4, GetReIndex(matrix, 8));
   host::DeleteMatrix(matrix);
 }
 

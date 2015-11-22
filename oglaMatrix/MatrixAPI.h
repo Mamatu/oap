@@ -15,12 +15,20 @@ __hostdeviceinline__ floatt GetRe(math::Matrix* m, uintt c, uintt r) {
   return m->reValues[c + r * m->columns];
 }
 
+__hostdeviceinline__ floatt GetReIndex(math::Matrix* m, uintt index) {
+  return m->reValues[index];
+}
+
 __hostdeviceinline__ void SetIm(math::Matrix* m, uintt c, uintt r, floatt v) {
   m->imValues[c + r * m->columns] = v;
 }
 
 __hostdeviceinline__ floatt GetIm(math::Matrix* m, uintt c, uintt r) {
   return m->imValues[c + r * m->columns];
+}
+
+__hostdeviceinline__ floatt GetImIndex(math::Matrix* m, uintt index) {
+  return m->imValues[index];
 }
 
 __hostdeviceinline__ void Reset(math::Matrix* m) {}
@@ -45,6 +53,12 @@ __hostdeviceinline__ floatt GetRe(math::Matrix* m, uintt c, uintt r) {
   return m->reValues[c + r * m->columns];
 }
 
+__hostdeviceinline__ floatt GetReIndex(math::Matrix* m, uintt index) {
+  test::getRe(m, index, m->reValues[index]);
+  assert(index < m->realRows * m->realColumns);
+  return m->reValues[index];
+}
+
 __hostdeviceinline__ void SetIm(math::Matrix* m, uintt c, uintt r, floatt v) {
   m->imValues[c + r * m->columns] = v;
   test::setIm(m, c, r, v);
@@ -56,6 +70,13 @@ __hostdeviceinline__ floatt GetIm(math::Matrix* m, uintt c, uintt r) {
   assert(c + r * m->columns < m->realRows * m->realColumns);
   return m->imValues[c + r * m->columns];
 }
+
+__hostdeviceinline__ floatt GetImIndex(math::Matrix* m, uintt index) {
+  test::getIm(m, index, m->imValues[index]);
+  assert(index < m->realRows * m->realColumns);
+  return m->imValues[index];
+}
+
 __hostdeviceinline__ void Reset(math::Matrix* m) { test::reset(m); }
 
 __hostdeviceinline__ void Push(math::Matrix* m) { test::push(m); }
