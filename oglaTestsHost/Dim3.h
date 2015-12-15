@@ -10,7 +10,7 @@
 
 #include <cuda.h>
 
-#ifdef CUDATEST
+#ifndef CUDA
 
 #include <stdlib.h>
 #include <map>

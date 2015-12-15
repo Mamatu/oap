@@ -14,7 +14,7 @@
 #include "CuCore.h"
 #include "CuSync.h"
 
-#ifndef CUDATEST
+#ifdef CUDA
 
 #ifdef DEBUG
 #define CUDA_DEBUG() \

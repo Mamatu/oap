@@ -1,6 +1,6 @@
 #include "Dim3.h"
 
-#ifdef CUDATEST
+#ifndef CUDA
 
 dim3 blockIdx;
 dim3 blockDim;

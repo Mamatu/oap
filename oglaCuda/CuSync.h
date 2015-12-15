@@ -51,7 +51,7 @@ extern "C" __device__ void __syncblocksAtomic(int* mutex) {
 }
 */
 
-#ifndef CUDATEST
+#ifdef CUDA
 
 #ifdef DEBUG
 #define cuda_lock() __threadfence(); __syncthreads();
