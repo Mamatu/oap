@@ -86,6 +86,18 @@ class OglaQRTests : public OglaCudaStub {
     }
 
     virtual ~QRGRStub() {
+      //Pop(m_q);
+      //EXPECT_THAT(m_q, WereSetAllRe());
+      //Pop(m_r);
+      //EXPECT_THAT(m_r, WereSetAllRe());
+      //Pop(m_temp1);
+      //EXPECT_THAT(m_temp1, WereSetAllRe());
+      //Pop(m_temp2);
+      //EXPECT_THAT(m_temp2, WereSetAllRe());
+      //Pop(m_temp3);
+      //EXPECT_THAT(m_temp3, WereSetAllRe());
+      /*Pop(m_temp4);
+      EXPECT_THAT(m_temp4, WereSetAllRe());*/
       host::DeleteMatrix(m_q);
       host::DeleteMatrix(m_r);
       host::DeleteMatrix(m_temp1);
@@ -127,7 +139,7 @@ class OglaQRTests : public OglaCudaStub {
       v = host::NewMatrix(matrix, 1, matrix->rows);
       vt = host::NewMatrix(matrix, matrix->columns, 1);
       vvt = host::NewMatrix(matrix);
-      buffer = new floatt[matrix->columns];
+      buffer = new floatt[matrix->columns * matrix->rows];
     }
 
     virtual ~QRHTStub() {
