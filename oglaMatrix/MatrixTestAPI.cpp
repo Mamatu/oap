@@ -33,6 +33,7 @@ inline MatrixLevel& getCurrentLevel(const math::Matrix* matrix) {
 uintt calcColumn(const math::Matrix* matrix, uintt index) {
   return index % matrix->columns;
 }
+
 uintt calcRow(const math::Matrix* matrix, uintt index) {
   return index / matrix->columns;
 }
@@ -76,20 +77,18 @@ void reset(const math::Matrix* matrix) {
 }
 
 void push(const math::Matrix* matrix) {
-  int level = globalCurrentLevel[matrix].second + 1;
-  MatrixLevel matrixLevel(matrix, level);
-  globalCurrentLevel[matrix] = matrixLevel;
+  utils::sync::MutexLocker ml(globalMutex);
+  globalCurrentLevel[matrix].second = globalCurrentLevel[matrix].second + 1;
 }
 
 void pop(const math::Matrix* matrix) {
+  utils::sync::MutexLocker ml(globalMutex);
   if (globalCurrentLevel[matrix].second > 0) {
     globalMatrixElementsSetRe.erase(globalCurrentLevel[matrix]);
     globalMatrixElementsSetIm.erase(globalCurrentLevel[matrix]);
     globalMatrixElementsGetRe.erase(globalCurrentLevel[matrix]);
     globalMatrixElementsGetIm.erase(globalCurrentLevel[matrix]);
-    int level = globalCurrentLevel[matrix].second - 1;
-    MatrixLevel matrixLevel(matrix, level);
-    globalCurrentLevel[matrix] = matrixLevel;
+    globalCurrentLevel[matrix].second = globalCurrentLevel[matrix].second - 1;
   }
 }
 
@@ -199,18 +198,22 @@ bool wasGetAllIm(const math::Matrix* matrix) {
 }
 
 uintt getSetValuesCountRe(const math::Matrix* matrix) {
+  utils::sync::MutexLocker ml(globalMutex);
   return globalMatrixElementsSetRe.count(getCurrentLevel(matrix));
 }
 
 uintt getSetValuesCountIm(const math::Matrix* matrix) {
+  utils::sync::MutexLocker ml(globalMutex);
   return globalMatrixElementsSetIm.count(getCurrentLevel(matrix));
 }
 
 uintt getGetValuesCountRe(const math::Matrix* matrix) {
+  utils::sync::MutexLocker ml(globalMutex);
   return globalMatrixElementsGetRe.count(getCurrentLevel(matrix));
 }
 
 uintt getGetValuesCountIm(const math::Matrix* matrix) {
+  utils::sync::MutexLocker ml(globalMutex);
   return globalMatrixElementsGetIm.count(getCurrentLevel(matrix));
 }
 };
