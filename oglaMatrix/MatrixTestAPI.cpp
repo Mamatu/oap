@@ -67,10 +67,7 @@ void removeElement(MatrixElements& matrixElements, const math::Matrix* matrix) {
   utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   MatrixLevel& level = getCurrentLevel(matrix);
   if (matrixElements.count(level) > 0) {
-    MatrixElements::iterator it = matrixElements.find(level);
-    if (it != matrixElements.end()) {
-      matrixElements.erase(it);
-    }
+    matrixElements.erase(level);
   }
 }
 
