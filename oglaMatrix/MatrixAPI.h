@@ -2,7 +2,9 @@
 #define OGLA_MATRIXAPI_H
 
 #include "Matrix.h"
+#include "MatrixTestAPI.h"
 #include "CuCore.h"
+#include "Dim3.h"
 #include "assert.h"
 
 #ifdef CUDA
@@ -77,11 +79,26 @@ __hostdeviceinline__ floatt GetImIndex(math::Matrix* m, uintt index) {
   return m->imValues[index];
 }
 
-__hostdeviceinline__ void Reset(math::Matrix* m) { test::reset(m); }
+__hostdeviceinline__ void Reset(math::Matrix* m) {
+  CUDA_TEST_INIT();
+  threads_sync();
+  test::reset(m);
+  threads_sync();
+}
 
-__hostdeviceinline__ void Push(math::Matrix* m) { test::push(m); }
+__hostdeviceinline__ void Push(math::Matrix* m) {
+  CUDA_TEST_INIT();
+  threads_sync();
+  test::push(m);
+  threads_sync();
+}
 
-__hostdeviceinline__ void Pop(math::Matrix* m) { test::pop(m); }
+__hostdeviceinline__ void Pop(math::Matrix* m) {
+  CUDA_TEST_INIT();
+  threads_sync();
+  test::pop(m);
+  threads_sync();
+}
 
 #endif
 
