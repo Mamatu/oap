@@ -18,11 +18,13 @@ MatrixElements globalMatrixElementsSetIm;
 MatrixElements globalMatrixElementsGetRe;
 MatrixElements globalMatrixElementsGetIm;
 MatrixLevels globalCurrentLevel;
-utils::sync::Mutex globalMutex;
+utils::sync::Mutex globalMatrixElementsMutex;
+utils::sync::Mutex globalCurrentLevelMutex;
 
 namespace test {
 
 inline MatrixLevel& getCurrentLevel(const math::Matrix* matrix) {
+  utils::sync::MutexLocker locker(globalCurrentLevelMutex);
   if (globalCurrentLevel.count(matrix) == 0) {
     MatrixLevel matrixLevel(matrix, 0);
     globalCurrentLevel[matrix] = matrixLevel;
@@ -40,7 +42,7 @@ uintt calcRow(const math::Matrix* matrix, uintt index) {
 
 bool isElement(const MatrixElements& matrixElements, const math::Matrix* matrix,
                uintt column, uintt row) {
-  utils::sync::MutexLocker ml(globalMutex);
+  utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   std::pair<MatrixElements::const_iterator, MatrixElements::const_iterator>
       range = matrixElements.equal_range(getCurrentLevel(matrix));
   for (MatrixElements::const_iterator it = range.first; it != range.second;
@@ -56,16 +58,19 @@ bool isElement(const MatrixElements& matrixElements, const math::Matrix* matrix,
 
 void addElement(MatrixElements& matrixElements, const math::Matrix* matrix,
                 uintt column, uintt row, floatt value) {
-  utils::sync::MutexLocker ml(globalMutex);
+  utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   matrixElements.insert(std::pair<MatrixLevel, MatrixElement>(
       getCurrentLevel(matrix), MatrixElement(MatrixDim(column, row), value)));
 }
 
 void removeElement(MatrixElements& matrixElements, const math::Matrix* matrix) {
-  utils::sync::MutexLocker ml(globalMutex);
-  MatrixElements::iterator it = matrixElements.find(getCurrentLevel(matrix));
-  if (it != matrixElements.end()) {
-    matrixElements.erase(it);
+  utils::sync::MutexLocker locker(globalMatrixElementsMutex);
+  MatrixLevel& level = getCurrentLevel(matrix);
+  if (matrixElements.count(level) > 0) {
+    MatrixElements::iterator it = matrixElements.find(level);
+    if (it != matrixElements.end()) {
+      matrixElements.erase(it);
+    }
   }
 }
 
@@ -77,17 +82,18 @@ void reset(const math::Matrix* matrix) {
 }
 
 void push(const math::Matrix* matrix) {
-  utils::sync::MutexLocker ml(globalMutex);
+  utils::sync::MutexLocker locker(globalCurrentLevelMutex);
   globalCurrentLevel[matrix].second = globalCurrentLevel[matrix].second + 1;
 }
 
 void pop(const math::Matrix* matrix) {
-  utils::sync::MutexLocker ml(globalMutex);
+  utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   if (globalCurrentLevel[matrix].second > 0) {
     globalMatrixElementsSetRe.erase(globalCurrentLevel[matrix]);
     globalMatrixElementsSetIm.erase(globalCurrentLevel[matrix]);
     globalMatrixElementsGetRe.erase(globalCurrentLevel[matrix]);
     globalMatrixElementsGetIm.erase(globalCurrentLevel[matrix]);
+    utils::sync::MutexLocker locker1(globalCurrentLevelMutex);
     globalCurrentLevel[matrix].second = globalCurrentLevel[matrix].second - 1;
   }
 }
@@ -198,22 +204,22 @@ bool wasGetAllIm(const math::Matrix* matrix) {
 }
 
 uintt getSetValuesCountRe(const math::Matrix* matrix) {
-  utils::sync::MutexLocker ml(globalMutex);
+  utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   return globalMatrixElementsSetRe.count(getCurrentLevel(matrix));
 }
 
 uintt getSetValuesCountIm(const math::Matrix* matrix) {
-  utils::sync::MutexLocker ml(globalMutex);
+  utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   return globalMatrixElementsSetIm.count(getCurrentLevel(matrix));
 }
 
 uintt getGetValuesCountRe(const math::Matrix* matrix) {
-  utils::sync::MutexLocker ml(globalMutex);
+  utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   return globalMatrixElementsGetRe.count(getCurrentLevel(matrix));
 }
 
 uintt getGetValuesCountIm(const math::Matrix* matrix) {
-  utils::sync::MutexLocker ml(globalMutex);
+  utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   return globalMatrixElementsGetIm.count(getCurrentLevel(matrix));
 }
 };
