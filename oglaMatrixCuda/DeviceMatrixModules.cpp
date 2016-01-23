@@ -201,8 +201,8 @@ void SetMatrixEx(MatrixEx** deviceMatrixEx, const uintt* buffer, uintt count) {
                               count * sizeof(MatrixEx));
 }
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix) {
-  CudaUtils::PrintMatrix(text, matrix);
+void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zeroLimit) {
+  CudaUtils::PrintMatrix(text, matrix, zeroLimit);
 }
 
 void PrintMatrix(const math::Matrix* matrix) { CudaUtils::PrintMatrix(matrix); }

@@ -18,9 +18,12 @@ class OccurencesList : public std::vector<std::pair<uintt, T> > {};
 
 template <typename T>
 void PrepareOccurencesList(OccurencesList<T>& occurencesList, T* array,
-                           size_t length, bool repeats) {
+                           size_t length, bool repeats, T zeroLimit) {
   for (size_t fa = 0; fa < length; ++fa) {
     floatt value = array[fa];
+    if (-zeroLimit < value && value < zeroLimit) {
+      value = 0.f;
+    }
     if (repeats == false || occurencesList.size() == 0 ||
         occurencesList[occurencesList.size() - 1].second != value) {
       occurencesList.push_back(std::make_pair<uintt, floatt>(1, value));
@@ -31,11 +34,11 @@ void PrepareOccurencesList(OccurencesList<T>& occurencesList, T* array,
 }
 
 template <typename T>
-void PrintArray(std::string& output, T* array, size_t length,
+void PrintArray(std::string& output, T* array, size_t length, T zeroLimit,
                 bool repeats = true, bool pipe = true, bool endl = true,
                 size_t sectionLength = std::numeric_limits<size_t>::max()) {
   OccurencesList<T> valuesVec;
-  PrepareOccurencesList(valuesVec, array, length, repeats);
+  PrepareOccurencesList(valuesVec, array, length, repeats, zeroLimit);
   output = "[";
   std::stringstream sstream;
   for (size_t fa = 0; fa < valuesVec.size(); ++fa) {
@@ -66,7 +69,7 @@ void PrintArray(std::string& output, T* array, size_t length,
 }
 
 inline void PrintMatrix(std::string& output, const math::Matrix* matrix,
-                        bool repeats = true, bool pipe = true,
+                        floatt zeroLimit = 0, bool repeats = true, bool pipe = true,
                         bool endl = true) {
   if (matrix == NULL) {
     return;
@@ -78,13 +81,13 @@ inline void PrintMatrix(std::string& output, const math::Matrix* matrix,
   size_t length = matrix->columns * matrix->rows;
   std::string output1;
   if (matrix->reValues != NULL) {
-    PrintArray(output1, matrix->reValues, length, repeats, pipe, endl,
-               matrix->columns);
+    PrintArray(output1, matrix->reValues, length, zeroLimit, repeats, pipe,
+               endl, matrix->columns);
     output += output1 + " ";
   }
   if (matrix->imValues != NULL) {
-    PrintArray(output1, matrix->imValues, length, repeats, pipe, endl,
-               matrix->columns);
+    PrintArray(output1, matrix->imValues, length, zeroLimit, repeats, pipe,
+               endl, matrix->columns);
     output += output1;
   }
 }

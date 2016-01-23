@@ -6,7 +6,7 @@
  */
 
 #ifndef CUDAUTILS_H
-#define	CUDAUTILS_H
+#define CUDAUTILS_H
 
 #include <stdio.h>
 #include <cuda.h>
@@ -21,13 +21,15 @@ namespace CudaUtils {
  * @param v
  * @return
  */
-template<typename T> T* AllocDeviceObj(const T& v = 0);
+template <typename T>
+T* AllocDeviceObj(const T& v = 0);
 
 /**
  *
  * @param valuePtr
  */
-template<typename T>void FreeDeviceObj(T* valuePtr);
+template <typename T>
+void FreeDeviceObj(T* valuePtr);
 
 /**
  *
@@ -195,8 +197,8 @@ uintt GetRows(const MatrixEx* matrix);
  * @param imvalue
  * @return
  */
-CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns,
-    uintt rows, floatt revalue = 0, floatt imvalue = 0);
+CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
+                        floatt revalue = 0, floatt imvalue = 0);
 /**
  *
  * @param devicePtrMatrix
@@ -205,8 +207,8 @@ CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns,
  * @param value
  * @return
  */
-CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix,
-    uintt columns, uintt rows, floatt value);
+CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
+                          uintt rows, floatt value);
 /**
  *
  * @param devicePtrMatrix
@@ -215,8 +217,8 @@ CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix,
  * @param value
  * @return
  */
-CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix,
-    uintt columns, uintt rows, floatt value);
+CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
+                          uintt rows, floatt value);
 /**
  *
  * @param devicePtrMatrix
@@ -235,8 +237,7 @@ CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix);
  * @param columns
  * @param rows
  */
-void SetVariables(CUdeviceptr devicePtrMatrix,
-    uintt columns, uintt rows);
+void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows);
 
 void SetReValue(math::Matrix* m, uintt index, floatt value);
 floatt GetReValue(math::Matrix* m, uintt index);
@@ -244,31 +245,37 @@ floatt GetReValue(math::Matrix* m, uintt index);
 void SetImValue(math::Matrix* m, uintt index, floatt value);
 floatt GetImValue(math::Matrix* m, uintt index);
 
-
 floatt GetReDiagonal(math::Matrix* m, uintt index);
 floatt GetImDiagonal(math::Matrix* m, uintt index);
 
 void SetZeroMatrix(math::Matrix* matrix, bool re = true, bool im = true);
-void SetZeroRow(math::Matrix* matrix, uintt index, bool re = true, bool im = true);
+void SetZeroRow(math::Matrix* matrix, uintt index, bool re = true,
+                bool im = true);
 
-void GetMatrixStr(std::string& output, const math::Matrix* matrix, bool repeats = true, bool pipe = true, bool endl = true);
-void PrintMatrix(FILE* stream, const math::Matrix* matrix, bool repeats = true, bool pipe = true, bool endl = true);
-void PrintMatrix(const math::Matrix* matrix, bool repeats = true, bool pipe = true, bool endl = true);
-void PrintMatrix(const std::string& output, const math::Matrix* matrix, bool repeats = true, bool pipe = true, bool endl = true);
-
+void GetMatrixStr(std::string& output, const math::Matrix* matrix,
+                  floatt zeroLimit = 0, bool repeats = true, bool pipe = true,
+                  bool endl = true);
+void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit = 0,
+                 bool repeats = true, bool pipe = true, bool endl = true);
+void PrintMatrix(const math::Matrix* matrix, floatt zeroLimit = 0,
+                 bool repeats = true, bool pipe = true, bool endl = true);
+void PrintMatrix(const std::string& output, const math::Matrix* matrix,
+                 floatt zeroLimit = 0, bool repeats = true, bool pipe = true,
+                 bool endl = true);
 }
 
-template<typename T>T* CudaUtils::AllocDeviceObj(const T& v) {
-    T* valuePtr = NULL;
-    void* ptr = CudaUtils::AllocDeviceMem(sizeof (T));
-    valuePtr = reinterpret_cast<T*> (ptr);
-    CudaUtils::CopyHostToDevice(valuePtr, &v, sizeof (T));
-    return valuePtr;
+template <typename T>
+T* CudaUtils::AllocDeviceObj(const T& v) {
+  T* valuePtr = NULL;
+  void* ptr = CudaUtils::AllocDeviceMem(sizeof(T));
+  valuePtr = reinterpret_cast<T*>(ptr);
+  CudaUtils::CopyHostToDevice(valuePtr, &v, sizeof(T));
+  return valuePtr;
 }
 
-template<typename T>void CudaUtils::FreeDeviceObj(T* valuePtr) {
-    CudaUtils::FreeDeviceMem(valuePtr);
+template <typename T>
+void CudaUtils::FreeDeviceObj(T* valuePtr) {
+  CudaUtils::FreeDeviceMem(valuePtr);
 }
 
-#endif	/* DEVICEUTILS_H */
-
+#endif /* DEVICEUTILS_H */

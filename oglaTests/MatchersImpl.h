@@ -124,7 +124,7 @@ class BufferSumIsEqualMatcher : public MatcherInterface<T> {
   BufferSumIsEqualMatcher(T* buffer, size_t length,
                           const std::string& extra = "")
       : m_buffer(buffer), m_length(length) {
-    matrixUtils::PrintArray(m_stringRepresentation, m_buffer, m_length);
+    matrixUtils::PrintArray<T>(m_stringRepresentation, m_buffer, m_length, static_cast<T>(0));
     m_expectedSum = utils::getSum(m_buffer, m_length);
     m_extra = extra;
   }
@@ -157,7 +157,7 @@ class BufferSumIsEqualMatcherSum : public BufferSumIsEqualMatcher<T> {
                                MatchResultListener* listener) const {
     std::string v;
     matrixUtils::PrintArray(v, BufferSumIsEqualMatcher<T>::m_buffer,
-                            BufferSumIsEqualMatcher<T>::m_length);
+                            BufferSumIsEqualMatcher<T>::m_length, static_cast<T>(0));
     (*listener) << v;
     return BufferSumIsEqualMatcher<T>::m_expectedSum == actualSum;
   }

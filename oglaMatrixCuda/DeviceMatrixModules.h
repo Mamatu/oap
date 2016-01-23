@@ -147,7 +147,7 @@ void SetMatrixEx(MatrixEx* deviceMatrixEx, const MatrixEx* hostMatrixEx);
  * @param text
  * @param matrix
  */
-void PrintMatrix(const std::string& text, const math::Matrix* matrix);
+void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zeroLimit = 0);
 
 /**
  * @brief PrintMatrix
