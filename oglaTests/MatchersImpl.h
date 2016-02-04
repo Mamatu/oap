@@ -10,6 +10,7 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "MatrixTestAPI.h"
 
 #include "Utils.h"
 
@@ -44,18 +45,50 @@ class MatrixValuesAreEqualMatcher : public MatcherInterface<math::Matrix*> {
 
 class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
   math::Matrix* m_matrix;
+  bool m_fuilInfo;
+
+  void printMatrix(const std::string& message, math::Matrix* matrix,
+                   MatchResultListener* listener) const {
+    std::string matrixStr;
+    matrixUtils::PrintMatrix(matrixStr, matrix);
+    (*listener) << message << matrixStr;
+  }
+
+  void printMean(const std::string& message, math::Matrix* matrix,
+                 MatchResultListener* listener) const {
+    std::string matrixStr;
+    floatt are;
+    floatt aim;
+    uintt length = matrix->rows * matrix->columns;
+    for (uintt fa = 0; fa < length; ++fa) {
+      if (matrix->reValues) {
+        are += matrix->reValues[fa];
+      }
+      if (matrix->imValues) {
+        aim += matrix->imValues[fa];
+      }
+    }
+    are = are / static_cast<double>(length);
+    aim = aim / static_cast<double>(length);
+    (*listener) << message << "(" << are << "," << aim << ")";
+  }
+
+  void printMean() {}
 
  public:
-  MatrixIsEqualMatcher(math::Matrix* matrix) : m_matrix(matrix) {}
+  MatrixIsEqualMatcher(math::Matrix* matrix, bool fullInfo = true)
+      : m_matrix(matrix), m_fuilInfo(fullInfo) {}
 
   virtual bool MatchAndExplain(math::Matrix* matrix,
                                MatchResultListener* listener) const {
     math::Matrix* diffmatrix = NULL;
-    std::string matrixStr;
     bool isequal = utils::IsEqual((*m_matrix), (*matrix), &diffmatrix);
-    matrixUtils::PrintMatrix(matrixStr, diffmatrix);
-    if (!isequal) {
-      (*listener) << "Diff is = " << matrixStr;
+    if (!isequal && m_fuilInfo) {
+      printMatrix("Output is = ", matrix, listener);
+      printMatrix("Diff is = ", diffmatrix, listener);
+    } else if (!isequal && !m_fuilInfo) {
+      printMean("Output is = ", matrix, listener);
+      printMean("Diff is = ", diffmatrix, listener);
     }
     host::DeleteMatrix(diffmatrix);
     return isequal;
@@ -111,6 +144,58 @@ class MatrixIsIdentityMatcher : public MatrixIsDiagonalMatcher {
   }
 };
 
+class MatrixTestAPIMatcher : public MatcherInterface<math::Matrix*> {
+  bool (*m_checker)(const math::Matrix* matrix);
+  uintt (*m_getter)(const math::Matrix* matrix);
+
+ public:
+  MatrixTestAPIMatcher(bool (*checker)(const math::Matrix* matrix),
+                       uintt (*getter)(const math::Matrix* matrix))
+      : m_getter(getter), m_checker(checker) {}
+
+  virtual bool MatchAndExplain(math::Matrix* matrix,
+                               MatchResultListener* listener) const {
+    bool is = (*m_checker)(matrix);
+    if (!is) {
+      uintt count = (*m_getter)(matrix);
+      (*listener) << "were set " << count << " elements";
+    }
+    return is;
+  }
+
+  virtual void DescribeTo(::std::ostream* os) const {
+    *os << "were set all elements.";
+  }
+
+  virtual void DescribeNegationTo(::std::ostream* os) const {
+    *os << "were not set all elemets.";
+  }
+};
+
+class SetAllRe : public MatrixTestAPIMatcher {
+ public:
+  SetAllRe()
+      : MatrixTestAPIMatcher(test::wasSetAllRe, test::getSetValuesCountRe) {}
+};
+
+class SetAllIm : public MatrixTestAPIMatcher {
+ public:
+  SetAllIm()
+      : MatrixTestAPIMatcher(test::wasSetAllIm, test::getSetValuesCountIm) {}
+};
+
+class GetAllRe : public MatrixTestAPIMatcher {
+ public:
+  GetAllRe()
+      : MatrixTestAPIMatcher(test::wasGetAllRe, test::getGetValuesCountRe) {}
+};
+
+class GetAllIm : public MatrixTestAPIMatcher {
+ public:
+  GetAllIm()
+      : MatrixTestAPIMatcher(test::wasGetAllIm, test::getGetValuesCountIm) {}
+};
+
 template <typename T>
 class BufferSumIsEqualMatcher : public MatcherInterface<T> {
  protected:
@@ -124,7 +209,8 @@ class BufferSumIsEqualMatcher : public MatcherInterface<T> {
   BufferSumIsEqualMatcher(T* buffer, size_t length,
                           const std::string& extra = "")
       : m_buffer(buffer), m_length(length) {
-    matrixUtils::PrintArray<T>(m_stringRepresentation, m_buffer, m_length, static_cast<T>(0));
+    matrixUtils::PrintArray<T>(m_stringRepresentation, m_buffer, m_length,
+                               static_cast<T>(0));
     m_expectedSum = utils::getSum(m_buffer, m_length);
     m_extra = extra;
   }
@@ -157,7 +243,8 @@ class BufferSumIsEqualMatcherSum : public BufferSumIsEqualMatcher<T> {
                                MatchResultListener* listener) const {
     std::string v;
     matrixUtils::PrintArray(v, BufferSumIsEqualMatcher<T>::m_buffer,
-                            BufferSumIsEqualMatcher<T>::m_length, static_cast<T>(0));
+                            BufferSumIsEqualMatcher<T>::m_length,
+                            static_cast<T>(0));
     (*listener) << v;
     return BufferSumIsEqualMatcher<T>::m_expectedSum == actualSum;
   }
