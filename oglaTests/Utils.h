@@ -89,8 +89,7 @@ inline bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
           if (*output == NULL) {
             (*output) = create(m1);
           }
-          (*output)->reValues[index] =
-              fabs(m1.reValues[index] - m2.reValues[index]);
+          (*output)->reValues[index] = m1.reValues[index] - m2.reValues[index];
         }
       }
       if (m1.imValues != NULL && m2.imValues != NULL) {
@@ -102,8 +101,7 @@ inline bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
           if (*output == NULL) {
             (*output) = create(m1);
           }
-          (*output)->imValues[index] =
-              fabs(m1.imValues[index] - m2.imValues[index]);
+          (*output)->imValues[index] = m1.imValues[index] - m2.imValues[index];
         }
       }
     }
