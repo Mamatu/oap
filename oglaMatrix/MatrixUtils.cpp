@@ -11,6 +11,62 @@ const char* ID_COLUMNS = "columns";
 const char* ID_ROWS = "rows";
 const char* ID_LENGTH = "length";
 
+Range::Range(uintt bcolumn, uintt columns, uintt brow, uintt rows)
+    : m_bcolumn(bcolumn), m_columns(columns), m_brow(brow), m_rows(rows) {}
+
+Range::~Range() {}
+
+uintt Range::getBColumn() const { return m_bcolumn; }
+uintt Range::getEColumn() const { return m_bcolumn + m_columns; }
+uintt Range::getColumns() const { return m_columns; }
+
+uintt Range::getBRow() const { return m_brow; }
+uintt Range::getERow() const { return m_brow + m_rows; }
+uintt Range::getRows() const { return m_rows; }
+
+MatrixRange::MatrixRange(const math::Matrix* matrix)
+    : Range(0, matrix->columns, 0, matrix->rows), m_matrix(matrix) {}
+
+MatrixRange::MatrixRange(const math::Matrix* matrix, const Range& range)
+    : Range(range), m_matrix(matrix) {}
+
+MatrixRange::MatrixRange(const math::Matrix* matrix, uintt bcolumn,
+                         uintt columns, uintt brow, uintt rows)
+    : Range(bcolumn, columns, brow, rows), m_matrix(matrix) {}
+
+MatrixRange::~MatrixRange() {}
+
+bool MatrixRange::isReValues() const { return m_matrix->reValues != NULL; }
+
+bool MatrixRange::isImValues() const { return m_matrix->imValues != NULL; }
+
+const math::Matrix* MatrixRange::getMatrix() const { return m_matrix; }
+
+uintt MatrixRange::getEColumn() const {
+  return std::min(m_bcolumn + m_columns, m_matrix->columns);
+}
+
+uintt MatrixRange::getERow() const {
+  return std::min(m_brow + m_rows, m_matrix->rows);
+}
+
+void MatrixRange::getReSubArrays(SubArrays<floatt>& subArrays) const {
+  getSubArrays(subArrays, m_matrix->reValues, m_matrix);
+}
+
+void MatrixRange::getImSubArrays(SubArrays<floatt>& subArrays) const {
+  getSubArrays(subArrays, m_matrix->imValues, m_matrix);
+}
+
+void MatrixRange::getSubArrays(SubArrays<floatt>& subArrays, floatt* array,
+                               const math::Matrix* matrix) const {
+  for (uintt fa = m_brow; fa < m_rows; ++fa) {
+    uintt bindex = m_bcolumn + (m_brow + fa) * matrix->columns;
+    subArrays.push_back(
+        std::make_pair<floatt*, uintt>(&array[bindex], m_columns));
+  }
+}
+
 Parser::Parser() : m_text("") {}
 Parser::Parser(const std::string& text) : m_text(text) {}
 Parser::Parser(const Parser& parser) : m_text(parser.m_text) {}

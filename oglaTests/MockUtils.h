@@ -15,10 +15,12 @@
 
 #include "Utils.h"
 #include "MatchersImpl.h"
+#include "InfoType.h"
 #include "HostMatrixModules.h"
 
-inline Matcher<math::Matrix*> MatrixIsEqual(math::Matrix* matrix) {
-  return MakeMatcher(new MatrixIsEqualMatcher(matrix));
+inline Matcher<math::Matrix*> MatrixIsEqual(
+    math::Matrix* matrix, const InfoType& infoType = InfoType()) {
+  return MakeMatcher(new MatrixIsEqualMatcher(matrix, infoType));
 }
 
 inline Matcher<math::Matrix*> MatrixIsDiagonal(floatt value) {

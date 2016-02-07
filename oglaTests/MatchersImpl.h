@@ -11,7 +11,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "MatrixTestAPI.h"
-
+#include "InfoCreator.h"
 #include "Utils.h"
 
 using ::testing::PrintToString;
@@ -45,53 +45,19 @@ class MatrixValuesAreEqualMatcher : public MatcherInterface<math::Matrix*> {
 
 class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
   math::Matrix* m_matrix;
-  bool m_fuilInfo;
-
-  void printMatrix(const std::string& message, math::Matrix* matrix,
-                   MatchResultListener* listener) const {
-    std::string matrixStr;
-    matrixUtils::PrintMatrix(matrixStr, matrix);
-    (*listener) << message << matrixStr;
-  }
-
-  void printMean(const std::string& message, math::Matrix* matrix,
-                 MatchResultListener* listener) const {
-    std::string matrixStr;
-    floatt are;
-    floatt aim;
-    uintt length = matrix->rows * matrix->columns;
-    for (uintt fa = 0; fa < length; ++fa) {
-      if (matrix->reValues) {
-        are += matrix->reValues[fa];
-      }
-      if (matrix->imValues) {
-        aim += matrix->imValues[fa];
-      }
-    }
-    are = are / static_cast<double>(length);
-    aim = aim / static_cast<double>(length);
-    (*listener) << message << "(" << are << "," << aim << ")";
-  }
-
-  void printMean() {}
+  InfoType m_infoType;
 
  public:
-  MatrixIsEqualMatcher(math::Matrix* matrix, bool fullInfo = true)
-      : m_matrix(matrix), m_fuilInfo(fullInfo) {}
+  MatrixIsEqualMatcher(math::Matrix* matrix, const InfoType& infoType)
+      : m_matrix(matrix), m_infoType(infoType) {}
 
   virtual bool MatchAndExplain(math::Matrix* matrix,
                                MatchResultListener* listener) const {
-    math::Matrix* diffmatrix = NULL;
-    bool isequal = utils::IsEqual((*m_matrix), (*matrix), &diffmatrix);
-    if (!isequal && m_fuilInfo) {
-      printMatrix("Output is = ", matrix, listener);
-      printMatrix("Diff is = ", diffmatrix, listener);
-    } else if (!isequal && !m_fuilInfo) {
-      printMean("Output is = ", matrix, listener);
-      printMean("Diff is = ", diffmatrix, listener);
-    }
-    host::DeleteMatrix(diffmatrix);
-    return isequal;
+    InfoCreator infoCreator(m_matrix, matrix, m_infoType);
+    std::string msg;
+    infoCreator.printInfo(msg);
+    (*listener) << msg;
+    return infoCreator.isEquals();
   }
 
   virtual void DescribeTo(::std::ostream* os) const {
