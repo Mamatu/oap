@@ -2,14 +2,10 @@
 
 #ifndef CUDA
 
-dim3 blockIdx;
-dim3 blockDim;
-dim3 gridDim;
-
 void ResetCudaCtx() {
-  blockIdx.clear();
-  blockDim.clear();
-  gridDim.clear();
+ // blockIdx.clear();
+ // blockDim.clear();
+  //gridDim.clear();
 }
 
 ThreadIdx::ThreadIdxs ThreadIdx::m_threadIdxs;
@@ -18,7 +14,19 @@ void ThreadIdx::clear() { m_threadIdx.clear(); }
 
 void ThreadIdx::setThreadIdx(const dim3& dim3) { m_threadIdx = dim3; }
 
+void ThreadIdx::setBlockIdx(const dim3& dim3) { m_blockIdx = dim3; }
+
+void ThreadIdx::setBlockDim(const dim3& dim3) { m_blockDim = dim3; }
+
+void ThreadIdx::setGridDim(const dim3& dim3) { m_gridDim = dim3; }
+
 const uint3& ThreadIdx::getThreadIdx() const { return m_threadIdx; }
+
+const dim3& ThreadIdx::getBlockIdx() const { return m_blockIdx; }
+
+const dim3& ThreadIdx::getBlockDim() const { return m_blockDim; }
+
+const dim3& ThreadIdx::getGridDim() const { return m_gridDim; }
 
 void ThreadIdx::createBarrier(const std::vector<pthread_t>& threads) {
   m_barriersMutex.lock();

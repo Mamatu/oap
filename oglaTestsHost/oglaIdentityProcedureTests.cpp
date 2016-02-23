@@ -66,7 +66,7 @@ class IdentityStubImpl : public KernelStub {
     host::DeleteMatrix(m_matrix);
   }
 
-  void execute(const dim3& threadIdx) {
+  void execute(const dim3& threadIdx, const dim3& blockIdx) {
     CUDA_SetIdentityReMatrix(m_matrix, threadIdx.x, threadIdx.y);
   }
 

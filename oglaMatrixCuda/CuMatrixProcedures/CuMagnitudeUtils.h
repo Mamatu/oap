@@ -20,10 +20,14 @@ __hostdevice__ void cuda_SumBuffer(floatt* buffer, uintt bufferIndex,
   if (bufferIndex < bufferLength / 2 && threadIdx.x < xlength &&
       threadIdx.y < ylength) {
     int c = bufferLength & 1;
-    buffer[bufferIndex] += buffer[bufferIndex + bufferLength / 2];
+    buffer[bufferIndex] += buffer[bufferIndex + bufferLength / 2]; //vvt->revalues
+    //CUDA_TEST_CODE(fprintf(stderr, "bufferIndex = %llu \n", bufferIndex);)
+    //CUDA_TEST_CODE(fprintf(stderr, "bufferLength = %llu \n", bufferLength);)
+    //CUDA_TEST_CODE(fprintf(stderr, "buffer = %p \n", buffer);)
     if (c == 1 && bufferIndex == bufferLength / 2 - 1) {
-      buffer[bufferIndex] += buffer[bufferLength - 1];
+      buffer[bufferIndex] += buffer[bufferLength - 1];//vvt->revalues
     }
+    //CUDA_TEST_CODE(fprintf(stderr, "buffer = %p \n", buffer);)
   }
 }
 

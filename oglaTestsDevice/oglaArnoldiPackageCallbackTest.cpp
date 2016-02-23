@@ -111,11 +111,14 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
       loadBlock(m_vimdir, refV->imValues, m_counter);
       loadBlock(m_wredir, refW->reValues, m_counter);
       loadBlock(m_wimdir, refW->imValues, m_counter);
-
       ++m_counter;
     }
 
     int getElementsCount() const { return m_elementsCount; }
+
+    int getCounter() const { return m_counter; }
+
+    void printCounter() const { printf("Counter = %d \n", m_counter); }
 
     math::Matrix* refV;
     math::Matrix* hostV;
@@ -176,7 +179,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
     T* tmpBuffer = new T[elementsCount];
     fread(tmpBuffer, elementsCount * size, 1, f);
     for (uintt fa = 0; fa < elementsCount; ++fa) {
-        block[fa] = tmpBuffer[fa];
+      block[fa] = tmpBuffer[fa];
     }
     delete[] tmpBuffer;
   }
@@ -210,24 +213,20 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
     fclose(f);
   }
 
-  void executeArnoldiTest(floatt value, const std::string& path, uintt hdim = 32,
-                   floatt tolerance = 0.01) {
+  void executeArnoldiTest(floatt value, const std::string& path,
+                          uintt hdim = 32, floatt tolerance = 0.01) {
     OglaArnoldiPackageCallbackTests::Data data(path);
     class MultiplyFunc {
      public:
       static void multiply(math::Matrix* w, math::Matrix* v, void* userData) {
         Data* data = static_cast<Data*>(userData);
         data->load();
+        data->printCounter();
+        if (data->getCounter() % 3 == 0) {
+         // device::PrintMatrix("v = ", v);
+        }
         device::CopyDeviceMatrixToHostMatrix(data->hostV, v);
-        ASSERT_THAT(data->hostV, MatrixIsEqual(data->refV));
-        CudaUtils::PrintMatrix("v", v);
-        printf("\n");
-        host::PrintMatrix("data->hostV", data->hostV);
-        printf("\n");
-        host::PrintMatrix("data->refV", data->refV);
-        printf("\n");
-        host::PrintMatrix("data->refW", data->refW);
-        printf("\n");
+        ASSERT_THAT(data->hostV, MatrixIsEqual(data->refV, InfoType(InfoType::MEAN)));
         device::CopyHostMatrixToDeviceMatrix(w, data->refW);
       }
     };

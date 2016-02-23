@@ -11,12 +11,13 @@
 #include "cuda.h"
 #include "CuCore.h"
 #include "Matrix.h"
-
-#define GetMatrixXIndex(threadIdx, blockIdx, blockDim) ((blockIdx.x * blockDim.x + threadIdx.x))
-
-#define GetMatrixYIndex(threadIdx, blockIdx, blockDim) (blockIdx.y * blockDim.y + threadIdx.y)
+#include "MatrixAPI.h"
 
 #define GetMatrixIndex(threadIdx, blockIdx, blockDim, offset) ((threadIdx.y + blockIdx.y * blockDim.y) * (offset) + ((blockIdx.x * blockDim.x + threadIdx.x)))
+
+#define GetMatrixColumn(threadIdx, blockIdx, blockDim) (blockIdx.x * blockDim.x + threadIdx.x)
+
+#define GetMatrixRow(threadIdx, blockIdx, blockDim) (threadIdx.y + blockIdx.y * blockDim.y)
 
 #define GetLength(blockIdx, blockDim, limit) blockDim - ((blockIdx + 1) * blockDim > limit ? (blockIdx + 1) * blockDim - limit : 0);
 
@@ -37,18 +38,16 @@ __hostdevice__ void cuda_CompareRealOpt(int* buffer,
     math::Matrix* m1, math::Matrix* m2,
     uintt sharedIndex, uintt xlength) {
     CUDA_TEST_INIT();
-
-    const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
-        && GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+    uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
+    uintt column = GetMatrixColumn(threadIdx, blockIdx, blockDim);
+    const bool inScope =  row < m1->rows && column < m1->columns;
     if (inScope) {
-        uintt index = GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
-        //uintt c = xlength & 1;
-        buffer[sharedIndex] = m1->reValues[index] == m2->reValues[index];
-        buffer[sharedIndex] += m1->imValues[index] == m2->imValues[index];
-        //if (c == 1 && threadIdx.x == xlength - 1) {
-        //    buffer[sharedIndex] += m1->reValues[index + 1] == m2->reValues[index + 1];
-        //    buffer[sharedIndex] += m1->imValues[index + 1] == m2->imValues[index + 1];
-        //}
+        floatt rev1 = GetRe(m1, column, row);
+        floatt rev2 = GetRe(m2, column, row);
+        floatt imv1 = GetIm(m1, column, row);
+        floatt imv2 = GetIm(m2, column, row);
+        buffer[sharedIndex] = rev1 == rev2;
+        buffer[sharedIndex] += imv1 == imv2;
     }
 }
 
@@ -56,16 +55,13 @@ __hostdevice__ void cuda_CompareReOpt(int* buffer,
     math::Matrix* m1, math::Matrix* m2,
     uintt sharedIndex, uintt xlength) {
     CUDA_TEST_INIT();
-
-    const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
-        && GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+    uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
+    uintt column = GetMatrixColumn(threadIdx, blockIdx, blockDim);
+    const bool inScope = row < m1->rows && column < m1->columns;
     if (inScope) {
-        uintt index = GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
-        //uintt c = xlength & 1;
-        buffer[sharedIndex] = m1->reValues[index] == m2->reValues[index];
-        //if (c == 1 && threadIdx.x == xlength - 1) {
-        //    buffer[sharedIndex] += m1->reValues[index + 1] == m2->reValues[index + 1];
-        // }
+        floatt rev1 = GetRe(m1, column, row);
+        floatt rev2 = GetRe(m2, column, row);
+        buffer[sharedIndex] = rev1 == rev2;
     }
 }
 
@@ -73,16 +69,13 @@ __hostdevice__ void cuda_CompareImOpt(int* buffer,
     math::Matrix* m1, math::Matrix* m2,
     uintt sharedIndex, uintt xlength) {
     CUDA_TEST_INIT();
-
-    const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
-        && GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+    uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
+    uintt column = GetMatrixColumn(threadIdx, blockIdx, blockDim);
+    const bool inScope = row < m1->rows && column < m1->columns;
     if (inScope) {
-        uintt index = GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
-        //uintt c = xlength & 1;
-        buffer[sharedIndex] = m1->imValues[index] == m2->imValues[index];
-        //if (c == 1 && threadIdx.x == xlength - 1) {
-        //    buffer[sharedIndex] += m1->imValues[index + 1] == m2->imValues[index + 1];
-        //}
+        floatt imv1 = GetIm(m1, column, row);
+        floatt imv2 = GetIm(m2, column, row);
+        buffer[sharedIndex] += imv1 == imv2;
     }
 }
 

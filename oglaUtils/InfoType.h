@@ -6,7 +6,12 @@
 
 class InfoType : public matrixUtils::Range {
  public:
-  enum Type { ELEMENTS = 1 << 0, MEAN = 1 << 1 };
+  enum Type {
+    ELEMENTS = 1 << 0,
+    MEAN = 1 << 1,
+    LARGEST_DIFF = 1 << 2,
+    SMALLEST_DIFF = 1 << 3
+  };
 
  private:
   Type m_type;
@@ -18,12 +23,12 @@ class InfoType : public matrixUtils::Range {
 
   inline InfoType()
       : matrixUtils::Range(0, std::numeric_limits<uintt>::max(), 0,
-                                 std::numeric_limits<uintt>::max()),
+                           std::numeric_limits<uintt>::max()),
         m_type(ELEMENTS) {}
 
   inline InfoType(InfoType::Type type)
       : matrixUtils::Range(0, std::numeric_limits<uintt>::max(), 0,
-                                 std::numeric_limits<uintt>::max()),
+                           std::numeric_limits<uintt>::max()),
         m_type(type) {}
 
   inline InfoType::Type getInfo() const { return m_type; }

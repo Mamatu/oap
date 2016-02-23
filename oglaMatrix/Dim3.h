@@ -55,14 +55,13 @@ class dim3 {
 
 typedef dim3 uint3;
 
-extern dim3 blockIdx;
-extern dim3 blockDim;
-extern dim3 gridDim;
-
 void ResetCudaCtx();
 
 class ThreadIdx {
   uint3 m_threadIdx;
+  dim3 m_blockIdx;
+  dim3 m_blockDim;
+  dim3 m_gridDim;
 
   class BarrierMutex {
    public:
@@ -79,7 +78,15 @@ class ThreadIdx {
   static ThreadIdxs m_threadIdxs;
 
   void setThreadIdx(const dim3& dim3);
+  void setBlockIdx(const dim3& dim3);
+  void setBlockDim(const dim3& dim3);
+  void setGridDim(const dim3& dim3);
+
   const uint3& getThreadIdx() const;
+  const dim3& getBlockIdx() const;
+  const dim3& getBlockDim() const;
+  const dim3& getGridDim() const;
+
   static void createBarrier(const std::vector<pthread_t>& threads);
   static void destroyBarrier(const std::vector<pthread_t>& threads);
   static void wait();

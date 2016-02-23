@@ -11,6 +11,8 @@
 #ifdef CUDA
 
 #include <cuda.h>
+#include "cuda_runtime.h"
+#include "cuda_runtime_api.h"
 
 #define __hostdeviceinline__ extern "C" __device__ __forceinline__
 #define __hostdevice__ extern "C" __device__
@@ -30,7 +32,12 @@
 #define __hostdevice__ __inline__
 #define __shared__
 
-#define CUDA_TEST_INIT() uint3 threadIdx = ThreadIdx::m_threadIdxs[pthread_self()].getThreadIdx();
+#define CUDA_TEST_INIT()                                   \
+  ThreadIdx& ti = ThreadIdx::m_threadIdxs[pthread_self()]; \
+  uint3 threadIdx = ti.getThreadIdx();                     \
+  dim3 blockIdx = ti.getBlockIdx();                        \
+  dim3 blockDim = ti.getBlockDim();                        \
+  dim3 gridDim = ti.getGridDim();
 
 #define CUDA_TEST_CODE(code) code
 

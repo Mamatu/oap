@@ -88,15 +88,15 @@ class OglaMagnitudeTests : public OglaCudaStub {
   floatt executeVectorMagnitudeEx(math::Matrix* matrix, uintt column,
                                   uintt row1, uintt row2);
   floatt executeVectorMagnitudeExTest(math::Matrix* matrix, uintt column,
-                                  floatt outcome, uintt row1, uintt row2);
+                                      floatt outcome, uintt row1, uintt row2);
   floatt executeVectorMagnitude(math::Matrix* matrix, uintt column);
   floatt executeVectorMagnitudeTest(math::Matrix* matrix, uintt column,
-                                  floatt outcome);
+                                    floatt outcome);
 
   floatt calculateMagnitude(uintt begin, uintt end) {
     floatt output = 0;
     for (uintt fa = begin; fa < end; ++fa) {
-        output = output + fa * fa;
+      output = output + fa * fa;
     }
     return sqrt(output);
   }
@@ -152,7 +152,7 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
 
   virtual ~MagnitudeUtilsStubImpl() {}
 
-  void execute(const dim3& threadIdx) {
+  void execute(const dim3& threadIdx, const dim3& blockIdx) {
     if (NULL != m_matrix) {
       uintt xlength = GetLength(blockIdx.x, blockDim.x,
                                 m_matrix->columns / m_algoInfo.getFactor());
@@ -168,14 +168,15 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
           cuda_MagnitudeReVecOpt(m_buffer, sharedIndex, m_matrix, m_column);
           break;
         case AlgoInfo::MATRIX_VECTOR_MAGNITUDE_EX:
-          cuda_MagnitudeReVecOptEx(m_buffer, sharedIndex, m_matrix, m_column, m_row1, m_row2);
+          cuda_MagnitudeReVecOptEx(m_buffer, sharedIndex, m_matrix, m_column,
+                                   m_row1, m_row2);
           break;
       }
     }
   }
 
-  void onChange(KernelStub::ContextChnage contextChange,
-                const dim3& threadIdx) {
+  void onChange(KernelStub::ContextChnage contextChange, const dim3& threadIdx,
+                const dim3& blockIdx) {
     if (contextChange == KernelStub::CUDA_BLOCK) {
       floatt actualSum = utils::getSum(m_buffer, m_bufferLength);
       m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;
@@ -198,7 +199,7 @@ class MagnitudeStubImpl : public MagnitudeStub {
 
   virtual ~MagnitudeStubImpl() {}
 
-  void execute(const dim3& threadIdx) {
+  void execute(const dim3& threadIdx, const dim3& blockIdx) {
     if (NULL != m_matrix) {
       CUDA_magnitudeOpt(m_sums, m_matrix, m_buffer);
     }
@@ -233,7 +234,7 @@ void OglaMagnitudeTests::executeMatrixMagnitudeTest(floatt* hArray,
 }
 
 floatt OglaMagnitudeTests::executeVectorMagnitude(math::Matrix* matrix,
-                                                    uintt column) {
+                                                  uintt column) {
   MagnitudeUtilsStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows,
                                           AlgoInfo::MATRIX_VECTOR_MAGNITUDE,
                                           column);
@@ -245,9 +246,8 @@ floatt OglaMagnitudeTests::executeVectorMagnitude(math::Matrix* matrix,
 }
 
 floatt OglaMagnitudeTests::executeVectorMagnitudeTest(math::Matrix* matrix,
-                                                    uintt column,
-                                                    floatt eq_output) {
-
+                                                      uintt column,
+                                                      floatt eq_output) {
   floatt doutput = executeVectorMagnitude(matrix, column);
 
   EXPECT_DOUBLE_EQ(eq_output, doutput);
@@ -256,8 +256,8 @@ floatt OglaMagnitudeTests::executeVectorMagnitudeTest(math::Matrix* matrix,
 }
 
 floatt OglaMagnitudeTests::executeVectorMagnitudeEx(math::Matrix* matrix,
-                                                    uintt column,
-                                                    uintt row1, uintt row2) {
+                                                    uintt column, uintt row1,
+                                                    uintt row2) {
   MagnitudeUtilsStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows,
                                           AlgoInfo::MATRIX_VECTOR_MAGNITUDE_EX,
                                           column, row1, row2);
@@ -269,10 +269,10 @@ floatt OglaMagnitudeTests::executeVectorMagnitudeEx(math::Matrix* matrix,
 }
 
 floatt OglaMagnitudeTests::executeVectorMagnitudeExTest(math::Matrix* matrix,
-                                                    uintt column,
-                                                    floatt eq_output,
-                                                    uintt row1, uintt row2) {
-
+                                                        uintt column,
+                                                        floatt eq_output,
+                                                        uintt row1,
+                                                        uintt row2) {
   floatt doutput = executeVectorMagnitudeEx(matrix, column, row1, row2);
 
   EXPECT_DOUBLE_EQ(eq_output, doutput);
@@ -453,15 +453,10 @@ TEST_F(OglaMagnitudeTests, Magnitude3) {
 
 TEST_F(OglaMagnitudeTests, VecMagnitude9x9) {
   floatt hArray[] = {
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
   };
 
   int columns = 9;
@@ -476,15 +471,10 @@ TEST_F(OglaMagnitudeTests, VecMagnitude9x9) {
 
 TEST_F(OglaMagnitudeTests, VecMagnitudeShouldBeZero9x9) {
   floatt hArray[] = {
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
   };
 
   int columns = 9;
@@ -499,15 +489,10 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeShouldBeZero9x9) {
 
 TEST_F(OglaMagnitudeTests, VecMagnitudeIncreased9x9) {
   floatt hArray[] = {
-      0, 0, 1, 0, 1, 0, 0, 0, 0,
-      0, 0, 1, 0, 2, 0, 0, 0, 0,
-      0, 0, 1, 0, 3, 0, 0, 0, 0,
-      0, 0, 1, 0, 4, 0, 0, 0, 0,
-      0, 0, 1, 0, 5, 0, 0, 0, 0,
-      0, 0, 1, 0, 6, 0, 0, 0, 0,
-      0, 0, 1, 0, 7, 0, 0, 0, 0,
-      0, 0, 1, 0, 8, 0, 0, 0, 0,
-      0, 0, 1, 0, 9, 0, 0, 0, 0,
+      0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 1,
+      0, 3, 0, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 0, 1, 0, 5, 0,
+      0, 0, 0, 0, 0, 1, 0, 6, 0, 0, 0, 0, 0, 0, 1, 0, 7, 0, 0, 0, 0,
+      0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 9, 0, 0, 0, 0,
   };
 
   int columns = 9;
@@ -530,14 +515,9 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeIncreased9x9) {
 
 TEST_F(OglaMagnitudeTests, VecMagnitudeIncreased8x8) {
   floatt hArray[] = {
-      0, 0, 1, 0, 1, 0, 0, 0,
-      0, 0, 1, 0, 2, 0, 0, 0,
-      0, 0, 1, 0, 3, 0, 0, 0,
-      0, 0, 1, 0, 4, 0, 0, 0,
-      0, 0, 1, 0, 5, 0, 0, 0,
-      0, 0, 1, 0, 6, 0, 0, 0,
-      0, 0, 1, 0, 7, 0, 0, 0,
-      0, 0, 1, 0, 8, 0, 0, 0,
+      0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0,
+      0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0, 1, 0,
+      6, 0, 0, 0, 0, 0, 1, 0, 7, 0, 0, 0, 0, 0, 1, 0, 8, 0, 0, 0,
   };
 
   int columns = 8;
@@ -560,15 +540,10 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeIncreased8x8) {
 
 TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited9x9) {
   floatt hArray[] = {
-      0, 0, 1, 0, 1, 0, 0, 0, 0,
-      0, 0, 1, 0, 2, 0, 0, 0, 0,
-      0, 0, 1, 0, 3, 0, 0, 0, 0,
-      0, 0, 1, 0, 4, 0, 0, 0, 0,
-      0, 0, 1, 0, 5, 0, 0, 0, 0,
-      0, 0, 1, 0, 6, 0, 0, 0, 0,
-      0, 0, 1, 0, 7, 0, 0, 0, 0,
-      0, 0, 1, 0, 8, 0, 0, 0, 0,
-      0, 0, 1, 0, 9, 0, 0, 0, 0,
+      0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 1,
+      0, 3, 0, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 0, 1, 0, 5, 0,
+      0, 0, 0, 0, 0, 1, 0, 6, 0, 0, 0, 0, 0, 0, 1, 0, 7, 0, 0, 0, 0,
+      0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 9, 0, 0, 0, 0,
   };
 
   int columns = 9;
@@ -591,14 +566,9 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited9x9) {
 
 TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited8x8) {
   floatt hArray[] = {
-      0, 0, 1, 0, 1, 0, 0, 0,
-      0, 0, 1, 0, 2, 0, 0, 0,
-      0, 0, 1, 0, 3, 0, 0, 0,
-      0, 0, 1, 0, 4, 0, 0, 0,
-      0, 0, 1, 0, 5, 0, 0, 0,
-      0, 0, 1, 0, 6, 0, 0, 0,
-      0, 0, 1, 0, 7, 0, 0, 0,
-      0, 0, 1, 0, 8, 0, 0, 0,
+      0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0,
+      0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0, 1, 0,
+      6, 0, 0, 0, 0, 0, 1, 0, 7, 0, 0, 0, 0, 0, 1, 0, 8, 0, 0, 0,
   };
 
   int columns = 8;
@@ -621,14 +591,9 @@ TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited8x8) {
 
 TEST_F(OglaMagnitudeTests, VecMagnitudeIncreasedLimited8x8Ver1) {
   floatt hArray[] = {
-      0, 0, 1, 0, 1, 0, 0, 0,
-      0, 0, 1, 0, 2, 0, 0, 0,
-      0, 0, 1, 0, 3, 0, 0, 0,
-      0, 0, 1, 0, 4, 0, 0, 0,
-      0, 0, 1, 0, 5, 0, 0, 0,
-      0, 0, 1, 0, 6, 0, 0, 0,
-      0, 0, 1, 0, 7, 0, 0, 0,
-      0, 0, 1, 0, 8, 0, 0, 0,
+      0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0,
+      0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0, 1, 0,
+      6, 0, 0, 0, 0, 0, 1, 0, 7, 0, 0, 0, 0, 0, 1, 0, 8, 0, 0, 0,
   };
 
   int columns = 8;

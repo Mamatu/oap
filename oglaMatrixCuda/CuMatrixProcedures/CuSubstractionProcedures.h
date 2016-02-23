@@ -10,7 +10,7 @@
 
 #include "CuCore.h"
 
-__hostdeviceinline__ void CUDA_substractReMatrices(math::Matrix* output,
+__hostdeviceinline__ void cuda_substractReMatrices(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1,
                                                    uintt threadIndexX,
@@ -19,10 +19,9 @@ __hostdeviceinline__ void CUDA_substractReMatrices(math::Matrix* output,
   uintt offset = output->columns;
   uintt index = threadIndexX + offset * threadIndexY;
   output->reValues[index] = params0->reValues[index] - params1->reValues[index];
-  threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_substractImMatrices(math::Matrix* output,
+__hostdeviceinline__ void cuda_substractImMatrices(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1,
                                                    uintt threadIndexX,
@@ -31,10 +30,9 @@ __hostdeviceinline__ void CUDA_substractImMatrices(math::Matrix* output,
   uintt offset = output->columns;
   uintt index = threadIndexX + offset * threadIndexY;
   output->imValues[index] = params0->imValues[index] - params1->imValues[index];
-  threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_substractRealMatrices(math::Matrix* output,
+__hostdeviceinline__ void cuda_substractRealMatrices(math::Matrix* output,
                                                      math::Matrix* params0,
                                                      math::Matrix* params1,
                                                      uintt threadIndexX,
@@ -49,6 +47,38 @@ __hostdeviceinline__ void CUDA_substractRealMatrices(math::Matrix* output,
     output->imValues[index] =
         params0->imValues[index] - params1->imValues[index];
   }
+}
+
+__hostdeviceinline__ void CUDA_substractReMatrices(math::Matrix* output,
+                                                   math::Matrix* params0,
+                                                   math::Matrix* params1,
+                                                   uintt threadIndexX,
+                                                   uintt threadIndexY) {
+  CUDA_TEST_INIT();
+  CUDA_substractReMatrices(output, params0, params1, threadIndexX,
+                           threadIndexY);
+  threads_sync();
+}
+
+__hostdeviceinline__ void CUDA_substractImMatrices(math::Matrix* output,
+                                                   math::Matrix* params0,
+                                                   math::Matrix* params1,
+                                                   uintt threadIndexX,
+                                                   uintt threadIndexY) {
+  CUDA_TEST_INIT();
+  cuda_substractImMatrices(output, params0, params1, threadIndexX,
+                           threadIndexY);
+  threads_sync();
+}
+
+__hostdeviceinline__ void CUDA_substractRealMatrices(math::Matrix* output,
+                                                     math::Matrix* params0,
+                                                     math::Matrix* params1,
+                                                     uintt threadIndexX,
+                                                     uintt threadIndexY) {
+  CUDA_TEST_INIT();
+  cuda_substractRealMatrices(output, params0, params1, threadIndexX,
+                             threadIndexY);
   threads_sync();
 }
 
@@ -60,16 +90,19 @@ __hostdeviceinline__ void CUDA_substractMatrices(math::Matrix* output,
   CUDA_TEST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
-  if (isre && isim) {
-    CUDA_substractRealMatrices(output, params0, params1, threadIndexX,
+  bool isInRange =
+      threadIndexX < output->columns && threadIndexY < output->rows;
+  if (isre && isim && isInRange) {
+    cuda_substractRealMatrices(output, params0, params1, threadIndexX,
                                threadIndexY);
-  } else if (isre) {
-    CUDA_substractReMatrices(output, params0, params1, threadIndexX,
+  } else if (isre && isInRange) {
+    cuda_substractReMatrices(output, params0, params1, threadIndexX,
                              threadIndexY);
-  } else if (isim) {
-    CUDA_substractImMatrices(output, params0, params1, threadIndexX,
+  } else if (isim && isInRange) {
+    cuda_substractImMatrices(output, params0, params1, threadIndexX,
                              threadIndexY);
   }
+  threads_sync();
 }
 
 #endif /* CUSUBSTRACTPROCEDURES_H */

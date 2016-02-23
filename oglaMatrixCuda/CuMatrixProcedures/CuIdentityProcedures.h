@@ -9,6 +9,7 @@
 #define CUIDENTITYPROCEDURES_H
 
 #include "CuCore.h"
+#include "MatrixAPI.h"
 
 __hostdevice__ void CUDA_SetIdentityReMatrix(math::Matrix* dst,
                                              uintt threadIndexX,

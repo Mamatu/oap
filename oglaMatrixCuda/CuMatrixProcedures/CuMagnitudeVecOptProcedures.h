@@ -155,6 +155,7 @@ __hostdevice__ void CUDA_magnitudeOptImVecEx(floatt* sum, math::Matrix* matrix1,
 }
 
 __hostdevice__ void CUDA_getMagnitude(floatt* output, floatt* sums) {
+  CUDA_TEST_INIT();
   for (uintt fa = 0; fa < gridDim.x; ++fa) {
     for (uintt fb = 0; fb < gridDim.y; ++fb) {
       (*output) += sums[gridDim.x * fb + fa];

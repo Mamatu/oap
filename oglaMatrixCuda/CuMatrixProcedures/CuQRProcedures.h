@@ -9,6 +9,7 @@
 #define CUQRPROCEDURES_H
 
 #include "CuCore.h"
+#include "MatrixAPI.h"
 #include "CuCopyProcedures.h"
 #include "CuTransponseProcedures.h"
 #include "CuDotProductProcedures.h"
@@ -31,8 +32,11 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
                                         uintt ty) {
   CUDA_TEST_INIT();
   CUDA_SetIdentityMatrix(G, tx, ty);
+  Reset(G);
+
   if (tx == 0 && ty == 0) {
-    /*floatt reg = 0;
+#if 0
+      floatt reg = 0;
     floatt img = 0;
     floatt ref = 0;
     floatt imf = 0;
@@ -55,7 +59,8 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
     floatt s = (sign * reg + img * isign) / r;
     floatt is = (isign * reg - img * sign) / r;
     floatt c = lf / r;
-    floatt ic = 0;*/
+    floatt ic = 0;
+#endif
 
     floatt s = 0;
     floatt is = 0;
@@ -79,17 +84,17 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
       SetRe(G, column, column, c);
       SetRe(G, row, row, c);
       SetRe(G, row, column, s);
+      CUDA_TEST_CODE(EXPECT_EQ(4, test::getSetValuesCountRe(G)););
     }
     if (NULL != G->imValues) {
       SetIm(G, column, row, -is);
       SetIm(G, column, column, ic);
       SetIm(G, row, row, ic);
       SetIm(G, row, column, is);
+      CUDA_TEST_CODE(EXPECT_EQ(4, test::getSetValuesCountIm(G)););
     }
-    CUDA_TEST_CODE(EXPECT_EQ(4, test::getSetValuesCountRe(G)););
-    CUDA_TEST_CODE(EXPECT_EQ(5, test::getSetValuesCountIm(G)););
-    Reset(G);
   }
+  Reset(G);
   threads_sync();
 }
 
@@ -108,12 +113,16 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
       floatt v = GetRe(A, fa, fb);
       if ((-0.0001 < v && v < 0.0001) == false) {
         CUDA_prepareGMatrix(R1, fa, fb, G, tx, ty);
-        CUDA_multiplyMatrices(R, G, R1, tx, ty);
+        CUDA_dotProduct(R, G, R1, tx, ty);
+        Push(R);
         if (count == 0) {
           CUDA_transposeMatrix(Q, G, tx, ty);
+          Push(Q);
         } else {
           CUDA_transposeMatrix(GT, G, tx, ty);
-          CUDA_multiplyMatrices(Q, Q1, GT, tx, ty);
+          Push(GT);
+          CUDA_dotProduct(Q, Q1, GT, tx, ty);
+          Push(Q);
         }
         ++count;
         CUDA_switchPointer(&R1, &R);
@@ -123,7 +132,9 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
   }
   if (count & 1 == 1) {
     CUDA_copyMatrix(rQ, Q1);
+    Push(rQ);
     CUDA_copyMatrix(rR, R1);
+    Push(rR);
   }
 }
 
