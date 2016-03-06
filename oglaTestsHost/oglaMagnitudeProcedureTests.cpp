@@ -102,7 +102,7 @@ class OglaMagnitudeTests : public OglaCudaStub {
   }
 };
 
-class MagnitudeStub : public KernelStub {
+class MagnitudeStub : public HostKernel {
  public:
   AlgoInfo m_algoInfo;
 
@@ -116,6 +116,9 @@ class MagnitudeStub : public KernelStub {
   floatt* m_sums;
   size_t m_sumsLength;
 
+  floatt getSum() { return sqrt(utils::getSum(m_sums, m_sumsLength)); }
+
+ protected:
   MagnitudeStub(math::Matrix* matrix, uintt columns, uintt rows,
                 AlgoInfo::Type algoType, uintt column = 0, uintt row1 = 0,
                 uintt row2 = 0)
@@ -139,8 +142,6 @@ class MagnitudeStub : public KernelStub {
     delete[] m_buffer;
     delete[] m_sums;
   }
-
-  floatt getSum() { return sqrt(utils::getSum(m_sums, m_sumsLength)); }
 };
 
 class MagnitudeUtilsStubImpl : public MagnitudeStub {
@@ -175,9 +176,9 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
     }
   }
 
-  void onChange(KernelStub::ContextChnage contextChange, const dim3& threadIdx,
+  void onChange(HostKernel::ContextChnage contextChange, const dim3& threadIdx,
                 const dim3& blockIdx) {
-    if (contextChange == KernelStub::CUDA_BLOCK) {
+    if (contextChange == HostKernel::CUDA_BLOCK) {
       floatt actualSum = utils::getSum(m_buffer, m_bufferLength);
       m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;
       memset(m_buffer, 0, sizeof(floatt) * m_bufferLength);
@@ -390,7 +391,8 @@ TEST_F(OglaMagnitudeTests, MagnitudeParsingBigData) {
 
   EXPECT_TRUE(matrix != NULL);
 
-  MagnitudeStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows);
+  MagnitudeUtilsStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows,
+                                          AlgoInfo::MATRIX_MAGNITUDE);
 
   executeKernelAsync(&magitudeStubImpl);
 

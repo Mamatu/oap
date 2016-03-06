@@ -49,7 +49,7 @@ class OglaIdentityProcedureTests : public OglaCudaStub {
   virtual void TearDown() { OglaCudaStub::TearDown(); }
 };
 
-class IdentityStubImpl : public KernelStub {
+class IdentityStubImpl : public HostKernel {
   uintt m_columns;
   uintt m_rows;
   math::Matrix* m_matrix;

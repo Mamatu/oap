@@ -52,12 +52,12 @@ class OglaQRTests : public OglaCudaStub {
 
   virtual void TearDown() {}
 
-  class QRStub : public KernelStub {
+  class QRStub : public HostKernel {
    public:
     math::Matrix* m_matrix;
     math::Matrix* m_eq;
     math::Matrix* m_er;
-    QRStub(math::Matrix* eq, math::Matrix* er, math::Matrix* matrix)
+    QRStub(math::Matrix* matrix, math::Matrix* eq, math::Matrix* er)
         : m_eq(eq), m_er(er), m_matrix(matrix) {}
     virtual ~QRStub() {}
 
@@ -74,8 +74,8 @@ class OglaQRTests : public OglaCudaStub {
     math::Matrix* m_temp3;
     math::Matrix* m_temp4;
 
-    QRGRStub(math::Matrix* eq_q, math::Matrix* eq_r, math::Matrix* matrix)
-        : QRStub(eq_q, eq_r, matrix) {
+    QRGRStub(math::Matrix* matrix, math::Matrix* eq_q, math::Matrix* eq_r)
+        : QRStub(matrix, eq_q, eq_r) {
       m_q = host::NewMatrix(eq_q);
       m_r = host::NewMatrix(eq_r);
       m_temp1 = host::NewMatrix(matrix);
@@ -86,16 +86,16 @@ class OglaQRTests : public OglaCudaStub {
     }
 
     virtual ~QRGRStub() {
-      //Pop(m_q);
-      //EXPECT_THAT(m_q, WereSetAllRe());
-      //Pop(m_r);
-      //EXPECT_THAT(m_r, WereSetAllRe());
-      //Pop(m_temp1);
-      //EXPECT_THAT(m_temp1, WereSetAllRe());
-      //Pop(m_temp2);
-      //EXPECT_THAT(m_temp2, WereSetAllRe());
-      //Pop(m_temp3);
-      //EXPECT_THAT(m_temp3, WereSetAllRe());
+      // Pop(m_q);
+      // EXPECT_THAT(m_q, WereSetAllRe());
+      // Pop(m_r);
+      // EXPECT_THAT(m_r, WereSetAllRe());
+      // Pop(m_temp1);
+      // EXPECT_THAT(m_temp1, WereSetAllRe());
+      // Pop(m_temp2);
+      // EXPECT_THAT(m_temp2, WereSetAllRe());
+      // Pop(m_temp3);
+      // EXPECT_THAT(m_temp3, WereSetAllRe());
       /*Pop(m_temp4);
       EXPECT_THAT(m_temp4, WereSetAllRe());*/
       host::DeleteMatrix(m_q);
@@ -106,7 +106,7 @@ class OglaQRTests : public OglaCudaStub {
       host::DeleteMatrix(m_temp4);
     }
 
-    void execute(const dim3& threadIdx) {
+    void execute(const dim3& threadIdx, const dim3& blockIdx) {
       CUDA_QRGR(m_q, m_r, m_matrix, m_temp1, m_temp2, m_temp3, m_temp4);
     }
 
@@ -118,7 +118,6 @@ class OglaQRTests : public OglaCudaStub {
    public:
     math::Matrix* Q;
     math::Matrix* R;
-    math::Matrix* A;
     math::Matrix* AT;
     floatt sum;
     floatt* buffer;
@@ -128,11 +127,10 @@ class OglaQRTests : public OglaCudaStub {
     math::Matrix* vt;
     math::Matrix* vvt;
 
-    QRHTStub(math::Matrix* eq_q, math::Matrix* eq_r, math::Matrix* matrix)
-        : QRStub(eq_q, eq_r, matrix) {
+    QRHTStub(math::Matrix* matrix, math::Matrix* eq_q, math::Matrix* eq_r)
+        : QRStub(matrix, eq_q, eq_r) {
       R = host::NewMatrix(eq_r);
       Q = host::NewMatrix(eq_q);
-      A = host::NewMatrix(matrix);
       AT = host::NewMatrix(matrix);
       P = host::NewMatrix(matrix);
       I = host::NewMatrix(matrix);
@@ -145,7 +143,6 @@ class OglaQRTests : public OglaCudaStub {
     virtual ~QRHTStub() {
       host::DeleteMatrix(R);
       host::DeleteMatrix(Q);
-      host::DeleteMatrix(A);
       host::DeleteMatrix(AT);
       host::DeleteMatrix(P);
       host::DeleteMatrix(I);
@@ -155,8 +152,8 @@ class OglaQRTests : public OglaCudaStub {
       delete[] buffer;
     }
 
-    void execute(const dim3& threadIdx) {
-      CUDA_QRHT(R, Q, A, AT, &sum, buffer, P, I, v, vt, vvt);
+    void execute(const dim3& threadIdx, const dim3& blockIdx) {
+      CUDA_QRHT(R, Q, m_matrix, AT, &sum, buffer, P, I, v, vt, vvt);
     }
 
     virtual math::Matrix* getQ() const { return Q; }
