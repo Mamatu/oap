@@ -186,7 +186,7 @@ T getSum(T* buffer, size_t length) {
   return output;
 }
 
-#ifdef CUDATEST
+#ifndef CUDA
 
 inline std::string gridDimToStr(const dim3& dim3) {
   std::ostringstream s;

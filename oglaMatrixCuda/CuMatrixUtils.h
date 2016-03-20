@@ -14,7 +14,7 @@
 #include "Buffer.h"
 #include "MatrixEx.h"
 
-#ifndef CUDATEST
+#ifdef CUDA
 
 extern "C" __device__ void CUDA_PrintMatrix(math::Matrix* m) {
     for (uintt fb = 0; fb < m->rows; ++fb) {
