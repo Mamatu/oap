@@ -4,29 +4,38 @@
 #include "Dim3.h"
 
 class ThreadImpl;
-class ThreadFunction;
+class HostKernel;
 
-class ThreadFunction {
+class HostKernel {
  public:
-  ThreadFunction();
-  virtual ~ThreadFunction();
+  HostKernel();
+
+  HostKernel(uintt columns, uintt rows);
+
+  virtual ~HostKernel();
 
   void setDims(const dim3& gridDim, const dim3& blockDim);
 
   void calculateDims(uintt columns, uintt rows);
 
-  static void ExecuteKernelAsync(ThreadFunction* threadFunction);
+  void executeKernelAsync();
 
-  static void ExecuteKernelAsync(void (*Execute)(const dim3& threadIdx,
-                                                 void* userData),
-                                 void* userData);
+  void executeKernelSync();
 
  protected:
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) = 0;
 
+  enum ContextChange { CUDA_THREAD, CUDA_BLOCK };
+
+  virtual void onChange(ContextChange contextChnage, const dim3& threadIdx,
+                        const dim3& blockIdx) {}
+
+  virtual void onSetDims(const dim3& gridDim, const dim3& blockDim) {}
+
+  dim3 gridDim;
+  dim3 blockDim;
+
  private:
-  dim3 m_gridDim;
-  dim3 m_blockDim;
   friend class ThreadImpl;
 };
 

@@ -1,16 +1,25 @@
-#include "ThreadsHost.h"
+#include "HostKernel.h"
 #include "ThreadUtils.h"
 #include "ThreadsMapper.h"
 #include "Dim3.h"
 
 class ThreadImpl;
 
-void ThreadFunction::setDims(const dim3& gridDim, const dim3& blockDim) {
-  m_blockDim = blockDim;
-  m_gridDim = gridDim;
+HostKernel::HostKernel() {}
+
+HostKernel::HostKernel(uintt columns, uintt rows) {
+  calculateDims(columns, rows);
 }
 
-void ThreadFunction::calculateDims(uintt columns, uintt rows) {
+HostKernel::~HostKernel() {}
+
+void HostKernel::setDims(const dim3& gridDim, const dim3& blockDim) {
+  this->blockDim = blockDim;
+  this->gridDim = gridDim;
+  onSetDims(this->gridDim, this->blockDim);
+}
+
+void HostKernel::calculateDims(uintt columns, uintt rows) {
   uintt blocks[2];
   uintt threads[2];
   utils::mapper::SetThreadsBlocks(blocks, threads, columns, rows, 1024);
@@ -20,7 +29,7 @@ void ThreadFunction::calculateDims(uintt columns, uintt rows) {
 class ThreadImpl : public utils::Thread {
   dim3 m_threadIdx;
   dim3 m_blockIdx;
-  ThreadFunction* m_threadFunction;
+  HostKernel* m_hostKernel;
   std::vector<pthread_t>* m_pthreads;
   utils::sync::Barrier* m_barrier;
   utils::sync::Cond m_cond;
@@ -28,23 +37,23 @@ class ThreadImpl : public utils::Thread {
   bool m_cancontinue;
 
  public:
-  ThreadImpl() : m_threadFunction(NULL), m_pthreads(NULL), m_barrier(NULL) {
+  ThreadImpl() : m_hostKernel(NULL), m_pthreads(NULL), m_barrier(NULL) {
     m_cancontinue = false;
   }
 
-  void set(ThreadFunction* cudaStub, const dim3& threadIdx,
-           const dim3& blockIdx, std::vector<pthread_t>* pthreads,
-           utils::sync::Barrier* barrier) {
-    m_threadFunction = cudaStub;
-    m_threadIdx = threadIdx;
-    m_blockIdx = blockIdx;
-    m_pthreads = pthreads;
-    m_barrier = barrier;
+  void setHostKernel(HostKernel* threadFunction) {
+    m_hostKernel = threadFunction;
   }
 
-  virtual ~ThreadImpl() {}
-
   void setThreadIdx(const dim3& threadIdx) { m_threadIdx = threadIdx; }
+
+  void setBlockIdx(const dim3& blockIdx) { m_blockIdx = blockIdx; }
+
+  void setPthreads(std::vector<pthread_t>* pthreads) { m_pthreads = pthreads; }
+
+  void setBarrier(utils::sync::Barrier* barrier) { m_barrier = barrier; }
+
+  virtual ~ThreadImpl() {}
 
   void waitOn() {
     m_mutex.lock();
@@ -58,12 +67,20 @@ class ThreadImpl : public utils::Thread {
  protected:
   static void Execute(void* ptr) {
     ThreadImpl* threadImpl = static_cast<ThreadImpl*>(ptr);
-    for (int fa = 0; fa < threadImpl->m_threadFunction->m_gridDim.x *
-                              threadImpl->m_threadFunction->m_gridDim.y;
+    for (int fa = 0; fa < threadImpl->m_hostKernel->gridDim.x *
+                              threadImpl->m_hostKernel->gridDim.y;
          ++fa) {
       threadImpl->m_barrier->wait();
-      threadImpl->m_threadFunction->execute(threadImpl->m_threadIdx,
-                                            threadImpl->m_blockIdx);
+
+      ThreadIdx& ti = ThreadIdx::m_threadIdxs[pthread_self()];
+      ti.setThreadIdx(threadImpl->m_threadIdx);
+      ti.setBlockIdx(threadImpl->m_blockIdx);
+
+      threadImpl->m_hostKernel->execute(threadImpl->m_threadIdx,
+                                        threadImpl->m_blockIdx);
+      threadImpl->m_hostKernel->onChange(HostKernel::CUDA_THREAD,
+                                         threadImpl->m_threadIdx,
+                                         threadImpl->m_blockIdx);
 
       threadImpl->m_mutex.lock();
       threadImpl->m_cancontinue = true;
@@ -77,36 +94,80 @@ class ThreadImpl : public utils::Thread {
     ThreadIdx& threadIndex = ThreadIdx::m_threadIdxs[threadId];
     threadIndex.setThreadIdx(m_threadIdx);
     threadIndex.setBlockIdx(m_blockIdx);
-    threadIndex.setBlockDim(m_threadFunction->m_blockDim);
-    threadIndex.setGridDim(m_threadFunction->m_gridDim);
+    threadIndex.setBlockDim(m_hostKernel->blockDim);
+    threadIndex.setGridDim(m_hostKernel->gridDim);
     m_pthreads->push_back(threadId);
-    if (m_threadIdx.x == m_threadFunction->m_blockDim.x - 1 &&
-        m_threadIdx.y == m_threadFunction->m_blockDim.y - 1) {
+    if (m_threadIdx.x == m_hostKernel->blockDim.x - 1 &&
+        m_threadIdx.y == m_hostKernel->blockDim.y - 1) {
       ThreadIdx::createBarrier(*m_pthreads);
     }
   }
 };
 
-void ThreadFunction::ExecuteKernelAsync(void (*Execute)(const dim3& threadIdx,
-                                                     void* userData),
-                                     void* userData) {
-  class ThreadFunctionImpl : public ThreadFunction {};
-}
-
-void ThreadFunction::ExecuteKernelAsync(ThreadFunction* threadFunction) {
-  uint3 threadIdx;
+void HostKernel::executeKernelAsync() {
+  dim3 threadIdx;
   dim3 blockIdx;
-
-  const dim3& blockDim = threadFunction->m_blockDim;
-  const dim3& gridDim = threadFunction->m_gridDim;
+  const dim3 blockDim = this->blockDim;
+  const dim3 gridDim = this->gridDim;
+  debugAssert(gridDim.y != 0 && gridDim.x != 0 && blockDim.y != 0 &&
+              blockDim.x != 0);
 
   std::vector<ThreadImpl*> threads;
   std::vector<pthread_t> pthreads;
-  unsigned int count =
-      threadFunction->m_blockDim.y * threadFunction->m_blockDim.x + 1;
+  unsigned int count = blockDim.y * blockDim.x + 1;
   utils::sync::Barrier barrier(count);
   // threads.resize(blockDim.x * blockDim.y);
   pthreads.reserve(blockDim.x * blockDim.y);
+
+  for (uintt threadIdxY = 0; threadIdxY < blockDim.y; ++threadIdxY) {
+    for (uintt threadIdxX = 0; threadIdxX < blockDim.x; ++threadIdxX) {
+      threadIdx.x = threadIdxX;
+      threadIdx.y = threadIdxY;
+      if (blockIdx.x == 0 && blockIdx.y == 0) {
+        ThreadImpl* threadImpl = new ThreadImpl();
+        threadImpl->setHostKernel(this);
+        threadImpl->setThreadIdx(threadIdx);
+        threadImpl->setBlockIdx(blockIdx);
+        threadImpl->setPthreads(&pthreads);
+        threadImpl->setBarrier(&barrier);
+        threads.push_back(threadImpl);
+      }
+    }
+  }
+
+  for (uintt blockIdxY = 0; blockIdxY < gridDim.y; ++blockIdxY) {
+    for (uintt blockIdxX = 0; blockIdxX < gridDim.x; ++blockIdxX) {
+      blockIdx.x = blockIdxX;
+      blockIdx.y = blockIdxY;
+      for (size_t fa = 0; fa < threads.size(); ++fa) {
+        threads.at(fa)->setBlockIdx(blockIdx);
+        if (blockIdx.x == 0 && blockIdx.y == 0) {
+          threads.at(fa)->run();
+        }
+      }
+      barrier.wait();
+      for (size_t fa = 0; fa < threads.size(); ++fa) {
+        threads.at(fa)->waitOn();
+      }
+      this->onChange(HostKernel::CUDA_BLOCK, threadIdx, blockIdx);
+    }
+  }
+
+  for (size_t fa = 0; fa < threads.size(); ++fa) {
+    threads.at(fa)->yield();
+    delete threads.at(fa);
+  }
+  threads.clear();
+
+  ThreadIdx::destroyBarrier(pthreads);
+  pthreads.clear();
+}
+
+void HostKernel::executeKernelSync() {
+  dim3 threadIdx;
+  dim3 blockIdx;
+  const dim3 gridDim = this->gridDim;
+  const dim3 blockDim = this->blockDim;
 
   debugAssert(gridDim.y != 0 && gridDim.x != 0 && blockDim.y != 0 &&
               blockDim.x != 0);
@@ -119,29 +180,16 @@ void ThreadFunction::ExecuteKernelAsync(ThreadFunction* threadFunction) {
           threadIdx.y = threadIdxY;
           blockIdx.x = blockIdxX;
           blockIdx.y = blockIdxY;
-
-          if (blockIdx.x == 0 && blockIdx.y == 0) {
-            ThreadImpl* threadImpl = new ThreadImpl();
-            threadImpl->set(threadFunction, threadIdx, blockIdx, &pthreads,
-                            &barrier);
-            threadImpl->run();
-            threads.push_back(threadImpl);
-          }
+          ThreadIdx& ti = ThreadIdx::m_threadIdxs[pthread_self()];
+          ti.setThreadIdx(threadIdx);
+          ti.setBlockIdx(blockIdx);
+          ti.setBlockDim(blockDim);
+          ti.setGridDim(gridDim);
+          this->execute(threadIdx, blockIdx);
+          this->onChange(HostKernel::CUDA_THREAD, threadIdx, blockIdx);
         }
       }
-      barrier.wait();
-      for (size_t fa = 0; fa < threads.size(); ++fa) {
-        threads.at(fa)->waitOn();
-      }
+      this->onChange(HostKernel::CUDA_BLOCK, threadIdx, blockIdx);
     }
   }
-
-  for (size_t fa = 0; fa < threads.size(); ++fa) {
-    threads.at(fa)->yield();
-    delete threads.at(fa);
-  }
-  threads.clear();
-
-  ThreadIdx::destroyBarrier(pthreads);
-  pthreads.clear();
 }

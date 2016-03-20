@@ -11,7 +11,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "MatrixTestAPI.h"
-#include "InfoCreator.h"
+#include "InfoCreatorHost.h"
 #include "Utils.h"
 
 using ::testing::PrintToString;
@@ -53,11 +53,13 @@ class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
 
   virtual bool MatchAndExplain(math::Matrix* matrix,
                                MatchResultListener* listener) const {
-    InfoCreator infoCreator(m_matrix, matrix, m_infoType);
+    InfoCreatorHost infoCreator;
+    infoCreator.setExpected(matrix);
+    infoCreator.setOutput(m_matrix);
     std::string msg;
-    infoCreator.printInfo(msg);
+    infoCreator.getInfo(msg, m_infoType);
     (*listener) << msg;
-    return infoCreator.isEquals();
+    return infoCreator.isEqual();
   }
 
   virtual void DescribeTo(::std::ostream* os) const {

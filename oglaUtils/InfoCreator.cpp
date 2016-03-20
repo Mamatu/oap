@@ -5,13 +5,6 @@ InfoCreator::InfoCreator() {}
 
 InfoCreator::~InfoCreator() {}
 
-void InfoCreator::setInfoType(const InfoType& infoType) {
-  m_infoType = infoType;
-  setInfoTypeCallback(m_infoType);
-}
-
-InfoType InfoCreator::getInfoType() const { return m_infoType; }
-
 void InfoCreator::setInfoTypeCallback(const InfoType& infoType) {}
 
 void InfoCreator::setExpectedCallback(math::Matrix* expected) {}
@@ -32,51 +25,46 @@ void InfoCreator::setOutput(math::Matrix* output) {
   setOutputCallback(m_output);
 }
 
-void InfoCreator::getInfo(std::string& output) const {
-  math::Matrix* diffmatrix = NULL;
-  math::Matrix* diff =
-      createDiffMatrix(m_expected, m_output, InfoCreator::HOST);
-  bool isequal = diff == NULL;
+void InfoCreator::getInfo(std::string& outputStr,
+                          const InfoType& infoType) const {
+  math::Matrix* output = getOutputMatrix();
+  math::Matrix* expected = getExpectedMatrix();
+  math::Matrix* diffmatrix = createDiffMatrix(expected, output);
+  bool isequal = diffmatrix == NULL;
   if (!isequal) {
-    if (m_infoType.getInfo() & InfoType::MEAN) {
-      if (printMean(output, output, InfoCreator::HOST) == false) {
-        printMean(output, output, InfoCreator::DEVICE);
-      }
-      output += "\n";
+    if (infoType.getInfo() & InfoType::MEAN) {
+      printMean(outputStr);
+      outputStr += "\n";
     }
-    if (m_infoType.getInfo() & InfoType::ELEMENTS) {
-      printMatrix(output, "Output = ", m_output);
-      printMatrix(output, "Diff = ", diffmatrix);
-      output += "\n";
+    if (infoType.getInfo() & InfoType::ELEMENTS) {
+      printMatrix(outputStr, "Output = ", m_output);
+      printMatrix(outputStr, "Expected = ", m_expected);
+      printMatrix(outputStr, "Diff = ", diffmatrix);
+      outputStr += "\n";
     }
   }
-  destroyDiffMatrix(diff);
-  diff = NULL;
+  destroyDiffMatrix(diffmatrix);
 }
 
 void InfoCreator::printMatrix(std::string& output, const std::string& message,
                               math::Matrix* matrix) const {
   std::string matrixStr;
-  matrixUtils::MatrixRange matrixRange(matrix, m_infoType);
-  matrixUtils::PrintMatrix(matrixStr, matrixRange);
+  getString(matrixStr, matrix);
   output += message + matrixStr;
 }
 
-bool InfoCreator::printMean(std::string& output, const std::string& message,
-                            InfoCreator::MatrixType matrixType) const {
-  InfoCreator::MatrixType mt1 =
-      static_cast<InfoCreator::MatrixType>(matrixType | InfoCreator::EXPECTED);
-  InfoCreator::MatrixType mt2 =
-      static_cast<InfoCreator::MatrixType>(matrixType | InfoCreator::OUTPUT);
-  math::Matrix* expectedMatrix = getMatrix(mt1);
-  math::Matrix* outputMatrix = getMatrix(mt2);
+bool InfoCreator::printMean(std::string& output) const {
+  math::Matrix* expectedMatrix = getExpectedMatrix();
+  math::Matrix* outputMatrix = getOutputMatrix();
   if (expectedMatrix == NULL || outputMatrix == NULL) {
     return false;
   }
+  math::Matrix* diff = createDiffMatrix(expectedMatrix, outputMatrix);
   printMean(output, "Expected mean = ", expectedMatrix);
   printMean(output, "Output mean = ", outputMatrix);
+  printMean(output, "Diff mean = ", diff);
+  destroyDiffMatrix(diff);
   return true;
-  // printMean(output, "Diff mean = ", diffmatrix);
 }
 
 void InfoCreator::printMean(std::string& output, const std::string& message,
@@ -84,15 +72,7 @@ void InfoCreator::printMean(std::string& output, const std::string& message,
   std::string matrixStr;
   floatt are = 0;
   floatt aim = 0;
-  /*math::Matrix expectedHost =
-      getMatrix(InfoCreator::HOST | InfoCreator::EXPECTED);
-  math::Matrix outputHost = getMatrix(InfoCreator::HOST | InfoCreator::OUTPUT);
-  if (matrixRange.isReValues()) {
-    are = getMean(matrix, InfoCreator);
-  }
-  if (matrixRange.isImValues()) {
-    aim = getMean(matrix, GetIm);
-  }*/
+  getMean(are, aim, matrix);
   std::stringstream sstream1;
   std::stringstream sstream2;
   sstream1 << are;
@@ -100,32 +80,11 @@ void InfoCreator::printMean(std::string& output, const std::string& message,
   output += message + "(" + sstream1.str() + "," + sstream2.str() + ") ";
 }
 
-math::Matrix* InfoCreatorHost::getMatrix(MatrixType matrixType) const {
-  if (matrixType & InfoCreator::HOST) {
-    if (matrixType & InfoCreator::EXPECTED) {
-      return getExpectedMatrix();
-    } else if (matrixType & InfoCreator::OUTPUT) {
-      return getOutputMatrix();
-    }
-  }
-  return NULL;
+bool InfoCreator::isEqual() const {
+  math::Matrix* output = getOutputMatrix();
+  math::Matrix* expected = getExpectedMatrix();
+  return compare(output, expected);
 }
-
-void InfoCreatorHost::getString(std::string& output, math::Matrix* matrix,
-                                MatrixType matrixType) const {}
-
-Complex InfoCreatorHost::getMean(math::Matrix* matrix,
-                                 MatrixType matrixType) const {}
-
-math::Matrix* InfoCreatorHost::createDiffMatrix(math::Matrix* matrix1,
-                                                math::Matrix* matrix2,
-                                                MatrixType matrixType) const {}
-
-void InfoCreatorHost::destroyDiffMatrix(math::Matrix* diffMatrix) const {}
-
-uintt InfoCreatorHost::getIndexOfLargestValue(math::Matrix* matrix) const {}
-
-uintt InfoCreatorHost::getIndexOfSmallestValue(math::Matrix* matrix) const {}
 
 /*
 Complex InfoCreatorHost::getMean(math::Matrix* matrix, MatrixType matrixType)
