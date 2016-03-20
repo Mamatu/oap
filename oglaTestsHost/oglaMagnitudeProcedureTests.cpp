@@ -176,7 +176,7 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
     }
   }
 
-  void onChange(HostKernel::ContextChnage contextChange, const dim3& threadIdx,
+  void onChange(HostKernel::ContextChange contextChange, const dim3& threadIdx,
                 const dim3& blockIdx) {
     if (contextChange == HostKernel::CUDA_BLOCK) {
       floatt actualSum = utils::getSum(m_buffer, m_bufferLength);

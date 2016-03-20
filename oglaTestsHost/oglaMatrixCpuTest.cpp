@@ -108,7 +108,7 @@ TEST_F(OglaMatrixTests, Addition) {
     matrix1 = host::NewReMatrixCopy(4, 4, array);
     matrix2 = host::NewReMatrixCopy(4, 4, array);
     eq_output = host::NewReMatrixCopy(4, 4, outputArray);
-    output = host::NewMatrix(4, 4);
+    output = host::NewReMatrix(4, 4);
     math::AdditionOperationCpu additionOperation;
     additionOperation.setThreadsCount(tc);
     additionOperation.setOutputMatrix(output);
@@ -129,7 +129,7 @@ TEST_F(OglaMatrixTests, Substraction) {
     matrix1 = host::NewReMatrixCopy(4, 4, array);
     matrix2 = host::NewReMatrixCopy(4, 4, array);
     eq_output = host::NewReMatrixCopy(4, 4, outputArray);
-    output = host::NewMatrix(4, 4);
+    output = host::NewReMatrix(4, 4);
     math::SubstracionOperationCpu substractionOperation;
     substractionOperation.setThreadsCount(tc);
     substractionOperation.setOutputMatrix(output);
@@ -142,15 +142,15 @@ TEST_F(OglaMatrixTests, Addition1) {
 
     floatt array[] = {1, 0, 0, 0,
         0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1};
+        0, 0, 0, 0,
+        0, 0, 0, 0};
     floatt outputArray[] = {2, 0, 0, 0,
         0, 2, 0, 0,
         0, 0, 0, 0,
         0, 0, 0, 0};
     matrix1 = host::NewReMatrixCopy(4, 4, array);
     matrix2 = host::NewReMatrixCopy(4, 4, array);
-    output = host::NewMatrix(4, 4);
+    output = host::NewReMatrix(4, 4);
     eq_output = host::NewReMatrixCopy(4, 4, outputArray);
     math::MathOperationsCpu mo;
     mo.setThreadsCount(tc);
@@ -187,7 +187,7 @@ TEST_F(OglaMatrixTests, Multiplication) {
 
     matrix1 = host::NewReMatrixCopy(5, 5, array);
     matrix2 = host::NewReMatrixCopy(5, 5, array1);
-    output = host::NewMatrix(5, 5);
+    output = host::NewReMatrix(5, 5);
     eq_output = host::NewReMatrixCopy(5, 5, outputArray);
     math::DotProductOperationCpu multiplicationOperation;
     multiplicationOperation.setThreadsCount(tc);
@@ -217,8 +217,8 @@ TEST_F(OglaMatrixTests, Diagonalization) {
 
     matrix1 = host::NewReMatrixCopy(3, 3, array2);
     matrix2 = host::NewReMatrixCopy(3, 3, array3);
-    output = host::NewMatrix(3, 3);
-    eq_output = host::NewMatrix(3, 3);
+    output = host::NewReMatrix(3, 3);
+    eq_output = host::NewReMatrix(3, 3);
     math::DiagonalizationOperationCpu diagonalizationOperation;
     diagonalizationOperation.setThreadsCount(tc);
     diagonalizationOperation.setOutputMatrix(output);
@@ -245,7 +245,7 @@ TEST_F(OglaMatrixTests, TensorProduct) {
     };
     matrix1 = host::NewReMatrixCopy(2, 2, array);
     matrix2 = host::NewReMatrixCopy(2, 2, array1);
-    output = host::NewMatrix(4, 4);
+    output = host::NewReMatrix(4, 4);
     eq_output = host::NewReMatrixCopy(4, 4, outputArray);
     math::TensorProductOperationCpu tpOperation;
     tpOperation.setThreadsCount(tc);
