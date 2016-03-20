@@ -7,7 +7,7 @@ extern "C" __global__ void CUDAKernel_DotProductRe(math::Matrix* output,
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
   cuda_debug_function();
-  CUDA_multiplyReMatrices(output, params0, params1, threadIndexX, threadIndexY);
+  CUDA_dotProductRe(output, params0, params1, threadIndexX, threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductIm(math::Matrix* output,
@@ -15,7 +15,7 @@ extern "C" __global__ void CUDAKernel_DotProductIm(math::Matrix* output,
                                                    math::Matrix* params1) {
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  CUDA_multiplyImMatrices(output, params0, params1, threadIndexX, threadIndexY);
+  CUDA_dotProductIm(output, params0, params1, threadIndexX, threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_DotProduct(math::Matrix* output,
@@ -23,7 +23,7 @@ extern "C" __global__ void CUDAKernel_DotProduct(math::Matrix* output,
                                                  math::Matrix* params1) {
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  CUDA_multiplyMatrices(output, params0, params1, threadIndexX, threadIndexY);
+  CUDA_dotProduct(output, params0, params1, threadIndexX, threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductReExp(math::Matrix* output,
@@ -32,8 +32,8 @@ extern "C" __global__ void CUDAKernel_DotProductReExp(math::Matrix* output,
                                                       MatrixEx* matrixEx) {
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  CUDA_multiplyReMatricesEx(output, params0, params1, *matrixEx, threadIndexX,
-                            threadIndexY);
+  CUDA_dotProductReEx(output, params0, params1, *matrixEx, threadIndexX,
+                      threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductImExp(math::Matrix* output,
@@ -42,8 +42,8 @@ extern "C" __global__ void CUDAKernel_DotProductImExp(math::Matrix* output,
                                                       MatrixEx* matrixEx) {
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  CUDA_multiplyImMatricesEx(output, params0, params1, *matrixEx, threadIndexX,
-                            threadIndexY);
+  CUDA_dotProductImEx(output, params0, params1, *matrixEx, threadIndexX,
+                      threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductEx(math::Matrix* output,
@@ -52,8 +52,8 @@ extern "C" __global__ void CUDAKernel_DotProductEx(math::Matrix* output,
                                                    MatrixEx* matrixEx) {
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  CUDA_multiplyMatricesEx(output, params0, params1, *matrixEx, threadIndexX,
-                          threadIndexY);
+  CUDA_dotProductEx(output, params0, params1, *matrixEx, threadIndexX,
+                    threadIndexY);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductReOpt(math::Matrix* output,
@@ -358,7 +358,8 @@ extern "C" __global__ void CUDAKernel_SetDiagonal(math::Matrix* matrix,
 extern "C" __global__ void CUDAKernel_CompareRe(int* sums,
                                                 math::Matrix* matrix1,
                                                 math::Matrix* matrix2,
-                                                int* buffer) {
+                                                int* buffer,
+                                                uintt bufferLength) {
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
   CUDA_compareReMatrix(sums, matrix1, matrix2, buffer, threadIndexX,
@@ -367,7 +368,7 @@ extern "C" __global__ void CUDAKernel_CompareRe(int* sums,
 
 extern "C" __global__ void CUDAKernel_Compare(int* sums, math::Matrix* matrix1,
                                               math::Matrix* matrix2,
-                                              int* buffer) {
+                                              int* buffer, uintt bufferLength) {
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
   CUDA_compare(sums, matrix1, matrix2, buffer, threadIndexX, threadIndexY);
