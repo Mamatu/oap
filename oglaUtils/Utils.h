@@ -8,9 +8,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-
 #include "Dim3.h"
 
 #include "Matrix.h"
@@ -18,6 +15,7 @@
 #include "HostMatrixModules.h"
 #include "MatrixUtils.h"
 #include "MatrixEx.h"
+#include <math.h>
 
 namespace utils {
 
@@ -215,9 +213,9 @@ inline std::string threadIdxToStr(const dim3& dim3) {
 inline std::string cudaDimsToStr(const dim3& threadIdx) {
   std::string output = " ";
   output += threadIdxToStr(threadIdx) + " ";
-  output += blockIdxToStr(blockIdx) + " ";
-  output += blockDimToStr(blockDim) + " ";
-  output += gridDimToStr(gridDim) + " ";
+  // output += blockIdxToStr(blockIdx) + " ";
+  // output += blockDimToStr(blockDim) + " ";
+  // output += gridDimToStr(gridDim) + " ";
   return output;
 }
 #endif
