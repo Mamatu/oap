@@ -34,7 +34,7 @@ __hostdevice__ void CUDA_compareOptRealMatrixVer2(
         threads_sync();
     } while (sharedLength > 1);
     if (threadIdx.x == 0 && threadIdx.y == 0) {
-        sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
+        sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0] / 2;
     }
 }
 
