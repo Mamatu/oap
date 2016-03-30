@@ -1,6 +1,7 @@
 #include "InfoCreatorHost.h"
 #include "MatrixUtils.h"
 #include "HostMatrixModules.h"
+#include "Utils.h"
 
 void InfoCreatorHost::setInfoTypeCallback(const InfoType& infoType) {}
 
@@ -14,22 +15,20 @@ void InfoCreatorHost::getString(std::string& output,
 }
 
 void InfoCreatorHost::getMean(floatt& re, floatt& im,
-                              math::Matrix* matrix) const {}
+                              math::Matrix* matrix) const {
+  re = utils::getMean(matrix->reValues, matrix->columns * matrix->rows);
+  im = utils::getMean(matrix->imValues, matrix->columns * matrix->rows);
+}
 
 bool InfoCreatorHost::compare(math::Matrix* matrix1,
                               math::Matrix* matrix2) const {
-  HostProcedures hostProcedures;
-  return hostProcedures.isEqual(matrix1, matrix2);
+  return utils::IsEqual(*matrix1, *matrix2);
 }
 
 math::Matrix* InfoCreatorHost::createDiffMatrix(math::Matrix* matrix1,
                                                 math::Matrix* matrix2) const {
-  HostProcedures hostProcedures;
-  if (hostProcedures.isEqual(matrix1, matrix2) == true) {
-    return NULL;
-  }
-  math::Matrix* output = host::NewMatrix(matrix1);
-  hostProcedures.substract(output, matrix1, matrix2);
+  math::Matrix* output = NULL;
+  utils::IsEqual(*matrix1, *matrix2, &output);
   return output;
 }
 
@@ -37,6 +36,30 @@ void InfoCreatorHost::destroyDiffMatrix(math::Matrix* diffMatrix) const {
   host::DeleteMatrix(diffMatrix);
 }
 
-uintt InfoCreatorHost::getIndexOfLargestValue(math::Matrix* matrix) const {}
+bool InfoCreatorHost::isRe(math::Matrix* matrix) const {
+  return matrix->reValues != NULL;
+}
 
-uintt InfoCreatorHost::getIndexOfSmallestValue(math::Matrix* matrix) const {}
+bool InfoCreatorHost::isIm(math::Matrix* matrix) const {
+  return matrix->imValues != NULL;
+}
+
+std::pair<floatt, uintt> InfoCreatorHost::getLargestReValue(
+    math::Matrix* matrix) const {
+  return utils::getLargest(matrix->reValues, matrix->columns * matrix->rows);
+}
+
+std::pair<floatt, uintt> InfoCreatorHost::getLargestImValue(
+    math::Matrix* matrix) const {
+  return utils::getLargest(matrix->imValues, matrix->columns * matrix->rows);
+}
+
+std::pair<floatt, uintt> InfoCreatorHost::getSmallestReValue(
+    math::Matrix* matrix) const {
+  return utils::getSmallest(matrix->reValues, matrix->columns * matrix->rows);
+}
+
+std::pair<floatt, uintt> InfoCreatorHost::getSmallestImValue(
+    math::Matrix* matrix) const {
+  return utils::getSmallest(matrix->imValues, matrix->columns * matrix->rows);
+}

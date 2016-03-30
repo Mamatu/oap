@@ -25,6 +25,29 @@ void InfoCreator::setOutput(math::Matrix* output) {
   setOutputCallback(m_output);
 }
 
+void InfoCreator::getSLInfo(std::string& outputStr, const std::string& label,
+                            ICMethod methodre, ICMethod methodim,
+                            math::Matrix* diffmatrix) const {
+  std::stringstream sstream;
+  if (isRe(diffmatrix)) {
+    std::pair<floatt, uintt> largestre = (this->*methodre)(diffmatrix);
+    sstream << largestre.first;
+    outputStr += "Diff " + label + "  = (" + sstream.str() + ",";
+    sstream.str("");
+  } else {
+    outputStr += "Diff " + label + " = (null,";
+  }
+  if (isIm(diffmatrix)) {
+    std::pair<floatt, uintt> largestim = (this->*methodim)(diffmatrix);
+    sstream << largestim.first;
+    outputStr += sstream.str() + ")";
+    sstream.str("");
+  } else {
+    outputStr += "null)";
+  }
+  outputStr += "\n";
+}
+
 void InfoCreator::getInfo(std::string& outputStr,
                           const InfoType& infoType) const {
   math::Matrix* output = getOutputMatrix();
@@ -35,6 +58,14 @@ void InfoCreator::getInfo(std::string& outputStr,
     if (infoType.getInfo() & InfoType::MEAN) {
       printMean(outputStr);
       outputStr += "\n";
+    }
+    if (infoType.getInfo() & InfoType::LARGEST_DIFF) {
+      getSLInfo(outputStr, "largest", &InfoCreator::getLargestReValue,
+                &InfoCreator::getLargestImValue, diffmatrix);
+    }
+    if (infoType.getInfo() & InfoType::SMALLEST_DIFF) {
+      getSLInfo(outputStr, "smallest", &InfoCreator::getSmallestReValue,
+                &InfoCreator::getSmallestImValue, diffmatrix);
     }
     if (infoType.getInfo() & InfoType::ELEMENTS) {
       printMatrix(outputStr, "Output = ", m_output);

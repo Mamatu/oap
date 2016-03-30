@@ -4,6 +4,10 @@
 #include "MatrixAPI.h"
 #include "InfoType.h"
 
+class InfoCreator;
+
+typedef std::pair<floatt, uintt> (InfoCreator::*ICMethod)(math::Matrix*) const;
+
 class InfoCreator {
  private:
   math::Matrix* m_expected;
@@ -43,8 +47,23 @@ class InfoCreator {
 
   virtual void destroyDiffMatrix(math::Matrix* diffMatrix) const = 0;
 
-  virtual uintt getIndexOfLargestValue(math::Matrix* matrix) const = 0;
-  virtual uintt getIndexOfSmallestValue(math::Matrix* matrix) const = 0;
+  virtual bool isRe(math::Matrix* matrix) const = 0;
+
+  virtual bool isIm(math::Matrix* matrix) const = 0;
+  virtual std::pair<floatt, uintt> getLargestReValue(
+      math::Matrix* matrix) const = 0;
+  virtual std::pair<floatt, uintt> getLargestImValue(
+      math::Matrix* matrix) const = 0;
+
+  virtual std::pair<floatt, uintt> getSmallestReValue(
+      math::Matrix* matrix) const = 0;
+  virtual std::pair<floatt, uintt> getSmallestImValue(
+      math::Matrix* matrix) const = 0;
+
+ private:
+  void getSLInfo(std::string& outputStr, const std::string& label,
+                 ICMethod methodre, ICMethod methodim,
+                 math::Matrix* diffmatrix) const;
 
  public:
   void printMatrix(std::string& output, const std::string& message,

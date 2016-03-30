@@ -22,8 +22,19 @@ class InfoCreatorHost : public InfoCreator {
 
   virtual void destroyDiffMatrix(math::Matrix* diffMatrix) const;
 
-  virtual uintt getIndexOfLargestValue(math::Matrix* matrix) const;
-  virtual uintt getIndexOfSmallestValue(math::Matrix* matrix) const;
+  virtual std::pair<floatt, uintt> getLargestReValue(
+      math::Matrix* matrix) const;
+  virtual std::pair<floatt, uintt> getLargestImValue(
+      math::Matrix* matrix) const;
+
+  virtual std::pair<floatt, uintt> getSmallestReValue(
+      math::Matrix* matrix) const;
+  virtual std::pair<floatt, uintt> getSmallestImValue(
+      math::Matrix* matrix) const;
+
+  virtual bool isRe(math::Matrix* matrix) const;
+
+  virtual bool isIm(math::Matrix* matrix) const;
 };
 
 #endif  // INFOCREATORHOST
