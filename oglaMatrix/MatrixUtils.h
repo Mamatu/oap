@@ -69,19 +69,23 @@ class MatrixRange : public Range {
 };
 
 template <typename T>
-void PrepareOccurencesList(OccurencesList<T>& occurencesList, T* array,
-                           uintt length, bool repeats, T zeroLimit) {
-  for (uintt fa = 0; fa < length; ++fa) {
+void PrepareOccurencesList(
+    OccurencesList<T>& occurencesList, T* array, uintt length, bool repeats,
+    T zeroLimit, size_t sectionLength = std::numeric_limits<size_t>::max(),
+    uintt extra = 0) {
+  for (uintt fa = 0, fa1 = extra; fa < length; ++fa) {
     floatt value = array[fa];
     if (-zeroLimit < value && value < zeroLimit) {
       value = 0.f;
     }
     if (repeats == false || occurencesList.size() == 0 ||
-        occurencesList[occurencesList.size() - 1].second != value) {
+        value != occurencesList[occurencesList.size() - 1].second ||
+        fa1 % sectionLength == 0) {
       occurencesList.push_back(std::make_pair<uintt, floatt>(1, value));
     } else {
       occurencesList[occurencesList.size() - 1].first++;
     }
+    ++fa1;
   }
 }
 
@@ -96,28 +100,29 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count,
   for (uintt index = 0; index < count; ++index) {
     T* array = arrays[index];
     uintt length = lengths[index];
+    PrepareOccurencesList(valuesVec, array, length, repeats, zeroLimit,
+                          sectionLength, totalLength);
     totalLength += length;
-    PrepareOccurencesList(valuesVec, array, length, repeats, zeroLimit);
   }
 
   std::stringstream sstream;
-  for (uintt fa = 0; fa < valuesVec.size(); ++fa) {
+  for (uintt fa = 0, fa1 = 0; fa < valuesVec.size(); ++fa) {
     sstream << valuesVec[fa].second;
-    if (valuesVec[fa].first > 1) {
-      sstream << " <repeats " << valuesVec[fa].first << " times>";
+    const uintt count = valuesVec[fa].first;
+    if (count > 1) {
+      sstream << " <repeats " << count << " times>";
     }
-    if (fa < valuesVec.size() - 1) {
-      bool notEndLine = (fa + 1) % sectionLength != 0;
-      if (notEndLine) {
-        sstream << ", ";
-      } else if (!pipe && !notEndLine) {
-        sstream << ", ";
-      } else if (pipe && !notEndLine) {
-        sstream << " | ";
-      }
-      if (!notEndLine && endl) {
-        sstream << std::endl;
-      }
+    fa1 += count;
+    bool endLine = (fa1 % sectionLength) == 0;
+    if (!endLine) {
+      sstream << ", ";
+    } else if (!pipe && endLine) {
+      sstream << ", ";
+    } else if (pipe && endLine) {
+      sstream << " | ";
+    }
+    if (endLine && endl) {
+      sstream << std::endl;
     }
     output += sstream.str();
     sstream.str("");
