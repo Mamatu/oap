@@ -78,7 +78,7 @@ __hostdevice__ void cuda_compare_step_2(int* buffer, uintt tindex,
 __hostdevice__ void CUDA_compareRealMatrix(int* sum, math::Matrix* matrix1,
                                            math::Matrix* matrix2, int* buffer,
                                            uintt tx, uintt ty) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt tindex = ty * matrix1->columns + tx;
   uintt length = matrix1->columns * matrix1->rows;
   if (tindex < length) {
@@ -95,7 +95,7 @@ __hostdevice__ void CUDA_compareRealMatrix(int* sum, math::Matrix* matrix1,
 __hostdevice__ void CUDA_compareImMatrix(int* sum, math::Matrix* matrix1,
                                          math::Matrix* matrix2, int* buffer,
                                          uintt tx, uintt ty) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt tindex = ty * matrix1->columns + tx;
   uintt length = matrix1->columns * matrix1->rows;
   if (tindex < length) {
@@ -112,7 +112,7 @@ __hostdevice__ void CUDA_compareImMatrix(int* sum, math::Matrix* matrix1,
 __hostdevice__ void CUDA_compareReMatrix(int* sum, math::Matrix* matrix1,
                                          math::Matrix* matrix2, int* buffer,
                                          uintt tx, uintt ty) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt tindex = ty * matrix1->columns + tx;
   uintt length = matrix1->columns * matrix1->rows;
   if (tindex < length) {
@@ -129,7 +129,7 @@ __hostdevice__ void CUDA_compareReMatrix(int* sum, math::Matrix* matrix1,
 __hostdevice__ void CUDA_compare(int* sum, math::Matrix* matrix1,
                                  math::Matrix* matrix2, int* buffer, uintt tx,
                                  uintt ty) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   bool isre = matrix1->reValues != NULL;
   bool isim = matrix1->imValues != NULL;
   if (isre && isim) {

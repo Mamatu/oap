@@ -21,7 +21,7 @@ __hostdevice__ void CUDA_compareOptRealMatrixVer2(
     math::Matrix* matrix1,
     math::Matrix* matrix2,
     int* buffer) {
-    CUDA_TEST_INIT();
+    HOST_INIT();
     uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
@@ -43,7 +43,7 @@ __hostdevice__ void CUDA_compareOptReMatrixVer2(
     math::Matrix* matrix1,
     math::Matrix* matrix2,
     int* buffer) {
-    CUDA_TEST_INIT();
+    HOST_INIT();
     uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
@@ -66,7 +66,7 @@ __hostdevice__ void CUDA_compareOptImMatrixVer2(
     math::Matrix* matrix1,
     math::Matrix* matrix2,
     int* buffer) {
-    CUDA_TEST_INIT();
+    HOST_INIT();
     uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
     uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
     uintt sharedLength = xlength * ylength;
@@ -88,7 +88,7 @@ __hostdevice__ void CUDA_compareOptVer2(
     math::Matrix* matrix1,
     math::Matrix* matrix2,
     int* buffer) {
-    CUDA_TEST_INIT();
+    HOST_INIT();
     bool isre = matrix1->reValues != NULL;
     bool isim = matrix1->imValues != NULL;
     if (isre && isim) {

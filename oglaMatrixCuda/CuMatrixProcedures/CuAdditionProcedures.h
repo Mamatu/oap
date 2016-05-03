@@ -15,7 +15,7 @@ __hostdeviceinline__ void CUDA_addReMatrices(math::Matrix* output,
                                              math::Matrix* params1,
                                              uintt threadIndexX,
                                              uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   uintt offset = output->columns;
   uintt index = threadIndexX + offset * threadIndexY;
@@ -28,7 +28,7 @@ __hostdeviceinline__ void CUDA_addImMatrices(math::Matrix* output,
                                              math::Matrix* params1,
                                              uintt threadIndexX,
                                              uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt offset = output->columns;
   uintt index = threadIndexX + offset * threadIndexY;
   output->imValues[index] = params0->imValues[index] + params1->imValues[index];
@@ -40,7 +40,7 @@ __hostdeviceinline__ void CUDA_addRealMatrices(math::Matrix* output,
                                                math::Matrix* params1,
                                                uintt threadIndexX,
                                                uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt offset = output->columns;
   uintt index = threadIndexX + offset * threadIndexY;
   output->reValues[index] = params0->reValues[index] + params1->reValues[index];
@@ -53,7 +53,7 @@ __hostdeviceinline__ void CUDA_addMatrix(math::Matrix* output,
                                          math::Matrix* params1,
                                          uintt threadIndexX,
                                          uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   if (isre && isim) {

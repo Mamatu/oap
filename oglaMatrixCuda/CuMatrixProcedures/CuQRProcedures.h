@@ -20,7 +20,7 @@
 #include "CuSubstractionProcedures.h"
 
 __hostdevice__ void CUDA_switchPointer(math::Matrix** a, math::Matrix** b) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   math::Matrix* temp = *b;
   *b = *a;
   *a = temp;
@@ -30,7 +30,7 @@ __hostdevice__ void CUDA_switchPointer(math::Matrix** a, math::Matrix** b) {
 __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
                                         uintt row, math::Matrix* G, uintt tx,
                                         uintt ty) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   CUDA_SetIdentityMatrix(G, tx, ty);
   Reset(G);
 
@@ -84,14 +84,14 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
       SetRe(G, column, column, c);
       SetRe(G, row, row, c);
       SetRe(G, row, column, s);
-      CUDA_TEST_CODE(EXPECT_EQ(4, test::getSetValuesCountRe(G)););
+      HOST_CODE(EXPECT_EQ(4, test::getSetValuesCountRe(G)););
     }
     if (NULL != G->imValues) {
       SetIm(G, column, row, -is);
       SetIm(G, column, column, ic);
       SetIm(G, row, row, ic);
       SetIm(G, row, column, is);
-      CUDA_TEST_CODE(EXPECT_EQ(4, test::getSetValuesCountIm(G)););
+      HOST_CODE(EXPECT_EQ(4, test::getSetValuesCountIm(G)););
     }
   }
   Reset(G);
@@ -142,7 +142,7 @@ __hostdevice__ void CUDA_QRHT(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
                               math::Matrix* AT, floatt* sum, floatt* buffer,
                               math::Matrix* P, math::Matrix* I, math::Matrix* v,
                               math::Matrix* vt, math::Matrix* vvt) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
   uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
 

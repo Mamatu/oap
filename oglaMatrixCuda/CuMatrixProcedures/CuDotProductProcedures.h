@@ -13,7 +13,7 @@
 __hostdevice__ void cuda_dotProductReEx(
     math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
     const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt offset = columns1;
@@ -29,7 +29,7 @@ __hostdevice__ void cuda_dotProductReEx(
 __hostdevice__ void cuda_dotProductImEx(
     math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
     const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt offset = columns1;
@@ -44,7 +44,7 @@ __hostdevice__ void cuda_dotProductImEx(
 __hostdevice__ void cuda_dotProductRealEx(
     math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
     const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt outputColumns = output->realColumns;
@@ -68,7 +68,7 @@ __hostdevice__ void cuda_dotProductRealEx(
 __hostdevice__ void CUDA_dotProductReEx(
     math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
     const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   cuda_dotProductReEx(output, params0, params1, matrixEx, threadIndexX,
                       threadIndexY);
   threads_sync();
@@ -77,7 +77,7 @@ __hostdevice__ void CUDA_dotProductReEx(
 __hostdevice__ void CUDA_dotProductImEx(
     math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
     const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   cuda_dotProductImEx(output, params0, params1, matrixEx, threadIndexX,
                       threadIndexY);
@@ -87,7 +87,7 @@ __hostdevice__ void CUDA_dotProductImEx(
 __hostdevice__ void CUDA_dotProductRealEx(
     math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
     const MatrixEx& matrixEx, uintt threadIndexX, uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   cuda_dotProductRealEx(output, params0, params1, matrixEx, threadIndexX,
                         threadIndexY);
@@ -99,7 +99,7 @@ __hostdevice__ void CUDA_dotProductEx(math::Matrix* output,
                                       math::Matrix* params1,
                                       const MatrixEx& matrixEx,
                                       uintt threadIndexX, uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   bool isInRange =
@@ -121,7 +121,7 @@ __hostdevice__ void cuda_dotProductRe(math::Matrix* output,
                                       math::Matrix* params0,
                                       math::Matrix* params1, uintt threadIndexX,
                                       uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt offset = columns1;
@@ -137,7 +137,7 @@ __hostdevice__ void cuda_dotProductIm(math::Matrix* output,
                                       math::Matrix* params0,
                                       math::Matrix* params1, uintt threadIndexX,
                                       uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt offset = columns1;
@@ -154,7 +154,7 @@ __hostdevice__ void cuda_dotProductReal(math::Matrix* output,
                                         math::Matrix* params1,
                                         uintt threadIndexX,
                                         uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt outputColumns = output->realColumns;
@@ -179,7 +179,7 @@ __hostdevice__ void CUDA_dotProductRe(math::Matrix* output,
                                       math::Matrix* params0,
                                       math::Matrix* params1, uintt threadIndexX,
                                       uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   cuda_dotProductRe(output, params0, params1, threadIndexX, threadIndexY);
   threads_sync();
 }
@@ -188,7 +188,7 @@ __hostdevice__ void CUDA_dotProductIm(math::Matrix* output,
                                       math::Matrix* params0,
                                       math::Matrix* params1, uintt threadIndexX,
                                       uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   cuda_dotProductIm(output, params0, params1, threadIndexX, threadIndexY);
   threads_sync();
@@ -199,7 +199,7 @@ __hostdevice__ void CUDA_dotProductReal(math::Matrix* output,
                                         math::Matrix* params1,
                                         uintt threadIndexX,
                                         uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   cuda_dotProductReal(output, params0, params1, threadIndexX, threadIndexY);
   threads_sync();
@@ -207,7 +207,7 @@ __hostdevice__ void CUDA_dotProductReal(math::Matrix* output,
 __hostdevice__ void CUDA_dotProduct(math::Matrix* output, math::Matrix* params0,
                                     math::Matrix* params1, uintt threadIndexX,
                                     uintt threadIndexY) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   bool isInRange =

@@ -19,9 +19,9 @@
 
 #define threads_sync() __syncthreads()
 
-#define CUDA_TEST_INIT()
+#define HOST_INIT()
 
-#define CUDA_TEST_CODE(code)
+#define HOST_CODE(code)
 
 #else
 
@@ -32,14 +32,14 @@
 #define __hostdevice__ __inline__
 #define __shared__
 
-#define CUDA_TEST_INIT()                                   \
+#define HOST_INIT()                                   \
   ThreadIdx& ti = ThreadIdx::m_threadIdxs[pthread_self()]; \
   uint3 threadIdx = ti.getThreadIdx();                     \
   dim3 blockIdx = ti.getBlockIdx();                        \
   dim3 blockDim = ti.getBlockDim();                        \
   dim3 gridDim = ti.getGridDim();
 
-#define CUDA_TEST_CODE(code) code
+#define HOST_CODE(code) code
 
 #define threads_sync() ThreadIdx::wait();
 

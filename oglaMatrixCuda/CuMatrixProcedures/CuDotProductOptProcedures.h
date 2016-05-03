@@ -18,7 +18,7 @@ __hostdevice__ void CUDA_dotProductReExOpt(math::Matrix* output,
                                            math::Matrix* params1,
                                            const MatrixEx& matrixEx,
                                            floatt* bufferFloat) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
   floatt* buffer1 = &bufferFloat[0];
@@ -46,7 +46,7 @@ __hostdevice__ void CUDA_dotProductImExOpt(math::Matrix* output,
                                            math::Matrix* params1,
                                            const MatrixEx& matrixEx,
                                            floatt* bufferFloat) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
   floatt* buffer1 = &bufferFloat[0];
@@ -73,7 +73,7 @@ __hostdevice__ void CUDA_dotProductRealExOpt(math::Matrix* output,
                                              math::Matrix* params1,
                                              const MatrixEx& matrixEx,
                                              floatt* bufferFloat) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
   floatt* buffer1Re = &bufferFloat[0];
@@ -113,7 +113,7 @@ __hostdevice__ void CUDA_dotProductExOpt(math::Matrix* output,
                                          math::Matrix* params1,
                                          const MatrixEx& matrixEx,
                                          floatt* bufferFloat) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   if (isre && isim) {
@@ -129,7 +129,7 @@ __hostdevice__ void CUDA_dotProductReOpt(math::Matrix* output,
                                          math::Matrix* params0,
                                          math::Matrix* params1,
                                          floatt* bufferFloat) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
   floatt* buffer1 = &bufferFloat[0];
@@ -155,7 +155,7 @@ __hostdevice__ void CUDA_dotProductImOpt(math::Matrix* output,
                                          math::Matrix* params0,
                                          math::Matrix* params1,
                                          floatt* bufferFloat) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
   floatt* buffer1 = &bufferFloat[0];
@@ -181,7 +181,7 @@ __hostdevice__ void CUDA_dotProductRealOpt(math::Matrix* output,
                                            math::Matrix* params0,
                                            math::Matrix* params1,
                                            floatt* bufferFloat) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
   uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -221,7 +221,7 @@ __hostdevice__ void CUDA_dotProductOpt(math::Matrix* output,
                                        math::Matrix* params0,
                                        math::Matrix* params1,
                                        floatt* bufferFloat) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   if (isre && isim) {

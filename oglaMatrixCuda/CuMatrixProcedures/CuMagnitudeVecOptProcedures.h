@@ -16,7 +16,7 @@
 
 __hostdevice__ void CUDA_magnitudeOptRealVec(floatt* sum, math::Matrix* matrix1,
                                              uintt column, floatt* buffer) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
   uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
@@ -36,7 +36,7 @@ __hostdevice__ void CUDA_magnitudeOptRealVec(floatt* sum, math::Matrix* matrix1,
 
 __hostdevice__ void CUDA_magnitudeOptReVec(floatt* sum, math::Matrix* matrix1,
                                            uintt column, floatt* buffer) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
   uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
@@ -56,7 +56,7 @@ __hostdevice__ void CUDA_magnitudeOptReVec(floatt* sum, math::Matrix* matrix1,
 
 __hostdevice__ void CUDA_magnitudeOptImVec(floatt* sum, math::Matrix* matrix1,
                                            uintt column, floatt* buffer) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
   uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
@@ -76,7 +76,7 @@ __hostdevice__ void CUDA_magnitudeOptImVec(floatt* sum, math::Matrix* matrix1,
 
 __hostdevice__ void CUDA_magnitudeOptVec(floatt* sum, math::Matrix* matrix1,
                                          uintt column, floatt* buffer) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   bool isre = matrix1->reValues != NULL;
   bool isim = matrix1->imValues != NULL;
   if (isre && isim) {
@@ -94,7 +94,7 @@ __hostdevice__ void CUDA_magnitudeOptRealVecEx(floatt* sum,
                                                math::Matrix* matrix1,
                                                uintt column, uintt row1,
                                                uintt row2, floatt* buffer) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
   uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
@@ -115,7 +115,7 @@ __hostdevice__ void CUDA_magnitudeOptRealVecEx(floatt* sum,
 __hostdevice__ void CUDA_magnitudeOptReVecEx(floatt* sum, math::Matrix* matrix1,
                                              uintt column, uintt row1,
                                              uintt row2, floatt* buffer) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
   uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
@@ -136,7 +136,7 @@ __hostdevice__ void CUDA_magnitudeOptReVecEx(floatt* sum, math::Matrix* matrix1,
 __hostdevice__ void CUDA_magnitudeOptImVecEx(floatt* sum, math::Matrix* matrix1,
                                              uintt column, uintt row1,
                                              uintt row2, floatt* buffer) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
   uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
@@ -155,7 +155,7 @@ __hostdevice__ void CUDA_magnitudeOptImVecEx(floatt* sum, math::Matrix* matrix1,
 }
 
 __hostdevice__ void CUDA_getMagnitude(floatt* output, floatt* sums) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   for (uintt fa = 0; fa < gridDim.x; ++fa) {
     for (uintt fb = 0; fb < gridDim.y; ++fb) {
       (*output) += sums[gridDim.x * fb + fa];
@@ -177,7 +177,7 @@ __hostdevice__ void CUDA_getSgn(floatt* output, floatt x) {
 __hostdevice__ void CUDA_magnitudeOptVecEx(floatt* sum, math::Matrix* matrix1,
                                            uintt column, uintt row1, uintt row2,
                                            floatt* buffer) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   bool isre = matrix1->reValues != NULL;
   bool isim = matrix1->imValues != NULL;
   if (isre && isim) {

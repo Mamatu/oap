@@ -28,7 +28,7 @@
 __hostdevice__ void cuda_CompareBufferVer2(int* buffer, uintt sharedIndex,
                                            uintt sharedLength, uintt xlength,
                                            uintt ylength) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   if (sharedIndex < sharedLength / 2 && threadIdx.x < xlength &&
       threadIdx.y < ylength) {
@@ -43,7 +43,7 @@ __hostdevice__ void cuda_CompareBufferVer2(int* buffer, uintt sharedIndex,
 __hostdevice__ void cuda_CompareRealOptVer2(int* buffer, math::Matrix* m1,
                                             math::Matrix* m2, uintt sharedIndex,
                                             uintt xlength) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   const bool inScope =
       ver2_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
@@ -68,7 +68,7 @@ __hostdevice__ void cuda_CompareRealOptVer2(int* buffer, math::Matrix* m1,
 __hostdevice__ void cuda_CompareReOptVer2(int* buffer, math::Matrix* m1,
                                           math::Matrix* m2, uintt sharedIndex,
                                           uintt xlength) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   const bool inScope =
       ver2_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
@@ -90,7 +90,7 @@ __hostdevice__ void cuda_CompareReOptVer2(int* buffer, math::Matrix* m1,
 __hostdevice__ void cuda_CompareImOptVer2(int* buffer, math::Matrix* m1,
                                           math::Matrix* m2, uintt sharedIndex,
                                           uintt xlength) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   const bool inScope =
       ver2_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&

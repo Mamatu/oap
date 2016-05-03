@@ -16,7 +16,7 @@
 __hostdevice__ void cuda_SumBuffer(floatt* buffer, uintt bufferIndex,
                                    uintt bufferLength, uintt xlength,
                                    uintt ylength) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   if (bufferIndex < bufferLength / 2 && threadIdx.x < xlength &&
       threadIdx.y < ylength) {
     int c = bufferLength & 1;
@@ -33,7 +33,7 @@ __hostdevice__ void cuda_SumBuffer(floatt* buffer, uintt bufferIndex,
 
 __hostdevice__ void cuda_MagnitudeRealOpt(floatt* buffer, uintt bufferIndex,
                                           math::Matrix* m1) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   const bool inScope =
       GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
       GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
@@ -46,7 +46,7 @@ __hostdevice__ void cuda_MagnitudeRealOpt(floatt* buffer, uintt bufferIndex,
 
 __hostdevice__ void cuda_MagnitudeReOpt(floatt* buffer, uintt bufferIndex,
                                         math::Matrix* m1) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   const bool inScope =
       GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
       GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
@@ -58,7 +58,7 @@ __hostdevice__ void cuda_MagnitudeReOpt(floatt* buffer, uintt bufferIndex,
 
 __hostdevice__ void cuda_MagnitudeImOpt(floatt* buffer, uintt bufferIndex,
                                         math::Matrix* m1) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   const bool inScope =
       GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
       GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
@@ -72,7 +72,7 @@ __hostdeviceinline__ void cuda_calculateLocaIdx(uint3& lthreadIdx,
                                                 dim3& lblockIdx,
                                                 math::Matrix* m1,
                                                 uintt column) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   lthreadIdx.x = column;
   lthreadIdx.y = threadIdx.x + threadIdx.y * blockDim.x;
@@ -82,7 +82,7 @@ __hostdeviceinline__ void cuda_calculateLocaIdx(uint3& lthreadIdx,
 
 __hostdevice__ void cuda_MagnitudeRealVecOpt(floatt* buffer, uintt bufferIndex,
                                              math::Matrix* m1, uintt column) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   uint3 lthreadIdx = threadIdx;
   dim3 lblockIdx = blockIdx;
@@ -100,7 +100,7 @@ __hostdevice__ void cuda_MagnitudeRealVecOpt(floatt* buffer, uintt bufferIndex,
 
 __hostdevice__ void cuda_MagnitudeReVecOpt(floatt* buffer, uintt bufferIndex,
                                            math::Matrix* m1, uintt column) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   uint3 lthreadIdx = threadIdx;
   dim3 lblockIdx = blockIdx;
@@ -117,7 +117,7 @@ __hostdevice__ void cuda_MagnitudeReVecOpt(floatt* buffer, uintt bufferIndex,
 
 __hostdevice__ void cuda_MagnitudeImVecOpt(floatt* buffer, uintt bufferIndex,
                                            math::Matrix* m1, uintt column) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   uint3 lthreadIdx = threadIdx;
   dim3 lblockIdx = blockIdx;
@@ -136,7 +136,7 @@ __hostdevice__ void cuda_MagnitudeRealVecOptEx(floatt* buffer,
                                                uintt bufferIndex,
                                                math::Matrix* m1, uintt column,
                                                uintt row1, uintt row2) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   uint3 lthreadIdx = threadIdx;
   dim3 lblockIdx = blockIdx;
@@ -157,7 +157,7 @@ __hostdevice__ void cuda_MagnitudeRealVecOptEx(floatt* buffer,
 __hostdevice__ void cuda_MagnitudeReVecOptEx(floatt* buffer, uintt bufferIndex,
                                              math::Matrix* m1, uintt column,
                                              uintt row1, uintt row2) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   uint3 lthreadIdx = threadIdx;
   dim3 lblockIdx = blockIdx;
@@ -177,7 +177,7 @@ __hostdevice__ void cuda_MagnitudeReVecOptEx(floatt* buffer, uintt bufferIndex,
 __hostdevice__ void cuda_MagnitudeImVecOptEx(floatt* buffer, uintt bufferIndex,
                                              math::Matrix* m1, uintt column,
                                              uintt row1, uintt row2) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
 
   uint3 lthreadIdx = threadIdx;
   dim3 lblockIdx = blockIdx;

@@ -8,7 +8,7 @@ __hostdevice__ void CUDA_CalculateTriangularH(
     math::Matrix* H, math::Matrix* Q, math::Matrix* R, math::Matrix* temp,
     math::Matrix* temp1, math::Matrix* temp2, math::Matrix* temp3,
     math::Matrix* temp4, math::Matrix* temp5) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
   uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
   bool status = false;
