@@ -94,7 +94,9 @@ HostProcedures::HostProcedures() : m_threadsCount(4) {}
 
 HostProcedures::~HostProcedures() {}
 
-void HostProcedures::setThreadsCount(uintt threadsCount) {}
+void HostProcedures::setThreadsCount(uintt threadsCount) {
+  m_threadsCount = threadsCount;
+}
 
 bool HostProcedures::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
   if (matrix1->columns != matrix2->columns || matrix1->rows != matrix2->rows) {
