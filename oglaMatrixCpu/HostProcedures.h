@@ -18,6 +18,9 @@ class HostProcedures {
   void substract(math::Matrix* output, math::Matrix* matrix1,
                  math::Matrix* matrix2);
 
+  void dotProduct(math::Matrix* output, math::Matrix* matrix1,
+                 math::Matrix* matrix2);
+
  private:
   uintt m_threads[2];
   uintt m_blocks[2];

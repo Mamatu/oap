@@ -1,6 +1,7 @@
 #include "HostProcedures.h"
 #include "CuMatrixProcedures/CuCompareOptProcedures.h"
 #include "CuMatrixProcedures/CuSubstractionProcedures.h"
+#include "CuMatrixProcedures/CuDotProductProcedures.h"
 #include "ThreadsMapper.h"
 #include "HostKernel.h"
 
@@ -16,6 +17,28 @@ class SubstractionImpl : public HostKernel {
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
     CUDA_substractMatrices(m_output, m_param1, m_param2, threadIdx.x,
                            threadIdx.y);
+  }
+
+  virtual void onChange(HostKernel::ContextChange contextChnage,
+                        const dim3& threadIdx, const dim3& blockIdx) {}
+
+ private:
+  math::Matrix* m_output;
+  math::Matrix* m_param1;
+  math::Matrix* m_param2;
+};
+
+class DotProductImpl : public HostKernel {
+ public:
+  DotProductImpl(math::Matrix* output, math::Matrix* param1,
+                 math::Matrix* param2)
+      : m_output(output), m_param1(param1), m_param2(param2) {}
+
+  virtual ~DotProductImpl() {}
+
+ protected:
+  virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
+    CUDA_dotProduct(m_output, m_param1, m_param2, threadIdx.x, threadIdx.y);
   }
 
   virtual void onChange(HostKernel::ContextChange contextChnage,
@@ -119,4 +142,11 @@ void HostProcedures::substract(math::Matrix* output, math::Matrix* matrix1,
   SubstractionImpl substractionImpl(output, matrix1, matrix2);
   prepare(output, substractionImpl);
   substractionImpl.executeKernelAsync();
+}
+
+void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1,
+                                math::Matrix* matrix2) {
+  DotProductImpl dotProductImpl(output, matrix1, matrix2);
+  prepare(output, dotProductImpl);
+  dotProductImpl.executeKernelAsync();
 }
