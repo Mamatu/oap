@@ -38,6 +38,7 @@ OGLA_INCLUDES += oglaShibataCpu
 OGLA_INCLUDES += oglaShibataCuda
 OGLA_INCLUDES += ArnoldiPackage
 OGLA_INCLUDES += oglaShibataMgr
+OGLA_INCLUDES += oglaQRTestSamples
 #OGLA_INCLUDES += oglaMatrixCpuTest
 #OGLA_INCLUDES += oglaMatrixCudaTest
 #OGLA_INCLUDES += oglaParser
