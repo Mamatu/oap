@@ -2,6 +2,7 @@
 #include "CuMatrixProcedures/CuCompareOptProcedures.h"
 #include "CuMatrixProcedures/CuSubstractionProcedures.h"
 #include "CuMatrixProcedures/CuDotProductProcedures.h"
+#include "CuMatrixProcedures/CuTransposeProcedures.h"
 #include "ThreadsMapper.h"
 #include "HostKernel.h"
 
@@ -103,6 +104,28 @@ class CompareImpl : public HostKernel {
   size_t m_sumsLength;
 };
 
+class TransposeImpl : public HostKernel {
+ public:
+  TransposeImpl(math::Matrix* output, math::Matrix* param)
+      : m_output(output), m_param(param) {}
+
+  virtual ~TransposeImpl() {}
+
+ protected:
+  virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
+    CUDA_transposeMatrix(m_output, m_param, threadIdx.x, threadIdx.y);
+  }
+
+  virtual void onChange(HostKernel::ContextChange contextChange,
+                        const dim3& threadIdx, const dim3& blockIdx) {}
+
+  virtual void onSetDims(const dim3& gridDim, const dim3& blockDim) {}
+
+ private:
+  math::Matrix* m_output;
+  math::Matrix* m_param;
+};
+
 void HostProcedures::prepare(math::Matrix* matrix, HostKernel& hostKernel) {
   const uintt columns = matrix->columns;
   const uintt rows = matrix->rows;
@@ -149,4 +172,10 @@ void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1,
   DotProductImpl dotProductImpl(output, matrix1, matrix2);
   prepare(output, dotProductImpl);
   dotProductImpl.executeKernelAsync();
+}
+
+void HostProcedures::transpose(math::Matrix* output, math::Matrix* matrix) {
+  TransposeImpl transposeImpl(output, matrix);
+  prepare(output, transposeImpl);
+  transposeImpl.executeKernelAsync();
 }

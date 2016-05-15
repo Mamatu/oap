@@ -21,6 +21,8 @@ class HostProcedures {
   void dotProduct(math::Matrix* output, math::Matrix* matrix1,
                  math::Matrix* matrix2);
 
+  void transpose(math::Matrix* output, math::Matrix* matrix);
+
  private:
   uintt m_threads[2];
   uintt m_blocks[2];
