@@ -39,6 +39,14 @@
 #include "gtest/gtest.h"
 #include "MatrixUtils.h"
 #include "parsertest1.h"
+namespace samples {
+namespace qrtest4 {
+extern const char* qref;
+}
+namespace qrtest5 {
+extern const char* qref;
+}
+}
 
 class OglaMatrixParserTests : public matrixUtils::Parser, public testing::Test {
  public:
@@ -233,4 +241,24 @@ TEST_F(OglaMatrixParserTests, TestBigData) {
 
   this->parseArray(1);
   EXPECT_EQ(32 * 32, this->getLength());
+}
+
+TEST_F(OglaMatrixParserTests, LargeMatrixQHost4Test) {
+  std::string text = samples::qrtest4::qref;
+
+  this->setText(text);
+  EXPECT_TRUE(this->parseArray(1));
+  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
+  EXPECT_DOUBLE_EQ(double(-1), arrayLength.first[arrayLength.second - 1]);
+  delete[] arrayLength.first;
+}
+
+TEST_F(OglaMatrixParserTests, LargeMatrixQHost5Test) {
+  std::string text = samples::qrtest5::qref;
+
+  this->setText(text);
+  EXPECT_TRUE(this->parseArray(1));
+  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
+  EXPECT_DOUBLE_EQ(double(-1), arrayLength.first[arrayLength.second - 1]);
+  delete[] arrayLength.first;
 }
