@@ -3,7 +3,7 @@
 #include "DeviceMatrixKernels.h"
 #include "DeviceMatrixModules.h"
 
-void aux_switchPointer(math::Matrix** a, math::Matrix** b) {
+inline void aux_switchPointer(math::Matrix** a, math::Matrix** b) {
   math::Matrix* temp = *b;
   *b = *a;
   *a = temp;
@@ -13,7 +13,7 @@ inline CUresult host_prepareGMatrix(math::Matrix* A, uintt column, uintt row,
                                     math::Matrix* G, device::Kernel& kernel) {
   CUresult result = DEVICEKernel_SetIdentity(G, kernel);
   if (result != CUDA_SUCCESS) {
-    //return result;
+    // return result;
   }
 
   /*floatt reg = 0;
@@ -63,15 +63,15 @@ inline CUresult host_prepareGMatrix(math::Matrix* A, uintt column, uintt row,
   is = is / r;
   if (isre) {
     CudaUtils::SetReValue(G, column + row * Acolumns, -s);
-    CudaUtils::SetReValue(G, column + (column) * Acolumns, c);
-    CudaUtils::SetReValue(G, (row) + (row) * Acolumns, c);
-    CudaUtils::SetReValue(G, (row) + (column) * Acolumns, s);
+    CudaUtils::SetReValue(G, column + (column)*Acolumns, c);
+    CudaUtils::SetReValue(G, (row) + (row)*Acolumns, c);
+    CudaUtils::SetReValue(G, (row) + (column)*Acolumns, s);
   }
   if (isim) {
     CudaUtils::SetImValue(G, column + row * Acolumns, -is);
-    CudaUtils::SetImValue(G, column + (column) * Acolumns, ic);
-    CudaUtils::SetImValue(G, (row) + (row) * Acolumns, ic);
-    CudaUtils::SetImValue(G, (row) + (column) * Acolumns, is);
+    CudaUtils::SetImValue(G, column + (column)*Acolumns, ic);
+    CudaUtils::SetImValue(G, (row) + (row)*Acolumns, ic);
+    CudaUtils::SetImValue(G, (row) + (column)*Acolumns, is);
   }
   return CUDA_SUCCESS;
 }
@@ -108,4 +108,29 @@ CUresult HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
     device::CopyDeviceMatrixToDeviceMatrix(rR, R1);
   }
   return CUDA_SUCCESS;
+}
+
+void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
+                                    math::Matrix* R1, math::Matrix* Q1,
+                                    math::Matrix* QJ, math::Matrix* Q2,
+                                    math::Matrix* R2, math::Matrix* G,
+                                    math::Matrix* GT,
+                                    CuMatrix& m_cuMatrix) {
+  bool status = false;
+  m_cuMatrix.setIdentity(Q1);
+  status = m_cuMatrix.isUpperTriangular(H1);
+  uintt fb = 0;
+  for (; fb < 100; ++fb) {
+    m_cuMatrix.QRGR(Q, R1, H1, Q2, R2, G, GT);
+    m_cuMatrix.dotProduct(H1, R1, Q);
+    m_cuMatrix.dotProduct(QJ, Q, Q1);
+    aux_switchPointer(&QJ, &Q1);
+    status = m_cuMatrix.isUpperTriangular(H1);
+    // if (fb == 200) { abort();}
+  }
+  if (fb % 2 == 0) {
+    device::CopyDeviceMatrixToDeviceMatrix(Q, Q1);
+  } else {
+    device::CopyDeviceMatrixToDeviceMatrix(Q, QJ);
+  }
 }

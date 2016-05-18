@@ -2,6 +2,8 @@
 #include <algorithm>
 #include "ArnoldiProcedures.h"
 #include "DeviceMatrixModules.h"
+#include "DeviceMatrixKernels.h"
+#include "HostMatrixKernels.h"
 #include "Callbacks.h"
 
 const char* kernelsFiles[] = {"liboglaMatrixCuda.cubin", NULL};
@@ -101,31 +103,14 @@ CuHArnoldi::~CuHArnoldi() {
 }
 
 void CuHArnoldi::calculateTriangularH() {
-  bool status = false;
-  m_cuMatrix.setIdentity(Q1);
-  status = m_cuMatrix.isUpperTriangular(H1);
-  uintt fb = 0;
-  for (; fb < 600; ++fb) {
-    m_cuMatrix.QRGR(Q, R1, H1, Q2, R2, G, GT);
-    m_cuMatrix.dotProduct(H1, R1, Q);
-    m_cuMatrix.dotProduct(QJ, Q, Q1);
-    switchPointer(&QJ, &Q1);
-    status = m_cuMatrix.isUpperTriangular(H1);
-    //if (fb == 200) {abort();}
-  }
-  if (fb & 1 == 0) {
-    device::CopyDeviceMatrixToDeviceMatrix(Q, Q1);
-  } else {
-    device::CopyDeviceMatrixToDeviceMatrix(Q, QJ);
-  }
+  HOSTKernel_CalcTriangularH(H1, Q, R1, Q1, QJ, Q2, R2, G, GT, m_cuMatrix);
 }
 
 void CuHArnoldi::calculateTriangularHInDevice() {
-  CudaUtils::PrintMatrix("BH1", H1, false, false);
-  void* params[] = {&H1, &Q, &R1, &Q1, &QJ, &Q2, &R2, &G, &GT};
-  m_kernel.setDimensions(m_Hcolumns, m_Hrows);
-  device::Kernel::Execute("CUDAKernel_CalculateTriangularH", params, m_kernel);
-  CudaUtils::PrintMatrix("AH1", H1);
+  // CudaUtils::PrintMatrix("BH1", H1, false, false);
+  DEVICEKernel_CalcTriangularH(H1, Q, R1, Q1, QJ, Q2, R2, G, GT, m_Hcolumns,
+                               m_Hrows, m_kernel);
+  // CudaUtils::PrintMatrix("AH1", H1);
 }
 
 void CuHArnoldi::setSortType(ArnUtils::SortType sortType) {
