@@ -201,8 +201,8 @@ class OglaQRTests : public OglaCudaStub {
     QRHTStub qrhtStub(matrix, eq_q, eq_r);
 
     executeKernelAsync(&qrgrStub);
-    executeKernelAsync(&qrhtStub);
 #if 0
+    executeKernelAsync(&qrhtStub);
     ExpectThatQRIsEqual(&qrgrStub, eq_q, eq_r);
 #endif
     ExpectThatQRIsA(&qrgrStub, matrix);
