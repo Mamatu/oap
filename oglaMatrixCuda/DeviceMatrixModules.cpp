@@ -1,4 +1,5 @@
 #include "DeviceMatrixModules.h"
+#include "HostMatrixModules.h"
 #include "KernelExecutor.h"
 #include <string.h>
 #include <vector>
@@ -30,12 +31,27 @@ math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   return matrix1;
 }
 
-math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix) {
+math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix) {
   return NewDeviceMatrix(hostMatrix, hostMatrix->columns, hostMatrix->rows);
 }
 
+math::Matrix* NewDeviceMatrix(const math::Matrix* deviceMatrix) {
+  uintt columns = CudaUtils::GetColumns(deviceMatrix);
+  uintt rows = CudaUtils::GetRows(deviceMatrix);
+  bool hasRe = CudaUtils::GetReValues(deviceMatrix) != NULL;
+  bool hasIm = CudaUtils::GetImValues(deviceMatrix) != NULL;
+  return NewDeviceMatrix(hasRe, hasIm, columns, rows);
+}
+
+math::Matrix* NewDeviceMatrix(const std::string& matrixStr) {
+  math::Matrix* host = host::NewMatrix(matrixStr);
+  math::Matrix* device = NewDeviceMatrixCopy(host);
+  host::DeleteMatrix(host);
+  return device;
+}
+
 math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
-  math::Matrix* dmatrix = device::NewDeviceMatrix(hostMatrix);
+  math::Matrix* dmatrix = device::NewDeviceMatrixHostRef(hostMatrix);
   device::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
   return dmatrix;
 }
@@ -201,7 +217,8 @@ void SetMatrixEx(MatrixEx** deviceMatrixEx, const uintt* buffer, uintt count) {
                               count * sizeof(MatrixEx));
 }
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zeroLimit) {
+void PrintMatrix(const std::string& text, const math::Matrix* matrix,
+                 floatt zeroLimit) {
   CudaUtils::PrintMatrix(text, matrix, zeroLimit);
 }
 

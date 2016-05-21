@@ -581,7 +581,7 @@ TEST_F(OglaMatrixCudaTests, MagnitudeRealMatrixBigDataTest2) {
       "16384 times>] (length=16384)";
 
   math::Matrix* matrix = host::NewMatrix(text);
-  math::Matrix* dmatrix = device::NewDeviceMatrix(matrix);
+  math::Matrix* dmatrix = device::NewDeviceMatrixHostRef(matrix);
   device::CopyHostMatrixToDeviceMatrix(dmatrix, matrix);
 
   floatt doutput = 10;
@@ -606,9 +606,9 @@ TEST_F(OglaMatrixCudaTests, DotProductBigDataTest) {
   math::Matrix* Q = host::NewMatrix(Qstr);
   math::Matrix* QJ = host::NewMatrix(QJstr);
 
-  math::Matrix* dQJ = device::NewDeviceMatrix(QJ);
-  math::Matrix* dQ = device::NewDeviceMatrix(Q);
-  math::Matrix* doutput = device::NewDeviceMatrix(Q);
+  math::Matrix* dQJ = device::NewDeviceMatrixHostRef(QJ);
+  math::Matrix* dQ = device::NewDeviceMatrixHostRef(Q);
+  math::Matrix* doutput = device::NewDeviceMatrixHostRef(Q);
 
   cuMatrix->dotProduct(doutput, dQ, dQJ);
   cuMatrix->dotProduct(doutput, dQJ, dQ);

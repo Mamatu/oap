@@ -94,20 +94,20 @@ class OglaQRTests : public testing::Test {
     math::Matrix* hrmatrix = host::NewMatrix(matrix);
     math::Matrix* hrmatrix1 = host::NewMatrix(matrix);
 
-    math::Matrix* temp1 = device::NewDeviceMatrix(matrix);
-    math::Matrix* temp2 = device::NewDeviceMatrix(matrix);
-    math::Matrix* temp3 = device::NewDeviceMatrix(matrix);
-    math::Matrix* temp4 = device::NewDeviceMatrix(matrix);
+    math::Matrix* temp1 = device::NewDeviceMatrixHostRef(matrix);
+    math::Matrix* temp2 = device::NewDeviceMatrixHostRef(matrix);
+    math::Matrix* temp3 = device::NewDeviceMatrixHostRef(matrix);
+    math::Matrix* temp4 = device::NewDeviceMatrixHostRef(matrix);
     math::Matrix* dmatrix = device::NewDeviceMatrixCopy(matrix);
     math::Matrix* drmatrix = device::NewDeviceMatrixCopy(matrix);
 
     math::Matrix* eq_q = host::NewMatrix(qr1q);
     math::Matrix* q = host::NewMatrix(eq_q);
-    math::Matrix* dq = device::NewDeviceMatrix(q);
+    math::Matrix* dq = device::NewDeviceMatrixHostRef(q);
 
     math::Matrix* eq_r = host::NewMatrix(qr1r);
     math::Matrix* r = host::NewMatrix(eq_r);
-    math::Matrix* dr = device::NewDeviceMatrix(r);
+    math::Matrix* dr = device::NewDeviceMatrixHostRef(r);
 
     m_cuMatrix->QRGR(dq, dr, dmatrix, temp1, temp2, temp3, temp4);
 
