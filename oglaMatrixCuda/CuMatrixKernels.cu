@@ -104,25 +104,19 @@ extern "C" __global__ void CUDAKernel_DotProductExOpt(math::Matrix* output,
 extern "C" __global__ void CUDAKernel_AddRe(math::Matrix* output,
                                             math::Matrix* params0,
                                             math::Matrix* params1) {
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  CUDA_addReMatrices(output, params0, params1, threadIndexX, threadIndexY);
+  CUDA_addReMatrices(output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_AddIm(math::Matrix* output,
                                             math::Matrix* params0,
                                             math::Matrix* params1) {
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  CUDA_addImMatrices(output, params0, params1, threadIndexX, threadIndexY);
+  CUDA_addImMatrices(output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_Add(math::Matrix* output,
                                           math::Matrix* params0,
                                           math::Matrix* params1) {
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  CUDA_addMatrix(output, params0, params1, threadIndexX, threadIndexY);
+  CUDA_addMatrix(output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_SubstractRe(math::Matrix* output,
