@@ -80,24 +80,24 @@ __hostdeviceinline__ floatt GetImIndex(const math::Matrix* m, uintt index) {
 }
 
 __hostdeviceinline__ void Reset(math::Matrix* m) {
-  CUDA_TEST_INIT();
-  threads_sync();
+  HOST_INIT();
+  //threads_sync();
   test::reset(m);
-  threads_sync();
+  //threads_sync();
 }
 
 __hostdeviceinline__ void Push(math::Matrix* m) {
-  CUDA_TEST_INIT();
-  threads_sync();
+  HOST_INIT();
+  //threads_sync();
   test::push(m);
-  threads_sync();
+  //threads_sync();
 }
 
 __hostdeviceinline__ void Pop(math::Matrix* m) {
-  CUDA_TEST_INIT();
-  threads_sync();
+  HOST_INIT();
+  //threads_sync();
   test::pop(m);
-  threads_sync();
+  //threads_sync();
 }
 
 #endif
