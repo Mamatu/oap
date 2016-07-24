@@ -81,7 +81,7 @@ void InfoCreator::printMatrix(std::string& output, const std::string& message,
                               math::Matrix* matrix) const {
   std::string matrixStr;
   getString(matrixStr, matrix);
-  output += message + matrixStr;
+  output += message + matrixStr + "\n";
 }
 
 bool InfoCreator::printMean(std::string& output) const {
