@@ -349,6 +349,14 @@ extern "C" __global__ void CUDAKernel_SetDiagonal(math::Matrix* matrix,
   CUDA_setDiagonalMatrix(matrix, re, im, threadIndexX, threadIndexY);
 }
 
+extern "C" __global__ void CUDAKernel_Invert(math::Matrix* output,
+                                             math::Matrix* matrix,
+                                             math::Matrix* aux1,
+                                             math::Matrix* aux2,
+                                             math::Matrix* aux3) {
+  CUDA_invertMatrix(output, matrix, aux1, aux2, aux3);
+}
+
 extern "C" __global__ void CUDAKernel_CompareRe(int* sums,
                                                 math::Matrix* matrix1,
                                                 math::Matrix* matrix2,
@@ -404,5 +412,5 @@ extern "C" __global__ void CUDAKernel_CalculateTriangularH(
     math::Matrix* H, math::Matrix* Q, math::Matrix* R, math::Matrix* temp,
     math::Matrix* temp1, math::Matrix* temp2, math::Matrix* temp3,
     math::Matrix* temp4, math::Matrix* temp5) {
-  CUDA_CalculateTriangularH(H, Q, R, temp, temp1, temp2, temp3, temp4, temp5);
+  CUDA_HMtoUTM(H, Q, R, temp, temp1, temp2, temp3, temp4, temp5);
 }
