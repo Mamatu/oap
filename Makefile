@@ -17,3 +17,13 @@ clean:
 	rm -rf dist/$(MODE)/$(PLATFORM)/lib/*
 	rm -rf dist/$(MODE)/$(PLATFORM)/cubin/*
 	rm -rf dist/$(MODE)/$(PLATFORM)/bin/*
+cuclean:
+	for dir in $(CU_OGLA_MODULES); do \
+	$(MAKE) -C $$dir clean; \
+	done
+	rm -rf */dist/$(MODE)/$(PLATFORM)/*
+	rm -rf */build/$(MODE)/$(PLATFORM)/*
+	rm -rf dist/$(MODE)/$(PLATFORM)/lib/*
+	rm -rf dist/$(MODE)/$(PLATFORM)/cubin/*
+	rm -rf dist/$(MODE)/$(PLATFORM)/bin/*
+
