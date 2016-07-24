@@ -59,7 +59,7 @@ class CuHArnoldi {
   void (CuHArnoldi::*m_calculateTriangularHPtr)();
 
   inline void setCalculateTriangularHPtr(uintt k) {
-    if (k > 32) {
+    if (true || k > 32) {
       m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularH;
     } else {
       m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDevice;
@@ -77,17 +77,21 @@ class CuHArnoldi {
    * @return true - should continue, false  - finish algorithm
    */
   bool executeArnoldiFactorization(bool init, intt initj, MatrixEx** dMatrixEx,
-                                   floatt m_rho);
+                                   floatt rho);
 
   bool shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
                            const ArnUtils::MatrixInfo& m2) const;
- public:
 
+  void isConverged() const;
+
+ public:
   CuHArnoldi();
 
   virtual ~CuHArnoldi();
 
   void setRho(floatt rho = 1. / 3.14);
+
+  void setBLimit(floatt blimit);
 
   void setSortType(ArnUtils::SortType sortType);
 
@@ -149,6 +153,7 @@ class CuHArnoldi {
 
   uintt m_k;
   floatt m_rho;
+  floatt m_blimit;
   std::vector<Complex> wanted;
   std::vector<Complex> unwanted;
   std::vector<uintt> wantedIndecies;
@@ -178,7 +183,13 @@ class CuHArnoldi {
   void dealloc1();
   void dealloc2();
   void dealloc3();
-  virtual void multiply(math::Matrix* w, math::Matrix* v) = 0;
+
+ public:
+  enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
+
+ protected:
+  virtual void multiply(math::Matrix* w, math::Matrix* v,
+                        MultiplicationType mt) = 0;
 };
 
 class CuHArnoldiDefault : public CuHArnoldi {
@@ -190,7 +201,8 @@ class CuHArnoldiDefault : public CuHArnoldi {
   void setMatrix(math::Matrix* A) { m_A = A; }
 
  protected:
-  void multiply(math::Matrix* w, math::Matrix* v);
+  void multiply(math::Matrix* w, math::Matrix* v,
+                CuHArnoldi::MultiplicationType mt);
 
  private:
   math::Matrix* m_A;
@@ -198,13 +210,14 @@ class CuHArnoldiDefault : public CuHArnoldi {
 
 class CuHArnoldiCallback : public CuHArnoldi {
  public:
-  typedef void (*MultiplyFunc)(math::Matrix* w, math::Matrix* v,
-                               void* userData);
+  typedef void (*MultiplyFunc)(math::Matrix* w, math::Matrix* v, void* userData,
+                               CuHArnoldi::MultiplicationType mt);
 
   void setCallback(MultiplyFunc multiplyFunc, void* userData);
 
  protected:
-  void multiply(math::Matrix* w, math::Matrix* v);
+  void multiply(math::Matrix* w, math::Matrix* v,
+                CuHArnoldi::MultiplicationType mt);
 
  private:
   MultiplyFunc m_multiplyFunc;
