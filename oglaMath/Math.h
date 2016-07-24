@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   MathTypes.h
  * Author: mmatula
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef OGLA_MATH_TYPES_H
-#define	OGLA_MATH_TYPES_H
+#define OGLA_MATH_TYPES_H
 
 //#define NORMAL_TYPES
 //#define EXTENDED_TYPES
@@ -42,47 +42,46 @@ typedef long double floatt;
 #ifdef NORMAL_INT_TYPES
 typedef int intt;
 typedef unsigned int uintt;
-#endif 
+#endif
 
 #ifdef EXTENDED_INT_TYPES
 typedef long long intt;
 typedef unsigned long long uintt;
 #endif
 
-
 #define MATH_VALUE_LIMIT 0.001f
 
 #define MATH_UNDEFINED static_cast<uintt>(-1)
 
 namespace math {
-    void Memset(floatt* array, floatt value, intt length);
+void Memset(floatt* array, floatt value, intt length);
 }
 
 struct Complex {
+  Complex() {
+    re = 0;
+    im = 0;
+  }
 
-    Complex() {
-        re = 0;
-        im = 0;
-    }
+  Complex(floatt re) {
+    this->re = re;
+    this->im = 0;
+  }
 
-    Complex(floatt re) {
-        this->re = re;
-        this->im = 0;
-    }
+  Complex(floatt re, floatt im) {
+    this->re = re;
+    this->im = im;
+  }
 
-    Complex(floatt re, floatt im) {
-        this->re = re;
-        this->im = im;
-    }
-    
-    Complex(const Complex& complex) {
-        re = complex.re;
-        im = complex.im;
-    }
-    
-    floatt re;
-    floatt im;
+  Complex(const Complex& complex) {
+    re = complex.re;
+    im = complex.im;
+  }
+
+  floatt re;
+  floatt im;
 };
 
-#endif	/* MATHTYPES_H */
+bool operator==(const Complex& c1, const Complex& c2);
 
+#endif /* MATHTYPES_H */
