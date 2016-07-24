@@ -21,7 +21,7 @@ __hostdevice__ int CUDA_isUpperRealTriangular(math::Matrix* matrix) {
       ++index;
     }
   }
-  return index >= count;
+  return index == count;
 }
 
 /*@mamatu todo optimalization */
@@ -36,7 +36,7 @@ __hostdevice__ int CUDA_isUpperReTriangular(math::Matrix* matrix) {
       ++index;
     }
   }
-  return index >= count;
+  return index == count;
 }
 
 /*@mamatu todo optimalization */
@@ -51,7 +51,7 @@ __hostdevice__ int CUDA_isUpperImTriangular(math::Matrix* matrix) {
       ++index;
     }
   }
-  return index >= count;
+  return index == count;
 }
 
 __hostdevice__ int CUDA_isUpperTriangular(math::Matrix* matrix) {

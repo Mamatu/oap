@@ -11,21 +11,14 @@
 #include "CuCore.h"
 #include "MatrixAPI.h"
 #include "CuCopyProcedures.h"
-#include "CuTransponseProcedures.h"
+#include "CuTransposeProcedures.h"
 #include "CuDotProductProcedures.h"
 #include "CuIdentityProcedures.h"
 #include "CuMagnitudeUtils.h"
 #include "CuMagnitudeVecOptProcedures.h"
 #include "CuMultiplicationProcedures.h"
 #include "CuSubstractionProcedures.h"
-
-__hostdevice__ void CUDA_switchPointer(math::Matrix** a, math::Matrix** b) {
-  HOST_INIT();
-  math::Matrix* temp = *b;
-  *b = *a;
-  *a = temp;
-  threads_sync();
-}
+#include "CuSwitchPointer.h"
 
 __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
                                         uintt row, math::Matrix* G, uintt tx,
@@ -101,7 +94,7 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
 __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
                               math::Matrix* Q1, math::Matrix* R1,
                               math::Matrix* G, math::Matrix* GT) {
-  CUDA_TEST_INIT();
+  HOST_INIT();
   uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
   uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
   math::Matrix* rQ = Q;
