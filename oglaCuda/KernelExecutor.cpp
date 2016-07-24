@@ -161,9 +161,9 @@ void Kernel::setDimensions(uintt w, uintt h) {
 }
 
 void Kernel::setDimensionsDevice(math::Matrix* dmatrix) {
-    uintt columns = CudaUtils::GetColumns(dmatrix);
-    uintt rows = CudaUtils::GetRows(dmatrix);
-    setDimensions(columns, rows);
+  uintt columns = CudaUtils::GetColumns(dmatrix);
+  uintt rows = CudaUtils::GetRows(dmatrix);
+  setDimensions(columns, rows);
 }
 
 void Kernel::setSharedMemory(uintt sizeInBytes) {
@@ -211,10 +211,11 @@ void Kernel::setImage(void* image) {
 CUresult Kernel::execute(const char* functionName) {
   CUresult status = CUDA_SUCCESS;
   if (NULL == m_image && m_path.length() == 0) {
-    debugError("Error: image and path not defined. Function name: %s \n",
-               functionName);
+    debugError(
+        "Error: image and path not defined. Function name: %s. Probalby was "
+        "not executed load() method. \n",
+        functionName);
   }
-
   loadCuModule();
   CUfunction cuFunction = NULL;
   if (NULL != m_cuModule) {
@@ -398,10 +399,10 @@ void Kernel::calculateThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w,
 }
 
 void Kernel::calculateThreadsBlocksDevice(uintt blocks[2], uintt threads[2],
-    math::Matrix* dmatrix) {
-    uintt columns = CudaUtils::GetColumns(dmatrix);
-    uintt rows = CudaUtils::GetRows(dmatrix);
-    calculateThreadsBlocks(blocks, threads, columns, rows);
+                                          math::Matrix* dmatrix) {
+  uintt columns = CudaUtils::GetColumns(dmatrix);
+  uintt rows = CudaUtils::GetRows(dmatrix);
+  calculateThreadsBlocks(blocks, threads, columns, rows);
 }
 
 void Kernel::SetThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w,
