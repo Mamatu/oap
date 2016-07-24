@@ -69,11 +69,22 @@ class MatrixRange : public Range {
 };
 
 template <typename T>
+void mergeTheSameValues(OccurencesList<T>& occurencesList,
+                        uintt sectionLength) {
+  std::pair<uintt, T>& pair1 = occurencesList[occurencesList.size() - 2];
+  std::pair<uintt, T> pair2 = occurencesList[occurencesList.size() - 3];
+  if (pair1.second == pair2.second && pair1.first == sectionLength) {
+    pair1.first += pair2.first;
+    occurencesList.erase(occurencesList.begin() + occurencesList.size() - 3);
+  }
+}
+
+template <typename T>
 void PrepareOccurencesList(
     OccurencesList<T>& occurencesList, T* array, uintt length, bool repeats,
     T zeroLimit, size_t sectionLength = std::numeric_limits<size_t>::max(),
     uintt extra = 0) {
-  for (uintt fa = 0, fa1 = extra; fa < length; ++fa) {
+  for (uintt fa = 0, fa1 = extra; fa < length; ++fa, ++fa1) {
     floatt value = array[fa];
     if (-zeroLimit < value && value < zeroLimit) {
       value = 0.f;
@@ -82,10 +93,12 @@ void PrepareOccurencesList(
         value != occurencesList[occurencesList.size() - 1].second ||
         fa1 % sectionLength == 0) {
       occurencesList.push_back(std::make_pair<uintt, floatt>(1, value));
+      if (occurencesList.size() > 2) {
+        mergeTheSameValues(occurencesList, sectionLength);
+      }
     } else {
       occurencesList[occurencesList.size() - 1].first++;
     }
-    ++fa1;
   }
 }
 
@@ -104,7 +117,6 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count,
                           sectionLength, totalLength);
     totalLength += length;
   }
-
   std::stringstream sstream;
   for (uintt fa = 0, fa1 = 0; fa < valuesVec.size(); ++fa) {
     sstream << valuesVec[fa].second;
@@ -125,9 +137,9 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count,
       sstream << std::endl;
     }
     output += sstream.str();
-    sstream.str("");
+    sstream.str(std::string());
   }
-  sstream.str("");
+  sstream.str(std::string());
   sstream << "] (" << ID_LENGTH << "=" << totalLength;
   output += sstream.str();
   output += ")\n";
