@@ -43,7 +43,7 @@ OGLA_INCLUDES += oglaQRTestSamples
 #OGLA_INCLUDES += oglaMatrixCudaTest
 #OGLA_INCLUDES += oglaParser
 #OGLA_INCLUDES += ArnoldiPackageTest
-OGLA_INCLUDES += oglaV3D
+#OGLA_INCLUDES += oglaV3D
 OGLA_INCLUDES += oglaTests
 OGLA_INCLUDES += oglaTestsHost
 
@@ -63,6 +63,15 @@ OGLA_MODULES += oglaShibataMgr
 #OGLA_MODULES += oglaMatrixCudaTest
 #OGLA_MODULES += oglaParser
 #OGLA_MODULES += ArnoldiPackageTest
-OGLA_MODULES += oglaV3D
+#OGLA_MODULES += oglaV3D
 OGLA_MODULES += oglaTestsDevice
 OGLA_MODULES += oglaTestsHost
+
+CU_OGLA_MODULES := oglaCuda
+CU_OGLA_MODULES += oglaMatrixCuda
+CU_OGLA_MODULES += oglaCudaTests
+CU_OGLA_MODULES += oglaShibataCuda
+CU_OGLA_MODULES += ArnoldiPackage
+CU_OGLA_MODULES += oglaShibataMgr
+CU_OGLA_MODULES += oglaTestsDevice
+
