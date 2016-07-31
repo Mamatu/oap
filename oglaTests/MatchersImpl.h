@@ -59,7 +59,8 @@ class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
     std::string msg;
     infoCreator.getInfo(msg, m_infoType);
     (*listener) << msg;
-    return infoCreator.isEqual();
+    bool isEqual = infoCreator.isEqual();
+    return isEqual;
   }
 
   virtual void DescribeTo(::std::ostream* os) const {
@@ -215,6 +216,56 @@ class BufferSumIsEqualMatcherSum : public BufferSumIsEqualMatcher<T> {
                             static_cast<T>(0));
     (*listener) << v;
     return BufferSumIsEqualMatcher<T>::m_expectedSum == actualSum;
+  }
+};
+
+class MatrixContainsDiagonalValuesMatcher
+    : public MatcherInterface<math::Matrix*> {
+  math::Matrix* m_matrix;
+  InfoType m_infoType;
+
+  Complex getComplex(math::Matrix* matrix, uintt index) const {
+    floatt re = 0, im = 0;
+    if (matrix->reValues) {
+      re = matrix->reValues[index * matrix->columns + index];
+    }
+    if (matrix->imValues) {
+      im = matrix->imValues[index * matrix->columns + index];
+    }
+    return Complex(re, im);
+  }
+
+ public:
+  MatrixContainsDiagonalValuesMatcher(math::Matrix* matrix)
+      : m_matrix(matrix) {}
+
+  virtual bool MatchAndExplain(math::Matrix* matrix,
+                               MatchResultListener* listener) const {
+    if (matrix->columns != m_matrix->columns && matrix->rows != m_matrix->rows) {
+      return false;
+    }
+
+    std::vector<Complex> values;
+
+    for (uintt fa = 0; fa < m_matrix->columns; ++fa) {
+      values.push_back(getComplex(m_matrix, fa));
+    }
+    for (uintt fa = 0; fa < matrix->columns; ++fa) {
+      Complex complex = getComplex(matrix, fa);
+      if (std::find(values.begin(), values.end(), complex) == values.end()) {
+          return false;
+      }
+    }
+
+    return true;
+  }
+
+  virtual void DescribeTo(::std::ostream* os) const {
+    *os << "Both matrix ";
+  }
+
+  virtual void DescribeNegationTo(::std::ostream* os) const {
+    *os << "Matrices are not equal.";
   }
 };
 

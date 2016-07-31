@@ -23,6 +23,11 @@ inline Matcher<math::Matrix*> MatrixIsEqual(
   return MakeMatcher(new MatrixIsEqualMatcher(matrix, infoType));
 }
 
+inline Matcher<math::Matrix*> MatrixContainsDiagonalValues(
+    math::Matrix* matrix) {
+  return MakeMatcher(new MatrixContainsDiagonalValuesMatcher(matrix));
+}
+
 inline Matcher<math::Matrix*> MatrixIsDiagonal(floatt value) {
   return MakeMatcher(new MatrixIsDiagonalMatcher(value));
 }
