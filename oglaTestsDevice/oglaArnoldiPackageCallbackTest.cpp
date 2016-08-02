@@ -218,16 +218,19 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
     OglaArnoldiPackageCallbackTests::Data data(path);
     class MultiplyFunc {
      public:
-      static void multiply(math::Matrix* w, math::Matrix* v, void* userData) {
-        Data* data = static_cast<Data*>(userData);
-        data->load();
-        data->printCounter();
-        if (data->getCounter() % 3 == 0) {
-         // device::PrintMatrix("v = ", v);
+      static void multiply(math::Matrix* w, math::Matrix* v, void* userData,
+                           CuHArnoldi::MultiplicationType mt) {
+        if (mt == CuHArnoldi::TYPE_WV) {
+          Data* data = static_cast<Data*>(userData);
+          data->load();
+          data->printCounter();
+          device::CopyDeviceMatrixToHostMatrix(data->hostV, v);
+          ASSERT_THAT(
+              data->hostV,
+              MatrixIsEqual(data->refV,
+                            InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
+          device::CopyHostMatrixToDeviceMatrix(w, data->refW);
         }
-        device::CopyDeviceMatrixToHostMatrix(data->hostV, v);
-        ASSERT_THAT(data->hostV, MatrixIsEqual(data->refV, InfoType(InfoType::MEAN)));
-        device::CopyHostMatrixToDeviceMatrix(w, data->refW);
       }
     };
     floatt revalues[2] = {0, 0};
@@ -242,6 +245,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
     outputs.columns = wanted;
 
     arnoldiCuda->setCallback(MultiplyFunc::multiply, &data);
+    arnoldiCuda->setBLimit(0.01);
     arnoldiCuda->setRho(1. / 3.14159265359);
     arnoldiCuda->setSortType(ArnUtils::SortSmallestReValues);
     arnoldiCuda->setOutputs(&outputs);
@@ -291,7 +295,7 @@ class OglaArnoldiPackageCallbackTests : public testing::Test {
     math::Matrix* output = host::NewMatrix(outputStr);
     host::PrintMatrix("output", output);
     host::PrintMatrix("H", H1);
-    EXPECT_THAT(H1, MatrixIsEqual(output));
+    EXPECT_THAT(H1, MatrixIsEqual(output, InfoType(InfoType::MEAN)));
 
     triangularityTest(H1);
 
