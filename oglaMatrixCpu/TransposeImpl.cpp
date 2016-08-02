@@ -1,5 +1,7 @@
 #include "MathOperationsCpu.h"
 #include "ThreadData.h"
+#include "MatrixAPI.h"
+
 namespace math {
 
 void TransposeOperationCpu::Execute(void* ptr) {
@@ -9,7 +11,7 @@ void TransposeOperationCpu::Execute(void* ptr) {
     uintt brow = threadData->begins[1];
     uintt ecolumn = threadData->ends[0];
     uintt erow = threadData->ends[1];
-    const math::Matrix* m_output = threadData->outputs[0].m_matrix;
+    math::Matrix* m_output = threadData->outputs[0].m_matrix;
     const math::Matrix* m_matrix = threadData->params[0].m_matrix;
     uintt columns = m_matrix->columns;
     uintt columns1 = m_output->columns;
