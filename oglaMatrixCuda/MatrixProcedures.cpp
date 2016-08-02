@@ -68,6 +68,13 @@ void CuMatrix::dotProduct(math::Matrix* output, math::Matrix* params0,
   m_cuResult = execute("CUDAKernel_DotProduct", columns, rows, params, 0);
 }
 
+void CuMatrix::calculateQTHQ(math::Matrix* output, math::Matrix* H,
+                             math::Matrix* Q, math::Matrix* aux) {
+  transposeMatrix(output, Q);
+  dotProduct(aux, H, output);
+  dotProduct(output, Q, aux);
+}
+
 void CuMatrix::dotProductEx(math::Matrix* output, math::Matrix* params0,
                             math::Matrix* params1, MatrixEx* matrixEx,
                             uintt columns, uintt rows) {

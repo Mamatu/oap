@@ -19,6 +19,9 @@ class CuMatrix {
   void dotProduct(math::Matrix* output, math::Matrix* params0,
                   math::Matrix* params1, uintt columns, uintt rows);
 
+  void calculateQTHQ(math::Matrix* output, math::Matrix* H, math::Matrix* Q,
+                     math::Matrix* aux);
+
   inline void dotProductEx(math::Matrix* output, math::Matrix* params0,
                            math::Matrix* params1, MatrixEx* matrixEx);
 
