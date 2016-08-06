@@ -1,8 +1,0 @@
-Manifest-Version=1.0
-Bundle-SymbolicName=APApplication
-Bundle-Version=1.0.0
-Bundle-Name=APApplication
-Bundle-Vendor=Marcin Matula
-Bundle-ManifestVersion=2
-Export-Package=ogla.*
-Import-Package=*

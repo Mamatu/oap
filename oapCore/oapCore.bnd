@@ -1,9 +1,0 @@
-Manifest-Version=1.0
-Bundle-SymbolicName=ogla_core
-Bundle-Version=1.0.0
-Bundle-Name=oglaCore
-Bundle-Vendor=Marcin Matula
-Bundle-ManifestVersion=2
-Export-Package=*
-Import-Package=*
-Bundle-Activator=ogla.core.osgi.Activator

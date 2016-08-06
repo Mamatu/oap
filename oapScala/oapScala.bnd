@@ -1,9 +1,0 @@
-Manifest-Version=1.0
-Bundle-SymbolicName=ogla_scala
-Bundle-Version=1.0.0
-Bundle-Name=oglaScala
-Bundle-Vendor=Marcin Matula
-Bundle-ManifestVersion=2
-Export-Package=*
-Import-Package=*
-Bundle-Activator=ogla.scala.osgi.Activator

@@ -1,7 +1,0 @@
--Dorg.osgi.framework.dir=/home/marcin/NetBeansProjects/PieChart/configuration/fwdir
--init
--initlevel 1
--install file://home/marcin/NetBeansProjects/PieChart/plugins/PieChart-bundle.jar
--startlevel 10
--launch
--start file://home/marcin/NetBeansProjects/PieChart/plugins/PieChart-bundle.jar

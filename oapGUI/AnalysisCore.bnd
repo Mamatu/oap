@@ -1,9 +1,0 @@
-Manifest-Version=1.0
-Bundle-SymbolicName=analysis_core
-Bundle-Version=1.0.0
-Bundle-Name=AnalysisCore
-Bundle-Vendor=Marcin Matula
-Bundle-ManifestVersion=2
-Import-Package=*
-Private-Package=ogla.*;
-Bundle-Activator=ogla.core.osgi.Activator

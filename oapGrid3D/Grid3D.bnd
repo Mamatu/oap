@@ -1,8 +1,0 @@
-Manifest-Version=1.0
-Bundle-SymbolicName=analysis_grid3D
-Bundle-Version=1.0.0
-Bundle-Name=Grid3D
-Bundle-Vendor=Marcin Matula
-Bundle-ManifestVersion=2
-Private-Package=*
-Bundle-Activator=analysis.grid3D.osgi.Activator

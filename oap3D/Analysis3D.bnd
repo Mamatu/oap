@@ -1,7 +1,0 @@
-Manifest-Version=1.0
-Bundle-SymbolicName=analysis_3d
-Bundle-Version=1.0.0
-Bundle-Name=Analysis3D
-Bundle-ManifestVersion=2
-Bundle-Vendor=Marcin Matula
-Export-Package=*

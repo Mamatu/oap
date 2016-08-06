@@ -1,9 +1,0 @@
-Manifest-Version=1.0
-Bundle-SymbolicName=PerspectivePlot
-Bundle-Version=1.0.0
-Bundle-Name=PerspectivePlot
-Bundle-Vendor=Marcin Matula
-Bundle-ManifestVersion=2
-Import-Package=*
-Private-Package=*
-Bundle-Activator=ogla.perspectiveplot.osgi.Activator
