@@ -1,6 +1,6 @@
 include ../project_generic.mk
 include module.mk
-OGLA_INCLUDES_PATHS := $(addprefix -I$(OGLA_PATH)/, $(OGLA_INCLUDES))
+OGLA_INCLUDES_PATHS := $(addprefix -I$(OAP_PATH)/, $(OGLA_INCLUDES))
 CU_FILES := $(wildcard *.cu)
 CPP_FILES := $(wildcard *.cpp)
 OCPP_FILES := $(addprefix build/$(MODE)/$(PLATFORM)/,$(notdir $(CPP_FILES:.cpp=.o)))

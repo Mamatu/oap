@@ -1,5 +1,5 @@
-ifndef OGLA_PATH
-$(error OGLA_PATH is not set)
+ifndef OAP_PATH
+$(error OAP_PATH is not set)
 endif
 
 ifndef GTEST_DIR
@@ -12,17 +12,17 @@ endif
 
 
 ifeq ($(PROJECT), albert)
-include $(OGLA_PATH)/project_albert.mk
+include $(OAP_PATH)/project_albert.mk
 else ifeq ($(PROJECT), teslac2050)
-include $(OGLA_PATH)/project_teslac2050.mk
+include $(OAP_PATH)/project_teslac2050.mk
 else ifeq ($(PROJECT), samsung)
-include $(OGLA_PATH)/project_samsung.mk
+include $(OAP_PATH)/project_samsung.mk
 else ifeq ($(PROJECT), lenovo)
-include $(OGLA_PATH)/project_lenovo.mk
+include $(OAP_PATH)/project_lenovo.mk
 else ifeq ($(PROJECT), gpp44)
-include $(OGLA_PATH)/project_gpp44.mk
+include $(OAP_PATH)/project_gpp44.mk
 else
-include $(OGLA_PATH)/project_lenovo.mk
+include $(OAP_PATH)/project_lenovo.mk
 endif
 
 TYPES := EXTENDED_TYPES
