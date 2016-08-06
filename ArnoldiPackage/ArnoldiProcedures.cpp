@@ -6,7 +6,7 @@
 #include "HostMatrixKernels.h"
 #include "Callbacks.h"
 
-const char* kernelsFiles[] = {"liboglaMatrixCuda.cubin", NULL};
+const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
 namespace ArnUtils {
 
 bool SortLargestValues(const Complex& i, const Complex& j) {

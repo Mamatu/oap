@@ -18,10 +18,10 @@ using namespace std;
 utils::ArgumentType inargs[] = {utils::ARGUMENT_TYPE_FLOAT};
 utils::ArgumentType outargs[] = {utils::ARGUMENT_TYPE_FLOAT};
 
-class TestFunction : public utils::OglaFunction {
+class TestFunction : public utils::OapFunction {
 public:
 
-    TestFunction() : utils::OglaFunction("TestFunction", inargs, 1, outargs, 1) {
+    TestFunction() : utils::OapFunction("TestFunction", inargs, 1, outargs, 1) {
     }
 
     ~TestFunction() {
