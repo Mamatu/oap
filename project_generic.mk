@@ -1,6 +1,15 @@
-OGLA_PATH = /home/mmatula/Ogla
-GTEST_DIR = /home/mmatula/Ogla/gmock-1.7.0/gtest
-GMOCK_DIR = /home/mmatula/Ogla/gmock-1.7.0
+ifndef OGLA_PATH
+$(error OGLA_PATH is not set)
+endif
+
+ifndef GTEST_DIR
+$(error GTEST_DIR is not set)
+endif
+
+ifndef GMOCK_DIR
+$(error GMOCK_DIR is not set)
+endif
+
 
 ifeq ($(PROJECT), albert)
 include $(OGLA_PATH)/project_albert.mk
