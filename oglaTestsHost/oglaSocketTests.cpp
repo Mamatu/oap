@@ -132,7 +132,7 @@ void* Execute2(void* ptr) {
   pthread_exit(0);
 }
 
-TEST_F(OglaSocketTests, SocketCommunication1) {
+TEST_F(OglaSocketTests, DISABLED_SocketCommunication1) {
   pthread_t threads[2];
 
   ServerImpl::values.push_back(10);
