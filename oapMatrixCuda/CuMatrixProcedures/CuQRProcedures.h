@@ -77,17 +77,14 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
       SetRe(G, column, column, c);
       SetRe(G, row, row, c);
       SetRe(G, row, column, s);
-      HOST_CODE(EXPECT_EQ(4, test::getSetValuesCountRe(G)););
     }
     if (NULL != G->imValues) {
       SetIm(G, column, row, -is);
       SetIm(G, column, column, ic);
       SetIm(G, row, row, ic);
       SetIm(G, row, column, is);
-      HOST_CODE(EXPECT_EQ(4, test::getSetValuesCountIm(G)););
     }
   }
-  Reset(G);
   threads_sync();
 }
 
