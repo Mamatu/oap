@@ -1,10 +1,3 @@
-/*
- * File:   KernelExecutor.cpp
- * Author: mmatula
- *
- * Created on January 19, 2014, 9:47 AM
- */
-
 #include <linux/fs.h>
 #include <math.h>
 

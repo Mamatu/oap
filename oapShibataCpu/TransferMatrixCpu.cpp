@@ -1,9 +1,3 @@
-/* 
- * File:   TransferMatrix.cpp
- * Author: mmatula
- * 
- * Created on January 27, 2014, 7:57 PM
- */
 
 #include <vector>
 

@@ -1,9 +1,3 @@
-/* 
- * File:   AsyncRandoms.cpp
- * Author: mmatula
- * 
- * Created on July 7, 2013, 6:06 PM
- */
 
 #include "Async.h"
 #include <pthread.h>

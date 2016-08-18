@@ -1,9 +1,3 @@
-/* 
- * File:   RPCInterface.h
- * Author: mmatula
- *
- * Created on July 27, 2013, 10:35 PM
- */
 
 #ifndef RPCINTERFACE_H
 #define	RPCINTERFACE_H

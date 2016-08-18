@@ -1,9 +1,3 @@
-/* 
- * File:   TransferMatrix.cpp
- * Author: mmatula
- * 
- * Created on January 14, 2014, 8:09 PM
- */
 
 #include "TransferMatrix.h"
 

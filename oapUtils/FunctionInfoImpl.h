@@ -1,9 +1,3 @@
-/* 
- * File:   FunctionEventimpl.h
- * Author: mmatula
- *
- * Created on September 15, 2013, 2:25 PM
- */
 
 #ifndef FUNCTIONEVENTIMPL_H
 #define	FUNCTIONEVENTIMPL_H

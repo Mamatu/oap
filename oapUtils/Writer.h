@@ -1,9 +1,3 @@
-/* 
- * File:   Writer.h
- * Author: marcin
- *
- * Created on 16 luty 2012, 19:34
- */
 
 #ifndef WRITER_H
 #define	WRITER_H

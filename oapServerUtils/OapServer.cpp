@@ -1,9 +1,3 @@
-/* 
- * File:   APIReader.cpp
- * Author: marcin
- * 
- * Created on 03 January 2013, 21:22
- */
 
 #include <algorithm>
 #include <vector>

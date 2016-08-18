@@ -1,12 +1,6 @@
-/* 
- * File:   Error.h
- * Author: marcin
- *
- * Created on 09 December 2012, 14:39
- */
 
-#ifndef OGLA_WRAPPER_INTERFACES_H
-#define	OGLA_WRAPPER_INTERFACES_H
+#ifndef OAP_WRAPPER_INTERFACES_H
+#define	OAP_WRAPPER_INTERFACES_H
 #include <vector>
 #include <map>
 #include <string>

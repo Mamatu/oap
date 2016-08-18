@@ -1,12 +1,6 @@
-/* 
- * File:   Device.h
- * Author: mmatula
- *
- * Created on June 14, 2014, 10:38 PM
- */
 
-#ifndef OGLA_CU_MATRIXPROCEDURES_H
-#define	OGLA_CU_MATRIXPROCEDURES_H
+#ifndef OAP_CU_MATRIXPROCEDURES_H
+#define	OAP_CU_MATRIXPROCEDURES_H
 
 #include <cuda.h>
 #include "CuMatrixUtils.h"

@@ -1,10 +1,3 @@
-/*
- * File:   CuAdditionProcedures.h
- * Author: mmatula
- *
- * Created on January 8, 2015, 9:14 PM
- */
-
 #ifndef CUADDITIONPROCEDURES_H
 #define CUADDITIONPROCEDURES_H
 

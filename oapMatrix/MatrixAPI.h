@@ -1,5 +1,5 @@
-#ifndef OGLA_MATRIXAPI_H
-#define OGLA_MATRIXAPI_H
+#ifndef OAP_MATRIXAPI_H
+#define OAP_MATRIXAPI_H
 
 #include "Matrix.h"
 #include "MatrixTestAPI.h"

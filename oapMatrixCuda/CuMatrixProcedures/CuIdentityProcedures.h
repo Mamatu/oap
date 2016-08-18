@@ -1,9 +1,3 @@
-/*
- * File:   CuIdentityProcedures.h
- * Author: mmatula
- *
- * Created on January 8, 2015, 9:28 PM
- */
 
 #ifndef CUIDENTITYPROCEDURES_H
 #define CUIDENTITYPROCEDURES_H

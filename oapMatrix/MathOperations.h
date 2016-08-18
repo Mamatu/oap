@@ -1,5 +1,5 @@
-#ifndef OGLA_MATH_OPERATIONS_H
-#define	OGLA_MATH_OPERATIONS_H
+#ifndef OAP_MATH_OPERATIONS_H
+#define	OAP_MATH_OPERATIONS_H
 
 #include "WrapperInterfaces.h"
 #include "MatrixModules.h"

@@ -1,5 +1,5 @@
-#ifndef OGLA_MATRIX_MODULE_H
-#define	OGLA_MATRIX_MODULE_H
+#ifndef OAP_MATRIX_MODULE_H
+#define	OAP_MATRIX_MODULE_H
 #include "Module.h"
 #include "Matrix.h"
 #include "Math.h"

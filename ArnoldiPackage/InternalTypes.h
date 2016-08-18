@@ -1,10 +1,3 @@
-/* 
- * File:   InternalTypes.h
- * Author: mmatula
- *
- * Created on August 15, 2014, 6:27 PM
- */
-
 #ifndef INTERNALTYPES_H
 #define	INTERNALTYPES_H
 

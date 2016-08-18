@@ -1,9 +1,3 @@
-/* 
- * File:   Randoms.h
- * Author: mmatula
- *
- * Created on August 17, 2013, 9:15 PM
- */
 
 #ifndef RANDOMS_H
 #define	RANDOMS_H

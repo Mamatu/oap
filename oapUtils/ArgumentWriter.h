@@ -1,9 +1,3 @@
-/* 
- * File:   ArgumentWriter.h
- * Author: mmatula
- *
- * Created on February 20, 2014, 7:18 PM
- */
 
 #ifndef ARGUMENTWRITER_H
 #define	ARGUMENTWRITER_H

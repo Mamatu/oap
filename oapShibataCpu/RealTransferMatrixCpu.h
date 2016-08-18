@@ -1,12 +1,6 @@
-/* 
- * File:   VirtualTransferMatrix.h
- * Author: mmatula
- *
- * Created on January 13, 2014, 8:58 PM
- */
 
-#ifndef OGLA_REAL_TRANSFER_MATRIX_CPU_H
-#define	OGLA_REAL_TRANSFER_MATRIX_CPU_H
+#ifndef OAP_REAL_TRANSFER_MATRIX_CPU_H
+#define	OAP_REAL_TRANSFER_MATRIX_CPU_H
 
 #include "TransferMatrixCpu.h"
 

@@ -1,9 +1,3 @@
-/* 
- * File:   ErrorStack.cpp
- * Author: mmatula
- * 
- * Created on January 9, 2014, 9:51 PM
- */
 
 #include <map>
 #include "Module.h"

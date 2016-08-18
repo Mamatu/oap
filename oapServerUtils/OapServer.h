@@ -1,12 +1,6 @@
-/* 
- * File:   APIReader.h
- * Author: marcin
- *
- * Created on 03 January 2013, 21:22
- */
 
-#ifndef OGLASERVER_H
-#define	OGLASERVER_H
+#ifndef OAPSERVER_H
+#define	OAPSERVER_H
 
 #include <map>
 #include "DebugLogs.h"

@@ -1,9 +1,3 @@
-/* 
- * File:   main.cpp
- * Author: mmatula
- *
- * Created on November 5, 2013, 7:19 PM
- */
 
 #include <cstdlib>
 #include "RealTransferMatrixCpu.h"

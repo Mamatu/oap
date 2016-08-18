@@ -1,9 +1,3 @@
-/* 
- * File:   VirtualTransferMatrix.cpp
- * Author: mmatula
- * 
- * Created on January 13, 2014, 8:58 PM
- */
 
 #include "HostMatrixModules.h"
 #include "Matrix.h"

@@ -1,9 +1,3 @@
-/*
- * File:   CuMultiplicationProcedures.h
- * Author: mmatula
- *
- * Created on January 8, 2015, 9:13 PM
- */
 
 #ifndef CUDOTPRODUCTPROCEDURES_H
 #define CUDOTPRODUCTPROCEDURES_H

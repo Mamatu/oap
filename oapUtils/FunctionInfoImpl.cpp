@@ -1,9 +1,3 @@
-/* 
- * File:   FunctionEventimpl.cpp
- * Author: mmatula
- * 
- * Created on September 15, 2013, 2:25 PM
- */
 
 #include "FunctionInfoImpl.h"
 namespace utils {

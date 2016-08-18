@@ -1,9 +1,3 @@
-/* 
- * File:   MainAPI.h
- * Author: marcin
- *
- * Created on 30 April 2013, 22:08
- */
 
 #ifndef APIINTERACE_H
 #define	APIINTERACE_H

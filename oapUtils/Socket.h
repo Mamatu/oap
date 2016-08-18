@@ -1,9 +1,3 @@
-/*
- * File:   Socket.h
- * Author: marcin
- *
- * Created on 2 sierpień 2012, 13:13
- */
 
 #ifndef SOCKET_H
 #define SOCKET_H

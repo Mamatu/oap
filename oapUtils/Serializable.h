@@ -1,9 +1,3 @@
-/* 
- * File:   Serializable.h
- * Author: mmatula
- *
- * Created on February 18, 2014, 8:51 PM
- */
 
 #ifndef SERIALIZABLE_H
 #define	SERIALIZABLE_H

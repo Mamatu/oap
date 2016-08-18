@@ -1,9 +1,3 @@
-/* 
- * File:   ThreadsMapper.h
- * Author: mmatula
- *
- * Created on February 20, 2014, 7:42 PM
- */
 
 #ifndef THREADSMAPPER_H
 #define	THREADSMAPPER_H

@@ -1,10 +1,3 @@
-/* 
- * File:   MatrixModule.cpp
- * Author: mmatula
- * 
- * Created on March 22, 2014, 12:27 PM
- */
-
 #include "MatrixModules.h"
 #include <stdio.h>
 

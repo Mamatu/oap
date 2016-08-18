@@ -1,15 +1,6 @@
-/* 
- * File:   ArnoldiMethodProcess.h
- * Author: mmatula
- *
- * Created on August 16, 2014, 7:18 PM
- */
-
 #ifndef ARNOLDIMETHODPROCESS_H
 #define	ARNOLDIMETHODPROCESS_H
 
-
-#include "Types.h"
 #include "InternalTypes.h"
 #include "MathOperations.h"
 #include "IArnoldiMethod.h"

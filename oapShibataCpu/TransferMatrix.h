@@ -1,12 +1,6 @@
-/* 
- * File:   TransferMatrix.h
- * Author: mmatula
- *
- * Created on January 14, 2014, 8:09 PM
- */
 
-#ifndef OGLA_TRANSFER_MATRIX_H
-#define	OGLA_TRANSFER_MATRIX_H
+#ifndef OAP_TRANSFER_MATRIX_H
+#define	OAP_TRANSFER_MATRIX_H
 
 
 #include "Matrix.h"

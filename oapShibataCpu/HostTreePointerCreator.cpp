@@ -1,9 +1,3 @@
-/* 
- * File:   TreePointerCreator.cpp
- * Author: mmatula
- * 
- * Created on June 15, 2014, 1:06 AM
- */
 
 #include "TreePointerCreator.h"
 #include <string.h>

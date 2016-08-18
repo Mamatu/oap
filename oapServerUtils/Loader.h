@@ -1,9 +1,3 @@
-/* 
- * File:   Loader.h
- * Author: marcin
- *
- * Created on 25 April 2013, 22:09
- */
 
 #ifndef LOADER_H
 #define	LOADER_H

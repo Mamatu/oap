@@ -1,9 +1,3 @@
-/* 
- * File:   LHandle.cpp
- * Author: mmatula
- * 
- * Created on April 17, 2014, 9:16 PM
- */
 
 #include "LHandle.h"
 #include <string.h>

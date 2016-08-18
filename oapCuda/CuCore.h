@@ -1,10 +1,3 @@
-/*
- * File:   CuCore.h
- * Author: mmatula
- *
- * Created on March 3, 2015, 10:35 PM
- */
-
 #ifndef CU_CORE_H
 #define CU_CORE_H
 

@@ -1,10 +1,3 @@
-/* 
- * File:   IArnoldiMethod.h
- * Author: mmatula
- *
- * Created on August 25, 2014, 6:56 PM
- */
-
 #ifndef IARNOLDIMETHOD_H
 #define	IARNOLDIMETHOD_H
 

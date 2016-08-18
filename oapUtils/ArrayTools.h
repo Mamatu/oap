@@ -1,9 +1,3 @@
-/* 
- * File:   ArrayTools.h
- * Author: marcin
- *
- * Created on 29 December 2012, 19:08
- */
 
 #ifndef ARRAYTOOLS_H
 #define	ARRAYTOOLS_H

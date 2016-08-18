@@ -1,12 +1,6 @@
-/* 
- * File:   ErrorStack.h
- * Author: mmatula
- *
- * Created on January 9, 2014, 9:51 PM
- */
 
-#ifndef OGLA_MODULE_H
-#define	OGLA_MODULE_H
+#ifndef OAP_MODULE_H
+#define	OAP_MODULE_H
 #include <queue>
 #include <map>
 #include <string>
@@ -16,9 +10,9 @@
 #define CONTROL_CRITICALS() //if(this->isCriticalError()){return;}
 
 #ifdef DEBUG
-#define OGLA_CHECK_ERROR(module) if(module.isError()){ module.printMessage(stderr); } 
+#define OAP_CHECK_ERROR(module) if(module.isError()){ module.printMessage(stderr); } 
 #else
-#define OGLA_CHECK_ERROR(module)
+#define OAP_CHECK_ERROR(module)
 #endif
 
 namespace utils {

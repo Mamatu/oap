@@ -1,9 +1,3 @@
-/*
- * File:   matrixEq.h
- * Author: mmatula
- *
- * Created on December 23, 2014, 10:30 AM
- */
 
 #ifndef MOCKUTILS_H
 #define MOCKUTILS_H

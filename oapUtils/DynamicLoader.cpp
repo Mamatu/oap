@@ -1,9 +1,3 @@
-/* 
- * File:   Argument.cpp
- * Author: marcin
- * 
- * Created on 03 January 2013, 22:56
- */
 
 #include "Argument.h"
 #include "ArrayTools.h"

@@ -1,9 +1,3 @@
-/*
- * File:   CuMultiplicationProcedures.h
- * Author: mmatula
- *
- * Created on January 8, 2015, 9:16 PM
- */
 
 #ifndef CUMULTIPLICATIONPROCEDURES_H
 #define CUMULTIPLICATIONPROCEDURES_H

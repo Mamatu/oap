@@ -1,9 +1,3 @@
-/* 
- * File:   Argument.h
- * Author: marcin
- *
- * Created on 03 January 2013, 22:56
- */
 
 #ifndef DYNAMICLOADER_H
 #define	DYNAMICLOADER_H

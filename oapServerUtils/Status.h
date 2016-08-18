@@ -1,9 +1,3 @@
-/* 
- * File:   Codes.h
- * Author: marcin
- *
- * Created on 30 April 2013, 20:15
- */
 
 #ifndef CODES_H
 #define	CODES_H

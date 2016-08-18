@@ -1,10 +1,3 @@
-/* 
- * File:   CuUtils.h
- * Author: mmatula
- *
- * Created on October 26, 2014, 2:33 PM
- */
-
 #ifndef CU_SYNC_H
 #define	CU_SYNC_H
 

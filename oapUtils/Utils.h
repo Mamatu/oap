@@ -1,9 +1,3 @@
-/*
- * File:   Utils.h
- * Author: mmatula
- *
- * Created on March 22, 2015, 11:23 AM
- */
 
 #ifndef UTILS_H
 #define UTILS_H

@@ -1,9 +1,3 @@
-/* 
- * File:   BacktraceUtils.cpp
- * Author: mmatula
- * 
- * Created on January 11, 2015, 10:14 PM
- */
 
 #include "BacktraceUtils.h"
 #include <execinfo.h>

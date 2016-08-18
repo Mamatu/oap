@@ -1,9 +1,3 @@
-/*
- * File:   mutex.cpp
- * Author: marcin
- *
- * Created on 26 December 2012, 20:38
- */
 
 #include "ThreadUtils.h"
 

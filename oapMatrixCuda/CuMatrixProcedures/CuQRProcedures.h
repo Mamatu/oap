@@ -1,9 +1,3 @@
-/*
-* File:   CuQRProcedures.h
-* Author: mmatula
-*
-* Created on January 8, 2015, 9:26 PM
-*/
 
 #ifndef CUQRPROCEDURES_H
 #define CUQRPROCEDURES_H

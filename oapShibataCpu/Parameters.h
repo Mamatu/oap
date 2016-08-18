@@ -1,12 +1,6 @@
-/* 
- * File:   Parameters.h
- * Author: mmatula
- *
- * Created on September 30, 2013, 9:28 PM
- */
 
-#ifndef OGLA_PARAMETERS_SHIBATA_CPU_H
-#define	OGLA_PARAMETERS_SHIBATA_CPU_H
+#ifndef OAP_PARAMETERS_SHIBATA_CPU_H
+#define	OAP_PARAMETERS_SHIBATA_CPU_H
 
 #include "DebugLogs.h"
 #include "Matrix.h"

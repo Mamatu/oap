@@ -1,12 +1,6 @@
-/* 
- * File:   VirtualTransferMatrix.h
- * Author: mmatula
- *
- * Created on January 13, 2014, 8:58 PM
- */
 
-#ifndef OGLA_VIRTUALTRANSFER_MATRIX_CUDA_H
-#define	OGLA_VIRTUALTRANSFER_MATRIX_CUDA_H
+#ifndef OAP_VIRTUALTRANSFER_MATRIX_CUDA_H
+#define	OAP_VIRTUALTRANSFER_MATRIX_CUDA_H
 
 #include "TransferMatrix.h"
 #include "DeviceTreePointerCreator.h"

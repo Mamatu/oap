@@ -1,10 +1,3 @@
-/*
- * File:   CuUtils.h
- * Author: mmatula
- *
- * Created on October 26, 2014, 2:33 PM
- */
-
 #ifndef CU_UTILS_H
 #define	CU_UTILS_H
 

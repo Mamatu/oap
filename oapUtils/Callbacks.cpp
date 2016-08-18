@@ -1,9 +1,3 @@
-/* 
- * File:   Callbacks.cpp
- * Author: mmatula
- * 
- * Created on August 15, 2013, 9:20 PM
- */
 
 #include "Callbacks.h"
 

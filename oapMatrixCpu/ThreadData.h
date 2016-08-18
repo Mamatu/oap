@@ -1,5 +1,5 @@
-#ifndef OGLA_INTERNAL_TYPES_H
-#define	OGLA_INTERNAL_TYPES_H
+#ifndef OAP_INTERNAL_TYPES_H
+#define	OAP_INTERNAL_TYPES_H
 #include "MathOperations.h"
 #include "ThreadsMapper.h"
 

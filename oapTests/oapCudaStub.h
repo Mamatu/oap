@@ -1,12 +1,6 @@
-/*
- * File:   oapCudaUtils.h
- * Author: mmatula
- *
- * Created on March 3, 2015, 11:15 PM
- */
 
-#ifndef OGLACUDASTUB_H
-#define OGLACUDASTUB_H
+#ifndef OAPCUDASTUB_H
+#define OAPCUDASTUB_H
 
 #include <vector>
 #include "gtest/gtest.h"
@@ -47,4 +41,4 @@ inline void OapCudaStub::executeKernelSync(HostKernel* hostKernel) {
 inline void OapCudaStub::executeKernelAsync(HostKernel* hostKernel) {
   hostKernel->executeKernelAsync();
 }
-#endif /* OGLACUDAUTILS_H */
+#endif /* OAPCUDAUTILS_H */

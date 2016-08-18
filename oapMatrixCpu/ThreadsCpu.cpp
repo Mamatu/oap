@@ -1,9 +1,3 @@
-/* 
- * File:   ThreadsCpu.cpp
- * Author: mmatula
- * 
- * Created on August 2, 2014, 9:40 PM
- */
 
 #include "ThreadsCpu.h"
 

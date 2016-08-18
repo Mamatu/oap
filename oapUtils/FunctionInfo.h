@@ -1,9 +1,3 @@
-/* 
- * File:   FunctionInfo.h
- * Author: mmatula
- *
- * Created on September 15, 2013, 2:41 PM
- */
 
 #ifndef FUNCTIONINFO_H
 #define	FUNCTIONINFO_H

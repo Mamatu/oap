@@ -1,12 +1,5 @@
-/*
- * File:   CuProcedures.h
- * Author: mmatula
- *
- * Created on August 17, 2014, 1:20 AM
- */
-
-#ifndef OGLA_CU_ARNOLDIPROCEDURES_H
-#define OGLA_CU_ARNOLDIPROCEDURES_H
+#ifndef OAP_CU_ARNOLDIPROCEDURES_H
+#define OAP_CU_ARNOLDIPROCEDURES_H
 
 #include <vector>
 #include "MatrixEx.h"

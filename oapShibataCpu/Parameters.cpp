@@ -1,9 +1,3 @@
-/* 
- * File:   Parameters.cpp
- * Author: mmatula
- * 
- * Created on September 30, 2013, 9:28 PM
- */
 
 #include "Parameters.h"
 

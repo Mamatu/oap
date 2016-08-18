@@ -1,12 +1,5 @@
-/*
- * File:   Matrix.cpp
- * Author: mmatula
- *
- * Created on November 29, 2013, 6:29 PM
- */
-
-#ifndef OGLA_MATRIX_TEST_API_H
-#define OGLA_MATRIX_TEST_API_H
+#ifndef OAP_MATRIX_TEST_API_H
+#define OAP_MATRIX_TEST_API_H
 
 #include "Matrix.h"
 

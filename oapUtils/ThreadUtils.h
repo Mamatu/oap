@@ -1,12 +1,6 @@
-/*
- * File:   mutex.h
- * Author: marcin
- *
- * Created on 26 December 2012, 20:38
- */
 
-#ifndef OGLA_THREAD_UTILS_H
-#define OGLA_THREAD_UTILS_H
+#ifndef OAP_THREAD_UTILS_H
+#define OAP_THREAD_UTILS_H
 
 #include <pthread.h>
 #include <semaphore.h>

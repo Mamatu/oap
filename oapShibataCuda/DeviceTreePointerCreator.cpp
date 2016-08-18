@@ -1,9 +1,3 @@
-/* 
- * File:   DeviceTreePointerCreator.cpp
- * Author: mmatula
- * 
- * Created on June 15, 2014, 10:36 AM
- */
 
 #include "DeviceTreePointerCreator.h"
 #include "DeviceMatrixModules.h"

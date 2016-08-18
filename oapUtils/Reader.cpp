@@ -1,9 +1,3 @@
-/* 
- * File:   ByteReader.cpp
- * Author: marcin
- * 
- * Created on 16 luty 2012, 20:31
- */
 
 #include <stdio.h>
 #include <fstream>

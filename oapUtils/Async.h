@@ -1,9 +1,3 @@
-/* 
- * File:   AsyncRandoms.h
- * Author: mmatula
- *
- * Created on July 7, 2013, 6:06 PM
- */
 
 #ifndef ASYNC_H
 #define	ASYNC_H

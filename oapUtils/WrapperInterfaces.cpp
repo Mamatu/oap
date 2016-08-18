@@ -1,9 +1,3 @@
-/* 
- * File:   Error.cpp
- * Author: marcin
- * 
- * Created on 09 December 2012, 14:39
- */
 
 #include "WrapperInterfaces.h"
 #include "Argument.h"

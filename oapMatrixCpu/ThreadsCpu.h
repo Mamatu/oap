@@ -1,12 +1,6 @@
-/* 
- * File:   ThreadsCpu.h
- * Author: mmatula
- *
- * Created on August 2, 2014, 9:40 PM
- */
 
-#ifndef OGLA_THREADSCPU_H
-#define	OGLA_THREADSCPU_H
+#ifndef OAP_THREADSCPU_H
+#define	OAP_THREADSCPU_H
 
 #include "ThreadUtils.h"
 #include "HostMatrixModules.h"

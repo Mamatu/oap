@@ -1,9 +1,3 @@
-/* 
- * File:   math::MatrixOperationsCPU.cpp
- * Author: mmatula
- * 
- * Created on September 24, 2013, 9:33 PM
- */
 #include <vector>
 
 #include "MathOperationsCpu.h"

@@ -1,12 +1,6 @@
-/* 
- * File:   TransferMatrixCpu.h
- * Author: mmatula
- *
- * Created on January 27, 2014, 7:57 PM
- */
 
-#ifndef OGLA_TRANSFER_MATRIX_CPU_H
-#define	OGLA_TRANSFER_MATRIX_CPU_H
+#ifndef OAP_TRANSFER_MATRIX_CPU_H
+#define	OAP_TRANSFER_MATRIX_CPU_H
 
 #include "TransferMatrix.h"
 #include "TreePointerCreator.h"

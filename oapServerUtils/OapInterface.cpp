@@ -1,9 +1,3 @@
-/* 
- * File:   MainAPI.cpp
- * Author: marcin
- * 
- * Created on 30 April 2013, 22:08
- */
 
 #include "OapInterface.h"
 #include "ArrayTools.h"

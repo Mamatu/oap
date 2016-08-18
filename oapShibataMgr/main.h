@@ -1,9 +1,3 @@
-/* 
- * File:   main.h
- * Author: mmatula
- *
- * Created on May 26, 2014, 8:04 PM
- */
 
 #ifndef MAIN_H
 #define	MAIN_H

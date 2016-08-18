@@ -1,12 +1,6 @@
-/* 
- * File:   MatrixOperationsCPU.h
- * Author: mmatula
- *
- * Created on September 24, 2013, 9:33 PM
- */
 
-#ifndef OGLA_MATRIXOPERATIONSCPU_H
-#define	OGLA_MATRIXOPERATIONSCPU_H
+#ifndef OAP_MATRIXOPERATIONSCPU_H
+#define	OAP_MATRIXOPERATIONSCPU_H
 
 #include "ThreadsCpu.h"   
 

@@ -1,9 +1,3 @@
-/* 
- * File:   MatricesExamples.h
- * Author: mmatula
- *
- * Created on January 24, 2015, 1:43 PM
- */
 
 #ifndef MATRICESEXAMPLES_H
 #define	MATRICESEXAMPLES_H

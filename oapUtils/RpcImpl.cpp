@@ -1,9 +1,3 @@
-/* 
- * File:   RPCImplementation.cpp
- * Author: marcin
- * 
- * Created on 15 January 2013, 22:14
- */
 
 #include "RpcImpl.h"
 #include "Writer.h"

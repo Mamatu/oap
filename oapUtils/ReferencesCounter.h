@@ -1,9 +1,3 @@
-/* 
- * File:   ReferencesCounter.h
- * Author: mmatula
- *
- * Created on April 2, 2015, 9:53 PM
- */
 
 #ifndef REFERENCESCOUNTER_H
 #define	REFERENCESCOUNTER_H

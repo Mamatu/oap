@@ -1,9 +1,3 @@
-/* 
- * File:   BacktraceUtils.h
- * Author: mmatula
- *
- * Created on January 11, 2015, 10:14 PM
- */
 
 #ifndef BACKTRACEUTILS_H
 #define	BACKTRACEUTILS_H

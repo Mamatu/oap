@@ -1,9 +1,3 @@
-/*
- * File: CuCommonUtils.h
- * Author: mmatula
- *
- * Created on February 28, 2015, 11:07 PM
- */
 
 #ifndef CUMAGNITUDEUTILSCOMMON_H
 #define CUMAGNITUDEUTILSCOMMON_H

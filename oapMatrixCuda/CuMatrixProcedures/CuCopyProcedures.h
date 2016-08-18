@@ -1,9 +1,3 @@
-/*
- * File:   CuCopyProcedures.h
- * Author: mmatula
- *
- * Created on January 8, 2015, 9:11 PM
- */
 
 #ifndef CUCOPYPROCEDURES_H
 #define CUCOPYPROCEDURES_H

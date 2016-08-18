@@ -1,9 +1,3 @@
-/*
- * File:   CuCompareProcedures.h
- * Author: mmatula
- *
- * Created on January 8, 2015, 9:08 PM
- */
 
 #ifndef CUCOMPAREPROCEDURES_H
 #define CUCOMPAREPROCEDURES_H

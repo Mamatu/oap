@@ -1,9 +1,3 @@
-/* 
- * File:   Callbacks.h
- * Author: mmatula
- *
- * Created on August 15, 2013, 9:20 PM
- */
 
 #ifndef CALLBACKS_H
 #define	CALLBACKS_H

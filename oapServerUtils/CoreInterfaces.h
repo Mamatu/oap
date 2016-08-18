@@ -1,9 +1,3 @@
-/* 
- * File:   Interfaces.h
- * Author: mmatula
- *
- * Created on July 6, 2013, 11:39 PM
- */
 
 #ifndef SERVERINTERFACES_H
 #define	SERVERINTERFACES_H

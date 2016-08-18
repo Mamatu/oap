@@ -1,10 +1,3 @@
-/* 
- * File:   ArnoldiMethodProcess.cpp
- * Author: mmatula
- * 
- * Created on August 16, 2014, 7:18 PM
- */
-
 #include "ArnoldiMethodProcess.h"
 #include "ArnoldiMethodHostImpl.h"
 #include <math.h>

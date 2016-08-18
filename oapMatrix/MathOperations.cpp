@@ -1,10 +1,3 @@
-/* 
- * File:   MathOperations.cpp
- * Author: mmatula
- * 
- * Created on March 22, 2014, 12:15 PM
- */
-
 #include "MathOperations.h"
 
 

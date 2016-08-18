@@ -1,12 +1,5 @@
-/*
- * File:   MathTypes.h
- * Author: mmatula
- *
- * Created on February 13, 2014, 11:30 PM
- */
-
-#ifndef OGLA_MATH_TYPES_H
-#define OGLA_MATH_TYPES_H
+#ifndef OAP_MATH_TYPES_H
+#define OAP_MATH_TYPES_H
 
 //#define NORMAL_TYPES
 //#define EXTENDED_TYPES

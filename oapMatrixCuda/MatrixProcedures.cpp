@@ -1,9 +1,3 @@
-/*
- * File:   MatrixProcedures.cpp
- * Author: mmatula
- *
- * Created on January 3, 2015, 8:37 PM
- */
 
 #include "MatrixProcedures.h"
 #include "DebugLogs.h"

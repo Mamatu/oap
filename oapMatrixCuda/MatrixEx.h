@@ -1,12 +1,6 @@
-/* 
- * File:   MatrixEx.h
- * Author: mmatula
- *
- * Created on January 3, 2015, 9:47 PM
- */
 
-#ifndef OGLA_MATRIXEX_H
-#define	OGLA_MATRIXEX_H
+#ifndef OAP_MATRIXEX_H
+#define	OAP_MATRIXEX_H
 
 #include "Math.h"
 

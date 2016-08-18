@@ -1,9 +1,3 @@
-/*
- * File: CuMagnitudeProcedures.h
- * Author: mmatula
- *
- * Created on January 8, 2015, 9:08 PM
- */
 #ifndef CUMAGNITUDEVECOPTPROCEDURES_H
 #define CUMAGNITUDEVECOPTPROCEDURES_H
 #include <cuda.h>

@@ -1,9 +1,3 @@
-/* 
- * File:   ByteReader.h
- * Author: marcin
- *
- * Created on 16 luty 2012, 20:31
- */
 
 #ifndef READER_H
 #define	READER_H

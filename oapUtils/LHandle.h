@@ -1,9 +1,3 @@
-/* 
- * File:   LHandle.h
- * Author: mmatula
- *
- * Created on April 17, 2014, 9:16 PM
- */
 
 #ifndef LHANDLE_H
 #define	LHANDLE_H

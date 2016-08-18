@@ -1,10 +1,3 @@
-/*
- * File:   dim3.h
- * Author: mmatula
- *
- * Created on March 10, 2015, 10:06 PM
- */
-
 #ifndef DIM3_H
 #define DIM3_H
 

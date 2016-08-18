@@ -1,9 +1,3 @@
-/* 
- * File:   ObjectInfo.h
- * Author: mmatula
- *
- * Created on September 15, 2013, 3:31 PM
- */
 
 #ifndef OBJECTINFO_H
 #define	OBJECTINFO_H

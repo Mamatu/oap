@@ -1,9 +1,3 @@
-/*
- * File:   DeviceUtils.h
- * Author: mmatula
- *
- * Created on November 22, 2014, 7:58 PM
- */
 
 #ifndef CUDAUTILS_H
 #define CUDAUTILS_H

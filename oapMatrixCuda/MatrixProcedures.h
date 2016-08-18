@@ -1,5 +1,5 @@
-#ifndef OGLA_CUMATRIXPROCEDURES_H
-#define OGLA_CUMATRIXPROCEDURES_H
+#ifndef OAP_CUMATRIXPROCEDURES_H
+#define OAP_CUMATRIXPROCEDURES_H
 
 #include "Matrix.h"
 #include "MatrixEx.h"

@@ -1,9 +1,3 @@
-/* 
- * File:   RpcBase.cpp
- * Author: mmatula
- * 
- * Created on July 27, 2013, 10:35 PM
- */
 
 #include "RpcBase.h"
 #include "FunctionInfoImpl.h"

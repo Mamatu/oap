@@ -1,12 +1,6 @@
-/* 
- * File:   Interfaces.h
- * Author: marcin
- *
- * Created on 14 January 2013, 20:57
- */
 
-#ifndef OGLA_BUFFER_H
-#define	OGLA_BUFFER_H
+#ifndef OAP_BUFFER_H
+#define	OAP_BUFFER_H
 
 #include "DebugLogs.h"
 #include "Argument.h"

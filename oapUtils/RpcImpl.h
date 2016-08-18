@@ -1,9 +1,3 @@
-/* 
- * File:   RPCImplementation.h
- * Author: marcin
- *
- * Created on 15 January 2013, 22:14
- */
 
 #ifndef RPCIMPLEMENTATION_H
 #define	RPCIMPLEMENTATION_H

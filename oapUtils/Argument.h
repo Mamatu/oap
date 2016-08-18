@@ -1,12 +1,6 @@
-/* 
- * File:   Argument.h
- * Author: marcin
- *
- * Created on 03 January 2013, 22:56
- */
 
-#ifndef OGLA_ARGUMENT_H
-#define	OGLA_ARGUMENT_H
+#ifndef OAP_ARGUMENT_H
+#define	OAP_ARGUMENT_H
 
 #include <string>
 #include <typeinfo> 

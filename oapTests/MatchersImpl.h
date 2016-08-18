@@ -1,9 +1,3 @@
-/*
- * File:   MatchersImpl.h
- * Author: mmatula
- *
- * Created on March 22, 2015, 11:21 AM
- */
 
 #ifndef MATCHERSIMPL_H
 #define MATCHERSIMPL_H

@@ -1,9 +1,3 @@
-/* 
- * File:   Socket.cpp
- * Author: marcin
- * 
- * Created on 2 sierpień 2012, 13:13
- */
 
 
 #include "Socket.h"

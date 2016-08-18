@@ -1,5 +1,5 @@
-#ifndef OGLA_HOST_MATRIX_UTILS_H
-#define	OGLA_HOST_MATRIX_UTILS_H
+#ifndef OAP_HOST_MATRIX_UTILS_H
+#define	OAP_HOST_MATRIX_UTILS_H
 #include "MatrixModules.h"
 #include "Matrix.h"
 #include <stdio.h>

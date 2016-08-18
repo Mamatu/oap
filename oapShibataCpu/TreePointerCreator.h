@@ -1,9 +1,3 @@
-/* 
- * File:   TreePointerCreator.h
- * Author: mmatula
- *
- * Created on June 15, 2014, 1:06 AM
- */
 
 #ifndef TREEPOINTERCREATOR_H
 #define	TREEPOINTERCREATOR_H

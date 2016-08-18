@@ -1,9 +1,3 @@
-/*
- * File:   CuTransponseProcedures.h
- * Author: mmatula
- *
- * Created on January 8, 2015, 9:25 PM
- */
 
 #ifndef CUTRANSPONSEPROCEDURES_H
 #define CUTRANSPONSEPROCEDURES_H

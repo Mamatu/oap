@@ -1,12 +1,6 @@
-/*
- * File:   CuMatrixUtils.h
- * Author: mmatula
- *
- * Created on October 26, 2014, 2:34 PM
- */
 
-#ifndef OGLA_CU_MATRIXUTILS_H
-#define	OGLA_CU_MATRIXUTILS_H
+#ifndef OAP_CU_MATRIXUTILS_H
+#define	OAP_CU_MATRIXUTILS_H
 
 #include "CuUtils.h"
 #include "CuCore.h"

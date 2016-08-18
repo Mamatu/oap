@@ -1,9 +1,3 @@
-/*
- * File:   MatrixAllocator.cpp
- * Author: mmatula
- *
- * Created on December 13, 2013, 9:16 PM
- */
 
 #include "HostMatrixModules.h"
 #include <cstring>
