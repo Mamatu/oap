@@ -1,3 +1,24 @@
+/*
+ * Copyright 2016 Marcin Matula
+ *
+ * This file is part of Oap.
+ *
+ * Oap is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Oap is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+
 
 #ifndef MAIN_H
 #define	MAIN_H
@@ -85,4 +106,3 @@ floatt tm64[] = {63034.124661, 0.000000, 0.000000, 4342.542858, 0.000000, 0.0000
     41.217499, 0.000000, 0.000000, 300.572484, 0.000000, 0.000000, 259.354985, 0.000000, 0.000000, 259.354985, 0.000000, 0.000000, 300.572484, 0.000000, 0.000000, 4342.542858, 0.000000, 0.000000, 259.354985, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 259.354985, 0.000000, 0.000000, 17.867066, 0.000000, 0.000000, 3764.748322, 0.000000, 0.000000, 259.354985, 0.000000, 0.000000, 259.354985, 0.000000, 0.000000, 3764.748322, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 17.867066, 0.000000, 0.000000, 300.572484, 0.000000, 0.000000, 4342.542858, 0.000000, 0.000000, 17.867066, 0.000000, 0.000000, 3764.748322, 0.000000, 0.000000, 4342.542858, 0.000000, 0.000000, 63034.124661};
 
 #endif	/* MAIN_H */
-
