@@ -403,7 +403,7 @@ TEST_F(OapArnoldiPackageCallbackTests, TestData2Dim32x32) {
   executeArnoldiTest(-4.257104, "../../../data/data2", 32);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, TestData2Dim64x64) {
+TEST_F(OapArnoldiPackageCallbackTests, DISABLED_TestData2Dim64x64) {
   executeArnoldiTest(-4.257104, "../../../data/data2", 64, false);
 }
 

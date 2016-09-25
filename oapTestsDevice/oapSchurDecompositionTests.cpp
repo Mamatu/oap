@@ -124,7 +124,7 @@ TEST_F(OapSchurDecomposition, Test2) {
               OapSchurDecomposition::DEVICE);
 }
 
-TEST_F(OapSchurDecomposition, Test3) {
+TEST_F(OapSchurDecomposition, DISABLED_Test3) {
   executeTest(test::schur3::matrix, test::schur3::eq_matrix,
               OapSchurDecomposition::DEVICE);
 }
