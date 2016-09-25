@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 // Copyright 2008, Google Inc.
 // All rights reserved.
 //
@@ -76,12 +73,39 @@
 
 class OapArnoldiPackageCallbackTests : public testing::Test {
  public:
-  CuHArnoldiCallback* arnoldiCuda;
+  class CuHArnoldiCallbackImpl : public CuHArnoldiCallback {
+   public:
+    CuHArnoldiCallbackImpl() : CuHArnoldiCallback() {
+      m_compareValueWasSet = false;
+    }
+
+    void setEValue(floatt evalue, floatt tolerance) {
+      m_evalue = evalue;
+      m_etolerance = tolerance;
+      m_compareValueWasSet = true;
+    }
+
+   protected:
+    bool m_compareValueWasSet;
+    floatt m_evalue;
+    floatt m_etolerance;
+    bool checkEigenvalue(floatt value, uint index) {
+      debugAssert(m_compareValueWasSet == true);
+
+      bool c = !(m_evalue - m_etolerance <= value &&
+                 value <= m_evalue + m_etolerance);
+      debug("m_evalue = %f m_etolerance = %f value = %f", m_evalue, m_etolerance, value);
+      return c;
+    }
+  };
+
+  CuHArnoldiCallbackImpl* arnoldiCuda;
   CuMatrix* cuMatrix;
 
   virtual void SetUp() {
     device::Context::Instance().create();
-    arnoldiCuda = new CuHArnoldiCallback();
+
+    arnoldiCuda = new CuHArnoldiCallbackImpl();
     cuMatrix = new CuMatrix();
   }
 
@@ -235,21 +259,30 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
   }
 
   void executeArnoldiTest(floatt value, const std::string& path,
-                          uintt hdim = 32, floatt tolerance = 0.01) {
+                          uintt hdim = 32, bool enableValidateOfV = true,
+                          floatt tolerance = 0.01) {
     OapArnoldiPackageCallbackTests::Data data(path);
+
+    typedef std::pair<OapArnoldiPackageCallbackTests::Data*, bool> UserPair;
+
+    UserPair userPair = std::make_pair(&data, enableValidateOfV);
+
     class MultiplyFunc {
      public:
       static void multiply(math::Matrix* w, math::Matrix* v, void* userData,
                            CuHArnoldi::MultiplicationType mt) {
         if (mt == CuHArnoldi::TYPE_WV) {
-          Data* data = static_cast<Data*>(userData);
+          UserPair* userPair = static_cast<UserPair*>(userData);
+          Data* data = userPair->first;
           data->load();
           data->printCounter();
           device::CopyDeviceMatrixToHostMatrix(data->hostV, v);
-          ASSERT_THAT(
-              data->hostV,
-              MatrixIsEqual(data->refV,
+          if (userPair->second) {
+            ASSERT_THAT(data->hostV,
+                        MatrixIsEqual(
+                            data->refV,
                             InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
+          }
           device::CopyHostMatrixToDeviceMatrix(w, data->refW);
         }
       }
@@ -265,18 +298,21 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     outputs.imValues = imvalues;
     outputs.columns = wanted;
 
-    arnoldiCuda->setCallback(MultiplyFunc::multiply, &data);
+    arnoldiCuda->setCallback(MultiplyFunc::multiply, &userPair);
     arnoldiCuda->setBLimit(0.01);
     arnoldiCuda->setRho(1. / 3.14159265359);
     arnoldiCuda->setSortType(ArnUtils::SortSmallestReValues);
+    arnoldiCuda->setCheckType(ArnUtils::CHECK_EXTERNAL_EIGENVALUE);
+    arnoldiCuda->setEValue(value, tolerance);
     arnoldiCuda->setOutputs(&outputs);
     ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
                                     data.getElementsCount());
     arnoldiCuda->execute(hdim, wanted, matrixInfo);
-    EXPECT_DOUBLE_EQ(value, revalues[0]);
-    EXPECT_DOUBLE_EQ(0, revalues[1]);
-    EXPECT_DOUBLE_EQ(0, imvalues[0]);
-    EXPECT_DOUBLE_EQ(0, imvalues[1]);
+    EXPECT_THAT(revalues[0], ::testing::DoubleNear(value, tolerance));
+    // EXPECT_DOUBLE_EQ(value, );
+    EXPECT_DOUBLE_EQ(revalues[1], 0);
+    EXPECT_DOUBLE_EQ(imvalues[0], 0);
+    EXPECT_DOUBLE_EQ(imvalues[1], 0);
   }
 
   void triangularityTest(const std::string& matrixStr) {
@@ -368,7 +404,7 @@ TEST_F(OapArnoldiPackageCallbackTests, TestData2Dim32x32) {
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData2Dim64x64) {
-  executeArnoldiTest(-4.257104, "../../../data/data2", 64);
+  executeArnoldiTest(-4.257104, "../../../data/data2", 64, false);
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData3Dim32x32) {
@@ -376,7 +412,7 @@ TEST_F(OapArnoldiPackageCallbackTests, TestData3Dim32x32) {
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData3Dim64x64) {
-  executeArnoldiTest(-5.519614, "../../../data/data3", 64);
+  executeArnoldiTest(-5.519614, "../../../data/data3", 64, false);
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData4) {
