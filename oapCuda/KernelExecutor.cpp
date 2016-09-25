@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include <linux/fs.h>
 #include <math.h>
 
@@ -172,6 +170,8 @@ void Kernel::setDimensions(uintt w, uintt h) {
   CUdevprop devprop;
   getDeviceProperties(devprop);
   calculateThreadsBlocks(m_blocksCount, m_threadsCount, w, h);
+  debug("m_blocksCount = %u %u m_threadsCount = %u %u", m_blocksCount[0],
+        m_blocksCount[1], m_threadsCount[0], m_threadsCount[1]);
 }
 
 void Kernel::setDimensionsDevice(math::Matrix* dmatrix) {
@@ -209,8 +209,9 @@ void Kernel::unloadCuModule() {
 }
 
 void Kernel::loadCuModule() {
-  unloadCuModule();
-  if (NULL != m_image) {
+  //unloadCuModule();
+  if (NULL != m_image && NULL == m_cuModule) {
+    debug("Load module from image = %p", m_image);
     printCuError(cuModuleLoadData(&m_cuModule, m_image));
   }
 }
@@ -219,7 +220,7 @@ void Kernel::unload() { unloadCuModule(); }
 
 void Kernel::setImage(void* image) {
   this->m_image = image;
-  // loadCuModule();
+  loadCuModule();
 }
 
 CUresult Kernel::execute(const char* functionName) {
@@ -262,7 +263,7 @@ CUresult Kernel::execute(const char* functionName) {
     }
     abort();
   }
-  unloadCuModule();
+  //unloadCuModule();
   resetParameters();
   return status;
 }
@@ -354,17 +355,6 @@ inline char* loadData(const char* path, bool extraSysPathes = true) {
   return loadData(lpath, pathes, extraSysPathes);
 }
 
-void* Kernel::LoadImage(const char* path) { return loadData(path, true); }
-
-void* Kernel::LoadImage(std::string& path, const char** pathes) {
-  return loadData(path, pathes, true);
-}
-
-void Kernel::FreeImage(void* image) {
-  char* data = reinterpret_cast<char*>(image);
-  delete[] data;
-}
-
 bool Kernel::load(const char* path) {
   setImage(loadData(path));
 #ifdef DEBUG
@@ -429,4 +419,5 @@ CUresult Kernel::Execute(const char* functionName, void** params,
   kernel.setParams(params);
   return kernel.execute(functionName);
 }
+
 }
