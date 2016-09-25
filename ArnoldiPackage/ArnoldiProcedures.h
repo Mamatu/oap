@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef OAP_CU_ARNOLDIPROCEDURES_H
 #define OAP_CU_ARNOLDIPROCEDURES_H
 
@@ -43,6 +41,13 @@ bool SortSmallestReValues(const Complex& i, const Complex& j);
 bool SortSmallestImValues(const Complex& i, const Complex& j);
 
 typedef bool (*SortType)(const Complex& i, const Complex& j);
+
+enum CheckType {
+  CHECK_INTERNAL,
+  CHECK_EXTERNAL,
+  CHECK_EXTERNAL_EIGENVALUE,
+  CHECK_EXTERNAL_EIGENVECTOR
+};
 
 enum Type { DEVICE, HOST };
 
@@ -80,7 +85,11 @@ class CuHArnoldi {
     }
   }
 
-  void calculateTriangularHEigens(uintt unwantedCount);
+  void calculateTriangularHEigens();
+
+  void sortPWorstEigens(uintt unwantedCount);
+
+  void extractValues(math::Matrix* H1, uintt unwantedCount);
 
   /**
    * @brief executeArnoldiFactorization
@@ -93,10 +102,20 @@ class CuHArnoldi {
   bool executeArnoldiFactorization(bool init, intt initj, MatrixEx** dMatrixEx,
                                    floatt rho);
 
+  void executefVHplusfq(uintt k);
+
+  bool executeChecking(uintt k);
+
+  void executeShiftedQRIteration(uintt p);
+
   bool shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
                            const ArnUtils::MatrixInfo& m2) const;
 
-  void isConverged() const;
+  floatt getEigenvalue(uintt index) const;
+
+  math::Matrix* getEigenvector(uintt index) const;
+
+  bool checkOutcome(uintt index, floatt tolerance);
 
  public:
   CuHArnoldi();
@@ -108,6 +127,8 @@ class CuHArnoldi {
   void setBLimit(floatt blimit);
 
   void setSortType(ArnUtils::SortType sortType);
+
+  void setCheckType(ArnUtils::CheckType checkType);
 
   void setOutputs(math::Matrix* outputs);
 
@@ -136,6 +157,8 @@ class CuHArnoldi {
   math::Matrix* A2;
   math::Matrix* I;
   math::Matrix* v;
+  math::Matrix* v1;
+  math::Matrix* v2;
   math::Matrix* QT;
   math::Matrix* Q1;
   math::Matrix* Q2;
@@ -173,6 +196,7 @@ class CuHArnoldi {
   std::vector<uintt> wantedIndecies;
   std::vector<Complex> notSorted;
   ArnUtils::SortType m_sortType;
+  ArnUtils::CheckType m_checkType;
 
   void* m_image;
   device::Kernel m_kernel;
@@ -204,6 +228,10 @@ class CuHArnoldi {
  protected:
   virtual void multiply(math::Matrix* w, math::Matrix* v,
                         MultiplicationType mt) = 0;
+
+  virtual bool checkEigenvalue(floatt value, uint index) = 0;
+
+  virtual bool checkEigenvector(math::Matrix* vector, uint index) = 0;
 };
 
 class CuHArnoldiDefault : public CuHArnoldi {
@@ -217,6 +245,12 @@ class CuHArnoldiDefault : public CuHArnoldi {
  protected:
   void multiply(math::Matrix* w, math::Matrix* v,
                 CuHArnoldi::MultiplicationType mt);
+
+  virtual bool checkEigenvalue(floatt value, uint index) { return true; }
+
+  virtual bool checkEigenvector(math::Matrix* vector, uint index) {
+    return true;
+  }
 
  private:
   math::Matrix* m_A;
@@ -232,6 +266,12 @@ class CuHArnoldiCallback : public CuHArnoldi {
  protected:
   void multiply(math::Matrix* w, math::Matrix* v,
                 CuHArnoldi::MultiplicationType mt);
+
+  virtual bool checkEigenvalue(floatt value, uint index) { return true; }
+
+  virtual bool checkEigenvector(math::Matrix* vector, uint index) {
+    return true;
+  }
 
  private:
   MultiplyFunc m_multiplyFunc;
