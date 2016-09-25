@@ -431,22 +431,22 @@ TEST_F(OapArnoldiPackageCallbackTests, TestData7) {
   executeArnoldiTest(-13.235305, "../../../data/data7");
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, UpperTriangularMatrixTest1Count10000) {
+TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularMatrixTest1Count10000) {
   triangularityTest(matrix1Str);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, UpperTriangularMatrixTest2Count10000) {
+TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularMatrixTest2Count10000) {
   triangularityTest(matrix2Str);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, UpperTriangularMatrixTest3Count50000) {
+TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularMatrixTest3Count50000) {
   triangularityTest(matrix3Str);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, UpperTriangularMatrixTest3Count100000) {
+TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularMatrixTest3Count100000) {
   triangularityTest(matrix4Str);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, UpperTriangularTestHost20000) {
+TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularTestHost20000) {
   triangularityHostTest(matrix5AStr, matrix5BStr);
 }

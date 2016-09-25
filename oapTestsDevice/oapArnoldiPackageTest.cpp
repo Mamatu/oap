@@ -90,7 +90,7 @@ class OapArnoldiPackageTests : public testing::Test {
   }
 };
 
-TEST_F(OapArnoldiPackageTests, matrices16x16ev2) {
+TEST_F(OapArnoldiPackageTests, DISABLED_matrices16x16ev2) {
   math::Matrix* m = host::NewReMatrixCopy(16, 16, tm16);
   uintt count = 2;
   uintt h = 4;
@@ -126,7 +126,7 @@ TEST_F(OapArnoldiPackageTests, matrices16x16ev2) {
   host::DeleteMatrix(m);
 }
 
-TEST_F(OapArnoldiPackageTests, matrices64x64ev2) {
+TEST_F(OapArnoldiPackageTests, DISABLED_matrices64x64ev2) {
   math::Matrix* m = host::NewReMatrixCopy(64, 64, tm64);
   uintt count = 2;
   uintt h = 8;
