@@ -36,7 +36,6 @@ KERNEL_INFO := KERNEL_EXTENDED_INFO=1
 endif
 
 OGLA_INCLUDES := oapUtils
-OGLA_INCLUDES += oapServerUtils
 OGLA_INCLUDES += oapMath
 OGLA_INCLUDES += oapCuda
 OGLA_INCLUDES += oapMatrix
@@ -48,16 +47,10 @@ OGLA_INCLUDES += oapShibataCuda
 OGLA_INCLUDES += ArnoldiPackage
 OGLA_INCLUDES += oapShibataMgr
 OGLA_INCLUDES += oapQRTestSamples
-#OGLA_INCLUDES += oapMatrixCpuTest
-#OGLA_INCLUDES += oapMatrixCudaTest
-#OGLA_INCLUDES += oapParser
-#OGLA_INCLUDES += ArnoldiPackageTest
-#OGLA_INCLUDES += oapV3D
 OGLA_INCLUDES += oapTests
 OGLA_INCLUDES += oapTestsHost
 
 OGLA_MODULES := oapUtils
-OGLA_MODULES += oapServerUtils
 OGLA_MODULES += oapMath
 OGLA_MODULES += oapCuda
 OGLA_MODULES += oapMatrix
@@ -68,11 +61,6 @@ OGLA_MODULES += oapShibataCpu
 OGLA_MODULES += oapShibataCuda
 OGLA_MODULES += ArnoldiPackage
 OGLA_MODULES += oapShibataMgr
-#OGLA_MODULES += oapMatrixCpuTest
-#OGLA_MODULES += oapMatrixCudaTest
-#OGLA_MODULES += oapParser
-#OGLA_MODULES += ArnoldiPackageTest
-#OGLA_MODULES += oapV3D
 OGLA_MODULES += oapTestsDevice
 OGLA_MODULES += oapTestsHost
 
