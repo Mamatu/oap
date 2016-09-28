@@ -242,18 +242,6 @@ void CuMatrix::QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
   }
 }
 
-void CuMatrix::QRHT(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
-                    math::Matrix* AT, math::Matrix* P, math::Matrix* I,
-                    math::Matrix* v, math::Matrix* vt, math::Matrix* vvt) {
-  qrProcedure(NORMAL, Q, R, A, AT, P, I, v, vt, vvt);
-}
-
-void CuMatrix::QRHTOpt(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
-                       math::Matrix* AT, math::Matrix* P, math::Matrix* I,
-                       math::Matrix* v, math::Matrix* vt, math::Matrix* vvt) {
-  qrProcedure(OPT, Q, R, A, AT, P, I, v, vt, vvt);
-}
-
 bool CuMatrix::isUpperTriangular(math::Matrix* matrix) {
   int result = -10;
   void* params[] = {&m_doutputIsTriangular, &matrix};

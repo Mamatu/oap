@@ -279,45 +279,6 @@ extern "C" __global__ void CUDAKernel_QRGR(
   CUDA_QRGR(output0, output1, params0, aux0, aux1, aux2, aux3);
 }
 
-extern "C" __global__ void CUDAKernel_QRHTRe(
-    math::Matrix* output0, math::Matrix* output1, math::Matrix* params0,
-    math::Matrix* aux0, math::Matrix* aux1, math::Matrix* aux2,
-    math::Matrix* aux3) {
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  // CUDA_QRHTRe(output0, output1, params0, aux0, aux1, aux2, aux3,
-  //      threadIndexX, threadIndexY);
-}
-
-extern "C" __global__ void CUDAKernel_QRHTIm(
-    math::Matrix* output0, math::Matrix* output1, math::Matrix* params0,
-    math::Matrix* aux0, math::Matrix* aux1, math::Matrix* aux2,
-    math::Matrix* aux3) {
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
-  // CUDA_QRHTIm(output0, output1, params0, aux0, aux1, aux2, aux3,
-  //        threadIndexX, threadIndexY);
-}
-
-extern "C" __global__ void CUDAKernel_QRHT(math::Matrix* Q, math::Matrix* R,
-                                           math::Matrix* A, math::Matrix* AT,
-                                           floatt* sum, floatt* buffer,
-                                           math::Matrix* P, math::Matrix* I,
-                                           math::Matrix* v, math::Matrix* vt,
-                                           math::Matrix* vvt) {
-  CUDA_QRHT(Q, R, A, AT, sum, buffer, P, I, v, vt, vvt);
-}
-
-extern "C" __global__ void CUDAKernel_QRHTOpt(math::Matrix* Q, math::Matrix* R,
-                                              math::Matrix* A, math::Matrix* AT,
-                                              math::Matrix* P, math::Matrix* I,
-                                              math::Matrix* v, math::Matrix* vt,
-                                              math::Matrix* vvt) {
-  floatt* sum = NULL;
-  floatt* buffer = NULL;
-  CUDA_QRHT(Q, R, A, AT, sum, buffer, P, I, v, vt, vvt);
-}
-
 extern "C" __global__ void CUDAKernel_SetVector(math::Matrix* output,
                                                 uintt index,
                                                 math::Matrix* params0,

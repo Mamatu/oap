@@ -115,14 +115,6 @@ class CuMatrix {
   void QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H, math::Matrix* R1,
             math::Matrix* Q1, math::Matrix* G, math::Matrix* GT);
 
-  void QRHT(math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* AT,
-            math::Matrix* P, math::Matrix* I, math::Matrix* v, math::Matrix* vt,
-            math::Matrix* vvt);
-
-  void QRHTOpt(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
-               math::Matrix* AT, math::Matrix* P, math::Matrix* I,
-               math::Matrix* v, math::Matrix* vt, math::Matrix* vvt);
-
   bool isUpperTriangular(math::Matrix* matrix);
 
   CUresult getStatus() const;

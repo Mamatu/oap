@@ -143,43 +143,4 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
   }
 }
 
-__hostdevice__ void CUDA_QRHT(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
-                              math::Matrix* AT, floatt* sum, floatt* buffer,
-                              math::Matrix* P, math::Matrix* I, math::Matrix* v,
-                              math::Matrix* vt, math::Matrix* vvt) {
-  HOST_INIT();
-  uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
-
-  for (uintt column = 0; column < A->columns; ++column) {
-    uintt row = column + 1;
-    floatt a21 = A->reValues[A->columns * row + column];
-    floatt sgna21 = 0;
-    CUDA_getSgn(&sgna21, a21);
-    CUDA_magnitudeOptVecEx(sum, A, column, row + 1, A->rows, buffer);
-    floatt sum = 0;
-    CUDA_getMagnitude(&sum, buffer);
-    floatt alpha = -sgna21 * sum;
-    floatt r = sqrtf(0.5f * (alpha * alpha - a21 * alpha));
-    v->reValues[0] = 0;
-    uintt rowy = threadIdx.y + blockDim.y * blockIdx.y;
-    if (rowy < row) {
-      v->reValues[v->columns * rowy] = 0;
-    }
-    if (rowy == row) {
-      v->reValues[v->columns * rowy] = (a21 - alpha) / (2 * r);
-    }
-    if (rowy > row) {
-      v->reValues[v->columns * rowy] =
-          A->reValues[rowy * A->columns + column] / (2 * r);
-    }
-    CUDA_transposeMatrix(vt, v, tx, ty);
-    CUDA_dotProduct(vvt, v, vt, tx, ty);
-    CUDA_multiplyConstantMatrix(vvt, vvt, 2, 0, tx, ty);
-    CUDA_substractMatrices(P, I, vvt, tx, ty);
-    CUDA_dotProduct(Q, A, P, tx, ty);
-    CUDA_dotProduct(R, P, Q, tx, ty);
-  }
-}
-
 #endif /* CUQRPROCEDURES_H */

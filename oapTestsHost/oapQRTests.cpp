@@ -103,52 +103,6 @@ class OapQRTests : public OapCudaStub {
     virtual math::Matrix* getR() const { return m_r; }
   };
 
-  class QRHTStub : public QRStub {
-   public:
-    math::Matrix* Q;
-    math::Matrix* R;
-    math::Matrix* AT;
-    floatt sum;
-    floatt* buffer;
-    math::Matrix* P;
-    math::Matrix* I;
-    math::Matrix* v;
-    math::Matrix* vt;
-    math::Matrix* vvt;
-
-    QRHTStub(math::Matrix* matrix, math::Matrix* eq_q, math::Matrix* eq_r)
-        : QRStub(matrix, eq_q, eq_r) {
-      R = host::NewMatrix(eq_r);
-      Q = host::NewMatrix(eq_q);
-      AT = host::NewMatrix(matrix);
-      P = host::NewMatrix(matrix);
-      I = host::NewMatrix(matrix);
-      v = host::NewMatrix(matrix, 1, matrix->rows);
-      vt = host::NewMatrix(matrix, matrix->columns, 1);
-      vvt = host::NewMatrix(matrix);
-      buffer = new floatt[matrix->columns * matrix->rows];
-    }
-
-    virtual ~QRHTStub() {
-      host::DeleteMatrix(R);
-      host::DeleteMatrix(Q);
-      host::DeleteMatrix(AT);
-      host::DeleteMatrix(P);
-      host::DeleteMatrix(I);
-      host::DeleteMatrix(v);
-      host::DeleteMatrix(vt);
-      host::DeleteMatrix(vvt);
-      delete[] buffer;
-    }
-
-    void execute(const dim3& threadIdx, const dim3& blockIdx) {
-      CUDA_QRHT(R, Q, m_matrix, AT, &sum, buffer, P, I, v, vt, vvt);
-    }
-
-    virtual math::Matrix* getQ() const { return Q; }
-    virtual math::Matrix* getR() const { return R; }
-  };
-
   void ExpectThatQRIsEqual(QRStub* qrStub, math::Matrix* eq_q,
                            math::Matrix* eq_r) {
     EXPECT_THAT(eq_q, MatrixIsEqual(qrStub->getQ()));
@@ -183,16 +137,13 @@ class OapQRTests : public OapCudaStub {
     math::Matrix* eq_r = host::NewMatrix(rrefStr);
 
     QRGRStub qrgrStub(matrix, eq_q, eq_r);
-    QRHTStub qrhtStub(matrix, eq_q, eq_r);
 
     executeKernelAsync(&qrgrStub);
 #if 0
-    executeKernelAsync(&qrhtStub);
     ExpectThatQRIsEqual(&qrgrStub, eq_q, eq_r);
 #endif
     ExpectThatQRIsA(&qrgrStub, matrix);
     ExpectThatQIsUnitary(&qrgrStub);
-    // ExpectThatQRIsEqual(&qrhtStub, eq_q, eq_r);
 
     host::DeleteMatrix(matrix);
     host::DeleteMatrix(eq_q);
