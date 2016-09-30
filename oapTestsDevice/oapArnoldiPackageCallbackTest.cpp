@@ -17,7 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <string>
 #include <stdlib.h>
 #include <stdio.h>
@@ -60,7 +59,8 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
       bool c = !(m_evalue - m_etolerance <= value &&
                  value <= m_evalue + m_etolerance);
-      debug("m_evalue = %f m_etolerance = %f value = %f", m_evalue, m_etolerance, value);
+      debug("m_evalue = %f m_etolerance = %f value = %f", m_evalue,
+            m_etolerance, value);
       return c;
     }
   };
@@ -95,10 +95,10 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
    public:
     Data(const std::string& dir)
         : m_counter(0), refV(NULL), hostV(NULL), refW(NULL), hostW(NULL) {
-      m_vredir = dir + "/vstringre";
-      m_vimdir = dir + "/vstringim";
-      m_wredir = dir + "/wstringre";
-      m_wimdir = dir + "/wstringim";
+      m_vredir = dir + "/vre.tdata";
+      m_vimdir = dir + "/vim.tdata";
+      m_wredir = dir + "/wre.tdata";
+      m_wimdir = dir + "/wim.tdata";
 
       m_blocksCount = loadBlocksCount(m_vredir);
       m_elementsCount = loadElementsCount(m_vredir);
@@ -220,6 +220,10 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
   static void loadBlock(const std::string& path, floatt* block, int index) {
     FILE* f = fopen(path.c_str(), "rb");
+    if (f == NULL) {
+        debug("File does not exist: %s", path.c_str());
+        abort();
+    }
     loadBlock(f, block, index);
     fclose(f);
   }
@@ -399,19 +403,23 @@ TEST_F(OapArnoldiPackageCallbackTests, TestData7) {
   executeArnoldiTest(-13.235305, "../../../data/data7");
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularMatrixTest1Count10000) {
+TEST_F(OapArnoldiPackageCallbackTests,
+       DISABLED_UpperTriangularMatrixTest1Count10000) {
   triangularityTest(matrix1Str);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularMatrixTest2Count10000) {
+TEST_F(OapArnoldiPackageCallbackTests,
+       DISABLED_UpperTriangularMatrixTest2Count10000) {
   triangularityTest(matrix2Str);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularMatrixTest3Count50000) {
+TEST_F(OapArnoldiPackageCallbackTests,
+       DISABLED_UpperTriangularMatrixTest3Count50000) {
   triangularityTest(matrix3Str);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularMatrixTest3Count100000) {
+TEST_F(OapArnoldiPackageCallbackTests,
+       DISABLED_UpperTriangularMatrixTest3Count100000) {
   triangularityTest(matrix4Str);
 }
 

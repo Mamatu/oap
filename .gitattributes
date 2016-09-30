@@ -1,0 +1,8 @@
+*.tdata filter=lfs diff=lfs merge=lfs -text
+./oapTestsDevice/data/data4/*.tdata filter=lfs diff=lfs merge=lfs -text
+./oapTestsDevice/data/data1/*.tdata filter=lfs diff=lfs merge=lfs -text
+./oapTestsDevice/data/data2/*.tdata filter=lfs diff=lfs merge=lfs -text
+./oapTestsDevice/data/data3/*.tdata filter=lfs diff=lfs merge=lfs -text
+./oapTestsDevice/data/data5/*.tdata filter=lfs diff=lfs merge=lfs -text
+./oapTestsDevice/data/data6/*.tdata filter=lfs diff=lfs merge=lfs -text
+./oapTestsDevice/data/data7/*.tdata filter=lfs diff=lfs merge=lfs -text
