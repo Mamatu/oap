@@ -241,7 +241,6 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
           UserPair* userPair = static_cast<UserPair*>(userData);
           Data* data = userPair->first;
           data->load();
-          data->printCounter();
           device::CopyDeviceMatrixToHostMatrix(data->hostV, v);
           if (userPair->second) {
             ASSERT_THAT(data->hostV,
@@ -273,6 +272,9 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     arnoldiCuda->setOutputs(&outputs);
     ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
                                     data.getElementsCount());
+
+    debug("Test in progress. Please wait it can take some time...");
+
     arnoldiCuda->execute(hdim, wanted, matrixInfo);
     EXPECT_THAT(revalues[0], ::testing::DoubleNear(value, tolerance));
     // EXPECT_DOUBLE_EQ(value, );
