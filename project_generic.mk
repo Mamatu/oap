@@ -47,16 +47,41 @@ OGLA_INCLUDES += oapQRTestSamples
 OGLA_INCLUDES += oapTests
 OGLA_INCLUDES += oapTestsHost
 
+TARGET_ARCH := DEVICE_HOST
+
+COMPILE_HOST := 0
+COMPILE_DEVICE := 0
+
+ifeq ($(TARGET_ARCH),DEVICE_HOST)
+COMPILE_DEVICE := 1
+COMPILE_HOST := 1
+endif
+
+ifeq ($(TARGET_ARCH),DEVICE)
+COMPILE_DEVICE := 1
+endif
+
+ifeq ($(TARGET_ARCH),HOST)
+COMPILE_HOST := 1
+endif
+
+
+ifeq ($(COMPILE_HOST),1)
 OGLA_MODULES := oapUtils
 OGLA_MODULES += oapMath
-OGLA_MODULES += oapCuda
 OGLA_MODULES += oapMatrix
 OGLA_MODULES += oapMatrixCpu
+OGLA_MODULES += oapTestsHost
+endif
+
+
+ifeq ($(COMPILE_DEVICE),1)
+OGLA_MODULES += oapCuda
 OGLA_MODULES += oapMatrixCuda
 OGLA_MODULES += oapCudaTests
 OGLA_MODULES += ArnoldiPackage
 OGLA_MODULES += oapTestsDevice
-OGLA_MODULES += oapTestsHost
+endif
 
 CU_OGLA_MODULES := oapCuda
 CU_OGLA_MODULES += oapMatrixCuda
@@ -65,4 +90,3 @@ CU_OGLA_MODULES += oapShibataCuda
 CU_OGLA_MODULES += ArnoldiPackage
 CU_OGLA_MODULES += oapShibataMgr
 CU_OGLA_MODULES += oapTestsDevice
-
