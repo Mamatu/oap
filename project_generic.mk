@@ -2,13 +2,11 @@ ifndef OAP_PATH
 $(error OAP_PATH is not set)
 endif
 
-ifndef GTEST_DIR
-$(error GTEST_DIR is not set)
+ifndef GMOCK_DIR
+$(error GMOCK_DIR is not set (should be main directory of gmock set))
 endif
 
-ifndef GMOCK_DIR
-$(error GMOCK_DIR is not set)
-endif
+GTEST_DIR := $(GMOCK_DIR)/gtest
 
 
 ifeq ($(PROJECT), albert)
