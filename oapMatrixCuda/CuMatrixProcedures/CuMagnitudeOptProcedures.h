@@ -21,7 +21,7 @@
 
 #ifndef CUMAGNITUDEOPTPROCEDURES_H
 #define	CUMAGNITUDEOPTPROCEDURES_H
-#include <cuda.h>
+
 #include "CuCore.h"
 #include "CuMagnitudeUtils.h"
 #include "CuMatrixUtils.h"

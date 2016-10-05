@@ -23,8 +23,8 @@
 #ifndef CUDAUTILS_H
 #define CUDAUTILS_H
 
-#include <stdio.h>
 #include <cuda.h>
+#include <stdio.h>
 #include <string>
 #include "Matrix.h"
 #include "MatrixEx.h"

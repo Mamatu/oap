@@ -23,7 +23,6 @@
 #ifndef CUCOMPAREOPTPROCEDURES_H
 #define CUCOMPAREOPTPROCEDURES_H
 
-#include <cuda.h>
 #include "CuCore.h"
 #include "CuCompareUtils.h"
 #include "CuMatrixUtils.h"

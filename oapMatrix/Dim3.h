@@ -22,9 +22,11 @@
 #ifndef DIM3_H
 #define DIM3_H
 
+#ifdef CUDA
+
 #include <cuda.h>
 
-#ifndef CUDA
+#else
 
 #include <stdlib.h>
 #include <map>

@@ -22,7 +22,6 @@
 #ifndef CUCOMPAREUTILSCOMMON
 #define CUCOMPAREUTILSCOMMON
 
-#include "cuda.h"
 #include "CuCore.h"
 #include "Matrix.h"
 #include "MatrixAPI.h"
