@@ -22,13 +22,13 @@
 #ifndef CU_UTILS_H
 #define	CU_UTILS_H
 
-#include <cuda.h>
 #include <stdio.h>
 #include "Math.h"
 #include "CuCore.h"
 #include "CuSync.h"
 
 #ifdef CUDA
+#include <cuda.h>
 
 #ifdef DEBUG
 #define CUDA_DEBUG() \

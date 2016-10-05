@@ -23,7 +23,6 @@
 #ifndef CUMAGNITUDEUTILSCOMMON_H
 #define CUMAGNITUDEUTILSCOMMON_H
 
-#include "cuda.h"
 #include "CuCore.h"
 #include "Matrix.h"
 

@@ -21,7 +21,7 @@
 
 #ifndef CUMAGNITUDEVECOPTPROCEDURES_H
 #define CUMAGNITUDEVECOPTPROCEDURES_H
-#include <cuda.h>
+
 #include "CuCore.h"
 #include "CuMagnitudeUtils.h"
 #include "CuMatrixUtils.h"
