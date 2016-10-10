@@ -39,7 +39,7 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
                                         uintt row, math::Matrix* G, uintt tx,
                                         uintt ty) {
   HOST_INIT();
-  CUDA_SetIdentityMatrix(G, tx, ty);
+  CUDA_SetIdentityMatrix(G);
   Reset(G);
 
   if (tx == 0 && ty == 0) {
@@ -118,15 +118,15 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
       floatt v = GetRe(A, fa, fb);
       if ((-0.0001 < v && v < 0.0001) == false) {
         CUDA_prepareGMatrix(R1, fa, fb, G, tx, ty);
-        CUDA_dotProduct(R, G, R1, tx, ty);
+        CUDA_dotProduct(R, G, R1);
         Push(R);
         if (count == 0) {
-          CUDA_transposeMatrix(Q, G, tx, ty);
+          CUDA_transposeMatrix(Q, G);
           Push(Q);
         } else {
-          CUDA_transposeMatrix(GT, G, tx, ty);
+          CUDA_transposeMatrix(GT, G);
           Push(GT);
-          CUDA_dotProduct(Q, Q1, GT, tx, ty);
+          CUDA_dotProduct(Q, Q1, GT);
           Push(Q);
         }
         ++count;

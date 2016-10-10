@@ -37,8 +37,7 @@ class SubstractionImpl : public HostKernel {
 
  protected:
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
-    CUDA_substractMatrices(m_output, m_param1, m_param2, threadIdx.x,
-                           threadIdx.y);
+    CUDA_substractMatrices(m_output, m_param1, m_param2);
   }
 
   virtual void onChange(HostKernel::ContextChange contextChnage,
@@ -60,7 +59,7 @@ class DotProductImpl : public HostKernel {
 
  protected:
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
-    CUDA_dotProduct(m_output, m_param1, m_param2, threadIdx.x, threadIdx.y);
+    CUDA_dotProduct(m_output, m_param1, m_param2);
   }
 
   virtual void onChange(HostKernel::ContextChange contextChnage,
@@ -134,7 +133,7 @@ class TransposeImpl : public HostKernel {
 
  protected:
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
-    CUDA_transposeMatrix(m_output, m_param, threadIdx.x, threadIdx.y);
+    CUDA_transposeMatrix(m_output, m_param);
   }
 
   virtual void onChange(HostKernel::ContextChange contextChange,

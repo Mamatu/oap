@@ -51,7 +51,7 @@ class IdentityStubImpl : public HostKernel {
   }
 
   void execute(const dim3& threadIdx, const dim3& blockIdx) {
-    CUDA_SetIdentityReMatrix(m_matrix, threadIdx.x, threadIdx.y);
+    CUDA_SetIdentityReMatrix(m_matrix);
   }
 
   math::Matrix* getMatrix() const { return m_matrix; }

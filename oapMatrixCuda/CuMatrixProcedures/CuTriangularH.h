@@ -33,16 +33,15 @@ __hostdevice__ void CUDA_HMtoUTM(
     math::Matrix* temp1, math::Matrix* temp2, math::Matrix* temp3,
     math::Matrix* temp4, math::Matrix* temp5) {
   HOST_INIT();
-  uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
+
   bool status = false;
-  CUDA_SetIdentityMatrix(Qoutput, tx, ty);
+  CUDA_SetIdentityMatrix(Qoutput);
   status = CUDA_isUpperTriangular(H);
   uintt fa = 0;
   while (status == false) {
     CUDA_QRGR(Q, R, H, temp2, temp3, temp4, temp5);
-    CUDA_dotProduct(H, R, Q, tx, ty);
-    CUDA_dotProduct(temp1, Q, Qoutput, tx, ty);
+    CUDA_dotProduct(H, R, Q);
+    CUDA_dotProduct(temp1, Q, Qoutput);
     CUDA_switchPointer(&temp1, &Qoutput);
     status = CUDA_isUpperTriangular(H);
     // threads_sync();

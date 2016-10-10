@@ -9,8 +9,8 @@
  * (at your option) any later version.
  *
  * Oap is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * but WITHOUT ANY WARRANthreadIndexY; without even the implied warranthreadIndexY of
+ * MERCHANTABILIthreadIndexY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -91,10 +91,11 @@ __hostdevice__ void cuda_compare_step_2(int* buffer, uintt tindex,
 }
 
 __hostdevice__ void CUDA_compareRealMatrix(int* sum, math::Matrix* matrix1,
-                                           math::Matrix* matrix2, int* buffer,
-                                           uintt tx, uintt ty) {
+                                           math::Matrix* matrix2, int* buffer) {
   HOST_INIT();
-  uintt tindex = ty * matrix1->columns + tx;
+  THREAD_INDICES_INIT();
+
+  uintt tindex = threadIndexY * matrix1->columns + threadIndexX;
   uintt length = matrix1->columns * matrix1->rows;
   if (tindex < length) {
     cuda_compare_real(buffer, matrix1, matrix2, tindex, length);
@@ -108,10 +109,11 @@ __hostdevice__ void CUDA_compareRealMatrix(int* sum, math::Matrix* matrix1,
 }
 
 __hostdevice__ void CUDA_compareImMatrix(int* sum, math::Matrix* matrix1,
-                                         math::Matrix* matrix2, int* buffer,
-                                         uintt tx, uintt ty) {
+                                         math::Matrix* matrix2, int* buffer) {
   HOST_INIT();
-  uintt tindex = ty * matrix1->columns + tx;
+  THREAD_INDICES_INIT();
+
+  uintt tindex = threadIndexY * matrix1->columns + threadIndexX;
   uintt length = matrix1->columns * matrix1->rows;
   if (tindex < length) {
     cuda_compare_im(buffer, matrix1, matrix2, tindex, length);
@@ -125,10 +127,11 @@ __hostdevice__ void CUDA_compareImMatrix(int* sum, math::Matrix* matrix1,
 }
 
 __hostdevice__ void CUDA_compareReMatrix(int* sum, math::Matrix* matrix1,
-                                         math::Matrix* matrix2, int* buffer,
-                                         uintt tx, uintt ty) {
+                                         math::Matrix* matrix2, int* buffer) {
   HOST_INIT();
-  uintt tindex = ty * matrix1->columns + tx;
+  THREAD_INDICES_INIT();
+
+  uintt tindex = threadIndexY * matrix1->columns + threadIndexX;
   uintt length = matrix1->columns * matrix1->rows;
   if (tindex < length) {
     cuda_compare_re(buffer, matrix1, matrix2, tindex, length);
@@ -142,17 +145,18 @@ __hostdevice__ void CUDA_compareReMatrix(int* sum, math::Matrix* matrix1,
 }
 
 __hostdevice__ void CUDA_compare(int* sum, math::Matrix* matrix1,
-                                 math::Matrix* matrix2, int* buffer, uintt tx,
-                                 uintt ty) {
+                                 math::Matrix* matrix2, int* buffer) {
   HOST_INIT();
+  THREAD_INDICES_INIT();
+
   bool isre = matrix1->reValues != NULL;
   bool isim = matrix1->imValues != NULL;
   if (isre && isim) {
-    CUDA_compareRealMatrix(sum, matrix1, matrix2, buffer, tx, ty);
+    CUDA_compareRealMatrix(sum, matrix1, matrix2, buffer);
   } else if (isre) {
-    CUDA_compareReMatrix(sum, matrix1, matrix2, buffer, tx, ty);
+    CUDA_compareReMatrix(sum, matrix1, matrix2, buffer);
   } else if (isim) {
-    CUDA_compareImMatrix(sum, matrix1, matrix2, buffer, tx, ty);
+    CUDA_compareImMatrix(sum, matrix1, matrix2, buffer);
   }
 }
 

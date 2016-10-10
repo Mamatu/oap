@@ -33,8 +33,8 @@ __hostdevice__ void CUDA_dotProductReExOpt(math::Matrix* output,
                                            const MatrixEx& matrixEx,
                                            floatt* bufferFloat) {
   HOST_INIT();
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+  THREAD_INDICES_INIT();
+
   floatt* buffer1 = &bufferFloat[0];
   floatt* buffer2 = &bufferFloat[params0->rows * output->columns];
 
@@ -61,8 +61,8 @@ __hostdevice__ void CUDA_dotProductImExOpt(math::Matrix* output,
                                            const MatrixEx& matrixEx,
                                            floatt* bufferFloat) {
   HOST_INIT();
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+  THREAD_INDICES_INIT();
+
   floatt* buffer1 = &bufferFloat[0];
   floatt* buffer2 = &bufferFloat[params0->rows * output->columns];
 
@@ -88,8 +88,8 @@ __hostdevice__ void CUDA_dotProductRealExOpt(math::Matrix* output,
                                              const MatrixEx& matrixEx,
                                              floatt* bufferFloat) {
   HOST_INIT();
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+  THREAD_INDICES_INIT();
+
   floatt* buffer1Re = &bufferFloat[0];
   floatt* buffer1Im = &bufferFloat[params0->rows * output->columns];
   floatt* buffer2Re = &bufferFloat[params0->rows * output->columns * 2];
@@ -144,8 +144,8 @@ __hostdevice__ void CUDA_dotProductReOpt(math::Matrix* output,
                                          math::Matrix* params1,
                                          floatt* bufferFloat) {
   HOST_INIT();
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+  THREAD_INDICES_INIT();
+
   floatt* buffer1 = &bufferFloat[0];
   floatt* buffer2 = &bufferFloat[params0->rows * output->columns];
 
@@ -170,8 +170,8 @@ __hostdevice__ void CUDA_dotProductImOpt(math::Matrix* output,
                                          math::Matrix* params1,
                                          floatt* bufferFloat) {
   HOST_INIT();
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+  THREAD_INDICES_INIT();
+
   floatt* buffer1 = &bufferFloat[0];
   floatt* buffer2 = &bufferFloat[params0->rows * output->columns];
 
@@ -196,8 +196,7 @@ __hostdevice__ void CUDA_dotProductRealOpt(math::Matrix* output,
                                            math::Matrix* params1,
                                            floatt* bufferFloat) {
   HOST_INIT();
-  uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
-  uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+  THREAD_INDICES_INIT();
 
   floatt* buffer1Re = &bufferFloat[0];
   floatt* buffer1Im = &bufferFloat[params0->rows * output->columns];

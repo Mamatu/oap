@@ -26,28 +26,28 @@
 #include "CuCore.h"
 #include "MatrixAPI.h"
 
-__hostdevice__ void CUDA_SetIdentityReMatrix(math::Matrix* dst,
-                                             uintt threadIndexX,
-                                             uintt threadIndexY) {
+__hostdevice__ void CUDA_SetIdentityReMatrix(math::Matrix* dst) {
   HOST_INIT();
+  THREAD_INDICES_INIT();
+
   floatt v = threadIndexX == threadIndexY ? 1 : 0;
   SetRe(dst, threadIndexX, threadIndexY, v);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_SetIdentityImMatrix(math::Matrix* dst,
-                                             uintt threadIndexX,
-                                             uintt threadIndexY) {
+__hostdevice__ void CUDA_SetIdentityImMatrix(math::Matrix* dst) {
   HOST_INIT();
+  THREAD_INDICES_INIT();
+
   floatt v = threadIndexX == threadIndexY ? 1 : 0;
   SetIm(dst, threadIndexX, threadIndexY, v);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_SetIdentityMatrix(math::Matrix* dst,
-                                           uintt threadIndexX,
-                                           uintt threadIndexY) {
+__hostdevice__ void CUDA_SetIdentityMatrix(math::Matrix* dst) {
   HOST_INIT();
+  THREAD_INDICES_INIT();
+
   floatt v = threadIndexX == threadIndexY ? 1 : 0;
   SetRe(dst, threadIndexX, threadIndexY, v);
   if (NULL != dst->imValues) {

@@ -58,4 +58,13 @@
 #define threads_sync() ThreadIdx::wait();
 
 #endif
+
+#define THREAD_INDEX_X_INIT() uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x;
+
+#define THREAD_INDEX_Y_INIT() uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+
+#define THREAD_INDICES_INIT() \
+    uintt threadIndexX = blockIdx.x * blockDim.x + threadIdx.x; \
+    uintt threadIndexY = blockIdx.y * blockDim.y + threadIdx.y;
+
 #endif /* CUCORE_H */
