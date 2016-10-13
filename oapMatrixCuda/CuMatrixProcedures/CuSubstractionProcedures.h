@@ -65,7 +65,6 @@ __hostdeviceinline__ void CUDA_substractReMatrices(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   CUDA_substractReMatrices(output, params0, params1);
   threads_sync();
@@ -75,7 +74,6 @@ __hostdeviceinline__ void CUDA_substractImMatrices(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   cuda_substractImMatrices(output, params0, params1);
   threads_sync();
@@ -85,7 +83,6 @@ __hostdeviceinline__ void CUDA_substractRealMatrices(math::Matrix* output,
                                                      math::Matrix* params0,
                                                      math::Matrix* params1) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   cuda_substractRealMatrices(output, params0, params1);
   threads_sync();

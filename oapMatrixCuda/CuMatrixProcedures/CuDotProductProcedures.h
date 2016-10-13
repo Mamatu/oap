@@ -31,7 +31,6 @@ __hostdevice__ void cuda_dotProductReEx(math::Matrix* output,
 
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
-  const uintt offset = columns1;
   floatt retemp = 0;
   for (intt fa1 = matrixEx.boffset; fa1 < matrixEx.eoffset; fa1++) {
     retemp += params0->reValues[fa1 + columns1 * threadIndexY] *
@@ -50,7 +49,6 @@ __hostdevice__ void cuda_dotProductImEx(math::Matrix* output,
 
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
-  const uintt offset = columns1;
   floatt retemp = 0;
   for (intt fa1 = matrixEx.boffset; fa1 < matrixEx.eoffset; fa1++) {
     retemp += -params0->imValues[fa1 + columns1 * threadIndexY] *
@@ -69,7 +67,7 @@ __hostdevice__ void cuda_dotProductRealEx(math::Matrix* output,
   const uintt columns1 = params0->realColumns;
   const uintt columns2 = params1->realColumns;
   const uintt outputColumns = output->realColumns;
-  const uintt offset = columns1;
+
   floatt retemp = 0;
   floatt imtemp = 0;
   for (intt fa1 = matrixEx.boffset; fa1 < matrixEx.eoffset; fa1++) {

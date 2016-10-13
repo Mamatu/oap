@@ -72,7 +72,6 @@ __hostdevice__ void CUDA_transposeMatrixEx(math::Matrix* output,
                                            math::Matrix* params0,
                                            const MatrixEx& matrixEx) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
@@ -119,7 +118,6 @@ __hostdevice__ void cuda_transposeRealMatrix(math::Matrix* output,
 __hostdevice__ void CUDA_transposeReMatrix(math::Matrix* output,
                                            math::Matrix* params0) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   cuda_transposeReMatrix(output, params0);
   threads_sync();
@@ -128,7 +126,6 @@ __hostdevice__ void CUDA_transposeReMatrix(math::Matrix* output,
 __hostdevice__ void CUDA_transposeImMatrix(math::Matrix* output,
                                            math::Matrix* params0) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   cuda_transposeImMatrix(output, params0);
   threads_sync();
@@ -137,7 +134,6 @@ __hostdevice__ void CUDA_transposeImMatrix(math::Matrix* output,
 __hostdevice__ void CUDA_transposeRealMatrix(math::Matrix* output,
                                              math::Matrix* params0) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   cuda_transposeRealMatrix(output, params0);
   threads_sync();

@@ -147,7 +147,6 @@ __hostdevice__ void CUDA_compareReMatrix(int* sum, math::Matrix* matrix1,
 __hostdevice__ void CUDA_compare(int* sum, math::Matrix* matrix1,
                                  math::Matrix* matrix2, int* buffer) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   bool isre = matrix1->reValues != NULL;
   bool isim = matrix1->imValues != NULL;

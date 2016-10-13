@@ -208,7 +208,7 @@ __hostdevice__ void CUDA_dotProductRealOpt(math::Matrix* output,
   const uintt columns2 = params1->realColumns;
   const uintt outputColumns = output->realColumns;
   const uintt offset = columns1;
-  const uintt sharedOffset = blockDim.x;
+
   floatt retemp = 0;
   floatt imtemp = 0;
 

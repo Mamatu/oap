@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef CUCOPYPROCEDURES_H
 #define CUCOPYPROCEDURES_H
 
@@ -60,13 +57,15 @@ __hostdevice__ void CUDA_copyReMatrixExclude(math::Matrix* dst,
   if (tx != column || ty != row) {
     uintt tx1 = tx, ty1 = ty;
     floatt v = src->reValues[tx + src->columns * ty];
-    if (tx > column) {
-      tx1 = tx - 1;
+    if (tx != 0 && ty != 0) {
+      if (tx > column) {
+        tx1 = tx - 1;
+      }
+      if (ty > row) {
+        ty1 = ty - 1;
+      }
+      dst->reValues[tx1 + dst->columns * ty1] = v;
     }
-    if (ty > row) {
-      ty1 = ty - 1;
-    }
-    dst->reValues[tx + dst->columns * ty] = v;
   }
   threads_sync();
 }
@@ -81,13 +80,15 @@ __hostdevice__ void CUDA_copyImMatrixExclude(math::Matrix* dst,
   if (tx != column || ty != row) {
     uintt tx1 = tx, ty1 = ty;
     floatt v = src->imValues[tx + src->columns * ty];
-    if (tx > column) {
-      tx1 = tx - 1;
+    if (tx != 0 && ty != 0) {
+      if (tx > column) {
+        tx1 = tx - 1;
+      }
+      if (ty > row) {
+        ty1 = ty - 1;
+      }
+      dst->reValues[tx1 + dst->columns * ty1] = v;
     }
-    if (ty > row) {
-      ty1 = ty - 1;
-    }
-    dst->reValues[tx + dst->columns * ty] = v;
   }
   threads_sync();
 }

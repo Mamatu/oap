@@ -60,7 +60,6 @@ __hostdevice__ void CUDA_multiplyConstantReMatrix(math::Matrix* output,
                                                   math::Matrix* params0,
                                                   floatt re) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   cuda_multiplyConstantReMatrix(output, params0, re);
   threads_sync();
@@ -70,7 +69,6 @@ __hostdevice__ void CUDA_multiplyConstantImMatrix(math::Matrix* output,
                                                   math::Matrix* params0,
                                                   floatt im) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   cuda_multiplyConstantImMatrix(output, params0, im);
   threads_sync();
@@ -80,7 +78,6 @@ __hostdevice__ void CUDA_multiplyConstantRealMatrix(math::Matrix* output,
                                                     math::Matrix* params0,
                                                     floatt re, floatt im) {
   HOST_INIT();
-  THREAD_INDICES_INIT();
 
   cuda_multiplyConstantRealMatrix(output, params0, re, im);
   threads_sync();
