@@ -22,7 +22,6 @@
 #ifndef OAP_MATH_OPERATIONS_H
 #define	OAP_MATH_OPERATIONS_H
 
-#include "WrapperInterfaces.h"
 #include "MatrixModules.h"
 
 namespace math {

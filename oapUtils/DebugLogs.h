@@ -24,7 +24,6 @@
 
 #include <string.h>
 #include <assert.h>
-#include "LHandle.h"
 #include "BacktraceUtils.h"
 
 #define DEBUG
@@ -38,8 +37,6 @@
 #ifdef DEBUG
 #include <stdio.h>
 #endif
-
-typedef unsigned int handle;
 
 #define debug1(file, x, ...) fprintf(file, x, ##__VA_ARGS__); 
 

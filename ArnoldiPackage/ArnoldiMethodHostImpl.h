@@ -23,6 +23,7 @@
 #define CPU_ARNOLDIMETHODIMPL_H
 
 #include <vector>
+#include "Callbacks.h"
 #include "ThreadsCpu.h"
 #include "IArnoldiMethod.h"
 #include "MathOperationsCpu.h"

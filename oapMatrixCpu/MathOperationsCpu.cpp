@@ -442,39 +442,4 @@ DEFAULT_CONSTRUCTOR(ExpOperationCpu, IExpOperation);
 DEFAULT_CONSTRUCTOR(TransposeOperationCpu, ITransposeOperation);
 
 
-std::vector<void*> ptrs;
-
-extern "C" {
-
-void GetModulesCount(uint& count) {
-
-    count = 7;
-}
-
-void LoadModules(utils::OapObject** objects) {
-    /*
-    objects[0] = new math::ModuleCreatorCPU("Addition", new math::cpu::AdditionOperation());
-    objects[1] = new math::ModuleCreatorCPU("Substraction", new math::cpu::SubstracionOperation());
-    objects[2] = new math::ModuleCreatorCPU("Multiplication", new math::cpu::DotProductOperation());
-    objects[3] = new math::ModuleCreatorCPU("MultiplicationDC", new math::cpu::DotProductDC());
-    objects[4] = new math::ModuleCreatorCPU("ConstantMultiplication", new math::cpu::MultiplicationConstOperation());
-    objects[5] = new math::ModuleCreatorCPU("Exp", new math::cpu::ExpOperation());
-    objects[6] = new math::ModuleCreatorCPU("ExpDC", new math::cpu::ExpOperationDC());
-             
-    for (int fa = 0; fa < 6; fa++) {
-        ptrs.push_back(objects[fa]);
-    }*/
-}
-
-void UnloadModule(utils::OapObject* object) {
-    /*math::ModuleCreatorCPU* moduleCreatorCPU = dynamic_cast<math::ModuleCreatorCPU*> (object);
-    if (moduleCreatorCPU != NULL) {
-        std::vector<void*>::iterator it = std::find(ptrs.begin(), ptrs.end(), (void*) object);
-        if (it != ptrs.end()) {
-            delete moduleCreatorCPU;
-            ptrs.erase(it);
-        }
-    }*/
-}
-}
 }

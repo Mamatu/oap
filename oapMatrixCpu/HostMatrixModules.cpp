@@ -30,7 +30,6 @@
 #include <linux/fs.h>
 #include "MatrixUtils.h"
 #include "ArrayTools.h"
-#include "Writer.h"
 #include "ReferencesCounter.h"
 
 #define ReIsNotNULL(m) m->reValues != NULL

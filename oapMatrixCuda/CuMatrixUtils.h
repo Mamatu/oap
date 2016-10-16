@@ -26,7 +26,6 @@
 #include "CuUtils.h"
 #include "CuCore.h"
 #include "Matrix.h"
-#include "Buffer.h"
 #include "MatrixEx.h"
 
 #ifdef CUDA
