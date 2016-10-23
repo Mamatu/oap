@@ -33,17 +33,17 @@ else
 KERNEL_INFO := KERNEL_EXTENDED_INFO=1
 endif
 
-OGLA_INCLUDES := oapUtils
-OGLA_INCLUDES += oapMath
-OGLA_INCLUDES += oapCuda
-OGLA_INCLUDES += oapMatrix
-OGLA_INCLUDES += oapMatrixCpu
-OGLA_INCLUDES += oapMatrixCuda
-OGLA_INCLUDES += oapCudaTests
-OGLA_INCLUDES += ArnoldiPackage
-OGLA_INCLUDES += oapQRTestSamples
-OGLA_INCLUDES += oapTests
-OGLA_INCLUDES += oapTestsHost
+OAP_INCLUDES := oapUtils
+OAP_INCLUDES += oapMath
+OAP_INCLUDES += oapCuda
+OAP_INCLUDES += oapMatrix
+OAP_INCLUDES += oapMatrixCpu
+OAP_INCLUDES += oapMatrixCuda
+OAP_INCLUDES += oapCudaTests
+OAP_INCLUDES += ArnoldiPackage
+OAP_INCLUDES += oapQRTestSamples
+OAP_INCLUDES += oapTests
+OAP_INCLUDES += oapTestsHost
 
 TARGET_ARCH := DEVICE_HOST
 
@@ -65,26 +65,26 @@ endif
 
 
 ifeq ($(COMPILE_HOST),1)
-OGLA_MODULES := oapUtils
-OGLA_MODULES += oapMath
-OGLA_MODULES += oapMatrix
-OGLA_MODULES += oapMatrixCpu
-OGLA_MODULES += oapTestsHost
+OAP_MODULES := oapUtils
+OAP_MODULES += oapMath
+OAP_MODULES += oapMatrix
+OAP_MODULES += oapMatrixCpu
+OAP_MODULES += oapTestsHost
 endif
 
 
 ifeq ($(COMPILE_DEVICE),1)
-OGLA_MODULES += oapCuda
-OGLA_MODULES += oapMatrixCuda
-OGLA_MODULES += oapCudaTests
-OGLA_MODULES += ArnoldiPackage
-OGLA_MODULES += oapTestsDevice
+OAP_MODULES += oapCuda
+OAP_MODULES += oapMatrixCuda
+OAP_MODULES += oapCudaTests
+OAP_MODULES += ArnoldiPackage
+OAP_MODULES += oapTestsDevice
 endif
 
-CU_OGLA_MODULES := oapCuda
-CU_OGLA_MODULES += oapMatrixCuda
-CU_OGLA_MODULES += oapCudaTests
-CU_OGLA_MODULES += oapShibataCuda
-CU_OGLA_MODULES += ArnoldiPackage
-CU_OGLA_MODULES += oapShibataMgr
-CU_OGLA_MODULES += oapTestsDevice
+CU_OAP_MODULES := oapCuda
+CU_OAP_MODULES += oapMatrixCuda
+CU_OAP_MODULES += oapCudaTests
+CU_OAP_MODULES += oapShibataCuda
+CU_OAP_MODULES += ArnoldiPackage
+CU_OAP_MODULES += oapShibataMgr
+CU_OAP_MODULES += oapTestsDevice
