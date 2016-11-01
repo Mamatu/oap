@@ -44,8 +44,10 @@ OAP_INCLUDES += ArnoldiPackage
 OAP_INCLUDES += oapQRTestSamples
 OAP_INCLUDES += oapTests
 OAP_INCLUDES += oapTestsHost
+OAP_INCLUDES += oap2dt3dUtils
 
 TARGET_ARCH := DEVICE_HOST
+COMPILE_SAMPLES := 1
 
 COMPILE_HOST := 0
 COMPILE_DEVICE := 0
@@ -79,6 +81,13 @@ OAP_MODULES += oapMatrixCuda
 OAP_MODULES += oapCudaTests
 OAP_MODULES += ArnoldiPackage
 OAP_MODULES += oapTestsDevice
+endif
+
+ifeq ($(COMPILE_SAMPLES),1)
+OAP_MODULES += oap2dt3dUtils
+OAP_MODULES += oap2dt3d
+OAP_MODULES += oap2dt3dTests
+OAP_MODULES += oap2dt3dFuncTests
 endif
 
 CU_OAP_MODULES := oapCuda
