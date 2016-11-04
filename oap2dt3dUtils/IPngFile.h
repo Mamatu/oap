@@ -28,10 +28,13 @@ class Pixel {
  public:
   inline Pixel() : r(0), g(0), b(0) { a = 1; }
 
-  inline Pixel(float _r, float _g, float _b) : r(_r), g(_g), b(_b) { a = 1; }
+  inline Pixel(unsigned char _r, unsigned char _g, unsigned char _b)
+      : r(_r), g(_g), b(_b) {
+    a = 1;
+  }
 
-  float r, g, b;
-  float a;
+  unsigned char r, g, b;
+  unsigned char a;
 };
 
 class IPngFile {

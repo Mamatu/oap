@@ -77,12 +77,20 @@ void PngFile::freeBitmap() {
   if (m_bitmap == NULL) {
     return;
   }
+
   int height = getHeight();
 
   for (unsigned int fa = 0; fa < height; fa++) {
     delete[] m_bitmap[fa];
   }
   delete[] m_bitmap;
+
+  png_destroy_info_struct(m_png_ptr, &m_info_ptr);
+
+  png_destroy_read_struct(&m_png_ptr, NULL, NULL);
+
+  m_png_ptr = NULL;
+  m_info_ptr = NULL;
 }
 
 void PngFile::close() {

@@ -62,7 +62,7 @@ TEST_F(OapPngLoaderTests, LoadFail) {
 
   EXPECT_CALL(pngFileMock, open(_)).Times(1).WillOnce(Return(false));
 
-  EXPECT_THROW(oap::PngDataLoader pngDataLoader(&pngFileMock, ""), const char*);
+  EXPECT_THROW(oap::PngDataLoader pngDataLoader(&pngFileMock, ""), oap::exceptions::FileNotExist);
 }
 
 TEST_F(OapPngLoaderTests, VerificationFail) {
@@ -72,7 +72,7 @@ TEST_F(OapPngLoaderTests, VerificationFail) {
 
   EXPECT_CALL(pngFileMock, isPng()).Times(1).WillOnce(Return(false));
 
-  EXPECT_THROW(oap::PngDataLoader pngDataLoader(&pngFileMock, ""), const char*);
+  EXPECT_THROW(oap::PngDataLoader pngDataLoader(&pngFileMock, ""), oap::exceptions::FileIsNotPng);
 }
 
 TEST_F(OapPngLoaderTests, Load) {

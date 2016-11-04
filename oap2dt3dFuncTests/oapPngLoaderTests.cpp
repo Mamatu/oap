@@ -36,11 +36,37 @@ TEST_F(OapPngLoaderTests, LoadGreenScreen) {
   oap::PngFile pngFile;
 
   EXPECT_NO_THROW({
-    oap::PngDataLoader pngDataLoader(&pngFile,
-                                     "../../../data/images/green.png");
+    oap::PngDataLoader pngDataLoader(
+        &pngFile, "../../../data/images/green.png");
     oap::Pixel pixel = pngDataLoader.getPixel(0, 0);
     EXPECT_EQ(pixel.r, 0);
-    EXPECT_EQ(pixel.g, 1);
+    EXPECT_EQ(pixel.g, 255);
     EXPECT_EQ(pixel.b, 0);
+  });
+}
+
+TEST_F(OapPngLoaderTests, LoadRedScreen) {
+  oap::PngFile pngFile;
+
+  EXPECT_NO_THROW({
+    oap::PngDataLoader pngDataLoader(
+        &pngFile, "../../../data/images/red.png");
+    oap::Pixel pixel = pngDataLoader.getPixel(0, 0);
+    EXPECT_EQ(pixel.r, 255);
+    EXPECT_EQ(pixel.g, 0);
+    EXPECT_EQ(pixel.b, 0);
+  });
+}
+
+TEST_F(OapPngLoaderTests, LoadBlueScreen) {
+  oap::PngFile pngFile;
+
+  EXPECT_NO_THROW({
+    oap::PngDataLoader pngDataLoader(
+        &pngFile, "../../../data/images/blue.png");
+    oap::Pixel pixel = pngDataLoader.getPixel(0, 0);
+    EXPECT_EQ(pixel.r, 0);
+    EXPECT_EQ(pixel.g, 0);
+    EXPECT_EQ(pixel.b, 255);
   });
 }
