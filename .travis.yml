@@ -24,7 +24,7 @@ env:
 
 # Build steps
 script:
-  - make
+  - make TARGET_ARCH=HOST
 
 # Notify after build
 notifications:
