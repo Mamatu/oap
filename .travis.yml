@@ -1,0 +1,34 @@
+---
+# OS type
+os: linux
+dist: trusty
+sudo: required
+language: cpp
+
+# Compiler selection
+compiler:
+  - gcc
+
+addons:
+  apt:
+    packages:
+    - google-mock
+    - libgtest-dev
+
+before_install:
+  - cat /etc/issue
+
+# Environment variables
+env:
+  global:
+    - OAP_PATH=$TRAVIS_BUILD_DIR
+    - GMOCK_DIR=/usr/src/gmock
+    #- GTEST_DIR=/usr/src/gtest
+
+
+# Build steps
+script:
+  - make
+
+notifications:
+  email: false
