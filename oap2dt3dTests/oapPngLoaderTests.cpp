@@ -37,11 +37,11 @@ class OapPngLoaderTests : public testing::Test {
 
     virtual ~PngFileMock() {}
 
-    MOCK_METHOD1(open, bool(const char*));
+    MOCK_METHOD1(openInternal, bool(const char*));
 
     MOCK_METHOD3(read, bool(void*, size_t, size_t));
 
-    MOCK_CONST_METHOD0(isPng, bool());
+    MOCK_CONST_METHOD0(isPngInternal, bool());
 
     MOCK_METHOD0(loadBitmap, void());
 
@@ -53,14 +53,14 @@ class OapPngLoaderTests : public testing::Test {
 
     MOCK_CONST_METHOD0(getHeight, unsigned int());
 
-    MOCK_CONST_METHOD2(getPixel, oap::Pixel(unsigned int, unsigned int));
+    MOCK_CONST_METHOD2(getPixelInternal, oap::Pixel(unsigned int, unsigned int));
   };
 };
 
 TEST_F(OapPngLoaderTests, LoadFail) {
   PngFileMock pngFileMock;
 
-  EXPECT_CALL(pngFileMock, open(_)).Times(1).WillOnce(Return(false));
+  EXPECT_CALL(pngFileMock, openInternal(_)).Times(1).WillOnce(Return(false));
 
   EXPECT_THROW(oap::PngDataLoader pngDataLoader(&pngFileMock, ""), oap::exceptions::FileNotExist);
 }
@@ -68,9 +68,9 @@ TEST_F(OapPngLoaderTests, LoadFail) {
 TEST_F(OapPngLoaderTests, VerificationFail) {
   PngFileMock pngFileMock;
 
-  EXPECT_CALL(pngFileMock, open(_)).Times(1).WillOnce(Return(true));
+  EXPECT_CALL(pngFileMock, openInternal(_)).Times(1).WillOnce(Return(true));
 
-  EXPECT_CALL(pngFileMock, isPng()).Times(1).WillOnce(Return(false));
+  EXPECT_CALL(pngFileMock, isPngInternal()).Times(1).WillOnce(Return(false));
 
   EXPECT_THROW(oap::PngDataLoader pngDataLoader(&pngFileMock, ""), oap::exceptions::FileIsNotPng);
 }
@@ -78,9 +78,9 @@ TEST_F(OapPngLoaderTests, VerificationFail) {
 TEST_F(OapPngLoaderTests, Load) {
   PngFileMock pngFileMock;
 
-  EXPECT_CALL(pngFileMock, open(_)).Times(1).WillOnce(Return(true));
+  EXPECT_CALL(pngFileMock, openInternal(_)).Times(1).WillOnce(Return(true));
 
-  EXPECT_CALL(pngFileMock, isPng()).Times(1).WillOnce(Return(true));
+  EXPECT_CALL(pngFileMock, isPngInternal()).Times(1).WillOnce(Return(true));
 
   EXPECT_CALL(pngFileMock, loadBitmap()).Times(1);
 

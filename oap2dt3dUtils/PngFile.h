@@ -31,8 +31,6 @@ class PngFile : public IPngFile {
 
   virtual ~PngFile();
 
-  virtual bool open(const char* path);
-
   virtual bool read(void* buffer, size_t repeat, size_t size);
 
   virtual void loadBitmap();
@@ -45,10 +43,12 @@ class PngFile : public IPngFile {
 
   virtual unsigned int getHeight() const;
 
-  virtual Pixel getPixel(unsigned int x, unsigned int y) const;
-
  protected:
-  bool isPng() const;
+  virtual bool openInternal(const char* path);
+
+  virtual bool isPngInternal() const;
+
+  virtual Pixel getPixelInternal(unsigned int x, unsigned int y) const;
 
  private:
   FILE* m_fp;

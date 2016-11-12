@@ -37,11 +37,11 @@ class OapPngFileTests : public testing::Test {
 
     virtual ~PngFileMock() {}
 
-    MOCK_METHOD1(open, bool(const char*));
+    MOCK_METHOD1(openInternal, bool(const char*));
 
     MOCK_METHOD3(read, bool(void*, size_t, size_t));
 
-    MOCK_CONST_METHOD0(isPng, bool());
+    MOCK_CONST_METHOD0(isPngInternal, bool());
 
     MOCK_METHOD0(loadBitmap, void());
 

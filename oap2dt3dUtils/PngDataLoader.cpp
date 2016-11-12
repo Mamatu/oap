@@ -22,7 +22,7 @@
 
 namespace oap {
 
-PngDataLoader::PngDataLoader(IPngFile* ifile, const char* path)
+PngDataLoader::PngDataLoader(IPngFile* ifile, const std::string& path)
     : m_ifile(ifile) {
   load(path);
 }
@@ -33,14 +33,8 @@ PngDataLoader::~PngDataLoader() {
   }
 }
 
-void PngDataLoader::load(const char* path) {
-  if (m_ifile->open(path) == false) {
-    throw oap::exceptions::FileNotExist(path);
-  }
-
-  if (!m_ifile->isPng()) {
-    throw oap::exceptions::FileIsNotPng(path);
-  }
+void PngDataLoader::load(const std::string& path) {
+  m_ifile->open(path.c_str());
 
   m_ifile->loadBitmap();
 

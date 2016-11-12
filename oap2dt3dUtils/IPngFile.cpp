@@ -18,6 +18,7 @@
  */
 
 #include "IPngFile.h"
+#include "Exceptions.h"
 
 namespace oap {
 
@@ -26,4 +27,24 @@ IPngFile::IPngFile() {}
 IPngFile::~IPngFile() {}
 
 bool IPngFile::read(void* buffer, size_t size) { return read(buffer, 1, size); }
+
+void IPngFile::open(const char* path) {
+  if (openInternal(path) == false) {
+    throw oap::exceptions::FileNotExist(path);
+  }
+
+  if (isPngInternal() == false) {
+    close();
+    throw oap::exceptions::FileIsNotPng(path);
+  }
+}
+
+Pixel IPngFile::getPixel(unsigned int x, unsigned int y) const {
+  unsigned int height = getHeight();
+  unsigned int width = getWidth();
+  if (x >= width || y >= height) {
+    throw exceptions::OutOfRange(x, y, width, height);
+  }
+  return getPixelInternal(x, y);
+}
 }

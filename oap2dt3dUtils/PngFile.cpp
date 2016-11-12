@@ -26,19 +26,8 @@ PngFile::PngFile() : m_fp(NULL), m_bitmap(NULL) {}
 
 PngFile::~PngFile() { close(); }
 
-bool PngFile::open(const char* path) {
-  m_fp = fopen(path, "rb");
-  return m_fp != NULL;
-}
-
 bool PngFile::read(void* buffer, size_t repeat, size_t size) {
   fread(buffer, repeat, size, m_fp);
-}
-
-bool PngFile::isPng() const {
-  const size_t header_size = 8;
-  unsigned char header[header_size];
-  return png_sig_cmp(header, 0, header_size);
 }
 
 void PngFile::loadBitmap() {
@@ -108,12 +97,18 @@ unsigned int PngFile::getHeight() const {
   return png_get_image_height(m_png_ptr, m_info_ptr);
 }
 
-Pixel PngFile::getPixel(unsigned int x, unsigned int y) const {
-  unsigned int height = getHeight();
-  unsigned int width = getWidth();
-  if (x >= width || y >= height) {
-    throw exceptions::OutOfRange(x, y, width, height);
-  }
+bool PngFile::openInternal(const char* path) {
+  m_fp = fopen(path, "rb");
+  return m_fp != NULL;
+}
+
+bool PngFile::isPngInternal() const {
+  const size_t header_size = 8;
+  unsigned char header[header_size];
+  return png_sig_cmp(header, 0, header_size);
+}
+
+Pixel PngFile::getPixelInternal(unsigned int x, unsigned int y) const {
   png_byte* row = m_bitmap[y];
   png_byte* ptr = &(row[x * 4]);
   Pixel pixel(ptr[0], ptr[1], ptr[2]);

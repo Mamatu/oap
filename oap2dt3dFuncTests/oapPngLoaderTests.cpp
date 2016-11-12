@@ -21,23 +21,35 @@
 #include "PngDataLoader.h"
 #include "PngFile.h"
 
+#include "Config.h"
+
 using namespace ::testing;
 
 class OapPngLoaderTests : public testing::Test {
  public:
+  OapPngLoaderTests() {
+    m_data_path = utils::Config::getPathInOap("oap2dt3dFuncTests/data/");
+    m_images_path = m_data_path + "images/";
+  }
+
   virtual void SetUp() {}
 
   virtual void TearDown() {}
 
- public:
+  std::string m_data_path;
+  std::string m_images_path;
+
+  std::string getImagePath(const std::string& filename) {
+    return m_images_path + filename;
+  }
 };
 
 TEST_F(OapPngLoaderTests, LoadGreenScreen) {
   oap::PngFile pngFile;
 
+  // fprintf(stderr, #OAP_PATH);
   EXPECT_NO_THROW({
-    oap::PngDataLoader pngDataLoader(
-        &pngFile, "../../../data/images/green.png");
+    oap::PngDataLoader pngDataLoader(&pngFile, getImagePath("green.png"));
     oap::Pixel pixel = pngDataLoader.getPixel(0, 0);
     EXPECT_EQ(pixel.r, 0);
     EXPECT_EQ(pixel.g, 255);
@@ -49,8 +61,7 @@ TEST_F(OapPngLoaderTests, LoadRedScreen) {
   oap::PngFile pngFile;
 
   EXPECT_NO_THROW({
-    oap::PngDataLoader pngDataLoader(
-        &pngFile, "../../../data/images/red.png");
+    oap::PngDataLoader pngDataLoader(&pngFile, getImagePath("red.png"));
     oap::Pixel pixel = pngDataLoader.getPixel(0, 0);
     EXPECT_EQ(pixel.r, 255);
     EXPECT_EQ(pixel.g, 0);
@@ -62,8 +73,7 @@ TEST_F(OapPngLoaderTests, LoadBlueScreen) {
   oap::PngFile pngFile;
 
   EXPECT_NO_THROW({
-    oap::PngDataLoader pngDataLoader(
-        &pngFile, "../../../data/images/blue.png");
+    oap::PngDataLoader pngDataLoader(&pngFile, getImagePath("blue.png"));
     oap::Pixel pixel = pngDataLoader.getPixel(0, 0);
     EXPECT_EQ(pixel.r, 0);
     EXPECT_EQ(pixel.g, 0);

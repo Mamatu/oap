@@ -20,6 +20,8 @@
 #ifndef PNGDATALOADER_H
 #define PNGDATALOADER_H
 
+#include <string>
+
 #include "IPngFile.h"
 #include "Exceptions.h"
 
@@ -27,7 +29,7 @@ namespace oap {
 
 class PngDataLoader {
  public:
-  PngDataLoader(IPngFile* ifile, const char* path);
+  PngDataLoader(IPngFile* ifile, const std::string& path);
 
   virtual ~PngDataLoader();
 
@@ -36,7 +38,7 @@ class PngDataLoader {
  private:
   IPngFile* m_ifile;
 
-  void load(const char* path);
+  void load(const std::string& path);
 };
 }
 #endif  // PNGLOADER_H
