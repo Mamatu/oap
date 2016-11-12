@@ -28,6 +28,9 @@ std::string Config::oapPath;
 const std::string& Config::getOapPath() {
   if (oapPath.empty()) {
     oapPath = TO_STRING(OAP_PATH);
+    if (oapPath[oapPath.size() - 1] != '/') {
+      oapPath = oapPath + "/";
+    }
   }
   return oapPath;
 }
