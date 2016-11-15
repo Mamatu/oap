@@ -1,0 +1,31 @@
+---
+# OS type
+os: linux
+dist: trusty
+sudo: required
+language: cpp
+
+# Compiler selection
+compiler:
+  - gcc
+
+# Install packages
+addons:
+  apt:
+    packages:
+    - google-mock
+    - libgtest-dev
+
+# Environment variables
+env:
+  global:
+    - OAP_PATH=$TRAVIS_BUILD_DIR
+    - GMOCK_DIR=/usr/src/gmock
+
+# Build steps
+script:
+  - make TARGET_ARCH=HOST
+
+# Notify after build
+notifications:
+  email: false
