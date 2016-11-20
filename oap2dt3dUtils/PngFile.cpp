@@ -22,7 +22,10 @@
 
 namespace oap {
 
-PngFile::PngFile() : m_fp(NULL), m_bitmap(NULL) {}
+size_t g_colorsCount = 3;
+
+PngFile::PngFile()
+    : m_fp(NULL), m_bitmap2d(NULL), m_bitmap1d(NULL), m_pixels(NULL) {}
 
 PngFile::~PngFile() { close(); }
 
@@ -31,7 +34,6 @@ bool PngFile::read(void* buffer, size_t repeat, size_t size) {
 }
 
 void PngFile::loadBitmap() {
-  int width, height;
   png_byte color_type;
   png_byte bit_depth;
 
@@ -45,8 +47,8 @@ void PngFile::loadBitmap() {
 
   png_read_info(m_png_ptr, m_info_ptr);
 
-  width = getWidth();
-  height = getHeight();
+  const size_t width = getWidth();
+  const size_t height = getHeight();
 
   color_type = png_get_color_type(m_png_ptr, m_info_ptr);
   bit_depth = png_get_bit_depth(m_png_ptr, m_info_ptr);
@@ -54,25 +56,41 @@ void PngFile::loadBitmap() {
   int number_of_passes = png_set_interlace_handling(m_png_ptr);
   png_read_update_info(m_png_ptr, m_info_ptr);
 
-  m_bitmap = new png_bytep[height];
-  for (unsigned int fa = 0; fa < height; fa++) {
-    m_bitmap[fa] = new png_byte[png_get_rowbytes(m_png_ptr, m_info_ptr) /
-                                sizeof(png_byte)];
+  m_bitmap2d = new png_bytep[height];
+
+  for (unsigned int fa = 0; fa < height; ++fa) {
+    const size_t localWidth =
+        png_get_rowbytes(m_png_ptr, m_info_ptr) / sizeof(png_byte);
+    m_bitmap2d[fa] = new png_byte[localWidth];
   }
-  png_read_image(m_png_ptr, m_bitmap);
+
+  m_bitmap1d = new png_byte[width * height * g_colorsCount];
+
+  m_pixels = new pixel_t[width * height];
+
+  png_read_image(m_png_ptr, m_bitmap2d);
+
+  copy2dBitmapTo1d(m_bitmap2d, m_bitmap1d, width, height);
+
+  copyToPixelsVector(m_pixels, m_bitmap1d, width, height);
 }
 
 void PngFile::freeBitmap() {
-  if (m_bitmap == NULL) {
+  if (m_bitmap2d == NULL) {
     return;
   }
 
   int height = getHeight();
 
-  for (unsigned int fa = 0; fa < height; fa++) {
-    delete[] m_bitmap[fa];
+  for (unsigned int fa = 0; fa < height; ++fa) {
+    delete[] m_bitmap2d[fa];
   }
-  delete[] m_bitmap;
+
+  delete[] m_bitmap2d;
+
+  delete[] m_bitmap1d;
+
+  delete[] m_pixels;
 
   png_destroy_info_struct(m_png_ptr, &m_info_ptr);
 
@@ -89,12 +107,21 @@ void PngFile::close() {
   }
 }
 
-unsigned int PngFile::getWidth() const {
+size_t PngFile::getWidth() const {
   return png_get_image_width(m_png_ptr, m_info_ptr);
 }
 
-unsigned int PngFile::getHeight() const {
+size_t PngFile::getHeight() const {
   return png_get_image_height(m_png_ptr, m_info_ptr);
+}
+
+pixel_t* PngFile::newPixelsVector() const {
+  const size_t width = getWidth();
+  const size_t height = getHeight();
+  const size_t length = width * height;
+  pixel_t* pixels = new pixel_t[length];
+  memcpy(pixels, m_pixels, sizeof(pixel_t) * length);
+  return pixels;
 }
 
 bool PngFile::openInternal(const char* path) {
@@ -108,10 +135,32 @@ bool PngFile::isPngInternal() const {
   return png_sig_cmp(header, 0, header_size);
 }
 
-Pixel PngFile::getPixelInternal(unsigned int x, unsigned int y) const {
-  png_byte* row = m_bitmap[y];
-  png_byte* ptr = &(row[x * 4]);
-  Pixel pixel(ptr[0], ptr[1], ptr[2]);
-  return pixel;
+pixel_t PngFile::getPixelInternal(unsigned int x, unsigned int y) const {
+  png_byte* row = m_bitmap2d[y];
+  png_byte* ptr = &(row[x * g_colorsCount]);
+  return convertRgbToPixel(ptr[0], ptr[1], ptr[2]);
+}
+
+void PngFile::copy2dBitmapTo1d(png_bytep* bitmap2d, png_byte* bitmap1d,
+                               size_t width, size_t height) const {
+  width = width * g_colorsCount;
+  for (size_t fa = 0; fa < height; ++fa) {
+    memcpy(&bitmap1d[fa * width * sizeof(png_byte)], bitmap2d[fa],
+           width * sizeof(png_byte));
+  }
+}
+
+void PngFile::copyToPixelsVector(oap::pixel_t* pixels, png_byte* bitmap1d,
+                                 size_t width, size_t height) {
+  for (size_t fa = 0; fa < height; ++fa) {
+    for (size_t fb = 0; fb < width; ++fb) {
+      const size_t index = fa * width * 3 + fb * 3;
+      const size_t index1 = fa * width + fb;
+      const png_byte r = bitmap1d[index];
+      const png_byte g = bitmap1d[index + 1];
+      const png_byte b = bitmap1d[index + 2];
+      pixels[index1] = convertRgbToPixel(r, g, b);
+    }
+  }
 }
 }

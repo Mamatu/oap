@@ -22,6 +22,15 @@
 
 namespace oap {
 
+pixel_t IPngFile::convertRgbToPixel(unsigned char r, unsigned char g, unsigned char b) {
+  pixel_t rgb = r;
+  rgb = rgb << 8;
+  rgb |= g;
+  rgb = rgb << 8;
+  rgb |= b;
+  return rgb;
+}
+
 IPngFile::IPngFile() {}
 
 IPngFile::~IPngFile() {}
@@ -39,7 +48,7 @@ void IPngFile::open(const char* path) {
   }
 }
 
-Pixel IPngFile::getPixel(unsigned int x, unsigned int y) const {
+pixel_t IPngFile::getPixel(unsigned int x, unsigned int y) const {
   unsigned int height = getHeight();
   unsigned int width = getWidth();
   if (x >= width || y >= height) {

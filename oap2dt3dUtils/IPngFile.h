@@ -21,21 +21,11 @@
 #define IPNGFILE_H
 
 #include <png.h>
+#include "Math.h"
 
 namespace oap {
 
-class Pixel {
- public:
-  inline Pixel() : r(0), g(0), b(0) { a = 1; }
-
-  inline Pixel(unsigned char _r, unsigned char _g, unsigned char _b)
-      : r(_r), g(_g), b(_b) {
-    a = 1;
-  }
-
-  unsigned char r, g, b;
-  unsigned char a;
-};
+typedef unsigned int pixel_t;
 
 class IPngFile {
  public:
@@ -53,20 +43,25 @@ class IPngFile {
 
   virtual void freeBitmap() = 0;
 
-  virtual unsigned int getWidth() const = 0;
+  virtual size_t getWidth() const = 0;
 
-  virtual unsigned int getHeight() const = 0;
+  virtual size_t getHeight() const = 0;
 
-  Pixel getPixel(unsigned int x, unsigned int y) const;
+  pixel_t getPixel(unsigned int x, unsigned int y) const;
+
+  virtual pixel_t* newPixelsVector() const = 0;
 
   virtual void close() = 0;
+
+  static pixel_t convertRgbToPixel(unsigned char r, unsigned char g,
+                                   unsigned char b);
 
  protected:
   virtual bool openInternal(const char* path) = 0;
 
   virtual bool isPngInternal() const = 0;
 
-  virtual Pixel getPixelInternal(unsigned int x, unsigned int y) const = 0;
+  virtual pixel_t getPixelInternal(unsigned int x, unsigned int y) const = 0;
 };
 }
 

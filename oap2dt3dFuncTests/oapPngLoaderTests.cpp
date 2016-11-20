@@ -42,41 +42,33 @@ class OapPngLoaderTests : public testing::Test {
   std::string getImagePath(const std::string& filename) {
     return m_images_path + filename;
   }
+
+  void executeColorTest(const std::string& file, oap::pixel_t expected) {
+    oap::PngFile pngFile;
+    EXPECT_NO_THROW({
+      oap::PngDataLoader pngDataLoader(&pngFile, getImagePath(file));
+      const size_t width = pngDataLoader.getWidth();
+      const size_t height = pngDataLoader.getHeight();
+      oap::pixel_t* pixels = pngDataLoader.newPixelsVector();
+      for (size_t fa = 0; fa < width; ++fa) {
+        for (size_t fb = 0; fb < height; ++fb) {
+          oap::pixel_t pixel = pngDataLoader.getPixel(fa, fb);
+          EXPECT_EQ(pixel, expected);
+          const oap::pixel_t pixel1 = pixels[fa * height + fb];
+          EXPECT_EQ(pixel1, expected);
+        }
+      }
+      delete[] pixels;
+    });
+  }
 };
 
 TEST_F(OapPngLoaderTests, LoadGreenScreen) {
-  oap::PngFile pngFile;
-
-  // fprintf(stderr, #OAP_PATH);
-  EXPECT_NO_THROW({
-    oap::PngDataLoader pngDataLoader(&pngFile, getImagePath("green.png"));
-    oap::Pixel pixel = pngDataLoader.getPixel(0, 0);
-    EXPECT_EQ(pixel.r, 0);
-    EXPECT_EQ(pixel.g, 255);
-    EXPECT_EQ(pixel.b, 0);
-  });
+  executeColorTest("green.png", 65280);
 }
 
 TEST_F(OapPngLoaderTests, LoadRedScreen) {
-  oap::PngFile pngFile;
-
-  EXPECT_NO_THROW({
-    oap::PngDataLoader pngDataLoader(&pngFile, getImagePath("red.png"));
-    oap::Pixel pixel = pngDataLoader.getPixel(0, 0);
-    EXPECT_EQ(pixel.r, 255);
-    EXPECT_EQ(pixel.g, 0);
-    EXPECT_EQ(pixel.b, 0);
-  });
+  executeColorTest("red.png", 16711680);
 }
 
-TEST_F(OapPngLoaderTests, LoadBlueScreen) {
-  oap::PngFile pngFile;
-
-  EXPECT_NO_THROW({
-    oap::PngDataLoader pngDataLoader(&pngFile, getImagePath("blue.png"));
-    oap::Pixel pixel = pngDataLoader.getPixel(0, 0);
-    EXPECT_EQ(pixel.r, 0);
-    EXPECT_EQ(pixel.g, 0);
-    EXPECT_EQ(pixel.b, 255);
-  });
-}
+TEST_F(OapPngLoaderTests, LoadBlueScreen) { executeColorTest("blue.png", 255); }

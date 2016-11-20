@@ -41,7 +41,15 @@ void PngDataLoader::load(const std::string& path) {
   m_ifile->close();
 }
 
-Pixel PngDataLoader::getPixel(unsigned int x, unsigned int y) const {
+oap::pixel_t PngDataLoader::getPixel(unsigned int x, unsigned int y) const {
   return m_ifile->getPixel(x, y);
 }
+
+oap::pixel_t* PngDataLoader::newPixelsVector() const {
+  return m_ifile->newPixelsVector();
+}
+
+size_t PngDataLoader::getWidth() const { return m_ifile->getWidth(); }
+
+size_t PngDataLoader::getHeight() const { return m_ifile->getHeight(); }
 }

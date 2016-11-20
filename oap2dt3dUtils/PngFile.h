@@ -39,22 +39,32 @@ class PngFile : public IPngFile {
 
   virtual void close();
 
-  virtual unsigned int getWidth() const;
+  virtual size_t getWidth() const;
 
-  virtual unsigned int getHeight() const;
+  virtual size_t getHeight() const;
+
+  virtual pixel_t* newPixelsVector() const;
 
  protected:
   virtual bool openInternal(const char* path);
 
   virtual bool isPngInternal() const;
 
-  virtual Pixel getPixelInternal(unsigned int x, unsigned int y) const;
+  virtual pixel_t getPixelInternal(unsigned int x, unsigned int y) const;
 
  private:
+  void copy2dBitmapTo1d(png_bytep* bitmap2d, png_byte* bitmap1d, size_t width,
+                        size_t height) const;
+
+  void copyToPixelsVector(oap::pixel_t* pixels, png_byte* bitmap1d,
+                          size_t width, size_t height);
+
   FILE* m_fp;
   png_structp m_png_ptr;
   png_infop m_info_ptr;
-  png_bytep* m_bitmap;
+  png_bytep* m_bitmap2d;
+  png_byte* m_bitmap1d;
+  oap::pixel_t* m_pixels;
 };
 }
 

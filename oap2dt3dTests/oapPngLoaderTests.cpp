@@ -49,11 +49,13 @@ class OapPngLoaderTests : public testing::Test {
 
     MOCK_METHOD0(close, void());
 
-    MOCK_CONST_METHOD0(getWidth, unsigned int());
+    MOCK_CONST_METHOD0(getWidth, size_t());
 
-    MOCK_CONST_METHOD0(getHeight, unsigned int());
+    MOCK_CONST_METHOD0(getHeight, size_t());
 
-    MOCK_CONST_METHOD2(getPixelInternal, oap::Pixel(unsigned int, unsigned int));
+    MOCK_CONST_METHOD2(getPixelInternal, oap::pixel_t(unsigned int, unsigned int));
+
+    MOCK_CONST_METHOD0(newPixelsVector, oap::pixel_t*());
   };
 };
 

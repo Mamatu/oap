@@ -33,7 +33,12 @@ class PngDataLoader {
 
   virtual ~PngDataLoader();
 
-  Pixel getPixel(unsigned int x, unsigned int y) const;
+  oap::pixel_t getPixel(unsigned int x, unsigned int y) const;
+
+  oap::pixel_t* newPixelsVector() const;
+
+  size_t getWidth() const;
+  size_t getHeight() const;
 
  private:
   IPngFile* m_ifile;
