@@ -115,13 +115,9 @@ size_t PngFile::getHeight() const {
   return png_get_image_height(m_png_ptr, m_info_ptr);
 }
 
-pixel_t* PngFile::newPixelsVector() const {
-  const size_t width = getWidth();
-  const size_t height = getHeight();
-  const size_t length = width * height;
-  pixel_t* pixels = new pixel_t[length];
+void PngFile::getPixelsVector(pixel_t* pixels) const {
+  const size_t length = getLength();
   memcpy(pixels, m_pixels, sizeof(pixel_t) * length);
-  return pixels;
 }
 
 bool PngFile::openInternal(const char* path) {

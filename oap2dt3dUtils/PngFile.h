@@ -43,7 +43,7 @@ class PngFile : public IPngFile {
 
   virtual size_t getHeight() const;
 
-  virtual pixel_t* newPixelsVector() const;
+  virtual void getPixelsVector(pixel_t* pixels) const;
 
  protected:
   virtual bool openInternal(const char* path);

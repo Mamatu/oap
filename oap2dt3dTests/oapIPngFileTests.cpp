@@ -53,7 +53,7 @@ class OapPngFileTests : public testing::Test {
 
     MOCK_CONST_METHOD0(getHeight, size_t());
 
-    MOCK_CONST_METHOD0(newPixelsVector, oap::pixel_t*());
+    MOCK_CONST_METHOD1(getPixelsVector, void(oap::pixel_t*));
   };
 };
 

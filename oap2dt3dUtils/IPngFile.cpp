@@ -22,15 +22,6 @@
 
 namespace oap {
 
-pixel_t IPngFile::convertRgbToPixel(unsigned char r, unsigned char g, unsigned char b) {
-  pixel_t rgb = r;
-  rgb = rgb << 8;
-  rgb |= g;
-  rgb = rgb << 8;
-  rgb |= b;
-  return rgb;
-}
-
 IPngFile::IPngFile() {}
 
 IPngFile::~IPngFile() {}
@@ -56,4 +47,18 @@ pixel_t IPngFile::getPixel(unsigned int x, unsigned int y) const {
   }
   return getPixelInternal(x, y);
 }
+
+size_t IPngFile::getLength() const { return getWidth() * getHeight(); }
+
+pixel_t IPngFile::convertRgbToPixel(unsigned char r, unsigned char g,
+                                    unsigned char b) {
+  pixel_t rgb = r;
+  rgb = rgb << 8;
+  rgb |= g;
+  rgb = rgb << 8;
+  rgb |= b;
+  return rgb;
+}
+
+pixel_t IPngFile::getPixelMax() { return convertRgbToPixel(255, 255, 255); }
 }

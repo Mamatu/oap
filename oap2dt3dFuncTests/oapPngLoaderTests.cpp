@@ -49,7 +49,8 @@ class OapPngLoaderTests : public testing::Test {
       oap::PngDataLoader pngDataLoader(&pngFile, getImagePath(file));
       const size_t width = pngDataLoader.getWidth();
       const size_t height = pngDataLoader.getHeight();
-      oap::pixel_t* pixels = pngDataLoader.newPixelsVector();
+      oap::pixel_t* pixels = new oap::pixel_t[width * height];
+      pngDataLoader.getPixelsVector(pixels);
       for (size_t fa = 0; fa < width; ++fa) {
         for (size_t fb = 0; fb < height; ++fb) {
           oap::pixel_t pixel = pngDataLoader.getPixel(fa, fb);

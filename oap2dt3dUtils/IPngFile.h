@@ -49,12 +49,16 @@ class IPngFile {
 
   pixel_t getPixel(unsigned int x, unsigned int y) const;
 
-  virtual pixel_t* newPixelsVector() const = 0;
+  size_t getLength() const;
+
+  virtual void getPixelsVector(pixel_t* pixels) const = 0;
 
   virtual void close() = 0;
 
   static pixel_t convertRgbToPixel(unsigned char r, unsigned char g,
                                    unsigned char b);
+
+  static pixel_t getPixelMax();
 
  protected:
   virtual bool openInternal(const char* path) = 0;

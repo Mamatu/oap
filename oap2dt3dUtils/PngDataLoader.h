@@ -24,6 +24,7 @@
 
 #include "IPngFile.h"
 #include "Exceptions.h"
+#include "Math.h"
 
 namespace oap {
 
@@ -35,10 +36,12 @@ class PngDataLoader {
 
   oap::pixel_t getPixel(unsigned int x, unsigned int y) const;
 
-  oap::pixel_t* newPixelsVector() const;
+  void getPixelsVector(oap::pixel_t* pixels) const;
+  void getFloattVector(floatt* vector) const;
 
   size_t getWidth() const;
   size_t getHeight() const;
+  size_t getLength() const;
 
  private:
   IPngFile* m_ifile;

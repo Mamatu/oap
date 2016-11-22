@@ -45,11 +45,24 @@ oap::pixel_t PngDataLoader::getPixel(unsigned int x, unsigned int y) const {
   return m_ifile->getPixel(x, y);
 }
 
-oap::pixel_t* PngDataLoader::newPixelsVector() const {
-  return m_ifile->newPixelsVector();
+void PngDataLoader::getPixelsVector(oap::pixel_t* pixels) const {
+  m_ifile->getPixelsVector(pixels);
+}
+
+void PngDataLoader::getFloattVector(floatt* vector) const {
+  const size_t length = getLength();
+  pixel_t* pixels = new pixel_t[length];
+  pixel_t max = IPngFile::getPixelMax();
+  m_ifile->getPixelsVector(pixels);
+  for (size_t fa = 0; fa < length; ++fa) {
+    vector[fa] = pixels[fa] / max;
+  }
+  delete[] pixels;
 }
 
 size_t PngDataLoader::getWidth() const { return m_ifile->getWidth(); }
 
 size_t PngDataLoader::getHeight() const { return m_ifile->getHeight(); }
+
+size_t PngDataLoader::getLength() const { return m_ifile->getLength(); }
 }

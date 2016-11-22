@@ -16,30 +16,44 @@ class OutOfRange : public Exception {
   OutOfRange(unsigned int _x, unsigned int _y, unsigned int _width,
              unsigned int _height);
 
+  virtual std::string getMessage() const;
+
+ private:
   unsigned int x;
   unsigned int y;
   unsigned int width;
   unsigned int height;
-
-  virtual std::string getMessage() const;
 };
 
 class FileNotExist : public Exception {
  public:
   FileNotExist(const std::string& path);
 
-  std::string m_path;
-
   virtual std::string getMessage() const;
+
+ private:
+  std::string m_path;
 };
 
 class FileIsNotPng : public Exception {
  public:
   FileIsNotPng(const std::string& path);
 
+  virtual std::string getMessage() const;
+
+ private:
   std::string m_path;
+};
+
+class NotIdenticalLengths : public Exception {
+ public:
+  NotIdenticalLengths(size_t refLength, size_t length);
 
   virtual std::string getMessage() const;
+private:
+    size_t m_refLength;
+    size_t m_length;
+
 };
 }
 }
