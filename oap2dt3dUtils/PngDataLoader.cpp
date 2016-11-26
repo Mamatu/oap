@@ -24,8 +24,10 @@ namespace oap {
 
 PngDataLoader::PngDataLoader(IPngFile* ifile, const std::string& path)
     : m_ifile(ifile) {
-  load(path);
+  openAndLoad(path);
 }
+
+PngDataLoader::PngDataLoader(IPngFile* ifile) : m_ifile(ifile) { load(); }
 
 PngDataLoader::~PngDataLoader() {
   if (m_ifile != NULL) {
@@ -33,9 +35,13 @@ PngDataLoader::~PngDataLoader() {
   }
 }
 
-void PngDataLoader::load(const std::string& path) {
+void PngDataLoader::openAndLoad(const std::string& path) {
   m_ifile->open(path.c_str());
 
+  load();
+}
+
+void PngDataLoader::load() {
   m_ifile->loadBitmap();
 
   m_ifile->close();

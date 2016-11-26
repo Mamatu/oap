@@ -32,6 +32,8 @@ class PngDataLoader {
  public:
   PngDataLoader(IPngFile* ifile, const std::string& path);
 
+  PngDataLoader(IPngFile* ifile);
+
   virtual ~PngDataLoader();
 
   oap::pixel_t getPixel(unsigned int x, unsigned int y) const;
@@ -46,7 +48,8 @@ class PngDataLoader {
  private:
   IPngFile* m_ifile;
 
-  void load(const std::string& path);
+  void openAndLoad(const std::string& path);
+  void load();
 };
 }
 #endif  // PNGLOADER_H
