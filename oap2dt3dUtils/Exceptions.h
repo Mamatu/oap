@@ -13,16 +13,13 @@ class Exception {
 
 class OutOfRange : public Exception {
  public:
-  OutOfRange(unsigned int _x, unsigned int _y, unsigned int _width,
-             unsigned int _height);
+  OutOfRange(unsigned int _value, unsigned int _maxValue);
 
   virtual std::string getMessage() const;
 
  private:
-  unsigned int x;
-  unsigned int y;
-  unsigned int width;
-  unsigned int height;
+  unsigned int value;
+  unsigned int maxValue;
 };
 
 class FileNotExist : public Exception {
@@ -50,10 +47,15 @@ class NotIdenticalLengths : public Exception {
   NotIdenticalLengths(size_t refLength, size_t length);
 
   virtual std::string getMessage() const;
-private:
-    size_t m_refLength;
-    size_t m_length;
 
+ private:
+  size_t m_refLength;
+  size_t m_length;
+};
+
+class NotInitialzed : public Exception {
+ public:
+  virtual std::string getMessage() const;
 };
 }
 }

@@ -42,8 +42,11 @@ void IPngFile::open(const char* path) {
 pixel_t IPngFile::getPixel(unsigned int x, unsigned int y) const {
   unsigned int height = getHeight();
   unsigned int width = getWidth();
-  if (x >= width || y >= height) {
-    throw exceptions::OutOfRange(x, y, width, height);
+  if (x >= width) {
+    throw exceptions::OutOfRange(x, width);
+  }
+  if (y >= height) {
+    throw exceptions::OutOfRange(y, height);
   }
   return getPixelInternal(x, y);
 }

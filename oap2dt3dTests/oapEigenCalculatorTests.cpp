@@ -85,6 +85,14 @@ class OapEigenCalculatorTests : public testing::Test {
     size_t m_height;
   };
 };
+TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
+  oap::EigenCalculator eigenCalc;
+  EXPECT_THROW(eigenCalc.createMatrix(), oap::exceptions::NotInitialzed);
+  EXPECT_THROW(eigenCalc.createMatrixInfo(), oap::exceptions::NotInitialzed);
+  EXPECT_THROW(eigenCalc.calculate(), oap::exceptions::NotInitialzed);
+  EXPECT_THROW(eigenCalc.getEigenvalue(0), oap::exceptions::NotInitialzed);
+  EXPECT_THROW(eigenCalc.getEigenvector(0), oap::exceptions::NotInitialzed);
+}
 
 TEST_F(OapEigenCalculatorTests, MatrixCreation2x2) {
   const oap::pixel_t pv = oap::IPngFile::getPixelMax();
@@ -98,14 +106,14 @@ TEST_F(OapEigenCalculatorTests, MatrixCreation2x2) {
   oap::PngDataLoader pdl3(&pngFileMock);
   oap::PngDataLoader pdl4(&pngFileMock);
 
-  oap::EigenCalculator dataOperator;
+  oap::EigenCalculator eigenCalc;
 
-  dataOperator.addPngDataLoader(&pdl1);
-  dataOperator.addPngDataLoader(&pdl2);
-  dataOperator.addPngDataLoader(&pdl3);
-  dataOperator.addPngDataLoader(&pdl4);
+  eigenCalc.addPngDataLoader(&pdl1);
+  eigenCalc.addPngDataLoader(&pdl2);
+  eigenCalc.addPngDataLoader(&pdl3);
+  eigenCalc.addPngDataLoader(&pdl4);
 
-  math::Matrix* matrix = dataOperator.createMatrix();
+  math::Matrix* matrix = eigenCalc.createMatrix();
 
   EXPECT_EQ(4, matrix->columns);
   EXPECT_EQ(4, matrix->rows);

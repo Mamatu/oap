@@ -14,18 +14,12 @@ std::string to_string(T i) {
   return s;
 }
 
-OutOfRange::OutOfRange(unsigned int _x, unsigned int _y, unsigned int _width,
-                       unsigned int _height)
-    : x(_x), y(_y), width(_width), height(_height) {}
+OutOfRange::OutOfRange(unsigned int _value, unsigned int _maxValue)
+    : value(_value), maxValue(_maxValue) {}
 
 std::string OutOfRange::getMessage() const {
   std::string msg;
-  if (x >= width) {
-    msg += "x is out of range ";
-  }
-  if (y >= height) {
-    msg += "y is out of range ";
-  }
+  msg += "Value is out of range.";
   return msg;
 }
 
@@ -53,6 +47,10 @@ std::string NotIdenticalLengths::getMessage() const {
   std::string reflstr = to_string(m_refLength);
   std::string msg = "Not identical length: refLength = " + reflstr +
                     ", length = " + lstr + ".";
+}
+
+std::string NotInitialzed::getMessage() const {
+  return "EigenCalculator has not initialzed yet.";
 }
 }
 }

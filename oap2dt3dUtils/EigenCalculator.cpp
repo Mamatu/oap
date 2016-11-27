@@ -5,8 +5,7 @@
 
 namespace oap {
 
-EigenCalculator::EigenCalculator()
-    : m_eigenvalues(NULL), m_eigenvectors(NULL) {}
+EigenCalculator::EigenCalculator() : m_eigensCount(2) {}
 
 EigenCalculator::~EigenCalculator() {}
 
@@ -35,28 +34,72 @@ math::Matrix* EigenCalculator::createMatrix(
   return hostMatrix;
 }
 
+ArnUtils::MatrixInfo EigenCalculator::createMatrixInfo() const {
+  checkIfInitialized();
+
+  const uintt width = m_pngDataLoaders.size();
+  const uintt height = m_pngDataLoaders[0]->getLength();
+
+  return ArnUtils::MatrixInfo(true, false, width, height);
+}
+
 void EigenCalculator::addPngDataLoader(PngDataLoader* pngDataLoader) {
-  m_internalPngDataLoaders.push_back(pngDataLoader);
+  m_pngDataLoaders.push_back(pngDataLoader);
 }
 
-void EigenCalculator::calculate() {}
+void EigenCalculator::calculate() {
+  checkIfInitialized();
 
-math::Matrix* EigenCalculator::getLargestEigenValues() const {
-  return m_eigenvalues;
+  ArnUtils::MatrixInfo matrixInfo = createMatrixInfo();
+
+  m_cuHArnoldi = new CuHArnoldiDefault();
+  m_cuHArnoldi->setSortType(ArnUtils::SortLargestReValues);
+
+  m_cuHArnoldi->execute(32, m_eigensCount, matrixInfo);
 }
 
-math::Matrix* EigenCalculator::getLargestEigenVectors() const {
-  return m_eigenvectors;
+floatt EigenCalculator::getEigenvalue(uintt index) const {
+  checkIfInitialized();
+  checkOutOfRange(index, m_eigensCount);
+
+  return 0;  // m_cuHArnoldi->getEigenvalue(index);
+}
+
+math::Matrix* EigenCalculator::getEigenvector(uintt index) const {
+  checkIfInitialized();
+  checkOutOfRange(index, m_eigensCount);
+
+  return 0;  // m_cuHArnoldi->getEigenvector(index);
 }
 
 math::Matrix* EigenCalculator::createMatrix() const {
-  return EigenCalculator::createMatrix(m_internalPngDataLoaders);
+  checkIfInitialized();
+
+  return EigenCalculator::createMatrix(m_pngDataLoaders);
 }
 
 math::Matrix* EigenCalculator::createDeviceMatrix() const {
+  checkIfInitialized();
+
   math::Matrix* host = createMatrix();
   math::Matrix* device = device::NewDeviceMatrixCopy(host);
   host::DeleteMatrix(host);
   return device;
+}
+
+void EigenCalculator::checkIfInitialized() const {
+  if (!isInitialized()) {
+    throw oap::exceptions::NotInitialzed();
+  }
+}
+
+bool EigenCalculator::isInitialized() const {
+  return m_pngDataLoaders.size() > 0;
+}
+
+void EigenCalculator::checkOutOfRange(size_t v, size_t max) const {
+  if (v >= max) {
+    throw oap::exceptions::OutOfRange(v, max);
+  }
 }
 }

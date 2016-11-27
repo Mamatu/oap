@@ -79,7 +79,7 @@ CuHArnoldi::CuHArnoldi()
       m_k(0),
       m_rho(1. / 3.14),
       m_blimit(MATH_VALUE_LIMIT),
-      m_sortType(NULL),
+      m_sortType(ArnUtils::SortSmallestValues),
       m_checkType(ArnUtils::CHECK_INTERNAL),
       w(NULL),
       f(NULL),
@@ -141,7 +141,6 @@ void CuHArnoldi::calculateTriangularHInDevice() {
 
 void CuHArnoldi::setSortType(ArnUtils::SortType sortType) {
   m_sortType = sortType;
-  debug("Warning! Sort type is null. Set as smallest value.");
 }
 
 void CuHArnoldi::setCheckType(ArnUtils::CheckType checkType) {
@@ -302,10 +301,7 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
                          const ArnUtils::MatrixInfo& matrixInfo,
                          ArnUtils::Type matrixType) {
   debugAssert(wantedCount != 0);
-  if (m_sortType == NULL) {
-    m_sortType = ArnUtils::SortSmallestValues;
-    debug("Warning! Sort type is null. Set as smallest value.");
-  }
+  debugAssert(m_sortType != NULL);
 
   setCalculateTriangularHPtr(hdim);
 

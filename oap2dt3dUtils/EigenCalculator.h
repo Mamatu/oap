@@ -22,9 +22,9 @@ class EigenCalculator {
 
   void calculate();
 
-  math::Matrix* getLargestEigenValues() const;
+  floatt getEigenvalue(uintt index) const;
 
-  math::Matrix* getLargestEigenVectors() const;
+  math::Matrix* getEigenvector(uintt index) const;
 
   /**
    * @brief Creates matrix from sets of pngDataLoader
@@ -38,10 +38,20 @@ class EigenCalculator {
    */
   math::Matrix* createDeviceMatrix() const;
 
+  /**
+   * @brief Creates Matrxinfo from set of pngDataLoader
+   * @return
+   */
+  ArnUtils::MatrixInfo createMatrixInfo() const;
+
  private:
-  math::Matrix* m_eigenvalues;
-  math::Matrix* m_eigenvectors;
-  PngDataLoaders m_internalPngDataLoaders;
+  void checkIfInitialized() const;
+  bool isInitialized() const;
+
+  void checkOutOfRange(size_t v, size_t max) const;
+
+  size_t m_eigensCount;
+  PngDataLoaders m_pngDataLoaders;
   CuHArnoldi* m_cuHArnoldi;
 };
 }
