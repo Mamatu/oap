@@ -17,20 +17,20 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ArnoldiProceduresImpl.h"
 
+void CuHArnoldiDefault::multiply(math::Matrix* w, math::Matrix* v,
+                                 CuHArnoldi::MultiplicationType mt) {
+  m_cuMatrix.dotProduct(w, m_A, v);
+}
 
-#include "IArnoldiMethod.h"
+void CuHArnoldiCallback::multiply(math::Matrix* w, math::Matrix* v,
+                                  CuHArnoldi::MultiplicationType mt) {
+  m_multiplyFunc(w, v, m_userData, mt);
+}
 
-namespace math {
-
-    IArnoldiMethod::IArnoldiMethod(MatrixModule* matrixModule) :
-    MatrixOperationOutputValues(matrixModule) {
-    }
-
-    IArnoldiMethod::~IArnoldiMethod() {
-    }
-
-    Status IArnoldiMethod::beforeExecution() {
-        return STATUS_OK;
-    }
+void CuHArnoldiCallback::setCallback(
+    CuHArnoldiCallback::MultiplyFunc multiplyFunc, void* userData) {
+  m_multiplyFunc = multiplyFunc;
+  m_userData = userData;
 }

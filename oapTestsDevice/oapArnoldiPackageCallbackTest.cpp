@@ -24,17 +24,18 @@
 #include <algorithm>
 #include "gtest/gtest.h"
 #include "MockUtils.h"
-#include "ArnoldiProcedures.h"
 #include "KernelExecutor.h"
 #include "HostMatrixModules.h"
 #include "DeviceMatrixModules.h"
 #include "MathOperationsCpu.h"
-#include "ArnoldiMethodHostImpl.h"
 #include "matrix1.h"
 #include "matrix2.h"
 #include "matrix3.h"
 #include "matrix4.h"
 #include "matrix5.h"
+
+
+#include "ArnoldiProceduresImpl.h"
 
 class OapArnoldiPackageCallbackTests : public testing::Test {
  public:
@@ -305,38 +306,6 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
                              << " index= " << fa << ", " << fa + 1;
     }
   }
-
-  void triangularityHostTest(const std::string& inputStr,
-                             const std::string& outputStr) {
-    math::MathOperationsCpu operations;
-    math::Matrix* H = host::NewMatrix(inputStr);
-    host::PrintMatrix("H", H);
-    math::Matrix* H1 = host::NewMatrix(H, H->columns, H->rows);
-    math::Matrix* Q = host::NewMatrix(H, H->columns, H->rows);
-    math::Matrix* QJ = host::NewMatrix(H, H->columns, H->rows);
-    math::Matrix* Q1 = host::NewMatrix(H, H->columns, H->rows);
-    math::Matrix* R1 = host::NewMatrix(H, H->columns, H->rows);
-    math::Matrix* I = host::NewMatrix(H, H->columns, H->rows);
-
-    math::CalculateTriangular(&operations, HostMatrixModules::GetInstance(), H,
-                              H1, Q, QJ, Q1, R1, I);
-
-    math::Matrix* output = host::NewMatrix(outputStr);
-    host::PrintMatrix("output", output);
-    host::PrintMatrix("H", H1);
-    EXPECT_THAT(H1, MatrixIsEqual(output, InfoType(InfoType::MEAN)));
-
-    triangularityTest(H1);
-
-    host::DeleteMatrix(H);
-    host::DeleteMatrix(H1);
-    host::DeleteMatrix(Q);
-    host::DeleteMatrix(QJ);
-    host::DeleteMatrix(Q1);
-    host::DeleteMatrix(R1);
-    host::DeleteMatrix(I);
-    host::DeleteMatrix(output);
-  }
 };
 
 TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
@@ -401,28 +370,4 @@ TEST_F(OapArnoldiPackageCallbackTests, TestData6) {
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData7) {
   executeArnoldiTest(-13.235305, "../../../data/data7");
-}
-
-TEST_F(OapArnoldiPackageCallbackTests,
-       DISABLED_UpperTriangularMatrixTest1Count10000) {
-  triangularityTest(matrix1Str);
-}
-
-TEST_F(OapArnoldiPackageCallbackTests,
-       DISABLED_UpperTriangularMatrixTest2Count10000) {
-  triangularityTest(matrix2Str);
-}
-
-TEST_F(OapArnoldiPackageCallbackTests,
-       DISABLED_UpperTriangularMatrixTest3Count50000) {
-  triangularityTest(matrix3Str);
-}
-
-TEST_F(OapArnoldiPackageCallbackTests,
-       DISABLED_UpperTriangularMatrixTest3Count100000) {
-  triangularityTest(matrix4Str);
-}
-
-TEST_F(OapArnoldiPackageCallbackTests, DISABLED_UpperTriangularTestHost20000) {
-  triangularityHostTest(matrix5AStr, matrix5BStr);
 }
