@@ -57,6 +57,7 @@
 
 #define debugPrintStack() BacktraceUtils::GetInstance().printBacktrace();
 
+#define debugLongTest() debug("Test in progress. Please wait it can take some time...")
 
 #else
 
@@ -73,6 +74,8 @@
 #define debugFuncEnd() 
 
 #define debugPrintStack()
+
+#define debugLongTest()
 
 #endif
 
