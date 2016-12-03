@@ -67,9 +67,9 @@ bool IsDiagonalMatrix(const math::Matrix& m1, floatt value);
 
 bool isEqual(const MatrixEx& matrixEx, const uintt* buffer);
 
-bool areEqual(math::Matrix* matrix, int d);
+bool areEqual(math::Matrix* matrix, floatt value);
 
-bool areNotEqual(math::Matrix* matrix, int d);
+bool areNotEqual(math::Matrix* matrix, floatt value);
 
 typedef std::pair<size_t, size_t> Range;
 

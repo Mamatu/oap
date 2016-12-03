@@ -147,21 +147,21 @@ bool isEqual(const MatrixEx& matrixEx, const uintt* buffer) {
   return false;
 }
 
-bool areEqual(math::Matrix* matrix, int d) {
+bool areEqual(math::Matrix* matrix, floatt value) {
   class CompareImpl : public Compare {
    public:
     bool rule(const floatt& arg1, const floatt& arg2) { return arg1 == arg2; }
   };
   CompareImpl compareImpl;
-  return compareImpl.compare(matrix, d);
+  return compareImpl.compare(matrix, value);
 }
 
-bool areNotEqual(math::Matrix* matrix, int d) {
+bool areNotEqual(math::Matrix* matrix, floatt value) {
   class CompareImpl : public Compare {
    public:
     bool rule(const floatt& arg1, const floatt& arg2) { return arg1 != arg2; }
   };
   CompareImpl compareImpl;
-  return compareImpl.compare(matrix, d);
+  return compareImpl.compare(matrix, value);
 }
 }
