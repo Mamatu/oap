@@ -5,7 +5,7 @@
 
 #include "PngDataLoader.h"
 #include "Matrix.h"
-#include "ArnoldiProcedures.h"
+#include "ArnoldiProceduresImpl.h"
 
 namespace oap {
 

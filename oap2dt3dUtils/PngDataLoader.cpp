@@ -19,19 +19,31 @@
 
 #include "PngDataLoader.h"
 #include "Exceptions.h"
+#include "PngFile.h"
 
 namespace oap {
 
 PngDataLoader::PngDataLoader(IPngFile* ifile, const std::string& path)
-    : m_ifile(ifile) {
+    : m_ifile(ifile), m_ifileIsInternal(false) {
   openAndLoad(path);
 }
 
-PngDataLoader::PngDataLoader(IPngFile* ifile) : m_ifile(ifile) { load(); }
+PngDataLoader::PngDataLoader(IPngFile* ifile)
+    : m_ifile(ifile), m_ifileIsInternal(false) {
+  load();
+}
+
+PngDataLoader::PngDataLoader(const std::string& path)
+    : m_ifile(new oap::PngFile()), m_ifileIsInternal(true) {
+  openAndLoad(path);
+}
 
 PngDataLoader::~PngDataLoader() {
   if (m_ifile != NULL) {
     m_ifile->freeBitmap();
+  }
+  if (m_ifileIsInternal) {
+    delete m_ifile;
   }
 }
 
@@ -61,7 +73,7 @@ void PngDataLoader::getFloattVector(floatt* vector) const {
   pixel_t max = IPngFile::getPixelMax();
   m_ifile->getPixelsVector(pixels);
   for (size_t fa = 0; fa < length; ++fa) {
-    vector[fa] = pixels[fa] / max;
+    vector[fa] = oap::IPngFile::convertPixelToFloatt(pixels[fa]);
   }
   delete[] pixels;
 }

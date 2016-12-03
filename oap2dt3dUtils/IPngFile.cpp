@@ -53,6 +53,8 @@ pixel_t IPngFile::getPixel(unsigned int x, unsigned int y) const {
 
 size_t IPngFile::getLength() const { return getWidth() * getHeight(); }
 
+pixel_t IPngFile::m_MaxPixel = IPngFile::getPixelMax();
+
 pixel_t IPngFile::convertRgbToPixel(unsigned char r, unsigned char g,
                                     unsigned char b) {
   pixel_t rgb = r;
@@ -61,6 +63,16 @@ pixel_t IPngFile::convertRgbToPixel(unsigned char r, unsigned char g,
   rgb = rgb << 8;
   rgb |= b;
   return rgb;
+}
+
+floatt IPngFile::convertPixelToFloatt(pixel_t pixel) {
+  return static_cast<floatt>(pixel) / static_cast<floatt>(IPngFile::m_MaxPixel);
+}
+
+floatt IPngFile::convertRgbToFloatt(unsigned char r, unsigned char g,
+                                    unsigned char b) {
+  pixel_t pixel = convertRgbToPixel(r, g, b);
+  return convertPixelToFloatt(pixel);
 }
 
 pixel_t IPngFile::getPixelMax() { return convertRgbToPixel(255, 255, 255); }

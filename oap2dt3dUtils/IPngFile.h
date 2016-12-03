@@ -58,6 +58,11 @@ class IPngFile {
   static pixel_t convertRgbToPixel(unsigned char r, unsigned char g,
                                    unsigned char b);
 
+  static floatt convertPixelToFloatt(pixel_t pixel);
+
+  static floatt convertRgbToFloatt(unsigned char r, unsigned char g,
+                                   unsigned char b);
+
   static pixel_t getPixelMax();
 
  protected:
@@ -66,6 +71,8 @@ class IPngFile {
   virtual bool isPngInternal() const = 0;
 
   virtual pixel_t getPixelInternal(unsigned int x, unsigned int y) const = 0;
+private:
+    static pixel_t m_MaxPixel;
 };
 }
 
