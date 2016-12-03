@@ -94,7 +94,7 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
   EXPECT_THROW(eigenCalc.getEigenvector(0), oap::exceptions::NotInitialzed);
 }
 
-TEST_F(OapEigenCalculatorTests, MatrixCreation2x2) {
+TEST_F(OapEigenCalculatorTests, Matrix4x4FromImage) {
   const oap::pixel_t pv = oap::IPngFile::getPixelMax();
   oap::pixel_t pixels[16] = {pv, pv, pv, pv, pv, pv, pv, pv,
                              pv, pv, pv, pv, pv, pv, pv, pv};
