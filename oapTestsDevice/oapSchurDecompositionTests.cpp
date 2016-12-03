@@ -27,7 +27,7 @@
 #include "DeviceMatrixKernels.h"
 #include "DeviceMatrixModules.h"
 #include "MatrixProcedures.h"
-#include "MockUtils.h"
+#include "MatchersUtils.h"
 #include "schur1.h"
 #include "schur2.h"
 #include "schur3.h"

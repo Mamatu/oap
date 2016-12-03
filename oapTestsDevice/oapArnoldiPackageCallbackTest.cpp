@@ -23,7 +23,7 @@
 #include <math.h>
 #include <algorithm>
 #include "gtest/gtest.h"
-#include "MockUtils.h"
+#include "MatchersUtils.h"
 #include "KernelExecutor.h"
 #include "HostMatrixModules.h"
 #include "DeviceMatrixModules.h"

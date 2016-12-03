@@ -21,7 +21,7 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "oapCudaStub.h"
-#include "MockUtils.h"
+#include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
 #include "HostMatrixModules.h"
 #include "HostProcedures.h"
