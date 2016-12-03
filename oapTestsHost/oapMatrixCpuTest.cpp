@@ -21,7 +21,7 @@
 #include <string>
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "MockUtils.h"
+#include "MatchersUtils.h"
 #include "HostMatrixModules.h"
 #include "MathOperationsCpu.h"
 
