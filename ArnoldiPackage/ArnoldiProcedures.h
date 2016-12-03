@@ -26,98 +26,10 @@
 #include "KernelExecutor.h"
 #include "MatrixProcedures.h"
 
-namespace ArnUtils {
-
-bool SortLargestValues(const Complex& i, const Complex& j);
-
-bool SortLargestReValues(const Complex& i, const Complex& j);
-
-bool SortLargestImValues(const Complex& i, const Complex& j);
-
-bool SortSmallestValues(const Complex& i, const Complex& j);
-
-bool SortSmallestReValues(const Complex& i, const Complex& j);
-
-bool SortSmallestImValues(const Complex& i, const Complex& j);
-
-typedef bool (*SortType)(const Complex& i, const Complex& j);
-
-enum CheckType {
-  CHECK_INTERNAL,
-  CHECK_EXTERNAL,
-  CHECK_EXTERNAL_EIGENVALUE,
-  CHECK_EXTERNAL_EIGENVECTOR
-};
-
-enum Type { DEVICE, HOST };
-
-class MatrixInfo {
- public:
-  MatrixInfo();
-  MatrixInfo(bool _isRe, bool _isIm, uintt _columns, uintt _rows);
-  math::MatrixDim m_matrixDim;
-  bool isRe;
-  bool isIm;
-};
-}
+#include "ArnoldiUtils.h"
 
 class CuHArnoldi {
-  void initVvector();
-
-  bool continueProcedure();
-
-  inline void switchPointer(math::Matrix** a, math::Matrix** b) {
-    math::Matrix* temp = *b;
-    *b = *a;
-    *a = temp;
-  }
-
-  void calculateTriangularHInDevice();
-  void calculateTriangularH();
-
-  void (CuHArnoldi::*m_calculateTriangularHPtr)();
-
-  inline void setCalculateTriangularHPtr(uintt k) {
-    if (true || k > 32) {
-      m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularH;
-    } else {
-      m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDevice;
-    }
-  }
-
-  void calculateTriangularHEigens();
-
-  void sortPWorstEigens(uintt unwantedCount);
-
-  void extractValues(math::Matrix* H1, uintt unwantedCount);
-
-  /**
-   * @brief executeArnoldiFactorization
-   * @param init
-   * @param initj
-   * @param dMatrixEx
-   * @param m_rho
-   * @return true - should continue, false  - finish algorithm
-   */
-  bool executeArnoldiFactorization(bool init, intt initj, MatrixEx** dMatrixEx,
-                                   floatt rho);
-
-  void executefVHplusfq(uintt k);
-
-  bool executeChecking(uintt k);
-
-  void executeShiftedQRIteration(uintt p);
-
-  bool shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
-                           const ArnUtils::MatrixInfo& m2) const;
-
-  floatt getEigenvalue(uintt index) const;
-
-  math::Matrix* getEigenvector(uintt index) const;
-
-  bool checkOutcome(uintt index, floatt tolerance);
-
- public:
+ public:  // methods
   CuHArnoldi();
 
   virtual ~CuHArnoldi();
@@ -136,50 +48,62 @@ class CuHArnoldi {
                const ArnUtils::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
 
- protected:
-  CuMatrix m_cuMatrix;
-  math::Matrix* w;
-  math::Matrix* f;
-  math::Matrix* f1;
-  math::Matrix* vh;
-  math::Matrix* h;
-  math::Matrix* s;
-  math::Matrix* vs;
-  math::Matrix* V;
-  math::Matrix* transposeV;
-  math::Matrix* V1;
-  math::Matrix* V2;
-  math::Matrix* H;
-  math::Matrix* HC;
-  math::Matrix* H1;
-  math::Matrix* H2;
-  math::Matrix* A1;
-  math::Matrix* A2;
-  math::Matrix* I;
-  math::Matrix* v;
-  math::Matrix* v1;
-  math::Matrix* v2;
-  math::Matrix* QT;
-  math::Matrix* Q1;
-  math::Matrix* Q2;
-  math::Matrix* R1;
-  math::Matrix* R2;
-  math::Matrix* HO;
-  math::Matrix* HO1;
-  math::Matrix* Q;
-  math::Matrix* QJ;
-  math::Matrix* q;
-  math::Matrix* q1;
-  math::Matrix* q2;
-  math::Matrix* GT;
-  math::Matrix* G;
-  math::Matrix* EV;
-  math::Matrix* EV1;
-  math::Matrix* EQ1;
-  math::Matrix* EQ2;
-  math::Matrix* EQ3;
+ public:  // types
+  enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
 
- private:
+ protected:  // methods - multiplication to implement
+  virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
+                        MultiplicationType mt) = 0;
+
+ protected:  // methods - to drive algorithm
+  virtual bool checkEigenvalue(floatt value, uint index) = 0;
+
+  virtual bool checkEigenvector(math::Matrix* vector, uint index) = 0;
+
+ protected:  // data, matrices
+  CuMatrix m_cuMatrix;
+  math::Matrix* m_w;
+  math::Matrix* m_f;
+  math::Matrix* m_f1;
+  math::Matrix* m_vh;
+  math::Matrix* m_h;
+  math::Matrix* m_s;
+  math::Matrix* m_vs;
+  math::Matrix* m_V;
+  math::Matrix* m_transposeV;
+  math::Matrix* m_V1;
+  math::Matrix* m_V2;
+  math::Matrix* m_H;
+  math::Matrix* m_HC;
+  math::Matrix* m_H1;
+  math::Matrix* m_H2;
+  math::Matrix* m_A1;
+  math::Matrix* m_A2;
+  math::Matrix* m_I;
+  math::Matrix* m_v;
+  math::Matrix* m_v1;
+  math::Matrix* m_v2;
+  math::Matrix* m_QT;
+  math::Matrix* m_Q1;
+  math::Matrix* m_Q2;
+  math::Matrix* m_R1;
+  math::Matrix* m_R2;
+  math::Matrix* m_HO;
+  math::Matrix* m_HO1;
+  math::Matrix* m_Q;
+  math::Matrix* m_QJ;
+  math::Matrix* m_q;
+  math::Matrix* m_q1;
+  math::Matrix* m_q2;
+  math::Matrix* m_GT;
+  math::Matrix* m_G;
+  math::Matrix* m_EV;
+  math::Matrix* m_EV1;
+  math::Matrix* m_EQ1;
+  math::Matrix* m_EQ2;
+  math::Matrix* m_EQ3;
+
+ private:  // private data
   ArnUtils::MatrixInfo m_matrixInfo;
   ArnUtils::Type m_matrixType;
 
@@ -222,60 +146,64 @@ class CuHArnoldi {
   void dealloc2();
   void dealloc3();
 
- public:
-  enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
+ private:  // internal methods - inline
+  inline void swapPointers(math::Matrix** a, math::Matrix** b) {
+    math::Matrix* temp = *b;
+    *b = *a;
+    *a = temp;
+  }
 
- protected:
-  virtual void multiply(math::Matrix* w, math::Matrix* v,
-                        MultiplicationType mt) = 0;
+  inline void setCalculateTriangularHPtr(uintt k) {
+    if (true || k > 32) {
+      m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularH;
+    } else {
+      m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDevice;
+    }
+  }
 
-  virtual bool checkEigenvalue(floatt value, uint index) = 0;
+ private:  // internal methods
+  void initVvector();
 
-  virtual bool checkEigenvector(math::Matrix* vector, uint index) = 0;
-};
+  bool continueProcedure();
 
-class CuHArnoldiDefault : public CuHArnoldi {
- public:
+  void calculateTriangularHInDevice();
+
+  void calculateTriangularH();
+
+  void (CuHArnoldi::*m_calculateTriangularHPtr)();
+
+  void calculateTriangularHEigens();
+
+  void sortPWorstEigens(uintt unwantedCount);
+
+  void extractValues(math::Matrix* m_H1, uintt unwantedCount);
+
   /**
- * @brief Set device matrix to calculate its eigenvalues and eigenvectors.
- * @param A
- */
-  void setMatrix(math::Matrix* A) { m_A = A; }
+   * @brief executeArnoldiFactorization
+   * @param init
+   * @param initj
+   * @param dMatrixEx
+   * @param m_rho
+   * @return true - should continue, false  - finish algorithm
+   */
+  bool executeArnoldiFactorization(bool init, intt initj, MatrixEx** dMatrixEx,
+                                   floatt rho);
 
- protected:
-  void multiply(math::Matrix* w, math::Matrix* v,
-                CuHArnoldi::MultiplicationType mt);
+  void executefVHplusfq(uintt k);
 
-  virtual bool checkEigenvalue(floatt value, uint index) { return true; }
+  bool executeChecking(uintt k);
 
-  virtual bool checkEigenvector(math::Matrix* vector, uint index) {
-    return true;
-  }
+  void executeShiftedQRIteration(uintt p);
 
- private:
-  math::Matrix* m_A;
+  bool shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
+                           const ArnUtils::MatrixInfo& m2) const;
+
+  floatt getEigenvalue(uintt index) const;
+
+  math::Matrix* getEigenvector(uintt index) const;
+
+  bool checkOutcome(uintt index, floatt tolerance);
 };
 
-class CuHArnoldiCallback : public CuHArnoldi {
- public:
-  typedef void (*MultiplyFunc)(math::Matrix* w, math::Matrix* v, void* userData,
-                               CuHArnoldi::MultiplicationType mt);
-
-  void setCallback(MultiplyFunc multiplyFunc, void* userData);
-
- protected:
-  void multiply(math::Matrix* w, math::Matrix* v,
-                CuHArnoldi::MultiplicationType mt);
-
-  virtual bool checkEigenvalue(floatt value, uint index) { return true; }
-
-  virtual bool checkEigenvector(math::Matrix* vector, uint index) {
-    return true;
-  }
-
- private:
-  MultiplyFunc m_multiplyFunc;
-  void* m_userData;
-};
 
 #endif /* CUPROCEDURES_H */
