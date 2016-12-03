@@ -278,7 +278,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
                                     data.getElementsCount());
 
-    debug("Test in progress. Please wait it can take some time...");
+    debugLongTest();
 
     arnoldiCuda->execute(hdim, wanted, matrixInfo);
     EXPECT_THAT(revalues[0], ::testing::DoubleNear(value, tolerance));
