@@ -72,13 +72,13 @@ TEST_F(OapEigenCalculatorTests, CreateMatrixFromGreenScreen) {
   EXPECT_EQ(pngDataLoaderCount, matrixInfo.m_matrixDim.columns);
   EXPECT_EQ(pdlsVec[0]->getLength(), matrixInfo.m_matrixDim.rows);
 
-  floatt expected = oap::IPngFile::convertRgbToFloatt(0, 255, 0);
-
-  EXPECT_THAT(matrix, MatrixValuesAreEqual(expected));
-
   for (size_t fa = 0; fa < pngDataLoaderCount; ++fa) {
     delete pdlsVec[fa];
   }
+
+  floatt expected = oap::IPngFile::convertRgbToFloatt(0, 255, 0);
+
+  EXPECT_THAT(matrix, MatrixValuesAreEqual(expected));
 
   host::DeleteMatrix(matrix);
 }
