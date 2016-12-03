@@ -2,6 +2,7 @@
 #include "Exceptions.h"
 #include "HostMatrixModules.h"
 #include "DeviceMatrixModules.h"
+#include "ArnoldiProceduresImpl.h"
 
 namespace oap {
 
