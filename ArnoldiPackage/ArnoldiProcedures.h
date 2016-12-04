@@ -138,14 +138,6 @@ class CuHArnoldi {
   uintt m_Qrows;
   uintt m_Qcolumns;
 
-  void alloc(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void alloc1(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void alloc2(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void alloc3(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void dealloc1();
-  void dealloc2();
-  void dealloc3();
-
  private:  // internal methods - inline
   inline void swapPointers(math::Matrix** a, math::Matrix** b) {
     math::Matrix* temp = *b;
@@ -195,15 +187,22 @@ class CuHArnoldi {
 
   void executeShiftedQRIteration(uintt p);
 
-  bool shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
-                           const ArnUtils::MatrixInfo& m2) const;
-
   floatt getEigenvalue(uintt index) const;
 
   math::Matrix* getEigenvector(uintt index) const;
 
   bool checkOutcome(uintt index, floatt tolerance);
-};
 
+ private:  // alloc, dealloc methods
+  bool shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
+                           const ArnUtils::MatrixInfo& m2) const;
+  void alloc(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
+  void alloc1(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
+  void alloc2(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
+  void alloc3(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
+  void dealloc1();
+  void dealloc2();
+  void dealloc3();
+};
 
 #endif /* CUPROCEDURES_H */
