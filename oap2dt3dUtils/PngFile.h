@@ -53,11 +53,15 @@ class PngFile : public IPngFile {
   virtual pixel_t getPixelInternal(unsigned int x, unsigned int y) const;
 
  private:
-  void copy2dBitmapTo1d(png_bytep* bitmap2d, png_byte* bitmap1d, size_t width,
-                        size_t height) const;
+  void createBitmap1dFrom2d(png_byte** bitmap1d, png_bytep* bitmap2d,
+                            size_t width, size_t height);
 
   void copyToPixelsVector(oap::pixel_t* pixels, png_byte* bitmap1d,
                           size_t width, size_t height);
+
+  void destroyBitmap2d();
+
+  void destroyBitmap1d();
 
   FILE* m_fp;
   png_structp m_png_ptr;
@@ -65,6 +69,9 @@ class PngFile : public IPngFile {
   png_bytep* m_bitmap2d;
   png_byte* m_bitmap1d;
   oap::pixel_t* m_pixels;
+
+  size_t m_optWidth;
+  size_t m_optHeight;
 };
 }
 

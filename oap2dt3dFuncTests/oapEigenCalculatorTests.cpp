@@ -47,38 +47,49 @@ class OapEigenCalculatorTests : public testing::Test {
   std::string getImagePath(const std::string& filename) {
     return m_images_path + filename;
   }
+
+  math::Matrix* createMatrix(const std::string& imageName, size_t count) {
+    size_t pngDataLoaderCount = count;
+    std::vector<oap::PngDataLoader*> pdlsVec;
+    oap::EigenCalculator eigenCalc;
+
+    debugLongTest();
+
+    for (size_t fa = 0; fa < pngDataLoaderCount; ++fa) {
+      oap::PngDataLoader* pngDataLoader =
+          new oap::PngDataLoader(getImagePath(imageName));
+      pdlsVec.push_back(pngDataLoader);
+    }
+
+    for (size_t fa = 0; fa < pngDataLoaderCount; ++fa) {
+      eigenCalc.addPngDataLoader(pdlsVec[fa]);
+    }
+
+    ArnUtils::MatrixInfo matrixInfo = eigenCalc.createMatrixInfo();
+    math::Matrix* matrix = eigenCalc.createMatrix();
+
+    EXPECT_EQ(pngDataLoaderCount, matrixInfo.m_matrixDim.columns);
+    EXPECT_EQ(pdlsVec[0]->getLength(), matrixInfo.m_matrixDim.rows);
+
+    for (size_t fa = 0; fa < pngDataLoaderCount; ++fa) {
+      delete pdlsVec[fa];
+    }
+
+    return matrix;
+  }
 };
 
 TEST_F(OapEigenCalculatorTests, CreateMatrixFromGreenScreen) {
-  size_t pngDataLoaderCount = 900;
-  std::vector<oap::PngDataLoader*> pdlsVec;
-  oap::EigenCalculator eigenCalc;
-
-  debugLongTest();
-
-  for (size_t fa = 0; fa < pngDataLoaderCount; ++fa) {
-    oap::PngDataLoader* pngDataLoader =
-        new oap::PngDataLoader(getImagePath("green.png"));
-    pdlsVec.push_back(pngDataLoader);
-  }
-
-  for (size_t fa = 0; fa < pngDataLoaderCount; ++fa) {
-    eigenCalc.addPngDataLoader(pdlsVec[fa]);
-  }
-
-  ArnUtils::MatrixInfo matrixInfo = eigenCalc.createMatrixInfo();
-  math::Matrix* matrix = eigenCalc.createMatrix();
-
-  EXPECT_EQ(pngDataLoaderCount, matrixInfo.m_matrixDim.columns);
-  EXPECT_EQ(pdlsVec[0]->getLength(), matrixInfo.m_matrixDim.rows);
-
-  for (size_t fa = 0; fa < pngDataLoaderCount; ++fa) {
-    delete pdlsVec[fa];
-  }
+  math::Matrix* matrix = createMatrix("green.png", 900);
 
   floatt expected = oap::IPngFile::convertRgbToFloatt(0, 255, 0);
 
   EXPECT_THAT(matrix, MatrixValuesAreEqual(expected));
 
+  host::DeleteMatrix(matrix);
+}
+
+TEST_F(OapEigenCalculatorTests, CreateMatrixFromMonkeyScreen) {
+  math::Matrix* matrix = createMatrix("monkey.png", 700);
   host::DeleteMatrix(matrix);
 }

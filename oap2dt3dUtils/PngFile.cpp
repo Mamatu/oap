@@ -19,13 +19,19 @@
 
 #include "PngFile.h"
 #include "Exceptions.h"
+#include "GraphicUtils.h"
 
 namespace oap {
 
 size_t g_colorsCount = 3;
 
 PngFile::PngFile()
-    : m_fp(NULL), m_bitmap2d(NULL), m_bitmap1d(NULL), m_pixels(NULL) {}
+    : m_fp(NULL),
+      m_bitmap2d(NULL),
+      m_bitmap1d(NULL),
+      m_pixels(NULL),
+      m_optWidth(0),
+      m_optHeight(0) {}
 
 PngFile::~PngFile() { close(); }
 
@@ -64,37 +70,29 @@ void PngFile::loadBitmap() {
     m_bitmap2d[fa] = new png_byte[localWidth];
   }
 
-  m_bitmap1d = new png_byte[width * height * g_colorsCount];
-
-  m_pixels = new pixel_t[width * height];
-
   png_read_image(m_png_ptr, m_bitmap2d);
 
-  copy2dBitmapTo1d(m_bitmap2d, m_bitmap1d, width, height);
+  createBitmap1dFrom2d(&m_bitmap1d, m_bitmap2d, width, height);
 
-  copyToPixelsVector(m_pixels, m_bitmap1d, width, height);
+  m_pixels = new pixel_t[getWidth() * height];
+
+  copyToPixelsVector(m_pixels, m_bitmap1d, getWidth(), height);
+
+  destroyBitmap2d();
+
+  destroyBitmap1d();
 }
 
 void PngFile::freeBitmap() {
-  if (m_bitmap2d == NULL) {
-    return;
-  }
+  destroyBitmap2d();
 
-  int height = getHeight();
-
-  for (unsigned int fa = 0; fa < height; ++fa) {
-    delete[] m_bitmap2d[fa];
-  }
-
-  delete[] m_bitmap2d;
-
-  delete[] m_bitmap1d;
-
-  delete[] m_pixels;
+  destroyBitmap1d();
 
   png_destroy_info_struct(m_png_ptr, &m_info_ptr);
 
   png_destroy_read_struct(&m_png_ptr, NULL, NULL);
+
+  delete[] m_pixels;
 
   m_png_ptr = NULL;
   m_info_ptr = NULL;
@@ -108,10 +106,16 @@ void PngFile::close() {
 }
 
 size_t PngFile::getWidth() const {
+  if (m_optWidth != 0) {
+    return m_optWidth;
+  }
   return png_get_image_width(m_png_ptr, m_info_ptr);
 }
 
 size_t PngFile::getHeight() const {
+  if (m_optHeight != 0) {
+    return m_optHeight;
+  }
   return png_get_image_height(m_png_ptr, m_info_ptr);
 }
 
@@ -132,16 +136,30 @@ bool PngFile::isPngInternal() const {
 }
 
 pixel_t PngFile::getPixelInternal(unsigned int x, unsigned int y) const {
-  png_byte* row = m_bitmap2d[y];
-  png_byte* ptr = &(row[x * g_colorsCount]);
-  return convertRgbToPixel(ptr[0], ptr[1], ptr[2]);
+  const size_t width = getWidth();
+  return m_pixels[y * width + x];
 }
 
-void PngFile::copy2dBitmapTo1d(png_bytep* bitmap2d, png_byte* bitmap1d,
-                               size_t width, size_t height) const {
-  width = width * g_colorsCount;
-  for (size_t fa = 0; fa < height; ++fa) {
-    memcpy(&bitmap1d[fa * width * sizeof(png_byte)], bitmap2d[fa],
+void PngFile::createBitmap1dFrom2d(png_byte** bitmap1d, png_bytep* bitmap2d,
+                                   size_t width, size_t height) {
+  oap::OptSize owidth = oap::GetOptWidth<png_bytep*, png_byte>(
+      bitmap2d, width, height, g_colorsCount);
+
+  oap::OptSize oheight = oap::GetOptHeight<png_bytep*, png_byte>(
+      bitmap2d, width, height, g_colorsCount);
+
+  m_optWidth = owidth.optSize;
+  m_optHeight = oheight.optSize;
+  const size_t beginC = owidth.begin;
+  const size_t beginR = oheight.begin;
+
+  width = m_optWidth * g_colorsCount;
+  height = m_optHeight;
+
+  (*bitmap1d) = new png_byte[width * height];
+
+  for (size_t fa = beginR; fa < height; ++fa) {
+    memcpy(&(*bitmap1d)[fa * width * sizeof(png_byte)], &(bitmap2d[fa][beginC]),
            width * sizeof(png_byte));
   }
 }
@@ -150,13 +168,34 @@ void PngFile::copyToPixelsVector(oap::pixel_t* pixels, png_byte* bitmap1d,
                                  size_t width, size_t height) {
   for (size_t fa = 0; fa < height; ++fa) {
     for (size_t fb = 0; fb < width; ++fb) {
-      const size_t index = fa * width * 3 + fb * 3;
+      const size_t index = fa * width * g_colorsCount + fb * g_colorsCount;
       const size_t index1 = fa * width + fb;
       const png_byte r = bitmap1d[index];
       const png_byte g = bitmap1d[index + 1];
       const png_byte b = bitmap1d[index + 2];
       pixels[index1] = convertRgbToPixel(r, g, b);
     }
+  }
+}
+
+void PngFile::destroyBitmap2d() {
+  if (m_bitmap2d != NULL) {
+    int height = getHeight();
+
+    for (unsigned int fa = 0; fa < height; ++fa) {
+      delete[] m_bitmap2d[fa];
+    }
+
+    delete[] m_bitmap2d;
+
+    m_bitmap2d = NULL;
+  }
+}
+
+void PngFile::destroyBitmap1d() {
+  if (m_bitmap1d != NULL) {
+    delete[] m_bitmap1d;
+    m_bitmap1d = NULL;
   }
 }
 }
