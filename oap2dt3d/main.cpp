@@ -20,13 +20,13 @@
 #include <stdlib.h>
 #include <string>
 
-#include "PngDataLoader.h"
+#include "DataLoader.h"
 #include "PngFile.h"
 
 int main() {
   try {
     oap::PngFile pngFile;
-    oap::PngDataLoader pngLoader(
+    oap::DataLoader pngLoader(
         &pngFile,
         "/home/mmatula/Oap/oap2dt3d/data/images_monkey/image_0_0_0.png");
   } catch (const oap::exceptions::Exception& exception) {

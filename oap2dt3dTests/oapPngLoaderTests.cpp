@@ -19,8 +19,8 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "PngDataLoader.h"
-#include "IPngFile.h"
+#include "DataLoader.h"
+#include "Image.h"
 
 using namespace ::testing;
 
@@ -31,7 +31,7 @@ class OapPngLoaderTests : public testing::Test {
   virtual void TearDown() {}
 
  public:
-  class PngFileMock : public oap::IPngFile {
+  class PngFileMock : public oap::Image {
    public:
     PngFileMock() {}
 
@@ -64,7 +64,7 @@ TEST_F(OapPngLoaderTests, LoadFail) {
 
   EXPECT_CALL(pngFileMock, openInternal(_)).Times(1).WillOnce(Return(false));
 
-  EXPECT_THROW(oap::PngDataLoader pngDataLoader(&pngFileMock, ""), oap::exceptions::FileNotExist);
+  EXPECT_THROW(oap::DataLoader pngDataLoader(&pngFileMock, ""), oap::exceptions::FileNotExist);
 }
 
 TEST_F(OapPngLoaderTests, VerificationFail) {
@@ -74,7 +74,7 @@ TEST_F(OapPngLoaderTests, VerificationFail) {
 
   EXPECT_CALL(pngFileMock, isPngInternal()).Times(1).WillOnce(Return(false));
 
-  EXPECT_THROW(oap::PngDataLoader pngDataLoader(&pngFileMock, ""), oap::exceptions::FileIsNotPng);
+  EXPECT_THROW(oap::DataLoader pngDataLoader(&pngFileMock, ""), oap::exceptions::FileIsNotPng);
 }
 
 TEST_F(OapPngLoaderTests, Load) {
@@ -94,5 +94,5 @@ TEST_F(OapPngLoaderTests, Load) {
 
   EXPECT_CALL(pngFileMock, close()).Times(1);
 
-  EXPECT_NO_THROW(oap::PngDataLoader pngDataLoader(&pngFileMock, ""));
+  EXPECT_NO_THROW(oap::DataLoader pngDataLoader(&pngFileMock, ""));
 }

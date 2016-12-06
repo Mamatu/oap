@@ -22,10 +22,10 @@
 
 #include <stdio.h>
 
-#include "IPngFile.h"
+#include "Image.h"
 
 namespace oap {
-class PngFile : public IPngFile {
+class PngFile : public Image {
  public:
   PngFile();
 

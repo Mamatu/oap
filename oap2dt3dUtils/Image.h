@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IPNGFILE_H
-#define IPNGFILE_H
+#ifndef IMAGE_H
+#define IMAGE_H
 
 #include <png.h>
 #include "Math.h"
@@ -27,11 +27,11 @@ namespace oap {
 
 typedef unsigned int pixel_t;
 
-class IPngFile {
+class Image {
  public:
-  IPngFile();
+  Image();
 
-  virtual ~IPngFile();
+  virtual ~Image();
 
   void open(const char* path);
 
@@ -71,8 +71,9 @@ class IPngFile {
   virtual bool isPngInternal() const = 0;
 
   virtual pixel_t getPixelInternal(unsigned int x, unsigned int y) const = 0;
-private:
-    static pixel_t m_MaxPixel;
+
+ private:
+  static pixel_t m_MaxPixel;
 };
 }
 

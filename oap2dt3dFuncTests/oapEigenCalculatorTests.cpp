@@ -18,7 +18,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "PngDataLoader.h"
+#include "DataLoader.h"
 #include "EigenCalculator.h"
 #include "HostMatrixModules.h"
 #include "MatrixAPI.h"
@@ -50,15 +50,15 @@ class OapEigenCalculatorTests : public testing::Test {
 
   math::Matrix* createMatrix(const std::string& imageName, size_t count) {
     size_t pngDataLoaderCount = count;
-    std::vector<oap::PngDataLoader*> pdlsVec;
+    std::vector<oap::DataLoader*> pdlsVec;
     oap::EigenCalculator eigenCalc;
 
     debugLongTest();
 
     for (size_t fa = 0; fa < pngDataLoaderCount; ++fa) {
-      oap::PngDataLoader* pngDataLoader =
-          new oap::PngDataLoader(getImagePath(imageName));
-      pdlsVec.push_back(pngDataLoader);
+      oap::DataLoader* dataLoader =
+          oap::DataLoader::newDataLoader<oap::PngFile>(getImagePath(imageName));
+      pdlsVec.push_back(dataLoader);
     }
 
     for (size_t fa = 0; fa < pngDataLoaderCount; ++fa) {
@@ -82,7 +82,7 @@ class OapEigenCalculatorTests : public testing::Test {
 TEST_F(OapEigenCalculatorTests, CreateMatrixFromGreenScreen) {
   math::Matrix* matrix = createMatrix("green.png", 900);
 
-  floatt expected = oap::IPngFile::convertRgbToFloatt(0, 255, 0);
+  floatt expected = oap::Image::convertRgbToFloatt(0, 255, 0);
 
   EXPECT_THAT(matrix, MatrixValuesAreEqual(expected));
 
@@ -90,6 +90,6 @@ TEST_F(OapEigenCalculatorTests, CreateMatrixFromGreenScreen) {
 }
 
 TEST_F(OapEigenCalculatorTests, CreateMatrixFromMonkeyScreen) {
-  math::Matrix* matrix = createMatrix("monkey.png", 700);
+  math::Matrix* matrix = createMatrix("monkey.png", 1000);
   host::DeleteMatrix(matrix);
 }

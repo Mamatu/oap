@@ -22,22 +22,22 @@
 
 #include <vector>
 
-#include "PngDataLoader.h"
+#include "DataLoader.h"
 #include "Matrix.h"
 #include "ArnoldiProceduresImpl.h"
 
 namespace oap {
 
-typedef std::vector<PngDataLoader*> PngDataLoaders;
+typedef std::vector<DataLoader*> DataLoaders;
 
 class EigenCalculator {
  public:
   EigenCalculator();
   virtual ~EigenCalculator();
 
-  static math::Matrix* createMatrix(const PngDataLoaders& pngDataLoaders);
+  static math::Matrix* createMatrix(const DataLoaders& pngDataLoaders);
 
-  void addPngDataLoader(PngDataLoader* pngDataLoader);
+  void addPngDataLoader(DataLoader* pngDataLoader);
 
   void calculate();
 
@@ -70,7 +70,7 @@ class EigenCalculator {
   void checkOutOfRange(size_t v, size_t max) const;
 
   size_t m_eigensCount;
-  PngDataLoaders m_pngDataLoaders;
+  DataLoaders m_dataLoaders;
   CuHArnoldi* m_cuHArnoldi;
 };
 }

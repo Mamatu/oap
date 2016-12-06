@@ -30,7 +30,7 @@ EigenCalculator::EigenCalculator() : m_eigensCount(2) {}
 EigenCalculator::~EigenCalculator() {}
 
 math::Matrix* EigenCalculator::createMatrix(
-    const PngDataLoaders& pngDataLoaders) {
+    const DataLoaders& pngDataLoaders) {
   const size_t refLength = pngDataLoaders[0]->getLength();
   floatt* floatsvec = new floatt[refLength];
 
@@ -38,7 +38,7 @@ math::Matrix* EigenCalculator::createMatrix(
       host::NewReMatrix(pngDataLoaders.size(), refLength);
 
   for (size_t fa = 0; fa < pngDataLoaders.size(); ++fa) {
-    PngDataLoader* it = pngDataLoaders[fa];
+    DataLoader* it = pngDataLoaders[fa];
     const size_t length = it->getLength();
     if (refLength != length) {
       delete[] floatsvec;
@@ -57,14 +57,14 @@ math::Matrix* EigenCalculator::createMatrix(
 ArnUtils::MatrixInfo EigenCalculator::createMatrixInfo() const {
   checkIfInitialized();
 
-  const uintt width = m_pngDataLoaders.size();
-  const uintt height = m_pngDataLoaders[0]->getLength();
+  const uintt width = m_dataLoaders.size();
+  const uintt height = m_dataLoaders[0]->getLength();
 
   return ArnUtils::MatrixInfo(true, false, width, height);
 }
 
-void EigenCalculator::addPngDataLoader(PngDataLoader* pngDataLoader) {
-  m_pngDataLoaders.push_back(pngDataLoader);
+void EigenCalculator::addPngDataLoader(DataLoader* pngDataLoader) {
+  m_dataLoaders.push_back(pngDataLoader);
 }
 
 void EigenCalculator::calculate() {
@@ -95,7 +95,7 @@ math::Matrix* EigenCalculator::getEigenvector(uintt index) const {
 math::Matrix* EigenCalculator::createMatrix() const {
   checkIfInitialized();
 
-  return EigenCalculator::createMatrix(m_pngDataLoaders);
+  return EigenCalculator::createMatrix(m_dataLoaders);
 }
 
 math::Matrix* EigenCalculator::createDeviceMatrix() const {
@@ -114,7 +114,7 @@ void EigenCalculator::checkIfInitialized() const {
 }
 
 bool EigenCalculator::isInitialized() const {
-  return m_pngDataLoaders.size() > 0;
+  return m_dataLoaders.size() > 0;
 }
 
 void EigenCalculator::checkOutOfRange(size_t v, size_t max) const {

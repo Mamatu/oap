@@ -85,6 +85,7 @@ class OapEigenCalculatorTests : public testing::Test {
     size_t m_height;
   };
 };
+
 TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
   oap::EigenCalculator eigenCalc;
   EXPECT_THROW(eigenCalc.createMatrix(), oap::exceptions::NotInitialzed);
@@ -95,16 +96,16 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
 }
 
 TEST_F(OapEigenCalculatorTests, Matrix4x4FromImage) {
-  const oap::pixel_t pv = oap::IPngFile::getPixelMax();
+  const oap::pixel_t pv = oap::Image::getPixelMax();
   oap::pixel_t pixels[16] = {pv, pv, pv, pv, pv, pv, pv, pv,
                              pv, pv, pv, pv, pv, pv, pv, pv};
 
   PngFileMock pngFileMock(pixels, 4, 2, 2);
 
-  oap::PngDataLoader pdl1(&pngFileMock);
-  oap::PngDataLoader pdl2(&pngFileMock);
-  oap::PngDataLoader pdl3(&pngFileMock);
-  oap::PngDataLoader pdl4(&pngFileMock);
+  oap::DataLoader pdl1(&pngFileMock);
+  oap::DataLoader pdl2(&pngFileMock);
+  oap::DataLoader pdl3(&pngFileMock);
+  oap::DataLoader pdl4(&pngFileMock);
 
   oap::EigenCalculator eigenCalc;
 

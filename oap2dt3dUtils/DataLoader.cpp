@@ -17,70 +17,65 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PngDataLoader.h"
+#include "DataLoader.h"
 #include "Exceptions.h"
 #include "PngFile.h"
 
 namespace oap {
 
-PngDataLoader::PngDataLoader(IPngFile* ifile, const std::string& path)
-    : m_ifile(ifile), m_ifileIsInternal(false) {
+DataLoader::DataLoader(Image* ifile, const std::string& path, bool deallocateIFile)
+    : m_ifile(ifile), m_deallocateIFile(deallocateIFile) {
   openAndLoad(path);
 }
 
-PngDataLoader::PngDataLoader(IPngFile* ifile)
-    : m_ifile(ifile), m_ifileIsInternal(false) {
+DataLoader::DataLoader(Image* ifile)
+    : m_ifile(ifile), m_deallocateIFile(false) {
   load();
 }
 
-PngDataLoader::PngDataLoader(const std::string& path)
-    : m_ifile(new oap::PngFile()), m_ifileIsInternal(true) {
-  openAndLoad(path);
-}
-
-PngDataLoader::~PngDataLoader() {
+DataLoader::~DataLoader() {
   if (m_ifile != NULL) {
     m_ifile->freeBitmap();
   }
-  if (m_ifileIsInternal) {
+  if (m_deallocateIFile) {
     delete m_ifile;
   }
 }
 
-void PngDataLoader::openAndLoad(const std::string& path) {
+void DataLoader::openAndLoad(const std::string& path) {
   m_ifile->open(path.c_str());
 
   load();
 }
 
-void PngDataLoader::load() {
+void DataLoader::load() {
   m_ifile->loadBitmap();
 
   m_ifile->close();
 }
 
-oap::pixel_t PngDataLoader::getPixel(unsigned int x, unsigned int y) const {
+oap::pixel_t DataLoader::getPixel(unsigned int x, unsigned int y) const {
   return m_ifile->getPixel(x, y);
 }
 
-void PngDataLoader::getPixelsVector(oap::pixel_t* pixels) const {
+void DataLoader::getPixelsVector(oap::pixel_t* pixels) const {
   m_ifile->getPixelsVector(pixels);
 }
 
-void PngDataLoader::getFloattVector(floatt* vector) const {
+void DataLoader::getFloattVector(floatt* vector) const {
   const size_t length = getLength();
   pixel_t* pixels = new pixel_t[length];
-  pixel_t max = IPngFile::getPixelMax();
+  pixel_t max = Image::getPixelMax();
   m_ifile->getPixelsVector(pixels);
   for (size_t fa = 0; fa < length; ++fa) {
-    vector[fa] = oap::IPngFile::convertPixelToFloatt(pixels[fa]);
+    vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
   }
   delete[] pixels;
 }
 
-size_t PngDataLoader::getWidth() const { return m_ifile->getWidth(); }
+size_t DataLoader::getWidth() const { return m_ifile->getWidth(); }
 
-size_t PngDataLoader::getHeight() const { return m_ifile->getHeight(); }
+size_t DataLoader::getHeight() const { return m_ifile->getHeight(); }
 
-size_t PngDataLoader::getLength() const { return m_ifile->getLength(); }
+size_t DataLoader::getLength() const { return m_ifile->getLength(); }
 }

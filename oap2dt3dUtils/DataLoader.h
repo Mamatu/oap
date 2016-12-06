@@ -17,26 +17,29 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PNGDATALOADER_H
-#define PNGDATALOADER_H
+#ifndef DATALOADER_H
+#define DATALOADER_H
 
 #include <string>
 
-#include "IPngFile.h"
+#include "Image.h"
 #include "Exceptions.h"
 #include "Math.h"
 
 namespace oap {
 
-class PngDataLoader {
+class DataLoader {
  public:
-  PngDataLoader(IPngFile* ifile, const std::string& path);
+  DataLoader(Image* ifile, const std::string& path, bool deallocateIFile = false);
 
-  PngDataLoader(IPngFile* ifile);
+  DataLoader(Image* ifile);
 
-  PngDataLoader(const std::string& path);
+  template <typename T>
+  static DataLoader* newDataLoader(const std::string& path) {
+    return new DataLoader(new T(), path, true);
+  }
 
-  virtual ~PngDataLoader();
+  virtual ~DataLoader();
 
   oap::pixel_t getPixel(unsigned int x, unsigned int y) const;
 
@@ -48,8 +51,8 @@ class PngDataLoader {
   size_t getLength() const;
 
  private:
-  IPngFile* m_ifile;
-  bool m_ifileIsInternal;
+  Image* m_ifile;
+  bool m_deallocateIFile;
 
   void openAndLoad(const std::string& path);
   void load();

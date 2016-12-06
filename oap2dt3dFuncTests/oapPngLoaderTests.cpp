@@ -18,7 +18,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "PngDataLoader.h"
+#include "DataLoader.h"
 #include "PngFile.h"
 
 #include "Config.h"
@@ -46,7 +46,7 @@ class OapPngLoaderTests : public testing::Test {
   void executeColorTest(const std::string& file, oap::pixel_t expected) {
     oap::PngFile pngFile;
     EXPECT_NO_THROW({
-      oap::PngDataLoader pngDataLoader(&pngFile, getImagePath(file));
+      oap::DataLoader pngDataLoader(&pngFile, getImagePath(file));
       const size_t width = pngDataLoader.getWidth();
       const size_t height = pngDataLoader.getHeight();
       oap::pixel_t* pixels = new oap::pixel_t[width * height];

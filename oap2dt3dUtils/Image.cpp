@@ -17,18 +17,18 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IPngFile.h"
+#include "Image.h"
 #include "Exceptions.h"
 
 namespace oap {
 
-IPngFile::IPngFile() {}
+Image::Image() {}
 
-IPngFile::~IPngFile() {}
+Image::~Image() {}
 
-bool IPngFile::read(void* buffer, size_t size) { return read(buffer, 1, size); }
+bool Image::read(void* buffer, size_t size) { return read(buffer, 1, size); }
 
-void IPngFile::open(const char* path) {
+void Image::open(const char* path) {
   if (openInternal(path) == false) {
     throw oap::exceptions::FileNotExist(path);
   }
@@ -39,7 +39,7 @@ void IPngFile::open(const char* path) {
   }
 }
 
-pixel_t IPngFile::getPixel(unsigned int x, unsigned int y) const {
+pixel_t Image::getPixel(unsigned int x, unsigned int y) const {
   unsigned int height = getHeight();
   unsigned int width = getWidth();
   if (x >= width) {
@@ -51,11 +51,11 @@ pixel_t IPngFile::getPixel(unsigned int x, unsigned int y) const {
   return getPixelInternal(x, y);
 }
 
-size_t IPngFile::getLength() const { return getWidth() * getHeight(); }
+size_t Image::getLength() const { return getWidth() * getHeight(); }
 
-pixel_t IPngFile::m_MaxPixel = IPngFile::getPixelMax();
+pixel_t Image::m_MaxPixel = Image::getPixelMax();
 
-pixel_t IPngFile::convertRgbToPixel(unsigned char r, unsigned char g,
+pixel_t Image::convertRgbToPixel(unsigned char r, unsigned char g,
                                     unsigned char b) {
   pixel_t rgb = r;
   rgb = rgb << 8;
@@ -65,15 +65,15 @@ pixel_t IPngFile::convertRgbToPixel(unsigned char r, unsigned char g,
   return rgb;
 }
 
-floatt IPngFile::convertPixelToFloatt(pixel_t pixel) {
-  return static_cast<floatt>(pixel) / static_cast<floatt>(IPngFile::m_MaxPixel);
+floatt Image::convertPixelToFloatt(pixel_t pixel) {
+  return static_cast<floatt>(pixel) / static_cast<floatt>(Image::m_MaxPixel);
 }
 
-floatt IPngFile::convertRgbToFloatt(unsigned char r, unsigned char g,
+floatt Image::convertRgbToFloatt(unsigned char r, unsigned char g,
                                     unsigned char b) {
   pixel_t pixel = convertRgbToPixel(r, g, b);
   return convertPixelToFloatt(pixel);
 }
 
-pixel_t IPngFile::getPixelMax() { return convertRgbToPixel(255, 255, 255); }
+pixel_t Image::getPixelMax() { return convertRgbToPixel(255, 255, 255); }
 }
