@@ -44,6 +44,14 @@ class CuHArnoldi {
 
   void setOutputs(math::Matrix* outputs);
 
+  /**
+  * \brief Execute iram algorithm.
+  * \param k - dimension of hessenberg matrix
+  * \param wantedCount - number of wanted eigenvalues
+  * \param matrixInfo - structure described matrix, 
+  *                     whose eigenvalues and eigenvectors are calculated
+  * \param matrixType - type of delivered matrix
+  */
   void execute(uintt k, uintt wantedCount,
                const ArnUtils::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
