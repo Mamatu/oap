@@ -35,7 +35,10 @@ class CuHArnoldi {
   virtual ~CuHArnoldi();
 
   /**
-  * \brief Sets rho parameters
+  * \brief Sets rho parameters 
+  * \details parameter influences on perform
+  *          Gram-Schmidt proces.
+  * 
   */
   void setRho(floatt rho = 1. / 3.14);
 
