@@ -42,7 +42,9 @@ class CuHArnoldi {
 
   void setCheckType(ArnUtils::CheckType checkType);
 
-  void setOutputs(math::Matrix* outputs);
+  void setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues);
+
+  void setOutputsEigenvectors(math::Matrix* oevectors);
 
   void execute(uintt k, uintt wantedCount,
                const ArnUtils::MatrixInfo& matrixInfo,
@@ -107,7 +109,9 @@ class CuHArnoldi {
   ArnUtils::MatrixInfo m_matrixInfo;
   ArnUtils::Type m_matrixType;
 
-  math::Matrix* m_outputs;
+  floatt* m_reoevalues;
+  floatt* m_imoevalues;
+  math::Matrix* m_oevectors;
   ArnUtils::Type m_outputsType;
 
   bool m_wasAllocated;
@@ -186,10 +190,6 @@ class CuHArnoldi {
   bool executeChecking(uintt k);
 
   void executeShiftedQRIteration(uintt p);
-
-  floatt getEigenvalue(uintt index) const;
-
-  math::Matrix* getEigenvector(uintt index) const;
 
   bool checkOutcome(uintt index, floatt tolerance);
 

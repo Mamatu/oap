@@ -260,13 +260,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     floatt revalues[2] = {0, 0};
     floatt imvalues[2] = {0, 0};
 
-    math::Matrix outputs;
-
     uintt wanted = 1;
-
-    outputs.reValues = revalues;
-    outputs.imValues = imvalues;
-    outputs.columns = wanted;
 
     arnoldiCuda->setCallback(MultiplyFunc::multiply, &userPair);
     arnoldiCuda->setBLimit(0.01);
@@ -274,7 +268,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     arnoldiCuda->setSortType(ArnUtils::SortSmallestReValues);
     arnoldiCuda->setCheckType(ArnUtils::CHECK_EXTERNAL_EIGENVALUE);
     arnoldiCuda->setEValue(value, tolerance);
-    arnoldiCuda->setOutputs(&outputs);
+    arnoldiCuda->setOutputsEigenvalues(revalues, imvalues);
     ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
                                     data.getElementsCount());
 

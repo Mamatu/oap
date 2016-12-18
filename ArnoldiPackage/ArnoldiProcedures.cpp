@@ -102,8 +102,14 @@ void CuHArnoldi::setCheckType(ArnUtils::CheckType checkType) {
   m_checkType = checkType;
 }
 
-void CuHArnoldi::setOutputs(math::Matrix* outputs) {
-  m_outputs = outputs;
+void CuHArnoldi::setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues) {
+  m_reoevalues = reoevalues;
+  m_imoevalues = imoevalues;
+  m_outputsType = ArnUtils::HOST;
+}
+
+void CuHArnoldi::setOutputsEigenvectors(math::Matrix* oevectors) {
+  m_oevectors = oevectors;
   m_outputsType = ArnUtils::HOST;
 }
 
@@ -169,12 +175,12 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
 
   extractValues(m_H, hdim - wantedCount);
 
-  for (uintt fa = 0; fa < m_outputs->columns; fa++) {
-    if (NULL != m_outputs->reValues) {
-      m_outputs->reValues[fa] = wanted[fa].re;
+  for (uintt fa = 0; fa < wanted.size(); fa++) {
+    if (NULL != m_reoevalues) {
+      m_reoevalues[fa] = wanted[fa].re;
     }
-    if (NULL != m_outputs->imValues) {
-      m_outputs->imValues[fa] = wanted[fa].im;
+    if (NULL != m_imoevalues) {
+      m_imoevalues[fa] = wanted[fa].im;
     }
   }
   device::DeleteDeviceMatrixEx(dMatrixExs);
@@ -381,10 +387,6 @@ void CuHArnoldi::executeShiftedQRIteration(uintt p) {
   m_cuMatrix.dotProduct(m_EV, m_V, m_Q);
   aux_swapPointers(&m_V, &m_EV);
 }
-
-floatt CuHArnoldi::getEigenvalue(uintt index) const {}
-
-math::Matrix* CuHArnoldi::getEigenvector(uintt index) const {}
 
 bool CuHArnoldi::checkOutcome(uintt index, floatt tolerance) {
   floatt value = CudaUtils::GetReValue(m_H, index * m_Hcolumns + index);
