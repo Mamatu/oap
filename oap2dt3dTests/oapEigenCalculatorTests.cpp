@@ -91,8 +91,8 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
   EXPECT_THROW(eigenCalc.createMatrix(), oap::exceptions::NotInitialzed);
   EXPECT_THROW(eigenCalc.createMatrixInfo(), oap::exceptions::NotInitialzed);
   EXPECT_THROW(eigenCalc.calculate(), oap::exceptions::NotInitialzed);
-  EXPECT_THROW(eigenCalc.getEigenvalue(0), oap::exceptions::NotInitialzed);
-  EXPECT_THROW(eigenCalc.getEigenvector(0), oap::exceptions::NotInitialzed);
+  EXPECT_THROW(eigenCalc.getEigenvalues(NULL), oap::exceptions::NotInitialzed);
+  EXPECT_THROW(eigenCalc.getEigenvectors(NULL), oap::exceptions::NotInitialzed);
 }
 
 TEST_F(OapEigenCalculatorTests, Matrix4x4FromImage) {

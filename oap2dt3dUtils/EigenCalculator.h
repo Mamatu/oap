@@ -41,9 +41,9 @@ class EigenCalculator {
 
   void calculate();
 
-  floatt getEigenvalue(uintt index) const;
+  void getEigenvalues(floatt*) const;
 
-  math::Matrix* getEigenvector(uintt index) const;
+  void getEigenvectors(math::Matrix*) const;
 
   /**
    * @brief Creates matrix from sets of pngDataLoader
@@ -69,9 +69,18 @@ class EigenCalculator {
 
   void checkOutOfRange(size_t v, size_t max) const;
 
+  void initializeEigenvalues();
+  void initializeEigenvectors();
+
+  void destroyEigenvalues();
+  void destroyEigenvectors();
+
   size_t m_eigensCount;
   DataLoaders m_dataLoaders;
   CuHArnoldi* m_cuHArnoldi;
+
+  floatt* m_revalues;
+  math::Matrix* m_eigenvectors;
 };
 }
 

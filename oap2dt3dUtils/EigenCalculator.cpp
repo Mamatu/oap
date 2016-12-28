@@ -25,12 +25,15 @@
 
 namespace oap {
 
-EigenCalculator::EigenCalculator() : m_eigensCount(2) {}
+EigenCalculator::EigenCalculator()
+    : m_eigensCount(2), m_revalues(NULL), m_eigenvectors(NULL) {}
 
-EigenCalculator::~EigenCalculator() {}
+EigenCalculator::~EigenCalculator() {
+  destroyEigenvalues();
+  destroyEigenvectors();
+}
 
-math::Matrix* EigenCalculator::createMatrix(
-    const DataLoaders& pngDataLoaders) {
+math::Matrix* EigenCalculator::createMatrix(const DataLoaders& pngDataLoaders) {
   const size_t refLength = pngDataLoaders[0]->getLength();
   floatt* floatsvec = new floatt[refLength];
 
@@ -75,21 +78,27 @@ void EigenCalculator::calculate() {
   m_cuHArnoldi = new CuHArnoldiDefault();
   m_cuHArnoldi->setSortType(ArnUtils::SortLargestReValues);
 
-  m_cuHArnoldi->execute(32, m_eigensCount, matrixInfo);
+  initializeEigenvalues();
+  initializeEigenvectors();
+
+  const unsigned int hdim = 32;
+
+  m_cuHArnoldi->setOutputsEigenvalues(m_revalues, NULL);
+  m_cuHArnoldi->setOutputsEigenvectors(m_eigenvectors);
+
+  m_cuHArnoldi->execute(hdim, m_eigensCount, matrixInfo);
 }
 
-floatt EigenCalculator::getEigenvalue(uintt index) const {
+void EigenCalculator::getEigenvalues(floatt* revalues) const {
   checkIfInitialized();
-  checkOutOfRange(index, m_eigensCount);
 
-  return 0;  // m_cuHArnoldi->getEigenvalue(index);
+  memcpy(revalues, m_revalues, sizeof(floatt) * m_eigensCount);
 }
 
-math::Matrix* EigenCalculator::getEigenvector(uintt index) const {
+void EigenCalculator::getEigenvectors(math::Matrix* eigenvectors) const {
   checkIfInitialized();
-  checkOutOfRange(index, m_eigensCount);
 
-  return 0;  // m_cuHArnoldi->getEigenvector(index);
+  host::CopyMatrix(eigenvectors, m_eigenvectors);
 }
 
 math::Matrix* EigenCalculator::createMatrix() const {
@@ -113,13 +122,33 @@ void EigenCalculator::checkIfInitialized() const {
   }
 }
 
-bool EigenCalculator::isInitialized() const {
-  return m_dataLoaders.size() > 0;
-}
+bool EigenCalculator::isInitialized() const { return m_dataLoaders.size() > 0; }
 
 void EigenCalculator::checkOutOfRange(size_t v, size_t max) const {
   if (v >= max) {
     throw oap::exceptions::OutOfRange(v, max);
   }
+}
+
+void EigenCalculator::initializeEigenvalues() {
+  destroyEigenvalues();
+  m_revalues = new floatt[m_eigensCount];
+}
+
+void EigenCalculator::initializeEigenvectors() {
+  destroyEigenvectors();
+  ArnUtils::MatrixInfo matrixInfo = createMatrixInfo();
+  m_eigenvectors =
+      host::NewReMatrix(m_eigensCount, matrixInfo.m_matrixDim.rows);
+}
+
+void EigenCalculator::destroyEigenvalues() {
+  delete[] m_revalues;
+  m_revalues = NULL;
+}
+
+void EigenCalculator::destroyEigenvectors() {
+  host::DeleteMatrix(m_eigenvectors);
+  m_eigenvectors = NULL;
 }
 }
