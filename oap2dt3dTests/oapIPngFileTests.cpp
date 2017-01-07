@@ -33,15 +33,15 @@ class OapPngFileTests : public testing::Test {
  public:
   class PngFileMock : public oap::PngFile {
    public:
-    PngFileMock() {}
+    PngFileMock(const std::string& path) : oap::PngFile(path) {}
 
     virtual ~PngFileMock() {}
 
-    MOCK_METHOD1(openInternal, bool(const char*));
+    MOCK_METHOD1(openInternal, bool(const std::string&));
 
     MOCK_METHOD3(read, bool(void*, size_t, size_t));
 
-    MOCK_CONST_METHOD0(isPngInternal, bool());
+    MOCK_CONST_METHOD0(isCorrectFormat, bool());
 
     MOCK_METHOD0(loadBitmap, void());
 
@@ -54,11 +54,13 @@ class OapPngFileTests : public testing::Test {
     MOCK_CONST_METHOD0(getHeight, size_t());
 
     MOCK_CONST_METHOD1(getPixelsVector, void(oap::pixel_t*));
+
+    MOCK_CONST_METHOD0(getSufix, std::string());
   };
 };
 
 TEST_F(OapPngFileTests, LoadPixelOutOfRange) {
-  PngFileMock pngFileMock;
+  PngFileMock pngFileMock("");
 
   ON_CALL(pngFileMock, getWidth()).WillByDefault(Return(1024));
 

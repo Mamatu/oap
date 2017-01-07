@@ -20,7 +20,9 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <string>
 #include <png.h>
+
 #include "Math.h"
 
 namespace oap {
@@ -29,11 +31,11 @@ typedef unsigned int pixel_t;
 
 class Image {
  public:
-  Image();
+  Image(const std::string& path);
 
   virtual ~Image();
 
-  void open(const char* path);
+  void open();
 
   bool read(void* buffer, size_t size);
 
@@ -53,6 +55,8 @@ class Image {
 
   virtual void getPixelsVector(pixel_t* pixels) const = 0;
 
+  void getFloattVector(floatt* vector) const;
+
   virtual void close() = 0;
 
   static pixel_t convertRgbToPixel(unsigned char r, unsigned char g,
@@ -65,14 +69,18 @@ class Image {
 
   static pixel_t getPixelMax();
 
- protected:
-  virtual bool openInternal(const char* path) = 0;
+  virtual std::string getSufix() const = 0;
 
-  virtual bool isPngInternal() const = 0;
+ protected:
+  virtual bool openInternal(const std::string& path) = 0;
+
+  virtual bool isCorrectFormat() const = 0;
 
   virtual pixel_t getPixelInternal(unsigned int x, unsigned int y) const = 0;
 
  private:
+  std::string m_path;
+
   static pixel_t m_MaxPixel;
 };
 }

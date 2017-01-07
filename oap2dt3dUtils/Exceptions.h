@@ -51,14 +51,15 @@ class FileNotExist : public Exception {
   std::string m_path;
 };
 
-class FileIsNotPng : public Exception {
+class NotCorrectFormat : public Exception {
  public:
-  FileIsNotPng(const std::string& path);
+  NotCorrectFormat(const std::string& path, const std::string& sufix);
 
   virtual std::string getMessage() const;
 
  private:
   std::string m_path;
+  std::string m_sufix;
 };
 
 class NotIdenticalLengths : public Exception {

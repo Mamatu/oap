@@ -25,8 +25,9 @@ namespace oap {
 
 size_t g_colorsCount = 3;
 
-PngFile::PngFile()
-    : m_fp(NULL),
+PngFile::PngFile(const std::string& path)
+    : oap::Image(path),
+      m_fp(NULL),
       m_bitmap2d(NULL),
       m_bitmap1d(NULL),
       m_pixels(NULL),
@@ -124,12 +125,14 @@ void PngFile::getPixelsVector(pixel_t* pixels) const {
   memcpy(pixels, m_pixels, sizeof(pixel_t) * length);
 }
 
-bool PngFile::openInternal(const char* path) {
-  m_fp = fopen(path, "rb");
+std::string PngFile::getSufix() const { return "png"; }
+
+bool PngFile::openInternal(const std::string& path) {
+  m_fp = fopen(path.c_str(), "rb");
   return m_fp != NULL;
 }
 
-bool PngFile::isPngInternal() const {
+bool PngFile::isCorrectFormat() const {
   const size_t header_size = 8;
   unsigned char header[header_size];
   return png_sig_cmp(header, 0, header_size);

@@ -22,20 +22,24 @@
 
 namespace oap {
 
-Image::Image() {}
+Image::Image(const std::string& path) : m_path(path) {}
 
 Image::~Image() {}
 
 bool Image::read(void* buffer, size_t size) { return read(buffer, 1, size); }
 
-void Image::open(const char* path) {
-  if (openInternal(path) == false) {
-    throw oap::exceptions::FileNotExist(path);
+void Image::open() {
+  if (m_path.find(std::string(".") + getSufix()) == std::string::npos) {
+    m_path = m_path + ".";
+    m_path = m_path + getSufix();
   }
 
-  if (isPngInternal() == false) {
-    close();
-    throw oap::exceptions::FileIsNotPng(path);
+  if (openInternal(m_path) == false) {
+    throw oap::exceptions::FileNotExist(m_path);
+  }
+
+  if (isCorrectFormat() == false) {
+    throw oap::exceptions::NotCorrectFormat(m_path, getSufix());
   }
 }
 
@@ -53,10 +57,21 @@ pixel_t Image::getPixel(unsigned int x, unsigned int y) const {
 
 size_t Image::getLength() const { return getWidth() * getHeight(); }
 
+void Image::getFloattVector(floatt* vector) const {
+  const size_t length = getLength();
+  pixel_t* pixels = new pixel_t[length];
+  pixel_t max = Image::getPixelMax();
+  this->getPixelsVector(pixels);
+  for (size_t fa = 0; fa < length; ++fa) {
+    vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
+  }
+  delete[] pixels;
+}
+
 pixel_t Image::m_MaxPixel = Image::getPixelMax();
 
 pixel_t Image::convertRgbToPixel(unsigned char r, unsigned char g,
-                                    unsigned char b) {
+                                 unsigned char b) {
   pixel_t rgb = r;
   rgb = rgb << 8;
   rgb |= g;
@@ -70,7 +85,7 @@ floatt Image::convertPixelToFloatt(pixel_t pixel) {
 }
 
 floatt Image::convertRgbToFloatt(unsigned char r, unsigned char g,
-                                    unsigned char b) {
+                                 unsigned char b) {
   pixel_t pixel = convertRgbToPixel(r, g, b);
   return convertPixelToFloatt(pixel);
 }

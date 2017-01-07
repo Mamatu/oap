@@ -25,10 +25,11 @@
 
 int main() {
   try {
-    oap::PngFile pngFile;
-    oap::DataLoader pngLoader(
-        &pngFile,
+    oap::PngFile pngFile(
         "/home/mmatula/Oap/oap2dt3d/data/images_monkey/image_0_0_0.png");
+    oap::Images images;
+    images.push_back(&pngFile);
+    oap::DataLoader pngLoader(images);
   } catch (const oap::exceptions::Exception& exception) {
     fprintf(stderr, "%s \n", exception.getMessage().c_str());
   }

@@ -21,41 +21,90 @@
 #define DATALOADER_H
 
 #include <string>
+#include <vector>
+
+#include "ArnoldiUtils.h"
 
 #include "Image.h"
-#include "Exceptions.h"
 #include "Math.h"
+#include "Matrix.h"
+#include "Exceptions.h"
 
 namespace oap {
 
+typedef std::vector<oap::Image*> Images;
+
 class DataLoader {
  public:
-  DataLoader(Image* ifile, const std::string& path, bool deallocateIFile = false);
-
-  DataLoader(Image* ifile);
+  DataLoader(const Images& images, bool dealocateImages = false);
 
   template <typename T>
-  static DataLoader* newDataLoader(const std::string& path) {
-    return new DataLoader(new T(), path, true);
+  static DataLoader* createDataLoader(const std::string& dirpath,
+                                      const std::string& nameBase,
+                                      size_t count) {
+    const std::string& imageBasePath = constructAbsPath(dirpath);
+    oap::Images images = createImagesVector<T>(imageBasePath, nameBase, count);
+
+    return new DataLoader(images, true);
   }
 
   virtual ~DataLoader();
-
-  oap::pixel_t getPixel(unsigned int x, unsigned int y) const;
-
-  void getPixelsVector(oap::pixel_t* pixels) const;
-  void getFloattVector(floatt* vector) const;
 
   size_t getWidth() const;
   size_t getHeight() const;
   size_t getLength() const;
 
- private:
-  Image* m_ifile;
-  bool m_deallocateIFile;
+  static math::Matrix* createMatrix(const Images& images);
 
-  void openAndLoad(const std::string& path);
+  /**
+   * @brief Creates matrix from sets of pngDataLoader
+   * @return matrix in host space
+   */
+  math::Matrix* createMatrix() const;
+
+  /**
+   * @brief Creates device matrix from set of pngDataLoader
+   * @return matrix in device space
+   */
+  math::Matrix* createDeviceMatrix() const;
+
+  /**
+   * @brief Creates Matrxinfo from set of pngDataLoader
+   * @return
+   */
+  ArnUtils::MatrixInfo createMatrixInfo() const;
+
+ protected:
+  static std::string constructAbsPath(const std::string& basePath);
+
+  static std::string constructImagePath(const std::string& absPath,
+                                        const std::string& nameBase,
+                                        size_t index, size_t count);
+
+  template <typename T>
+  static oap::Images createImagesVector(const std::string& imageAbsPath,
+                                        const std::string& nameBase,
+                                        size_t count) {
+    oap::Images images;
+
+    for (size_t fa = 0; fa < count; ++fa) {
+      const std::string& imagePath =
+          constructImagePath(imageAbsPath, nameBase, fa, count);
+
+      Image* image = new T(imagePath);
+
+      images.push_back(image);
+    }
+
+    return images;
+  }
+
+ private:
+  Images m_images;
+  bool m_deallocateImages;
+
   void load();
+  void destroyImages();
 };
 }
 #endif  // PNGLOADER_H

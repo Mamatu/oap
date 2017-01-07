@@ -20,60 +20,29 @@
 #include "EigenCalculator.h"
 #include "Exceptions.h"
 #include "HostMatrixModules.h"
-#include "DeviceMatrixModules.h"
 #include "ArnoldiProceduresImpl.h"
 
 namespace oap {
 
 EigenCalculator::EigenCalculator()
-    : m_eigensCount(2), m_revalues(NULL), m_eigenvectors(NULL) {}
+    : m_eigensCount(2),
+      m_dataLoader(NULL),
+      m_revalues(NULL),
+      m_eigenvectors(NULL) {}
 
 EigenCalculator::~EigenCalculator() {
   destroyEigenvalues();
   destroyEigenvectors();
 }
 
-math::Matrix* EigenCalculator::createMatrix(const DataLoaders& pngDataLoaders) {
-  const size_t refLength = pngDataLoaders[0]->getLength();
-  floatt* floatsvec = new floatt[refLength];
-
-  math::Matrix* hostMatrix =
-      host::NewReMatrix(pngDataLoaders.size(), refLength);
-
-  for (size_t fa = 0; fa < pngDataLoaders.size(); ++fa) {
-    DataLoader* it = pngDataLoaders[fa];
-    const size_t length = it->getLength();
-    if (refLength != length) {
-      delete[] floatsvec;
-      host::DeleteMatrix(hostMatrix);
-      throw oap::exceptions::NotIdenticalLengths(refLength, length);
-    }
-    it->getFloattVector(floatsvec);
-    host::SetReVector(hostMatrix, fa, floatsvec, refLength);
-  }
-
-  delete[] floatsvec;
-
-  return hostMatrix;
-}
-
-ArnUtils::MatrixInfo EigenCalculator::createMatrixInfo() const {
-  checkIfInitialized();
-
-  const uintt width = m_dataLoaders.size();
-  const uintt height = m_dataLoaders[0]->getLength();
-
-  return ArnUtils::MatrixInfo(true, false, width, height);
-}
-
-void EigenCalculator::addPngDataLoader(DataLoader* pngDataLoader) {
-  m_dataLoaders.push_back(pngDataLoader);
+void EigenCalculator::setDataLoader(DataLoader* dataLoader) {
+  m_dataLoader = dataLoader;
 }
 
 void EigenCalculator::calculate() {
   checkIfInitialized();
 
-  ArnUtils::MatrixInfo matrixInfo = createMatrixInfo();
+  ArnUtils::MatrixInfo matrixInfo = m_dataLoader->createMatrixInfo();
 
   m_cuHArnoldi = new CuHArnoldiDefault();
   m_cuHArnoldi->setSortType(ArnUtils::SortLargestReValues);
@@ -101,28 +70,13 @@ void EigenCalculator::getEigenvectors(math::Matrix* eigenvectors) const {
   host::CopyMatrix(eigenvectors, m_eigenvectors);
 }
 
-math::Matrix* EigenCalculator::createMatrix() const {
-  checkIfInitialized();
-
-  return EigenCalculator::createMatrix(m_dataLoaders);
-}
-
-math::Matrix* EigenCalculator::createDeviceMatrix() const {
-  checkIfInitialized();
-
-  math::Matrix* host = createMatrix();
-  math::Matrix* device = device::NewDeviceMatrixCopy(host);
-  host::DeleteMatrix(host);
-  return device;
-}
-
 void EigenCalculator::checkIfInitialized() const {
   if (!isInitialized()) {
     throw oap::exceptions::NotInitialzed();
   }
 }
 
-bool EigenCalculator::isInitialized() const { return m_dataLoaders.size() > 0; }
+bool EigenCalculator::isInitialized() const { return m_dataLoader != NULL; }
 
 void EigenCalculator::checkOutOfRange(size_t v, size_t max) const {
   if (v >= max) {
@@ -137,7 +91,7 @@ void EigenCalculator::initializeEigenvalues() {
 
 void EigenCalculator::initializeEigenvectors() {
   destroyEigenvectors();
-  ArnUtils::MatrixInfo matrixInfo = createMatrixInfo();
+  ArnUtils::MatrixInfo matrixInfo = m_dataLoader->createMatrixInfo();
   m_eigenvectors =
       host::NewReMatrix(m_eigensCount, matrixInfo.m_matrixDim.rows);
 }

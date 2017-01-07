@@ -27,7 +27,7 @@
 namespace oap {
 class PngFile : public Image {
  public:
-  PngFile();
+  PngFile(const std::string& path);
 
   virtual ~PngFile();
 
@@ -45,10 +45,12 @@ class PngFile : public Image {
 
   virtual void getPixelsVector(pixel_t* pixels) const;
 
- protected:
-  virtual bool openInternal(const char* path);
+  virtual std::string getSufix() const;
 
-  virtual bool isPngInternal() const;
+ protected:
+  virtual bool openInternal(const std::string& path);
+
+  bool isCorrectFormat() const;
 
   virtual pixel_t getPixelInternal(unsigned int x, unsigned int y) const;
 

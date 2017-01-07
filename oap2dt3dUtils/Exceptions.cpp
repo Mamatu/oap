@@ -50,11 +50,14 @@ std::string FileNotExist::getMessage() const {
   return msg;
 }
 
-FileIsNotPng::FileIsNotPng(const std::string& path) : m_path(path) {}
+NotCorrectFormat::NotCorrectFormat(const std::string& path,
+                                   const std::string& sufix)
+    : m_path(path), m_sufix(sufix) {}
 
-std::string FileIsNotPng::getMessage() const {
+std::string NotCorrectFormat::getMessage() const {
   std::string msg;
-  msg = m_path + " is not png.";
+  msg = m_path + " is not correct format. Correct format is ";
+  msg += m_sufix;
   return msg;
 }
 

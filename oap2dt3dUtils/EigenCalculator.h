@@ -23,7 +23,6 @@
 #include <vector>
 
 #include "DataLoader.h"
-#include "Matrix.h"
 #include "ArnoldiProceduresImpl.h"
 
 namespace oap {
@@ -35,33 +34,13 @@ class EigenCalculator {
   EigenCalculator();
   virtual ~EigenCalculator();
 
-  static math::Matrix* createMatrix(const DataLoaders& pngDataLoaders);
-
-  void addPngDataLoader(DataLoader* pngDataLoader);
+  void setDataLoader(DataLoader* dataLoader);
 
   void calculate();
 
   void getEigenvalues(floatt*) const;
 
   void getEigenvectors(math::Matrix*) const;
-
-  /**
-   * @brief Creates matrix from sets of pngDataLoader
-   * @return matrix in host space
-   */
-  math::Matrix* createMatrix() const;
-
-  /**
-   * @brief Creates device matrix from set of pngDataLoader
-   * @return matrix in device space
-   */
-  math::Matrix* createDeviceMatrix() const;
-
-  /**
-   * @brief Creates Matrxinfo from set of pngDataLoader
-   * @return
-   */
-  ArnUtils::MatrixInfo createMatrixInfo() const;
 
  private:
   void checkIfInitialized() const;
@@ -76,7 +55,7 @@ class EigenCalculator {
   void destroyEigenvectors();
 
   size_t m_eigensCount;
-  DataLoaders m_dataLoaders;
+  DataLoader* m_dataLoader;
   CuHArnoldi* m_cuHArnoldi;
 
   floatt* m_revalues;

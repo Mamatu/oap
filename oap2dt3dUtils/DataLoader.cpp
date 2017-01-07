@@ -18,64 +18,133 @@
  */
 
 #include "DataLoader.h"
+#include "DeviceMatrixModules.h"
 #include "Exceptions.h"
 #include "PngFile.h"
+#include "Config.h"
+
+#include <sstream>
 
 namespace oap {
 
-DataLoader::DataLoader(Image* ifile, const std::string& path, bool deallocateIFile)
-    : m_ifile(ifile), m_deallocateIFile(deallocateIFile) {
-  openAndLoad(path);
-}
-
-DataLoader::DataLoader(Image* ifile)
-    : m_ifile(ifile), m_deallocateIFile(false) {
+DataLoader::DataLoader(const Images& images, bool dealocateImages)
+    : m_images(images), m_deallocateImages(dealocateImages) {
   load();
 }
 
-DataLoader::~DataLoader() {
-  if (m_ifile != NULL) {
-    m_ifile->freeBitmap();
+DataLoader::~DataLoader() { destroyImages(); }
+
+size_t DataLoader::getWidth() const { return m_images[0]->getWidth(); }
+
+size_t DataLoader::getHeight() const { return m_images[0]->getHeight(); }
+
+size_t DataLoader::getLength() const { return m_images[0]->getLength(); }
+
+math::Matrix* DataLoader::createMatrix(const Images& images) {
+  const size_t refLength = images[0]->getLength();
+  floatt* floatsvec = new floatt[refLength];
+
+  math::Matrix* hostMatrix = host::NewReMatrix(images.size(), refLength);
+
+  for (size_t fa = 0; fa < images.size(); ++fa) {
+    Image* it = images[fa];
+    const size_t length = it->getLength();
+    if (refLength != length) {
+      delete[] floatsvec;
+      host::DeleteMatrix(hostMatrix);
+      throw oap::exceptions::NotIdenticalLengths(refLength, length);
+    }
+    it->getFloattVector(floatsvec);
+    host::SetReVector(hostMatrix, fa, floatsvec, refLength);
   }
-  if (m_deallocateIFile) {
-    delete m_ifile;
-  }
+
+  delete[] floatsvec;
+
+  return hostMatrix;
 }
 
-void DataLoader::openAndLoad(const std::string& path) {
-  m_ifile->open(path.c_str());
+math::Matrix* DataLoader::createMatrix() const {
+  return DataLoader::createMatrix(m_images);
+}
 
-  load();
+math::Matrix* DataLoader::createDeviceMatrix() const {
+  math::Matrix* host = createMatrix();
+  math::Matrix* device = device::NewDeviceMatrixCopy(host);
+  host::DeleteMatrix(host);
+  return device;
+}
+
+ArnUtils::MatrixInfo DataLoader::createMatrixInfo() const {
+  const uintt width = m_images.size();
+  const uintt height = m_images[0]->getLength();
+
+  return ArnUtils::MatrixInfo(true, false, width, height);
+}
+
+std::string DataLoader::constructAbsPath(const std::string& dirPath) {
+  std::string path;
+
+  if (dirPath[0] != '/') {
+    path = utils::Config::getPathInOap(dirPath.c_str());
+  } else {
+    path = dirPath;
+  }
+
+  if (path[path.length() - 1] != '/') {
+    path = path + '/';
+  }
+
+  return path;
+}
+
+std::string DataLoader::constructImagePath(const std::string& absPath,
+                                           const std::string& nameBase,
+                                           size_t index, size_t count) {
+  std::string imagePath = absPath;
+  imagePath = imagePath + nameBase;
+
+  std::stringstream sstream;
+
+  size_t width = 0;
+  size_t temp = count;
+  while (temp >= 10) {
+    ++width;
+    temp = temp / 10;
+  }
+
+  if (width > 0) {
+    sstream.width(width);
+    sstream.fill('0');
+  }
+
+  sstream << index;
+
+  imagePath = imagePath + sstream.str();
+
+  return imagePath;
 }
 
 void DataLoader::load() {
-  m_ifile->loadBitmap();
+  for (size_t fa = 0; fa < m_images.size(); ++fa) {
+    Image* image = m_images[fa];
 
-  m_ifile->close();
-}
+    image->open();
 
-oap::pixel_t DataLoader::getPixel(unsigned int x, unsigned int y) const {
-  return m_ifile->getPixel(x, y);
-}
+    image->loadBitmap();
 
-void DataLoader::getPixelsVector(oap::pixel_t* pixels) const {
-  m_ifile->getPixelsVector(pixels);
-}
-
-void DataLoader::getFloattVector(floatt* vector) const {
-  const size_t length = getLength();
-  pixel_t* pixels = new pixel_t[length];
-  pixel_t max = Image::getPixelMax();
-  m_ifile->getPixelsVector(pixels);
-  for (size_t fa = 0; fa < length; ++fa) {
-    vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
+    image->close();
   }
-  delete[] pixels;
 }
 
-size_t DataLoader::getWidth() const { return m_ifile->getWidth(); }
-
-size_t DataLoader::getHeight() const { return m_ifile->getHeight(); }
-
-size_t DataLoader::getLength() const { return m_ifile->getLength(); }
+void DataLoader::destroyImages() {
+  for (size_t fa = 0; fa < m_images.size(); ++fa) {
+    if (m_images[fa] != NULL) {
+      m_images[fa]->freeBitmap();
+    }
+    if (m_deallocateImages) {
+      delete m_images[fa];
+    }
+  }
+  m_images.clear();
+}
 }
