@@ -22,6 +22,10 @@
 
 #include <utility>
 
+#include <cstddef>
+#include <stdio.h>
+
+
 namespace oap {
 
 template <typename T2DArray, typename T>
@@ -57,7 +61,7 @@ OptSize GetOptWidth(T2DArray bitmap2d, size_t width, size_t height,
     beginC = 0;
   }
 
-  OptSize optSize = {optWidth, beginC, endC};
+  OptSize optSize(optWidth, beginC);
 
   return optSize;
 }
@@ -80,19 +84,12 @@ OptSize GetOptHeight(T2DArray bitmap2d, size_t width, size_t height,
     beginR = 0;
   }
 
-  OptSize optSize = {optHeight, beginR, endR};
+  OptSize optSize(optHeight, beginR);
 
   return optSize;
 }
 
-size_t getColumn(size_t index, size_t colorsCount) {
-  for (size_t fa = 0; fa < colorsCount; ++fa) {
-    if (index % colorsCount == 0) {
-      return index / colorsCount;
-    }
-    --index;
-  }
-}
+size_t getColumn(size_t index, size_t colorsCount);
 
 template <typename T2DArray, typename T>
 bool verifyColumn(T2DArray bitmap2d, size_t fa, size_t height,

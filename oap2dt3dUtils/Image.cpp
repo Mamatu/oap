@@ -44,8 +44,8 @@ void Image::open() {
 }
 
 pixel_t Image::getPixel(unsigned int x, unsigned int y) const {
-  unsigned int height = getHeight();
-  unsigned int width = getWidth();
+  unsigned int height = getHeight().optSize;
+  unsigned int width = getWidth().optSize;
   if (x >= width) {
     throw exceptions::OutOfRange(x, width);
   }
@@ -55,7 +55,7 @@ pixel_t Image::getPixel(unsigned int x, unsigned int y) const {
   return getPixelInternal(x, y);
 }
 
-size_t Image::getLength() const { return getWidth() * getHeight(); }
+size_t Image::getLength() const { return getWidth().optSize * getHeight().optSize; }
 
 void Image::getFloattVector(floatt* vector) const {
   const size_t length = getLength();

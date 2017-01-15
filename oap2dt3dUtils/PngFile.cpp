@@ -19,7 +19,6 @@
 
 #include "PngFile.h"
 #include "Exceptions.h"
-#include "GraphicUtils.h"
 
 namespace oap {
 
@@ -30,9 +29,7 @@ PngFile::PngFile(const std::string& path)
       m_fp(NULL),
       m_bitmap2d(NULL),
       m_bitmap1d(NULL),
-      m_pixels(NULL),
-      m_optWidth(0),
-      m_optHeight(0) {}
+      m_pixels(NULL) {}
 
 PngFile::~PngFile() { close(); }
 
@@ -54,8 +51,8 @@ void PngFile::loadBitmap() {
 
   png_read_info(m_png_ptr, m_info_ptr);
 
-  const size_t width = getWidth();
-  const size_t height = getHeight();
+  const size_t width = getWidth().optSize;
+  const size_t height = getHeight().optSize;
 
   color_type = png_get_color_type(m_png_ptr, m_info_ptr);
   bit_depth = png_get_bit_depth(m_png_ptr, m_info_ptr);
@@ -75,9 +72,9 @@ void PngFile::loadBitmap() {
 
   createBitmap1dFrom2d(&m_bitmap1d, m_bitmap2d, width, height);
 
-  m_pixels = new pixel_t[getWidth() * height];
+  m_pixels = new pixel_t[getWidth().optSize * height];
 
-  copyToPixelsVector(m_pixels, m_bitmap1d, getWidth(), height);
+  copyToPixelsVector(m_pixels, m_bitmap1d, getWidth().optSize, height);
 
   destroyBitmap2d();
 
@@ -106,18 +103,26 @@ void PngFile::close() {
   }
 }
 
-size_t PngFile::getWidth() const {
-  if (m_optWidth != 0) {
+oap::OptSize PngFile::getWidth() const {
+  if (m_optWidth.optSize != 0) {
     return m_optWidth;
   }
-  return png_get_image_width(m_png_ptr, m_info_ptr);
+  return oap::OptSize(png_get_image_width(m_png_ptr, m_info_ptr));
 }
 
-size_t PngFile::getHeight() const {
-  if (m_optHeight != 0) {
+oap::OptSize PngFile::getHeight() const {
+  if (m_optHeight.optSize != 0) {
     return m_optHeight;
   }
-  return png_get_image_height(m_png_ptr, m_info_ptr);
+  return oap::OptSize(png_get_image_height(m_png_ptr, m_info_ptr));
+}
+
+void PngFile::setOptWidth(const oap::OptSize& optWidth) {
+  m_optWidth = optWidth;
+}
+
+void PngFile::setOptHeight(const oap::OptSize& optHeight) {
+  m_optHeight = optHeight;
 }
 
 void PngFile::getPixelsVector(pixel_t* pixels) const {
@@ -139,25 +144,31 @@ bool PngFile::isCorrectFormat() const {
 }
 
 pixel_t PngFile::getPixelInternal(unsigned int x, unsigned int y) const {
-  const size_t width = getWidth();
+  const size_t width = getWidth().optSize;
   return m_pixels[y * width + x];
 }
 
 void PngFile::createBitmap1dFrom2d(png_byte** bitmap1d, png_bytep* bitmap2d,
                                    size_t width, size_t height) {
-  oap::OptSize owidth = oap::GetOptWidth<png_bytep*, png_byte>(
-      bitmap2d, width, height, g_colorsCount);
+  if (m_optWidth.optSize == 0) {
+    oap::OptSize owidth = oap::GetOptWidth<png_bytep*, png_byte>(
+        bitmap2d, width, height, g_colorsCount);
 
-  oap::OptSize oheight = oap::GetOptHeight<png_bytep*, png_byte>(
-      bitmap2d, width, height, g_colorsCount);
+    m_optWidth = owidth;
+  }
 
-  m_optWidth = owidth.optSize;
-  m_optHeight = oheight.optSize;
-  const size_t beginC = owidth.begin;
-  const size_t beginR = oheight.begin;
+  if (m_optHeight.optSize == 0) {
+    oap::OptSize oheight = oap::GetOptHeight<png_bytep*, png_byte>(
+        bitmap2d, width, height, g_colorsCount);
 
-  width = m_optWidth * g_colorsCount;
-  height = m_optHeight;
+    m_optHeight = oheight;
+  }
+
+  const size_t beginC = m_optWidth.begin;
+  const size_t beginR = m_optHeight.begin;
+
+  width = m_optWidth.optSize * g_colorsCount;
+  height = m_optHeight.optSize;
 
   (*bitmap1d) = new png_byte[width * height];
 
@@ -183,7 +194,7 @@ void PngFile::copyToPixelsVector(oap::pixel_t* pixels, png_byte* bitmap1d,
 
 void PngFile::destroyBitmap2d() {
   if (m_bitmap2d != NULL) {
-    int height = getHeight();
+    int height = getHeight().optSize;
 
     for (unsigned int fa = 0; fa < height; ++fa) {
       delete[] m_bitmap2d[fa];

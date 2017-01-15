@@ -24,6 +24,7 @@
 #include <png.h>
 
 #include "Math.h"
+#include "GraphicUtils.h"
 
 namespace oap {
 
@@ -45,9 +46,13 @@ class Image {
 
   virtual void freeBitmap() = 0;
 
-  virtual size_t getWidth() const = 0;
+  virtual oap::OptSize getWidth() const = 0;
 
-  virtual size_t getHeight() const = 0;
+  virtual oap::OptSize getHeight() const = 0;
+
+  virtual void setOptWidth(const oap::OptSize& optWidth) = 0;
+
+  virtual void setOptHeight(const oap::OptSize& optHeight) = 0;
 
   pixel_t getPixel(unsigned int x, unsigned int y) const;
 

@@ -36,7 +36,7 @@ class OapDataLoaderTests : public testing::Test {
 
  public:
   class ImageMock : public oap::Image {
-   public:
+   public:  // ImageMock type
     ImageMock(const std::string& path) : oap::Image(path) {}
 
     virtual ~ImageMock() {}
@@ -53,9 +53,13 @@ class OapDataLoaderTests : public testing::Test {
 
     MOCK_METHOD0(close, void());
 
-    MOCK_CONST_METHOD0(getWidth, size_t());
+    MOCK_CONST_METHOD0(getWidth, oap::OptSize());
 
-    MOCK_CONST_METHOD0(getHeight, size_t());
+    MOCK_CONST_METHOD0(getHeight, oap::OptSize());
+
+    MOCK_METHOD1(setOptWidth, void(const oap::OptSize& optWidth));
+
+    MOCK_METHOD1(setOptHeight, void(const oap::OptSize& optHeight));
 
     MOCK_CONST_METHOD0(getSufix, std::string());
 
@@ -65,6 +69,7 @@ class OapDataLoaderTests : public testing::Test {
     MOCK_CONST_METHOD1(getPixelsVector, void(oap::pixel_t*));
   };
 
+ public:  // PngFileMock type
   class PngFileMock : public oap::PngFile {
    public:
     PngFileMock(oap::pixel_t* matrix, size_t vectorsCount, size_t width,
@@ -99,9 +104,9 @@ class OapDataLoaderTests : public testing::Test {
 
     MOCK_METHOD0(close, void());
 
-    size_t getWidth() const { return m_width; }
+    oap::OptSize getWidth() const { return oap::OptSize(m_width); }
 
-    size_t getHeight() const { return m_height; }
+    oap::OptSize getHeight() const { return oap::OptSize(m_height); }
 
     void getPixelsVector(oap::pixel_t* vector) const {
       ASSERT_NE(m_counter, m_vectorsCount);
@@ -123,6 +128,7 @@ class OapDataLoaderTests : public testing::Test {
     size_t m_height;
   };
 
+ public:  // DataLoaderProxy type
   class DataLoaderProxy : public oap::DataLoader {
    public:
     static oap::Images m_emptyImages;

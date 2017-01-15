@@ -34,12 +34,6 @@ DataLoader::DataLoader(const Images& images, bool dealocateImages)
 
 DataLoader::~DataLoader() { destroyImages(); }
 
-size_t DataLoader::getWidth() const { return m_images[0]->getWidth(); }
-
-size_t DataLoader::getHeight() const { return m_images[0]->getHeight(); }
-
-size_t DataLoader::getLength() const { return m_images[0]->getLength(); }
-
 math::Matrix* DataLoader::createMatrix(const Images& images) {
   const size_t refLength = images[0]->getLength();
   floatt* floatsvec = new floatt[refLength];
@@ -125,14 +119,71 @@ std::string DataLoader::constructImagePath(const std::string& absPath,
 }
 
 void DataLoader::load() {
-  for (size_t fa = 0; fa < m_images.size(); ++fa) {
+  oap::OptSize optWidth;
+  oap::OptSize optHeight;
+  executeLoadProcess(optWidth, optHeight, 0, m_images.size());
+}
+
+void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
+                                    const oap::OptSize& optHeightRef,
+                                    size_t begin, size_t end) {
+  oap::OptSize optWidth = optWidthRef;
+  oap::OptSize optHeight = optHeightRef;
+
+  for (size_t fa = begin; fa < end; ++fa) {
     Image* image = m_images[fa];
 
-    image->open();
+    loadImage(image);
 
-    image->loadBitmap();
+    oap::OptSize owidth = image->getWidth();
 
-    image->close();
+    oap::OptSize oheight = image->getHeight();
+
+    bool needreload = false;
+    bool previousneedreload = false;
+
+    if (owidth.optSize < optWidth.optSize) {
+      image->setOptWidth(owidth);
+      needreload = true;
+    } else if (optWidth.optSize == 0) {
+      optWidth = owidth;
+    } else if (owidth.optSize > optWidth.optSize) {
+      previousneedreload = true;
+      optWidth = owidth;
+    }
+
+    if (oheight.optSize < optHeight.optSize) {
+      image->setOptHeight(oheight);
+      needreload = true;
+    } else if (optHeight.optSize == 0) {
+      optHeight = oheight;
+    } else if (oheight.optSize > optHeight.optSize) {
+      previousneedreload = true;
+      optHeight = oheight;
+    }
+
+    if (needreload) {
+      image->freeBitmap();
+
+      loadImage(image);
+    }
+
+    if (previousneedreload) {
+      freeBitmaps(begin, fa);
+      executeLoadProcess(optWidth, optHeight, begin, fa);
+    }
+  }
+}
+
+void DataLoader::loadImage(oap::Image* image) const {
+  image->open();
+  image->loadBitmap();
+  image->close();
+}
+
+void DataLoader::freeBitmaps(size_t begin, size_t end) {
+  for (size_t fa = begin; fa < end; ++fa) {
+    m_images[fa]->freeBitmap();
   }
 }
 

@@ -52,8 +52,8 @@ class OapDataLoaderTests : public testing::Test {
       pngFile.open();
       pngFile.loadBitmap();
       pngFile.close();
-      const size_t width = pngFile.getWidth();
-      const size_t height = pngFile.getHeight();
+      const size_t width = pngFile.getWidth().optSize;
+      const size_t height = pngFile.getHeight().optSize;
       oap::pixel_t* pixels = new oap::pixel_t[width * height];
       pngFile.getPixelsVector(pixels);
       for (size_t fa = 0; fa < width; ++fa) {
@@ -118,17 +118,22 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromMonkeyScreen) {
   host::DeleteMatrix(matrix);
 }
 
-TEST_F(OapDataLoaderTests, LoadMonkeyImages) {
+TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix) {
   oap::DataLoader* dataloader = NULL;
-
+  math::Matrix* matrix = NULL;
   debugLongTest();
 
   EXPECT_NO_THROW(try {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
         "oap2dt3d/data/images_monkey", "image", 1000);
+    matrix = dataloader->createMatrix();
   } catch (const oap::exceptions::Exception& ex) {
+    delete dataloader;
     debug("Exception: %s \n", ex.getMessage().c_str());
     throw;
   });
+
+  host::DeleteMatrix(matrix);
+
   delete dataloader;
 }

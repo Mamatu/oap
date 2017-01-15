@@ -50,10 +50,6 @@ class DataLoader {
 
   virtual ~DataLoader();
 
-  size_t getWidth() const;
-  size_t getHeight() const;
-  size_t getLength() const;
-
   static math::Matrix* createMatrix(const Images& images);
 
   /**
@@ -104,6 +100,12 @@ class DataLoader {
   bool m_deallocateImages;
 
   void load();
+  void executeLoadProcess(const oap::OptSize& optWidthRef,
+                          const oap::OptSize& optHeightRef, size_t begin,
+                          size_t end);
+  void loadImage(oap::Image* iamge) const;
+  void freeBitmaps(size_t begin, size_t end);
+
   void destroyImages();
 };
 }

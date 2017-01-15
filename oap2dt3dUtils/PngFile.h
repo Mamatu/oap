@@ -39,9 +39,13 @@ class PngFile : public Image {
 
   virtual void close();
 
-  virtual size_t getWidth() const;
+  virtual oap::OptSize getWidth() const;
 
-  virtual size_t getHeight() const;
+  virtual oap::OptSize getHeight() const;
+
+  virtual void setOptWidth(const oap::OptSize& optWidth);
+
+  virtual void setOptHeight(const oap::OptSize& optHeight);
 
   virtual void getPixelsVector(pixel_t* pixels) const;
 
@@ -65,15 +69,15 @@ class PngFile : public Image {
 
   void destroyBitmap1d();
 
+  oap::OptSize m_optWidth;
+  oap::OptSize m_optHeight;
+
   FILE* m_fp;
   png_structp m_png_ptr;
   png_infop m_info_ptr;
   png_bytep* m_bitmap2d;
   png_byte* m_bitmap1d;
   oap::pixel_t* m_pixels;
-
-  size_t m_optWidth;
-  size_t m_optHeight;
 };
 }
 

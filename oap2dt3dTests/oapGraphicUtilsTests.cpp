@@ -99,7 +99,6 @@ TEST_F(OapGraphicUtilsTests, OptWidthTest) {
 
   EXPECT_EQ(4, optWidth.optSize);
   EXPECT_EQ(2, optWidth.begin);
-  EXPECT_EQ(6, optWidth.end);
 
   dealloc(bitmap);
 }
@@ -120,7 +119,6 @@ TEST_F(OapGraphicUtilsTests, OptHeightTest) {
 
   EXPECT_EQ(4, optHeight.optSize);
   EXPECT_EQ(3, optHeight.begin);
-  EXPECT_EQ(7, optHeight.end);
 
   dealloc(bitmap);
 }

@@ -20,23 +20,30 @@
 #ifndef GRAPHICUTILS_H
 #define GRAPHICUTILS_H
 
+#include <cstddef>
+#include <stdio.h>
+#include <utility>
+
 namespace oap {
 
 struct OptSize {
+  OptSize() : optSize(0), begin(0) {}
+
+  OptSize(size_t _optSize) : optSize(_optSize), begin(0) {}
+
+  OptSize(size_t _optSize, size_t _begin) : optSize(_optSize), begin(_begin) {}
+
   size_t optSize;
   size_t begin;
-  size_t end;
 };
 
 template <typename T2DArray, typename T>
 OptSize GetOptWidth(T2DArray bitmap2d, size_t width, size_t height,
                     size_t colorsCount);
 
-
 template <typename T2DArray, typename T>
 OptSize GetOptHeight(T2DArray bitmap2d, size_t width, size_t height,
-                    size_t colorsCount);
-
+                     size_t colorsCount);
 };
 
 #include "GraphicsUtilsImpl.h"
