@@ -69,6 +69,7 @@ std::string NotIdenticalLengths::getMessage() const {
   std::string reflstr = to_string(m_refLength);
   std::string msg = "Not identical length: refLength = " + reflstr +
                     ", length = " + lstr + ".";
+  return msg;
 }
 
 std::string NotInitialzed::getMessage() const {
