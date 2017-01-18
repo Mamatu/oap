@@ -88,6 +88,20 @@ class OapDataLoaderTests : public testing::Test {
       EXPECT_CALL(*this, close());
     }
 
+    PngFileMock(size_t width, size_t height)
+        : oap::PngFile(""),
+          m_counter(0),
+          m_vectorsCount(0),
+          m_vectorLength(width * height),
+          m_width(width),
+          m_height(height) {
+      EXPECT_CALL(*this, openInternal(_)).WillRepeatedly(Return(true));
+      EXPECT_CALL(*this, isCorrectFormat()).WillRepeatedly(Return(true));
+      EXPECT_CALL(*this, loadBitmap());
+      EXPECT_CALL(*this, freeBitmap());
+      EXPECT_CALL(*this, close());
+    }
+
     virtual ~PngFileMock() {}
 
     MOCK_METHOD1(openInternal, bool(const std::string&));
@@ -104,9 +118,9 @@ class OapDataLoaderTests : public testing::Test {
 
     MOCK_METHOD0(close, void());
 
-    oap::OptSize getWidth() const { return oap::OptSize(m_width); }
+    oap::OptSize getWidth() const { return m_width; }
 
-    oap::OptSize getHeight() const { return oap::OptSize(m_height); }
+    oap::OptSize getHeight() const { return m_height; }
 
     void getPixelsVector(oap::pixel_t* vector) const {
       ASSERT_NE(m_counter, m_vectorsCount);
@@ -124,8 +138,8 @@ class OapDataLoaderTests : public testing::Test {
     mutable size_t m_counter;
     size_t m_vectorsCount;
     size_t m_vectorLength;
-    size_t m_width;
-    size_t m_height;
+    oap::OptSize m_width;
+    oap::OptSize m_height;
   };
 
  public:  // DataLoaderProxy type
@@ -248,4 +262,15 @@ TEST_F(OapDataLoaderTests, ContructImagePathTest) {
             DataLoaderProxy::constructImagePath("abs/", "image", 1, 1));
   EXPECT_EQ("abs/image0002",
             DataLoaderProxy::constructImagePath("abs/", "image", 2, 10000));
+}
+
+TEST_F(OapDataLoaderTests, LoadProcessTest) {
+  PngFileMock pfm1(10, 10);
+  PngFileMock pfm2(20, 20);
+  PngFileMock pfm3(30, 30);
+
+  EXPECT_CALL(pfm1, loadBitmap()).Times(3);
+
+  oap::Images images = {&pfm1, &pfm2, &pfm3};
+  oap::DataLoader dataLoader(images);
 }
