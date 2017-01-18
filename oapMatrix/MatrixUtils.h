@@ -26,6 +26,7 @@
 #include <string>
 #include <sstream>
 #include <limits>
+#include <utility>
 #include "Matrix.h"
 #include "MatrixAPI.h"
 
@@ -113,7 +114,8 @@ void PrepareOccurencesList(
     if (repeats == false || occurencesList.size() == 0 ||
         value != occurencesList[occurencesList.size() - 1].second ||
         fa1 % sectionLength == 0) {
-      occurencesList.push_back(std::make_pair<uintt, floatt>(1, value));
+      uintt a = 1;
+      occurencesList.push_back(std::make_pair<uintt&, floatt&>(a, value));
       if (occurencesList.size() > 2) {
         mergeTheSameValues(occurencesList, sectionLength);
       }

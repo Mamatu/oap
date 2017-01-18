@@ -24,6 +24,7 @@
 #include "Config.h"
 
 #include <sstream>
+#include <functional>
 
 namespace oap {
 
@@ -130,6 +131,32 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
   oap::OptSize optWidth = optWidthRef;
   oap::OptSize optHeight = optHeightRef;
 
+  std::function<void(Image*, const oap::OptSize&)> setHeightFunc =
+      &Image::setOptHeight;
+
+  std::function<void(Image*, const oap::OptSize&)> setWidthFunc =
+      &Image::setOptWidth;
+
+  bool needreload = false;
+  bool previousneedreload = false;
+
+  std::function<void(std::function<void(Image*, const oap::OptSize&)>&,
+                     oap::Image*, oap::OptSize&, oap::OptSize&)>
+      verifyReloadConds = [&needreload, &previousneedreload](
+          std::function<void(Image*, const oap::OptSize&)>& setter,
+          oap::Image* image, oap::OptSize& optSize, oap::OptSize& osize) {
+
+        if (osize.optSize < optSize.optSize) {
+          setter(image, osize);
+          needreload = true;
+        } else if (optSize.optSize == 0) {
+          optSize = osize;
+        } else if (osize.optSize > optSize.optSize) {
+          previousneedreload = true;
+          optSize = osize;
+        }
+      };
+
   for (size_t fa = begin; fa < end; ++fa) {
     Image* image = m_images[fa];
 
@@ -139,28 +166,11 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
 
     oap::OptSize oheight = image->getHeight();
 
-    bool needreload = false;
-    bool previousneedreload = false;
+    needreload = false;
+    previousneedreload = false;
 
-    if (owidth.optSize < optWidth.optSize) {
-      image->setOptWidth(owidth);
-      needreload = true;
-    } else if (optWidth.optSize == 0) {
-      optWidth = owidth;
-    } else if (owidth.optSize > optWidth.optSize) {
-      previousneedreload = true;
-      optWidth = owidth;
-    }
-
-    if (oheight.optSize < optHeight.optSize) {
-      image->setOptHeight(oheight);
-      needreload = true;
-    } else if (optHeight.optSize == 0) {
-      optHeight = oheight;
-    } else if (oheight.optSize > optHeight.optSize) {
-      previousneedreload = true;
-      optHeight = oheight;
-    }
+    verifyReloadConds(setWidthFunc, image, optWidth, owidth);
+    verifyReloadConds(setHeightFunc, image, optHeight, oheight);
 
     if (needreload) {
       image->freeBitmap();
