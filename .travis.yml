@@ -1,0 +1,37 @@
+---
+# OS type
+os: linux
+dist: trusty
+sudo: required
+language: cpp
+
+# Compiler selection
+compiler:
+  - gcc
+
+# Install packages
+addons:
+  apt:
+    packages:
+    - google-mock
+    - libgtest-dev
+
+#safelist
+branches:
+  only:
+    - master
+
+# Environment variables
+env:
+  global:
+    - OAP_PATH=$TRAVIS_BUILD_DIR
+    - GMOCK_DIR=/usr/src/gmock
+
+# Build steps
+script:
+  - make TARGET_ARCH=HOST
+  - ${OAP_PATH}/dist/Debug/lenovo/bin/oapTestsHost
+
+# Notify after build
+notifications:
+  email: false
