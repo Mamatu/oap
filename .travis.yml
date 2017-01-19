@@ -30,6 +30,7 @@ env:
 
 # Build steps
 script:
+  - make clean
   - make TARGET_ARCH=HOST
   - ${OAP_PATH}/dist/Debug/lenovo/bin/oapTestsHost
 
