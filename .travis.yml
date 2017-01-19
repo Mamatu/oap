@@ -4,7 +4,8 @@ os: linux
 dist: trusty
 sudo: required
 language: cpp
-
+matrix:
+   fail_fast: true
 
 # Compiler selection
 compiler:
@@ -30,7 +31,6 @@ env:
     - GMOCK_DIR=/usr/src/gmock
 
 # Build steps
-fail_fast: true
 script:
   - make clean
   - make TARGET_ARCH=HOST
