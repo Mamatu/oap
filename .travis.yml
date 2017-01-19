@@ -16,6 +16,11 @@ addons:
     - google-mock
     - libgtest-dev
 
+#safelist
+branches:
+  only:
+    - master
+
 # Environment variables
 env:
   global:
