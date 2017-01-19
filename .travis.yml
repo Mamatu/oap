@@ -1,4 +1,6 @@
 ---
+matrix:
+  fast_finish : true
 # OS type
 os: linux
 dist: trusty
@@ -20,6 +22,7 @@ addons:
 branches:
   only:
     - master
+    - oap2dt3d_development
 
 # Environment variables
 env:
