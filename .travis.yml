@@ -5,6 +5,8 @@ dist: trusty
 sudo: required
 language: cpp
 
+fail_fast: true
+
 # Compiler selection
 compiler:
   - gcc
