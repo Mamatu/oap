@@ -30,6 +30,7 @@ env:
 # Build steps
 script:
   - make TARGET_ARCH=HOST
+  - ./dist/Debug/lenovo/oapTestsHost
 
 # Notify after build
 notifications:
