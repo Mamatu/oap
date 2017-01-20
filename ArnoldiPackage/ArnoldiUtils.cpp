@@ -48,15 +48,4 @@ bool SortSmallestReValues(const Complex& i, const Complex& j) {
 bool SortSmallestImValues(const Complex& i, const Complex& j) {
   return i.im > j.im;
 }
-
-MatrixInfo::MatrixInfo() : isRe(false), isIm(false) {
-  m_matrixDim.columns = 0;
-  m_matrixDim.rows = 0;
-}
-
-MatrixInfo::MatrixInfo(bool _isRe, bool _isIm, uintt _columns, uintt _rows)
-    : isRe(_isRe), isIm(_isIm) {
-  m_matrixDim.columns = _columns;
-  m_matrixDim.rows = _rows;
-}
 }

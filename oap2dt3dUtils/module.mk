@@ -1,6 +1,5 @@
 include ../project_generic.mk
 TARGET := liboap2dt3dUtils
 INCLUDE_PATHS :=
-EXTRA_LIBS := -lpng\
-              $(OAP_PATH)/dist/$(MODE)/$(PLATFORM)/lib/libArnoldiPackage.so
+EXTRA_LIBS := -lpng
 EXTRA_CXXOPTIONS := -std=c++11
