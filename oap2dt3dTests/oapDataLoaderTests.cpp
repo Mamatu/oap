@@ -20,9 +20,9 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "DataLoader.h"
-#include "DeviceMatrixModules.h"
 #include "Image.h"
 #include "Matrix.h"
+#include "HostMatrixModules.h"
 #include "MatrixAPI.h"
 #include "PngFile.h"
 
