@@ -35,6 +35,7 @@ script:
   - make clean
   - make TARGET_ARCH=HOST
   - ${OAP_PATH}/dist/Debug/lenovo/bin/oapTestsHost
+  - ${OAP_PATH}/dist/Debug/lenovo/bin/oap2dt3dTests
 
 # Notify after build
 notifications:
