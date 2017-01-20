@@ -59,12 +59,6 @@ class DataLoader {
   math::Matrix* createMatrix() const;
 
   /**
-   * @brief Creates device matrix from set of pngDataLoader
-   * @return matrix in device space
-   */
-  math::Matrix* createDeviceMatrix() const;
-
-  /**
    * @brief Creates Matrxinfo from set of pngDataLoader
    * @return
    */

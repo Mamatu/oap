@@ -18,10 +18,10 @@
  */
 
 #include "DataLoader.h"
-#include "DeviceMatrixModules.h"
 #include "Exceptions.h"
 #include "PngFile.h"
 #include "Config.h"
+#include "HostMatrixModules.h"
 
 #include <sstream>
 #include <functional>
@@ -60,13 +60,6 @@ math::Matrix* DataLoader::createMatrix(const Images& images) {
 
 math::Matrix* DataLoader::createMatrix() const {
   return DataLoader::createMatrix(m_images);
-}
-
-math::Matrix* DataLoader::createDeviceMatrix() const {
-  math::Matrix* host = createMatrix();
-  math::Matrix* device = device::NewDeviceMatrixCopy(host);
-  host::DeleteMatrix(host);
-  return device;
 }
 
 ArnUtils::MatrixInfo DataLoader::createMatrixInfo() const {
