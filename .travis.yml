@@ -30,6 +30,7 @@ env:
     - OAP_PATH=$TRAVIS_BUILD_DIR
     - GMOCK_DIR=/usr/src/gmock
 
+fast_finish: true
 # Build steps
 script:
   - make clean
