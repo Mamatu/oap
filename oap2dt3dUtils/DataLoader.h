@@ -50,13 +50,11 @@ class DataLoader {
 
   virtual ~DataLoader();
 
-  static math::Matrix* createMatrix(const Images& images);
-
   /**
    * @brief Creates matrix from sets of pngDataLoader
    * @return matrix in host space
    */
-  math::Matrix* createMatrix() const;
+  math::Matrix* createMatrix();
 
   /**
    * @brief Creates Matrxinfo from set of pngDataLoader
@@ -99,8 +97,10 @@ class DataLoader {
                           size_t end);
   void loadImage(oap::Image* iamge) const;
   void freeBitmaps(size_t begin, size_t end);
+  void setOptSizes(const oap::OptSize& width, const oap::OptSize& height,
+                   size_t begin, size_t end);
 
-  void destroyImages();
+  void cleanImageStuff();
 };
 }
 #endif  // PNGLOADER_H

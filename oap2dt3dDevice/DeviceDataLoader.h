@@ -34,7 +34,7 @@ class DeviceDataLoader : public DataLoader {
    * @brief Creates device matrix from set of pngDataLoader
    * @return matrix in device space
    */
-  math::Matrix* createDeviceMatrix() const;
+  math::Matrix* createDeviceMatrix();
 };
 }
 

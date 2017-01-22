@@ -26,7 +26,7 @@ DeviceDataLoader::DeviceDataLoader(const Images& images, bool dealocateImages)
 
 DeviceDataLoader::~DeviceDataLoader() {}
 
-math::Matrix* DeviceDataLoader::createDeviceMatrix() const {
+math::Matrix* DeviceDataLoader::createDeviceMatrix() {
   math::Matrix* host = createMatrix();
   math::Matrix* device = device::NewDeviceMatrixCopy(host);
   host::DeleteMatrix(host);
