@@ -60,7 +60,7 @@ class OapPngFileTests : public testing::Test {
 };
 
 TEST_F(OapPngFileTests, LoadPixelOutOfRange) {
-  PngFileMock pngFileMock("");
+  NiceMock<PngFileMock> pngFileMock("");
 
   ON_CALL(pngFileMock, getWidth()).WillByDefault(Return(1024));
 
