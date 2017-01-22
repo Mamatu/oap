@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATAOPERATOR_H
-#define DATAOPERATOR_H
+#ifndef EIGENCALCULATOR_H
+#define EIGENCALCULATOR_H
 
 #include <vector>
 
