@@ -24,6 +24,7 @@
 
 #include <string.h>
 #include <assert.h>
+#include <typeinfo>
 #include "BacktraceUtils.h"
 
 #define DEBUG
@@ -59,6 +60,8 @@
 
 #define debugLongTest() debug("Test in progress. Please wait it can take some time...")
 
+#define debugException(ex) debug("Exception: %s %s", typeid(ex).name(), ex.getMessage().c_str())
+
 #else
 
 #define debug( x, ...) 
@@ -76,6 +79,8 @@
 #define debugPrintStack()
 
 #define debugLongTest()
+
+#define debugException(ex) debug("Exception: %s %s", typeid(ex).name(), ex.getMessage().c_str())
 
 #endif
 
