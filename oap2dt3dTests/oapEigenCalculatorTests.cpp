@@ -33,10 +33,11 @@ class OapEigenCalculatorTests : public testing::Test {
 
  public:
 };
-/*
+#if 0 // Temporary disable from compilation
 TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
   oap::EigenCalculator eigenCalc;
   EXPECT_THROW(eigenCalc.calculate(), oap::exceptions::NotInitialzed);
   EXPECT_THROW(eigenCalc.getEigenvalues(NULL), oap::exceptions::NotInitialzed);
   EXPECT_THROW(eigenCalc.getEigenvectors(NULL), oap::exceptions::NotInitialzed);
-}*/
+}
+#endif
