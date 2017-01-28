@@ -69,7 +69,8 @@ class OapDataLoaderTests : public testing::Test {
     });
   }
 
-  math::Matrix* createMatrix(const std::string& imageName, size_t count) {
+  math::Matrix* createMatrix(const std::string& imageName, size_t count,
+                             bool frugalMode = true) {
     oap::Images images;
 
     debugLongTest();
@@ -79,7 +80,7 @@ class OapDataLoaderTests : public testing::Test {
       images.push_back(file);
     }
 
-    oap::DataLoader dataLoader(images, true);
+    oap::DataLoader dataLoader(images, true, frugalMode);
 
     ArnUtils::MatrixInfo matrixInfo = dataLoader.createMatrixInfo();
     math::Matrix* matrix = dataLoader.createMatrix();
@@ -103,8 +104,18 @@ TEST_F(OapDataLoaderTests, LoadBlueScreen) {
   executeColorTest("blue.png", 255);
 }
 
-TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreen) {
-  math::Matrix* matrix = createMatrix("green.png", 900);
+TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode) {
+  math::Matrix* matrix = createMatrix("green.png", 900, false);
+
+  floatt expected = oap::Image::convertRgbToFloatt(0, 255, 0);
+
+  EXPECT_THAT(matrix, MatrixValuesAreEqual(expected));
+
+  host::DeleteMatrix(matrix);
+}
+
+TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenFrugalMode) {
+  math::Matrix* matrix = createMatrix("green.png", 900, true);
 
   floatt expected = oap::Image::convertRgbToFloatt(0, 255, 0);
 
@@ -125,15 +136,28 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix) {
 
   EXPECT_NO_THROW(try {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
-        "oap2dt3d/data/images_monkey", "image", 1000);
+        "oap2dt3d/data/images_monkey", "image", 100, 1000, true);
     matrix = dataloader->createMatrix();
   } catch (const oap::exceptions::Exception& ex) {
     delete dataloader;
-    debug("Exception: %s \n", ex.getMessage().c_str());
+    debugException(ex);
     throw;
   });
 
   host::DeleteMatrix(matrix);
 
   delete dataloader;
+}
+
+TEST_F(OapDataLoaderTests, LoadBlueRecTest) {
+  oap::DataLoader* dataloader = NULL;
+  EXPECT_NO_THROW(try {
+    dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
+        "oap2dt3dFuncTests/data/images/bluerecs", "bluerec", 3);
+    delete dataloader;
+  } catch (const oap::exceptions::Exception& ex) {
+    delete dataloader;
+    debugException(ex);
+    throw;
+  });
 }

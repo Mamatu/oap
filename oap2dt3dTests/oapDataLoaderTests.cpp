@@ -18,13 +18,13 @@
  */
 
 #include "gtest/gtest.h"
-#include "gmock/gmock.h"
 #include "DataLoader.h"
-#include "Image.h"
 #include "Matrix.h"
 #include "HostMatrixModules.h"
 #include "MatrixAPI.h"
-#include "PngFile.h"
+
+#include "ImageMock.h"
+#include "PngFileMock.h"
 
 using namespace ::testing;
 
@@ -33,116 +33,6 @@ class OapDataLoaderTests : public testing::Test {
   virtual void SetUp() {}
 
   virtual void TearDown() {}
-
- public:
-  class ImageMock : public oap::Image {
-   public:  // ImageMock type
-    ImageMock(const std::string& path) : oap::Image(path) {}
-
-    virtual ~ImageMock() {}
-
-    MOCK_METHOD1(openInternal, bool(const std::string& path));
-
-    MOCK_METHOD3(read, bool(void*, size_t, size_t));
-
-    MOCK_CONST_METHOD0(isCorrectFormat, bool());
-
-    MOCK_METHOD0(loadBitmap, void());
-
-    MOCK_METHOD0(freeBitmap, void());
-
-    MOCK_METHOD0(close, void());
-
-    MOCK_CONST_METHOD0(getWidth, oap::OptSize());
-
-    MOCK_CONST_METHOD0(getHeight, oap::OptSize());
-
-    MOCK_METHOD1(setOptWidth, void(const oap::OptSize& optWidth));
-
-    MOCK_METHOD1(setOptHeight, void(const oap::OptSize& optHeight));
-
-    MOCK_CONST_METHOD0(getSufix, std::string());
-
-    MOCK_CONST_METHOD2(getPixelInternal,
-                       oap::pixel_t(unsigned int, unsigned int));
-
-    MOCK_CONST_METHOD1(getPixelsVector, void(oap::pixel_t*));
-  };
-
- public:  // PngFileMock type
-  class PngFileMock : public oap::PngFile {
-   public:
-    PngFileMock(const oap::pixel_t* matrix, size_t vectorsCount, size_t width,
-                size_t height)
-        : oap::PngFile(""),
-          m_counter(0),
-          m_vectorsCount(vectorsCount),
-          m_vectorLength(width * height),
-          m_width(width),
-          m_height(height) {
-      setPixelsMatrix(matrix);
-      EXPECT_CALL(*this, openInternal(_)).WillRepeatedly(Return(true));
-      EXPECT_CALL(*this, isCorrectFormat()).WillRepeatedly(Return(true));
-    }
-
-    PngFileMock(size_t width, size_t height)
-        : oap::PngFile(""),
-          m_counter(0),
-          m_vectorsCount(0),
-          m_vectorLength(width * height),
-          m_width(width),
-          m_height(height) {
-      EXPECT_CALL(*this, openInternal(_)).WillRepeatedly(Return(true));
-      EXPECT_CALL(*this, isCorrectFormat()).WillRepeatedly(Return(true));
-    }
-
-    virtual ~PngFileMock() {}
-
-    MOCK_METHOD1(openInternal, bool(const std::string&));
-
-    MOCK_METHOD3(read, bool(void*, size_t, size_t));
-
-    MOCK_CONST_METHOD0(isCorrectFormat, bool());
-
-    MOCK_METHOD0(loadBitmap, void());
-
-    MOCK_METHOD0(freeBitmap, void());
-
-    MOCK_CONST_METHOD0(getSufix, std::string());
-
-    MOCK_METHOD0(close, void());
-
-    virtual oap::OptSize getWidth() const { return m_width; }
-
-    virtual oap::OptSize getHeight() const { return m_height; }
-
-    virtual void setOptWidth(const oap::OptSize& optWidth) {
-      m_width = optWidth;
-    }
-
-    virtual void setOptHeight(const oap::OptSize& optHeight) {
-      m_height = optHeight;
-    }
-
-    void getPixelsVector(oap::pixel_t* vector) const {
-      ASSERT_NE(m_counter, m_vectorsCount);
-
-      memcpy(vector, &m_matrix[m_counter * m_vectorLength],
-             sizeof(oap::pixel_t) * m_vectorLength);
-
-      ++m_counter;
-    }
-
-    void setPixelsMatrix(const oap::pixel_t* matrix) { m_matrix = matrix; }
-
-   private:
-    const oap::pixel_t* m_matrix;
-    mutable size_t m_counter;
-    size_t m_vectorsCount;
-    size_t m_vectorLength;
-    oap::OptSize m_width;
-    oap::OptSize m_height;
-  };
 
  public:  // DataLoaderProxy type
   class DataLoaderProxy : public oap::DataLoader {
@@ -166,9 +56,9 @@ class OapDataLoaderTests : public testing::Test {
 oap::Images OapDataLoaderTests::DataLoaderProxy::m_emptyImages;
 
 TEST_F(OapDataLoaderTests, LoadFail) {
-  NiceMock<ImageMock> imageMock("");
+  NiceImageMock imageMock("");
 
-  EXPECT_CALL(imageMock, openInternal(_)).Times(1).WillOnce(Return(false));
+  EXPECT_CALL(imageMock, openProtected(_)).Times(1).WillOnce(Return(false));
 
   oap::Images images;
   images.push_back(&imageMock);
@@ -178,9 +68,9 @@ TEST_F(OapDataLoaderTests, LoadFail) {
 }
 
 TEST_F(OapDataLoaderTests, FailVerification) {
-  NiceMock<ImageMock> imageMock("");
+  NiceImageMock imageMock("");
 
-  EXPECT_CALL(imageMock, openInternal(_)).Times(1).WillOnce(Return(true));
+  EXPECT_CALL(imageMock, openProtected(_)).Times(1).WillOnce(Return(true));
 
   EXPECT_CALL(imageMock, isCorrectFormat()).Times(1).WillOnce(Return(false));
 
@@ -192,19 +82,23 @@ TEST_F(OapDataLoaderTests, FailVerification) {
 }
 
 TEST_F(OapDataLoaderTests, Load) {
-  NiceMock<ImageMock> imageMock("");
+  NiceImageMock imageMock("");
 
-  EXPECT_CALL(imageMock, openInternal(_)).Times(1).WillOnce(Return(true));
+  EXPECT_CALL(imageMock, openProtected(_)).Times(1).WillOnce(Return(true));
 
   EXPECT_CALL(imageMock, isCorrectFormat()).Times(1).WillOnce(Return(true));
 
-  EXPECT_CALL(imageMock, loadBitmap()).Times(1);
+  EXPECT_CALL(imageMock, loadBitmapProtected()).Times(1);
 
-  EXPECT_CALL(imageMock, freeBitmap()).Times(1);
+  EXPECT_CALL(imageMock, freeBitmapProtected()).Times(1);
 
   ON_CALL(imageMock, getWidth()).WillByDefault(Return(1024));
 
   ON_CALL(imageMock, getHeight()).WillByDefault(Return(760));
+
+  ON_CALL(imageMock, getOutputWidth()).WillByDefault(Return(1024));
+
+  ON_CALL(imageMock, getOutputHeight()).WillByDefault(Return(760));
 
   EXPECT_CALL(imageMock, close()).Times(1);
 
@@ -220,10 +114,10 @@ TEST_F(OapDataLoaderTests, Matrix4x4FromImage) {
                              pv, pv, pv, pv, pv, pv, pv, pv};
   try {
     oap::Images images;
-    images.push_back(new NiceMock<PngFileMock>(pixels, 4, 2, 2));
-    images.push_back(new NiceMock<PngFileMock>(pixels, 4, 2, 2));
-    images.push_back(new NiceMock<PngFileMock>(pixels, 4, 2, 2));
-    images.push_back(new NiceMock<PngFileMock>(pixels, 4, 2, 2));
+    images.push_back(new NicePngFileMock(pixels, 4, 2, 2));
+    images.push_back(new NicePngFileMock(pixels, 4, 2, 2));
+    images.push_back(new NicePngFileMock(pixels, 4, 2, 2));
+    images.push_back(new NicePngFileMock(pixels, 4, 2, 2));
 
     oap::DataLoader dataLoader(images, true);
 
@@ -283,16 +177,16 @@ class HaveSizesMatcher : public MatcherInterface<const oap::Images&> {
 
     for (oap::Images::const_iterator it = images.begin(); it != images.end();
          ++it) {
-      if ((*it)->getWidth().optSize != m_optWidth.optSize) {
+      if ((*it)->getOutputWidth().optSize != m_optWidth.optSize) {
         hasWidth = false;
       }
 
-      if ((*it)->getHeight().optSize != m_optWidth.optSize) {
+      if ((*it)->getOutputHeight().optSize != m_optWidth.optSize) {
         hasHeight = false;
       }
 
-      *listener << "{" << (*it)->getWidth().optSize << ", "
-                << (*it)->getHeight().optSize << "}";
+      *listener << "{" << (*it)->getOutputWidth().optSize << ", "
+                << (*it)->getOutputHeight().optSize << "}";
     }
 
     *listener << "}";
@@ -320,13 +214,13 @@ inline Matcher<const oap::Images&> HaveSizes(const oap::OptSize& optWidth,
 }
 
 TEST_F(OapDataLoaderTests, LoadProcessTest) {
-  NiceMock<PngFileMock> pfm1(10, 10);
-  NiceMock<PngFileMock> pfm2(20, 20);
-  NiceMock<PngFileMock> pfm3(30, 30);
+  NicePngFileMock pfm1(10, 10);
+  NicePngFileMock pfm2(20, 20);
+  NicePngFileMock pfm3(30, 30);
 
-  EXPECT_CALL(pfm1, loadBitmap()).Times(3);
-  EXPECT_CALL(pfm2, loadBitmap()).Times(2);
-  EXPECT_CALL(pfm3, loadBitmap()).Times(1);
+  EXPECT_CALL(pfm1, loadBitmapProtected()).Times(3);
+  EXPECT_CALL(pfm2, loadBitmapProtected()).Times(2);
+  EXPECT_CALL(pfm3, loadBitmapProtected()).Times(1);
 
   oap::Images images = {&pfm1, &pfm2, &pfm3};
   oap::DataLoader dataLoader(images);
@@ -335,19 +229,19 @@ TEST_F(OapDataLoaderTests, LoadProcessTest) {
 }
 
 TEST_F(OapDataLoaderTests, LoadProcessTest1) {
-  NiceMock<PngFileMock> pfm1(10, 10);
-  NiceMock<PngFileMock> pfm2(20, 20);
-  NiceMock<PngFileMock> pfm3(30, 30);
-  NiceMock<PngFileMock> pfm4(30, 30);
-  NiceMock<PngFileMock> pfm5(30, 30);
-  NiceMock<PngFileMock> pfm6(50, 50);
+  NicePngFileMock pfm1(10, 10);
+  NicePngFileMock pfm2(20, 20);
+  NicePngFileMock pfm3(30, 30);
+  NicePngFileMock pfm4(30, 30);
+  NicePngFileMock pfm5(30, 30);
+  NicePngFileMock pfm6(50, 50);
 
-  EXPECT_CALL(pfm1, loadBitmap()).Times(4);
-  EXPECT_CALL(pfm2, loadBitmap()).Times(3);
-  EXPECT_CALL(pfm3, loadBitmap()).Times(2);
-  EXPECT_CALL(pfm4, loadBitmap()).Times(2);
-  EXPECT_CALL(pfm5, loadBitmap()).Times(2);
-  EXPECT_CALL(pfm6, loadBitmap()).Times(1);
+  EXPECT_CALL(pfm1, loadBitmapProtected()).Times(4);
+  EXPECT_CALL(pfm2, loadBitmapProtected()).Times(3);
+  EXPECT_CALL(pfm3, loadBitmapProtected()).Times(2);
+  EXPECT_CALL(pfm4, loadBitmapProtected()).Times(2);
+  EXPECT_CALL(pfm5, loadBitmapProtected()).Times(2);
+  EXPECT_CALL(pfm6, loadBitmapProtected()).Times(1);
 
   oap::Images images = {&pfm1, &pfm2, &pfm3, &pfm4, &pfm5, &pfm6};
   oap::DataLoader dataLoader(images);
@@ -356,19 +250,19 @@ TEST_F(OapDataLoaderTests, LoadProcessTest1) {
 }
 
 TEST_F(OapDataLoaderTests, LoadProcessTest2) {
-  NiceMock<PngFileMock> pfm1(10, 10);
-  NiceMock<PngFileMock> pfm2(20, 20);
-  NiceMock<PngFileMock> pfm3(30, 30);
-  NiceMock<PngFileMock> pfm4(50, 50);
-  NiceMock<PngFileMock> pfm5(30, 30);
-  NiceMock<PngFileMock> pfm6(40, 40);
+  NicePngFileMock pfm1(10, 10);
+  NicePngFileMock pfm2(20, 20);
+  NicePngFileMock pfm3(30, 30);
+  NicePngFileMock pfm4(50, 50);
+  NicePngFileMock pfm5(30, 30);
+  NicePngFileMock pfm6(40, 40);
 
-  EXPECT_CALL(pfm1, loadBitmap()).Times(4);
-  EXPECT_CALL(pfm2, loadBitmap()).Times(3);
-  EXPECT_CALL(pfm3, loadBitmap()).Times(2);
-  EXPECT_CALL(pfm4, loadBitmap()).Times(1);
-  EXPECT_CALL(pfm5, loadBitmap()).Times(2);
-  EXPECT_CALL(pfm6, loadBitmap()).Times(2);
+  EXPECT_CALL(pfm1, loadBitmapProtected()).Times(4);
+  EXPECT_CALL(pfm2, loadBitmapProtected()).Times(3);
+  EXPECT_CALL(pfm3, loadBitmapProtected()).Times(2);
+  EXPECT_CALL(pfm4, loadBitmapProtected()).Times(1);
+  EXPECT_CALL(pfm5, loadBitmapProtected()).Times(2);
+  EXPECT_CALL(pfm6, loadBitmapProtected()).Times(2);
 
   oap::Images images = {&pfm1, &pfm2, &pfm3, &pfm4, &pfm5, &pfm6};
   oap::DataLoader dataLoader(images);
@@ -379,11 +273,11 @@ TEST_F(OapDataLoaderTests, LoadProcessTest2) {
 TEST_F(OapDataLoaderTests, LoadProcessTest3) {
   oap::Images images;
   for (size_t fa = 0; fa < 100; ++fa) {
-    images.push_back(new NiceMock<PngFileMock>(fa, fa));
+    images.push_back(new NicePngFileMock(fa, fa));
   }
-  images.push_back(new NiceMock<PngFileMock>(102, 102));
+  images.push_back(new NicePngFileMock(102, 102));
   for (size_t fa = 0; fa < 100; ++fa) {
-    images.push_back(new NiceMock<PngFileMock>(fa, fa));
+    images.push_back(new NicePngFileMock(fa, fa));
   }
 
   oap::DataLoader dataLoader(images, true);
@@ -394,10 +288,10 @@ TEST_F(OapDataLoaderTests, LoadProcessTest3) {
 TEST_F(OapDataLoaderTests, LoadProcessTest4) {
   oap::Images images;
   for (size_t fa = 0; fa < 100; ++fa) {
-    images.push_back(new NiceMock<PngFileMock>(fa, fa));
+    images.push_back(new NicePngFileMock(fa, fa));
   }
   for (size_t fa = 0; fa < 99; ++fa) {
-    images.push_back(new NiceMock<PngFileMock>(fa, fa));
+    images.push_back(new NicePngFileMock(fa, fa));
   }
 
   oap::DataLoader dataLoader(images, true);

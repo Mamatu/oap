@@ -42,23 +42,27 @@ class Image {
 
   virtual bool read(void* buffer, size_t repeat, size_t size) = 0;
 
-  virtual void loadBitmap() = 0;
+  void loadBitmap();
 
-  virtual void freeBitmap() = 0;
+  void freeBitmap();
 
   virtual oap::OptSize getWidth() const = 0;
 
   virtual oap::OptSize getHeight() const = 0;
 
-  virtual void setOptWidth(const oap::OptSize& optWidth) = 0;
+  virtual void forceOutputWidth(const oap::OptSize& optWidth) = 0;
 
-  virtual void setOptHeight(const oap::OptSize& optHeight) = 0;
+  virtual void forceOutputHeight(const oap::OptSize& optHeight) = 0;
+
+  virtual oap::OptSize getOutputWidth() const = 0;
+
+  virtual oap::OptSize getOutputHeight() const = 0;
 
   pixel_t getPixel(unsigned int x, unsigned int y) const;
 
   size_t getLength() const;
 
-  virtual void getPixelsVector(pixel_t* pixels) const = 0;
+  void getPixelsVector(pixel_t* pixels) const;
 
   void getFloattVector(floatt* vector) const;
 
@@ -77,16 +81,24 @@ class Image {
   virtual std::string getSufix() const = 0;
 
  protected:
-  virtual bool openInternal(const std::string& path) = 0;
+  virtual void loadBitmapProtected() = 0;
+
+  virtual void freeBitmapProtected() = 0;
+
+  virtual void getPixelsVectorProtected(pixel_t* pixels) const = 0;
+
+  virtual bool openProtected(const std::string& path) = 0;
 
   virtual bool isCorrectFormat() const = 0;
 
-  virtual pixel_t getPixelInternal(unsigned int x, unsigned int y) const = 0;
+  virtual pixel_t getPixelProtected(unsigned int x, unsigned int y) const = 0;
 
  private:
   std::string m_path;
 
   static pixel_t m_MaxPixel;
+
+  bool m_loadedBitmap;
 };
 }
 

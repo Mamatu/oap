@@ -36,16 +36,30 @@ typedef std::vector<oap::Image*> Images;
 
 class DataLoader {
  public:
-  DataLoader(const Images& images, bool dealocateImages = false);
+  DataLoader(const Images& images, bool dealocateImages = false,
+             bool frugalMode = true);
 
   template <typename T>
   static DataLoader* createDataLoader(const std::string& dirpath,
                                       const std::string& nameBase,
-                                      size_t count) {
+                                      size_t loadCount, size_t count,
+                                      bool frugalMode) {
     const std::string& imageBasePath = constructAbsPath(dirpath);
-    oap::Images images = createImagesVector<T>(imageBasePath, nameBase, count);
+    oap::Images images = createImagesVector<T>(imageBasePath, nameBase,
+                                               loadCount, count);
 
-    return new DataLoader(images, true);
+    return new DataLoader(images, true, frugalMode);
+  }
+
+  template <typename T>
+  static DataLoader* createDataLoader(const std::string& dirpath,
+                                      const std::string& nameBase,
+                                      size_t loadCount, bool frugalMode = true) {
+    const std::string& imageBasePath = constructAbsPath(dirpath);
+    oap::Images images =
+        createImagesVector<T>(imageBasePath, nameBase, loadCount, loadCount);
+
+    return new DataLoader(images, true, frugalMode);
   }
 
   virtual ~DataLoader();
@@ -72,10 +86,10 @@ class DataLoader {
   template <typename T>
   static oap::Images createImagesVector(const std::string& imageAbsPath,
                                         const std::string& nameBase,
-                                        size_t count) {
+                                        size_t loadCount, size_t count) {
     oap::Images images;
 
-    for (size_t fa = 0; fa < count; ++fa) {
+    for (size_t fa = 0; fa < loadCount; ++fa) {
       const std::string& imagePath =
           constructImagePath(imageAbsPath, nameBase, fa, count);
 
@@ -90,6 +104,7 @@ class DataLoader {
  private:
   Images m_images;
   bool m_deallocateImages;
+  bool m_frugalMode;
 
   void load();
   void executeLoadProcess(const oap::OptSize& optWidthRef,
@@ -97,8 +112,8 @@ class DataLoader {
                           size_t end);
   void loadImage(oap::Image* iamge) const;
   void freeBitmaps(size_t begin, size_t end);
-  void setOptSizes(const oap::OptSize& width, const oap::OptSize& height,
-                   size_t begin, size_t end);
+  void forceOutputSizes(const oap::OptSize& width, const oap::OptSize& height,
+                        size_t begin, size_t end);
 
   void cleanImageStuff();
 };

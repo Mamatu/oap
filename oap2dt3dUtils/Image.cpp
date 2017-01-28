@@ -22,11 +22,25 @@
 
 namespace oap {
 
-Image::Image(const std::string& path) : m_path(path) {}
+Image::Image(const std::string& path) : m_path(path), m_loadedBitmap(false) {}
 
 Image::~Image() {}
 
 bool Image::read(void* buffer, size_t size) { return read(buffer, 1, size); }
+
+void Image::loadBitmap() {
+  if (!m_loadedBitmap) {
+    m_loadedBitmap = true;
+    loadBitmapProtected();
+  }
+}
+
+void Image::freeBitmap() {
+  if (m_loadedBitmap) {
+    m_loadedBitmap = false;
+    freeBitmapProtected();
+  }
+}
 
 void Image::open() {
   if (m_path.find(std::string(".") + getSufix()) == std::string::npos) {
@@ -34,7 +48,7 @@ void Image::open() {
     m_path = m_path + getSufix();
   }
 
-  if (openInternal(m_path) == false) {
+  if (openProtected(m_path) == false) {
     throw oap::exceptions::FileNotExist(m_path);
   }
 
@@ -52,10 +66,18 @@ pixel_t Image::getPixel(unsigned int x, unsigned int y) const {
   if (y >= height) {
     throw exceptions::OutOfRange(y, height);
   }
-  return getPixelInternal(x, y);
+  return getPixelProtected(x, y);
 }
 
-size_t Image::getLength() const { return getWidth().optSize * getHeight().optSize; }
+size_t Image::getLength() const {
+  return getOutputWidth().optSize * getOutputHeight().optSize;
+}
+
+void Image::getPixelsVector(pixel_t* pixels) const {
+  if (m_loadedBitmap) {
+    getPixelsVectorProtected(pixels);
+  }
+}
 
 void Image::getFloattVector(floatt* vector) const {
   const size_t length = getLength();

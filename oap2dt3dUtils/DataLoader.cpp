@@ -28,8 +28,11 @@
 
 namespace oap {
 
-DataLoader::DataLoader(const Images& images, bool dealocateImages)
-    : m_images(images), m_deallocateImages(dealocateImages) {
+DataLoader::DataLoader(const Images& images, bool dealocateImages,
+                       bool frugalMode)
+    : m_images(images),
+      m_deallocateImages(dealocateImages),
+      m_frugalMode(frugalMode) {
   load();
 }
 
@@ -50,7 +53,13 @@ math::Matrix* DataLoader::createMatrix() {
       cleanImageStuff();
       throw oap::exceptions::NotIdenticalLengths(refLength, length);
     }
+    if (m_frugalMode) {
+      loadImage(it);
+    }
     it->getFloattVector(floatsvec);
+    if (m_frugalMode) {
+      it->freeBitmap();
+    }
     host::SetReVector(hostMatrix, fa, floatsvec, refLength);
   }
 
@@ -122,10 +131,10 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
   oap::OptSize refOptHeight = optHeightRef;
 
   std::function<void(Image*, const oap::OptSize&)> setWidthFunc =
-      &Image::setOptWidth;
+      &Image::forceOutputWidth;
 
   std::function<void(Image*, const oap::OptSize&)> setHeightFunc =
-      &Image::setOptHeight;
+      &Image::forceOutputHeight;
 
   bool needreload = false;
   bool previousneedreload = false;
@@ -152,9 +161,9 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
 
     loadImage(image);
 
-    oap::OptSize imageOptWidth = image->getWidth();
+    oap::OptSize imageOptWidth = image->getOutputWidth();
 
-    oap::OptSize imageOptHeight = image->getHeight();
+    oap::OptSize imageOptHeight = image->getOutputHeight();
 
     needreload = false;
     previousneedreload = false;
@@ -169,8 +178,11 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
 
     if (previousneedreload) {
       freeBitmaps(begin, fa);
-      setOptSizes(refOptWidth, refOptHeight, begin, fa);
+      forceOutputSizes(refOptWidth, refOptHeight, begin, fa);
       executeLoadProcess(refOptWidth, refOptHeight, begin, fa);
+    }
+    if (m_frugalMode) {
+      image->freeBitmap();
     }
   }
 }
@@ -187,12 +199,12 @@ void DataLoader::freeBitmaps(size_t begin, size_t end) {
   }
 }
 
-void DataLoader::setOptSizes(const oap::OptSize& width,
-                             const oap::OptSize& height, size_t begin,
-                             size_t end) {
+void DataLoader::forceOutputSizes(const oap::OptSize& width,
+                                  const oap::OptSize& height, size_t begin,
+                                  size_t end) {
   for (size_t fa = begin; fa < end; ++fa) {
-    m_images[fa]->setOptWidth(width);
-    m_images[fa]->setOptHeight(height);
+    m_images[fa]->forceOutputWidth(width);
+    m_images[fa]->forceOutputHeight(height);
   }
 }
 

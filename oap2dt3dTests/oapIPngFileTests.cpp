@@ -37,7 +37,7 @@ class OapPngFileTests : public testing::Test {
 
     virtual ~PngFileMock() {}
 
-    MOCK_METHOD1(openInternal, bool(const std::string&));
+    MOCK_METHOD1(openProtected, bool(const std::string&));
 
     MOCK_METHOD3(read, bool(void*, size_t, size_t));
 
