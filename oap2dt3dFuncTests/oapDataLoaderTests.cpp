@@ -136,7 +136,7 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix) {
 
   EXPECT_NO_THROW(try {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
-        "oap2dt3d/data/images_monkey", "image", 100, 1000, true);
+        "oap2dt3d/data/images_monkey", "image", 1000, true);
     matrix = dataloader->createMatrix();
   } catch (const oap::exceptions::Exception& ex) {
     delete dataloader;
