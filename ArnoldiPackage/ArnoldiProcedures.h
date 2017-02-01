@@ -34,16 +34,41 @@ class CuHArnoldi {
 
   virtual ~CuHArnoldi();
 
+  /**
+  * \brief Sets rho parameters 
+  * \details parameter influences on perform
+  *          Gram-Schmidt proces.
+  * 
+  */
   void setRho(floatt rho = 1. / 3.14);
 
   void setBLimit(floatt blimit);
 
+  /**
+  * \brief Sets sort type
+  */
   void setSortType(ArnUtils::SortType sortType);
 
+  /**
+  * 'brief Set check type
+  */
   void setCheckType(ArnUtils::CheckType checkType);
 
+  /**
+  * \brief Sets pointer to matrix, where will be
+  *        stored outputs of calculation.
+  */
   void setOutputs(math::Matrix* outputs);
 
+  /**
+  * \brief Execute iram algorithm.
+  * \param k - dimension of hessenberg matrix
+  * \param wantedCount - number of wanted eigenvalues
+  * \param matrixInfo - structure described matrix, 
+  *                     whose eigenvalues and eigenvectors are calculated
+  * \param matrixType - type of delivered matrix, WARNING! This variable
+  *                     is not used now.
+  */
   void execute(uintt k, uintt wantedCount,
                const ArnUtils::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
