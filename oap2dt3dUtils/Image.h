@@ -46,16 +46,44 @@ class Image {
 
   void freeBitmap();
 
+  /**
+  * \brief Gets width of load image.
+  */
   virtual oap::OptSize getWidth() const = 0;
 
+  /**
+  * \brief Gets height of load image.
+  */
   virtual oap::OptSize getHeight() const = 0;
 
+  /**
+  * \brief Forces width of output. 
+  *         
+  *  If it is not set, output width (see getOutputWidth) should be
+  *  equal to image width (see getWidth()).    
+  */
   virtual void forceOutputWidth(const oap::OptSize& optWidth) = 0;
 
+  /**
+  * \brief Forces height of output. 
+  *         
+  *  If it is not set, output height (see getOutputHeight) should be
+  *  equal to image height (see getHeight()).    
+  */
   virtual void forceOutputHeight(const oap::OptSize& optHeight) = 0;
 
+  /**
+  * \brief Get width of output. 
+  *         
+  *  It may vary from getWidth due to trauncate redundant elements of image. 
+  */
   virtual oap::OptSize getOutputWidth() const = 0;
 
+  /**
+  * \brief Get height of output. 
+  *         
+  *  It may vary from getHeight due to trauncate redundant elements of image. 
+  */
   virtual oap::OptSize getOutputHeight() const = 0;
 
   pixel_t getPixel(unsigned int x, unsigned int y) const;
