@@ -1,6 +1,6 @@
 CUDA_PATH := /usr/
 MODE := Debug
-PLATFORM := lenovo
+PLATFORM := x86
 EXTRA_CXXOPTIONS :=
 EXTRA_NVCCOPTIONS := -arch=sm_30 --ptxas-options --verbose 
 CXX := g++

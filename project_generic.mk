@@ -15,12 +15,12 @@ else ifeq ($(PROJECT), teslac2050)
 include $(OAP_PATH)/project_teslac2050.mk
 else ifeq ($(PROJECT), samsung)
 include $(OAP_PATH)/project_samsung.mk
-else ifeq ($(PROJECT), lenovo)
-include $(OAP_PATH)/project_lenovo.mk
+else ifeq ($(PROJECT), x86)
+include $(OAP_PATH)/project_x86.mk
 else ifeq ($(PROJECT), gpp44)
 include $(OAP_PATH)/project_gpp44.mk
 else
-include $(OAP_PATH)/project_lenovo.mk
+include $(OAP_PATH)/project_x86.mk
 endif
 
 TYPES := EXTENDED_TYPES

@@ -30,9 +30,9 @@ env:
 # Build steps
 script:
   - make TARGET_ARCH=HOST
-  - ${OAP_PATH}/dist/Debug/lenovo/bin/oapTestsHost
+  - ${OAP_PATH}/dist/Debug/x86/bin/oapTestsHost
   - make TARGET_ARCH=HOST MODE=DebugSanitizer
-  - ${OAP_PATH}/dist/DebugSanitizer/lenovo/bin/oapTestsHost
+  - ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapTestsHost
 
 # Notify after build
 notifications:
