@@ -1,1 +1,1 @@
-../makefile-cutest
+../makefile-cutest.mk
