@@ -20,7 +20,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "PngFile.h"
-//#include "EigenCalculator.h"
+#include "EigenCalculator.h"
+#include "DeviceDataLoader.h"
 #include "Exceptions.h"
 
 using namespace ::testing;
@@ -33,11 +34,29 @@ class OapEigenCalculatorTests : public testing::Test {
 
  public:
 };
-#if 0 // Temporary disable from compilation
+
 TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
   oap::EigenCalculator eigenCalc;
   EXPECT_THROW(eigenCalc.calculate(), oap::exceptions::NotInitialzed);
   EXPECT_THROW(eigenCalc.getEigenvalues(NULL), oap::exceptions::NotInitialzed);
   EXPECT_THROW(eigenCalc.getEigenvectors(NULL), oap::exceptions::NotInitialzed);
 }
-#endif
+
+TEST_F(OapEigenCalculatorTests, Calculate) {
+  oap::DeviceDataLoader* dataloader = NULL;
+  math::Matrix* matrix = NULL;
+  debugLongTest();
+
+  try {
+    dataloader = oap::DeviceDataLoader::createDataLoader<oap::PngFile,
+                                                         oap::DeviceDataLoader>(
+        "oap2dt3d/data/images_monkey", "image", 1000, true);
+
+  } catch (const oap::exceptions::Exception& ex) {
+    delete dataloader;
+    debugException(ex);
+    throw;
+  }
+
+  delete dataloader;
+}

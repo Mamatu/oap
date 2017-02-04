@@ -39,27 +39,44 @@ class DataLoader {
   DataLoader(const Images& images, bool dealocateImages = false,
              bool frugalMode = true);
 
-  template <typename T>
-  static DataLoader* createDataLoader(const std::string& dirpath,
-                                      const std::string& nameBase,
-                                      size_t loadCount, size_t count,
-                                      bool frugalMode) {
-    const std::string& imageBasePath = constructAbsPath(dirpath);
-    oap::Images images = createImagesVector<T>(imageBasePath, nameBase,
-                                               loadCount, count);
+  template <typename T, typename DL>
+  static DL* createDataLoader(const std::string& dirPath,
+                              const std::string& nameBase, size_t loadCount,
+                              size_t count, bool frugalMode) {
+    const std::string& imageBasePath = constructAbsPath(dirPath);
+    oap::Images images =
+        createImagesVector<T>(imageBasePath, nameBase, loadCount, count);
 
-    return new DataLoader(images, true, frugalMode);
+    return new DL(images, true, frugalMode);
   }
 
-  template <typename T>
-  static DataLoader* createDataLoader(const std::string& dirpath,
-                                      const std::string& nameBase,
-                                      size_t loadCount, bool frugalMode = true) {
-    const std::string& imageBasePath = constructAbsPath(dirpath);
+  template <typename T, typename DL>
+  static DL* createDataLoader(const std::string& dirPath,
+                              const std::string& nameBase, size_t loadCount,
+                              bool frugalMode = true) {
+    const std::string& imageBasePath = constructAbsPath(dirPath);
     oap::Images images =
         createImagesVector<T>(imageBasePath, nameBase, loadCount, loadCount);
 
-    return new DataLoader(images, true, frugalMode);
+    return new DL(images, true, frugalMode);
+  }
+
+  template <typename T>
+  static oap::DataLoader* createDataLoader(const std::string& dirPath,
+                                           const std::string& nameBase,
+                                           size_t loadCount, size_t count,
+                                           bool frugalMode) {
+    return DataLoader::createDataLoader<T, oap::DataLoader>(
+        dirPath, nameBase, loadCount, count, frugalMode);
+  }
+
+  template <typename T>
+  static oap::DataLoader* createDataLoader(const std::string& dirPath,
+                                           const std::string& nameBase,
+                                           size_t loadCount,
+                                           bool frugalMode = true) {
+    return DataLoader::createDataLoader<T, oap::DataLoader>(
+        dirPath, nameBase, loadCount, frugalMode);
   }
 
   virtual ~DataLoader();

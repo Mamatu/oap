@@ -21,8 +21,9 @@
 #include "DeviceMatrixModules.h"
 
 namespace oap {
-DeviceDataLoader::DeviceDataLoader(const Images& images, bool dealocateImages)
-    : DataLoader(images, dealocateImages) {}
+DeviceDataLoader::DeviceDataLoader(const Images& images, bool dealocateImages,
+                                   bool frugalMode)
+    : DataLoader(images, dealocateImages, frugalMode) {}
 
 DeviceDataLoader::~DeviceDataLoader() {}
 

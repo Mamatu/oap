@@ -161,3 +161,23 @@ TEST_F(OapDataLoaderTests, LoadBlueRecTest) {
     throw;
   });
 }
+
+TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix) {
+  oap::DataLoader* dataloader = NULL;
+  math::Matrix* matrix = NULL;
+  debugLongTest();
+
+  EXPECT_NO_THROW(try {
+    dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
+        "oap2dt3d/data/images_monkey", "image", 1000, true);
+    matrix = dataloader->createMatrix();
+  } catch (const oap::exceptions::Exception& ex) {
+    delete dataloader;
+    debugException(ex);
+    throw;
+  });
+
+  host::DeleteMatrix(matrix);
+
+  delete dataloader;
+}

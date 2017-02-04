@@ -45,6 +45,7 @@ OAP_INCLUDES += oapQRTestSamples
 OAP_INCLUDES += oapTests
 OAP_INCLUDES += oapTestsHost
 OAP_INCLUDES += oap2dt3dUtils
+OAP_INCLUDES += oap2dt3dDevice
 
 TARGET_ARCH := DEVICE_HOST
 
@@ -90,6 +91,7 @@ endif
 
 ifeq ($(COMPILE_DEVICE),1)
 OAP_MODULES += oap2dt3dDevice
+OAP_MODULES += oap2dt3dDeviceTests
 endif
 
 CU_OAP_MODULES := oapCuda

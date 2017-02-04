@@ -26,7 +26,8 @@ namespace oap {
 
 class DeviceDataLoader : public DataLoader {
  public:
-  DeviceDataLoader(const Images& images, bool dealocateImages = false);
+  DeviceDataLoader(const Images& images, bool dealocateImages = false,
+                   bool frugalMode = true);
 
   virtual ~DeviceDataLoader();
 
