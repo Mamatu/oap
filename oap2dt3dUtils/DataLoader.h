@@ -87,6 +87,8 @@ class DataLoader {
    */
   math::Matrix* createMatrix();
 
+  math::Matrix* createVector(size_t index);
+
   /**
    * @brief Creates Matrxinfo from set of pngDataLoader
    * @return
@@ -122,6 +124,8 @@ class DataLoader {
   Images m_images;
   bool m_deallocateImages;
   bool m_frugalMode;
+
+  void loadVector(math::Matrix* matrix, size_t column, floatt* vec, size_t imageIndex);
 
   void load();
   void executeLoadProcess(const oap::OptSize& optWidthRef,

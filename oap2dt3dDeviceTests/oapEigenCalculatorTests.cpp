@@ -24,15 +24,39 @@
 #include "DeviceDataLoader.h"
 #include "Exceptions.h"
 
+#include "ArnoldiProceduresImpl.h"
+#include "DeviceMatrixModules.h"
+#include "MatrixProcedures.h"
+
 using namespace ::testing;
 
 class OapEigenCalculatorTests : public testing::Test {
  public:
-  virtual void SetUp() {}
+  virtual void SetUp() {
+    m_counter = 0;
+    m_dataLoader = NULL;
+  }
 
   virtual void TearDown() {}
 
- public:
+  size_t m_counter;
+  oap::DeviceDataLoader* m_dataLoader;
+  CuMatrix m_cuMatrix;
+
+  static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v, void* userData,
+                           CuHArnoldi::MultiplicationType mt) {
+    if (mt == CuHArnoldi::TYPE_WV) {
+      OapEigenCalculatorTests* test =
+          static_cast<OapEigenCalculatorTests*>(userData);
+      oap::DeviceDataLoader* dataLoader = test->m_dataLoader;
+      math::Matrix* vec = dataLoader->createDeviceVector(test->m_counter);
+      ++(test->m_counter);
+
+      test->m_cuMatrix.dotProduct(m_w, vec, m_v);
+
+      device::DeleteDeviceMatrix(vec);
+    }
+  }
 };
 
 TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
@@ -43,20 +67,26 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
 }
 
 TEST_F(OapEigenCalculatorTests, Calculate) {
-  oap::DeviceDataLoader* dataloader = NULL;
+  oap::DeviceDataLoader* dataLoader = NULL;
   math::Matrix* matrix = NULL;
   debugLongTest();
 
   try {
-    dataloader = oap::DeviceDataLoader::createDataLoader<oap::PngFile,
+    dataLoader = oap::DeviceDataLoader::createDataLoader<oap::PngFile,
                                                          oap::DeviceDataLoader>(
         "oap2dt3d/data/images_monkey", "image", 1000, true);
 
+    CuHArnoldiCallback cuharnoldi;
+
+    ArnUtils::MatrixInfo matrixInfo = dataLoader->createMatrixInfo();
+
+    cuharnoldi.setCallback(OapEigenCalculatorTests::multiplyFunc, this);
+
   } catch (const oap::exceptions::Exception& ex) {
-    delete dataloader;
+    delete dataLoader;
     debugException(ex);
     throw;
   }
 
-  delete dataloader;
+  delete dataLoader;
 }

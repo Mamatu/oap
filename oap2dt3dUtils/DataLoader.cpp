@@ -44,26 +44,36 @@ math::Matrix* DataLoader::createMatrix() {
 
   math::Matrix* hostMatrix = host::NewReMatrix(m_images.size(), refLength);
 
-  for (size_t fa = 0; fa < m_images.size(); ++fa) {
-    Image* it = m_images[fa];
-    const size_t length = it->getLength();
-    if (refLength != length) {
-      delete[] floatsvec;
-      host::DeleteMatrix(hostMatrix);
-      cleanImageStuff();
-      throw oap::exceptions::NotIdenticalLengths(refLength, length);
+  try {
+    for (size_t fa = 0; fa < m_images.size(); ++fa) {
+      loadVector(hostMatrix, fa, floatsvec, fa);
     }
-    if (m_frugalMode) {
-      loadImage(it);
-    }
-    it->getFloattVector(floatsvec);
-    if (m_frugalMode) {
-      it->freeBitmap();
-    }
-    host::SetReVector(hostMatrix, fa, floatsvec, refLength);
+  } catch (const oap::exceptions::NotIdenticalLengths&) {
+    delete[] floatsvec;
+    host::DeleteMatrix(hostMatrix);
+    cleanImageStuff();
+    throw;
   }
 
   delete[] floatsvec;
+
+  return hostMatrix;
+}
+
+math::Matrix* DataLoader::createVector(size_t index) {
+  const size_t refLength = m_images[0]->getLength();
+  floatt* floatsvec = new floatt[refLength];
+
+  math::Matrix* hostMatrix = host::NewReMatrix(1, refLength);
+
+  try {
+    loadVector(hostMatrix, 0, floatsvec, index);
+  } catch (const oap::exceptions::NotIdenticalLengths&) {
+    delete[] floatsvec;
+    host::DeleteMatrix(hostMatrix);
+    cleanImageStuff();
+    throw;
+  }
 
   return hostMatrix;
 }
@@ -116,6 +126,29 @@ std::string DataLoader::constructImagePath(const std::string& absPath,
   imagePath = imagePath + sstream.str();
 
   return imagePath;
+}
+
+void DataLoader::loadVector(math::Matrix* matrix, size_t column, floatt* vec,
+                            size_t imageIndex) {
+  const size_t refLength = m_images[0]->getLength();
+
+  Image* it = m_images[imageIndex];
+  const size_t length = it->getLength();
+
+  if (refLength != length) {
+    throw oap::exceptions::NotIdenticalLengths(refLength, length);
+  }
+
+  if (m_frugalMode) {
+    loadImage(it);
+  }
+
+  it->getFloattVector(vec);
+  if (m_frugalMode) {
+    it->freeBitmap();
+  }
+
+  host::SetReVector(matrix, column, vec, refLength);
 }
 
 void DataLoader::load() {

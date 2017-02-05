@@ -33,4 +33,11 @@ math::Matrix* DeviceDataLoader::createDeviceMatrix() {
   host::DeleteMatrix(host);
   return device;
 }
+
+math::Matrix* DeviceDataLoader::createDeviceVector(size_t index) {
+  math::Matrix* host = createVector(index);
+  math::Matrix* device = device::NewDeviceMatrixCopy(host);
+  host::DeleteMatrix(host);
+  return device;
+}
 }
