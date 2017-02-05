@@ -36,6 +36,10 @@ const std::string& Config::getOapPath() {
 }
 
 std::string Config::getPathInOap(const char* relativePath) {
-  return getOapPath() + relativePath;
+  std::string output =  getOapPath() + relativePath;
+  if (output[output.size() - 1] != '/') {
+      output += '/';
+  }
+  return output;
 }
 }

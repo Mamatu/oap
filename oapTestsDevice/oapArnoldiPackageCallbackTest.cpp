@@ -24,6 +24,7 @@
 #include <algorithm>
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
+#include "Config.h"
 #include "KernelExecutor.h"
 #include "HostMatrixModules.h"
 #include "DeviceMatrixModules.h"
@@ -33,7 +34,6 @@
 #include "matrix3.h"
 #include "matrix4.h"
 #include "matrix5.h"
-
 
 #include "ArnoldiProceduresImpl.h"
 
@@ -96,10 +96,11 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
    public:
     Data(const std::string& dir)
         : m_counter(0), refV(NULL), hostV(NULL), refW(NULL), hostW(NULL) {
-      m_vredir = dir + "/vre.tdata";
-      m_vimdir = dir + "/vim.tdata";
-      m_wredir = dir + "/wre.tdata";
-      m_wimdir = dir + "/wim.tdata";
+      std::string absdir = utils::Config::getPathInOap("oapTestsDevice") + dir;
+      m_vredir = absdir + "/vre.tdata";
+      m_vimdir = absdir + "/vim.tdata";
+      m_wredir = absdir + "/wre.tdata";
+      m_wimdir = absdir + "/wim.tdata";
 
       m_blocksCount = loadBlocksCount(m_vredir);
       m_elementsCount = loadElementsCount(m_vredir);
@@ -222,8 +223,8 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
   static void loadBlock(const std::string& path, floatt* block, int index) {
     FILE* f = fopen(path.c_str(), "rb");
     if (f == NULL) {
-        debug("File does not exist: %s", path.c_str());
-        abort();
+      debug("File does not exist: %s", path.c_str());
+      abort();
     }
     loadBlock(f, block, index);
     fclose(f);
@@ -303,7 +304,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 };
 
 TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
-  OapArnoldiPackageCallbackTests::Data data("../../../data/data1");
+  OapArnoldiPackageCallbackTests::Data data("data/data1");
   data.load();
 
   bool isre = data.refW->reValues != NULL;
@@ -331,37 +332,37 @@ TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData1) {
-  executeArnoldiTest(-3.25, "../../../data/data1");
+  executeArnoldiTest(-3.25, "data/data1");
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData2Dim32x32) {
-  executeArnoldiTest(-4.257104, "../../../data/data2", 32);
+  executeArnoldiTest(-4.257104, "data/data2", 32);
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, DISABLED_TestData2Dim64x64) {
-  executeArnoldiTest(-4.257104, "../../../data/data2", 64, false);
+  executeArnoldiTest(-4.257104, "data/data2", 64, false);
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData3Dim32x32) {
-  executeArnoldiTest(-5.519614, "../../../data/data3", 32);
+  executeArnoldiTest(-5.519614, "data/data3", 32);
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData3Dim64x64) {
-  executeArnoldiTest(-5.519614, "../../../data/data3", 64, false);
+  executeArnoldiTest(-5.519614, "data/data3", 64, false);
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData4) {
-  executeArnoldiTest(-6.976581, "../../../data/data4");
+  executeArnoldiTest(-6.976581, "data/data4");
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData5) {
-  executeArnoldiTest(-8.503910, "../../../data/data5");
+  executeArnoldiTest(-8.503910, "data/data5");
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData6) {
-  executeArnoldiTest(-10.064733, "../../../data/data6");
+  executeArnoldiTest(-10.064733, "data/data6");
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData7) {
-  executeArnoldiTest(-13.235305, "../../../data/data7");
+  executeArnoldiTest(-13.235305, "data/data7");
 }
