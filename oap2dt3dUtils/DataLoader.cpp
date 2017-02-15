@@ -172,22 +172,20 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
   bool needreload = false;
   bool previousneedreload = false;
 
-  std::function<void(std::function<void(Image*, const oap::OptSize&)>&,
-                     oap::Image*, oap::OptSize&, oap::OptSize&)>
-      verifyReloadConds = [&needreload, &previousneedreload](
-          std::function<void(Image*, const oap::OptSize&)>& setter,
-          oap::Image* image, oap::OptSize& refOptSize,
-          oap::OptSize& imageOptSize) {
-        if (refOptSize.optSize == 0) {
-          refOptSize = imageOptSize;
-        } else if (imageOptSize.optSize < refOptSize.optSize) {
-          setter(image, refOptSize);
-          needreload = true;
-        } else if (imageOptSize.optSize > refOptSize.optSize) {
-          previousneedreload = true;
-          refOptSize = imageOptSize;
-        }
-      };
+  auto verifyReloadConds = [&needreload, &previousneedreload](
+      std::function<void(Image*, const oap::OptSize&)>& setter,
+      oap::Image* image, oap::OptSize& refOptSize,
+      oap::OptSize& imageOptSize) {
+    if (refOptSize.optSize == 0) {
+      refOptSize = imageOptSize;
+    } else if (imageOptSize.optSize < refOptSize.optSize) {
+      setter(image, refOptSize);
+      needreload = true;
+    } else if (imageOptSize.optSize > refOptSize.optSize) {
+      previousneedreload = true;
+      refOptSize = imageOptSize;
+    }
+  };
 
   for (size_t fa = begin; fa < end; ++fa) {
     Image* image = m_images[fa];
