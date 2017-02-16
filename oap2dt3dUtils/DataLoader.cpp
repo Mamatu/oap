@@ -40,7 +40,8 @@ DataLoader::~DataLoader() { cleanImageStuff(); }
 
 math::Matrix* DataLoader::createMatrix() {
   const size_t refLength = m_images[0]->getLength();
-  floatt* floatsvec = new floatt[refLength];
+  std::unique_ptr<floatt[]> floatsvecUnique(new floatt[refLength]);
+  floatt* floatsvec = floatsvecUnique.get();
 
   math::Matrix* hostMatrix = host::NewReMatrix(m_images.size(), refLength);
 
@@ -49,27 +50,24 @@ math::Matrix* DataLoader::createMatrix() {
       loadVector(hostMatrix, fa, floatsvec, fa);
     }
   } catch (const oap::exceptions::NotIdenticalLengths&) {
-    delete[] floatsvec;
     host::DeleteMatrix(hostMatrix);
     cleanImageStuff();
     throw;
   }
-
-  delete[] floatsvec;
 
   return hostMatrix;
 }
 
 math::Matrix* DataLoader::createVector(size_t index) {
   const size_t refLength = m_images[0]->getLength();
-  floatt* floatsvec = new floatt[refLength];
+  std::unique_ptr<floatt[]> floatsvecUnique(new floatt[refLength]);
+  floatt* floatsvec = floatsvecUnique.get();
 
   math::Matrix* hostMatrix = host::NewReMatrix(1, refLength);
 
   try {
     loadVector(hostMatrix, 0, floatsvec, index);
   } catch (const oap::exceptions::NotIdenticalLengths&) {
-    delete[] floatsvec;
     host::DeleteMatrix(hostMatrix);
     cleanImageStuff();
     throw;
@@ -240,12 +238,12 @@ void DataLoader::forceOutputSizes(const oap::OptSize& width,
 }
 
 void DataLoader::cleanImageStuff() {
-  for (size_t fa = 0; fa < m_images.size(); ++fa) {
-    if (m_images[fa] != NULL) {
-      m_images[fa]->freeBitmap();
+  for (oap::Image* image : m_images) {
+    if (image  != NULL) {
+      image->freeBitmap();
     }
     if (m_deallocateImages) {
-      delete m_images[fa];
+      delete image;
     }
   }
   m_images.clear();
