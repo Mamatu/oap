@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <functional>
+#include <memory>
 
 namespace oap {
 
