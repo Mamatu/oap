@@ -20,6 +20,8 @@
 #include "Image.h"
 #include "Exceptions.h"
 
+#include <memory>
+
 namespace oap {
 
 Image::Image(const std::string& path) : m_path(path), m_loadedBitmap(false) {}
@@ -81,13 +83,13 @@ void Image::getPixelsVector(pixel_t* pixels) const {
 
 void Image::getFloattVector(floatt* vector) const {
   const size_t length = getLength();
-  pixel_t* pixels = new pixel_t[length];
+  std::unique_ptr<pixel_t[]> pixelsUPtr(new pixel_t[length]);
+  pixel_t* pixels = pixelsUPtr.get();
   pixel_t max = Image::getPixelMax();
   this->getPixelsVector(pixels);
   for (size_t fa = 0; fa < length; ++fa) {
     vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
   }
-  delete[] pixels;
 }
 
 pixel_t Image::m_MaxPixel = Image::getPixelMax();
