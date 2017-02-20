@@ -82,7 +82,7 @@ class OapDataLoaderTests : public testing::Test {
 
     oap::DataLoader dataLoader(images, true, frugalMode);
 
-    ArnUtils::MatrixInfo matrixInfo = dataLoader.createMatrixInfo();
+    ArnUtils::MatrixInfo matrixInfo = dataLoader.getMatrixInfo();
     math::Matrix* matrix = dataLoader.createMatrix();
 
     EXPECT_EQ(count, matrixInfo.m_matrixDim.columns);

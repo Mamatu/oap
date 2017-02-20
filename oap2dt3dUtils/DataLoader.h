@@ -90,10 +90,10 @@ class DataLoader {
   math::Matrix* createVector(size_t index);
 
   /**
-   * @brief Creates Matrxinfo from set of pngDataLoader
+   * @brief Gets Matrxinfo from set of pngDataLoader
    * @return
    */
-  ArnUtils::MatrixInfo createMatrixInfo() const;
+  ArnUtils::MatrixInfo getMatrixInfo() const;
 
  protected:
   static std::string constructAbsPath(const std::string& basePath);

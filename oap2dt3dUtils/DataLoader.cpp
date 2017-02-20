@@ -41,8 +41,8 @@ DataLoader::~DataLoader() { cleanImageStuff(); }
 
 math::Matrix* DataLoader::createMatrix() {
   const size_t refLength = m_images[0]->getLength();
-  std::unique_ptr<floatt[]> floatsvecUnique(new floatt[refLength]);
-  floatt* floatsvec = floatsvecUnique.get();
+  std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
+  floatt* floatsvec = floatsvecUPtr.get();
 
   math::Matrix* hostMatrix = host::NewReMatrix(m_images.size(), refLength);
 
@@ -61,8 +61,8 @@ math::Matrix* DataLoader::createMatrix() {
 
 math::Matrix* DataLoader::createVector(size_t index) {
   const size_t refLength = m_images[0]->getLength();
-  std::unique_ptr<floatt[]> floatsvecUnique(new floatt[refLength]);
-  floatt* floatsvec = floatsvecUnique.get();
+  std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
+  floatt* floatsvec = floatsvecUPtr.get();
 
   math::Matrix* hostMatrix = host::NewReMatrix(1, refLength);
 
@@ -77,7 +77,7 @@ math::Matrix* DataLoader::createVector(size_t index) {
   return hostMatrix;
 }
 
-ArnUtils::MatrixInfo DataLoader::createMatrixInfo() const {
+ArnUtils::MatrixInfo DataLoader::getMatrixInfo() const {
   const uintt width = m_images.size();
   const uintt height = m_images[0]->getLength();
 
@@ -173,8 +173,7 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
 
   auto verifyReloadConds = [&needreload, &previousneedreload](
       std::function<void(Image*, const oap::OptSize&)>& setter,
-      oap::Image* image, oap::OptSize& refOptSize,
-      oap::OptSize& imageOptSize) {
+      oap::Image* image, oap::OptSize& refOptSize, oap::OptSize& imageOptSize) {
     if (refOptSize.optSize == 0) {
       refOptSize = imageOptSize;
     } else if (imageOptSize.optSize < refOptSize.optSize) {
