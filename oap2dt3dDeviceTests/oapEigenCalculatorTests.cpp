@@ -33,15 +33,21 @@ using namespace ::testing;
 class OapEigenCalculatorTests : public testing::Test {
  public:
   virtual void SetUp() {
+    device::Context::Instance().create();
     m_counter = 0;
     m_dataLoader = NULL;
+    m_cuMatrix = new CuMatrix();
   }
 
-  virtual void TearDown() {}
+  virtual void TearDown() {
+    delete m_dataLoader;
+    delete m_cuMatrix;
+    device::Context::Instance().destroy();
+  }
 
   size_t m_counter;
   oap::DeviceDataLoader* m_dataLoader;
-  CuMatrix m_cuMatrix;
+  CuMatrix* m_cuMatrix;
 
   static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v, void* userData,
                            CuHArnoldi::MultiplicationType mt) {
@@ -52,41 +58,62 @@ class OapEigenCalculatorTests : public testing::Test {
       math::Matrix* vec = dataLoader->createDeviceVector(test->m_counter);
       ++(test->m_counter);
 
-      test->m_cuMatrix.dotProduct(m_w, vec, m_v);
+      test->m_cuMatrix->dotProduct(m_w, vec, m_v);
 
       device::DeleteDeviceMatrix(vec);
     }
   }
 };
 
+class TestCuHArnoldiCallback : public CuHArnoldiCallback {
+ public:
+  bool checkEigenvector(math::Matrix* vector, uint index) { return true; }
+};
+
 TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
-  oap::EigenCalculator eigenCalc;
+  TestCuHArnoldiCallback cuharnoldi;
+  oap::EigenCalculator eigenCalc(&cuharnoldi);
   EXPECT_THROW(eigenCalc.calculate(), oap::exceptions::NotInitialzed);
   EXPECT_THROW(eigenCalc.getEigenvalues(NULL), oap::exceptions::NotInitialzed);
   EXPECT_THROW(eigenCalc.getEigenvectors(NULL), oap::exceptions::NotInitialzed);
 }
 
 TEST_F(OapEigenCalculatorTests, Calculate) {
-  oap::DeviceDataLoader* dataLoader = NULL;
   math::Matrix* matrix = NULL;
   debugLongTest();
 
   try {
-    dataLoader = oap::DeviceDataLoader::createDataLoader<oap::PngFile,
-                                                         oap::DeviceDataLoader>(
-        "oap2dt3d/data/images_monkey", "image", 1000, true);
+    m_dataLoader =
+        oap::DeviceDataLoader::createDataLoader<oap::PngFile,
+                                                oap::DeviceDataLoader>(
+            "oap2dt3d/data/images_monkey", "image", 1000, true);
 
-    CuHArnoldiCallback cuharnoldi;
-
-    ArnUtils::MatrixInfo matrixInfo = dataLoader->createMatrixInfo();
-
+    TestCuHArnoldiCallback cuharnoldi;
     cuharnoldi.setCallback(OapEigenCalculatorTests::multiplyFunc, this);
 
+    floatt reoevalues[4];
+
+    oap::EigenCalculator eigenCalculator(&cuharnoldi);
+
+    eigenCalculator.setDataLoader(m_dataLoader);
+
+    eigenCalculator.calculate();
+
+    eigenCalculator.getEigenvalues(reoevalues);
+
+    fprintf(stderr, "reoevalues[0] = %f \n", reoevalues[0]);
+    fprintf(stderr, "reoevalues[1] = %f \n", reoevalues[1]);
+    fprintf(stderr, "reoevalues[2] = %f \n", reoevalues[2]);
+    fprintf(stderr, "reoevalues[3] = %f \n", reoevalues[3]);
+
   } catch (const oap::exceptions::Exception& ex) {
-    delete dataLoader;
+    delete m_dataLoader;
+    m_dataLoader = NULL;
+
+    delete m_cuMatrix;
+    m_cuMatrix = NULL;
+
     debugException(ex);
     throw;
   }
-
-  delete dataLoader;
 }
