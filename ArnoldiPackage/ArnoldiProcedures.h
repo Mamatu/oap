@@ -44,11 +44,13 @@ class CuHArnoldi {
 
   void setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues);
 
-  void setOutputsEigenvectors(math::Matrix* oevectors);
+  void setOutputsEigenvectors(math::Matrix** oevectors);
 
   void execute(uintt k, uintt wantedCount,
                const ArnUtils::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
+
+  void extractOutput();
 
  public:  // types
   enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
@@ -61,6 +63,35 @@ class CuHArnoldi {
   virtual bool checkEigenvalue(floatt value, uint index) = 0;
 
   virtual bool checkEigenvector(math::Matrix* vector, uint index) = 0;
+
+ protected:
+  struct OutputEntry {
+    Complex eigenvalue;
+    uintt eigenvectorIndex;
+
+    floatt re() const { return eigenvalue.re; }
+    floatt im() const { return eigenvalue.im; }
+  };
+
+  void getEigenvector(math::Matrix* vector,
+                      const OutputEntry& outputEntry) const;
+
+  void getEigenvector(math::Matrix* vector, uintt index) const;
+
+  class SortObject {
+    ArnUtils::SortType m_sortType;
+
+   public:
+    SortObject(ArnUtils::SortType sortType) : m_sortType(sortType) {}
+
+    bool operator()(const OutputEntry& oe1, const OutputEntry& oe2) {
+      return m_sortType(oe1.eigenvalue, oe2.eigenvalue);
+    }
+
+    SortObject& operator=(ArnUtils::SortType sortType) {
+      m_sortType = sortType;
+    }
+  };
 
  protected:  // data, matrices
   CuMatrix m_cuMatrix;
@@ -105,13 +136,15 @@ class CuHArnoldi {
   math::Matrix* m_EQ2;
   math::Matrix* m_EQ3;
 
+  math::Matrix* m_hostV;
+
  private:  // private data
   ArnUtils::MatrixInfo m_matrixInfo;
   ArnUtils::Type m_matrixType;
 
   floatt* m_reoevalues;
   floatt* m_imoevalues;
-  math::Matrix* m_oevectors;
+  math::Matrix** m_oevectors;
   ArnUtils::Type m_outputsType;
 
   bool m_wasAllocated;
@@ -119,11 +152,11 @@ class CuHArnoldi {
   uintt m_k;
   floatt m_rho;
   floatt m_blimit;
-  std::vector<Complex> wanted;
-  std::vector<Complex> unwanted;
+  std::vector<OutputEntry> wanted;
+  std::vector<OutputEntry> unwanted;
   std::vector<uintt> wantedIndecies;
-  std::vector<Complex> notSorted;
-  ArnUtils::SortType m_sortType;
+  std::vector<OutputEntry> notSorted;
+  SortObject m_sortObject;
   ArnUtils::CheckType m_checkType;
 
   void* m_image;
@@ -172,7 +205,7 @@ class CuHArnoldi {
 
   void sortPWorstEigens(uintt unwantedCount);
 
-  void extractValues(math::Matrix* m_H1, uintt unwantedCount);
+  void sortEigenvalues(math::Matrix* m_H1, uintt unwantedCount);
 
   /**
    * @brief executeArnoldiFactorization

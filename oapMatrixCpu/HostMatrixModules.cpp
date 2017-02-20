@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #include "HostMatrixModules.h"
 #include <cstring>
 #include <vector>
@@ -291,9 +288,7 @@ void HostMatrixPrinter::getReMatrixStr(std::string& text,
 }
 
 void HostMatrixPrinter::getImMatrixStr(std::string& str,
-                                       const math::Matrix* matrix) {
-
-}
+                                       const math::Matrix* matrix) {}
 
 void HostMatrixUtils::getReValues(floatt* dst, math::Matrix* matrix,
                                   uintt index, uintt length) {
@@ -775,6 +770,21 @@ void CopyIm(math::Matrix* dst, const math::Matrix* src) {
   if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
     memcpy(dst->imValues, src->imValues, length * sizeof(floatt));
   } else {
+  }
+}
+
+void SetVector(math::Matrix* matrix, uintt column, math::Matrix* vector) {
+  SetVector(matrix, column, vector->reValues, vector->imValues, vector->rows);
+}
+
+void SetVector(math::Matrix* matrix, uintt column, floatt* revector,
+               floatt* imvector, uintt length) {
+  if (revector != NULL) {
+    SetReVector(matrix, column, revector, length);
+  }
+
+  if (imvector != NULL) {
+    SetImVector(matrix, column, imvector, length);
   }
 }
 
