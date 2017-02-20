@@ -26,19 +26,23 @@
 #include "Math.h"
 #include "Matrix.h"
 #include "CudaUtils.h"
-//#include "MatrixStructure.h"
 
 #define printCuError(cuResult)                                                 \
   if (cuResult != 0) {                                                         \
-    debug("\n%s %s : %d cuError == %d \n\n", __FUNCTION__, __FILE__, __LINE__, \
-          cuResult);                                                           \
+    const char* buffer;                                                        \
+    cuGetErrorName(cuResult, &buffer);                                         \
+    debug("\n%s %s : %d cuError: %s (%d)\n", __FUNCTION__, __FILE__, __LINE__, \
+          buffer, cuResult);                                                   \
     abort();                                                                   \
   }
+
 #define printCuErrorStatus(status, cuResult)                                   \
   if (cuResult != 0) {                                                         \
     status = cuResult;                                                         \
-    debug("\n%s %s : %d cuError == %d \n\n", __FUNCTION__, __FILE__, __LINE__, \
-          cuResult);                                                           \
+    const char* buffer;                                                        \
+    cuGetErrorName(cuResult, &buffer);                                         \
+    debug("\n%s %s : %d cuError: %s (%d)\n", __FUNCTION__, __FILE__, __LINE__, \
+          buffer, cuResult);                                                   \
     abort();                                                                   \
   }
 
