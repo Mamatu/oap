@@ -31,7 +31,7 @@ typedef std::vector<DataLoader*> DataLoaders;
 
 class EigenCalculator {
  public:
-  EigenCalculator();
+  EigenCalculator(CuHArnoldi* cuHArnoldi);
   virtual ~EigenCalculator();
 
   void setDataLoader(DataLoader* dataLoader);
@@ -40,7 +40,7 @@ class EigenCalculator {
 
   void getEigenvalues(floatt*) const;
 
-  void getEigenvectors(math::Matrix*) const;
+  void getEigenvectors(math::Matrix**) const;
 
  private:
   void checkIfInitialized() const;
@@ -54,12 +54,15 @@ class EigenCalculator {
   void destroyEigenvalues();
   void destroyEigenvectors();
 
+  void createArnoldiModule();
+  void destroyArnoldiModule();
+
   size_t m_eigensCount;
   DataLoader* m_dataLoader;
   CuHArnoldi* m_cuHArnoldi;
 
   floatt* m_revalues;
-  math::Matrix* m_eigenvectors;
+  math::Matrix** m_eigenvectors;
 };
 }
 

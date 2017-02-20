@@ -24,9 +24,10 @@
 
 namespace oap {
 
-EigenCalculator::EigenCalculator()
-    : m_eigensCount(2),
+EigenCalculator::EigenCalculator(CuHArnoldi* cuHArnoldi)
+    : m_eigensCount(4),
       m_dataLoader(NULL),
+      m_cuHArnoldi(cuHArnoldi),
       m_revalues(NULL),
       m_eigenvectors(NULL) {}
 
@@ -42,9 +43,8 @@ void EigenCalculator::setDataLoader(DataLoader* dataLoader) {
 void EigenCalculator::calculate() {
   checkIfInitialized();
 
-  ArnUtils::MatrixInfo matrixInfo = m_dataLoader->createMatrixInfo();
+  ArnUtils::MatrixInfo matrixInfo = m_dataLoader->getMatrixInfo();
 
-  m_cuHArnoldi = new CuHArnoldiDefault();
   m_cuHArnoldi->setSortType(ArnUtils::SortLargestReValues);
 
   initializeEigenvalues();
@@ -64,10 +64,12 @@ void EigenCalculator::getEigenvalues(floatt* revalues) const {
   memcpy(revalues, m_revalues, sizeof(floatt) * m_eigensCount);
 }
 
-void EigenCalculator::getEigenvectors(math::Matrix* eigenvectors) const {
+void EigenCalculator::getEigenvectors(math::Matrix** eigenvectors) const {
   checkIfInitialized();
 
-  host::CopyMatrix(eigenvectors, m_eigenvectors);
+  for (uintt fa = 0; fa < m_eigensCount; ++fa) {
+    host::CopyMatrix(eigenvectors[fa], m_eigenvectors[fa]);
+  }
 }
 
 void EigenCalculator::checkIfInitialized() const {
@@ -91,9 +93,13 @@ void EigenCalculator::initializeEigenvalues() {
 
 void EigenCalculator::initializeEigenvectors() {
   destroyEigenvectors();
-  ArnUtils::MatrixInfo matrixInfo = m_dataLoader->createMatrixInfo();
-  m_eigenvectors =
-      host::NewReMatrix(m_eigensCount, matrixInfo.m_matrixDim.rows);
+  ArnUtils::MatrixInfo matrixInfo = m_dataLoader->getMatrixInfo();
+
+  m_eigenvectors = new math::Matrix*[m_eigensCount];
+
+  for (uintt fa = 0; fa < m_eigensCount; ++fa) {
+    m_eigenvectors[fa] = host::NewReMatrix(1, matrixInfo.m_matrixDim.rows);
+  }
 }
 
 void EigenCalculator::destroyEigenvalues() {
@@ -102,7 +108,15 @@ void EigenCalculator::destroyEigenvalues() {
 }
 
 void EigenCalculator::destroyEigenvectors() {
-  host::DeleteMatrix(m_eigenvectors);
+  if (m_eigenvectors == NULL) {
+    return;
+  }
+
+  for (uintt fa = 0; fa < m_eigensCount; ++fa) {
+    host::DeleteMatrix(m_eigenvectors[fa]);
+  }
+  delete[] m_eigenvectors;
   m_eigenvectors = NULL;
 }
+
 }
