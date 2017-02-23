@@ -25,6 +25,8 @@
 #include <cstddef>
 #include <stdio.h>
 
+#include <memory>
+
 
 namespace oap {
 
@@ -119,8 +121,10 @@ bool isEqual(T* color1, T* color2, size_t colorsCount) {
 template <typename T2DArray, typename T>
 bool verifyRow(T2DArray bitmap2d, size_t fa, size_t width, size_t colorsCount,
                size_t* outRow) {
-  T* gcolor = new T[colorsCount];
-  T* color = new T[colorsCount];
+  std::unique_ptr<T*> gcolorUPtr(new T[colorsCount]);
+  std::unique_ptr<T*> colorUPtr(new T[colorsCount]);
+  T* gcolor = gcolorUPtr.get();
+  T* color = colorUPtr.get();
   size_t fb = 0;
 
   for (size_t x = 0; x < colorsCount; ++x) {
@@ -133,13 +137,9 @@ bool verifyRow(T2DArray bitmap2d, size_t fa, size_t width, size_t colorsCount,
 
     if (!isEqual<T>(gcolor, color, colorsCount)) {
       (*outRow) = fa;
-      delete[] gcolor;
-      delete[] color;
       return false;
     }
   }
-  delete[] gcolor;
-  delete[] color;
   return true;
 }
 
