@@ -123,6 +123,7 @@ bool verifyRow(T2DArray bitmap2d, size_t fa, size_t width, size_t colorsCount,
                size_t* outRow) {
   std::unique_ptr<T[]> gcolorUPtr(new T[colorsCount]);
   std::unique_ptr<T[]> colorUPtr(new T[colorsCount]);
+  int* a = new int[2];
   T* gcolor = gcolorUPtr.get();
   T* color = colorUPtr.get();
   size_t fb = 0;
