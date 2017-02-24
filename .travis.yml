@@ -9,7 +9,6 @@ matrix:
 
 # Compiler selection
 compiler:
-  - gcc
   - clang
 
 # Install packages
