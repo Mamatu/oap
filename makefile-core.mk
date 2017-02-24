@@ -15,8 +15,8 @@ SANITIZER_COMPILATION :=
 
 
 ifeq ($(MODE), DebugSanitizer)
-	SANITIZER_LINKING := -fsanitize=address -fno-omit-frame-pointer
-	SANITIZER_COMPILATION := -fsanitize=address -fno-omit-frame-pointer
+	SANITIZER_LINKING := -fsanitize=address -fno-omit-frame-pointer -fsanitize=leak
+	SANITIZER_COMPILATION := -fsanitize=address -fno-omit-frame-pointer -fsanitize=leak
 	CXXOPTIONS := -c -g3 -DOAP_PATH=$(OAP_PATH) -D$(TYPES) -D$(KERNEL_INFO) -fPIC
 	CXXOPTIONS += $(EXTRA_CXXOPTIONS)
 	NVCCOPTIONS := -g -G -DOAP_PATH=$(OAP_PATH) -D$(TYPES) -D$(KERNEL_INFO)
