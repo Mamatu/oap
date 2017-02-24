@@ -185,6 +185,9 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
     }
   };
 
+  int* a = new int[2];
+  a[3] = 1;
+  
   for (size_t fa = begin; fa < end; ++fa) {
     Image* image = m_images[fa];
 
