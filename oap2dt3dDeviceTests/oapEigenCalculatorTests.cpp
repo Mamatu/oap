@@ -28,6 +28,8 @@
 #include "DeviceMatrixModules.h"
 #include "MatrixProcedures.h"
 
+#include <memory>
+
 using namespace ::testing;
 
 class OapEigenCalculatorTests : public testing::Test {
@@ -91,20 +93,49 @@ TEST_F(OapEigenCalculatorTests, Calculate) {
     TestCuHArnoldiCallback cuharnoldi;
     cuharnoldi.setCallback(OapEigenCalculatorTests::multiplyFunc, this);
 
-    floatt reoevalues[4];
+    const int ecount = 3;
+
+    floatt reoevalues[ecount];
 
     oap::EigenCalculator eigenCalculator(&cuharnoldi);
 
     eigenCalculator.setDataLoader(m_dataLoader);
 
+    eigenCalculator.setEigensCount(ecount);
+
+    ArnUtils::MatrixInfo matrixInfo = eigenCalculator.getMatrixInfo();
+
+    auto matricesDeleter = [ecount](math::Matrix** evectors) {
+      for (int fa = 0; fa < ecount; ++fa) {
+        debug("Deleted matrix %p", evectors[fa]);
+        host::DeleteMatrix(evectors[fa]);
+      }
+      delete[] evectors;
+    };
+
+    std::unique_ptr<math::Matrix*, decltype(matricesDeleter)> evectorsUPtr(
+        new math::Matrix* [ecount], matricesDeleter);
+
+    [&evectorsUPtr, ecount, &matrixInfo]() {
+      math::Matrix** evectors = evectorsUPtr.get();
+      const uintt rows = matrixInfo.m_matrixDim.rows;
+      for (int fa = 0; fa < ecount; ++fa) {
+        evectors[fa] = host::NewReMatrix(1, rows);
+        debug("Created matrix %p", evectors[fa]);
+      }
+    }();
+
+    math::Matrix** evectors = evectorsUPtr.get();
+
     eigenCalculator.calculate();
 
     eigenCalculator.getEigenvalues(reoevalues);
 
-    fprintf(stderr, "reoevalues[0] = %f \n", reoevalues[0]);
-    fprintf(stderr, "reoevalues[1] = %f \n", reoevalues[1]);
-    fprintf(stderr, "reoevalues[2] = %f \n", reoevalues[2]);
-    fprintf(stderr, "reoevalues[3] = %f \n", reoevalues[3]);
+    eigenCalculator.getEigenvectors(evectors);
+
+    debug("reoevalues[0] = %f", reoevalues[0]);
+    debug("reoevalues[1] = %f", reoevalues[1]);
+    debug("reoevalues[2] = %f", reoevalues[2]);
 
   } catch (const oap::exceptions::Exception& ex) {
     delete m_dataLoader;
