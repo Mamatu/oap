@@ -58,6 +58,10 @@ void EigenCalculator::calculate() {
   m_cuHArnoldi->execute(hdim, m_eigensCount, matrixInfo);
 }
 
+void EigenCalculator::setEigensCount(size_t eigensCount) {
+  m_eigensCount = eigensCount;
+}
+
 void EigenCalculator::getEigenvalues(floatt* revalues) const {
   checkIfInitialized();
 
@@ -70,6 +74,11 @@ void EigenCalculator::getEigenvectors(math::Matrix** eigenvectors) const {
   for (uintt fa = 0; fa < m_eigensCount; ++fa) {
     host::CopyMatrix(eigenvectors[fa], m_eigenvectors[fa]);
   }
+}
+
+ArnUtils::MatrixInfo EigenCalculator::getMatrixInfo() const {
+  checkIfInitialized();
+  return m_dataLoader->getMatrixInfo();
 }
 
 void EigenCalculator::checkIfInitialized() const {

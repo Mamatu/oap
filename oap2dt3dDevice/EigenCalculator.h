@@ -38,10 +38,13 @@ class EigenCalculator {
 
   void calculate();
 
+  void setEigensCount(size_t eigensCount);
+
   void getEigenvalues(floatt*) const;
 
   void getEigenvectors(math::Matrix**) const;
 
+  ArnUtils::MatrixInfo getMatrixInfo() const;
  private:
   void checkIfInitialized() const;
   bool isInitialized() const;
