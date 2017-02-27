@@ -870,6 +870,21 @@ void GetImMatrixStr(std::string& str, const math::Matrix* matrix) {
   str += "]";
 }
 
+void GetVector(math::Matrix* vector, math::Matrix* matrix, uintt column) {
+  GetVector(vector->reValues, vector->imValues, vector->rows, matrix, column);
+}
+
+void GetVector(floatt* revector, floatt* imvector, uintt length,
+               math::Matrix* matrix, uintt column) {
+  if (revector != NULL) {
+    GetReVector(revector, length, matrix, column);
+  }
+
+  if (imvector != NULL) {
+    GetImVector(imvector, length, matrix, column);
+  }
+}
+
 void GetReVector(floatt* vector, uintt length, math::Matrix* matrix,
                  uintt column) {
   if (matrix->reValues) {
