@@ -186,8 +186,7 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
 }
 
 void CuHArnoldi::extractOutput() {
-  m_cuMatrix.dotProduct(m_V1, m_V, m_Q);
-  device::CopyDeviceMatrixToHostMatrix(m_hostV, m_V1);
+  device::CopyDeviceMatrixToHostMatrix(m_hostV, m_V);
 
   for (uintt fa = 0; fa < wanted.size(); fa++) {
     if (NULL != m_reoevalues) {
@@ -210,7 +209,7 @@ void CuHArnoldi::getEigenvector(math::Matrix* vector,
 }
 
 void CuHArnoldi::getEigenvector(math::Matrix* vector, uintt index) const {
-  host::SetVector(m_hostV, index, vector);
+  host::GetVector(vector, m_hostV, index);
 }
 
 void CuHArnoldi::initVvector() {
