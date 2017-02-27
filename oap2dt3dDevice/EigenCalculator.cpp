@@ -25,7 +25,7 @@
 namespace oap {
 
 EigenCalculator::EigenCalculator(CuHArnoldi* cuHArnoldi)
-    : m_eigensCount(4),
+    : m_eigensCount(0),
       m_dataLoader(NULL),
       m_cuHArnoldi(cuHArnoldi),
       m_revalues(NULL),
@@ -87,7 +87,9 @@ void EigenCalculator::checkIfInitialized() const {
   }
 }
 
-bool EigenCalculator::isInitialized() const { return m_dataLoader != NULL; }
+bool EigenCalculator::isInitialized() const {
+  return m_dataLoader != NULL && m_eigensCount > 0;
+}
 
 void EigenCalculator::checkOutOfRange(size_t v, size_t max) const {
   if (v >= max) {
