@@ -32,38 +32,58 @@
 
 using namespace ::testing;
 
-class OapEigenCalculatorTests : public testing::Test {
+class Data {
  public:
-  virtual void SetUp() {
-    device::Context::Instance().create();
-    m_counter = 0;
-    m_dataLoader = NULL;
-    m_cuMatrix = new CuMatrix();
-  }
-
-  virtual void TearDown() {
-    delete m_dataLoader;
-    delete m_cuMatrix;
-    device::Context::Instance().destroy();
-  }
-
   size_t m_counter;
   oap::DeviceDataLoader* m_dataLoader;
-  CuMatrix* m_cuMatrix;
+  CuMatrix m_cuMatrix;
+
+  Data(oap::DeviceDataLoader* dataLoader)
+      : m_counter(0), m_dataLoader(dataLoader) {}
 
   static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v, void* userData,
                            CuHArnoldi::MultiplicationType mt) {
     if (mt == CuHArnoldi::TYPE_WV) {
-      OapEigenCalculatorTests* test =
-          static_cast<OapEigenCalculatorTests*>(userData);
-      oap::DeviceDataLoader* dataLoader = test->m_dataLoader;
-      math::Matrix* vec = dataLoader->createDeviceVector(test->m_counter);
-      ++(test->m_counter);
+      Data* data = static_cast<Data*>(userData);
+      oap::DeviceDataLoader* dataLoader = data->m_dataLoader;
+      math::Matrix* vec = dataLoader->createDeviceVector(data->m_counter);
+      ++(data->m_counter);
 
-      test->m_cuMatrix->dotProduct(m_w, vec, m_v);
+      data->m_cuMatrix.dotProduct(m_w, vec, m_v);
 
       device::DeleteDeviceMatrix(vec);
     }
+  }
+};
+
+class OapEigenCalculatorTests : public testing::Test {
+ public:
+  virtual void SetUp() { device::Context::Instance().create(); }
+
+  virtual void TearDown() { device::Context::Instance().destroy(); }
+
+  void verifyOutput(math::Matrix* matrix, math::Matrix* vector, floatt value,
+                    Data& data) {
+    math::Matrix* matrix1 = host::NewReMatrix(matrix->rows, matrix->columns);
+    math::Matrix* matrix2 = host::NewReMatrix(matrix->rows, matrix->rows);
+
+    math::Matrix* matrix3 = host::NewReMatrix(matrix->rows, matrix->rows);
+
+    math::Matrix* vector1 = host::NewReMatrix(vector->rows, 1);
+
+    data.m_cuMatrix.transposeMatrix(matrix1, matrix);
+    data.m_cuMatrix.transposeMatrix(vector1, vector);
+    data.m_cuMatrix.dotProduct(matrix2, matrix, matrix1);
+
+    floatt value2 = value * value;
+    data.m_cuMatrix.multiplyConstantMatrix(vector1, vector1, value2);
+    data.m_cuMatrix.dotProduct(matrix3, vector, vector1);
+    EXPECT_TRUE(data.m_cuMatrix.compare(matrix3, matrix2));
+
+    host::DeleteMatrix(matrix1);
+    host::DeleteMatrix(vector1);
+    host::DeleteMatrix(matrix2);
+    host::DeleteMatrix(matrix3);
   }
 };
 
@@ -85,13 +105,14 @@ TEST_F(OapEigenCalculatorTests, Calculate) {
   debugLongTest();
 
   try {
-    m_dataLoader =
+    std::unique_ptr<oap::DeviceDataLoader> dataLoader(
         oap::DeviceDataLoader::createDataLoader<oap::PngFile,
                                                 oap::DeviceDataLoader>(
-            "oap2dt3d/data/images_monkey", "image", 1000, true);
+            "oap2dt3d/data/images_monkey", "image", 1000, true));
 
     TestCuHArnoldiCallback cuharnoldi;
-    cuharnoldi.setCallback(OapEigenCalculatorTests::multiplyFunc, this);
+    Data data(dataLoader.get());
+    cuharnoldi.setCallback(Data::multiplyFunc, &data);
 
     const int ecount = 3;
 
@@ -99,7 +120,7 @@ TEST_F(OapEigenCalculatorTests, Calculate) {
 
     oap::EigenCalculator eigenCalculator(&cuharnoldi);
 
-    eigenCalculator.setDataLoader(m_dataLoader);
+    eigenCalculator.setDataLoader(dataLoader.get());
 
     eigenCalculator.setEigensCount(ecount);
 
@@ -138,12 +159,6 @@ TEST_F(OapEigenCalculatorTests, Calculate) {
     debug("reoevalues[2] = %f", reoevalues[2]);
 
   } catch (const oap::exceptions::Exception& ex) {
-    delete m_dataLoader;
-    m_dataLoader = NULL;
-
-    delete m_cuMatrix;
-    m_cuMatrix = NULL;
-
     debugException(ex);
     throw;
   }
