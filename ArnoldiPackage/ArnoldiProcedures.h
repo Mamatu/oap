@@ -46,6 +46,8 @@ class CuHArnoldi {
 
   void setOutputsEigenvectors(math::Matrix** oevectors);
 
+  void setOutputType(ArnUtils::Type outputType);
+
   void execute(uintt k, uintt wantedCount,
                const ArnUtils::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
@@ -73,10 +75,9 @@ class CuHArnoldi {
     floatt im() const { return eigenvalue.im; }
   };
 
-  void getEigenvector(math::Matrix* vector,
-                      const OutputEntry& outputEntry) const;
+  void getEigenvector(math::Matrix* vector, const OutputEntry& outputEntry);
 
-  void getEigenvector(math::Matrix* vector, uintt index) const;
+  void getEigenvector(math::Matrix* vector, uintt index);
 
   class SortObject {
     ArnUtils::SortType m_sortType;
@@ -140,12 +141,11 @@ class CuHArnoldi {
 
  private:  // private data
   ArnUtils::MatrixInfo m_matrixInfo;
-  ArnUtils::Type m_matrixType;
+  ArnUtils::Type m_outputType;
 
   floatt* m_reoevalues;
   floatt* m_imoevalues;
   math::Matrix** m_oevectors;
-  ArnUtils::Type m_outputsType;
 
   bool m_wasAllocated;
 

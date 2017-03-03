@@ -73,6 +73,7 @@ CuHArnoldi::CuHArnoldi()
       m_EQ1(NULL),
       m_EQ2(NULL),
       m_EQ3(NULL),
+      m_outputType(ArnUtils::UNDEFINED),
       m_reoevalues(NULL),
       m_imoevalues(NULL),
       m_oevectors(NULL) {
@@ -102,18 +103,21 @@ void CuHArnoldi::setCheckType(ArnUtils::CheckType checkType) {
 void CuHArnoldi::setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues) {
   m_reoevalues = reoevalues;
   m_imoevalues = imoevalues;
-  m_outputsType = ArnUtils::HOST;
 }
 
 void CuHArnoldi::setOutputsEigenvectors(math::Matrix** oevectors) {
   m_oevectors = oevectors;
-  m_outputsType = ArnUtils::HOST;
+}
+
+void CuHArnoldi::setOutputType(ArnUtils::Type outputType) {
+  m_outputType = outputType;
 }
 
 void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
                          const ArnUtils::MatrixInfo& matrixInfo,
                          ArnUtils::Type matrixType) {
   debugAssert(wantedCount != 0);
+  debugAssert(m_outputType != ArnUtils::UNDEFINED);
 
   setCalculateTriangularHPtr(hdim);
 
@@ -122,7 +126,6 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
   alloc(matrixInfo, hdim);
 
   m_matrixInfo = matrixInfo;
-  m_matrixType = matrixType;
   debugFunc();
   initVvector();
   bool status = false;
@@ -186,8 +189,9 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
 }
 
 void CuHArnoldi::extractOutput() {
-  device::CopyDeviceMatrixToHostMatrix(m_hostV, m_V);
-
+  if (m_outputType == ArnUtils::HOST) {
+    device::CopyDeviceMatrixToHostMatrix(m_hostV, m_V);
+  }
   for (uintt fa = 0; fa < wanted.size(); fa++) {
     if (NULL != m_reoevalues) {
       m_reoevalues[fa] = wanted[fa].eigenvalue.re;
@@ -204,12 +208,17 @@ void CuHArnoldi::extractOutput() {
 }
 
 void CuHArnoldi::getEigenvector(math::Matrix* vector,
-                                const OutputEntry& outputEntry) const {
+                                const OutputEntry& outputEntry) {
   getEigenvector(vector, outputEntry.eigenvectorIndex);
 }
 
-void CuHArnoldi::getEigenvector(math::Matrix* vector, uintt index) const {
-  host::GetVector(vector, m_hostV, index);
+void CuHArnoldi::getEigenvector(math::Matrix* vector, uintt index) {
+  if (m_outputType == ArnUtils::HOST) {
+    host::GetVector(vector, m_hostV, index);
+  }
+  if (m_outputType == ArnUtils::DEVICE) {
+    m_cuMatrix.getVector(vector, m_V, index);
+  }
 }
 
 void CuHArnoldi::initVvector() {
