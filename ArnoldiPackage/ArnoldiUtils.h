@@ -46,7 +46,7 @@ enum CheckType {
   CHECK_EXTERNAL_EIGENVECTOR
 };
 
-enum Type { DEVICE, HOST };
+enum Type { UNDEFINED, DEVICE, HOST };
 
 class MatrixInfo {
  public:
