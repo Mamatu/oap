@@ -43,6 +43,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
    public:
     CuHArnoldiCallbackImpl() : CuHArnoldiCallback() {
       m_compareValueWasSet = false;
+      setOutputType(ArnUtils::HOST);
     }
 
     void setEValue(floatt evalue, floatt tolerance) {
