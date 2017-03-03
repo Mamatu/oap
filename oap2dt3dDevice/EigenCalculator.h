@@ -40,19 +40,23 @@ class EigenCalculator {
 
   void setEigensCount(size_t eigensCount);
 
-  void getEigenvalues(floatt*) const;
+  void setEigenvaluesOutput(floatt*);
 
-  void getEigenvectors(math::Matrix**) const;
+  void setEigenvectorsOutput(math::Matrix**);
+
+  void setEigenvectorsType(ArnUtils::Type eigenvectorsType);
 
   ArnUtils::MatrixInfo getMatrixInfo() const;
  private:
   void checkIfInitialized() const;
+  void checkIfOutputInitialized() const;
+  void checkIfDataLoaderInitialized() const;
+
   bool isInitialized() const;
+  bool isOutputInitialized() const;
+  bool isDataLoaderInitialized() const;
 
   void checkOutOfRange(size_t v, size_t max) const;
-
-  void initializeEigenvalues();
-  void initializeEigenvectors();
 
   void destroyEigenvalues();
   void destroyEigenvectors();
@@ -61,6 +65,7 @@ class EigenCalculator {
   void destroyArnoldiModule();
 
   size_t m_eigensCount;
+  ArnUtils::Type m_eigenvectorsType;
   DataLoader* m_dataLoader;
   CuHArnoldi* m_cuHArnoldi;
 

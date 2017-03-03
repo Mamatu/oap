@@ -26,15 +26,13 @@ namespace oap {
 
 EigenCalculator::EigenCalculator(CuHArnoldi* cuHArnoldi)
     : m_eigensCount(0),
+      m_eigenvectorsType(ArnUtils::UNDEFINED),
       m_dataLoader(NULL),
       m_cuHArnoldi(cuHArnoldi),
       m_revalues(NULL),
       m_eigenvectors(NULL) {}
 
-EigenCalculator::~EigenCalculator() {
-  destroyEigenvalues();
-  destroyEigenvectors();
-}
+EigenCalculator::~EigenCalculator() {}
 
 void EigenCalculator::setDataLoader(DataLoader* dataLoader) {
   m_dataLoader = dataLoader;
@@ -46,9 +44,7 @@ void EigenCalculator::calculate() {
   ArnUtils::MatrixInfo matrixInfo = m_dataLoader->getMatrixInfo();
 
   m_cuHArnoldi->setSortType(ArnUtils::SortLargestReValues);
-
-  initializeEigenvalues();
-  initializeEigenvectors();
+  m_cuHArnoldi->setOutputType(m_eigenvectorsType);
 
   const unsigned int hdim = 32;
 
@@ -62,22 +58,20 @@ void EigenCalculator::setEigensCount(size_t eigensCount) {
   m_eigensCount = eigensCount;
 }
 
-void EigenCalculator::getEigenvalues(floatt* revalues) const {
-  checkIfInitialized();
-
-  memcpy(revalues, m_revalues, sizeof(floatt) * m_eigensCount);
+void EigenCalculator::setEigenvaluesOutput(floatt* revalues) {
+  m_revalues = revalues;
 }
 
-void EigenCalculator::getEigenvectors(math::Matrix** eigenvectors) const {
-  checkIfInitialized();
+void EigenCalculator::setEigenvectorsOutput(math::Matrix** eigenvectors) {
+  m_eigenvectors = eigenvectors;
+}
 
-  for (uintt fa = 0; fa < m_eigensCount; ++fa) {
-    host::CopyMatrix(eigenvectors[fa], m_eigenvectors[fa]);
-  }
+void EigenCalculator::setEigenvectorsType(ArnUtils::Type eigenvectorsType) {
+  m_eigenvectorsType = eigenvectorsType;
 }
 
 ArnUtils::MatrixInfo EigenCalculator::getMatrixInfo() const {
-  checkIfInitialized();
+  checkIfDataLoaderInitialized();
   return m_dataLoader->getMatrixInfo();
 }
 
@@ -87,8 +81,29 @@ void EigenCalculator::checkIfInitialized() const {
   }
 }
 
+void EigenCalculator::checkIfOutputInitialized() const {
+  if (!isOutputInitialized()) {
+    throw oap::exceptions::NotInitialzed();
+  }
+}
+
+void EigenCalculator::checkIfDataLoaderInitialized() const {
+  if (!isDataLoaderInitialized()) {
+    throw oap::exceptions::NotInitialzed();
+  }
+}
+
 bool EigenCalculator::isInitialized() const {
-  return m_dataLoader != NULL && m_eigensCount > 0;
+  return m_eigensCount > 0 && m_eigenvectorsType != ArnUtils::UNDEFINED &&
+         isOutputInitialized() && isDataLoaderInitialized();
+}
+
+bool EigenCalculator::isOutputInitialized() const {
+  return m_eigenvectors != NULL && m_revalues != NULL;
+}
+
+bool EigenCalculator::isDataLoaderInitialized() const {
+  return m_dataLoader != NULL;
 }
 
 void EigenCalculator::checkOutOfRange(size_t v, size_t max) const {
@@ -96,38 +111,4 @@ void EigenCalculator::checkOutOfRange(size_t v, size_t max) const {
     throw oap::exceptions::OutOfRange(v, max);
   }
 }
-
-void EigenCalculator::initializeEigenvalues() {
-  destroyEigenvalues();
-  m_revalues = new floatt[m_eigensCount];
-}
-
-void EigenCalculator::initializeEigenvectors() {
-  destroyEigenvectors();
-  ArnUtils::MatrixInfo matrixInfo = m_dataLoader->getMatrixInfo();
-
-  m_eigenvectors = new math::Matrix*[m_eigensCount];
-
-  for (uintt fa = 0; fa < m_eigensCount; ++fa) {
-    m_eigenvectors[fa] = host::NewReMatrix(1, matrixInfo.m_matrixDim.rows);
-  }
-}
-
-void EigenCalculator::destroyEigenvalues() {
-  delete[] m_revalues;
-  m_revalues = NULL;
-}
-
-void EigenCalculator::destroyEigenvectors() {
-  if (m_eigenvectors == NULL) {
-    return;
-  }
-
-  for (uintt fa = 0; fa < m_eigensCount; ++fa) {
-    host::DeleteMatrix(m_eigenvectors[fa]);
-  }
-  delete[] m_eigenvectors;
-  m_eigenvectors = NULL;
-}
-
 }
