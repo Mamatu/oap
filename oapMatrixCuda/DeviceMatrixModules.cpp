@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "DeviceMatrixModules.h"
 #include "HostMatrixModules.h"
 #include "KernelExecutor.h"

@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef OAP_DEVICE_MATRIX_UTILS_H
 #define OAP_DEVICE_MATRIX_UTILS_H
 #include <stdio.h>
@@ -51,7 +49,6 @@ math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix);
 math::Matrix* NewDeviceMatrix(const math::Matrix* deviceMatrix);
 
 math::Matrix* NewDeviceMatrix(const std::string& matrixStr);
-
 
 uintt GetColumns(const math::Matrix* dMatrix);
 
@@ -175,7 +172,8 @@ void SetMatrixEx(MatrixEx* deviceMatrixEx, const MatrixEx* hostMatrixEx);
  * @param text
  * @param matrix
  */
-void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zeroLimit = 0);
+void PrintMatrix(const std::string& text, const math::Matrix* matrix,
+                 floatt zeroLimit = 0);
 
 /**
  * @brief PrintMatrix
