@@ -105,6 +105,14 @@ math::Matrix* NewDeviceMatrix(bool isRe, bool isIm, uintt columns, uintt rows) {
   return allocMatrix(isRe, isIm, columns, rows);
 }
 
+math::Matrix* NewDeviceReMatrix(uintt columns, uintt rows) {
+  return NewDeviceMatrix(true, false, columns, rows);
+}
+
+math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows) {
+  return NewDeviceMatrix(false, true, columns, rows);
+}
+
 math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue,
                               floatt imvalue) {
   debugFuncBegin();

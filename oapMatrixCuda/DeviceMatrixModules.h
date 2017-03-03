@@ -85,6 +85,9 @@ math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns,
 math::Matrix* NewDeviceMatrix(bool allocRe, bool allocIm, uintt columns,
                               uintt rows);
 
+math::Matrix* NewDeviceReMatrix(uintt columns, uintt rows);
+math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows);
+
 /**
  * @brief NewHostMatrixCopyOfDeviceMatrix
  * @param matrix
