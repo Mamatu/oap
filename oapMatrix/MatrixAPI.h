@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef OAP_MATRIXAPI_H
 #define OAP_MATRIXAPI_H
 
@@ -102,25 +100,37 @@ __hostdeviceinline__ floatt GetImIndex(const math::Matrix* m, uintt index) {
 
 __hostdeviceinline__ void Reset(math::Matrix* m) {
   HOST_INIT();
-  //threads_sync();
+  // threads_sync();
   test::reset(m);
-  //threads_sync();
+  // threads_sync();
 }
 
 __hostdeviceinline__ void Push(math::Matrix* m) {
   HOST_INIT();
-  //threads_sync();
+  // threads_sync();
   test::push(m);
-  //threads_sync();
+  // threads_sync();
 }
 
 __hostdeviceinline__ void Pop(math::Matrix* m) {
   HOST_INIT();
-  //threads_sync();
+  // threads_sync();
   test::pop(m);
-  //threads_sync();
+  // threads_sync();
 }
 
 #endif
+
+__hostdeviceinline__ uintt GetIndex(const math::Matrix* m, uintt c, uintt r) {
+  return c + r * m->columns;
+}
+
+__hostdeviceinline__ floatt* GetRePtr(const math::Matrix* m, uintt c, uintt r) {
+  return m->reValues + GetIndex(m, c, r);
+}
+
+__hostdeviceinline__ floatt* GetImPtr(const math::Matrix* m, uintt c, uintt r) {
+  return m->imValues + GetIndex(m, c, r);
+}
 
 #endif  // MATRIXAPI_H
