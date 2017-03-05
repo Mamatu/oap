@@ -17,21 +17,30 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef OAP_MATRIXEX_H
-#define	OAP_MATRIXEX_H
+#define OAP_MATRIXEX_H
 
 #include "Math.h"
 
 struct MatrixEx {
-    uintt bcolumn;
-    uintt ecolumn;
-    uintt brow;
-    uintt erow;
-    uintt boffset;
-    uintt eoffset;
+  uintt bcolumn;
+  uintt clength;
+  uintt brow;
+  uintt rlength;
+
+  /**
+   * @brief boffset - extra offset to dotProduct operation
+   */
+  uintt boffset;
+
+  /**
+   * @brief boffset - extra offset to dotProduct operation
+   */
+  uintt eoffset;
 };
 
-#endif	/* MATRIXEX_H */
+#define erow(matrixex) matrixex.brow + matrixex.rlength
+
+#define ecolumn(matrixex) matrixex.brow + matrixex.clength
+
+#endif /* MATRIXEX_H */

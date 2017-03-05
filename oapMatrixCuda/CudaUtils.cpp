@@ -103,16 +103,16 @@ CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx) {
   return reinterpret_cast<CUdeviceptr>(&matrixEx->bcolumn);
 }
 
-CUdeviceptr GetEColumnAddress(const MatrixEx* matrixEx) {
-  return reinterpret_cast<CUdeviceptr>(&matrixEx->ecolumn);
+CUdeviceptr GetColumnsAddress(const MatrixEx* matrixEx) {
+  return reinterpret_cast<CUdeviceptr>(&matrixEx->clength);
 }
 
 CUdeviceptr GetBRowAddress(const MatrixEx* matrixEx) {
   return reinterpret_cast<CUdeviceptr>(&matrixEx->brow);
 }
 
-CUdeviceptr GetERowAddress(const MatrixEx* matrixEx) {
-  return reinterpret_cast<CUdeviceptr>(&matrixEx->erow);
+CUdeviceptr GetRowsAddress(const MatrixEx* matrixEx) {
+  return reinterpret_cast<CUdeviceptr>(&matrixEx->rlength);
 }
 
 floatt* GetReValues(CUdeviceptr matrix) {
@@ -140,19 +140,15 @@ uintt GetRows(CUdeviceptr matrix) {
 }
 
 uintt GetColumns(const MatrixEx* matrixEx) {
-  uintt bcolumns = 0;
-  uintt ecolumns = 0;
-  cuMemcpyDtoH(&bcolumns, GetBColumnAddress(matrixEx), sizeof(uintt));
-  cuMemcpyDtoH(&ecolumns, GetEColumnAddress(matrixEx), sizeof(uintt));
-  return ecolumns - bcolumns;
+  uintt columns = 0;
+  cuMemcpyDtoH(&columns, GetColumnsAddress(matrixEx), sizeof(uintt));
+  return columns;
 }
 
 uintt GetRows(const MatrixEx* matrixEx) {
-  uintt brows = 0;
-  uintt erows = 0;
-  cuMemcpyDtoH(&brows, GetBRowAddress(matrixEx), sizeof(uintt));
-  cuMemcpyDtoH(&erows, GetERowAddress(matrixEx), sizeof(uintt));
-  return erows - brows;
+  uintt rows = 0;
+  cuMemcpyDtoH(&rows, GetRowsAddress(matrixEx), sizeof(uintt));
+  return rows;
 }
 
 CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,

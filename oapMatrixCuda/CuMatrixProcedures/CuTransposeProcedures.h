@@ -31,7 +31,7 @@ __hostdevice__ void CUDA_transposeReMatrixEx(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  if (threadIndexY < matrixEx.erow && threadIndexX < matrixEx.ecolumn) {
+  if (threadIndexY < erow(matrixEx) && threadIndexX < ecolumn(matrixEx)) {
     uintt index = threadIndexX + output->columns * threadIndexY;
     uintt index1 = threadIndexX * params0->columns + threadIndexY;
     output->reValues[index] = params0->reValues[index1];
@@ -45,7 +45,7 @@ __hostdevice__ void CUDA_transposeImMatrixEx(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  if (threadIndexY < matrixEx.erow && threadIndexX < matrixEx.ecolumn) {
+  if (threadIndexY < erow(matrixEx) && threadIndexX < ecolumn(matrixEx)) {
     uintt index = threadIndexX + output->columns * threadIndexY;
     uintt index1 = threadIndexX * params0->columns + threadIndexY;
     output->imValues[index] = -params0->imValues[index1];
@@ -59,7 +59,7 @@ __hostdevice__ void CUDA_transposeRealMatrixEx(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  if (threadIndexY < matrixEx.erow && threadIndexX < matrixEx.ecolumn) {
+  if (threadIndexY < erow(matrixEx) && threadIndexX < ecolumn(matrixEx)) {
     uintt index = threadIndexX + output->columns * threadIndexY;
     uintt index1 = threadIndexX * params0->columns + threadIndexY;
     output->reValues[index] = params0->reValues[index1];

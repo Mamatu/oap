@@ -139,9 +139,8 @@ bool IsDiagonalMatrix(const math::Matrix& m1, floatt value) {
 }
 
 bool isEqual(const MatrixEx& matrixEx, const uintt* buffer) {
-  if (matrixEx.bcolumn == buffer[0] && matrixEx.ecolumn == buffer[1] &&
-      matrixEx.brow == buffer[2] && matrixEx.erow == buffer[3] &&
-      matrixEx.boffset == buffer[4] && matrixEx.eoffset == buffer[5]) {
+  if (matrixEx.bcolumn == buffer[0] && matrixEx.clength == buffer[1] &&
+      matrixEx.brow == buffer[2] && matrixEx.rlength == buffer[3]) {
     return true;
   }
   return false;
