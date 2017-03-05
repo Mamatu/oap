@@ -41,7 +41,7 @@ void EigenCalculator::setDataLoader(DataLoader* dataLoader) {
 void EigenCalculator::calculate() {
   checkIfInitialized();
 
-  ArnUtils::MatrixInfo matrixInfo = m_dataLoader->getMatrixInfo();
+  math::MatrixInfo matrixInfo = m_dataLoader->getMatrixInfo();
 
   m_cuHArnoldi->setSortType(ArnUtils::SortLargestReValues);
   m_cuHArnoldi->setOutputType(m_eigenvectorsType);
@@ -70,7 +70,7 @@ void EigenCalculator::setEigenvectorsType(ArnUtils::Type eigenvectorsType) {
   m_eigenvectorsType = eigenvectorsType;
 }
 
-ArnUtils::MatrixInfo EigenCalculator::getMatrixInfo() const {
+math::MatrixInfo EigenCalculator::getMatrixInfo() const {
   checkIfDataLoaderInitialized();
   return m_dataLoader->getMatrixInfo();
 }

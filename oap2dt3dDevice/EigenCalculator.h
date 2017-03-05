@@ -46,7 +46,7 @@ class EigenCalculator {
 
   void setEigenvectorsType(ArnUtils::Type eigenvectorsType);
 
-  ArnUtils::MatrixInfo getMatrixInfo() const;
+  math::MatrixInfo getMatrixInfo() const;
  private:
   void checkIfInitialized() const;
   void checkIfOutputInitialized() const;

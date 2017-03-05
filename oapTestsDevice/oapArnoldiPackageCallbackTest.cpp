@@ -271,7 +271,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     arnoldiCuda->setCheckType(ArnUtils::CHECK_EXTERNAL_EIGENVALUE);
     arnoldiCuda->setEValue(value, tolerance);
     arnoldiCuda->setOutputsEigenvalues(revalues, imvalues);
-    ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
+    math::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
                                     data.getElementsCount());
 
     debugLongTest();

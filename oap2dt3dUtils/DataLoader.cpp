@@ -78,11 +78,11 @@ math::Matrix* DataLoader::createVector(size_t index) {
   return hostMatrix;
 }
 
-ArnUtils::MatrixInfo DataLoader::getMatrixInfo() const {
+math::MatrixInfo DataLoader::getMatrixInfo() const {
   const uintt width = m_images.size();
   const uintt height = m_images[0]->getLength();
 
-  return ArnUtils::MatrixInfo(true, false, width, height);
+  return math::MatrixInfo(true, false, width, height);
 }
 
 std::string DataLoader::constructAbsPath(const std::string& dirPath) {

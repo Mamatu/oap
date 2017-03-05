@@ -27,6 +27,7 @@
 #include "MatrixProcedures.h"
 
 #include "ArnoldiUtils.h"
+#include "MatrixInfo.h"
 
 class CuHArnoldi {
  public:  // methods
@@ -49,7 +50,7 @@ class CuHArnoldi {
   void setOutputType(ArnUtils::Type outputType);
 
   void execute(uintt k, uintt wantedCount,
-               const ArnUtils::MatrixInfo& matrixInfo,
+               const math::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
 
   void extractOutput();
@@ -140,7 +141,7 @@ class CuHArnoldi {
   math::Matrix* m_hostV;
 
  private:  // private data
-  ArnUtils::MatrixInfo m_matrixInfo;
+  math::MatrixInfo m_matrixInfo;
   ArnUtils::Type m_outputType;
 
   floatt* m_reoevalues;
@@ -227,12 +228,12 @@ class CuHArnoldi {
   bool checkOutcome(uintt index, floatt tolerance);
 
  private:  // alloc, dealloc methods
-  bool shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
-                           const ArnUtils::MatrixInfo& m2) const;
-  void alloc(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void alloc1(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void alloc2(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void alloc3(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
+  bool shouldBeReallocated(const math::MatrixInfo& m1,
+                           const math::MatrixInfo& m2) const;
+  void alloc(const math::MatrixInfo& matrixInfo, uintt k);
+  void alloc1(const math::MatrixInfo& matrixInfo, uintt k);
+  void alloc2(const math::MatrixInfo& matrixInfo, uintt k);
+  void alloc3(const math::MatrixInfo& matrixInfo, uintt k);
   void dealloc1();
   void dealloc2();
   void dealloc3();

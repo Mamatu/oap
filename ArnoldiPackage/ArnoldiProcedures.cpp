@@ -115,7 +115,7 @@ void CuHArnoldi::setOutputType(ArnUtils::Type outputType) {
 }
 
 void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
-                         const ArnUtils::MatrixInfo& matrixInfo,
+                         const math::MatrixInfo& matrixInfo,
                          ArnUtils::Type matrixType) {
   debugAssert(wantedCount != 0);
   debugAssert(m_outputType != ArnUtils::UNDEFINED);
@@ -451,7 +451,7 @@ bool CuHArnoldi::checkOutcome(uintt index, floatt tolerance) {
   return m_cuMatrix.compare(m_v1, m_v2);
 }
 
-void CuHArnoldi::alloc(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
+void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uintt k) {
   if (!m_wasAllocated || shouldBeReallocated(matrixInfo, m_matrixInfo) ||
       matrixInfo.m_matrixDim.rows != m_matrixInfo.m_matrixDim.rows) {
     dealloc1();
@@ -485,12 +485,12 @@ void CuHArnoldi::alloc(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
   CudaUtils::SetZeroMatrix(m_V);
 }
 
-bool CuHArnoldi::shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
-                                     const ArnUtils::MatrixInfo& m2) const {
+bool CuHArnoldi::shouldBeReallocated(const math::MatrixInfo& m1,
+                                     const math::MatrixInfo& m2) const {
   return m1.isIm != m2.isIm || m1.isRe != m2.isRe;
 }
 
-void CuHArnoldi::alloc1(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
+void CuHArnoldi::alloc1(const math::MatrixInfo& matrixInfo, uintt k) {
   m_vrows = matrixInfo.m_matrixDim.rows;
   m_w = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                 matrixInfo.m_matrixDim.rows);
@@ -516,7 +516,7 @@ void CuHArnoldi::alloc1(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
                                   matrixInfo.m_matrixDim.rows);
 }
 
-void CuHArnoldi::alloc2(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
+void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uintt k) {
   m_V = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                                 matrixInfo.m_matrixDim.rows);
   m_hostV = host::NewMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
@@ -533,7 +533,7 @@ void CuHArnoldi::alloc2(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
                                          matrixInfo.m_matrixDim.rows, k);
 }
 
-void CuHArnoldi::alloc3(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
+void CuHArnoldi::alloc3(const math::MatrixInfo& matrixInfo, uintt k) {
   m_h = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
   m_s = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
   m_H = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);

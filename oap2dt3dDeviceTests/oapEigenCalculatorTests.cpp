@@ -133,7 +133,7 @@ TEST_F(OapEigenCalculatorTests, Calculate) {
 
     eigenCalculator.setEigensCount(ecount);
 
-    ArnUtils::MatrixInfo matrixInfo = eigenCalculator.getMatrixInfo();
+    math::MatrixInfo matrixInfo = eigenCalculator.getMatrixInfo();
 
     auto matricesDeleter = [ecount](math::Matrix** evectors) {
       for (int fa = 0; fa < ecount; ++fa) {

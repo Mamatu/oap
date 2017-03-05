@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include "ArnoldiUtils.h"
+#include "MatrixInfo.h"
 
 #include "Image.h"
 #include "Math.h"
@@ -93,7 +93,7 @@ class DataLoader {
    * @brief Gets Matrxinfo from set of pngDataLoader
    * @return
    */
-  ArnUtils::MatrixInfo getMatrixInfo() const;
+  math::MatrixInfo getMatrixInfo() const;
 
  protected:
   static std::string constructAbsPath(const std::string& basePath);
