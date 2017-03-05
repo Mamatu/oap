@@ -1064,6 +1064,11 @@ void SetDiagonalImMatrix(math::Matrix* matrix, floatt a) {
   }
 }
 
+math::MatrixInfo GetMatrixInfo(math::Matrix* matrix) {
+  return math::MatrixInfo(matrix->reValues != NULL, matrix->imValues != NULL,
+                          matrix->columns, matrix->rows);
+}
+
 char* load(const char* path, uintt& _size) {
   FILE* file = fopen(path, "r");
   fseek(file, 0, SEEK_END);

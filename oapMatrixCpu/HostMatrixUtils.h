@@ -22,6 +22,7 @@
 
 #include "MatrixModules.h"
 #include "Matrix.h"
+#include "MatrixInfo.h"
 #include "MatrixEx.h"
 #include <stdio.h>
 #include "ThreadUtils.h"
@@ -558,6 +559,8 @@ void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
  * @param a
  */
 void SetDiagonalImMatrix(math::Matrix* matrix, floatt a);
+
+math::MatrixInfo GetMatrixInfo(math::Matrix* matrix);
 };
 
 class HostMatrixUtils : public MatrixUtils {

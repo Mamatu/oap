@@ -55,6 +55,58 @@ class ArnoldiOperations {
     }
   }
 
+  bool verifyOutput(math::Matrix* vector, floatt value) {
+    math::Matrix* matrix = m_dataLoader->createMatrix();
+
+    math::Matrix* refMatrix =
+        host::NewMatrix(matrix, matrix->columns, matrix->columns);
+
+    host::CopyMatrix(refMatrix, matrix);
+
+    math::Matrix* drefMatrix = device::NewDeviceMatrixCopy(refMatrix);
+
+    math::MatrixInfo info = host::GetMatrixInfo(refMatrix);
+
+    const uintt matrixcolumns = info.m_matrixDim.columns;
+    uintt matrixrows = info.m_matrixDim.rows;
+
+    matrixrows = matrix->columns;
+
+    uintt vectorrows = device::GetRows(vector);
+
+    vectorrows = matrix->columns;
+
+    math::Matrix* matrix1 =
+        device::NewDeviceReMatrix(matrixrows, matrixcolumns);
+    math::Matrix* leftMatrix =
+        device::NewDeviceReMatrix(matrixrows, matrixrows);
+
+    math::Matrix* rightMatrix =
+        device::NewDeviceReMatrix(matrixrows, matrixrows);
+
+    math::Matrix* vector1 = device::NewDeviceReMatrix(vectorrows, 1);
+
+    m_cuMatrix.transposeMatrix(matrix1, drefMatrix);
+    m_cuMatrix.transposeMatrix(vector1, vector);
+    m_cuMatrix.dotProduct(leftMatrix, drefMatrix, matrix1);
+
+    floatt value2 = value * value;
+    m_cuMatrix.multiplyConstantMatrix(vector1, vector1, value2);
+    m_cuMatrix.dotProduct(rightMatrix, vector, vector1);
+    bool output = m_cuMatrix.compare(leftMatrix, rightMatrix);
+
+    host::DeleteMatrix(refMatrix);
+    host::DeleteMatrix(matrix);
+
+    device::DeleteDeviceMatrix(drefMatrix);
+    device::DeleteDeviceMatrix(matrix1);
+    device::DeleteDeviceMatrix(leftMatrix);
+    device::DeleteDeviceMatrix(rightMatrix);
+    device::DeleteDeviceMatrix(vector1);
+
+    return output;
+  }
+
   math::Matrix* createDeviceMatrix() const {
     return m_dataLoader->createDeviceMatrix();
   }
@@ -67,35 +119,6 @@ class OapEigenCalculatorTests : public testing::Test {
   virtual void SetUp() { device::Context::Instance().create(); }
 
   virtual void TearDown() { device::Context::Instance().destroy(); }
-
-  bool verifyOutput(math::Matrix* vector, floatt value, ArnoldiOperations& ao) {
-    math::Matrix* matrix = ao.createDeviceMatrix();
-    math::Matrix* matrix1 =
-        device::NewDeviceReMatrix(matrix->rows, matrix->columns);
-    math::Matrix* leftMatrix =
-        device::NewDeviceReMatrix(matrix->rows, matrix->rows);
-
-    math::Matrix* rightMatrix =
-        device::NewDeviceReMatrix(matrix->rows, matrix->rows);
-
-    math::Matrix* vector1 = device::NewDeviceReMatrix(vector->rows, 1);
-
-    ao->transposeMatrix(matrix1, matrix);
-    ao->transposeMatrix(vector1, vector);
-    ao->dotProduct(leftMatrix, matrix, matrix1);
-
-    floatt value2 = value * value;
-    ao->multiplyConstantMatrix(vector1, vector1, value2);
-    ao->dotProduct(rightMatrix, vector, vector1);
-    bool output = ao->compare(leftMatrix, rightMatrix);
-
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(leftMatrix);
-    device::DeleteDeviceMatrix(rightMatrix);
-
-    device::DeleteDeviceMatrix(vector1);
-    return output;
-  }
 };
 
 class TestCuHArnoldiCallback : public CuHArnoldiCallback {
@@ -120,8 +143,8 @@ TEST_F(OapEigenCalculatorTests, Calculate) {
             "oap2dt3d/data/images_monkey", "image", 1000, true));
 
     TestCuHArnoldiCallback cuharnoldi;
-    ArnoldiOperations data(dataLoader.get());
-    cuharnoldi.setCallback(ArnoldiOperations::multiplyFunc, &data);
+    ArnoldiOperations ao(dataLoader.get());
+    cuharnoldi.setCallback(ArnoldiOperations::multiplyFunc, &ao);
 
     const int ecount = 3;
 
@@ -164,6 +187,8 @@ TEST_F(OapEigenCalculatorTests, Calculate) {
     eigenCalculator.setEigenvectorsType(ArnUtils::DEVICE);
 
     eigenCalculator.calculate();
+
+    EXPECT_TRUE(ao.verifyOutput(evectors[2], reoevalues[2]));
 
     debug("reoevalues[0] = %f", reoevalues[0]);
     debug("reoevalues[1] = %f", reoevalues[1]);
