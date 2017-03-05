@@ -18,7 +18,7 @@
  */
 
 #include "DeviceMatrixModules.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "KernelExecutor.h"
 #include <string.h>
 #include <vector>

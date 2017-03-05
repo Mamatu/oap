@@ -21,7 +21,7 @@
 
 #include "InfoCreatorHost.h"
 #include "MatrixUtils.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "Utils.h"
 
 void InfoCreatorHost::setInfoTypeCallback(const InfoType& infoType) {}

@@ -23,7 +23,7 @@
 
 #include "Matrix.h"
 #include "MatrixAPI.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 
 namespace host {
 namespace qrtest1 {

@@ -23,7 +23,7 @@
 #include "MatchersUtils.h"
 #include "MatrixProcedures.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "DeviceMatrixModules.h"
 #include "KernelExecutor.h"
 

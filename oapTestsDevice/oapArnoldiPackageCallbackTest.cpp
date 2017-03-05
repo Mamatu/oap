@@ -26,7 +26,7 @@
 #include "MatchersUtils.h"
 #include "Config.h"
 #include "KernelExecutor.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "DeviceMatrixModules.h"
 #include "MathOperationsCpu.h"
 #include "matrix1.h"

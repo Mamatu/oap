@@ -21,7 +21,8 @@
 #include "Exceptions.h"
 #include "PngFile.h"
 #include "Config.h"
-#include "HostMatrixModules.h"
+
+#include "HostMatrixUtils.h"
 
 #include <sstream>
 #include <functional>

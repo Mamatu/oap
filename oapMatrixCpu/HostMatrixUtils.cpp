@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include <cstring>
 #include <vector>
 #include <algorithm>
@@ -689,14 +689,14 @@ void PrintMatrix(const std::string& text, const math::Matrix* matrix) {
 
 void PrintMatrix(const math::Matrix* matrix) { PrintMatrix("", matrix); }
 
-void Copy(math::Matrix* dst, const math::Matrix* src,
-          const SubMatrix& subMatrix, uintt column, uintt row) {
+void Copy(math::Matrix* dst, const math::Matrix* src, const MatrixEx& subMatrix,
+          uintt column, uintt row) {
   HostMatrixCopier* copier =
       HostMatrixModules::GetInstance()->getMatrixCopier();
   uintt rows = dst->rows;
-  uintt columns2 = subMatrix.m_columns;
+  uintt columns2 = subMatrix.clength;
   for (uintt fa = 0; fa < rows; fa++) {
-    uintt fa1 = fa + subMatrix.m_brow;
+    uintt fa1 = fa + subMatrix.brow;
     if (fa < row) {
       copier->copy(dst->reValues + fa * dst->columns,
                    src->reValues + (fa1)*columns2, column);
@@ -740,16 +740,34 @@ void Copy(math::Matrix* dst, const math::Matrix* src, uintt column, uintt row) {
   }
 }
 
+void CopySubMatrix(math::Matrix* dst, const math::Matrix* src);
+
 void CopyMatrix(math::Matrix* dst, const math::Matrix* src) {
   const uintt length1 = dst->columns * dst->rows;
   const uintt length2 = src->columns * src->rows;
-  const uintt length = length1 < length2 ? length1 : length2;
-  uintt bytesLength = length * sizeof(floatt);
+  if (length1 == length2) {
+    if (ReIsNotNULL(dst) && ReIsNotNULL(src)) {
+      CopyBuffer(dst->reValues, src->reValues, length1);
+    }
+    if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
+      CopyBuffer(dst->imValues, src->imValues, length1);
+    }
+  } else if (length1 < length2 && dst->columns < src->columns &&
+             dst->rows < src->rows) {
+    CopySubMatrix(dst, src);
+  }
+}
+
+void CopySubMatrix(math::Matrix* dst, const math::Matrix* src) {
   if (ReIsNotNULL(dst) && ReIsNotNULL(src)) {
-    memcpy(dst->reValues, src->reValues, bytesLength);
+    for (uintt fa = 0; fa < dst->rows; ++fa) {
+      CopyBuffer(GetRePtr(dst, 0, fa), src->reValues, dst->columns);
+    }
   }
   if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
-    memcpy(dst->imValues, src->imValues, bytesLength);
+    for (uintt fa = 0; fa < dst->rows; ++fa) {
+      CopyBuffer(GetImPtr(dst, 0, fa), src->reValues, dst->columns);
+    }
   }
 }
 

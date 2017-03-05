@@ -24,7 +24,7 @@
 #define	OAP_THREADSCPU_H
 
 #include "ThreadUtils.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "ThreadData.h"
 
 class ThreadsCountProperty {

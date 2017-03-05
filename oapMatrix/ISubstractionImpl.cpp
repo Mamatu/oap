@@ -20,7 +20,7 @@
 
 
 #include "MathOperations.h"
-#include "HostMatrixModules.h"        
+#include "HostMatrixUtils.h"        
 namespace math {
 
     Status ISubstracionOperation::beforeExecution() {

@@ -19,10 +19,11 @@
 
 #ifndef OAP_DEVICE_MATRIX_UTILS_H
 #define OAP_DEVICE_MATRIX_UTILS_H
+#include "HostMatrixUtils.h"
+
 #include <stdio.h>
 #include <cuda.h>
 #include <map>
-#include "HostMatrixModules.h"
 #include "Matrix.h"
 #include "MatrixEx.h"
 #include "ThreadUtils.h"

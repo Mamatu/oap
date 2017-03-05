@@ -19,7 +19,7 @@
 
 #include "gtest/gtest.h"
 #include "DataLoader.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "PngFile.h"
 
 #include "MatchersUtils.h"

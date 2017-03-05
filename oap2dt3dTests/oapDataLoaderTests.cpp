@@ -20,7 +20,7 @@
 #include "gtest/gtest.h"
 #include "DataLoader.h"
 #include "Matrix.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "MatrixAPI.h"
 
 #include "ImageMock.h"

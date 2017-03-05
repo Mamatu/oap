@@ -31,7 +31,7 @@
 #include "Utils.h"
 #include "MatchersImpl.h"
 #include "InfoType.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 
 inline Matcher<math::Matrix*> MatrixIsEqual(
     math::Matrix* matrix, const InfoType& infoType = InfoType()) {

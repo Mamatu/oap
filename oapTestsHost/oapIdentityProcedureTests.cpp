@@ -23,7 +23,7 @@
 #include "MatchersUtils.h"
 #include "oapCudaStub.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "CuMatrixProcedures/CuIdentityProcedures.h"
 
 class OapIdentityProcedureTests : public OapCudaStub {
