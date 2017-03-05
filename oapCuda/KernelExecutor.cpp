@@ -29,6 +29,17 @@
 //#define KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
 #define KERNEL_EXTENDED_INFO 0
 
+
+#define printCuErrorStatus(status, cuResult)                                   \
+  if (cuResult != 0) {                                                         \
+    status = cuResult;                                                         \
+    const char* buffer;                                                        \
+    cuGetErrorName(cuResult, &buffer);                                         \
+    debug("\n%s %s : %d cuError: %s (%d)\n", __FUNCTION__, __FILE__, __LINE__, \
+          buffer, cuResult);                                                   \
+    abort();                                                                   \
+  }
+
 namespace device {
 
 void PrintDeviceInfo(CUdevice cudevice) {
