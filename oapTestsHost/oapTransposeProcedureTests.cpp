@@ -20,7 +20,9 @@
 #include "HostKernel.h"
 #include "oapCudaStub.h"
 #include "Matrix.h"
+#include "MatchersUtils.h"
 #include "MatrixEx.h"
+#include "HostMatrixUtils.h"
 #include "CuMatrixProcedures/CuTransposeProcedures.h"
 
 class OapCompareTests : public OapCudaStub {
@@ -39,6 +41,8 @@ class TransposeKernel : public HostKernel {
   void setMatrices(math::Matrix* dst, math::Matrix* src) {
     m_dst = dst;
     m_src = src;
+
+    setDims(dim3(1, 1), dim3(m_dst->columns, m_dst->rows));
   }
 
   math::Matrix* m_dst;
@@ -48,6 +52,31 @@ class TransposeKernel : public HostKernel {
   }
 };
 
-TEST_F(OapCompareTests, Transpose1) {
+TEST_F(OapCompareTests, TransposeTest1) {
+  math::Matrix* matrix = host::NewReMatrix(1, 1000, 2);
+  math::Matrix* matrixT = host::NewReMatrix(1000, 1, 0);
 
+  TransposeKernel transposeKernel(matrixT, matrix);
+
+  executeKernelAsync(&transposeKernel);
+
+  EXPECT_THAT(matrixT, MatrixValuesAreEqual(2));
+
+  host::DeleteMatrix(matrix);
+  host::DeleteMatrix(matrixT);
+}
+
+
+TEST_F(OapCompareTests, TransposeTest2) {
+  math::Matrix* matrix = host::NewReMatrix(1000, 1, 2);
+  math::Matrix* matrixT = host::NewReMatrix(1, 1000, 0);
+
+  TransposeKernel transposeKernel(matrixT, matrix);
+
+  executeKernelAsync(&transposeKernel);
+
+  EXPECT_THAT(matrixT, MatrixValuesAreEqual(2));
+
+  host::DeleteMatrix(matrix);
+  host::DeleteMatrix(matrixT);
 }

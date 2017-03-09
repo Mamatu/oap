@@ -90,7 +90,7 @@ __hostdevice__ void cuda_transposeReMatrix(math::Matrix* output,
   THREAD_INDICES_INIT();
 
   uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * output->columns + threadIndexY;
+  uintt index1 = threadIndexX * params0->columns + threadIndexY;
   output->reValues[index] = params0->reValues[index1];
 }
 
@@ -100,7 +100,7 @@ __hostdevice__ void cuda_transposeImMatrix(math::Matrix* output,
   THREAD_INDICES_INIT();
 
   uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * output->columns + threadIndexY;
+  uintt index1 = threadIndexX * params0->columns + threadIndexY;
   output->imValues[index] = -params0->imValues[index1];
 }
 
@@ -110,7 +110,7 @@ __hostdevice__ void cuda_transposeRealMatrix(math::Matrix* output,
   THREAD_INDICES_INIT();
 
   uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * output->columns + threadIndexY;
+  uintt index1 = threadIndexX * params0->columns + threadIndexY;
   output->reValues[index] = params0->reValues[index1];
   output->imValues[index] = -params0->imValues[index1];
 }
@@ -163,7 +163,7 @@ __hostdevice__ void transposeHIm(math::Matrix* output, math::Matrix* params0) {
   THREAD_INDICES_INIT();
 
   uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * output->columns + threadIndexY;
+  uintt index1 = threadIndexX * params0->columns + threadIndexY;
   output->imValues[index] = -params0->imValues[index1];
 }
 
@@ -172,7 +172,7 @@ __hostdevice__ void transposeHReIm(math::Matrix* output, math::Matrix* params0) 
   THREAD_INDICES_INIT();
 
   uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * output->columns + threadIndexY;
+  uintt index1 = threadIndexX * params0->columns + threadIndexY;
   output->reValues[index] = params0->reValues[index1];
   output->imValues[index] = -params0->imValues[index1];
 }
