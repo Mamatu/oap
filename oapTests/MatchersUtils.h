@@ -38,6 +38,11 @@ inline Matcher<math::Matrix*> MatrixIsEqual(
   return MakeMatcher(new MatrixIsEqualMatcher(matrix, infoType));
 }
 
+inline Matcher<math::Matrix*> MatrixHasValues(
+    math::Matrix* matrix, const InfoType& infoType = InfoType()) {
+  return MakeMatcher(new MatrixHasValuesMatcher(matrix, infoType));
+}
+
 inline Matcher<math::Matrix*> MatrixContainsDiagonalValues(
     math::Matrix* matrix) {
   return MakeMatcher(new MatrixContainsDiagonalValuesMatcher(matrix));

@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef UTILS_H
 #define UTILS_H
 
@@ -55,6 +52,9 @@ void diff(math::Matrix* output, math::Matrix* m1, math::Matrix* m2);
 
 bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
              math::Matrix** diff = NULL);
+
+bool HasValues(const math::Matrix& m1, const math::Matrix& m2,
+               math::Matrix** diff = NULL);
 
 bool IsIdentityMatrix(const math::Matrix& m1, math::Matrix** output);
 

@@ -25,7 +25,7 @@
 #include "HostMatrixUtils.h"
 #include "CuMatrixProcedures/CuTransposeProcedures.h"
 
-class OapCompareTests : public OapCudaStub {
+class OapTransposeTests : public OapCudaStub {
  public:
   virtual void SetUp() {}
 
@@ -52,7 +52,7 @@ class TransposeKernel : public HostKernel {
   }
 };
 
-TEST_F(OapCompareTests, TransposeTest1) {
+TEST_F(OapTransposeTests, TransposeVectorTest) {
   math::Matrix* matrix = host::NewReMatrix(1, 1000, 2);
   math::Matrix* matrixT = host::NewReMatrix(1000, 1, 0);
 
@@ -66,8 +66,7 @@ TEST_F(OapCompareTests, TransposeTest1) {
   host::DeleteMatrix(matrixT);
 }
 
-
-TEST_F(OapCompareTests, TransposeTest2) {
+TEST_F(OapTransposeTests, TransposeConjVectorTest) {
   math::Matrix* matrix = host::NewReMatrix(1000, 1, 2);
   math::Matrix* matrixT = host::NewReMatrix(1, 1000, 0);
 
@@ -76,6 +75,48 @@ TEST_F(OapCompareTests, TransposeTest2) {
   executeKernelAsync(&transposeKernel);
 
   EXPECT_THAT(matrixT, MatrixValuesAreEqual(2));
+
+  host::DeleteMatrix(matrix);
+  host::DeleteMatrix(matrixT);
+}
+
+TEST_F(OapTransposeTests, TransposeVectorTest1) {
+  uint length = 1000;
+  math::Matrix* matrix = host::NewReMatrix(1, length, 1);
+  math::Matrix* matrixT = host::NewReMatrix(length, 1, 5);
+
+  for (int fa = 0; fa < length; ++fa) {
+    SetRe(matrix, 0, fa, fa);
+  }
+
+  EXPECT_THAT(matrixT, MatrixValuesAreEqual(5));
+
+  TransposeKernel transposeKernel(matrixT, matrix);
+
+  executeKernelAsync(&transposeKernel);
+
+  EXPECT_THAT(matrixT, MatrixHasValues(matrix));
+
+  host::DeleteMatrix(matrix);
+  host::DeleteMatrix(matrixT);
+}
+
+TEST_F(OapTransposeTests, TransposeConjVectorTest1) {
+  uint length = 1000;
+  math::Matrix* matrix = host::NewReMatrix(length, 1, 2);
+  math::Matrix* matrixT = host::NewReMatrix(1, length, 5);
+
+  for (int fa = 0; fa < length; ++fa) {
+    SetRe(matrix, fa, 0, fa);
+  }
+
+  EXPECT_THAT(matrixT, MatrixValuesAreEqual(5));
+
+  TransposeKernel transposeKernel(matrixT, matrix);
+
+  executeKernelAsync(&transposeKernel);
+
+  EXPECT_THAT(matrixT, MatrixHasValues(matrix));
 
   host::DeleteMatrix(matrix);
   host::DeleteMatrix(matrixT);

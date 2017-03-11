@@ -17,12 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "InfoCreator.h"
 #include "MatrixUtils.h"
 
-InfoCreator::InfoCreator() {}
+InfoCreator::InfoCreator() : m_expected(NULL), m_output(NULL) {}
 
 InfoCreator::~InfoCreator() {}
 
@@ -45,6 +43,12 @@ void InfoCreator::setOutput(math::Matrix* output) {
   m_output = output;
   setOutputCallback(m_output);
 }
+
+void InfoCreator::setInfoType(const InfoType& infoType) {
+  m_infoType = infoType;
+}
+
+void InfoCreator::getInfo(std::string& output) const { output = m_info; }
 
 void InfoCreator::getSLInfo(std::string& outputStr, const std::string& label,
                             ICMethod methodre, ICMethod methodim,
@@ -69,15 +73,14 @@ void InfoCreator::getSLInfo(std::string& outputStr, const std::string& label,
   outputStr += "\n";
 }
 
-void InfoCreator::getInfo(std::string& outputStr,
-                          const InfoType& infoType) const {
+void InfoCreator::createInfo(std::string& outputStr, const InfoType& infoType,
+                             math::Matrix* diffmatrix) const {
   math::Matrix* output = getOutputMatrix();
   math::Matrix* expected = getExpectedMatrix();
-  math::Matrix* diffmatrix = createDiffMatrix(expected, output);
   bool isequal = diffmatrix == NULL;
   if (!isequal) {
     if (infoType.getInfo() & InfoType::MEAN) {
-      printMean(outputStr);
+      printMeans(outputStr, diffmatrix);
       outputStr += "\n";
     }
     if (infoType.getInfo() & InfoType::LARGEST_DIFF) {
@@ -95,7 +98,6 @@ void InfoCreator::getInfo(std::string& outputStr,
       outputStr += "\n";
     }
   }
-  destroyDiffMatrix(diffmatrix);
 }
 
 void InfoCreator::printMatrix(std::string& output, const std::string& message,
@@ -105,17 +107,18 @@ void InfoCreator::printMatrix(std::string& output, const std::string& message,
   output += message + matrixStr + "\n";
 }
 
-bool InfoCreator::printMean(std::string& output) const {
+bool InfoCreator::printMeans(std::string& output,
+                             math::Matrix* diffmatrix) const {
   math::Matrix* expectedMatrix = getExpectedMatrix();
   math::Matrix* outputMatrix = getOutputMatrix();
   if (expectedMatrix == NULL || outputMatrix == NULL) {
     return false;
   }
-  math::Matrix* diff = createDiffMatrix(expectedMatrix, outputMatrix);
+  math::Matrix* diff = diffmatrix;
   printMean(output, "Expected mean = ", expectedMatrix);
   printMean(output, "Output mean = ", outputMatrix);
   printMean(output, "Diff mean = ", diff);
-  destroyDiffMatrix(diff);
+  destroyMatrix(diff);
   return true;
 }
 
@@ -132,10 +135,28 @@ void InfoCreator::printMean(std::string& output, const std::string& message,
   output += message + "(" + sstream1.str() + "," + sstream2.str() + ") ";
 }
 
-bool InfoCreator::isEqual() const {
+bool InfoCreator::isEqual() {
   math::Matrix* output = getOutputMatrix();
   math::Matrix* expected = getExpectedMatrix();
-  return compare(output, expected);
+  math::Matrix* diffMatrix = NULL;
+  bool result = compare(output, expected, &diffMatrix);
+  if (diffMatrix != NULL) {
+    createInfo(m_info, m_infoType, diffMatrix);
+    destroyMatrix(diffMatrix);
+  }
+  return result;
+}
+
+bool InfoCreator::hasValues() {
+  math::Matrix* output = getOutputMatrix();
+  math::Matrix* expected = getExpectedMatrix();
+  math::Matrix* diffMatrix = NULL;
+  bool result = compareValues(output, expected, &diffMatrix);
+  if (diffMatrix != NULL) {
+    createInfo(m_info, m_infoType, diffMatrix);
+    destroyMatrix(diffMatrix);
+  }
+  return result;
 }
 
 /*

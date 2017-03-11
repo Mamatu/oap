@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "InfoCreatorHost.h"
 #include "MatrixUtils.h"
 #include "HostMatrixUtils.h"
@@ -41,19 +39,18 @@ void InfoCreatorHost::getMean(floatt& re, floatt& im,
   im = utils::getMean(matrix->imValues, matrix->columns * matrix->rows);
 }
 
-bool InfoCreatorHost::compare(math::Matrix* matrix1,
-                              math::Matrix* matrix2) const {
-  return utils::IsEqual(*matrix1, *matrix2);
+bool InfoCreatorHost::compare(math::Matrix* matrix1, math::Matrix* matrix2,
+                              math::Matrix** diffMatrix) const {
+  return utils::IsEqual(*matrix1, *matrix2, diffMatrix);
 }
 
-math::Matrix* InfoCreatorHost::createDiffMatrix(math::Matrix* matrix1,
-                                                math::Matrix* matrix2) const {
-  math::Matrix* output = NULL;
-  utils::IsEqual(*matrix1, *matrix2, &output);
-  return output;
+bool InfoCreatorHost::compareValues(math::Matrix* matrix1,
+                                    math::Matrix* matrix2,
+                                    math::Matrix** diffMatrix) const {
+  return utils::HasValues(*matrix1, *matrix2, diffMatrix);
 }
 
-void InfoCreatorHost::destroyDiffMatrix(math::Matrix* diffMatrix) const {
+void InfoCreatorHost::destroyMatrix(math::Matrix* diffMatrix) const {
   host::DeleteMatrix(diffMatrix);
 }
 

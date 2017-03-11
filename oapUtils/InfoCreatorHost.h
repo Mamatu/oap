@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef INFOCREATORHOST
 #define INFOCREATORHOST
 
@@ -36,12 +34,13 @@ class InfoCreatorHost : public InfoCreator {
 
   virtual void getMean(floatt& re, floatt& im, math::Matrix* matrix) const;
 
-  virtual bool compare(math::Matrix* matrix1, math::Matrix* matrix2) const;
+  virtual bool compare(math::Matrix* matrix1, math::Matrix* matrix2,
+                       math::Matrix** diffMatrix) const;
 
-  virtual math::Matrix* createDiffMatrix(math::Matrix* matrix1,
-                                         math::Matrix* matrix2) const;
+  virtual bool compareValues(math::Matrix* matrix1, math::Matrix* matrix2,
+                             math::Matrix** diffMatrix) const;
 
-  virtual void destroyDiffMatrix(math::Matrix* diffMatrix) const;
+  virtual void destroyMatrix(math::Matrix* diffMatrix) const;
 
   virtual std::pair<floatt, uintt> getLargestReValue(
       math::Matrix* matrix) const;

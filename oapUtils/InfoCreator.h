@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef INFOCREATOR_H
 #define INFOCREATOR_H
 
@@ -34,6 +32,9 @@ class InfoCreator {
   math::Matrix* m_expected;
   math::Matrix* m_output;
 
+  std::string m_info;
+  InfoType m_infoType;
+
  public:
   InfoCreator();
   virtual ~InfoCreator();
@@ -41,7 +42,8 @@ class InfoCreator {
   void setExpected(math::Matrix* expected);
   void setOutput(math::Matrix* output);
 
-  void getInfo(std::string& output, const InfoType& infoType) const;
+  void setInfoType(const InfoType& infoType);
+  void getInfo(std::string& output) const;
 
  protected:
   class ComplexInternal : public Complex {
@@ -61,12 +63,13 @@ class InfoCreator {
 
   virtual void getMean(floatt& re, floatt& im, math::Matrix* matrix) const = 0;
 
-  virtual bool compare(math::Matrix* matrix1, math::Matrix* matrix2) const = 0;
+  virtual bool compare(math::Matrix* matrix1, math::Matrix* matrix2,
+                       math::Matrix** diffMatrix) const = 0;
 
-  virtual math::Matrix* createDiffMatrix(math::Matrix* matrix1,
-                                         math::Matrix* matrix2) const = 0;
+  virtual bool compareValues(math::Matrix* matrix1, math::Matrix* matrix2,
+                             math::Matrix** diffMatrix) const = 0;
 
-  virtual void destroyDiffMatrix(math::Matrix* diffMatrix) const = 0;
+  virtual void destroyMatrix(math::Matrix* diffMatrix) const = 0;
 
   virtual bool isRe(math::Matrix* matrix) const = 0;
 
@@ -86,16 +89,20 @@ class InfoCreator {
                  ICMethod methodre, ICMethod methodim,
                  math::Matrix* diffmatrix) const;
 
+  void createInfo(std::string& output, const InfoType& infoType,
+                  math::Matrix* diffmatrix) const;
+
  public:
   void printMatrix(std::string& output, const std::string& message,
                    math::Matrix* matrix) const;
 
-  bool printMean(std::string& output) const;
+  bool printMeans(std::string& output, math::Matrix* diffmatrix) const;
 
   void printMean(std::string& output, const std::string& message,
                  math::Matrix* matrix) const;
 
-  bool isEqual() const;
+  bool isEqual();
+  bool hasValues();
 };
 
 /*
