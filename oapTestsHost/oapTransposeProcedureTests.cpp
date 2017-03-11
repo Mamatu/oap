@@ -60,7 +60,7 @@ TEST_F(OapTransposeTests, TransposeVectorTest) {
 
   executeKernelAsync(&transposeKernel);
 
-  EXPECT_THAT(matrixT, MatrixValuesAreEqual(2));
+  EXPECT_THAT(matrixT, MatrixHasValues(2));
 
   host::DeleteMatrix(matrix);
   host::DeleteMatrix(matrixT);
@@ -74,7 +74,7 @@ TEST_F(OapTransposeTests, TransposeConjVectorTest) {
 
   executeKernelAsync(&transposeKernel);
 
-  EXPECT_THAT(matrixT, MatrixValuesAreEqual(2));
+  EXPECT_THAT(matrixT, MatrixHasValues(2));
 
   host::DeleteMatrix(matrix);
   host::DeleteMatrix(matrixT);
@@ -89,7 +89,7 @@ TEST_F(OapTransposeTests, TransposeVectorTest1) {
     SetRe(matrix, 0, fa, fa);
   }
 
-  EXPECT_THAT(matrixT, MatrixValuesAreEqual(5));
+  EXPECT_THAT(matrixT, MatrixHasValues(5));
 
   TransposeKernel transposeKernel(matrixT, matrix);
 
@@ -110,7 +110,7 @@ TEST_F(OapTransposeTests, TransposeConjVectorTest1) {
     SetRe(matrix, fa, 0, fa);
   }
 
-  EXPECT_THAT(matrixT, MatrixValuesAreEqual(5));
+  EXPECT_THAT(matrixT, MatrixHasValues(5));
 
   TransposeKernel transposeKernel(matrixT, matrix);
 

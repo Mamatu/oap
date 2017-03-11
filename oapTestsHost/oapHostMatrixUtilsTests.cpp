@@ -35,7 +35,7 @@ TEST_F(OapHostMatrixUtilsTests, SubCopy) {
 
   host::CopyMatrix(m2, m1);
 
-  EXPECT_THAT(m2, MatrixValuesAreEqual(1));
+  EXPECT_THAT(m2, MatrixHasValues(1));
 
   host::DeleteMatrix(m1);
   host::DeleteMatrix(m2);

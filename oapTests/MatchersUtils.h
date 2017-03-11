@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef MOCKUTILS_H
 #define MOCKUTILS_H
 
@@ -56,7 +53,7 @@ inline Matcher<math::Matrix*> MatrixIsIdentity() {
   return MakeMatcher(new MatrixIsIdentityMatcher());
 }
 
-inline Matcher<math::Matrix*> MatrixValuesAreEqual(floatt value) {
+inline Matcher<math::Matrix*> MatrixHasValues(floatt value) {
   return MakeMatcher(new MatrixValuesAreEqualMatcher(value));
 }
 

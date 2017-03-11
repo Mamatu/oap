@@ -109,7 +109,7 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode) {
 
   floatt expected = oap::Image::convertRgbToFloatt(0, 255, 0);
 
-  EXPECT_THAT(matrix, MatrixValuesAreEqual(expected));
+  EXPECT_THAT(matrix, MatrixHasValues(expected));
 
   host::DeleteMatrix(matrix);
 }
@@ -119,7 +119,7 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenFrugalMode) {
 
   floatt expected = oap::Image::convertRgbToFloatt(0, 255, 0);
 
-  EXPECT_THAT(matrix, MatrixValuesAreEqual(expected));
+  EXPECT_THAT(matrix, MatrixHasValues(expected));
 
   host::DeleteMatrix(matrix);
 }
