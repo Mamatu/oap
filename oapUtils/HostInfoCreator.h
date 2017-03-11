@@ -17,13 +17,13 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INFOCREATORHOST
-#define INFOCREATORHOST
+#ifndef HOSTINFOCREATOR_H
+#define HOSTINFOCREATOR_H
 
 #include "InfoCreator.h"
 #include "HostProcedures.h"
 
-class InfoCreatorHost : public InfoCreator {
+class HostInfoCreator : public InfoCreator {
  private:
  protected:
   virtual void setInfoTypeCallback(const InfoType& infoType);

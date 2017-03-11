@@ -17,16 +17,13 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef MATCHERSIMPL_H
 #define MATCHERSIMPL_H
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "MatrixTestAPI.h"
-#include "InfoCreatorHost.h"
+#include "HostInfoCreator.h"
 #include "Utils.h"
 
 using ::testing::PrintToString;
@@ -68,7 +65,7 @@ class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
 
   virtual bool MatchAndExplain(math::Matrix* matrix,
                                MatchResultListener* listener) const {
-    InfoCreatorHost infoCreator;
+    HostInfoCreator infoCreator;
     infoCreator.setExpected(matrix);
     infoCreator.setOutput(m_matrix);
     infoCreator.setInfoType(m_infoType);
@@ -98,7 +95,7 @@ class MatrixHasValuesMatcher : public MatcherInterface<math::Matrix*> {
 
   virtual bool MatchAndExplain(math::Matrix* matrix,
                                MatchResultListener* listener) const {
-    InfoCreatorHost infoCreator;
+    HostInfoCreator infoCreator;
     infoCreator.setExpected(matrix);
     infoCreator.setOutput(m_matrix);
     infoCreator.setInfoType(m_infoType);
@@ -287,7 +284,8 @@ class MatrixContainsDiagonalValuesMatcher
 
   virtual bool MatchAndExplain(math::Matrix* matrix,
                                MatchResultListener* listener) const {
-    if (matrix->columns != m_matrix->columns && matrix->rows != m_matrix->rows) {
+    if (matrix->columns != m_matrix->columns &&
+        matrix->rows != m_matrix->rows) {
       return false;
     }
 
@@ -299,16 +297,14 @@ class MatrixContainsDiagonalValuesMatcher
     for (uintt fa = 0; fa < matrix->columns; ++fa) {
       Complex complex = getComplex(matrix, fa);
       if (std::find(values.begin(), values.end(), complex) == values.end()) {
-          return false;
+        return false;
       }
     }
 
     return true;
   }
 
-  virtual void DescribeTo(::std::ostream* os) const {
-    *os << "Both matrix ";
-  }
+  virtual void DescribeTo(::std::ostream* os) const { *os << "Both matrix "; }
 
   virtual void DescribeNegationTo(::std::ostream* os) const {
     *os << "Matrices are not equal.";

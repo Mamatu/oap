@@ -105,36 +105,4 @@ class InfoCreator {
   bool hasValues();
 };
 
-/*
-class InfoCreatorHost : public InfoCreator {
- private:
-  inline uintt getIndexOfLargestDiff(math::Matrix* diff) const;
-  inline uintt getIndexOfSmallestDiff(math::Matrix* diff) const;
-
- protected:
-  void printMatrix(std::string& output, const std::string& message,
-                   math::Matrix* matrix) const;
-
-  void printMean(std::string& output, const std::string& message,
-                 math::Matrix* matrix) const;
-
-  floatt calculateMean(const matrixUtils::MatrixRange& matrixRange,
-                       floatt (*GetValue)(const math::Matrix*, uintt,
-                                          uintt)) const;
-  uintt getIndexOfLargestDiff() const;
-  uintt getIndexOfSmallestDiff() const;
-
-  virtual Complex getMean(math::Matrix* matrix, MatrixType matrixType) const;
-
- public:
-  InfoCreatorHost();
-
-  InfoCreatorHost(math::Matrix* expected, math::Matrix* output,
-                  const InfoType& infoType);
-
-  virtual ~InfoCreatorHost();
-
-  bool isEquals() const;
-};*/
-
 #endif  // INFOCREATOR_H

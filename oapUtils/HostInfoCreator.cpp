@@ -17,67 +17,67 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InfoCreatorHost.h"
+#include "HostInfoCreator.h"
 #include "MatrixUtils.h"
 #include "HostMatrixUtils.h"
 #include "Utils.h"
 
-void InfoCreatorHost::setInfoTypeCallback(const InfoType& infoType) {}
+void HostInfoCreator::setInfoTypeCallback(const InfoType& infoType) {}
 
-void InfoCreatorHost::setExpectedCallback(math::Matrix* expected) {}
+void HostInfoCreator::setExpectedCallback(math::Matrix* expected) {}
 
-void InfoCreatorHost::setOutputCallback(math::Matrix* output) {}
+void HostInfoCreator::setOutputCallback(math::Matrix* output) {}
 
-void InfoCreatorHost::getString(std::string& output,
+void HostInfoCreator::getString(std::string& output,
                                 math::Matrix* matrix) const {
   matrixUtils::PrintMatrix(output, matrix);
 }
 
-void InfoCreatorHost::getMean(floatt& re, floatt& im,
+void HostInfoCreator::getMean(floatt& re, floatt& im,
                               math::Matrix* matrix) const {
   re = utils::getMean(matrix->reValues, matrix->columns * matrix->rows);
   im = utils::getMean(matrix->imValues, matrix->columns * matrix->rows);
 }
 
-bool InfoCreatorHost::compare(math::Matrix* matrix1, math::Matrix* matrix2,
+bool HostInfoCreator::compare(math::Matrix* matrix1, math::Matrix* matrix2,
                               math::Matrix** diffMatrix) const {
   return utils::IsEqual(*matrix1, *matrix2, diffMatrix);
 }
 
-bool InfoCreatorHost::compareValues(math::Matrix* matrix1,
+bool HostInfoCreator::compareValues(math::Matrix* matrix1,
                                     math::Matrix* matrix2,
                                     math::Matrix** diffMatrix) const {
   return utils::HasValues(*matrix1, *matrix2, diffMatrix);
 }
 
-void InfoCreatorHost::destroyMatrix(math::Matrix* diffMatrix) const {
+void HostInfoCreator::destroyMatrix(math::Matrix* diffMatrix) const {
   host::DeleteMatrix(diffMatrix);
 }
 
-bool InfoCreatorHost::isRe(math::Matrix* matrix) const {
+bool HostInfoCreator::isRe(math::Matrix* matrix) const {
   return matrix->reValues != NULL;
 }
 
-bool InfoCreatorHost::isIm(math::Matrix* matrix) const {
+bool HostInfoCreator::isIm(math::Matrix* matrix) const {
   return matrix->imValues != NULL;
 }
 
-std::pair<floatt, uintt> InfoCreatorHost::getLargestReValue(
+std::pair<floatt, uintt> HostInfoCreator::getLargestReValue(
     math::Matrix* matrix) const {
   return utils::getLargest(matrix->reValues, matrix->columns * matrix->rows);
 }
 
-std::pair<floatt, uintt> InfoCreatorHost::getLargestImValue(
+std::pair<floatt, uintt> HostInfoCreator::getLargestImValue(
     math::Matrix* matrix) const {
   return utils::getLargest(matrix->imValues, matrix->columns * matrix->rows);
 }
 
-std::pair<floatt, uintt> InfoCreatorHost::getSmallestReValue(
+std::pair<floatt, uintt> HostInfoCreator::getSmallestReValue(
     math::Matrix* matrix) const {
   return utils::getSmallest(matrix->reValues, matrix->columns * matrix->rows);
 }
 
-std::pair<floatt, uintt> InfoCreatorHost::getSmallestImValue(
+std::pair<floatt, uintt> HostInfoCreator::getSmallestImValue(
     math::Matrix* matrix) const {
   return utils::getSmallest(matrix->imValues, matrix->columns * matrix->rows);
 }
