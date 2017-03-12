@@ -752,8 +752,8 @@ void CopyMatrix(math::Matrix* dst, const math::Matrix* src) {
     if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
       CopyBuffer(dst->imValues, src->imValues, length1);
     }
-  } else if (length1 < length2 && dst->columns < src->columns &&
-             dst->rows < src->rows) {
+  } else if (length1 < length2 && dst->columns <= src->columns &&
+             dst->rows <= src->rows) {
     CopySubMatrix(dst, src);
   }
 }
@@ -761,12 +761,12 @@ void CopyMatrix(math::Matrix* dst, const math::Matrix* src) {
 void CopySubMatrix(math::Matrix* dst, const math::Matrix* src) {
   if (ReIsNotNULL(dst) && ReIsNotNULL(src)) {
     for (uintt fa = 0; fa < dst->rows; ++fa) {
-      CopyBuffer(GetRePtr(dst, 0, fa), src->reValues, dst->columns);
+      CopyBuffer(GetRePtr(dst, 0, fa), GetRePtr(src, 0, fa), dst->columns);
     }
   }
   if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
     for (uintt fa = 0; fa < dst->rows; ++fa) {
-      CopyBuffer(GetImPtr(dst, 0, fa), src->reValues, dst->columns);
+      CopyBuffer(GetImPtr(dst, 0, fa), GetImPtr(src, 0, fa), dst->columns);
     }
   }
 }
