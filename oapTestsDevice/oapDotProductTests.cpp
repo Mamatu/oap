@@ -17,7 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <string>
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
@@ -27,29 +26,63 @@
 #include "DeviceMatrixModules.h"
 #include "KernelExecutor.h"
 
-class OapMatrixCudaTests : public testing::Test {
-public:
-    math::Matrix* output;
-    math::Matrix* eq_output;
-    CuMatrix* cuMatrix;
-    CUresult status;
+class OapDotProductTests : public testing::Test {
+ public:
+  CuMatrix* cuMatrix;
+  CUresult status;
 
-    virtual void SetUp() {
-        status = CUDA_SUCCESS;
-        device::Context::Instance().create();
-        output = NULL;
-        eq_output = NULL;
-        cuMatrix = new CuMatrix();
-    }
+  virtual void SetUp() {
+    device::Context::Instance().create();
+    cuMatrix = new CuMatrix();
+  }
 
-    virtual void TearDown() {
-        device::Context::Instance().destroy();
-        delete cuMatrix;
-        if (output != NULL && eq_output != NULL) {
-            EXPECT_THAT(output, MatrixIsEqual(eq_output));
-        }
-        EXPECT_EQ(status, CUDA_SUCCESS);
-        host::DeleteMatrix(output);
-        host::DeleteMatrix(eq_output);
-    }
+  virtual void TearDown() {
+    delete cuMatrix;
+    device::Context::Instance().destroy();
+  }
 };
+
+TEST_F(OapDotProductTests, Test1) {
+  math::Matrix* hostM1 = host::NewReMatrix(1, 10, 2);
+  math::Matrix* hostM2 = host::NewReMatrix(10, 1, 2);
+
+  math::Matrix* dM1 = device::NewDeviceMatrixCopy(hostM1);
+  math::Matrix* dM2 = device::NewDeviceMatrixCopy(hostM2);
+  math::Matrix* doutput = device::NewDeviceReMatrix(10, 10);
+  math::Matrix* houtput = host::NewReMatrix(10, 10);
+
+  cuMatrix->dotProduct(doutput, dM1, dM2);
+  device::CopyDeviceMatrixToHostMatrix(houtput, doutput);
+
+  EXPECT_THAT(houtput, MatrixHasValues(4));
+
+  device::DeleteDeviceMatrix(doutput);
+  device::DeleteDeviceMatrix(dM1);
+  device::DeleteDeviceMatrix(dM2);
+  host::DeleteMatrix(houtput);
+  host::DeleteMatrix(hostM1);
+  host::DeleteMatrix(hostM2);
+}
+
+
+TEST_F(OapDotProductTests, Test2) {
+  math::Matrix* hostM1 = host::NewReMatrix(1, 100, 2);
+  math::Matrix* hostM2 = host::NewReMatrix(100, 1, 2);
+
+  math::Matrix* dM1 = device::NewDeviceMatrixCopy(hostM1);
+  math::Matrix* dM2 = device::NewDeviceMatrixCopy(hostM2);
+  math::Matrix* doutput = device::NewDeviceReMatrix(10, 10);
+  math::Matrix* houtput = host::NewReMatrix(10, 10);
+
+  cuMatrix->dotProduct(doutput, dM1, dM2);
+  device::CopyDeviceMatrixToHostMatrix(houtput, doutput);
+
+  EXPECT_THAT(houtput, MatrixHasValues(4));
+
+  device::DeleteDeviceMatrix(doutput);
+  device::DeleteDeviceMatrix(dM1);
+  device::DeleteDeviceMatrix(dM2);
+  host::DeleteMatrix(houtput);
+  host::DeleteMatrix(hostM1);
+  host::DeleteMatrix(hostM2);
+}
