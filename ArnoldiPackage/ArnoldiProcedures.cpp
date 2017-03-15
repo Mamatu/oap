@@ -281,12 +281,6 @@ void aux_swapPointers(math::Matrix** a, math::Matrix** b) {
   *a = temp;
 }
 
-void aux_swapPointers(math::Matrix** a, math::Matrix** b) {
-  math::Matrix* temp = *b;
-  *b = *a;
-  *a = temp;
-}
-
 void CuHArnoldi::sortPWorstEigens(uintt unwantedCount) {
   debugFunc();
   aux_swapPointers(&m_Q, &m_QJ);
