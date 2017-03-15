@@ -26,7 +26,7 @@
 #include "MatchersUtils.h"
 #include "Config.h"
 #include "KernelExecutor.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "DeviceMatrixModules.h"
 #include "MathOperationsCpu.h"
 #include "matrix1.h"
@@ -43,6 +43,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
    public:
     CuHArnoldiCallbackImpl() : CuHArnoldiCallback() {
       m_compareValueWasSet = false;
+      setOutputType(ArnUtils::HOST);
     }
 
     void setEValue(floatt evalue, floatt tolerance) {
@@ -270,7 +271,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     arnoldiCuda->setCheckType(ArnUtils::CHECK_EXTERNAL_EIGENVALUE);
     arnoldiCuda->setEValue(value, tolerance);
     arnoldiCuda->setOutputsEigenvalues(revalues, imvalues);
-    ArnUtils::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
+    math::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
                                     data.getElementsCount());
 
     debugLongTest();

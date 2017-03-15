@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "MathOperationsCpu.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "Matrix.h"
 #include "ThreadUtils.h"
 #include "ThreadsMapper.h"

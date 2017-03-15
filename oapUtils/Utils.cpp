@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "Utils.h"
 
 namespace utils {
@@ -68,10 +66,18 @@ void diff(math::Matrix* output, math::Matrix* m1, math::Matrix* m2) {
 
 bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
              math::Matrix** diff) {
+  if (m1.columns != m2.columns || m1.rows != m2.rows) {
+    return false;
+  }
+  return HasValues(m1, m2, diff);
+}
+
+bool HasValues(const math::Matrix& m1, const math::Matrix& m2,
+               math::Matrix** diff) {
   if (diff != NULL) {
     (*diff) = NULL;
   }
-  if (m1.columns != m2.columns || m1.rows != m2.rows) {
+  if (m1.columns * m1.rows != m2.columns * m2.rows) {
     return false;
   }
   bool status = true;
@@ -88,8 +94,7 @@ bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
             if (*diff == NULL) {
               (*diff) = create(m1);
             }
-            (*diff)->reValues[index] =
-                m1.reValues[index] - m2.reValues[index];
+            (*diff)->reValues[index] = m1.reValues[index] - m2.reValues[index];
           }
         }
       }
@@ -103,8 +108,7 @@ bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
             if (*diff == NULL) {
               (*diff) = create(m1);
             }
-            (*diff)->imValues[index] =
-                m1.imValues[index] - m2.imValues[index];
+            (*diff)->imValues[index] = m1.imValues[index] - m2.imValues[index];
           }
         }
       }
@@ -139,9 +143,8 @@ bool IsDiagonalMatrix(const math::Matrix& m1, floatt value) {
 }
 
 bool isEqual(const MatrixEx& matrixEx, const uintt* buffer) {
-  if (matrixEx.bcolumn == buffer[0] && matrixEx.ecolumn == buffer[1] &&
-      matrixEx.brow == buffer[2] && matrixEx.erow == buffer[3] &&
-      matrixEx.boffset == buffer[4] && matrixEx.eoffset == buffer[5]) {
+  if (matrixEx.bcolumn == buffer[0] && matrixEx.clength == buffer[1] &&
+      matrixEx.brow == buffer[2] && matrixEx.rlength == buffer[3]) {
     return true;
   }
   return false;

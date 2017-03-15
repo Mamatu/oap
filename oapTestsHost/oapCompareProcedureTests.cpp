@@ -23,7 +23,7 @@
 #include "MatchersUtils.h"
 #include "oapCudaStub.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "CuMatrixProcedures/CuCompareUtils.h"
 #include "CuMatrixProcedures/CuCompareUtils2.h"
 
@@ -153,7 +153,7 @@ TEST_F(OapCompareTests, CoverTestTestAlgoVer1) {
   uintt columns = 64;
   uintt rows = 32;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
-  EXPECT_THAT(compareStubImpl.m_matrix, MatrixValuesAreEqual(0));
+  EXPECT_THAT(compareStubImpl.m_matrix, MatrixHasValues(0.f));
 }
 
 TEST_F(OapCompareTests, CompareReMatrixOneBlockCoverTestAlgoVer1) {
@@ -278,7 +278,7 @@ TEST_F(OapCompareTests, CoverTestTestAlgoVer2) {
   uintt columns = 64;
   uintt rows = 32;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
-  EXPECT_THAT(compareStubImpl.m_matrix, MatrixValuesAreEqual(0));
+  EXPECT_THAT(compareStubImpl.m_matrix, MatrixHasValues(0.f));
 }
 
 TEST_F(OapCompareTests, CompareReMatrixOneBlockCoverTestAlgoVer2) {

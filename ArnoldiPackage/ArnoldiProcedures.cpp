@@ -24,12 +24,7 @@
 #include "DeviceMatrixKernels.h"
 #include "HostMatrixKernels.h"
 #include "Callbacks.h"
-
-#define PRINT(aH)                                                             \
-  {                                                                           \
-    fprintf(stderr, "%s %s %d H00 = %f \n", __FUNCTION__, __FILE__, __LINE__, \
-            CudaUtils::GetReValue(aH, 0));                                    \
-  }
+#include "HostMatrixUtils.h"
 
 const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
 
@@ -38,7 +33,7 @@ CuHArnoldi::CuHArnoldi()
       m_k(0),
       m_rho(1. / 3.14),
       m_blimit(MATH_VALUE_LIMIT),
-      m_sortType(NULL),
+      m_sortObject(ArnUtils::SortSmallestValues),
       m_checkType(ArnUtils::CHECK_INTERNAL),
       m_w(NULL),
       m_f(NULL),
@@ -67,6 +62,7 @@ CuHArnoldi::CuHArnoldi()
       m_HO(NULL),
       m_HO1(NULL),
       m_Q(NULL),
+      m_hostV(NULL),
       m_QJ(NULL),
       m_q(NULL),
       m_q1(NULL),
@@ -77,7 +73,11 @@ CuHArnoldi::CuHArnoldi()
       m_EV1(NULL),
       m_EQ1(NULL),
       m_EQ2(NULL),
-      m_EQ3(NULL) {
+      m_EQ3(NULL),
+      m_outputType(ArnUtils::UNDEFINED),
+      m_reoevalues(NULL),
+      m_imoevalues(NULL),
+      m_oevectors(NULL) {
   m_kernel.load(kernelsFiles);
   m_calculateTriangularHPtr = NULL;
 }
@@ -94,8 +94,7 @@ void CuHArnoldi::setRho(floatt rho) { m_rho = rho; }
 void CuHArnoldi::setBLimit(floatt blimit) { m_blimit = blimit; }
 
 void CuHArnoldi::setSortType(ArnUtils::SortType sortType) {
-  m_sortType = sortType;
-  debug("Warning! Sort type is null. Set as smallest value.");
+  m_sortObject = sortType;
 }
 
 void CuHArnoldi::setCheckType(ArnUtils::CheckType checkType) {
@@ -105,19 +104,21 @@ void CuHArnoldi::setCheckType(ArnUtils::CheckType checkType) {
 void CuHArnoldi::setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues) {
   m_reoevalues = reoevalues;
   m_imoevalues = imoevalues;
-  m_outputsType = ArnUtils::HOST;
 }
 
-void CuHArnoldi::setOutputsEigenvectors(math::Matrix* oevectors) {
+void CuHArnoldi::setOutputsEigenvectors(math::Matrix** oevectors) {
   m_oevectors = oevectors;
-  m_outputsType = ArnUtils::HOST;
+}
+
+void CuHArnoldi::setOutputType(ArnUtils::Type outputType) {
+  m_outputType = outputType;
 }
 
 void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
-                         const ArnUtils::MatrixInfo& matrixInfo,
+                         const math::MatrixInfo& matrixInfo,
                          ArnUtils::Type matrixType) {
   debugAssert(wantedCount != 0);
-  debugAssert(m_sortType != NULL);
+  debugAssert(m_outputType != ArnUtils::UNDEFINED);
 
   setCalculateTriangularHPtr(hdim);
 
@@ -126,8 +127,7 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
   alloc(matrixInfo, hdim);
 
   m_matrixInfo = matrixInfo;
-  m_matrixType = matrixType;
-
+  debugFunc();
   initVvector();
   bool status = false;
   {
@@ -141,6 +141,8 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
     device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
     status = executeArnoldiFactorization(true, 0, dMatrixExs, m_rho);
   }
+
+  debugFunc();
 
   for (intt fax = 0; fax == 0 || status == true; ++fax) {
     unwanted.clear();
@@ -173,17 +175,51 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
     }
   }
 
-  extractValues(m_H, hdim - wantedCount);
+  debugFunc();
 
+  sortEigenvalues(m_H, hdim - wantedCount);
+
+  debugFunc();
+
+  extractOutput();
+
+  debugFunc();
+
+  device::DeleteDeviceMatrixEx(dMatrixExs);
+  debugFunc();
+}
+
+void CuHArnoldi::extractOutput() {
+  if (m_outputType == ArnUtils::HOST) {
+    device::CopyDeviceMatrixToHostMatrix(m_hostV, m_V);
+  }
   for (uintt fa = 0; fa < wanted.size(); fa++) {
     if (NULL != m_reoevalues) {
-      m_reoevalues[fa] = wanted[fa].re;
+      m_reoevalues[fa] = wanted[fa].eigenvalue.re;
     }
+
     if (NULL != m_imoevalues) {
-      m_imoevalues[fa] = wanted[fa].im;
+      m_imoevalues[fa] = wanted[fa].eigenvalue.im;
+    }
+
+    if (m_oevectors != NULL && m_oevectors[fa] != NULL) {
+      getEigenvector(m_oevectors[fa], wanted[fa]);
     }
   }
-  device::DeleteDeviceMatrixEx(dMatrixExs);
+}
+
+void CuHArnoldi::getEigenvector(math::Matrix* vector,
+                                const OutputEntry& outputEntry) {
+  getEigenvector(vector, outputEntry.eigenvectorIndex);
+}
+
+void CuHArnoldi::getEigenvector(math::Matrix* vector, uintt index) {
+  if (m_outputType == ArnUtils::HOST) {
+    host::GetVector(vector, m_hostV, index);
+  }
+  if (m_outputType == ArnUtils::DEVICE) {
+    m_cuMatrix.getVector(vector, m_V, index);
+  }
 }
 
 void CuHArnoldi::initVvector() {
@@ -204,6 +240,7 @@ void CuHArnoldi::calculateTriangularH() {
 }
 
 void CuHArnoldi::calculateTriangularHEigens() {
+  debugFunc();
   device::CopyDeviceMatrixToDeviceMatrix(m_H1, m_H);
   m_cuMatrix.setIdentity(m_Q);
   m_cuMatrix.setIdentity(m_QJ);
@@ -235,6 +272,13 @@ void CuHArnoldi::calculateTriangularHEigens() {
   //  } else {
   //    debug("EQ1 != EQ2");m_optHeight
   //  }
+  debugFunc();
+}
+
+void aux_swapPointers(math::Matrix** a, math::Matrix** b) {
+  math::Matrix* temp = *b;
+  *b = *a;
+  *a = temp;
 }
 
 void aux_swapPointers(math::Matrix** a, math::Matrix** b) {
@@ -244,13 +288,15 @@ void aux_swapPointers(math::Matrix** a, math::Matrix** b) {
 }
 
 void CuHArnoldi::sortPWorstEigens(uintt unwantedCount) {
+  debugFunc();
   aux_swapPointers(&m_Q, &m_QJ);
-  extractValues(m_H1, unwantedCount);
-  // fprintf(stderr, "\n %s %s %d \n\n", __FUNCTION__, __FILE__, __LINE__);
+  sortEigenvalues(m_H1, unwantedCount);
+  debugFunc();
 }
 
-void CuHArnoldi::extractValues(math::Matrix* H, uintt unwantedCount) {
-  std::vector<Complex> values;
+void CuHArnoldi::sortEigenvalues(math::Matrix* H, uintt unwantedCount) {
+  debugFunc();
+  std::vector<OutputEntry> values;
   notSorted.clear();
   wanted.clear();
   unwanted.clear();
@@ -259,28 +305,34 @@ void CuHArnoldi::extractValues(math::Matrix* H, uintt unwantedCount) {
   for (uintt fa = 0; fa < m_H1columns; ++fa) {
     floatt rev = CudaUtils::GetReDiagonal(H, fa);
     floatt imv = CudaUtils::GetImDiagonal(H, fa);
+
     Complex c(rev, imv);
-    values.push_back(c);
-    notSorted.push_back(c);
+    OutputEntry oe = {c, fa};
+
+    values.push_back(oe);
+    notSorted.push_back(oe);
   }
-  std::sort(values.begin(), values.end(), m_sortType);
+  std::sort(values.begin(), values.end(), m_sortObject);
   for (uintt fa = 0; fa < values.size(); ++fa) {
-    Complex value = values[fa];
+    OutputEntry value = values[fa];
     if (fa < unwantedCount) {
       unwanted.push_back(value);
     } else {
       wanted.push_back(value);
       for (uintt fb = 0; fb < notSorted.size(); ++fb) {
-        if (notSorted[fb].im == value.im && notSorted[fb].re == value.re) {
+        if (notSorted[fb].im() == value.im() &&
+            notSorted[fb].re() == value.re()) {
           wantedIndecies.push_back(wanted.size() - 1);
         }
       }
     }
   }
+  debugFunc();
 }
 
 bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
                                              MatrixEx** dMatrixEx, floatt rho) {
+  debugFunc();
   if (init) {
     multiply(m_w, m_v, CuHArnoldi::TYPE_WV);
     m_cuMatrix.setVector(m_V, 0, m_v, m_vrows);
@@ -290,13 +342,14 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
     m_cuMatrix.substract(m_f, m_w, m_vh);
     m_cuMatrix.setVector(m_H, 0, m_h, 1);
   }
+  debugFunc();
   floatt mf = 0;
   floatt mh = 0;
   floatt B = 0;
   for (uintt fa = initj; fa < m_k - 1; ++fa) {
     m_cuMatrix.magnitude(B, m_f);
     if (fabs(B) < m_blimit) {
-      // PRINT(m_H);
+      debugFunc();
       return false;
     }
     floatt rB = 1. / B;
@@ -321,11 +374,13 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
     }
     m_cuMatrix.setVector(m_H, fa + 1, m_h, fa + 2);
   }
+  debugFunc();
   return true;
 }
 
 void CuHArnoldi::executefVHplusfq(uintt k) {
   floatt reqm_k = CudaUtils::GetReValue(m_Q, m_Qcolumns * (m_Qrows - 1) + k);
+  debugFunc();
   floatt imqm_k = 0;
   if (m_matrixInfo.isIm) {
     imqm_k = CudaUtils::GetImValue(m_Q, m_Qcolumns * (m_Qrows - 1) + k);
@@ -340,9 +395,11 @@ void CuHArnoldi::executefVHplusfq(uintt k) {
   m_cuMatrix.multiplyConstantMatrix(m_f, m_f, reqm_k, imqm_k);
   m_cuMatrix.add(m_f, m_f1, m_f);
   m_cuMatrix.setZeroMatrix(m_v);
+  debugFunc();
 }
 
 bool CuHArnoldi::executeChecking(uintt k) {
+  debugFunc();
   for (uintt index = 0; index < k; ++index) {
     floatt evalue = 0;
     math::Matrix* evector = NULL;
@@ -365,15 +422,18 @@ bool CuHArnoldi::executeChecking(uintt k) {
         break;
     }
     if (shouldContinue) {
+      debugFunc();
       return true;
     }
   }
+  debugFunc();
   return false;
 }
 
 void CuHArnoldi::executeShiftedQRIteration(uintt p) {
+  debugFunc();
   for (intt fa = 0; fa < p; ++fa) {
-    m_cuMatrix.setDiagonal(m_I, unwanted[fa].re, unwanted[fa].im);
+    m_cuMatrix.setDiagonal(m_I, unwanted[fa].re(), unwanted[fa].im());
     m_cuMatrix.substract(m_I, m_H, m_I);
     m_cuMatrix.QRGR(m_Q1, m_R1, m_I, m_Q, m_R2, m_G, m_GT);
     m_cuMatrix.transposeMatrix(m_QT, m_Q1);
@@ -386,6 +446,7 @@ void CuHArnoldi::executeShiftedQRIteration(uintt p) {
   aux_swapPointers(&m_Q, &m_QJ);
   m_cuMatrix.dotProduct(m_EV, m_V, m_Q);
   aux_swapPointers(&m_V, &m_EV);
+  debugFunc();
 }
 
 bool CuHArnoldi::checkOutcome(uintt index, floatt tolerance) {
@@ -396,7 +457,7 @@ bool CuHArnoldi::checkOutcome(uintt index, floatt tolerance) {
   return m_cuMatrix.compare(m_v1, m_v2);
 }
 
-void CuHArnoldi::alloc(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
+void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uintt k) {
   if (!m_wasAllocated || shouldBeReallocated(matrixInfo, m_matrixInfo) ||
       matrixInfo.m_matrixDim.rows != m_matrixInfo.m_matrixDim.rows) {
     dealloc1();
@@ -430,12 +491,12 @@ void CuHArnoldi::alloc(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
   CudaUtils::SetZeroMatrix(m_V);
 }
 
-bool CuHArnoldi::shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
-                                     const ArnUtils::MatrixInfo& m2) const {
+bool CuHArnoldi::shouldBeReallocated(const math::MatrixInfo& m1,
+                                     const math::MatrixInfo& m2) const {
   return m1.isIm != m2.isIm || m1.isRe != m2.isRe;
 }
 
-void CuHArnoldi::alloc1(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
+void CuHArnoldi::alloc1(const math::MatrixInfo& matrixInfo, uintt k) {
   m_vrows = matrixInfo.m_matrixDim.rows;
   m_w = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                 matrixInfo.m_matrixDim.rows);
@@ -461,9 +522,11 @@ void CuHArnoldi::alloc1(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
                                   matrixInfo.m_matrixDim.rows);
 }
 
-void CuHArnoldi::alloc2(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
+void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uintt k) {
   m_V = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                                 matrixInfo.m_matrixDim.rows);
+  m_hostV = host::NewMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+                            matrixInfo.m_matrixDim.rows);
   m_V1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                                  matrixInfo.m_matrixDim.rows);
   m_V2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
@@ -476,7 +539,7 @@ void CuHArnoldi::alloc2(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
                                          matrixInfo.m_matrixDim.rows, k);
 }
 
-void CuHArnoldi::alloc3(const ArnUtils::MatrixInfo& matrixInfo, uintt k) {
+void CuHArnoldi::alloc3(const math::MatrixInfo& matrixInfo, uintt k) {
   m_h = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
   m_s = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
   m_H = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
@@ -513,6 +576,7 @@ void CuHArnoldi::dealloc1() {
 
 void CuHArnoldi::dealloc2() {
   device::DeleteDeviceMatrix(m_V);
+  host::DeleteMatrix(m_hostV);
   device::DeleteDeviceMatrix(m_V1);
   device::DeleteDeviceMatrix(m_V2);
   device::DeleteDeviceMatrix(m_EV);

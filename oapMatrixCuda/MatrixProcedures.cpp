@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #include "MatrixProcedures.h"
 #include "DebugLogs.h"
 #include "ThreadsMapper.h"
@@ -169,6 +166,15 @@ void CuMatrix::getVector(math::Matrix* vector, uintt length,
                          math::Matrix* matrix, uintt column) {
   const uintt w = CudaUtils::GetColumns(vector);
   const uintt h = CudaUtils::GetRows(vector);
+  void* params[] = {&vector, &length, &matrix, &column};
+  m_cuResult = execute("CUDAKernel_GetVector", w, h, params, 0);
+}
+
+void CuMatrix::getVector(math::Matrix* vector, math::Matrix* matrix,
+                         uintt column) {
+  const uintt w = CudaUtils::GetColumns(vector);
+  const uintt h = CudaUtils::GetRows(vector);
+  uintt length = w * h;
   void* params[] = {&vector, &length, &matrix, &column};
   m_cuResult = execute("CUDAKernel_GetVector", w, h, params, 0);
 }

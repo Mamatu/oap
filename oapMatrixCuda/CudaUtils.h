@@ -169,10 +169,10 @@ CUdeviceptr GetRowsAddress(CUdeviceptr matrix);
 CUdeviceptr GetRealRowsAddress(CUdeviceptr matrix);
 
 CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx);
-CUdeviceptr GetEColumnAddress(const MatrixEx* matrixEx);
+CUdeviceptr GetColumnsAddress(const MatrixEx* matrixEx);
 
 CUdeviceptr GetBRowAddress(const MatrixEx* matrixEx);
-CUdeviceptr GetERowAddress(const MatrixEx* matrixEx);
+CUdeviceptr GetRowAddress(const MatrixEx* matrixEx);
 
 /**
  *

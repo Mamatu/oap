@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef MOCKUTILS_H
 #define MOCKUTILS_H
 
@@ -31,11 +28,16 @@
 #include "Utils.h"
 #include "MatchersImpl.h"
 #include "InfoType.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 
 inline Matcher<math::Matrix*> MatrixIsEqual(
     math::Matrix* matrix, const InfoType& infoType = InfoType()) {
   return MakeMatcher(new MatrixIsEqualMatcher(matrix, infoType));
+}
+
+inline Matcher<math::Matrix*> MatrixHasValues(
+    math::Matrix* matrix, const InfoType& infoType = InfoType()) {
+  return MakeMatcher(new MatrixHasValuesMatcher(matrix, infoType));
 }
 
 inline Matcher<math::Matrix*> MatrixContainsDiagonalValues(
@@ -51,7 +53,7 @@ inline Matcher<math::Matrix*> MatrixIsIdentity() {
   return MakeMatcher(new MatrixIsIdentityMatcher());
 }
 
-inline Matcher<math::Matrix*> MatrixValuesAreEqual(floatt value) {
+inline Matcher<math::Matrix*> MatrixHasValues(floatt value) {
   return MakeMatcher(new MatrixValuesAreEqualMatcher(value));
 }
 

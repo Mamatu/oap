@@ -17,10 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "DeviceMatrixModules.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "KernelExecutor.h"
 #include <string.h>
 #include <vector>
@@ -103,6 +101,14 @@ math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns,
 math::Matrix* NewDeviceMatrix(bool isRe, bool isIm, uintt columns, uintt rows) {
   debugAssert(isRe != false || isIm != false);
   return allocMatrix(isRe, isIm, columns, rows);
+}
+
+math::Matrix* NewDeviceReMatrix(uintt columns, uintt rows) {
+  return NewDeviceMatrix(true, false, columns, rows);
+}
+
+math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows) {
+  return NewDeviceMatrix(false, true, columns, rows);
 }
 
 math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue,

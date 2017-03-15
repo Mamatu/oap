@@ -23,7 +23,7 @@
 #include "oapCudaStub.h"
 #include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "HostProcedures.h"
 #include "CuMatrixProcedures/CuQRProcedures.h"
 #include "host_qrtest1.h"

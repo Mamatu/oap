@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef OAP_CUMATRIXPROCEDURES_H
 #define OAP_CUMATRIXPROCEDURES_H
 
@@ -83,6 +81,8 @@ class CuMatrix {
   void getVector(math::Matrix* vector, uintt length, math::Matrix* matrix,
                  uintt column);
 
+  void getVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
+
   void magnitude(floatt& output, math::Matrix* params0);
 
   void magnitudeOpt(floatt& output, math::Matrix* params0);
@@ -122,9 +122,10 @@ class CuMatrix {
  private:
   enum QRType { NORMAL, OPT };
 
-  void qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* R, math::Matrix* A,
-                   math::Matrix* AT, math::Matrix* P, math::Matrix* I,
-                   math::Matrix* v, math::Matrix* vt, math::Matrix* vvt);
+  void qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* R,
+                   math::Matrix* A, math::Matrix* AT, math::Matrix* P,
+                   math::Matrix* I, math::Matrix* v, math::Matrix* vt,
+                   math::Matrix* vvt);
 
   bool compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
                         math::Matrix* matrix2, uintt w, uintt h, uintt wthreads,

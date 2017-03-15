@@ -17,14 +17,13 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef OAP_DEVICE_MATRIX_UTILS_H
 #define OAP_DEVICE_MATRIX_UTILS_H
+#include "HostMatrixUtils.h"
+
 #include <stdio.h>
 #include <cuda.h>
 #include <map>
-#include "HostMatrixModules.h"
 #include "Matrix.h"
 #include "MatrixEx.h"
 #include "ThreadUtils.h"
@@ -51,7 +50,6 @@ math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix);
 math::Matrix* NewDeviceMatrix(const math::Matrix* deviceMatrix);
 
 math::Matrix* NewDeviceMatrix(const std::string& matrixStr);
-
 
 uintt GetColumns(const math::Matrix* dMatrix);
 
@@ -84,6 +82,9 @@ math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns,
  */
 math::Matrix* NewDeviceMatrix(bool allocRe, bool allocIm, uintt columns,
                               uintt rows);
+
+math::Matrix* NewDeviceReMatrix(uintt columns, uintt rows);
+math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows);
 
 /**
  * @brief NewHostMatrixCopyOfDeviceMatrix
@@ -172,7 +173,8 @@ void SetMatrixEx(MatrixEx* deviceMatrixEx, const MatrixEx* hostMatrixEx);
  * @param text
  * @param matrix
  */
-void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zeroLimit = 0);
+void PrintMatrix(const std::string& text, const math::Matrix* matrix,
+                 floatt zeroLimit = 0);
 
 /**
  * @brief PrintMatrix

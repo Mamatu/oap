@@ -46,15 +46,6 @@ enum CheckType {
   CHECK_EXTERNAL_EIGENVECTOR
 };
 
-enum Type { DEVICE, HOST };
-
-class MatrixInfo {
- public:
-  MatrixInfo();
-  MatrixInfo(bool _isRe, bool _isIm, uintt _columns, uintt _rows);
-  math::MatrixDim m_matrixDim;
-  bool isRe;
-  bool isIm;
-};
+enum Type { UNDEFINED, DEVICE, HOST };
 }
-#endif // ARNOLDIUTILS_H
+#endif  // ARNOLDIUTILS_H

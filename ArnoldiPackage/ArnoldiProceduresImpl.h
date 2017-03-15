@@ -31,7 +31,7 @@ class CuHArnoldiDefault : public CuHArnoldi {
   void setMatrix(math::Matrix* A) { m_A = A; }
 
  protected:
-  void multiply(math::Matrix* m_w, math::Matrix* m_v,
+  virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
                 CuHArnoldi::MultiplicationType mt);
 
   virtual bool checkEigenvalue(floatt value, uint index) { return true; }
@@ -53,7 +53,7 @@ class CuHArnoldiCallback : public CuHArnoldi {
   void setCallback(MultiplyFunc multiplyFunc, void* userData);
 
  protected:
-  void multiply(math::Matrix* m_w, math::Matrix* m_v,
+  virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
                 CuHArnoldi::MultiplicationType mt);
 
   virtual bool checkEigenvalue(floatt value, uint index) { return true; }

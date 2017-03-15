@@ -22,7 +22,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
-#include "HostMatrixModules.h"
+#include "HostMatrixUtils.h"
 #include "MathOperationsCpu.h"
 
 class OapMatrixTests : public testing::Test {

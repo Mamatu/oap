@@ -10,7 +10,7 @@ dist/$(MODE)/$(PLATFORM)/$(TARGET) : $(OCPP_FILES)
 	$(CXX) -c -g3 $(SANITIZER_COMPILATION) -isystem ${GMOCK_DIR}/include -I${GMOCK_DIR} -I${GTEST_DIR}/include -pthread -c ${GMOCK_DIR}/src/gmock-all.cc
 	ar -rv libgmock.a gmock-all.o
 	ar -rv libgtest.a gtest-all.o gtest_main.o
-	$(CXX) $(SANITIZER_LINKING) $(OCPP_FILES) -L/usr/lib -L/usr/local/lib -lpthread -ldl $(OAP_LIBS_PATHS) $(LIBS_DIRS) $(LIBS) libgtest.a libgmock.a -o $@
+	$(CXX) $(SANITIZER_LINKING) $(OCPP_FILES) -L/usr/lib -L/usr/local/lib -ldl $(OAP_LIBS_PATHS) $(LIBS_DIRS) $(LIBS) libgtest.a libgmock.a -lpthread -o $@
 	cp $@ $(OAP_PATH)/dist/$(MODE)/$(PLATFORM)/bin/
 build/$(MODE)/$(PLATFORM)/%.o : %.cpp
 	mkdir -p build/$(MODE)/$(PLATFORM)/

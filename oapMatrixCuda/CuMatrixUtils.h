@@ -46,8 +46,8 @@ extern "C" __device__ void CUDA_PrintMatrix(math::Matrix* m) {
 }
 
 extern "C" __device__ void CUDA_PrintMatrixEx(const MatrixEx& m) {
-    printf("columns: %u %u \n", m.bcolumn, m.ecolumn);
-    printf("rows: %u %u \n", m.brow, m.erow);
+    printf("columns: %u %u \n", m.bcolumn, m.clength);
+    printf("rows: %u %u \n", m.brow, m.rlength);
     printf("offset: %u %u \n", m.boffset, m.eoffset);
 }
 

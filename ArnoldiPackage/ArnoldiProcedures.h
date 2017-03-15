@@ -27,6 +27,7 @@
 #include "MatrixProcedures.h"
 
 #include "ArnoldiUtils.h"
+#include "MatrixInfo.h"
 
 class CuHArnoldi {
  public:  // methods
@@ -44,11 +45,15 @@ class CuHArnoldi {
 
   void setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues);
 
-  void setOutputsEigenvectors(math::Matrix* oevectors);
+  void setOutputsEigenvectors(math::Matrix** oevectors);
+
+  void setOutputType(ArnUtils::Type outputType);
 
   void execute(uintt k, uintt wantedCount,
-               const ArnUtils::MatrixInfo& matrixInfo,
+               const math::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
+
+  void extractOutput();
 
  public:  // types
   enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
@@ -61,6 +66,34 @@ class CuHArnoldi {
   virtual bool checkEigenvalue(floatt value, uint index) = 0;
 
   virtual bool checkEigenvector(math::Matrix* vector, uint index) = 0;
+
+ protected:
+  struct OutputEntry {
+    Complex eigenvalue;
+    uintt eigenvectorIndex;
+
+    floatt re() const { return eigenvalue.re; }
+    floatt im() const { return eigenvalue.im; }
+  };
+
+  void getEigenvector(math::Matrix* vector, const OutputEntry& outputEntry);
+
+  void getEigenvector(math::Matrix* vector, uintt index);
+
+  class SortObject {
+    ArnUtils::SortType m_sortType;
+
+   public:
+    SortObject(ArnUtils::SortType sortType) : m_sortType(sortType) {}
+
+    bool operator()(const OutputEntry& oe1, const OutputEntry& oe2) {
+      return m_sortType(oe1.eigenvalue, oe2.eigenvalue);
+    }
+
+    SortObject& operator=(ArnUtils::SortType sortType) {
+      m_sortType = sortType;
+    }
+  };
 
  protected:  // data, matrices
   CuMatrix m_cuMatrix;
@@ -105,25 +138,26 @@ class CuHArnoldi {
   math::Matrix* m_EQ2;
   math::Matrix* m_EQ3;
 
+  math::Matrix* m_hostV;
+
  private:  // private data
-  ArnUtils::MatrixInfo m_matrixInfo;
-  ArnUtils::Type m_matrixType;
+  math::MatrixInfo m_matrixInfo;
+  ArnUtils::Type m_outputType;
 
   floatt* m_reoevalues;
   floatt* m_imoevalues;
-  math::Matrix* m_oevectors;
-  ArnUtils::Type m_outputsType;
+  math::Matrix** m_oevectors;
 
   bool m_wasAllocated;
 
   uintt m_k;
   floatt m_rho;
   floatt m_blimit;
-  std::vector<Complex> wanted;
-  std::vector<Complex> unwanted;
+  std::vector<OutputEntry> wanted;
+  std::vector<OutputEntry> unwanted;
   std::vector<uintt> wantedIndecies;
-  std::vector<Complex> notSorted;
-  ArnUtils::SortType m_sortType;
+  std::vector<OutputEntry> notSorted;
+  SortObject m_sortObject;
   ArnUtils::CheckType m_checkType;
 
   void* m_image;
@@ -172,7 +206,7 @@ class CuHArnoldi {
 
   void sortPWorstEigens(uintt unwantedCount);
 
-  void extractValues(math::Matrix* m_H1, uintt unwantedCount);
+  void sortEigenvalues(math::Matrix* m_H1, uintt unwantedCount);
 
   /**
    * @brief executeArnoldiFactorization
@@ -194,12 +228,12 @@ class CuHArnoldi {
   bool checkOutcome(uintt index, floatt tolerance);
 
  private:  // alloc, dealloc methods
-  bool shouldBeReallocated(const ArnUtils::MatrixInfo& m1,
-                           const ArnUtils::MatrixInfo& m2) const;
-  void alloc(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void alloc1(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void alloc2(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
-  void alloc3(const ArnUtils::MatrixInfo& matrixInfo, uintt k);
+  bool shouldBeReallocated(const math::MatrixInfo& m1,
+                           const math::MatrixInfo& m2) const;
+  void alloc(const math::MatrixInfo& matrixInfo, uintt k);
+  void alloc1(const math::MatrixInfo& matrixInfo, uintt k);
+  void alloc2(const math::MatrixInfo& matrixInfo, uintt k);
+  void alloc3(const math::MatrixInfo& matrixInfo, uintt k);
   void dealloc1();
   void dealloc2();
   void dealloc3();
