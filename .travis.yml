@@ -40,6 +40,7 @@ script:
   - make TARGET_ARCH=HOST MODE=DebugSanitizer
   - ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapTestsHost
   - ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oap2dt3dTests
+  - ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oap2dt3dFuncTests
   
 # Notify after build
 notifications:
