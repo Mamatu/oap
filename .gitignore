@@ -5,6 +5,6 @@ oapCudaTests/dist/
 oapMatrixCuda/dist/
 oapShibataCuda/dist/
 oapShibataMgr/dist/
-oapTestsDevice/dist/
-oapTestsHost/dist/
+oapDeviceTests/dist/
+oapHostTests/dist/
 dist

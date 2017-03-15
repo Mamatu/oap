@@ -1,4 +1,4 @@
 include ../project_generic.mk
-TARGET := oapTestsDevice
+TARGET := oapHostTests
 INCLUDE_PATHS :=
 EXTRA_LIBS :=
