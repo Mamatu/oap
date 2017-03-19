@@ -133,10 +133,6 @@ class CuHArnoldi {
   math::Matrix* m_GT;
   math::Matrix* m_G;
   math::Matrix* m_EV;
-  math::Matrix* m_EV1;
-  math::Matrix* m_EQ1;
-  math::Matrix* m_EQ2;
-  math::Matrix* m_EQ3;
 
   math::Matrix* m_hostV;
 
