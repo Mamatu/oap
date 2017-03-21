@@ -181,6 +181,21 @@ void PrintMatrix(const std::string& text, const math::Matrix* matrix,
  * @param matrix
  */
 void PrintMatrix(const math::Matrix* matrix);
+
+void SetReValue(math::Matrix* matrix, floatt value, uintt column, uintt row);
+void SetReValue(math::Matrix* matrix, floatt value, uintt index);
+
+void SetImValue(math::Matrix* matrix, floatt value, uintt column, uintt row);
+void SetImValue(math::Matrix* matrix, floatt value, uintt index);
+
+void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
+              uintt column, uintt row);
+
+void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
+              uintt index);
+
+void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
+               uintt row);
 }
 
 #endif /* MATRIXMEM_H */
