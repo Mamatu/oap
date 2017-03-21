@@ -21,6 +21,7 @@
 #include "DebugLogs.h"
 #include "ThreadsMapper.h"
 #include "HostMatrixKernels.h"
+#include "DeviceMatrixModules.h"
 #include <math.h>
 
 void CuMatrix::prepareDims(uintt w, uintt h) {
@@ -136,10 +137,14 @@ void CuMatrix::transposeMatrixEx(math::Matrix* output, math::Matrix* params0,
 }
 
 void CuMatrix::transposeMatrix(math::Matrix* output, math::Matrix* params0) {
-  void* params[] = {&output, &params0};
   const uintt w = CudaUtils::GetColumns(output);
   const uintt h = CudaUtils::GetRows(output);
-  m_cuResult = execute("CUDAKernel_Transpose", w, h, params, 0);
+  if (w == 1 || h == 1) {
+    device::CopyDeviceMatrixToDeviceMatrix(output, params0);
+  } else {
+    void* params[] = {&output, &params0};
+    m_cuResult = execute("CUDAKernel_Transpose", w, h, params, 0);
+  }
 }
 
 void CuMatrix::substract(math::Matrix* output, math::Matrix* params0,
