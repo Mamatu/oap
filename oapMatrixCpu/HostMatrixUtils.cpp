@@ -589,6 +589,12 @@ math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, floatt* array) {
   return output;
 }
 
+math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value) {
+  return NewMatrix(matrixInfo.isRe, matrixInfo.isIm,
+                   matrixInfo.m_matrixDim.columns, matrixInfo.m_matrixDim.rows,
+                   value);
+}
+
 math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows,
                         floatt value) {
   if (isre && isim) {
@@ -1064,84 +1070,9 @@ void SetDiagonalImMatrix(math::Matrix* matrix, floatt a) {
   }
 }
 
-math::MatrixInfo GetMatrixInfo(math::Matrix* matrix) {
+math::MatrixInfo GetMatrixInfo(const math::Matrix* matrix) {
   return math::MatrixInfo(matrix->reValues != NULL, matrix->imValues != NULL,
                           matrix->columns, matrix->rows);
-}
-
-char* load(const char* path, uintt& _size) {
-  FILE* file = fopen(path, "r");
-  fseek(file, 0, SEEK_END);
-  long int size = ftell(file);
-  fseek(file, 0, SEEK_SET);
-  char* buffer = new char[size + 1];
-  buffer[size] = 0;
-  fread(buffer, size, 1, file);
-  fclose(file);
-  _size = size;
-  return buffer;
-}
-
-void loadFloats(floatt* values, uintt count, char* data, unsigned int size,
-                char separator, uintt skip) {
-  char* ptr = &data[0];
-  uintt index = 0;
-  uintt index1 = 0;
-  bool c = false;
-  if (skip == index1) {
-    c = true;
-  }
-  for (uint fa = 0; fa < size; ++fa) {
-    if (data[fa] == separator) {
-      char* ptr1 = &data[fa];
-      if (c) {
-        std::string s(ptr, ptr1 - ptr);
-        floatt f = atof(s.c_str());
-        values[index] = f;
-      }
-      ptr = &data[fa + 1];
-      index++;
-      if (index == count) {
-        index = 0;
-        index1++;
-        if (skip == index1) {
-          c = true;
-        } else if (skip + 1 == index1) {
-          return;
-        }
-      }
-    }
-  }
-}
-
-math::Matrix* LoadMatrix(uintt columns, uintt rows, const char* repath,
-                         const char* impath) {
-  math::Matrix* matrix = NewMatrix(columns, rows, 0);
-  LoadMatrix(matrix, repath, impath);
-  return matrix;
-}
-
-void LoadMatrix(math::Matrix* matrix, const char* repath, const char* impath) {
-  LoadMatrix(matrix, repath, impath, 0);
-}
-
-void LoadMatrix(math::Matrix* matrix, const char* repath, const char* impath,
-                uintt skipCount) {
-  if (NULL != matrix) {
-    uintt length = matrix->columns * matrix->rows;
-    uintt size;
-    char* b = NULL;
-    if (NULL != repath) {
-      b = load(repath, size);
-      loadFloats(matrix->reValues, length, b, size, ',', skipCount);
-      delete[] b;
-    }
-    if (NULL != impath) {
-      b = load(impath, size);
-      loadFloats(matrix->imValues, length, b, size, ',', skipCount);
-      delete[] b;
-    }
-  }
 }
 
 void SetSubs(math::Matrix* matrix, uintt subcolumns, uintt subrows) {
@@ -1233,5 +1164,97 @@ math::Matrix* NewMatrix(const std::string& text) {
   matrix->reValues = revalues;
   matrix->imValues = imvalues;
   return matrix;
+}
+
+math::MatrixInfo loadHeader(FILE* file) {
+  math::MatrixInfo matrixInfo;
+
+  fread(&(matrixInfo),
+        sizeof(matrixInfo), 1, file);
+
+  return matrixInfo;
+}
+
+math::Matrix* ReadMatrix(const std::string& path) {
+  FILE* file = fopen(path.c_str(), "rb");
+  if (file == NULL) {
+    return NULL;
+  }
+
+  math::MatrixInfo matrixInfo = loadHeader(file);
+
+  math::Matrix* matrix = host::NewMatrix(matrixInfo);
+
+  const size_t size = sizeof(floatt) * matrix->columns * matrix->rows;
+
+  if (matrix->reValues != NULL) {
+    fread(matrix->reValues, size, 1, file);
+  }
+
+  if (matrix->imValues != NULL) {
+    fread(matrix->imValues, size, 1, file);
+  }
+
+  fclose(file);
+
+  return matrix;
+}
+
+math::Matrix* ReadRowVector(const std::string& path, size_t index) {
+  FILE* file = fopen(path.c_str(), "rb");
+  if (file == NULL) {
+    return NULL;
+  }
+
+  math::MatrixInfo matrixInfo = loadHeader(file);
+
+  const size_t matrixsize = sizeof(floatt) * matrixInfo.m_matrixDim.columns *
+                            matrixInfo.m_matrixDim.rows;
+
+  matrixInfo.m_matrixDim.rows = 1;
+
+  math::Matrix* vec = host::NewMatrix(matrixInfo);
+
+  const size_t vecsize = sizeof(floatt) * vec->columns * vec->rows;
+
+  if (vec->reValues != NULL) {
+    fseek(file, sizeof(math::MatrixInfo) + vecsize * index, SEEK_SET);
+    fread(vec->reValues, vecsize, 1, file);
+  }
+
+  if (vec->imValues != NULL) {
+    fseek(file, sizeof(math::MatrixInfo) + matrixsize + vecsize * index,
+          SEEK_SET);
+    fread(vec->imValues, vecsize, 1, file);
+  }
+
+  fclose(file);
+
+  return vec;
+}
+
+bool WriteMatrix(const std::string& path, const math::Matrix* matrix) {
+  FILE* file = fopen(path.c_str(), "wb");
+  if (file == NULL) {
+    return false;
+  }
+
+  const size_t size = sizeof(floatt) * matrix->columns * matrix->rows;
+
+  math::MatrixInfo matrixInfo = host::GetMatrixInfo(matrix);
+
+  fwrite(&matrixInfo, sizeof(matrixInfo), 1, file);
+
+  if (matrixInfo.isRe) {
+    fwrite(matrix->reValues, size, 1, file);
+  }
+
+  if (matrixInfo.isIm) {
+    fwrite(matrix->imValues, size, 1, file);
+  }
+
+  fclose(file);
+
+  return true;
 }
 };

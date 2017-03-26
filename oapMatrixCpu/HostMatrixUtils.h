@@ -93,6 +93,8 @@ math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows,
  */
 math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
 
+math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value = 0);
+
 /**
  * @brief NewMatrix
  * @param isre
@@ -467,35 +469,6 @@ void SetZero(math::Matrix* matrix);
 bool IsEquals(math::Matrix* matrix, math::Matrix* matrix1, floatt diff = 0.1);
 
 /**
- * @brief LoadMatrix
- * @param columns
- * @param rows
- * @param repath
- * @param impath
- * @return
- */
-math::Matrix* LoadMatrix(uintt columns, uintt rows, const char* repath,
-                         const char* impath);
-
-/**
- * @brief LoadMatrix
- * @param matrix
- * @param repath
- * @param impath
- */
-void LoadMatrix(math::Matrix* matrix, const char* repath, const char* impath);
-
-/**
- * @brief LoadMatrix
- * @param matrix
- * @param repath
- * @param impath
- * @param skipCount
- */
-void LoadMatrix(math::Matrix* matrix, const char* repath, const char* impath,
-                uintt skipCount);
-
-/**
  * @brief SetSubs
  * @param matrix
  * @param subcolumns
@@ -560,7 +533,13 @@ void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
  */
 void SetDiagonalImMatrix(math::Matrix* matrix, floatt a);
 
-math::MatrixInfo GetMatrixInfo(math::Matrix* matrix);
+math::MatrixInfo GetMatrixInfo(const math::Matrix* matrix);
+
+math::Matrix* ReadMatrix(const std::string& path);
+
+math::Matrix* ReadRowVector(const std::string& path, size_t index);
+
+bool WriteMatrix(const std::string& path, const math::Matrix* matrix);
 };
 
 class HostMatrixUtils : public MatrixUtils {
