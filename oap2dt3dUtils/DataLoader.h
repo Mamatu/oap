@@ -109,7 +109,7 @@ class DataLoader {
     oap::Images images;
 
     for (size_t fa = 0; fa < loadCount; ++fa) {
-      const std::string& imagePath =
+      std::string imagePath =
           constructImagePath(imageAbsPath, nameBase, fa, count);
 
       Image* image = new T(imagePath);
