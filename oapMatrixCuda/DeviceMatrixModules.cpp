@@ -270,32 +270,31 @@ void SetImValue(math::Matrix* matrix, floatt value, uintt index) {
 }
 
 void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
-                        uintt column, uintt row) {
+              uintt column, uintt row) {
   uintt columns = CudaUtils::GetColumns(matrix);
   SetValue(matrix, revalue, imvalue, column + columns * row);
 }
 
 void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
-                        uintt index) {
+              uintt index) {
   CudaUtils::SetReValue(matrix, index, revalue);
   CudaUtils::SetImValue(matrix, index, imvalue);
 }
 
-void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1,
-                         uintt column, uintt row) {
+void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
+               uintt row) {
   uintt columns = CudaUtils::GetColumns(matrix);
   uintt columns1 = CudaUtils::GetColumns(matrix1);
   uintt rows1 = CudaUtils::GetRows(matrix1);
 
-  void* dstreptr = reinterpret_cast<void*>(CudaUtils::GetReValuesAddress(matrix));
-  void* dstimptr = reinterpret_cast<void*>(CudaUtils::GetImValuesAddress(matrix));
+  floatt* dstreptr = CudaUtils::GetReValues(matrix);
+  floatt* dstimptr = CudaUtils::GetImValues(matrix);
 
-  void* srcreptr = reinterpret_cast<void*>(CudaUtils::GetReValuesAddress(matrix1));
-  void* srcimptr = reinterpret_cast<void*>(CudaUtils::GetImValuesAddress(matrix1));
-
-  uintt index = column + columns * row;
+  floatt* srcreptr = CudaUtils::GetReValues(matrix1);
+  floatt* srcimptr = CudaUtils::GetImValues(matrix1);
 
   for (uintt fa = 0; fa < rows1; ++fa) {
+    uintt index = column + columns * (row + fa);
     CudaUtils::CopyDeviceToDevice(dstreptr + index, srcreptr + columns1 * fa,
                                   columns1 * sizeof(floatt));
     CudaUtils::CopyDeviceToDevice(dstimptr + index, srcimptr + columns1 * fa,
