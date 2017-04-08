@@ -44,7 +44,7 @@
 
 #ifdef DEBUG
 
-#define debug(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
+#define debug(x, ...) fprintf(STREAM, "%s %s : %d  ", __FUNCTION__,__FILE__,__LINE__);  fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
 
 #define debugAssert(x) assert(x);
 
