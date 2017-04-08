@@ -118,7 +118,6 @@ bool InfoCreator::printMeans(std::string& output,
   printMean(output, "Expected mean = ", expectedMatrix);
   printMean(output, "Output mean = ", outputMatrix);
   printMean(output, "Diff mean = ", diff);
-  destroyMatrix(diff);
   return true;
 }
 
