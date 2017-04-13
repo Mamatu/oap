@@ -25,7 +25,6 @@
 #include <string.h>
 #include <assert.h>
 #include <typeinfo>
-#include "BacktraceUtils.h"
 
 #define DEBUG
 //#define DEBUG_MATRIX_OPERATIONS
@@ -38,8 +37,6 @@
 #ifdef DEBUG
 #include <stdio.h>
 #endif
-
-#define debug1(file, x, ...) fprintf(file, x, ##__VA_ARGS__); 
 
 
 #ifdef DEBUG

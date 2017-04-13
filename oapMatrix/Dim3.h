@@ -30,6 +30,8 @@
 
 #include <stdlib.h>
 #include <map>
+#include <vector>
+
 #include "Math.h"
 #include "ThreadUtils.h"
 
