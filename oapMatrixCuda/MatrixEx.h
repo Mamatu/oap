@@ -41,6 +41,6 @@ struct MatrixEx {
 
 #define erow(matrixex) matrixex.brow + matrixex.rlength
 
-#define ecolumn(matrixex) matrixex.brow + matrixex.clength
+#define ecolumn(matrixex) matrixex.bcolumn + matrixex.clength
 
 #endif /* MATRIXEX_H */
