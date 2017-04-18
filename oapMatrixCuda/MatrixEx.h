@@ -23,10 +23,10 @@
 #include "Math.h"
 
 struct MatrixEx {
-  uintt bcolumn;
-  uintt clength;
-  uintt brow;
-  uintt rlength;
+  uintt beginColumn;
+  uintt columnsLength;
+  uintt beginRow;
+  uintt rowsLength;
 
   /**
    * @brief boffset - extra offset to dotProduct operation
@@ -39,8 +39,8 @@ struct MatrixEx {
   uintt eoffset;
 };
 
-#define erow(matrixex) matrixex.brow + matrixex.rlength
+#define erow(matrixex) matrixex.beginRow + matrixex.rowsLength
 
-#define ecolumn(matrixex) matrixex.bcolumn + matrixex.clength
+#define ecolumn(matrixex) matrixex.beginColumn + matrixex.columnsLength
 
 #endif /* MATRIXEX_H */

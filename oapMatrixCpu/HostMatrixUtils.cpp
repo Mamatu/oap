@@ -700,9 +700,9 @@ void Copy(math::Matrix* dst, const math::Matrix* src, const MatrixEx& subMatrix,
   HostMatrixCopier* copier =
       HostMatrixModules::GetInstance()->getMatrixCopier();
   uintt rows = dst->rows;
-  uintt columns2 = subMatrix.clength;
+  uintt columns2 = subMatrix.columnsLength;
   for (uintt fa = 0; fa < rows; fa++) {
-    uintt fa1 = fa + subMatrix.brow;
+    uintt fa1 = fa + subMatrix.beginRow;
     if (fa < row) {
       copier->copy(dst->reValues + fa * dst->columns,
                    src->reValues + (fa1)*columns2, column);
