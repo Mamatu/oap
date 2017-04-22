@@ -20,6 +20,7 @@ addons:
 branches:
   only:
     - master
+    - oap2dt3d_development
 
 # Environment variables
 env:
