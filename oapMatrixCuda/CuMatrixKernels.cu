@@ -4,7 +4,6 @@
 extern "C" __global__ void CUDAKernel_DotProductRe(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
-  cuda_debug_function();
   CUDA_dotProductRe(output, params0, params1);
 }
 
