@@ -91,3 +91,34 @@ TEST_F(OapDeviceMatrixModuleTests, SetSubMatrix00) {
 TEST_F(OapDeviceMatrixModuleTests, SetSubValue00) {
   setSubMatrixTest(10, 10, 2.f, 1, 1, 1.5f, 0, 0);
 }
+
+TEST_F(OapDeviceMatrixModuleTests, SetMatrixExTests) {
+  const uintt dMatrixExCount = 5;
+  const uintt matrixExElements = sizeof(MatrixEx) / sizeof(uintt);
+  const uintt bufferLength = dMatrixExCount * matrixExElements;
+
+  auto testMatrixEx = [matrixExElements](MatrixEx** dMatrixExs, uintt index) {
+    MatrixEx hostMatrixEx;
+    device::GetMatrixEx(&hostMatrixEx, dMatrixExs[index]);
+    EXPECT_EQ(index * matrixExElements, hostMatrixEx.beginColumn);
+    EXPECT_EQ(index * matrixExElements + 1, hostMatrixEx.columnsLength);
+    EXPECT_EQ(index * matrixExElements + 2, hostMatrixEx.beginRow);
+    EXPECT_EQ(index * matrixExElements + 3, hostMatrixEx.rowsLength);
+    EXPECT_EQ(index * matrixExElements + 4, hostMatrixEx.boffset);
+    EXPECT_EQ(index * matrixExElements + 5, hostMatrixEx.eoffset);
+  };
+
+  uintt buffer[bufferLength];
+  for (uintt fa = 0; fa < bufferLength; ++fa) {
+    buffer[fa] = fa;
+  }
+
+  MatrixEx** dMatrixExs = device::NewDeviceMatrixEx(dMatrixExCount);
+  device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
+
+  for (uintt fa = 0; fa < dMatrixExCount; ++fa) {
+    testMatrixEx(dMatrixExs, fa);
+  }
+
+  device::DeleteDeviceMatrixEx(dMatrixExs);
+}
