@@ -36,7 +36,7 @@ TEST_F(OapTransposeTests, DeviceNoTransposeTest) {
 
   device::CopyDeviceMatrixToHostMatrix(hostMatrixT, dMatrixT);
 
-  EXPECT_THAT(hostMatrixT, MatrixHasValues(0.F));
+  EXPECT_THAT(hostMatrixT, MatrixHasValues(0.f));
 
   host::DeleteMatrix(hostMatrix);
   host::DeleteMatrix(hostMatrixT);
