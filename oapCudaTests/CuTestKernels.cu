@@ -1,6 +1,5 @@
-#include <cuda.h>
+#include "CuCore.h"
 #include "CuMatrixUtils.h"
-#include "CuSync.h"
 #include "CuMatrixProcedures/CuCompareProcedures.h"
 
 extern "C" __global__ void CUDAKernel_Test1(int* output, int* buffer1,
