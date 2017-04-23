@@ -232,14 +232,21 @@ void DeleteDeviceMatrixEx(MatrixEx* matrixEx) {
   CudaUtils::FreeDeviceObj<MatrixEx>(matrixEx);
 }
 
+void SetMatrixEx(MatrixEx** deviceMatrixEx, const uintt* buffer, uintt count) {
+  debugAssert(count != 0);
+  for (uintt fa = 0; fa < count; ++fa) {
+    CudaUtils::CopyHostToDevice(
+        deviceMatrixEx[fa], &buffer[fa * (sizeof(MatrixEx) / sizeof(uintt))],
+        sizeof(MatrixEx));
+  }
+}
+
 void SetMatrixEx(MatrixEx* deviceMatrixEx, const MatrixEx* hostMatrixEx) {
   CudaUtils::CopyHostToDevice(deviceMatrixEx, hostMatrixEx, sizeof(MatrixEx));
 }
 
-void SetMatrixEx(MatrixEx** deviceMatrixEx, const uintt* buffer, uintt count) {
-  debugAssert(count != 0);
-  CudaUtils::CopyHostToDevice(deviceMatrixEx[0], buffer,
-                              count * sizeof(MatrixEx));
+void GetMatrixEx(MatrixEx* hostMatrixEx, const MatrixEx* deviceMatrixEx) {
+  CudaUtils::CopyDeviceToHost(hostMatrixEx, deviceMatrixEx, sizeof(MatrixEx));
 }
 
 void PrintMatrix(const std::string& text, const math::Matrix* matrix,
@@ -249,8 +256,7 @@ void PrintMatrix(const std::string& text, const math::Matrix* matrix,
 
 void PrintMatrix(const math::Matrix* matrix) { CudaUtils::PrintMatrix(matrix); }
 
-void SetReValue(math::Matrix* matrix, floatt value, uintt column,
-                          uintt row) {
+void SetReValue(math::Matrix* matrix, floatt value, uintt column, uintt row) {
   uintt columns = CudaUtils::GetColumns(matrix);
   SetReValue(matrix, value, column + columns * row);
 }
@@ -259,8 +265,7 @@ void SetReValue(math::Matrix* matrix, floatt value, uintt index) {
   CudaUtils::SetReValue(matrix, index, value);
 }
 
-void SetImValue(math::Matrix* matrix, floatt value, uintt column,
-                          uintt row) {
+void SetImValue(math::Matrix* matrix, floatt value, uintt column, uintt row) {
   uintt columns = CudaUtils::GetColumns(matrix);
   SetImValue(matrix, value, column + columns * row);
 }

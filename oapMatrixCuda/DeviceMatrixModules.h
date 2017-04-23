@@ -29,6 +29,13 @@
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
 
+#define debugDeviceMatrix(M)                                        \
+  fprintf(STREAM, "%s %s : %d ", __FUNCTION__, __FILE__, __LINE__); \
+  device::PrintMatrix(#M " =", M);
+
+//#define debugDeviceMatrixLog(M, x, ...) fprintf(STREAM, "%s %s : %d "x,
+//__FUNCTION__,__FILE__,__LINE__, __VA_ARGS_);  device::PrintMatrix(#M" =", M);
+
 namespace device {
 
 /**
@@ -150,6 +157,20 @@ void DeleteDeviceMatrixEx(MatrixEx** matrixEx);
 void SetMatrixEx(MatrixEx** deviceMatrixEx, const uintt* buffer, uintt count);
 
 /**
+ * @brief SetMatrixEx
+ * @param deviceMatrixEx
+ * @param hostMatrixEx
+ */
+void SetMatrixEx(MatrixEx* deviceMatrixEx, const MatrixEx* hostMatrixEx);
+
+/**
+* @brief GetMatrixEx
+* @param hostMatrixEx
+* @param deviceMatrixEx
+*/
+void GetMatrixEx(MatrixEx* hostMatrixEx, const MatrixEx* deviceMatrixEx);
+
+/**
  * @brief NewDeviceMatrixEx
  * @return
  */
@@ -160,13 +181,6 @@ MatrixEx* NewDeviceMatrixEx();
  * @param matrixEx
  */
 void DeleteDeviceMatrixEx(MatrixEx* matrixEx);
-
-/**
- * @brief SetMatrixEx
- * @param deviceMatrixEx
- * @param hostMatrixEx
- */
-void SetMatrixEx(MatrixEx* deviceMatrixEx, const MatrixEx* hostMatrixEx);
 
 /**
  * @brief PrintMatrix
