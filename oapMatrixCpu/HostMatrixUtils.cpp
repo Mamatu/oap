@@ -64,7 +64,7 @@ MatricesCounter& MatricesCounter::GetInstance() {
 
 #define DELETE_MATRIX(matrix) MatricesCounter::GetInstance().destroy(matrix);
 
-#elif RELEASE
+#else
 
 #define NEW_MATRIX() new math::Matrix();
 

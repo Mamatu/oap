@@ -26,13 +26,7 @@
 #include <assert.h>
 #include <typeinfo>
 
-#define DEBUG
-//#define DEBUG_MATRIX_OPERATIONS
-
 #define STREAM stdout
-
-//typedef void* LHandle;
-
 
 #ifdef DEBUG
 #include <stdio.h>
