@@ -37,7 +37,7 @@ class DeviceDataLoader : public DataLoader {
    */
   math::Matrix* createDeviceMatrix();
 
-  math::Matrix* createDeviceVector(size_t index);
+  math::Matrix* createDeviceRowVector(size_t index);
 };
 }
 

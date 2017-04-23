@@ -87,7 +87,11 @@ class DataLoader {
    */
   math::Matrix* createMatrix();
 
-  math::Matrix* createVector(size_t index);
+  math::Matrix* createMatrix(uintt index, uintt length);
+
+  math::Matrix* createColumnVector(size_t index);
+
+  math::Matrix* createRowVector(size_t index);
 
   /**
    * @brief Gets Matrxinfo from set of pngDataLoader
@@ -125,7 +129,11 @@ class DataLoader {
   bool m_deallocateImages;
   bool m_frugalMode;
 
-  void loadVector(math::Matrix* matrix, size_t column, floatt* vec, size_t imageIndex);
+  std::string m_matrixFileDir;
+  std::string m_file;
+
+  void loadRowVector(math::Matrix* matrix, size_t column, floatt* vec,
+                     size_t imageIndex);
 
   void load();
   void executeLoadProcess(const oap::OptSize& optWidthRef,
@@ -137,6 +145,10 @@ class DataLoader {
                         size_t begin, size_t end);
 
   void cleanImageStuff();
+
+  void createDataMatrixFiles();
+
+  uintptr_t getId() const { return reinterpret_cast<uintptr_t>(this); }
 };
 }
 #endif  // PNGLOADER_H

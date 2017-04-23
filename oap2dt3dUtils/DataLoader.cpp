@@ -34,22 +34,27 @@ DataLoader::DataLoader(const Images& images, bool dealocateImages,
                        bool frugalMode)
     : m_images(images),
       m_deallocateImages(dealocateImages),
-      m_frugalMode(frugalMode) {
+      m_frugalMode(frugalMode),
+      m_matrixFileDir("/tmp") {
   load();
 }
 
 DataLoader::~DataLoader() { cleanImageStuff(); }
 
 math::Matrix* DataLoader::createMatrix() {
+  return createMatrix(0, m_images.size());
+}
+
+math::Matrix* DataLoader::createMatrix(uintt index, uintt length) {
   const size_t refLength = m_images[0]->getLength();
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
 
-  math::Matrix* hostMatrix = host::NewReMatrix(m_images.size(), refLength);
+  math::Matrix* hostMatrix = host::NewReMatrix(length, refLength);
 
   try {
-    for (size_t fa = 0; fa < m_images.size(); ++fa) {
-      loadVector(hostMatrix, fa, floatsvec, fa);
+    for (size_t fa = index; fa < index + length; ++fa) {
+      loadRowVector(hostMatrix, fa, floatsvec, fa);
     }
   } catch (const oap::exceptions::NotIdenticalLengths&) {
     host::DeleteMatrix(hostMatrix);
@@ -60,7 +65,7 @@ math::Matrix* DataLoader::createMatrix() {
   return hostMatrix;
 }
 
-math::Matrix* DataLoader::createVector(size_t index) {
+math::Matrix* DataLoader::createColumnVector(size_t index) {
   const size_t refLength = m_images[0]->getLength();
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
@@ -68,7 +73,7 @@ math::Matrix* DataLoader::createVector(size_t index) {
   math::Matrix* hostMatrix = host::NewReMatrix(1, refLength);
 
   try {
-    loadVector(hostMatrix, 0, floatsvec, index);
+    loadRowVector(hostMatrix, 0, floatsvec, index);
   } catch (const oap::exceptions::NotIdenticalLengths&) {
     host::DeleteMatrix(hostMatrix);
     cleanImageStuff();
@@ -76,6 +81,12 @@ math::Matrix* DataLoader::createVector(size_t index) {
   }
 
   return hostMatrix;
+}
+
+math::Matrix* DataLoader::createRowVector(size_t index) {
+  createDataMatrixFiles();
+
+  return host::ReadRowVector(m_file, index);
 }
 
 math::MatrixInfo DataLoader::getMatrixInfo() const {
@@ -128,8 +139,8 @@ std::string DataLoader::constructImagePath(const std::string& absPath,
   return imagePath;
 }
 
-void DataLoader::loadVector(math::Matrix* matrix, size_t column, floatt* vec,
-                            size_t imageIndex) {
+void DataLoader::loadRowVector(math::Matrix* matrix, size_t column, floatt* vec,
+                               size_t imageIndex) {
   const size_t refLength = m_images[0]->getLength();
 
   Image* it = m_images[imageIndex];
@@ -240,7 +251,7 @@ void DataLoader::forceOutputSizes(const oap::OptSize& width,
 
 void DataLoader::cleanImageStuff() {
   for (oap::Image* image : m_images) {
-    if (image  != NULL) {
+    if (image != NULL) {
       image->freeBitmap();
     }
     if (m_deallocateImages) {
@@ -248,5 +259,25 @@ void DataLoader::cleanImageStuff() {
     }
   }
   m_images.clear();
+}
+
+void DataLoader::createDataMatrixFiles() {
+  if (m_file.length() == 0) {
+    math::Matrix* matrix = createMatrix();
+
+    std::string filePath = m_matrixFileDir;
+
+    filePath += "/dataloader_matrix";
+
+    filePath += std::to_string(getId());
+
+    bool status = host::WriteMatrix(filePath, matrix);
+
+    if (status == true) {
+      m_file = filePath;
+    }
+
+    host::DeleteMatrix(matrix);
+  }
 }
 }
