@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "HostProcedures.h"
 #include "CuMatrixProcedures/CuCompareOptProcedures.h"
 #include "CuMatrixProcedures/CuSubstractionProcedures.h"
