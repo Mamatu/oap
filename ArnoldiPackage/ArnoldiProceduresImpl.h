@@ -32,11 +32,9 @@ class CuHArnoldiDefault : public CuHArnoldi {
 
  protected:
   virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
-                CuHArnoldi::MultiplicationType mt);
+                        CuHArnoldi::MultiplicationType mt);
 
-  virtual bool checkEigenvalue(floatt value, uint index) { return true; }
-
-  virtual bool checkEigenvector(math::Matrix* vector, uint index) {
+  virtual bool checkEigenspair(floatt value, math::Matrix* vector, uint index) {
     return true;
   }
 
@@ -54,11 +52,9 @@ class CuHArnoldiCallback : public CuHArnoldi {
 
  protected:
   virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
-                CuHArnoldi::MultiplicationType mt);
+                        CuHArnoldi::MultiplicationType mt);
 
-  virtual bool checkEigenvalue(floatt value, uint index) { return true; }
-
-  virtual bool checkEigenvector(math::Matrix* vector, uint index) {
+  virtual bool checkEigenspair(floatt value, math::Matrix* vector, uint index) {
     return true;
   }
 

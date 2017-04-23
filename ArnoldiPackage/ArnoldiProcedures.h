@@ -49,8 +49,7 @@ class CuHArnoldi {
 
   void setOutputType(ArnUtils::Type outputType);
 
-  void execute(uintt k, uintt wantedCount,
-               const math::MatrixInfo& matrixInfo,
+  void execute(uintt k, uintt wantedCount, const math::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
 
   void extractOutput();
@@ -63,9 +62,8 @@ class CuHArnoldi {
                         MultiplicationType mt) = 0;
 
  protected:  // methods - to drive algorithm
-  virtual bool checkEigenvalue(floatt value, uint index) = 0;
-
-  virtual bool checkEigenvector(math::Matrix* vector, uint index) = 0;
+  virtual bool checkEigenspair(floatt value, math::Matrix* vector,
+                               uint index) = 0;
 
  protected:
   struct OutputEntry {
@@ -110,10 +108,8 @@ class CuHArnoldi {
   math::Matrix* m_V2;
   math::Matrix* m_H;
   math::Matrix* m_HC;
-  math::Matrix* m_H1;
+  math::Matrix* m_triangularH;
   math::Matrix* m_H2;
-  math::Matrix* m_A1;
-  math::Matrix* m_A2;
   math::Matrix* m_I;
   math::Matrix* m_v;
   math::Matrix* m_v1;
@@ -124,12 +120,9 @@ class CuHArnoldi {
   math::Matrix* m_R1;
   math::Matrix* m_R2;
   math::Matrix* m_HO;
-  math::Matrix* m_HO1;
   math::Matrix* m_Q;
   math::Matrix* m_QJ;
   math::Matrix* m_q;
-  math::Matrix* m_q1;
-  math::Matrix* m_q2;
   math::Matrix* m_GT;
   math::Matrix* m_G;
   math::Matrix* m_EV;
@@ -168,7 +161,7 @@ class CuHArnoldi {
   uintt m_qrows;
   uintt m_Hcolumns;
   uintt m_Hrows;
-  uintt m_H1columns;
+  uintt m_triangularHcolumns;
   uintt m_Qrows;
   uintt m_Qcolumns;
 
@@ -202,7 +195,7 @@ class CuHArnoldi {
 
   void sortPWorstEigens(uintt unwantedCount);
 
-  void sortEigenvalues(math::Matrix* m_H1, uintt unwantedCount);
+  void sortEigenvalues(math::Matrix* m_triangularH, uintt unwantedCount);
 
   /**
    * @brief executeArnoldiFactorization
