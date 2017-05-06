@@ -40,4 +40,11 @@ math::Matrix* DeviceDataLoader::createDeviceRowVector(size_t index) {
   host::DeleteMatrix(host);
   return device;
 }
+
+math::Matrix* DeviceDataLoader::createDeviceColumnVector(size_t index) {
+  math::Matrix* host = createColumnVector(index);
+  math::Matrix* device = device::NewDeviceMatrixCopy(host);
+  host::DeleteMatrix(host);
+  return device;
+}
 }
