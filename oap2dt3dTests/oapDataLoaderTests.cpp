@@ -163,6 +163,49 @@ TEST_F(OapDataLoaderTests, ContructImagePathTest) {
             DataLoaderProxy::constructImagePath("abs/", "image", 2, 10000));
 }
 
+TEST_F(OapDataLoaderTests, CreateImagesVectorTest) {
+  class ImageProxy : public ImageMock {
+   public:
+    ImageProxy(const std::string& path) : ImageMock(path), m_path(path) {}
+
+    virtual ~ImageProxy() {}
+
+    std::string getPath() const { return m_path; }
+
+   private:
+    std::string m_path;
+  };
+
+  class DataLoaderProxy : public oap::DataLoader {
+   public:
+    static oap::Images createImagesVector(const std::string& imageAbsPath,
+                                          const std::string& nameBase,
+                                          size_t loadCount, size_t count) {
+      return oap::DataLoader::createImagesVector<ImageProxy>(
+          imageAbsPath, nameBase, loadCount, count);
+    }
+  };
+
+  size_t count = 1000;
+
+  oap::Images images =
+      DataLoaderProxy::createImagesVector("dir1/dir2/", "image_", count, count);
+
+  for (size_t fa = 0; fa < images.size(); ++fa) {
+    oap::Image* image = images[fa];
+    ImageProxy* imageProxy = dynamic_cast<ImageProxy*>(image);
+
+    std::stringstream ss;
+    ss << std::setw(3) << std::setfill('0') << fa;
+
+    std::string expectedPath = "dir1/dir2/image_" + ss.str();
+
+    EXPECT_EQ(expectedPath, imageProxy->getPath());
+
+    delete images[fa];
+  }
+}
+
 class HaveSizesMatcher : public MatcherInterface<const oap::Images&> {
  public:
   HaveSizesMatcher(const oap::OptSize& optWidth, const oap::OptSize& optHeight)
