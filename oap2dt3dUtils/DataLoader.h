@@ -132,7 +132,7 @@ class DataLoader {
   std::string m_matrixFileDir;
   std::string m_file;
 
-  void loadRowVector(math::Matrix* matrix, size_t column, floatt* vec,
+  void loadColumnVector(math::Matrix* matrix, size_t column, floatt* vec,
                      size_t imageIndex);
 
   void load();

@@ -54,7 +54,7 @@ math::Matrix* DataLoader::createMatrix(uintt index, uintt length) {
 
   try {
     for (size_t fa = index; fa < index + length; ++fa) {
-      loadRowVector(hostMatrix, fa, floatsvec, fa);
+      loadColumnVector(hostMatrix, fa, floatsvec, fa);
     }
   } catch (const oap::exceptions::NotIdenticalLengths&) {
     host::DeleteMatrix(hostMatrix);
@@ -73,7 +73,7 @@ math::Matrix* DataLoader::createColumnVector(size_t index) {
   math::Matrix* hostMatrix = host::NewReMatrix(1, refLength);
 
   try {
-    loadRowVector(hostMatrix, 0, floatsvec, index);
+    loadColumnVector(hostMatrix, 0, floatsvec, index);
   } catch (const oap::exceptions::NotIdenticalLengths&) {
     host::DeleteMatrix(hostMatrix);
     cleanImageStuff();
@@ -139,7 +139,7 @@ std::string DataLoader::constructImagePath(const std::string& absPath,
   return imagePath;
 }
 
-void DataLoader::loadRowVector(math::Matrix* matrix, size_t column, floatt* vec,
+void DataLoader::loadColumnVector(math::Matrix* matrix, size_t column, floatt* vec,
                                size_t imageIndex) {
   const size_t refLength = m_images[0]->getLength();
 
