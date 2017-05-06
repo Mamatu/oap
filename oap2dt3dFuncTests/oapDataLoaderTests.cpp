@@ -181,3 +181,52 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix) {
 
   delete dataloader;
 }
+
+TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateRowVectors) {
+  oap::DataLoader* dataloader = NULL;
+  debugLongTest();
+
+  int count = 100;
+
+  math::Matrix* columnVecs[count];
+  math::Matrix* rowVecs[count];
+
+  EXPECT_NO_THROW(try {
+    dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
+        "oap2dt3d/data/images_monkey", "image", 1000, true);
+    math::MatrixInfo matrixInfo = dataloader->getMatrixInfo();
+
+    uintt columnIndexes[count];
+    uintt rowIndexes[count];
+
+    for (int fa = 0; fa < count; ++fa) {
+      columnIndexes[fa] = (matrixInfo.m_matrixDim.columns * fa) / count;
+      rowIndexes[fa] = (matrixInfo.m_matrixDim.rows * fa) / count;
+
+      columnVecs[fa] = dataloader->createColumnVector(columnIndexes[fa]);
+      rowVecs[fa] = dataloader->createRowVector(rowIndexes[fa]);
+    }
+
+    for (int fa = 0; fa < count - 1; ++fa) {
+      EXPECT_THAT(columnVecs[fa], Not(MatrixIsEqual(columnVecs[fa + 1])))
+          << "Actual: Columns vectors are equal: " << columnIndexes[fa] << ", "
+          << columnIndexes[fa + 1];
+    }
+
+    for (int fa = 0; fa < count; ++fa) {
+      EXPECT_EQ(GetRe(columnVecs[fa], 0, rowIndexes[fa]),
+                GetRe(rowVecs[fa], columnIndexes[fa], 0));
+    }
+  } catch (const oap::exceptions::Exception& ex) {
+    delete dataloader;
+    debugException(ex);
+    throw;
+  });
+
+  for (int fa = 0; fa < count; ++fa) {
+    host::DeleteMatrix(columnVecs[fa]);
+    host::DeleteMatrix(rowVecs[fa]);
+  }
+
+  delete dataloader;
+}
