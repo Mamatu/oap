@@ -20,8 +20,9 @@
 #ifndef PNGFILE_H
 #define PNGFILE_H
 
-#include <stdio.h>
+#include <png.h>
 
+#include <stdio.h>
 #include "Image.h"
 
 namespace oap {
@@ -32,8 +33,6 @@ class PngFile : public Image {
   virtual ~PngFile();
 
   virtual bool read(void* buffer, size_t repeat, size_t size);
-
-  virtual void close();
 
   virtual oap::OptSize getWidth() const;
 
@@ -49,8 +48,21 @@ class PngFile : public Image {
 
   virtual std::string getSufix() const;
 
+  static bool writeImageToFile(PngFile* pngFile, const std::string& path);
+
+  static bool writeImageToFile(PngFile* pngFile, const std::string& path,
+                         size_t width, size_t height);
+
  protected:
+  virtual void closeProtected();
+
   virtual void loadBitmapProtected();
+
+  void loadBitmapBuffers();
+
+  void destroyTmpData();
+
+  void setAutomaticDestroyTmpData(bool destroyTmp);
 
   virtual void freeBitmapProtected();
 
@@ -82,6 +94,8 @@ class PngFile : public Image {
   png_bytep* m_bitmap2d;
   png_byte* m_bitmap1d;
   oap::pixel_t* m_pixels;
+
+  bool m_destroyTmp;
 };
 }
 

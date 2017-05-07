@@ -41,7 +41,7 @@ class ImageMock : public oap::Image {
 
   MOCK_METHOD0(freeBitmapProtected, void());
 
-  MOCK_METHOD0(close, void());
+  MOCK_METHOD0(closeProtected, void());
 
   MOCK_CONST_METHOD0(getWidth, oap::OptSize());
 

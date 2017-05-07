@@ -19,6 +19,7 @@
 
 #include "PngFile.h"
 #include "Exceptions.h"
+#include "DebugLogs.h"
 
 namespace oap {
 
@@ -27,21 +28,19 @@ size_t g_colorsCount = 3;
 PngFile::PngFile(const std::string& path)
     : oap::Image(path),
       m_fp(NULL),
+      m_png_ptr(NULL),
       m_bitmap2d(NULL),
       m_bitmap1d(NULL),
-      m_pixels(NULL) {}
+      m_pixels(NULL),
+      m_destroyTmp(true) {}
 
-PngFile::~PngFile() { close(); }
+PngFile::~PngFile() {
+  freeBitmapProtected();
+  closeProtected();
+}
 
 bool PngFile::read(void* buffer, size_t repeat, size_t size) {
   fread(buffer, repeat, size, m_fp);
-}
-
-void PngFile::close() {
-  if (m_fp != NULL) {
-    fclose(m_fp);
-    m_fp = NULL;
-  }
 }
 
 oap::OptSize PngFile::getWidth() const {
@@ -76,60 +75,94 @@ oap::OptSize PngFile::getOutputHeight() const {
 
 std::string PngFile::getSufix() const { return "png"; }
 
+void PngFile::closeProtected() {
+  if (m_fp != NULL) {
+    fclose(m_fp);
+    m_fp = NULL;
+  }
+}
+
 void PngFile::loadBitmapProtected() {
-  png_byte color_type;
-  png_byte bit_depth;
+  if (m_png_ptr == NULL) {
+    png_byte color_type;
+    png_byte bit_depth;
 
-  m_png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    m_png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
-  m_info_ptr = png_create_info_struct(m_png_ptr);
+    m_info_ptr = png_create_info_struct(m_png_ptr);
 
-  png_init_io(m_png_ptr, m_fp);
+    png_init_io(m_png_ptr, m_fp);
 
-  png_set_sig_bytes(m_png_ptr, 0);
+    png_set_sig_bytes(m_png_ptr, 0);
 
-  png_read_info(m_png_ptr, m_info_ptr);
+    png_read_info(m_png_ptr, m_info_ptr);
 
-  size_t width = getWidth().optSize;
-  size_t height = getHeight().optSize;
+    color_type = png_get_color_type(m_png_ptr, m_info_ptr);
+    bit_depth = png_get_bit_depth(m_png_ptr, m_info_ptr);
 
-  color_type = png_get_color_type(m_png_ptr, m_info_ptr);
-  bit_depth = png_get_bit_depth(m_png_ptr, m_info_ptr);
-
-  int number_of_passes = png_set_interlace_handling(m_png_ptr);
-  png_read_update_info(m_png_ptr, m_info_ptr);
-
-  m_bitmap2d = new png_bytep[height];
-
-  for (unsigned int fa = 0; fa < height; ++fa) {
-    const size_t localWidth =
-        png_get_rowbytes(m_png_ptr, m_info_ptr) / sizeof(png_byte);
-    m_bitmap2d[fa] = new png_byte[localWidth];
+    int number_of_passes = png_set_interlace_handling(m_png_ptr);
+    png_read_update_info(m_png_ptr, m_info_ptr);
   }
 
-  png_read_image(m_png_ptr, m_bitmap2d);
+  loadBitmapBuffers();
 
-  calculateOutputSizes(width, height);
+  if (m_destroyTmp) {
+    destroyTmpData();
+  }
+}
 
-  createBitmap1dFrom2d(&m_bitmap1d, m_bitmap2d);
+void PngFile::loadBitmapBuffers() {
+  size_t width = 0;
+  size_t height = 0;
 
-  createPixelsVectorFrom1d(m_bitmap1d);
+  if (m_bitmap2d == NULL && m_png_ptr != NULL && m_info_ptr != NULL) {
+    width = getWidth().optSize;
+    height = getHeight().optSize;
 
+    m_bitmap2d = new png_bytep[height];
+
+    for (unsigned int fa = 0; fa < height; ++fa) {
+      const size_t localWidth =
+          png_get_rowbytes(m_png_ptr, m_info_ptr) / sizeof(png_byte);
+      m_bitmap2d[fa] = new png_byte[localWidth];
+    }
+
+    png_read_image(m_png_ptr, m_bitmap2d);
+  }
+
+  if (m_bitmap1d == NULL && m_bitmap2d != NULL) {
+    calculateOutputSizes(width, height);
+
+    createBitmap1dFrom2d(&m_bitmap1d, m_bitmap2d);
+
+    createPixelsVectorFrom1d(m_bitmap1d);
+  }
+}
+
+void PngFile::destroyTmpData() {
   destroyBitmap2d();
 
   destroyBitmap1d();
 }
 
-void PngFile::freeBitmapProtected() {
-  destroyBitmap2d();
+void PngFile::setAutomaticDestroyTmpData(bool destroyTmp) {
+  m_destroyTmp = destroyTmp;
+}
 
-  destroyBitmap1d();
+void PngFile::freeBitmapProtected() {
+  if (m_png_ptr == NULL) {
+    return;
+  }
+
+  destroyTmpData();
 
   png_destroy_info_struct(m_png_ptr, &m_info_ptr);
 
   png_destroy_read_struct(&m_png_ptr, NULL, NULL);
 
-  delete[] m_pixels;
+  if (m_pixels != NULL) {
+    delete[] m_pixels;
+  }
 
   m_pixels = NULL;
   m_png_ptr = NULL;
@@ -192,7 +225,9 @@ void PngFile::createPixelsVectorFrom1d(png_byte* bitmap1d) {
   size_t width = getOutputWidth().optSize;
   size_t height = getOutputHeight().optSize;
 
-  m_pixels = new pixel_t[width * height];
+  if (m_pixels == NULL) {
+    m_pixels = new pixel_t[width * height];
+  }
 
   for (size_t fa = 0; fa < height; ++fa) {
     for (size_t fb = 0; fb < width; ++fb) {

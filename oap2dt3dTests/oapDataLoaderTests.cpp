@@ -100,7 +100,7 @@ TEST_F(OapDataLoaderTests, Load) {
 
   ON_CALL(imageMock, getOutputHeight()).WillByDefault(Return(760));
 
-  EXPECT_CALL(imageMock, close()).Times(1);
+  EXPECT_CALL(imageMock, closeProtected()).Times(1);
 
   oap::Images images;
   images.push_back(&imageMock);

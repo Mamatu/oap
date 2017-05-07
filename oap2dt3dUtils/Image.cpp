@@ -24,7 +24,8 @@
 
 namespace oap {
 
-Image::Image(const std::string& path) : m_path(path), m_loadedBitmap(false) {}
+Image::Image(const std::string& path)
+    : m_isOpen(false), m_path(path), m_loadedBitmap(false) {}
 
 Image::~Image() {}
 
@@ -45,19 +46,30 @@ void Image::freeBitmap() {
 }
 
 void Image::open() {
+  if (isOpened()) {
+    return;
+  }
+
   if (m_path.find(std::string(".") + getSufix()) == std::string::npos) {
     m_path = m_path + ".";
     m_path = m_path + getSufix();
   }
 
   if (openProtected(m_path) == false) {
+    close();
     throw oap::exceptions::FileNotExist(m_path);
   }
 
   if (isCorrectFormat() == false) {
+    close();
     throw oap::exceptions::NotCorrectFormat(m_path, getSufix());
   }
+
+  m_isOpen = true;
 }
+
+bool Image::isOpened() const { return m_isOpen; }
+bool Image::isLoaded() const { return m_loadedBitmap; }
 
 pixel_t Image::getPixel(unsigned int x, unsigned int y) const {
   unsigned int height = getHeight().optSize;
@@ -90,6 +102,11 @@ void Image::getFloattVector(floatt* vector) const {
   for (size_t fa = 0; fa < length; ++fa) {
     vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
   }
+}
+
+void Image::close() {
+  closeProtected();
+  m_isOpen = false;
 }
 
 pixel_t Image::m_MaxPixel = Image::getPixelMax();

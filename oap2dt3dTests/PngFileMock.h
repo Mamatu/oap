@@ -70,7 +70,7 @@ class PngFileMock : public oap::PngFile {
 
   MOCK_CONST_METHOD0(getSufix, std::string());
 
-  MOCK_METHOD0(close, void());
+  MOCK_METHOD0(closeProtected, void());
 
   virtual oap::OptSize getWidth() const override { return m_width; }
 

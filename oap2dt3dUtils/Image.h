@@ -21,7 +21,6 @@
 #define IMAGE_H
 
 #include <string>
-#include <png.h>
 
 #include "Math.h"
 #include "GraphicUtils.h"
@@ -37,6 +36,9 @@ class Image {
   virtual ~Image();
 
   void open();
+
+  bool isOpened() const;
+  bool isLoaded() const;
 
   bool read(void* buffer, size_t size);
 
@@ -57,32 +59,32 @@ class Image {
   virtual oap::OptSize getHeight() const = 0;
 
   /**
-  * \brief Forces width of output. 
-  *         
+  * \brief Forces width of output.
+  *
   *  If it is not set, output width (see getOutputWidth) should be
-  *  equal to image width (see getWidth()).    
+  *  equal to image width (see getWidth()).
   */
   virtual void forceOutputWidth(const oap::OptSize& optWidth) = 0;
 
   /**
-  * \brief Forces height of output. 
-  *         
+  * \brief Forces height of output.
+  *
   *  If it is not set, output height (see getOutputHeight) should be
-  *  equal to image height (see getHeight()).    
+  *  equal to image height (see getHeight()).
   */
   virtual void forceOutputHeight(const oap::OptSize& optHeight) = 0;
 
   /**
-  * \brief Get width of output. 
-  *         
-  *  It may vary from getWidth due to trauncate redundant elements of image. 
+  * \brief Get width of output.
+  *
+  *  It may vary from getWidth due to truncate redundant elements of image.
   */
   virtual oap::OptSize getOutputWidth() const = 0;
 
   /**
-  * \brief Get height of output. 
-  *         
-  *  It may vary from getHeight due to trauncate redundant elements of image. 
+  * \brief Get height of output.
+  *
+  *  It may vary from getHeight due to truncate redundant elements of image.
   */
   virtual oap::OptSize getOutputHeight() const = 0;
 
@@ -94,7 +96,7 @@ class Image {
 
   void getFloattVector(floatt* vector) const;
 
-  virtual void close() = 0;
+  void close();
 
   static pixel_t convertRgbToPixel(unsigned char r, unsigned char g,
                                    unsigned char b);
@@ -109,6 +111,8 @@ class Image {
   virtual std::string getSufix() const = 0;
 
  protected:
+  virtual void closeProtected() = 0;
+
   virtual void loadBitmapProtected() = 0;
 
   virtual void freeBitmapProtected() = 0;
@@ -122,6 +126,8 @@ class Image {
   virtual pixel_t getPixelProtected(unsigned int x, unsigned int y) const = 0;
 
  private:
+  bool m_isOpen;
+
   std::string m_path;
 
   static pixel_t m_MaxPixel;

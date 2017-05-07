@@ -47,7 +47,7 @@ class OapPngFileTests : public testing::Test {
 
     MOCK_METHOD0(freeBitmap, void());
 
-    MOCK_METHOD0(close, void());
+    MOCK_METHOD0(closeProtected, void());
 
     MOCK_CONST_METHOD0(getWidth, oap::OptSize());
 
