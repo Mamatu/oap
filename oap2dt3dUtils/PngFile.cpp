@@ -23,8 +23,6 @@
 
 namespace oap {
 
-size_t g_colorsCount = 3;
-
 PngFile::PngFile(const std::string& path)
     : oap::Image(path),
       m_fp(NULL),
@@ -32,7 +30,8 @@ PngFile::PngFile(const std::string& path)
       m_bitmap2d(NULL),
       m_bitmap1d(NULL),
       m_pixels(NULL),
-      m_destroyTmp(true) {}
+      m_destroyTmp(true),
+      m_colorsCount(0) {}
 
 PngFile::~PngFile() {
   freeBitmapProtected();
@@ -75,6 +74,78 @@ oap::OptSize PngFile::getOutputHeight() const {
 
 std::string PngFile::getSufix() const { return "png"; }
 
+bool PngFile::save(const std::string& path) {
+  if (this->isLoaded() == true) {
+    return false;
+  }
+
+  FILE* fp = fopen(path.c_str(), "wb");
+
+  if (fp == NULL) {
+    return false;
+  }
+
+  png_structp png =
+      png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+  if (png == NULL) {
+    fclose(fp);
+    return false;
+  }
+
+  png_infop info = png_create_info_struct(png);
+
+  if (info == NULL) {
+    fclose(fp);
+    return false;
+  }
+
+  png_init_io(png, fp);
+
+  this->setAutomaticDestroyTmpData(false);
+
+  this->open();
+  this->loadBitmap();
+  this->close();
+
+  OptSize outputWidth = this->getOutputWidth();
+  OptSize outputHeight = this->getOutputHeight();
+
+  png_set_IHDR(png, info, outputWidth.optSize, outputHeight.optSize, 8,
+               PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+               PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+  png_write_info(png, info);
+
+  png_bytep* row_pointers = NULL;
+
+  bool rowPointerToDestroy = false;
+
+  if (outputWidth.optSize == this->getWidth().optSize &&
+      outputHeight.optSize == this->getHeight().optSize &&
+      outputWidth.begin == 0 && outputHeight.begin == 0) {
+    row_pointers = this->m_bitmap2d;
+  } else {
+    rowPointerToDestroy = true;
+    row_pointers = this->copyBitmap(outputWidth, outputHeight);
+  }
+
+  png_write_image(png, row_pointers);
+  png_write_end(png, NULL);
+
+  fclose(fp);
+
+  this->freeBitmap();
+
+  png_destroy_write_struct(&png, &info);
+
+  if (rowPointerToDestroy) {
+    destroyBitmap(row_pointers, outputHeight);
+  }
+
+  return true;
+}
+
 void PngFile::closeProtected() {
   if (m_fp != NULL) {
     fclose(m_fp);
@@ -114,6 +185,10 @@ void PngFile::loadBitmapProtected() {
 void PngFile::loadBitmapBuffers() {
   size_t width = 0;
   size_t height = 0;
+
+  if (m_png_ptr != NULL && m_info_ptr != NULL) {
+    calculateColorsCount();
+  }
 
   if (m_bitmap2d == NULL && m_png_ptr != NULL && m_info_ptr != NULL) {
     width = getWidth().optSize;
@@ -190,17 +265,53 @@ pixel_t PngFile::getPixelProtected(unsigned int x, unsigned int y) const {
   return m_pixels[y * width + x];
 }
 
+png_bytep* PngFile::copyBitmap(const OptSize& width, const OptSize& height) {
+  const png_bytep* origin = this->m_bitmap2d;
+
+  png_bytep* copy = new png_bytep[height.optSize];
+
+  const size_t localWidth =
+      png_get_rowbytes(m_png_ptr, m_info_ptr) / sizeof(png_byte);
+
+  const size_t imageWidth = getWidth().optSize + getWidth().begin;
+
+  size_t factor = localWidth / imageWidth;
+
+  for (size_t fa = 0; fa < height.optSize; ++fa) {
+    copy[fa] = new png_byte[width.optSize * factor];
+    memcpy(copy[fa], &origin[height.begin + fa][width.begin * factor],
+           width.optSize * factor * sizeof(png_byte));
+  }
+  return copy;
+}
+
+void PngFile::destroyBitmap(png_bytep* bitmap, const OptSize& height) const {
+  for (size_t fa = 0; fa < height.optSize; ++fa) {
+    delete[] bitmap[fa];
+  }
+  delete[] bitmap;
+}
+
+void PngFile::calculateColorsCount() {
+  const size_t localWidth =
+      png_get_rowbytes(m_png_ptr, m_info_ptr) / sizeof(png_byte);
+
+  const size_t imageWidth = getWidth().optSize + getWidth().begin;
+
+  m_colorsCount = localWidth / imageWidth;
+}
+
 void PngFile::calculateOutputSizes(size_t width, size_t height) {
   if (m_optWidth.optSize == 0) {
     oap::OptSize owidth = oap::GetOptWidth<png_bytep*, png_byte>(
-        m_bitmap2d, width, height, g_colorsCount);
+        m_bitmap2d, width, height, m_colorsCount);
 
     m_optWidth = owidth;
   }
 
   if (m_optHeight.optSize == 0) {
     oap::OptSize oheight = oap::GetOptHeight<png_bytep*, png_byte>(
-        m_bitmap2d, width, height, g_colorsCount);
+        m_bitmap2d, width, height, m_colorsCount);
 
     m_optHeight = oheight;
   }
@@ -210,7 +321,7 @@ void PngFile::createBitmap1dFrom2d(png_byte** bitmap1d, png_bytep* bitmap2d) {
   const size_t beginC = m_optWidth.begin;
   const size_t beginR = m_optHeight.begin;
 
-  size_t width = m_optWidth.optSize * g_colorsCount;
+  size_t width = m_optWidth.optSize * m_colorsCount;
   size_t height = m_optHeight.optSize;
 
   (*bitmap1d) = new png_byte[width * height];
@@ -231,7 +342,7 @@ void PngFile::createPixelsVectorFrom1d(png_byte* bitmap1d) {
 
   for (size_t fa = 0; fa < height; ++fa) {
     for (size_t fb = 0; fb < width; ++fb) {
-      const size_t index = fa * width * g_colorsCount + fb * g_colorsCount;
+      const size_t index = fa * width * m_colorsCount + fb * m_colorsCount;
       const size_t index1 = fa * width + fb;
       const png_byte r = bitmap1d[index];
       const png_byte g = bitmap1d[index + 1];

@@ -48,10 +48,7 @@ class PngFile : public Image {
 
   virtual std::string getSufix() const;
 
-  static bool writeImageToFile(PngFile* pngFile, const std::string& path);
-
-  static bool writeImageToFile(PngFile* pngFile, const std::string& path,
-                         size_t width, size_t height);
+  bool save(const std::string& path);
 
  protected:
   virtual void closeProtected();
@@ -74,7 +71,14 @@ class PngFile : public Image {
 
   virtual pixel_t getPixelProtected(unsigned int x, unsigned int y) const;
 
+  png_bytep* copyBitmap(const OptSize& width,
+                               const OptSize& height);
+
+  void destroyBitmap(png_bytep* bitmap, const OptSize& width) const;
+
  private:
+  void calculateColorsCount();
+
   void calculateOutputSizes(size_t width, size_t height);
 
   void createBitmap1dFrom2d(png_byte** bitmap1d, png_bytep* bitmap2d);
@@ -96,6 +100,8 @@ class PngFile : public Image {
   oap::pixel_t* m_pixels;
 
   bool m_destroyTmp;
+
+  size_t m_colorsCount;
 };
 }
 
