@@ -68,3 +68,13 @@ TEST_F(OapPngFileTests, LoadPixelOutOfRange) {
 
   EXPECT_THROW(pngFileMock.getPixel(2000, 2000), oap::exceptions::OutOfRange);
 }
+
+TEST_F(OapPngFileTests, ConvertRGBTest) {
+  oap::pixel_t pixel = oap::PngFile::convertRgbToPixel(100, 100, 100);
+  EXPECT_EQ(pixel, 6579300);
+}
+
+TEST_F(OapPngFileTests, ConvertRGBTest1) {
+  oap::pixel_t pixel = oap::PngFile::convertRgbToPixel(25, 89, 42);
+  EXPECT_EQ(pixel, 1661226);
+}

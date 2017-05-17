@@ -46,13 +46,60 @@ class OapPngFileTests : public testing::Test {
   }
 };
 
-TEST_F(OapPngFileTests, WriteImageToFileTest) {
+TEST_F(OapPngFileTests, SaveImageToFileTest) {
   EXPECT_NO_THROW(try {
     oap::PngFile pngFile(getImagePath("image000.png"));
+    oap::PngFile pngFile900(getImagePath("image900.png"));
+    oap::PngFile pngFile910(getImagePath("image910.png"));
 
-    EXPECT_TRUE(oap::PngFile::writeImageToFile(&pngFile, "/tmp/o.png"));
+    EXPECT_TRUE(pngFile.save("/tmp/truncated_image000.png"));
+    EXPECT_TRUE(pngFile900.save("/tmp/truncated_image900.png"));
+    EXPECT_TRUE(pngFile910.save("/tmp/truncated_image910.png"));
   } catch (const oap::exceptions::Exception& ex) {
     debugException(ex);
     throw;
   });
+}
+
+TEST_F(OapPngFileTests, TwoImagesPixelVectorsTests) {
+  // EXPECT_NO_THROW(
+
+  try {
+    oap::PngFile pngFile(getImagePath("image670.png"));
+    oap::PngFile pngFile1(getImagePath("image680.png"));
+
+    auto loadBitmap = [](oap::PngFile& pngFile) {
+      pngFile.open();
+      pngFile.loadBitmap();
+      pngFile.close();
+
+    };
+
+    auto getFloatsVector = [](oap::PngFile& pngFile) -> std::vector<floatt>* {
+      oap::OptSize size =
+          pngFile.getOutputHeight().optSize * pngFile.getOutputWidth().optSize;
+      floatt* buffer = new floatt[size.optSize];
+      pngFile.getFloattVector(buffer);
+      std::vector<floatt>* vec =
+          new std::vector<floatt>{buffer, buffer + size.optSize};
+      delete[] buffer;
+      return vec;
+    };
+
+    loadBitmap(pngFile);
+    loadBitmap(pngFile1);
+
+    std::vector<floatt>* vec = getFloatsVector(pngFile);
+    std::vector<floatt>* vec1 = getFloatsVector(pngFile1);
+
+    EXPECT_NE(*vec, *vec1);
+
+    delete vec;
+    delete vec1;
+
+  } catch (const oap::exceptions::Exception& ex) {
+    debugException(ex);
+    throw;
+  }
+  //);
 }
