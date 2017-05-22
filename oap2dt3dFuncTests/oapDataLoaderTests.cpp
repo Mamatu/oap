@@ -230,3 +230,48 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateRowVectors) {
 
   delete dataloader;
 }
+
+TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest) {
+  math::Matrix* matrix = NULL;
+  debugLongTest();
+
+  std::string dir = "/tmp/tests_data";
+
+  debug("Images will be saved in %s", dir.c_str());
+
+  class DataLoaderImpl : public oap::DataLoader {
+   public:
+    DataLoaderImpl(const oap::Images& images, bool dealocateImages = false,
+                   bool frugalMode = true)
+        : oap::DataLoader(images, dealocateImages, frugalMode) {}
+
+    size_t getImagesCount() const { return oap::DataLoader::getImagesCount(); }
+
+    oap::Image* getImage(size_t index) const {
+      return oap::DataLoader::getImage(index);
+    }
+  };
+
+  DataLoaderImpl* dataloader = NULL;
+
+  try {
+    dataloader =
+        oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderImpl>(
+            "oap2dt3d/data/images_monkey", "image", 1000, true);
+
+    for (size_t fa = 0; fa < dataloader->getImagesCount(); ++fa) {
+      oap::Image* image = dataloader->getImage(fa);
+      oap::PngFile* pngFile = dynamic_cast<oap::PngFile*>(image);
+      EXPECT_TRUE(pngFile->save("truncated_", dir))
+          << "File can not be saved in " << dir
+          << ". If this directory doesn't exist please create it.";
+    }
+
+  } catch (const oap::exceptions::Exception& ex) {
+    delete dataloader;
+    debugException(ex);
+    throw;
+  }
+
+  delete dataloader;
+}
