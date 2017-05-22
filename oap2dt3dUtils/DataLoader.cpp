@@ -139,8 +139,12 @@ std::string DataLoader::constructImagePath(const std::string& absPath,
   return imagePath;
 }
 
-void DataLoader::loadColumnVector(math::Matrix* matrix, size_t column, floatt* vec,
-                               size_t imageIndex) {
+size_t DataLoader::getImagesCount() const { return m_images.size(); }
+
+oap::Image* DataLoader::getImage(size_t index) const { return m_images[index]; }
+
+void DataLoader::loadColumnVector(math::Matrix* matrix, size_t column,
+                                  floatt* vec, size_t imageIndex) {
   const size_t refLength = m_images[0]->getLength();
 
   Image* it = m_images[imageIndex];

@@ -124,8 +124,14 @@ class DataLoader {
     return images;
   }
 
+ protected:
+  size_t getImagesCount() const;
+
+  oap::Image* getImage(size_t index) const;
+
  private:
   Images m_images;
+
   bool m_deallocateImages;
   bool m_frugalMode;
 
@@ -133,7 +139,7 @@ class DataLoader {
   std::string m_file;
 
   void loadColumnVector(math::Matrix* matrix, size_t column, floatt* vec,
-                     size_t imageIndex);
+                        size_t imageIndex);
 
   void load();
   void executeLoadProcess(const oap::OptSize& optWidthRef,
