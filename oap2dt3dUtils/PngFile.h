@@ -50,6 +50,8 @@ class PngFile : public Image {
 
   bool save(const std::string& path);
 
+  bool save(const std::string& prefix, const std::string& path);
+
  protected:
   virtual void closeProtected();
 
@@ -71,8 +73,7 @@ class PngFile : public Image {
 
   virtual pixel_t getPixelProtected(unsigned int x, unsigned int y) const;
 
-  png_bytep* copyBitmap(const OptSize& width,
-                               const OptSize& height);
+  png_bytep* copyBitmap(const OptSize& width, const OptSize& height);
 
   void destroyBitmap(png_bytep* bitmap, const OptSize& width) const;
 

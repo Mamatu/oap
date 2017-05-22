@@ -146,6 +146,16 @@ bool PngFile::save(const std::string& path) {
   return true;
 }
 
+bool PngFile::save(const std::string& prefix, const std::string& path) {
+  std::string filename = this->getFileName();
+
+  filename = prefix + filename;
+
+  std::string filepath = path + "/" + filename;
+
+  return save(filepath);
+}
+
 void PngFile::closeProtected() {
   if (m_fp != NULL) {
     fclose(m_fp);
