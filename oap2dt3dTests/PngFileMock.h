@@ -30,7 +30,7 @@ class PngFileMock : public oap::PngFile {
  public:
   PngFileMock(const oap::pixel_t* matrix, size_t vectorsCount, size_t width,
               size_t height)
-      : oap::PngFile(""),
+      : oap::PngFile("test_path/test_file"),
         m_counter(0),
         m_vectorsCount(vectorsCount),
         m_vectorLength(width * height),
@@ -44,7 +44,7 @@ class PngFileMock : public oap::PngFile {
   }
 
   PngFileMock(size_t width, size_t height)
-      : oap::PngFile(""),
+      : oap::PngFile("test_path/test_file"),
         m_counter(0),
         m_vectorsCount(0),
         m_vectorLength(width * height),

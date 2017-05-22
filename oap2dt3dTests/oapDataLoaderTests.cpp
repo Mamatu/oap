@@ -56,7 +56,7 @@ class OapDataLoaderTests : public testing::Test {
 oap::Images OapDataLoaderTests::DataLoaderProxy::m_emptyImages;
 
 TEST_F(OapDataLoaderTests, LoadFail) {
-  NiceImageMock imageMock("");
+  NiceImageMock imageMock;
 
   EXPECT_CALL(imageMock, openProtected(_)).Times(1).WillOnce(Return(false));
 
@@ -68,7 +68,7 @@ TEST_F(OapDataLoaderTests, LoadFail) {
 }
 
 TEST_F(OapDataLoaderTests, FailVerification) {
-  NiceImageMock imageMock("");
+  NiceImageMock imageMock;
 
   EXPECT_CALL(imageMock, openProtected(_)).Times(1).WillOnce(Return(true));
 
@@ -82,7 +82,7 @@ TEST_F(OapDataLoaderTests, FailVerification) {
 }
 
 TEST_F(OapDataLoaderTests, Load) {
-  NiceImageMock imageMock("");
+  NiceImageMock imageMock;
 
   EXPECT_CALL(imageMock, openProtected(_)).Times(1).WillOnce(Return(true));
 

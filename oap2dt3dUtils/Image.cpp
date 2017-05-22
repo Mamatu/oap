@@ -25,7 +25,12 @@
 namespace oap {
 
 Image::Image(const std::string& path)
-    : m_isOpen(false), m_path(path), m_loadedBitmap(false) {}
+    : m_isOpen(false), m_path(path), m_loadedBitmap(false) {
+  size_t index = m_path.find_last_of("/");
+
+  m_fileName = m_path.substr(index + 1);
+  m_filePath = m_path.substr(0, index);
+}
 
 Image::~Image() {}
 
@@ -132,4 +137,8 @@ floatt Image::convertRgbToFloatt(unsigned char r, unsigned char g,
 }
 
 pixel_t Image::getPixelMax() { return convertRgbToPixel(255, 255, 255); }
+
+std::string Image::getFileName() const { return m_fileName; }
+
+std::string Image::getFilePath() const { return m_filePath; }
 }

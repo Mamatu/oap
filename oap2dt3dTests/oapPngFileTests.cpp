@@ -60,7 +60,7 @@ class OapPngFileTests : public testing::Test {
 };
 
 TEST_F(OapPngFileTests, LoadPixelOutOfRange) {
-  NiceMock<PngFileMock> pngFileMock("");
+  NiceMock<PngFileMock> pngFileMock("test_path/test_file");
 
   ON_CALL(pngFileMock, getWidth()).WillByDefault(Return(1024));
 
@@ -77,4 +77,12 @@ TEST_F(OapPngFileTests, ConvertRGBTest) {
 TEST_F(OapPngFileTests, ConvertRGBTest1) {
   oap::pixel_t pixel = oap::PngFile::convertRgbToPixel(25, 89, 42);
   EXPECT_EQ(pixel, 1661226);
+}
+
+TEST_F(OapPngFileTests, FileNametest) {
+  oap::PngFile pngFile("a/b/c/d/e");
+  std::string fileName = pngFile.getFileName();
+  std::string filePath = pngFile.getFilePath();
+  EXPECT_EQ("e", fileName);
+  EXPECT_EQ("a/b/c/d", filePath);
 }

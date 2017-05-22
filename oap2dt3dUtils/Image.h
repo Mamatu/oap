@@ -110,6 +110,9 @@ class Image {
 
   virtual std::string getSufix() const = 0;
 
+  std::string getFileName() const;
+  std::string getFilePath() const;
+
  protected:
   virtual void closeProtected() = 0;
 
@@ -129,6 +132,8 @@ class Image {
   bool m_isOpen;
 
   std::string m_path;
+  std::string m_fileName;
+  std::string m_filePath;
 
   static pixel_t m_MaxPixel;
 

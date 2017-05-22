@@ -29,6 +29,8 @@ class ImageMock : public oap::Image {
  public:  // ImageMock type
   ImageMock(const std::string& path) : oap::Image(path) {}
 
+  ImageMock() : oap::Image("test_path/test_file") {}
+
   virtual ~ImageMock() {}
 
   MOCK_METHOD1(openProtected, bool(const std::string& path));
