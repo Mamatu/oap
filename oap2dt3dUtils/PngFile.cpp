@@ -218,10 +218,18 @@ void PngFile::loadBitmapBuffers() {
   if (m_bitmap1d == NULL && m_bitmap2d != NULL) {
     calculateOutputSizes(width, height);
 
-    createBitmap1dFrom2d(&m_bitmap1d, m_bitmap2d);
-
-    createPixelsVectorFrom1d(m_bitmap1d);
+    convertRawdataToBitmap1D();
   }
+}
+
+void PngFile::convertRawdataToBitmap1D() {
+  destroyBitmap1d();
+
+  destroyPixels();
+
+  m_bitmap1d = createBitmap1dFrom2d(m_bitmap2d);
+
+  m_pixels = createPixelsVectorFrom1d(m_bitmap1d);
 }
 
 void PngFile::destroyTmpData() {
@@ -327,28 +335,28 @@ void PngFile::calculateOutputSizes(size_t width, size_t height) {
   }
 }
 
-void PngFile::createBitmap1dFrom2d(png_byte** bitmap1d, png_bytep* bitmap2d) {
+png_byte* PngFile::createBitmap1dFrom2d(png_bytep* bitmap2d) {
   const size_t beginC = m_optWidth.begin;
   const size_t beginR = m_optHeight.begin;
 
   size_t width = m_optWidth.optSize * m_colorsCount;
   size_t height = m_optHeight.optSize;
 
-  (*bitmap1d) = new png_byte[width * height];
+  png_byte* bitmap1d = new png_byte[width * height];
 
   for (size_t fa = beginR; fa < height; ++fa) {
-    memcpy(&(*bitmap1d)[fa * width * sizeof(png_byte)], &(bitmap2d[fa][beginC]),
+    memcpy(&(bitmap1d[fa * width * sizeof(png_byte)]), &(bitmap2d[fa][beginC]),
            width * sizeof(png_byte));
   }
+
+  return bitmap1d;
 }
 
-void PngFile::createPixelsVectorFrom1d(png_byte* bitmap1d) {
+oap::pixel_t* PngFile::createPixelsVectorFrom1d(png_byte* bitmap1d) {
   size_t width = getOutputWidth().optSize;
   size_t height = getOutputHeight().optSize;
 
-  if (m_pixels == NULL) {
-    m_pixels = new pixel_t[width * height];
-  }
+  oap::pixel_t* pixels = new pixel_t[width * height];
 
   for (size_t fa = 0; fa < height; ++fa) {
     for (size_t fb = 0; fb < width; ++fb) {
@@ -357,9 +365,10 @@ void PngFile::createPixelsVectorFrom1d(png_byte* bitmap1d) {
       const png_byte r = bitmap1d[index];
       const png_byte g = bitmap1d[index + 1];
       const png_byte b = bitmap1d[index + 2];
-      m_pixels[index1] = convertRgbToPixel(r, g, b);
+      pixels[index1] = convertRgbToPixel(r, g, b);
     }
   }
+  return pixels;
 }
 
 void PngFile::destroyBitmap2d() {
@@ -380,6 +389,13 @@ void PngFile::destroyBitmap1d() {
   if (m_bitmap1d != NULL) {
     delete[] m_bitmap1d;
     m_bitmap1d = NULL;
+  }
+}
+
+void PngFile::destroyPixels() {
+  if (m_pixels != NULL) {
+    delete[] m_pixels;
+    m_pixels = NULL;
   }
 }
 }

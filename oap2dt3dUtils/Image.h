@@ -92,7 +92,7 @@ class Image {
 
   size_t getLength() const;
 
-  void getPixelsVector(pixel_t* pixels) const;
+  bool getPixelsVector(pixel_t* pixels) const;
 
   void getFloattVector(floatt* vector) const;
 

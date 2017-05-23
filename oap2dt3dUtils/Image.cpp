@@ -92,10 +92,12 @@ size_t Image::getLength() const {
   return getOutputWidth().optSize * getOutputHeight().optSize;
 }
 
-void Image::getPixelsVector(pixel_t* pixels) const {
+bool Image::getPixelsVector(pixel_t* pixels) const {
   if (m_loadedBitmap) {
     getPixelsVectorProtected(pixels);
+    return true;
   }
+  return false;
 }
 
 void Image::getFloattVector(floatt* vector) const {

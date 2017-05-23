@@ -59,6 +59,8 @@ class PngFile : public Image {
 
   void loadBitmapBuffers();
 
+  void convertRawdataToBitmap1D();
+
   void destroyTmpData();
 
   void setAutomaticDestroyTmpData(bool destroyTmp);
@@ -82,13 +84,15 @@ class PngFile : public Image {
 
   void calculateOutputSizes(size_t width, size_t height);
 
-  void createBitmap1dFrom2d(png_byte** bitmap1d, png_bytep* bitmap2d);
+  png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d);
 
-  void createPixelsVectorFrom1d(png_byte* bitmap1d);
+  oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d);
 
   void destroyBitmap2d();
 
   void destroyBitmap1d();
+
+  void destroyPixels();
 
   oap::OptSize m_optWidth;
   oap::OptSize m_optHeight;
