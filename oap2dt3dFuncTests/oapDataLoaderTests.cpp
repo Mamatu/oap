@@ -264,7 +264,7 @@ TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest) {
       oap::PngFile* pngFile = dynamic_cast<oap::PngFile*>(image);
       EXPECT_TRUE(pngFile->save("truncated_", dir))
           << "File can not be saved in " << dir
-          << ". If this directory doesn't exist please create it.";
+          << " . If this directory doesn't exist please create it.";
     }
 
   } catch (const oap::exceptions::Exception& ex) {
