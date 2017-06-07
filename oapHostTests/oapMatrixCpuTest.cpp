@@ -19,36 +19,35 @@
 
 
 #include <string>
+#include <memory>
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
 #include "HostMatrixUtils.h"
 #include "MathOperationsCpu.h"
 
+class MatrixPtr : public std::unique_ptr<math::Matrix, void(*)(math::Matrix*)> {
+private:
+  static void DeleteMatrix(math::Matrix* matrix) {
+    host::DeleteMatrix(matrix);
+  }
+
+public:
+  MatrixPtr(math::Matrix* matrix) : std::unique_ptr<math::Matrix, void(*)(math::Matrix*)>(matrix, MatrixPtr::DeleteMatrix) {}
+};
+
 class OapMatrixTests : public testing::Test {
 public:
-    math::Matrix* matrix1;
-    math::Matrix* matrix2;
-    math::Matrix* output;
-    math::Matrix* eq_output;
     floatt eq_value;
     floatt value;
-    int tc;
+    int m_threadsCount;
 
     virtual void SetUp() {
-        tc = 1;
+        m_threadsCount = 1;
     }
 
     virtual void TearDown() {
-        if (output != NULL && eq_output != NULL) {
-            EXPECT_THAT(output, MatrixIsEqual(eq_output));
-        } else {
-            EXPECT_EQ(eq_value, value);
-        }
-        host::DeleteMatrix(matrix1);
-        host::DeleteMatrix(matrix2);
-        host::DeleteMatrix(output);
-        host::DeleteMatrix(eq_output);
     }
 };
 
@@ -66,14 +65,16 @@ TEST_F(OapMatrixTests, SubMultiplication1) {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
-    output = host::NewReMatrix(10, 10, 0);
-    matrix1 = host::NewReMatrix(10, 10, 1);
-    matrix2 = host::NewReMatrix(10, 10, 1);
-    eq_output = host::NewReMatrixCopy(10, 10, outputArray);
+    MatrixPtr output = host::NewReMatrix(10, 10, 0);
+    MatrixPtr matrix1 = host::NewReMatrix(10, 10, 1);
+    MatrixPtr matrix2 = host::NewReMatrix(10, 10, 1);
+    MatrixPtr eq_output = host::NewReMatrixCopy(10, 10, outputArray);
     mo.setSubColumns(5);
     mo.setSubRows(5);
-    mo.setThreadsCount(tc);
-    mo.multiply(output, matrix1, matrix2, 5);
+    mo.setThreadsCount(m_threadsCount);
+    mo.multiply(output.get(), matrix1.get(), matrix2.get(), 5);
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, Addition) {
@@ -89,16 +90,18 @@ TEST_F(OapMatrixTests, Addition) {
         0, 0, 2, 0,
         0, 0, 0, 2
     };
-    matrix1 = host::NewReMatrixCopy(4, 4, array);
-    matrix2 = host::NewReMatrixCopy(4, 4, array);
-    eq_output = host::NewReMatrixCopy(4, 4, outputArray);
-    output = host::NewReMatrix(4, 4);
+    MatrixPtr matrix1 = host::NewReMatrixCopy(4, 4, array);
+    MatrixPtr matrix2 = host::NewReMatrixCopy(4, 4, array);
+    MatrixPtr eq_output = host::NewReMatrixCopy(4, 4, outputArray);
+    MatrixPtr output = host::NewReMatrix(4, 4);
     math::AdditionOperationCpu additionOperation;
-    additionOperation.setThreadsCount(tc);
-    additionOperation.setOutputMatrix(output);
-    additionOperation.setMatrix1(matrix1);
-    additionOperation.setMatrix2(matrix2);
+    additionOperation.setThreadsCount(m_threadsCount);
+    additionOperation.setOutputMatrix(output.get());
+    additionOperation.setMatrix1(matrix1.get());
+    additionOperation.setMatrix2(matrix2.get());
     additionOperation.start();
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, Substraction) {
@@ -110,16 +113,18 @@ TEST_F(OapMatrixTests, Substraction) {
         0, 0, 0, 0,
         0, 0, 0, 0,
         0, 0, 0, 0};
-    matrix1 = host::NewReMatrixCopy(4, 4, array);
-    matrix2 = host::NewReMatrixCopy(4, 4, array);
-    eq_output = host::NewReMatrixCopy(4, 4, outputArray);
-    output = host::NewReMatrix(4, 4);
+    MatrixPtr matrix1 = host::NewReMatrixCopy(4, 4, array);
+    MatrixPtr matrix2 = host::NewReMatrixCopy(4, 4, array);
+    MatrixPtr eq_output = host::NewReMatrixCopy(4, 4, outputArray);
+    MatrixPtr output = host::NewReMatrix(4, 4);
     math::SubstracionOperationCpu substractionOperation;
-    substractionOperation.setThreadsCount(tc);
-    substractionOperation.setOutputMatrix(output);
-    substractionOperation.setMatrix1(matrix1);
-    substractionOperation.setMatrix2(matrix2);
+    substractionOperation.setThreadsCount(m_threadsCount);
+    substractionOperation.setOutputMatrix(output.get());
+    substractionOperation.setMatrix1(matrix1.get());
+    substractionOperation.setMatrix2(matrix2.get());
     substractionOperation.start();
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, Addition1) {
@@ -132,14 +137,16 @@ TEST_F(OapMatrixTests, Addition1) {
         0, 2, 0, 0,
         0, 0, 0, 0,
         0, 0, 0, 0};
-    matrix1 = host::NewReMatrixCopy(4, 4, array);
-    matrix2 = host::NewReMatrixCopy(4, 4, array);
-    output = host::NewReMatrix(4, 4);
-    eq_output = host::NewReMatrixCopy(4, 4, outputArray);
+    MatrixPtr matrix1 = host::NewReMatrixCopy(4, 4, array);
+    MatrixPtr matrix2 = host::NewReMatrixCopy(4, 4, array);
+    MatrixPtr output = host::NewReMatrix(4, 4);
+    MatrixPtr eq_output = host::NewReMatrixCopy(4, 4, outputArray);
     math::MathOperationsCpu mo;
-    mo.setThreadsCount(tc);
+    mo.setThreadsCount(m_threadsCount);
     mo.setSubColumns(2);
-    mo.add(output, matrix1, matrix2);
+    mo.add(output.get(), matrix1.get(), matrix2.get());
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, Multiplication) {
@@ -169,17 +176,19 @@ TEST_F(OapMatrixTests, Multiplication) {
         0, 3, 0, 0, 0
     };
 
-    matrix1 = host::NewReMatrixCopy(5, 5, array);
-    matrix2 = host::NewReMatrixCopy(5, 5, array1);
-    output = host::NewReMatrix(5, 5);
-    eq_output = host::NewReMatrixCopy(5, 5, outputArray);
+    MatrixPtr matrix1 = host::NewReMatrixCopy(5, 5, array);
+    MatrixPtr matrix2 = host::NewReMatrixCopy(5, 5, array1);
+    MatrixPtr output = host::NewReMatrix(5, 5);
+    MatrixPtr eq_output = host::NewReMatrixCopy(5, 5, outputArray);
     math::DotProductOperationCpu multiplicationOperation;
-    multiplicationOperation.setThreadsCount(tc);
-    multiplicationOperation.setOutputMatrix(output);
+    multiplicationOperation.setThreadsCount(m_threadsCount);
+    multiplicationOperation.setOutputMatrix(output.get());
     multiplicationOperation.setSubColumns(2);
-    multiplicationOperation.setMatrix1(matrix1);
-    multiplicationOperation.setMatrix2(matrix2);
+    multiplicationOperation.setMatrix1(matrix1.get());
+    multiplicationOperation.setMatrix2(matrix2.get());
     multiplicationOperation.start();
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, Diagonalization) {
@@ -199,16 +208,18 @@ TEST_F(OapMatrixTests, Diagonalization) {
         -1, 0, 0,
         2, 1, 2};
 
-    matrix1 = host::NewReMatrixCopy(3, 3, array2);
-    matrix2 = host::NewReMatrixCopy(3, 3, array3);
-    output = host::NewReMatrix(3, 3);
-    eq_output = host::NewReMatrix(3, 3);
+    MatrixPtr matrix1 = host::NewReMatrixCopy(3, 3, array2);
+    MatrixPtr matrix2 = host::NewReMatrixCopy(3, 3, array3);
+    MatrixPtr output = host::NewReMatrix(3, 3);
+    MatrixPtr eq_output = host::NewReMatrix(3, 3);
     math::DiagonalizationOperationCpu diagonalizationOperation;
-    diagonalizationOperation.setThreadsCount(tc);
-    diagonalizationOperation.setOutputMatrix(output);
-    diagonalizationOperation.setMatrix1(matrix1);
-    diagonalizationOperation.setMatrix2(matrix2);
+    diagonalizationOperation.setThreadsCount(m_threadsCount);
+    diagonalizationOperation.setOutputMatrix(output.get());
+    diagonalizationOperation.setMatrix1(matrix1.get());
+    diagonalizationOperation.setMatrix2(matrix2.get());
     diagonalizationOperation.start();
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, TensorProduct) {
@@ -227,16 +238,18 @@ TEST_F(OapMatrixTests, TensorProduct) {
         0, 0, 1, 0,
         0, 0, 0, 1
     };
-    matrix1 = host::NewReMatrixCopy(2, 2, array);
-    matrix2 = host::NewReMatrixCopy(2, 2, array1);
-    output = host::NewReMatrix(4, 4);
-    eq_output = host::NewReMatrixCopy(4, 4, outputArray);
+    MatrixPtr matrix1 = host::NewReMatrixCopy(2, 2, array);
+    MatrixPtr matrix2 = host::NewReMatrixCopy(2, 2, array1);
+    MatrixPtr output = host::NewReMatrix(4, 4);
+    MatrixPtr eq_output = host::NewReMatrixCopy(4, 4, outputArray);
     math::TensorProductOperationCpu tpOperation;
-    tpOperation.setThreadsCount(tc);
-    tpOperation.setOutputMatrix(output);
-    tpOperation.setMatrix1(matrix1);
-    tpOperation.setMatrix2(matrix2);
+    tpOperation.setThreadsCount(m_threadsCount);
+    tpOperation.setOutputMatrix(output.get());
+    tpOperation.setMatrix1(matrix1.get());
+    tpOperation.setMatrix2(matrix2.get());
     tpOperation.start();
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, Multiplication1) {
@@ -254,12 +267,14 @@ TEST_F(OapMatrixTests, Multiplication1) {
         20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
         20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
     };
-    matrix1 = host::NewReMatrix(10, 10, 1);
-    matrix2 = host::NewReMatrix(10, 10, 2);
-    output = host::NewReMatrix(10, 10);
-    eq_output = host::NewReMatrixCopy(10, 10, outputArray);
-    mo.setThreadsCount(tc);
-    mo.multiply(output, matrix1, matrix2);
+    MatrixPtr matrix1 = host::NewReMatrix(10, 10, 1);
+    MatrixPtr matrix2 = host::NewReMatrix(10, 10, 2);
+    MatrixPtr output = host::NewReMatrix(10, 10);
+    MatrixPtr eq_output = host::NewReMatrixCopy(10, 10, outputArray);
+    mo.setThreadsCount(m_threadsCount);
+    mo.multiply(output.get(), matrix1.get(), matrix2.get());
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, MultiplicationConst) {
@@ -278,27 +293,31 @@ TEST_F(OapMatrixTests, MultiplicationConst) {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
     };
 
-    eq_output = host::NewReMatrixCopy(10, 10, outputArray);
-    matrix1 = host::NewReMatrix(10, 10, 1);
-    matrix2 = NULL;
+    MatrixPtr eq_output = host::NewReMatrixCopy(10, 10, outputArray);
+    MatrixPtr matrix1 = host::NewReMatrix(10, 10, 1);
+    MatrixPtr matrix2 = NULL;
     floatt m2 = 2.f;
-    output = host::NewReMatrix(10, 10);
-    mo.setThreadsCount(tc);
-    mo.multiply(output, matrix1, &m2);
+    MatrixPtr output = host::NewReMatrix(10, 10);
+    mo.setThreadsCount(m_threadsCount);
+    mo.multiply(output.get(), matrix1.get(), &m2);
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, SubMultiplication) {
 
     math::MathOperationsCpu mo;
-    output = host::NewReMatrix(10, 10, 0);
-    eq_output = host::NewReMatrix(10, 10, 0);
+    MatrixPtr output = host::NewReMatrix(10, 10, 0);
+    MatrixPtr eq_output = host::NewReMatrix(10, 10, 0);
     eq_output->reValues[0] = 10;
-    matrix1 = host::NewReMatrix(10, 10, 1);
-    matrix2 = host::NewReMatrix(10, 10, 1);
+    MatrixPtr matrix1 = host::NewReMatrix(10, 10, 1);
+    MatrixPtr matrix2 = host::NewReMatrix(10, 10, 1);
     mo.setSubRows(1);
     mo.setSubColumns(1);
-    mo.setThreadsCount(tc);
-    mo.multiply(output, matrix1, matrix2);
+    mo.setThreadsCount(m_threadsCount);
+    mo.multiply(output.get(), matrix1.get(), matrix2.get());
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
 TEST_F(OapMatrixTests, Transpose) {
@@ -315,11 +334,13 @@ TEST_F(OapMatrixTests, Transpose) {
         0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
         0.000000, 0.000000, 0.000000, 0.000000, 0.000000
     };
-    output = host::NewReMatrix(5, 10, 0);
-    eq_output = host::NewReMatrixCopy(5, 10, outputArray);
-    matrix1 = host::NewReMatrix(10, 5, 1);
-    matrix2 = NULL;
+    MatrixPtr output = host::NewReMatrix(5, 10, 0);
+    MatrixPtr eq_output = host::NewReMatrixCopy(5, 10, outputArray);
+    MatrixPtr matrix1 = host::NewReMatrix(10, 5, 1);
+    MatrixPtr matrix2 = NULL;
     mo.setSubRows(4);
-    mo.setThreadsCount(tc);
-    mo.transpose(output, matrix1);
+    mo.setThreadsCount(m_threadsCount);
+    mo.transpose(output.get(), matrix1.get());
+
+    EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
