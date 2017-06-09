@@ -23,7 +23,6 @@
 #include "DeviceMatrixModules.h"
 #include "DeviceMatrixKernels.h"
 #include "HostMatrixKernels.h"
-#include "Callbacks.h"
 #include "HostMatrixUtils.h"
 
 const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
