@@ -3,6 +3,7 @@ include project_generic.mk
 .PHONY: subdirs $(OAP_MODULES)
 subdirs: $(OAP_MODULES)
 $(OAP_MODULES):
+	mkdir -p /tmp/Oap/tests_data
 	mkdir -p dist/$(MODE)/$(PLATFORM)/lib
 	mkdir -p dist/$(MODE)/$(PLATFORM)/cubin
 	mkdir -p dist/$(MODE)/$(PLATFORM)/bin
@@ -12,6 +13,7 @@ clean:
 	for dir in $(OAP_MODULES); do \
 	$(MAKE) -C $$dir clean; \
 	done
+	rm -rf /tmp/Oap/tests_data
 	rm -rf */dist/$(MODE)/$(PLATFORM)/*
 	rm -rf */build/$(MODE)/$(PLATFORM)/*
 	rm -rf dist/$(MODE)/$(PLATFORM)/lib/*
