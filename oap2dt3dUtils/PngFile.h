@@ -28,7 +28,7 @@
 namespace oap {
 class PngFile : public Image {
  public:
-  PngFile(const std::string& path);
+  PngFile(const std::string& path, bool truncateImage = true);
 
   virtual ~PngFile();
 
@@ -77,18 +77,28 @@ class PngFile : public Image {
 
   png_bytep* copyBitmap(const OptSize& width, const OptSize& height);
 
-  void destroyBitmap(png_bytep* bitmap, const OptSize& width) const;
+  png_bytep* createBitmap2D(size_t width, size_t height,
+                            size_t colorsCount) const;
+
+  void destroyBitmap2d(png_bytep* bitmap2d, size_t height) const;
+
+  png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d, const OptSize& optWidth,
+                                 const OptSize& optHeight, size_t colorsCount);
+
+  oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d, size_t width,
+                                         size_t height);
+
+  template <typename T>
+  void destroyBuffer(T* buffer) {
+    if (buffer != NULL) {
+      delete[] buffer;
+    }
+  }
 
  private:
   void calculateColorsCount();
 
   void calculateOutputSizes(size_t width, size_t height);
-
-  png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d);
-
-  oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d);
-
-  void destroyBitmap2d();
 
   void destroyBitmap1d();
 
@@ -107,6 +117,7 @@ class PngFile : public Image {
   bool m_destroyTmp;
 
   size_t m_colorsCount;
+  bool m_truncateImage;
 };
 }
 

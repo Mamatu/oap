@@ -38,13 +38,16 @@ class OapPngFileTests : public testing::Test {
 
   virtual void TearDown() {}
 
-  std::string m_data_path;
-  std::string m_images_path;
+  static std::string m_data_path;
+  static std::string m_images_path;
 
-  std::string getImagePath(const std::string& filename) {
+  static std::string getImagePath(const std::string& filename) {
     return m_images_path + filename;
   }
 };
+
+std::string OapPngFileTests::m_data_path;
+std::string OapPngFileTests::m_images_path;
 
 TEST_F(OapPngFileTests, SaveImageToFileTest) {
   EXPECT_NO_THROW(try {
@@ -52,54 +55,147 @@ TEST_F(OapPngFileTests, SaveImageToFileTest) {
     oap::PngFile pngFile900(getImagePath("image900.png"));
     oap::PngFile pngFile910(getImagePath("image910.png"));
 
-    EXPECT_TRUE(pngFile.save("/tmp/truncated_image000.png"));
-    EXPECT_TRUE(pngFile900.save("/tmp/truncated_image900.png"));
-    EXPECT_TRUE(pngFile910.save("/tmp/truncated_image910.png"));
+    EXPECT_TRUE(pngFile.save("/tmp/Oap/truncated_image000.png"));
+    EXPECT_TRUE(pngFile900.save("/tmp/Oap/truncated_image900.png"));
+    EXPECT_TRUE(pngFile910.save("/tmp/Oap/truncated_image910.png"));
   } catch (const oap::exceptions::Exception& ex) {
     debugException(ex);
     throw;
   });
 }
 
-TEST_F(OapPngFileTests, TwoImagesPixelVectorsTests) {
-  // EXPECT_NO_THROW(
-
-  try {
-    oap::PngFile pngFile(getImagePath("image670.png"));
-    oap::PngFile pngFile1(getImagePath("image680.png"));
-
-    auto loadBitmap = [](oap::PngFile& pngFile) {
-      pngFile.open();
-      pngFile.loadBitmap();
-      pngFile.close();
-
-    };
-
-    auto getFloatsVector = [](oap::PngFile& pngFile) -> std::vector<floatt>* {
-      oap::OptSize size =
-          pngFile.getOutputHeight().optSize * pngFile.getOutputWidth().optSize;
-      floatt* buffer = new floatt[size.optSize];
-      pngFile.getFloattVector(buffer);
-      std::vector<floatt>* vec =
-          new std::vector<floatt>{buffer, buffer + size.optSize};
-      delete[] buffer;
-      return vec;
-    };
-
-    loadBitmap(pngFile);
-    loadBitmap(pngFile1);
-
-    std::vector<floatt>* vec = getFloatsVector(pngFile);
-    std::vector<floatt>* vec1 = getFloatsVector(pngFile1);
-
-    EXPECT_NE(*vec, *vec1);
-
-    delete vec;
-    delete vec1;
-
-  } catch (const oap::exceptions::Exception& ex) {
-    debugException(ex);
-    throw;
+class BitmapsConversionTest : public oap::PngFile {
+ public:
+  BitmapsConversionTest(size_t width, size_t height, size_t colorsCount)
+      : oap::PngFile("/tmp/Oap/test_data/test_iamge") {
+    m_bitmap2dTest = createBitmap2D(width, height, colorsCount);
+    m_widthTest = width;
+    m_heightTest = height;
+    m_colorsCountTest = colorsCount;
+    for (size_t fa = 0; fa < m_heightTest; ++fa) {
+      for (size_t fb = 0; fb < m_widthTest * m_colorsCountTest; ++fb) {
+        m_bitmap2dTest[fa][fb] = 10;
+      }
+    }
   }
-  //);
+
+  virtual ~BitmapsConversionTest() {
+    oap::PngFile::destroyBitmap2d(m_bitmap2dTest, m_heightTest);
+  }
+
+  png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d,
+                                 const oap::OptSize& optWidth,
+                                 oap::OptSize& optHeight) {
+    return oap::PngFile::createBitmap1dFrom2d(bitmap2d, optWidth, optHeight,
+                                              m_colorsCountTest);
+  }
+
+  oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d, size_t width,
+                                         size_t height) {
+    return oap::PngFile::createPixelsVectorFrom1d(bitmap1d, width, height);
+  }
+
+  png_bytep* m_bitmap2dTest;
+  size_t m_widthTest;
+  size_t m_heightTest;
+  size_t m_colorsCountTest;
+
+  static void run(size_t width, size_t height, size_t coloursCount) {
+    BitmapsConversionTest pngFile(width, height, coloursCount);
+
+    oap::OptSize optWidth(width);
+    oap::OptSize optHeight(height);
+
+    png_byte* buffer1 = pngFile.createBitmap1dFrom2d(pngFile.m_bitmap2dTest,
+                                                     optWidth, optHeight);
+    oap::pixel_t* buffer2 =
+        pngFile.createPixelsVectorFrom1d(buffer1, width, height);
+
+    std::vector<int> expectedVec;
+    std::vector<int> vecTest1;
+    std::vector<int> vecTest2;
+
+    for (size_t fa = 0; fa < pngFile.m_heightTest; ++fa) {
+      for (size_t fb = 0; fb < pngFile.m_widthTest * pngFile.m_colorsCountTest;
+           ++fb) {
+        expectedVec.push_back(10);
+        vecTest1.push_back(pngFile.m_bitmap2dTest[fa][fb]);
+        vecTest2.push_back(buffer1[fa * pngFile.m_widthTest + fb]);
+      }
+    }
+
+    EXPECT_EQ(expectedVec.size(), vecTest1.size());
+    EXPECT_EQ(expectedVec.size(), vecTest2.size());
+    EXPECT_EQ(expectedVec, vecTest1);
+    EXPECT_EQ(expectedVec, vecTest2);
+
+    delete[] buffer2;
+    delete[] buffer1;
+  }
+};
+
+TEST_F(OapPngFileTests, Bitmap2DToBitmap1DConversionTest1) {
+  BitmapsConversionTest::run(1, 1, 4);
+}
+TEST_F(OapPngFileTests, Bitmap2DToBitmap1DConversionTest2) {
+  BitmapsConversionTest::run(4, 4, 4);
+}
+TEST_F(OapPngFileTests, Bitmap2DToBitmap1DConversionTest3) {
+  BitmapsConversionTest::run(8, 8, 4);
+}
+TEST_F(OapPngFileTests, Bitmap2DToBitmap1DConversionTest4) {
+  BitmapsConversionTest::run(12, 12, 4);
+}
+
+TEST_F(OapPngFileTests, TwoImagesPixelVectorsTests) {
+  class Test {
+   public:
+    static void run(const std::string& image1, const std::string& image2) {
+      try {
+        oap::PngFile pngFile(OapPngFileTests::getImagePath(image1), false);
+        oap::PngFile pngFile1(OapPngFileTests::getImagePath(image2), false);
+
+        auto loadBitmap = [](oap::PngFile& pngFile) {
+          pngFile.open();
+          pngFile.loadBitmap();
+          pngFile.close();
+        };
+
+        auto getFloatsVector =
+            [](oap::PngFile& pngFile) -> std::vector<floatt>* {
+              oap::OptSize size = pngFile.getOutputHeight().optSize *
+                                  pngFile.getOutputWidth().optSize;
+              floatt* buffer = new floatt[size.optSize];
+              pngFile.getFloattVector(buffer);
+              std::vector<floatt>* vec =
+                  new std::vector<floatt>{buffer, buffer + size.optSize};
+              delete[] buffer;
+              return vec;
+            };
+
+        loadBitmap(pngFile);
+        loadBitmap(pngFile1);
+
+        std::vector<floatt>* vec = getFloatsVector(pngFile);
+        std::vector<floatt>* vec1 = getFloatsVector(pngFile1);
+
+        EXPECT_EQ(vec->size(), vec1->size());
+        EXPECT_NE(*vec, *vec1);
+
+        delete vec;
+        delete vec1;
+
+      } catch (const oap::exceptions::Exception& ex) {
+        debugException(ex);
+        throw;
+      }
+    }
+  };
+
+  EXPECT_NO_THROW(Test::run("image000.png", "image010.png"));
+  EXPECT_NO_THROW(Test::run("image020.png", "image030.png"));
+  EXPECT_NO_THROW(Test::run("image010.png", "image030.png"));
+  EXPECT_NO_THROW(Test::run("image040.png", "image050.png"));
+  EXPECT_NO_THROW(Test::run("image100.png", "image110.png"));
+  EXPECT_NO_THROW(Test::run("image670.png", "image680.png"));
 }

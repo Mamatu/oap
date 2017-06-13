@@ -226,6 +226,8 @@ void SetImValue(const math::Matrix* matrix, uintt column, uintt row,
  */
 void PrintMatrix(const std::string& text, const math::Matrix* matrix);
 
+std::string GetMatrixStr(const math::Matrix* matrix);
+
 /**
  * @brief PrintMatrix
  * @param matrix

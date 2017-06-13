@@ -183,59 +183,106 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix) {
 }
 
 TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateRowVectors) {
-  oap::DataLoader* dataloader = NULL;
-  debugLongTest();
+  class DataLoaderTest : public oap::DataLoader {
+   public:
+    DataLoaderTest(const oap::Images& images, bool dealocateImages = false,
+                   bool frugalMode = true)
+        : oap::DataLoader(images, dealocateImages, frugalMode) {}
 
-  int count = 100;
+    size_t getImagesCount() const { return oap::DataLoader::getImagesCount(); }
 
-  math::Matrix* columnVecs[count];
-  math::Matrix* rowVecs[count];
-
-  EXPECT_NO_THROW(try {
-    dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
-        "oap2dt3d/data/images_monkey", "image", 1000, true);
-    math::MatrixInfo matrixInfo = dataloader->getMatrixInfo();
-
-    uintt columnIndexes[count];
-    uintt rowIndexes[count];
-
-    for (int fa = 0; fa < count; ++fa) {
-      columnIndexes[fa] = (matrixInfo.m_matrixDim.columns * fa) / count;
-      rowIndexes[fa] = (matrixInfo.m_matrixDim.rows * fa) / count;
-
-      columnVecs[fa] = dataloader->createColumnVector(columnIndexes[fa]);
-      rowVecs[fa] = dataloader->createRowVector(rowIndexes[fa]);
+    oap::Image* getImage(size_t index) const {
+      return oap::DataLoader::getImage(index);
     }
 
-    for (int fa = 0; fa < count - 1; ++fa) {
-      EXPECT_THAT(columnVecs[fa], Not(MatrixIsEqual(columnVecs[fa + 1])))
-          << "Actual: Columns vectors are equal: " << columnIndexes[fa] << ", "
-          << columnIndexes[fa + 1];
+    static void run() {
+      DataLoaderTest* dataloader = NULL;
+      debugLongTest();
+
+      const size_t imagesCount = 1000;
+
+      std::vector<math::Matrix*> columnVecs;
+      std::vector<math::Matrix*> rowVecs;
+
+      try {
+        dataloader =
+            oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderTest>(
+                "oap2dt3d/data/images_monkey", "image", imagesCount, true);
+
+        math::MatrixInfo matrixInfo = dataloader->getMatrixInfo();
+
+        for (int fa = 0; fa < imagesCount; ++fa) {
+          columnVecs.push_back(dataloader->createColumnVector(fa));
+          rowVecs.push_back(dataloader->createRowVector(fa));
+        }
+
+        for (int fa = 0; fa < dataloader->getImagesCount() - 1; ++fa) {
+          oap::Image* image = dataloader->getImage(fa);
+          oap::Image* image1 = dataloader->getImage(fa + 1);
+
+          auto loadPixelsToVector =
+              [](oap::Image* image, std::vector<oap::pixel_t>& pixelsVec) {
+                std::unique_ptr<oap::pixel_t[]> pixels(
+                    new oap::pixel_t[image->getLength()]);
+                bool status = image->getPixelsVector(pixels.get());
+                if (status == false) {
+                  image->open();
+                  image->loadBitmap();
+                  image->close();
+                  image->getPixelsVector(pixels.get());
+                }
+                pixelsVec.insert(pixelsVec.end(), pixels.get(),
+                                 pixels.get() + image->getLength());
+                if (status == false) {
+                  image->freeBitmap();
+                }
+              };
+
+          std::vector<oap::pixel_t> pixels;
+          std::vector<oap::pixel_t> pixels1;
+
+          loadPixelsToVector(image, pixels);
+          loadPixelsToVector(image1, pixels1);
+
+          EXPECT_NE(pixels, pixels1);
+        }
+
+        for (int fa = 0; fa < imagesCount - 1; ++fa) {
+          EXPECT_THAT(columnVecs[fa], Not(MatrixIsEqual(columnVecs[fa + 1])))
+              << "Actual: Columns vectors are equal: " << fa << ", " << fa + 1
+              << " Matrix =" << host::GetMatrixStr(columnVecs[fa]);
+        }
+
+        for (int fa = 0; fa < imagesCount; ++fa) {
+          EXPECT_EQ(GetRe(columnVecs[fa], 0, fa), GetRe(rowVecs[fa], fa, 0));
+        }
+      } catch (const oap::exceptions::Exception& ex) {
+        delete dataloader;
+        debugException(ex);
+        throw;
+      }
+
+      auto deleteMatrices = [](std::vector<math::Matrix*>& vec) {
+        for (int fa = 0; fa < vec.size(); ++fa) {
+          host::DeleteMatrix(vec[fa]);
+        }
+      };
+
+      deleteMatrices(columnVecs);
+      deleteMatrices(rowVecs);
+
+      delete dataloader;
     }
+  };
 
-    for (int fa = 0; fa < count; ++fa) {
-      EXPECT_EQ(GetRe(columnVecs[fa], 0, rowIndexes[fa]),
-                GetRe(rowVecs[fa], columnIndexes[fa], 0));
-    }
-  } catch (const oap::exceptions::Exception& ex) {
-    delete dataloader;
-    debugException(ex);
-    throw;
-  });
-
-  for (int fa = 0; fa < count; ++fa) {
-    host::DeleteMatrix(columnVecs[fa]);
-    host::DeleteMatrix(rowVecs[fa]);
-  }
-
-  delete dataloader;
+  EXPECT_NO_THROW(DataLoaderTest::run());
 }
 
 TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest) {
   math::Matrix* matrix = NULL;
   debugLongTest();
 
-  std::string dir = "/tmp/tests_data";
+  std::string dir = "/tmp/Oap/tests_data";
 
   debug("Images will be saved in %s", dir.c_str());
 

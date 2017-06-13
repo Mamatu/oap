@@ -693,6 +693,12 @@ void PrintMatrix(const std::string& text, const math::Matrix* matrix) {
   printf("%s HOST \n", output.c_str());
 }
 
+std::string GetMatrixStr(const math::Matrix* matrix) {
+  std::string output;
+  matrixUtils::PrintMatrix(output, matrix);
+  return output;
+}
+
 void PrintMatrix(const math::Matrix* matrix) { PrintMatrix("", matrix); }
 
 void Copy(math::Matrix* dst, const math::Matrix* src, const MatrixEx& subMatrix,
