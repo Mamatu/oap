@@ -67,8 +67,8 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrix) {
     EXPECT_EQ(m2->rows, rows);
 
     for (int fa = 0; fa < columns * rows; ++fa) {
-      EXPECT_EQ(fa, m2->reValues[fa]);
-      EXPECT_EQ(fa, m2->imValues[fa]);
+      EXPECT_EQ(m1->reValues[fa], m2->reValues[fa]);
+      EXPECT_EQ(m1->imValues[fa], m2->imValues[fa]);
     }
 
     host::DeleteMatrix(m2);
