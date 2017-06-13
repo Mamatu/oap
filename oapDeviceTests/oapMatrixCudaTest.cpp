@@ -17,7 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <string>
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
@@ -584,9 +583,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeRealMatrixBigDataTest2) {
   host::DeleteMatrix(matrix);
 }
 
-
 TEST_F(OapMatrixCudaTests, DotProductBigDataTest) {
-
   math::Matrix* Q = host::NewMatrix(Qstr);
   math::Matrix* QJ = host::NewMatrix(QJstr);
 
@@ -602,4 +599,32 @@ TEST_F(OapMatrixCudaTests, DotProductBigDataTest) {
   device::DeleteDeviceMatrix(doutput);
   host::DeleteMatrix(Q);
   host::DeleteMatrix(QJ);
+}
+
+TEST_F(OapMatrixCudaTests, SetVectorAndCopyTest) {
+  size_t columns = 2000;
+  math::Matrix* host = host::NewReMatrix(columns, 1);
+  for (size_t fa = 0; fa < columns; ++fa) {
+    host->reValues[fa] = fa;
+  }
+
+  math::Matrix* device = device::NewDeviceMatrixCopy(host);
+  host::DeleteMatrix(host);
+  host = NULL;
+
+  math::Matrix* host1 = host::NewReMatrix(columns, 1);
+
+  for (size_t fa = 0; fa < columns; ++fa) {
+    host1->reValues[fa] = columns + 1;
+    EXPECT_EQ(columns + 1, host1->reValues[fa]);
+  }
+
+  device::CopyDeviceMatrixToHostMatrix(host1, device);
+
+  for (size_t fa = 0; fa < columns; ++fa) {
+    EXPECT_EQ(fa, host1->reValues[fa]);
+  }
+
+  host::DeleteMatrix(host1);
+  device::DeleteDeviceMatrix(device);
 }
