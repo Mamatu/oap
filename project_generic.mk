@@ -1,6 +1,4 @@
-ifndef OAP_PATH
-$(error OAP_PATH is not set)
-endif
+OAP_PATH := $(PWD)
 
 ifndef GMOCK_DIR
 $(error GMOCK_DIR is not set (should be main directory of gmock set))
@@ -8,6 +6,7 @@ endif
 
 GTEST_DIR := $(GMOCK_DIR)/gtest
 
+$(shell test -d /tmp/Oap/tests_data || mkdir -p /tmp/Oap/tests_data)
 
 ifeq ($(PROJECT), albert)
 include $(OAP_PATH)/project_albert.mk

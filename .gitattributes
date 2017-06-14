@@ -10,3 +10,4 @@
 oap2dt3d/data/images_monkey/*.png filter=lfs diff=lfs merge=lfs -text
 oap2dt3dFuncTests/data/images/*.png filter=lfs diff=lfs merge=lfs -text
 oap2dt3dFuncTests/data/images/bluerecs/bluerec/*.png filter=lfs diff=lfs merge=lfs -text
+./oap2dt3d/data/images_monkey.tar.gz filter=lfs diff=lfs merge=lfs -text
