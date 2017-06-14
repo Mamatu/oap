@@ -2,9 +2,8 @@ include project_generic.mk
 
 .PHONY: subdirs $(OAP_MODULES)
 subdirs: $(OAP_MODULES)
+
 $(OAP_MODULES):
-	mkdir -p /tmp/Oap/tests_data
-	tar -xzf ./oap2dt3d/data/images_monkey.tar.gz ./oap2dt3d/data/images_monkey
 	mkdir -p dist/$(MODE)/$(PLATFORM)/lib
 	mkdir -p dist/$(MODE)/$(PLATFORM)/cubin
 	mkdir -p dist/$(MODE)/$(PLATFORM)/bin
