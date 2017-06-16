@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef MATRIXUTILS_H
 #define MATRIXUTILS_H
 
@@ -148,16 +146,19 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count,
       sstream << " <repeats " << count << " times>";
     }
     fa1 += count;
-    bool endLine = (fa1 % sectionLength) == 0;
-    if (!endLine) {
-      sstream << ", ";
-    } else if (!pipe && endLine) {
-      sstream << ", ";
-    } else if (pipe && endLine) {
-      sstream << " | ";
-    }
-    if (endLine && endl) {
-      sstream << std::endl;
+    bool lastPosition = fa1 == sectionLength;
+    if (!lastPosition) {
+      bool endLine = (fa1 % sectionLength) == 0;
+      if (!endLine) {
+        sstream << ", ";
+      } else if (!pipe && endLine) {
+        sstream << ", ";
+      } else if (pipe && endLine) {
+        sstream << " | ";
+      }
+      if (endLine && endl) {
+        sstream << std::endl;
+      }
     }
     output += sstream.str();
     sstream.str(std::string());
@@ -228,12 +229,14 @@ inline void PrintMatrix(std::string& output, const MatrixRange& matrixRange,
   std::string output1;
   if (matrixRange.isReValues()) {
     PrintReValues(output1, matrixRange, zeroLimit, repeats, pipe, endl,
-                  matrixRange.getColumns());
+                  matrixRange.getColumns() > 1 ? matrixRange.getColumns()
+                                               : matrixRange.getRows());
     output += output1 + " ";
   }
   if (matrixRange.isImValues()) {
     PrintImValues(output1, matrixRange, zeroLimit, repeats, pipe, endl,
-                  matrixRange.getColumns());
+                  matrixRange.getColumns() > 1 ? matrixRange.getColumns()
+                                               : matrixRange.getRows());
     output += output1;
   }
 }
