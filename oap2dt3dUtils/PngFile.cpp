@@ -230,7 +230,7 @@ void PngFile::convertRawdataToBitmap1D() {
                                     getOutputHeight(), m_colorsCount);
 
   m_pixels = createPixelsVectorFrom1d(m_bitmap1d, getOutputWidth().optSize,
-                                      getOutputHeight().optSize);
+                                      getOutputHeight().optSize, m_colorsCount);
 }
 
 void PngFile::destroyTmpData() {
@@ -331,26 +331,30 @@ png_byte* PngFile::createBitmap1dFrom2d(png_bytep* bitmap2d,
   const size_t beginC = optWidth.begin;
   const size_t beginR = optHeight.begin;
 
-  size_t width = optWidth.optSize * colorsCount;
+  size_t width = optWidth.optSize;
+  size_t widthOfBytes = optWidth.optSize * colorsCount;
   size_t height = optHeight.optSize;
 
-  png_byte* bitmap1d = new png_byte[width * height];
+  png_byte* bitmap1d = new png_byte[widthOfBytes * height];
+
+  const size_t lengthToCopy = widthOfBytes * sizeof(png_byte);
 
   for (size_t fa = beginR; fa < height; ++fa) {
-    memcpy(&(bitmap1d[fa * width]), &(bitmap2d[fa][beginC]),
-           width * sizeof(png_byte));
+    memcpy(&(bitmap1d[(fa - beginR) * lengthToCopy]), &(bitmap2d[fa][beginC]),
+           lengthToCopy);
   }
 
   return bitmap1d;
 }
 
 oap::pixel_t* PngFile::createPixelsVectorFrom1d(png_byte* bitmap1d,
-                                                size_t width, size_t height) {
+                                                size_t width, size_t height,
+                                                size_t colorsCount) {
   oap::pixel_t* pixels = new pixel_t[width * height];
 
   for (size_t fa = 0; fa < height; ++fa) {
     for (size_t fb = 0; fb < width; ++fb) {
-      const size_t index = fa * width * m_colorsCount + fb * m_colorsCount;
+      const size_t index = fa * width * colorsCount + fb * colorsCount;
       const size_t index1 = fa * width + fb;
       const png_byte r = bitmap1d[index + 0];
       const png_byte g = bitmap1d[index + 1];
