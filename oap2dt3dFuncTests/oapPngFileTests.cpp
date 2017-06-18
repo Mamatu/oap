@@ -74,7 +74,7 @@ class BitmapsConversionTest : public oap::PngFile {
     m_colorsCountTest = colorsCount;
     for (size_t fa = 0; fa < m_heightTest; ++fa) {
       for (size_t fb = 0; fb < m_widthTest * m_colorsCountTest; ++fb) {
-        m_bitmap2dTest[fa][fb] = 10;
+        m_bitmap2dTest[fa][fb] = fa;
       }
     }
   }
@@ -92,7 +92,8 @@ class BitmapsConversionTest : public oap::PngFile {
 
   oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d, size_t width,
                                          size_t height) {
-    return oap::PngFile::createPixelsVectorFrom1d(bitmap1d, width, height);
+    return oap::PngFile::createPixelsVectorFrom1d(bitmap1d, width, height,
+                                                  m_colorsCountTest);
   }
 
   png_bytep* m_bitmap2dTest;
@@ -112,22 +113,44 @@ class BitmapsConversionTest : public oap::PngFile {
         pngFile.createPixelsVectorFrom1d(buffer1, width, height);
 
     std::vector<int> expectedVec;
-    std::vector<int> vecTest1;
-    std::vector<int> vecTest2;
+    std::vector<int> testVec1;
+    std::vector<int> testVec2;
 
     for (size_t fa = 0; fa < pngFile.m_heightTest; ++fa) {
       for (size_t fb = 0; fb < pngFile.m_widthTest * pngFile.m_colorsCountTest;
            ++fb) {
-        expectedVec.push_back(10);
-        vecTest1.push_back(pngFile.m_bitmap2dTest[fa][fb]);
-        vecTest2.push_back(buffer1[fa * pngFile.m_widthTest + fb]);
+        testVec1.push_back(pngFile.m_bitmap2dTest[fa][fb]);
       }
     }
 
-    EXPECT_EQ(expectedVec.size(), vecTest1.size());
-    EXPECT_EQ(expectedVec.size(), vecTest2.size());
-    EXPECT_EQ(expectedVec, vecTest1);
-    EXPECT_EQ(expectedVec, vecTest2);
+    const size_t length = pngFile.m_widthTest * pngFile.m_colorsCountTest;
+
+    for (size_t fa = 0; fa < pngFile.m_heightTest; ++fa) {
+      for (size_t fb = 0; fb < length; ++fb) {
+        expectedVec.push_back(fa);
+        testVec2.push_back(buffer1[fa * length + fb]);
+      }
+    }
+
+    EXPECT_EQ(expectedVec.size(), testVec1.size());
+    EXPECT_EQ(expectedVec.size(), testVec2.size());
+
+    for (size_t fa = 0; fa < pngFile.m_heightTest; ++fa) {
+      decltype(expectedVec)::iterator it = expectedVec.begin();
+      decltype(expectedVec)::iterator it1 = expectedVec.begin();
+      std::advance(it, fa * pngFile.m_widthTest * pngFile.m_colorsCountTest);
+      std::advance(it1,
+                   (fa + 1) * pngFile.m_widthTest * pngFile.m_colorsCountTest);
+      std::vector<int> vec = std::vector<int>(it, it1);
+      std::vector<int> vec1 =
+          std::vector<int>(pngFile.m_bitmap2dTest[fa],
+                           pngFile.m_bitmap2dTest[fa] +
+                               pngFile.m_widthTest * pngFile.m_colorsCountTest);
+      EXPECT_THAT(vec1, ElementsAreArray(vec));
+    }
+
+    EXPECT_THAT(expectedVec, ElementsAreArray(testVec1));
+    EXPECT_THAT(expectedVec, ElementsAreArray(testVec2));
 
     delete[] buffer2;
     delete[] buffer1;
@@ -138,12 +161,15 @@ TEST_F(OapPngFileTests, Bitmap2DToBitmap1DConversionTest1) {
   BitmapsConversionTest::run(1, 1, 4);
 }
 TEST_F(OapPngFileTests, Bitmap2DToBitmap1DConversionTest2) {
-  BitmapsConversionTest::run(4, 4, 4);
+  BitmapsConversionTest::run(2, 2, 4);
 }
 TEST_F(OapPngFileTests, Bitmap2DToBitmap1DConversionTest3) {
-  BitmapsConversionTest::run(8, 8, 4);
+  BitmapsConversionTest::run(4, 4, 4);
 }
 TEST_F(OapPngFileTests, Bitmap2DToBitmap1DConversionTest4) {
+  BitmapsConversionTest::run(8, 8, 4);
+}
+TEST_F(OapPngFileTests, Bitmap2DToBitmap1DConversionTest5) {
   BitmapsConversionTest::run(12, 12, 4);
 }
 
