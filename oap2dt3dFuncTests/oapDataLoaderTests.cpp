@@ -182,108 +182,111 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix) {
   delete dataloader;
 }
 
-
 namespace LoadMonkeyImageTest {
 
-  class DataLoaderTest : public oap::DataLoader {
-   public:
-    DataLoaderTest(const oap::Images& images, bool dealocateImages = false,
-                   bool frugalMode = true)
-        : oap::DataLoader(images, dealocateImages, frugalMode) {}
-  
-    size_t getImagesCount() const { return oap::DataLoader::getImagesCount(); }
-  
-    oap::Image* getImage(size_t index) const {
-      return oap::DataLoader::getImage(index);
-    }
-  
-    static void testColumnsIdentity(oap::DataLoader* dataloader, size_t imagesCount) {
-      std::vector<math::Matrix*> columnVecs;
-      std::vector<math::Matrix*> rowVecs;
+class DataLoaderTest : public oap::DataLoader {
+ public:
+  DataLoaderTest(const oap::Images& images, bool dealocateImages = false,
+                 bool frugalMode = true)
+      : oap::DataLoader(images, dealocateImages, frugalMode) {}
 
-      for (int fa = 0; fa < imagesCount; ++fa) {
-        columnVecs.push_back(dataloader->createColumnVector(fa));
-        rowVecs.push_back(dataloader->createRowVector(fa));
-      }
+  size_t getImagesCount() const { return oap::DataLoader::getImagesCount(); }
 
-      for (int fa = 0; fa < imagesCount - 1; ++fa) {
-        EXPECT_THAT(columnVecs[fa], Not(MatrixIsEqual(columnVecs[fa + 1])))
-            << "Actual: Columns vectors are equal: " << fa << ", " << fa + 1
-            << " Matrix =" << host::GetMatrixStr(columnVecs[fa]);
-      }
-  
-      for (int fa = 0; fa < imagesCount; ++fa) {
-        EXPECT_EQ(GetRe(columnVecs[fa], 0, fa), GetRe(rowVecs[fa], fa, 0));
-      }
+  oap::Image* getImage(size_t index) const {
+    return oap::DataLoader::getImage(index);
+  }
 
-      auto deleteMatrices = [](std::vector<math::Matrix*>& vec) {
-        for (int fa = 0; fa < vec.size(); ++fa) {
-          host::DeleteMatrix(vec[fa]);
-        }
-      };
-  
-      deleteMatrices(columnVecs);
-      deleteMatrices(rowVecs);
-    }
+  static void run(size_t imagesCount) {
+    DataLoaderTest* dataloader = NULL;
+    debugLongTest();
 
-    static void testImagesIdentity(LoadMonkeyImageTest::DataLoaderTest* dataloader) {
-      for (int fa = 0; fa < dataloader->getImagesCount() - 1; ++fa) {
-        oap::Image* image = dataloader->getImage(fa);
-        oap::Image* image1 = dataloader->getImage(fa + 1);
-  
-        auto loadPixelsToVector =
-            [](oap::Image* image, std::vector<oap::pixel_t>& pixelsVec) {
-              std::unique_ptr<oap::pixel_t[]> pixels(
-                  new oap::pixel_t[image->getLength()]);
-              bool status = image->getPixelsVector(pixels.get());
-              if (status == false) {
-                image->open();
-                image->loadBitmap();
-                image->close();
-                image->getPixelsVector(pixels.get());
-              }
-              pixelsVec.insert(pixelsVec.end(), pixels.get(),
-                               pixels.get() + image->getLength());
-              if (status == false) {
-                image->freeBitmap();
-              }
-            };
-  
-        std::vector<oap::pixel_t> pixels;
-        std::vector<oap::pixel_t> pixels1;
-  
-        loadPixelsToVector(image, pixels);
-        loadPixelsToVector(image1, pixels1);
-  
-        EXPECT_NE(pixels, pixels1);
-      }
-    }
+    const size_t totalImagesCount = 1000;
 
-    static void run(size_t imagesCount) {
-      DataLoaderTest* dataloader = NULL;
-      debugLongTest();
-  
-  
-      try {
-        dataloader =
-            oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderTest>(
-                "oap2dt3d/data/images_monkey", "image", imagesCount, 1000, true);
-  
-        math::MatrixInfo matrixInfo = dataloader->getMatrixInfo();
-  
+    try {
+      dataloader =
+          oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderTest>(
+              "oap2dt3d/data/images_monkey", "image", imagesCount,
+              totalImagesCount, true);
 
-        testColumnsIdentity(dataloader, imagesCount);
-        testImagesIdentity(dataloader);
-  
-      } catch (const oap::exceptions::Exception& ex) {
-        delete dataloader;
-        debugException(ex);
-        throw;
-      }
-  
+      math::MatrixInfo matrixInfo = dataloader->getMatrixInfo();
+
+      testColumnsIdentity(dataloader, imagesCount);
+      testImagesIdentity(dataloader);
+
+    } catch (const oap::exceptions::Exception& ex) {
       delete dataloader;
+      debugException(ex);
+      throw;
     }
-  };
+
+    delete dataloader;
+  }
+
+ private:
+  static void testColumnsIdentity(oap::DataLoader* dataloader,
+                                  size_t imagesCount) {
+    std::vector<math::Matrix*> columnVecs;
+    std::vector<math::Matrix*> rowVecs;
+
+    for (int fa = 0; fa < imagesCount; ++fa) {
+      columnVecs.push_back(dataloader->createColumnVector(fa));
+      rowVecs.push_back(dataloader->createRowVector(fa));
+    }
+
+    for (int fa = 0; fa < imagesCount - 1; ++fa) {
+      EXPECT_THAT(columnVecs[fa], Not(MatrixIsEqual(columnVecs[fa + 1])))
+          << "Actual: Columns vectors are equal: " << fa << ", " << fa + 1
+          << " Matrix =" << host::GetMatrixStr(columnVecs[fa]);
+    }
+
+    for (int fa = 0; fa < imagesCount; ++fa) {
+      EXPECT_EQ(GetRe(columnVecs[fa], 0, fa), GetRe(rowVecs[fa], fa, 0));
+    }
+
+    auto deleteMatrices = [](std::vector<math::Matrix*>& vec) {
+      for (int fa = 0; fa < vec.size(); ++fa) {
+        host::DeleteMatrix(vec[fa]);
+      }
+    };
+
+    deleteMatrices(columnVecs);
+    deleteMatrices(rowVecs);
+  }
+
+  static void testImagesIdentity(
+      LoadMonkeyImageTest::DataLoaderTest* dataloader) {
+    for (int fa = 0; fa < dataloader->getImagesCount() - 1; ++fa) {
+      oap::Image* image = dataloader->getImage(fa);
+      oap::Image* image1 = dataloader->getImage(fa + 1);
+
+      auto loadPixelsToVector =
+          [](oap::Image* image, std::vector<oap::pixel_t>& pixelsVec) {
+            std::unique_ptr<oap::pixel_t[]> pixels(
+                new oap::pixel_t[image->getLength()]);
+            bool status = image->getPixelsVector(pixels.get());
+            if (status == false) {
+              image->open();
+              image->loadBitmap();
+              image->close();
+              image->getPixelsVector(pixels.get());
+            }
+            pixelsVec.insert(pixelsVec.end(), pixels.get(),
+                             pixels.get() + image->getLength());
+            if (status == false) {
+              image->freeBitmap();
+            }
+          };
+
+      std::vector<oap::pixel_t> pixels;
+      std::vector<oap::pixel_t> pixels1;
+
+      loadPixelsToVector(image, pixels);
+      loadPixelsToVector(image1, pixels1);
+
+      EXPECT_NE(pixels, pixels1);
+    }
+  }
+};
 }
 
 TEST_F(OapDataLoaderTests, Load1000MonkeyImagesCreateRowVectors) {
