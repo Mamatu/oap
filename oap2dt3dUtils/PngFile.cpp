@@ -339,9 +339,9 @@ png_byte* PngFile::createBitmap1dFrom2d(png_bytep* bitmap2d,
 
   const size_t lengthToCopy = widthOfBytes * sizeof(png_byte);
 
-  for (size_t fa = beginR; fa < height; ++fa) {
-    memcpy(&(bitmap1d[(fa - beginR) * lengthToCopy]), &(bitmap2d[fa][beginC]),
-           lengthToCopy);
+  for (size_t fa = beginR; fa < beginR + height; ++fa) {
+    memcpy(&(bitmap1d[(fa - beginR) * lengthToCopy]),
+           &(bitmap2d[fa][beginC * colorsCount]), lengthToCopy);
   }
 
   return bitmap1d;
