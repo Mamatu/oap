@@ -79,6 +79,17 @@ TEST_F(OapPngFileTests, ConvertRGBTest1) {
   EXPECT_EQ(pixel, 1661226);
 }
 
+TEST_F(OapPngFileTests, ConvertRGBTest2) {
+  oap::pixel_t pixel1 = oap::PngFile::convertRgbToPixel(25, 89, 42);
+  oap::pixel_t pixel2 = oap::PngFile::convertRgbToPixel(100, 100, 100);
+  floatt color1 = oap::PngFile::convertRgbToFloatt(25, 89, 42);
+  floatt color2 = oap::PngFile::convertRgbToFloatt(100, 100, 100);
+  EXPECT_NE(color1, color2);
+  EXPECT_NE(pixel1, pixel2);
+  EXPECT_THAT(static_cast<floatt>(pixel1) / static_cast<floatt>(pixel2),
+              DoubleEq(color1 / color2));
+}
+
 TEST_F(OapPngFileTests, FileNametest) {
   oap::PngFile pngFile("a/b/c/d/e");
   std::string fileName = pngFile.getFileName();
