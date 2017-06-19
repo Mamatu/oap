@@ -20,14 +20,16 @@
 #include <memory>
 #include "Math.h"
 
-class MatrixPtr : public std::unique_ptr<math::Matrix, void(*)(math::Matrix*)> {
+
+namespace {
+  using DeleterType = void(*)(math::Matrix*);
+}
+
+class MatrixPtr : public std::unique_ptr<math::Matrix, ::DeleterType> {
 private:
-  static void DeleteMatrix(math::Matrix* matrix) {
-    host::DeleteMatrix(matrix);
-  }
 
 public:
-  MatrixPtr(math::Matrix* matrix) : std::unique_ptr<math::Matrix, void(*)(math::Matrix*)>(matrix, MatrixPtr::DeleteMatrix) {}
+  MatrixPtr(math::Matrix* matrix) : std::unique_ptr<math::Matrix, ::DeleterType>(matrix, host::DeleteMatrix) {}
 
   operator math::Matrix*() { return this->get(); }
 };
