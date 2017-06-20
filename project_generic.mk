@@ -7,6 +7,7 @@ endif
 GTEST_DIR := $(GMOCK_DIR)/gtest
 
 $(shell test -d /tmp/Oap/tests_data || mkdir -p /tmp/Oap/tests_data)
+$(shell test -d /tmp/Oap/conversion_data || mkdir -p /tmp/Oap/conversion_data)
 
 ifeq ($(PROJECT), albert)
 include $(OAP_PATH)/project_albert.mk

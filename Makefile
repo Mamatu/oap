@@ -13,7 +13,7 @@ clean:
 	for dir in $(OAP_MODULES); do \
 	$(MAKE) -C $$dir clean; \
 	done
-	rm -rf /tmp/Oap/tests_data
+	rm -rf /tmp/Oap
 	rm -rf */dist/$(MODE)/$(PLATFORM)/*
 	rm -rf */build/$(MODE)/$(PLATFORM)/*
 	rm -rf dist/$(MODE)/$(PLATFORM)/lib/*

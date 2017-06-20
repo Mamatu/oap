@@ -35,7 +35,7 @@ DataLoader::DataLoader(const Images& images, bool dealocateImages,
     : m_images(images),
       m_deallocateImages(dealocateImages),
       m_frugalMode(frugalMode),
-      m_matrixFileDir("/tmp") {
+      m_matrixFileDir("/tmp/Oap/conversion_data") {
   load();
 }
 
