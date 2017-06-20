@@ -48,7 +48,7 @@
 
 #define debugLongTest() debug("Test in progress. Please wait it can take some time...")
 
-#define debugException(ex) debug("Exception: %s %s", typeid(ex).name(), ex.getMessage().c_str())
+#define debugException(ex) debug("Exception: %s %s", typeid(ex).name(), ex.what())
 
 #else
 

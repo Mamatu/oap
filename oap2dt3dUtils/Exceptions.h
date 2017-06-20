@@ -21,61 +21,63 @@
 #define EXCEPTIONS_H
 
 #include <string>
+#include <exception>
 
 namespace oap {
 namespace exceptions {
 
-class Exception {
- public:
-  virtual std::string getMessage() const = 0;
-};
-
-class OutOfRange : public Exception {
+class OutOfRange : public std::exception {
  public:
   OutOfRange(unsigned int _value, unsigned int _maxValue);
 
-  virtual std::string getMessage() const;
+  virtual const char* what() const throw();
 
  private:
   unsigned int value;
   unsigned int maxValue;
+  std::string m_msg;
 };
 
-class FileNotExist : public Exception {
+class FileNotExist : public std::exception {
  public:
   FileNotExist(const std::string& path);
 
-  virtual std::string getMessage() const;
+  virtual const char* what() const throw();
 
  private:
   std::string m_path;
+  std::string m_msg;
 };
 
-class NotCorrectFormat : public Exception {
+class NotCorrectFormat : public std::exception {
  public:
   NotCorrectFormat(const std::string& path, const std::string& sufix);
 
-  virtual std::string getMessage() const;
+  virtual const char* what() const throw();
 
  private:
   std::string m_path;
   std::string m_sufix;
+  std::string m_msg;
 };
 
-class NotIdenticalLengths : public Exception {
+class NotIdenticalLengths : public std::exception {
  public:
   NotIdenticalLengths(size_t refLength, size_t length);
 
-  virtual std::string getMessage() const;
+  virtual const char* what() const throw();
 
  private:
   size_t m_refLength;
   size_t m_length;
+  std::string m_msg;
 };
 
-class NotInitialzed : public Exception {
+class NotInitialzed : public std::exception {
  public:
-  virtual std::string getMessage() const;
+  virtual const char* what() const throw();
+ private:
+  std::string m_msg;
 };
 }
 }

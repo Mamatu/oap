@@ -58,7 +58,7 @@ TEST_F(OapPngFileTests, SaveImageToFileTest) {
     EXPECT_TRUE(pngFile.save("/tmp/Oap/truncated_image000.png"));
     EXPECT_TRUE(pngFile900.save("/tmp/Oap/truncated_image900.png"));
     EXPECT_TRUE(pngFile910.save("/tmp/Oap/truncated_image910.png"));
-  } catch (const oap::exceptions::Exception& ex) {
+  } catch (const std::exception& ex) {
     debugException(ex);
     throw;
   });
@@ -211,7 +211,7 @@ TEST_F(OapPngFileTests, TwoImagesPixelVectorsTests) {
         delete vec;
         delete vec1;
 
-      } catch (const oap::exceptions::Exception& ex) {
+      } catch (const std::exception& ex) {
         debugException(ex);
         throw;
       }

@@ -30,8 +30,8 @@ int main() {
     oap::Images images;
     images.push_back(&pngFile);
     oap::DataLoader pngLoader(images);
-  } catch (const oap::exceptions::Exception& exception) {
-    fprintf(stderr, "%s \n", exception.getMessage().c_str());
+  } catch (const std::exception& exception) {
+    fprintf(stderr, "%s \n", exception.what());
   }
 
   return 0;

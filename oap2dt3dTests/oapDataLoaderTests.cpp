@@ -133,7 +133,7 @@ TEST_F(OapDataLoaderTests, Matrix4x4FromImage) {
       }
     }
     host::DeleteMatrix(matrix);
-  } catch (const oap::exceptions::Exception& ex) {
+  } catch (const std::exception& ex) {
     debugException(ex);
   }
 }

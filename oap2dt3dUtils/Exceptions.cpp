@@ -36,43 +36,44 @@ std::string to_string(T i) {
 OutOfRange::OutOfRange(unsigned int _value, unsigned int _maxValue)
     : value(_value), maxValue(_maxValue) {}
 
-std::string OutOfRange::getMessage() const {
-  std::string msg;
-  msg += "Value is out of range.";
-  return msg;
+const char* OutOfRange::what() const throw() {
+  return "Value is out of range.";
 }
 
-FileNotExist::FileNotExist(const std::string& path) : m_path(path) {}
+FileNotExist::FileNotExist(const std::string& path) : m_path(path) {
+  m_msg = m_path + " doesnt exist.";
+}
 
-std::string FileNotExist::getMessage() const {
-  std::string msg;
-  msg = m_path + " doesnt exist.";
-  return msg;
+const char* FileNotExist::what() const throw() {
+  return m_msg.c_str();
 }
 
 NotCorrectFormat::NotCorrectFormat(const std::string& path,
                                    const std::string& sufix)
-    : m_path(path), m_sufix(sufix) {}
+    : m_path(path), m_sufix(sufix) 
+{
+  m_msg = m_path + " is not correct format. Correct format is ";
+  m_msg += m_sufix;
+}
 
-std::string NotCorrectFormat::getMessage() const {
-  std::string msg;
-  msg = m_path + " is not correct format. Correct format is ";
-  msg += m_sufix;
-  return msg;
+const char* NotCorrectFormat::what() const throw() {
+  return m_msg.c_str();
 }
 
 NotIdenticalLengths::NotIdenticalLengths(size_t refLength, size_t length)
-    : m_refLength(refLength), m_length(length) {}
-
-std::string NotIdenticalLengths::getMessage() const {
+    : m_refLength(refLength), m_length(length) 
+{
   std::string lstr = to_string(m_length);
   std::string reflstr = to_string(m_refLength);
-  std::string msg = "Not identical length: refLength = " + reflstr +
+  std::string m_msg = "Not identical length: refLength = " + reflstr +
                     ", length = " + lstr + ".";
-  return msg;
 }
 
-std::string NotInitialzed::getMessage() const {
+const char* NotIdenticalLengths::what() const throw() {
+  return m_msg.c_str();
+}
+
+const char* NotInitialzed::what() const throw() {
   return "EigenCalculator has not initialzed yet.";
 }
 }

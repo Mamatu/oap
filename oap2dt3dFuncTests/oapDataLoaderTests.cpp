@@ -138,7 +138,7 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix) {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
         "oap2dt3d/data/images_monkey", "image", 1000, true);
     matrix = dataloader->createMatrix();
-  } catch (const oap::exceptions::Exception& ex) {
+  } catch (const std::exception& ex) {
     delete dataloader;
     debugException(ex);
     throw;
@@ -155,7 +155,7 @@ TEST_F(OapDataLoaderTests, LoadBlueRecTest) {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
         "oap2dt3dFuncTests/data/images/bluerecs", "bluerec", 3);
     delete dataloader;
-  } catch (const oap::exceptions::Exception& ex) {
+  } catch (const std::exception& ex) {
     delete dataloader;
     debugException(ex);
     throw;
@@ -171,7 +171,7 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix) {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
         "oap2dt3d/data/images_monkey", "image", 1000, true);
     matrix = dataloader->createMatrix();
-  } catch (const oap::exceptions::Exception& ex) {
+  } catch (const std::exception& ex) {
     delete dataloader;
     debugException(ex);
     throw;
@@ -213,7 +213,7 @@ class DataLoaderTest : public oap::DataLoader {
       testColumnsIdentity(dataloader, imagesCount);
       testImagesIdentity(dataloader);
 
-    } catch (const oap::exceptions::Exception& ex) {
+    } catch (const std::exception& ex) {
       delete dataloader;
       debugException(ex);
       throw;
@@ -333,7 +333,7 @@ TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest) {
           << " . If this directory doesn't exist please create it.";
     }
 
-  } catch (const oap::exceptions::Exception& ex) {
+  } catch (const std::exception& ex) {
     delete dataloader;
     debugException(ex);
     throw;
