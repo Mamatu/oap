@@ -56,6 +56,8 @@ class ArnoldiOperations {
       for (uintt index = 0; index < matrixInfo.m_matrixDim.columns; ++index) {
         math::Matrix* vec = dataLoader->createDeviceRowVector(index);
 
+        //device::PrintMatrix("vec =", vec);
+
         ao->m_cuMatrix.dotProduct(ao->value, vec, m_v);
         device::SetMatrix(m_w, ao->value, 0, index);
 
@@ -101,11 +103,19 @@ class ArnoldiOperations {
     m_cuMatrix.transposeMatrix(vectorT, vector);
     m_cuMatrix.dotProduct(leftMatrix, drefMatrix, matrix1);
 
+    host::PrintMatrix("matrix =", matrix);
+    host::PrintMatrix("refMatrix =", refMatrix);
+    device::PrintMatrix("matrix1 =", matrix1);
+    device::PrintMatrix("drefMatrix =", drefMatrix);
+    device::PrintMatrix("vectorT =", vectorT);
+    device::PrintMatrix("vector =", vector);
     floatt value2 = value * value;
     m_cuMatrix.multiplyConstantMatrix(vectorT, vectorT, value2);
     m_cuMatrix.dotProduct(rightMatrix, vector, vectorT);
     bool compareResult = m_cuMatrix.compare(leftMatrix, rightMatrix);
 
+    device::PrintMatrix("leftMatrix =", leftMatrix);
+    device::PrintMatrix("rightMatrix =", rightMatrix);
 
     host::DeleteMatrix(refMatrix);
     host::DeleteMatrix(matrix);
@@ -166,7 +176,7 @@ TEST_F(OapEigenCalculatorTests, Calculate) {
     TestCuHArnoldiCallback cuharnoldi(&ao);
     cuharnoldi.setCallback(ArnoldiOperations::multiplyFunc, &ao);
 
-    const int ecount = 1;
+    const int ecount = 3;
 
     floatt reoevalues[ecount];
 
@@ -210,9 +220,9 @@ TEST_F(OapEigenCalculatorTests, Calculate) {
 
     for (int fa = 0; fa < ecount; ++fa) {
       EXPECT_TRUE(ao.verifyOutput(evectors[fa], reoevalues[fa]));
-      debug("reoevalues[0] = %f", reoevalues[fa]);
+      debug("reoevalues[%d] = %f", fa, reoevalues[fa]);
     }
-  } catch (const oap::exceptions::Exception& ex) {
+  } catch (const std::exception& ex) {
     debugException(ex);
     throw;
   }
