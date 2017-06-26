@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include <string.h>
 #include <vector>
 #include <algorithm>
@@ -28,6 +26,16 @@
 #include "MatrixUtils.h"
 
 namespace CudaUtils {
+
+void AllocDeviceMem(CUdeviceptr* devPtr, size_t size) {
+  printCuError(cuMemAlloc(devPtr, size));
+}
+
+void FreeDeviceMem(CUdeviceptr ptr) {
+  if (ptr != 0) {
+    printCuError(cuMemFree(ptr));
+  }
+}
 
 CUdeviceptr GetReValuesAddress(const math::Matrix* matrix) {
   return reinterpret_cast<CUdeviceptr>(&matrix->reValues);
@@ -153,37 +161,38 @@ uintt GetRows(const MatrixEx* matrixEx) {
 
 CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
                         floatt revalue, floatt imvalue) {
-  class InternalAllocator {
-   public:
-    static CUdeviceptr allocMatrix() {
-      CUdeviceptr devicePtrMatrix = 0;
-      printCuError(cuMemAlloc(&devicePtrMatrix, sizeof(math::Matrix)));
-      return devicePtrMatrix;
-    }
-  };
-  CUdeviceptr matrix = InternalAllocator::allocMatrix();
+  CUdeviceptr matrix = 0;
+  AllocDeviceMem(&matrix, sizeof(math::Matrix));
+
   CUdeviceptr matrixRe = 0;
   CUdeviceptr matrixIm = 0;
+
   if (allocRe) {
     matrixRe = AllocReMatrix(matrix, columns, rows, revalue);
   } else {
     matrixRe = SetReMatrixToNull(matrix);
   }
+
   if (allocIm) {
     matrixIm = AllocImMatrix(matrix, columns, rows, imvalue);
   } else {
     matrixIm = SetImMatrixToNull(matrix);
   }
+
   SetVariables(matrix, columns, rows);
   return matrix;
+}
+
+void CopyHtoD(CUdeviceptr devPtr, void* hostPtr, size_t size) {
+  printCuError(cuMemcpyHtoD(devPtr, hostPtr, size));
 }
 
 CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
                           uintt rows, floatt value) {
   CUdeviceptr devicePtrReValues = 0;
-  printCuError(cuMemAlloc(&devicePtrReValues, columns * rows * sizeof(floatt)));
-  printCuError(cuMemcpyHtoD(GetReValuesAddress(devicePtrMatrix),
-                            &devicePtrReValues, sizeof(CUdeviceptr)));
+  AllocDeviceMem(&devicePtrReValues, columns * rows * sizeof(floatt));
+  CopyHtoD(GetReValuesAddress(devicePtrMatrix), &devicePtrReValues,
+           sizeof(CUdeviceptr));
   unsigned int dvalue = *reinterpret_cast<unsigned int*>(&value);
   cuMemsetD32(devicePtrReValues, dvalue, columns * rows * sizeof(floatt) / 4);
   return devicePtrReValues;
@@ -192,9 +201,9 @@ CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
 CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
                           uintt rows, floatt value) {
   CUdeviceptr devicePtrImValues = 0;
-  printCuError(cuMemAlloc(&devicePtrImValues, columns * rows * sizeof(floatt)));
-  printCuError(cuMemcpyHtoD(GetImValuesAddress(devicePtrMatrix),
-                            &devicePtrImValues, sizeof(CUdeviceptr)));
+  AllocDeviceMem(&devicePtrImValues, columns * rows * sizeof(floatt));
+  CopyHtoD(GetImValuesAddress(devicePtrMatrix), &devicePtrImValues,
+           sizeof(CUdeviceptr));
   unsigned int dvalue = *reinterpret_cast<unsigned int*>(&value);
   cuMemsetD32(devicePtrImValues, dvalue, columns * rows * sizeof(floatt) / 4);
   return devicePtrImValues;
@@ -227,16 +236,14 @@ void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows) {
 
 void* AllocDeviceMem(uintt size) {
   CUdeviceptr devicePtr;
-  cuMemAlloc(&devicePtr, size);
-  cuMemsetD32(devicePtr, 0, size);
+  AllocDeviceMem(&devicePtr, size);
+  debug("%d %d", sizeof(void*), sizeof(CUdeviceptr));
   return reinterpret_cast<void*>(devicePtr);
 }
 
 void* AllocDeviceMem(uintt size, const void* src) {
-  static unsigned int count = 0;
   void* devPtr = AllocDeviceMem(size);
   CopyHostToDevice(devPtr, src, size);
-  fprintf(stderr, "count = %u \n", count++);
   return devPtr;
 }
 
@@ -244,12 +251,6 @@ void FreeDeviceMem(void* devicePtr) {
   if (devicePtr) {
     CUdeviceptr deviecPtr = reinterpret_cast<CUdeviceptr>(devicePtr);
     FreeDeviceMem(deviecPtr);
-  }
-}
-
-void FreeDeviceMem(CUdeviceptr ptr) {
-  if (ptr != 0) {
-    cuMemFree(ptr);
   }
 }
 
