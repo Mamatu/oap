@@ -26,10 +26,6 @@
 #include "ThreadsMapper.h"
 #include <cstdlib>
 
-//#define KERNEL_EXECUTOR_LOGS_FUNCTION_NAME
-#define KERNEL_EXTENDED_INFO 0
-
-
 #define printCuErrorStatus(status, cuResult)                                   \
   if (cuResult != 0) {                                                         \
     status = cuResult;                                                         \
