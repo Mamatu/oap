@@ -237,7 +237,6 @@ void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows) {
 void* AllocDeviceMem(uintt size) {
   CUdeviceptr devicePtr;
   AllocDeviceMem(&devicePtr, size);
-  debug("%d %d", sizeof(void*), sizeof(CUdeviceptr));
   return reinterpret_cast<void*>(devicePtr);
 }
 
