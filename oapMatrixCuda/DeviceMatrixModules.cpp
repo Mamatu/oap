@@ -80,43 +80,9 @@ math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
 typedef std::pair<uintt, uintt> MatrixDim;
 typedef std::pair<bool, bool> MatrixStr;
 typedef std::pair<MatrixDim, MatrixStr> MatrixInfo;
-
-struct MatrixInfoExtended {
-  MatrixInfo matrixInfo;
-  void** backtrace;
-  int nptrs;
-  char** strings;
-};
-
-class MatrixInfos : public std::map<const math::Matrix*, MatrixInfoExtended> {
-  static void onAbort(int signum);  // { globalMatrixInfos.print(); }
-
- public:
-  MatrixInfos() {
-    // signal(SIGABRT, &onAbort);
-  }
-
-  virtual ~MatrixInfos() {
-    printInfo();
-    for (MatrixInfos::iterator it = begin(); it != end(); ++it) {
-      delete[] it->second.backtrace;
-      free(it->second.strings);
-    }
-  }
-
-  void printInfo() {
-    for (MatrixInfos::iterator it = begin(); it != end(); ++it) {
-      debug("Matrix %p was not deallcated", it->first);
-      for (int j = 0; j < it->second.nptrs; j++) {
-        debug("%s", it->second.strings[j]);
-      }
-    }
-  }
-};
+typedef std::map<const math::Matrix*, MatrixInfo> MatrixInfos;
 
 MatrixInfos globalMatrixInfos;
-
-void MatrixInfos::onAbort(int signum) { globalMatrixInfos.printInfo(); }
 
 math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
                           floatt revalue = 0.f, floatt imvalue = 0.f) {
@@ -126,14 +92,7 @@ math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
   MatrixInfo matrixInfo =
       MatrixInfo(MatrixDim(columns, rows), MatrixStr(allocRe, allocIm));
 
-  const int size = 100;
-  void** buffer = new void* [size];
-  int nptrs = backtrace(buffer, size);
-  char** strings = backtrace_symbols(buffer, nptrs);
-
-  MatrixInfoExtended extended = {matrixInfo, buffer, nptrs, strings};
-
-  globalMatrixInfos[mptr] = extended;
+  globalMatrixInfos[mptr] = matrixInfo;
 
   return mptr;
 }
@@ -171,7 +130,6 @@ void DeleteDeviceMatrix(math::Matrix* dMatrix) {
   if (dMatrix != NULL) {
     MatrixInfos::iterator it = globalMatrixInfos.find(dMatrix);
     if (globalMatrixInfos.end() != it) {
-      delete[] it->second.backtrace;
       globalMatrixInfos.erase(it);
     }
     CUdeviceptr rePtr =
@@ -186,11 +144,11 @@ void DeleteDeviceMatrix(math::Matrix* dMatrix) {
 }
 
 uintt GetColumns(const math::Matrix* dMatrix) {
-  return globalMatrixInfos[dMatrix].matrixInfo.first.first;
+  return globalMatrixInfos[dMatrix].first.first;
 }
 
 uintt GetRows(const math::Matrix* dMatrix) {
-  return globalMatrixInfos[dMatrix].matrixInfo.first.second;
+  return globalMatrixInfos[dMatrix].first.second;
 }
 
 void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src) {
