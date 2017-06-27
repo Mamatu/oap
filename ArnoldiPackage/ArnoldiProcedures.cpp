@@ -390,23 +390,30 @@ bool CuHArnoldi::checkOutcome(uintt index, floatt tolerance) {
 }
 
 void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uintt k) {
-  if (!m_wasAllocated || shouldBeReallocated(matrixInfo, m_matrixInfo) ||
+  if (shouldBeReallocated(matrixInfo, m_matrixInfo) ||
       matrixInfo.m_matrixDim.rows != m_matrixInfo.m_matrixDim.rows) {
-    dealloc1();
+    if (m_wasAllocated) {
+      dealloc1();
+    }
     alloc1(matrixInfo, k);
     m_vsrows = matrixInfo.m_matrixDim.rows;
     m_vscolumns = 1;
   }
-  if (!m_wasAllocated || shouldBeReallocated(matrixInfo, m_matrixInfo) ||
+
+  if (shouldBeReallocated(matrixInfo, m_matrixInfo) ||
       matrixInfo.m_matrixDim.rows != m_matrixInfo.m_matrixDim.rows ||
       m_k != k) {
-    dealloc2();
+    if (m_wasAllocated) {
+      dealloc2();
+    }
     alloc2(matrixInfo, k);
     m_transposeVcolumns = matrixInfo.m_matrixDim.rows;
   }
-  if (!m_wasAllocated || shouldBeReallocated(matrixInfo, m_matrixInfo) ||
-      m_k != k) {
-    dealloc3();
+
+  if (shouldBeReallocated(matrixInfo, m_matrixInfo) || m_k != k) {
+    if (m_wasAllocated) {
+      dealloc3();
+    }
     alloc3(matrixInfo, k);
     m_hrows = k;
     m_scolumns = 1;
@@ -519,4 +526,5 @@ void CuHArnoldi::dealloc3() {
   device::DeleteDeviceMatrix(m_QJ);
   device::DeleteDeviceMatrix(m_I);
   device::DeleteDeviceMatrix(m_Q);
+  device::DeleteDeviceMatrix(m_q);
 }
