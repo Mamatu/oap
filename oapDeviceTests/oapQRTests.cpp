@@ -17,7 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
 #include "MatrixProcedures.h"
@@ -47,8 +46,8 @@ class OapQRTests : public testing::Test {
   }
 
   virtual void TearDown() {
-    device::Context::Instance().destroy();
     delete m_cuMatrix;
+    device::Context::Instance().destroy();
   }
 
   void executeOrthogonalityTest(math::Matrix* q, math::Matrix* dq) {

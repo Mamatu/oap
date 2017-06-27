@@ -43,7 +43,6 @@ class OapMatrixCudaTests : public testing::Test {
   }
 
   virtual void TearDown() {
-    device::Context::Instance().destroy();
     delete cuMatrix;
     if (output != NULL && eq_output != NULL) {
       EXPECT_THAT(output, MatrixIsEqual(eq_output));
@@ -51,6 +50,7 @@ class OapMatrixCudaTests : public testing::Test {
     EXPECT_EQ(status, CUDA_SUCCESS);
     host::DeleteMatrix(output);
     host::DeleteMatrix(eq_output);
+    device::Context::Instance().destroy();
   }
 };
 

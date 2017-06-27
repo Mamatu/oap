@@ -19,8 +19,8 @@ class OapTransposeTests : public testing::Test {
   }
 
   virtual void TearDown() {
-    device::Context::Instance().destroy();
     delete m_cuMatrix;
+    device::Context::Instance().destroy();
   }
 };
 

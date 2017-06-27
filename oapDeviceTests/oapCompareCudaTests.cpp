@@ -43,13 +43,13 @@ public:
     }
 
     virtual void TearDown() {
-        device::Context::Instance().destroy();
         delete cuMatrix;
         if (output != NULL && eq_output != NULL) {
             EXPECT_THAT(output, MatrixIsEqual(eq_output));
         }
         host::DeleteMatrix(output);
         host::DeleteMatrix(eq_output);
+        device::Context::Instance().destroy();
     }
 };
 
