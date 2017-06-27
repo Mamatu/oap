@@ -20,15 +20,21 @@
 #include "DeviceMatrixModules.h"
 #include "HostMatrixUtils.h"
 #include "KernelExecutor.h"
-#include <csignal>
 #include <string.h>
 #include <vector>
 #include <algorithm>
 #include <netdb.h>
-#include <execinfo.h>
 #include <map>
 
 namespace device {
+  
+math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
+                          floatt revalue = 0.f, floatt imvalue = 0.f) {
+  CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, columns, rows);
+  math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
+  
+  return mptr;
+}
 
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
@@ -75,67 +81,6 @@ math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
   math::Matrix* dmatrix = device::NewDeviceMatrixHostRef(hostMatrix);
   device::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
   return dmatrix;
-}
-
-typedef std::pair<uintt, uintt> MatrixDim;
-typedef std::pair<bool, bool> MatrixStr;
-typedef std::pair<MatrixDim, MatrixStr> MatrixInfo;
-
-struct MatrixInfoExtended {
-  MatrixInfo matrixInfo;
-  void** backtrace;
-  int nptrs;
-  char** strings;
-};
-
-class MatrixInfos : public std::map<const math::Matrix*, MatrixInfoExtended> {
-  static void onAbort(int signum);  // { globalMatrixInfos.print(); }
-
- public:
-  MatrixInfos() {
-    // signal(SIGABRT, &onAbort);
-  }
-
-  virtual ~MatrixInfos() {
-    printInfo();
-    for (MatrixInfos::iterator it = begin(); it != end(); ++it) {
-      delete[] it->second.backtrace;
-      free(it->second.strings);
-    }
-  }
-
-  void printInfo() {
-    for (MatrixInfos::iterator it = begin(); it != end(); ++it) {
-      debug("Matrix %p was not deallcated", it->first);
-      for (int j = 0; j < it->second.nptrs; j++) {
-        debug("%s", it->second.strings[j]);
-      }
-    }
-  }
-};
-
-MatrixInfos globalMatrixInfos;
-
-void MatrixInfos::onAbort(int signum) { globalMatrixInfos.printInfo(); }
-
-math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
-                          floatt revalue = 0.f, floatt imvalue = 0.f) {
-  CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, columns, rows);
-  math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
-
-  MatrixInfo matrixInfo =
-      MatrixInfo(MatrixDim(columns, rows), MatrixStr(allocRe, allocIm));
-
-  const int size = 100;
-  void** buffer = new void* [size];
-  int nptrs = backtrace(buffer, size);
-  char** strings = backtrace_symbols(buffer, nptrs);
-
-  MatrixInfoExtended extended = {matrixInfo, buffer, nptrs, strings};
-
-  globalMatrixInfos[mptr] = extended;
-
-  return mptr;
 }
 
 math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns,
