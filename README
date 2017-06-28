@@ -1,0 +1,11 @@
+
+#### Download test data from sourceforge ####
+
+To download test data from sourcefourge server, not from
+github (LFS), please execute below command in ./script directory
+
+$ bash download_test_data.sh
+
+To clean all data directory before download, use command:
+
+$ bash download_test_data.sh preclean
