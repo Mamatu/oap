@@ -1,9 +1,9 @@
 
-#### Compilation of host part ####
+#### Disable LFS during clone ####
 
-To compile only host part of framework, use command
+To disable LFS export GIT_LFS_SKIP_SMUDGE variable
 
-$ make TARGET_ARCH=HOST
+$ export GIT_LFS_SKIP_SMUDGE=1
 
 #### Download test data from sourceforge ####
 
@@ -12,6 +12,17 @@ github (LFS), please execute below command in ./script directory
 
 $ bash download_test_data.sh
 
+or download test data package from link:
+
+>>> https://sourceforge.net/projects/openap/files/oap_test_data/oap_test_data.tar.gz <<<
+
 To clean all data directory before download, use command:
 
 $ bash download_test_data.sh preclean
+
+#### Compilation of host part ####
+
+To compile only host part of framework, use command
+
+$ make TARGET_ARCH=HOST
+
