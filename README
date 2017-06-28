@@ -1,4 +1,10 @@
 
+#### Compilation of host part ####
+
+To compile only host part of framework, use command
+
+$ make TARGET_ARCH=HOST
+
 #### Download test data from sourceforge ####
 
 To download test data from sourcefourge server, not from
