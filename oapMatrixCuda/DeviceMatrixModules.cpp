@@ -314,4 +314,29 @@ void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
                                   columns1 * sizeof(floatt));
   }
 }
+
+math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix) {
+  uintt columns = CudaUtils::GetColumns(devMatrix);
+  uintt rows = CudaUtils::GetRows(devMatrix);
+  bool isRe = CudaUtils::GetReValues(devMatrix) != NULL;
+  bool isIm = CudaUtils::GetImValues(devMatrix) != NULL;
+  return math::MatrixInfo(isRe, isIm, columns, rows);
+}
+
+math::Matrix* ReadMatrix(const std::string& path) {
+  math::Matrix* hostMatrix = host::ReadMatrix(path);
+  math::Matrix* devMatrix = device::NewDeviceMatrixCopy(hostMatrix);
+  host::DeleteMatrix(hostMatrix);
+  return devMatrix;
+}
+
+bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix) {
+  math::MatrixInfo matrixInfo = device::GetMatrixInfo(devMatrix);
+  math::Matrix* hostMatrix = host::NewMatrix(matrixInfo);
+  device::CopyDeviceMatrixToHostMatrix(hostMatrix, devMatrix);
+  bool status = host::WriteMatrix(path, hostMatrix);
+  host::DeleteMatrix(hostMatrix);
+  return status;
+}
+
 }

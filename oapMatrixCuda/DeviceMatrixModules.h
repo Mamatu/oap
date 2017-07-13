@@ -210,6 +210,13 @@ void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
 
 void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
                uintt row);
+
+math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
+
+bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix);
+
+math::Matrix* ReadMatrix(const std::string& path);
+
 }
 
 #endif /* MATRIXMEM_H */
