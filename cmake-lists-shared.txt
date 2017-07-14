@@ -1,0 +1,4 @@
+include (./CMakeOapConfig.txt)
+
+aux_source_directory (. OAP_DIR_SRCS)
+add_library (${OAP_OUTPUT_NAME} ${OAP_DIR_SRCS})
