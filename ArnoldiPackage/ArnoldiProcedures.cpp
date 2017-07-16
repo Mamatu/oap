@@ -134,7 +134,6 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
   for (intt fax = 0; fax == 0 || status == true; ++fax) {
     unwanted.clear();
     wanted.clear();
-    wantedIndecies.clear();
 
     calculateTriangularHEigens();
 
@@ -251,11 +250,12 @@ void CuHArnoldi::sortPWorstEigens(uintt unwantedCount) {
 }
 
 void CuHArnoldi::sortEigenvalues(math::Matrix* H, uintt unwantedCount) {
+
   std::vector<OutputEntry> values;
+
   notSorted.clear();
   wanted.clear();
   unwanted.clear();
-  wantedIndecies.clear();
 
   for (uintt fa = 0; fa < m_triangularHcolumns; ++fa) {
     floatt rev = CudaUtils::GetReDiagonal(H, fa);
@@ -267,19 +267,22 @@ void CuHArnoldi::sortEigenvalues(math::Matrix* H, uintt unwantedCount) {
     values.push_back(oe);
     notSorted.push_back(oe);
   }
+
   std::sort(values.begin(), values.end(), m_sortObject);
+
+  getWanted(values, wanted, unwanted, unwantedCount);
+
+}
+
+void CuHArnoldi::getWanted(std::vector<OutputEntry>& values, std::vector<OutputEntry>& wanted,
+    std::vector<OutputEntry>& unwanted, uintt unwantedCount)
+{
   for (uintt fa = 0; fa < values.size(); ++fa) {
     OutputEntry value = values[fa];
     if (fa < unwantedCount) {
       unwanted.push_back(value);
     } else {
       wanted.push_back(value);
-      for (uintt fb = 0; fb < notSorted.size(); ++fb) {
-        if (notSorted[fb].im() == value.im() &&
-            notSorted[fb].re() == value.re()) {
-          wantedIndecies.push_back(wanted.size() - 1);
-        }
-      }
     }
   }
 }
