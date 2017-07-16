@@ -90,6 +90,7 @@ class CuHArnoldi {
 
     SortObject& operator=(ArnUtils::SortType sortType) {
       m_sortType = sortType;
+      return *this;
     }
   };
 
