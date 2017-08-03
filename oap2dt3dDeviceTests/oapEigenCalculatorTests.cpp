@@ -66,10 +66,29 @@ class ArnoldiOperations {
     }
   }
 
-  bool verifyOutput(math::Matrix* vector, floatt value) {
+  bool verifyOutput(math::Matrix* vector, floatt value, oap::EigenCalculator* eigenCalc) {
     math::Matrix* matrix = m_dataLoader->createMatrix();
 
     const uintt partSize = matrix->columns;
+
+    math::Matrix* dvector = NULL;
+    uintt vectorrows = 0;
+
+    bool dvectorIsCopy = false;
+
+    if (eigenCalc->getEigenvectorsType() == ArnUtils::HOST) {
+      dvector = device::NewDeviceMatrixCopy(vector);
+      vectorrows = device::GetColumns(matrix);
+      dvectorIsCopy = true;
+    } else if (eigenCalc->getEigenvectorsType() == ArnUtils::DEVICE) {
+      dvector = vector;
+      vectorrows = matrix->columns;
+      dvectorIsCopy = false;
+    }
+
+    if (dvector == NULL)  {
+      debugAssert("Invalid eigenvectors type.");
+    }
 
     math::Matrix* refMatrix =
         host::NewMatrix(matrix, matrix->columns, partSize);
@@ -85,9 +104,6 @@ class ArnoldiOperations {
 
     matrixrows = partSize;
 
-    uintt vectorrows = device::GetRows(vector);
-
-    vectorrows = matrix->columns;
 
     math::Matrix* matrix1 =
         device::NewDeviceReMatrix(matrixrows, matrixcolumns);
@@ -100,7 +116,7 @@ class ArnoldiOperations {
     math::Matrix* vectorT = device::NewDeviceReMatrix(vectorrows, 1);
 
     m_cuMatrix.transposeMatrix(matrix1, drefMatrix);
-    m_cuMatrix.transposeMatrix(vectorT, vector);
+    m_cuMatrix.transposeMatrix(vectorT, dvector);
     m_cuMatrix.dotProduct(leftMatrix, drefMatrix, matrix1);
 
     host::PrintMatrix("matrix =", matrix);
@@ -111,7 +127,7 @@ class ArnoldiOperations {
     device::PrintMatrix("vector =", vector);
     floatt value2 = value * value;
     m_cuMatrix.multiplyConstantMatrix(vectorT, vectorT, value2);
-    m_cuMatrix.dotProduct(rightMatrix, vector, vectorT);
+    m_cuMatrix.dotProduct(rightMatrix, dvector, vectorT);
     bool compareResult = m_cuMatrix.compare(leftMatrix, rightMatrix);
 
     device::PrintMatrix("leftMatrix =", leftMatrix);
@@ -125,6 +141,10 @@ class ArnoldiOperations {
     device::DeleteDeviceMatrix(leftMatrix);
     device::DeleteDeviceMatrix(rightMatrix);
     device::DeleteDeviceMatrix(vectorT);
+
+    if (dvectorIsCopy) {
+      device::DeleteDeviceMatrix(dvector);
+    }
 
     return compareResult;
   }
@@ -143,13 +163,94 @@ class OapEigenCalculatorTests : public testing::Test {
   virtual void TearDown() { device::Context::Instance().destroy(); }
 };
 
+
+class MatricesDeleter {
+  int m_eigensCount;
+  ArnUtils::Type m_type;
+  public:
+    MatricesDeleter(int eigensCount, ArnUtils::Type type) : 
+      m_eigensCount(eigensCount), m_type(type) {}
+
+    MatricesDeleter& operator() (math::Matrix** evectors) {
+      for (int fa = 0; fa < m_eigensCount; ++fa) {
+        debug("Deleted matrix %p", evectors[fa]);
+        if (m_type == ArnUtils::HOST) {
+          host::DeleteMatrix(evectors[fa]);
+        } else if (m_type == ArnUtils::DEVICE) {
+          device::DeleteDeviceMatrix(evectors[fa]);
+        }
+      }
+      delete[] evectors;
+      return *this;
+    }
+
+};
+
+using MatricesUPtr = std::unique_ptr<math::Matrix*, MatricesDeleter>;
+
 class TestCuHArnoldiCallback : public CuHArnoldiCallback {
  public:
   TestCuHArnoldiCallback(ArnoldiOperations* ao) : m_ao(ao) {}
 
   bool checkEigenspair(floatt value, math::Matrix* vector, uint index) {
-    return true;
-    // m_ao->verifyOutput();
+    static int counter = 0;
+    ++counter;
+    debug("counter = %d", counter);
+    return counter < 4;
+  }
+
+  static MatricesUPtr launchTest(ArnUtils::Type eigensType, int ecount) {
+    std::unique_ptr<oap::DeviceDataLoader> dataLoader(
+        oap::DeviceDataLoader::createDataLoader<oap::PngFile,
+                                                oap::DeviceDataLoader>(
+            "oap2dt3d/data/images_monkey", "image", 1000, true));
+
+    ArnoldiOperations ao(dataLoader.get());
+    TestCuHArnoldiCallback cuharnoldi(&ao);
+    cuharnoldi.setCallback(ArnoldiOperations::multiplyFunc, &ao);
+
+    floatt reoevalues[ecount];
+
+    oap::EigenCalculator eigenCalculator(&cuharnoldi);
+
+    eigenCalculator.setDataLoader(dataLoader.get());
+
+    eigenCalculator.setEigensCount(ecount);
+
+    math::MatrixInfo matrixInfo = eigenCalculator.getMatrixInfo();
+
+    MatricesDeleter matricesDeleter(ecount, eigensType);
+
+    MatricesUPtr evectorsUPtr(new math::Matrix* [ecount], matricesDeleter);
+
+    auto matricesInitializer = [&evectorsUPtr, ecount, &matrixInfo, eigensType]() {
+      math::Matrix** evectors = evectorsUPtr.get();
+      const uintt rows = matrixInfo.m_matrixDim.rows;
+      for (int fa = 0; fa < ecount; ++fa) {
+        if (eigensType == ArnUtils::HOST) {
+          evectors[fa] = host::NewReMatrix(1, rows);
+        } else if (eigensType == ArnUtils::DEVICE) {
+          evectors[fa] = device::NewDeviceReMatrix(1, rows);
+        }
+        debug("Created matrix %p", evectors[fa]);
+      }
+    };
+
+    matricesInitializer();
+
+    math::Matrix** evectors = evectorsUPtr.get();
+
+    eigenCalculator.setEigenvaluesOutput(reoevalues);
+
+    eigenCalculator.setEigenvectorsOutput(evectors, eigensType);
+
+    eigenCalculator.calculate();
+
+    for (int fa = 0; fa < ecount; ++fa) {
+      EXPECT_TRUE(ao.verifyOutput(evectors[fa], reoevalues[fa], &eigenCalculator));
+      debug("reoevalues[%d] = %f", fa, reoevalues[fa]);
+    }
+    return std::move(evectorsUPtr);
   }
 
  private:
@@ -162,66 +263,13 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
   EXPECT_THROW(eigenCalc.calculate(), oap::exceptions::NotInitialzed);
 }
 
-TEST_F(OapEigenCalculatorTests, Calculate) {
-  math::Matrix* matrix = NULL;
+TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
   debugLongTest();
 
   try {
-    std::unique_ptr<oap::DeviceDataLoader> dataLoader(
-        oap::DeviceDataLoader::createDataLoader<oap::PngFile,
-                                                oap::DeviceDataLoader>(
-            "oap2dt3d/data/images_monkey", "image", 1000, true));
-
-    ArnoldiOperations ao(dataLoader.get());
-    TestCuHArnoldiCallback cuharnoldi(&ao);
-    cuharnoldi.setCallback(ArnoldiOperations::multiplyFunc, &ao);
-
-    const int ecount = 3;
-
-    floatt reoevalues[ecount];
-
-    oap::EigenCalculator eigenCalculator(&cuharnoldi);
-
-    eigenCalculator.setDataLoader(dataLoader.get());
-
-    eigenCalculator.setEigensCount(ecount);
-
-    math::MatrixInfo matrixInfo = eigenCalculator.getMatrixInfo();
-
-    auto matricesDeleter = [ecount](math::Matrix** evectors) {
-      for (int fa = 0; fa < ecount; ++fa) {
-        debug("Deleted matrix %p", evectors[fa]);
-        device::DeleteDeviceMatrix(evectors[fa]);
-      }
-      delete[] evectors;
-    };
-
-    std::unique_ptr<math::Matrix*, decltype(matricesDeleter)> evectorsUPtr(
-        new math::Matrix* [ecount], matricesDeleter);
-
-    [&evectorsUPtr, ecount, &matrixInfo]() {
-      math::Matrix** evectors = evectorsUPtr.get();
-      const uintt rows = matrixInfo.m_matrixDim.rows;
-      for (int fa = 0; fa < ecount; ++fa) {
-        evectors[fa] = device::NewDeviceReMatrix(1, rows);
-        debug("Created matrix %p", evectors[fa]);
-      }
-    }();
-
-    math::Matrix** evectors = evectorsUPtr.get();
-
-    eigenCalculator.setEigenvaluesOutput(reoevalues);
-
-    eigenCalculator.setEigenvectorsOutput(evectors);
-
-    eigenCalculator.setEigenvectorsType(ArnUtils::DEVICE);
-
-    eigenCalculator.calculate();
-
-    for (int fa = 0; fa < ecount; ++fa) {
-      EXPECT_TRUE(ao.verifyOutput(evectors[fa], reoevalues[fa]));
-      debug("reoevalues[%d] = %f", fa, reoevalues[fa]);
-    }
+    int ecount = 6;  
+    MatricesUPtr deviceEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::DEVICE, ecount);
+    MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, ecount);
   } catch (const std::exception& ex) {
     debugException(ex);
     throw;

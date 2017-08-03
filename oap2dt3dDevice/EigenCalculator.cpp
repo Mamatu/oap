@@ -45,6 +45,7 @@ void EigenCalculator::calculate() {
 
   m_cuHArnoldi->setSortType(ArnUtils::SortLargestReValues);
   m_cuHArnoldi->setOutputType(m_eigenvectorsType);
+  m_cuHArnoldi->setCheckType(ArnUtils::CHECK_EXTERNAL);
 
   const unsigned int hdim = 32;
 
@@ -62,13 +63,15 @@ void EigenCalculator::setEigenvaluesOutput(floatt* revalues) {
   m_revalues = revalues;
 }
 
-void EigenCalculator::setEigenvectorsOutput(math::Matrix** eigenvectors) {
+void EigenCalculator::setEigenvectorsOutput(math::Matrix** eigenvectors, ArnUtils::Type eigenvectorsType) {
   m_eigenvectors = eigenvectors;
-}
-
-void EigenCalculator::setEigenvectorsType(ArnUtils::Type eigenvectorsType) {
   m_eigenvectorsType = eigenvectorsType;
 }
+
+ArnUtils::Type EigenCalculator::getEigenvectorsType() const {
+  return m_eigenvectorsType;
+}
+
 
 math::MatrixInfo EigenCalculator::getMatrixInfo() const {
   checkIfDataLoaderInitialized();

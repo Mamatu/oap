@@ -42,9 +42,9 @@ class EigenCalculator {
 
   void setEigenvaluesOutput(floatt*);
 
-  void setEigenvectorsOutput(math::Matrix**);
+  void setEigenvectorsOutput(math::Matrix**, ArnUtils::Type);
 
-  void setEigenvectorsType(ArnUtils::Type eigenvectorsType);
+  ArnUtils::Type getEigenvectorsType() const;
 
   math::MatrixInfo getMatrixInfo() const;
  private:
