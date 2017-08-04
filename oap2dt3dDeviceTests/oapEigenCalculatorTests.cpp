@@ -76,13 +76,13 @@ class ArnoldiOperations {
 
     bool dvectorIsCopy = false;
 
+    vectorrows = matrix->columns;
+
     if (eigenCalc->getEigenvectorsType() == ArnUtils::HOST) {
       dvector = device::NewDeviceMatrixCopy(vector);
-      vectorrows = device::GetColumns(matrix);
       dvectorIsCopy = true;
     } else if (eigenCalc->getEigenvectorsType() == ArnUtils::DEVICE) {
       dvector = vector;
-      vectorrows = matrix->columns;
       dvectorIsCopy = false;
     }
 
