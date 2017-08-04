@@ -23,6 +23,7 @@
 #include "EigenCalculator.h"
 #include "DeviceDataLoader.h"
 #include "Exceptions.h"
+#include "MatchersUtils.h"
 
 #include "ArnoldiProceduresImpl.h"
 #include "DeviceMatrixModules.h"
@@ -270,6 +271,14 @@ TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
     int ecount = 6;  
     MatricesUPtr deviceEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::DEVICE, ecount);
     MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, ecount);
+    math::Matrix** deviceMatrices = deviceEVectors.get();
+    math::Matrix** hostMatrices = hostEVectors.get();
+    math::Matrix* hostMatrix = host::NewMatrix(hostEVectors.get()[0]);
+    for (int fa = 0; fa < ecount; ++fa) {
+      device::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
+      EXPECT_THAT(hostMatrices[fa], MatrixIsEqual(hostMatrix));
+    }
+    host::DeleteMatrix(hostMatrix);
   } catch (const std::exception& ex) {
     debugException(ex);
     throw;
