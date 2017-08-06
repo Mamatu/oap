@@ -26,6 +26,8 @@
 #include <assert.h>
 #include <typeinfo>
 
+#include "TraceLog.h"
+
 #define STREAM stdout
 
 #ifdef DEBUG
@@ -50,6 +52,12 @@
 
 #define debugException(ex) debug("Exception: %s %s", typeid(ex).name(), ex.what())
 
+#define initTraceBuffer(size) trace::InitTraceBuffer(size)
+
+#define traceFunction()  trace::Trace("%s %s %d\n", __FUNCTION__, __FILE__, __LINE__);
+
+#define getTraceOutput(out)  trace::GetOutputString(out);
+
 #else
 
 #define debug( x, ...) 
@@ -70,6 +78,15 @@
 
 #define debugException(ex) debug("Exception: %s %s", typeid(ex).name(), ex.getMessage().c_str())
 
+#define initTraceBuffer(size)
+
+#define traceFunction()
+
+#define getTraceOutput(out)
+
 #endif
+
+
+
 
 #endif	/* TYPES_H */
