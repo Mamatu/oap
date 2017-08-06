@@ -193,7 +193,8 @@ class CuHArnoldi {
 
   void (CuHArnoldi::*m_calculateTriangularHPtr)();
 
-  void calculateTriangularHEigens();
+  void calculateTriangularHEigens(math::Matrix* triangularH,
+      const math::Matrix* normalH, const math::MatrixInfo& matrixInfo);
 
   void sortPWorstEigens(uintt unwantedCount);
 
