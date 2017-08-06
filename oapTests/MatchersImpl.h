@@ -304,10 +304,10 @@ class MatrixContainsDiagonalValuesMatcher
     return true;
   }
 
-  virtual void DescribeTo(::std::ostream* os) const { *os << "Both matrix "; }
+  virtual void DescribeTo(::std::ostream* os) const { *os << "Matrix contains diagonal values."; }
 
   virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "Matrices are not equal.";
+    *os << "Matrix does not contain diagonal values..";
   }
 };
 
