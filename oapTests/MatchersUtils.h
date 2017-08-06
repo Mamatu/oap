@@ -91,6 +91,11 @@ inline Matcher<int> IsEqualSum(int sum, int* buffer, size_t length,
       new BufferSumIsEqualMatcherSum<int>(sum, buffer, length, extra));
 }
 
+inline Matcher<std::string> StringIsEqual(const std::string& str2, const char* path1, const char* path2) {
+  return MakeMatcher(
+      new StringIsEqualMatcher(str2, path1, path2));
+}
+
 MATCHER_P(MatrixValuesAreNotEqual, value, "") {
   return utils::areNotEqual(arg, value);
 }

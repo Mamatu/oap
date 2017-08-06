@@ -311,4 +311,44 @@ class MatrixContainsDiagonalValuesMatcher
   }
 };
 
+class StringIsEqualMatcher
+    : public MatcherInterface<std::string> {
+
+  std::string m_str2;
+  std::string m_path1;
+  std::string m_path2;
+  public:
+
+  StringIsEqualMatcher(const std::string& str2, const char* path1, const char* path2) :
+    m_str2(str2), m_path1(path1), m_path2(path2) {
+  }
+
+  virtual bool MatchAndExplain(std::string str1,
+                               MatchResultListener* listener) const {
+    bool isequal = str1 == m_str2;
+
+    if (isequal == false) {
+
+      FILE* file = fopen(m_path1.c_str(),"w");
+      fwrite(str1.c_str(), str1.size(), 1, file);
+      fclose(file);
+
+      file = fopen(m_path2.c_str(),"w");
+      fwrite(m_str2.c_str(), m_str2.size(), 1, file);
+      fclose(file);
+      (*listener) << "Both strings are not equals. Logs in files: " << m_path1 << ", " << m_path2;
+    } else {
+      (*listener) << "Both strings are equals. No logs files";
+    }
+    return isequal;
+  }
+
+  virtual void DescribeTo(::std::ostream* os) const { *os << "Strings are equal."; }
+
+  virtual void DescribeNegationTo(::std::ostream* os) const {
+    *os << "Strings are not equal.";
+  }
+
+};
+
 #endif /* MATCHERSIMPL_H */
