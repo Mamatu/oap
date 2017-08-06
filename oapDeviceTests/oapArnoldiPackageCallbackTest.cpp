@@ -268,7 +268,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     arnoldiCuda->setBLimit(0.01);
     arnoldiCuda->setRho(1. / 3.14159265359);
     arnoldiCuda->setSortType(ArnUtils::SortSmallestReValues);
-    arnoldiCuda->setCheckType(ArnUtils::CHECK_EXTERNAL_EIGENVALUE);
+    arnoldiCuda->setCheckType(ArnUtils::CHECK_FIRST_STOP);
     arnoldiCuda->setEValue(value, tolerance);
     arnoldiCuda->setOutputsEigenvalues(revalues, imvalues);
     math::MatrixInfo matrixInfo(true, true, data.getElementsCount(),

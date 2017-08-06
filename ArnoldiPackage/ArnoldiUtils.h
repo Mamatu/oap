@@ -42,8 +42,7 @@ typedef bool (*SortType)(const Complex& i, const Complex& j);
 enum CheckType {
   CHECK_INTERNAL,
   CHECK_EXTERNAL,
-  CHECK_EXTERNAL_EIGENVALUE,
-  CHECK_EXTERNAL_EIGENVECTOR
+  CHECK_FIRST_STOP
 };
 
 enum Type { UNDEFINED, DEVICE, HOST };
