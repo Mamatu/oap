@@ -199,6 +199,9 @@ class CuHArnoldi {
 
   void sortEigenvalues(math::Matrix* m_triangularH, uintt unwantedCount);
 
+  void getWanted(std::vector<OutputEntry>& values, std::vector<OutputEntry>& wanted,
+    std::vector<OutputEntry>& unwanted, uintt unwantedCount);
+
   /**
    * @brief executeArnoldiFactorization
    * @param init
