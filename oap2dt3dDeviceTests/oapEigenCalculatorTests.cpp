@@ -268,9 +268,21 @@ TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
   debugLongTest();
 
   try {
-    int ecount = 6;  
+    int ecount = 6;
+    std::string trace1;
+    std::string trace2;
+
+    initTraceBuffer(1024);
     MatricesUPtr deviceEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::DEVICE, ecount);
+    getTraceOutput(trace1);
+
+    initTraceBuffer(1024);
     MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, ecount);
+    getTraceOutput(trace2);
+
+    EXPECT_THAT(trace1, StringIsEqual(trace2, 
+          "/tmp/Oap/device_tests/CalculateDeviceOutput_DEVICE.log", "/tmp/Oap/device_tests/CalculateDeviceOutput_HOST.log"));
+
     math::Matrix** deviceMatrices = deviceEVectors.get();
     math::Matrix** hostMatrices = hostEVectors.get();
     math::Matrix* hostMatrix = host::NewMatrix(hostEVectors.get()[0]);
