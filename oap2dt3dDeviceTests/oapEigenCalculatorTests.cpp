@@ -57,7 +57,7 @@ class ArnoldiOperations {
       for (uintt index = 0; index < matrixInfo.m_matrixDim.columns; ++index) {
         math::Matrix* vec = dataLoader->createDeviceRowVector(index);
 
-        //device::PrintMatrix("vec =", vec);
+        // device::PrintMatrix("vec =", vec);
 
         ao->m_cuMatrix.dotProduct(ao->value, vec, m_v);
         device::SetMatrix(m_w, ao->value, 0, index);
@@ -120,19 +120,21 @@ class ArnoldiOperations {
     m_cuMatrix.transposeMatrix(vectorT, dvector);
     m_cuMatrix.dotProduct(leftMatrix, drefMatrix, matrix1);
 
-    host::PrintMatrix("matrix =", matrix);
-    host::PrintMatrix("refMatrix =", refMatrix);
-    device::PrintMatrix("matrix1 =", matrix1);
-    device::PrintMatrix("drefMatrix =", drefMatrix);
-    device::PrintMatrix("vectorT =", vectorT);
-    device::PrintMatrix("vector =", vector);
     floatt value2 = value * value;
     m_cuMatrix.multiplyConstantMatrix(vectorT, vectorT, value2);
     m_cuMatrix.dotProduct(rightMatrix, dvector, vectorT);
     bool compareResult = m_cuMatrix.compare(leftMatrix, rightMatrix);
 
-    device::PrintMatrix("leftMatrix =", leftMatrix);
-    device::PrintMatrix("rightMatrix =", rightMatrix);
+    math::Matrix* hleftMatrix = host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
+    math::Matrix* hrightMatrix = host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
+
+    device::CopyDeviceMatrixToHostMatrix(hrightMatrix, rightMatrix);
+    device::CopyDeviceMatrixToHostMatrix(hleftMatrix, leftMatrix);
+
+    EXPECT_THAT(hleftMatrix, MatrixIsEqual(hrightMatrix, InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
+
+    host::DeleteMatrix(hleftMatrix);
+    host::DeleteMatrix(hrightMatrix);
 
     host::DeleteMatrix(refMatrix);
     host::DeleteMatrix(matrix);
@@ -164,7 +166,6 @@ class OapEigenCalculatorTests : public testing::Test {
   virtual void TearDown() { device::Context::Instance().destroy(); }
 };
 
-
 class MatricesDeleter {
   int m_eigensCount;
   ArnUtils::Type m_type;
@@ -190,24 +191,28 @@ class MatricesDeleter {
 using MatricesUPtr = std::unique_ptr<math::Matrix*, MatricesDeleter>;
 
 class TestCuHArnoldiCallback : public CuHArnoldiCallback {
+  int m_counter;
  public:
-  TestCuHArnoldiCallback(ArnoldiOperations* ao) : m_ao(ao) {}
+  TestCuHArnoldiCallback(ArnoldiOperations* ao, int counter = 5) : m_ao(ao) {
+    m_counter = counter;
+  }
 
   bool checkEigenspair(floatt value, math::Matrix* vector, uint index) {
     static int counter = 0;
     ++counter;
     debug("counter = %d", counter);
-    return counter < 4;
+    //return counter < 10;
+    return counter < m_counter;
   }
 
-  static MatricesUPtr launchTest(ArnUtils::Type eigensType, int ecount) {
+  static MatricesUPtr launchTest(ArnUtils::Type eigensType, int ecount, int maxCounter = 5) {
     std::unique_ptr<oap::DeviceDataLoader> dataLoader(
         oap::DeviceDataLoader::createDataLoader<oap::PngFile,
                                                 oap::DeviceDataLoader>(
             "oap2dt3d/data/images_monkey", "image", 1000, true));
 
     ArnoldiOperations ao(dataLoader.get());
-    TestCuHArnoldiCallback cuharnoldi(&ao);
+    TestCuHArnoldiCallback cuharnoldi(&ao, maxCounter);
     cuharnoldi.setCallback(ArnoldiOperations::multiplyFunc, &ao);
 
     floatt reoevalues[ecount];
@@ -266,18 +271,18 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
 
 TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
   debugLongTest();
-
   try {
-    int ecount = 6;
+    int ecount = 5;
+    int maxCount = 1;
     std::string trace1;
     std::string trace2;
 
     initTraceBuffer(1024);
-    MatricesUPtr deviceEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::DEVICE, ecount);
+    MatricesUPtr deviceEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::DEVICE, ecount, maxCount);
     getTraceOutput(trace1);
 
     initTraceBuffer(1024);
-    MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, ecount);
+    MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, ecount, maxCount);
     getTraceOutput(trace2);
 
     EXPECT_THAT(trace1, StringIsEqual(trace2, 
@@ -288,7 +293,7 @@ TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
     math::Matrix* hostMatrix = host::NewMatrix(hostEVectors.get()[0]);
     for (int fa = 0; fa < ecount; ++fa) {
       device::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
-      EXPECT_THAT(hostMatrices[fa], MatrixIsEqual(hostMatrix));
+      EXPECT_THAT(hostMatrices[fa], MatrixIsEqual(hostMatrix, InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
     }
     host::DeleteMatrix(hostMatrix);
   } catch (const std::exception& ex) {
