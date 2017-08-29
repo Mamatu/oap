@@ -24,11 +24,11 @@ InfoCreator::InfoCreator() : m_expected(NULL), m_output(NULL) {}
 
 InfoCreator::~InfoCreator() {}
 
-void InfoCreator::setInfoTypeCallback(const InfoType& infoType) {}
+void InfoCreator::onSetInfoTypeCallback(const InfoType& infoType) {}
 
-void InfoCreator::setExpectedCallback(math::Matrix* expected) {}
+void InfoCreator::onSetExpectedCallback(math::Matrix* expected) {}
 
-void InfoCreator::setOutputCallback(math::Matrix* output) {}
+void InfoCreator::onSetOutputCallback(math::Matrix* output) {}
 
 math::Matrix* InfoCreator::getExpectedMatrix() const { return m_expected; }
 
@@ -36,12 +36,12 @@ math::Matrix* InfoCreator::getOutputMatrix() const { return m_output; }
 
 void InfoCreator::setExpected(math::Matrix* expected) {
   m_expected = expected;
-  setExpectedCallback(m_expected);
+  onSetExpectedCallback(m_expected);
 }
 
 void InfoCreator::setOutput(math::Matrix* output) {
   m_output = output;
-  setOutputCallback(m_output);
+  onSetOutputCallback(m_output);
 }
 
 void InfoCreator::setInfoType(const InfoType& infoType) {

@@ -55,9 +55,9 @@ class InfoCreator {
   virtual math::Matrix* getExpectedMatrix() const;
   virtual math::Matrix* getOutputMatrix() const;
 
-  virtual void setInfoTypeCallback(const InfoType& infoType);
-  virtual void setExpectedCallback(math::Matrix* expected);
-  virtual void setOutputCallback(math::Matrix* output);
+  virtual void onSetInfoTypeCallback(const InfoType& infoType);
+  virtual void onSetExpectedCallback(math::Matrix* expected);
+  virtual void onSetOutputCallback(math::Matrix* output);
 
   virtual void getString(std::string& output, math::Matrix* matrix) const = 0;
 
