@@ -28,6 +28,7 @@
 #include "ArnoldiProceduresImpl.h"
 #include "DeviceMatrixModules.h"
 #include "MatrixProcedures.h"
+#include "oapDeviceMatrixPtr.h"
 
 #include <memory>
 
@@ -105,16 +106,12 @@ class ArnoldiOperations {
 
     matrixrows = partSize;
 
+    oap::DeviceMatrixPtr matrix1(device::NewDeviceReMatrix(matrixrows, matrixcolumns));
 
-    math::Matrix* matrix1 =
-        device::NewDeviceReMatrix(matrixrows, matrixcolumns);
-    math::Matrix* leftMatrix =
-        device::NewDeviceReMatrix(matrixrows, matrixrows);
+    oap::DeviceMatrixPtr leftMatrix(device::NewDeviceReMatrix(matrixrows, matrixrows));
+    oap::DeviceMatrixPtr rightMatrix(device::NewDeviceReMatrix(matrixrows, matrixrows));
 
-    math::Matrix* rightMatrix =
-        device::NewDeviceReMatrix(matrixrows, matrixrows);
-
-    math::Matrix* vectorT = device::NewDeviceReMatrix(vectorrows, 1);
+    oap::DeviceMatrixPtr vectorT(device::NewDeviceReMatrix(vectorrows, 1));
 
     m_cuMatrix.transposeMatrix(matrix1, drefMatrix);
     m_cuMatrix.transposeMatrix(vectorT, dvector);
@@ -140,10 +137,6 @@ class ArnoldiOperations {
     host::DeleteMatrix(matrix);
 
     device::DeleteDeviceMatrix(drefMatrix);
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(leftMatrix);
-    device::DeleteDeviceMatrix(rightMatrix);
-    device::DeleteDeviceMatrix(vectorT);
 
     if (dvectorIsCopy) {
       device::DeleteDeviceMatrix(dvector);
