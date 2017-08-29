@@ -35,8 +35,12 @@ void HostInfoCreator::getString(std::string& output,
 
 void HostInfoCreator::getMean(floatt& re, floatt& im,
                               math::Matrix* matrix) const {
-  re = utils::getMean(matrix->reValues, matrix->columns * matrix->rows);
-  im = utils::getMean(matrix->imValues, matrix->columns * matrix->rows);
+  if (matrix->reValues) {
+    re = utils::getMean(matrix->reValues, matrix->columns * matrix->rows);
+  }
+  if (matrix->imValues) {
+    im = utils::getMean(matrix->imValues, matrix->columns * matrix->rows);
+  }
 }
 
 bool HostInfoCreator::compare(math::Matrix* matrix1, math::Matrix* matrix2,
