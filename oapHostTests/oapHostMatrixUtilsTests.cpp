@@ -45,7 +45,7 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrix) {
   uintt columns = 10;
   uintt rows = 10;
 
-  std::string path = "/tmp/test_file";
+  std::string path = "/tmp/Oap/host_tests/test_file";
 
   math::Matrix* m1 = host::NewMatrix(true, true, columns, rows, 0);
 
@@ -80,7 +80,7 @@ TEST_F(OapHostMatrixUtilsTests, WriteMatrixReadVector) {
   uintt columns = 10;
   uintt rows = 10;
 
-  std::string path = "/tmp/test_file";
+  std::string path = "/tmp/Oap/host_tests/test_file";
 
   math::Matrix* matrix = host::NewMatrix(true, true, columns, rows, 0);
 

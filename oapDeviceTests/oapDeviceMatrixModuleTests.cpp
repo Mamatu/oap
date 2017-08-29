@@ -122,3 +122,45 @@ TEST_F(OapDeviceMatrixModuleTests, SetMatrixExTests) {
 
   device::DeleteDeviceMatrixEx(dMatrixExs);
 }
+
+TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
+  uintt columns = 10;
+  uintt rows = 10;
+
+  std::string path = "/tmp/Oap/device_tests/test_file";
+
+  math::Matrix* m1 = host::NewMatrix(true, true, columns, rows, 0);
+
+  for (int fa = 0; fa < columns * rows; ++fa) {
+    m1->reValues[fa] = fa;
+    m1->imValues[fa] = fa;
+  }
+
+  math::Matrix* d1 = device::NewDeviceMatrixCopy(m1);
+
+  bool status = device::WriteMatrix(path, d1);
+
+  EXPECT_TRUE(status);
+
+  if (status) {
+    math::Matrix* d2 = device::ReadMatrix(path);
+
+    math::Matrix* m2 = host::NewMatrix(device::GetMatrixInfo(d2));
+    device::CopyDeviceMatrixToHostMatrix(m2, d2);
+
+    EXPECT_EQ(m2->columns, m1->columns);
+    EXPECT_EQ(m2->columns, columns);
+    EXPECT_EQ(m2->rows, m1->rows);
+    EXPECT_EQ(m2->rows, rows);
+
+    for (int fa = 0; fa < columns * rows; ++fa) {
+      EXPECT_EQ(m1->reValues[fa], m2->reValues[fa]);
+      EXPECT_EQ(m1->imValues[fa], m2->imValues[fa]);
+    }
+
+    host::DeleteMatrix(m2);
+    device::DeleteDeviceMatrix(d2);
+  }
+  host::DeleteMatrix(m1);
+  device::DeleteDeviceMatrix(d1);
+}
