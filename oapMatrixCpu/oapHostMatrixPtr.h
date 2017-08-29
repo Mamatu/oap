@@ -17,20 +17,17 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
+#ifndef HOSTMATRIXPTR_H
+#define HOSTMATRIXPTR_H
+
+#include "oapMatrixPtr.h"
 #include "Math.h"
 
-
-namespace {
-  using DeleterType = void(*)(math::Matrix*);
+namespace oap {
+  class HostMatrixPtr : public oap::MatrixPtr {
+    public:
+      HostMatrixPtr(math::Matrix* matrix) : oap::MatrixPtr(matrix, host::DeleteMatrix) {}
+  };
 }
 
-class MatrixPtr : public std::unique_ptr<math::Matrix, ::DeleterType> {
-private:
-
-public:
-  MatrixPtr(math::Matrix* matrix) : std::unique_ptr<math::Matrix, ::DeleterType>(matrix, host::DeleteMatrix) {}
-
-  operator math::Matrix*() { return this->get(); }
-};
-
+#endif

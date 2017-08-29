@@ -17,19 +17,27 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAPDEVICEMATRIXPTR_H
-#define OAPDEVICEMATRIXPTR_H
+#ifndef MATRIXPTR_H
+#define MATRIXPTR_H
 
-#include "oapMatrixPtr.h"
+#include <memory>
 #include "Math.h"
-#include "DeviceMatrixModules.h"
+#include "Matrix.h"
 
+namespace {
+  using DeleterType = void(*)(math::Matrix*);
+}
 
 namespace oap {
-  class DeviceMatrixPtr : public oap::MatrixPtr {
+  class MatrixPtr : public std::unique_ptr<math::Matrix, ::DeleterType> {
     public:
-      DeviceMatrixPtr(math::Matrix* matrix) : oap::MatrixPtr(matrix, device::DeleteDeviceMatrix) {}
+      MatrixPtr(math::Matrix* matrix, ::DeleterType deleter) : std::unique_ptr<math::Matrix, ::DeleterType>(matrix, deleter) {}
+    
+      operator math::Matrix*() { return this->get(); }
+  
+      math::Matrix* operator->() { return this->get(); }
   };
 }
 
 #endif
+

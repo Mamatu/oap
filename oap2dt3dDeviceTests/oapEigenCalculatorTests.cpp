@@ -106,12 +106,12 @@ class ArnoldiOperations {
 
     matrixrows = partSize;
 
-    oap::DeviceMatrixPtr matrix1(device::NewDeviceReMatrix(matrixrows, matrixcolumns));
+    oap::DeviceMatrixPtr matrix1 = device::NewDeviceReMatrix(matrixrows, matrixcolumns);
 
-    oap::DeviceMatrixPtr leftMatrix(device::NewDeviceReMatrix(matrixrows, matrixrows));
-    oap::DeviceMatrixPtr rightMatrix(device::NewDeviceReMatrix(matrixrows, matrixrows));
+    oap::DeviceMatrixPtr leftMatrix = device::NewDeviceReMatrix(matrixrows, matrixrows);
+    oap::DeviceMatrixPtr rightMatrix = device::NewDeviceReMatrix(matrixrows, matrixrows);
 
-    oap::DeviceMatrixPtr vectorT(device::NewDeviceReMatrix(vectorrows, 1));
+    oap::DeviceMatrixPtr vectorT = device::NewDeviceReMatrix(vectorrows, 1);
 
     m_cuMatrix.transposeMatrix(matrix1, drefMatrix);
     m_cuMatrix.transposeMatrix(vectorT, dvector);
