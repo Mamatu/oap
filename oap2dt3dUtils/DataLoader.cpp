@@ -86,7 +86,11 @@ math::Matrix* DataLoader::createColumnVector(size_t index) {
 math::Matrix* DataLoader::createRowVector(size_t index) {
   createDataMatrixFiles();
 
-  return host::ReadRowVector(m_file, index);
+  math::Matrix* matrix = host::ReadRowVector(m_file, index);
+  if (matrix == NULL) {
+    throw oap::exceptions::TmpOapNotExist();
+  }
+  return matrix;
 }
 
 math::MatrixInfo DataLoader::getMatrixInfo() const {

@@ -76,8 +76,11 @@ class NotIdenticalLengths : public std::exception {
 class NotInitialzed : public std::exception {
  public:
   virtual const char* what() const throw();
- private:
-  std::string m_msg;
+};
+
+class TmpOapNotExist : public std::exception {
+ public:
+  virtual const char* what() const throw();
 };
 }
 }

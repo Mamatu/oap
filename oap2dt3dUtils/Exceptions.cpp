@@ -76,5 +76,11 @@ const char* NotIdenticalLengths::what() const throw() {
 const char* NotInitialzed::what() const throw() {
   return "EigenCalculator has not initialzed yet.";
 }
+
+const char* TmpOapNotExist::what() const throw() {
+  return "Dir /tmp/Oap/* does not exist.";
+}
+
+
 }
 }
