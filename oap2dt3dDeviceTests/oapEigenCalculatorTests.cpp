@@ -29,6 +29,7 @@
 #include "DeviceMatrixModules.h"
 #include "MatrixProcedures.h"
 #include "oapDeviceMatrixPtr.h"
+#include "oapHostMatrixPtr.h"
 
 #include <memory>
 
@@ -92,12 +93,11 @@ class ArnoldiOperations {
       debugAssert("Invalid eigenvectors type.");
     }
 
-    math::Matrix* refMatrix =
-        host::NewMatrix(matrix, matrix->columns, partSize);
+    oap::HostMatrixPtr refMatrix = host::NewMatrix(matrix, matrix->columns, partSize);
 
     host::CopyMatrix(refMatrix, matrix);
 
-    math::Matrix* drefMatrix = device::NewDeviceMatrixCopy(refMatrix);
+    oap::DeviceMatrixPtr drefMatrix = device::NewDeviceMatrixCopy(refMatrix);
 
     math::MatrixInfo info = host::GetMatrixInfo(refMatrix);
 
@@ -122,22 +122,15 @@ class ArnoldiOperations {
     m_cuMatrix.dotProduct(rightMatrix, dvector, vectorT);
     bool compareResult = m_cuMatrix.compare(leftMatrix, rightMatrix);
 
-    math::Matrix* hleftMatrix = host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
-    math::Matrix* hrightMatrix = host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
+    oap::HostMatrixPtr hleftMatrix = host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
+    oap::HostMatrixPtr hrightMatrix = host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
 
     device::CopyDeviceMatrixToHostMatrix(hrightMatrix, rightMatrix);
     device::CopyDeviceMatrixToHostMatrix(hleftMatrix, leftMatrix);
 
-    EXPECT_THAT(hleftMatrix, MatrixIsEqual(hrightMatrix, InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
+    EXPECT_THAT(hleftMatrix.get(), MatrixIsEqual(hrightMatrix.get(), InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
 
-    host::DeleteMatrix(hleftMatrix);
-    host::DeleteMatrix(hrightMatrix);
-
-    host::DeleteMatrix(refMatrix);
     host::DeleteMatrix(matrix);
-
-    device::DeleteDeviceMatrix(drefMatrix);
-
     if (dvectorIsCopy) {
       device::DeleteDeviceMatrix(dvector);
     }
