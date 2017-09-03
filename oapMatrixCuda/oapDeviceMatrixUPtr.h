@@ -17,16 +17,18 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HOSTMATRIXPTR_H
-#define HOSTMATRIXPTR_H
+#ifndef OAPDEVICEMATRIXUPTR_H
+#define OAPDEVICEMATRIXUPTR_H
 
-#include "oapMatrixPtr.h"
+#include "oapMatrixUPtr.h"
 #include "Math.h"
+#include "DeviceMatrixModules.h"
+
 
 namespace oap {
-  class HostMatrixPtr : public oap::MatrixPtr {
+  class DeviceMatrixUPtr : public oap::MatrixUPtr {
     public:
-      HostMatrixPtr(math::Matrix* matrix) : oap::MatrixPtr(matrix, host::DeleteMatrix) {}
+      DeviceMatrixUPtr(math::Matrix* matrix) : oap::MatrixUPtr(matrix, device::DeleteDeviceMatrix) {}
   };
 }
 

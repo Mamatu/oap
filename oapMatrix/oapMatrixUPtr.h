@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MATRIXPTR_H
-#define MATRIXPTR_H
+#ifndef MATRIXUPTR_H
+#define MATRIXUPTR_H
 
 #include <memory>
 #include "Math.h"
@@ -29,9 +29,9 @@ namespace {
 }
 
 namespace oap {
-  class MatrixPtr : public std::unique_ptr<math::Matrix, ::DeleterType> {
+  class MatrixUPtr : public std::unique_ptr<math::Matrix, ::DeleterType> {
     public:
-      MatrixPtr(math::Matrix* matrix, ::DeleterType deleter) : std::unique_ptr<math::Matrix, ::DeleterType>(matrix, deleter) {}
+      MatrixUPtr(math::Matrix* matrix, ::DeleterType deleter) : std::unique_ptr<math::Matrix, ::DeleterType>(matrix, deleter) {}
     
       operator math::Matrix*() { return this->get(); }
   

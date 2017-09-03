@@ -28,8 +28,8 @@
 #include "ArnoldiProceduresImpl.h"
 #include "DeviceMatrixModules.h"
 #include "MatrixProcedures.h"
-#include "oapDeviceMatrixPtr.h"
-#include "oapHostMatrixPtr.h"
+#include "oapDeviceMatrixUPtr.h"
+#include "oapHostMatrixUPtr.h"
 
 #include <memory>
 
@@ -93,11 +93,11 @@ class ArnoldiOperations {
       debugAssert("Invalid eigenvectors type.");
     }
 
-    oap::HostMatrixPtr refMatrix = host::NewMatrix(matrix, matrix->columns, partSize);
+    oap::HostMatrixUPtr refMatrix = host::NewMatrix(matrix, matrix->columns, partSize);
 
     host::CopyMatrix(refMatrix, matrix);
 
-    oap::DeviceMatrixPtr drefMatrix = device::NewDeviceMatrixCopy(refMatrix);
+    oap::DeviceMatrixUPtr drefMatrix = device::NewDeviceMatrixCopy(refMatrix);
 
     math::MatrixInfo info = host::GetMatrixInfo(refMatrix);
 
@@ -106,12 +106,12 @@ class ArnoldiOperations {
 
     matrixrows = partSize;
 
-    oap::DeviceMatrixPtr matrix1 = device::NewDeviceReMatrix(matrixrows, matrixcolumns);
+    oap::DeviceMatrixUPtr matrix1 = device::NewDeviceReMatrix(matrixrows, matrixcolumns);
 
-    oap::DeviceMatrixPtr leftMatrix = device::NewDeviceReMatrix(matrixrows, matrixrows);
-    oap::DeviceMatrixPtr rightMatrix = device::NewDeviceReMatrix(matrixrows, matrixrows);
+    oap::DeviceMatrixUPtr leftMatrix = device::NewDeviceReMatrix(matrixrows, matrixrows);
+    oap::DeviceMatrixUPtr rightMatrix = device::NewDeviceReMatrix(matrixrows, matrixrows);
 
-    oap::DeviceMatrixPtr vectorT = device::NewDeviceReMatrix(vectorrows, 1);
+    oap::DeviceMatrixUPtr vectorT = device::NewDeviceReMatrix(vectorrows, 1);
 
     m_cuMatrix.transposeMatrix(matrix1, drefMatrix);
     m_cuMatrix.transposeMatrix(vectorT, dvector);
@@ -122,8 +122,8 @@ class ArnoldiOperations {
     m_cuMatrix.dotProduct(rightMatrix, dvector, vectorT);
     bool compareResult = m_cuMatrix.compare(leftMatrix, rightMatrix);
 
-    oap::HostMatrixPtr hleftMatrix = host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
-    oap::HostMatrixPtr hrightMatrix = host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
+    oap::HostMatrixUPtr hleftMatrix = host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
+    oap::HostMatrixUPtr hrightMatrix = host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
 
     device::CopyDeviceMatrixToHostMatrix(hrightMatrix, rightMatrix);
     device::CopyDeviceMatrixToHostMatrix(hleftMatrix, leftMatrix);
@@ -191,34 +191,34 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
     return counter < m_counter;
   }
 
-  static MatricesUPtr launchTest(ArnUtils::Type eigensType, int ecount, int maxCounter = 5) {
+  static MatricesUPtr launchTest(ArnUtils::Type eigensType, int wantedEigensCount, int maxIterationCounter = 5) {
     std::unique_ptr<oap::DeviceDataLoader> dataLoader(
         oap::DeviceDataLoader::createDataLoader<oap::PngFile,
                                                 oap::DeviceDataLoader>(
             "oap2dt3d/data/images_monkey", "image", 1000, true));
 
     ArnoldiOperations ao(dataLoader.get());
-    TestCuHArnoldiCallback cuharnoldi(&ao, maxCounter);
+    TestCuHArnoldiCallback cuharnoldi(&ao, maxIterationCounter);
     cuharnoldi.setCallback(ArnoldiOperations::multiplyFunc, &ao);
 
-    floatt reoevalues[ecount];
+    floatt reoevalues[wantedEigensCount];
 
     oap::EigenCalculator eigenCalculator(&cuharnoldi);
 
     eigenCalculator.setDataLoader(dataLoader.get());
 
-    eigenCalculator.setEigensCount(ecount);
+    eigenCalculator.setEigensCount(wantedEigensCount);
 
     math::MatrixInfo matrixInfo = eigenCalculator.getMatrixInfo();
 
-    MatricesDeleter matricesDeleter(ecount, eigensType);
+    MatricesDeleter matricesDeleter(wantedEigensCount, eigensType);
 
-    MatricesUPtr evectorsUPtr(new math::Matrix* [ecount], matricesDeleter);
+    MatricesUPtr evectorsUPtr(new math::Matrix* [wantedEigensCount], matricesDeleter);
 
-    auto matricesInitializer = [&evectorsUPtr, ecount, &matrixInfo, eigensType]() {
+    auto matricesInitializer = [&evectorsUPtr, wantedEigensCount, &matrixInfo, eigensType]() {
       math::Matrix** evectors = evectorsUPtr.get();
       const uintt rows = matrixInfo.m_matrixDim.rows;
-      for (int fa = 0; fa < ecount; ++fa) {
+      for (int fa = 0; fa < wantedEigensCount; ++fa) {
         if (eigensType == ArnUtils::HOST) {
           evectors[fa] = host::NewReMatrix(1, rows);
         } else if (eigensType == ArnUtils::DEVICE) {
@@ -238,7 +238,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
     eigenCalculator.calculate();
 
-    for (int fa = 0; fa < ecount; ++fa) {
+    for (int fa = 0; fa < wantedEigensCount; ++fa) {
       EXPECT_TRUE(ao.verifyOutput(evectors[fa], reoevalues[fa], &eigenCalculator));
       debug("reoevalues[%d] = %f", fa, reoevalues[fa]);
     }
