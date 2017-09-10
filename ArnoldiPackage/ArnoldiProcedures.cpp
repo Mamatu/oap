@@ -27,6 +27,14 @@
 
 const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
 
+void aux_swapPointers(math::Matrix** a, math::Matrix** b)
+{
+  traceFunction();
+  math::Matrix* temp = *b;
+  *b = *a;
+  *a = temp;
+}
+
 CuHArnoldi::CuHArnoldi()
     : m_wasAllocated(false),
       m_k(0),
@@ -59,6 +67,8 @@ CuHArnoldi::CuHArnoldi()
       m_R2(NULL),
       m_HO(NULL),
       m_Q(NULL),
+      m_QT1(NULL),
+      m_QT2(NULL),
       m_hostV(NULL),
       m_QJ(NULL),
       m_q(NULL),
@@ -125,11 +135,14 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
   debugAssert(wantedCount != 0);
   debugAssert(m_outputType != ArnUtils::UNDEFINED);
 
+
   setCalculateTriangularHPtr(hdim);
 
   const uintt dMatrixExCount = 5;
   MatrixEx** dMatrixExs = device::NewDeviceMatrixEx(dMatrixExCount);
   alloc(matrixInfo, hdim);
+
+  m_cuMatrix.setIdentity(m_QT2);
 
   m_matrixInfo = matrixInfo;
   initVvector();
@@ -167,6 +180,8 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
 
     status = executeChecking(k);
 
+    m_cuMatrix.dotProduct(m_QT1, m_QT2, m_Q);
+    aux_swapPointers(&m_QT1, &m_QT2);
     if (status == true) {
       traceFunction();
       const uintt initj = k - 1;
@@ -189,7 +204,10 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
 void CuHArnoldi::extractOutput()
 {
   traceFunction();
-  m_cuMatrix.dotProduct(m_EV, m_V, m_Q);
+  aux_swapPointers(&m_QT1, &m_QT2);
+  device::PrintMatrix("m_Q EO = ", m_Q);
+  m_cuMatrix.dotProduct(m_EV, m_V, m_QT1);
+  aux_swapPointers(&m_QT1, &m_QT2);
   if (m_outputType == ArnUtils::HOST) {
     traceFunction();
     device::CopyDeviceMatrixToHostMatrix(m_hostV, m_EV);
@@ -273,15 +291,6 @@ void CuHArnoldi::calculateTriangularHEigens(math::Matrix* triangularH,
     traceFunction();
     debugAssert("Not supported yet");
   }
-  debugFunc();
-}
-
-void aux_swapPointers(math::Matrix** a, math::Matrix** b)
-{
-  traceFunction();
-  math::Matrix* temp = *b;
-  *b = *a;
-  *a = temp;
 }
 
 void CuHArnoldi::sortPWorstEigens(uintt unwantedCount)
@@ -585,6 +594,8 @@ void CuHArnoldi::alloc3(const math::MatrixInfo& matrixInfo, uintt k)
   m_QJ = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   m_I = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   m_Q = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_QT1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_QT2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   m_q = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
 }
 
@@ -630,5 +641,7 @@ void CuHArnoldi::dealloc3()
   device::DeleteDeviceMatrix(m_QJ);
   device::DeleteDeviceMatrix(m_I);
   device::DeleteDeviceMatrix(m_Q);
+  device::DeleteDeviceMatrix(m_QT1);
+  device::DeleteDeviceMatrix(m_QT2);
   device::DeleteDeviceMatrix(m_q);
 }

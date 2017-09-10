@@ -122,6 +122,8 @@ class CuHArnoldi {
   math::Matrix* m_R2;
   math::Matrix* m_HO;
   math::Matrix* m_Q;
+  math::Matrix* m_QT1;
+  math::Matrix* m_QT2;
   math::Matrix* m_QJ;
   math::Matrix* m_q;
   math::Matrix* m_GT;
