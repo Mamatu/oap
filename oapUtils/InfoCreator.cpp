@@ -81,7 +81,6 @@ void InfoCreator::createInfo(std::string& outputStr, const InfoType& infoType,
   if (!isequal) {
     if (infoType.getInfo() & InfoType::MEAN) {
       printMeans(outputStr, diffmatrix);
-      outputStr += "\n";
     }
     if (infoType.getInfo() & InfoType::LARGEST_DIFF) {
       getSLInfo(outputStr, "largest", &InfoCreator::getLargestReValue,
@@ -92,6 +91,7 @@ void InfoCreator::createInfo(std::string& outputStr, const InfoType& infoType,
                 &InfoCreator::getSmallestImValue, diffmatrix);
     }
     if (infoType.getInfo() & InfoType::ELEMENTS) {
+      outputStr += "\n";
       printMatrix(outputStr, "Output = ", m_output);
       printMatrix(outputStr, "Expected = ", m_expected);
       printMatrix(outputStr, "Diff = ", diffmatrix);
@@ -139,7 +139,7 @@ bool InfoCreator::isEqual() {
   math::Matrix* expected = getExpectedMatrix();
   math::Matrix* diffMatrix = NULL;
   bool result = compare(output, expected, &diffMatrix);
-  if (diffMatrix != NULL) {
+  if (result == false) {
     createInfo(m_info, m_infoType, diffMatrix);
     destroyMatrix(diffMatrix);
   }
