@@ -151,10 +151,11 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
   traceFunction();
     const uintt initj = 0;
 
-    uintt buffer[] = {0, m_transposeVcolumns, 0, 1, 0, 0, 0, 1, 0, m_hrows, 0,
-                      m_transposeVcolumns, 0, 0, 0, 0, 0, 0, 0, m_scolumns,
-                      initj, initj + 2, 0, m_transposeVcolumns, 0, m_vscolumns,
-                      0, m_vsrows, initj, initj + 2};
+    uintt buffer[] = {0, m_transposeVcolumns, 0, 1, 0, 0,
+                      0, 1, 0, m_hrows, 0, m_transposeVcolumns,
+                      0, 0, 0, 0, 0, 0,
+                      0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
+                      0, m_vscolumns, 0, m_vsrows, initj, initj + 2};
 
     device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
     status = executeArnoldiFactorization(true, 0, dMatrixExs, m_rho);
@@ -185,10 +186,13 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
     if (status == true) {
       traceFunction();
       const uintt initj = k - 1;
-      uintt buffer[] = {0, m_transposeVcolumns, 0, 1, 0, 0, 0, 1, 0, m_hrows, 0,
-                        m_transposeVcolumns, 0, 0, 0, 0, 0, 0, 0, m_scolumns,
-                        initj, initj + 2, 0, m_transposeVcolumns, 0,
-                        m_vscolumns, 0, m_vsrows, initj, initj + 2};
+
+      uintt buffer[] = {0, m_transposeVcolumns, 0, 1, 0, 0,
+                        0, 1, 0, m_hrows, 0, m_transposeVcolumns,
+                        0, 0, 0, 0, 0, 0,
+                        0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
+                        0, m_vscolumns, 0, m_vsrows, initj, initj + 2};
+
       device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
       status = executeArnoldiFactorization(false, k - 1, dMatrixExs, m_rho);
     }
