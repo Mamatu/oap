@@ -88,17 +88,21 @@ bool isMatched(T* array, size_t length, const Ranges<T>& matched,
 //}
 
 template <typename T>
-T getSum(T* buffer, size_t length) {
+T getSum(T* buffer, size_t length, T bzfactor = 1) {
   T output = 0;
   for (uintt fa = 0; fa < length; ++fa) {
-    output += buffer[fa];
+    T v = buffer[fa];
+    if (v < 0) {
+      v = v * bzfactor;
+    }
+    output += v;
   }
   return output;
 }
 
 template <typename T>
-T getMean(T* buffer, size_t length) {
-  T output = getSum(buffer, length);
+T getMean(T* buffer, size_t length, T bzfactor) {
+  T output = getSum(buffer, length, bzfactor);
   return output / length;
 }
 
