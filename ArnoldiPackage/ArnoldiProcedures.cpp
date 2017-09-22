@@ -403,32 +403,42 @@ void CuHArnoldi::executefVHplusfq(uintt k)
   traceFunction();
   floatt reqm_k = CudaUtils::GetReValue(m_Q, m_Qcolumns * (m_Qrows - 1) + k);
   floatt imqm_k = 0;
+
   if (m_matrixInfo.isIm) {
-  traceFunction();
+    traceFunction();
     imqm_k = CudaUtils::GetImValue(m_Q, m_Qcolumns * (m_Qrows - 1) + k);
   }
+
   floatt reBm_k = CudaUtils::GetReValue(m_H, m_Hcolumns * (k + 1) + k);
   floatt imBm_k = 0;
+
   if (m_matrixInfo.isIm) {
-  traceFunction();
+    traceFunction();
     imBm_k = CudaUtils::GetImValue(m_H, m_Hcolumns * (k + 1) + k);
   }
+
   m_cuMatrix.getVector(m_v, m_vrows, m_V, k);
   m_cuMatrix.multiplyConstantMatrix(m_f1, m_v, reBm_k, imBm_k);
   m_cuMatrix.multiplyConstantMatrix(m_f, m_f, reqm_k, imqm_k);
   m_cuMatrix.add(m_f, m_f1, m_f);
   m_cuMatrix.setZeroMatrix(m_v);
-  debugFunc();
 }
 
 bool CuHArnoldi::executeChecking(uintt k)
 {
   traceFunction();
-  for (uintt index = 0; index < k; ++index) {
+
+  assert(wanted.size() == k);
+
+  extractOutput();
+
+  for (uintt index = 0; index < wanted.size(); ++index) {
     traceFunction();
-    floatt evalue = 0;
+    floatt reevalue = 0;
+    floatt imevalue = 0;
     math::Matrix* evector = NULL;
     bool shouldContinue = false;
+
     switch (m_checkType) {
       case ArnUtils::CHECK_INTERNAL:
         traceFunction();
@@ -436,14 +446,16 @@ bool CuHArnoldi::executeChecking(uintt k)
         break;
       case ArnUtils::CHECK_EXTERNAL:
         traceFunction();
-        evalue = CudaUtils::GetReValue(m_H, index * m_Hcolumns + index);
-        shouldContinue = (checkEigenspair(evalue, evector, index));
+        reevalue = wanted[index].eigenvalue.re;
+        imevalue = wanted[index].eigenvalue.im;
+        shouldContinue = (checkEigenspair(reevalue, imevalue, m_oevectors[index], index, k));
         break;
       case ArnUtils::CHECK_FIRST_STOP:
         traceFunction();
         shouldContinue = false;
         break;
     }
+
     if (shouldContinue) {
       traceFunction();
       return true;

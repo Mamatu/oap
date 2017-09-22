@@ -34,7 +34,7 @@ class CuHArnoldiDefault : public CuHArnoldi {
   virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
                         CuHArnoldi::MultiplicationType mt);
 
-  virtual bool checkEigenspair(floatt value, math::Matrix* vector, uint index) {
+  virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max) {
     return true;
   }
 
@@ -54,7 +54,7 @@ class CuHArnoldiCallback : public CuHArnoldi {
   virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
                         CuHArnoldi::MultiplicationType mt);
 
-  virtual bool checkEigenspair(floatt value, math::Matrix* vector, uint index) {
+  virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max) {
     return true;
   }
 

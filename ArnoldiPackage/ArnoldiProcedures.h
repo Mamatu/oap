@@ -62,8 +62,8 @@ class CuHArnoldi {
                         MultiplicationType mt) = 0;
 
  protected:  // methods - to drive algorithm
-  virtual bool checkEigenspair(floatt value, math::Matrix* vector,
-                               uint index) = 0;
+  virtual bool checkEigenspair(floatt revalue, floatt imevalue, math::Matrix* vector,
+                               uint index, uint max) = 0;
 
  protected:
   struct OutputEntry {
