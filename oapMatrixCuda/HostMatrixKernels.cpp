@@ -106,25 +106,31 @@ CUresult HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
   uintt count = 0;
   uintt Acolumns = CudaUtils::GetColumns(A);
   uintt Arows = CudaUtils::GetRows(A);
+
   for (uintt fa = 0; fa < Acolumns; ++fa) {
     for (uintt fb = Arows - 1; fb > fa; --fb) {
+
       floatt v = CudaUtils::GetReValue(A, fa + fb * Acolumns);
+
       if ((-0.0001 < v && v < 0.0001) == false) {
         host_prepareGMatrix(R1, fa, fb, G, kernel);
         DEVICEKernel_DotProduct(R, G, R1, kernel);
+
         if (count == 0) {
           DEVICEKernel_Transpose(Q, G, kernel);
         } else {
           DEVICEKernel_Transpose(GT, G, kernel);
           DEVICEKernel_DotProduct(Q, Q1, GT, kernel);
         }
+
         ++count;
         aux_switchPointer(&R1, &R);
         aux_switchPointer(&Q1, &Q);
       }
     }
   }
-  if (count & 1 == 1) {
+
+  if (count % 2 != 0) {
     device::CopyDeviceMatrixToDeviceMatrix(rQ, Q1);
     device::CopyDeviceMatrixToDeviceMatrix(rR, R1);
   }
