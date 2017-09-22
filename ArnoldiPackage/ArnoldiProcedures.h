@@ -141,14 +141,12 @@ class CuHArnoldi {
   math::Matrix** m_oevectors;
 
   bool m_wasAllocated;
-
   uintt m_k;
   floatt m_rho;
   floatt m_blimit;
 
   std::vector<OutputEntry> wanted;
   std::vector<OutputEntry> unwanted;
-  std::vector<OutputEntry> notSorted;
 
   SortObject m_sortObject;
   ArnUtils::CheckType m_checkType;

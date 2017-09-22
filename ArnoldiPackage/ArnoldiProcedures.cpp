@@ -304,7 +304,6 @@ void CuHArnoldi::sortEigenvalues(math::Matrix* H, uintt unwantedCount)
   traceFunction();
   std::vector<OutputEntry> values;
 
-  notSorted.clear();
   wanted.clear();
   unwanted.clear();
 
@@ -317,7 +316,6 @@ void CuHArnoldi::sortEigenvalues(math::Matrix* H, uintt unwantedCount)
     OutputEntry oe = {c, fa};
 
     values.push_back(oe);
-    notSorted.push_back(oe);
   }
 
   std::sort(values.begin(), values.end(), m_sortObject);
