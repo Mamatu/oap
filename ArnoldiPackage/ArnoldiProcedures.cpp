@@ -239,12 +239,13 @@ void CuHArnoldi::getEigenvector(math::Matrix* vector,
 
 void CuHArnoldi::getEigenvector(math::Matrix* vector, uintt index) {
   traceFunction();
+
   if (m_outputType == ArnUtils::HOST) {
     host::GetVector(vector, m_hostV, index);
-  }
-  if (m_outputType == ArnUtils::DEVICE) {
+  } else if (m_outputType == ArnUtils::DEVICE) {
     m_cuMatrix.getVector(vector, m_EV, index);
   }
+
 }
 
 void CuHArnoldi::initVvector() {
