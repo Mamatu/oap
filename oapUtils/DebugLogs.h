@@ -54,7 +54,7 @@
 
 #define initTraceBuffer(size) trace::InitTraceBuffer(size)
 
-#define traceFunction()  trace::Trace("%s %s %d\n", __FUNCTION__, __FILE__, __LINE__);
+#define traceFunction() debugFunc() trace::Trace("%s %s %d\n", __FUNCTION__, __FILE__, __LINE__);
 
 #define getTraceOutput(out)  trace::GetOutputString(out);
 
