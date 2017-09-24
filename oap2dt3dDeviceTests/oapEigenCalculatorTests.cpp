@@ -247,7 +247,9 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
     return std::move(evectorsUPtr);
   }
 
-  static void launchDataTest(const oap::DataLoader::Info& info, int wantedEigensCount = 5, int maxIterationCount = 1) {
+  static void launchDataTest(const oap::DataLoader::Info& info, const std::string& testFilename,
+                             int wantedEigensCount = 5, int maxIterationCount = 1)
+  {
     debugLongTest();
     try {
       std::string trace1;
@@ -261,8 +263,10 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
       MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, info, wantedEigensCount, maxIterationCount);
       getTraceOutput(trace2);
 
-      EXPECT_THAT(trace1, StringIsEqual(trace2,
-            "/tmp/Oap/device_tests/CalculateDeviceOutput_DEVICE.log", "/tmp/Oap/device_tests/CalculateDeviceOutput_HOST.log"));
+      std::string pathTraceFiles = "/tmp/Oap/device_tests/";
+      pathTraceFiles += testFilename;
+
+      EXPECT_THAT(trace1, StringIsEqual(trace2, pathTraceFiles + "_DEVICE.log", pathTraceFiles + "_HOST.log"));
 
       math::Matrix** deviceMatrices = deviceEVectors.get();
       math::Matrix** hostMatrices = hostEVectors.get();
@@ -292,5 +296,10 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
 
 TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
   oap::DataLoader::Info info("oap2dt3d/data/images_monkey", "image", 1000, true);
-  TestCuHArnoldiCallback::launchDataTest(info);
+  TestCuHArnoldiCallback::launchDataTest(info, "CalculateDeviceOutput");
+}
+
+TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput1) {
+  oap::DataLoader::Info info("oap2dt3d/data/images_monkey_1", "image_", 64, 100, true);
+  TestCuHArnoldiCallback::launchDataTest(info, "CalculateDeviceOutput1", 10, 10);
 }

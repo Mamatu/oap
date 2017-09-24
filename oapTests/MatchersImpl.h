@@ -319,7 +319,7 @@ class StringIsEqualMatcher
   std::string m_path2;
   public:
 
-  StringIsEqualMatcher(const std::string& str2, const char* path1, const char* path2) :
+  StringIsEqualMatcher(const std::string& str2, const std::string& path1, const std::string& path2) :
     m_str2(str2), m_path1(path1), m_path2(path2) {
   }
 
