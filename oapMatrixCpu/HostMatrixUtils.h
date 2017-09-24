@@ -219,6 +219,8 @@ floatt GetImValue(const math::Matrix* matrix, uintt column, uintt row);
 void SetImValue(const math::Matrix* matrix, uintt column, uintt row,
                 floatt value);
 
+std::string GetMatrixStr(const math::Matrix* matrix);
+
 /**
  * @brief PrintMatrix
  * @param text
@@ -226,7 +228,9 @@ void SetImValue(const math::Matrix* matrix, uintt column, uintt row,
  */
 void PrintMatrix(const std::string& text, const math::Matrix* matrix);
 
-std::string GetMatrixStr(const math::Matrix* matrix);
+void PrintMatrix(FILE* stream, const std::string& text, const math::Matrix* matrix);
+
+void PrintMatrix(FILE* stream, const math::Matrix* matrix);
 
 /**
  * @brief PrintMatrix
@@ -234,6 +238,9 @@ std::string GetMatrixStr(const math::Matrix* matrix);
  */
 void PrintMatrix(const math::Matrix* matrix);
 
+bool PrintMatrixToFile(const std::string& path, const std::string& text, const math::Matrix* matrix);
+
+bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix);
 /**
  * @brief PrintImMatrix
  * @param stream

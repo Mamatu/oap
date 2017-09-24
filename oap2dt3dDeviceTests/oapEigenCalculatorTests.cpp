@@ -263,8 +263,11 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
       MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, info, wantedEigensCount, maxIterationCount);
       getTraceOutput(trace2);
 
-      std::string pathTraceFiles = "/tmp/Oap/device_tests/";
+      std::string pathTestDir = "/tmp/Oap/device_tests/";
+      std::string pathTraceFiles = pathTestDir;
+      std::string pathMatrixFiles = pathTestDir;
       pathTraceFiles += testFilename;
+      pathMatrixFiles += "matrix";
 
       EXPECT_THAT(trace1, StringIsEqual(trace2, pathTraceFiles + "_DEVICE.log", pathTraceFiles + "_HOST.log"));
 
@@ -273,6 +276,8 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
       math::Matrix* hostMatrix = host::NewMatrix(hostEVectors.get()[0]);
       for (int fa = 0; fa < wantedEigensCount; ++fa) {
         device::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
+        
+        host::PrintMatrixToFile(pathMatrixFiles + "_" + std::to_string(fa) + ".txt", hostMatrix);
         EXPECT_THAT(hostMatrices[fa], MatrixIsEqual(hostMatrix, InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
       }
       host::DeleteMatrix(hostMatrix);

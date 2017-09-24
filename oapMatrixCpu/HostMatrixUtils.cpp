@@ -687,19 +687,42 @@ void SetImValue(const math::Matrix* matrix, uintt column, uintt row,
   }
 }
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix) {
-  std::string output = text + " ";
-  matrixUtils::PrintMatrix(output, matrix);
-  printf("%s HOST \n", output.c_str());
-}
-
 std::string GetMatrixStr(const math::Matrix* matrix) {
   std::string output;
   matrixUtils::PrintMatrix(output, matrix);
   return output;
 }
 
+void PrintMatrix(const std::string& text, const math::Matrix* matrix) {
+  PrintMatrix(stdout, text, matrix);
+}
+
+void PrintMatrix(FILE* stream, const std::string& text, const math::Matrix* matrix) {
+  std::string output = text;
+  if (text.size() > 0) {
+    output += " ";
+  }
+  matrixUtils::PrintMatrix(output, matrix);
+  fprintf(stream, "%s HOST \n", output.c_str());
+}
+
+void PrintMatrix(FILE* stream, const math::Matrix* matrix) {
+  PrintMatrix(stdout, "", matrix);
+}
+
 void PrintMatrix(const math::Matrix* matrix) { PrintMatrix("", matrix); }
+
+bool PrintMatrixToFile(const std::string& path, const std::string& text, const math::Matrix* matrix) {
+  FILE* file = fopen(path.c_str(), "w");
+  if (file == NULL) { return false; }
+  PrintMatrix(file, text, matrix);
+  fclose(file);
+  return true;
+}
+
+bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix) {
+  return PrintMatrixToFile(path, "", matrix);
+}
 
 void Copy(math::Matrix* dst, const math::Matrix* src, const MatrixEx& subMatrix,
           uintt column, uintt row) {
