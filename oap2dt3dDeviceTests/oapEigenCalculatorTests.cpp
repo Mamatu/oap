@@ -193,11 +193,11 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
     return output;
   }
 
-  static MatricesUPtr launchTest(ArnUtils::Type eigensType, int wantedEigensCount, int maxIterationCounter = 5) {
+  static MatricesUPtr launchTest(ArnUtils::Type eigensType, const oap::DataLoader::Info& info,
+                                 int wantedEigensCount, int maxIterationCounter = 5) {
+
     std::unique_ptr<oap::DeviceDataLoader> dataLoader(
-        oap::DeviceDataLoader::createDataLoader<oap::PngFile,
-                                                oap::DeviceDataLoader>(
-            "oap2dt3d/data/images_monkey", "image", 1000, true));
+        oap::DeviceDataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info));
 
     ArnoldiOperations ao(dataLoader.get());
     TestCuHArnoldiCallback cuharnoldi(&ao, maxIterationCounter);
@@ -247,6 +247,37 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
     return std::move(evectorsUPtr);
   }
 
+  static void launchDataTest(const oap::DataLoader::Info& info, int wantedEigensCount = 5, int maxIterationCount = 1) {
+    debugLongTest();
+    try {
+      std::string trace1;
+      std::string trace2;
+
+      initTraceBuffer(1024);
+      MatricesUPtr deviceEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::DEVICE, info, wantedEigensCount, maxIterationCount);
+      getTraceOutput(trace1);
+
+      initTraceBuffer(1024);
+      MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, info, wantedEigensCount, maxIterationCount);
+      getTraceOutput(trace2);
+
+      EXPECT_THAT(trace1, StringIsEqual(trace2,
+            "/tmp/Oap/device_tests/CalculateDeviceOutput_DEVICE.log", "/tmp/Oap/device_tests/CalculateDeviceOutput_HOST.log"));
+
+      math::Matrix** deviceMatrices = deviceEVectors.get();
+      math::Matrix** hostMatrices = hostEVectors.get();
+      math::Matrix* hostMatrix = host::NewMatrix(hostEVectors.get()[0]);
+      for (int fa = 0; fa < wantedEigensCount; ++fa) {
+        device::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
+        EXPECT_THAT(hostMatrices[fa], MatrixIsEqual(hostMatrix, InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
+      }
+      host::DeleteMatrix(hostMatrix);
+    } catch (const std::exception& ex) {
+      debugException(ex);
+      throw;
+    }
+  }
+
  private:
   ArnoldiOperations* m_ao;
   const int m_counterLimit;
@@ -260,34 +291,6 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
 }
 
 TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
-  debugLongTest();
-  try {
-    int wantedEigensCount = 5;
-    int maxIterationCount = 1;
-    std::string trace1;
-    std::string trace2;
-
-    initTraceBuffer(1024);
-    MatricesUPtr deviceEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::DEVICE, wantedEigensCount, maxIterationCount);
-    getTraceOutput(trace1);
-
-    initTraceBuffer(1024);
-    MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, wantedEigensCount, maxIterationCount);
-    getTraceOutput(trace2);
-
-    EXPECT_THAT(trace1, StringIsEqual(trace2,
-          "/tmp/Oap/device_tests/CalculateDeviceOutput_DEVICE.log", "/tmp/Oap/device_tests/CalculateDeviceOutput_HOST.log"));
-
-    math::Matrix** deviceMatrices = deviceEVectors.get();
-    math::Matrix** hostMatrices = hostEVectors.get();
-    math::Matrix* hostMatrix = host::NewMatrix(hostEVectors.get()[0]);
-    for (int fa = 0; fa < wantedEigensCount; ++fa) {
-      device::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
-      EXPECT_THAT(hostMatrices[fa], MatrixIsEqual(hostMatrix, InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
-    }
-    host::DeleteMatrix(hostMatrix);
-  } catch (const std::exception& ex) {
-    debugException(ex);
-    throw;
-  }
+  oap::DataLoader::Info info("oap2dt3d/data/images_monkey", "image", 1000, true);
+  TestCuHArnoldiCallback::launchDataTest(info);
 }
