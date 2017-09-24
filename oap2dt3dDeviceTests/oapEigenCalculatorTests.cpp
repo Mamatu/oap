@@ -304,7 +304,7 @@ TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
   TestCuHArnoldiCallback::launchDataTest(info, "CalculateDeviceOutput");
 }
 
-TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput1) {
+TEST_F(OapEigenCalculatorTests, DISABLED_CalculateDeviceOutput1) {
   oap::DataLoader::Info info("oap2dt3d/data/images_monkey_1", "image_", 64, 100, true);
   TestCuHArnoldiCallback::launchDataTest(info, "CalculateDeviceOutput1", 10, 10);
 }
