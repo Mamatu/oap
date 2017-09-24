@@ -118,14 +118,14 @@ std::string DataLoader::constructAbsPath(const std::string& dirPath) {
 
 std::string DataLoader::constructImagePath(const std::string& absPath,
                                            const std::string& nameBase,
-                                           size_t index, size_t count) {
+                                           size_t index, size_t dirFilesCount) {
   std::string imagePath = absPath;
   imagePath = imagePath + nameBase;
 
   std::stringstream sstream;
 
   size_t width = 0;
-  size_t temp = count;
+  size_t temp = dirFilesCount;
   while (temp >= 10) {
     ++width;
     temp = temp / 10;
