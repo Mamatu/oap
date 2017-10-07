@@ -938,6 +938,23 @@ void GetVector(floatt* revector, floatt* imvector, uintt length,
   }
 }
 
+void GetTransposeVector(math::Matrix* vector, math::Matrix* matrix, uintt column) {
+  if (vector->reValues != NULL) {
+    GetTransposeReVector(vector, matrix, column);
+  }
+  if (vector->imValues != NULL) {
+    GetTransposeImVector(vector, matrix, column);
+  }
+}
+
+void GetTransposeReVector(math::Matrix* vector, math::Matrix* matrix, uintt column) {
+  GetTransposeReVector(vector->reValues, matrix, column);
+}
+
+void GetTransposeImVector(math::Matrix* vector, math::Matrix* matrix, uintt column) {
+  GetTransposeImVector(vector->imValues, matrix, column);
+}
+
 void GetReVector(floatt* vector, uintt length, math::Matrix* matrix,
                  uintt column) {
   if (matrix->reValues) {

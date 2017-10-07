@@ -343,6 +343,12 @@ void GetVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
 void GetVector(floatt* revector, floatt* imvector, uintt length,
                math::Matrix* matrix, uintt column);
 
+void GetTransposeVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
+
+void GetTransposeReVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
+
+void GetTransposeImVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
+
 /**
  * @brief GetReVector
  * @param vector
