@@ -306,7 +306,7 @@ void split(Strings& pathes, const std::string& env, char c) {
 }
 
 void getSysPathes(Strings& pathes) {
-  char* cenvs = ::getenv("CUBIN_PATHES");
+  char* cenvs = ::getenv("OAP_CUBIN_PATH");
   if (cenvs != NULL) {
     std::string env = cenvs;
     split(pathes, env, ':');

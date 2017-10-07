@@ -1,10 +1,10 @@
 OAP_PATH := $(PWD)
 
-ifndef GMOCK_DIR
-$(error GMOCK_DIR is not set (should be main directory of gmock set))
+ifndef OAP_GMOCK_PATH
+$(error OAP_GMOCK_PATH is not set (should be main directory of gmock set))
 endif
 
-GTEST_DIR := $(GMOCK_DIR)/gtest
+GTEST_DIR := $(OAP_GMOCK_PATH)/gtest
 
 $(shell test -d /tmp/Oap/tests_data || mkdir -p /tmp/Oap/tests_data)
 $(shell test -d /tmp/Oap/conversion_data || mkdir -p /tmp/Oap/conversion_data)
