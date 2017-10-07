@@ -2,6 +2,7 @@
 #define MATRIXINFO_H
 
 #include "Matrix.h"
+#include <cstddef>
 
 namespace math {
 
@@ -16,6 +17,14 @@ class MatrixInfo {
       : isRe(_isRe), isIm(_isIm) {
     m_matrixDim.columns = _columns;
     m_matrixDim.rows = _rows;
+  }
+
+  inline MatrixInfo(math::Matrix* hostMatrix) {
+    isRe = hostMatrix->reValues != NULL;
+    isIm = hostMatrix->imValues != NULL;
+
+    m_matrixDim.columns = hostMatrix->columns;
+    m_matrixDim.rows = hostMatrix->rows;
   }
 
   math::MatrixDim m_matrixDim;
