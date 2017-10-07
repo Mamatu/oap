@@ -8,3 +8,6 @@ oapShibataMgr/dist/
 oapDeviceTests/dist/
 oapHostTests/dist/
 dist
+oap2dt3d/data/
+oap2dt3dFuncTests/data/
+oapDeviceTests/data/
