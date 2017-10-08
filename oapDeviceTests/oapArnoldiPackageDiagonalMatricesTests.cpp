@@ -41,18 +41,18 @@ using GetValue = std::function<floatt(size_t xy)>;
 
 class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
   public:
-    CuHArnoldiCallback* arnoldiCuda;
-    CuMatrix* cuMatrix;
+    CuHArnoldiCallback* m_arnoldiCuda;
+    CuMatrix* m_cuMatrix;
 
     virtual void SetUp() {
       device::Context::Instance().create();
-      arnoldiCuda = new CuHArnoldiCallback();
-      cuMatrix = new CuMatrix();
+      m_arnoldiCuda = new CuHArnoldiCallback();
+      m_cuMatrix = new CuMatrix();
     }
 
     virtual void TearDown() {
-      delete cuMatrix;
-      delete arnoldiCuda;
+      delete m_cuMatrix;
+      delete m_arnoldiCuda;
       device::Context::Instance().destroy();
     }
 
@@ -105,16 +105,16 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
               host::NewReMatrix(1, hmatrix->rows),
               device::NewDeviceReMatrix(1, hmatrix->rows),
               device::NewDeviceReMatrix(1, 1),
-              cuMatrix
+              m_cuMatrix
       };
 
-      arnoldiCuda->setOutputType(ArnUtils::HOST);
+      m_arnoldiCuda->setOutputType(ArnUtils::HOST);
 
-      arnoldiCuda->setCallback(multiply, &hmatrix);
-      arnoldiCuda->setBLimit(0.01);
-      arnoldiCuda->setRho(1. / 3.14159265359);
-      arnoldiCuda->setSortType(ArnUtils::SortLargestReValues);
-      arnoldiCuda->setCheckType(ArnUtils::CHECK_FIRST_STOP);
+      m_arnoldiCuda->setCallback(multiply, &userData);
+      m_arnoldiCuda->setBLimit(0.01);
+      m_arnoldiCuda->setRho(1. / 3.14159265359);
+      m_arnoldiCuda->setSortType(ArnUtils::SortLargestReValues);
+      m_arnoldiCuda->setCheckType(ArnUtils::CHECK_FIRST_STOP);
       
       floatt* revalues = new floatt[wanted];
       math::Matrix** revectors = new math::Matrix*[wanted];
@@ -123,15 +123,18 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
         revectors[idx] = host::NewReMatrix(1, hmatrix->rows);
       }
 
-      arnoldiCuda->setOutputsEigenvalues(revalues, NULL);
-      arnoldiCuda->setOutputsEigenvectors(revectors);
+      m_arnoldiCuda->setOutputsEigenvalues(revalues, NULL);
+      m_arnoldiCuda->setOutputsEigenvectors(revectors);
       
       math::MatrixInfo matrixInfo(hmatrix);
 
       debugLongTest();
 
-      arnoldiCuda->execute(hdim, wanted, matrixInfo);
+      m_arnoldiCuda->execute(hdim, wanted, matrixInfo);
       delete[] revalues;
+      for (size_t idx = 0; idx < wanted; ++idx) {
+        host::DeleteMatrix(revectors[idx]);
+      }
     }
 
     void executeDiagonalMatrixTest(size_t size, GetValue getValue) {
@@ -140,6 +143,6 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
     }
 };
 
-TEST_F(OapArnoldiPackageDiagonalMatricesTests, DISABLED_Test1) {
+TEST_F(OapArnoldiPackageDiagonalMatricesTests, Test1) {
   executeDiagonalMatrixTest(100, [](size_t xy) -> floatt { return xy; });
 }
