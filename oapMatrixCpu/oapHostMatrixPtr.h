@@ -29,6 +29,19 @@ namespace oap {
     public:
       HostMatrixPtr(math::Matrix* matrix) : oap::MatrixPtr(matrix, host::DeleteMatrix) {}
   };
+
+  class HostMatricesPtr : public oap::MatricesPtr {
+    public:
+      HostMatricesPtr(math::Matrix** matrices, unsigned int count) : oap::MatricesPtr(matrices, deleters::MatricesDeleter(count, host::DeleteMatrix)) {}
+
+      HostMatricesPtr(std::initializer_list<math::Matrix*> matrices) :
+        oap::MatricesPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), host::DeleteMatrix)) {}
+  };
+
+  template<template<typename, typename> class Container>
+  HostMatricesPtr makeHostMatricesPtr(const Container<math::Matrix*, std::allocator<math::Matrix*> >& matrices) {
+    return smartptr_utils::makeSmartPtr<HostMatricesPtr>(matrices);
+  }
 }
 
 #endif

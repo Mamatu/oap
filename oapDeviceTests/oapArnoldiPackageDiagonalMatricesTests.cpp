@@ -77,7 +77,7 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
       }
     }
 
-    oap::HostMatrixPtr createMatrix(size_t size, GetValue getValue)
+    oap::HostMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
     {
         oap::HostMatrixPtr hmatrix = host::NewMatrix(size, size, 0);
 
@@ -96,9 +96,8 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
       CuMatrix* cuMatrix;
     };
 
-    void executeDiagonalMatrixTest(oap::HostMatrixPtr hmatrix) {
-      uintt wanted = 1;
-      uint hdim = 32;
+    void executeDiagonalMatrixTest(oap::HostMatrixPtr hmatrix, uint wanted) {
+      const uint hdim = 32;
 
       UserData userData = {
               hmatrix,
@@ -117,14 +116,17 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
       m_arnoldiCuda->setCheckType(ArnUtils::CHECK_FIRST_STOP);
       
       floatt* revalues = new floatt[wanted];
-      math::Matrix** revectors = new math::Matrix*[wanted];
+
+      std::vector<math::Matrix*> revectors;
 
       for (size_t idx = 0; idx < wanted; ++idx) {
-        revectors[idx] = host::NewReMatrix(1, hmatrix->rows);
+        revectors.push_back(host::NewReMatrix(1, hmatrix->rows));
       }
 
+      oap::HostMatricesPtr revectorsPtr = oap::makeHostMatricesPtr<std::vector>(revectors);
+
       m_arnoldiCuda->setOutputsEigenvalues(revalues, NULL);
-      m_arnoldiCuda->setOutputsEigenvectors(revectors);
+      m_arnoldiCuda->setOutputsEigenvectors(revectorsPtr);
       
       math::MatrixInfo matrixInfo(hmatrix);
 
@@ -132,17 +134,14 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
 
       m_arnoldiCuda->execute(hdim, wanted, matrixInfo);
       delete[] revalues;
-      for (size_t idx = 0; idx < wanted; ++idx) {
-        host::DeleteMatrix(revectors[idx]);
-      }
     }
 
-    void executeDiagonalMatrixTest(size_t size, GetValue getValue) {
-      oap::HostMatrixPtr hmatrix = createMatrix(size, getValue);
-      executeDiagonalMatrixTest(hmatrix);
+    void executeDiagonalMatrixTest(size_t size, GetValue getValue, uint wanted) {
+      oap::HostMatrixPtr hmatrix = createSquareMatrix(size, getValue);
+      executeDiagonalMatrixTest(hmatrix, wanted);
     }
 };
 
 TEST_F(OapArnoldiPackageDiagonalMatricesTests, Test1) {
-  executeDiagonalMatrixTest(100, [](size_t xy) -> floatt { return xy; });
+  executeDiagonalMatrixTest(100, [](size_t xy) -> floatt { return xy; }, 10);
 }

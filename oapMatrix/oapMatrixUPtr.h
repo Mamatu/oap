@@ -24,18 +24,29 @@
 #include "Math.h"
 #include "Matrix.h"
 
-namespace {
-  using DeleterType = void(*)(math::Matrix*);
-}
+#include "oapSmartPointerUtils.h"
 
 namespace oap {
-  class MatrixUPtr : public std::unique_ptr<math::Matrix, ::DeleterType> {
+  class MatrixUPtr : public std::unique_ptr<math::Matrix, deleters::MatrixDeleter> {
     public:
-      MatrixUPtr(math::Matrix* matrix, ::DeleterType deleter) : std::unique_ptr<math::Matrix, ::DeleterType>(matrix, deleter) {}
-    
+      MatrixUPtr(math::Matrix* matrix, deleters::MatrixDeleter deleter) : std::unique_ptr<math::Matrix, deleters::MatrixDeleter>(matrix, deleter) {}
+
       operator math::Matrix*() { return this->get(); }
-  
+
       math::Matrix* operator->() { return this->get(); }
+  };
+
+  class MatricesUPtr : public std::unique_ptr<math::Matrix*, deleters::MatricesDeleter> {
+    public:
+      MatricesUPtr(math::Matrix** matrices, deleters::MatricesDeleter deleter) :
+        std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>(matrices, deleter) {}
+
+      MatricesUPtr(std::initializer_list<math::Matrix*> matrices, deleters::MatricesDeleter deleter) :
+        std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>(smartptr_utils::makeArray(matrices), deleter) {}
+
+      operator math::Matrix**() { return this->get(); }
+
+      math::Matrix** operator->() { return this->get(); }
   };
 }
 

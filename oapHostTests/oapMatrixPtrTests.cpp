@@ -23,10 +23,11 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "DebugLogs.h"
+#include "oapHostMatrixPtr.h"
+#include "oapHostMatrixUPtr.h"
 
 
-class OapUtilsTests : public testing::Test {
+class OapMatrixPtrTests : public testing::Test {
 public:
 
     virtual void SetUp() {
@@ -36,35 +37,23 @@ public:
     }
 };
 
-void testFunction2() {
-  traceFunction();
+TEST_F(OapMatrixPtrTests, MemLeakPtrTest) {
+  std::vector<math::Matrix*> vec = {
+    host::NewReMatrix(10, 10),
+    host::NewReMatrix(10, 10),
+    host::NewReMatrix(10, 10)
+  };
+
+  oap::HostMatricesPtr ptr = oap::makeHostMatricesPtr(vec);
 }
 
-void testFunction1() {
-  traceFunction();
-  testFunction2();
+TEST_F(OapMatrixPtrTests, MemLeakUPtrTest) {
+  std::vector<math::Matrix*> vec = {
+    host::NewReMatrix(10, 10),
+    host::NewReMatrix(10, 10),
+    host::NewReMatrix(10, 10)
+  };
+
+  oap::HostMatricesUPtr ptr = oap::makeHostMatricesUPtr(vec);
 }
 
-void testFunction() {
-  traceFunction();
-  testFunction1();
-}
-
-TEST_F(OapUtilsTests, TraceLogTest) {
-  initTraceBuffer(1024);
-  testFunction();
-
-  std::string buffer;
-  getTraceOutput(buffer);
-
-  debug("%s", buffer.c_str());
-
-  std::size_t pos = buffer.find("testFunction");
-  EXPECT_NE(pos, std::string::npos);
-
-  pos = buffer.find("testFunction1");
-  EXPECT_NE(pos, std::string::npos);
-
-  pos = buffer.find("testFunction2");
-  EXPECT_NE(pos, std::string::npos);
-}

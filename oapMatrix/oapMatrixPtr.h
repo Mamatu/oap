@@ -24,18 +24,28 @@
 #include "Math.h"
 #include "Matrix.h"
 
-namespace {
-  using DeleterType = void(*)(math::Matrix*);
-}
+#include "oapSmartPointerUtils.h"
 
 namespace oap {
   class MatrixPtr : public std::shared_ptr<math::Matrix> {
     public:
-      MatrixPtr(math::Matrix* matrix, ::DeleterType deleter) : std::shared_ptr<math::Matrix>(matrix, deleter) {}
+      MatrixPtr(math::Matrix* matrix, deleters::MatrixDeleter deleter) : std::shared_ptr<math::Matrix>(matrix, deleter) {}
 
       operator math::Matrix*() { return this->get(); }
 
       math::Matrix* operator->() { return this->get(); }
+  };
+
+  class MatricesPtr : public std::shared_ptr<math::Matrix*> {
+    public:
+      MatricesPtr(math::Matrix** matrices, deleters::MatricesDeleter deleter) : std::shared_ptr<math::Matrix*>(matrices, deleter) {}
+
+      MatricesPtr(std::initializer_list<math::Matrix*> matrices, deleters::MatricesDeleter deleter) :
+        std::shared_ptr<math::Matrix*>(smartptr_utils::makeArray(matrices), deleter) {}
+
+      operator math::Matrix**() { return this->get(); }
+
+      math::Matrix** operator->() { return this->get(); }
   };
 }
 
