@@ -123,7 +123,7 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
         revectors.push_back(host::NewReMatrix(1, hmatrix->rows));
       }
 
-      oap::HostMatricesPtr revectorsPtr = oap::makeHostMatricesPtr<std::vector>(revectors);
+      oap::HostMatricesPtr revectorsPtr = oap::makeHostMatricesPtr(revectors);
 
       m_arnoldiCuda->setOutputsEigenvalues(revalues, NULL);
       m_arnoldiCuda->setOutputsEigenvectors(revectorsPtr);
