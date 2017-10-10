@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HOSTMATRIXUPTR_H
-#define HOSTMATRIXUPTR_H
+#ifndef OAP_HOSTMATRIXUPTR_H
+#define OAP_HOSTMATRIXUPTR_H
 
 #include "HostMatrixUtils.h"
 #include "Math.h"
