@@ -22,20 +22,22 @@
 
 #include "HostMatrixUtils.h"
 #include "Math.h"
-#include "oapMatrixUPtr.h"
+
+#include "oapMatrixSPtr.h"
 
 namespace oap {
-  class HostMatrixUPtr : public oap::MatrixUPtr {
+  class HostMatrixUPtr : public oap::MatrixSPtr<oap::MatrixUniquePtr> {
     public:
-      HostMatrixUPtr(math::Matrix* matrix) : oap::MatrixUPtr(matrix, host::DeleteMatrix) {}
+      HostMatrixUPtr(math::Matrix* matrix) : oap::MatrixSPtr<oap::MatrixUniquePtr>(matrix, host::DeleteMatrix) {}
   };
 
-  class HostMatricesUPtr : public oap::MatricesUPtr {
+  class HostMatricesUPtr : public oap::MatricesSPtr<oap::MatricesUniquePtr> {
     public:
-      HostMatricesUPtr(math::Matrix** matrices, unsigned int count) : oap::MatricesUPtr(matrices, deleters::MatricesDeleter(count, host::DeleteMatrix)) {}
+      HostMatricesUPtr(math::Matrix** matrices, unsigned int count) :
+        oap::MatricesSPtr<oap::MatricesUniquePtr>(matrices, deleters::MatricesDeleter(count, host::DeleteMatrix)) {}
 
       HostMatricesUPtr(std::initializer_list<math::Matrix*> matrices) :
-        oap::MatricesUPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), host::DeleteMatrix)) {}
+        oap::MatricesSPtr<oap::MatricesUniquePtr>(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), host::DeleteMatrix)) {}
   };
 
   template<template<typename, typename> class Container>

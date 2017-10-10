@@ -17,26 +17,27 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAPDEVICEMATRIXUPTR_H
-#define OAPDEVICEMATRIXUPTR_H
+#ifndef OAP_DEVICEMATRIXUPTR_H
+#define OAP_DEVICEMATRIXUPTR_H
 
-#include "oapMatrixUPtr.h"
 #include "Math.h"
 #include "DeviceMatrixModules.h"
 
+#include "oapMatrixSPtr.h"
 
 namespace oap {
-  class DeviceMatrixUPtr : public oap::MatrixUPtr {
+  class DeviceMatrixUPtr : public oap::MatrixSPtr<oap::MatrixUniquePtr> {
     public:
-      DeviceMatrixUPtr(math::Matrix* matrix) : oap::MatrixUPtr(matrix, device::DeleteDeviceMatrix) {}
+      DeviceMatrixUPtr(math::Matrix* matrix) : oap::MatrixSPtr<oap::MatrixUniquePtr>(matrix, device::DeleteDeviceMatrix) {}
   };
 
-  class DeviceMatricesUPtr : public oap::MatricesUPtr {
+  class DeviceMatricesUPtr : public oap::MatricesSPtr<oap::MatricesUniquePtr> {
     public:
-      DeviceMatricesUPtr(math::Matrix** matrices, unsigned int count) : oap::MatricesUPtr(matrices, deleters::MatricesDeleter(count, device::DeleteDeviceMatrix)) {}
+      DeviceMatricesUPtr(math::Matrix** matrices, unsigned int count) :
+        oap::MatricesSPtr<oap::MatricesUniquePtr>(matrices, deleters::MatricesDeleter(count, device::DeleteDeviceMatrix)) {}
 
       DeviceMatricesUPtr(std::initializer_list<math::Matrix*> matrices) :
-        oap::MatricesUPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), device::DeleteDeviceMatrix)) {}
+        oap::MatricesSPtr<oap::MatricesUniquePtr>(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), device::DeleteDeviceMatrix)) {}
   };
 
   template<template<typename, typename> class Container>

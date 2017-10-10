@@ -17,25 +17,27 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAPDEVICEMATRIXPTR_H
-#define OAPDEVICEMATRIXPTR_H
+#ifndef OAP_DEVICEMATRIXPTR_H
+#define OAP_DEVICEMATRIXPTR_H
 
-#include "oapMatrixPtr.h"
 #include "Math.h"
 #include "DeviceMatrixModules.h"
 
+#include "oapMatrixSPtr.h"
+
 namespace oap {
-  class DeviceMatrixPtr : public oap::MatrixPtr {
+  class DeviceMatrixPtr : public oap::MatrixSPtr<oap::MatrixSharedPtr> {
     public:
-      DeviceMatrixPtr(math::Matrix* matrix) : oap::MatrixPtr(matrix, device::DeleteDeviceMatrix) {}
+      DeviceMatrixPtr(math::Matrix* matrix) : oap::MatrixSPtr<oap::MatrixSharedPtr>(matrix, device::DeleteDeviceMatrix) {}
   };
 
-  class DeviceMatricesPtr : public oap::MatricesPtr {
+  class DeviceMatricesPtr : public oap::MatricesSPtr<oap::MatricesSharedPtr> {
     public:
-      DeviceMatricesPtr(math::Matrix** matrices, unsigned int count) : oap::MatricesPtr(matrices, deleters::MatricesDeleter(count, device::DeleteDeviceMatrix)) {}
+      DeviceMatricesPtr(math::Matrix** matrices, unsigned int count) :
+        oap::MatricesSPtr<oap::MatricesSharedPtr>(matrices, deleters::MatricesDeleter(count, device::DeleteDeviceMatrix)) {}
 
       DeviceMatricesPtr(std::initializer_list<math::Matrix*> matrices) :
-          oap::MatricesPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), device::DeleteDeviceMatrix)) {}
+        oap::MatricesSPtr<oap::MatricesSharedPtr>(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), device::DeleteDeviceMatrix)) {}
   };
 
   template<template<typename, typename> class Container>

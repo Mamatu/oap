@@ -17,25 +17,27 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HOSTMATRIXPTR_H
-#define HOSTMATRIXPTR_H
+#ifndef OAP_HOSTMATRIXPTR_H
+#define OAP_HOSTMATRIXPTR_H
 
 #include "HostMatrixUtils.h"
 #include "Math.h"
-#include "oapMatrixPtr.h"
+
+#include "oapMatrixSPtr.h"
 
 namespace oap {
-  class HostMatrixPtr : public oap::MatrixPtr {
+  class HostMatrixPtr : public oap::MatrixSPtr<oap::MatrixSharedPtr> {
     public:
-      HostMatrixPtr(math::Matrix* matrix) : oap::MatrixPtr(matrix, host::DeleteMatrix) {}
+      HostMatrixPtr(math::Matrix* matrix) : oap::MatrixSPtr<oap::MatrixSharedPtr>(matrix, host::DeleteMatrix) {}
   };
 
-  class HostMatricesPtr : public oap::MatricesPtr {
+  class HostMatricesPtr : public oap::MatricesSPtr<oap::MatricesSharedPtr> {
     public:
-      HostMatricesPtr(math::Matrix** matrices, unsigned int count) : oap::MatricesPtr(matrices, deleters::MatricesDeleter(count, host::DeleteMatrix)) {}
+      HostMatricesPtr(math::Matrix** matrices, unsigned int count) :
+        oap::MatricesSPtr<oap::MatricesSharedPtr>(matrices, deleters::MatricesDeleter(count, host::DeleteMatrix)) {}
 
       HostMatricesPtr(std::initializer_list<math::Matrix*> matrices) :
-        oap::MatricesPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), host::DeleteMatrix)) {}
+        oap::MatricesSPtr<oap::MatricesSharedPtr>(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), host::DeleteMatrix)) {}
   };
 
   template<template<typename, typename> class Container>

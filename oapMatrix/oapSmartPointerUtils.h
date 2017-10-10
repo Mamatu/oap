@@ -23,9 +23,11 @@
 #include <algorithm>
 #include <initializer_list>
 #include <iterator>
+#include <memory>
 #include <vector>
 
 #include "Matrix.h"
+
 
 namespace deleters {
 

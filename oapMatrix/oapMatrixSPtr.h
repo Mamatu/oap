@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MATRIXUPTR_H
-#define MATRIXUPTR_H
+#ifndef OAP_MATRIXSPTR_H
+#define OAP_MATRIXSPTR_H
 
 #include <memory>
 #include "Math.h"
@@ -27,28 +27,41 @@
 #include "oapSmartPointerUtils.h"
 
 namespace oap {
-  class MatrixUPtr : public std::unique_ptr<math::Matrix, deleters::MatrixDeleter> {
+
+  template<class StdMatrixPtr>
+  class MatrixSPtr : public StdMatrixPtr {
     public:
-      MatrixUPtr(math::Matrix* matrix, deleters::MatrixDeleter deleter) : std::unique_ptr<math::Matrix, deleters::MatrixDeleter>(matrix, deleter) {}
+      MatrixSPtr(math::Matrix* matrix, deleters::MatrixDeleter deleter) : StdMatrixPtr(matrix, deleter) {}
 
       operator math::Matrix*() { return this->get(); }
 
       math::Matrix* operator->() { return this->get(); }
   };
 
-  class MatricesUPtr : public std::unique_ptr<math::Matrix*, deleters::MatricesDeleter> {
+  template<class StdMatrixPtr>
+  class MatricesSPtr : public StdMatrixPtr {
     public:
-      MatricesUPtr(math::Matrix** matrices, deleters::MatricesDeleter deleter) :
-        std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>(matrices, deleter) {}
+      MatricesSPtr(math::Matrix** matrices, deleters::MatricesDeleter deleter) : StdMatrixPtr(matrices, deleter) {}
 
-      MatricesUPtr(std::initializer_list<math::Matrix*> matrices, deleters::MatricesDeleter deleter) :
-        std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>(smartptr_utils::makeArray(matrices), deleter) {}
+      MatricesSPtr(std::initializer_list<math::Matrix*> matrices, deleters::MatricesDeleter deleter) :
+        StdMatrixPtr(smartptr_utils::makeArray(matrices), deleter) {}
 
       operator math::Matrix**() { return this->get(); }
 
       math::Matrix** operator->() { return this->get(); }
   };
 }
+
+namespace oap {
+  using MatrixSharedPtr = std::shared_ptr<math::Matrix>;
+
+  using MatricesSharedPtr = std::shared_ptr<math::Matrix*>;
+
+  using MatrixUniquePtr = std::unique_ptr<math::Matrix, deleters::MatrixDeleter>;
+
+  using MatricesUniquePtr = std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>;
+}
+
 
 #endif
 
