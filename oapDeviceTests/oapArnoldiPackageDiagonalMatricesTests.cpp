@@ -68,12 +68,11 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
       CuMatrix* cuMatrix = userDataObj->cuMatrix;
 
       for (size_t idx = 0; idx < hmatrix->columns; ++idx) {
-
         host::GetTransposeReVector(hvectorT, hmatrix, idx);
         device::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
+        device::PrintMatrix("dT =", dvectorT);
         cuMatrix->dotProduct(dvalue, dvectorT, m_w);
         device::SetMatrix(m_w, dvalue, 0, idx);
-
       }
     }
 
@@ -96,8 +95,12 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
       CuMatrix* cuMatrix;
     };
 
-    void executeDiagonalMatrixTest(oap::HostMatrixPtr hmatrix, uint wanted) {
+    void executeDiagonalMatrixTest(oap::HostMatrixPtr hmatrix, const std::vector<floatt>& expectedValues) {
       const uint hdim = 32;
+
+      debugLongTest();
+
+      host::PrintMatrix("h =", hmatrix);
 
       UserData userData = {
               hmatrix,
@@ -113,9 +116,11 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
       m_arnoldiCuda->setBLimit(0.01);
       m_arnoldiCuda->setRho(1. / 3.14159265359);
       m_arnoldiCuda->setSortType(ArnUtils::SortLargestReValues);
-      m_arnoldiCuda->setCheckType(ArnUtils::CHECK_FIRST_STOP);
-      
-      floatt* revalues = new floatt[wanted];
+      //m_arnoldiCuda->setCheckType(ArnUtils::CHECK_FIRST_STOP);
+
+      uint wanted = expectedValues.size();
+
+      std::unique_ptr<floatt[]> revalues(new floatt[wanted]);
 
       std::vector<math::Matrix*> revectors;
 
@@ -125,23 +130,24 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
 
       oap::HostMatricesPtr revectorsPtr = oap::makeHostMatricesPtr(revectors);
 
-      m_arnoldiCuda->setOutputsEigenvalues(revalues, NULL);
+      m_arnoldiCuda->setOutputsEigenvalues(revalues.get(), NULL);
       m_arnoldiCuda->setOutputsEigenvectors(revectorsPtr);
       
       math::MatrixInfo matrixInfo(hmatrix);
 
-      debugLongTest();
-
       m_arnoldiCuda->execute(hdim, wanted, matrixInfo);
-      delete[] revalues;
+
+      std::vector<floatt> outputValues(&revalues[0], &revalues[wanted]);
+
+      EXPECT_EQ(expectedValues, outputValues);
     }
 
-    void executeDiagonalMatrixTest(size_t size, GetValue getValue, uint wanted) {
+    void executeDiagonalMatrixTest(size_t size, GetValue getValue, const std::vector<floatt>& expectedValues) {
       oap::HostMatrixPtr hmatrix = createSquareMatrix(size, getValue);
-      executeDiagonalMatrixTest(hmatrix, wanted);
+      executeDiagonalMatrixTest(hmatrix, expectedValues);
     }
 };
 
-TEST_F(OapArnoldiPackageDiagonalMatricesTests, Test1) {
-  executeDiagonalMatrixTest(100, [](size_t xy) -> floatt { return xy; }, 10);
+TEST_F(OapArnoldiPackageDiagonalMatricesTests, DISABLED_Test1) {
+  executeDiagonalMatrixTest(100, [](size_t xy) -> floatt { return xy + 1; }, {100, 99, 98, 97});
 }
