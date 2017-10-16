@@ -53,8 +53,7 @@ namespace deleters {
 namespace smartptr_utils {
 
   template<template<typename, typename> class Container, typename T>
-  T* makeArray(const Container<T, std::allocator<T> >& list) {
-    std::vector<T> vec(list);
+  T* makeArray(const Container<T, std::allocator<T> >& vec) {
     T* array = new T[vec.size()];
     std::copy(vec.begin(), vec.end(), array);
     return array;
@@ -63,9 +62,7 @@ namespace smartptr_utils {
   template<template<typename> class Container, typename T>
   T* makeArray(const Container<T>& list) {
     std::vector<T> vec(list);
-    T* array = new T[vec.size()];
-    std::copy(vec.begin(), vec.end(), array);
-    return array;
+    return makeArray(vec);
   }
 
   template<template<typename, typename>class Container, typename T>
