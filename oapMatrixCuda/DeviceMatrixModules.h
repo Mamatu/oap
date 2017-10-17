@@ -208,8 +208,11 @@ void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
 void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
               uintt index);
 
-void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
-               uintt row);
+void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+
+void SetReMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+
+void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
 math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
 

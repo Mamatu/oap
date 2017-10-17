@@ -295,7 +295,8 @@ void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
 }
 
 void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
-               uintt row) {
+               uintt row)
+{
   uintt columns = CudaUtils::GetColumns(matrix);
   uintt columns1 = CudaUtils::GetColumns(matrix1);
   uintt rows1 = CudaUtils::GetRows(matrix1);
@@ -308,8 +309,48 @@ void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
 
   for (uintt fa = 0; fa < rows1; ++fa) {
     uintt index = column + columns * (row + fa);
+    if (dstreptr != NULL && srcreptr != NULL) {
+      CudaUtils::CopyDeviceToDevice(dstreptr + index, srcreptr + columns1 * fa,
+           columns1 * sizeof(floatt));
+    }
+    if (dstimptr != NULL && srcimptr != NULL) {
+      CudaUtils::CopyDeviceToDevice(dstimptr + index, srcimptr + columns1 * fa,
+          columns1 * sizeof(floatt));
+    }
+  }
+}
+
+void SetReMatrix(math::Matrix* matrix, math::Matrix* matrix1,
+                uintt column, uintt row)
+{
+  uintt columns = CudaUtils::GetColumns(matrix);
+  uintt columns1 = CudaUtils::GetColumns(matrix1);
+  uintt rows1 = CudaUtils::GetRows(matrix1);
+
+  floatt* dstreptr = CudaUtils::GetReValues(matrix);
+
+  floatt* srcreptr = CudaUtils::GetReValues(matrix1);
+
+  for (uintt fa = 0; fa < rows1; ++fa) {
+    uintt index = column + columns * (row + fa);
     CudaUtils::CopyDeviceToDevice(dstreptr + index, srcreptr + columns1 * fa,
                                   columns1 * sizeof(floatt));
+  }
+}
+
+void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
+               uintt row)
+{
+  uintt columns = CudaUtils::GetColumns(matrix);
+  uintt columns1 = CudaUtils::GetColumns(matrix1);
+  uintt rows1 = CudaUtils::GetRows(matrix1);
+
+  floatt* dstimptr = CudaUtils::GetImValues(matrix);
+
+  floatt* srcimptr = CudaUtils::GetImValues(matrix1);
+
+  for (uintt fa = 0; fa < rows1; ++fa) {
+    uintt index = column + columns * (row + fa);
     CudaUtils::CopyDeviceToDevice(dstimptr + index, srcimptr + columns1 * fa,
                                   columns1 * sizeof(floatt));
   }
