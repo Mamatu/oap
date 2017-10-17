@@ -121,6 +121,33 @@ class CuMatrix {
 
  private:
   enum QRType { NORMAL, OPT };
+  enum Type { HOST, CUDA };
+
+  CUresult m_cuResult;
+
+  int* m_doutputIsTriangular;
+  floatt* m_magniuteOutput;
+
+  bool m_isIntialized;
+  device::Kernel m_kernel;
+  uintt m_maxThreadsPerBlock;
+  uintt m_compareOperationOutput;
+
+  uintt m_columns;
+  uintt m_rows;
+
+  bool m_isSetColumns;
+  bool m_isSetRows;
+
+  CuMatrix(const CuMatrix&);
+
+  void init();
+
+  void prepareDims(uintt w, uintt h);
+
+  CUresult execute(const char* functionName, uintt w, uintt h, void** params,
+                   uintt sharedMemory, bool _prepareDims = true);
+
 
   void qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* R,
                    math::Matrix* A, math::Matrix* AT, math::Matrix* P,
@@ -135,11 +162,11 @@ class CuMatrix {
                              uintt wthreads, uintt hthreads);
 
   floatt magnitude2Procedure_GetOutput(uintt blocks[2], uintt outputSize) const;
-
-  CUresult m_cuResult;
-  floatt* m_magniuteOutput;
-
-  enum Type { HOST, CUDA };
+  inline void resetFlags() {
+    m_isSetRows = false;
+    m_isSetColumns = false;
+  }
+private:
 
   template <typename T>
   class Buffer {
@@ -170,33 +197,6 @@ class CuMatrix {
   Buffer<int> m_hisuppertriangularOutputBuffer;
   Buffer<floatt> m_dqrSums;
   Buffer<floatt> m_dqrBuffer;
-
-  int* m_doutputIsTriangular;
-
-  template <typename T1>
-  friend class Buffer;
-
- private:
-  void init();
-
-  void prepareDims(uintt w, uintt h);
-  CUresult execute(const char* functionName, uintt w, uintt h, void** params,
-                   uintt sharedMemory, bool _prepareDims = true);
-
-  bool m_isIntialized;
-  device::Kernel m_kernel;
-  uintt m_maxThreadsPerBlock;
-  uintt m_compareOperationOutput;
-  CuMatrix(const CuMatrix&);
-  uintt m_columns;
-  bool m_isSetColumns;
-  uintt m_rows;
-  bool m_isSetRows;
-
-  inline void resetFlags() {
-    m_isSetRows = false;
-    m_isSetColumns = false;
-  }
 };
 
 template <typename T>
