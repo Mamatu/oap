@@ -64,60 +64,60 @@ CuDevice::CuDevice() {}
 
 CuDevice::~CuDevice() {}
 
-DefaultDeviceInfo::DefaultDeviceInfo() : m_cuDevice(0) {}
+CuDeviceInfo::CuDeviceInfo() : m_cuDevice(0) {}
 
-DefaultDeviceInfo::DefaultDeviceInfo(const DefaultDeviceInfo& orig)
+CuDeviceInfo::CuDeviceInfo(const CuDeviceInfo& orig)
     : m_cuDevice(orig.m_cuDevice) {}
 
-DefaultDeviceInfo::~DefaultDeviceInfo() { m_cuDevice = 0; }
+CuDeviceInfo::~CuDeviceInfo() { m_cuDevice = 0; }
 
-CUdevice DefaultDeviceInfo::getDevice() const { return m_cuDevice; }
+CUdevice CuDeviceInfo::getDevice() const { return m_cuDevice; }
 
-void DefaultDeviceInfo::getDeviceProperties(CUdevprop& cuDevprop) const {
+void CuDeviceInfo::getDeviceProperties(CUdevprop& cuDevprop) const {
   printCuError(cuDeviceGetProperties(&cuDevprop, m_cuDevice));
 }
 
-uint DefaultDeviceInfo::getMaxThreadsPerBlock() const {
+uint CuDeviceInfo::getMaxThreadsPerBlock() const {
   CUdevprop cuDevprop;
   getDeviceProperties(cuDevprop);
   return cuDevprop.maxThreadsPerBlock;
 }
 
-uint DefaultDeviceInfo::getMaxThreadsX() const {
+uint CuDeviceInfo::getMaxThreadsX() const {
   CUdevprop cuDevprop;
   getDeviceProperties(cuDevprop);
   return cuDevprop.maxThreadsDim[0];
 }
 
-uint DefaultDeviceInfo::getMaxThreadsY() const {
+uint CuDeviceInfo::getMaxThreadsY() const {
   CUdevprop cuDevprop;
   getDeviceProperties(cuDevprop);
   return cuDevprop.maxThreadsDim[1];
 }
 
-uint DefaultDeviceInfo::getMaxBlocksX() const {
+uint CuDeviceInfo::getMaxBlocksX() const {
   CUdevprop cuDevprop;
   getDeviceProperties(cuDevprop);
   return cuDevprop.maxGridSize[0];
 }
 
-uint DefaultDeviceInfo::getMaxBlocksY() const {
+uint CuDeviceInfo::getMaxBlocksY() const {
   CUdevprop cuDevprop;
   getDeviceProperties(cuDevprop);
   return cuDevprop.maxGridSize[1];
 }
 
-uint DefaultDeviceInfo::getSharedMemorySize() const {
+uint CuDeviceInfo::getSharedMemorySize() const {
   CUdevprop cuDevprop;
   getDeviceProperties(cuDevprop);
   return cuDevprop.sharedMemPerBlock;
 }
 
-void DefaultDeviceInfo::setDevice(CUdevice cuDecive) {
+void CuDeviceInfo::setDevice(CUdevice cuDecive) {
   this->m_cuDevice = m_cuDevice;
 }
 
-void DefaultDeviceInfo::setDeviceInfo(const CuDevice& deviceInfo) {
+void CuDeviceInfo::setDeviceInfo(const CuDevice& deviceInfo) {
   setDevice(deviceInfo.getDevice());
 }
 

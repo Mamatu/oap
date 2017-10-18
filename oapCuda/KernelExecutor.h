@@ -49,26 +49,32 @@ class CuDevice {
   virtual CUdevice getDevice() const = 0;
 };
 
-class DefaultDeviceInfo : public CuDevice {
+class CuDeviceInfo : public CuDevice {
   CUdevice m_cuDevice;
 
  public:
-  DefaultDeviceInfo();
-  DefaultDeviceInfo(const DefaultDeviceInfo& orig);
-  virtual ~DefaultDeviceInfo();
+
+  CuDeviceInfo();
+  CuDeviceInfo(const CuDeviceInfo& orig);
+  virtual ~CuDeviceInfo();
+
+  CUdevice getDevice() const;
+
   void setDevice(CUdevice cuDecive);
   void setDeviceInfo(const CuDevice& deviceInfo);
-  CUdevice getDevice() const;
+
   void getDeviceProperties(CUdevprop& cuDevprop) const;
+
   uint getMaxThreadsPerBlock() const;
   uint getMaxThreadsX() const;
   uint getMaxThreadsY() const;
   uint getMaxBlocksX() const;
   uint getMaxBlocksY() const;
+
   uint getSharedMemorySize() const;
 };
 
-class Context : public DefaultDeviceInfo {
+class Context : public CuDeviceInfo {
  public:
   void create();
   void destroy();
@@ -84,7 +90,7 @@ class Context : public DefaultDeviceInfo {
   int deviceIndex;
 };
 
-class Kernel : public DefaultDeviceInfo {
+class Kernel : public CuDeviceInfo {
  public:
   Kernel();
 
