@@ -24,8 +24,8 @@
 #include "ThreadsMapper.h"
 
 void prepareDims(uintt w, uintt h, device::Kernel& kernel) {
-  uintt blocks[2];
-  uintt threads[2];
+  uint blocks[2];
+  uint threads[2];
   uintt maxThreadsPerBlock = kernel.getMaxThreadsPerBlock();
   utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
   kernel.setBlocksCount(blocks[0], blocks[1]);

@@ -161,7 +161,7 @@ class CuMatrix {
   floatt magnitude2Procedure(const char* cuKernelName, math::Matrix* matrix1,
                              uintt wthreads, uintt hthreads);
 
-  floatt magnitude2Procedure_GetOutput(uintt blocks[2], uintt outputSize) const;
+  floatt magnitude2Procedure_GetOutput(uint blocks[2], uintt outputSize) const;
   inline void resetFlags() {
     m_isSetRows = false;
     m_isSetColumns = false;

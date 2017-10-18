@@ -128,14 +128,15 @@ class Kernel : public CuDeviceInfo {
 
   CUresult execute(const char* functionName);
 
-  void calculateThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w,
-                              uintt h);
+  void calculateThreadsBlocks(uint blocks[2], uint threads[2],
+                              uint w, uint h);
 
-  void calculateThreadsBlocksDevice(uintt blocks[2], uintt threads[2],
+  void calculateThreadsBlocksDevice(uint blocks[2], uint threads[2],
                                     math::Matrix* dmatrix);
 
-  static void SetThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w,
-                               uintt h, uintt maxThreadsPerBlock);
+  static void SetThreadsBlocks(uint blocks[2], uint threads[2],
+                               uint w, uint h,
+                               uint maxThreadsPerBlock);
 
   static CUresult Execute(const char* functionName, void** params,
                           ::device::Kernel& kernel);
@@ -147,9 +148,9 @@ class Kernel : public CuDeviceInfo {
   std::string m_path;
   CUmodule m_cuModule;
 
-  uintt m_threadsCount[3];
-  uintt m_blocksCount[3];
-  uintt m_sharedMemoryInBytes;
+  uint m_threadsCount[3];
+  uint m_blocksCount[3];
+  uint m_sharedMemoryInBytes;
 
   void releaseImage();
   void resetParameters();

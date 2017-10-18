@@ -31,8 +31,8 @@ class OapThreadsMapperTests : public testing::Test {
   int m_threadsLimit;
   int m_threadsLimitSqrt;
 
-  uintt m_blocks[2];
-  uintt m_threads[2];
+  uint m_blocks[2];
+  uint m_threads[2];
 
   virtual void SetUp() {
     m_columns = -1;

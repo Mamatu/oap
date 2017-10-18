@@ -113,8 +113,8 @@ uint CuDeviceInfo::getSharedMemorySize() const {
   return cuDevprop.sharedMemPerBlock;
 }
 
-void CuDeviceInfo::setDevice(CUdevice cuDecive) {
-  this->m_cuDevice = m_cuDevice;
+void CuDeviceInfo::setDevice(CUdevice cuDevice) {
+  this->m_cuDevice = cuDevice;
 }
 
 void CuDeviceInfo::setDeviceInfo(const CuDevice& deviceInfo) {
@@ -404,20 +404,23 @@ void Kernel::resetParameters() {
   m_sharedMemoryInBytes = 0;
 }
 
-void Kernel::calculateThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w,
-                                    uintt h) {
+void Kernel::calculateThreadsBlocks(uint blocks[2], uint threads[2],
+                                    uint w, uint h)
+{
   SetThreadsBlocks(blocks, threads, w, h, getMaxThreadsPerBlock());
 }
 
-void Kernel::calculateThreadsBlocksDevice(uintt blocks[2], uintt threads[2],
+void Kernel::calculateThreadsBlocksDevice(uint blocks[2], uint threads[2],
                                           math::Matrix* dmatrix) {
   uintt columns = CudaUtils::GetColumns(dmatrix);
   uintt rows = CudaUtils::GetRows(dmatrix);
   calculateThreadsBlocks(blocks, threads, columns, rows);
 }
 
-void Kernel::SetThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w,
-                              uintt h, uintt maxThreadsPerBlock) {
+void Kernel::SetThreadsBlocks(uint blocks[2], uint threads[2],
+                              uint w, uint h,
+                              uint maxThreadsPerBlock)
+{
   utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
 }
 

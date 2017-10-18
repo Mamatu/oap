@@ -31,8 +31,7 @@ namespace utils {
 
 namespace mapper {
 
-void SetThreadsBlocks(uintt blocks[2], uintt threads[2], 
-    uintt w, uintt h, uintt threadsLimit);
+void SetThreadsBlocks(uint blocks[2], uint threads[2], uint w, uint h, uint threadsLimit);
 
 template<typename T> struct ThreadsMap {
     T beginColumn;

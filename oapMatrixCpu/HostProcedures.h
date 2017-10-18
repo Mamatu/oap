@@ -45,9 +45,9 @@ class HostProcedures {
   void transpose(math::Matrix* output, math::Matrix* matrix);
 
  private:
-  uintt m_threads[2];
-  uintt m_blocks[2];
-  uintt m_threadsCount;
+  uint m_threads[2];
+  uint m_blocks[2];
+  uint m_threadsCount;
 
   void prepare(math::Matrix* matrix, HostKernel& hostKernel);
 };

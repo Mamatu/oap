@@ -145,8 +145,8 @@ class TransposeImpl : public HostKernel {
 };
 
 void HostProcedures::prepare(math::Matrix* matrix, HostKernel& hostKernel) {
-  const uintt columns = matrix->columns;
-  const uintt rows = matrix->rows;
+  const uint columns = matrix->columns;
+  const uint rows = matrix->rows;
 
   utils::mapper::SetThreadsBlocks(m_blocks, m_threads, columns, rows,
                                   m_threadsCount);

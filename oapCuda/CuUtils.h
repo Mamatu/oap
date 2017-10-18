@@ -38,20 +38,20 @@
   ((blockIdx.x * blockDim.x + threadIdx.x) == 0 && \
    (blockIdx.y * blockDim.y + threadIdx.y) == 0)
 
-__hostdevice__ void CUDA_PrintBuffer(floatt* buffer, uintt length) {
-  for (uintt fa = 0; fa < length; ++fa) {
+__hostdevice__ void CUDA_PrintBuffer(floatt* buffer, uint length) {
+  for (uint fa = 0; fa < length; ++fa) {
     printf("buffer[%u] = %f \n", fa, buffer[fa]);
   }
 }
 
-__hostdevice__ void CUDA_PrintBufferUintt(uintt* buffer, uintt length) {
-  for (uintt fa = 0; fa < length; ++fa) {
+__hostdevice__ void CUDA_PrintBufferUintt(uintt* buffer, uint length) {
+  for (uint fa = 0; fa < length; ++fa) {
     printf("buffer[%u] = %llu \n", fa, buffer[fa]);
   }
 }
 
-__hostdevice__ void CUDA_PrintBufferInt(int* buffer, uintt length) {
-  for (uintt fa = 0; fa < length; ++fa) {
+__hostdevice__ void CUDA_PrintBufferInt(int* buffer, uint length) {
+  for (uint fa = 0; fa < length; ++fa) {
     printf("buffer[%u] = %d \n", fa, buffer[fa]);
   }
 }
@@ -61,7 +61,7 @@ __hostdevice__ void CUDA_PrintFloat(floatt v) {
   printf("\n");
 }
 
-__hostdevice__ void CUDA_PrintInt(uintt v) {
+__hostdevice__ void CUDA_PrintInt(uint v) {
   printf("[%u]", v);
   printf("\n");
 }

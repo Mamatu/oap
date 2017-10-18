@@ -43,19 +43,13 @@ class dim3 {
     z = 1;
   }
 
-  dim3(size_t tuple[2]) {
+  dim3(uint tuple[2]) {
     x = tuple[0];
     y = tuple[1];
     z = 1;
   }
 
-  dim3(uintt tuple[2]) {
-    x = tuple[0];
-    y = tuple[1];
-    z = 1;
-  }
-
-  dim3(size_t x, size_t y) {
+  dim3(uint x, uint y) {
     this->x = x;
     this->y = y;
     z = 1;
@@ -66,9 +60,9 @@ class dim3 {
     y = 0;
   }
 
-  size_t x;
-  size_t y;
-  size_t z;
+  uint x;
+  uint y;
+  uint z;
 };
 
 typedef dim3 uint3;

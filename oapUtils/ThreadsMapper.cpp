@@ -29,15 +29,14 @@ namespace utils {
 
 namespace mapper {
 
-inline void increaseBlock(uintt* blocks, uintt* threads, int index,
-                          uintt limit) {
+inline void increaseBlock(uint* blocks, uint* threads, int index,
+                          uint limit) {
   while (threads[index] * blocks[index] < limit) {
     ++blocks[index];
   }
 }
 
-void SetThreadsBlocks(uintt blocks[2], uintt threads[2], uintt w, uintt h,
-                      uintt threadsLimit) {
+void SetThreadsBlocks(uint blocks[2], uint threads[2], uint w, uint h, uint threadsLimit) {
   uintt sqrtThreads = sqrt(threadsLimit);
   blocks[0] = 1;
   blocks[1] = 1;

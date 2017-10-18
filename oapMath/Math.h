@@ -41,6 +41,8 @@
 #define EXTENDED_INT_TYPES
 #endif
 
+typedef unsigned int uint;
+
 #ifdef NORMAL_FLOAT_TYPE
 typedef float floatt;
 #endif

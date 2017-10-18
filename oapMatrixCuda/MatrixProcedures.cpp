@@ -25,8 +25,8 @@
 #include <math.h>
 
 void CuMatrix::prepareDims(uintt w, uintt h) {
-  uintt blocks[2];
-  uintt threads[2];
+  uint blocks[2];
+  uint threads[2];
   m_kernel.calculateThreadsBlocks(blocks, threads, w, h);
   m_kernel.setBlocksCount(blocks[0], blocks[1]);
   m_kernel.setThreadsCount(threads[0], threads[1]);
@@ -311,8 +311,8 @@ bool CuMatrix::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
     return true;
   }
 
-  uintt blocks[2];
-  uintt threads[2];
+  uint blocks[2];
+  uint threads[2];
 
   m_kernel.calculateThreadsBlocks(blocks, threads, wthreads, hthreads);
 
@@ -347,9 +347,10 @@ bool CuMatrix::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
 
 floatt CuMatrix::magnitude2Procedure(const char* cuKernelName,
                                      math::Matrix* matrix, uintt wthreads,
-                                     uintt hthreads) {
-  uintt blocks[2];
-  uintt threads[2];
+                                     uintt hthreads)
+{
+  uint blocks[2];
+  uint threads[2];
 
   m_kernel.calculateThreadsBlocks(blocks, threads, wthreads, hthreads);
 
@@ -372,8 +373,8 @@ floatt CuMatrix::magnitude2Procedure(const char* cuKernelName,
   return magnitude2Procedure_GetOutput(blocks, outputLength);
 }
 
-floatt CuMatrix::magnitude2Procedure_GetOutput(uintt blocks[2],
-                                               uintt outputLength) const {
+floatt CuMatrix::magnitude2Procedure_GetOutput(uint blocks[2], uintt outputLength) const {
+
   CudaUtils::CopyDeviceToHost(
       m_hmagnitudeOutputBuffer.m_buffer, m_dmagnitudeOutputBuffer.m_buffer,
       outputLength * m_dmagnitudeOutputBuffer.GetSizeOfType());
@@ -390,8 +391,8 @@ void CuMatrix::qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* R,
                            math::Matrix* A, math::Matrix* AT, math::Matrix* P,
                            math::Matrix* I, math::Matrix* v, math::Matrix* vt,
                            math::Matrix* vvt) {
-  uintt blocks[2];
-  uintt threads[2];
+  uint blocks[2];
+  uint threads[2];
   const uintt w = CudaUtils::GetColumns(A);
   const uintt h = CudaUtils::GetRows(A);
 
