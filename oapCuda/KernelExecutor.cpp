@@ -330,6 +330,7 @@ inline char* readData(const char* path, const Strings& sysPathes) {
       return data;
     }
   }
+  return NULL;
 }
 
 inline char* loadData(std::string& loadedPath, const char** pathes,
