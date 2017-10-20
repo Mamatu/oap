@@ -29,8 +29,22 @@ def newMatrixRowOrder(array, Class clazz = DoubleMatrix) {
   return clazz.newInstance(columnOrientedArray as double[][])
 }
 
+def newMatrixRowOrder(columns, rows, getValue, Class clazz = DoubleMatrix) {
+
+  def array = []
+
+  for (def x = 0; x < columns; ++x) {
+    array[x] = []
+    for (def y = 0; y < rows; ++y) {
+      def value = getValue(x, y)
+      array[x][y] = value
+    }
+  }
+
+  return newMatrixRowOrder(array, clazz)
+}
+
+
 assert newMatrixRowOrder([[1,2,3],[4,5,6],[7,8,9]]).toArray() == [1,2,3,4,5,6,7,8,9]
 
 assert newMatrixRowOrder([[1,2],[4,5],[7,8]]).toArray() == [1,2,4,5,7,8]
-
-
