@@ -33,15 +33,15 @@ assert newSMSMatrixRowOrder([1,1,1],[[1,0,0],[0,1,0],[0,0,1]]).toArray() == [1,0
 assert newSMSMatrix([1,-2,2],[[1,0,-1],[1,1,1],[-1,2,-1]]) == newSMSMatrixRowOrder([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]])
 
 def testExpectedArray = [1,-8,-5,-8,4,-8,-5,-8,1]
-testExpectedArray.eachWithIndex { val, idx ->  testExpectedArray[idx] = val.div(6) }
-testExpectedArray = utils.newScaledArray(testExpectedArray, 3, RoundingMode.HALF_UP)
+def mode = new Tuple(3, RoundingMode.HALF_UP)
 
-private def compareNumberArrays(array, array1) {
-  array.eachWithIndex { val, idx ->
-    assert val == array1[idx].setScale(3, RoundingMode.HALF_UP)
-  }
+def newScaledArrayDiv = { array, divValue ->
+  array.eachWithIndex { val, idx ->  array[idx] = val.div(divValue) }
+  array = utils.newScaledArray(array, mode[0], mode[1])
 }
 
-assert utils.newScaledArray(newSMSMatrixRowOrder([1,-2,2],[[1,0,-1],[1,1,1],[-1,2,-1]]).toArray(), 3, RoundingMode.HALF_UP) == testExpectedArray
+testExpectedArray = newScaledArrayDiv(testExpectedArray, 6)
 
-assert utils.newScaledArray(newSMSMatrix([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]]).toArray(), 3, RoundingMode.HALF_UP) == testExpectedArray
+assert utils.newScaledArray(newSMSMatrixRowOrder([1,-2,2],[[1,0,-1],[1,1,1],[-1,2,-1]]).toArray(), mode[0], mode[1]) == testExpectedArray
+
+assert utils.newScaledArray(newSMSMatrix([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]]).toArray(), mode[0], mode[1]) == testExpectedArray
