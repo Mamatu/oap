@@ -71,4 +71,8 @@ class Utils {
     }
   }
 
+  def saveToFile(filepath, array) {
+    File file = new File(filepath)
+    file.write(array)
+  }
 }
