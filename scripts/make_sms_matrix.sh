@@ -6,4 +6,4 @@ JBLAS_LIB_NAME=jblas.jar
 [ ! -f "$OAP_JBLAS_PATH/$JBLAS_LIB_NAME" ] && echo "File jblas.jar does not exit in directory ${OAP_JBLAS_PATH}" && exit 2
 
 
-groovy -cp $OAP_JBLAS_PATH/jblas.jar matrix_utils.groovy
+groovy -cp $OAP_JBLAS_PATH/jblas.jar groovy/SMSDataGenerator.groovy
