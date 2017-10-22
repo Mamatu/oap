@@ -46,38 +46,55 @@ assert utils.newScaledArray(newSMSMatrixRowOrder([1,-2,2],[[1,0,-1],[1,1,1],[-1,
 
 assert utils.newScaledArray(newSMSMatrix([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]]).toArray(), mode[0], mode[1]) == testExpectedArray
 
-def createSMSData(filepath, eigenvalues, eigenvectors, newSMSMatrix) {
+def createSMSData(dir, testname, eigenvalues, eigenvectors, newSMSMatrix) {
   def smsMatrix = newSMSMatrix(eigenvalues, eigenvectors)
   
-  def datastr = "const char* smsMatrix = \"[${smsMatrix}]\";\n"
+  def datastr = 
+  """
+    #ifndef ${testname.toUpperCase()}_H
+    #define ${testname.toUpperCase()}_H
+  """.stripIndent().trim() + "\n\n"
+
+  datastr += "namespace ${testname} {\n\n"
+  datastr += "const char* smsMatrix = \"${smsMatrix}\";\n\n"
 
   for (def idx = 0; idx < eigenvalues.size(); ++idx) {
     def value = eigenvalues[idx]
     def vector = eigenvectors[idx]
-    datastr += "const char* eigenvalue${idx} = \"[${value}]\";\n"
-    datastr += "const char* eigenvector${idx} = \"[${vector}]\";\n"
+    datastr += "const char* eigenvalue${idx} = \"${value}\";\n"
+    datastr += "const char* eigenvector${idx} = \"${vector}\";\n\n"
   }
 
-  new File(filepath).write(datastr)
+  datastr += "}\n\n"
+  datastr += "#endif"
+
+  new File("${dir}${testname}.h").write(datastr)
 }
 
-def createSMSData(filepath, size) {
+def createSMSData(dir, testname, matrixSize) {
   def random = new Random()
   def eigenvalues = []
   def eigenvectors = []
-  size.times { idx ->
+  matrixSize.times { idx ->
     eigenvalues[idx] = random.nextDouble()
     eigenvectors[idx] = []
-    size.times { idx1 ->
+    matrixSize.times { idx1 ->
       eigenvectors[idx][idx1] = random.nextDouble()
     }
   }
-  return createSMSData(filepath, eigenvalues, eigenvectors, {evalues, evectors -> newSMSMatrix(evalues, evectors)})
+  return createSMSData(dir, testname, eigenvalues, eigenvectors, {evalues, evectors -> newSMSMatrix(evalues, evectors)})
 }
 
-
-def testData1() {
-  createSMSData("/tmp/data1.h", 10)
+def generateData(testsCount, matrixSize) {
+  testsCount.times { idx ->
+    createSMSData("/tmp/Oap/smsdata/","smsdata${idx + 1}", matrixSize)
+  }
 }
 
-testData1()
+if(args) {
+  iargs = []
+  args.tail().eachWithIndex { val, idx ->
+    iargs[idx] = Integer.valueOf(val)
+  }
+  "${args.head()}"( iargs )
+}
