@@ -91,7 +91,7 @@ def generateData(testsCount, matrixSize) {
   }
 }
 
-if(args) {
+if (args) {
   iargs = []
   args.tail().eachWithIndex { val, idx ->
     iargs[idx] = Integer.valueOf(val)
