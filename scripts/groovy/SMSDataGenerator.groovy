@@ -46,32 +46,53 @@ assert utils.newScaledArray(newSMSMatrixRowOrder([1,-2,2],[[1,0,-1],[1,1,1],[-1,
 
 assert utils.newScaledArray(newSMSMatrix([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]]).toArray(), mode[0], mode[1]) == testExpectedArray
 
-def createSMSData(dir, testname, eigenvalues, eigenvectors, newSMSMatrix) {
-  def smsMatrix = newSMSMatrix(eigenvalues, eigenvectors)
-  
+def createSMSDataHeader(headername, eigenvalues, eigenvectors, smsMatrix) {
   def datastr = 
   """
-    #ifndef ${testname.toUpperCase()}_H
-    #define ${testname.toUpperCase()}_H
+    #ifndef ${headername.toUpperCase()}_H
+    #define ${headername.toUpperCase()}_H
   """.stripIndent().trim() + "\n\n"
 
-  datastr += "namespace ${testname} {\n\n"
+  datastr += "namespace ${headername} {\n\n"
   datastr += "const char* smsMatrix = \"${smsMatrix}\";\n\n"
 
+  datastr += "const char* eigenvalues = \"${eigenvalues}\";\n\n"
   for (def idx = 0; idx < eigenvalues.size(); ++idx) {
-    def value = eigenvalues[idx]
     def vector = eigenvectors[idx]
-    datastr += "const char* eigenvalue${idx} = \"${value}\";\n"
     datastr += "const char* eigenvector${idx} = \"${vector}\";\n\n"
   }
 
   datastr += "}\n\n"
   datastr += "#endif"
 
-  new File("${dir}${testname}.h").write(datastr)
+  return datastr
 }
 
-def createSMSData(dir, testname, matrixSize) {
+def createSMSDataBinary(eigenvalues, eigenvectors, smsMatrix) {
+  return [Integer.toBinaryString(1),Integer.toBinaryString(1),Integer.toBinaryString(1),Integer.toBinaryString(1)] 
+}
+
+private def createSMSDataHeaderFile(testname, eigenvalues, eigenvectors, smsMatrix) {
+  def data = createSMSDataHeader(testname, eigenvalues, eigenvectors, smsMatrix)
+  return ["${testname}.h" : data]
+}
+
+private def createSMSDataBinaryFile(testname, eigenvalues, eigenvectors, smsMatrix) {
+  def data = createSMSDataBinary(eigenvalues, eigenvectors, smsMatrix)
+  def files = [:]
+  files["${testname}/smsmatrix.matrix"] = data[0]
+  files["${testname}/eigenvalues.matrix"] = data[1]
+  for (def idx = 2; idx < data.size(); ++idx) {
+    files["${testname}/eigenvector${idx - 1}.matrix"] = data[idx]
+  }
+  return files
+}
+
+modeClosures =
+    ["binary" : this.&createSMSDataBinaryFile,
+     "header" : this.&createSMSDataHeaderFile]
+
+def createSMSData(testname, matrixSize, newSMSMatrixClosure, createSMSDataClosure) {
   def random = new Random()
   def eigenvalues = []
   def eigenvectors = []
@@ -82,19 +103,47 @@ def createSMSData(dir, testname, matrixSize) {
       eigenvectors[idx][idx1] = random.nextDouble()
     }
   }
-  return createSMSData(dir, testname, eigenvalues, eigenvectors, {evalues, evectors -> newSMSMatrix(evalues, evectors)})
+
+  def smsMatrix = newSMSMatrixClosure(eigenvalues, eigenvectors)
+
+  return createSMSDataClosure(testname, eigenvalues, eigenvectors, smsMatrix)
 }
 
-def generateData(testsCount, matrixSize) {
+def generateData(testsCount, matrixSize, mode) {
   testsCount.times { idx ->
-    createSMSData("/tmp/Oap/smsdata/","smsdata${idx + 1}", matrixSize)
+
+    def createSMSDataClosureObj = modeClosures["${mode}"]
+    if (createSMSDataClosureObj == null) {
+      throw new Exception("Invalid mode ${mode}. Should be ${modeClosures.keySet()}.")
+    }
+
+    final def dir = "/tmp/Oap/smsdata/"
+    def dataFiles = createSMSData("smsdata${idx + 1}", matrixSize, this.&newSMSMatrix, createSMSDataClosureObj)
+    
+    dataFiles.each { filename, data ->
+      def array = filename.split("/")
+      if (array.size() > 1) {
+        def subdir = array[0..array.size()-2].join("/")
+        new File("${dir}/${subdir}").mkdirs()
+      }
+      new File(dir + filename).write(data)
+    }
+
   }
 }
 
-if (args) {
-  iargs = []
-  args.tail().eachWithIndex { val, idx ->
-    iargs[idx] = Integer.valueOf(val)
+try {
+  if (args) {
+    iargs = []
+    args.tail().eachWithIndex { val, idx ->
+      try {
+        iargs[idx] = Integer.valueOf(val)
+      } catch (Exception e) {
+        iargs[idx] = val
+      }
+    }
+    "${args.head()}"( iargs )
   }
-  "${args.head()}"( iargs )
+} catch (Exception e) {
+  e.printStackTrace()
 }
