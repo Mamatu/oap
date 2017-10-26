@@ -43,4 +43,22 @@ struct MatrixEx {
 
 #define ecolumn(matrixex) matrixex.beginColumn + matrixex.columnsLength
 
+namespace {
+  bool adjust(uintt& v1, uintt& v2, uintt val) {
+    if (v1 > val) { return false; }
+    if (v1 + v2 > val) {
+      v2 = val - v1;
+    }
+    return true;
+  }
+}
+
+inline bool adjustColumns(MatrixEx& matrixEx, uintt val) {
+  return ::adjust(matrixEx.beginColumn, matrixEx.columnsLength, val);
+}
+
+inline bool adjustRows(MatrixEx& matrixEx, uintt val) {
+  return ::adjust(matrixEx.beginRow, matrixEx.rowsLength, val);
+}
+
 #endif /* MATRIXEX_H */
