@@ -121,14 +121,17 @@ def generateData(testsCount, matrixSize, mode) {
     def dataFiles = createSMSData("smsdata${idx + 1}", matrixSize, this.&newSMSMatrix, createSMSDataClosureObj)
     
     dataFiles.each { filename, data ->
-      def array = filename.split("/")
-      if (array.size() > 1) {
-        def subdir = array[0..array.size()-2].join("/")
-        new File("${dir}/${subdir}").mkdirs()
-      }
+
+      def makeSubDirs = {
+        def array = filename.split("/")
+        if (array.size() > 1) {
+          def subdir = array[0..array.size()-2].join("/")
+          new File("${dir}/${subdir}").mkdirs()
+        }
+      }.call()
+
       new File(dir + filename).write(data)
     }
-
   }
 }
 
