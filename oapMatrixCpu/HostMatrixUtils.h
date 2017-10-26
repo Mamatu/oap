@@ -554,6 +554,20 @@ math::Matrix* ReadMatrix(const std::string& path);
 
 math::Matrix* ReadRowVector(const std::string& path, size_t index);
 
+/**
+ * @brief Save matrix to file
+ * 4 byte - size of boolean variable
+ * 4 byte - size of uintt variable (where uintt - oap specyfied during compilation type)
+ * 4 byte - size of floatt variable (where floatt - oap specyfied during compilation type)
+ * size of uintt - count of columnts
+ * size of uintt - count of rows
+ * size of boolean - is re section
+ * size of boolean - is im section
+ * if the first boolean is true:
+ *  columns * rows * sizeoffloatt - re part of matrix
+ * if the second boolean is true:
+ *  columns * rows * sizeoffloatt - im part of matrix
+ */
 bool WriteMatrix(const std::string& path, const math::Matrix* matrix);
 };
 
