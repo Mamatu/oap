@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
+#include <memory>
 #include <linux/fs.h>
 #include "MatrixUtils.h"
 #include "ArrayTools.h"
@@ -1212,80 +1213,159 @@ math::Matrix* NewMatrix(const std::string& text) {
   return matrix;
 }
 
-math::MatrixInfo loadHeader(FILE* file) {
+struct FileHeader {
   math::MatrixInfo matrixInfo;
+  uint32_t sizeofbool;
+  uint32_t sizeofuintt;
+  uint32_t sizeoffloatt;
+};
 
-  fread(&(matrixInfo),
-        sizeof(matrixInfo), 1, file);
+FileHeader loadHeader(FILE* file) {
 
-  return matrixInfo;
+  FileHeader fh;
+
+  auto readValue = [file](uint32_t& value) {
+    fread(&value, sizeof(value), 1, file);
+  };
+
+  auto readBuffer = [file](void* buffer, uint32_t size) {
+    fread(buffer, size, 1, file);
+  };
+
+  readValue(fh.sizeofbool);
+  readValue(fh.sizeofuintt);
+  readValue(fh.sizeoffloatt);
+
+  if (fh.sizeofbool == sizeof(bool) && fh.sizeofuintt == sizeof(uintt)) {
+    readBuffer(&fh.matrixInfo, sizeof(fh.matrixInfo));
+  } else {
+    readBuffer(&fh.matrixInfo.m_matrixDim.columns, fh.sizeofuintt);
+    readBuffer(&fh.matrixInfo.m_matrixDim.rows, fh.sizeofuintt);
+    readBuffer(&fh.matrixInfo.isRe, fh.sizeofbool);
+    readBuffer(&fh.matrixInfo.isIm, fh.sizeofbool);
+  }
+
+  return fh;
 }
 
-math::Matrix* ReadMatrix(const std::string& path) {
+math::Matrix* ReadMatrix(const std::string& path, const MatrixEx& a_matrixEx) {
+
   FILE* file = fopen(path.c_str(), "rb");
+
   if (file == NULL) {
     return NULL;
   }
 
-  math::MatrixInfo matrixInfo = loadHeader(file);
+  MatrixEx matrixEx = a_matrixEx;
+
+  FileHeader fileHeader = loadHeader(file);
+
+  const math::MatrixInfo loadedMatrixInfo = fileHeader.matrixInfo;
+  const uint32_t sizeoffloatt = fileHeader.sizeoffloatt;
+
+  const uintt columns = loadedMatrixInfo.m_matrixDim.columns;
+  const uintt rows = loadedMatrixInfo.m_matrixDim.rows;
+
+  if (!adjustRows(matrixEx, rows) || !adjustColumns(matrixEx, columns)) {
+    fclose(file);
+    return nullptr;
+  }
+
+  math::MatrixInfo matrixInfo = loadedMatrixInfo;
+
+  bool isIdentical = matrixEx.beginRow == 0 && matrixEx.beginColumn == 0 &&
+          erow(matrixEx) == rows && ecolumn(matrixEx) == columns;
+
+  matrixInfo.m_matrixDim.columns = matrixEx.columnsLength;
+  matrixInfo.m_matrixDim.rows = matrixEx.rowsLength;
 
   math::Matrix* matrix = host::NewMatrix(matrixInfo);
 
-  const size_t size = sizeof(floatt) * matrix->columns * matrix->rows;
+  size_t lcounts = loadedMatrixInfo.m_matrixDim.columns * loadedMatrixInfo.m_matrixDim.rows;
+  size_t lsize = sizeoffloatt * lcounts;
 
-  if (matrix->reValues != NULL) {
-    fread(matrix->reValues, size, 1, file);
+  std::shared_ptr<floatt> sectionPtr(nullptr);
+  if (isIdentical == false) {
+    sectionPtr.reset(new floatt[lsize], std::default_delete<floatt[]>());
   }
 
-  if (matrix->imValues != NULL) {
-    fread(matrix->imValues, size, 1, file);
-  }
+  auto loadSection = [sizeoffloatt, lcounts, lsize, sectionPtr, file, isIdentical, matrixEx, loadedMatrixInfo](floatt* section) {
+    if (section == nullptr) { return; }
+
+    floatt* sectionTmp = section;
+
+    if (isIdentical == false) {
+      sectionTmp = sectionPtr.get();
+    }
+
+    if (sizeoffloatt == sizeof(floatt)) {
+      fread(sectionTmp, lsize, 1, file);
+    } else {
+      std::unique_ptr<char[]> buffer(new char[lsize]);
+      fread(buffer.get(), lsize, 1, file);
+      for (size_t idx = 0; idx < lcounts; ++idx) {
+        memcpy(&sectionTmp[idx], &buffer[idx * sizeoffloatt], sizeoffloatt);
+      }
+    }
+
+    if (isIdentical == false) {
+      for (uint idx = 0; idx < matrixEx.rowsLength; ++idx) {
+        memcpy(&section[idx * matrixEx.columnsLength],
+               &sectionTmp[(idx + matrixEx.beginRow) * loadedMatrixInfo.m_matrixDim.columns + matrixEx.beginColumn],
+               matrixEx.columnsLength * sizeof(floatt));
+      }
+    }
+  };
+
+  loadSection(matrix->reValues);
+  loadSection(matrix->imValues);
 
   fclose(file);
 
   return matrix;
 }
 
+math::Matrix* ReadMatrix(const std::string& path) {
+  MatrixEx me;
+
+  me.beginColumn = 0;
+  me.columnsLength = static_cast<uintt>(-1);
+
+  me.beginRow = 0;
+  me.rowsLength = static_cast<uintt>(-1);
+
+  return ReadMatrix(path, me);
+}
+
 math::Matrix* ReadRowVector(const std::string& path, size_t index) {
-  FILE* file = fopen(path.c_str(), "rb");
-  if (file == NULL) {
-    return NULL;
-  }
+  MatrixEx me;
 
-  math::MatrixInfo matrixInfo = loadHeader(file);
+  me.beginColumn = 0;
+  me.columnsLength = static_cast<uintt>(-1);
 
-  const size_t matrixsize = sizeof(floatt) * matrixInfo.m_matrixDim.columns *
-                            matrixInfo.m_matrixDim.rows;
+  me.beginRow = index;
+  me.rowsLength = 1;
 
-  matrixInfo.m_matrixDim.rows = 1;
-
-  math::Matrix* vec = host::NewMatrix(matrixInfo);
-
-  const size_t vecsize = sizeof(floatt) * vec->columns * vec->rows;
-
-  if (vec->reValues != NULL) {
-    fseek(file, sizeof(math::MatrixInfo) + vecsize * index, SEEK_SET);
-    fread(vec->reValues, vecsize, 1, file);
-  }
-
-  if (vec->imValues != NULL) {
-    fseek(file, sizeof(math::MatrixInfo) + matrixsize + vecsize * index,
-          SEEK_SET);
-    fread(vec->imValues, vecsize, 1, file);
-  }
-
-  fclose(file);
-
-  return vec;
+  return ReadMatrix(path, me);
 }
 
 bool WriteMatrix(const std::string& path, const math::Matrix* matrix) {
+
   FILE* file = fopen(path.c_str(), "wb");
+
   if (file == NULL) {
     return false;
   }
 
   const size_t size = sizeof(floatt) * matrix->columns * matrix->rows;
+
+  uint32_t sizeofbool = sizeof(bool);
+  uint32_t sizeofuintt = sizeof(uintt);
+  uint32_t sizeoffloatt = sizeof(floatt);
+
+  fwrite(&sizeofbool, sizeof(uint32_t), 1, file);
+  fwrite(&sizeofuintt, sizeof(uint32_t), 1, file);
+  fwrite(&sizeoffloatt, sizeof(uint32_t), 1, file);
 
   math::MatrixInfo matrixInfo = host::GetMatrixInfo(matrix);
 
