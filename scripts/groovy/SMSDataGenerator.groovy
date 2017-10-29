@@ -69,7 +69,14 @@ def createSMSDataHeader(headername, eigenvalues, eigenvectors, smsMatrix) {
 }
 
 def createSMSDataBinary(eigenvalues, eigenvectors, smsMatrix) {
-  return [Integer.toBinaryString(1),Integer.toBinaryString(1),Integer.toBinaryString(1),Integer.toBinaryString(1)] 
+  def array = []
+  array[0] = utils.getBinaryData(smsMatrix)
+  array[1] = utils.getBinaryData(eigenvalues)
+  eigenvectors.eachWithIndex { vec, idx ->
+    array[idx + 2] = utils.getBinaryData(eigenvectors[idx])
+  }
+
+  return array
 }
 
 private def createSMSDataHeaderFile(testname, eigenvalues, eigenvectors, smsMatrix) {
@@ -130,7 +137,7 @@ def generateData(testsCount, matrixSize, mode) {
         }
       }.call()
 
-      new File(dir + filename).write(data)
+      utils.saveToFile(dir + filename, data)
     }
   }
 }
