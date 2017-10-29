@@ -38,8 +38,9 @@
 #include "oapHostMatrixPtr.h"
 
 using GetValue = std::function<floatt(size_t xy)>;
+using HostMatrixPtrs = std::vector<oap::HostMatrixPtr>;
 
-class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
+class OapArnoldiPackageMatricesTests : public testing::Test {
   public:
     CuHArnoldiCallback* m_arnoldiCuda;
     CuMatrix* m_cuMatrix;
@@ -67,13 +68,15 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
       math::Matrix* dvalue = userDataObj->dvalue;
       CuMatrix* cuMatrix = userDataObj->cuMatrix;
 
-      for (size_t idx = 0; idx < hmatrix->columns; ++idx) {
+      for (size_t idx = 0; idx < hmatrix->rows; ++idx) {
         host::GetTransposeReVector(hvectorT, hmatrix, idx);
         device::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
-        device::PrintMatrix("dT =", dvectorT);
-        cuMatrix->dotProduct(dvalue, dvectorT, m_w);
-        device::SetMatrix(m_w, dvalue, 0, idx);
+        cuMatrix->dotProduct(dvalue, dvectorT, m_v);
+        device::SetReMatrix(m_w, dvalue, 0, idx);
       }
+
+      device::PrintMatrix("m_w =", m_w);
+      device::PrintMatrix("m_v =", m_v);
     }
 
     oap::HostMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
@@ -87,6 +90,48 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
         return hmatrix;
     }
 
+    oap::HostMatrixPtr loadSMSMatrix(const std::string& dir) {
+      return host::ReadMatrix(dir + "/smsmatrix.matrix");
+    }
+
+    oap::HostMatrixPtr loadEigenvaluesMatrix(const std::string& dir) {
+      return host::ReadMatrix(dir + "/eigenvalues.matrix");
+    }
+
+    std::vector<floatt> getEigenvalues(oap::HostMatrixPtr eMatrix) {
+
+      std::vector<floatt> values;
+
+      for (uintt index = 0; index < eMatrix->columns; ++index) {
+        values.push_back(eMatrix->reValues[index + eMatrix->columns * index]);
+      }
+
+      std::sort(values.begin(), values.end(), std::greater<floatt>());
+      return values;
+    }
+
+    oap::HostMatrixPtr loadEigenvector(const std::string& dir, uint index) {
+      std::string filename = "eigenvector.matrix";
+      filename += std::to_string(index);
+      return host::ReadMatrix(dir + "/" + filename);
+    }
+
+    HostMatrixPtrs loadMatrices(const std::string& dir) {
+      HostMatrixPtrs ptrs;
+
+      oap::HostMatrixPtr smsMatrix = loadSMSMatrix(dir);
+      oap::HostMatrixPtr eigenvalues = loadEigenvaluesMatrix(dir);
+
+      ptrs.push_back(smsMatrix);
+      ptrs.push_back(eigenvalues);
+
+      for (uint index = 0; index < eigenvalues->columns; ++index) {
+        ptrs.push_back(loadEigenvector(dir, index));     
+      }
+
+      return ptrs;
+    }
+
     struct UserData {
       oap::HostMatrixPtr hmatrix;
       oap::HostMatrixPtr hvectorT;
@@ -95,7 +140,7 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
       CuMatrix* cuMatrix;
     };
 
-    void executeDiagonalMatrixTest(oap::HostMatrixPtr hmatrix, const std::vector<floatt>& expectedValues) {
+    void executeMatrixTest(oap::HostMatrixPtr hmatrix, const std::vector<floatt>& expectedValues) {
       const uint hdim = 32;
 
       debugLongTest();
@@ -142,12 +187,18 @@ class OapArnoldiPackageDiagonalMatricesTests : public testing::Test {
       EXPECT_EQ(expectedValues, outputValues);
     }
 
-    void executeDiagonalMatrixTest(size_t size, GetValue getValue, const std::vector<floatt>& expectedValues) {
+    void executeMatrixTest(size_t size, GetValue getValue, const std::vector<floatt>& expectedValues) {
       oap::HostMatrixPtr hmatrix = createSquareMatrix(size, getValue);
-      executeDiagonalMatrixTest(hmatrix, expectedValues);
+      executeMatrixTest(hmatrix, expectedValues);
+    }
+
+    void executeMatrixTest(const std::string& dirName) {
+      HostMatrixPtrs ptrs = loadMatrices(utils::Config::getPathInOap("oapDeviceTests/data/smsdata/" + dirName));
+      std::vector<floatt> evalues = getEigenvalues(ptrs[1]);
+      executeMatrixTest(ptrs[0], evalues);
     }
 };
 
-TEST_F(OapArnoldiPackageDiagonalMatricesTests, DISABLED_Test1) {
-  executeDiagonalMatrixTest(100, [](size_t xy) -> floatt { return xy + 1; }, {100, 99, 98, 97});
+TEST_F(OapArnoldiPackageMatricesTests, DISABLE_SMSTest1) {
+  executeMatrixTest("smsdata1");
 }
