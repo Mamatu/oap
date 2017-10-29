@@ -1,4 +1,5 @@
 OAP_PATH := $(PWD)
+TMP_PATH := /tmp/Oap
 
 ifndef OAP_GMOCK_PATH
 $(error OAP_GMOCK_PATH is not set (should be main directory of gmock set))

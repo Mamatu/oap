@@ -24,19 +24,37 @@ namespace utils {
 #define STRING(s) #s
 
 std::string Config::oapPath;
+std::string Config::tmpPath;
 
 const std::string& Config::getOapPath() {
-  if (oapPath.empty()) {
-    oapPath = TO_STRING(OAP_PATH);
-    if (oapPath[oapPath.size() - 1] != '/') {
-      oapPath = oapPath + "/";
-    }
-  }
+  createPath(TO_STRING(OAP_PATH), oapPath);
   return oapPath;
 }
 
-std::string Config::getPathInOap(const char* relativePath) {
-  std::string output =  getOapPath() + relativePath;
+const std::string& Config::getTmpPath() {
+  createPath(TO_STRING(TMP_PATH), tmpPath);
+  return tmpPath;
+}
+
+std::string Config::getPathInOap(const std::string& relativePath) {
+  return getPathInRoot(getOapPath(), relativePath);
+}
+
+std::string Config::getPathInTmp(const std::string& relativePath) {
+  return getPathInRoot(getTmpPath(), relativePath);
+}
+
+void Config::createPath(const std::string& root, std::string& storePath) {
+  if (storePath.empty()) {
+    storePath = root;
+    if (storePath[storePath.size() - 1] != '/') {
+      storePath = storePath + "/";
+    }
+  }
+}
+
+std::string Config::getPathInRoot(const std::string& root, const std::string& relativePath) {
+  std::string output =  root + relativePath;
   if (output[output.size() - 1] != '/') {
       output += '/';
   }
