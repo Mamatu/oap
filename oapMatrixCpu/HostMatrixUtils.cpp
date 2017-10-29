@@ -1260,18 +1260,18 @@ math::Matrix* ReadMatrix(const std::string& path, const MatrixEx& a_matrixEx) {
 
   FileHeader fileHeader = loadHeader(file);
 
-  const math::MatrixInfo loadedMatrixInfo = fileHeader.matrixInfo;
+  const math::MatrixInfo lMatrixInfo = fileHeader.matrixInfo;
   const uint32_t sizeoffloatt = fileHeader.sizeoffloatt;
 
-  const uintt columns = loadedMatrixInfo.m_matrixDim.columns;
-  const uintt rows = loadedMatrixInfo.m_matrixDim.rows;
+  const uintt columns = lMatrixInfo.m_matrixDim.columns;
+  const uintt rows = lMatrixInfo.m_matrixDim.rows;
 
   if (!adjustRows(matrixEx, rows) || !adjustColumns(matrixEx, columns)) {
     fclose(file);
     return nullptr;
   }
 
-  math::MatrixInfo matrixInfo = loadedMatrixInfo;
+  math::MatrixInfo matrixInfo = lMatrixInfo;
 
   bool isIdentical = matrixEx.beginRow == 0 && matrixEx.beginColumn == 0 &&
           erow(matrixEx) == rows && ecolumn(matrixEx) == columns;
@@ -1281,15 +1281,17 @@ math::Matrix* ReadMatrix(const std::string& path, const MatrixEx& a_matrixEx) {
 
   math::Matrix* matrix = host::NewMatrix(matrixInfo);
 
-  size_t lcounts = loadedMatrixInfo.m_matrixDim.columns * loadedMatrixInfo.m_matrixDim.rows;
+  size_t lcounts = lMatrixInfo.m_matrixDim.columns * lMatrixInfo.m_matrixDim.rows;
   size_t lsize = sizeoffloatt * lcounts;
 
   std::shared_ptr<floatt> sectionPtr(nullptr);
   if (isIdentical == false) {
-    sectionPtr.reset(new floatt[lsize], std::default_delete<floatt[]>());
+    sectionPtr.reset(new floatt[lcounts], std::default_delete<floatt[]>());
   }
 
-  auto loadSection = [sizeoffloatt, lcounts, lsize, sectionPtr, file, isIdentical, matrixEx, loadedMatrixInfo](floatt* section) {
+  auto loadSection = [isIdentical, sizeoffloatt, lMatrixInfo,
+       lcounts, lsize, matrixEx, sectionPtr, file] (floatt* section)
+  {
     if (section == nullptr) { return; }
 
     floatt* sectionTmp = section;
@@ -1311,7 +1313,7 @@ math::Matrix* ReadMatrix(const std::string& path, const MatrixEx& a_matrixEx) {
     if (isIdentical == false) {
       for (uint idx = 0; idx < matrixEx.rowsLength; ++idx) {
         memcpy(&section[idx * matrixEx.columnsLength],
-               &sectionTmp[(idx + matrixEx.beginRow) * loadedMatrixInfo.m_matrixDim.columns + matrixEx.beginColumn],
+               &sectionTmp[(idx + matrixEx.beginRow) * lMatrixInfo.m_matrixDim.columns + matrixEx.beginColumn],
                matrixEx.columnsLength * sizeof(floatt));
       }
     }
@@ -1345,6 +1347,18 @@ math::Matrix* ReadRowVector(const std::string& path, size_t index) {
 
   me.beginRow = index;
   me.rowsLength = 1;
+
+  return ReadMatrix(path, me);
+}
+
+math::Matrix* ReadColumnVector(const std::string& path, size_t index) {
+  MatrixEx me;
+
+  me.beginColumn = index;
+  me.columnsLength = 1;
+
+  me.beginRow = 0;
+  me.rowsLength = static_cast<uintt>(-1);
 
   return ReadMatrix(path, me);
 }
