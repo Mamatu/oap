@@ -511,6 +511,163 @@ HostMatrixModules* HostMatrixModules::GetInstance() {
 
 namespace host {
 
+math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value) {
+  math::Matrix* output = NULL;
+  if (matrix->reValues != NULL && matrix->imValues != NULL) {
+    output = NewMatrix(matrix->columns, matrix->rows, value);
+  } else if (matrix->reValues != NULL) {
+    output = NewReMatrix(matrix->columns, matrix->rows, value);
+  } else if (matrix->imValues != NULL) {
+    output = NewImMatrix(matrix->columns, matrix->rows, value);
+  }
+  return output;
+}
+
+math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows, floatt value) {
+  math::Matrix* output = NULL;
+  if (matrix->reValues != NULL && matrix->imValues != NULL) {
+    output = NewMatrix(columns, rows, value);
+  } else if (matrix->reValues != NULL) {
+    output = NewReMatrix(columns, rows, value);
+  } else if (matrix->imValues != NULL) {
+    output = NewImMatrix(columns, rows, value);
+  }
+  return output;
+}
+
+math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value) {
+  return NewMatrix(matrixInfo.isRe, matrixInfo.isIm,
+                   matrixInfo.m_matrixDim.columns, matrixInfo.m_matrixDim.rows,
+                   value);
+}
+
+math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows,
+                        floatt value) {
+  if (isre && isim) {
+    return host::NewMatrix(columns, rows, value);
+  } else if (isre) {
+    return host::NewReMatrix(columns, rows, value);
+  } else if (isim) {
+    return host::NewImMatrix(columns, rows, value);
+  }
+  return nullptr;
+}
+
+math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value) {
+  math::Matrix* output = NEW_MATRIX();
+  uintt length = columns * rows;
+
+  output->realColumns = columns;
+  output->columns = columns;
+  output->realRows = rows;
+  output->rows = rows;
+
+  output->reValues = new floatt[length];
+  output->imValues = new floatt[length];
+
+  fillRePart(output, value);
+  fillImPart(output, value);
+  return output;
+}
+
+math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value) {
+  math::Matrix* output = NEW_MATRIX();
+  uintt length = columns * rows;
+
+  output->realColumns = columns;
+  output->columns = columns;
+  output->realRows = rows;
+  output->rows = rows;
+
+  output->reValues = new floatt[length];
+  output->imValues = NULL;
+
+  fillRePart(output, value);
+  return output;
+}
+
+math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value) {
+  math::Matrix* output = NEW_MATRIX();
+  uintt length = columns * rows;
+
+  output->realColumns = columns;
+  output->columns = columns;
+  output->realRows = rows;
+  output->rows = rows;
+
+  output->reValues = NULL;
+  output->imValues = new floatt[length];
+
+  fillImPart(output, value);
+  return output;
+}
+
+math::Matrix* NewMatrix(const std::string& text) {
+  matrixUtils::Parser parser(text);
+
+  uintt columns = 0;
+  uintt rows = 0;
+
+  bool iscolumns = false;
+  bool isrows = false;
+
+  if (parser.getColumns(columns) == true) {
+    iscolumns = true;
+  }
+  if (parser.getRows(rows) == true) {
+    isrows = true;
+  }
+  std::pair<floatt*, size_t> pairRe = matrixUtils::CreateArray(text, 1);
+  std::pair<floatt*, size_t> pairIm = matrixUtils::CreateArray(text, 2);
+
+  debugAssert(pairRe.first == NULL || pairIm.first == NULL ||
+              pairRe.second == pairIm.second);
+
+  floatt* revalues = pairRe.first;
+  floatt* imvalues = pairIm.first;
+
+  if ( (iscolumns && isrows) == false) {
+    size_t sq = sqrt(pairRe.second);
+    columns = sq;
+    rows = sq;
+    iscolumns = true;
+    isrows = true;
+  } else if (iscolumns && !isrows) {
+    rows = pairRe.second / columns;
+    isrows = true;
+  } else if (isrows && !iscolumns) {
+    columns = pairRe.second / rows;
+    iscolumns = true;
+  }
+
+  if (revalues == NULL && imvalues == NULL) {
+    return NULL;
+  }
+
+  math::Matrix* matrix = NEW_MATRIX();
+  matrix->columns = columns;
+  matrix->realColumns = columns;
+  matrix->rows = rows;
+  matrix->realRows = rows;
+  matrix->reValues = revalues;
+  matrix->imValues = imvalues;
+
+  return matrix;
+}
+
+void DeleteMatrix(math::Matrix* matrix) {
+  if (NULL == matrix) {
+    return;
+  }
+  if (matrix->reValues != NULL) {
+    delete[] matrix->reValues;
+  }
+  if (matrix->imValues != NULL) {
+    delete[] matrix->imValues;
+  }
+  DELETE_MATRIX(matrix);
+}
+
 math::Matrix* NewMatrixCopy(const math::Matrix* matrix) {
   math::Matrix* output = NULL;
   if (matrix->reValues && matrix->imValues) {
@@ -524,31 +681,6 @@ math::Matrix* NewMatrixCopy(const math::Matrix* matrix) {
         HostMatrixModules::GetInstance()->getMatrixAllocator()->newImMatrix(
             matrix->columns, matrix->rows);
     CopyIm(output, matrix);
-  }
-  return output;
-}
-
-math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value) {
-  math::Matrix* output = NULL;
-  if (matrix->reValues != NULL && matrix->imValues != NULL) {
-    output = NewMatrix(matrix->columns, matrix->rows, value);
-  } else if (matrix->reValues != NULL) {
-    output = NewReMatrix(matrix->columns, matrix->rows, value);
-  } else if (matrix->imValues != NULL) {
-    output = NewImMatrix(matrix->columns, matrix->rows, value);
-  }
-  return output;
-}
-
-math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows,
-                        floatt value) {
-  math::Matrix* output = NULL;
-  if (matrix->reValues != NULL && matrix->imValues != NULL) {
-    output = NewMatrix(columns, rows, value);
-  } else if (matrix->reValues != NULL) {
-    output = NewReMatrix(columns, rows, value);
-  } else if (matrix->imValues != NULL) {
-    output = NewImMatrix(columns, rows, value);
   }
   return output;
 }
@@ -588,76 +720,6 @@ math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, floatt* array) {
   return output;
 }
 
-math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value) {
-  return NewMatrix(matrixInfo.isRe, matrixInfo.isIm,
-                   matrixInfo.m_matrixDim.columns, matrixInfo.m_matrixDim.rows,
-                   value);
-}
-
-math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows,
-                        floatt value) {
-  if (isre && isim) {
-    return host::NewMatrix(columns, rows, value);
-  } else if (isre) {
-    return host::NewReMatrix(columns, rows, value);
-  } else if (isim) {
-    return host::NewImMatrix(columns, rows, value);
-  }
-  return nullptr;
-}
-
-math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value) {
-  math::Matrix* output = NEW_MATRIX();
-  uintt length = columns * rows;
-  output->realColumns = columns;
-  output->columns = columns;
-  output->realRows = rows;
-  output->rows = rows;
-  output->reValues = new floatt[length];
-  output->imValues = new floatt[length];
-  fillRePart(output, value);
-  fillImPart(output, value);
-  return output;
-}
-
-math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value) {
-  math::Matrix* output = NEW_MATRIX();
-  uintt length = columns * rows;
-  output->reValues = new floatt[length];
-  output->imValues = NULL;
-  output->realColumns = columns;
-  output->columns = columns;
-  output->realRows = rows;
-  output->rows = rows;
-  fillRePart(output, value);
-  return output;
-}
-
-math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value) {
-  math::Matrix* output = NEW_MATRIX();
-  uintt length = columns * rows;
-  output->realColumns = columns;
-  output->columns = columns;
-  output->realRows = rows;
-  output->rows = rows;
-  output->reValues = NULL;
-  output->imValues = new floatt[length];
-  fillImPart(output, value);
-  return output;
-}
-
-void DeleteMatrix(math::Matrix* matrix) {
-  if (NULL == matrix) {
-    return;
-  }
-  if (matrix->reValues != NULL) {
-    delete[] matrix->reValues;
-  }
-  if (matrix->imValues != NULL) {
-    delete[] matrix->imValues;
-  }
-  DELETE_MATRIX(matrix);
-}
 
 floatt GetReValue(const math::Matrix* matrix, uintt column, uintt row) {
   if (matrix->reValues == NULL) {
@@ -1163,53 +1225,6 @@ void SetSubRowsSafe(math::Matrix* matrix, uintt subrows) {
   } else {
     debugAssert(matrix->rows <= matrix->realRows);
   }
-}
-
-math::Matrix* NewMatrix(const std::string& text) {
-  matrixUtils::Parser parser(text);
-  uintt columns = 0;
-  uintt rows = 0;
-  bool iscolumns = false;
-  bool isrows = false;
-  if (parser.getColumns(columns) == true) {
-    iscolumns = true;
-  }
-  if (parser.getRows(rows) == true) {
-    isrows = true;
-  }
-  std::pair<floatt*, size_t> pairRe = matrixUtils::CreateArray(text, 1);
-  std::pair<floatt*, size_t> pairIm = matrixUtils::CreateArray(text, 2);
-  debugAssert(pairRe.first == NULL || pairIm.first == NULL ||
-              pairRe.second == pairIm.second);
-  floatt* revalues = pairRe.first;
-  floatt* imvalues = pairIm.first;
-
-  if ((iscolumns && isrows) == false) {
-    size_t sq = sqrt(pairRe.second);
-    columns = sq;
-    rows = sq;
-    iscolumns = true;
-    isrows = true;
-  } else if (iscolumns && !isrows) {
-    rows = pairRe.second - columns;
-    isrows = true;
-  } else if (isrows && !iscolumns) {
-    columns = pairRe.second - rows;
-    iscolumns = true;
-  }
-
-  if (revalues == NULL && imvalues == NULL) {
-    return NULL;
-  }
-
-  math::Matrix* matrix = NEW_MATRIX();
-  matrix->columns = columns;
-  matrix->realColumns = columns;
-  matrix->rows = rows;
-  matrix->realRows = rows;
-  matrix->reValues = revalues;
-  matrix->imValues = imvalues;
-  return matrix;
 }
 
 struct FileHeader {
