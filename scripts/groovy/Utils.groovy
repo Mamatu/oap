@@ -207,7 +207,7 @@ class Utils {
 
   def saveToFile(path, data) {
     if (data instanceof String) {
-      new File(dir + filename).write(data)
+      new File(path).write(data)
       return;
     }
 
