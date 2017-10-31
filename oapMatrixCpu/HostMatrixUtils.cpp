@@ -668,59 +668,6 @@ void DeleteMatrix(math::Matrix* matrix) {
   DELETE_MATRIX(matrix);
 }
 
-math::Matrix* NewMatrixCopy(const math::Matrix* matrix) {
-  math::Matrix* output = NULL;
-  if (matrix->reValues && matrix->imValues) {
-    output = NewMatrix(matrix->columns, matrix->rows);
-    CopyMatrix(output, matrix);
-  } else if (matrix->reValues) {
-    output = NewReMatrix(matrix->columns, matrix->rows);
-    CopyRe(output, matrix);
-  } else if (matrix->imValues) {
-    output =
-        HostMatrixModules::GetInstance()->getMatrixAllocator()->newImMatrix(
-            matrix->columns, matrix->rows);
-    CopyIm(output, matrix);
-  }
-  return output;
-}
-
-math::Matrix* NewMatrixCopy(uintt columns, uintt rows, floatt* reArray,
-                            floatt* imArray) {
-  debugAssert(reArray != NULL || imArray != NULL);
-  math::Matrix* output =
-      HostMatrixModules::GetInstance()->getMatrixAllocator()->newMatrix(columns,
-                                                                        rows);
-  if (NULL != reArray) {
-    HostMatrixModules::GetInstance()->getMatrixCopier()->copy(
-        output->reValues, reArray, columns * rows);
-  }
-  if (NULL != imArray) {
-    HostMatrixModules::GetInstance()->getMatrixCopier()->copy(
-        output->imValues, imArray, columns * rows);
-  }
-  return output;
-}
-
-math::Matrix* NewReMatrixCopy(uintt columns, uintt rows, floatt* array) {
-  math::Matrix* output =
-      HostMatrixModules::GetInstance()->getMatrixAllocator()->newReMatrix(
-          columns, rows);
-  HostMatrixModules::GetInstance()->getMatrixCopier()->copy(
-      output->reValues, array, columns * rows);
-  return output;
-}
-
-math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, floatt* array) {
-  math::Matrix* output =
-      HostMatrixModules::GetInstance()->getMatrixAllocator()->newImMatrix(
-          columns, rows);
-  HostMatrixModules::GetInstance()->getMatrixCopier()->copy(
-      output->reValues, array, columns * rows);
-  return output;
-}
-
-
 floatt GetReValue(const math::Matrix* matrix, uintt column, uintt row) {
   if (matrix->reValues == NULL) {
     return 0;
@@ -874,7 +821,6 @@ void CopyRe(math::Matrix* dst, const math::Matrix* src) {
   const uintt length = length1 < length2 ? length1 : length2;
   if (ReIsNotNULL(dst) && ReIsNotNULL(src)) {
     memcpy(dst->reValues, src->reValues, length * sizeof(floatt));
-  } else {
   }
 }
 
@@ -884,8 +830,13 @@ void CopyIm(math::Matrix* dst, const math::Matrix* src) {
   const uintt length = length1 < length2 ? length1 : length2;
   if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
     memcpy(dst->imValues, src->imValues, length * sizeof(floatt));
-  } else {
   }
+}
+
+math::Matrix* NewMatrixCopy(const math::Matrix* matrix) {
+  math::Matrix* output = host::NewMatrix(matrix);
+  host::CopyMatrix(output, matrix);
+  return output;
 }
 
 void SetVector(math::Matrix* matrix, uintt column, math::Matrix* vector) {

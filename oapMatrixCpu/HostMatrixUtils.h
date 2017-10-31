@@ -30,43 +30,18 @@
 namespace host {
 
 /**
- * @brief NewMatrixCopy
- * @param matrix
- * @return
- */
-math::Matrix* NewMatrixCopy(const math::Matrix* matrix);
-
-/**
- * @brief NewMatrixCopy
- * @param columns
- * @param rows
- * @param reArray
- * @param imArray
- * @return
- */
-math::Matrix* NewMatrixCopy(uintt columns, uintt rows, floatt* reArray,
-                            floatt* imArray);
-
-/**
- * @brief NewReMatrixCopy
- * @param columns
- * @param rows
- * @param reArray
- * @return
- */
-math::Matrix* NewReMatrixCopy(uintt columns, uintt rows, floatt* reArray);
-
-/**
- * @brief NewImMatrixCopy
- * @param columns
- * @param rows
- * @param imArray
- * @return
- */
-math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, floatt* imArray);
-
-/**
  * @brief NewMatrix
+ * @param columns
+ * @param rows
+ * @param value
+ * @return
+ */
+math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
+
+/**
+ * @brief NewMatrix - creates new matrix, which has the same size
+ *                    and im and re part like passed matrix. Values
+ *                    of output are specyfied by user.
  * @param matrix
  * @param value
  * @return
@@ -84,14 +59,6 @@ math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value = 0);
 math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows,
                         floatt value = 0);
 
-/**
- * @brief NewMatrix
- * @param columns
- * @param rows
- * @param value
- * @return
- */
-math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
 
 math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value = 0);
 
@@ -174,6 +141,66 @@ void CopyRe(math::Matrix* dst, const math::Matrix* src);
  * @param src
  */
 void CopyIm(math::Matrix* dst, const math::Matrix* src);
+
+template<typename T>
+void Copy(floatt* dst, T* array, uintt length) {
+  if (dst != NULL) {
+    if (sizeof(floatt) == sizeof(T)) {
+      memcpy(dst, array, sizeof(floatt) * length);
+    } else {
+      for (uintt idx = 0; idx < length; ++idx) {
+        dst[idx] = array[idx];
+      }
+    }
+  }
+}
+
+template<typename T>
+void Copy(math::Matrix* dst, T* rearray, T* imarray) {
+  Copy(dst->reValues, rearray, dst->columns * dst->rows);
+  Copy(dst->imValues, imarray, dst->columns * dst->rows);
+}
+
+template<typename T>
+void CopyRe(math::Matrix* dst, T* array) {
+  Copy(dst->reValues, array, dst->columns * dst->rows);
+}
+
+template<typename T>
+void CopyIm(math::Matrix* dst, T* array) {
+  Copy(dst->imValues, array, dst->columns * dst->rows);
+}
+
+/**
+ * @brief NewMatrixCopy
+ * @param matrix
+ * @return
+ */
+math::Matrix* NewMatrixCopy(const math::Matrix* matrix);
+
+template<typename T>
+math::Matrix* NewMatrixCopy(uintt columns, uintt rows, T* reArray, T* imArray)
+{
+  math::Matrix* output = host::NewMatrix(reArray != NULL, imArray != NULL, columns, rows);
+  host::Copy<T>(output, reArray, imArray);
+  return output;
+}
+
+template<typename T>
+math::Matrix* NewReMatrixCopy(uintt columns, uintt rows, T* reArray)
+{
+  math::Matrix* output = host::NewMatrix(reArray != NULL, false, columns, rows);
+  host::CopyRe<T>(output, reArray);
+  return output;
+}
+
+template<typename T>
+math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, T* imArray)
+{
+  math::Matrix* output = host::NewMatrix(false, imArray != NULL, columns, rows);
+  host::CopyIm<T>(output, imArray);
+  return output;
+}
 
 /**
  * @brief DeleteMatrix

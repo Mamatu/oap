@@ -380,7 +380,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest) {
 
   math::MathOperationsCpu mocpu;
 
-  math::Matrix* matrix = host::NewMatrixCopy(1, 10, hArray, NULL);
+  math::Matrix* matrix = host::NewMatrixCopy<floatt>(1, 10, hArray, NULL);
   math::Matrix* dparam0 = device::NewDeviceMatrix(true, false, 1, 10);
   device::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
   floatt output;
@@ -407,7 +407,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest1) {
 
   math::MathOperationsCpu mocpu;
 
-  math::Matrix* matrix = host::NewMatrixCopy(1, 10, hArray, NULL);
+  math::Matrix* matrix = host::NewMatrixCopy<floatt>(1, 10, hArray, NULL);
   math::Matrix* dparam0 = device::NewDeviceMatrix(true, false, 1, 10);
   device::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
   floatt doutput;
@@ -434,7 +434,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest2) {
 
   math::MathOperationsCpu mocpu;
 
-  math::Matrix* matrix = host::NewMatrixCopy(1, 10, hArray, NULL);
+  math::Matrix* matrix = host::NewMatrixCopy<floatt>(1, 10, hArray, NULL);
   math::Matrix* dparam0 = device::NewDeviceMatrix(true, false, 1, 10);
   device::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
   floatt doutput;
@@ -464,7 +464,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixBigDataTest) {
 
   math::MathOperationsCpu mocpu;
 
-  math::Matrix* matrix = host::NewMatrixCopy(1, length, hArray, NULL);
+  math::Matrix* matrix = host::NewMatrixCopy<floatt>(1, length, hArray, NULL);
   math::Matrix* dparam0 = device::NewDeviceMatrix(true, false, 1, length);
   device::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
   floatt doutput;
@@ -497,7 +497,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeRealMatrixBigDataTest) {
 
   math::MathOperationsCpu mocpu;
 
-  math::Matrix* matrix = host::NewMatrixCopy(1, length, hArray, hArray1);
+  math::Matrix* matrix = host::NewMatrixCopy<floatt>(1, length, hArray, hArray1);
   math::Matrix* dparam0 = device::NewDeviceMatrix(true, true, 1, length);
   device::CopyHostArraysToDeviceMatrix(dparam0, hArray, hArray1);
   floatt doutput = 100;
@@ -530,7 +530,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeRealMatrixBigDataTest1) {
 
   math::MathOperationsCpu mocpu;
 
-  math::Matrix* matrix = host::NewMatrixCopy(1, length, hArray, hArray1);
+  math::Matrix* matrix = host::NewMatrixCopy<floatt>(1, length, hArray, hArray1);
   math::Matrix* dparam0 = device::NewDeviceMatrix(true, true, 1, length);
   device::CopyHostArraysToDeviceMatrix(dparam0, hArray, hArray1);
   floatt doutput = 1;
