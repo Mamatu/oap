@@ -24,48 +24,57 @@
 #include "gtest/gtest.h"
 #include "MatrixUtils.h"
 #include "parsertest1.h"
+
 namespace samples {
+
 namespace qrtest4 {
-extern const char* qref;
-}
-namespace qrtest5 {
-extern const char* qref;
-}
+  extern const char* qref;
 }
 
-class OapMatrixParserTests : public matrixUtils::Parser, public testing::Test {
+namespace qrtest5 {
+  extern const char* qref;
+}
+
+}
+
+class OapMatrixParserTests : public testing::Test {
  public:
-  virtual void SetUp() {}
-  virtual void TearDown() {}
+  matrixUtils::Parser* m_parser;
+
+  OapMatrixParserTests() : m_parser(nullptr) {}
+
+  virtual void SetUp() { m_parser = new matrixUtils::Parser(); }
+
+  virtual void TearDown() { delete m_parser; m_parser = nullptr; }
 };
 
 TEST_F(OapMatrixParserTests, Test1) {
   std::string text = "[0,1,2,3,4,5,6,7,8,9,10]";
 
-  this->setText(text);
-  EXPECT_TRUE(this->parseArray(1));
+  m_parser->setText(text);
+  EXPECT_TRUE(m_parser->parseArray(1));
   for (int fa = 0; fa <= 10; ++fa) {
-    EXPECT_DOUBLE_EQ(double(fa), this->getValue(fa));
+    EXPECT_DOUBLE_EQ(double(fa), m_parser->getValue(fa));
   }
 }
 
 TEST_F(OapMatrixParserTests, Test2) {
   std::string text = "[0 <repeat 10 times>,1,2,3,4,5,6,7,8,9,10]";
 
-  this->setText(text);
-  EXPECT_TRUE(this->parseArray(1));
+  m_parser->setText(text);
+  EXPECT_TRUE(m_parser->parseArray(1));
   for (int fa = 0; fa < 10; ++fa) {
-    EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
+    EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(fa));
   }
 }
 
 TEST_F(OapMatrixParserTests, Test2WithSeprator) {
   std::string text = "[0 <repeat 10 times>,1,2|3,4,5|6,7 | 8    | 9,10]";
 
-  this->setText(text);
-  EXPECT_TRUE(this->parseArray(1));
+  m_parser->setText(text);
+  EXPECT_TRUE(m_parser->parseArray(1));
   for (int fa = 0; fa < 10; ++fa) {
-    EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
+    EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(fa));
   }
 }
 
@@ -73,16 +82,16 @@ TEST_F(OapMatrixParserTests, Test3) {
   std::string text =
       "(columns=5, rows=6) [0 <repeat 10 times>,1,2,3,4,5,6,7,8,9,10]";
 
-  this->setText(text);
-  EXPECT_TRUE(this->parseArray(1));
+  m_parser->setText(text);
+  EXPECT_TRUE(m_parser->parseArray(1));
   for (int fa = 0; fa < 10; ++fa) {
-    EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
+    EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(fa));
   }
 
   uintt columns = 0;
   uintt rows = 0;
-  EXPECT_TRUE(this->getColumns(columns));
-  EXPECT_TRUE(this->getRows(rows));
+  EXPECT_TRUE(m_parser->getColumns(columns));
+  EXPECT_TRUE(m_parser->getRows(rows));
   EXPECT_EQ(5, columns);
   EXPECT_EQ(6, rows);
 }
@@ -92,22 +101,22 @@ TEST_F(OapMatrixParserTests, Test4) {
       "(columns=5, rows=6) [0,1,2,3,4,5,6,7,8,9,10] [0 <repeat 10 "
       "times>,1,2,3,4,5,6,7,8,9,10]";
 
-  this->setText(text);
-  EXPECT_TRUE(this->parseArray(2));
+  m_parser->setText(text);
+  EXPECT_TRUE(m_parser->parseArray(2));
   for (int fa = 0; fa < 10; ++fa) {
-    EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
+    EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(fa));
   }
 
   uintt columns = 0;
   uintt rows = 0;
-  EXPECT_TRUE(this->getColumns(columns));
-  EXPECT_TRUE(this->getRows(rows));
+  EXPECT_TRUE(m_parser->getColumns(columns));
+  EXPECT_TRUE(m_parser->getRows(rows));
   EXPECT_EQ(5, columns);
   EXPECT_EQ(6, rows);
 
-  EXPECT_TRUE(this->parseArray(1));
+  EXPECT_TRUE(m_parser->parseArray(1));
   for (int fa = 0; fa <= 10; ++fa) {
-    EXPECT_DOUBLE_EQ(double(fa), this->getValue(fa));
+    EXPECT_DOUBLE_EQ(double(fa), m_parser->getValue(fa));
   }
 }
 
@@ -121,23 +130,23 @@ TEST_F(OapMatrixParserTests, Test5) {
       4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats \
       16384 times>] (length=16384)";
 
-  this->setText(text);
-  EXPECT_TRUE(this->parseArray(2));
+  m_parser->setText(text);
+  EXPECT_TRUE(m_parser->parseArray(2));
   for (int fa = 0; fa < 16384; ++fa) {
-    EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
+    EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(fa));
   }
 
   uintt columns = 0;
   uintt rows = 0;
-  EXPECT_TRUE(this->getColumns(columns));
-  EXPECT_TRUE(this->getRows(rows));
+  EXPECT_TRUE(m_parser->getColumns(columns));
+  EXPECT_TRUE(m_parser->getRows(rows));
   EXPECT_EQ(1, columns);
   EXPECT_EQ(16384, rows);
 
-  EXPECT_TRUE(this->parseArray(1));
-  EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(2));
-  EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(4));
-  EXPECT_DOUBLE_EQ(double(0), this->getValue(5));
+  EXPECT_TRUE(m_parser->parseArray(1));
+  EXPECT_DOUBLE_EQ(double(-0.25), m_parser->getValue(2));
+  EXPECT_DOUBLE_EQ(double(-0.25), m_parser->getValue(4));
+  EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(5));
 
   std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
   EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[2]);
@@ -156,23 +165,23 @@ TEST_F(OapMatrixParserTests, Test5withSeparator) {
       4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats \
       16384 times>] (length=16384)";
 
-  this->setText(text);
-  EXPECT_TRUE(this->parseArray(2));
+  m_parser->setText(text);
+  EXPECT_TRUE(m_parser->parseArray(2));
   for (int fa = 0; fa < 16384; ++fa) {
-    EXPECT_DOUBLE_EQ(double(0), this->getValue(fa));
+    EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(fa));
   }
 
   uintt columns = 0;
   uintt rows = 0;
-  EXPECT_TRUE(this->getColumns(columns));
-  EXPECT_TRUE(this->getRows(rows));
+  EXPECT_TRUE(m_parser->getColumns(columns));
+  EXPECT_TRUE(m_parser->getRows(rows));
   EXPECT_EQ(1, columns);
   EXPECT_EQ(16384, rows);
 
-  EXPECT_TRUE(this->parseArray(1));
-  EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(2));
-  EXPECT_DOUBLE_EQ(double(-0.25), this->getValue(4));
-  EXPECT_DOUBLE_EQ(double(0), this->getValue(5));
+  EXPECT_TRUE(m_parser->parseArray(1));
+  EXPECT_DOUBLE_EQ(double(-0.25), m_parser->getValue(2));
+  EXPECT_DOUBLE_EQ(double(-0.25), m_parser->getValue(4));
+  EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(5));
 
   std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
   EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[2]);
@@ -187,18 +196,18 @@ TEST_F(OapMatrixParserTests, Test6) {
       "0.40824829046386, 0.86164043685533, -0.30151134457776, "
       "0.40824829046386, 0.12309149097933, 0.90453403373329]";
 
-  this->setText(text);
+  m_parser->setText(text);
 
-  EXPECT_TRUE(this->parseArray(1));
-  EXPECT_DOUBLE_EQ(double(0.81649658092773), this->getValue(0));
-  EXPECT_DOUBLE_EQ(double(-0.49236596391733), this->getValue(1));
-  EXPECT_DOUBLE_EQ(double(-0.30151134457776), this->getValue(2));
-  EXPECT_DOUBLE_EQ(double(0.40824829046386), this->getValue(3));
-  EXPECT_DOUBLE_EQ(double(0.86164043685533), this->getValue(4));
-  EXPECT_DOUBLE_EQ(double(-0.30151134457776), this->getValue(5));
-  EXPECT_DOUBLE_EQ(double(0.40824829046386), this->getValue(6));
-  EXPECT_DOUBLE_EQ(double(0.12309149097933), this->getValue(7));
-  EXPECT_DOUBLE_EQ(double(0.90453403373329), this->getValue(8));
+  EXPECT_TRUE(m_parser->parseArray(1));
+  EXPECT_DOUBLE_EQ(double(0.81649658092773), m_parser->getValue(0));
+  EXPECT_DOUBLE_EQ(double(-0.49236596391733), m_parser->getValue(1));
+  EXPECT_DOUBLE_EQ(double(-0.30151134457776), m_parser->getValue(2));
+  EXPECT_DOUBLE_EQ(double(0.40824829046386), m_parser->getValue(3));
+  EXPECT_DOUBLE_EQ(double(0.86164043685533), m_parser->getValue(4));
+  EXPECT_DOUBLE_EQ(double(-0.30151134457776), m_parser->getValue(5));
+  EXPECT_DOUBLE_EQ(double(0.40824829046386), m_parser->getValue(6));
+  EXPECT_DOUBLE_EQ(double(0.12309149097933), m_parser->getValue(7));
+  EXPECT_DOUBLE_EQ(double(0.90453403373329), m_parser->getValue(8));
 }
 
 TEST_F(OapMatrixParserTests, FailParsingTest1) {
@@ -207,32 +216,32 @@ TEST_F(OapMatrixParserTests, FailParsingTest1) {
       "0.40824829046386, 0.86164043685533, -0.30151134457776, "
       "0.40824829046386, 0.12309149097933, 0.90453403373329]";
 
-  this->setText(text);
-  EXPECT_FALSE(this->parseArray(1));
+  m_parser->setText(text);
+  EXPECT_FALSE(m_parser->parseArray(1));
 }
 
 TEST_F(OapMatrixParserTests, TestBigData) {
   std::string text = host::parsertest::matrix;
 
-  this->setText(text);
-  this->parseArray(1);
+  m_parser->setText(text);
+  m_parser->parseArray(1);
 
   uintt columns = 0;
   uintt rows = 0;
-  EXPECT_FALSE(this->getColumns(columns));
-  EXPECT_FALSE(this->getRows(rows));
+  EXPECT_FALSE(m_parser->getColumns(columns));
+  EXPECT_FALSE(m_parser->getRows(rows));
   EXPECT_EQ(0, columns);
   EXPECT_EQ(0, rows);
 
-  this->parseArray(1);
-  EXPECT_EQ(32 * 32, this->getLength());
+  m_parser->parseArray(1);
+  EXPECT_EQ(32 * 32, m_parser->getLength());
 }
 
 TEST_F(OapMatrixParserTests, LargeMatrixQHost4Test) {
   std::string text = samples::qrtest4::qref;
 
-  this->setText(text);
-  EXPECT_TRUE(this->parseArray(1));
+  m_parser->setText(text);
+  EXPECT_TRUE(m_parser->parseArray(1));
   std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
   EXPECT_DOUBLE_EQ(double(-1), arrayLength.first[arrayLength.second - 1]);
   delete[] arrayLength.first;
@@ -241,8 +250,8 @@ TEST_F(OapMatrixParserTests, LargeMatrixQHost4Test) {
 TEST_F(OapMatrixParserTests, LargeMatrixQHost5Test) {
   std::string text = samples::qrtest5::qref;
 
-  this->setText(text);
-  EXPECT_TRUE(this->parseArray(1));
+  m_parser->setText(text);
+  EXPECT_TRUE(m_parser->parseArray(1));
   std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
   EXPECT_DOUBLE_EQ(double(-1), arrayLength.first[arrayLength.second - 1]);
   delete[] arrayLength.first;
