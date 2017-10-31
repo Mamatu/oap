@@ -536,9 +536,8 @@ math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value) {
     output = NewReMatrix(matrix->columns, matrix->rows, value);
   } else if (matrix->imValues != NULL) {
     output = NewImMatrix(matrix->columns, matrix->rows, value);
-  } else {
-    return NULL;
   }
+  return output;
 }
 
 math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows,
@@ -550,9 +549,8 @@ math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows,
     output = NewReMatrix(columns, rows, value);
   } else if (matrix->imValues != NULL) {
     output = NewImMatrix(columns, rows, value);
-  } else {
-    return NULL;
   }
+  return output;
 }
 
 math::Matrix* NewMatrixCopy(uintt columns, uintt rows, floatt* reArray,
@@ -605,6 +603,7 @@ math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows,
   } else if (isim) {
     return host::NewImMatrix(columns, rows, value);
   }
+  return nullptr;
 }
 
 math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value) {
