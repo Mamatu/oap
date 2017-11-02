@@ -14,8 +14,48 @@ class Utils {
     diagTests()
     newMatrixRowOrderTests()
   }
+
+  def numberToStr(value) {
+    def str = String.format("%.14f", value)
+    return value > 0 ? " ${str}" : str
+  }
+
+  def isMatrix(obj) {
+    return obj.getClass().getName().contains("Matrix")
+  }
+
+  def convertToArray (obj) {
+    if (isMatrix(obj)) {
+      return obj.toArray()
+    }
+    return obj
+  }
+
+  def getColumns(obj) {
+    if (isMatrix(obj)) {
+      return obj.columns
+    }
+    if (obj instanceof List) {
+      return obj.size()
+    }
+    throw new Exception("Not supported type.")
+  }
+
+  def getRows(obj) {
+    if (isMatrix(obj)) {
+      return obj.rows
+    }
+    if (obj instanceof List) {
+      return 1
+    }
+    throw new Exception("Not supported type.")
+  }
   
   def diag(array, Class clazz = DoubleMatrix) {
+    if (getRows(array) != 1 && getColumns(array) != 1) {
+      throw new Exception("Can not create diagonal matrix from not 1D object.")
+    }
+    array = convertToArray(array)
     return clazz.diag(clazz.newInstance(array as double[]))
   }
   

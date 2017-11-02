@@ -20,17 +20,21 @@ private def newSMSMatrix(eigenvalues, eigenvectors, newMatrix) {
   return outMatrix
 }
 
+private def newSMSMatrix(eigenvalues, eigenvectors) {
+  return newSMSMatrix(eigenvalues, eigenvectors, {matrix -> return matrix})
+}
+
 def newSMSMatrixRowOrder(eigenvalues, eigenvectors) {
   return newSMSMatrix(eigenvalues, eigenvectors, {evs -> utils.newMatrixRowOrder(evs)})
 }
 
-def newSMSMatrix(eigenvalues, eigenvectors) {
+def newSMSMatrixColumnOrder(eigenvalues, eigenvectors) {
   return newSMSMatrix(eigenvalues, eigenvectors, {evs -> new DoubleMatrix(evs as double[][])})
 }
 
 assert newSMSMatrixRowOrder([1,1,1],[[1,0,0],[0,1,0],[0,0,1]]).toArray() == [1,0,0,0,1,0,0,0,1]
 
-assert newSMSMatrix([1,-2,2],[[1,0,-1],[1,1,1],[-1,2,-1]]) == newSMSMatrixRowOrder([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]])
+assert newSMSMatrixColumnOrder([1,-2,2],[[1,0,-1],[1,1,1],[-1,2,-1]]) == newSMSMatrixRowOrder([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]])
 
 def testExpectedArray = [1,-8,-5,-8,4,-8,-5,-8,1]
 def mode = new Tuple(3, RoundingMode.HALF_UP)
@@ -44,22 +48,18 @@ testExpectedArray = newScaledArrayDiv(testExpectedArray, 6)
 
 assert utils.newScaledArray(newSMSMatrixRowOrder([1,-2,2],[[1,0,-1],[1,1,1],[-1,2,-1]]).toArray(), mode[0], mode[1]) == testExpectedArray
 
-assert utils.newScaledArray(newSMSMatrix([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]]).toArray(), mode[0], mode[1]) == testExpectedArray
+assert utils.newScaledArray(newSMSMatrixColumnOrder([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]]).toArray(), mode[0], mode[1]) == testExpectedArray
 
 def createSMSDataHeader(headername, eigenvalues, eigenvectors, smsMatrix) {
   def convertToCArray = { array ->
-    if (array instanceof DoubleMatrix) {
-      array = array.toArray()
-    }
+    array = utils.convertToArray(array)
     def arrayStr = []
     array.each {  value ->
-      def valueStr = String.format("%.14f", value) ;
+      def valueStr = utils.numberToStr(value)
       def extra = ""
-      def pre = ""
-      if (value > 0) { pre = " " }
       if (arrayStr.size() < array.size() - 1) { extra += ","}
       if (arrayStr.size() != 0 && (arrayStr.size() + 1) % 10 == 0) { extra += "\n" }
-      arrayStr.add("${pre}${valueStr}${extra}")
+      arrayStr.add("${valueStr}${extra}")
     }
     return "{${arrayStr.join(" ")}}"
   }
@@ -76,16 +76,47 @@ def createSMSDataHeader(headername, eigenvalues, eigenvectors, smsMatrix) {
   datastr += "double eigenvalues[] =\n${convertToCArray(eigenvalues)};\n\n"
 
   def elist = []
-  for (def idx = 0; idx < eigenvalues.size(); ++idx) {
-    def vector = eigenvectors[idx]
-    elist.add("${convertToCArray(vector)}")
+
+  if (eigenvalues.rows == 1 && eigenvalues.columns != 1) {
+    throw new Exception("No supported case rows == 1 and columns != 1")
   }
 
-  datastr += "double eigenvectors[${eigenvalues.size()}][${smsMatrix.rows}] = {\n${elist.join(',\n')}\n};\n"
+  for (def idx = 0; idx < eigenvalues.rows; ++idx) {
+    def column = eigenvectors.getColumn(idx)
+    elist.add("${convertToCArray(column)}")
+  }
+
+  datastr += "double eigenvectors[${eigenvalues.rows}][${smsMatrix.rows}] = {\n${elist.join(',\n')}\n};\n"
   
   datastr += "}\n\n"
   datastr += "#endif"
 
+  return datastr
+}
+
+def createSMSDataTest(headername, eigenvalues, eigenvectors, smsMatrix) {
+  def createTests = { matrix, name ->
+    def datastr = ""
+    for (def c = 0; c < matrix.columns; ++c) {
+      for (def r = 0; r < matrix.rows; ++r) {
+        def value = utils.numberToStr(matrix.get(r, c))
+        datastr += "EXPECT_EQ(${name}->reValues[GetIndex(${name}, ${c}, ${r})], ${value});\n"
+      }
+    }
+    return datastr
+  }
+
+  def datastr = "TEST_F(TestSuite, LoadDataTest) {\n"
+
+  datastr += "math::Matrix* smsmatrix = ;\n"
+  datastr += createTests(smsMatrix, "smsmatrix")
+  datastr += "\n"
+  datastr += createTests(eigenvectors, "eigenvectors")
+  datastr += "\n"
+  datastr += createTests(eigenvalues, "eigenvalues")
+  datastr += "\n"
+
+  datastr += "}";
   return datastr
 }
 
@@ -106,6 +137,11 @@ private def createSMSDataHeaderFile(testname, eigenvalues, eigenvectors, smsMatr
   return ["header/${testname}.h" : data]
 }
 
+private def createSMSDataTestFile(testname, eigenvalues, eigenvectors, smsMatrix) {
+  def data = createSMSDataTest(testname, eigenvalues, eigenvectors, smsMatrix)
+  return ["test/${testname}.cpp" : data]
+}
+
 private def createSMSDataBinaryFile(testname, eigenvalues, eigenvectors, smsMatrix) {
   def data = createSMSDataBinary(eigenvalues, eigenvectors, smsMatrix)
   def files = [:]
@@ -119,9 +155,10 @@ private def createSMSDataBinaryFile(testname, eigenvalues, eigenvectors, smsMatr
 
 modeClosures =
     ["binary" : this.&createSMSDataBinaryFile,
-     "header" : this.&createSMSDataHeaderFile]
+     "header" : this.&createSMSDataHeaderFile,
+     "test" : this.&createSMSDataTestFile]
 
-def createRandomSMSData(testname, matrixSize, newSMSMatrixClosure, createSMSDataClosure) {
+def createRandomSMSData(testname, matrixSize, createSMSDataClosure) {
   def random = new Random()
   def eigenvalues = []
   def eigenvectors = []
@@ -133,7 +170,10 @@ def createRandomSMSData(testname, matrixSize, newSMSMatrixClosure, createSMSData
     }
   }
 
-  def smsMatrix = newSMSMatrixClosure(eigenvalues, eigenvectors)
+  eigenvalues = utils.newMatrixColumnOrder(eigenvalues)
+  eigenvectors = utils.newMatrixColumnOrder(eigenvectors as double[][])
+
+  def smsMatrix = newSMSMatrix(eigenvalues, eigenvectors)
 
   return createSMSDataClosure(testname, eigenvalues, eigenvectors, smsMatrix)
 }
@@ -164,7 +204,7 @@ def generateData(testsCount, matrixSize, List<String> modes) {
     }
 
     final def dir = "/tmp/Oap/smsdata/"
-    def dataFiles = createRandomSMSData("smsdata${idx + 1}", matrixSize, this.&newSMSMatrix, {
+    def dataFiles = createRandomSMSData("smsdata${idx + 1}", matrixSize, {
       testname, eigenvalues, eigenvectors, smsMatrix ->
       def dataFiles = [:]
       for (def closure : closures) {
