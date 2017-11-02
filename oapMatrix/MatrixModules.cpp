@@ -134,68 +134,7 @@ math::Matrix* MatrixAllocator::newValue(floatt value) {
     return newMatrix(1, 1, value);
 }
 
-math::Matrix* MatrixModule::newMatrix(math::Matrix* matrix,
-        uintt columns,
-        uintt rows) {
-    math::Matrix* output = NULL;
-    if (this->getMatrixUtils()->isMatrix(matrix)) {
-        output = this->getMatrixAllocator()->newMatrix(columns, rows);
-        this->getMatrixUtils()->setZeroMatrix(output);
-    } else if (this->getMatrixUtils()->isReMatrix(matrix)) {
-        output = this->getMatrixAllocator()->newReMatrix(columns, rows);
-        this->getMatrixUtils()->setZeroReMatrix(output);
-    } else if (this->getMatrixUtils()->isImMatrix(matrix)) {
-        output = this->getMatrixAllocator()->newImMatrix(columns, rows);
-        this->getMatrixUtils()->setZeroImMatrix(output);
-    }
-    return output;
-}
-
-math::Matrix* MatrixModule::newMatrix(math::Matrix* matrix) {
-    math::Matrix* output = NULL;
-    uintt columns = this->getMatrixUtils()->getColumns(matrix);
-    uintt rows = this->getMatrixUtils()->getRows(matrix);
-    if (this->getMatrixUtils()->isMatrix(matrix)) {
-        output = this->getMatrixAllocator()->newMatrix(columns, rows);
-        this->getMatrixCopier()->copyMatrixToMatrix(output, matrix);
-    } else if (this->getMatrixUtils()->isReMatrix(matrix)) {
-        output = this->getMatrixAllocator()->newReMatrix(columns, rows);
-        this->getMatrixCopier()->copyReMatrixToReMatrix(output, matrix);
-    } else if (this->getMatrixUtils()->isImMatrix(matrix)) {
-        output = this->getMatrixAllocator()->newImMatrix(columns, rows);
-        this->getMatrixCopier()->copyImMatrixToImMatrix(output, matrix);
-    }
-    return output;
-}
-
 void MatrixModule::deleteMatrix(math::Matrix* matrix) {
     this->getMatrixAllocator()->deleteMatrix(matrix);
 }
 
-void MatrixUtils::setZeroMatrix(math::Matrix* matrix) {
-    this->setZeroReMatrix(matrix);
-    this->setZeroImMatrix(matrix);
-}
-
-void MatrixUtils::setIdentityMatrix(math::Matrix* matrix) {
-    setDiagonalReMatrix(matrix, 1);
-    setZeroImMatrix(matrix);
-}
-
-void MatrixUtils::setIdentityReMatrix(math::Matrix* matrix) {
-    setDiagonalReMatrix(matrix, 1);
-}
-
-void MatrixUtils::setIdentityImMatrix(math::Matrix* matrix) {
-    setDiagonalImMatrix(matrix, 1);
-}
-
-void MatrixUtils::setDiagonalMatrix(math::Matrix* matrix, floatt value) {
-    setDiagonalReMatrix(matrix, value);
-    setDiagonalImMatrix(matrix, value);
-}
-
-void MatrixUtils::setDiagonalMatrix(math::Matrix* matrix, floatt revalue, floatt imvalue) {
-    setDiagonalReMatrix(matrix, revalue);
-    setDiagonalImMatrix(matrix, imvalue);
-}

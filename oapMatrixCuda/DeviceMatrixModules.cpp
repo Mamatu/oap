@@ -37,16 +37,11 @@ math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   uintt rows = CudaUtils::GetRows(matrix);
   math::Matrix* matrix1 = NULL;
   if (matrixRePtr != 0 && matrixImPtr != 0) {
-    matrix1 = HostMatrixModules::GetInstance()->getMatrixAllocator()->newMatrix(
-        columns, rows);
+    matrix1 = host::NewMatrix(columns, rows);
   } else if (matrixRePtr != 0) {
-    matrix1 =
-        HostMatrixModules::GetInstance()->getMatrixAllocator()->newReMatrix(
-            columns, rows);
+    matrix1 = host::NewReMatrix(columns, rows);
   } else if (matrixImPtr != 0) {
-    matrix1 =
-        HostMatrixModules::GetInstance()->getMatrixAllocator()->newImMatrix(
-            columns, rows);
+    matrix1 = host::NewImMatrix(columns, rows);
   }
   device::CopyDeviceMatrixToHostMatrix(matrix1, matrix);
   return matrix1;

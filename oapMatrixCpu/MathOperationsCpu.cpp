@@ -23,6 +23,7 @@
 
 #include "MathOperationsCpu.h"
 #include "HostMatrixUtils.h"
+#include "HostMatrixModules.h"
 #include "Matrix.h"
 #include "ThreadUtils.h"
 #include "ThreadsMapper.h"

@@ -44,15 +44,16 @@ namespace math {
                 status = math::STATUS_NOT_SUPPORTED_SUBMATRIX;
             } else {
                 if (m_q != NULL && (m_q->rows != m_matrix->rows ||
-                        m_q->columns != m_matrix->columns)) {
-                    m_module->getMatrixAllocator()->deleteMatrix(m_q);
-                    m_module->getMatrixAllocator()->deleteMatrix(m_r);
+                    m_q->columns != m_matrix->columns))
+                {
+                    host::DeleteMatrix(m_q);
+                    host::DeleteMatrix(m_r);
                     m_q = NULL;
                     m_r = NULL;
                 }
                 if (m_q == NULL) {
-                    m_q = m_module->newMatrix(m_matrix);
-                    m_r = m_module->newMatrix(m_matrix);
+                    m_q = host::NewMatrix(m_matrix);
+                    m_r = host::NewMatrix(m_matrix);
                 }
             }
         }

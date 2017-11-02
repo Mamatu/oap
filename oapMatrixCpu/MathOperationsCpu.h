@@ -24,6 +24,7 @@
 #define	OAP_MATRIXOPERATIONSCPU_H
 
 #include "ThreadsCpu.h"   
+#include "HostMatrixModules.h"   
 
 namespace math {
 

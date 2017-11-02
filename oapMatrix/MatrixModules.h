@@ -76,16 +76,12 @@ class MatrixUtils : public utils::Module {
 public:
     MatrixUtils(MatrixModule* matrixModule);
     virtual ~MatrixUtils();
-    void setIdentityMatrix(math::Matrix* matrix);
     void setIdentityReMatrix(math::Matrix* matrix);
     void setIdentityImMatrix(math::Matrix* matrix);
     void setDiagonalMatrix(math::Matrix* matrix, floatt value);
     void setDiagonalMatrix(math::Matrix* matrix, floatt revalue,floatt imvalue);
     virtual void setDiagonalReMatrix(math::Matrix* matrix, floatt value) = 0;
-    virtual void setDiagonalImMatrix(math::Matrix* matrix, floatt value) = 0;
     void setZeroMatrix(math::Matrix* matrix);
-    virtual void setZeroReMatrix(math::Matrix* matrix) = 0;
-    virtual void setZeroImMatrix(math::Matrix* matrix) = 0;
     virtual uintt getColumns(const math::Matrix* matrix) const = 0;
     virtual uintt getRows(const math::Matrix* matrix) const = 0;
     bool isMatrix(const math::Matrix* matrix) const;
@@ -119,8 +115,6 @@ public:
     virtual MatrixCopier* getMatrixCopier() = 0;
     virtual MatrixUtils* getMatrixUtils() = 0;
     virtual MatrixPrinter* getMatrixPrinter() = 0;
-    math::Matrix* newMatrix(math::Matrix* matrix);
-    math::Matrix* newMatrix(math::Matrix* matrix, uintt columns, uintt rows);
     void deleteMatrix(math::Matrix* matrix);
 };
 
