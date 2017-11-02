@@ -143,16 +143,23 @@ void CopyRe(math::Matrix* dst, const math::Matrix* src);
 void CopyIm(math::Matrix* dst, const math::Matrix* src);
 
 template<typename T>
-void Copy(floatt* dst, T* array, uintt length) {
-  if (dst != NULL) {
-    if (sizeof(floatt) == sizeof(T)) {
-      memcpy(dst, array, sizeof(floatt) * length);
-    } else {
-      for (uintt idx = 0; idx < length; ++idx) {
-        dst[idx] = array[idx];
-      }
-    }
+void Copy(floatt* dst, T* src, uintt length) {
+  debugFunc();
+  if (dst == NULL || src == NULL) {
+    return;
   }
+  for (uintt idx = 0; idx < length; ++idx) {
+    dst[idx] = src[idx];
+  }
+}
+
+template<>
+inline void Copy<floatt>(floatt* dst, floatt* src, uintt length) {
+  debugFunc();
+  if (dst == NULL || src == NULL) {
+    return;
+  }
+  memcpy(dst, src, sizeof(floatt) * length);
 }
 
 template<typename T>
