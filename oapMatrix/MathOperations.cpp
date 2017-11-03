@@ -173,7 +173,7 @@ bool IMathOperation::CopyIm(math::Matrix* dst, math::Matrix* src,
         thiz->m_subrows[1] == MATH_UNDEFINED) {
         matrixCopier->copyImMatrixToImMatrix(dst, src);
     }
-    bool b = !matrixCopier->isError();
+    bool b = true;//!matrixCopier->isError();
     return b;
 }
 
@@ -183,7 +183,7 @@ bool IMathOperation::CopyRe(math::Matrix* dst, math::Matrix* src,
         thiz->m_subrows[1] == MATH_UNDEFINED) {
         matrixCopier->copyReMatrixToReMatrix(dst, src);
     }
-    bool b = !matrixCopier->isError();
+    bool b = true;// !matrixCopier->isError();
     return b;
 }
 

@@ -37,7 +37,7 @@ namespace math {
     const char* getStr(Status status);
     const char* getErrorStr(Status status);
 
-    class IMathOperation : public utils::Module {
+    class IMathOperation  {
     protected:
         /**
          * \brief Contains information about user specified 

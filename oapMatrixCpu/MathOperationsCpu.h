@@ -24,7 +24,9 @@
 #define	OAP_MATRIXOPERATIONSCPU_H
 
 #include "ThreadsCpu.h"   
-#include "HostMatrixModules.h"   
+#include "HostMatrixModules.h"  
+#include <map> 
+#include <vector> 
 
 namespace math {
 
@@ -166,7 +168,7 @@ public:
 
 class MathOperationsCpu;
 
-class MathOperationsCpu : public utils::Module {
+class MathOperationsCpu  {
 #ifdef DEBUG
     std::map<void*, std::string> valuesNames;
 #endif

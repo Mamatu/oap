@@ -21,13 +21,14 @@
 
 #ifndef OAP_MATRIX_MODULE_H
 #define	OAP_MATRIX_MODULE_H
-#include "Module.h"
 #include "Matrix.h"
 #include "Math.h"
 
+#include <string>
+
 class MatrixModule;
 
-class MatrixAllocator : public utils::Module {
+class MatrixAllocator  {
     MatrixModule* m_matrixModule;
 public:
     MatrixAllocator(MatrixModule* matrixModule);
@@ -44,7 +45,7 @@ public:
     virtual void deleteMatrix(math::Matrix* matrix) = 0;
 };
 
-class MatrixCopier : public utils::Module {
+class MatrixCopier  {
     MatrixModule* m_matrixModule;
 public:
     MatrixCopier(MatrixModule* matrixModule);
@@ -71,7 +72,7 @@ public:
 
 };
 
-class MatrixUtils : public utils::Module {
+class MatrixUtils  {
     MatrixModule* m_matrixModule;
 public:
     MatrixUtils(MatrixModule* matrixModule);
@@ -89,7 +90,7 @@ public:
     virtual bool isImMatrix(const math::Matrix* matrix) const = 0;
 };
 
-class MatrixPrinter : public utils::Module {
+class MatrixPrinter  {
     MatrixModule* m_matrixModule;
 public:
     MatrixPrinter(MatrixModule* matrixModule);
@@ -107,7 +108,7 @@ public:
     virtual void printImMatrix(const std::string& text, const math::Matrix* matrix);
 };
 
-class MatrixModule : public utils::Module {
+class MatrixModule  {
 public:
     MatrixModule();
     virtual ~MatrixModule();

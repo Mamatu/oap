@@ -25,8 +25,10 @@
 #include "Matrix.h"
 #include "MatrixInfo.h"
 #include "MatrixEx.h"
-#include <stdio.h>
 #include "ThreadUtils.h"
+
+#include <stdio.h>
+#include <vector>
 
 class HostMatrixUtils : public MatrixUtils {
  public:

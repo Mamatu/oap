@@ -34,7 +34,7 @@
 
 namespace math {
 
-MathOperationsCpu::MathOperationsCpu() : utils::Module() {
+MathOperationsCpu::MathOperationsCpu()  {
     m_subrows[0] = 0;
     m_subrows[1] = MATH_UNDEFINED;
     m_subcolumns[0] = 0;
@@ -77,7 +77,6 @@ math::Status MathOperationsCpu::execute(math::TwoMatricesOperations& obj,
     unsetSubRows();
     unsetSubColumns();
     if (status != 0) {
-        this->addMessageLine(getErrorStr(status));
     }
     return status;
 }
@@ -93,7 +92,6 @@ math::Status MathOperationsCpu::execute(math::MatrixValueOperation& obj,
     unsetSubRows();
     unsetSubColumns();
     if (status != 0) {
-        this->addMessageLine(getErrorStr(status));
     }
     return status;
 }
@@ -111,7 +109,6 @@ math::Status MathOperationsCpu::execute(math::MatrixValueOperation& obj,
     unsetSubRows();
     unsetSubColumns();
     if (status != 0) {
-        this->addMessageLine(getErrorStr(status));
     }
     return status;
 }
@@ -126,7 +123,6 @@ math::Status MathOperationsCpu::execute(math::MatrixOperationOutputMatrix& obj,
     unsetSubRows();
     unsetSubColumns();
     if (status != 0) {
-        this->addMessageLine(getErrorStr(status));
     }
     return status;
 }
@@ -142,7 +138,6 @@ math::Status MathOperationsCpu::execute(math::MatrixOperationOutputValue& obj,
     unsetSubRows();
     unsetSubColumns();
     if (status != 0) {
-        this->addMessageLine(getErrorStr(status));
     }
     return status;
 }
@@ -158,7 +153,6 @@ math::Status MathOperationsCpu::execute(math::MatrixOperationOutputValue& obj,
     unsetSubRows();
     unsetSubColumns();
     if (status != 0) {
-        this->addMessageLine(getErrorStr(status));
     }
     return status;
 }
@@ -174,7 +168,6 @@ math::Status MathOperationsCpu::execute(math::MatrixOperationTwoOutputs& obj,
     unsetSubRows();
     unsetSubColumns();
     if (status != 0) {
-        this->addMessageLine(getErrorStr(status));
     }
     return status;
 }
