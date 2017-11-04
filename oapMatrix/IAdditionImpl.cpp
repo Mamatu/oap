@@ -47,32 +47,32 @@ namespace math {
 
     Status IAdditionOperation::beforeExecution(math::Matrix* output,
             math::Matrix* matrix1, math::Matrix* matrix2,
-            bool(*HasInstance)(math::Matrix* matrix, MatrixUtils* matrixUtils),
+            bool(*HasInstance)(math::Matrix* matrix),
             IAdditionOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
-        MatrixUtils* matrixUtils = m_module->getMatrixUtils();
-        MatrixCopier* matrixCopier = m_module->getMatrixCopier();
-        if (HasInstance(matrix1, matrixUtils) == false &&
-                HasInstance(matrix2, matrixUtils) == false) {
-            if (HasInstance(output, matrixUtils) != false) {
+        //MatrixUtils* matrixUtils = m_module->getMatrixUtils();
+        //MatrixCopier* matrixCopier = m_module->getMatrixCopier();
+        if (HasInstance(matrix1) == false &&
+                HasInstance(matrix2) == false) {
+            if (HasInstance(output) != false) {
                 executionPath = EXECUTION_NOTHING;
             }
-        } else if (HasInstance(matrix1, matrixUtils) == false &&
-                HasInstance(matrix2, matrixUtils)) {
-            if (HasInstance(output, matrixUtils) == false) {
+        } else if (HasInstance(matrix1) == false &&
+                HasInstance(matrix2)) {
+            if (HasInstance(output) == false) {
                 status = STATUS_INVALID_PARAMS;
             } else {
                 executionPath = EXECUTION_COPY_SECOND_PARAM;
             }
-        } else if (HasInstance(matrix1, matrixUtils) &&
-                HasInstance(matrix2, matrixUtils) == false) {
-            if (HasInstance(output, matrixUtils) == false) {
+        } else if (HasInstance(matrix1) &&
+                HasInstance(matrix2) == false) {
+            if (HasInstance(output) == false) {
                 status = STATUS_INVALID_PARAMS;
             } else {
                 executionPath = EXECUTION_COPY_FIRST_PARAM;
             }
-        } else if (HasInstance(matrix1, matrixUtils) &&
-                HasInstance(matrix2, matrixUtils)) {
+        } else if (HasInstance(matrix1) &&
+                HasInstance(matrix2)) {
             executionPath = EXECUTION_NORMAL;
         }
         return status;

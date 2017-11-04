@@ -34,13 +34,13 @@ namespace math {
     }
 
     Status ITensorProductOperation::beforeExecution(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-            bool(*copy)(math::Matrix* src, math::Matrix* dst, MatrixCopier* matrixCopier, math::IMathOperation* thiz),
-            bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
+            bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
+            bool(*isNotNull)(math::Matrix* matrix),
             ITensorProductOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
-        MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
-        if (isNotNull(matrix1, matrixUtils) == false || isNotNull(matrix2, matrixUtils) == false) {
-            if (isNotNull(output, matrixUtils) == false) {
+        //MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
+        if (isNotNull(matrix1) == false || isNotNull(matrix2) == false) {
+            if (isNotNull(output) == false) {
                 executionPath = EXECUTION_NOTHING;
             } else {
                 executionPath = EXECUTION_ZEROS_TO_OUTPUT;

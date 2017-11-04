@@ -34,13 +34,13 @@ namespace math {
     }
 
     Status IDiagonalizationOperation::beforeExecution(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-            bool(*copy)(math::Matrix* src, math::Matrix* dst, MatrixCopier* matrixCopier, math::IMathOperation* thiz),
-            bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
+            bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
+            bool(*isNotNull)(math::Matrix* matrix),
             IDiagonalizationOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
-        MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
-        MatrixCopier* matrixCopier = this->m_module->getMatrixCopier();
-        if (isNotNull(matrix1, matrixUtils) == false && isNotNull(matrix1, matrixUtils) == false) {
+        //MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
+        //MatrixCopier* matrixCopier = this->m_module->getMatrixCopier();
+        if (isNotNull(matrix1) == false && isNotNull(matrix1) == false) {
             status = STATUS_INVALID_PARAMS;
         } else {
             executionPath = EXECUTION_NORMAL;

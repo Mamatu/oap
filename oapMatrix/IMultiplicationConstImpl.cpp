@@ -38,14 +38,14 @@ namespace math {
     }
 
     Status IMultiplicationConstOperation::prepare(math::Matrix* output, math::Matrix* matrix1, floatt* value,
-            bool(*copy)(math::Matrix* src, math::Matrix* dst, MatrixCopier* matrixCopier, math::IMathOperation* thiz),
-            bool(*isNotNull)(math::Matrix* matrix, MatrixUtils* matrixUtils),
+            bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
+            bool(*isNotNull)(math::Matrix* matrix),
             IMultiplicationConstOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
-        MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
-        MatrixCopier* matrixCopier = this->m_module->getMatrixCopier();
-        if (isNotNull(matrix1, matrixUtils) == false || value == 0) {
-            if (isNotNull(output, matrixUtils) != false) {
+        //MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
+        //MatrixCopier* matrixCopier = this->m_module->getMatrixCopier();
+        if (isNotNull(matrix1) == false || value == 0) {
+            if (isNotNull(output) != false) {
                 executionPath = EXECUTION_ZEROS_TO_OUTPUT;
             } else {
                 executionPath = EXECUTION_NOTHING;

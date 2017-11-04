@@ -23,7 +23,6 @@
 
 #include "MathOperationsCpu.h"
 #include "HostMatrixUtils.h"
-#include "HostMatrixModules.h"
 #include "Matrix.h"
 #include "ThreadUtils.h"
 #include "ThreadsMapper.h"
@@ -416,7 +415,7 @@ math::Status MathOperationsCpu::qrDecomposition(math::Matrix* Q,
 
 #define GET(x,y,index) x+index*y 
 
-#define DEFAULT_CONSTRUCTOR(cname, bname) cname::cname():math::bname(HostMatrixModules::GetInstance()){} cname::~cname(){}
+#define DEFAULT_CONSTRUCTOR(cname, bname) cname::cname():math::bname(){} cname::~cname(){}
 
 #define DEFAULT_CONSTRUCTOR_WITH_ARGS(cname,bname,code) cname::cname():math::bname(){code} cname::~cname(){}
 

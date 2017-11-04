@@ -147,7 +147,7 @@ host::DeleteMatrix(m_GT);
 }
 
 QRDecompositionCpu::QRDecompositionCpu() :
-    IQRDecomposition(HostMatrixModules::GetInstance()),
+    IQRDecomposition(),
     m_R1(NULL), m_Q1(NULL), m_G(NULL), m_GT(NULL) {
 }
 

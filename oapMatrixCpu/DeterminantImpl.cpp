@@ -24,16 +24,15 @@
 namespace math {
 
     DeterminantOperationCpu::DeterminantOperationCpu() :
-    math::IDeterminantOperation(
-    HostMatrixModules::GetInstance()),
+    math::IDeterminantOperation(),
     m_q(NULL), m_r(NULL) {
         // not implemented
     }
 
     DeterminantOperationCpu::~DeterminantOperationCpu() {
         if (m_q) {
-            m_module->getMatrixAllocator()->deleteMatrix(m_q);
-            m_module->getMatrixAllocator()->deleteMatrix(m_r);
+            host::DeleteMatrix(m_q);
+            host::DeleteMatrix(m_r);
         }
     }
 

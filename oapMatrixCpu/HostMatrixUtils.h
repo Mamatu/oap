@@ -606,6 +606,11 @@ math::Matrix* ReadColumnVector(const std::string& path, size_t index);
  *  columns * rows * sizeoffloatt - im part of matrix
  */
 bool WriteMatrix(const std::string& path, const math::Matrix* matrix);
+
+inline bool IsReMatrix(math::Matrix* m) { return m != NULL && m->reValues != NULL; }
+
+inline bool IsImMatrix(math::Matrix* m) { return m != NULL && m->imValues != NULL; }
+
 };
 
 #endif /* OAP_HOST_MATRIX_UTILS_H */

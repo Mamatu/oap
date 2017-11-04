@@ -112,15 +112,15 @@ RESET_MATRIX(m_output1);
     );
 
 #define CLASS_INITIALIZATOR(class_name, base_class_name)\
-class_name::class_name(MatrixModule* _matrixModule): \
-        base_class_name(_matrixModule) {\
+class_name::class_name(): \
+        base_class_name() {\
 }\
 class_name::~class_name() {\
 }\
 
 #define CLASS_INITIALIZATOR_WITH_CODE(class_name, base_class_name, code)\
-class_name::class_name(MatrixModule* _matrixModule): \
-        base_class_name(_matrixModule) {\
+class_name::class_name(): \
+        base_class_name() {\
         code \
 }\
 class_name::~class_name() {\
@@ -167,36 +167,35 @@ void IMathOperation::unsetSubColumns() {
     this->m_subcolumns[1] = MATH_UNDEFINED;
 }
 
-bool IMathOperation::CopyIm(math::Matrix* dst, math::Matrix* src,
-    MatrixCopier* matrixCopier, IMathOperation *thiz) {
+bool IMathOperation::CopyIm(math::Matrix* dst, math::Matrix* src, IMathOperation *thiz) {
     if (thiz->m_subcolumns[1] == MATH_UNDEFINED &&
         thiz->m_subrows[1] == MATH_UNDEFINED) {
-        matrixCopier->copyImMatrixToImMatrix(dst, src);
+        //matrixCopier->copyImMatrixToImMatrix(dst, src);
     }
     bool b = true;//!matrixCopier->isError();
     return b;
 }
 
-bool IMathOperation::CopyRe(math::Matrix* dst, math::Matrix* src,
-    MatrixCopier* matrixCopier, IMathOperation *thiz) {
+bool IMathOperation::CopyRe(math::Matrix* dst, math::Matrix* src, IMathOperation *thiz) {
     if (thiz->m_subcolumns[1] == MATH_UNDEFINED &&
         thiz->m_subrows[1] == MATH_UNDEFINED) {
-        matrixCopier->copyReMatrixToReMatrix(dst, src);
+        //matrixCopier->copyReMatrixToReMatrix(dst, src);
     }
     bool b = true;// !matrixCopier->isError();
     return b;
 }
 
-bool IMathOperation::IsIm(math::Matrix* matrix, MatrixUtils* matrixUtils) {
-    return matrixUtils->isImMatrix(matrix);
+bool IMathOperation::IsIm(math::Matrix* matrix) {
+    //return matrixUtils->isImMatrix(matrix);
+    return matrix->imValues != NULL;
 }
 
-bool IMathOperation::IsRe(math::Matrix* matrix, MatrixUtils* matrixUtils) {
-    return matrixUtils->isReMatrix(matrix);
+bool IMathOperation::IsRe(math::Matrix* matrix) {
+    //return matrixUtils->isReMatrix(matrix);
+    return matrix->reValues != NULL;
 }
 
-IMathOperation::IMathOperation(MatrixModule* _matrixModule) :
-m_module(_matrixModule) {
+IMathOperation::IMathOperation() {
     m_subrows[0] = 0;
     m_subrows[1] = MATH_UNDEFINED;
     m_subcolumns[0] = 0;
@@ -215,8 +214,8 @@ Status IMathOperation::start() {
     return status;
 }
 
-TwoMatricesOperations::TwoMatricesOperations(MatrixModule* _matrixModule) :
-IMathOperation(_matrixModule) {
+TwoMatricesOperations::TwoMatricesOperations() :
+IMathOperation() {
     this->m_matrix1 = NULL;
     this->m_matrix2 = NULL;
     this->m_output = NULL;
@@ -226,8 +225,8 @@ TwoMatricesOperations::~TwoMatricesOperations() {
     // not implemented
 }
 
-MatrixValueOperation::MatrixValueOperation(MatrixModule* _matrixModule) :
-IMathOperation(_matrixModule) {
+MatrixValueOperation::MatrixValueOperation() :
+IMathOperation() {
     this->m_matrix = NULL;
     this->m_output = NULL;
     this->m_revalue = NULL;
@@ -238,9 +237,8 @@ MatrixValueOperation::~MatrixValueOperation() {
     // not implemented
 }
 
-MatrixOperationOutputMatrix::MatrixOperationOutputMatrix(
-    MatrixModule* _matrixModule) :
-IMathOperation(_matrixModule) {
+MatrixOperationOutputMatrix::MatrixOperationOutputMatrix() :
+IMathOperation() {
     this->m_matrix = NULL;
     this->m_output = NULL;
 }
@@ -249,9 +247,8 @@ MatrixOperationOutputMatrix::~MatrixOperationOutputMatrix() {
     // not implemented
 }
 
-MatrixOperationOutputValue::MatrixOperationOutputValue(
-    MatrixModule* _matrixModule) :
-IMathOperation(_matrixModule) {
+MatrixOperationOutputValue::MatrixOperationOutputValue() :
+IMathOperation() {
     this->m_matrix = NULL;
     this->m_output1 = 0;
 }
@@ -260,9 +257,8 @@ MatrixOperationOutputValue::~MatrixOperationOutputValue() {
     // not implemented
 }
 
-MatrixOperationOutputValues::MatrixOperationOutputValues(
-    MatrixModule* _matrixModule) :
-IMathOperation(_matrixModule) {
+MatrixOperationOutputValues::MatrixOperationOutputValues() :
+IMathOperation() {
     this->m_matrix = NULL;
     this->m_reoutputs = NULL;
     this->m_imoutputs = NULL;
@@ -273,9 +269,8 @@ MatrixOperationOutputValues::~MatrixOperationOutputValues() {
     // not implemented
 }
 
-MatrixOperationTwoOutputs::MatrixOperationTwoOutputs(
-    MatrixModule* _matrixModule) :
-IMathOperation(_matrixModule) {
+MatrixOperationTwoOutputs::MatrixOperationTwoOutputs() :
+IMathOperation() {
     this->m_matrix = NULL;
     this->m_output1 = NULL;
     this->m_output2 = NULL;

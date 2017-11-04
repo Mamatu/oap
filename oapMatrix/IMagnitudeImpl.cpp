@@ -19,15 +19,17 @@
 
 
 
-#include "MathOperations.h"        
+#include "MathOperations.h"
+#include "HostMatrixUtils.h"
+
 namespace math {
 
     Status IMagnitudeOperation::beforeExecution() {
         Status status = MatrixOperationOutputValue::beforeExecution();
         if (status == STATUS_OK) {
-            MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
-            bool isIm = matrixUtils->isImMatrix(this->m_matrix);
-            bool isRe = matrixUtils->isReMatrix(this->m_matrix);
+            //MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
+            bool isIm = host::IsImMatrix(this->m_matrix);
+            bool isRe = host::IsReMatrix(this->m_matrix);
             if (isRe) {
                 this->m_executionPathRe = EXECUTION_NORMAL;
             } else {

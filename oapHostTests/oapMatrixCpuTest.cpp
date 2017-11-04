@@ -245,7 +245,6 @@ TEST_F(OapMatrixTests, TensorProduct) {
 
 TEST_F(OapMatrixTests, Multiplication1) {
     math::MathOperationsCpu mo;
-    HostMatrixUtils funcs;
     floatt outputArray[] = {
         20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
         20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
@@ -270,7 +269,6 @@ TEST_F(OapMatrixTests, Multiplication1) {
 
 TEST_F(OapMatrixTests, MultiplicationConst) {
     math::MathOperationsCpu mo;
-    HostMatrixUtils funcs;
     floatt outputArray[] = {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2,

@@ -25,8 +25,8 @@ namespace math {
 
     void ExpOperationCpu::execute() {
         math::Matrix* matrix1 = this->m_matrix;
-        MatrixAllocator& matrixAllocator = *m_module->getMatrixAllocator();
-        MatrixCopier& matrixCopier = *m_module->getMatrixCopier();
+        //MatrixAllocator& matrixAllocator = *m_module->getMatrixAllocator();
+        //MatrixCopier& matrixCopier = *m_module->getMatrixCopier();
         math::Matrix* matrix2 = host::NewMatrixCopy(matrix1);
         math::Matrix* matrix3 = host::NewMatrixCopy(matrix1);
         math::Matrix* matrix4 = host::NewMatrixCopy(matrix1);
@@ -35,7 +35,7 @@ namespace math {
         math::Matrix* m2 = matrix2;
         math::Matrix* m3 = matrix3;
         math::Matrix* m4 = matrix4;
-        matrixCopier.copyMatrixToMatrix(this->m_output, matrix1);
+        host::CopyMatrix(this->m_output, matrix1);
         serieLimit = 10;
         for (uintt fa = 2; fa<this->serieLimit; ++fa) {
             math::Matrix* mo = fa % 2 == 0 ? m3 : m2;
@@ -56,8 +56,8 @@ namespace math {
             this->addition.start();
             //matrixHostMem.PrintHostMatrix(this->output);
         }
-        matrixAllocator.deleteMatrix(matrix2);
-        matrixAllocator.deleteMatrix(matrix3);
-        matrixAllocator.deleteMatrix(matrix4);
+        host::DeleteMatrix(matrix2);
+        host::DeleteMatrix(matrix3);
+        host::DeleteMatrix(matrix4);
     }
 }
