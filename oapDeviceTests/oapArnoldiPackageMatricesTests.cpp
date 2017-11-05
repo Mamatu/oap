@@ -110,6 +110,13 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         values.push_back(eMatrix->reValues[index + eMatrix->columns * index]);
       }
 
+      return getEigenvalues(values, wanted);
+    }
+
+    std::vector<floatt> getEigenvalues(const std::vector<floatt>& avalues, uint wanted) {
+
+      std::vector<floatt> values(avalues);
+
       std::sort(values.begin(), values.end(), std::greater<floatt>());
 
       std::vector<floatt> output(values.begin(), values.begin() + wanted);
@@ -204,10 +211,14 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     }
 };
 
-TEST_F(OapArnoldiPackageMatricesTests, DISABLED_SMSTest1) {
+TEST_F(OapArnoldiPackageMatricesTests, DISABLED_SsmTest1) {
   runMatrixTest("smsdata1", 10);
 }
 
-TEST_F(OapArnoldiPackageMatricesTests, DISABLED_SMS1LoadTest) {
-  //math::Matrix* matrix = host::NewReMatrixCopy(100, 100, smsdata1::smsMatrix);
+#include "SmsData1.h"
+
+TEST_F(OapArnoldiPackageMatricesTests, DISABLED_Sms1HeaderTest) {
+  oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<floatt>(100, 100, (floatt*)SmsData1::smsmatrix, NULL);
+  std::vector<floatt> ev(SmsData1::eigenvalues, SmsData1::eigenvalues + 100);
+  runMatrixTest(hmatrix, getEigenvalues(ev, 8));
 }
