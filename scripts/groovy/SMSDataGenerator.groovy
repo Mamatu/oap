@@ -9,7 +9,9 @@ import org.jblas.*
 import groovy.Utils
 import java.math.RoundingMode
 import java.util.Random
+
 utils = new Utils()
+absError = 0.0000001f
 
 private def newSMSMatrix(eigenvalues, eigenvectors, newMatrix) {
   def diagMatrix = utils.diag(eigenvalues)
@@ -51,17 +53,20 @@ assert utils.newScaledArray(newSMSMatrixRowOrder([1,-2,2],[[1,0,-1],[1,1,1],[-1,
 assert utils.newScaledArray(newSMSMatrixColumnOrder([1,-2,2],[[1,1,-1],[0,1,2],[-1,1,-1]]).toArray(), mode[0], mode[1]) == testExpectedArray
 
 def createSMSDataHeader(headername, eigenvalues, eigenvectors, smsMatrix) {
-  def convertToCArray = { array ->
-    array = utils.convertToArray(array)
+  def convertToCArray = { matrix ->
     def arrayStr = []
-    array.each {  value ->
-      def valueStr = utils.numberToStr(value)
+    def msize = matrix.columns * matrix.rows
+    utils.iterate(matrix) { c, r, value ->
       def extra = ""
-      if (arrayStr.size() < array.size() - 1) { extra += ","}
+      if (arrayStr.size() < msize - 1) { extra += ","}
       if (arrayStr.size() != 0 && (arrayStr.size() + 1) % 10 == 0) { extra += "\n" }
-      arrayStr.add("${valueStr}${extra}")
+      arrayStr.add("${value}${extra}")
     }
     return "{${arrayStr.join(" ")}}"
+  }
+
+  if (eigenvalues.rows == 1 && eigenvalues.columns != 1) {
+    throw new Exception("No supported case rows == 1 and columns != 1")
   }
 
   def datastr = 
@@ -71,53 +76,60 @@ def createSMSDataHeader(headername, eigenvalues, eigenvectors, smsMatrix) {
   """.stripIndent().trim() + "\n\n"
 
   datastr += "namespace ${headername} {\n\n"
-  datastr += "double smsMatrix[] =\n${convertToCArray(smsMatrix)};\n\n"
+
+  datastr += "double smsmatrix[] =\n${convertToCArray(smsMatrix)};\n\n"
 
   datastr += "double eigenvalues[] =\n${convertToCArray(eigenvalues)};\n\n"
 
-  def elist = []
+  datastr += "double eigenvectors[] =\n${convertToCArray(eigenvectors)};\n\n"
 
-  if (eigenvalues.rows == 1 && eigenvalues.columns != 1) {
-    throw new Exception("No supported case rows == 1 and columns != 1")
-  }
-
-  for (def idx = 0; idx < eigenvalues.rows; ++idx) {
-    def column = eigenvectors.getColumn(idx)
-    elist.add("${convertToCArray(column)}")
-  }
-
-  datastr += "double eigenvectors[${eigenvalues.rows}][${smsMatrix.rows}] = {\n${elist.join(',\n')}\n};\n"
-  
   datastr += "}\n\n"
   datastr += "#endif"
 
   return datastr
 }
 
-def createSMSDataTest(headername, eigenvalues, eigenvectors, smsMatrix) {
+def createSMSDataTest(testname, eigenvalues, eigenvectors, smsMatrix) {
+  def oaptestname = "Oap${testname}"
+
   def createTests = { matrix, name ->
-    def datastr = ""
-    for (def c = 0; c < matrix.columns; ++c) {
-      for (def r = 0; r < matrix.rows; ++r) {
-        def value = utils.numberToStr(matrix.get(r, c))
-        datastr += "EXPECT_EQ(${name}->reValues[GetIndex(${name}, ${c}, ${r})], ${value});\n"
-      }
+    def datastr = "TEST_F(${oaptestname}, Load_${name}_Test) {\n"
+    datastr += "  uintt columns = ${matrix.columns};\n"
+    datastr += "  uintt rows = ${matrix.rows};\n"
+    datastr += "  oap::HostMatrixPtr ${name} = host::NewMatrixCopy<double>(columns, rows, (double*)SmsData1::${name}, NULL);\n"
+    def builder = new StringBuilder()
+    utils.iterate(matrix) { c, r, value ->
+      builder.append("  EXPECT_NEAR(${name}->reValues[GetIndex(${name}, ${c}, ${r})], ${value}, ${absError});\n")
     }
+    datastr += builder.toString()
+    datastr += "}"
     return datastr
   }
 
-  def datastr = "TEST_F(TestSuite, LoadDataTest) {\n"
+  def datastr = """
+    #include <gmock/gmock.h>
+    #include <gtest/gtest.h>
 
-  datastr += "math::Matrix* smsmatrix = ;\n"
+    #include "HostMatrixUtils.h"
+    #include "oapHostMatrixPtr.h"
+    #include "MatrixAPI.h"
+
+    #include "${testname}.h"
+
+    class ${oaptestname} : public testing::Test {
+      public:
+        virtual void SetUp() {}
+
+        virtual void TearDown() {}
+    };\n
+  """.stripIndent()
   datastr += createTests(smsMatrix, "smsmatrix")
-  datastr += "\n"
+  datastr += "\n\n"
   datastr += createTests(eigenvectors, "eigenvectors")
-  datastr += "\n"
+  datastr += "\n\n"
   datastr += createTests(eigenvalues, "eigenvalues")
-  datastr += "\n"
 
-  datastr += "}";
-  return datastr
+  return datastr.toString()
 }
 
 def createSMSDataBinary(eigenvalues, eigenvectors, smsMatrix) {
@@ -132,23 +144,36 @@ def createSMSDataBinary(eigenvalues, eigenvectors, smsMatrix) {
   return array
 }
 
-private def createSMSDataHeaderFile(testname, eigenvalues, eigenvectors, smsMatrix) {
+private def createSMSDataHeaderFile(testname, eigenvalues, eigenvectors, smsMatrix, dir = "header") {
   def data = createSMSDataHeader(testname, eigenvalues, eigenvectors, smsMatrix)
-  return ["header/${testname}.h" : data]
+  return ["${dir}/${testname}.h" : data]
 }
 
-private def createSMSDataTestFile(testname, eigenvalues, eigenvectors, smsMatrix) {
+private def createSMSDataLoadTestFile(testname, eigenvalues, eigenvectors, smsMatrix, dir = "loadTest") {
+  def headerdata = createSMSDataHeader(testname, eigenvalues, eigenvectors, smsMatrix)
   def data = createSMSDataTest(testname, eigenvalues, eigenvectors, smsMatrix)
-  return ["test/${testname}.cpp" : data]
+
+  def files = ["${dir}/${testname}.h" : headerdata, "${dir}/${testname}.cpp" : data]
+
+  return files
 }
 
-private def createSMSDataBinaryFile(testname, eigenvalues, eigenvectors, smsMatrix) {
+private def createSMSDataLoadTestBinaryFile(testname, eigenvalues, eigenvectors, smsMatrix, dir = "loadTestBinary") {
+  def binaryFiles = createSMSDataBinaryFile(testname, eigenvalues, eigenvectors, smsMatrix, dir)
+  def testFiles = createSMSDataLoadTestFile(testname, eigenvalues, eigenvectors, smsMatrix, dir)
+
+  binaryFiles.putAll(testFiles)
+
+  return binaryFiles
+}
+
+private def createSMSDataBinaryFile(testname, eigenvalues, eigenvectors, smsMatrix, dir = "binary") {
   def data = createSMSDataBinary(eigenvalues, eigenvectors, smsMatrix)
   def files = [:]
-  files["binary/${testname}/smsmatrix.matrix"] = data[0]
-  files["binary/${testname}/eigenvalues.matrix"] = data[1]
+  files["${dir}/${testname}/smsmatrix.matrix"] = data[0]
+  files["${dir}/${testname}/eigenvalues.matrix"] = data[1]
   for (def idx = 2; idx < data.size(); ++idx) {
-    files["binary/${testname}/eigenvector${idx - 1}.matrix"] = data[idx]
+    files["${dir}/${testname}/eigenvector${idx - 1}.matrix"] = data[idx]
   }
   return files
 }
@@ -156,7 +181,12 @@ private def createSMSDataBinaryFile(testname, eigenvalues, eigenvectors, smsMatr
 modeClosures =
     ["binary" : this.&createSMSDataBinaryFile,
      "header" : this.&createSMSDataHeaderFile,
-     "test" : this.&createSMSDataTestFile]
+     "load_header_test" : this.&createSMSDataLoadTestFile,
+     "load_header_binary_test" : this.&createSMSDataLoadTestBinaryFile]
+
+def allList = new ArrayList<String>()
+allList.addAll(modeClosures.values()) 
+modeClosures.put("all", allList)
 
 def createRandomSMSData(testname, matrixSize, createSMSDataClosure) {
   def random = new Random()
@@ -200,14 +230,19 @@ def generateData(testsCount, matrixSize, List<String> modes) {
       if (createSMSDataClosureMode == null) {
         throw new Exception("Invalid mode ${mode}. Should be ${modeClosures.keySet()}.")
       }
-      closures.add(createSMSDataClosureMode)
+      if (createSMSDataClosureMode instanceof List) {
+        closures.addAll(createSMSDataClosureMode)
+      } else {
+        closures.add(createSMSDataClosureMode)
+      }
     }
 
     final def dir = "/tmp/Oap/smsdata/"
-    def dataFiles = createRandomSMSData("smsdata${idx + 1}", matrixSize, {
+    def dataFiles = createRandomSMSData("SmsData${idx + 1}", matrixSize, {
       testname, eigenvalues, eigenvectors, smsMatrix ->
       def dataFiles = [:]
       for (def closure : closures) {
+        println closure
         dataFiles.putAll(closure(testname, eigenvalues, eigenvectors, smsMatrix))
       }
       return dataFiles

@@ -50,7 +50,16 @@ class Utils {
     }
     throw new Exception("Not supported type.")
   }
-  
+
+  def iterate(matrix, cb) {
+    for (def r = 0; r < matrix.rows; ++r) {
+      for (def c = 0; c < matrix.columns; ++c) {
+        def valueStr = numberToStr(matrix.get(r, c))
+        cb.call(c, r, valueStr)
+      }
+    }
+  }
+
   def diag(array, Class clazz = DoubleMatrix) {
     if (getRows(array) != 1 && getColumns(array) != 1) {
       throw new Exception("Can not create diagonal matrix from not 1D object.")
