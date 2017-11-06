@@ -146,7 +146,7 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count,
       sstream << " <repeats " << count << " times>";
     }
     fa1 += count;
-    bool lastPosition = fa1 == sectionLength;
+    bool lastPosition = fa1 == totalLength;
     if (!lastPosition) {
       bool endLine = (fa1 % sectionLength) == 0;
       if (!endLine) {
