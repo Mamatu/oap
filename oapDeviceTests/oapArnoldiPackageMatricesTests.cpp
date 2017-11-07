@@ -161,8 +161,8 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
       UserData userData = {
               hmatrix,
-              host::NewReMatrix(1, hmatrix->rows),
-              device::NewDeviceReMatrix(1, hmatrix->rows),
+              host::NewReMatrix(hmatrix->columns, 1),
+              device::NewDeviceReMatrix(hmatrix->columns, 1),
               device::NewDeviceReMatrix(1, 1),
               m_cuMatrix
       };
