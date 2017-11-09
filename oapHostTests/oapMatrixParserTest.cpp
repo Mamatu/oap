@@ -210,6 +210,14 @@ TEST_F(OapMatrixParserTests, Test6) {
   EXPECT_DOUBLE_EQ(double(0.90453403373329), m_parser->getValue(8));
 }
 
+TEST_F(OapMatrixParserTests, Test7) {// 0 <repeats 31 times>2.92376 - incorrect
+  std::string text = "(columns=32, rows=32) [0.764365, 0 <repeats 31 times>2.92376, 0 <repeats 959 times> |\
+  0 <repeats 32 times> |] (length=1024)";
+
+  m_parser->setText(text);
+  EXPECT_FALSE(m_parser->parseArray(1));
+}
+
 TEST_F(OapMatrixParserTests, FailParsingTest1) {
   std::string text =
       "[0.81649658092773, _0.49236596391733, -0.30151134457776, "

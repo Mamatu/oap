@@ -83,8 +83,7 @@ void MatrixRange::getSubArrays(SubArrays<floatt>& subArrays, floatt* array,
                                const math::Matrix* matrix) const {
   for (uintt fa = m_brow; fa < m_rows; ++fa) {
     uintt bindex = m_bcolumn + (m_brow + fa) * matrix->columns;
-    subArrays.push_back(
-        std::make_pair<floatt*, uintt>(&array[bindex], m_columns));
+    subArrays.push_back(std::make_pair(&array[bindex], m_columns));
   }
 }
 
@@ -203,6 +202,9 @@ bool Parser::parseFloatsElement(std::vector<floatt>& array,
                                 const std::string& elementStr) const {
   size_t pos = elementStr.find("<");
   size_t pos1 = elementStr.find(">");
+  if (pos1 != elementStr.size() - 1) {
+    return false;
+  }
   std::string partStr = elementStr.substr(pos, pos1 - pos);
   size_t posDigit1 = partStr.find_first_of(".-0123456789");
   size_t posDigit2 = partStr.find_first_not_of(".-0123456789", posDigit1);
