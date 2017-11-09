@@ -8,4 +8,4 @@ JBLAS_LIB_NAME=jblas.jar
 mkdir -p /tmp/Oap/smsdata
 rm -r /tmp/Oap/smsdata/*
 
-groovy -cp $OAP_JBLAS_PATH/jblas.jar groovy/SMSDataGenerator.groovy generateData 10 100 all
+groovy -cp $OAP_JBLAS_PATH/jblas.jar groovy/SMSDataGenerator.groovy generateData 2 100 4 6 all

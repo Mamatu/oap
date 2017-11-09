@@ -96,7 +96,7 @@ def createSMSDataTest(testname, eigenvalues, eigenvectors, smsMatrix) {
     def datastr = "TEST_F(${oaptestname}, Load_${name}_Test) {\n"
     datastr += "  uintt columns = ${matrix.columns};\n"
     datastr += "  uintt rows = ${matrix.rows};\n"
-    datastr += "  oap::HostMatrixPtr ${name} = host::NewMatrixCopy<double>(columns, rows, (double*)SmsData1::${name}, NULL);\n"
+    datastr += "  oap::HostMatrixPtr ${name} = host::NewMatrixCopy<double>(columns, rows, (double*)${testname}::${name}, NULL);\n"
     def builder = new StringBuilder()
     utils.iterate(matrix) { c, r, value ->
       builder.append("  EXPECT_NEAR(${name}->reValues[GetIndex(${name}, ${c}, ${r})], ${value}, ${absError});\n")
@@ -188,12 +188,15 @@ def allList = new ArrayList<String>()
 allList.addAll(modeClosures.values()) 
 modeClosures.put("all", allList)
 
-def createRandomSMSData(testname, matrixSize, createSMSDataClosure) {
+def createRandomSMSData(testname, matrixSize, range, createSMSDataClosure) {
+  if (range[0] >= range[1]) {
+    throw new Exception("ranges[0] is higher than ranges[1]")
+  }
   def random = new Random()
   def eigenvalues = []
   def eigenvectors = []
   matrixSize.times { idx ->
-    eigenvalues[idx] = random.nextDouble()
+    eigenvalues[idx] = random.nextDouble() * (range[1] - range[0]) + range[0]
     eigenvectors[idx] = []
     matrixSize.times { idx1 ->
       eigenvectors[idx][idx1] = random.nextDouble()
@@ -212,16 +215,19 @@ def generateData(List<Object> objects) {
   if (objects.size() < 3) {
     throw new IllegalArgumentException("generateData needs more than 2 args.")
   }
-  def testsCount = Integer.valueOf(objects[0])
-  def matrixSize = Integer.valueOf(objects[1])
+  def index = 0
+  def testsCount = Integer.valueOf(objects[index])
+  def matrixSize = Integer.valueOf(objects[++index])
+  def min = Float.valueOf(objects[++index])
+  def max = Float.valueOf(objects[++index])
   def modes = new ArrayList<String>()
-  for (def idx = 2; idx < objects.size(); ++idx) {
+  for (def idx = ++index; idx < objects.size(); ++idx) {
     modes.add(objects[idx])
   }
-  generateData(testsCount, matrixSize, modes)
+  generateData(testsCount, matrixSize, modes, [min, max])
 }
 
-def generateData(testsCount, matrixSize, List<String> modes) {
+def generateData(testsCount, matrixSize, List<String> modes, def range = [0, 1]) {
   testsCount.times { idx ->
 
     def closures = new ArrayList<Closure>();
@@ -238,11 +244,10 @@ def generateData(testsCount, matrixSize, List<String> modes) {
     }
 
     final def dir = "/tmp/Oap/smsdata/"
-    def dataFiles = createRandomSMSData("SmsData${idx + 1}", matrixSize, {
+    def dataFiles = createRandomSMSData("SmsData${idx + 1}", matrixSize, range, {
       testname, eigenvalues, eigenvectors, smsMatrix ->
       def dataFiles = [:]
       for (def closure : closures) {
-        println closure
         dataFiles.putAll(closure(testname, eigenvalues, eigenvectors, smsMatrix))
       }
       return dataFiles
