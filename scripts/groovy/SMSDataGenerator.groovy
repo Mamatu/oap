@@ -77,6 +77,9 @@ def createSMSDataHeader(headername, eigenvalues, eigenvectors, smsMatrix) {
 
   datastr += "namespace ${headername} {\n\n"
 
+  datastr += "const unsigned int columns = ${smsMatrix.columns};\n"
+  datastr += "const unsigned int rows = ${smsMatrix.rows};\n\n"
+
   datastr += "double smsmatrix[] =\n${convertToCArray(smsMatrix)};\n\n"
 
   datastr += "double eigenvalues[] =\n${convertToCArray(eigenvalues)};\n\n"
