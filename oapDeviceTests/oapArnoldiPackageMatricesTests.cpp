@@ -37,6 +37,9 @@
 #include "oapDeviceMatrixPtr.h"
 #include "oapHostMatrixPtr.h"
 
+#include "SmsData1.h"
+#include "SmsData2.h"
+
 using GetValue = std::function<floatt(size_t xy)>;
 using HostMatrixPtrs = std::vector<oap::HostMatrixPtr>;
 
@@ -72,6 +75,9 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         host::GetTransposeReVector(hvectorT, hmatrix, idx);
         device::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
         cuMatrix->dotProduct(dvalue, dvectorT, m_v);
+        device::PrintMatrix("m_v =", m_v);
+        device::PrintMatrix("dvectorT =", dvectorT);
+        device::PrintMatrix("dvalue =", dvalue);
         device::SetReMatrix(m_w, dvalue, 0, idx);
       }
 
@@ -215,10 +221,15 @@ TEST_F(OapArnoldiPackageMatricesTests, DISABLED_SsmTest1) {
   runMatrixTest("smsdata1", 10);
 }
 
-#include "SmsData1.h"
-
-TEST_F(OapArnoldiPackageMatricesTests, DISABLED_Sms1HeaderTest) {
-  oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<floatt>(100, 100, (floatt*)SmsData1::smsmatrix, NULL);
-  std::vector<floatt> ev(SmsData1::eigenvalues, SmsData1::eigenvalues + 100);
-  runMatrixTest(hmatrix, getEigenvalues(ev, 8));
+TEST_F(OapArnoldiPackageMatricesTests, Sms1HeaderTest) {
+  oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<floatt>(SmsData1::columns, SmsData1::rows, (floatt*)SmsData1::smsmatrix, NULL);
+  std::vector<floatt> ev(SmsData1::eigenvalues, SmsData1::eigenvalues + SmsData1::columns);
+  runMatrixTest(hmatrix, getEigenvalues(ev, 15));
 }
+
+TEST_F(OapArnoldiPackageMatricesTests, Sms2HeaderTest) {
+  oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<floatt>(SmsData2::columns, SmsData2::rows, (floatt*)SmsData2::smsmatrix, NULL);
+  std::vector<floatt> ev(SmsData2::eigenvalues, SmsData2::eigenvalues + SmsData2::columns);
+  runMatrixTest(hmatrix, getEigenvalues(ev, 5));
+}
+
