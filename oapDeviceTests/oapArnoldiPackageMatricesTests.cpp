@@ -39,6 +39,8 @@
 
 #include "SmsData1.h"
 #include "SmsData2.h"
+#include "SmsData3.h"
+#include "SmsData4.h"
 
 using GetValue = std::function<floatt(size_t xy)>;
 using HostMatrixPtrs = std::vector<oap::HostMatrixPtr>;
@@ -75,14 +77,9 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         host::GetTransposeReVector(hvectorT, hmatrix, idx);
         device::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
         cuMatrix->dotProduct(dvalue, dvectorT, m_v);
-        device::PrintMatrix("m_v =", m_v);
-        device::PrintMatrix("dvectorT =", dvectorT);
-        device::PrintMatrix("dvalue =", dvalue);
         device::SetReMatrix(m_w, dvalue, 0, idx);
       }
 
-      device::PrintMatrix("m_w =", m_w);
-      device::PrintMatrix("m_v =", m_v);
     }
 
     oap::HostMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
@@ -160,9 +157,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       CuMatrix* cuMatrix;
     };
 
-    void runMatrixTest(oap::HostMatrixPtr hmatrix, const std::vector<floatt>& expectedValues) {
-      const uint hdim = 32;
-
+    void runMatrixTest(oap::HostMatrixPtr hmatrix, const std::vector<floatt>& expectedValues, uint hdim = 32) {
       debugLongTest();
 
       UserData userData = {
@@ -174,12 +169,14 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       };
 
       m_arnoldiCuda->setOutputType(ArnUtils::HOST);
+      m_arnoldiCuda->setCalcTraingularHType(ArnUtils::CALC_IN_DEVICE_STEP);
 
       m_arnoldiCuda->setCallback(multiply, &userData);
-      m_arnoldiCuda->setBLimit(0.01);
+      m_arnoldiCuda->setBLimit(0.0001);
       m_arnoldiCuda->setRho(1. / 3.14159265359);
       m_arnoldiCuda->setSortType(ArnUtils::SortLargestReValues);
-      //m_arnoldiCuda->setCheckType(ArnUtils::CHECK_FIRST_STOP);
+      m_arnoldiCuda->setCheckType(ArnUtils::CHECK_COUNTER);
+      m_arnoldiCuda->setCheckCounts(1);
 
       uint wanted = expectedValues.size();
 
@@ -205,15 +202,15 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       EXPECT_EQ(expectedValues, outputValues);
     }
 
-    void runMatrixTest(size_t size, GetValue getValue, const std::vector<floatt>& expectedValues) {
+    void runMatrixTest(size_t size, GetValue getValue, const std::vector<floatt>& expectedValues, uint hdim = 32) {
       oap::HostMatrixPtr hmatrix = createSquareMatrix(size, getValue);
-      runMatrixTest(hmatrix, expectedValues);
+      runMatrixTest(hmatrix, expectedValues, hdim);
     }
 
-    void runMatrixTest(const std::string& dirName, uint wanted) {
+    void runMatrixTest(const std::string& dirName, uint wanted, uint hdim = 32) {
       HostMatrixPtrs ptrs = loadMatrices(utils::Config::getPathInOap("oapDeviceTests/data/smsdata/" + dirName));
       std::vector<floatt> evalues = getEigenvalues(ptrs[1], wanted);
-      runMatrixTest(ptrs[0], evalues);
+      runMatrixTest(ptrs[0], evalues, hdim);
     }
 };
 
@@ -224,12 +221,24 @@ TEST_F(OapArnoldiPackageMatricesTests, DISABLED_SsmTest1) {
 TEST_F(OapArnoldiPackageMatricesTests, Sms1HeaderTest) {
   oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<floatt>(SmsData1::columns, SmsData1::rows, (floatt*)SmsData1::smsmatrix, NULL);
   std::vector<floatt> ev(SmsData1::eigenvalues, SmsData1::eigenvalues + SmsData1::columns);
-  runMatrixTest(hmatrix, getEigenvalues(ev, 15));
+  runMatrixTest(hmatrix, getEigenvalues(ev, 5), 26);
 }
 
 TEST_F(OapArnoldiPackageMatricesTests, Sms2HeaderTest) {
   oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<floatt>(SmsData2::columns, SmsData2::rows, (floatt*)SmsData2::smsmatrix, NULL);
   std::vector<floatt> ev(SmsData2::eigenvalues, SmsData2::eigenvalues + SmsData2::columns);
-  runMatrixTest(hmatrix, getEigenvalues(ev, 5));
+  runMatrixTest(hmatrix, getEigenvalues(ev, 5), 26);
+}
+
+TEST_F(OapArnoldiPackageMatricesTests, Sms3HeaderTest) {
+  oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<floatt>(SmsData3::columns, SmsData3::rows, (floatt*)SmsData3::smsmatrix, NULL);
+  std::vector<floatt> ev(SmsData3::eigenvalues, SmsData3::eigenvalues + SmsData3::columns);
+  runMatrixTest(hmatrix, getEigenvalues(ev, 5), 32);
+}
+
+TEST_F(OapArnoldiPackageMatricesTests, Sms4HeaderTest) {
+  oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<floatt>(SmsData4::columns, SmsData4::rows, (floatt*)SmsData4::smsmatrix, NULL);
+  std::vector<floatt> ev(SmsData4::eigenvalues, SmsData4::eigenvalues + SmsData4::columns);
+  runMatrixTest(hmatrix, getEigenvalues(ev, 5), 32);
 }
 

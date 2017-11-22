@@ -42,7 +42,14 @@ typedef bool (*SortType)(const Complex& i, const Complex& j);
 enum CheckType {
   CHECK_INTERNAL,
   CHECK_EXTERNAL,
-  CHECK_FIRST_STOP
+  CHECK_FIRST_STOP,
+  CHECK_COUNTER
+};
+
+enum TriangularHProcedureType {
+  CALC_IN_DEVICE,
+  CALC_IN_HOST,
+  CALC_IN_DEVICE_STEP
 };
 
 enum Type { UNDEFINED, DEVICE, HOST };

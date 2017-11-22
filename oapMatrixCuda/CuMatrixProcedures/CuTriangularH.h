@@ -28,32 +28,58 @@
 #include "CuMatrixProcedures/CuQRProcedures.h"
 #include "CuMatrixProcedures/CuIsUpperTriangularProcedures.h"
 
+#define CUDA_HMtoUTMStep_STEPS 1000
+
 __hostdevice__ void CUDA_HMtoUTM(
-    math::Matrix* H, math::Matrix* Q, math::Matrix* R, math::Matrix* Qoutput,
-    math::Matrix* temp1, math::Matrix* temp2, math::Matrix* temp3,
-    math::Matrix* temp4, math::Matrix* temp5) {
+    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+    math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+{
   HOST_INIT();
 
   bool status = false;
-  CUDA_SetIdentityMatrix(Qoutput);
+  CUDA_SetIdentityMatrix(aux1);
   status = CUDA_isUpperTriangular(H);
-  uintt fa = 0;
-  while (status == false) {
-    CUDA_QRGR(Q, R, H, temp2, temp3, temp4, temp5);
+  uint fa = 0;
+  for (; fa < CUDA_HMtoUTMStep_STEPS && status == false; ++fa) {
+    CUDA_QRGR(Q, R, H, aux3, aux4, aux5, aux6);
     CUDA_dotProduct(H, R, Q);
-    CUDA_dotProduct(temp1, Q, Qoutput);
-    CUDA_switchPointer(&temp1, &Qoutput);
+    CUDA_dotProduct(aux2, Q, aux1);
+    CUDA_switchPointer(&aux2, &aux1);
     status = CUDA_isUpperTriangular(H);
-    // threads_sync();
-    ++fa;
   }
   // TODO: optymalization
   if (fa % 2 == 0) {
-    CUDA_copyMatrix(Q, Qoutput);
+    CUDA_copyMatrix(Q, aux1);
   } else {
-    CUDA_copyMatrix(Q, temp1);
+    CUDA_copyMatrix(Q, aux2);
   }
-  // cuda_debug_function();
+}
+
+__hostdevice__ void CUDA_HMtoUTMStep(
+    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+    math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+{
+  HOST_INIT();
+
+  bool status = false;
+  CUDA_SetIdentityMatrix(aux1);
+  uint fa = 0;
+  status = CUDA_isUpperTriangular(H);
+  for (; fa < CUDA_HMtoUTMStep_STEPS && status == false; ++fa) {
+    CUDA_QRGR(Q, R, H, aux3, aux4, aux5, aux6);
+    CUDA_dotProduct(H, R, Q);
+    CUDA_dotProduct(aux2, Q, aux1);
+    CUDA_switchPointer(&aux2, &aux1);
+    status = CUDA_isUpperTriangular(H);
+  }
+  // TODO: optymalization
+  if (fa % 2 == 0) {
+    CUDA_copyMatrix(Q, aux1);
+  } else {
+    CUDA_copyMatrix(Q, aux2);
+  }
 }
 
 #endif  // CUTRIANGULARH

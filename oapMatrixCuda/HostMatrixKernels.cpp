@@ -142,17 +142,17 @@ void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
                                     math::Matrix* QJ, math::Matrix* Q2,
                                     math::Matrix* R2, math::Matrix* G,
                                     math::Matrix* GT,
-                                    CuMatrix& m_cuMatrix) {
+                                    CuMatrix& cuMatrix, uint count) {
   bool status = false;
-  m_cuMatrix.setIdentity(Q1);
-  status = m_cuMatrix.isUpperTriangular(H1);
+  cuMatrix.setIdentity(Q1);
+  status = cuMatrix.isUpperTriangular(H1);
   uintt fb = 0;
-  for (; fb < 100; ++fb) {
-    m_cuMatrix.QRGR(Q, R1, H1, Q2, R2, G, GT);
-    m_cuMatrix.dotProduct(H1, R1, Q);
-    m_cuMatrix.dotProduct(QJ, Q, Q1);
+  for (; fb < count; ++fb) {
+    cuMatrix.QRGR(Q, R1, H1, Q2, R2, G, GT);
+    cuMatrix.dotProduct(H1, R1, Q);
+    cuMatrix.dotProduct(QJ, Q, Q1);
     aux_switchPointer(&QJ, &Q1);
-    status = m_cuMatrix.isUpperTriangular(H1);
+    status = cuMatrix.isUpperTriangular(H1);
     // if (fb == 200) { abort();}
   }
   if (fb % 2 == 0) {

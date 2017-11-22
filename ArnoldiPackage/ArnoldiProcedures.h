@@ -43,11 +43,15 @@ class CuHArnoldi {
 
   void setCheckType(ArnUtils::CheckType checkType);
 
+  void setCheckCounts(uint count);
+
   void setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues);
 
   void setOutputsEigenvectors(math::Matrix** oevectors);
 
   void setOutputType(ArnUtils::Type outputType);
+
+  void setCalcTraingularHType(ArnUtils::TriangularHProcedureType type);
 
   void execute(uintt k, uintt wantedCount, const math::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
@@ -150,6 +154,10 @@ class CuHArnoldi {
 
   SortObject m_sortObject;
   ArnUtils::CheckType m_checkType;
+  uint m_checksCount;
+  uint m_checksCounter;
+
+  ArnUtils::TriangularHProcedureType m_triangularHProcedureType;
 
   void* m_image;
   device::Kernel m_kernel;
@@ -175,10 +183,15 @@ class CuHArnoldi {
   }
 
   inline void setCalculateTriangularHPtr(uintt k) {
-    if (true || k > 32) {
+    if (m_triangularHProcedureType == ArnUtils::CALC_IN_HOST) {
       m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularH;
     } else {
-      m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDevice;
+      if (k > 32) { debugAssert("Traingular H in device is not supported for k > 32"); }
+      if (m_triangularHProcedureType == ArnUtils::CALC_IN_DEVICE) {
+        m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDevice;
+      } else if (m_triangularHProcedureType == ArnUtils::CALC_IN_DEVICE_STEP) {
+        m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDeviceSteps;
+      }
     }
   }
 
@@ -189,18 +202,19 @@ class CuHArnoldi {
 
   void calculateTriangularHInDevice();
 
+  void calculateTriangularHInDeviceSteps();
+
   void calculateTriangularH();
 
   void (CuHArnoldi::*m_calculateTriangularHPtr)();
 
-  void calculateTriangularHEigens(math::Matrix* triangularH,
-      const math::Matrix* normalH, const math::MatrixInfo& matrixInfo);
+  void calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo);
 
   void sortPWorstEigens(uintt unwantedCount);
 
   void sortEigenvalues(math::Matrix* m_triangularH, uintt unwantedCount);
 
-  void getWanted(std::vector<OutputEntry>& values, std::vector<OutputEntry>& wanted,
+  void getWanted(const std::vector<OutputEntry>& values, std::vector<OutputEntry>& wanted,
     std::vector<OutputEntry>& unwanted, uintt unwantedCount);
 
   /**
@@ -211,7 +225,7 @@ class CuHArnoldi {
    * @param m_rho
    * @return true - should continue, false  - finish algorithm
    */
-  bool executeArnoldiFactorization(bool init, intt initj, MatrixEx** dMatrixEx,
+  bool executeArnoldiFactorization(bool init, uint initj, MatrixEx** dMatrixEx,
                                    floatt rho);
 
   void executefVHplusfq(uintt k);

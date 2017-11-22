@@ -42,6 +42,9 @@ CuHArnoldi::CuHArnoldi()
       m_blimit(MATH_VALUE_LIMIT),
       m_sortObject(ArnUtils::SortSmallestValues),
       m_checkType(ArnUtils::CHECK_INTERNAL),
+      m_checksCount(0),
+      m_checksCounter(0),
+      m_triangularHProcedureType(ArnUtils::CALC_IN_HOST),
       m_w(NULL),
       m_f(NULL),
       m_f1(NULL),
@@ -111,6 +114,11 @@ void CuHArnoldi::setCheckType(ArnUtils::CheckType checkType) {
   m_checkType = checkType;
 }
 
+void CuHArnoldi::setCheckCounts(uint count) {
+  traceFunction();
+  m_checksCount = count;
+}
+
 void CuHArnoldi::setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues) {
   traceFunction();
   m_reoevalues = reoevalues;
@@ -126,6 +134,12 @@ void CuHArnoldi::setOutputType(ArnUtils::Type outputType) {
   traceFunction();
   m_outputType = outputType;
 }
+
+void CuHArnoldi::setCalcTraingularHType(ArnUtils::TriangularHProcedureType type) {
+  traceFunction();
+  m_triangularHProcedureType = type;
+}
+
 
 void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
                          const math::MatrixInfo& matrixInfo,
@@ -149,13 +163,13 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
   bool status = false;
   {
   traceFunction();
-    const uintt initj = 0;
+    const uintt initIndex = 0;
 
     uintt buffer[] = {0, m_transposeVcolumns, 0, 1, 0, 0,
                       0, 1, 0, m_hrows, 0, m_transposeVcolumns,
                       0, 0, 0, 0, 0, 0,
-                      0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
-                      0, m_vscolumns, 0, m_vsrows, initj, initj + 2};
+                      0, m_scolumns, initIndex, initIndex + 2, 0, m_transposeVcolumns,
+                      0, m_vscolumns, 0, m_vsrows, initIndex, initIndex + 2};
 
     device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
     status = executeArnoldiFactorization(true, 0, dMatrixExs, m_rho);
@@ -166,38 +180,39 @@ void CuHArnoldi::execute(uintt hdim, uintt wantedCount,
     unwanted.clear();
     wanted.clear();
 
-    calculateTriangularHEigens(m_triangularH, m_H, m_matrixInfo);
+    calculateTriangularHEigens(m_H, m_matrixInfo);
 
     sortPWorstEigens(hdim - wantedCount);
 
     m_cuMatrix.setIdentity(m_Q);
     m_cuMatrix.setIdentity(m_QJ);
-    uintt p = hdim - wantedCount;
-    uintt k = wantedCount;
 
-    executeShiftedQRIteration(p);
+    uintt unwantedCount = hdim - wantedCount; // unwanted - p, wanted - k
 
-    executefVHplusfq(k);
+    executeShiftedQRIteration(unwantedCount);
 
-    status = executeChecking(k);
+    executefVHplusfq(wantedCount);
+
+    status = executeChecking(wantedCount);
 
     m_cuMatrix.dotProduct(m_QT1, m_QT2, m_Q);
     aux_swapPointers(&m_QT1, &m_QT2);
     if (status == true) {
       traceFunction();
-      const uintt initj = k - 1;
+      const uintt nextIterationInit = wantedCount - 1;
 
       uintt buffer[] = {0, m_transposeVcolumns, 0, 1, 0, 0,
                         0, 1, 0, m_hrows, 0, m_transposeVcolumns,
                         0, 0, 0, 0, 0, 0,
-                        0, m_scolumns, initj, initj + 2, 0, m_transposeVcolumns,
-                        0, m_vscolumns, 0, m_vsrows, initj, initj + 2};
+                        0, m_scolumns, nextIterationInit, nextIterationInit + 2, 0, m_transposeVcolumns,
+                        0, m_vscolumns, 0, m_vsrows, nextIterationInit, nextIterationInit + 2};
 
       device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
-      status = executeArnoldiFactorization(false, k - 1, dMatrixExs, m_rho);
+      status = executeArnoldiFactorization(false, nextIterationInit, dMatrixExs, m_rho);
     }
   }
 
+  //sortEigenvalues(m_H, hdim - wantedCount);
   sortEigenvalues(m_H, hdim - wantedCount);
 
   extractOutput();
@@ -258,7 +273,9 @@ void CuHArnoldi::initVvector() {
   CudaUtils::SetReValue(m_v, 0, 1.f);
 }
 
-bool CuHArnoldi::continueProcedure() { return true; }
+bool CuHArnoldi::continueProcedure() {
+  return true;
+}
 
 void CuHArnoldi::calculateTriangularHInDevice() {
   traceFunction();
@@ -266,36 +283,33 @@ void CuHArnoldi::calculateTriangularHInDevice() {
                                m_G, m_GT, m_Hcolumns, m_Hrows, m_kernel);
 }
 
+void CuHArnoldi::calculateTriangularHInDeviceSteps() {
+  traceFunction();
+  bool isTriangular = m_cuMatrix.isUpperTriangular(m_triangularH);
+  for (uint fa = 0; fa < 8 && isTriangular == false; ++fa) {
+    traceFunction();
+    m_cuMatrix.calcTriangularHStep(m_triangularH, m_Q, m_R1, m_Q1, m_QJ, m_Q2, m_R2,m_G, m_GT, m_Hcolumns, m_Hrows);
+    isTriangular = m_cuMatrix.isUpperTriangular(m_triangularH);
+  }
+  debug("isTriangular = %d", isTriangular);
+}
+
 void CuHArnoldi::calculateTriangularH() {
   traceFunction();
   HOSTKernel_CalcTriangularH(m_triangularH, m_Q, m_R1, m_Q1, m_QJ, m_Q2, m_R2,
-                             m_G, m_GT, m_cuMatrix);
+                             m_G, m_GT, m_cuMatrix, 500);
 }
 
-void CuHArnoldi::calculateTriangularHEigens(math::Matrix* triangularH,
-    const math::Matrix* normalH, const math::MatrixInfo& matrixInfo)
+void CuHArnoldi::calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo)
 {
   traceFunction();
-  device::CopyDeviceMatrixToDeviceMatrix(triangularH, normalH);
+  device::CopyDeviceMatrixToDeviceMatrix(m_triangularH, normalH);
   m_cuMatrix.setIdentity(m_Q);
   m_cuMatrix.setIdentity(m_QJ);
   m_cuMatrix.setIdentity(m_I);
+  device::PrintMatrix("m_triangularHPre = ", m_triangularH);
   (this->*m_calculateTriangularHPtr)();
-  int index = 0;
-  m_cuMatrix.getVector(m_q, m_qrows, m_Q, index);
-  if (matrixInfo.isRe && matrixInfo.isIm) {
-    traceFunction();
-    uintt index1 = index * m_triangularHcolumns + index;
-    floatt re = CudaUtils::GetReValue(triangularH, index1);
-    floatt im = CudaUtils::GetImValue(triangularH, index1);
-  } else if (matrixInfo.isRe) {
-    traceFunction();
-    uintt index1 = index * m_triangularHcolumns + index;
-    floatt re = CudaUtils::GetReValue(triangularH, index1);
-  } else if (matrixInfo.isIm) {
-    traceFunction();
-    debugAssert("Not supported yet");
-  }
+  device::PrintMatrix("m_triangularHPost = ", m_triangularH);
 }
 
 void CuHArnoldi::sortPWorstEigens(uintt unwantedCount)
@@ -326,27 +340,28 @@ void CuHArnoldi::sortEigenvalues(math::Matrix* H, uintt unwantedCount)
   std::sort(values.begin(), values.end(), m_sortObject);
 
   getWanted(values, wanted, unwanted, unwantedCount);
-
 }
 
-void CuHArnoldi::getWanted(std::vector<OutputEntry>& values, std::vector<OutputEntry>& wanted,
+void CuHArnoldi::getWanted(const std::vector<OutputEntry>& values, std::vector<OutputEntry>& wanted,
     std::vector<OutputEntry>& unwanted, uintt unwantedCount)
 {
   traceFunction();
-  for (uintt fa = 0; fa < values.size(); ++fa) {
+  for (uint fa = 0; fa < values.size(); ++fa) {
     traceFunction();
     OutputEntry value = values[fa];
     if (fa < unwantedCount) {
       traceFunction();
       unwanted.push_back(value);
+      debug("unwanted = %f", value.re());
     } else {
       traceFunction();
       wanted.push_back(value);
+      debug("wanted = %f", value.re());
     }
   }
 }
 
-bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
+bool CuHArnoldi::executeArnoldiFactorization(bool init, uint initIndex,
                                              MatrixEx** dMatrixEx, floatt rho) {
   traceFunction();
   if (init) {
@@ -364,12 +379,12 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
   floatt mh = 0;
   floatt B = 0;
 
-  for (uintt fa = initj; fa < m_k - 1; ++fa) {
+  for (uint fa = initIndex; fa < m_k - 1; ++fa) {
     traceFunction();
+    device::PrintMatrix("m_f = ", m_f);
     m_cuMatrix.magnitude(B, m_f);
 
     if (fabs(B) < m_blimit) {
-      traceFunction();
       return false;
     }
 
@@ -378,8 +393,9 @@ bool CuHArnoldi::executeArnoldiFactorization(bool init, intt initj,
     m_cuMatrix.setVector(m_V, fa + 1, m_v, m_vrows);
     CudaUtils::SetZeroRow(m_H, fa + 1, true, true);
     CudaUtils::SetReValue(m_H, (fa) + m_Hcolumns * (fa + 1), B);
+    device::PrintMatrix("m_H = ", m_H);
     multiply(m_w, m_v, CuHArnoldi::TYPE_WV);
-    MatrixEx matrixEx = {0, m_transposeVcolumns, initj, fa + 2 - initj, 0, 0};
+    MatrixEx matrixEx = {0, m_transposeVcolumns, initIndex, fa + 2 - initIndex, 0, 0};
     device::SetMatrixEx(dMatrixEx[2], &matrixEx);
     m_cuMatrix.transposeMatrix(m_transposeV, m_V);
     m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
@@ -433,6 +449,20 @@ bool CuHArnoldi::executeChecking(uintt k)
 
   assert(wanted.size() == k);
 
+  if (m_checkType == ArnUtils::CHECK_COUNTER) {
+    ++m_checksCounter;
+
+    bool shouldContinue = m_checksCounter < m_checksCount;
+
+    if (shouldContinue) {
+      return true;
+    } else {
+      return false;
+    }
+  } else if (m_checkType == ArnUtils::CHECK_FIRST_STOP) {
+    return false;
+  }
+
   extractOutput();
 
   for (uintt index = 0; index < wanted.size(); ++index) {
@@ -442,36 +472,27 @@ bool CuHArnoldi::executeChecking(uintt k)
     math::Matrix* evector = NULL;
     bool shouldContinue = false;
 
-    switch (m_checkType) {
-      case ArnUtils::CHECK_INTERNAL:
+    if (m_checkType == ArnUtils::CHECK_INTERNAL) {
         traceFunction();
         shouldContinue = checkOutcome(index, 0.001);
-        break;
-      case ArnUtils::CHECK_EXTERNAL:
+    } else if (ArnUtils::CHECK_EXTERNAL) {
         traceFunction();
         reevalue = wanted[index].eigenvalue.re;
         imevalue = wanted[index].eigenvalue.im;
         shouldContinue = (checkEigenspair(reevalue, imevalue, m_oevectors[index], index, k));
-        break;
-      case ArnUtils::CHECK_FIRST_STOP:
-        traceFunction();
-        shouldContinue = false;
-        break;
     }
 
     if (shouldContinue) {
-      traceFunction();
       return true;
     }
   }
-  traceFunction();
   return false;
 }
 
 void CuHArnoldi::executeShiftedQRIteration(uintt p)
 {
   traceFunction();
-  for (intt fa = 0; fa < p; ++fa) {
+  for (uint fa = 0; fa < p; ++fa) {
     traceFunction();
     m_cuMatrix.setDiagonal(m_I, unwanted[fa].re(), unwanted[fa].im());
     m_cuMatrix.substract(m_I, m_H, m_I);
@@ -547,7 +568,6 @@ void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uintt k)
 bool CuHArnoldi::shouldBeReallocated(const math::MatrixInfo& m1,
                                      const math::MatrixInfo& m2) const
 {
-  traceFunction();
   return m1.isIm != m2.isIm || m1.isRe != m2.isRe;
 }
 

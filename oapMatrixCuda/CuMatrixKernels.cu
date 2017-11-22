@@ -262,8 +262,17 @@ extern "C" __global__ void CUDAKernel_IsUpperTriangular(int* outcome,
 }
 
 extern "C" __global__ void CUDAKernel_CalculateTriangularH(
-    math::Matrix* H, math::Matrix* Q, math::Matrix* R, math::Matrix* temp,
-    math::Matrix* temp1, math::Matrix* temp2, math::Matrix* temp3,
-    math::Matrix* temp4, math::Matrix* temp5) {
-  CUDA_HMtoUTM(H, Q, R, temp, temp1, temp2, temp3, temp4, temp5);
+    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+    math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+{
+  CUDA_HMtoUTM(H, Q, R, aux1, aux2, aux3, aux4, aux5, aux6);
+}
+
+extern "C" __global__ void CUDAKernel_CalculateTriangularHStep(
+    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+    math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+{
+  CUDA_HMtoUTMStep(H, Q, R, aux1, aux2, aux3, aux4, aux5, aux6);
 }

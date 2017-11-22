@@ -263,6 +263,30 @@ bool CuMatrix::isUpperTriangular(math::Matrix* matrix) {
   return result == 1;
 }
 
+void CuMatrix::calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+                                   math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+                                   math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+{
+  uint w = CudaUtils::GetColumns(H);
+  uint h = CudaUtils::GetRows(H);
+  calcTriangularHStep(H, Q, R,
+                      aux1, aux2, aux3,
+                      aux4, aux5, aux6,
+                      w, h);
+
+}
+
+void CuMatrix::calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+                                   math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+                                   math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6,
+                                   uint columns, uint rows)
+{
+  void* params[] = {&H, &Q, &R, &aux1, &aux2, &aux3, &aux4, &aux5, &aux6};
+  const uintt w = columns;
+  const uintt h = rows;
+  m_cuResult = execute("CUDAKernel_CalculateTriangularHStep", w, h, params, 0);
+}
+
 void CuMatrix::multiplyConstantMatrix(math::Matrix* output,
                                       math::Matrix* params0, floatt re) {
   void* params[] = {&output, &params0, &re};
