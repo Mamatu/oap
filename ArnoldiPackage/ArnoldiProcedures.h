@@ -217,16 +217,16 @@ class CuHArnoldi {
   void getWanted(const std::vector<OutputEntry>& values, std::vector<OutputEntry>& wanted,
     std::vector<OutputEntry>& unwanted, uintt unwantedCount);
 
+  void executeInit(MatrixEx** dMatrixEx);
+
   /**
    * @brief executeArnoldiFactorization
-   * @param init
-   * @param initj
+   * @param startIndex
    * @param dMatrixEx
    * @param m_rho
    * @return true - should continue, false  - finish algorithm
    */
-  bool executeArnoldiFactorization(bool init, uint initj, MatrixEx** dMatrixEx,
-                                   floatt rho);
+  bool executeArnoldiFactorization(uint startIndex, MatrixEx** dMatrixEx, floatt rho);
 
   void executefVHplusfq(uintt k);
 
