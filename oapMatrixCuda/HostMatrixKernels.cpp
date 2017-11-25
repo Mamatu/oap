@@ -147,7 +147,7 @@ void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
   cuMatrix.setIdentity(Q1);
   status = cuMatrix.isUpperTriangular(H1);
   uintt fb = 0;
-  for (; fb < count; ++fb) {
+  for (; fb < count && status == false; ++fb) {
     cuMatrix.QRGR(Q, R1, H1, Q2, R2, G, GT);
     cuMatrix.dotProduct(H1, R1, Q);
     cuMatrix.dotProduct(QJ, Q, Q1);
