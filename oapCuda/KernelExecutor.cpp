@@ -17,24 +17,16 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <linux/fs.h>
+#include <cstdlib>
+#include <limits.h>
 #include <math.h>
 
-#include "KernelExecutor.h"
+//#include <linux/fs.h>
+
 #include "ArrayTools.h"
 #include "DebugLogs.h"
+#include "KernelExecutor.h"
 #include "ThreadsMapper.h"
-#include <cstdlib>
-
-#define printCuErrorStatus(status, cuResult)                                   \
-  if (cuResult != 0) {                                                         \
-    status = cuResult;                                                         \
-    const char* buffer;                                                        \
-    cuGetErrorName(cuResult, &buffer);                                         \
-    debug("\n%s %s : %d cuError: %s (%d)\n", __FUNCTION__, __FILE__, __LINE__, \
-          buffer, cuResult);                                                   \
-    abort();                                                                   \
-  }
 
 namespace device {
 
@@ -56,7 +48,9 @@ void Init() {
   static bool wasInit = false;
   if (wasInit == false) {
     wasInit = true;
+    debug("Cuda initialization cuInit run...");
     printCuError(cuInit(0));
+    debug("Cuda initialization done");
   }
 }
 
@@ -121,34 +115,51 @@ void CuDeviceInfo::setDeviceInfo(const CuDevice& deviceInfo) {
   setDevice(deviceInfo.getDevice());
 }
 
-Context::Context(int _deviceIndex) : deviceIndex(_deviceIndex) {}
+int Context::FIRST = 0;
+int Context::LAST = INT_MAX;
+
+Context::Context() {}
 
 Context Context::m_Context;
 
 Context& Context::Instance() { return Context::m_Context; }
 
-void Context::create() {
+void Context::create(int deviceIndex) {
+  debugFuncBegin();
   Init();
+  debugFunc();
   int count = 0;
   printCuError(cuDeviceGetCount(&count));
-  debug("Devices count: %d \n", count);
-  deviceIndex = count - 1;
-  if (deviceIndex < count) {
-    CUdevice device = 0;
-    printCuError(cuDeviceGet(&device, deviceIndex));
-    setDevice(device);
-    CUcontext context;
-    printCuError(cuCtxCreate(&context, CU_CTX_SCHED_AUTO, device));
-    m_contexts.push(context);
+  debug("Devices count: %d\n Passed device index: %d\n", count, deviceIndex);
+  if (deviceIndex < 0) {
+    deviceIndex = 0;
   }
+  if (deviceIndex >= count) {
+    deviceIndex = count - 1;
+  }
+  debug("Devices count: %d\n Real device index: %d\n", count, deviceIndex);
+  CUdevice device = 0;
+  debug("Get device... \n");
+  printCuError(cuDeviceGet(&device, deviceIndex));
+  setDevice(device);
+  CUcontext context;
+  debug("Create context... \n");
+  printCuError(cuCtxCreate(&context, CU_CTX_SCHED_AUTO, device));
+  debug("Context created %p \n", context);
+  m_contexts.push(context);
+  debugFuncEnd();
 }
 
 void Context::destroy() {
+  debugFuncBegin();
   if (!m_contexts.empty()) {
+    debugFunc();
     CUcontext context = m_contexts.top();
     m_contexts.pop();
+    setDevice(0);
     printCuError(cuCtxDestroy(context));
   }
+  debugFuncEnd();
 }
 
 Context::~Context() { destroy(); }

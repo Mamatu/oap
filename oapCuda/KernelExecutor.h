@@ -21,13 +21,25 @@
 #define OAP_KERNEL_EXECUTOR_H
 
 #include "CuCore.h"
+
 #include <string>
 #include <stack>
+
 #include "Math.h"
 #include "Matrix.h"
 #include "CudaUtils.h"
 
 #define printCuError(cuResult)                                                 \
+  if (cuResult != 0) {                                                         \
+    const char* buffer;                                                        \
+    cuGetErrorName(cuResult, &buffer);                                         \
+    debug("\n%s %s : %d cuError: %s (%d)\n", __FUNCTION__, __FILE__, __LINE__, \
+          buffer, cuResult);                                                   \
+    abort();                                                                   \
+  }
+
+#define printCuErrorStatus(result, cuResult)                                   \
+  result = cuResult;                                                         \
   if (cuResult != 0) {                                                         \
     const char* buffer;                                                        \
     cuGetErrorName(cuResult, &buffer);                                         \
@@ -76,18 +88,20 @@ class CuDeviceInfo : public CuDevice {
 
 class Context : public CuDeviceInfo {
  public:
-  void create();
+  static int FIRST;
+  static int LAST;
+ public:
+  void create(int deviceIndex = Context::LAST);
   void destroy();
   static Context& Instance();
 
  protected:
-  Context(int deviceIndex = 1);
+  Context();
   virtual ~Context();
 
  private:
   static Context m_Context;
   std::stack<CUcontext> m_contexts;
-  int deviceIndex;
 };
 
 class Kernel : public CuDeviceInfo {
