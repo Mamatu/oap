@@ -17,30 +17,29 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef CUCOMPAREOPTPROCEDURES2_H
 #define	CUCOMPAREOPTPROCEDURES2_H
 
-#include "CuCore.h"
 #include <cuda.h>
+#include <stdio.h>
+
+#include "CuCore.h"
 #include "CuCompareUtils2.h"
 #include "CuMatrixUtils.h"
-#include <stdio.h>
+
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_compareOptRealMatrixVer2(
-    int* sum,
-    math::Matrix* matrix1,
-    math::Matrix* matrix2,
-    int* buffer) {
+__hostdevice__ void CUDA_compareOptRealMatrixVer2 (floatt* sum,
+                                                   math::Matrix* matrix1,
+                                                   math::Matrix* matrix2,
+                                                   floatt* buffer)
+{
     HOST_INIT();
-    uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
-    uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
-    uintt sharedLength = xlength * ylength;
-    uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
+    uint xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
+    uint ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+    uint sharedLength = xlength * ylength;
+    uint sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_CompareRealOptVer2(buffer, matrix1, matrix2, sharedIndex, xlength);
     threads_sync();
     do {
@@ -53,16 +52,16 @@ __hostdevice__ void CUDA_compareOptRealMatrixVer2(
     }
 }
 
-__hostdevice__ void CUDA_compareOptReMatrixVer2(
-    int* sum,
-    math::Matrix* matrix1,
-    math::Matrix* matrix2,
-    int* buffer) {
+__hostdevice__ void CUDA_compareOptReMatrixVer2 (floatt* sum,
+                                                 math::Matrix* matrix1,
+                                                 math::Matrix* matrix2,
+                                                 floatt* buffer)
+{
     HOST_INIT();
-    uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
-    uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
-    uintt sharedLength = xlength * ylength;
-    uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
+    uint xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
+    uint ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+    uint sharedLength = xlength * ylength;
+    uint sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_CompareReOptVer2(buffer, matrix1, matrix2, sharedIndex, xlength);
     threads_sync();
     do {
@@ -76,16 +75,16 @@ __hostdevice__ void CUDA_compareOptReMatrixVer2(
     }
 }
 
-__hostdevice__ void CUDA_compareOptImMatrixVer2(
-    int* sum,
-    math::Matrix* matrix1,
-    math::Matrix* matrix2,
-    int* buffer) {
+__hostdevice__ void CUDA_compareOptImMatrixVer2 (floatt* sum,
+                                                 math::Matrix* matrix1,
+                                                 math::Matrix* matrix2,
+                                                 floatt* buffer)
+{
     HOST_INIT();
-    uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
-    uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
-    uintt sharedLength = xlength * ylength;
-    uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
+    uint xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
+    uint ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+    uint sharedLength = xlength * ylength;
+    uint sharedIndex = threadIdx.y * xlength + threadIdx.x;
     cuda_CompareImOptVer2(buffer, matrix1, matrix2, sharedIndex, xlength);
     threads_sync();
     do {
@@ -98,11 +97,11 @@ __hostdevice__ void CUDA_compareOptImMatrixVer2(
     }
 }
 
-__hostdevice__ void CUDA_compareOptVer2(
-    int* sum,
-    math::Matrix* matrix1,
-    math::Matrix* matrix2,
-    int* buffer) {
+__hostdevice__ void CUDA_compareOptVer2 (floatt* sum,
+                                         math::Matrix* matrix1,
+                                         math::Matrix* matrix2,
+                                         floatt* buffer)
+{
     HOST_INIT();
     bool isre = matrix1->reValues != NULL;
     bool isim = matrix1->imValues != NULL;
@@ -115,4 +114,4 @@ __hostdevice__ void CUDA_compareOptVer2(
     }
 }
 
-#endif	/* CUCOMPAREPROCEDURES_H */
+#endif /* CUCOMPAREPROCEDURES_H */

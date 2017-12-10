@@ -73,9 +73,9 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTest1) {
     device::CopyHostArraysToDeviceMatrix(matrix2, hArray, NULL);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
-    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    floatt outcomeVer1 = cuMatrix->getCompareOperationSum();
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
-    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
+    floatt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     device::DeleteDeviceMatrix(matrix1);
     device::DeleteDeviceMatrix(matrix2);
@@ -118,9 +118,9 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTest1Fail) {
     device::CopyHostArraysToDeviceMatrix(matrix2, hArray2, NULL);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
-    uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
+    floatt outcomeVer1 = cuMatrix->getCompareOperationSum();
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
-    uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
+    floatt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
     device::DeleteDeviceMatrix(matrix1);
     device::DeleteDeviceMatrix(matrix2);

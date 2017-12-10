@@ -215,36 +215,43 @@ extern "C" __global__ void CUDAKernel_Invert(math::Matrix* output,
   CUDA_invertMatrix(output, matrix, aux1, aux2, aux3);
 }
 
-extern "C" __global__ void CUDAKernel_CompareRe(int* sums,
+extern "C" __global__ void CUDAKernel_CompareRe(floatt* sums,
                                                 math::Matrix* matrix1,
                                                 math::Matrix* matrix2,
-                                                int* buffer,
-                                                uintt bufferLength) {
+                                                floatt* buffer,
+                                                uint bufferLength)
+{
   CUDA_compareReMatrix(sums, matrix1, matrix2, buffer);
 }
 
-extern "C" __global__ void CUDAKernel_Compare(int* sums, math::Matrix* matrix1,
+extern "C" __global__ void CUDAKernel_Compare(floatt* sums,
+                                              math::Matrix* matrix1,
                                               math::Matrix* matrix2,
-                                              int* buffer, uintt bufferLength) {
+                                              floatt* buffer,
+                                              uint bufferLength)
+{
   CUDA_compare(sums, matrix1, matrix2, buffer);
 }
 
-extern "C" __global__ void CUDAKernel_CompareOpt(int* sums,
+extern "C" __global__ void CUDAKernel_CompareOpt(floatt* sums,
                                                  math::Matrix* matrix1,
-                                                 math::Matrix* matrix2) {
-  extern __shared__ int sharedBufferInt[];
-  CUDA_compareOpt(sums, matrix1, matrix2, sharedBufferInt);
+                                                 math::Matrix* matrix2)
+{
+  extern __shared__ floatt sharedBufferFloatt[];
+  CUDA_compareOpt(sums, matrix1, matrix2, sharedBufferFloatt);
 }
 
-extern "C" __global__ void CUDAKernel_CompareOptVer2(int* sums,
+extern "C" __global__ void CUDAKernel_CompareOptVer2(floatt* sums,
                                                      math::Matrix* matrix1,
-                                                     math::Matrix* matrix2) {
-  extern __shared__ int sharedBufferInt[];
-  CUDA_compareOptVer2(sums, matrix1, matrix2, sharedBufferInt);
+                                                     math::Matrix* matrix2)
+{
+  extern __shared__ floatt sharedBufferFloatt[];
+  CUDA_compareOptVer2(sums, matrix1, matrix2, sharedBufferFloatt);
 }
 
 extern "C" __global__ void CUDAKernel_MagnitudeOpt(floatt* sums,
-                                                   math::Matrix* matrix) {
+                                                   math::Matrix* matrix)
+{
   extern __shared__ floatt bufferFloat[];
   CUDA_magnitudeOpt(sums, matrix, bufferFloat);
 }

@@ -106,11 +106,11 @@ class CuMatrix {
 
   void setZeroMatrix(math::Matrix* matrix);
 
-  bool compare(math::Matrix* matrix1, math::Matrix* matrix2);
+  bool compare(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0.0001);
 
-  bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2);
+  bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0.0001);
 
-  uintt getCompareOperationSum() const;
+  floatt getCompareOperationSum() const;
 
   void QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H, math::Matrix* R1,
             math::Matrix* Q1, math::Matrix* G, math::Matrix* GT);
@@ -140,7 +140,7 @@ class CuMatrix {
   bool m_isIntialized;
   device::Kernel m_kernel;
   uintt m_maxThreadsPerBlock;
-  uintt m_compareOperationOutput;
+  floatt m_compareOperationOutput;
 
   uintt m_columns;
   uintt m_rows;
@@ -163,7 +163,7 @@ class CuMatrix {
                    math::Matrix* I, math::Matrix* v, math::Matrix* vt,
                    math::Matrix* vvt);
 
-  bool compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
+  floatt compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
                         math::Matrix* matrix2, uintt w, uintt h, uintt wthreads,
                         uintt hthreads);
 
@@ -195,9 +195,9 @@ private:
     T* alloc(uintt length);
   };
 
-  Buffer<int> m_dcompareOutputBuffer;
-  Buffer<int> m_dcompareBuffer;
-  Buffer<int> m_hcompareOutputBuffer;
+  Buffer<floatt> m_dcompareOutputBuffer;
+  Buffer<floatt> m_dcompareBuffer;
+  Buffer<floatt> m_hcompareOutputBuffer;
   Buffer<floatt> m_magnitudeBuffer;
   Buffer<floatt> m_dmagnitudeOutputBuffer;
   Buffer<floatt> m_dmagnitudeBuffer;

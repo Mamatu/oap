@@ -304,7 +304,7 @@ void CuMatrix::multiplyConstantMatrix(math::Matrix* output,
   m_cuResult = execute("CUDAKernel_MultiplyConstant", w, h, params, 0);
 }
 
-bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
+bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance) {
   if (matrix1 == matrix2) {
     return true;
   }
@@ -312,11 +312,13 @@ bool CuMatrix::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
   const uintt w = CudaUtils::GetColumns(matrix1);
   const uintt h = CudaUtils::GetRows(matrix1);
 
-  return compareProcedure("CUDAKernel_CompareOpt", matrix1, matrix2, w, h, w,
+  floatt o = compareProcedure("CUDAKernel_CompareOpt", matrix1, matrix2, w, h, w,
                           h);
+
+  return (-tolerance <= o && o <= tolerance);
 }
 
-bool CuMatrix::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2) {
+bool CuMatrix::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance) {
   if (matrix1 == matrix2) {
     return true;
   }
@@ -324,11 +326,12 @@ bool CuMatrix::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2) {
   const uintt w = CudaUtils::GetColumns(matrix1);
   const uintt h = CudaUtils::GetRows(matrix1);
 
-  return compareProcedure("CUDAKernel_CompareOptVer2", matrix1, matrix2, w, h,
+  floatt o = compareProcedure("CUDAKernel_CompareOptVer2", matrix1, matrix2, w, h,
                           w / 2, h);
+  return (-tolerance <= o && o <= tolerance);
 }
 
-bool CuMatrix::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
+floatt CuMatrix::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
                                 math::Matrix* matrix2, uintt w, uintt h,
                                 uintt wthreads, uintt hthreads) {
   if (matrix1 == matrix2) {
@@ -340,12 +343,12 @@ bool CuMatrix::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
 
   m_kernel.calculateThreadsBlocks(blocks, threads, wthreads, hthreads);
 
-  assert(threads[0] * threads[1] * sizeof(int) <
+  assert(threads[0] * threads[1] * sizeof(floatt) <
          m_kernel.getSharedMemorySize());
 
   m_kernel.setBlocksCount(blocks[0], blocks[1]);
   m_kernel.setThreadsCount(threads[0], threads[1]);
-  m_kernel.setSharedMemory(threads[0] * threads[1] * sizeof(int));
+  m_kernel.setSharedMemory(threads[0] * threads[1] * sizeof(floatt));
 
   uintt outputLength = blocks[0] * blocks[1];
 
@@ -360,13 +363,15 @@ bool CuMatrix::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
       m_hcompareOutputBuffer.m_buffer, m_dcompareOutputBuffer.m_buffer,
       outputLength * m_hcompareOutputBuffer.GetSizeOfType());
 
-  uintt outcome = 0;
+  floatt outcome = 0;
   for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {
     outcome += m_hcompareOutputBuffer.m_buffer[fa];
   }
 
+  outcome = outcome / (w * h);
+
   m_compareOperationOutput = outcome;
-  return outcome == w * h;
+  return outcome;
 }
 
 floatt CuMatrix::magnitude2Procedure(const char* cuKernelName,
@@ -440,7 +445,7 @@ void CuMatrix::qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* R,
   }
 }
 
-uintt CuMatrix::getCompareOperationSum() const {
+floatt CuMatrix::getCompareOperationSum() const {
   return m_compareOperationOutput;
 }
 

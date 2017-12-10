@@ -29,58 +29,64 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void cuda_compare_re(int* buffer, math::Matrix* m1,
-                                    math::Matrix* m2, uintt tindex,
-                                    uintt length) {
-  uintt index = tindex * 2;
-  uintt c = length & 1;
+#include "CuCompareUtilsCommon.h"
+
+__hostdevice__ void cuda_compare_re(floatt* buffer,
+                                     math::Matrix* m1,
+                                     math::Matrix* m2,
+                                     uint tindex, uint length)
+{
+  uint index = tindex * 2;
+  uint c = length & 1;
   if (tindex < length / 2) {
-    buffer[tindex] = m1->reValues[index] == m2->reValues[index];
-    buffer[tindex] += m1->reValues[index + 1] == m2->reValues[index + 1];
+    buffer[tindex] = cuda_getReDist(m1, m2, index);
+    buffer[tindex] += cuda_getReDist(m1, m2, index + 1);
     if (c == 1 && tindex == length - 3) {
-      buffer[tindex] += m1->reValues[index + 2] == m2->reValues[index + 2];
+      buffer[tindex] += cuda_getReDist(m1, m2, index + 2);
     }
   }
   length = length / 2;
 }
 
-__hostdevice__ void cuda_compare_real(int* buffer, math::Matrix* m1,
-                                      math::Matrix* m2, uintt tindex,
-                                      uintt length) {
-  uintt index = tindex * 2;
-  uintt c = length & 1;
+__hostdevice__ void cuda_compare_real(floatt* buffer,
+                                      math::Matrix* m1,
+                                      math::Matrix* m2,
+                                      uint tindex, uint length) {
+  uint index = tindex * 2;
+  uint c = length & 1;
   if (tindex < length / 2) {
-    buffer[tindex] = m1->reValues[index] == m2->reValues[index];
-    buffer[tindex] += m1->imValues[index] == m2->imValues[index];
-    buffer[tindex] += m1->reValues[index + 1] == m2->reValues[index + 1];
-    buffer[tindex] += m1->imValues[index + 1] == m2->imValues[index + 1];
+    buffer[tindex] = cuda_getRealDist(m1, m2, index);
+    buffer[tindex] += cuda_getRealDist(m1, m2, index + 1);
     if (c == 1 && tindex == length - 3) {
-      buffer[tindex] += m1->reValues[index + 2] == m2->reValues[index + 2];
-      buffer[tindex] += m1->imValues[index + 2] == m2->imValues[index + 2];
+      buffer[tindex] += cuda_getRealDist(m1, m2, index + 2);
     }
   }
   length = length / 2;
 }
 
-__hostdevice__ void cuda_compare_im(int* buffer, math::Matrix* m1,
-                                    math::Matrix* m2, uintt tindex,
-                                    uintt length) {
-  uintt index = tindex * 2;
-  uintt c = length & 1;
+__hostdevice__ void cuda_compare_im(floatt* buffer,
+                                     math::Matrix* m1,
+                                     math::Matrix* m2,
+                                     uint tindex, uint length)
+{
+  uint index = tindex * 2;
+  uint c = length & 1;
   if (tindex < length / 2) {
-    buffer[tindex] += m1->imValues[index] == m2->imValues[index];
-    buffer[tindex] += m1->imValues[index + 1] == m2->imValues[index + 1];
+    buffer[tindex] += cuda_getImDist(m1, m2, index);
+    buffer[tindex] += cuda_getImDist(m1, m2, index + 1);
     if (c == 1 && tindex == length - 3) {
-      buffer[tindex] += m1->imValues[index + 2] == m2->imValues[index + 2];
+      buffer[tindex] += cuda_getImDist(m1, m2, index + 2);
     }
   }
   length = length / 2;
 }
 
-__hostdevice__ void cuda_compare_step_2(int* buffer, uintt tindex,
-                                        uintt& length) {
-  uintt index = tindex * 2;
-  uintt c = length & 1;
+__hostdevice__ void cuda_compare_step_2(floatt* buffer,
+                                        uint tindex,
+                                        uint& length)
+{
+  uint index = tindex * 2;
+  uint c = length & 1;
   if (tindex < length / 2) {
     buffer[index] += buffer[index + 1];
     if (c == 1 && index == length - 3) {
@@ -90,13 +96,16 @@ __hostdevice__ void cuda_compare_step_2(int* buffer, uintt tindex,
   length = length / 2;
 }
 
-__hostdevice__ void CUDA_compareRealMatrix(int* sum, math::Matrix* matrix1,
-                                           math::Matrix* matrix2, int* buffer) {
+__hostdevice__ void CUDA_compareRealMatrix(floatt* sum,
+                                           math::Matrix* matrix1,
+                                           math::Matrix* matrix2,
+                                           floatt* buffer)
+{
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt tindex = threadIndexY * matrix1->columns + threadIndexX;
-  uintt length = matrix1->columns * matrix1->rows;
+  uint tindex = threadIndexY * matrix1->columns + threadIndexX;
+  uint length = matrix1->columns * matrix1->rows;
   if (tindex < length) {
     cuda_compare_real(buffer, matrix1, matrix2, tindex, length);
     threads_sync();
@@ -108,13 +117,16 @@ __hostdevice__ void CUDA_compareRealMatrix(int* sum, math::Matrix* matrix1,
   }
 }
 
-__hostdevice__ void CUDA_compareImMatrix(int* sum, math::Matrix* matrix1,
-                                         math::Matrix* matrix2, int* buffer) {
+__hostdevice__ void CUDA_compareImMatrix(floatt* sum,
+                                         math::Matrix* matrix1,
+                                         math::Matrix* matrix2,
+                                         floatt* buffer)
+{
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt tindex = threadIndexY * matrix1->columns + threadIndexX;
-  uintt length = matrix1->columns * matrix1->rows;
+  uint tindex = threadIndexY * matrix1->columns + threadIndexX;
+  uint length = matrix1->columns * matrix1->rows;
   if (tindex < length) {
     cuda_compare_im(buffer, matrix1, matrix2, tindex, length);
     threads_sync();
@@ -126,13 +138,16 @@ __hostdevice__ void CUDA_compareImMatrix(int* sum, math::Matrix* matrix1,
   }
 }
 
-__hostdevice__ void CUDA_compareReMatrix(int* sum, math::Matrix* matrix1,
-                                         math::Matrix* matrix2, int* buffer) {
+__hostdevice__ void CUDA_compareReMatrix(floatt* sum,
+                                         math::Matrix* matrix1,
+                                         math::Matrix* matrix2,
+                                         floatt* buffer)
+{
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt tindex = threadIndexY * matrix1->columns + threadIndexX;
-  uintt length = matrix1->columns * matrix1->rows;
+  uint tindex = threadIndexY * matrix1->columns + threadIndexX;
+  uint length = matrix1->columns * matrix1->rows;
   if (tindex < length) {
     cuda_compare_re(buffer, matrix1, matrix2, tindex, length);
     threads_sync();
@@ -144,8 +159,11 @@ __hostdevice__ void CUDA_compareReMatrix(int* sum, math::Matrix* matrix1,
   }
 }
 
-__hostdevice__ void CUDA_compare(int* sum, math::Matrix* matrix1,
-                                 math::Matrix* matrix2, int* buffer) {
+__hostdevice__ void CUDA_compare(floatt* sum,
+                                 math::Matrix* matrix1,
+                                 math::Matrix* matrix2,
+                                 floatt* buffer)
+{
   HOST_INIT();
 
   bool isre = matrix1->reValues != NULL;

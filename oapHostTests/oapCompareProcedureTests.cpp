@@ -61,10 +61,10 @@ class OapCompareTests : public OapCudaStub {
       return columns * rows;
     }
 
-    uintt xlength = GetLength(blockIdx.x, blockDim.x, columns / factor);
-    uintt ylength = GetLength(blockIdx.y, blockDim.y, rows);
+    uint xlength = GetLength(blockIdx.x, blockDim.x, columns / factor);
+    uint ylength = GetLength(blockIdx.y, blockDim.y, rows);
 
-    uintt rest = 0;
+    uint rest = 0;
 
     if (algoVersion.getVersion() == AlgoVersion::VERSION_2 &&
         xlength % 2 != 0 && columns % 2 != 0) {
@@ -86,24 +86,25 @@ class OapCompareTests : public OapCudaStub {
 class CompareStubImpl : public HostKernel {
  public:
   math::Matrix* m_matrix;
-  int* m_buffer;
-  size_t m_bufferLength;
 
-  int* m_sums;
+  floatt* m_buffer;
+  floatt* m_sums;
+
+  size_t m_bufferLength;
   size_t m_sumsLength;
 
   AlgoVersion m_algoVersion;
 
-  CompareStubImpl(uintt columns, uintt rows, AlgoVersion::Type algoVersion)
+  CompareStubImpl(uint columns, uint rows, AlgoVersion::Type algoVersion)
       : m_algoVersion(algoVersion) {
     m_matrix = host::NewReMatrix(columns, rows, 0);
     calculateDims(columns / m_algoVersion.getFactor(), rows);
     m_bufferLength = blockDim.x * blockDim.y;
     m_sumsLength = gridDim.x * gridDim.y;
-    m_buffer = new int[m_bufferLength];
-    m_sums = new int[m_sumsLength];
-    memset(m_buffer, 0, sizeof(int) * m_bufferLength);
-    memset(m_sums, 0, sizeof(int) * m_sumsLength);
+    m_buffer = new floatt[m_bufferLength];
+    m_sums = new floatt[m_sumsLength];
+    memset(m_buffer, 0, sizeof(floatt) * m_bufferLength);
+    memset(m_sums, 0, sizeof(floatt) * m_sumsLength);
   }
 
   virtual ~CompareStubImpl() {
@@ -127,15 +128,15 @@ class CompareStubImpl : public HostKernel {
   }
 
   void onChange(HostKernel::ContextChange contextChange, const dim3& threadIdx,
-                const dim3& blockIdx) {
+                const dim3& blockIdx)
+  {
     if (contextChange == HostKernel::CUDA_BLOCK) {
-      int actualSum = utils::getSum(m_buffer, m_bufferLength);
+      floatt actualSum = utils::getSum(m_buffer, m_bufferLength);
       m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;
-      int expectedSum = OapCompareTests::getExpectedResult(
+      floatt expectedSum = OapCompareTests::getExpectedResult(
           m_matrix, gridDim, blockIdx, blockDim, m_algoVersion);
-      EXPECT_THAT(actualSum, IsEqualSum(expectedSum, m_buffer, m_bufferLength,
-                                        utils::cudaDimsToStr(threadIdx)));
-      memset(m_buffer, 0, sizeof(int) * m_bufferLength);
+      EXPECT_THAT(actualSum, 0);
+      memset(m_buffer, 0, sizeof(floatt) * m_bufferLength);
     }
   }
 
@@ -161,7 +162,7 @@ TEST_F(OapCompareTests, CompareReMatrixOneBlockCoverTestAlgoVer1) {
   uintt rows = 32;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
   EXPECT_EQ(expected, sum);
 }
@@ -171,7 +172,7 @@ TEST_F(OapCompareTests, CompareReMatrixFixedSizeCoverTestAlgoVer1) {
   uintt rows = 32;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
   EXPECT_EQ(expected, sum);
 }
@@ -181,7 +182,7 @@ TEST_F(OapCompareTests, CompareReMatrixCoverTestAlgoVer1) {
   uintt rows = 32;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
   EXPECT_EQ(expected, sum);
 }
@@ -191,7 +192,7 @@ TEST_F(OapCompareTests, CompareReMatrixCoverBigDataTestAlgoVer1) {
   uintt rows = 50;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
   EXPECT_EQ(expected, sum);
 }
@@ -203,7 +204,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigDataAlgoVer1) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -216,7 +217,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData1AlgoVer1) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -229,7 +230,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData2AlgoVer1) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -242,7 +243,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData3AlgoVer1) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -255,7 +256,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData3LAlgoVer1) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -268,7 +269,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData4AlgoVer1) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_1);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -286,7 +287,7 @@ TEST_F(OapCompareTests, CompareReMatrixOneBlockCoverTestAlgoVer2) {
   uintt rows = 32;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
   EXPECT_EQ(expected, sum);
 }
@@ -296,7 +297,7 @@ TEST_F(OapCompareTests, CompareReMatrixFixedSizeCoverTestAlgoVer2) {
   uintt rows = 32;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
   EXPECT_EQ(expected, sum);
 }
@@ -306,7 +307,7 @@ TEST_F(OapCompareTests, CompareReMatrixCoverTestAlgoVer2) {
   uintt rows = 32;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
   EXPECT_EQ(expected, sum);
 }
@@ -316,7 +317,7 @@ TEST_F(OapCompareTests, CompareReMatrixCoverBigDataTestAlgoVer2) {
   uintt rows = 50;
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
   EXPECT_EQ(expected, sum);
 }
@@ -328,7 +329,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigDataAlgoVer2) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -341,7 +342,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData1AlgoVer2) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -354,7 +355,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData2AlgoVer2) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -367,7 +368,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData3AlgoVer2) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -380,7 +381,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData3LAlgoVer2) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);
@@ -393,7 +394,7 @@ TEST_F(OapCompareTests, CompareReMatrixTestBigData4AlgoVer2) {
   CompareStubImpl compareStubImpl(columns, rows, AlgoVersion::VERSION_2);
   executeKernelSync(&compareStubImpl);
 
-  uintt expected = columns * rows;
+  uintt expected = 0;
   uintt sum = compareStubImpl.getSum();
 
   EXPECT_EQ(expected, sum);

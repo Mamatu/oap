@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef CUCOMPAREUTILS2_H
 #define CUCOMPAREUTILS2_H
 
@@ -40,9 +37,9 @@
                   ? (blockIdx + 1) * blockDim - limit \
                   : 0);
 
-__hostdevice__ void cuda_CompareBufferVer2(int* buffer, uintt sharedIndex,
-                                           uintt sharedLength, uintt xlength,
-                                           uintt ylength) {
+__hostdevice__ void cuda_CompareBufferVer2(floatt* buffer, uint sharedIndex,
+                                           uint sharedLength, uint xlength,
+                                           uint ylength) {
   HOST_INIT();
 
   if (sharedIndex < sharedLength / 2 && threadIdx.x < xlength &&
@@ -55,9 +52,9 @@ __hostdevice__ void cuda_CompareBufferVer2(int* buffer, uintt sharedIndex,
   }
 }
 
-__hostdevice__ void cuda_CompareRealOptVer2(int* buffer, math::Matrix* m1,
-                                            math::Matrix* m2, uintt sharedIndex,
-                                            uintt xlength) {
+__hostdevice__ void cuda_CompareRealOptVer2(floatt* buffer, math::Matrix* m1,
+                                            math::Matrix* m2, uint sharedIndex,
+                                            uint xlength) {
   HOST_INIT();
 
   const bool inScope =
@@ -69,20 +66,17 @@ __hostdevice__ void cuda_CompareRealOptVer2(int* buffer, math::Matrix* m1,
     uintt index =
         ver2_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     bool isOdd = (m1->columns & 1) && (xlength & 1);
-    buffer[sharedIndex] = cuda_isEqualReIndex(m1, m2, index);
-    buffer[sharedIndex] += cuda_isEqualReIndex(m1, m2, index + 1);
-    buffer[sharedIndex] = cuda_isEqualImIndex(m1, m2, index);
-    buffer[sharedIndex] += cuda_isEqualImIndex(m1, m2, index + 1);
+    buffer[sharedIndex] = cuda_getRealDist(m1, m2, index);
+    buffer[sharedIndex] += cuda_getRealDist(m1, m2, index + 1);
     if (isOdd && threadIdx.x == xlength - 1) {
-      buffer[sharedIndex] += cuda_isEqualReIndex(m1, m2, index + 2);
-      buffer[sharedIndex] += cuda_isEqualImIndex(m1, m2, index + 2);
+      buffer[sharedIndex] += cuda_getRealDist(m1, m2, index + 2);
     }
   }
 }
 
-__hostdevice__ void cuda_CompareReOptVer2(int* buffer, math::Matrix* m1,
-                                          math::Matrix* m2, uintt sharedIndex,
-                                          uintt xlength) {
+__hostdevice__ void cuda_CompareReOptVer2(floatt* buffer, math::Matrix* m1,
+                                          math::Matrix* m2, uint sharedIndex,
+                                          uint xlength) {
   HOST_INIT();
 
   const bool inScope =
@@ -94,17 +88,17 @@ __hostdevice__ void cuda_CompareReOptVer2(int* buffer, math::Matrix* m1,
     uintt index =
         ver2_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     bool isOdd = (m1->columns & 1) && (xlength & 1);
-    buffer[sharedIndex] = cuda_isEqualReIndex(m1, m2, index);
-    buffer[sharedIndex] += cuda_isEqualReIndex(m1, m2, index + 1);
+    buffer[sharedIndex] = cuda_getReDist(m1, m2, index);
+    buffer[sharedIndex] += cuda_getReDist(m1, m2, index + 1);
     if (isOdd && threadIdx.x == xlength - 1) {
-      buffer[sharedIndex] += cuda_isEqualReIndex(m1, m2, index + 2);
+      buffer[sharedIndex] += cuda_getReDist(m1, m2, index + 2);
     }
   }
 }
 
-__hostdevice__ void cuda_CompareImOptVer2(int* buffer, math::Matrix* m1,
-                                          math::Matrix* m2, uintt sharedIndex,
-                                          uintt xlength) {
+__hostdevice__ void cuda_CompareImOptVer2(floatt* buffer, math::Matrix* m1,
+                                          math::Matrix* m2, uint sharedIndex,
+                                          uint xlength) {
   HOST_INIT();
 
   const bool inScope =
@@ -116,10 +110,10 @@ __hostdevice__ void cuda_CompareImOptVer2(int* buffer, math::Matrix* m1,
     uintt index =
         ver2_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     bool isOdd = (m1->columns & 1) && (xlength & 1);
-    buffer[sharedIndex] = cuda_isEqualImIndex(m1, m2, index);
-    buffer[sharedIndex] += cuda_isEqualImIndex(m1, m2, index + 1);
+    buffer[sharedIndex] = cuda_getImDist(m1, m2, index);
+    buffer[sharedIndex] += cuda_getImDist(m1, m2, index + 1);
     if (isOdd && threadIdx.x == xlength - 1) {
-      buffer[sharedIndex] += cuda_isEqualImIndex(m1, m2, index + 2);
+      buffer[sharedIndex] += cuda_getImDist(m1, m2, index + 2);
     }
   }
 }

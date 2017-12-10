@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef CUCOMPAREUTILS_H
 #define CUCOMPAREUTILS_H
 
@@ -40,9 +37,9 @@
                   ? (blockIdx + 1) * blockDim - limit \
                   : 0);
 
-__hostdevice__ void cuda_CompareBuffer(int* buffer, uintt sharedIndex,
-                                       uintt sharedLength, uintt xlength,
-                                       uintt ylength) {
+__hostdevice__ void cuda_CompareBuffer(floatt* buffer, uint sharedIndex,
+                                       uint sharedLength, uint xlength,
+                                       uint ylength) {
   HOST_INIT();
 
   if (sharedIndex < sharedLength / 2 && threadIdx.x < xlength &&
@@ -55,40 +52,39 @@ __hostdevice__ void cuda_CompareBuffer(int* buffer, uintt sharedIndex,
   }
 }
 
-__hostdevice__ void cuda_CompareRealOpt(int* buffer, math::Matrix* m1,
-                                        math::Matrix* m2, uintt sharedIndex,
-                                        uintt xlength) {
+__hostdevice__ void cuda_CompareRealOpt(floatt* buffer, math::Matrix* m1,
+                                        math::Matrix* m2, uint sharedIndex,
+                                        uint xlength) {
   HOST_INIT();
   uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
   uintt column = GetMatrixColumn(threadIdx, blockIdx, blockDim);
   const bool inScope = row < m1->rows && column < m1->columns;
   if (inScope) {
-    buffer[sharedIndex] = cuda_isEqualRe(m1, m2, column, row);
-    buffer[sharedIndex] += cuda_isEqualIm(m1, m2, column, row);
+    buffer[sharedIndex] = cuda_getRealDist(m1, m2, column + m1->columns * row);
   }
 }
 
-__hostdevice__ void cuda_CompareReOpt(int* buffer, math::Matrix* m1,
-                                      math::Matrix* m2, uintt sharedIndex,
-                                      uintt xlength) {
+__hostdevice__ void cuda_CompareReOpt(floatt* buffer, math::Matrix* m1,
+                                      math::Matrix* m2, uint sharedIndex,
+                                      uint xlength) {
   HOST_INIT();
   uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
   uintt column = GetMatrixColumn(threadIdx, blockIdx, blockDim);
   const bool inScope = row < m1->rows && column < m1->columns;
   if (inScope) {
-    buffer[sharedIndex] = cuda_isEqualRe(m1, m2, column, row);
+    buffer[sharedIndex] = cuda_getReDist(m1, m2, column + m1->columns * row);
   }
 }
 
-__hostdevice__ void cuda_CompareImOpt(int* buffer, math::Matrix* m1,
-                                      math::Matrix* m2, uintt sharedIndex,
-                                      uintt xlength) {
+__hostdevice__ void cuda_CompareImOpt(floatt* buffer, math::Matrix* m1,
+                                      math::Matrix* m2, uint sharedIndex,
+                                      uint xlength) {
   HOST_INIT();
   uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
   uintt column = GetMatrixColumn(threadIdx, blockIdx, blockDim);
   const bool inScope = row < m1->rows && column < m1->columns;
   if (inScope) {
-    buffer[sharedIndex] += cuda_isEqualIm(m1, m2, column, row);
+    buffer[sharedIndex] += cuda_getImDist(m1, m2, column + m1->columns * row);
   }
 }
 
