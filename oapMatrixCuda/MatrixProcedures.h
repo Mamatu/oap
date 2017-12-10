@@ -97,8 +97,7 @@ class CuMatrix {
 
   void multiplyConstantMatrix(math::Matrix* v, math::Matrix* f, floatt re);
 
-  void multiplyConstantMatrix(math::Matrix* v, math::Matrix* f, floatt re,
-                              floatt im);
+  void multiplyConstantMatrix(math::Matrix* v, math::Matrix* f, floatt re, floatt im);
 
   void setDiagonal(math::Matrix* matrix, floatt re, floatt im);
 
