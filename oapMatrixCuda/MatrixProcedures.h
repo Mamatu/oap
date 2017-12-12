@@ -105,9 +105,9 @@ class CuMatrix {
 
   void setZeroMatrix(math::Matrix* matrix);
 
-  bool compare(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0.0001);
+  bool compare(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0);
 
-  bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0.0001);
+  bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0);
 
   floatt getCompareOperationSum() const;
 
