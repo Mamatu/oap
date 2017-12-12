@@ -170,7 +170,6 @@ bool HostProcedures::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
   prepare(matrix1, compareImpl);
   compareImpl.executeKernelAsync();
   uintt sums = compareImpl.getSum();
-  debug("%s %s %d Sums = %u", __FUNCTION__, __FILE__, __LINE__, sums);
   return sums == matrix1->rows * matrix1->columns;
 }
 
