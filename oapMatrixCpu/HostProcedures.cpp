@@ -100,24 +100,24 @@ class CompareImpl : public HostKernel {
     if (contextChange == HostKernel::CUDA_BLOCK) {
       // int actualSum = getSum(m_buffer, m_bufferLength);
       // m_sums[gridDim.x * blockIdx.y + blockIdx.x] = actualSum;
-      memset(m_buffer, 0, sizeof(int) * m_bufferLength);
+      memset(m_buffer, 0, sizeof(floatt) * m_bufferLength);
     }
   }
 
   virtual void onSetDims(const dim3& gridDim, const dim3& blockDim) {
     m_bufferLength = (blockDim.x * blockDim.y) / 2;
     m_sumsLength = gridDim.x * gridDim.y;
-    m_buffer = new int[m_bufferLength];
-    m_sums = new int[m_sumsLength];
-    memset(m_buffer, 0, sizeof(int) * m_bufferLength);
-    memset(m_sums, 0, sizeof(int) * m_sumsLength);
+    m_buffer = new floatt[m_bufferLength];
+    m_sums = new floatt[m_sumsLength];
+    memset(m_buffer, 0, sizeof(floatt) * m_bufferLength);
+    memset(m_sums, 0, sizeof(floatt) * m_sumsLength);
   }
 
  private:
   math::Matrix* m_param1;
   math::Matrix* m_param2;
-  int* m_buffer;
-  int* m_sums;
+  floatt* m_buffer;
+  floatt* m_sums;
   size_t m_bufferLength;
   size_t m_sumsLength;
 };
@@ -170,7 +170,6 @@ bool HostProcedures::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
   prepare(matrix1, compareImpl);
   compareImpl.executeKernelAsync();
   uintt sums = compareImpl.getSum();
-  debug("%s %s %d Sums = %u", __FUNCTION__, __FILE__, __LINE__, sums);
   return sums == matrix1->rows * matrix1->columns;
 }
 
