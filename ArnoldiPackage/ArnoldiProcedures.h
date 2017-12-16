@@ -45,6 +45,8 @@ class CuHArnoldi {
 
   void setCheckCounts(uint count);
 
+  void setCheckTolerance(floatt tolerance);
+
   void setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues);
 
   void setOutputsEigenvectors(math::Matrix** oevectors);
@@ -53,10 +55,11 @@ class CuHArnoldi {
 
   void setCalcTraingularHType(ArnUtils::TriangularHProcedureType type);
 
-  void execute(uintt k, uintt wantedCount, const math::MatrixInfo& matrixInfo,
+  void execute(uint k, uint wantedCount, const math::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
 
   void extractOutput();
+  void extractOutput(math::Matrix* EV);
 
  public:  // types
   enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
@@ -68,35 +71,6 @@ class CuHArnoldi {
  protected:  // methods - to drive algorithm
   virtual bool checkEigenspair(floatt revalue, floatt imevalue, math::Matrix* vector,
                                uint index, uint max) = 0;
-
- protected:
-  struct OutputEntry {
-    Complex eigenvalue;
-    uintt eigenvectorIndex;
-
-    floatt re() const { return eigenvalue.re; }
-    floatt im() const { return eigenvalue.im; }
-  };
-
-  void getEigenvector(math::Matrix* vector, const OutputEntry& outputEntry);
-
-  void getEigenvector(math::Matrix* vector, uintt index);
-
-  class SortObject {
-    ArnUtils::SortType m_sortType;
-
-   public:
-    SortObject(ArnUtils::SortType sortType) : m_sortType(sortType) {}
-
-    bool operator()(const OutputEntry& oe1, const OutputEntry& oe2) {
-      return m_sortType(oe1.eigenvalue, oe2.eigenvalue);
-    }
-
-    SortObject& operator=(ArnUtils::SortType sortType) {
-      m_sortType = sortType;
-      return *this;
-    }
-  };
 
  protected:  // data, matrices
   CuMatrix m_cuMatrix;
@@ -114,6 +88,7 @@ class CuHArnoldi {
   math::Matrix* m_H;
   math::Matrix* m_HC;
   math::Matrix* m_triangularH;
+  math::Matrix* m_ptriangularH;
   math::Matrix* m_H2;
   math::Matrix* m_I;
   math::Matrix* m_v;
@@ -133,6 +108,7 @@ class CuHArnoldi {
   math::Matrix* m_GT;
   math::Matrix* m_G;
   math::Matrix* m_EV;
+  math::Matrix* m_pEV;
 
   math::Matrix* m_hostV;
 
@@ -149,12 +125,13 @@ class CuHArnoldi {
   floatt m_rho;
   floatt m_blimit;
 
-  std::vector<OutputEntry> wanted;
-  std::vector<OutputEntry> unwanted;
+  std::vector<EigenPair> wanted;
+  std::vector<EigenPair> unwanted;
 
-  SortObject m_sortObject;
+  ArnUtils::SortType m_sortObject;
   ArnUtils::CheckType m_checkType;
   uint m_checksCount;
+  floatt m_tolerance;
   uint m_checksCounter;
 
   ArnUtils::TriangularHProcedureType m_triangularHProcedureType;
@@ -175,6 +152,7 @@ class CuHArnoldi {
   uintt m_Qrows;
   uintt m_Qcolumns;
 
+  floatt m_previousInternalSum;
  private:  // internal methods - inline
   inline void swapPointers(math::Matrix** a, math::Matrix** b) {
     math::Matrix* temp = *b;
@@ -195,6 +173,11 @@ class CuHArnoldi {
     }
   }
 
+ private:
+  void getEigenvector(math::Matrix* vector, const EigenPair& eigenPair);
+
+  void getEigenvector(math::Matrix* vector, uintt index);
+
  private:  // internal methods
   void initVvector();
 
@@ -210,12 +193,12 @@ class CuHArnoldi {
 
   void calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo);
 
-  void sortPWorstEigens(uintt unwantedCount);
+  void sortPWorstEigens(uint wantedCount);
 
-  void sortEigenvalues(math::Matrix* m_triangularH, uintt unwantedCount);
+  void extractEigenvalues(math::Matrix* m_triangularH, uint wantedCount);
 
-  void getWanted(const std::vector<OutputEntry>& values, std::vector<OutputEntry>& wanted,
-    std::vector<OutputEntry>& unwanted, uintt unwantedCount);
+  void getWanted(const std::vector<EigenPair>& values, std::vector<EigenPair>& wanted,
+    std::vector<EigenPair>& unwanted, uint wantedCount);
 
   void executeInit(MatrixEx** dMatrixEx);
 
@@ -228,13 +211,13 @@ class CuHArnoldi {
    */
   bool executeArnoldiFactorization(uint startIndex, MatrixEx** dMatrixEx, floatt rho);
 
-  void executefVHplusfq(uintt k);
+  void executefVHplusfq(uint k);
 
-  bool executeChecking(uintt k);
+  bool executeChecking(uint k);
 
-  void executeShiftedQRIteration(uintt p);
+  void executeShiftedQRIteration(uint p);
 
-  bool checkOutcome(uintt index, floatt tolerance);
+  floatt checkEigenpairsInternally(const EigenPair& eigenPair, floatt tolerance);
 
  private:  // alloc, dealloc methods
   bool shouldBeReallocated(const math::MatrixInfo& m1,

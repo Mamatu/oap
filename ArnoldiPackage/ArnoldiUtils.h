@@ -23,21 +23,47 @@
 #include "Math.h"
 #include "Matrix.h"
 
+#include <cstddef>
+
+class EigenPair {
+  private:
+    Complex m_evalue;
+    const math::Matrix* m_matrix;
+    uint m_index;
+  public:
+    EigenPair(const Complex& evalue, const math::Matrix* matrix, uint index = 0) :
+      m_evalue(evalue), m_matrix(matrix), m_index(index)
+    {}
+
+    EigenPair(const Complex& evalue, uint index) :
+      m_evalue(evalue), m_matrix(NULL), m_index(index)
+    {}
+
+    Complex getEValue() const { return m_evalue; }
+
+    floatt re() const { return m_evalue.re; }
+    floatt im() const { return m_evalue.im; }
+
+    const math::Matrix* getMatrix() const { return m_matrix; }
+
+    uint getIndex() const { return  m_index; }
+};
+
 namespace ArnUtils {
 
-bool SortLargestValues(const Complex& i, const Complex& j);
+bool SortLargestValues(const EigenPair& i, const EigenPair& j);
 
-bool SortLargestReValues(const Complex& i, const Complex& j);
+bool SortLargestReValues(const EigenPair& i, const EigenPair& j);
 
-bool SortLargestImValues(const Complex& i, const Complex& j);
+bool SortLargestImValues(const EigenPair& i, const EigenPair& j);
 
-bool SortSmallestValues(const Complex& i, const Complex& j);
+bool SortSmallestValues(const EigenPair& i, const EigenPair& j);
 
-bool SortSmallestReValues(const Complex& i, const Complex& j);
+bool SortSmallestReValues(const EigenPair& i, const EigenPair& j);
 
-bool SortSmallestImValues(const Complex& i, const Complex& j);
+bool SortSmallestImValues(const EigenPair& i, const EigenPair& j);
 
-typedef bool (*SortType)(const Complex& i, const Complex& j);
+typedef bool (*SortType)(const EigenPair& i, const EigenPair& j);
 
 enum CheckType {
   CHECK_INTERNAL,

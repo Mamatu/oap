@@ -19,6 +19,10 @@
 
 #include "ArnoldiProceduresImpl.h"
 
+CuHArnoldiCallback::CuHArnoldiCallback() : CuHArnoldi() {}
+
+CuHArnoldiCallback::~CuHArnoldiCallback() {}
+
 void CuHArnoldiDefault::multiply(math::Matrix* w, math::Matrix* v,
                                  CuHArnoldi::MultiplicationType mt) {
   m_cuMatrix.dotProduct(w, m_A, v);
@@ -29,8 +33,16 @@ void CuHArnoldiCallback::multiply(math::Matrix* w, math::Matrix* v,
   m_multiplyFunc(w, v, m_userData, mt);
 }
 
-void CuHArnoldiCallback::setCallback(
-    CuHArnoldiCallback::MultiplyFunc multiplyFunc, void* userData) {
+bool CuHArnoldiCallback::checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max) {
+  return m_checkFunc(reevalue, imevalue, vector, index, max, m_checkUserData);
+}
+
+void CuHArnoldiCallback::setCallback(CuHArnoldiCallback::MultiplyFunc multiplyFunc, void* userData) {
   m_multiplyFunc = multiplyFunc;
   m_userData = userData;
+}
+
+void CuHArnoldiCallback::setCheckCallback(CuHArnoldiCallback::CheckFunc checkFunc, void* userData) {
+  m_checkFunc = checkFunc;
+  m_checkUserData = userData;
 }

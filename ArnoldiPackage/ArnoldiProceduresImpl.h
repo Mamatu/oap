@@ -44,22 +44,30 @@ class CuHArnoldiDefault : public CuHArnoldi {
 
 class CuHArnoldiCallback : public CuHArnoldi {
  public:
+  CuHArnoldiCallback();
+  virtual ~CuHArnoldiCallback();
+
   typedef void (*MultiplyFunc)(math::Matrix* m_w, math::Matrix* m_v,
                                void* userData,
                                CuHArnoldi::MultiplicationType mt);
 
+  typedef bool (*CheckFunc) (floatt reevalue, floatt imevalue,
+                             math::Matrix* vector, uint index, uint max,
+                             void* userData);
+
   void setCallback(MultiplyFunc multiplyFunc, void* userData);
+  void setCheckCallback(CheckFunc multiplyFunc, void* userData);
 
  protected:
   virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
                         CuHArnoldi::MultiplicationType mt);
 
-  virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max) {
-    return true;
-  }
+  virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max);
 
  private:
   MultiplyFunc m_multiplyFunc;
+  CheckFunc m_checkFunc;
   void* m_userData;
+  void* m_checkUserData;
 };
 #endif  // ARNOLDIPROCEDURESIMPL_H
