@@ -185,8 +185,8 @@ void CuHArnoldi::execute(uint hdim, uint wantedCount,
 
     device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
 
-    if (fax == 0) { executeInit(dMatrixExs); } else {
-    }
+    if (fax == 0) { executeInit(dMatrixExs); }
+
     status = executeArnoldiFactorization(startIndex, dMatrixExs, m_rho);
 
     unwanted.clear();
@@ -207,16 +207,17 @@ void CuHArnoldi::execute(uint hdim, uint wantedCount,
 
     calculateTriangularHEigens(m_H, m_matrixInfo);
 
-
-    device::CopyDeviceMatrixToDeviceMatrix(m_pEV, m_EV);
-    device::CopyDeviceMatrixToDeviceMatrix(m_ptriangularH, m_triangularH);
-
     debug("fax = %d m_wanted[0] = %f", fax, wanted[0].re());
     m_cuMatrix.dotProduct(m_QT1, m_QT2, m_Q);
     m_cuMatrix.dotProduct(m_EV, m_V, m_QT1);
     aux_swapPointers(&m_QT1, &m_QT2);
 
     status = executeChecking(wantedCount);
+
+    if (status == true) {
+      device::CopyDeviceMatrixToDeviceMatrix(m_pEV, m_EV);
+      device::CopyDeviceMatrixToDeviceMatrix(m_ptriangularH, m_triangularH);
+    }
 
     startIndex = wantedCount - 1;
   }
@@ -513,7 +514,9 @@ bool CuHArnoldi::executeChecking(uint k)
     debug("sum = %f previous = %f", internalSum, m_previousInternalSum);
 
     bool shouldContinue = internalSum < m_previousInternalSum;
-    m_previousInternalSum = internalSum;
+    if (shouldContinue == true) {
+      m_previousInternalSum = internalSum;
+    }
     return shouldContinue;
   }
 
