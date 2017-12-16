@@ -76,7 +76,24 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         cuMatrix->dotProduct(dvalue, dvectorT, m_v);
         device::SetReMatrix(m_w, dvalue, 0, idx);
       }
+      //device::PrintMatrix("m_w =", m_w);
+      //device::PrintMatrix("m_v =", m_v);
+    }
 
+    static bool check(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max, void* userData) {
+      CheckUserData* checkUserData = static_cast<CheckUserData*>(userData);
+
+      oap::HostMatrixPtr eigenvectors = checkUserData->eigenvectors;
+      oap::HostMatrixPtr tmpVector = checkUserData->tmpVector;
+
+      const std::vector<EigenPair>* eigenPairs = checkUserData->eigenPairs;
+
+      EigenPair eigenPair = (*eigenPairs)[index];
+      uint vectorIndex = eigenPair.getIndex();
+
+      host::GetVector(tmpVector, eigenvectors, vectorIndex);
+
+      return true;
     }
 
     oap::HostMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
@@ -98,28 +115,13 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       return host::ReadMatrix(dir + "/eigenvalues.matrix");
     }
 
-    std::vector<floatt> getEigenvalues(oap::HostMatrixPtr eMatrix) {
-      return getEigenvalues(eMatrix, eMatrix->columns);
-    }
+    std::vector<EigenPair> getEigenvalues(const std::vector<EigenPair>& avalues, uint wanted) {
 
-    std::vector<floatt> getEigenvalues(oap::HostMatrixPtr eMatrix, uint wanted) {
+      std::vector<EigenPair> values(avalues);
 
-      std::vector<floatt> values;
+      std::sort(values.begin(), values.end(), ArnUtils::SortLargestReValues);
 
-      for (uintt index = 0; index < eMatrix->columns; ++index) {
-        values.push_back(eMatrix->reValues[index + eMatrix->columns * index]);
-      }
-
-      return getEigenvalues(values, wanted);
-    }
-
-    std::vector<floatt> getEigenvalues(const std::vector<floatt>& avalues, uint wanted) {
-
-      std::vector<floatt> values(avalues);
-
-      std::sort(values.begin(), values.end(), std::greater<floatt>());
-
-      std::vector<floatt> output(values.begin(), values.begin() + wanted);
+      std::vector<EigenPair> output(values.begin(), values.begin() + wanted);
 
       return output;
     }
@@ -154,7 +156,13 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       CuMatrix* cuMatrix;
     };
 
-    void runMatrixTest(oap::HostMatrixPtr hmatrix, const std::vector<floatt>& expectedValues, uint hdim = 32, uint arnoldiSteps = 1) {
+    struct CheckUserData {
+      const std::vector<EigenPair>* eigenPairs;
+      oap::HostMatrixPtr eigenvectors;
+      oap::HostMatrixPtr tmpVector;
+    };
+
+    void runMatrixTest(oap::HostMatrixPtr hmatrix, oap::HostMatrixPtr eigenvectors, const std::vector<EigenPair>& eigenPairs, uint hdim = 32, uint arnoldiSteps = 1) {
       debugLongTest();
 
       UserData userData = {
@@ -165,17 +173,27 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
               m_cuMatrix
       };
 
+      CheckUserData checkUserData = {
+              &eigenPairs,
+              eigenvectors,
+              host::NewReMatrix(1, hmatrix->rows)
+      };
+
       m_arnoldiCuda->setOutputType(ArnUtils::HOST);
-      m_arnoldiCuda->setCalcTraingularHType(ArnUtils::CALC_IN_DEVICE_STEP);
+      m_arnoldiCuda->setCalcTraingularHType(ArnUtils::CALC_IN_HOST);
 
       m_arnoldiCuda->setCallback(multiply, &userData);
-      m_arnoldiCuda->setBLimit(0.0001);
+      m_arnoldiCuda->setBLimit(0.00001);
       m_arnoldiCuda->setRho(1. / 3.14159265359);
       m_arnoldiCuda->setSortType(ArnUtils::SortLargestReValues);
-      m_arnoldiCuda->setCheckType(ArnUtils::CHECK_COUNTER);
-      m_arnoldiCuda->setCheckCounts(arnoldiSteps);
+      m_arnoldiCuda->setCheckType(ArnUtils::CHECK_INTERNAL);
+      m_arnoldiCuda->setCheckTolerance(0.0000001f);
+      //m_arnoldiCuda->setCheckType(ArnUtils::CHECK_COUNTER);
+      //m_arnoldiCuda->setCheckCounts(10);
 
-      uint wanted = expectedValues.size();
+      m_arnoldiCuda->setCheckCallback(check, &checkUserData);
+
+      uint wanted = eigenPairs.size();
 
       std::unique_ptr<floatt[]> revalues(new floatt[wanted]);
 
@@ -196,12 +214,12 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
       std::vector<floatt> outputValues(&revalues[0], &revalues[wanted]);
 
-      EXPECT_EQ(expectedValues, outputValues);
-    }
+      std::vector<floatt> expectedValues;
+      for (uint idx = 0; idx < eigenPairs.size(); ++idx) {
+        expectedValues.push_back(eigenPairs[idx].re());
+      }
 
-    void runMatrixTest(size_t size, GetValue getValue, const std::vector<floatt>& expectedValues, uint hdim = 32, uint arnoldiSteps = 1) {
-      oap::HostMatrixPtr hmatrix = createSquareMatrix(size, getValue);
-      runMatrixTest(hmatrix, expectedValues, hdim, arnoldiSteps);
+      EXPECT_EQ(expectedValues, outputValues);
     }
 
     void runSmsDataTest(uint index, uint wanted, uint hdim = 32, uint arnoldiSteps = 1) {
@@ -213,13 +231,21 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       double* eigenvectors = smsdata_eigenvectors[index];
 
       oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<double>(columns, rows, smsmatrix, NULL);
+      oap::HostMatrixPtr evmatrix = host::NewMatrixCopy<double>(columns, rows, eigenvectors, NULL);
+
       std::vector<double> ev(eigenvalues, eigenvalues + columns);
-      runMatrixTest(hmatrix, getEigenvalues(ev, wanted), hdim, arnoldiSteps);
+      std::vector<EigenPair> eigenPairs;
+
+      for (uint columnIdx = 0; columnIdx < columns; ++columnIdx) {
+        eigenPairs.push_back(EigenPair(ev[columnIdx], columnIdx));
+      }
+
+      runMatrixTest(hmatrix, evmatrix, getEigenvalues(eigenPairs, wanted), hdim, arnoldiSteps);
     }
 };
 
 TEST_F(OapArnoldiPackageMatricesTests, Sms1HeaderTest) {
-  runSmsDataTest(0, 5, 12);
+  runSmsDataTest(0, 2, 22);
 }
 
 TEST_F(OapArnoldiPackageMatricesTests, Sms2HeaderTest) {
