@@ -63,6 +63,8 @@ class CuMatrix {
 
   void transposeMatrix(math::Matrix* output, math::Matrix* params0);
 
+  void conjugateTranspose(math::Matrix* output, math::Matrix* params0);
+
   inline void substract(math::Matrix* output, math::Matrix* params0,
                         math::Matrix* params1);
 

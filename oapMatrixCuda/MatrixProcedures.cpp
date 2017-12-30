@@ -147,6 +147,17 @@ void CuMatrix::transposeMatrix(math::Matrix* output, math::Matrix* params0) {
   }
 }
 
+void CuMatrix::conjugateTranspose(math::Matrix* output, math::Matrix* params0) {
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+  if (w == 1 || h == 1) {
+    device::CopyDeviceMatrixToDeviceMatrix(output, params0);
+  } else {
+    void* params[] = {&output, &params0};
+    m_cuResult = execute("CUDAKernel_ConjugateTranspose", w, h, params, 0);
+  }
+}
+
 void CuMatrix::substract(math::Matrix* output, math::Matrix* params0,
                          math::Matrix* params1, uintt columns, uintt rows) {
   void* params[] = {&output, &params0, &params1};

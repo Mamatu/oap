@@ -38,6 +38,7 @@
 #include "CuMatrixProcedures/CuMultiplicationProcedures.h"
 #include "CuMatrixProcedures/CuAdditionProcedures.h"
 #include "CuMatrixProcedures/CuSubstractionProcedures.h"
+#include "CuMatrixProcedures/CuConjugateTransposeProcedures.h"
 #include "CuMatrixProcedures/CuTransposeProcedures.h"
 #include "CuMatrixProcedures/CuIdentityProcedures.h"
 #include "CuMatrixProcedures/CuQRProcedures.h"
