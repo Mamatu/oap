@@ -76,7 +76,8 @@ __hostdevice__ void CUDA_setDiagonalMatrix(math::Matrix* dst, floatt rev,
                                            floatt imv) {
   if (NULL != dst->reValues) {
     CUDA_setDiagonalReMatrix(dst, rev);
-  } else if (NULL != dst->imValues) {
+  }
+  if (NULL != dst->imValues) {
     CUDA_setDiagonalImMatrix(dst, imv);
   }
 }
