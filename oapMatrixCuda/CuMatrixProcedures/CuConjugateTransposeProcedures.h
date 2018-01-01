@@ -17,14 +17,14 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUTRANSPONSEPROCEDURES_H
-#define CUTRANSPONSEPROCEDURES_H
+#ifndef CUCONJUGATETRANSPONSEPROCEDURES_H
+#define CUCONJUGATETRANSPONSEPROCEDURES_H
 
 #include "CuCore.h"
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_transposeReMatrixEx(math::Matrix* output,
+__hostdevice__ void CUDA_conjugateTransposeReMatrixEx(math::Matrix* output,
                                              math::Matrix* params0,
                                              const MatrixEx& matrixEx) {
   HOST_INIT();
@@ -38,7 +38,7 @@ __hostdevice__ void CUDA_transposeReMatrixEx(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeImMatrixEx(math::Matrix* output,
+__hostdevice__ void CUDA_conjugateTransposeImMatrixEx(math::Matrix* output,
                                              math::Matrix* params0,
                                              const MatrixEx& matrixEx) {
   HOST_INIT();
@@ -47,12 +47,12 @@ __hostdevice__ void CUDA_transposeImMatrixEx(math::Matrix* output,
   if (threadIndexY < erow(matrixEx) && threadIndexX < ecolumn(matrixEx)) {
     uintt index = threadIndexX + output->columns * threadIndexY;
     uintt index1 = threadIndexX * params0->columns + threadIndexY;
-    output->imValues[index] = params0->imValues[index1];
+    output->imValues[index] = -params0->imValues[index1];
   }
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeRealMatrixEx(math::Matrix* output,
+__hostdevice__ void CUDA_conjugateTransposeRealMatrixEx(math::Matrix* output,
                                                math::Matrix* params0,
                                                const MatrixEx& matrixEx) {
   HOST_INIT();
@@ -62,12 +62,12 @@ __hostdevice__ void CUDA_transposeRealMatrixEx(math::Matrix* output,
     uintt index = threadIndexX + output->columns * threadIndexY;
     uintt index1 = threadIndexX * params0->columns + threadIndexY;
     output->reValues[index] = params0->reValues[index1];
-    output->imValues[index] = params0->imValues[index1];
+    output->imValues[index] = -params0->imValues[index1];
   }
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeMatrixEx(math::Matrix* output,
+__hostdevice__ void CUDA_conjugateTransposeMatrixEx(math::Matrix* output,
                                            math::Matrix* params0,
                                            const MatrixEx& matrixEx) {
   HOST_INIT();
@@ -75,15 +75,15 @@ __hostdevice__ void CUDA_transposeMatrixEx(math::Matrix* output,
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   if (isre && isim) {
-    CUDA_transposeRealMatrixEx(output, params0, matrixEx);
+    CUDA_conjugateTransposeRealMatrixEx(output, params0, matrixEx);
   } else if (isre) {
-    CUDA_transposeReMatrixEx(output, params0, matrixEx);
+    CUDA_conjugateTransposeReMatrixEx(output, params0, matrixEx);
   } else if (isim) {
-    CUDA_transposeImMatrixEx(output, params0, matrixEx);
+    CUDA_conjugateTransposeImMatrixEx(output, params0, matrixEx);
   }
 }
 
-__hostdevice__ void cuda_transposeReMatrix(math::Matrix* output,
+__hostdevice__ void cuda_conjugateTransposeReMatrix(math::Matrix* output,
                                            math::Matrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -93,17 +93,17 @@ __hostdevice__ void cuda_transposeReMatrix(math::Matrix* output,
   output->reValues[index] = params0->reValues[index1];
 }
 
-__hostdevice__ void cuda_transposeImMatrix(math::Matrix* output,
+__hostdevice__ void cuda_conjugateTransposeImMatrix(math::Matrix* output,
                                            math::Matrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
   uintt index = threadIndexX + output->columns * threadIndexY;
   uintt index1 = threadIndexX * params0->columns + threadIndexY;
-  output->imValues[index] = params0->imValues[index1];
+  output->imValues[index] = -params0->imValues[index1];
 }
 
-__hostdevice__ void cuda_transposeRealMatrix(math::Matrix* output,
+__hostdevice__ void cuda_conjugateTransposeRealMatrix(math::Matrix* output,
                                              math::Matrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -111,34 +111,34 @@ __hostdevice__ void cuda_transposeRealMatrix(math::Matrix* output,
   uintt index = threadIndexX + output->columns * threadIndexY;
   uintt index1 = threadIndexX * params0->columns + threadIndexY;
   output->reValues[index] = params0->reValues[index1];
-  output->imValues[index] = params0->imValues[index1];
+  output->imValues[index] = -params0->imValues[index1];
 }
 
-__hostdevice__ void CUDA_transposeReMatrix(math::Matrix* output,
+__hostdevice__ void CUDA_conjugateTransposeReMatrix(math::Matrix* output,
                                            math::Matrix* params0) {
   HOST_INIT();
 
-  cuda_transposeReMatrix(output, params0);
+  cuda_conjugateTransposeReMatrix(output, params0);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeImMatrix(math::Matrix* output,
+__hostdevice__ void CUDA_conjugateTransposeImMatrix(math::Matrix* output,
                                            math::Matrix* params0) {
   HOST_INIT();
 
-  cuda_transposeImMatrix(output, params0);
+  cuda_conjugateTransposeImMatrix(output, params0);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeRealMatrix(math::Matrix* output,
+__hostdevice__ void CUDA_conjugateTransposeRealMatrix(math::Matrix* output,
                                              math::Matrix* params0) {
   HOST_INIT();
 
-  cuda_transposeRealMatrix(output, params0);
+  cuda_conjugateTransposeRealMatrix(output, params0);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeMatrix(math::Matrix* output,
+__hostdevice__ void CUDA_conjugateTransposeMatrix(math::Matrix* output,
                                          math::Matrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -148,32 +148,13 @@ __hostdevice__ void CUDA_transposeMatrix(math::Matrix* output,
   bool isInRange =
       threadIndexX < output->columns && threadIndexY < output->rows;
   if (isre && isim && isInRange) {
-    cuda_transposeRealMatrix(output, params0);
+    cuda_conjugateTransposeRealMatrix(output, params0);
   } else if (isre && isInRange) {
-    cuda_transposeReMatrix(output, params0);
+    cuda_conjugateTransposeReMatrix(output, params0);
   } else if (isim && isInRange) {
-    cuda_transposeImMatrix(output, params0);
+    cuda_conjugateTransposeImMatrix(output, params0);
   }
   threads_sync();
 }
 
-__hostdevice__ void transposeHIm(math::Matrix* output, math::Matrix* params0) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * params0->columns + threadIndexY;
-  output->imValues[index] = -params0->imValues[index1];
-}
-
-__hostdevice__ void transposeHReIm(math::Matrix* output, math::Matrix* params0) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * params0->columns + threadIndexY;
-  output->reValues[index] = params0->reValues[index1];
-  output->imValues[index] = -params0->imValues[index1];
-}
-
-#endif /* CUTRANSPONSEPROCEDURES_H */
+#endif /* CUCONJUGATETRANSPONSEPROCEDURES_H */

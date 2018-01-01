@@ -171,6 +171,11 @@ extern "C" __global__ void CUDAKernel_TransposeEx(math::Matrix* output,
   CUDA_transposeMatrixEx(output, params0, *matrixEx);
 }
 
+extern "C" __global__ void CUDAKernel_ConjugateTranspose(math::Matrix* output,
+                                                math::Matrix* params0) {
+  CUDA_conjugateTransposeMatrix(output, params0);
+}
+
 extern "C" __global__ void CUDAKernel_Magnitude(floatt* value,
                                                 math::Matrix* params0,
                                                 floatt* buffer) {

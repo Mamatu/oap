@@ -38,6 +38,7 @@
 #include "CuMatrixProcedures/CuMultiplicationProcedures.h"
 #include "CuMatrixProcedures/CuAdditionProcedures.h"
 #include "CuMatrixProcedures/CuSubstractionProcedures.h"
+#include "CuMatrixProcedures/CuConjugateTransposeProcedures.h"
 #include "CuMatrixProcedures/CuTransposeProcedures.h"
 #include "CuMatrixProcedures/CuIdentityProcedures.h"
 #include "CuMatrixProcedures/CuQRProcedures.h"
@@ -76,7 +77,8 @@ __hostdevice__ void CUDA_setDiagonalMatrix(math::Matrix* dst, floatt rev,
                                            floatt imv) {
   if (NULL != dst->reValues) {
     CUDA_setDiagonalReMatrix(dst, rev);
-  } else if (NULL != dst->imValues) {
+  }
+  if (NULL != dst->imValues) {
     CUDA_setDiagonalImMatrix(dst, imv);
   }
 }
