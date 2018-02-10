@@ -76,12 +76,15 @@ class CuDeviceInfo : public CuDevice {
 
 class Context : public CuDeviceInfo {
  public:
-  void create();
+  static int FIRST;
+  static int LAST;
+
+  void create(int deviceIndex = Context::LAST);
   void destroy();
   static Context& Instance();
 
  protected:
-  Context(int deviceIndex = 1);
+  Context();
   virtual ~Context();
 
  private:

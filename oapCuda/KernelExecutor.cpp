@@ -17,14 +17,16 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <limits.h>
 #include <linux/fs.h>
+#include <cstdlib>
+
 #include <math.h>
 
-#include "KernelExecutor.h"
 #include "ArrayTools.h"
 #include "DebugLogs.h"
+#include "KernelExecutor.h"
 #include "ThreadsMapper.h"
-#include <cstdlib>
 
 #define printCuErrorStatus(status, cuResult)                                   \
   if (cuResult != 0) {                                                         \
@@ -121,26 +123,48 @@ void CuDeviceInfo::setDeviceInfo(const CuDevice& deviceInfo) {
   setDevice(deviceInfo.getDevice());
 }
 
-Context::Context(int _deviceIndex) : deviceIndex(_deviceIndex) {}
+int Context::FIRST = 0;
+int Context::LAST = INT_MAX;
+
+Context::Context() {}
 
 Context Context::m_Context;
 
 Context& Context::Instance() { return Context::m_Context; }
 
-void Context::create() {
+void Context::create(int _deviceIndex) {
+
   Init();
-  int count = 0;
+
+  int count = -1;
+
   printCuError(cuDeviceGetCount(&count));
   debug("Devices count: %d \n", count);
-  deviceIndex = count - 1;
-  if (deviceIndex < count) {
-    CUdevice device = 0;
-    printCuError(cuDeviceGet(&device, deviceIndex));
-    setDevice(device);
-    CUcontext context;
-    printCuError(cuCtxCreate(&context, CU_CTX_SCHED_AUTO, device));
-    m_contexts.push(context);
+
+  debugAssertMsg (count > 0, "No device detected. Count is equal 0!")
+
+  deviceIndex = _deviceIndex;
+
+  if (deviceIndex >= count)
+  {
+    deviceIndex = count - 1;
+    debug("The last device will be used.");
   }
+
+  if (deviceIndex < 0)
+  {
+    deviceIndex = 0;
+    debug("The first device will be used.");
+  }
+
+  debugAssertMsg(deviceIndex >= 0 && deviceIndex < count, "Index of device is out of scope!");
+
+  CUdevice device = 0;
+  printCuError(cuDeviceGet(&device, deviceIndex));
+  setDevice(device);
+  CUcontext context;
+  printCuError(cuCtxCreate(&context, CU_CTX_SCHED_AUTO, device));
+  m_contexts.push(context);
 }
 
 void Context::destroy() {
@@ -266,7 +290,7 @@ CUresult Kernel::execute(const char* functionName) {
     if (NULL != m_image) {
       debug("Module is incorrect %p %p;", m_cuModule, m_image);
     } else if (m_path.length() > 0) {
-      debug("Module is incorrect %d %s;", m_cuModule, m_path.c_str());
+      debug("Module is incorrect %p %s;", m_cuModule, m_path.c_str());
     }
     abort();
   }

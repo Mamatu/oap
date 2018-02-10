@@ -38,6 +38,8 @@
 
 #define debugAssert(x) assert(x);
 
+#define debugAssertMsg(x, msg) if (!(x)) { debug(msg); abort(); }
+
 #define debugError(x, ...) fprintf(stderr, x, ##__VA_ARGS__); fprintf(stderr, "\n");
 
 #define debugFunc() fprintf(STREAM, "%s %s : %d  \n", __FUNCTION__,__FILE__,__LINE__); 
@@ -63,6 +65,8 @@
 #define debug( x, ...) 
 
 #define debugAssert(x)
+
+#define debugAssertMsg(x, msg)
 
 #define debugError(x, ...)
 
