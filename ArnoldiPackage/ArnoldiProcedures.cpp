@@ -174,20 +174,12 @@ void CuHArnoldi::execute(uint hdim, uint wantedCount,
   traceFunction();
   uintt startIndex = 0;
 
+  executeInit();
+
   for (uint fax = 0; fax == 0 || status == true; ++fax) {
     traceFunction();
 
-    uintt buffer[] = {0, m_transposeVcolumns, 0, 1, 0, 0,
-                    0, 1, 0, m_hrows, 0, m_transposeVcolumns,
-                    0, 0, 0, 0, 0, 0,
-                    0, m_scolumns, startIndex, startIndex + 2, 0, m_transposeVcolumns,
-                    0, m_vscolumns, 0, m_vsrows, startIndex, startIndex + 2};
-
-    device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
-
-    if (fax == 0) { executeInit(dMatrixExs); }
-
-    status = executeArnoldiFactorization(startIndex, dMatrixExs, m_rho);
+    status = executeArnoldiFactorization(startIndex, m_rho);
 
     unwanted.clear();
     wanted.clear();
@@ -236,8 +228,6 @@ void CuHArnoldi::execute(uint hdim, uint wantedCount,
   extractEigenvalues(th, wantedCount);
 
   extractOutput(ev);
-
-  device::DeleteDeviceMatrixEx(dMatrixExs);
 }
 
 void CuHArnoldi::extractOutput() {
@@ -315,7 +305,7 @@ void CuHArnoldi::calculateTriangularHInDeviceSteps() {
 void CuHArnoldi::calculateTriangularH() {
   traceFunction();
   HOSTKernel_CalcTriangularH(m_triangularH, m_Q, m_R1, m_Q1, m_QJ, m_Q2, m_R2,
-                             m_G, m_GT, m_cuMatrix, 10000);
+                             m_G, m_GT, m_cuMatrix, 1000);
 }
 
 void CuHArnoldi::calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo)
@@ -379,18 +369,18 @@ void CuHArnoldi::getWanted(const std::vector<EigenPair>& values, std::vector<Eig
   }
 }
 
-void CuHArnoldi::executeInit(MatrixEx** dMatrixEx) {
+void CuHArnoldi::executeInit() {
   traceFunction();
   multiply(m_w, m_v, CuHArnoldi::TYPE_WV);
   m_cuMatrix.setVector(m_V, 0, m_v, m_vrows);
-  m_cuMatrix.transposeMatrixEx(m_transposeV, m_V, dMatrixEx[0]);
-  m_cuMatrix.dotProductEx(m_h, m_transposeV, m_w, dMatrixEx[1]);
+  m_cuMatrix.transposeMatrix(m_transposeV, m_V);
+  m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
   m_cuMatrix.dotProduct(m_vh, m_V, m_h);
   m_cuMatrix.substract(m_f, m_w, m_vh);
   m_cuMatrix.setVector(m_H, 0, m_h, 1);
 }
 
-bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, MatrixEx** dMatrixEx, floatt rho) {
+bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
   traceFunction();
 
   floatt mf = 0;
@@ -414,7 +404,6 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, MatrixEx** dMatrix
     //device::PrintMatrix("m_H = ", m_H);
     multiply(m_w, m_v, CuHArnoldi::TYPE_WV);
     MatrixEx matrixEx = {0, m_transposeVcolumns, startIndex, fa + 2 - startIndex, 0, 0};
-    device::SetMatrixEx(dMatrixEx[2], &matrixEx);
     m_cuMatrix.transposeMatrix(m_transposeV, m_V);
     m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
     m_cuMatrix.dotProduct(m_vh, m_V, m_h);
@@ -424,8 +413,8 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, MatrixEx** dMatrix
 
     if (mf < rho * mh) {
       traceFunction();
-      m_cuMatrix.dotProductEx(m_s, m_transposeV, m_f, dMatrixEx[3]);
-      m_cuMatrix.dotProductEx(m_vs, m_V, m_s, dMatrixEx[4]);
+      m_cuMatrix.dotProduct(m_s, m_transposeV, m_f);
+      m_cuMatrix.dotProduct(m_vs, m_V, m_s);
       m_cuMatrix.substract(m_f, m_f, m_vs);
       m_cuMatrix.add(m_h, m_h, m_s);
     }

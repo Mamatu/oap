@@ -21,7 +21,6 @@
 #define OAP_CU_ARNOLDIPROCEDURES_H
 
 #include <vector>
-#include "MatrixEx.h"
 #include "Matrix.h"
 #include "KernelExecutor.h"
 #include "MatrixProcedures.h"
@@ -200,16 +199,15 @@ class CuHArnoldi {
   void getWanted(const std::vector<EigenPair>& values, std::vector<EigenPair>& wanted,
     std::vector<EigenPair>& unwanted, uint wantedCount);
 
-  void executeInit(MatrixEx** dMatrixEx);
+  void executeInit();
 
   /**
    * @brief executeArnoldiFactorization
    * @param startIndex
-   * @param dMatrixEx
    * @param m_rho
    * @return true - should continue, false  - finish algorithm
    */
-  bool executeArnoldiFactorization(uint startIndex, MatrixEx** dMatrixEx, floatt rho);
+  bool executeArnoldiFactorization(uint startIndex, floatt rho);
 
   void executefVHplusfq(uint k);
 
