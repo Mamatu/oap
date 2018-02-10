@@ -142,18 +142,18 @@ void CopyRe(math::Matrix* dst, const math::Matrix* src);
 void CopyIm(math::Matrix* dst, const math::Matrix* src);
 
 template<typename T>
-void Copy(floatt* dst, T* src, uintt length) {
+void Copy(floatt* dst, T* src, uint length) {
   debugFunc();
   if (dst == NULL || src == NULL) {
     return;
   }
-  for (uintt idx = 0; idx < length; ++idx) {
+  for (uint idx = 0; idx < length; ++idx) {
     dst[idx] = src[idx];
   }
 }
 
 template<>
-inline void Copy<floatt>(floatt* dst, floatt* src, uintt length) {
+inline void Copy<floatt>(floatt* dst, floatt* src, uint length) {
   debugFunc();
   if (dst == NULL || src == NULL) {
     return;
@@ -185,7 +185,7 @@ void CopyIm(math::Matrix* dst, T* array) {
 math::Matrix* NewMatrixCopy(const math::Matrix* matrix);
 
 template<typename T>
-math::Matrix* NewMatrixCopy(uintt columns, uintt rows, T* reArray, T* imArray)
+math::Matrix* NewMatrixCopy(uint columns, uint rows, T* reArray, T* imArray)
 {
   math::Matrix* output = host::NewMatrix(reArray != NULL, imArray != NULL, columns, rows);
   host::Copy<T>(output, reArray, imArray);
@@ -193,7 +193,7 @@ math::Matrix* NewMatrixCopy(uintt columns, uintt rows, T* reArray, T* imArray)
 }
 
 template<typename T>
-math::Matrix* NewReMatrixCopy(uintt columns, uintt rows, T* reArray)
+math::Matrix* NewReMatrixCopy(uint columns, uint rows, T* reArray)
 {
   math::Matrix* output = host::NewMatrix(reArray != NULL, false, columns, rows);
   host::CopyRe<T>(output, reArray);
@@ -201,7 +201,7 @@ math::Matrix* NewReMatrixCopy(uintt columns, uintt rows, T* reArray)
 }
 
 template<typename T>
-math::Matrix* NewImMatrixCopy(uintt columns, uintt rows, T* imArray)
+math::Matrix* NewImMatrixCopy(uint columns, uint rows, T* imArray)
 {
   math::Matrix* output = host::NewMatrix(false, imArray != NULL, columns, rows);
   host::CopyIm<T>(output, imArray);
@@ -373,14 +373,14 @@ void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector);
 
 void GetVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
 
-void GetVector(floatt* revector, floatt* imvector, uintt length,
-               math::Matrix* matrix, uintt column);
+void GetVector(floatt* revector, floatt* imvector, uint length,
+               math::Matrix* matrix, uint column);
 
-void GetTransposeVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
+void GetTransposeVector(math::Matrix* vector, math::Matrix* matrix, uint column);
 
-void GetTransposeReVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
+void GetTransposeReVector(math::Matrix* vector, math::Matrix* matrix, uint column);
 
-void GetTransposeImVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
+void GetTransposeImVector(math::Matrix* vector, math::Matrix* matrix, uint column);
 
 /**
  * @brief GetReVector
@@ -389,8 +389,7 @@ void GetTransposeImVector(math::Matrix* vector, math::Matrix* matrix, uintt colu
  * @param matrix
  * @param column
  */
-void GetReVector(floatt* vector, uintt length, math::Matrix* matrix,
-                 uintt column);
+void GetReVector(floatt* vector, uint length, math::Matrix* matrix, uint column);
 
 /**
  * @brief GetTransposeReVector
@@ -399,8 +398,7 @@ void GetReVector(floatt* vector, uintt length, math::Matrix* matrix,
  * @param matrix
  * @param row
  */
-void GetTransposeReVector(floatt* vector, uintt length, math::Matrix* matrix,
-                          uintt row);
+void GetTransposeReVector(floatt* vector, uint length, math::Matrix* matrix, uint row);
 
 /**
  * @brief GetImVector
@@ -409,8 +407,7 @@ void GetTransposeReVector(floatt* vector, uintt length, math::Matrix* matrix,
  * @param matrix
  * @param column
  */
-void GetImVector(floatt* vector, uintt length, math::Matrix* matrix,
-                 uintt column);
+void GetImVector(floatt* vector, uint length, math::Matrix* matrix, uint column);
 
 /**
  * @brief GetTransposeImVector
@@ -419,8 +416,7 @@ void GetImVector(floatt* vector, uintt length, math::Matrix* matrix,
  * @param matrix
  * @param row
  */
-void GetTransposeImVector(floatt* vector, uintt length, math::Matrix* matrix,
-                          uintt row);
+void GetTransposeImVector(floatt* vector, uint length, math::Matrix* matrix, uint row);
 
 /**
  * @brief GetReVector
@@ -428,7 +424,7 @@ void GetTransposeImVector(floatt* vector, uintt length, math::Matrix* matrix,
  * @param matrix
  * @param column
  */
-void GetReVector(floatt* vector, math::Matrix* matrix, uintt column);
+void GetReVector(floatt* vector, math::Matrix* matrix, uint column);
 
 /**
  * @brief GetTransposeReVector
@@ -436,7 +432,7 @@ void GetReVector(floatt* vector, math::Matrix* matrix, uintt column);
  * @param matrix
  * @param row
  */
-void GetTransposeReVector(floatt* vector, math::Matrix* matrix, uintt row);
+void GetTransposeReVector(floatt* vector, math::Matrix* matrix, uint row);
 
 /**
  * @brief GetImVector
@@ -444,7 +440,7 @@ void GetTransposeReVector(floatt* vector, math::Matrix* matrix, uintt row);
  * @param matrix
  * @param column
  */
-void GetImVector(floatt* vector, math::Matrix* matrix, uintt column);
+void GetImVector(floatt* vector, math::Matrix* matrix, uint column);
 
 /**
  * @brief GetTransposeImVector
@@ -452,7 +448,7 @@ void GetImVector(floatt* vector, math::Matrix* matrix, uintt column);
  * @param matrix
  * @param row
  */
-void GetTransposeImVector(floatt* vector, math::Matrix* matrix, uintt row);
+void GetTransposeImVector(floatt* vector, math::Matrix* matrix, uint row);
 
 /**
  * @brief SetIdentity

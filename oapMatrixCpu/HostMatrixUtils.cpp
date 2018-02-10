@@ -503,12 +503,13 @@ void GetImMatrixStr(std::string& str, const math::Matrix* matrix) {
   str += "]";
 }
 
-void GetVector(math::Matrix* vector, math::Matrix* matrix, uintt column) {
+void GetVector(math::Matrix* vector, math::Matrix* matrix, uintt column)
+{
   GetVector(vector->reValues, vector->imValues, vector->rows, matrix, column);
 }
 
-void GetVector(floatt* revector, floatt* imvector, uintt length,
-               math::Matrix* matrix, uintt column) {
+void GetVector(floatt* revector, floatt* imvector, uint length, math::Matrix* matrix, uint column)
+{
   if (revector != NULL) {
     GetReVector(revector, length, matrix, column);
   }
@@ -518,7 +519,8 @@ void GetVector(floatt* revector, floatt* imvector, uintt length,
   }
 }
 
-void GetTransposeVector(math::Matrix* vector, math::Matrix* matrix, uintt column) {
+void GetTransposeVector(math::Matrix* vector, math::Matrix* matrix, uint column)
+{
   if (vector->reValues != NULL) {
     GetTransposeReVector(vector, matrix, column);
   }
@@ -527,16 +529,18 @@ void GetTransposeVector(math::Matrix* vector, math::Matrix* matrix, uintt column
   }
 }
 
-void GetTransposeReVector(math::Matrix* vector, math::Matrix* matrix, uintt column) {
+void GetTransposeReVector(math::Matrix* vector, math::Matrix* matrix, uint column)
+{
   GetTransposeReVector(vector->reValues, matrix, column);
 }
 
-void GetTransposeImVector(math::Matrix* vector, math::Matrix* matrix, uintt column) {
+void GetTransposeImVector(math::Matrix* vector, math::Matrix* matrix, uint column)
+{
   GetTransposeImVector(vector->imValues, matrix, column);
 }
 
-void GetReVector(floatt* vector, uintt length, math::Matrix* matrix,
-                 uintt column) {
+void GetReVector(floatt* vector, uint length, math::Matrix* matrix, uint column)
+{
   if (matrix->reValues) {
     for (uintt fa = 0; fa < length; fa++) {
       vector[fa] = matrix->reValues[column + matrix->columns * fa];
@@ -544,16 +548,16 @@ void GetReVector(floatt* vector, uintt length, math::Matrix* matrix,
   }
 }
 
-void GetTransposeReVector(floatt* vector, uintt length, math::Matrix* matrix,
-                          uintt row) {
+void GetTransposeReVector(floatt* vector, uint length, math::Matrix* matrix, uint row)
+{
   if (matrix->reValues) {
     memcpy(vector, &matrix->reValues[row * matrix->columns],
            length * sizeof(floatt));
   }
 }
 
-void GetImVector(floatt* vector, uintt length, math::Matrix* matrix,
-                 uintt column) {
+void GetImVector(floatt* vector, uint length, math::Matrix* matrix, uint column)
+{
   if (matrix->imValues) {
     for (uintt fa = 0; fa < length; fa++) {
       vector[fa] = matrix->imValues[column + matrix->columns * fa];
@@ -561,27 +565,31 @@ void GetImVector(floatt* vector, uintt length, math::Matrix* matrix,
   }
 }
 
-void GetTransposeImVector(floatt* vector, uintt length, math::Matrix* matrix,
-                          uintt row) {
+void GetTransposeImVector(floatt* vector, uint length, math::Matrix* matrix, uint row)
+{
   if (matrix->imValues) {
     memcpy(vector, &matrix->imValues[row * matrix->columns],
            length * sizeof(floatt));
   }
 }
 
-void GetReVector(floatt* vector, math::Matrix* matrix, uintt column) {
+void GetReVector(floatt* vector, math::Matrix* matrix, uint column)
+{
   GetReVector(vector, matrix->rows, matrix, column);
 }
 
-void GetTransposeReVector(floatt* vector, math::Matrix* matrix, uintt row) {
+void GetTransposeReVector(floatt* vector, math::Matrix* matrix, uint row)
+{
   GetTransposeReVector(vector, matrix->columns, matrix, row);
 }
 
-void GetImVector(floatt* vector, math::Matrix* matrix, uintt column) {
+void GetImVector(floatt* vector, math::Matrix* matrix, uint column)
+{
   GetImVector(vector, matrix->rows, matrix, column);
 }
 
-void GetTransposeImVector(floatt* vector, math::Matrix* matrix, uintt row) {
+void GetTransposeImVector(floatt* vector, math::Matrix* matrix, uint row)
+{
   GetTransposeReVector(vector, matrix->columns, matrix, row);
 }
 
