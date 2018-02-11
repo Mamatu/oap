@@ -67,7 +67,6 @@ typedef bool (*SortType)(const EigenPair& i, const EigenPair& j);
 
 enum CheckType {
   CHECK_INTERNAL,
-  CHECK_EXTERNAL,
   CHECK_FIRST_STOP,
   CHECK_COUNTER
 };

@@ -87,7 +87,6 @@ class CuHArnoldi {
   math::Matrix* m_H;
   math::Matrix* m_HC;
   math::Matrix* m_triangularH;
-  math::Matrix* m_ptriangularH;
   math::Matrix* m_H2;
   math::Matrix* m_I;
   math::Matrix* m_v;
@@ -107,10 +106,11 @@ class CuHArnoldi {
   math::Matrix* m_GT;
   math::Matrix* m_G;
   math::Matrix* m_EV;
-  math::Matrix* m_pEV;
 
   math::Matrix* m_hostV;
 
+  floatt m_previousFValue;
+  floatt m_FValue;
  private:  // private data
   math::MatrixInfo m_matrixInfo;
   ArnUtils::Type m_outputType;
@@ -124,8 +124,9 @@ class CuHArnoldi {
   floatt m_rho;
   floatt m_blimit;
 
-  std::vector<EigenPair> wanted;
-  std::vector<EigenPair> unwanted;
+  std::vector<EigenPair> m_wanted;
+  std::vector<EigenPair> m_previousWanted;
+  std::vector<EigenPair> m_unwanted;
 
   ArnUtils::SortType m_sortObject;
   ArnUtils::CheckType m_checkType;
