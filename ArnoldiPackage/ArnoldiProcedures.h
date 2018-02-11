@@ -154,7 +154,7 @@ class CuHArnoldi {
 
   floatt m_previousInternalSum;
  private:  // internal methods - inline
-  inline void swapPointers(math::Matrix** a, math::Matrix** b) {
+  inline void aux_swapPointers(math::Matrix** a, math::Matrix** b) {
     math::Matrix* temp = *b;
     *b = *a;
     *a = temp;
@@ -217,6 +217,17 @@ class CuHArnoldi {
   void executeShiftedQRIteration(uint p);
 
   floatt checkEigenpairsInternally(const EigenPair& eigenPair, floatt tolerance);
+
+  inline void calculateQSwapQAuxPointers()
+  {
+    m_cuMatrix.dotProduct(m_QT1, m_QT2, m_Q);
+    swapQAuxPointers();
+  }
+
+  inline void swapQAuxPointers()
+  {
+    aux_swapPointers(&m_QT1, &m_QT2);
+  }
 
  private:  // alloc, dealloc methods
   bool shouldBeReallocated(const math::MatrixInfo& m1,

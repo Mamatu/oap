@@ -27,13 +27,6 @@
 
 const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
 
-void aux_swapPointers(math::Matrix** a, math::Matrix** b)
-{
-  math::Matrix* temp = *b;
-  *b = *a;
-  *a = temp;
-}
-
 CuHArnoldi::CuHArnoldi()
     : m_wasAllocated(false),
       m_k(0),
@@ -197,32 +190,25 @@ void CuHArnoldi::execute(uint hdim, uint m_wantedCount,
     calculateTriangularHEigens(m_H, m_matrixInfo);
 
     status = executeChecking(m_wantedCount);
-    if (m_checkType == ArnUtils::CHECK_INTERNAL)
-    {
-      if (status)
-      {
-        m_cuMatrix.dotProduct(m_QT1, m_QT2, m_Q);
-        aux_swapPointers(&m_QT1, &m_QT2);
 
-        m_previousWanted = m_wanted;
-        //m_previousWanted.clear();
-        //m_previousWanted.insert(m_previousWanted.begin(), m_wanted.begin(), m_wanted.end());
-      }
-    }
-    else
+    const bool cond1 = (m_checkType == ArnUtils::CHECK_INTERNAL && status);
+    const bool cond2 = m_checkType != ArnUtils::CHECK_INTERNAL;
+
+    if (cond1 || cond2)
     {
-      m_cuMatrix.dotProduct(m_QT1, m_QT2, m_Q);
-      aux_swapPointers(&m_QT1, &m_QT2);
+      calculateQSwapQAuxPointers();
     }
 
     startIndex = m_wantedCount - 1;
   }
 
-  aux_swapPointers(&m_QT1, &m_QT2);
+  swapQAuxPointers();
   m_cuMatrix.dotProduct(m_EV, m_V, m_QT1);
+
   //aux_swapPointers(&m_QT1, &m_QT2);
   //m_cuMatrix.dotProduct(m_EV, m_V, m_QT1);
   //aux_swapPointers(&m_QT1, &m_QT2);
+
   math::Matrix* ev = m_EV;
   math::Matrix* th = m_triangularH;
 
@@ -468,7 +454,7 @@ void CuHArnoldi::executefVHplusfq(uint k)
   m_cuMatrix.multiplyConstantMatrix(m_f, m_f, reqm_k, imqm_k);
   m_cuMatrix.add(m_f, m_f1, m_f);
   m_cuMatrix.setZeroMatrix(m_v);
-  
+
   m_cuMatrix.magnitude(m_FValue, m_f);
 }
 
@@ -478,33 +464,36 @@ bool CuHArnoldi::executeChecking(uint k)
 
   assert(m_wanted.size() == k);
 
-  if (m_checkType == ArnUtils::CHECK_COUNTER) {
-    traceFunction();
-    ++m_checksCounter;
-
-    bool shouldContinue = m_checksCounter < m_checksCount;
-
-    return shouldContinue;
-
-  } else if (m_checkType == ArnUtils::CHECK_FIRST_STOP) {
-    return false;
-  }
-
-  extractOutput();
-
-  floatt internalSum = 0;
-  bool shouldContinue = false;
-
-  if (m_checkType == ArnUtils::CHECK_INTERNAL) {
+  if (m_checkType == ArnUtils::CHECK_INTERNAL)
+  {
     debug("f = %f previous = %f", m_FValue, m_previousFValue);
 
-    shouldContinue = m_FValue < m_previousFValue;
-    if (shouldContinue == true) {
+    bool shouldContinue = m_FValue < m_previousFValue;
+    if (shouldContinue == true)
+    {
+      m_previousWanted = m_wanted;
       m_previousFValue = m_FValue;
     }
     return shouldContinue;
   }
+  else
+  {
+    if (m_checkType == ArnUtils::CHECK_COUNTER)
+    {
+      traceFunction();
+      ++m_checksCounter;
 
+      bool shouldContinue = m_checksCounter < m_checksCount;
+
+      return shouldContinue;
+
+    }
+    else if (m_checkType == ArnUtils::CHECK_FIRST_STOP)
+    {
+      traceFunction();
+      return false;
+    }
+  }
   return false;
 }
 
@@ -516,7 +505,7 @@ void CuHArnoldi::executeShiftedQRIteration(uint p)
     m_cuMatrix.setDiagonal(m_I, m_unwanted[fa].re(), m_unwanted[fa].im());
     m_cuMatrix.substract(m_I, m_H, m_I);
     m_cuMatrix.QRGR(m_Q1, m_R1, m_I, m_Q, m_R2, m_G, m_GT);
-    m_cuMatrix.transposeMatrix(m_QT, m_Q1);
+    m_cuMatrix.conjugateTranspose(m_QT, m_Q1);
     m_cuMatrix.dotProduct(m_HO, m_H, m_Q1);
     m_cuMatrix.dotProduct(m_H, m_QT, m_HO);
     m_cuMatrix.dotProduct(m_Q, m_QJ, m_Q1);
