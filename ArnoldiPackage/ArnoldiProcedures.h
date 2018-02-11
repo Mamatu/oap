@@ -239,6 +239,8 @@ class CuHArnoldi {
   void dealloc1();
   void dealloc2();
   void dealloc3();
+ public:
+  void runInternalCheck();
 };
 
 #endif /* CUPROCEDURES_H */

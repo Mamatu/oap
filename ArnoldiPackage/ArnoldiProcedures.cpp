@@ -175,11 +175,10 @@ void CuHArnoldi::execute(uint hdim, uint m_wantedCount,
     m_wanted.clear();
 
     calculateTriangularHEigens(m_H, m_matrixInfo);
-
     sortPWorstEigens(m_wantedCount);
 
-    m_cuMatrix.setIdentity(m_Q);
     m_cuMatrix.setIdentity(m_QJ);
+    m_cuMatrix.setIdentity(m_Q);
 
     uint m_unwantedCount = hdim - m_wantedCount; // m_unwanted - p, m_wanted - k
 
@@ -187,8 +186,11 @@ void CuHArnoldi::execute(uint hdim, uint m_wantedCount,
 
     executefVHplusfq(m_wantedCount);
 
+    //device::CopyDeviceMatrixToDeviceMatrix(m_QT1, m_Q);
     calculateTriangularHEigens(m_H, m_matrixInfo);
+    sortPWorstEigens(m_wantedCount);
 
+    debug("m_FValue = %f", m_FValue);
     status = executeChecking(m_wantedCount);
 
     const bool cond1 = (m_checkType == ArnUtils::CHECK_INTERNAL && status);
@@ -196,20 +198,20 @@ void CuHArnoldi::execute(uint hdim, uint m_wantedCount,
 
     if (cond1 || cond2)
     {
-      calculateQSwapQAuxPointers();
+      //calculateQSwapQAuxPointers();
     }
 
     startIndex = m_wantedCount - 1;
   }
 
-  swapQAuxPointers();
-  m_cuMatrix.dotProduct(m_EV, m_V, m_QT1);
-
+  //swapQAuxPointers();
+  //m_cuMatrix.dotProduct(m_EV, m_V, m_QT1);
+  //device::CopyDeviceMatrixToDeviceMatrix(m_EV, m_V);
   //aux_swapPointers(&m_QT1, &m_QT2);
   //m_cuMatrix.dotProduct(m_EV, m_V, m_QT1);
   //aux_swapPointers(&m_QT1, &m_QT2);
 
-  math::Matrix* ev = m_EV;
+  math::Matrix* ev = m_V;
   math::Matrix* th = m_triangularH;
 
   if (m_checkType == ArnUtils::CHECK_INTERNAL)
@@ -309,9 +311,7 @@ void CuHArnoldi::calculateTriangularHEigens(const math::Matrix* normalH, const m
   m_cuMatrix.setIdentity(m_Q);
   m_cuMatrix.setIdentity(m_QJ);
   m_cuMatrix.setIdentity(m_I);
-  //device::PrintMatrix("m_triangularHPre = ", m_triangularH);
   (this->*m_calculateTriangularHPtr)();
-  //device::PrintMatrix("m_triangularHPost = ", m_triangularH);
 }
 
 void CuHArnoldi::sortPWorstEigens(uint m_wantedCount)
@@ -512,6 +512,8 @@ void CuHArnoldi::executeShiftedQRIteration(uint p)
     aux_swapPointers(&m_Q, &m_QJ);
   }
   aux_swapPointers(&m_Q, &m_QJ);
+  device::CopyDeviceMatrixToDeviceMatrix(m_EV, m_V);
+  m_cuMatrix.dotProduct(m_V, m_EV, m_Q);
 }
 
 floatt CuHArnoldi::checkEigenpairsInternally(const EigenPair& eigenPair, floatt tolerance)
@@ -690,3 +692,19 @@ void CuHArnoldi::dealloc3()
   device::DeleteDeviceMatrix(m_QT2);
   device::DeleteDeviceMatrix(m_q);
 }
+
+void CuHArnoldi::runInternalCheck()
+{
+  for (uint index = 0; index < m_wanted.size(); ++index)
+  {
+    traceFunction();
+    floatt reevalue = 0;
+    floatt imevalue = 0;
+    math::Matrix* evector = NULL;
+    bool shouldContinue = false;
+
+    floatt fit = checkEigenpairsInternally(m_wanted[index], m_tolerance);
+    debug("Fit of eigenvector and eigenvalue: value[%u] = %f", index, fit);
+  }
+}
+
