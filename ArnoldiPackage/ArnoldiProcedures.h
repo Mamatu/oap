@@ -120,7 +120,7 @@ class CuHArnoldi {
   math::Matrix** m_oevectors;
 
   bool m_wasAllocated;
-  uintt m_k;
+  uint m_k;
   floatt m_rho;
   floatt m_blimit;
 
@@ -139,18 +139,18 @@ class CuHArnoldi {
   void* m_image;
   device::Kernel m_kernel;
 
-  uintt m_transposeVcolumns;
-  uintt m_hrows;
-  uintt m_scolumns;
-  uintt m_vscolumns;
-  uintt m_vsrows;
-  uintt m_vrows;
-  uintt m_qrows;
-  uintt m_Hcolumns;
-  uintt m_Hrows;
-  uintt m_triangularHcolumns;
-  uintt m_Qrows;
-  uintt m_Qcolumns;
+  uint m_transposeVcolumns;
+  uint m_hrows;
+  uint m_scolumns;
+  uint m_vscolumns;
+  uint m_vsrows;
+  uint m_vrows;
+  uint m_qrows;
+  uint m_Hcolumns;
+  uint m_Hrows;
+  uint m_triangularHcolumns;
+  uint m_Qrows;
+  uint m_Qcolumns;
 
   floatt m_previousInternalSum;
  private:  // internal methods - inline
@@ -160,7 +160,7 @@ class CuHArnoldi {
     *a = temp;
   }
 
-  inline void setCalculateTriangularHPtr(uintt k) {
+  inline void setCalculateTriangularHPtr(uint k) {
     if (m_triangularHProcedureType == ArnUtils::CALC_IN_HOST) {
       m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularH;
     } else {
@@ -176,7 +176,7 @@ class CuHArnoldi {
  private:
   void getEigenvector(math::Matrix* vector, const EigenPair& eigenPair);
 
-  void getEigenvector(math::Matrix* vector, uintt index);
+  void getEigenvector(math::Matrix* vector, uint index);
 
  private:  // internal methods
   void initVvector();
@@ -232,10 +232,10 @@ class CuHArnoldi {
  private:  // alloc, dealloc methods
   bool shouldBeReallocated(const math::MatrixInfo& m1,
                            const math::MatrixInfo& m2) const;
-  void alloc(const math::MatrixInfo& matrixInfo, uintt k);
-  void alloc1(const math::MatrixInfo& matrixInfo, uintt k);
-  void alloc2(const math::MatrixInfo& matrixInfo, uintt k);
-  void alloc3(const math::MatrixInfo& matrixInfo, uintt k);
+  void alloc(const math::MatrixInfo& matrixInfo, uint k);
+  void alloc1(const math::MatrixInfo& matrixInfo, uint k);
+  void alloc2(const math::MatrixInfo& matrixInfo, uint k);
+  void alloc3(const math::MatrixInfo& matrixInfo, uint k);
   void dealloc1();
   void dealloc2();
   void dealloc3();

@@ -236,7 +236,7 @@ void CuHArnoldi::extractOutput(math::Matrix* EV)
     traceFunction();
     device::CopyDeviceMatrixToHostMatrix(m_hostV, EV);
   }
-  for (uintt fa = 0; fa < m_wanted.size(); fa++) {
+  for (uint fa = 0; fa < m_wanted.size(); fa++) {
     traceFunction();
     if (NULL != m_reoevalues) {
       traceFunction();
@@ -259,7 +259,7 @@ void CuHArnoldi::getEigenvector(math::Matrix* vector, const EigenPair& eigenPair
   getEigenvector(vector, eigenPair.getIndex());
 }
 
-void CuHArnoldi::getEigenvector(math::Matrix* vector, uintt index) {
+void CuHArnoldi::getEigenvector(math::Matrix* vector, uint index) {
   traceFunction();
 
   if (m_outputType == ArnUtils::HOST) {
@@ -526,7 +526,7 @@ floatt CuHArnoldi::checkEigenpairsInternally(const EigenPair& eigenPair, floatt 
   return m_cuMatrix.getCompareOperationSum();
 }
 
-void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uintt k)
+void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
   if (shouldBeReallocated(matrixInfo, m_matrixInfo) ||
@@ -581,7 +581,7 @@ bool CuHArnoldi::shouldBeReallocated(const math::MatrixInfo& m1,
   return m1.isIm != m2.isIm || m1.isRe != m2.isRe;
 }
 
-void CuHArnoldi::alloc1(const math::MatrixInfo& matrixInfo, uintt k)
+void CuHArnoldi::alloc1(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
   m_vrows = matrixInfo.m_matrixDim.rows;
@@ -603,7 +603,7 @@ void CuHArnoldi::alloc1(const math::MatrixInfo& matrixInfo, uintt k)
                                  matrixInfo.m_matrixDim.rows);
 }
 
-void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uintt k)
+void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
   m_V = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
@@ -620,7 +620,7 @@ void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uintt k)
                                          matrixInfo.m_matrixDim.rows, k);
 }
 
-void CuHArnoldi::alloc3(const math::MatrixInfo& matrixInfo, uintt k)
+void CuHArnoldi::alloc3(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
   m_h = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
