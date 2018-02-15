@@ -187,44 +187,15 @@ void CuHArnoldi::execute(uint hdim, uint m_wantedCount,
 
     executefVHplusfq(m_wantedCount);
 
-    //device::CopyDeviceMatrixToDeviceMatrix(m_QT1, m_Q);
     calculateTriangularHEigens(m_H, m_matrixInfo);
     sortPWorstEigens(m_wantedCount);
 
-    debug("m_FValue = %f", m_FValue);
     status = executeChecking(m_wantedCount);
-
-    const bool cond1 = (m_checkType == ArnUtils::CHECK_INTERNAL && status);
-    const bool cond2 = m_checkType != ArnUtils::CHECK_INTERNAL;
-
-    if (cond1 || cond2)
-    {
-      //calculateQSwapQAuxPointers();
-    }
 
     startIndex = m_wantedCount - 1;
   }
 
-  //swapQAuxPointers();
-  //m_cuMatrix.dotProduct(m_EV, m_V, m_QT1);
-  //device::CopyDeviceMatrixToDeviceMatrix(m_EV, m_V);
-  //aux_swapPointers(&m_QT1, &m_QT2);
-  //m_cuMatrix.dotProduct(m_EV, m_V, m_QT1);
-  //aux_swapPointers(&m_QT1, &m_QT2);
-
-  math::Matrix* ev = m_V;
-  math::Matrix* th = m_triangularH;
-
-  if (m_checkType == ArnUtils::CHECK_INTERNAL)
-  {
-    m_wanted = m_previousWanted;
-  }
-  else
-  {
-    extractEigenvalues(th, m_wantedCount);
-  }
-
-  extractOutput(ev);
+  extractOutput(m_V);
 }
 
 void CuHArnoldi::extractOutput() {
