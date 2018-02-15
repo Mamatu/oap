@@ -56,6 +56,7 @@ CuHArnoldi::CuHArnoldi()
       m_I(NULL),
       m_v(NULL),
       m_v1(NULL),
+      m_v2(NULL),
       m_QT(NULL),
       m_Q1(NULL),
       m_Q2(NULL),
