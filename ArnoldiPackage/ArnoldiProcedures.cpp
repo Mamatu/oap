@@ -353,13 +353,12 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
   floatt mh = 0;
   floatt B = 0;
 
-  bool recalc = true;
+  bool recalcMagnitude = true;
 
   for (uint fa = startIndex; fa < m_k - 1; ++fa) {
     traceFunction();
-    //device::PrintMatrix("m_f = ", m_f);
 
-    if (recalc)
+    if (recalcMagnitude)
     {
       m_cuMatrix.magnitude(B, m_f);
     }
@@ -378,9 +377,7 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
     m_cuMatrix.setVector(m_V, fa + 1, m_v, m_vrows);
     CudaUtils::SetZeroRow(m_H, fa + 1, true, true);
     CudaUtils::SetReValue(m_H, (fa) + m_Hcolumns * (fa + 1), B);
-    //device::PrintMatrix("m_H = ", m_H);
     multiply(m_w, m_v, CuHArnoldi::TYPE_WV);
-    MatrixEx matrixEx = {0, m_transposeVcolumns, startIndex, fa + 2 - startIndex, 0, 0};
     m_cuMatrix.transposeMatrix(m_transposeV, m_V);
     m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
     m_cuMatrix.dotProduct(m_vh, m_V, m_h);
@@ -388,8 +385,9 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
     m_cuMatrix.magnitude(mf, m_f);
     m_cuMatrix.magnitude(mh, m_h);
 
-    recalc = mf < rho * mh;
-    if (recalc) {
+    recalcMagnitude = mf < rho * mh;
+    if (recalcMagnitude)
+    {
       traceFunction();
       m_cuMatrix.dotProduct(m_s, m_transposeV, m_f);
       m_cuMatrix.dotProduct(m_vs, m_V, m_s);
