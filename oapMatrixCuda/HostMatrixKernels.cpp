@@ -146,8 +146,7 @@ void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
   bool status = false;
   cuMatrix.setIdentity(Q1);
   status = cuMatrix.isUpperTriangular(H1);
-  uintt fb = 0;
-  for (; fb < count && status == false; ++fb) {
+  for (uint idx = 0; idx < count && status == false; ++idx) {
     cuMatrix.QRGR(Q, R1, H1, Q2, R2, G, GT);
     cuMatrix.dotProduct(H1, R1, Q);
     cuMatrix.dotProduct(QJ, Q, Q1);
@@ -155,9 +154,6 @@ void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
     status = cuMatrix.isUpperTriangular(H1);
     // if (fb == 200) { abort();}
   }
-  if (fb % 2 == 0) {
-    device::CopyDeviceMatrixToDeviceMatrix(Q, Q1);
-  } else {
-    device::CopyDeviceMatrixToDeviceMatrix(Q, QJ);
-  }
+  aux_switchPointer(&QJ, &Q1);
+  device::CopyDeviceMatrixToDeviceMatrix(Q, QJ);
 }
