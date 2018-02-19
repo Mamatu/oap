@@ -239,8 +239,13 @@ class CuHArnoldi {
   void dealloc1();
   void dealloc2();
   void dealloc3();
+
  public:
-  void runInternalCheck();
+  /**
+   * @brief Allows to tests calculates outputs on current instance of ArnoldiProcedures
+   * @param index - index of eigenpars
+   */
+  floatt testOutcome (size_t index);
 };
 
 #endif /* CUPROCEDURES_H */

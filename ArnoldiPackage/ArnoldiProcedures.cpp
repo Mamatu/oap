@@ -665,18 +665,11 @@ void CuHArnoldi::dealloc3()
   device::DeleteDeviceMatrix(m_q);
 }
 
-void CuHArnoldi::runInternalCheck()
+floatt CuHArnoldi::testOutcome(size_t index)
 {
-  for (uint index = 0; index < m_wanted.size(); ++index)
-  {
-    traceFunction();
-    floatt reevalue = 0;
-    floatt imevalue = 0;
-    math::Matrix* evector = NULL;
-    bool shouldContinue = false;
+  debugAssertMsg (index < m_wanted.size(), "Invalid index.");
 
-    floatt fit = checkEigenpairsInternally(m_wanted[index], m_tolerance);
-    debug("Fit of eigenvector and eigenvalue: value[%u] = %f", index, fit);
-  }
+  traceFunction();
+  floatt outcome = checkEigenpairsInternally(m_wanted[index], 0);
+  return outcome;
 }
-
