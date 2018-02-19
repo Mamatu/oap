@@ -45,7 +45,8 @@ void EigenCalculator::calculate() {
 
   m_cuHArnoldi->setSortType(ArnUtils::SortLargestReValues);
   m_cuHArnoldi->setOutputType(m_eigenvectorsType);
-  m_cuHArnoldi->setCheckType(ArnUtils::CHECK_EXTERNAL);
+  m_cuHArnoldi->setCheckType(ArnUtils::CHECK_INTERNAL);
+  m_cuHArnoldi->setCalcTraingularHType(ArnUtils::CALC_IN_HOST);
 
   const unsigned int hdim = 32;
 
