@@ -194,8 +194,8 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
   }
 
   static MatricesUPtr launchTest(ArnUtils::Type eigensType, const oap::DataLoader::Info& info,
-                                 int wantedEigensCount, int maxIterationCounter = 5) {
-
+                                 int wantedEigensCount, int maxIterationCounter = 5)
+  {
     std::unique_ptr<oap::DeviceDataLoader> dataLoader(
         oap::DeviceDataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info));
 
@@ -305,6 +305,6 @@ TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
 }
 
 TEST_F(OapEigenCalculatorTests, DISABLED_CalculateDeviceOutput1) {
-  oap::DataLoader::Info info("oap2dt3d/data/images_monkey_1", "image_", 64, 100, true);
+  oap::DataLoader::Info info("oap2dt3d/data/images_monkey_1", "image_", 64, true);
   TestCuHArnoldiCallback::launchDataTest(info, "CalculateDeviceOutput1", 10, 10);
 }
