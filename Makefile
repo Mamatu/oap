@@ -10,16 +10,22 @@ $(OAP_MODULES):
 	$(MAKE) -C $@
 .PHONY: clean
 clean:
-	rm -r /tmp/Oap
-	rm -f dist/$(MODE)/$(PLATFORM)/lib/*
-	rm -f dist/$(MODE)/$(PLATFORM)/cubin/*
-	rm -f dist/$(MODE)/$(PLATFORM)/bin/*
 	for dir in $(OAP_MODULES); do \
 	$(MAKE) -C $$dir clean; \
 	done
+	rm -rf /tmp/Oap
+	rm -rf */dist/$(MODE)/$(PLATFORM)/*
+	rm -rf */build/$(MODE)/$(PLATFORM)/*
+	rm -rf dist/$(MODE)/$(PLATFORM)/lib/*
+	rm -rf dist/$(MODE)/$(PLATFORM)/cubin/*
+	rm -rf dist/$(MODE)/$(PLATFORM)/bin/*
 cuclean:
 	for dir in $(CU_OAP_MODULES); do \
 	$(MAKE) -C $$dir clean; \
 	done
-	rm dist/$(MODE)/$(PLATFORM)/cubin/*
+	rm -rf */dist/$(MODE)/$(PLATFORM)/*
+	rm -rf */build/$(MODE)/$(PLATFORM)/*
+	rm -rf dist/$(MODE)/$(PLATFORM)/lib/*
+	rm -rf dist/$(MODE)/$(PLATFORM)/cubin/*
+	rm -rf dist/$(MODE)/$(PLATFORM)/bin/*
 

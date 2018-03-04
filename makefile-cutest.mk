@@ -16,7 +16,7 @@ build/$(MODE)/$(PLATFORM)/%.o : %.cpp
 	mkdir -p build/$(MODE)/$(PLATFORM)/
 	$(CXX) -g3 $(SANITIZER_LINKING) $(CXXOPTIONS) -I $(GTEST_DIR)/include -I $(OAP_GMOCK_PATH)/include $(INCLUDE_DIRS) $< -o $@
 clean:
-	rm -r dist/$(MODE)/$(PLATFORM)/*
-	rm -r build/$(MODE)/$(PLATFORM)/*
-	rm libgtest.a
-	rm libgmock.a
+	rm -rf dist/$(MODE)/$(PLATFORM)/*
+	rm -rf build/$(MODE)/$(PLATFORM)/*
+	rm -f libgtest.a
+	rm -f libgmock.a

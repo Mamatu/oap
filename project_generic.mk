@@ -87,6 +87,7 @@ endif
 
 ifeq ($(COMPILE_HOST),1)
 OAP_MODULES += oap2dt3dUtils
+OAP_MODULES += oap2dt3d
 OAP_MODULES += oap2dt3dTests
 OAP_MODULES += oap2dt3dFuncTests
 endif
@@ -94,10 +95,6 @@ endif
 ifeq ($(COMPILE_DEVICE),1)
 OAP_MODULES += oap2dt3dDevice
 OAP_MODULES += oap2dt3dDeviceTests
-endif
-
-ifeq ($(COMPILE_HOST),1)
-OAP_MODULES += oap2dt3d
 endif
 
 CU_OAP_MODULES := oapCuda

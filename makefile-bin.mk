@@ -11,6 +11,5 @@ build/$(MODE)/$(PLATFORM)/%.o : %.cpp
 	mkdir -p build/$(MODE)/$(PLATFORM)/
 	$(CXX) $(SANITIZER_COMPILATION) $(CXXOPTIONS) $(INCLUDE_DIRS) $< -o $@
 clean:
-	rm -r dist/$(MODE)/$(PLATFORM)/*
-	rm -r dist/$(MODE)/$(PLATFORM)/*
-	rm -r build/$(MODE)/$(PLATFORM)/*
+	rm -f dist/$(MODE)/$(PLATFORM)/*
+	rm -f build/$(MODE)/$(PLATFORM)/*
