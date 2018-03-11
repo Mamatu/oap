@@ -23,16 +23,42 @@
 #include "DataLoader.h"
 #include "PngFile.h"
 
-int main() {
-  try {
-    oap::PngFile pngFile(
-        "/home/mmatula/Oap/oap2dt3d/data/images_monkey/image_0_0_0.png");
-    oap::Images images;
-    images.push_back(&pngFile);
-    oap::DataLoader pngLoader(images);
-  } catch (const std::exception& exception) {
-    fprintf(stderr, "%s \n", exception.what());
+#include "MainAPExecutor.h"
+#include "MainFourierExecutor.h"
+
+int main()
+{
+  device::Context::Instance().create();
+
+  using Outcome = oap::MainAPExecutor::Outcome;
+  oap::MainAPExecutor mainExecutor;
+  oap::MainFourierExecutor mainFExec;
+
+  size_t wantedCount = 5;
+
+  mainExecutor.setMaxIterationCounter(10);
+  mainExecutor.setEigensType(ArnUtils::HOST);
+  mainExecutor.setWantedCount (wantedCount);
+  mainExecutor.setInfo (oap::DataLoader::Info("oap2dt3d/data/images_monkey_125", "image_", 125, true));
+
+  std::shared_ptr<oap::MainAPExecutor::Outcome> outcome = mainExecutor.run ();
+
+  for (size_t idx = 0; idx < wantedCount; ++idx)
+  {
+    floatt value = outcome->getValue(idx);
+    floatt error = outcome->getError(idx);
+    const math::Matrix* vec = outcome->getVector(idx);
+    printf("---------------------------------------\n");
+    printf("wanted = %f \n", value);
+    printf("error = %f \n", error);
+    host::PrintMatrix("wantedEV = ", vec);
+    printf("---------------------------------------\n");
+
   }
 
+  mainFExec.setOutcome (outcome);
+  mainFExec.run();
+
+  device::Context::Instance().destroy();
   return 0;
 }

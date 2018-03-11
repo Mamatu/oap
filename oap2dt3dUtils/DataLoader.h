@@ -47,8 +47,16 @@ class DataLoader {
       bool m_frugalMode;
 
     public:
+      Info() : m_dirPath(""), m_nameBase(""), m_loadFilesCount(0), m_frugalMode(false)
+      {}
+
       Info(const std::string& dirPath, const std::string& nameBase, size_t loadFilesCount, bool frugalMode) :
         m_dirPath(dirPath), m_nameBase(nameBase), m_loadFilesCount(loadFilesCount), m_frugalMode(frugalMode) {}
+
+      bool isValid() const
+      {
+        return !m_dirPath.empty() && !m_nameBase.empty() && m_loadFilesCount > 0;
+      }
 
       friend class DataLoader;
   };
