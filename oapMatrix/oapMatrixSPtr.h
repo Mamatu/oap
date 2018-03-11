@@ -26,11 +26,15 @@
 
 #include "oapSmartPointerUtils.h"
 
-namespace oap {
+namespace oap
+{
 
   template<class StdMatrixPtr>
   class MatrixSPtr : public StdMatrixPtr {
     public:
+      MatrixSPtr() : StdMatrixPtr()
+      {}
+
       MatrixSPtr(math::Matrix* matrix, deleters::MatrixDeleter deleter) : StdMatrixPtr(matrix, deleter) {}
 
       operator math::Matrix*() { return this->get(); }
@@ -41,27 +45,49 @@ namespace oap {
   template<class StdMatrixPtr>
   class MatricesSPtr : public StdMatrixPtr {
     public:
+      MatricesSPtr() : StdMatrixPtr() {}
+
       MatricesSPtr(math::Matrix** matrices, deleters::MatricesDeleter deleter) : StdMatrixPtr(matrices, deleter) {}
 
       MatricesSPtr(std::initializer_list<math::Matrix*> matrices, deleters::MatricesDeleter deleter) :
         StdMatrixPtr(smartptr_utils::makeArray(matrices), deleter) {}
 
+      MatricesSPtr(size_t count, deleters::MatricesDeleter deleter) :
+        StdMatrixPtr(smartptr_utils::makeArray<math::Matrix*>(count), deleter) {}
+
       operator math::Matrix**() { return this->get(); }
+
+      math::Matrix*& operator[](size_t index)
+      {
+        return this->get()[index];
+      }
 
       math::Matrix** operator->() { return this->get(); }
   };
 }
 
-namespace oap {
-  using MatrixSharedPtr = std::shared_ptr<math::Matrix>;
+namespace oap
+{
+namespace stdlib
+{
+  using MatrixSharedPtr = ::std::shared_ptr<math::Matrix>;
 
-  using MatricesSharedPtr = std::shared_ptr<math::Matrix*>;
+  using MatricesSharedPtr = ::std::shared_ptr<math::Matrix*>;
 
-  using MatrixUniquePtr = std::unique_ptr<math::Matrix, deleters::MatrixDeleter>;
+  using MatrixUniquePtr = ::std::unique_ptr<math::Matrix, deleters::MatrixDeleter>;
 
-  using MatricesUniquePtr = std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>;
+  using MatricesUniquePtr = ::std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>;
 }
 
+using MatrixSharedPtr = MatrixSPtr<stdlib::MatrixSharedPtr>;
+
+using MatricesSharedPtr = MatricesSPtr<stdlib::MatricesSharedPtr>;
+
+using MatrixUniquePtr = MatrixSPtr<stdlib::MatrixUniquePtr>;
+
+using MatricesUniquePtr = MatricesSPtr<stdlib::MatricesUniquePtr>;
+
+}
 
 #endif
 

@@ -28,7 +28,6 @@
 
 #include "Matrix.h"
 
-
 namespace deleters {
 
   using MatrixDeleter = void(*)(math::Matrix*);
@@ -51,6 +50,14 @@ namespace deleters {
 }
 
 namespace smartptr_utils {
+
+  template<typename T>
+  T* makeArray(size_t count)
+  {
+    T* array = new T[count];
+    memset(array, 0, sizeof(T) * count);
+    return array;
+  }
 
   template<template<typename, typename> class Container, typename T>
   T* makeArray(const Container<T, std::allocator<T> >& vec) {

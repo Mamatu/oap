@@ -26,18 +26,18 @@
 #include "oapMatrixSPtr.h"
 
 namespace oap {
-  class DeviceMatrixUPtr : public oap::MatrixSPtr<oap::MatrixUniquePtr> {
+  class DeviceMatrixUPtr : public oap::MatrixUniquePtr {
     public:
-      DeviceMatrixUPtr(math::Matrix* matrix) : oap::MatrixSPtr<oap::MatrixUniquePtr>(matrix, device::DeleteDeviceMatrix) {}
+      DeviceMatrixUPtr(math::Matrix* matrix) : oap::MatrixUniquePtr(matrix, device::DeleteDeviceMatrix) {}
   };
 
-  class DeviceMatricesUPtr : public oap::MatricesSPtr<oap::MatricesUniquePtr> {
+  class DeviceMatricesUPtr : public oap::MatricesUniquePtr {
     public:
       DeviceMatricesUPtr(math::Matrix** matrices, unsigned int count) :
-        oap::MatricesSPtr<oap::MatricesUniquePtr>(matrices, deleters::MatricesDeleter(count, device::DeleteDeviceMatrix)) {}
+        oap::MatricesUniquePtr(matrices, deleters::MatricesDeleter(count, device::DeleteDeviceMatrix)) {}
 
       DeviceMatricesUPtr(std::initializer_list<math::Matrix*> matrices) :
-        oap::MatricesSPtr<oap::MatricesUniquePtr>(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), device::DeleteDeviceMatrix)) {}
+        oap::MatricesUniquePtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), device::DeleteDeviceMatrix)) {}
   };
 
   template<template<typename, typename> class Container>
