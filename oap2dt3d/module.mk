@@ -1,6 +1,7 @@
 include ../project_generic.mk
 
-$(shell tar -zxzf ./data/images_monkey.tar.gz -C ./data)
+$(shell tar -xzf ./data/images_monkey.tar.gz -C ./data)
+$(shell tar -xzf ./data/images_monkey_125.tar.gz -C ./data)
 
 TARGET := oap2dt3d
 INCLUDE_PATHS :=
