@@ -38,8 +38,8 @@ using namespace ::testing;
 class ArnoldiOperations {
  public:
   oap::DeviceDataLoader* m_dataLoader;
-  CuMatrix m_cuMatrix;
   math::Matrix* value;
+  CuMatrix cuProceduresApi;
 
   ArnoldiOperations(oap::DeviceDataLoader* dataLoader)
       : m_dataLoader(dataLoader) {
@@ -49,6 +49,7 @@ class ArnoldiOperations {
   ~ArnoldiOperations() { device::DeleteDeviceMatrix(value); }
 
   static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v,
+                           CuMatrix& cuProceduresApi,
                            void* userData, CuHArnoldi::MultiplicationType mt)
   {
     if (mt == CuHArnoldi::TYPE_WV) {
@@ -62,7 +63,7 @@ class ArnoldiOperations {
 
         //device::PrintMatrix("vec =", vec);
 
-        ao->m_cuMatrix.dotProduct(ao->value, vec, m_v);
+        cuProceduresApi.dotProduct(ao->value, vec, m_v);
         device::SetMatrix(m_w, ao->value, 0, index);
 
         device::DeleteDeviceMatrix(vec);
@@ -114,14 +115,14 @@ class ArnoldiOperations {
 
     oap::DeviceMatrixUPtr vectorT = device::NewDeviceReMatrix(vectorrows, 1);
 
-    m_cuMatrix.transposeMatrix(matrix1, drefMatrix);
-    m_cuMatrix.transposeMatrix(vectorT, dvector);
-    m_cuMatrix.dotProduct(leftMatrix, drefMatrix, matrix1);
+    cuProceduresApi.transposeMatrix(matrix1, drefMatrix);
+    cuProceduresApi.transposeMatrix(vectorT, dvector);
+    cuProceduresApi.dotProduct(leftMatrix, drefMatrix, matrix1);
 
     floatt value2 = value * value;
-    m_cuMatrix.multiplyConstantMatrix(vectorT, vectorT, value2);
-    m_cuMatrix.dotProduct(rightMatrix, dvector, vectorT);
-    bool compareResult = m_cuMatrix.compare(leftMatrix, rightMatrix);
+    cuProceduresApi.multiplyConstantMatrix(vectorT, vectorT, value2);
+    cuProceduresApi.dotProduct(rightMatrix, dvector, vectorT);
+    bool compareResult = cuProceduresApi.compare(leftMatrix, rightMatrix);
 
     oap::HostMatrixUPtr hleftMatrix = host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
     oap::HostMatrixUPtr hrightMatrix = host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
@@ -142,8 +143,6 @@ class ArnoldiOperations {
   math::Matrix* createDeviceMatrix() const {
     return m_dataLoader->createDeviceMatrix();
   }
-
-  CuMatrix* operator->() { return &m_cuMatrix; }
 };
 
 class OapEigenCalculatorTests : public testing::Test {

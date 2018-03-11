@@ -65,6 +65,7 @@ class CuHArnoldi {
 
  protected:  // methods - multiplication to implement
   virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
+                        CuMatrix& cuProceduresApi,
                         MultiplicationType mt) = 0;
 
  protected:  // methods - to drive algorithm
