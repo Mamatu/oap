@@ -40,19 +40,16 @@
 class OapArnoldiPackageCallbackTests : public testing::Test {
   public:
     CuHArnoldiCallback* arnoldiCuda;
-    CuMatrix* cuMatrix;
 
     virtual void SetUp() {
       device::Context::Instance().create();
 
       arnoldiCuda = new CuHArnoldiCallback();
       arnoldiCuda->setOutputType(ArnUtils::HOST);
-      cuMatrix = new CuMatrix();
     }
 
     virtual void TearDown() {
       delete arnoldiCuda;
-      delete cuMatrix;
       device::Context::Instance().destroy();
     }
 
@@ -204,7 +201,9 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
       class MultiplyFunc {
        public:
-        static void multiply(math::Matrix* w, math::Matrix* v, void* userData,
+        static void multiply(math::Matrix* w, math::Matrix* v,
+                             CuMatrix& cuProceduresApi,
+                             void* userData,
                              CuHArnoldi::MultiplicationType mt) {
           if (mt == CuHArnoldi::TYPE_WV) {
             UserPair* userPair = static_cast<UserPair*>(userData);
@@ -279,9 +278,11 @@ TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
 
   device::CopyHostMatrixToDeviceMatrix(dmatrix, data.refW);
 
+  CuMatrix cuProceduresApi;
+
   floatt output = -1;
   floatt doutput = -1;
-  cuMatrix->magnitude(doutput, dmatrix);
+  cuProceduresApi.magnitude(doutput, dmatrix);
 
   math::MathOperationsCpu mocpu;
   mocpu.magnitude(&output, data.refW);

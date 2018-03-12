@@ -47,21 +47,19 @@ using HostMatrixPtrs = std::vector<oap::HostMatrixPtr>;
 class OapArnoldiPackageMatricesTests : public testing::Test {
   public:
     CuHArnoldiCallback* m_arnoldiCuda;
-    CuMatrix* m_cuMatrix;
 
     virtual void SetUp() {
       device::Context::Instance().create();
       m_arnoldiCuda = new CuHArnoldiCallback();
-      m_cuMatrix = new CuMatrix();
     }
 
     virtual void TearDown() {
-      delete m_cuMatrix;
       delete m_arnoldiCuda;
       device::Context::Instance().destroy();
     }
 
-    static void multiply(math::Matrix* m_w, math::Matrix* m_v, 
+    static void multiply(math::Matrix* m_w, math::Matrix* m_v,
+        CuMatrix& cuProceduresApi,
         void* userData, CuHArnoldi::MultiplicationType mt)
     {
       UserData* userDataObj = static_cast<UserData*>(userData);
@@ -70,13 +68,12 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       math::Matrix* hvectorT = userDataObj->hvectorT;
       math::Matrix* dvectorT = userDataObj->dvectorT;
       math::Matrix* dvalue = userDataObj->dvalue;
-      CuMatrix* cuMatrix = userDataObj->cuMatrix;
 
       for (size_t idx = 0; idx < hmatrix->rows; ++idx) {
         host::GetTransposeReVector(hvectorT, hmatrix, idx);
         //host::PrintMatrix("hvectorT = ", hvectorT);
         device::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
-        cuMatrix->dotProduct(dvalue, dvectorT, m_v);
+        cuProceduresApi.dotProduct(dvalue, dvectorT, m_v);
         device::SetReMatrix(m_w, dvalue, 0, idx);
       }
       //device::PrintMatrix("m_w =", m_w);
@@ -156,7 +153,6 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       oap::HostMatrixPtr hvectorT;
       oap::DeviceMatrixPtr dvectorT;
       oap::DeviceMatrixPtr dvalue;
-      CuMatrix* cuMatrix;
     };
 
     struct CheckUserData {
@@ -173,8 +169,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
               hmatrix,
               host::NewReMatrix(hmatrix->columns, 1),
               device::NewDeviceReMatrix(hmatrix->columns, 1),
-              device::NewDeviceReMatrix(1, 1),
-              m_cuMatrix
+              device::NewDeviceReMatrix(1, 1)
       };
 
       CheckUserData checkUserData = {

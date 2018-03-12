@@ -337,7 +337,7 @@ void CuHArnoldi::getWanted(const std::vector<EigenPair>& values, std::vector<Eig
 
 void CuHArnoldi::executeInit() {
   traceFunction();
-  multiply(m_w, m_v, CuHArnoldi::TYPE_WV);
+  multiply(m_w, m_v, m_cuMatrix, CuHArnoldi::TYPE_WV);
   m_cuMatrix.setVector(m_V, 0, m_v, m_vrows);
   m_cuMatrix.transposeMatrix(m_transposeV, m_V);
   m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
@@ -377,7 +377,7 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
     m_cuMatrix.setVector(m_V, fa + 1, m_v, m_vrows);
     CudaUtils::SetZeroRow(m_H, fa + 1, true, true);
     CudaUtils::SetReValue(m_H, (fa) + m_Hcolumns * (fa + 1), B);
-    multiply(m_w, m_v, CuHArnoldi::TYPE_WV);
+    multiply(m_w, m_v, m_cuMatrix, CuHArnoldi::TYPE_WV);
     m_cuMatrix.transposeMatrix(m_transposeV, m_V);
     m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
     m_cuMatrix.dotProduct(m_vh, m_V, m_h);
@@ -491,7 +491,7 @@ floatt CuHArnoldi::checkEigenpairsInternally(const EigenPair& eigenPair, floatt 
   traceFunction();
   floatt value = eigenPair.re();
   m_cuMatrix.getVector(m_v, m_vrows, m_EV, eigenPair.getIndex());
-  multiply(m_v1, m_v, TYPE_EIGENVECTOR);  // m_cuMatrix.dotProduct(v1, H, v);
+  multiply(m_v1, m_v, m_cuMatrix, TYPE_EIGENVECTOR);  // m_cuMatrix.dotProduct(v1, H, v);
   m_cuMatrix.multiplyConstantMatrix(m_v2, m_v, value);
   bool compare = m_cuMatrix.compare(m_v1, m_v2, tolerance);
   debug("Eigenvalue %f %f", value, m_cuMatrix.getCompareOperationSum());

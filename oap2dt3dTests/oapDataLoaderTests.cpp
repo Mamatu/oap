@@ -46,9 +46,8 @@ class OapDataLoaderTests : public testing::Test {
 
     static std::string constructImagePath(const std::string& absPath,
                                           const std::string& nameBase,
-                                          size_t index, size_t count) {
-      return oap::DataLoader::constructImagePath(absPath, nameBase, index,
-                                                 count);
+                                          size_t index) {
+      return oap::DataLoader::constructImagePath(absPath, nameBase, index);
     }
   };
 };
@@ -143,24 +142,18 @@ TEST_F(OapDataLoaderTests, ContructAbsPathTest) {
 }
 
 TEST_F(OapDataLoaderTests, ContructImagePathTest) {
-  EXPECT_EQ("abs/image000",
-            DataLoaderProxy::constructImagePath("abs/", "image", 0, 1000));
-  EXPECT_EQ("abs/image00",
-            DataLoaderProxy::constructImagePath("abs/", "image", 0, 100));
   EXPECT_EQ("abs/image0",
-            DataLoaderProxy::constructImagePath("abs/", "image", 0, 10));
-  EXPECT_EQ("abs/image0",
-            DataLoaderProxy::constructImagePath("abs/", "image", 0, 1));
-  EXPECT_EQ("abs/image001",
-            DataLoaderProxy::constructImagePath("abs/", "image", 1, 1000));
-  EXPECT_EQ("abs/image01",
-            DataLoaderProxy::constructImagePath("abs/", "image", 1, 100));
+            DataLoaderProxy::constructImagePath("abs/", "image", 0));
   EXPECT_EQ("abs/image1",
-            DataLoaderProxy::constructImagePath("abs/", "image", 1, 10));
-  EXPECT_EQ("abs/image1",
-            DataLoaderProxy::constructImagePath("abs/", "image", 1, 1));
-  EXPECT_EQ("abs/image0002",
-            DataLoaderProxy::constructImagePath("abs/", "image", 2, 10000));
+            DataLoaderProxy::constructImagePath("abs/", "image", 1));
+  EXPECT_EQ("abs/image2",
+            DataLoaderProxy::constructImagePath("abs/", "image", 2));
+  EXPECT_EQ("abs/image3",
+            DataLoaderProxy::constructImagePath("abs/", "image", 3));
+  EXPECT_EQ("abs/image4",
+            DataLoaderProxy::constructImagePath("abs/", "image", 4));
+  EXPECT_EQ("abs/image5",
+            DataLoaderProxy::constructImagePath("abs/", "image", 5));
 }
 
 TEST_F(OapDataLoaderTests, CreateImagesVectorTest) {
@@ -180,25 +173,22 @@ TEST_F(OapDataLoaderTests, CreateImagesVectorTest) {
    public:
     static oap::Images createImagesVector(const std::string& imageAbsPath,
                                           const std::string& nameBase,
-                                          size_t loadCount, size_t count) {
+                                          size_t loadCount) {
       return oap::DataLoader::createImagesVector<ImageProxy>(
-          imageAbsPath, nameBase, loadCount, count);
+          imageAbsPath, nameBase, loadCount);
     }
   };
 
   size_t count = 1000;
 
   oap::Images images =
-      DataLoaderProxy::createImagesVector("dir1/dir2/", "image_", count, count);
+      DataLoaderProxy::createImagesVector("dir1/dir2/", "image_", count);
 
   for (size_t fa = 0; fa < images.size(); ++fa) {
     oap::Image* image = images[fa];
     ImageProxy* imageProxy = dynamic_cast<ImageProxy*>(image);
 
-    std::stringstream ss;
-    ss << std::setw(3) << std::setfill('0') << fa;
-
-    std::string expectedPath = "dir1/dir2/image_" + ss.str();
+    std::string expectedPath = "dir1/dir2/image_" + std::to_string(fa);
 
     EXPECT_EQ(expectedPath, imageProxy->getPath());
 

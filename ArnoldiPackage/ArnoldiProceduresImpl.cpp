@@ -24,13 +24,15 @@ CuHArnoldiCallback::CuHArnoldiCallback() : CuHArnoldi() {}
 CuHArnoldiCallback::~CuHArnoldiCallback() {}
 
 void CuHArnoldiDefault::multiply(math::Matrix* w, math::Matrix* v,
+                                 CuMatrix& cuProceduresApi,
                                  CuHArnoldi::MultiplicationType mt) {
-  m_cuMatrix.dotProduct(w, m_A, v);
+  cuProceduresApi.dotProduct(w, m_A, v);
 }
 
 void CuHArnoldiCallback::multiply(math::Matrix* w, math::Matrix* v,
+                                  CuMatrix& cuProceduresApi,
                                   CuHArnoldi::MultiplicationType mt) {
-  m_multiplyFunc(w, v, m_userData, mt);
+  m_multiplyFunc(w, v, cuProceduresApi, m_userData, mt);
 }
 
 bool CuHArnoldiCallback::checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max) {

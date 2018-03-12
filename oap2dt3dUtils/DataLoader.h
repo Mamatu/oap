@@ -44,31 +44,35 @@ class DataLoader {
       std::string m_dirPath;
       std::string m_nameBase;
       size_t m_loadFilesCount;
-      size_t m_dirFilesCount;
       bool m_frugalMode;
 
     public:
-      Info(const std::string& dirPath, const std::string& nameBase, size_t loadFilesCount, size_t dirFilesCount, bool frugalMode) :
-        m_dirPath(dirPath), m_nameBase(nameBase), m_loadFilesCount(loadFilesCount), m_dirFilesCount(dirFilesCount), m_frugalMode(frugalMode) {}
+      Info() : m_dirPath(""), m_nameBase(""), m_loadFilesCount(0), m_frugalMode(false)
+      {}
 
-      Info(const std::string& dirPath, const std::string& nameBase, size_t dirFilesCount, bool frugalMode) :
-        m_dirPath(dirPath), m_nameBase(nameBase), m_loadFilesCount(dirFilesCount), m_dirFilesCount(dirFilesCount), m_frugalMode(frugalMode) {}
+      Info(const std::string& dirPath, const std::string& nameBase, size_t loadFilesCount, bool frugalMode) :
+        m_dirPath(dirPath), m_nameBase(nameBase), m_loadFilesCount(loadFilesCount), m_frugalMode(frugalMode) {}
+
+      bool isValid() const
+      {
+        return !m_dirPath.empty() && !m_nameBase.empty() && m_loadFilesCount > 0;
+      }
 
       friend class DataLoader;
   };
 
   /**
-   * @brief Creates specified DataLoader instance and load
+   * @brief Creates specified DataLoader instance and loads
    *        images from specified path. Images in dir should have
    *        name contained nameBase_N.type, where nameBase is some
-   *        string of chars, N - is number with padding (started from 0),
+   *        string of chars, N - is number (without padding),
    *        type - is type specified by T parameter.
    *
    *        For example: in directory contained 100 images whose
    *        nameBase is "image" and T is png than images should be:
-   *        image_00.png
-   *        image_01.png
-   *        image_02.png
+   *        image_0.png
+   *        image_1.png
+   *        image_2.png
    *        .
    *        .
    *        .
@@ -79,7 +83,6 @@ class DataLoader {
    * @param dirPath         path to directory with images
    * @param nameBase        core of file name
    * @param loadFilesCount  count of images to load
-   * @param dirFilesCount   count of images in directory
    * @param frugalMode      if true images content will be loaded
    *                        and free after use, otherwise image contant
    *                        will be loaded one time and kept in memory
@@ -87,50 +90,11 @@ class DataLoader {
    */
   template <typename T, typename DL = oap::DataLoader>
   static DL* createDataLoader(const std::string& dirPath, const std::string& nameBase,
-                              size_t loadFilesCount, size_t dirFilesCount,
-                              bool frugalMode)
+                              size_t loadFilesCount, bool frugalMode = true)
   {
     const std::string& imageBasePath = constructAbsPath(dirPath);
     oap::Images images =
-        createImagesVector<T>(imageBasePath, nameBase, loadFilesCount, dirFilesCount);
-
-    return new DL(images, true, frugalMode);
-  }
-
-  /**
-   * @brief Creates specified DataLoader instance and load
-   *        images from specified path. Images in dir should have
-   *        name contained nameBase_N.type, where nameBase is some
-   *        string of chars, N - is number with padding (started from 0),
-   *        type - is type specified by T parameter.
-   *
-   *        For example: in directory contained 100 images whose
-   *        nameBase is "image" and T is png than images should be:
-   *        image_00.png
-   *        image_01.png
-   *        image_02.png
-   *        .
-   *        .
-   *        .
-   *        image_99.png
-   *
-   * @param T               derived class of Image class
-   * @param DL              derived class of or DataLoader class
-   * @param dirPath         path to directory with images
-   * @param nameBase        core of file name
-   * @param dirFilesCount    count of images in directory (all will be loaded)
-   * @param frugalMode      if true images content will be loaded
-   *                        and free after use, otherwise image contant
-   *                        will be loaded one time and kept in memory
-   *
-   */
-  template <typename T, typename DL = oap::DataLoader>
-  static DL* createDataLoader(const std::string& dirPath, const std::string& nameBase,
-                              size_t dirFilesCount, bool frugalMode = true)
-  {
-    const std::string& imageBasePath = constructAbsPath(dirPath);
-    oap::Images images =
-        createImagesVector<T>(imageBasePath, nameBase, dirFilesCount, dirFilesCount);
+        createImagesVector<T>(imageBasePath, nameBase, loadFilesCount);
 
     return new DL(images, true, frugalMode);
   }
@@ -142,8 +106,7 @@ class DataLoader {
   static DL* createDataLoader(const oap::DataLoader::Info& info)
   {
     return createDataLoader<T, DL>(info.m_dirPath, info.m_nameBase,
-                            info.m_loadFilesCount, info.m_dirFilesCount,
-                            info.m_frugalMode);
+                            info.m_loadFilesCount, info.m_frugalMode);
   }
 
   virtual ~DataLoader();
@@ -171,17 +134,17 @@ class DataLoader {
 
   static std::string constructImagePath(const std::string& absPath,
                                         const std::string& nameBase,
-                                        size_t index, size_t dirFilesCount);
+                                        size_t index);
 
   template <typename T>
   static oap::Images createImagesVector(const std::string& imageAbsPath,
                                         const std::string& nameBase,
-                                        size_t loadFilesCount, size_t dirFilesCount) {
+                                        size_t loadFilesCount) {
     oap::Images images;
 
     for (size_t fa = 0; fa < loadFilesCount; ++fa) {
       std::string imagePath =
-          constructImagePath(imageAbsPath, nameBase, fa, dirFilesCount);
+          constructImagePath(imageAbsPath, nameBase, fa);
 
       Image* image = new T(imagePath);
 

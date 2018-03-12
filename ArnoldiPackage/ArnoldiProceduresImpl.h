@@ -32,6 +32,7 @@ class CuHArnoldiDefault : public CuHArnoldi {
 
  protected:
   virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
+                        CuMatrix& cuProceduresApi,
                         CuHArnoldi::MultiplicationType mt);
 
   virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max) {
@@ -48,6 +49,7 @@ class CuHArnoldiCallback : public CuHArnoldi {
   virtual ~CuHArnoldiCallback();
 
   typedef void (*MultiplyFunc)(math::Matrix* m_w, math::Matrix* m_v,
+                               CuMatrix& cuProceduresApi,
                                void* userData,
                                CuHArnoldi::MultiplicationType mt);
 
@@ -60,6 +62,7 @@ class CuHArnoldiCallback : public CuHArnoldi {
 
  protected:
   virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
+                        CuMatrix& cuProceduresApi,
                         CuHArnoldi::MultiplicationType mt);
 
   virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max);

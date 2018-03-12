@@ -200,13 +200,10 @@ class DataLoaderTest : public oap::DataLoader {
     DataLoaderTest* dataloader = NULL;
     debugLongTest();
 
-    const size_t totalImagesCount = 1000;
-
     try {
       dataloader =
           oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderTest>(
-              "oap2dt3d/data/images_monkey", "image", imagesCount,
-              totalImagesCount, true);
+              "oap2dt3d/data/images_monkey", "image", imagesCount, true);
 
       math::MatrixInfo matrixInfo = dataloader->getMatrixInfo();
 
