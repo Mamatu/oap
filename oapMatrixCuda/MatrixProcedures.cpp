@@ -21,7 +21,7 @@
 #include "DebugLogs.h"
 #include "ThreadsMapper.h"
 #include "HostMatrixKernels.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include <math.h>
 
 void CuMatrix::prepareDims(uintt w, uintt h) {
@@ -40,7 +40,7 @@ CUresult CuMatrix::execute(const char* functionName, uintt w, uintt h,
   }
   m_kernel.setSharedMemory(sharedMemory);
   resetFlags();
-  return ::device::Kernel::Execute(functionName, params, m_kernel);
+  return ::oap::cuda::Kernel::Execute(functionName, params, m_kernel);
 }
 
 CuMatrix::CuMatrix()
@@ -140,7 +140,7 @@ void CuMatrix::transposeMatrix(math::Matrix* output, math::Matrix* params0) {
   const uintt w = CudaUtils::GetColumns(output);
   const uintt h = CudaUtils::GetRows(output);
   if (w == 1 || h == 1) {
-    device::CopyDeviceMatrixToDeviceMatrix(output, params0);
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix(output, params0);
   } else {
     void* params[] = {&output, &params0};
     m_cuResult = execute("CUDAKernel_Transpose", w, h, params, 0);
@@ -151,7 +151,7 @@ void CuMatrix::conjugateTranspose(math::Matrix* output, math::Matrix* params0) {
   const uintt w = CudaUtils::GetColumns(output);
   const uintt h = CudaUtils::GetRows(output);
   if (w == 1 || h == 1) {
-    device::CopyDeviceMatrixToDeviceMatrix(output, params0);
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix(output, params0);
   } else {
     void* params[] = {&output, &params0};
     m_cuResult = execute("CUDAKernel_ConjugateTranspose", w, h, params, 0);
@@ -368,7 +368,7 @@ floatt CuMatrix::compareProcedure(const char* cuKernelName, math::Matrix* matrix
 
   void* params[] = {&m_dcompareOutputBuffer.m_buffer, &matrix1, &matrix2};
 
-  m_cuResult = ::device::Kernel::Execute(cuKernelName, params, m_kernel);
+  m_cuResult = ::oap::cuda::Kernel::Execute(cuKernelName, params, m_kernel);
 
   CudaUtils::CopyDeviceToHost(
       m_hcompareOutputBuffer.m_buffer, m_dcompareOutputBuffer.m_buffer,
@@ -408,7 +408,7 @@ floatt CuMatrix::magnitude2Procedure(const char* cuKernelName,
 
   void* params[] = {&m_dmagnitudeOutputBuffer.m_buffer, &matrix};
 
-  m_cuResult = ::device::Kernel::Execute(cuKernelName, params, m_kernel);
+  m_cuResult = ::oap::cuda::Kernel::Execute(cuKernelName, params, m_kernel);
 
   return magnitude2Procedure_GetOutput(blocks, outputLength);
 }
@@ -447,12 +447,12 @@ void CuMatrix::qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* R,
     void* params[] = {&Q, &R, &A, &AT, &m_dqrSums.m_buffer, &P, &I, &v, &vt,
                       &vvt};
     m_cuResult =
-        ::device::Kernel::Execute("CUDAKernel_QRHTOpt", params, m_kernel);
+        ::oap::cuda::Kernel::Execute("CUDAKernel_QRHTOpt", params, m_kernel);
   } else {
     m_dqrBuffer.realloc(h);
     void* params[] = {&Q, &R, &A, &AT, &m_dqrSums.m_buffer,
                       &m_dqrBuffer.m_buffer, &P, &I, &v, &vt, &vvt};
-    m_cuResult = ::device::Kernel::Execute("CUDAKernel_QRHT", params, m_kernel);
+    m_cuResult = ::oap::cuda::Kernel::Execute("CUDAKernel_QRHT", params, m_kernel);
   }
 }
 

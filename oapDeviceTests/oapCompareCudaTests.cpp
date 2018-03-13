@@ -23,7 +23,7 @@
 #include "MatrixProcedures.h"
 #include "MathOperationsCpu.h"
 #include "HostMatrixUtils.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 
 class OapCompareCudaTests : public testing::Test {
@@ -36,7 +36,7 @@ public:
 
     virtual void SetUp() {
         status = CUDA_SUCCESS;
-        device::Context::Instance().create();
+        oap::cuda::Context::Instance().create();
         output = NULL;
         eq_output = NULL;
         cuMatrix = new CuMatrix();
@@ -49,7 +49,7 @@ public:
         }
         host::DeleteMatrix(output);
         host::DeleteMatrix(eq_output);
-        device::Context::Instance().destroy();
+        oap::cuda::Context::Instance().destroy();
     }
 };
 
@@ -67,18 +67,18 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTest1) {
         1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
     };
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, 10, 10);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, 10, 10);
-    device::CopyHostArraysToDeviceMatrix(matrix1, hArray, NULL);
-    device::CopyHostArraysToDeviceMatrix(matrix2, hArray, NULL);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, 10, 10);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, 10, 10);
+    oap::cuda::CopyHostArraysToDeviceMatrix(matrix1, hArray, NULL);
+    oap::cuda::CopyHostArraysToDeviceMatrix(matrix2, hArray, NULL);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
     floatt outcomeVer1 = cuMatrix->getCompareOperationSum();
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     floatt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_TRUE(resultVer1);
     EXPECT_TRUE(resultVer2);
@@ -112,18 +112,18 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTest1Fail) {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, 10, 10);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, 10, 10);
-    device::CopyHostArraysToDeviceMatrix(matrix1, hArray1, NULL);
-    device::CopyHostArraysToDeviceMatrix(matrix2, hArray2, NULL);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, 10, 10);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, 10, 10);
+    oap::cuda::CopyHostArraysToDeviceMatrix(matrix1, hArray1, NULL);
+    oap::cuda::CopyHostArraysToDeviceMatrix(matrix2, hArray2, NULL);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
     floatt outcomeVer1 = cuMatrix->getCompareOperationSum();
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     floatt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_FALSE(resultVer1);
     EXPECT_FALSE(resultVer2);
@@ -135,16 +135,16 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTestBigData) {
     uintt columns = 50;
     uintt rows = 32;
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, columns, rows);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
     uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_TRUE(resultVer1);
     EXPECT_TRUE(resultVer2);
@@ -156,16 +156,16 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTestBigData1) {
     uintt columns = 50;
     uintt rows = 50;
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, columns, rows);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
     uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_TRUE(resultVer1);
     EXPECT_TRUE(resultVer2);
@@ -177,16 +177,16 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTestBigData2) {
     uintt columns = 70;
     uintt rows = 70;
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, columns, rows);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
     uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_TRUE(resultVer1);
     EXPECT_TRUE(resultVer2);
@@ -198,16 +198,16 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTestBigData3) {
     uintt columns = 111;
     uintt rows = 111;
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, columns, rows);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
     uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_TRUE(resultVer1);
     EXPECT_TRUE(resultVer2);
@@ -219,8 +219,8 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTestBigData3Fail) {
     uintt columns = 111;
     uintt rows = 111;
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, columns, rows);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
 
     CudaUtils::SetReValue(matrix1, columns * rows - 1, 10);
 
@@ -229,8 +229,8 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTestBigData3Fail) {
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_FALSE(resultVer1);
     EXPECT_FALSE(resultVer2);
@@ -242,16 +242,16 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTestBigData4) {
     uintt columns = 1000;
     uintt rows = 1000;
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, columns, rows);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
     uintt outcomeVer1 = cuMatrix->getCompareOperationSum();
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_TRUE(resultVer1);
     EXPECT_TRUE(resultVer2);
@@ -263,8 +263,8 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTestBigData4Fail) {
     uintt columns = 1000;
     uintt rows = 1000;
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, columns, rows);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
 
     CudaUtils::SetReValue(matrix1, columns * rows - 1, 10);
 
@@ -273,8 +273,8 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTestBigData4Fail) {
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_FALSE(resultVer1);
     EXPECT_FALSE(resultVer2);
@@ -286,8 +286,8 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTest5Fail) {
     uintt columns = 11;
     uintt rows = 11;
 
-    math::Matrix* matrix1 = device::NewDeviceMatrix(true, false, columns, rows);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, columns, rows);
 
     CudaUtils::SetReValue(matrix1, columns * rows - 1, 10);
 
@@ -296,8 +296,8 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTest5Fail) {
     bool resultVer2 = cuMatrix->compareVer2(matrix1, matrix2);
     uintt outcomeVer2 = cuMatrix->getCompareOperationSum();
 
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
 
     EXPECT_FALSE(resultVer1);
     EXPECT_FALSE(resultVer2);

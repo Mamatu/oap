@@ -26,7 +26,7 @@
 #include "MatchersUtils.h"
 
 #include "ArnoldiProceduresImpl.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "MatrixProcedures.h"
 #include "oapDeviceMatrixUPtr.h"
 #include "oapHostMatrixUPtr.h"
@@ -43,10 +43,10 @@ class ArnoldiOperations {
 
   ArnoldiOperations(oap::DeviceDataLoader* dataLoader)
       : m_dataLoader(dataLoader) {
-    value = device::NewDeviceReMatrix(1, 1);
+    value = oap::cuda::NewDeviceReMatrix(1, 1);
   }
 
-  ~ArnoldiOperations() { device::DeleteDeviceMatrix(value); }
+  ~ArnoldiOperations() { oap::cuda::DeleteDeviceMatrix(value); }
 
   static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v,
                            CuMatrix& cuProceduresApi,
@@ -61,12 +61,12 @@ class ArnoldiOperations {
       for (uintt index = 0; index < matrixInfo.m_matrixDim.columns; ++index) {
         math::Matrix* vec = dataLoader->createDeviceRowVector(index);
 
-        //device::PrintMatrix("vec =", vec);
+        //oap::cuda::PrintMatrix("vec =", vec);
 
         cuProceduresApi.dotProduct(ao->value, vec, m_v);
-        device::SetMatrix(m_w, ao->value, 0, index);
+        oap::cuda::SetMatrix(m_w, ao->value, 0, index);
 
-        device::DeleteDeviceMatrix(vec);
+        oap::cuda::DeleteDeviceMatrix(vec);
       }
     }
   }
@@ -84,7 +84,7 @@ class ArnoldiOperations {
     vectorrows = matrix->columns;
 
     if (eigenCalc->getEigenvectorsType() == ArnUtils::HOST) {
-      dvector = device::NewDeviceMatrixCopy(vector);
+      dvector = oap::cuda::NewDeviceMatrixCopy(vector);
       dvectorIsCopy = true;
     } else if (eigenCalc->getEigenvectorsType() == ArnUtils::DEVICE) {
       dvector = vector;
@@ -99,7 +99,7 @@ class ArnoldiOperations {
 
     host::CopyMatrix(refMatrix, matrix);
 
-    oap::DeviceMatrixUPtr drefMatrix = device::NewDeviceMatrixCopy(refMatrix);
+    oap::DeviceMatrixUPtr drefMatrix = oap::cuda::NewDeviceMatrixCopy(refMatrix);
 
     math::MatrixInfo info = host::GetMatrixInfo(refMatrix);
 
@@ -108,12 +108,12 @@ class ArnoldiOperations {
 
     matrixrows = partSize;
 
-    oap::DeviceMatrixUPtr matrix1 = device::NewDeviceReMatrix(matrixrows, matrixcolumns);
+    oap::DeviceMatrixUPtr matrix1 = oap::cuda::NewDeviceReMatrix(matrixrows, matrixcolumns);
 
-    oap::DeviceMatrixUPtr leftMatrix = device::NewDeviceReMatrix(matrixrows, matrixrows);
-    oap::DeviceMatrixUPtr rightMatrix = device::NewDeviceReMatrix(matrixrows, matrixrows);
+    oap::DeviceMatrixUPtr leftMatrix = oap::cuda::NewDeviceReMatrix(matrixrows, matrixrows);
+    oap::DeviceMatrixUPtr rightMatrix = oap::cuda::NewDeviceReMatrix(matrixrows, matrixrows);
 
-    oap::DeviceMatrixUPtr vectorT = device::NewDeviceReMatrix(vectorrows, 1);
+    oap::DeviceMatrixUPtr vectorT = oap::cuda::NewDeviceReMatrix(vectorrows, 1);
 
     cuProceduresApi.transposeMatrix(matrix1, drefMatrix);
     cuProceduresApi.transposeMatrix(vectorT, dvector);
@@ -127,14 +127,14 @@ class ArnoldiOperations {
     oap::HostMatrixUPtr hleftMatrix = host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
     oap::HostMatrixUPtr hrightMatrix = host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
 
-    device::CopyDeviceMatrixToHostMatrix(hrightMatrix, rightMatrix);
-    device::CopyDeviceMatrixToHostMatrix(hleftMatrix, leftMatrix);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(hrightMatrix, rightMatrix);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(hleftMatrix, leftMatrix);
 
     EXPECT_THAT(hleftMatrix.get(), MatrixIsEqual(hrightMatrix.get(), InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
 
     host::DeleteMatrix(matrix);
     if (dvectorIsCopy) {
-      device::DeleteDeviceMatrix(dvector);
+      oap::cuda::DeleteDeviceMatrix(dvector);
     }
 
     return compareResult;
@@ -147,9 +147,9 @@ class ArnoldiOperations {
 
 class OapEigenCalculatorTests : public testing::Test {
  public:
-  virtual void SetUp() { device::Context::Instance().create(); }
+  virtual void SetUp() { oap::cuda::Context::Instance().create(); }
 
-  virtual void TearDown() { device::Context::Instance().destroy(); }
+  virtual void TearDown() { oap::cuda::Context::Instance().destroy(); }
 };
 
 class MatricesDeleter {
@@ -165,7 +165,7 @@ class MatricesDeleter {
         if (m_type == ArnUtils::HOST) {
           host::DeleteMatrix(evectors[fa]);
         } else if (m_type == ArnUtils::DEVICE) {
-          device::DeleteDeviceMatrix(evectors[fa]);
+          oap::cuda::DeleteDeviceMatrix(evectors[fa]);
         }
       }
       delete[] evectors;
@@ -223,7 +223,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
         if (eigensType == ArnUtils::HOST) {
           evectors[fa] = host::NewReMatrix(1, rows);
         } else if (eigensType == ArnUtils::DEVICE) {
-          evectors[fa] = device::NewDeviceReMatrix(1, rows);
+          evectors[fa] = oap::cuda::NewDeviceReMatrix(1, rows);
         }
         debug("Created matrix %p", evectors[fa]);
       }
@@ -274,7 +274,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
       math::Matrix** hostMatrices = hostEVectors.get();
       math::Matrix* hostMatrix = host::NewMatrix(hostEVectors.get()[0]);
       for (int fa = 0; fa < wantedEigensCount; ++fa) {
-        device::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
+        oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
         
         host::PrintMatrixToFile(pathMatrixFiles + "_" + std::to_string(fa) + ".txt", hostMatrix);
         EXPECT_THAT(hostMatrices[fa], MatrixIsEqual(hostMatrix, InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));

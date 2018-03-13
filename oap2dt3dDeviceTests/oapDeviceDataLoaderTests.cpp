@@ -22,7 +22,7 @@
 
 #include "DeviceDataLoader.h"
 #include "KernelExecutor.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 
 #include "PngFile.h"
 
@@ -33,9 +33,9 @@ using namespace ::testing;
 class OapDeviceDataLoaderTests : public testing::Test
 {
  public:
-  virtual void SetUp() { device::Context::Instance().create(); }
+  virtual void SetUp() { oap::cuda::Context::Instance().create(); }
 
-  virtual void TearDown() { device::Context::Instance().destroy(); }
+  virtual void TearDown() { oap::cuda::Context::Instance().destroy(); }
 };
 
 TEST_F(OapDeviceDataLoaderTests, LoadImagesAllocDeallocTest)
@@ -48,8 +48,8 @@ TEST_F(OapDeviceDataLoaderTests, LoadImagesAllocDeallocTest)
   math::Matrix* dmatrix = ddl->createDeviceRowVector(0);
   math::Matrix* matrix1 = dl->createRowVector(0);
 
-  uint drows = device::GetRows(dmatrix);
-  uint dcolumns = device::GetColumns(dmatrix);
+  uint drows = oap::cuda::GetRows(dmatrix);
+  uint dcolumns = oap::cuda::GetColumns(dmatrix);
   EXPECT_EQ(matrix->columns, matrix1->columns);
   EXPECT_EQ(matrix->rows, matrix1->rows);
   EXPECT_EQ(matrix->rows, drows);
@@ -57,5 +57,5 @@ TEST_F(OapDeviceDataLoaderTests, LoadImagesAllocDeallocTest)
 
   host::DeleteMatrix(matrix);
   host::DeleteMatrix(matrix1);
-  device::DeleteDeviceMatrix(dmatrix);
+  oap::cuda::DeleteDeviceMatrix(dmatrix);
 }

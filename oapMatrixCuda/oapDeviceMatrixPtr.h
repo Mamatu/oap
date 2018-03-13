@@ -21,23 +21,23 @@
 #define OAP_DEVICEMATRIXPTR_H
 
 #include "Math.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 
 #include "oapMatrixSPtr.h"
 
 namespace oap {
   class DeviceMatrixPtr : public oap::MatrixSharedPtr {
     public:
-      DeviceMatrixPtr(math::Matrix* matrix) : oap::MatrixSharedPtr(matrix, device::DeleteDeviceMatrix) {}
+      DeviceMatrixPtr(math::Matrix* matrix) : oap::MatrixSharedPtr(matrix, oap::cuda::DeleteDeviceMatrix) {}
   };
 
   class DeviceMatricesPtr : public oap::MatricesSharedPtr {
     public:
       DeviceMatricesPtr(math::Matrix** matrices, unsigned int count) :
-        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(count, device::DeleteDeviceMatrix)) {}
+        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(count, oap::cuda::DeleteDeviceMatrix)) {}
 
       DeviceMatricesPtr(std::initializer_list<math::Matrix*> matrices) :
-        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), device::DeleteDeviceMatrix)) {}
+        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), oap::cuda::DeleteDeviceMatrix)) {}
   };
 
   template<template<typename, typename> class Container>

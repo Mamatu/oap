@@ -24,7 +24,7 @@
 #include <pthread.h>
 #include "gtest/gtest.h"
 #include "TestProcedures.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "DeviceMatrixKernels.h"
 #include "gmock/gmock-generated-function-mockers.h"
 
@@ -37,18 +37,18 @@ class OapCudaUtilsTests : public testing::Test {
   CuTest cuTest;
   CUresult status;
 
-  device::Kernel* m_kernel;
+  oap::cuda::Kernel* m_kernel;
 
   virtual void SetUp() {
-    device::Context::Instance().create();
+    oap::cuda::Context::Instance().create();
     status = CUDA_SUCCESS;
-    m_kernel = new device::Kernel();
+    m_kernel = new oap::cuda::Kernel();
     m_kernel->load("liboapMatrixCuda.cubin");
   }
 
   virtual void TearDown() {
     delete m_kernel;
-    device::Context::Instance().destroy();
+    oap::cuda::Context::Instance().destroy();
   }
 
   void executeSetGetValueTest(bool isre, bool isim, uintt columns, uintt rows,
@@ -69,9 +69,9 @@ class OapCudaUtilsTests : public testing::Test {
 
   void executeSetGetValueTest(bool isre, bool isim, uintt columns, uintt rows,
                               const ValueIndexVec& expecteds) {
-    math::Matrix* matrix = device::NewDeviceMatrix(isre, isim, columns, rows);
+    math::Matrix* matrix = oap::cuda::NewDeviceMatrix(isre, isim, columns, rows);
     executeSetGetValueTest(matrix, expecteds);
-    device::DeleteDeviceMatrix(matrix);
+    oap::cuda::DeleteDeviceMatrix(matrix);
   }
 
   void executeSetGetValueTest(math::Matrix* matrix,
@@ -140,11 +140,11 @@ TEST_F(OapCudaUtilsTests, SetGetValuesMatrix2) {
   vec.push_back(ValueIndex(c, Index(column, column)));
   vec.push_back(ValueIndex(c, Index(row, row)));
   vec.push_back(ValueIndex(s, Index(row, column)));
-  math::Matrix* matrix = device::NewDeviceMatrix(true, true, 64, 64);
+  math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, 64, 64);
   m_kernel->setDimensionsDevice(matrix);
   DEVICEKernel_SetIdentity(matrix, *m_kernel);
   executeSetGetValueTest(matrix, vec);
-  device::DeleteDeviceMatrix(matrix);
+  oap::cuda::DeleteDeviceMatrix(matrix);
 }
 
 TEST_F(OapCudaUtilsTests, SetGetValuesMatrix3) {
@@ -157,9 +157,9 @@ TEST_F(OapCudaUtilsTests, SetGetValuesMatrix3) {
   vec.push_back(ValueIndex(c, Index(column, column)));
   vec.push_back(ValueIndex(c, Index(row, row)));
   vec.push_back(ValueIndex(s, Index(row, column)));
-  math::Matrix* matrix = device::NewDeviceMatrix(true, true, 32, 32);
+  math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, 32, 32);
   m_kernel->setDimensionsDevice(matrix);
   DEVICEKernel_SetIdentity(matrix, *m_kernel);
   executeSetGetValueTest(matrix, vec);
-  device::DeleteDeviceMatrix(matrix);
+  oap::cuda::DeleteDeviceMatrix(matrix);
 }

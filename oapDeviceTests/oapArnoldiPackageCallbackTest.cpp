@@ -27,7 +27,7 @@
 #include "Config.h"
 #include "KernelExecutor.h"
 #include "HostMatrixUtils.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "MathOperationsCpu.h"
 #include "matrix1.h"
 #include "matrix2.h"
@@ -42,7 +42,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     CuHArnoldiCallback* arnoldiCuda;
 
     virtual void SetUp() {
-      device::Context::Instance().create();
+      oap::cuda::Context::Instance().create();
 
       arnoldiCuda = new CuHArnoldiCallback();
       arnoldiCuda->setOutputType(ArnUtils::HOST);
@@ -50,7 +50,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
     virtual void TearDown() {
       delete arnoldiCuda;
-      device::Context::Instance().destroy();
+      oap::cuda::Context::Instance().destroy();
     }
 
     class Data {
@@ -209,14 +209,14 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
             UserPair* userPair = static_cast<UserPair*>(userData);
             Data* data = userPair->first;
             data->load();
-            device::CopyDeviceMatrixToHostMatrix(data->hostV, v);
+            oap::cuda::CopyDeviceMatrixToHostMatrix(data->hostV, v);
             if (userPair->second) {
               ASSERT_THAT(data->hostV,
                           MatrixIsEqual(
                               data->refV,
                               InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
             }
-            device::CopyHostMatrixToDeviceMatrix(w, data->refW);
+            oap::cuda::CopyHostMatrixToDeviceMatrix(w, data->refW);
           }
         }
       };
@@ -274,9 +274,9 @@ TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
   uintt columns = data.refW->columns;
   uintt rows = data.refW->rows;
 
-  math::Matrix* dmatrix = device::NewDeviceMatrix(isre, isim, columns, rows);
+  math::Matrix* dmatrix = oap::cuda::NewDeviceMatrix(isre, isim, columns, rows);
 
-  device::CopyHostMatrixToDeviceMatrix(dmatrix, data.refW);
+  oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, data.refW);
 
   CuMatrix cuProceduresApi;
 
@@ -291,7 +291,7 @@ TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
   EXPECT_DOUBLE_EQ(3.25, doutput);
   EXPECT_DOUBLE_EQ(output, doutput);
 
-  device::DeleteDeviceMatrix(dmatrix);
+  oap::cuda::DeleteDeviceMatrix(dmatrix);
 }
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData1) {

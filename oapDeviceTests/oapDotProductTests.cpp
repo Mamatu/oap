@@ -23,7 +23,7 @@
 #include "MatrixProcedures.h"
 #include "MathOperationsCpu.h"
 #include "HostMatrixUtils.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 
 class OapDotProductTests : public testing::Test {
@@ -32,13 +32,13 @@ class OapDotProductTests : public testing::Test {
   CUresult status;
 
   virtual void SetUp() {
-    device::Context::Instance().create();
+    oap::cuda::Context::Instance().create();
     cuMatrix = new CuMatrix();
   }
 
   virtual void TearDown() {
     delete cuMatrix;
-    device::Context::Instance().destroy();
+    oap::cuda::Context::Instance().destroy();
   }
 };
 
@@ -46,19 +46,19 @@ TEST_F(OapDotProductTests, Test1) {
   math::Matrix* hostM1 = host::NewReMatrix(1, 10, 2);
   math::Matrix* hostM2 = host::NewReMatrix(10, 1, 2);
 
-  math::Matrix* dM1 = device::NewDeviceMatrixCopy(hostM1);
-  math::Matrix* dM2 = device::NewDeviceMatrixCopy(hostM2);
-  math::Matrix* doutput = device::NewDeviceReMatrix(10, 10);
+  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopy(hostM1);
+  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopy(hostM2);
+  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(10, 10);
   math::Matrix* houtput = host::NewReMatrix(10, 10);
 
   cuMatrix->dotProduct(doutput, dM1, dM2);
-  device::CopyDeviceMatrixToHostMatrix(houtput, doutput);
+  oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(4));
 
-  device::DeleteDeviceMatrix(doutput);
-  device::DeleteDeviceMatrix(dM1);
-  device::DeleteDeviceMatrix(dM2);
+  oap::cuda::DeleteDeviceMatrix(doutput);
+  oap::cuda::DeleteDeviceMatrix(dM1);
+  oap::cuda::DeleteDeviceMatrix(dM2);
   host::DeleteMatrix(houtput);
   host::DeleteMatrix(hostM1);
   host::DeleteMatrix(hostM2);
@@ -69,19 +69,19 @@ TEST_F(OapDotProductTests, Test2) {
   math::Matrix* hostM1 = host::NewReMatrix(1, 100, 2);
   math::Matrix* hostM2 = host::NewReMatrix(100, 1, 2);
 
-  math::Matrix* dM1 = device::NewDeviceMatrixCopy(hostM1);
-  math::Matrix* dM2 = device::NewDeviceMatrixCopy(hostM2);
-  math::Matrix* doutput = device::NewDeviceReMatrix(10, 10);
+  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopy(hostM1);
+  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopy(hostM2);
+  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(10, 10);
   math::Matrix* houtput = host::NewReMatrix(10, 10);
 
   cuMatrix->dotProduct(doutput, dM1, dM2);
-  device::CopyDeviceMatrixToHostMatrix(houtput, doutput);
+  oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(4));
 
-  device::DeleteDeviceMatrix(doutput);
-  device::DeleteDeviceMatrix(dM1);
-  device::DeleteDeviceMatrix(dM2);
+  oap::cuda::DeleteDeviceMatrix(doutput);
+  oap::cuda::DeleteDeviceMatrix(dM1);
+  oap::cuda::DeleteDeviceMatrix(dM2);
   host::DeleteMatrix(houtput);
   host::DeleteMatrix(hostM1);
   host::DeleteMatrix(hostM2);

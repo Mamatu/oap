@@ -18,7 +18,7 @@
  */
 
 #include "DeviceDataLoader.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 
 namespace oap {
 DeviceDataLoader::DeviceDataLoader(const Images& images, bool dealocateImages,
@@ -29,21 +29,21 @@ DeviceDataLoader::~DeviceDataLoader() {}
 
 math::Matrix* DeviceDataLoader::createDeviceMatrix() {
   math::Matrix* host = createMatrix();
-  math::Matrix* device = device::NewDeviceMatrixCopy(host);
+  math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
   host::DeleteMatrix(host);
   return device;
 }
 
 math::Matrix* DeviceDataLoader::createDeviceRowVector(size_t index) {
   math::Matrix* host = createRowVector(index);
-  math::Matrix* device = device::NewDeviceMatrixCopy(host);
+  math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
   host::DeleteMatrix(host);
   return device;
 }
 
 math::Matrix* DeviceDataLoader::createDeviceColumnVector(size_t index) {
   math::Matrix* host = createColumnVector(index);
-  math::Matrix* device = device::NewDeviceMatrixCopy(host);
+  math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
   host::DeleteMatrix(host);
   return device;
 }

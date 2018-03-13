@@ -4,7 +4,7 @@
 #include "EigenCalculator.h"
 #include "DeviceDataLoader.h"
 
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "HostMatrixUtils.h"
 
 #include "oapHostMatrixPtr.h"
@@ -22,12 +22,12 @@ struct UserData
 MainAPExecutor::MainAPExecutor() :
   m_ddloader(nullptr)
 {
-  device::Context::Instance().create();
+  oap::cuda::Context::Instance().create();
 }
 
 MainAPExecutor::~MainAPExecutor()
 {
-  device::Context::Instance().destroy();
+  oap::cuda::Context::Instance().destroy();
 }
 
 void MainAPExecutor::setEigensType(ArnUtils::Type eigensType)
@@ -57,7 +57,7 @@ std::shared_ptr<MainAPExecutor::Outcome> MainAPExecutor::run()
   
   m_ddloader.reset (oap::DeviceDataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(m_info));
 
-  oap::DeviceMatrixPtr dvalue = device::NewDeviceReMatrix(1, 1); 
+  oap::DeviceMatrixPtr dvalue = oap::cuda::NewDeviceReMatrix(1, 1); 
 
   UserData userData = {dvalue, this};
 
@@ -113,9 +113,9 @@ void MainAPExecutor::multiplyFunc(math::Matrix* m_w, math::Matrix* m_v, CuMatrix
       math::Matrix* vec = dataLoader->createDeviceRowVector(index);
 
       cuProceduresApi.dotProduct(dvalue, vec, m_v);
-      device::SetMatrix(m_w, dvalue, 0, index);
+      oap::cuda::SetMatrix(m_w, dvalue, 0, index);
 
-      device::DeleteDeviceMatrix(vec);
+      oap::cuda::DeleteDeviceMatrix(vec);
     }
   }
 }

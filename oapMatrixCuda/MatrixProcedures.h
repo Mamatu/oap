@@ -139,7 +139,7 @@ class CuMatrix {
   floatt* m_magniuteOutput;
 
   bool m_isIntialized;
-  device::Kernel m_kernel;
+  oap::cuda::Kernel m_kernel;
   uintt m_maxThreadsPerBlock;
   floatt m_compareOperationOutput;
 

@@ -22,7 +22,7 @@
 #include "MatrixProcedures.h"
 #include "MathOperationsCpu.h"
 #include "HostMatrixUtils.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 #include "qrtest1.h"
 #include "qrtest2.h"
@@ -41,30 +41,30 @@ class OapQRTests : public testing::Test {
 
   virtual void SetUp() {
     status = CUDA_SUCCESS;
-    device::Context::Instance().create();
+    oap::cuda::Context::Instance().create();
     m_cuMatrix = new CuMatrix();
   }
 
   virtual void TearDown() {
     delete m_cuMatrix;
-    device::Context::Instance().destroy();
+    oap::cuda::Context::Instance().destroy();
   }
 
   void executeOrthogonalityTest(math::Matrix* q, math::Matrix* dq) {
-    math::Matrix* tdq = device::NewDeviceMatrixCopy(q);
-    math::Matrix* doutput = device::NewDeviceMatrixCopy(q);
-    math::Matrix* doutput1 = device::NewDeviceMatrixCopy(q);
+    math::Matrix* tdq = oap::cuda::NewDeviceMatrixCopy(q);
+    math::Matrix* doutput = oap::cuda::NewDeviceMatrixCopy(q);
+    math::Matrix* doutput1 = oap::cuda::NewDeviceMatrixCopy(q);
     math::Matrix* houtput = host::NewMatrix(q);
 
     m_cuMatrix->transposeMatrix(tdq, dq);
     m_cuMatrix->dotProduct(doutput, tdq, dq);
-    device::CopyDeviceMatrixToHostMatrix(houtput, doutput);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
     EXPECT_THAT(houtput, MatrixIsIdentity());
 
-    device::DeleteDeviceMatrix(tdq);
-    device::DeleteDeviceMatrix(doutput);
-    device::DeleteDeviceMatrix(doutput1);
+    oap::cuda::DeleteDeviceMatrix(tdq);
+    oap::cuda::DeleteDeviceMatrix(doutput);
+    oap::cuda::DeleteDeviceMatrix(doutput1);
     host::DeleteMatrix(houtput);
   }
 
@@ -77,50 +77,50 @@ class OapQRTests : public testing::Test {
     math::Matrix* hrmatrix = host::NewMatrix(matrix);
     math::Matrix* hrmatrix1 = host::NewMatrix(matrix);
 
-    math::Matrix* temp1 = device::NewDeviceMatrixHostRef(matrix);
-    math::Matrix* temp2 = device::NewDeviceMatrixHostRef(matrix);
-    math::Matrix* temp3 = device::NewDeviceMatrixHostRef(matrix);
-    math::Matrix* temp4 = device::NewDeviceMatrixHostRef(matrix);
-    math::Matrix* dmatrix = device::NewDeviceMatrixCopy(matrix);
-    math::Matrix* drmatrix = device::NewDeviceMatrixCopy(matrix);
+    math::Matrix* temp1 = oap::cuda::NewDeviceMatrixHostRef(matrix);
+    math::Matrix* temp2 = oap::cuda::NewDeviceMatrixHostRef(matrix);
+    math::Matrix* temp3 = oap::cuda::NewDeviceMatrixHostRef(matrix);
+    math::Matrix* temp4 = oap::cuda::NewDeviceMatrixHostRef(matrix);
+    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy(matrix);
+    math::Matrix* drmatrix = oap::cuda::NewDeviceMatrixCopy(matrix);
 
     math::Matrix* eq_q = host::NewMatrix(qr1q);
     math::Matrix* q = host::NewMatrix(eq_q);
-    math::Matrix* dq = device::NewDeviceMatrixHostRef(q);
+    math::Matrix* dq = oap::cuda::NewDeviceMatrixHostRef(q);
 
     math::Matrix* eq_r = host::NewMatrix(qr1r);
     math::Matrix* r = host::NewMatrix(eq_r);
-    math::Matrix* dr = device::NewDeviceMatrixHostRef(r);
+    math::Matrix* dr = oap::cuda::NewDeviceMatrixHostRef(r);
 
     m_cuMatrix->QRGR(dq, dr, dmatrix, temp1, temp2, temp3, temp4);
 
-    device::CopyDeviceMatrixToHostMatrix(r, dr);
-    device::CopyDeviceMatrixToHostMatrix(q, dq);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(r, dr);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(q, dq);
 
 #if 0
     EXPECT_THAT(eq_q, MatrixIsEqual(q));
     EXPECT_THAT(eq_r, MatrixIsEqual(r));
 #endif
 
-    device::CopyHostMatrixToDeviceMatrix(dr, eq_r);
-    device::CopyHostMatrixToDeviceMatrix(dq, eq_q);
+    oap::cuda::CopyHostMatrixToDeviceMatrix(dr, eq_r);
+    oap::cuda::CopyHostMatrixToDeviceMatrix(dq, eq_q);
 
     m_cuMatrix->dotProduct(dmatrix, dq, dr);
     m_cuMatrix->dotProduct(drmatrix, dr, dq);
 
-    device::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
-    device::CopyDeviceMatrixToHostMatrix(hrmatrix, drmatrix);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(hrmatrix, drmatrix);
 
     EXPECT_THAT(matrix, MatrixIsEqual(hmatrix));
 
-    device::CopyHostMatrixToDeviceMatrix(dr, r);
-    device::CopyHostMatrixToDeviceMatrix(dq, q);
+    oap::cuda::CopyHostMatrixToDeviceMatrix(dr, r);
+    oap::cuda::CopyHostMatrixToDeviceMatrix(dq, q);
 
     m_cuMatrix->dotProduct(dmatrix, dq, dr);
     m_cuMatrix->dotProduct(drmatrix, dr, dq);
 
-    device::CopyDeviceMatrixToHostMatrix(hmatrix1, dmatrix);
-    device::CopyDeviceMatrixToHostMatrix(hrmatrix1, drmatrix);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix1, dmatrix);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(hrmatrix1, drmatrix);
 
     EXPECT_THAT(matrix, MatrixIsEqual(hmatrix1));
 
@@ -132,20 +132,20 @@ class OapQRTests : public testing::Test {
     host::DeleteMatrix(hmatrix1);
     host::DeleteMatrix(hrmatrix1);
 
-    device::DeleteDeviceMatrix(temp1);
-    device::DeleteDeviceMatrix(temp2);
-    device::DeleteDeviceMatrix(temp3);
-    device::DeleteDeviceMatrix(temp4);
-    device::DeleteDeviceMatrix(dmatrix);
-    device::DeleteDeviceMatrix(drmatrix);
+    oap::cuda::DeleteDeviceMatrix(temp1);
+    oap::cuda::DeleteDeviceMatrix(temp2);
+    oap::cuda::DeleteDeviceMatrix(temp3);
+    oap::cuda::DeleteDeviceMatrix(temp4);
+    oap::cuda::DeleteDeviceMatrix(dmatrix);
+    oap::cuda::DeleteDeviceMatrix(drmatrix);
 
     host::DeleteMatrix(q);
     host::DeleteMatrix(eq_q);
-    device::DeleteDeviceMatrix(dq);
+    oap::cuda::DeleteDeviceMatrix(dq);
 
     host::DeleteMatrix(r);
     host::DeleteMatrix(eq_r);
-    device::DeleteDeviceMatrix(dr);
+    oap::cuda::DeleteDeviceMatrix(dr);
   }
 };
 

@@ -36,7 +36,10 @@
     abort();                                                                   \
   }
 
-namespace device {
+namespace oap
+{
+namespace cuda
+{
 
 void Init();
 
@@ -141,8 +144,7 @@ class Kernel : public CuDeviceInfo {
                                uint w, uint h,
                                uint maxThreadsPerBlock);
 
-  static CUresult Execute(const char* functionName, void** params,
-                          ::device::Kernel& kernel);
+  static CUresult Execute(const char* functionName, void** params, oap::cuda::Kernel& kernel);
 
  private:
   void** m_params;
@@ -161,5 +163,6 @@ class Kernel : public CuDeviceInfo {
   void loadCuModule();
   void setImage(void* image);
 };
+}
 }
 #endif /* KERNELEXECUTOR_H */

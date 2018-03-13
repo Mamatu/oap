@@ -17,28 +17,28 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 #include "gtest/gtest.h"
 
 class OapDeviceMatrixModuleTests : public testing::Test {
  public:
-  virtual void SetUp() { device::Context::Instance().create(); }
+  virtual void SetUp() { oap::cuda::Context::Instance().create(); }
 
-  virtual void TearDown() { device::Context::Instance().destroy(); }
+  virtual void TearDown() { oap::cuda::Context::Instance().destroy(); }
 
   void setSubMatrixTest(uintt columns, uintt rows, float value,
                         uintt subcolumns, uint subrows, floatt subvalue,
                         uintt column, uintt row) {
     math::Matrix* hmatrix = host::NewMatrix(true, true, columns, rows, value);
-    math::Matrix* dmatrix = device::NewDeviceMatrixCopy(hmatrix);
+    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy(hmatrix);
 
     math::Matrix* hsubmatrix =
         host::NewMatrix(true, true, subcolumns, subrows, subvalue);
-    math::Matrix* dsubmatrix = device::NewDeviceMatrixCopy(hsubmatrix);
+    math::Matrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopy(hsubmatrix);
 
-    device::SetMatrix(dmatrix, dsubmatrix, column, row);
-    device::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
+    oap::cuda::SetMatrix(dmatrix, dsubmatrix, column, row);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
 
     for (uintt fa = 0; fa < subcolumns; ++fa) {
       for (uintt fb = 0; fb < subrows; ++fb) {
@@ -54,8 +54,8 @@ class OapDeviceMatrixModuleTests : public testing::Test {
       EXPECT_EQ(value, hmatrix->imValues[fa]);
     }*/
 
-    device::DeleteDeviceMatrix(dmatrix);
-    device::DeleteDeviceMatrix(dsubmatrix);
+    oap::cuda::DeleteDeviceMatrix(dmatrix);
+    oap::cuda::DeleteDeviceMatrix(dsubmatrix);
 
     host::DeleteMatrix(hmatrix);
     host::DeleteMatrix(hsubmatrix);
@@ -65,23 +65,23 @@ class OapDeviceMatrixModuleTests : public testing::Test {
 TEST_F(OapDeviceMatrixModuleTests, GetColumnsTest) {
   uintt columns = 15;
   uintt rows = 10;
-  math::Matrix* matrix = device::NewDeviceMatrix(true, true, columns, rows);
+  math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, columns, rows);
   uintt expected = CudaUtils::GetColumns(matrix);
-  uintt tested = device::GetColumns(matrix);
+  uintt tested = oap::cuda::GetColumns(matrix);
   EXPECT_EQ(expected, tested);
   EXPECT_EQ(columns, tested);
-  device::DeleteDeviceMatrix(matrix);
+  oap::cuda::DeleteDeviceMatrix(matrix);
 }
 
 TEST_F(OapDeviceMatrixModuleTests, GetRowsTest) {
   uintt columns = 15;
   uintt rows = 10;
-  math::Matrix* matrix = device::NewDeviceMatrix(true, true, columns, rows);
+  math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, columns, rows);
   uintt expected = CudaUtils::GetRows(matrix);
-  uintt tested = device::GetRows(matrix);
+  uintt tested = oap::cuda::GetRows(matrix);
   EXPECT_EQ(expected, tested);
   EXPECT_EQ(rows, tested);
-  device::DeleteDeviceMatrix(matrix);
+  oap::cuda::DeleteDeviceMatrix(matrix);
 }
 
 TEST_F(OapDeviceMatrixModuleTests, SetSubMatrix00) {
@@ -99,7 +99,7 @@ TEST_F(OapDeviceMatrixModuleTests, SetMatrixExTests) {
 
   auto testMatrixEx = [matrixExElements](MatrixEx** dMatrixExs, uintt index) {
     MatrixEx hostMatrixEx;
-    device::GetMatrixEx(&hostMatrixEx, dMatrixExs[index]);
+    oap::cuda::GetMatrixEx(&hostMatrixEx, dMatrixExs[index]);
     EXPECT_EQ(index * matrixExElements, hostMatrixEx.beginColumn);
     EXPECT_EQ(index * matrixExElements + 1, hostMatrixEx.columnsLength);
     EXPECT_EQ(index * matrixExElements + 2, hostMatrixEx.beginRow);
@@ -113,14 +113,14 @@ TEST_F(OapDeviceMatrixModuleTests, SetMatrixExTests) {
     buffer[fa] = fa;
   }
 
-  MatrixEx** dMatrixExs = device::NewDeviceMatrixEx(dMatrixExCount);
-  device::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
+  MatrixEx** dMatrixExs = oap::cuda::NewDeviceMatrixEx(dMatrixExCount);
+  oap::cuda::SetMatrixEx(dMatrixExs, buffer, dMatrixExCount);
 
   for (uintt fa = 0; fa < dMatrixExCount; ++fa) {
     testMatrixEx(dMatrixExs, fa);
   }
 
-  device::DeleteDeviceMatrixEx(dMatrixExs);
+  oap::cuda::DeleteDeviceMatrixEx(dMatrixExs);
 }
 
 TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
@@ -136,17 +136,17 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
     m1->imValues[fa] = fa;
   }
 
-  math::Matrix* d1 = device::NewDeviceMatrixCopy(m1);
+  math::Matrix* d1 = oap::cuda::NewDeviceMatrixCopy(m1);
 
-  bool status = device::WriteMatrix(path, d1);
+  bool status = oap::cuda::WriteMatrix(path, d1);
 
   EXPECT_TRUE(status);
 
   if (status) {
-    math::Matrix* d2 = device::ReadMatrix(path);
+    math::Matrix* d2 = oap::cuda::ReadMatrix(path);
 
-    math::Matrix* m2 = host::NewMatrix(device::GetMatrixInfo(d2));
-    device::CopyDeviceMatrixToHostMatrix(m2, d2);
+    math::Matrix* m2 = host::NewMatrix(oap::cuda::GetMatrixInfo(d2));
+    oap::cuda::CopyDeviceMatrixToHostMatrix(m2, d2);
 
     EXPECT_EQ(m2->columns, m1->columns);
     EXPECT_EQ(m2->columns, columns);
@@ -159,8 +159,8 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
     }
 
     host::DeleteMatrix(m2);
-    device::DeleteDeviceMatrix(d2);
+    oap::cuda::DeleteDeviceMatrix(d2);
   }
   host::DeleteMatrix(m1);
-  device::DeleteDeviceMatrix(d1);
+  oap::cuda::DeleteDeviceMatrix(d1);
 }

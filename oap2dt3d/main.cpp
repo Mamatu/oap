@@ -28,7 +28,7 @@
 
 int main()
 {
-  device::Context::Instance().create();
+  oap::cuda::Context::Instance().create();
 
   using Outcome = oap::MainAPExecutor::Outcome;
   oap::MainAPExecutor mainExecutor;
@@ -59,6 +59,6 @@ int main()
   mainFExec.setOutcome (outcome);
   mainFExec.run();
 
-  device::Context::Instance().destroy();
+  oap::cuda::Context::Instance().destroy();
   return 0;
 }

@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "HostMatrixUtils.h"
 #include "KernelExecutor.h"
 #include <csignal>
@@ -28,7 +28,10 @@
 #include <execinfo.h>
 #include <map>
 
-namespace device {
+namespace oap
+{
+namespace cuda
+{
 
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
@@ -43,7 +46,7 @@ math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   } else if (matrixImPtr != 0) {
     matrix1 = host::NewImMatrix(columns, rows);
   }
-  device::CopyDeviceMatrixToHostMatrix(matrix1, matrix);
+  oap::cuda::CopyDeviceMatrixToHostMatrix(matrix1, matrix);
   return matrix1;
 }
 
@@ -67,8 +70,8 @@ math::Matrix* NewDeviceMatrix(const std::string& matrixStr) {
 }
 
 math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
-  math::Matrix* dmatrix = device::NewDeviceMatrixHostRef(hostMatrix);
-  device::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
+  math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixHostRef(hostMatrix);
+  oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
   return dmatrix;
 }
 
@@ -361,18 +364,19 @@ math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix) {
 
 math::Matrix* ReadMatrix(const std::string& path) {
   math::Matrix* hostMatrix = host::ReadMatrix(path);
-  math::Matrix* devMatrix = device::NewDeviceMatrixCopy(hostMatrix);
+  math::Matrix* devMatrix = oap::cuda::NewDeviceMatrixCopy(hostMatrix);
   host::DeleteMatrix(hostMatrix);
   return devMatrix;
 }
 
 bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix) {
-  math::MatrixInfo matrixInfo = device::GetMatrixInfo(devMatrix);
+  math::MatrixInfo matrixInfo = oap::cuda::GetMatrixInfo(devMatrix);
   math::Matrix* hostMatrix = host::NewMatrix(matrixInfo);
-  device::CopyDeviceMatrixToHostMatrix(hostMatrix, devMatrix);
+  oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, devMatrix);
   bool status = host::WriteMatrix(path, hostMatrix);
   host::DeleteMatrix(hostMatrix);
   return status;
 }
 
+}
 }

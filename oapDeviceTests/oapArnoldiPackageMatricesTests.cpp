@@ -29,7 +29,7 @@
 #include "MatchersUtils.h"
 
 #include "Config.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 #include "HostMatrixUtils.h"
 #include "MatchersUtils.h"
@@ -49,13 +49,13 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     CuHArnoldiCallback* m_arnoldiCuda;
 
     virtual void SetUp() {
-      device::Context::Instance().create();
+      oap::cuda::Context::Instance().create();
       m_arnoldiCuda = new CuHArnoldiCallback();
     }
 
     virtual void TearDown() {
       delete m_arnoldiCuda;
-      device::Context::Instance().destroy();
+      oap::cuda::Context::Instance().destroy();
     }
 
     static void multiply(math::Matrix* m_w, math::Matrix* m_v,
@@ -72,12 +72,12 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       for (size_t idx = 0; idx < hmatrix->rows; ++idx) {
         host::GetTransposeReVector(hvectorT, hmatrix, idx);
         //host::PrintMatrix("hvectorT = ", hvectorT);
-        device::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
+        oap::cuda::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
         cuProceduresApi.dotProduct(dvalue, dvectorT, m_v);
-        device::SetReMatrix(m_w, dvalue, 0, idx);
+        oap::cuda::SetReMatrix(m_w, dvalue, 0, idx);
       }
-      //device::PrintMatrix("m_w =", m_w);
-      //device::PrintMatrix("m_v =", m_v);
+      //oap::cuda::PrintMatrix("m_w =", m_w);
+      //oap::cuda::PrintMatrix("m_v =", m_v);
     }
 
     static bool check(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max, void* userData) {
@@ -168,8 +168,8 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       UserData userData = {
               hmatrix,
               host::NewReMatrix(hmatrix->columns, 1),
-              device::NewDeviceReMatrix(hmatrix->columns, 1),
-              device::NewDeviceReMatrix(1, 1)
+              oap::cuda::NewDeviceReMatrix(hmatrix->columns, 1),
+              oap::cuda::NewDeviceReMatrix(1, 1)
       };
 
       CheckUserData checkUserData = {
