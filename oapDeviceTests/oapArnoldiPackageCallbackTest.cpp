@@ -26,7 +26,7 @@
 #include "MatchersUtils.h"
 #include "Config.h"
 #include "KernelExecutor.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
 #include "MathOperationsCpu.h"
 #include "matrix1.h"
@@ -87,17 +87,17 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
         fclose(file);
 
-        refV = host::NewMatrix(true, true, 1, m_elementsCount);
-        refW = host::NewMatrix(true, true, 1, m_elementsCount);
-        hostV = host::NewMatrix(true, true, 1, m_elementsCount);
-        hostW = host::NewMatrix(true, true, 1, m_elementsCount);
+        refV = oap::host::NewMatrix(true, true, 1, m_elementsCount);
+        refW = oap::host::NewMatrix(true, true, 1, m_elementsCount);
+        hostV = oap::host::NewMatrix(true, true, 1, m_elementsCount);
+        hostW = oap::host::NewMatrix(true, true, 1, m_elementsCount);
       }
 
       virtual ~Data() {
-        host::DeleteMatrix(refV);
-        host::DeleteMatrix(refW);
-        host::DeleteMatrix(hostV);
-        host::DeleteMatrix(hostW);
+        oap::host::DeleteMatrix(refV);
+        oap::host::DeleteMatrix(refW);
+        oap::host::DeleteMatrix(hostV);
+        oap::host::DeleteMatrix(hostW);
       }
 
       void load() {
@@ -245,9 +245,9 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     }
 
     void triangularityTest(const std::string& matrixStr) {
-      math::Matrix* matrix = host::NewMatrix(matrixStr);
+      math::Matrix* matrix = oap::host::NewMatrix(matrixStr);
       triangularityTest(matrix);
-      host::DeleteMatrix(matrix);
+      oap::host::DeleteMatrix(matrix);
     }
 
     void triangularityTest(const math::Matrix* matrix) {

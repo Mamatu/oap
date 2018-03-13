@@ -22,7 +22,7 @@
 #include "MatchersUtils.h"
 #include "MatrixProcedures.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 
@@ -43,13 +43,13 @@ class OapDotProductTests : public testing::Test {
 };
 
 TEST_F(OapDotProductTests, Test1) {
-  math::Matrix* hostM1 = host::NewReMatrix(1, 10, 2);
-  math::Matrix* hostM2 = host::NewReMatrix(10, 1, 2);
+  math::Matrix* hostM1 = oap::host::NewReMatrix(1, 10, 2);
+  math::Matrix* hostM2 = oap::host::NewReMatrix(10, 1, 2);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopy(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopy(hostM2);
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(10, 10);
-  math::Matrix* houtput = host::NewReMatrix(10, 10);
+  math::Matrix* houtput = oap::host::NewReMatrix(10, 10);
 
   cuMatrix->dotProduct(doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
@@ -59,20 +59,20 @@ TEST_F(OapDotProductTests, Test1) {
   oap::cuda::DeleteDeviceMatrix(doutput);
   oap::cuda::DeleteDeviceMatrix(dM1);
   oap::cuda::DeleteDeviceMatrix(dM2);
-  host::DeleteMatrix(houtput);
-  host::DeleteMatrix(hostM1);
-  host::DeleteMatrix(hostM2);
+  oap::host::DeleteMatrix(houtput);
+  oap::host::DeleteMatrix(hostM1);
+  oap::host::DeleteMatrix(hostM2);
 }
 
 
 TEST_F(OapDotProductTests, Test2) {
-  math::Matrix* hostM1 = host::NewReMatrix(1, 100, 2);
-  math::Matrix* hostM2 = host::NewReMatrix(100, 1, 2);
+  math::Matrix* hostM1 = oap::host::NewReMatrix(1, 100, 2);
+  math::Matrix* hostM2 = oap::host::NewReMatrix(100, 1, 2);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopy(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopy(hostM2);
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(10, 10);
-  math::Matrix* houtput = host::NewReMatrix(10, 10);
+  math::Matrix* houtput = oap::host::NewReMatrix(10, 10);
 
   cuMatrix->dotProduct(doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
@@ -82,7 +82,7 @@ TEST_F(OapDotProductTests, Test2) {
   oap::cuda::DeleteDeviceMatrix(doutput);
   oap::cuda::DeleteDeviceMatrix(dM1);
   oap::cuda::DeleteDeviceMatrix(dM2);
-  host::DeleteMatrix(houtput);
-  host::DeleteMatrix(hostM1);
-  host::DeleteMatrix(hostM2);
+  oap::host::DeleteMatrix(houtput);
+  oap::host::DeleteMatrix(hostM1);
+  oap::host::DeleteMatrix(hostM2);
 }

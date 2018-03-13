@@ -33,8 +33,8 @@ inline void switchPointer(math::Matrix*& a, math::Matrix*& b) {
 inline void QRDecompositionCpu::prepareGMatrix(math::Matrix* A,
     uintt column, uintt row,
     math::Matrix* G) {
-    host::SetIdentityMatrix(G);
-    host::SetIdentityMatrix(m_GT);
+    oap::host::SetIdentityMatrix(G);
+    oap::host::SetIdentityMatrix(m_GT);
     floatt reg = 0;
     floatt img = 0;
     floatt ref = 0;
@@ -85,27 +85,27 @@ void QRDecompositionCpu::execute() {
 
     if (m_R1 != NULL && m_R1->rows != R->rows &&
         m_R1->columns != R->columns) {
-host::DeleteMatrix(m_R1);
-host::DeleteMatrix(m_Q1);
-host::DeleteMatrix(m_G);
-host::DeleteMatrix(m_GT);
+oap::host::DeleteMatrix(m_R1);
+oap::host::DeleteMatrix(m_Q1);
+oap::host::DeleteMatrix(m_G);
+oap::host::DeleteMatrix(m_GT);
         m_R1 = NULL;
         m_Q1 = NULL;
         m_G = NULL;
         m_GT = NULL;
     }
     if (m_R1 == NULL) {
-        m_R1 = host::NewMatrix(A);
-        m_Q1 = host::NewMatrix(A);
-        m_G = host::NewMatrix(A);
-        m_GT = host::NewMatrix(A);
+        m_R1 = oap::host::NewMatrix(A);
+        m_Q1 = oap::host::NewMatrix(A);
+        m_G = oap::host::NewMatrix(A);
+        m_GT = oap::host::NewMatrix(A);
     }
 
     tR1 = m_R1;
     tQ1 = m_Q1;
 
-    host::CopyMatrix(m_R1, A);
-    host::SetIdentityMatrix(m_Q1);
+    oap::host::CopyMatrix(m_R1, A);
+    oap::host::SetIdentityMatrix(m_Q1);
     for (uintt fa = 0; fa < A->columns - 1; ++fa) {
         for (uintt fb = A->rows - 1; fb > fa; --fb) {
             floatt rev = m_R1->reValues[fa + fb * m_R1->columns];
@@ -137,10 +137,10 @@ host::DeleteMatrix(m_GT);
         }
     }
     if (this->m_output1 != m_Q1) {
-        host::CopyMatrix(this->m_output1, m_Q1);
+        oap::host::CopyMatrix(this->m_output1, m_Q1);
     }
     if (this->m_output2 != m_R1) {
-        host::CopyMatrix(this->m_output2, m_R1);
+        oap::host::CopyMatrix(this->m_output2, m_R1);
     }
     m_R1 = tR1;
     m_Q1 = tQ1;
@@ -153,10 +153,10 @@ QRDecompositionCpu::QRDecompositionCpu() :
 
 QRDecompositionCpu::~QRDecompositionCpu() {
     if (m_R1) {
-host::DeleteMatrix(m_R1);
-host::DeleteMatrix(m_Q1);
-host::DeleteMatrix(m_G);
-host::DeleteMatrix(m_GT);
+oap::host::DeleteMatrix(m_R1);
+oap::host::DeleteMatrix(m_Q1);
+oap::host::DeleteMatrix(m_G);
+oap::host::DeleteMatrix(m_GT);
     }
 }
 }

@@ -20,7 +20,7 @@
 
 
 #include "MathOperations.h"
-#include "HostMatrixUtils.h"        
+#include "oapHostMatrixUtils.h"        
 namespace math {
 
     bool isMatrix(math::Matrix* m) { return m != NULL && m->reValues != NULL && m->imValues != NULL; }
@@ -30,7 +30,7 @@ namespace math {
     Status ITransposeOperation::beforeExecution() {
         Status status = MatrixOperationOutputMatrix::beforeExecution();
         if (status == STATUS_OK) {
-            host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
+            oap::host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
             if (m_output != m_matrix) {
                 if (isMatrix(m_output) && isMatrix(m_matrix)) {
                     m_executionPathRe = EXECUTION_NORMAL;

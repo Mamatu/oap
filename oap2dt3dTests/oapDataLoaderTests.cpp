@@ -20,7 +20,7 @@
 #include "gtest/gtest.h"
 #include "DataLoader.h"
 #include "Matrix.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "MatrixAPI.h"
 
 #include "ImageMock.h"
@@ -131,7 +131,7 @@ TEST_F(OapDataLoaderTests, Matrix4x4FromImage) {
         EXPECT_EQ(1, value);
       }
     }
-    host::DeleteMatrix(matrix);
+    oap::host::DeleteMatrix(matrix);
   } catch (const std::exception& ex) {
     debugException(ex);
   }

@@ -20,7 +20,7 @@
 
 
 #include "MathOperations.h"
-#include "HostMatrixUtils.h"        
+#include "oapHostMatrixUtils.h"        
 namespace math {
 
     Status ISubstracionOperation::beforeExecution() {
@@ -32,7 +32,7 @@ namespace math {
                 status = this->beforeExecution(this->m_output, this->m_matrix1,
                         this->m_matrix2, CopyIm, IsIm, m_executionPathIm);
                 if (status == STATUS_OK) {
-                    host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
+                    oap::host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
                 }
             }
         }
@@ -67,7 +67,7 @@ namespace math {
             if (isNotNull(output) == false) {
                 status = STATUS_INVALID_PARAMS;
             } else {
-              host::CopyMatrix(output, matrix1);
+              oap::host::CopyMatrix(output, matrix1);
             }
         } else if (isNotNull(matrix1) && isNotNull(matrix2)) {
             executionPath = EXECUTION_NORMAL;

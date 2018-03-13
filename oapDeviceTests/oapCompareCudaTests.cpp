@@ -22,7 +22,7 @@
 #include "MatchersUtils.h"
 #include "MatrixProcedures.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 
@@ -47,8 +47,8 @@ public:
         if (output != NULL && eq_output != NULL) {
             EXPECT_THAT(output, MatrixIsEqual(eq_output));
         }
-        host::DeleteMatrix(output);
-        host::DeleteMatrix(eq_output);
+        oap::host::DeleteMatrix(output);
+        oap::host::DeleteMatrix(eq_output);
         oap::cuda::Context::Instance().destroy();
     }
 };

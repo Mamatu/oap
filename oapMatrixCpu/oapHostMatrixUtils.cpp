@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include <cstring>
 #include <vector>
 #include <algorithm>
@@ -81,7 +81,10 @@ inline void fillImPart(math::Matrix* output, floatt value) {
   math::Memset(output->imValues, value, output->columns * output->rows);
 }
 
-namespace host {
+namespace oap
+{
+namespace host
+{
 
 math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value) {
   math::Matrix* output = NULL;
@@ -116,11 +119,11 @@ math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value) {
 math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows,
                         floatt value) {
   if (isre && isim) {
-    return host::NewMatrix(columns, rows, value);
+    return oap::host::NewMatrix(columns, rows, value);
   } else if (isre) {
-    return host::NewReMatrix(columns, rows, value);
+    return oap::host::NewReMatrix(columns, rows, value);
   } else if (isim) {
-    return host::NewImMatrix(columns, rows, value);
+    return oap::host::NewImMatrix(columns, rows, value);
   }
   return nullptr;
 }
@@ -402,8 +405,8 @@ void CopyIm(math::Matrix* dst, const math::Matrix* src) {
 }
 
 math::Matrix* NewMatrixCopy(const math::Matrix* matrix) {
-  math::Matrix* output = host::NewMatrix(matrix);
-  host::CopyMatrix(output, matrix);
+  math::Matrix* output = oap::host::NewMatrix(matrix);
+  oap::host::CopyMatrix(output, matrix);
   return output;
 }
 
@@ -628,8 +631,8 @@ floatt LargestDiff(math::Matrix* matrix, math::Matrix* matrix1) {
 }
 
 void SetIdentity(math::Matrix* matrix) {
-  host::SetDiagonalReMatrix(matrix, 1);
-  host::SetImZero(matrix);
+  oap::host::SetDiagonalReMatrix(matrix, 1);
+  oap::host::SetImZero(matrix);
 }
 
 void SetReZero(math::Matrix* matrix) {
@@ -820,7 +823,7 @@ math::Matrix* ReadMatrix(const std::string& path, const MatrixEx& a_matrixEx) {
   matrixInfo.m_matrixDim.columns = matrixEx.columnsLength;
   matrixInfo.m_matrixDim.rows = matrixEx.rowsLength;
 
-  math::Matrix* matrix = host::NewMatrix(matrixInfo);
+  math::Matrix* matrix = oap::host::NewMatrix(matrixInfo);
 
   size_t lcounts = lMatrixInfo.m_matrixDim.columns * lMatrixInfo.m_matrixDim.rows;
   size_t lsize = sizeoffloatt * lcounts;
@@ -922,7 +925,7 @@ bool WriteMatrix(const std::string& path, const math::Matrix* matrix) {
   fwrite(&sizeofuintt, sizeof(uint32_t), 1, file);
   fwrite(&sizeoffloatt, sizeof(uint32_t), 1, file);
 
-  math::MatrixInfo matrixInfo = host::GetMatrixInfo(matrix);
+  math::MatrixInfo matrixInfo = oap::host::GetMatrixInfo(matrix);
 
   fwrite(&matrixInfo, sizeof(matrixInfo), 1, file);
 
@@ -938,4 +941,6 @@ bool WriteMatrix(const std::string& path, const math::Matrix* matrix) {
 
   return true;
 }
-};
+
+}
+}

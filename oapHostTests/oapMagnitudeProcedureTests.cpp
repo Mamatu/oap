@@ -23,7 +23,7 @@
 #include "MatchersUtils.h"
 #include "oapCudaStub.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "CuMatrixProcedures/CuMagnitudeUtils.h"
 #include "CuMatrixProcedures/CuMagnitudeUtils2.h"
 #include "CuMatrixProcedures/CuMagnitudeOptProcedures.h"
@@ -213,9 +213,9 @@ void OapMagnitudeTests::executeMatrixMagnitudeTest(math::Matrix* matrix) {
 
 void OapMagnitudeTests::executeMatrixMagnitudeTest(floatt* hArray,
                                                     uintt columns, uintt rows) {
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
   executeMatrixMagnitudeTest(matrix);
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 floatt OapMagnitudeTests::executeVectorMagnitude(math::Matrix* matrix,
@@ -275,7 +275,7 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsColumns1) {
 
   math::MathOperationsCpu mocpu;
 
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   MagnitudeUtilsStubImpl magitudeStubImpl1(matrix, columns, rows,
                                            AlgoInfo::MATRIX_MAGNITUDE);
@@ -291,7 +291,7 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsColumns1) {
   floatt output;
   mocpu.magnitude(&output, matrix);
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
   EXPECT_DOUBLE_EQ(output, doutput);
   EXPECT_DOUBLE_EQ(output, doutput1);
 }
@@ -307,7 +307,7 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsBigData) {
 
   math::MathOperationsCpu mocpu;
 
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, hArray);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, hArray);
 
   MagnitudeUtilsStubImpl magitudeUtilsStubImpl1(matrix, columns, rows,
                                                 AlgoInfo::MATRIX_MAGNITUDE);
@@ -323,7 +323,7 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsBigData) {
   floatt output;
   mocpu.magnitude(&output, matrix);
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
   EXPECT_DOUBLE_EQ(0, output);
   EXPECT_DOUBLE_EQ(output, doutput);
   EXPECT_DOUBLE_EQ(output, doutput1);
@@ -340,7 +340,7 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsParsingBigData) {
       "4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats "
       "16384 times>] (length=16384)";
 
-  math::Matrix* matrix = host::NewMatrix(text);
+  math::Matrix* matrix = oap::host::NewMatrix(text);
 
   EXPECT_TRUE(matrix != NULL);
 
@@ -358,7 +358,7 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsParsingBigData) {
   EXPECT_DOUBLE_EQ(0.9013878188659973, doutput);
   EXPECT_DOUBLE_EQ(0.9013878188659973, doutput1);
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMagnitudeTests, MagnitudeParsingBigData) {
@@ -371,7 +371,7 @@ TEST_F(OapMagnitudeTests, MagnitudeParsingBigData) {
       "4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats "
       "16384 times>] (length=16384)";
 
-  math::Matrix* matrix = host::NewMatrix(text);
+  math::Matrix* matrix = oap::host::NewMatrix(text);
 
   EXPECT_TRUE(matrix != NULL);
 
@@ -384,7 +384,7 @@ TEST_F(OapMagnitudeTests, MagnitudeParsingBigData) {
 
   EXPECT_DOUBLE_EQ(0.9013878188659973, doutput);
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMagnitudeTests, MagnitudeParsing1) {
@@ -394,7 +394,7 @@ TEST_F(OapMagnitudeTests, MagnitudeParsing1) {
       "(length=32) [0 <repeats "
       "32 times>] (length=16384)";
 
-  math::Matrix* matrix = host::NewMatrix(text);
+  math::Matrix* matrix = oap::host::NewMatrix(text);
 
   EXPECT_TRUE(matrix != NULL);
 
@@ -407,7 +407,7 @@ TEST_F(OapMagnitudeTests, MagnitudeParsing1) {
 
   EXPECT_DOUBLE_EQ(output, doutput);
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMagnitudeTests, Magnitude1) {
@@ -448,11 +448,11 @@ TEST_F(OapMagnitudeTests, VecMagnitude9x9) {
   int columns = 9;
   int rows = 9;
 
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   executeVectorMagnitudeTest(matrix, 2, sqrt(9));
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMagnitudeTests, VecMagnitudeShouldBeZero9x9) {
@@ -466,11 +466,11 @@ TEST_F(OapMagnitudeTests, VecMagnitudeShouldBeZero9x9) {
   int columns = 9;
   int rows = 9;
 
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   executeVectorMagnitudeTest(matrix, 1, 0);
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMagnitudeTests, VecMagnitudeIncreased9x9) {
@@ -484,7 +484,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreased9x9) {
   int columns = 9;
   int rows = 9;
 
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
 
@@ -496,7 +496,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreased9x9) {
 
   executeVectorMagnitudeTest(matrix, 4, eq_output);
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMagnitudeTests, VecMagnitudeIncreased8x8) {
@@ -509,7 +509,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreased8x8) {
   int columns = 8;
   int rows = 8;
 
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
 
@@ -521,7 +521,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreased8x8) {
 
   executeVectorMagnitudeTest(matrix, 4, eq_output);
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited9x9) {
@@ -535,7 +535,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited9x9) {
   int columns = 9;
   int rows = 9;
 
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
   floatt eq_output1 = 0;
@@ -547,7 +547,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited9x9) {
 
   EXPECT_THAT(doutput, testing::Not(eq_output1));
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited8x8) {
@@ -560,7 +560,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited8x8) {
   int columns = 8;
   int rows = 8;
 
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
   floatt eq_output1 = 0;
@@ -572,7 +572,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited8x8) {
 
   EXPECT_THAT(doutput, testing::Not(eq_output1));
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited8x8Ver1) {
@@ -585,7 +585,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited8x8Ver1) {
   int columns = 8;
   int rows = 8;
 
-  math::Matrix* matrix = host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
   floatt eq_output1 = 0;
@@ -597,5 +597,5 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited8x8Ver1) {
 
   EXPECT_THAT(doutput, testing::Not(eq_output1));
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }

@@ -55,7 +55,7 @@ TEST_F(OapDeviceDataLoaderTests, LoadImagesAllocDeallocTest)
   EXPECT_EQ(matrix->rows, drows);
   EXPECT_EQ(matrix->columns, dcolumns);
 
-  host::DeleteMatrix(matrix);
-  host::DeleteMatrix(matrix1);
+  oap::host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix1);
   oap::cuda::DeleteDeviceMatrix(dmatrix);
 }

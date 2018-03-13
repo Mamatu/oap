@@ -20,7 +20,7 @@
 
 
 #include "MathOperations.h"
-#include "HostMatrixUtils.h"        
+#include "oapHostMatrixUtils.h"        
 namespace math {
 
 Status IDotProductOperation::beforeExecution(math::Matrix* output,
@@ -53,9 +53,9 @@ Status IDotProductOperation::beforeExecution() {
             status = this->beforeExecution(this->m_output, this->m_matrix1,
                 this->m_matrix2, CopyIm, IsIm, m_executionPathIm);
             if (status == STATUS_OK) {
-                host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
-                host::SetSubRows(m_matrix1, m_subrows[1]);
-                host::SetSubColumns(m_matrix2, m_subcolumns[1]);
+                oap::host::SetSubs(m_output, m_subcolumns[1], m_subrows[1]);
+                oap::host::SetSubRows(m_matrix1, m_subrows[1]);
+                oap::host::SetSubColumns(m_matrix2, m_subcolumns[1]);
                 if (m_offset[1] == MATH_UNDEFINED) {
                     if (m_matrix1->columns == m_matrix2->rows) {
                         m_offset[1] = m_matrix1->columns;

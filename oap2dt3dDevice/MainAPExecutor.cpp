@@ -5,7 +5,7 @@
 #include "DeviceDataLoader.h"
 
 #include "oapCudaMatrixUtils.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 
 #include "oapHostMatrixPtr.h"
 #include "oapDeviceMatrixPtr.h"
@@ -75,7 +75,7 @@ std::shared_ptr<MainAPExecutor::Outcome> MainAPExecutor::run()
 
   for (uint idx = 0; idx < m_wantedEigensCount; ++idx)
   {
-    m_evectors[idx] = host::NewReMatrix(1, matrixInfo.m_matrixDim.rows);
+    m_evectors[idx] = oap::host::NewReMatrix(1, matrixInfo.m_matrixDim.rows);
   }
 
   oap::EigenCalculator eigenCalculator(&cuharnoldi);

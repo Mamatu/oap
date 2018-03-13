@@ -23,7 +23,7 @@
 #include "oapCudaMatrixUtils.h"
 #include "DeviceMatrixKernels.h"
 #include "HostMatrixKernels.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 
 const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
 
@@ -237,7 +237,7 @@ void CuHArnoldi::getEigenvector(math::Matrix* vector, uint index) {
   traceFunction();
 
   if (m_outputType == ArnUtils::HOST) {
-    host::GetVector(vector, m_hostV, index);
+    oap::host::GetVector(vector, m_hostV, index);
   } else if (m_outputType == ArnUtils::DEVICE) {
     m_cuMatrix.getVector(vector, m_EV, index);
   }
@@ -580,7 +580,7 @@ void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uint k)
   traceFunction();
   m_V = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                                 matrixInfo.m_matrixDim.rows);
-  m_hostV = host::NewMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  m_hostV = oap::host::NewMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                             matrixInfo.m_matrixDim.rows);
   m_V1 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                                  matrixInfo.m_matrixDim.rows);
@@ -633,7 +633,7 @@ void CuHArnoldi::dealloc2()
 {
   traceFunction();
   oap::cuda::DeleteDeviceMatrix(m_V);
-  host::DeleteMatrix(m_hostV);
+  oap::host::DeleteMatrix(m_hostV);
   oap::cuda::DeleteDeviceMatrix(m_V1);
   oap::cuda::DeleteDeviceMatrix(m_V2);
   oap::cuda::DeleteDeviceMatrix(m_EV);

@@ -95,13 +95,13 @@ class ArnoldiOperations {
       debugAssert("Invalid eigenvectors type.");
     }
 
-    oap::HostMatrixUPtr refMatrix = host::NewMatrix(matrix, matrix->columns, partSize);
+    oap::HostMatrixUPtr refMatrix = oap::host::NewMatrix(matrix, matrix->columns, partSize);
 
-    host::CopyMatrix(refMatrix, matrix);
+    oap::host::CopyMatrix(refMatrix, matrix);
 
     oap::DeviceMatrixUPtr drefMatrix = oap::cuda::NewDeviceMatrixCopy(refMatrix);
 
-    math::MatrixInfo info = host::GetMatrixInfo(refMatrix);
+    math::MatrixInfo info = oap::host::GetMatrixInfo(refMatrix);
 
     const uintt matrixcolumns = info.m_matrixDim.columns;
     uintt matrixrows = info.m_matrixDim.rows;
@@ -124,15 +124,15 @@ class ArnoldiOperations {
     cuProceduresApi.dotProduct(rightMatrix, dvector, vectorT);
     bool compareResult = cuProceduresApi.compare(leftMatrix, rightMatrix);
 
-    oap::HostMatrixUPtr hleftMatrix = host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
-    oap::HostMatrixUPtr hrightMatrix = host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
+    oap::HostMatrixUPtr hleftMatrix = oap::host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
+    oap::HostMatrixUPtr hrightMatrix = oap::host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
 
     oap::cuda::CopyDeviceMatrixToHostMatrix(hrightMatrix, rightMatrix);
     oap::cuda::CopyDeviceMatrixToHostMatrix(hleftMatrix, leftMatrix);
 
     EXPECT_THAT(hleftMatrix.get(), MatrixIsEqual(hrightMatrix.get(), InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
 
-    host::DeleteMatrix(matrix);
+    oap::host::DeleteMatrix(matrix);
     if (dvectorIsCopy) {
       oap::cuda::DeleteDeviceMatrix(dvector);
     }
@@ -163,7 +163,7 @@ class MatricesDeleter {
       for (int fa = 0; fa < m_eigensCount; ++fa) {
         debug("Deleted matrix %p", evectors[fa]);
         if (m_type == ArnUtils::HOST) {
-          host::DeleteMatrix(evectors[fa]);
+          oap::host::DeleteMatrix(evectors[fa]);
         } else if (m_type == ArnUtils::DEVICE) {
           oap::cuda::DeleteDeviceMatrix(evectors[fa]);
         }
@@ -221,7 +221,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
       const uintt rows = matrixInfo.m_matrixDim.rows;
       for (int fa = 0; fa < wantedEigensCount; ++fa) {
         if (eigensType == ArnUtils::HOST) {
-          evectors[fa] = host::NewReMatrix(1, rows);
+          evectors[fa] = oap::host::NewReMatrix(1, rows);
         } else if (eigensType == ArnUtils::DEVICE) {
           evectors[fa] = oap::cuda::NewDeviceReMatrix(1, rows);
         }
@@ -272,14 +272,14 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
       math::Matrix** deviceMatrices = deviceEVectors.get();
       math::Matrix** hostMatrices = hostEVectors.get();
-      math::Matrix* hostMatrix = host::NewMatrix(hostEVectors.get()[0]);
+      math::Matrix* hostMatrix = oap::host::NewMatrix(hostEVectors.get()[0]);
       for (int fa = 0; fa < wantedEigensCount; ++fa) {
         oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
         
-        host::PrintMatrixToFile(pathMatrixFiles + "_" + std::to_string(fa) + ".txt", hostMatrix);
+        oap::host::PrintMatrixToFile(pathMatrixFiles + "_" + std::to_string(fa) + ".txt", hostMatrix);
         EXPECT_THAT(hostMatrices[fa], MatrixIsEqual(hostMatrix, InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
       }
-      host::DeleteMatrix(hostMatrix);
+      oap::host::DeleteMatrix(hostMatrix);
     } catch (const std::exception& ex) {
       debugException(ex);
       throw;

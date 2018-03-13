@@ -21,7 +21,7 @@
 #include "MatchersUtils.h"
 #include "MatrixProcedures.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 #include "qrtest1.h"
@@ -54,7 +54,7 @@ class OapQRTests : public testing::Test {
     math::Matrix* tdq = oap::cuda::NewDeviceMatrixCopy(q);
     math::Matrix* doutput = oap::cuda::NewDeviceMatrixCopy(q);
     math::Matrix* doutput1 = oap::cuda::NewDeviceMatrixCopy(q);
-    math::Matrix* houtput = host::NewMatrix(q);
+    math::Matrix* houtput = oap::host::NewMatrix(q);
 
     m_cuMatrix->transposeMatrix(tdq, dq);
     m_cuMatrix->dotProduct(doutput, tdq, dq);
@@ -65,17 +65,17 @@ class OapQRTests : public testing::Test {
     oap::cuda::DeleteDeviceMatrix(tdq);
     oap::cuda::DeleteDeviceMatrix(doutput);
     oap::cuda::DeleteDeviceMatrix(doutput1);
-    host::DeleteMatrix(houtput);
+    oap::host::DeleteMatrix(houtput);
   }
 
   void executeTest(const std::string& qr1matrix, const std::string& qr1q,
                    const std::string& qr1r) {
-    math::Matrix* matrix = host::NewMatrix(qr1matrix);
-    math::Matrix* hmatrix = host::NewMatrix(matrix);
-    math::Matrix* hmatrix1 = host::NewMatrix(matrix);
+    math::Matrix* matrix = oap::host::NewMatrix(qr1matrix);
+    math::Matrix* hmatrix = oap::host::NewMatrix(matrix);
+    math::Matrix* hmatrix1 = oap::host::NewMatrix(matrix);
 
-    math::Matrix* hrmatrix = host::NewMatrix(matrix);
-    math::Matrix* hrmatrix1 = host::NewMatrix(matrix);
+    math::Matrix* hrmatrix = oap::host::NewMatrix(matrix);
+    math::Matrix* hrmatrix1 = oap::host::NewMatrix(matrix);
 
     math::Matrix* temp1 = oap::cuda::NewDeviceMatrixHostRef(matrix);
     math::Matrix* temp2 = oap::cuda::NewDeviceMatrixHostRef(matrix);
@@ -84,12 +84,12 @@ class OapQRTests : public testing::Test {
     math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy(matrix);
     math::Matrix* drmatrix = oap::cuda::NewDeviceMatrixCopy(matrix);
 
-    math::Matrix* eq_q = host::NewMatrix(qr1q);
-    math::Matrix* q = host::NewMatrix(eq_q);
+    math::Matrix* eq_q = oap::host::NewMatrix(qr1q);
+    math::Matrix* q = oap::host::NewMatrix(eq_q);
     math::Matrix* dq = oap::cuda::NewDeviceMatrixHostRef(q);
 
-    math::Matrix* eq_r = host::NewMatrix(qr1r);
-    math::Matrix* r = host::NewMatrix(eq_r);
+    math::Matrix* eq_r = oap::host::NewMatrix(qr1r);
+    math::Matrix* r = oap::host::NewMatrix(eq_r);
     math::Matrix* dr = oap::cuda::NewDeviceMatrixHostRef(r);
 
     m_cuMatrix->QRGR(dq, dr, dmatrix, temp1, temp2, temp3, temp4);
@@ -126,11 +126,11 @@ class OapQRTests : public testing::Test {
 
     executeOrthogonalityTest(q, dq);
 
-    host::DeleteMatrix(matrix);
-    host::DeleteMatrix(hmatrix);
-    host::DeleteMatrix(hrmatrix);
-    host::DeleteMatrix(hmatrix1);
-    host::DeleteMatrix(hrmatrix1);
+    oap::host::DeleteMatrix(matrix);
+    oap::host::DeleteMatrix(hmatrix);
+    oap::host::DeleteMatrix(hrmatrix);
+    oap::host::DeleteMatrix(hmatrix1);
+    oap::host::DeleteMatrix(hrmatrix1);
 
     oap::cuda::DeleteDeviceMatrix(temp1);
     oap::cuda::DeleteDeviceMatrix(temp2);
@@ -139,12 +139,12 @@ class OapQRTests : public testing::Test {
     oap::cuda::DeleteDeviceMatrix(dmatrix);
     oap::cuda::DeleteDeviceMatrix(drmatrix);
 
-    host::DeleteMatrix(q);
-    host::DeleteMatrix(eq_q);
+    oap::host::DeleteMatrix(q);
+    oap::host::DeleteMatrix(eq_q);
     oap::cuda::DeleteDeviceMatrix(dq);
 
-    host::DeleteMatrix(r);
-    host::DeleteMatrix(eq_r);
+    oap::host::DeleteMatrix(r);
+    oap::host::DeleteMatrix(eq_r);
     oap::cuda::DeleteDeviceMatrix(dr);
   }
 };

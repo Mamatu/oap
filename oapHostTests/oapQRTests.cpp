@@ -23,7 +23,7 @@
 #include "oapCudaStub.h"
 #include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "HostProcedures.h"
 #include "CuMatrixProcedures/CuQRProcedures.h"
 #include "host_qrtest1.h"
@@ -63,12 +63,12 @@ class OapQRTests : public OapCudaStub {
 
     QRGRStub(math::Matrix* matrix, math::Matrix* eq_q, math::Matrix* eq_r)
         : QRStub(matrix, eq_q, eq_r) {
-      m_q = host::NewMatrix(eq_q);
-      m_r = host::NewMatrix(eq_r);
-      m_temp1 = host::NewMatrix(matrix);
-      m_temp2 = host::NewMatrix(matrix);
-      m_temp3 = host::NewMatrix(matrix);
-      m_temp4 = host::NewMatrix(matrix);
+      m_q = oap::host::NewMatrix(eq_q);
+      m_r = oap::host::NewMatrix(eq_r);
+      m_temp1 = oap::host::NewMatrix(matrix);
+      m_temp2 = oap::host::NewMatrix(matrix);
+      m_temp3 = oap::host::NewMatrix(matrix);
+      m_temp4 = oap::host::NewMatrix(matrix);
       calculateDims(m_matrix->columns, m_matrix->rows);
     }
 
@@ -85,12 +85,12 @@ class OapQRTests : public OapCudaStub {
       // EXPECT_THAT(m_temp3, WereSetAllRe());
       /*Pop(m_temp4);
       EXPECT_THAT(m_temp4, WereSetAllRe());*/
-      host::DeleteMatrix(m_q);
-      host::DeleteMatrix(m_r);
-      host::DeleteMatrix(m_temp1);
-      host::DeleteMatrix(m_temp2);
-      host::DeleteMatrix(m_temp3);
-      host::DeleteMatrix(m_temp4);
+      oap::host::DeleteMatrix(m_q);
+      oap::host::DeleteMatrix(m_r);
+      oap::host::DeleteMatrix(m_temp1);
+      oap::host::DeleteMatrix(m_temp2);
+      oap::host::DeleteMatrix(m_temp3);
+      oap::host::DeleteMatrix(m_temp4);
     }
 
     void execute(const dim3& threadIdx, const dim3& blockIdx) {
@@ -109,30 +109,30 @@ class OapQRTests : public OapCudaStub {
 
   void ExpectThatQRIsA(QRStub* qrStub, math::Matrix* eq_matrix) {
     HostProcedures hostProcedures;
-    math::Matrix* matrix = host::NewMatrix(qrStub->getQ());
+    math::Matrix* matrix = oap::host::NewMatrix(qrStub->getQ());
     hostProcedures.setThreadsCount(1024);
     hostProcedures.dotProduct(matrix, qrStub->getQ(), qrStub->getR());
     EXPECT_THAT(eq_matrix, MatrixIsEqual(matrix));
-    host::DeleteMatrix(matrix);
+    oap::host::DeleteMatrix(matrix);
   }
 
   void ExpectThatQIsUnitary(QRStub* qrStub) {
     HostProcedures hostProcedures;
-    math::Matrix* QT = host::NewMatrixCopy(qrStub->getQ());
-    math::Matrix* matrix = host::NewMatrix(qrStub->getQ());
+    math::Matrix* QT = oap::host::NewMatrixCopy(qrStub->getQ());
+    math::Matrix* matrix = oap::host::NewMatrix(qrStub->getQ());
     hostProcedures.setThreadsCount(1024);
     hostProcedures.transpose(QT, qrStub->getQ());
     hostProcedures.dotProduct(matrix, QT, qrStub->getQ());
     EXPECT_THAT(matrix, MatrixIsIdentity());
-    host::DeleteMatrix(QT);
-    host::DeleteMatrix(matrix);
+    oap::host::DeleteMatrix(QT);
+    oap::host::DeleteMatrix(matrix);
   }
 
   void executeTest(const std::string& matrixStr, const std::string& qrefStr,
                    const std::string& rrefStr) {
-    math::Matrix* matrix = host::NewMatrix(matrixStr);
-    math::Matrix* eq_q = host::NewMatrix(qrefStr);
-    math::Matrix* eq_r = host::NewMatrix(rrefStr);
+    math::Matrix* matrix = oap::host::NewMatrix(matrixStr);
+    math::Matrix* eq_q = oap::host::NewMatrix(qrefStr);
+    math::Matrix* eq_r = oap::host::NewMatrix(rrefStr);
 
     QRGRStub qrgrStub(matrix, eq_q, eq_r);
 
@@ -143,9 +143,9 @@ class OapQRTests : public OapCudaStub {
     ExpectThatQRIsA(&qrgrStub, matrix);
     ExpectThatQIsUnitary(&qrgrStub);
 
-    host::DeleteMatrix(matrix);
-    host::DeleteMatrix(eq_q);
-    host::DeleteMatrix(eq_r);
+    oap::host::DeleteMatrix(matrix);
+    oap::host::DeleteMatrix(eq_q);
+    oap::host::DeleteMatrix(eq_r);
   }
 };
 

@@ -72,9 +72,9 @@ class OapSchurDecomposition : public testing::Test {
     math::Matrix* matrix7 = oap::cuda::NewDeviceMatrix(matrix);
     math::Matrix* matrix8 = oap::cuda::NewDeviceMatrix(matrix);
 
-    math::Matrix* eq_hostMatrix = host::NewMatrix(eq_matrixStr);
-    math::Matrix* eq_initMatrix = host::NewMatrix(matrixStr);
-    math::Matrix* hostMatrix = host::NewMatrix(eq_hostMatrix);
+    math::Matrix* eq_hostMatrix = oap::host::NewMatrix(eq_matrixStr);
+    math::Matrix* eq_initMatrix = oap::host::NewMatrix(matrixStr);
+    math::Matrix* hostMatrix = oap::host::NewMatrix(eq_hostMatrix);
 
     math::Matrix* H = matrix;
     math::Matrix* Q = matrix1;
@@ -99,9 +99,9 @@ class OapSchurDecomposition : public testing::Test {
     //executeTestQUQT(H, Q, QT, output1, output2, eq_initMatrix, hostMatrix,
     //                cuMatrix);
 
-    host::DeleteMatrix(eq_hostMatrix);
-    host::DeleteMatrix(eq_initMatrix);
-    host::DeleteMatrix(hostMatrix);
+    oap::host::DeleteMatrix(eq_hostMatrix);
+    oap::host::DeleteMatrix(eq_initMatrix);
+    oap::host::DeleteMatrix(hostMatrix);
     oap::cuda::DeleteDeviceMatrix(matrix);
     oap::cuda::DeleteDeviceMatrix(matrix1);
     oap::cuda::DeleteDeviceMatrix(matrix2);

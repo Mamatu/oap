@@ -20,7 +20,7 @@
 #ifndef OAP_CUDA_MATRIX_UTILS_H
 #define OAP_CUDA_MATRIX_UTILS_H
 
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 
 #include <stdio.h>
 #include <cuda.h>

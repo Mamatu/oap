@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "oapHostMatrixPtr.h"
 #include "MatrixAPI.h"
 
@@ -18,7 +18,7 @@ class OapSmsData3 : public testing::Test {
 TEST_F(OapSmsData3, Load_smsmatrix_Test) {
   uintt columns = 100;
   uintt rows = 100;
-  oap::HostMatrixPtr smsmatrix = host::NewMatrixCopy<double>(columns, rows, (double*)SmsData3::smsmatrix, NULL);
+  oap::HostMatrixPtr smsmatrix = oap::host::NewMatrixCopy<double>(columns, rows, (double*)SmsData3::smsmatrix, NULL);
   EXPECT_NEAR(smsmatrix->reValues[GetIndex(smsmatrix, 0, 0)],  4.81367875295378, 1.0E-7);
   EXPECT_NEAR(smsmatrix->reValues[GetIndex(smsmatrix, 1, 0)],  0.82313814555176, 1.0E-7);
   EXPECT_NEAR(smsmatrix->reValues[GetIndex(smsmatrix, 2, 0)], -0.39449307314439, 1.0E-7);
@@ -10024,7 +10024,7 @@ TEST_F(OapSmsData3, Load_smsmatrix_Test) {
 TEST_F(OapSmsData3, Load_eigenvectors_Test) {
   uintt columns = 100;
   uintt rows = 100;
-  oap::HostMatrixPtr eigenvectors = host::NewMatrixCopy<double>(columns, rows, (double*)SmsData3::eigenvectors, NULL);
+  oap::HostMatrixPtr eigenvectors = oap::host::NewMatrixCopy<double>(columns, rows, (double*)SmsData3::eigenvectors, NULL);
   EXPECT_NEAR(eigenvectors->reValues[GetIndex(eigenvectors, 0, 0)],  0.60093661523948, 1.0E-7);
   EXPECT_NEAR(eigenvectors->reValues[GetIndex(eigenvectors, 1, 0)],  0.69448782981555, 1.0E-7);
   EXPECT_NEAR(eigenvectors->reValues[GetIndex(eigenvectors, 2, 0)],  0.88386863376211, 1.0E-7);
@@ -20030,7 +20030,7 @@ TEST_F(OapSmsData3, Load_eigenvectors_Test) {
 TEST_F(OapSmsData3, Load_eigenvalues_Test) {
   uintt columns = 1;
   uintt rows = 100;
-  oap::HostMatrixPtr eigenvalues = host::NewMatrixCopy<double>(columns, rows, (double*)SmsData3::eigenvalues, NULL);
+  oap::HostMatrixPtr eigenvalues = oap::host::NewMatrixCopy<double>(columns, rows, (double*)SmsData3::eigenvalues, NULL);
   EXPECT_NEAR(eigenvalues->reValues[GetIndex(eigenvalues, 0, 0)],  2.10433633153548, 1.0E-7);
   EXPECT_NEAR(eigenvalues->reValues[GetIndex(eigenvalues, 0, 1)],  2.04608843592908, 1.0E-7);
   EXPECT_NEAR(eigenvalues->reValues[GetIndex(eigenvalues, 0, 2)],  2.76172564018812, 1.0E-7);

@@ -3,7 +3,7 @@
 #include "Config.h"
 #include "MatchersUtils.h"
 #include "oapCudaMatrixUtils.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "KernelExecutor.h"
 #include "MatrixProcedures.h"
 
@@ -25,8 +25,8 @@ class OapTransposeTests : public testing::Test {
 };
 
 TEST_F(OapTransposeTests, DeviceNoTransposeTest) {
-  math::Matrix* hostMatrix = host::NewReMatrix(1000, 1, 2);
-  math::Matrix* hostMatrixT = host::NewReMatrix(1, 1000, 0);
+  math::Matrix* hostMatrix = oap::host::NewReMatrix(1000, 1, 2);
+  math::Matrix* hostMatrixT = oap::host::NewReMatrix(1, 1000, 0);
 
   math::Matrix* dMatrix = oap::cuda::NewDeviceReMatrix(1000, 1);
   math::Matrix* dMatrixT = oap::cuda::NewDeviceReMatrix(1, 1000);
@@ -38,16 +38,16 @@ TEST_F(OapTransposeTests, DeviceNoTransposeTest) {
 
   EXPECT_THAT(hostMatrixT, MatrixHasValues(0.f));
 
-  host::DeleteMatrix(hostMatrix);
-  host::DeleteMatrix(hostMatrixT);
+  oap::host::DeleteMatrix(hostMatrix);
+  oap::host::DeleteMatrix(hostMatrixT);
 
   oap::cuda::DeleteDeviceMatrix(dMatrix);
   oap::cuda::DeleteDeviceMatrix(dMatrixT);
 }
 
 TEST_F(OapTransposeTests, DeviceTransposeTest) {
-  math::Matrix* hostMatrix = host::NewReMatrix(1000, 1, 2);
-  math::Matrix* hostMatrixT = host::NewReMatrix(1, 1000, 0);
+  math::Matrix* hostMatrix = oap::host::NewReMatrix(1000, 1, 2);
+  math::Matrix* hostMatrixT = oap::host::NewReMatrix(1, 1000, 0);
 
   math::Matrix* dMatrix = oap::cuda::NewDeviceReMatrix(1000, 1);
   math::Matrix* dMatrixT = oap::cuda::NewDeviceReMatrix(1, 1000);
@@ -61,8 +61,8 @@ TEST_F(OapTransposeTests, DeviceTransposeTest) {
 
   EXPECT_THAT(hostMatrixT, MatrixHasValues(2));
 
-  host::DeleteMatrix(hostMatrix);
-  host::DeleteMatrix(hostMatrixT);
+  oap::host::DeleteMatrix(hostMatrix);
+  oap::host::DeleteMatrix(hostMatrixT);
 
   oap::cuda::DeleteDeviceMatrix(dMatrix);
   oap::cuda::DeleteDeviceMatrix(dMatrixT);

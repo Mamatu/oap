@@ -18,7 +18,7 @@
  */
 
 #include "oapCudaMatrixUtils.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "KernelExecutor.h"
 #include <csignal>
 #include <string.h>
@@ -40,11 +40,11 @@ math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   uintt rows = CudaUtils::GetRows(matrix);
   math::Matrix* matrix1 = NULL;
   if (matrixRePtr != 0 && matrixImPtr != 0) {
-    matrix1 = host::NewMatrix(columns, rows);
+    matrix1 = oap::host::NewMatrix(columns, rows);
   } else if (matrixRePtr != 0) {
-    matrix1 = host::NewReMatrix(columns, rows);
+    matrix1 = oap::host::NewReMatrix(columns, rows);
   } else if (matrixImPtr != 0) {
-    matrix1 = host::NewImMatrix(columns, rows);
+    matrix1 = oap::host::NewImMatrix(columns, rows);
   }
   oap::cuda::CopyDeviceMatrixToHostMatrix(matrix1, matrix);
   return matrix1;
@@ -63,9 +63,9 @@ math::Matrix* NewDeviceMatrix(const math::Matrix* deviceMatrix) {
 }
 
 math::Matrix* NewDeviceMatrix(const std::string& matrixStr) {
-  math::Matrix* host = host::NewMatrix(matrixStr);
+  math::Matrix* host = oap::host::NewMatrix(matrixStr);
   math::Matrix* device = NewDeviceMatrixCopy(host);
-  host::DeleteMatrix(host);
+  oap::host::DeleteMatrix(host);
   return device;
 }
 
@@ -363,18 +363,18 @@ math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix) {
 }
 
 math::Matrix* ReadMatrix(const std::string& path) {
-  math::Matrix* hostMatrix = host::ReadMatrix(path);
+  math::Matrix* hostMatrix = oap::host::ReadMatrix(path);
   math::Matrix* devMatrix = oap::cuda::NewDeviceMatrixCopy(hostMatrix);
-  host::DeleteMatrix(hostMatrix);
+  oap::host::DeleteMatrix(hostMatrix);
   return devMatrix;
 }
 
 bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix) {
   math::MatrixInfo matrixInfo = oap::cuda::GetMatrixInfo(devMatrix);
-  math::Matrix* hostMatrix = host::NewMatrix(matrixInfo);
+  math::Matrix* hostMatrix = oap::host::NewMatrix(matrixInfo);
   oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, devMatrix);
-  bool status = host::WriteMatrix(path, hostMatrix);
-  host::DeleteMatrix(hostMatrix);
+  bool status = oap::host::WriteMatrix(path, hostMatrix);
+  oap::host::DeleteMatrix(hostMatrix);
   return status;
 }
 

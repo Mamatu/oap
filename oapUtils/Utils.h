@@ -22,12 +22,11 @@
 
 #include "Dim3.h"
 
+#include <math.h>
+
 #include "Matrix.h"
-#include "HostMatrixUtils.h"
-#include "HostMatrixUtils.h"
 #include "MatrixUtils.h"
 #include "MatrixEx.h"
-#include <math.h>
 
 namespace utils {
 

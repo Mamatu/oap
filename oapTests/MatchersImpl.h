@@ -22,8 +22,12 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+
 #include "MatrixTestAPI.h"
 #include "HostInfoCreator.h"
+
+#include "oapHostMatrixUtils.h"
+
 #include "Utils.h"
 
 using ::testing::PrintToString;
@@ -130,7 +134,7 @@ class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {
     if (!isequal) {
       (*listener) << "Diff is = " << matrixStr;
     }
-    host::DeleteMatrix(diffmatrix);
+    oap::host::DeleteMatrix(diffmatrix);
     return isequal;
   }
 

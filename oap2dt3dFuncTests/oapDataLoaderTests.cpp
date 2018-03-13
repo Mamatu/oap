@@ -19,7 +19,7 @@
 
 #include "gtest/gtest.h"
 #include "DataLoader.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "PngFile.h"
 
 #include "MatchersUtils.h"
@@ -111,7 +111,7 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode) {
 
   EXPECT_THAT(matrix, MatrixHasValues(expected));
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenFrugalMode) {
@@ -121,12 +121,12 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenFrugalMode) {
 
   EXPECT_THAT(matrix, MatrixHasValues(expected));
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapDataLoaderTests, CreateMatrixFromMonkeyScreen) {
   math::Matrix* matrix = createMatrix("monkey.png", 1000);
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix) {
@@ -144,7 +144,7 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix) {
     throw;
   });
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 
   delete dataloader;
 }
@@ -177,7 +177,7 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix) {
     throw;
   });
 
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 
   delete dataloader;
 }
@@ -233,7 +233,7 @@ class DataLoaderTest : public oap::DataLoader {
     for (int fa = 0; fa < imagesCount - 1; ++fa) {
       EXPECT_THAT(columnVecs[fa], Not(MatrixIsEqual(columnVecs[fa + 1])))
           << "Actual: Columns vectors are equal: " << fa << ", " << fa + 1
-          << " Matrix =" << host::GetMatrixStr(columnVecs[fa]);
+          << " Matrix =" << oap::host::GetMatrixStr(columnVecs[fa]);
     }
 
     for (int fa = 0; fa < imagesCount; ++fa) {
@@ -242,7 +242,7 @@ class DataLoaderTest : public oap::DataLoader {
 
     auto deleteMatrices = [](std::vector<math::Matrix*>& vec) {
       for (int fa = 0; fa < vec.size(); ++fa) {
-        host::DeleteMatrix(vec[fa]);
+        oap::host::DeleteMatrix(vec[fa]);
       }
     };
 

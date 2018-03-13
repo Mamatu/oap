@@ -30,11 +30,11 @@ class OapDeviceMatrixModuleTests : public testing::Test {
   void setSubMatrixTest(uintt columns, uintt rows, float value,
                         uintt subcolumns, uint subrows, floatt subvalue,
                         uintt column, uintt row) {
-    math::Matrix* hmatrix = host::NewMatrix(true, true, columns, rows, value);
+    math::Matrix* hmatrix = oap::host::NewMatrix(true, true, columns, rows, value);
     math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy(hmatrix);
 
     math::Matrix* hsubmatrix =
-        host::NewMatrix(true, true, subcolumns, subrows, subvalue);
+        oap::host::NewMatrix(true, true, subcolumns, subrows, subvalue);
     math::Matrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopy(hsubmatrix);
 
     oap::cuda::SetMatrix(dmatrix, dsubmatrix, column, row);
@@ -57,8 +57,8 @@ class OapDeviceMatrixModuleTests : public testing::Test {
     oap::cuda::DeleteDeviceMatrix(dmatrix);
     oap::cuda::DeleteDeviceMatrix(dsubmatrix);
 
-    host::DeleteMatrix(hmatrix);
-    host::DeleteMatrix(hsubmatrix);
+    oap::host::DeleteMatrix(hmatrix);
+    oap::host::DeleteMatrix(hsubmatrix);
   }
 };
 
@@ -129,7 +129,7 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
 
   std::string path = "/tmp/Oap/device_tests/test_file";
 
-  math::Matrix* m1 = host::NewMatrix(true, true, columns, rows, 0);
+  math::Matrix* m1 = oap::host::NewMatrix(true, true, columns, rows, 0);
 
   for (int fa = 0; fa < columns * rows; ++fa) {
     m1->reValues[fa] = fa;
@@ -145,7 +145,7 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
   if (status) {
     math::Matrix* d2 = oap::cuda::ReadMatrix(path);
 
-    math::Matrix* m2 = host::NewMatrix(oap::cuda::GetMatrixInfo(d2));
+    math::Matrix* m2 = oap::host::NewMatrix(oap::cuda::GetMatrixInfo(d2));
     oap::cuda::CopyDeviceMatrixToHostMatrix(m2, d2);
 
     EXPECT_EQ(m2->columns, m1->columns);
@@ -158,9 +158,9 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
       EXPECT_EQ(m1->imValues[fa], m2->imValues[fa]);
     }
 
-    host::DeleteMatrix(m2);
+    oap::host::DeleteMatrix(m2);
     oap::cuda::DeleteDeviceMatrix(d2);
   }
-  host::DeleteMatrix(m1);
+  oap::host::DeleteMatrix(m1);
   oap::cuda::DeleteDeviceMatrix(d1);
 }

@@ -51,7 +51,7 @@ int main()
     printf("---------------------------------------\n");
     printf("wanted = %f \n", value);
     printf("error = %f \n", error);
-    host::PrintMatrix("wantedEV = ", vec);
+    oap::host::PrintMatrix("wantedEV = ", vec);
     printf("---------------------------------------\n");
 
   }

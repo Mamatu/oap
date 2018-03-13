@@ -19,7 +19,7 @@
 
 #include "HostInfoCreator.h"
 #include "MatrixUtils.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "Utils.h"
 
 void HostInfoCreator::setInfoTypeCallback(const InfoType& infoType) {}
@@ -55,7 +55,7 @@ bool HostInfoCreator::compareValues(math::Matrix* matrix1,
 }
 
 void HostInfoCreator::destroyMatrix(math::Matrix* diffMatrix) const {
-  host::DeleteMatrix(diffMatrix);
+  oap::host::DeleteMatrix(diffMatrix);
 }
 
 bool HostInfoCreator::isRe(math::Matrix* matrix) const {
