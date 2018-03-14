@@ -19,7 +19,7 @@
 
 #include "EigenCalculator.h"
 #include "Exceptions.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "ArnoldiProceduresImpl.h"
 
 namespace oap {

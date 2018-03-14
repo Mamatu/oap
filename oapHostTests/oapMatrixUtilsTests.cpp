@@ -23,7 +23,7 @@
 
 #include "Matrix.h"
 #include "MatrixAPI.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 
 namespace host {
 namespace qrtest1 {
@@ -38,18 +38,18 @@ class OapMatrixUtilsTests : public testing::Test {
 };
 
 TEST_F(OapMatrixUtilsTests, SetGetValueTest) {
-  math::Matrix* matrix = host::NewMatrix(5, 5, 0);
+  math::Matrix* matrix = oap::host::NewMatrix(5, 5, 0);
   floatt expected = 2.5644654f;
   SetRe(matrix, 1, 1, expected);
   floatt value = GetRe(matrix, 1, 1);
   EXPECT_DOUBLE_EQ(expected, value);
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMatrixUtilsTests, SetAllValuesTest) {
   uintt columns = 5;
   uintt rows = 5;
-  math::Matrix* matrix = host::NewMatrix(columns, rows, 0);
+  math::Matrix* matrix = oap::host::NewMatrix(columns, rows, 0);
   floatt expected = 2.5644654f;
   for (uintt fa = 0; fa < columns; ++fa) {
     for (uintt fb = 0; fb < rows; ++fb) {
@@ -57,11 +57,11 @@ TEST_F(OapMatrixUtilsTests, SetAllValuesTest) {
     }
   }
   EXPECT_TRUE(test::wasSetAllRe(matrix));
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMatrixUtilsTests, GetValuesTest) {
-  math::Matrix* matrix = host::NewMatrix(host::qrtest1::matrix);
+  math::Matrix* matrix = oap::host::NewMatrix(host::qrtest1::matrix);
   EXPECT_EQ(4, GetRe(matrix, 0, 0));
   EXPECT_EQ(2, GetRe(matrix, 1, 0));
   EXPECT_EQ(4, GetReIndex(matrix, 0));
@@ -73,13 +73,13 @@ TEST_F(OapMatrixUtilsTests, GetValuesTest) {
   EXPECT_EQ(2, GetReIndex(matrix, 6));
   EXPECT_EQ(2, GetReIndex(matrix, 7));
   EXPECT_EQ(4, GetReIndex(matrix, 8));
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMatrixUtilsTests, PushPopTest) {
   uintt columns = 5;
   uintt rows = 5;
-  math::Matrix* matrix = host::NewMatrix(columns, rows, 0);
+  math::Matrix* matrix = oap::host::NewMatrix(columns, rows, 0);
   floatt expected = 2.5644654f;
   for (uintt fa = 0; fa < columns; ++fa) {
     for (uintt fb = 0; fb < rows; ++fb) {
@@ -95,5 +95,5 @@ TEST_F(OapMatrixUtilsTests, PushPopTest) {
   Pop(matrix);
   EXPECT_TRUE(test::wasSetAllRe(matrix));
   EXPECT_EQ(1, test::getStackLevels(matrix));
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }

@@ -29,9 +29,9 @@
 #include "MatchersUtils.h"
 
 #include "Config.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
 
@@ -49,13 +49,13 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     CuHArnoldiCallback* m_arnoldiCuda;
 
     virtual void SetUp() {
-      device::Context::Instance().create();
+      oap::cuda::Context::Instance().create();
       m_arnoldiCuda = new CuHArnoldiCallback();
     }
 
     virtual void TearDown() {
       delete m_arnoldiCuda;
-      device::Context::Instance().destroy();
+      oap::cuda::Context::Instance().destroy();
     }
 
     static void multiply(math::Matrix* m_w, math::Matrix* m_v,
@@ -70,14 +70,14 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       math::Matrix* dvalue = userDataObj->dvalue;
 
       for (size_t idx = 0; idx < hmatrix->rows; ++idx) {
-        host::GetTransposeReVector(hvectorT, hmatrix, idx);
-        //host::PrintMatrix("hvectorT = ", hvectorT);
-        device::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
+        oap::host::GetTransposeReVector(hvectorT, hmatrix, idx);
+        //oap::host::PrintMatrix("hvectorT = ", hvectorT);
+        oap::cuda::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
         cuProceduresApi.dotProduct(dvalue, dvectorT, m_v);
-        device::SetReMatrix(m_w, dvalue, 0, idx);
+        oap::cuda::SetReMatrix(m_w, dvalue, 0, idx);
       }
-      //device::PrintMatrix("m_w =", m_w);
-      //device::PrintMatrix("m_v =", m_v);
+      //oap::cuda::PrintMatrix("m_w =", m_w);
+      //oap::cuda::PrintMatrix("m_v =", m_v);
     }
 
     static bool check(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max, void* userData) {
@@ -91,14 +91,14 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       EigenPair eigenPair = (*eigenPairs)[index];
       uint vectorIndex = eigenPair.getIndex();
 
-      host::GetVector(tmpVector, eigenvectors, vectorIndex);
+      oap::host::GetVector(tmpVector, eigenvectors, vectorIndex);
 
       return true;
     }
 
     oap::HostMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
     {
-        oap::HostMatrixPtr hmatrix = host::NewMatrix(size, size, 0);
+        oap::HostMatrixPtr hmatrix = oap::host::NewMatrix(size, size, 0);
 
         for (size_t xy = 0; xy < size; ++xy) {
           hmatrix->reValues[GetIndex(hmatrix, xy, xy)] = getValue(xy);
@@ -108,11 +108,11 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     }
 
     oap::HostMatrixPtr loadSMSMatrix(const std::string& dir) {
-      return host::ReadMatrix(dir + "/smsmatrix.matrix");
+      return oap::host::ReadMatrix(dir + "/smsmatrix.matrix");
     }
 
     oap::HostMatrixPtr loadEigenvaluesMatrix(const std::string& dir) {
-      return host::ReadMatrix(dir + "/eigenvalues.matrix");
+      return oap::host::ReadMatrix(dir + "/eigenvalues.matrix");
     }
 
     std::vector<EigenPair> getEigenvalues(const std::vector<EigenPair>& avalues, uint wanted) {
@@ -129,7 +129,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     oap::HostMatrixPtr loadEigenvector(const std::string& dir, uint index) {
       std::string filename = "eigenvector.matrix";
       filename += std::to_string(index);
-      return host::ReadMatrix(dir + "/" + filename);
+      return oap::host::ReadMatrix(dir + "/" + filename);
     }
 
     HostMatrixPtrs loadMatrices(const std::string& dir) {
@@ -167,15 +167,15 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
       UserData userData = {
               hmatrix,
-              host::NewReMatrix(hmatrix->columns, 1),
-              device::NewDeviceReMatrix(hmatrix->columns, 1),
-              device::NewDeviceReMatrix(1, 1)
+              oap::host::NewReMatrix(hmatrix->columns, 1),
+              oap::cuda::NewDeviceReMatrix(hmatrix->columns, 1),
+              oap::cuda::NewDeviceReMatrix(1, 1)
       };
 
       CheckUserData checkUserData = {
               &eigenPairs,
               eigenvectors,
-              host::NewReMatrix(1, hmatrix->rows)
+              oap::host::NewReMatrix(1, hmatrix->rows)
       };
 
       m_arnoldiCuda->setOutputType(ArnUtils::HOST);
@@ -195,7 +195,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       std::vector<math::Matrix*> revectors;
 
       for (size_t idx = 0; idx < wanted; ++idx) {
-        revectors.push_back(host::NewReMatrix(1, hmatrix->rows));
+        revectors.push_back(oap::host::NewReMatrix(1, hmatrix->rows));
       }
 
       oap::HostMatricesPtr revectorsPtr = oap::makeHostMatricesPtr(revectors);
@@ -215,11 +215,11 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         expectedValues.push_back(eigenPairs[idx].re());
       }
 
-      oap::HostMatrixPtr expected = host::NewReMatrix(1, eigenvectors->rows);
+      oap::HostMatrixPtr expected = oap::host::NewReMatrix(1, eigenvectors->rows);
       auto compareEigenVector = [&revectorsPtr, expected](math::Matrix* expecteds, uint index)
       {
         math::Matrix* actual = revectorsPtr[index];
-        host::GetVector(expected.get(), expecteds, index);;
+        oap::host::GetVector(expected.get(), expecteds, index);;
         EXPECT_THAT(expected.get(), MatrixIsEqual(actual, InfoType::MEAN));
       };
 
@@ -238,8 +238,8 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       double* eigenvalues = smsdata_eigenvalues[index];
       double* eigenvectors = smsdata_eigenvectors[index];
 
-      oap::HostMatrixPtr hmatrix = host::NewMatrixCopy<double>(columns, rows, smsmatrix, NULL);
-      oap::HostMatrixPtr evmatrix = host::NewMatrixCopy<double>(columns, rows, eigenvectors, NULL);
+      oap::HostMatrixPtr hmatrix = oap::host::NewMatrixCopy<double>(columns, rows, smsmatrix, NULL);
+      oap::HostMatrixPtr evmatrix = oap::host::NewMatrixCopy<double>(columns, rows, eigenvectors, NULL);
 
       std::vector<double> ev(eigenvalues, eigenvalues + columns);
       std::vector<EigenPair> eigenPairs;

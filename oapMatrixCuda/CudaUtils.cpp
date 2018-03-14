@@ -21,7 +21,7 @@
 #include <vector>
 #include <algorithm>
 #include <map>
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 #include "MatrixUtils.h"
 
@@ -342,10 +342,10 @@ void printHostMatrix(std::string& output, const math::Matrix* dmatrix,
   uintt rows = CudaUtils::GetRows(dmatrix);
   bool isre = CudaUtils::GetReValues(dmatrix) != NULL;
   bool isim = CudaUtils::GetImValues(dmatrix) != NULL;
-  math::Matrix* hmatrix = host::NewMatrix(isre, isim, columns, rows);
-  device::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
+  math::Matrix* hmatrix = oap::host::NewMatrix(isre, isim, columns, rows);
+  oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
   matrixUtils::PrintMatrix(output, hmatrix, zeroLimit, repeats, pipe, endl);
-  host::DeleteMatrix(hmatrix);
+  oap::host::DeleteMatrix(hmatrix);
 }
 
 void GetMatrixStr(std::string& output, math::Matrix* matrix, floatt zeroLimit,

@@ -38,7 +38,10 @@
     abort();                                                                   \
   }
 
-namespace device {
+namespace oap
+{
+namespace cuda
+{
 
 void PrintDeviceInfo(CUdevice cudevice) {
   CUdevprop cuDevprop;
@@ -449,10 +452,11 @@ void Kernel::SetThreadsBlocks(uint blocks[2], uint threads[2],
   utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
 }
 
-CUresult Kernel::Execute(const char* functionName, void** params,
-                         ::device::Kernel& kernel) {
+CUresult Kernel::Execute(const char* functionName, void** params, oap::cuda::Kernel& kernel)
+{
   kernel.setParams(params);
   return kernel.execute(functionName);
 }
 
+}
 }

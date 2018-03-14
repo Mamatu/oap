@@ -22,7 +22,7 @@
 #include "HostMatrixKernels.h"
 #include <math.h>
 #include "DeviceMatrixKernels.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 
 inline void aux_switchPointer(math::Matrix** a, math::Matrix** b) {
   math::Matrix* temp = *b;
@@ -31,7 +31,7 @@ inline void aux_switchPointer(math::Matrix** a, math::Matrix** b) {
 }
 
 inline CUresult host_prepareGMatrix(math::Matrix* A, uintt column, uintt row,
-                                    math::Matrix* G, device::Kernel& kernel) {
+                                    math::Matrix* G, oap::cuda::Kernel& kernel) {
   CUresult result = DEVICEKernel_SetIdentity(G, kernel);
   if (result != CUDA_SUCCESS) {
     // return result;
@@ -99,10 +99,10 @@ inline CUresult host_prepareGMatrix(math::Matrix* A, uintt column, uintt row,
 
 CUresult HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
                          math::Matrix* Q1, math::Matrix* R1, math::Matrix* G,
-                         math::Matrix* GT, device::Kernel& kernel) {
+                         math::Matrix* GT, oap::cuda::Kernel& kernel) {
   math::Matrix* rQ = Q;
   math::Matrix* rR = R;
-  device::CopyDeviceMatrixToDeviceMatrix(R1, A);
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix(R1, A);
   uintt count = 0;
   uintt Acolumns = CudaUtils::GetColumns(A);
   uintt Arows = CudaUtils::GetRows(A);
@@ -131,8 +131,8 @@ CUresult HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
   }
 
   if (count % 2 != 0) {
-    device::CopyDeviceMatrixToDeviceMatrix(rQ, Q1);
-    device::CopyDeviceMatrixToDeviceMatrix(rR, R1);
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix(rQ, Q1);
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix(rR, R1);
   }
   return CUDA_SUCCESS;
 }
@@ -155,5 +155,5 @@ void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
     // if (fb == 200) { abort();}
   }
   aux_switchPointer(&QJ, &Q1);
-  device::CopyDeviceMatrixToDeviceMatrix(Q, QJ);
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix(Q, QJ);
 }

@@ -20,10 +20,10 @@
 #include <math.h>
 #include <algorithm>
 #include "ArnoldiProcedures.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "DeviceMatrixKernels.h"
 #include "HostMatrixKernels.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 
 const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
 
@@ -208,7 +208,7 @@ void CuHArnoldi::extractOutput(math::Matrix* EV)
 
   if (m_outputType == ArnUtils::HOST) {
     traceFunction();
-    device::CopyDeviceMatrixToHostMatrix(m_hostV, EV);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(m_hostV, EV);
   }
   for (uint fa = 0; fa < m_wanted.size(); fa++) {
     traceFunction();
@@ -237,7 +237,7 @@ void CuHArnoldi::getEigenvector(math::Matrix* vector, uint index) {
   traceFunction();
 
   if (m_outputType == ArnUtils::HOST) {
-    host::GetVector(vector, m_hostV, index);
+    oap::host::GetVector(vector, m_hostV, index);
   } else if (m_outputType == ArnUtils::DEVICE) {
     m_cuMatrix.getVector(vector, m_EV, index);
   }
@@ -279,7 +279,7 @@ void CuHArnoldi::calculateTriangularH() {
 void CuHArnoldi::calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo)
 {
   traceFunction();
-  device::CopyDeviceMatrixToDeviceMatrix(m_triangularH, normalH);
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix(m_triangularH, normalH);
   m_cuMatrix.setIdentity(m_Q);
   m_cuMatrix.setIdentity(m_QJ);
   m_cuMatrix.setIdentity(m_I);
@@ -482,7 +482,7 @@ void CuHArnoldi::executeShiftedQRIteration(uint p)
     aux_swapPointers(&m_Q, &m_QJ);
   }
   aux_swapPointers(&m_Q, &m_QJ);
-  device::CopyDeviceMatrixToDeviceMatrix(m_EV, m_V);
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix(m_EV, m_V);
   m_cuMatrix.dotProduct(m_V, m_EV, m_Q);
 }
 
@@ -557,110 +557,110 @@ void CuHArnoldi::alloc1(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
   m_vrows = matrixInfo.m_matrixDim.rows;
-  m_w = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  m_w = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                 matrixInfo.m_matrixDim.rows);
-  m_v = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  m_v = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                 matrixInfo.m_matrixDim.rows);
-  m_v1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  m_v1 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                  matrixInfo.m_matrixDim.rows);
-  m_v2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  m_v2 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                  matrixInfo.m_matrixDim.rows);
-  m_f = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  m_f = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                 matrixInfo.m_matrixDim.rows);
-  m_f1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  m_f1 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                  matrixInfo.m_matrixDim.rows);
-  m_vh = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  m_vh = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                  matrixInfo.m_matrixDim.rows);
-  m_vs = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
+  m_vs = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1,
                                  matrixInfo.m_matrixDim.rows);
 }
 
 void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
-  m_V = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  m_V = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                                 matrixInfo.m_matrixDim.rows);
-  m_hostV = host::NewMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  m_hostV = oap::host::NewMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                             matrixInfo.m_matrixDim.rows);
-  m_V1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  m_V1 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                                  matrixInfo.m_matrixDim.rows);
-  m_V2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  m_V2 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                                  matrixInfo.m_matrixDim.rows);
-  m_EV = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
+  m_EV = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k,
                                  matrixInfo.m_matrixDim.rows);
-  m_transposeV = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm,
+  m_transposeV = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm,
                                          matrixInfo.m_matrixDim.rows, k);
 }
 
 void CuHArnoldi::alloc3(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
-  m_h = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
-  m_s = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
-  m_H = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_G = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_GT = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_HO = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_h = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
+  m_s = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
+  m_H = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_G = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_GT = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_HO = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   m_triangularH =
-      device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_Q1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_Q2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_QT = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_R1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_R2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_QJ = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_I = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_Q = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_QT1 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_QT2 = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  m_q = device::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
+      oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_Q1 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_Q2 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_QT = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_R1 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_R2 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_QJ = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_I = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_Q = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_QT1 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_QT2 = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  m_q = oap::cuda::NewDeviceMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
 }
 
 void CuHArnoldi::dealloc1()
 {
   traceFunction();
-  device::DeleteDeviceMatrix(m_w);
-  device::DeleteDeviceMatrix(m_v);
-  device::DeleteDeviceMatrix(m_v1);
-  device::DeleteDeviceMatrix(m_v2);
-  device::DeleteDeviceMatrix(m_f);
-  device::DeleteDeviceMatrix(m_f1);
-  device::DeleteDeviceMatrix(m_vh);
-  device::DeleteDeviceMatrix(m_vs);
+  oap::cuda::DeleteDeviceMatrix(m_w);
+  oap::cuda::DeleteDeviceMatrix(m_v);
+  oap::cuda::DeleteDeviceMatrix(m_v1);
+  oap::cuda::DeleteDeviceMatrix(m_v2);
+  oap::cuda::DeleteDeviceMatrix(m_f);
+  oap::cuda::DeleteDeviceMatrix(m_f1);
+  oap::cuda::DeleteDeviceMatrix(m_vh);
+  oap::cuda::DeleteDeviceMatrix(m_vs);
 }
 
 void CuHArnoldi::dealloc2()
 {
   traceFunction();
-  device::DeleteDeviceMatrix(m_V);
-  host::DeleteMatrix(m_hostV);
-  device::DeleteDeviceMatrix(m_V1);
-  device::DeleteDeviceMatrix(m_V2);
-  device::DeleteDeviceMatrix(m_EV);
-  device::DeleteDeviceMatrix(m_transposeV);
+  oap::cuda::DeleteDeviceMatrix(m_V);
+  oap::host::DeleteMatrix(m_hostV);
+  oap::cuda::DeleteDeviceMatrix(m_V1);
+  oap::cuda::DeleteDeviceMatrix(m_V2);
+  oap::cuda::DeleteDeviceMatrix(m_EV);
+  oap::cuda::DeleteDeviceMatrix(m_transposeV);
 }
 
 void CuHArnoldi::dealloc3()
 {
   traceFunction();
-  device::DeleteDeviceMatrix(m_h);
-  device::DeleteDeviceMatrix(m_s);
-  device::DeleteDeviceMatrix(m_H);
-  device::DeleteDeviceMatrix(m_G);
-  device::DeleteDeviceMatrix(m_GT);
-  device::DeleteDeviceMatrix(m_HO);
-  device::DeleteDeviceMatrix(m_triangularH);
-  device::DeleteDeviceMatrix(m_Q1);
-  device::DeleteDeviceMatrix(m_Q2);
-  device::DeleteDeviceMatrix(m_QT);
-  device::DeleteDeviceMatrix(m_R1);
-  device::DeleteDeviceMatrix(m_R2);
-  device::DeleteDeviceMatrix(m_QJ);
-  device::DeleteDeviceMatrix(m_I);
-  device::DeleteDeviceMatrix(m_Q);
-  device::DeleteDeviceMatrix(m_QT1);
-  device::DeleteDeviceMatrix(m_QT2);
-  device::DeleteDeviceMatrix(m_q);
+  oap::cuda::DeleteDeviceMatrix(m_h);
+  oap::cuda::DeleteDeviceMatrix(m_s);
+  oap::cuda::DeleteDeviceMatrix(m_H);
+  oap::cuda::DeleteDeviceMatrix(m_G);
+  oap::cuda::DeleteDeviceMatrix(m_GT);
+  oap::cuda::DeleteDeviceMatrix(m_HO);
+  oap::cuda::DeleteDeviceMatrix(m_triangularH);
+  oap::cuda::DeleteDeviceMatrix(m_Q1);
+  oap::cuda::DeleteDeviceMatrix(m_Q2);
+  oap::cuda::DeleteDeviceMatrix(m_QT);
+  oap::cuda::DeleteDeviceMatrix(m_R1);
+  oap::cuda::DeleteDeviceMatrix(m_R2);
+  oap::cuda::DeleteDeviceMatrix(m_QJ);
+  oap::cuda::DeleteDeviceMatrix(m_I);
+  oap::cuda::DeleteDeviceMatrix(m_Q);
+  oap::cuda::DeleteDeviceMatrix(m_QT1);
+  oap::cuda::DeleteDeviceMatrix(m_QT2);
+  oap::cuda::DeleteDeviceMatrix(m_q);
 }
 
 floatt CuHArnoldi::testOutcome(size_t index)

@@ -1,4 +1,4 @@
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "MatchersUtils.h"
 
 #include <functional>
@@ -18,7 +18,7 @@ class OapHostMatrixUtilsTests : public testing::Test {
   static const std::string testfilepath;
 
   static math::Matrix* createMatrix(uintt columns, uintt rows, GetValue getValue) {
-    math::Matrix* m1 = host::NewMatrix(true, true, columns, rows, 0);
+    math::Matrix* m1 = oap::host::NewMatrix(true, true, columns, rows, 0);
 
     for (int idx1 = 0; idx1 < columns; ++idx1) {
       for (int idx2 = 0; idx2 < rows; ++idx2) {
@@ -37,42 +37,42 @@ const std::string OapHostMatrixUtilsTests::testfilepath = "/tmp/Oap/host_tests/t
 TEST_F(OapHostMatrixUtilsTests, Copy) {
   const uintt columns = 11;
   const uintt rows = 15;
-  math::Matrix* m1 = host::NewReMatrix(columns, rows, 1);
-  math::Matrix* m2 = host::NewReMatrix(columns, rows, 0);
+  math::Matrix* m1 = oap::host::NewReMatrix(columns, rows, 1);
+  math::Matrix* m2 = oap::host::NewReMatrix(columns, rows, 0);
 
-  host::CopyMatrix(m2, m1);
+  oap::host::CopyMatrix(m2, m1);
 
   EXPECT_THAT(m1, MatrixIsEqual(m2));
 
-  host::DeleteMatrix(m1);
-  host::DeleteMatrix(m2);
+  oap::host::DeleteMatrix(m1);
+  oap::host::DeleteMatrix(m2);
 }
 
 TEST_F(OapHostMatrixUtilsTests, SubCopy) {
   const uintt columns = 11;
   const uintt rows = 15;
 
-  math::Matrix* m1 = host::NewReMatrix(15, 15, 1);
-  math::Matrix* m2 = host::NewReMatrix(5, 6, 0);
+  math::Matrix* m1 = oap::host::NewReMatrix(15, 15, 1);
+  math::Matrix* m2 = oap::host::NewReMatrix(5, 6, 0);
 
-  host::CopyMatrix(m2, m1);
+  oap::host::CopyMatrix(m2, m1);
 
   EXPECT_THAT(m2, MatrixHasValues(1));
 
-  host::DeleteMatrix(m1);
-  host::DeleteMatrix(m2);
+  oap::host::DeleteMatrix(m1);
+  oap::host::DeleteMatrix(m2);
 }
 
 TEST_F(OapHostMatrixUtilsTests, WriteReadMatrix) {
 
   math::Matrix* m1 = createMatrix(10, 10, [](uintt, uintt, uintt idx) { return idx; });
 
-  bool status = host::WriteMatrix(testfilepath, m1);
+  bool status = oap::host::WriteMatrix(testfilepath, m1);
 
   EXPECT_TRUE(status);
 
   if (status) {
-    math::Matrix* m2 = host::ReadMatrix(testfilepath);
+    math::Matrix* m2 = oap::host::ReadMatrix(testfilepath);
 
     EXPECT_EQ(m2->columns, m1->columns);
     EXPECT_EQ(m2->rows, m1->rows);
@@ -82,16 +82,16 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrix) {
       EXPECT_EQ(m1->imValues[fa], m2->imValues[fa]);
     }
 
-    host::DeleteMatrix(m2);
+    oap::host::DeleteMatrix(m2);
   }
-  host::DeleteMatrix(m1);
+  oap::host::DeleteMatrix(m1);
 }
 
 TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
 
   math::Matrix* m1 = createMatrix(10, 10, [](uintt idx, uintt, uintt) { return idx; });
 
-  bool status = host::WriteMatrix(testfilepath, m1);
+  bool status = oap::host::WriteMatrix(testfilepath, m1);
 
   EXPECT_TRUE(status);
 
@@ -103,7 +103,7 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
     mex.beginColumn = 4;
     mex.columnsLength = 6;
 
-    math::Matrix* m2 = host::ReadMatrix(testfilepath, mex);
+    math::Matrix* m2 = oap::host::ReadMatrix(testfilepath, mex);
 
     EXPECT_EQ(m2->columns, mex.columnsLength);
     EXPECT_EQ(m2->rows, mex.rowsLength);
@@ -117,22 +117,22 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
       }
     }
 
-    host::DeleteMatrix(m2);
+    oap::host::DeleteMatrix(m2);
   }
-  host::DeleteMatrix(m1);
+  oap::host::DeleteMatrix(m1);
 }
 
 TEST_F(OapHostMatrixUtilsTests, WriteMatrixReadVector) {
 
   math::Matrix* matrix = createMatrix(10, 10, [](uintt, uintt, uintt idx) { return idx; });
 
-  bool status = host::WriteMatrix(testfilepath, matrix);
+  bool status = oap::host::WriteMatrix(testfilepath, matrix);
 
   EXPECT_TRUE(status);
 
   if (status) {
     size_t index = 1;
-    math::Matrix* vec = host::ReadRowVector(testfilepath, index);
+    math::Matrix* vec = oap::host::ReadRowVector(testfilepath, index);
 
     EXPECT_EQ(vec->columns, matrix->columns);
     EXPECT_EQ(vec->rows, 1);
@@ -142,7 +142,7 @@ TEST_F(OapHostMatrixUtilsTests, WriteMatrixReadVector) {
       EXPECT_EQ(fa + index * matrix->columns, vec->imValues[fa]);
     }
 
-    host::DeleteMatrix(vec);
+    oap::host::DeleteMatrix(vec);
   }
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
 }

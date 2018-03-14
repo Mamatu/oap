@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "MathOperationsCpu.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "Matrix.h"
 #include "ThreadUtils.h"
 #include "ThreadsMapper.h"
@@ -389,7 +389,7 @@ math::Status MathOperationsCpu::transpose(math::Matrix* output, math::Matrix* ma
 math::Status MathOperationsCpu::transpose(math::Matrix* matrix) {
 #ifdef DEBUG_MATRIX_OPERATIONS            
     std::string matrixStr = "";
-    host::GetReMatrixStr(matrixStr, matrix);
+    oap::host::GetReMatrixStr(matrixStr, matrix);
 #endif
     math::Status status = execute(m_transposeOperation, matrix, matrix);
 #ifdef DEBUG_MATRIX_OPERATIONS

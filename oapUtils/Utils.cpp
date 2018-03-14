@@ -19,7 +19,10 @@
 
 #include "Utils.h"
 
+#include "oapHostMatrixUtils.h"
+
 namespace utils {
+
 Compare::Compare() {}
 
 Compare::~Compare() {}
@@ -38,7 +41,7 @@ bool Compare::compare(math::Matrix* matrix, floatt d) {
 }
 
 math::Matrix* create(const math::Matrix& arg) {
-  return host::NewMatrix(arg.reValues != NULL, arg.imValues != NULL,
+  return oap::host::NewMatrix(arg.reValues != NULL, arg.imValues != NULL,
                          arg.columns, arg.rows);
 }
 
@@ -118,19 +121,19 @@ bool HasValues(const math::Matrix& m1, const math::Matrix& m2,
 }
 
 bool IsIdentityMatrix(const math::Matrix& m1, math::Matrix** output) {
-  math::Matrix* matrix = host::NewMatrix(&m1);
-  host::SetIdentity(matrix);
+  math::Matrix* matrix = oap::host::NewMatrix(&m1);
+  oap::host::SetIdentity(matrix);
   bool isequal = IsEqual(m1, *matrix, output);
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
   return isequal;
 }
 
 bool IsDiagonalMatrix(const math::Matrix& m1, floatt value,
                       math::Matrix** output) {
-  math::Matrix* matrix = host::NewMatrix(&m1);
-  host::SetDiagonalMatrix(matrix, value);
+  math::Matrix* matrix = oap::host::NewMatrix(&m1);
+  oap::host::SetDiagonalMatrix(matrix, value);
   bool isequal = IsEqual(m1, *matrix, output);
-  host::DeleteMatrix(matrix);
+  oap::host::DeleteMatrix(matrix);
   return isequal;
 }
 

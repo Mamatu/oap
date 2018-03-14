@@ -31,8 +31,8 @@ namespace math {
 
     DeterminantOperationCpu::~DeterminantOperationCpu() {
         if (m_q) {
-            host::DeleteMatrix(m_q);
-            host::DeleteMatrix(m_r);
+            oap::host::DeleteMatrix(m_q);
+            oap::host::DeleteMatrix(m_r);
         }
     }
 
@@ -45,14 +45,14 @@ namespace math {
                 if (m_q != NULL && (m_q->rows != m_matrix->rows ||
                     m_q->columns != m_matrix->columns))
                 {
-                    host::DeleteMatrix(m_q);
-                    host::DeleteMatrix(m_r);
+                    oap::host::DeleteMatrix(m_q);
+                    oap::host::DeleteMatrix(m_r);
                     m_q = NULL;
                     m_r = NULL;
                 }
                 if (m_q == NULL) {
-                    m_q = host::NewMatrix(m_matrix);
-                    m_r = host::NewMatrix(m_matrix);
+                    m_q = oap::host::NewMatrix(m_matrix);
+                    m_r = oap::host::NewMatrix(m_matrix);
                 }
             }
         }
@@ -65,7 +65,7 @@ namespace math {
         m_qrDecomposition.setOutputMatrix2(m_r);
         m_qrDecomposition.setMatrix(m_matrix);
         m_qrDecomposition.start();
-        floatt det = host::GetTrace(m_r);
+        floatt det = oap::host::GetTrace(m_r);
         if (m_output1) {
             *m_output1 = det;
         }

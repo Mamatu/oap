@@ -23,7 +23,7 @@
 #include "MatchersUtils.h"
 #include "oapCudaStub.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "CuMatrixProcedures/CuCompareUtils.h"
 #include "CuMatrixProcedures/CuCompareUtils2.h"
 
@@ -97,7 +97,7 @@ class CompareStubImpl : public HostKernel {
 
   CompareStubImpl(uint columns, uint rows, AlgoVersion::Type algoVersion)
       : m_algoVersion(algoVersion) {
-    m_matrix = host::NewReMatrix(columns, rows, 0);
+    m_matrix = oap::host::NewReMatrix(columns, rows, 0);
     calculateDims(columns / m_algoVersion.getFactor(), rows);
     m_bufferLength = blockDim.x * blockDim.y;
     m_sumsLength = gridDim.x * gridDim.y;
@@ -108,7 +108,7 @@ class CompareStubImpl : public HostKernel {
   }
 
   virtual ~CompareStubImpl() {
-    host::DeleteMatrix(m_matrix);
+    oap::host::DeleteMatrix(m_matrix);
     delete[] m_buffer;
     delete[] m_sums;
   }

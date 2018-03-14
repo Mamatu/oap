@@ -23,7 +23,7 @@
 #include "MatchersUtils.h"
 #include "oapCudaStub.h"
 #include "MathOperationsCpu.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "CuMatrixProcedures/CuIdentityProcedures.h"
 
 class OapIdentityProcedureTests : public OapCudaStub {
@@ -42,12 +42,12 @@ class IdentityStubImpl : public HostKernel {
   IdentityStubImpl(uintt columns, uintt rows)
       : m_columns(columns), m_rows(rows) {
     calculateDims(columns, rows);
-    m_matrix = host::NewMatrix(m_columns, m_rows);
+    m_matrix = oap::host::NewMatrix(m_columns, m_rows);
   }
 
   virtual ~IdentityStubImpl() {
     test::reset(m_matrix);
-    host::DeleteMatrix(m_matrix);
+    oap::host::DeleteMatrix(m_matrix);
   }
 
   void execute(const dim3& threadIdx, const dim3& blockIdx) {

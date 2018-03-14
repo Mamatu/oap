@@ -26,7 +26,7 @@
 
 class CuTest {
     void* m_image;
-    device::Kernel m_kernel;
+    oap::cuda::Kernel m_kernel;
     CUresult m_cuResult;
 public:
     CuTest();

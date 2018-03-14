@@ -20,7 +20,7 @@
 #ifndef OAP_HOSTMATRIXPTR_H
 #define OAP_HOSTMATRIXPTR_H
 
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "Math.h"
 
 #include "oapMatrixSPtr.h"
@@ -28,19 +28,19 @@
 namespace oap {
   class HostMatrixPtr : public oap::MatrixSharedPtr {
     public:
-      HostMatrixPtr(math::Matrix* matrix) : oap::MatrixSharedPtr(matrix, host::DeleteMatrix) {}
+      HostMatrixPtr(math::Matrix* matrix) : oap::MatrixSharedPtr(matrix, oap::host::DeleteMatrix) {}
   };
 
   class HostMatricesPtr : public oap::MatricesSharedPtr {
     public:
       HostMatricesPtr(math::Matrix** matrices, unsigned int count) :
-        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(count, host::DeleteMatrix)) {}
+        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(count, oap::host::DeleteMatrix)) {}
 
       HostMatricesPtr(std::initializer_list<math::Matrix*> matrices) :
-        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), host::DeleteMatrix)) {}
+        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), oap::host::DeleteMatrix)) {}
 
       HostMatricesPtr(size_t count) :
-        oap::MatricesSharedPtr(count, deleters::MatricesDeleter(count, host::DeleteMatrix)) {}
+        oap::MatricesSharedPtr(count, deleters::MatricesDeleter(count, oap::host::DeleteMatrix)) {}
   };
 
   template<template<typename, typename> class Container>

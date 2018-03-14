@@ -17,9 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_DEVICE_MATRIX_UTILS_H
-#define OAP_DEVICE_MATRIX_UTILS_H
-#include "HostMatrixUtils.h"
+#ifndef OAP_CUDA_MATRIX_UTILS_H
+#define OAP_CUDA_MATRIX_UTILS_H
+
+#include "oapHostMatrixUtils.h"
 
 #include <stdio.h>
 #include <cuda.h>
@@ -29,14 +30,10 @@
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
 
-#define debugDeviceMatrix(M)                                        \
-  fprintf(STREAM, "%s %s : %d ", __FUNCTION__, __FILE__, __LINE__); \
-  device::PrintMatrix(#M " =", M);
-
-//#define debugDeviceMatrixLog(M, x, ...) fprintf(STREAM, "%s %s : %d "x,
-//__FUNCTION__,__FILE__,__LINE__, __VA_ARGS_);  device::PrintMatrix(#M" =", M);
-
-namespace device {
+namespace oap
+{
+namespace cuda
+{
 
 /**
  * @brief NewDeviceMatrix
@@ -220,6 +217,7 @@ bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix);
 
 math::Matrix* ReadMatrix(const std::string& path);
 
+}
 }
 
 #endif /* MATRIXMEM_H */

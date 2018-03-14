@@ -22,7 +22,7 @@
 #include "PngFile.h"
 #include "Config.h"
 
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 
 #include <sstream>
 #include <functional>
@@ -50,14 +50,14 @@ math::Matrix* DataLoader::createMatrix(uintt index, uintt length) {
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
 
-  math::Matrix* hostMatrix = host::NewReMatrix(length, refLength);
+  math::Matrix* hostMatrix = oap::host::NewReMatrix(length, refLength);
 
   try {
     for (size_t fa = index; fa < index + length; ++fa) {
       loadColumnVector(hostMatrix, fa, floatsvec, fa);
     }
   } catch (const oap::exceptions::NotIdenticalLengths&) {
-    host::DeleteMatrix(hostMatrix);
+    oap::host::DeleteMatrix(hostMatrix);
     cleanImageStuff();
     throw;
   }
@@ -70,12 +70,12 @@ math::Matrix* DataLoader::createColumnVector(size_t index) {
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
 
-  math::Matrix* hostMatrix = host::NewReMatrix(1, refLength);
+  math::Matrix* hostMatrix = oap::host::NewReMatrix(1, refLength);
 
   try {
     loadColumnVector(hostMatrix, 0, floatsvec, index);
   } catch (const oap::exceptions::NotIdenticalLengths&) {
-    host::DeleteMatrix(hostMatrix);
+    oap::host::DeleteMatrix(hostMatrix);
     cleanImageStuff();
     throw;
   }
@@ -86,7 +86,7 @@ math::Matrix* DataLoader::createColumnVector(size_t index) {
 math::Matrix* DataLoader::createRowVector(size_t index) {
   createDataMatrixFiles();
 
-  math::Matrix* matrix = host::ReadRowVector(m_file, index);
+  math::Matrix* matrix = oap::host::ReadRowVector(m_file, index);
   if (matrix == NULL) {
     throw oap::exceptions::TmpOapNotExist();
   }
@@ -152,7 +152,7 @@ void DataLoader::loadColumnVector(math::Matrix* matrix, size_t column,
     it->freeBitmap();
   }
 
-  host::SetReVector(matrix, column, vec, refLength);
+  oap::host::SetReVector(matrix, column, vec, refLength);
 }
 
 void DataLoader::load() {
@@ -264,13 +264,13 @@ void DataLoader::createDataMatrixFiles() {
 
     filePath += std::to_string(getId());
 
-    bool status = host::WriteMatrix(filePath, matrix);
+    bool status = oap::host::WriteMatrix(filePath, matrix);
 
     if (status == true) {
       m_file = filePath;
     }
 
-    host::DeleteMatrix(matrix);
+    oap::host::DeleteMatrix(matrix);
   }
 }
 }

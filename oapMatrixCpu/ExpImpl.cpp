@@ -27,15 +27,15 @@ namespace math {
         math::Matrix* matrix1 = this->m_matrix;
         //MatrixAllocator& matrixAllocator = *m_module->getMatrixAllocator();
         //MatrixCopier& matrixCopier = *m_module->getMatrixCopier();
-        math::Matrix* matrix2 = host::NewMatrixCopy(matrix1);
-        math::Matrix* matrix3 = host::NewMatrixCopy(matrix1);
-        math::Matrix* matrix4 = host::NewMatrixCopy(matrix1);
+        math::Matrix* matrix2 = oap::host::NewMatrixCopy(matrix1);
+        math::Matrix* matrix3 = oap::host::NewMatrixCopy(matrix1);
+        math::Matrix* matrix4 = oap::host::NewMatrixCopy(matrix1);
         floatt factorial = 1;
         math::Matrix* m1 = matrix1;
         math::Matrix* m2 = matrix2;
         math::Matrix* m3 = matrix3;
         math::Matrix* m4 = matrix4;
-        host::CopyMatrix(this->m_output, matrix1);
+        oap::host::CopyMatrix(this->m_output, matrix1);
         serieLimit = 10;
         for (uintt fa = 2; fa<this->serieLimit; ++fa) {
             math::Matrix* mo = fa % 2 == 0 ? m3 : m2;
@@ -56,8 +56,8 @@ namespace math {
             this->addition.start();
             //matrixHostMem.PrintHostMatrix(this->output);
         }
-        host::DeleteMatrix(matrix2);
-        host::DeleteMatrix(matrix3);
-        host::DeleteMatrix(matrix4);
+        oap::host::DeleteMatrix(matrix2);
+        oap::host::DeleteMatrix(matrix3);
+        oap::host::DeleteMatrix(matrix4);
     }
 }

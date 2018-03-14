@@ -20,13 +20,21 @@
 #ifndef OAP_HOST_MATRIX_UTILS_H
 #define OAP_HOST_MATRIX_UTILS_H
 
+#include "DebugLogs.h"
+
 #include "Matrix.h"
 #include "MatrixInfo.h"
 #include "MatrixEx.h"
-#include <stdio.h>
-#include "ThreadUtils.h"
 
-namespace host {
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <cstring>
+
+namespace oap
+{
+namespace host
+{
 
 /**
  * @brief NewMatrix
@@ -187,24 +195,24 @@ math::Matrix* NewMatrixCopy(const math::Matrix* matrix);
 template<typename T>
 math::Matrix* NewMatrixCopy(uint columns, uint rows, T* reArray, T* imArray)
 {
-  math::Matrix* output = host::NewMatrix(reArray != NULL, imArray != NULL, columns, rows);
-  host::Copy<T>(output, reArray, imArray);
+  math::Matrix* output = oap::host::NewMatrix(reArray != NULL, imArray != NULL, columns, rows);
+  oap::host::Copy<T>(output, reArray, imArray);
   return output;
 }
 
 template<typename T>
 math::Matrix* NewReMatrixCopy(uint columns, uint rows, T* reArray)
 {
-  math::Matrix* output = host::NewMatrix(reArray != NULL, false, columns, rows);
-  host::CopyRe<T>(output, reArray);
+  math::Matrix* output = oap::host::NewMatrix(reArray != NULL, false, columns, rows);
+  oap::host::CopyRe<T>(output, reArray);
   return output;
 }
 
 template<typename T>
 math::Matrix* NewImMatrixCopy(uint columns, uint rows, T* imArray)
 {
-  math::Matrix* output = host::NewMatrix(false, imArray != NULL, columns, rows);
-  host::CopyIm<T>(output, imArray);
+  math::Matrix* output = oap::host::NewMatrix(false, imArray != NULL, columns, rows);
+  oap::host::CopyIm<T>(output, imArray);
   return output;
 }
 
@@ -607,6 +615,7 @@ inline bool IsReMatrix(math::Matrix* m) { return m != NULL && m->reValues != NUL
 
 inline bool IsImMatrix(math::Matrix* m) { return m != NULL && m->imValues != NULL; }
 
-};
+}
+}
 
 #endif /* OAP_HOST_MATRIX_UTILS_H */

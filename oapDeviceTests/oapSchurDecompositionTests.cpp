@@ -25,7 +25,7 @@
 #include "Matrix.h"
 #include "HostMatrixKernels.h"
 #include "DeviceMatrixKernels.h"
-#include "DeviceMatrixModules.h"
+#include "oapCudaMatrixUtils.h"
 #include "MatrixProcedures.h"
 #include "MatchersUtils.h"
 #include "schur1.h"
@@ -38,9 +38,9 @@ class OapSchurDecomposition : public testing::Test {
 
   virtual ~OapSchurDecomposition() {}
 
-  virtual void SetUp() { device::Context::Instance().create(); }
+  virtual void SetUp() { oap::cuda::Context::Instance().create(); }
 
-  virtual void TearDown() { device::Context::Instance().destroy(); }
+  virtual void TearDown() { oap::cuda::Context::Instance().destroy(); }
 
   enum KernelType { DEVICE, HOST };
 
@@ -54,7 +54,7 @@ class OapSchurDecomposition : public testing::Test {
 
     cuMatrix.calculateQTHQ(output1, H, Q, QT);
 
-    device::CopyDeviceMatrixToHostMatrix(hostMatrix, output1);
+    oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, output1);
     EXPECT_THAT(eq_initMatrix, MatrixIsEqual(hostMatrix));
   }
 
@@ -62,19 +62,19 @@ class OapSchurDecomposition : public testing::Test {
                    const std::string& eq_matrixStr,
                    OapSchurDecomposition::KernelType kernelType) {
     CuMatrix cuMatrix;
-    math::Matrix* matrix = device::NewDeviceMatrix(matrixStr);
-    math::Matrix* matrix1 = device::NewDeviceMatrix(matrix);
-    math::Matrix* matrix2 = device::NewDeviceMatrix(matrix);
-    math::Matrix* matrix3 = device::NewDeviceMatrix(matrix);
-    math::Matrix* matrix4 = device::NewDeviceMatrix(matrix);
-    math::Matrix* matrix5 = device::NewDeviceMatrix(matrix);
-    math::Matrix* matrix6 = device::NewDeviceMatrix(matrix);
-    math::Matrix* matrix7 = device::NewDeviceMatrix(matrix);
-    math::Matrix* matrix8 = device::NewDeviceMatrix(matrix);
+    math::Matrix* matrix = oap::cuda::NewDeviceMatrix(matrixStr);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(matrix);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(matrix);
+    math::Matrix* matrix3 = oap::cuda::NewDeviceMatrix(matrix);
+    math::Matrix* matrix4 = oap::cuda::NewDeviceMatrix(matrix);
+    math::Matrix* matrix5 = oap::cuda::NewDeviceMatrix(matrix);
+    math::Matrix* matrix6 = oap::cuda::NewDeviceMatrix(matrix);
+    math::Matrix* matrix7 = oap::cuda::NewDeviceMatrix(matrix);
+    math::Matrix* matrix8 = oap::cuda::NewDeviceMatrix(matrix);
 
-    math::Matrix* eq_hostMatrix = host::NewMatrix(eq_matrixStr);
-    math::Matrix* eq_initMatrix = host::NewMatrix(matrixStr);
-    math::Matrix* hostMatrix = host::NewMatrix(eq_hostMatrix);
+    math::Matrix* eq_hostMatrix = oap::host::NewMatrix(eq_matrixStr);
+    math::Matrix* eq_initMatrix = oap::host::NewMatrix(matrixStr);
+    math::Matrix* hostMatrix = oap::host::NewMatrix(eq_hostMatrix);
 
     math::Matrix* H = matrix;
     math::Matrix* Q = matrix1;
@@ -83,14 +83,14 @@ class OapSchurDecomposition : public testing::Test {
     math::Matrix* output2 = matrix6;
 
     if (kernelType == OapSchurDecomposition::DEVICE) {
-      device::Kernel kernel;
+      oap::cuda::Kernel kernel;
       kernel.load("liboapMatrixCuda.cubin");
       uintt columns = eq_hostMatrix->columns;
       uintt rows = eq_hostMatrix->rows;
       DEVICEKernel_CalcTriangularH(matrix, matrix1, matrix2, matrix3, matrix4,
                                    matrix5, matrix6, matrix7, matrix8, columns,
                                    rows, kernel);
-      device::CopyDeviceMatrixToHostMatrix(hostMatrix, matrix);
+      oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, matrix);
       //EXPECT_THAT(eq_hostMatrix, MatrixIsEqual(hostMatrix));
       EXPECT_THAT(eq_hostMatrix, MatrixContainsDiagonalValues(hostMatrix));
     } else if (kernelType == OapSchurDecomposition::HOST) {
@@ -99,18 +99,18 @@ class OapSchurDecomposition : public testing::Test {
     //executeTestQUQT(H, Q, QT, output1, output2, eq_initMatrix, hostMatrix,
     //                cuMatrix);
 
-    host::DeleteMatrix(eq_hostMatrix);
-    host::DeleteMatrix(eq_initMatrix);
-    host::DeleteMatrix(hostMatrix);
-    device::DeleteDeviceMatrix(matrix);
-    device::DeleteDeviceMatrix(matrix1);
-    device::DeleteDeviceMatrix(matrix2);
-    device::DeleteDeviceMatrix(matrix3);
-    device::DeleteDeviceMatrix(matrix4);
-    device::DeleteDeviceMatrix(matrix5);
-    device::DeleteDeviceMatrix(matrix6);
-    device::DeleteDeviceMatrix(matrix7);
-    device::DeleteDeviceMatrix(matrix8);
+    oap::host::DeleteMatrix(eq_hostMatrix);
+    oap::host::DeleteMatrix(eq_initMatrix);
+    oap::host::DeleteMatrix(hostMatrix);
+    oap::cuda::DeleteDeviceMatrix(matrix);
+    oap::cuda::DeleteDeviceMatrix(matrix1);
+    oap::cuda::DeleteDeviceMatrix(matrix2);
+    oap::cuda::DeleteDeviceMatrix(matrix3);
+    oap::cuda::DeleteDeviceMatrix(matrix4);
+    oap::cuda::DeleteDeviceMatrix(matrix5);
+    oap::cuda::DeleteDeviceMatrix(matrix6);
+    oap::cuda::DeleteDeviceMatrix(matrix7);
+    oap::cuda::DeleteDeviceMatrix(matrix8);
   }
 };
 

@@ -29,7 +29,7 @@
 CUresult HOSTKernel_QRGR(math::Matrix* output0, math::Matrix* output1,
                          math::Matrix* params0, math::Matrix* aux0,
                          math::Matrix* aux1, math::Matrix* aux2,
-                         math::Matrix* aux3, device::Kernel& kernel);
+                         math::Matrix* aux3, oap::cuda::Kernel& kernel);
 
 void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
                                 math::Matrix* R1, math::Matrix* Q1,

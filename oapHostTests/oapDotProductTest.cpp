@@ -1,4 +1,4 @@
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "MatchersUtils.h"
 #include "HostKernel.h"
 #include "CuMatrixProcedures/CuDotProductProcedures.h"
@@ -37,10 +37,10 @@ class DotProductKernel : public HostKernel {
 };
 
 TEST_F(OapDotProductTests, Test1) {
-  math::Matrix* hostM1 = host::NewReMatrix(1, 10, 2);
-  math::Matrix* hostM2 = host::NewReMatrix(10, 1, 2);
+  math::Matrix* hostM1 = oap::host::NewReMatrix(1, 10, 2);
+  math::Matrix* hostM2 = oap::host::NewReMatrix(10, 1, 2);
 
-  math::Matrix* houtput = host::NewReMatrix(10, 10);
+  math::Matrix* houtput = oap::host::NewReMatrix(10, 10);
 
   DotProductKernel dotPrdocutKernel(houtput, hostM1, hostM2);
 
@@ -48,7 +48,7 @@ TEST_F(OapDotProductTests, Test1) {
 
   EXPECT_THAT(houtput, MatrixHasValues(4));
 
-  host::DeleteMatrix(houtput);
-  host::DeleteMatrix(hostM1);
-  host::DeleteMatrix(hostM2);
+  oap::host::DeleteMatrix(houtput);
+  oap::host::DeleteMatrix(hostM1);
+  oap::host::DeleteMatrix(hostM2);
 }

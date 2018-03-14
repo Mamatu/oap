@@ -39,9 +39,9 @@ public:
 
 TEST_F(OapMatrixPtrTests, MemLeakPtrTest) {
   std::vector<math::Matrix*> vec = {
-    host::NewReMatrix(10, 10),
-    host::NewReMatrix(10, 10),
-    host::NewReMatrix(10, 10)
+    oap::host::NewReMatrix(10, 10),
+    oap::host::NewReMatrix(10, 10),
+    oap::host::NewReMatrix(10, 10)
   };
 
   oap::HostMatricesPtr ptr = oap::makeHostMatricesPtr(vec);
@@ -49,9 +49,9 @@ TEST_F(OapMatrixPtrTests, MemLeakPtrTest) {
 
 TEST_F(OapMatrixPtrTests, MemLeakUPtrTest) {
   std::vector<math::Matrix*> vec = {
-    host::NewReMatrix(10, 10),
-    host::NewReMatrix(10, 10),
-    host::NewReMatrix(10, 10)
+    oap::host::NewReMatrix(10, 10),
+    oap::host::NewReMatrix(10, 10),
+    oap::host::NewReMatrix(10, 10)
   };
 
   oap::HostMatricesUPtr ptr = oap::makeHostMatricesUPtr(vec);

@@ -28,7 +28,7 @@
 
 int main()
 {
-  device::Context::Instance().create();
+  oap::cuda::Context::Instance().create();
 
   using Outcome = oap::MainAPExecutor::Outcome;
   oap::MainAPExecutor mainExecutor;
@@ -51,7 +51,7 @@ int main()
     printf("---------------------------------------\n");
     printf("wanted = %f \n", value);
     printf("error = %f \n", error);
-    host::PrintMatrix("wantedEV = ", vec);
+    oap::host::PrintMatrix("wantedEV = ", vec);
     printf("---------------------------------------\n");
 
   }
@@ -59,6 +59,6 @@ int main()
   mainFExec.setOutcome (outcome);
   mainFExec.run();
 
-  device::Context::Instance().destroy();
+  oap::cuda::Context::Instance().destroy();
   return 0;
 }

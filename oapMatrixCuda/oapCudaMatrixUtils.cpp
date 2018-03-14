@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DeviceMatrixModules.h"
-#include "HostMatrixUtils.h"
+#include "oapCudaMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 #include "KernelExecutor.h"
 #include <csignal>
 #include <string.h>
@@ -28,7 +28,10 @@
 #include <execinfo.h>
 #include <map>
 
-namespace device {
+namespace oap
+{
+namespace cuda
+{
 
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
@@ -37,13 +40,13 @@ math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   uintt rows = CudaUtils::GetRows(matrix);
   math::Matrix* matrix1 = NULL;
   if (matrixRePtr != 0 && matrixImPtr != 0) {
-    matrix1 = host::NewMatrix(columns, rows);
+    matrix1 = oap::host::NewMatrix(columns, rows);
   } else if (matrixRePtr != 0) {
-    matrix1 = host::NewReMatrix(columns, rows);
+    matrix1 = oap::host::NewReMatrix(columns, rows);
   } else if (matrixImPtr != 0) {
-    matrix1 = host::NewImMatrix(columns, rows);
+    matrix1 = oap::host::NewImMatrix(columns, rows);
   }
-  device::CopyDeviceMatrixToHostMatrix(matrix1, matrix);
+  oap::cuda::CopyDeviceMatrixToHostMatrix(matrix1, matrix);
   return matrix1;
 }
 
@@ -60,15 +63,15 @@ math::Matrix* NewDeviceMatrix(const math::Matrix* deviceMatrix) {
 }
 
 math::Matrix* NewDeviceMatrix(const std::string& matrixStr) {
-  math::Matrix* host = host::NewMatrix(matrixStr);
+  math::Matrix* host = oap::host::NewMatrix(matrixStr);
   math::Matrix* device = NewDeviceMatrixCopy(host);
-  host::DeleteMatrix(host);
+  oap::host::DeleteMatrix(host);
   return device;
 }
 
 math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
-  math::Matrix* dmatrix = device::NewDeviceMatrixHostRef(hostMatrix);
-  device::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
+  math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixHostRef(hostMatrix);
+  oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
   return dmatrix;
 }
 
@@ -360,19 +363,20 @@ math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix) {
 }
 
 math::Matrix* ReadMatrix(const std::string& path) {
-  math::Matrix* hostMatrix = host::ReadMatrix(path);
-  math::Matrix* devMatrix = device::NewDeviceMatrixCopy(hostMatrix);
-  host::DeleteMatrix(hostMatrix);
+  math::Matrix* hostMatrix = oap::host::ReadMatrix(path);
+  math::Matrix* devMatrix = oap::cuda::NewDeviceMatrixCopy(hostMatrix);
+  oap::host::DeleteMatrix(hostMatrix);
   return devMatrix;
 }
 
 bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix) {
-  math::MatrixInfo matrixInfo = device::GetMatrixInfo(devMatrix);
-  math::Matrix* hostMatrix = host::NewMatrix(matrixInfo);
-  device::CopyDeviceMatrixToHostMatrix(hostMatrix, devMatrix);
-  bool status = host::WriteMatrix(path, hostMatrix);
-  host::DeleteMatrix(hostMatrix);
+  math::MatrixInfo matrixInfo = oap::cuda::GetMatrixInfo(devMatrix);
+  math::Matrix* hostMatrix = oap::host::NewMatrix(matrixInfo);
+  oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, devMatrix);
+  bool status = oap::host::WriteMatrix(path, hostMatrix);
+  oap::host::DeleteMatrix(hostMatrix);
   return status;
 }
 
+}
 }

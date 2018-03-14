@@ -28,7 +28,7 @@
 #include "Utils.h"
 #include "MatchersImpl.h"
 #include "InfoType.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 
 inline Matcher<math::Matrix*> MatrixIsEqual(
     math::Matrix* matrix, const InfoType& infoType = InfoType()) {

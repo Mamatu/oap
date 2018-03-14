@@ -20,7 +20,7 @@
 
 
 #include "MathOperations.h"
-#include "HostMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 
 namespace math {
 
@@ -28,8 +28,8 @@ namespace math {
         Status status = MatrixOperationOutputValue::beforeExecution();
         if (status == STATUS_OK) {
             //MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();
-            bool isIm = host::IsImMatrix(this->m_matrix);
-            bool isRe = host::IsReMatrix(this->m_matrix);
+            bool isIm = oap::host::IsImMatrix(this->m_matrix);
+            bool isRe = oap::host::IsReMatrix(this->m_matrix);
             if (isRe) {
                 this->m_executionPathRe = EXECUTION_NORMAL;
             } else {

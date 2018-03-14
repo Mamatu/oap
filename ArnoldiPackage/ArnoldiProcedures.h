@@ -138,7 +138,7 @@ class CuHArnoldi {
   ArnUtils::TriangularHProcedureType m_triangularHProcedureType;
 
   void* m_image;
-  device::Kernel m_kernel;
+  oap::cuda::Kernel m_kernel;
 
   uint m_transposeVcolumns;
   uint m_hrows;
