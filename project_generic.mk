@@ -26,7 +26,7 @@ else
 include $(OAP_PATH)/project_x86.mk
 endif
 
-TYPES := EXTENDED_TYPES
+TYPES := OAP_CONFIG_NI_EF
 
 ifeq ($(KERNEL_INFO), 1)
 KERNEL_INFO := KERNEL_EXTENDED_INFO=1

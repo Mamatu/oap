@@ -22,23 +22,14 @@
 #ifndef OAP_MATH_TYPES_H
 #define OAP_MATH_TYPES_H
 
-//#define NORMAL_TYPES
-//#define EXTENDED_TYPES
-//#define RICH_TYPES
-
-#ifdef NORMAL_TYPES
-#define NORMAL_FLOAT_TYPE
+#ifdef OAP_CONFIG_NI_EF
+#define EXTENDED_FLOAT_TYPE
 #define NORMAL_INT_TYPES
 #endif
 
-#ifdef EXTENDED_TYPES
-#define EXTENDED_FLOAT_TYPE
-#define EXTENDED_INT_TYPES
-#endif
-
-#ifdef RICH_TYPES
-#define RICH_FLOAT_TYPE
-#define EXTENDED_INT_TYPES
+#ifdef OAP_CONFIG_NI_NF
+#define NORMAL_FLOAT_TYPE
+#define NORMAL_INT_TYPES
 #endif
 
 typedef unsigned int uint;
