@@ -26,7 +26,7 @@
 #include "HostMatrixKernels.h"
 #include "DeviceMatrixKernels.h"
 #include "oapCudaMatrixUtils.h"
-#include "MatrixProcedures.h"
+#include "CuProceduresApi.h"
 #include "MatchersUtils.h"
 #include "schur1.h"
 #include "schur2.h"
@@ -47,7 +47,7 @@ class OapSchurDecomposition : public testing::Test {
   void executeTestQUQT(math::Matrix* H, math::Matrix* Q, math::Matrix* QT,
                        math::Matrix* output1, math::Matrix* output2,
                        math::Matrix* eq_initMatrix, math::Matrix* hostMatrix,
-                       CuMatrix& cuMatrix) {
+                       CuProceduresApi& cuMatrix) {
     //cuMatrix.transposeMatrix(QT, Q);
     //cuMatrix.dotProduct(output2, H, QT);
     //cuMatrix.dotProduct(output1, Q, output2);
@@ -61,7 +61,7 @@ class OapSchurDecomposition : public testing::Test {
   void executeTest(const std::string& matrixStr,
                    const std::string& eq_matrixStr,
                    OapSchurDecomposition::KernelType kernelType) {
-    CuMatrix cuMatrix;
+    CuProceduresApi cuMatrix;
     math::Matrix* matrix = oap::cuda::NewDeviceMatrix(matrixStr);
     math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(matrix);
     math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(matrix);

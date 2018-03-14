@@ -23,7 +23,7 @@
 #include "MatchersUtils.h"
 #include "MatrixEx.h"
 #include "oapHostMatrixUtils.h"
-#include "CuMatrixProcedures/CuTransposeProcedures.h"
+#include "CuProcedures/CuTransposeProcedures.h"
 
 class OapTransposeTests : public OapCudaStub {
  public:

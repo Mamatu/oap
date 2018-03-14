@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_CUMATRIXPROCEDURES_H
-#define OAP_CUMATRIXPROCEDURES_H
+#ifndef OAP_CUPROCEDURESAPI_H
+#define OAP_CUPROCEDURESAPI_H
 
 #include "Matrix.h"
 #include "MatrixEx.h"
@@ -27,10 +27,10 @@
 
 /*@mamatu todo optimalization - columns and rows should be taken from host
  * structures.*/
-class CuMatrix {
+class CuProceduresApi {
  public:
-  CuMatrix();
-  virtual ~CuMatrix();
+  CuProceduresApi();
+  virtual ~CuProceduresApi();
 
   inline void dotProduct(math::Matrix* output, math::Matrix* params0,
                          math::Matrix* params1);
@@ -149,7 +149,7 @@ class CuMatrix {
   bool m_isSetColumns;
   bool m_isSetRows;
 
-  CuMatrix(const CuMatrix&);
+  CuProceduresApi(const CuProceduresApi&);
 
   void init();
 
@@ -184,7 +184,7 @@ private:
     T* m_buffer;
     uintt m_length;
 
-    Buffer(CuMatrix::Type type);
+    Buffer(CuProceduresApi::Type type);
     ~Buffer();
 
     void realloc(uintt length);
@@ -210,20 +210,20 @@ private:
 };
 
 template <typename T>
-CuMatrix::Buffer<T>::Buffer(CuMatrix::Type type)
+CuProceduresApi::Buffer<T>::Buffer(CuProceduresApi::Type type)
     : m_buffer(NULL), m_length(0), m_type(type) {
   // not implemented
 }
 
 template <typename T>
-CuMatrix::Buffer<T>::~Buffer() {
+CuProceduresApi::Buffer<T>::~Buffer() {
   if (m_buffer != NULL && m_type == CUDA) {
     free(m_buffer);
   }
 }
 
 template <typename T>
-void CuMatrix::Buffer<T>::realloc(uintt length) {
+void CuProceduresApi::Buffer<T>::realloc(uintt length) {
   if (length > m_length) {
     if (m_buffer != NULL) {
       free(m_buffer);
@@ -234,39 +234,39 @@ void CuMatrix::Buffer<T>::realloc(uintt length) {
 }
 
 template <typename T>
-void CuMatrix::Buffer<T>::free(T* buffer) {
-  if (m_type == CuMatrix::CUDA) {
+void CuProceduresApi::Buffer<T>::free(T* buffer) {
+  if (m_type == CuProceduresApi::CUDA) {
     CudaUtils::FreeDeviceMem(m_buffer);
-  } else if (m_type == CuMatrix::HOST) {
+  } else if (m_type == CuProceduresApi::HOST) {
     delete[] buffer;
   }
 }
 
 template <typename T>
-T* CuMatrix::Buffer<T>::alloc(uintt length) {
+T* CuProceduresApi::Buffer<T>::alloc(uintt length) {
   switch (m_type) {
-    case CuMatrix::CUDA:
+    case CuProceduresApi::CUDA:
       return static_cast<T*>(CudaUtils::AllocDeviceMem(length * sizeof(T)));
-    case CuMatrix::HOST:
+    case CuProceduresApi::HOST:
       return new T[length];
   };
 }
 
-inline void CuMatrix::dotProduct(math::Matrix* output, math::Matrix* params0,
+inline void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0,
                                  math::Matrix* params1) {
   const uintt columns = CudaUtils::GetColumns(output);
   const uintt rows = CudaUtils::GetRows(output);
   dotProduct(output, params0, params1, columns, rows);
 }
 
-inline void CuMatrix::dotProductEx(math::Matrix* output, math::Matrix* params0,
+inline void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* params0,
                                    math::Matrix* params1, MatrixEx* matrixEx) {
   const uintt columns = CudaUtils::GetColumns(matrixEx);
   const uintt rows = CudaUtils::GetRows(matrixEx);
   dotProductEx(output, params0, params1, matrixEx, columns, rows);
 }
 
-inline void CuMatrix::dotProductOpt(math::Matrix* output, math::Matrix* params0,
+inline void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* params0,
                                     math::Matrix* params1) {
   const uintt ocolumns = CudaUtils::GetColumns(output);
   const uintt orows = CudaUtils::GetRows(output);
@@ -275,14 +275,14 @@ inline void CuMatrix::dotProductOpt(math::Matrix* output, math::Matrix* params0,
   dotProductOpt(output, params0, params1, ocolumns, orows, p1rows, p2columns);
 }
 
-inline void CuMatrix::substract(math::Matrix* output, math::Matrix* params0,
+inline void CuProceduresApi::substract(math::Matrix* output, math::Matrix* params0,
                                 math::Matrix* params1) {
   const uintt columns = CudaUtils::GetColumns(output);
   const uintt rows = CudaUtils::GetRows(output);
   substract(output, params0, params1, columns, rows);
 }
 
-inline void CuMatrix::add(math::Matrix* output, math::Matrix* params0,
+inline void CuProceduresApi::add(math::Matrix* output, math::Matrix* params0,
                           math::Matrix* params1) {
   const uintt columns = CudaUtils::GetColumns(output);
   const uintt rows = CudaUtils::GetRows(output);

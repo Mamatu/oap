@@ -20,7 +20,7 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
-#include "MatrixProcedures.h"
+#include "CuProceduresApi.h"
 #include "MathOperationsCpu.h"
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
@@ -28,12 +28,12 @@
 
 class OapDotProductTests : public testing::Test {
  public:
-  CuMatrix* cuMatrix;
+  CuProceduresApi* cuMatrix;
   CUresult status;
 
   virtual void SetUp() {
     oap::cuda::Context::Instance().create();
-    cuMatrix = new CuMatrix();
+    cuMatrix = new CuProceduresApi();
   }
 
   virtual void TearDown() {

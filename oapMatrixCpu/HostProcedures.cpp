@@ -18,10 +18,10 @@
  */
 
 #include "HostProcedures.h"
-#include "CuMatrixProcedures/CuCompareOptProcedures.h"
-#include "CuMatrixProcedures/CuSubstractionProcedures.h"
-#include "CuMatrixProcedures/CuDotProductProcedures.h"
-#include "CuMatrixProcedures/CuTransposeProcedures.h"
+#include "CuProcedures/CuCompareOptProcedures.h"
+#include "CuProcedures/CuSubstractionProcedures.h"
+#include "CuProcedures/CuDotProductProcedures.h"
+#include "CuProcedures/CuTransposeProcedures.h"
 #include "ThreadsMapper.h"
 #include "HostKernel.h"
 

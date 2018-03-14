@@ -1,7 +1,7 @@
 #include "oapHostMatrixUtils.h"
 #include "MatchersUtils.h"
 #include "HostKernel.h"
-#include "CuMatrixProcedures/CuDotProductProcedures.h"
+#include "CuProcedures/CuDotProductProcedures.h"
 
 class OapDotProductTests : public testing::Test {
  public:

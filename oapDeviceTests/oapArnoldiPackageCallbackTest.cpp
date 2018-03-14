@@ -202,7 +202,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
       class MultiplyFunc {
        public:
         static void multiply(math::Matrix* w, math::Matrix* v,
-                             CuMatrix& cuProceduresApi,
+                             CuProceduresApi& cuProceduresApi,
                              void* userData,
                              CuHArnoldi::MultiplicationType mt) {
           if (mt == CuHArnoldi::TYPE_WV) {
@@ -278,7 +278,7 @@ TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
 
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, data.refW);
 
-  CuMatrix cuProceduresApi;
+  CuProceduresApi cuProceduresApi;
 
   floatt output = -1;
   floatt doutput = -1;

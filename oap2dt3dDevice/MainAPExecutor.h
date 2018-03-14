@@ -72,9 +72,9 @@ class MainAPExecutor
     oap::MatricesSharedPtr m_evectors;
     std::shared_ptr<oap::DeviceDataLoader> m_ddloader;
 
-    CuMatrix* m_cuProcedures;
+    CuProceduresApi* m_cuProcedures;
 
-    static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v, CuMatrix& cuProceduresApi,
+    static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v, CuProceduresApi& cuProceduresApi,
                              void* userData, CuHArnoldi::MultiplicationType mt);
 
     void checkValidity();

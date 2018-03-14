@@ -19,7 +19,7 @@
 
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
-#include "MatrixProcedures.h"
+#include "CuProceduresApi.h"
 #include "MathOperationsCpu.h"
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
@@ -36,13 +36,13 @@
 
 class OapQRTests : public testing::Test {
  public:
-  CuMatrix* m_cuMatrix;
+  CuProceduresApi* m_cuMatrix;
   CUresult status;
 
   virtual void SetUp() {
     status = CUDA_SUCCESS;
     oap::cuda::Context::Instance().create();
-    m_cuMatrix = new CuMatrix();
+    m_cuMatrix = new CuProceduresApi();
   }
 
   virtual void TearDown() {

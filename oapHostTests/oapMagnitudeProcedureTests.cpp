@@ -24,9 +24,9 @@
 #include "oapCudaStub.h"
 #include "MathOperationsCpu.h"
 #include "oapHostMatrixUtils.h"
-#include "CuMatrixProcedures/CuMagnitudeUtils.h"
-#include "CuMatrixProcedures/CuMagnitudeUtils2.h"
-#include "CuMatrixProcedures/CuMagnitudeOptProcedures.h"
+#include "CuProcedures/CuMagnitudeUtils.h"
+#include "CuProcedures/CuMagnitudeUtils2.h"
+#include "CuProcedures/CuMagnitudeOptProcedures.h"
 #include <math.h>
 
 class AlgoInfo {

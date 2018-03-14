@@ -20,7 +20,7 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
-#include "MatrixProcedures.h"
+#include "CuProceduresApi.h"
 #include "MathOperationsCpu.h"
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
@@ -31,7 +31,7 @@ class OapMatrixCudaTests : public testing::Test {
  public:
   math::Matrix* output;
   math::Matrix* eq_output;
-  CuMatrix* cuMatrix;
+  CuProceduresApi* cuMatrix;
   CUresult status;
 
   virtual void SetUp() {
@@ -39,7 +39,7 @@ class OapMatrixCudaTests : public testing::Test {
     oap::cuda::Context::Instance().create();
     output = NULL;
     eq_output = NULL;
-    cuMatrix = new CuMatrix();
+    cuMatrix = new CuProceduresApi();
   }
 
   virtual void TearDown() {

@@ -5,17 +5,17 @@
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 #include "KernelExecutor.h"
-#include "MatrixProcedures.h"
+#include "CuProceduresApi.h"
 
 class OapTransposeTests : public testing::Test {
  public:
-  CuMatrix* m_cuMatrix;
+  CuProceduresApi* m_cuMatrix;
   CUresult status;
 
   virtual void SetUp() {
     status = CUDA_SUCCESS;
     oap::cuda::Context::Instance().create();
-    m_cuMatrix = new CuMatrix();
+    m_cuMatrix = new CuProceduresApi();
   }
 
   virtual void TearDown() {

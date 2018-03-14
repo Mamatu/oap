@@ -24,7 +24,7 @@
 #include "oapCudaStub.h"
 #include "MathOperationsCpu.h"
 #include "oapHostMatrixUtils.h"
-#include "CuMatrixProcedures/CuIdentityProcedures.h"
+#include "CuProcedures/CuIdentityProcedures.h"
 
 class OapIdentityProcedureTests : public OapCudaStub {
  public:

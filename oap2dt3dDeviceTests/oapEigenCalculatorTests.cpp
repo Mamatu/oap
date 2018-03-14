@@ -27,7 +27,7 @@
 
 #include "ArnoldiProceduresImpl.h"
 #include "oapCudaMatrixUtils.h"
-#include "MatrixProcedures.h"
+#include "CuProceduresApi.h"
 #include "oapDeviceMatrixUPtr.h"
 #include "oapHostMatrixUPtr.h"
 
@@ -39,7 +39,7 @@ class ArnoldiOperations {
  public:
   oap::DeviceDataLoader* m_dataLoader;
   math::Matrix* value;
-  CuMatrix cuProceduresApi;
+  CuProceduresApi cuProceduresApi;
 
   ArnoldiOperations(oap::DeviceDataLoader* dataLoader)
       : m_dataLoader(dataLoader) {
@@ -49,7 +49,7 @@ class ArnoldiOperations {
   ~ArnoldiOperations() { oap::cuda::DeleteDeviceMatrix(value); }
 
   static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v,
-                           CuMatrix& cuProceduresApi,
+                           CuProceduresApi& cuProceduresApi,
                            void* userData, CuHArnoldi::MultiplicationType mt)
   {
     if (mt == CuHArnoldi::TYPE_WV) {

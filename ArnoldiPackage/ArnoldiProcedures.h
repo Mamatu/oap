@@ -23,7 +23,7 @@
 #include <vector>
 #include "Matrix.h"
 #include "KernelExecutor.h"
-#include "MatrixProcedures.h"
+#include "CuProceduresApi.h"
 
 #include "ArnoldiUtils.h"
 #include "MatrixInfo.h"
@@ -65,7 +65,7 @@ class CuHArnoldi {
 
  protected:  // methods - multiplication to implement
   virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
-                        CuMatrix& cuProceduresApi,
+                        CuProceduresApi& cuProceduresApi,
                         MultiplicationType mt) = 0;
 
  protected:  // methods - to drive algorithm
@@ -73,7 +73,7 @@ class CuHArnoldi {
                                uint index, uint max) = 0;
 
  protected:  // data, matrices
-  CuMatrix m_cuMatrix;
+  CuProceduresApi m_cuMatrix;
   math::Matrix* m_w;
   math::Matrix* m_f;
   math::Matrix* m_f1;

@@ -24,13 +24,13 @@ CuHArnoldiCallback::CuHArnoldiCallback() : CuHArnoldi() {}
 CuHArnoldiCallback::~CuHArnoldiCallback() {}
 
 void CuHArnoldiDefault::multiply(math::Matrix* w, math::Matrix* v,
-                                 CuMatrix& cuProceduresApi,
+                                 CuProceduresApi& cuProceduresApi,
                                  CuHArnoldi::MultiplicationType mt) {
   cuProceduresApi.dotProduct(w, m_A, v);
 }
 
 void CuHArnoldiCallback::multiply(math::Matrix* w, math::Matrix* v,
-                                  CuMatrix& cuProceduresApi,
+                                  CuProceduresApi& cuProceduresApi,
                                   CuHArnoldi::MultiplicationType mt) {
   m_multiplyFunc(w, v, cuProceduresApi, m_userData, mt);
 }

@@ -24,8 +24,8 @@
 #include "oapCudaStub.h"
 #include "MathOperationsCpu.h"
 #include "oapHostMatrixUtils.h"
-#include "CuMatrixProcedures/CuCompareUtils.h"
-#include "CuMatrixProcedures/CuCompareUtils2.h"
+#include "CuProcedures/CuCompareUtils.h"
+#include "CuProcedures/CuCompareUtils2.h"
 
 const int ct = 32;
 
