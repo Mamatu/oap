@@ -83,7 +83,7 @@ void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0,
 
 void CuProceduresApi::calculateQTHQ(math::Matrix* output, math::Matrix* H,
                              math::Matrix* Q, math::Matrix* aux) {
-  transposeMatrix(output, Q);
+  transpose(output, Q);
   dotProduct(aux, H, output);
   dotProduct(output, Q, aux);
 }
@@ -128,7 +128,7 @@ void CuProceduresApi::dotProductExOpt(math::Matrix* output, math::Matrix* params
       execute("CUDAKernel_DotProductExOpt", ocolumns, orows, params, size);
 }
 
-void CuProceduresApi::transposeMatrixEx(math::Matrix* output, math::Matrix* params0,
+void CuProceduresApi::transposeEx(math::Matrix* output, math::Matrix* params0,
                                  MatrixEx* matrixEx) {
   void* params[] = {&output, &params0, &matrixEx};
   const uintt w = CudaUtils::GetColumns(matrixEx);
@@ -136,7 +136,7 @@ void CuProceduresApi::transposeMatrixEx(math::Matrix* output, math::Matrix* para
   execute("CUDAKernel_TransposeEx", w, h, params, 0);
 }
 
-void CuProceduresApi::transposeMatrix(math::Matrix* output, math::Matrix* params0) {
+void CuProceduresApi::transpose(math::Matrix* output, math::Matrix* params0) {
   const uintt w = CudaUtils::GetColumns(output);
   const uintt h = CudaUtils::GetRows(output);
   if (w == 1 || h == 1) {
@@ -298,17 +298,17 @@ void CuProceduresApi::calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math
   m_cuResult = execute("CUDAKernel_CalculateTriangularHStep", w, h, params, 0);
 }
 
-void CuProceduresApi::multiplyConstantMatrix(math::Matrix* output,
-                                      math::Matrix* params0, floatt re) {
+void CuProceduresApi::multiplyReConstant(math::Matrix* output, math::Matrix* params0, floatt re)
+{
   void* params[] = {&output, &params0, &re};
   const uintt w = CudaUtils::GetColumns(output);
   const uintt h = CudaUtils::GetRows(output);
   m_cuResult = execute("CUDAKernel_MultiplyConstantRe", w, h, params, 0);
 }
 
-void CuProceduresApi::multiplyConstantMatrix(math::Matrix* output,
-                                      math::Matrix* params0, floatt re,
-                                      floatt im) {
+void CuProceduresApi::multiplyConstant(math::Matrix* output, math::Matrix* params0,
+                                             floatt re, floatt im)
+{
   void* params[] = {&output, &params0, &re, &im};
   const uintt w = CudaUtils::GetColumns(output);
   const uintt h = CudaUtils::GetRows(output);

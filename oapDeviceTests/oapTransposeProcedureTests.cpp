@@ -55,7 +55,7 @@ TEST_F(OapTransposeTests, DeviceTransposeTest) {
   oap::cuda::CopyHostMatrixToDeviceMatrix(dMatrix, hostMatrix);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dMatrixT, hostMatrixT);
 
-  m_cuMatrix->transposeMatrix(dMatrixT, dMatrix);
+  m_cuMatrix->transpose(dMatrixT, dMatrix);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrixT, dMatrixT);
 

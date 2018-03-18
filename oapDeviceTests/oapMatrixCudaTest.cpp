@@ -257,7 +257,7 @@ TEST_F(OapMatrixCudaTests, MultiplyConstantReMatrixTest) {
   math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
   oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
 
-  cuMatrix->multiplyConstantMatrix(doutput, dparam0, 5);
+  cuMatrix->multiplyReConstant(doutput, dparam0, 5);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
   eq_output = oap::host::NewReMatrixCopy(10, 10, hOutputArray);
@@ -283,7 +283,7 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest1) {
   MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
   oap::cuda::SetMatrixEx(matrixEx, &hMatrixEx);
 
-  cuMatrix->transposeMatrixEx(doutput, dparam0, matrixEx);
+  cuMatrix->transposeEx(doutput, dparam0, matrixEx);
 
   oap::cuda::DeleteDeviceMatrixEx(matrixEx);
   oap::cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
@@ -314,7 +314,7 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest2) {
   MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
   oap::cuda::SetMatrixEx(matrixEx, &hMatrixEx);
 
-  cuMatrix->transposeMatrixEx(doutput, dparam0, matrixEx);
+  cuMatrix->transposeEx(doutput, dparam0, matrixEx);
 
   oap::cuda::DeleteDeviceMatrixEx(matrixEx);
   oap::cuda::CopyDeviceMatrixToHostMatrix(output, doutput);
@@ -343,7 +343,7 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest3) {
   MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
   oap::cuda::SetMatrixEx(matrixEx, &hMatrixEx);
 
-  cuMatrix->transposeMatrixEx(doutput, dparam0, matrixEx);
+  cuMatrix->transposeEx(doutput, dparam0, matrixEx);
 
   oap::cuda::DeleteDeviceMatrixEx(matrixEx);
   oap::cuda::CopyDeviceMatrixToHostMatrix(output, doutput);

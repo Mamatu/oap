@@ -58,10 +58,10 @@ class CuProceduresApi {
   void dotProductExOpt(math::Matrix* output, math::Matrix* params0,
                        math::Matrix* params1, MatrixEx* matrixEx);
 
-  void transposeMatrixEx(math::Matrix* output, math::Matrix* params0,
+  void transposeEx(math::Matrix* output, math::Matrix* params0,
                          MatrixEx* matrixEx);
 
-  void transposeMatrix(math::Matrix* output, math::Matrix* params0);
+  void transpose(math::Matrix* output, math::Matrix* params0);
 
   void conjugateTranspose(math::Matrix* output, math::Matrix* params0);
 
@@ -97,9 +97,9 @@ class CuProceduresApi {
 
   void magnitude2OptVer2(floatt& output, math::Matrix* params0);
 
-  void multiplyConstantMatrix(math::Matrix* v, math::Matrix* f, floatt re);
+  void multiplyReConstant(math::Matrix* v, math::Matrix* f, floatt re);
 
-  void multiplyConstantMatrix(math::Matrix* v, math::Matrix* f, floatt re, floatt im);
+  void multiplyConstant(math::Matrix* v, math::Matrix* f, floatt re, floatt im);
 
   void setDiagonal(math::Matrix* matrix, floatt re, floatt im);
 
