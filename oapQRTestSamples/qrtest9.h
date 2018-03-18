@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef QRTEST9
 #define QRTEST9
 
@@ -131,4 +129,4 @@ const char* rref =
 }
 }
 
-#endif  // QRTEST9\
+#endif

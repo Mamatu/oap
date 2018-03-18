@@ -56,7 +56,7 @@ class OapQRTests : public testing::Test {
     math::Matrix* doutput1 = oap::cuda::NewDeviceMatrixCopy(q);
     math::Matrix* houtput = oap::host::NewMatrix(q);
 
-    m_cuMatrix->transposeMatrix(tdq, dq);
+    m_cuMatrix->transpose(tdq, dq);
     m_cuMatrix->dotProduct(doutput, tdq, dq);
     oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 

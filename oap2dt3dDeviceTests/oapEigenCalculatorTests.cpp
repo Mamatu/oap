@@ -115,12 +115,12 @@ class ArnoldiOperations {
 
     oap::DeviceMatrixUPtr vectorT = oap::cuda::NewDeviceReMatrix(vectorrows, 1);
 
-    cuProceduresApi.transposeMatrix(matrix1, drefMatrix);
-    cuProceduresApi.transposeMatrix(vectorT, dvector);
+    cuProceduresApi.transpose(matrix1, drefMatrix);
+    cuProceduresApi.transpose(vectorT, dvector);
     cuProceduresApi.dotProduct(leftMatrix, drefMatrix, matrix1);
 
     floatt value2 = value * value;
-    cuProceduresApi.multiplyConstantMatrix(vectorT, vectorT, value2);
+    cuProceduresApi.multiplyReConstant(vectorT, vectorT, value2);
     cuProceduresApi.dotProduct(rightMatrix, dvector, vectorT);
     bool compareResult = cuProceduresApi.compare(leftMatrix, rightMatrix);
 

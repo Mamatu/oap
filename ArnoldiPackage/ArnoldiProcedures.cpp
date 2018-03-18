@@ -339,7 +339,7 @@ void CuHArnoldi::executeInit() {
   traceFunction();
   multiply(m_w, m_v, m_cuMatrix, CuHArnoldi::TYPE_WV);
   m_cuMatrix.setVector(m_V, 0, m_v, m_vrows);
-  m_cuMatrix.transposeMatrix(m_transposeV, m_V);
+  m_cuMatrix.transpose(m_transposeV, m_V);
   m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
   m_cuMatrix.dotProduct(m_vh, m_V, m_h);
   m_cuMatrix.substract(m_f, m_w, m_vh);
@@ -373,12 +373,12 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
     }
 
     floatt rB = 1. / B;
-    m_cuMatrix.multiplyConstantMatrix(m_v, m_f, rB);
+    m_cuMatrix.multiplyReConstant(m_v, m_f, rB);
     m_cuMatrix.setVector(m_V, fa + 1, m_v, m_vrows);
     CudaUtils::SetZeroRow(m_H, fa + 1, true, true);
     CudaUtils::SetReValue(m_H, (fa) + m_Hcolumns * (fa + 1), B);
     multiply(m_w, m_v, m_cuMatrix, CuHArnoldi::TYPE_WV);
-    m_cuMatrix.transposeMatrix(m_transposeV, m_V);
+    m_cuMatrix.transpose(m_transposeV, m_V);
     m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
     m_cuMatrix.dotProduct(m_vh, m_V, m_h);
     m_cuMatrix.substract(m_f, m_w, m_vh);
@@ -420,8 +420,8 @@ void CuHArnoldi::executefVHplusfq(uint k)
   }
 
   m_cuMatrix.getVector(m_v, m_vrows, m_V, k);
-  m_cuMatrix.multiplyConstantMatrix(m_f1, m_v, reBm_k, imBm_k);
-  m_cuMatrix.multiplyConstantMatrix(m_f, m_f, reqm_k, imqm_k);
+  m_cuMatrix.multiplyConstant(m_f1, m_v, reBm_k, imBm_k);
+  m_cuMatrix.multiplyConstant(m_f, m_f, reqm_k, imqm_k);
   m_cuMatrix.add(m_f, m_f1, m_f);
   m_cuMatrix.setZeroMatrix(m_v);
 
@@ -492,7 +492,7 @@ floatt CuHArnoldi::checkEigenpairsInternally(const EigenPair& eigenPair, floatt 
   floatt value = eigenPair.re();
   m_cuMatrix.getVector(m_v, m_vrows, m_EV, eigenPair.getIndex());
   multiply(m_v1, m_v, m_cuMatrix, TYPE_EIGENVECTOR);  // m_cuMatrix.dotProduct(v1, H, v);
-  m_cuMatrix.multiplyConstantMatrix(m_v2, m_v, value);
+  m_cuMatrix.multiplyReConstant(m_v2, m_v, value);
   bool compare = m_cuMatrix.compare(m_v1, m_v2, tolerance);
   debug("Eigenvalue %f %f", value, m_cuMatrix.getCompareOperationSum());
   return m_cuMatrix.getCompareOperationSum();
