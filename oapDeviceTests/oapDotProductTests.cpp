@@ -28,12 +28,12 @@
 
 class OapDotProductTests : public testing::Test {
  public:
-  CuProceduresApi* cuMatrix;
+  oap::CuProceduresApi* cuMatrix;
   CUresult status;
 
   virtual void SetUp() {
     oap::cuda::Context::Instance().create();
-    cuMatrix = new CuProceduresApi();
+    cuMatrix = new oap::CuProceduresApi();
   }
 
   virtual void TearDown() {

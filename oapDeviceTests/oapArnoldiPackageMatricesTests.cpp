@@ -59,7 +59,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     }
 
     static void multiply(math::Matrix* m_w, math::Matrix* m_v,
-        CuProceduresApi& cuProceduresApi,
+        oap::CuProceduresApi& cuProceduresApi,
         void* userData, CuHArnoldi::MultiplicationType mt)
     {
       UserData* userDataObj = static_cast<UserData*>(userData);

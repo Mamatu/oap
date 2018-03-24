@@ -24,6 +24,9 @@
 #include "oapCudaMatrixUtils.h"
 #include <math.h>
 
+namespace oap
+{
+
 void CuProceduresApi::prepareDims(uintt w, uintt h) {
   uint blocks[2];
   uint threads[2];
@@ -461,3 +464,4 @@ floatt CuProceduresApi::getCompareOperationSum() const {
 }
 
 CUresult CuProceduresApi::getStatus() const { return m_cuResult; }
+}

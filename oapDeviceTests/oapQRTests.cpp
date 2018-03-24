@@ -36,13 +36,13 @@
 
 class OapQRTests : public testing::Test {
  public:
-  CuProceduresApi* m_cuMatrix;
+  oap::CuProceduresApi* m_cuMatrix;
   CUresult status;
 
   virtual void SetUp() {
     status = CUDA_SUCCESS;
     oap::cuda::Context::Instance().create();
-    m_cuMatrix = new CuProceduresApi();
+    m_cuMatrix = new oap::CuProceduresApi();
   }
 
   virtual void TearDown() {
