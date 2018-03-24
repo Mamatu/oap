@@ -50,7 +50,7 @@ void MainAPExecutor::setMaxIterationCounter(int maxIterationCounter)
   m_maxIterationCounter = maxIterationCounter;
 }
 
-std::shared_ptr<MainAPExecutor::Outcome> MainAPExecutor::run()
+std::shared_ptr<oap::Outcome> MainAPExecutor::run()
 {
   checkValidity();
   CuHArnoldiCallback cuharnoldi;
@@ -61,7 +61,7 @@ std::shared_ptr<MainAPExecutor::Outcome> MainAPExecutor::run()
 
   UserData userData = {dvalue, this};
 
-  cuharnoldi.setCallback(MainAPExecutor::multiplyFunc, &userData);
+  cuharnoldi.setCallback (MainAPExecutor::multiplyFunc, &userData);
 
   std::vector<floatt> revalues;
   std::vector<floatt> errors;
