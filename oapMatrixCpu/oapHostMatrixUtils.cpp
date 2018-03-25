@@ -27,7 +27,6 @@
 #include <memory>
 #include <linux/fs.h>
 #include "MatrixUtils.h"
-#include "ArrayTools.h"
 #include "ReferencesCounter.h"
 
 #define ReIsNotNULL(m) m->reValues != NULL
