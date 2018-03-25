@@ -23,7 +23,6 @@
 
 #include <math.h>
 
-#include "ArrayTools.h"
 #include "DebugLogs.h"
 #include "KernelExecutor.h"
 #include "ThreadsMapper.h"

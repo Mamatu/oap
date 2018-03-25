@@ -50,7 +50,7 @@ void MainAPExecutor::setMaxIterationCounter(int maxIterationCounter)
   m_maxIterationCounter = maxIterationCounter;
 }
 
-std::shared_ptr<MainAPExecutor::Outcome> MainAPExecutor::run()
+std::shared_ptr<oap::Outcome> MainAPExecutor::run()
 {
   checkValidity();
   CuHArnoldiCallback cuharnoldi;
@@ -61,7 +61,7 @@ std::shared_ptr<MainAPExecutor::Outcome> MainAPExecutor::run()
 
   UserData userData = {dvalue, this};
 
-  cuharnoldi.setCallback(MainAPExecutor::multiplyFunc, &userData);
+  cuharnoldi.setCallback (MainAPExecutor::multiplyFunc, &userData);
 
   std::vector<floatt> revalues;
   std::vector<floatt> errors;
@@ -97,7 +97,7 @@ std::shared_ptr<MainAPExecutor::Outcome> MainAPExecutor::run()
   return std::make_shared<Outcome>(revalues, errors, m_evectors);
 }
 
-void MainAPExecutor::multiplyFunc(math::Matrix* m_w, math::Matrix* m_v, CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+void MainAPExecutor::multiplyFunc(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
 {
   if (mt == CuHArnoldi::TYPE_WV)
   {

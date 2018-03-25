@@ -5,7 +5,7 @@ namespace oap
   MainFourierExecutor::MainFourierExecutor ()
   {}
 
-  void MainFourierExecutor::setOutcome(const std::shared_ptr<MainAPExecutor::Outcome>& outcome)
+  void MainFourierExecutor::setOutcome(const std::shared_ptr<oap::Outcome>& outcome)
   {
     m_outcome = outcome;
   }

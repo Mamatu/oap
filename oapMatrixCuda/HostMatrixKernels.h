@@ -35,6 +35,6 @@ void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
                                 math::Matrix* R1, math::Matrix* Q1,
                                 math::Matrix* QJ, math::Matrix* Q2,
                                 math::Matrix* R2, math::Matrix* G,
-                                math::Matrix* GT, CuProceduresApi& cuMatrix, uint count);
+                                math::Matrix* GT, oap::CuProceduresApi& cuMatrix, uint count);
 
 #endif  // HOSTMATRIXKERNELS_H

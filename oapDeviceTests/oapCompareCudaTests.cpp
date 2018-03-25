@@ -31,7 +31,7 @@ public:
 
     math::Matrix* output;
     math::Matrix* eq_output;
-    CuProceduresApi* cuMatrix;
+    oap::CuProceduresApi* cuMatrix;
     CUresult status;
 
     virtual void SetUp() {
@@ -39,7 +39,7 @@ public:
         oap::cuda::Context::Instance().create();
         output = NULL;
         eq_output = NULL;
-        cuMatrix = new CuProceduresApi();
+        cuMatrix = new oap::CuProceduresApi();
     }
 
     virtual void TearDown() {

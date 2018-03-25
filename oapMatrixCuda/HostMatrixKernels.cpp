@@ -142,7 +142,7 @@ void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
                                     math::Matrix* QJ, math::Matrix* Q2,
                                     math::Matrix* R2, math::Matrix* G,
                                     math::Matrix* GT,
-                                    CuProceduresApi& cuMatrix, uint count) {
+                                    oap::CuProceduresApi& cuMatrix, uint count) {
   bool status = false;
   cuMatrix.setIdentity(Q1);
   status = cuMatrix.isUpperTriangular(H1);

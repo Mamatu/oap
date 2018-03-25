@@ -30,7 +30,6 @@ int main()
 {
   oap::cuda::Context::Instance().create();
 
-  using Outcome = oap::MainAPExecutor::Outcome;
   oap::MainAPExecutor mainExecutor;
   oap::MainFourierExecutor mainFExec;
 
@@ -41,7 +40,7 @@ int main()
   mainExecutor.setWantedCount (wantedCount);
   mainExecutor.setInfo (oap::DataLoader::Info("oap2dt3d/data/images_monkey_125", "image_", 125, true));
 
-  std::shared_ptr<oap::MainAPExecutor::Outcome> outcome = mainExecutor.run ();
+  std::shared_ptr<oap::Outcome> outcome = mainExecutor.run ();
 
   for (size_t idx = 0; idx < wantedCount; ++idx)
   {

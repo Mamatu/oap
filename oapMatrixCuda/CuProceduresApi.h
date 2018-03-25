@@ -25,9 +25,11 @@
 #include "CudaUtils.h"
 #include "KernelExecutor.h"
 
-/*@mamatu todo optimalization - columns and rows should be taken from host
- * structures.*/
-class CuProceduresApi {
+namespace oap
+{
+
+class CuProceduresApi
+{
  public:
   CuProceduresApi();
   virtual ~CuProceduresApi();
@@ -184,7 +186,7 @@ private:
     T* m_buffer;
     uintt m_length;
 
-    Buffer(CuProceduresApi::Type type);
+    Buffer(oap::CuProceduresApi::Type type);
     ~Buffer();
 
     void realloc(uintt length);
@@ -210,7 +212,7 @@ private:
 };
 
 template <typename T>
-CuProceduresApi::Buffer<T>::Buffer(CuProceduresApi::Type type)
+CuProceduresApi::Buffer<T>::Buffer(oap::CuProceduresApi::Type type)
     : m_buffer(NULL), m_length(0), m_type(type) {
   // not implemented
 }
@@ -235,9 +237,9 @@ void CuProceduresApi::Buffer<T>::realloc(uintt length) {
 
 template <typename T>
 void CuProceduresApi::Buffer<T>::free(T* buffer) {
-  if (m_type == CuProceduresApi::CUDA) {
+  if (m_type == oap::CuProceduresApi::CUDA) {
     CudaUtils::FreeDeviceMem(m_buffer);
-  } else if (m_type == CuProceduresApi::HOST) {
+  } else if (m_type == oap::CuProceduresApi::HOST) {
     delete[] buffer;
   }
 }
@@ -245,9 +247,9 @@ void CuProceduresApi::Buffer<T>::free(T* buffer) {
 template <typename T>
 T* CuProceduresApi::Buffer<T>::alloc(uintt length) {
   switch (m_type) {
-    case CuProceduresApi::CUDA:
+    case oap::CuProceduresApi::CUDA:
       return static_cast<T*>(CudaUtils::AllocDeviceMem(length * sizeof(T)));
-    case CuProceduresApi::HOST:
+    case oap::CuProceduresApi::HOST:
       return new T[length];
   };
 }
@@ -287,6 +289,8 @@ inline void CuProceduresApi::add(math::Matrix* output, math::Matrix* params0,
   const uintt columns = CudaUtils::GetColumns(output);
   const uintt rows = CudaUtils::GetRows(output);
   add(output, params0, params1, columns, rows);
+}
+
 }
 
 #endif /* MATRIXPROCEDURES_H */
