@@ -78,7 +78,7 @@ const char* NotInitialzed::what() const throw() {
 }
 
 const char* TmpOapNotExist::what() const throw() {
-  return "Dir /tmp/Oap/* does not exist.";
+  return "Dir /tmp/Oap does not exist.";
 }
 
 
