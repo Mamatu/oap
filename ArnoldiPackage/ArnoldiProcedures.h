@@ -57,9 +57,6 @@ class CuHArnoldi {
   void execute(uint k, uint wantedCount, const math::MatrixInfo& matrixInfo,
                ArnUtils::Type matrixType = ArnUtils::DEVICE);
 
-  void extractOutput();
-  void extractOutput(math::Matrix* EV);
-
  public:  // types
   enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
 
@@ -240,6 +237,10 @@ class CuHArnoldi {
   void dealloc1();
   void dealloc2();
   void dealloc3();
+
+ private: // extract methods
+  void extractOutput();
+  void extractOutput(math::Matrix* EV);
 
  public:
   /**
