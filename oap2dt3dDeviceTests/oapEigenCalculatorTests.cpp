@@ -322,7 +322,7 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
   EXPECT_THROW(eigenCalc.calculate(), oap::exceptions::NotInitialzed);
 }
 
-TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
+TEST_F(OapEigenCalculatorTests, DISABLED_CalculateDeviceOutput) {
   oap::DataLoader::Info info("oap2dt3d/data/images_monkey", "image", 1000, true);
   TestCuHArnoldiCallback::launchDataTest(info, "CalculateDeviceOutput");
 }
