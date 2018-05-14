@@ -33,12 +33,10 @@ int main()
   oap::MainAPExecutor mainExecutor;
   oap::MainFourierExecutor mainFExec;
 
-  size_t wantedCount = 5;
+  size_t wantedCount = 100;
 
-  mainExecutor.setMaxIterationCounter(10);
-  mainExecutor.setEigensType(ArnUtils::HOST);
-  mainExecutor.setWantedCount (wantedCount);
-  mainExecutor.setInfo (oap::DataLoader::Info("oap2dt3d/data/images_monkey_125", "image_", 125, true));
+  mainExecutor->setEigensCount (100, wantedCount);
+  mainExecutor->loadData (oap::DataLoader::Info ("oap2dt3d/data/images_monkey_125", "image_", 125, true));
 
   std::shared_ptr<oap::Outcome> outcome = mainExecutor.run ();
 
@@ -52,7 +50,6 @@ int main()
     printf("error = %f \n", error);
     oap::host::PrintMatrix("wantedEV = ", vec);
     printf("---------------------------------------\n");
-
   }
 
   mainFExec.setOutcome (outcome);

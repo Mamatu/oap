@@ -1,10 +1,11 @@
 #ifndef MAIN_AP_EXECUTOR_H
 #define MAIN_AP_EXECUTOR_H
 
-#include "ArnoldiProceduresImpl.h"
 #include "ArnoldiUtils.h"
-#include "oapDeviceMatrixPtr.h"
+#include "IEigenCalculator.h"
 #include "DeviceDataLoader.h"
+
+#include "oapDeviceMatrixPtr.h"
 
 #include "Outcome.h"
 
@@ -17,37 +18,48 @@ namespace oap
 class MainAPExecutor
 {
   public:
-
     MainAPExecutor();
     ~MainAPExecutor();
 
-    void setEigensType(ArnUtils::Type eigensType);
+    std::shared_ptr<Outcome> run(ArnUtils::Type type = ArnUtils::HOST);
 
-    void setInfo (const oap::DataLoader::Info& info);
-
-    void setWantedCount(int wantedEigensCount);
-    void setMaxIterationCounter(int maxIterationCounter);
-
-    std::shared_ptr<oap::Outcome> run();
+    IEigenCalculator* operator->() const;
 
   private:
-    ArnUtils::Type m_eigensType;
-    oap::DataLoader::Info m_info;
-    CuHArnoldiCallback::MultiplyFunc m_callback;
+    class EigenCalculator;
+    MainAPExecutor(CuHArnoldiCallback* cuhArnolldi, bool deallocateArnoldi);
 
-    int m_wantedEigensCount;
-    int m_maxIterationCounter;
+    static void multiplyCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt);
 
-    oap::MatricesSharedPtr m_evectors;
-    std::shared_ptr<oap::DeviceDataLoader> m_ddloader;
+    EigenCalculator* m_eigenCalc;
+    CuHArnoldiCallback* m_cuhArnoldi;
+    bool m_bDeallocateArnoldi;
 
-    oap::CuProceduresApi* m_cuProcedures;
+  private:
+    class EigenCalculator : public IEigenCalculator
+    {
+      public:
+        EigenCalculator (CuHArnoldiCallback* cuhArnoldi) : IEigenCalculator(cuhArnoldi) {}
 
-    static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi,
-                             void* userData, CuHArnoldi::MultiplicationType mt);
+        ~EigenCalculator() {}
 
-    void checkValidity();
+        void setEigenvaluesOutput(floatt* eigenvalues)
+        {
+          IEigenCalculator::setEigenvaluesOutput (eigenvalues);
+        }
+
+        void setEigenvectorsOutput(math::Matrix** eigenvecs, ArnUtils::Type type)
+        {
+          IEigenCalculator::setEigenvectorsOutput (eigenvecs, type);
+        }
+
+        oap::DeviceDataLoader* getDataLoader() const
+        {
+          return IEigenCalculator::getDataLoader ();
+        }
+    };
 };
+
 }
 
 #endif

@@ -17,28 +17,43 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EigenCalculator.h"
+#include "IEigenCalculator.h"
 #include "Exceptions.h"
 #include "oapHostMatrixUtils.h"
 #include "ArnoldiProceduresImpl.h"
 
+#include "PngFile.h"
+#include "DeviceDataLoader.h"
+
 namespace oap {
 
-EigenCalculator::EigenCalculator(CuHArnoldi* cuHArnoldi)
+IEigenCalculator::IEigenCalculator(CuHArnoldi* cuHArnoldi)
     : m_eigensCount(0),
       m_eigenvectorsType(ArnUtils::UNDEFINED),
-      m_dataLoader(NULL),
+      m_dataLoader(nullptr),
+      m_bDestroyDataLoader(false),
       m_cuHArnoldi(cuHArnoldi),
-      m_revalues(NULL),
-      m_eigenvectors(NULL) {}
+      m_revalues(nullptr),
+      m_eigenvectors(nullptr) {}
 
-EigenCalculator::~EigenCalculator() {}
+IEigenCalculator::~IEigenCalculator()
+{}
 
-void EigenCalculator::setDataLoader(DataLoader* dataLoader) {
-  m_dataLoader = dataLoader;
+void IEigenCalculator::loadData (const DataLoader::Info& dataInfo)
+{
+  destroyDataLoader();
+  m_dataLoader = DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader> (dataInfo);
+  m_bDestroyDataLoader = true;
 }
 
-void EigenCalculator::calculate() {
+void IEigenCalculator::setDataLoader (DeviceDataLoader* dataLoader)
+{
+  destroyDataLoader();
+  m_dataLoader = dataLoader;
+  m_bDestroyDataLoader = false;
+}
+
+void IEigenCalculator::calculate() {
   checkIfInitialized();
 
   math::MatrixInfo matrixInfo = m_dataLoader->getMatrixInfo();
@@ -48,71 +63,92 @@ void EigenCalculator::calculate() {
   m_cuHArnoldi->setCheckType(ArnUtils::CHECK_INTERNAL);
   m_cuHArnoldi->setCalcTraingularHType(ArnUtils::CALC_IN_HOST);
 
-  const unsigned int hdim = 32;
-
   m_cuHArnoldi->setOutputsEigenvalues(m_revalues, NULL);
   m_cuHArnoldi->setOutputsEigenvectors(m_eigenvectors);
 
-  m_cuHArnoldi->execute(hdim, m_eigensCount, matrixInfo);
+  m_cuHArnoldi->execute(m_eigensCount, m_wantedEigensCount, matrixInfo);
 }
 
-void EigenCalculator::setEigensCount(size_t eigensCount) {
+void IEigenCalculator::setEigensCount(size_t eigensCount, size_t wantedEigensCount) {
   m_eigensCount = eigensCount;
+  m_wantedEigensCount = wantedEigensCount;
 }
 
-void EigenCalculator::setEigenvaluesOutput(floatt* revalues) {
+void IEigenCalculator::setEigenvaluesOutput(floatt* revalues) {
   m_revalues = revalues;
 }
 
-void EigenCalculator::setEigenvectorsOutput(math::Matrix** eigenvectors, ArnUtils::Type eigenvectorsType) {
+oap::DeviceDataLoader* IEigenCalculator::getDataLoader() const
+{
+  return m_dataLoader;
+}
+
+void IEigenCalculator::setEigenvectorsOutput(math::Matrix** eigenvectors, ArnUtils::Type eigenvectorsType) {
   m_eigenvectors = eigenvectors;
   m_eigenvectorsType = eigenvectorsType;
 }
 
-ArnUtils::Type EigenCalculator::getEigenvectorsType() const {
+ArnUtils::Type IEigenCalculator::getEigenvectorsType() const {
   return m_eigenvectorsType;
 }
 
-
-math::MatrixInfo EigenCalculator::getMatrixInfo() const {
+math::MatrixInfo IEigenCalculator::getMatrixInfo() const {
   checkIfDataLoaderInitialized();
   return m_dataLoader->getMatrixInfo();
 }
 
-void EigenCalculator::checkIfInitialized() const {
+size_t IEigenCalculator::getEigensCount() const
+{
+  return m_eigensCount;
+}
+
+size_t IEigenCalculator::getWantedEigensCount() const
+{
+  return m_wantedEigensCount;
+}
+
+void IEigenCalculator::checkIfInitialized() const {
   if (!isInitialized()) {
     throw oap::exceptions::NotInitialzed();
   }
 }
 
-void EigenCalculator::checkIfOutputInitialized() const {
+void IEigenCalculator::checkIfOutputInitialized() const {
   if (!isOutputInitialized()) {
     throw oap::exceptions::NotInitialzed();
   }
 }
 
-void EigenCalculator::checkIfDataLoaderInitialized() const {
+void IEigenCalculator::checkIfDataLoaderInitialized() const {
   if (!isDataLoaderInitialized()) {
     throw oap::exceptions::NotInitialzed();
   }
 }
 
-bool EigenCalculator::isInitialized() const {
+bool IEigenCalculator::isInitialized() const {
   return m_eigensCount > 0 && m_eigenvectorsType != ArnUtils::UNDEFINED &&
          isOutputInitialized() && isDataLoaderInitialized();
 }
 
-bool EigenCalculator::isOutputInitialized() const {
+bool IEigenCalculator::isOutputInitialized() const {
   return m_eigenvectors != NULL && m_revalues != NULL;
 }
 
-bool EigenCalculator::isDataLoaderInitialized() const {
+bool IEigenCalculator::isDataLoaderInitialized() const {
   return m_dataLoader != NULL;
 }
 
-void EigenCalculator::checkOutOfRange(size_t v, size_t max) const {
+void IEigenCalculator::checkOutOfRange(size_t v, size_t max) const {
   if (v >= max) {
     throw oap::exceptions::OutOfRange(v, max);
+  }
+}
+
+void IEigenCalculator::destroyDataLoader()
+{
+  if (m_bDestroyDataLoader)
+  {
+    delete m_dataLoader;
   }
 }
 }
