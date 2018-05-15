@@ -151,6 +151,7 @@ void CuHArnoldi::execute(uint hdim, uint m_wantedCount,
   traceFunction();
   debugAssert(m_wantedCount != 0);
   debugAssert(m_outputType != ArnUtils::UNDEFINED);
+  debugAssert(hdim >= m_wantedCount);
 
   setCalculateTriangularHPtr(hdim);
 
@@ -335,7 +336,8 @@ void CuHArnoldi::getWanted(const std::vector<EigenPair>& values, std::vector<Eig
   }
 }
 
-void CuHArnoldi::executeInit() {
+void CuHArnoldi::executeInit()
+{
   traceFunction();
   multiply(m_w, m_v, m_cuMatrix, CuHArnoldi::TYPE_WV);
   m_cuMatrix.setVector(m_V, 0, m_v, m_vrows);
@@ -432,7 +434,7 @@ bool CuHArnoldi::executeChecking(uint k)
 {
   traceFunction();
 
-  assert(m_wanted.size() == k);
+  debugAssert(m_wanted.size() == k);
 
   if (m_checkType == ArnUtils::CHECK_INTERNAL)
   {

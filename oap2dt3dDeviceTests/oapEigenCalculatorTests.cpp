@@ -20,7 +20,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "PngFile.h"
-#include "EigenCalculator.h"
+#include "IEigenCalculator.h"
 #include "DeviceDataLoader.h"
 #include "Exceptions.h"
 #include "MatchersUtils.h"
@@ -34,6 +34,29 @@
 #include <memory>
 
 using namespace ::testing;
+
+class EigenCalculator : public oap::IEigenCalculator
+{
+  public:
+    EigenCalculator (CuHArnoldiCallback* cuhArnoldi) : oap::IEigenCalculator(cuhArnoldi) {}
+
+    ~EigenCalculator() {}
+
+    void setEigenvaluesOutput(floatt* eigenvalues)
+    {
+      oap::IEigenCalculator::setEigenvaluesOutput (eigenvalues);
+    }
+
+    void setEigenvectorsOutput(math::Matrix** eigenvecs, ArnUtils::Type type)
+    {
+      oap::IEigenCalculator::setEigenvectorsOutput (eigenvecs, type);
+    }
+
+    oap::DeviceDataLoader* getDataLoader() const
+    {
+      return oap::IEigenCalculator::getDataLoader ();
+    }
+};
 
 class ArnoldiOperations {
  public:
@@ -71,7 +94,8 @@ class ArnoldiOperations {
     }
   }
 
-  bool verifyOutput(math::Matrix* vector, floatt value, oap::EigenCalculator* eigenCalc) {
+  bool verifyOutput (math::Matrix* vector, floatt value, EigenCalculator* eigenCalc)
+  {
     math::Matrix* matrix = m_dataLoader->createMatrix();
 
     const uintt partSize = matrix->columns;
@@ -204,11 +228,11 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
     floatt reoevalues[wantedEigensCount];
 
-    oap::EigenCalculator eigenCalculator(&cuharnoldi);
+    EigenCalculator eigenCalculator(&cuharnoldi);
 
-    eigenCalculator.setDataLoader(dataLoader.get());
+    eigenCalculator.setDataLoader (dataLoader.get());
 
-    eigenCalculator.setEigensCount(wantedEigensCount);
+    eigenCalculator.setEigensCount(wantedEigensCount, wantedEigensCount);
 
     math::MatrixInfo matrixInfo = eigenCalculator.getMatrixInfo();
 
@@ -294,11 +318,11 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
 TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
   TestCuHArnoldiCallback cuharnoldi(nullptr);
-  oap::EigenCalculator eigenCalc(&cuharnoldi);
+  EigenCalculator eigenCalc(&cuharnoldi);
   EXPECT_THROW(eigenCalc.calculate(), oap::exceptions::NotInitialzed);
 }
 
-TEST_F(OapEigenCalculatorTests, CalculateDeviceOutput) {
+TEST_F(OapEigenCalculatorTests, DISABLED_CalculateDeviceOutput) {
   oap::DataLoader::Info info("oap2dt3d/data/images_monkey", "image", 1000, true);
   TestCuHArnoldiCallback::launchDataTest(info, "CalculateDeviceOutput");
 }

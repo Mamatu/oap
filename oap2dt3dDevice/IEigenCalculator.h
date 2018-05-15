@@ -17,36 +17,44 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EIGENCALCULATOR_H
-#define EIGENCALCULATOR_H
+#ifndef IEIGENCALCULATOR_H
+#define IEIGENCALCULATOR_H
 
 #include <vector>
 
-#include "DataLoader.h"
+#include "DeviceDataLoader.h"
 #include "ArnoldiProceduresImpl.h"
 
 namespace oap {
 
-typedef std::vector<DataLoader*> DataLoaders;
+using DataLoaders = std::vector<DataLoader*>;
 
-class EigenCalculator {
+class IEigenCalculator {
  public:
-  EigenCalculator(CuHArnoldi* cuHArnoldi);
-  virtual ~EigenCalculator();
+  IEigenCalculator(CuHArnoldi* cuHArnoldi);
+  virtual ~IEigenCalculator() = 0;
 
-  void setDataLoader(DataLoader* dataLoader);
+  void loadData (const DataLoader::Info& dataInfo);
+  void setDataLoader (DeviceDataLoader* dataLoader);
 
   void calculate();
 
-  void setEigensCount(size_t eigensCount);
-
-  void setEigenvaluesOutput(floatt*);
-
-  void setEigenvectorsOutput(math::Matrix**, ArnUtils::Type);
+  void setEigensCount(size_t eigensCount, size_t wantedEigensCount);
 
   ArnUtils::Type getEigenvectorsType() const;
 
   math::MatrixInfo getMatrixInfo() const;
+
+  size_t getEigensCount() const;
+  size_t getWantedEigensCount() const;
+
+ protected:
+  void setEigenvaluesOutput(floatt*);
+
+  void setEigenvectorsOutput(math::Matrix**, ArnUtils::Type);
+  
+  oap::DeviceDataLoader* getDataLoader() const;
+
  private:
   void checkIfInitialized() const;
   void checkIfOutputInitialized() const;
@@ -64,9 +72,14 @@ class EigenCalculator {
   void createArnoldiModule();
   void destroyArnoldiModule();
 
+  void destroyDataLoader();
+
   size_t m_eigensCount;
+  size_t m_wantedEigensCount;
+
   ArnUtils::Type m_eigenvectorsType;
-  DataLoader* m_dataLoader;
+  DeviceDataLoader* m_dataLoader;
+  bool m_bDestroyDataLoader;
   CuHArnoldi* m_cuHArnoldi;
 
   floatt* m_revalues;
