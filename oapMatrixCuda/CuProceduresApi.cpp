@@ -61,7 +61,7 @@ CuProceduresApi::CuProceduresApi()
       m_dqrBuffer(CuProceduresApi::CUDA),
       m_compareOperationOutput(0) {
   init();
-  m_magniuteOutput = CudaUtils::AllocDeviceObj<floatt>(0);
+  m_magnitudeOutput = CudaUtils::AllocDeviceObj<floatt>(0);
   m_doutputIsTriangular = CudaUtils::AllocDeviceObj<int>(0);
 }
 
@@ -73,7 +73,7 @@ void CuProceduresApi::init() {
 }
 
 CuProceduresApi::~CuProceduresApi() {
-  CudaUtils::FreeDeviceObj(m_magniuteOutput);
+  CudaUtils::FreeDeviceObj(m_magnitudeOutput);
   CudaUtils::FreeDeviceObj(m_doutputIsTriangular);
   m_kernel.unload();
 }

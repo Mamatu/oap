@@ -138,7 +138,7 @@ class CuProceduresApi
   CUresult m_cuResult;
 
   int* m_doutputIsTriangular;
-  floatt* m_magniuteOutput;
+  floatt* m_magnitudeOutput;
 
   bool m_isIntialized;
   oap::cuda::Kernel m_kernel;
