@@ -52,7 +52,7 @@ class IEigenCalculator {
   void setEigenvaluesOutput(floatt*);
 
   void setEigenvectorsOutput(math::Matrix**, ArnUtils::Type);
-  
+
   oap::DeviceDataLoader* getDataLoader() const;
 
  private:
