@@ -21,6 +21,8 @@ class MainAPExecutor
     MainAPExecutor();
     ~MainAPExecutor();
 
+    void destroy();
+
     std::shared_ptr<Outcome> run(ArnUtils::Type type = ArnUtils::HOST);
 
     IEigenCalculator* operator->() const;

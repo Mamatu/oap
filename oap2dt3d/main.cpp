@@ -55,6 +55,7 @@ int main()
   mainFExec.setOutcome (outcome);
   mainFExec.run();
 
+  mainExecutor.destroy();
   oap::cuda::Context::Instance().destroy();
   return 0;
 }

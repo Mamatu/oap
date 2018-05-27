@@ -18,10 +18,17 @@ MainAPExecutor::MainAPExecutor() :
 
 MainAPExecutor::~MainAPExecutor()
 {
+  destroy();
+}
+
+void MainAPExecutor::destroy()
+{
   delete m_eigenCalc;
+  m_eigenCalc = nullptr;
   if (m_bDeallocateArnoldi)
   {
     delete m_cuhArnoldi;
+    m_cuhArnoldi = nullptr;
   }
 }
 
