@@ -31,7 +31,8 @@ class MainAPExecutor
     class EigenCalculator;
     MainAPExecutor(CuHArnoldiCallback* cuhArnolldi, bool deallocateArnoldi);
 
-    static void multiplyCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt);
+    static void multiplyMatrixCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt);
+    static void multiplyVecsCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt);
 
     EigenCalculator* m_eigenCalc;
     CuHArnoldiCallback* m_cuhArnoldi;
