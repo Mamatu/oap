@@ -41,10 +41,26 @@ math::Matrix* DeviceDataLoader::createDeviceRowVector(size_t index) {
   return device;
 }
 
+math::Matrix* DeviceDataLoader::getDeviceRowVector(size_t index, math::Matrix* dmatrix)
+{
+  math::Matrix* host = createRowVector(index);
+  oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, host);
+  oap::host::DeleteMatrix(host);
+  return dmatrix;
+}
+
 math::Matrix* DeviceDataLoader::createDeviceColumnVector(size_t index) {
   math::Matrix* host = createColumnVector(index);
   math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
   oap::host::DeleteMatrix(host);
   return device;
+}
+
+math::Matrix* DeviceDataLoader::getDeviceColumnVector(size_t index, math::Matrix* dmatrix)
+{
+  math::Matrix* host = createColumnVector(index);
+  oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, host);
+  oap::host::DeleteMatrix(host);
+  return dmatrix;
 }
 }

@@ -38,7 +38,21 @@ struct UserData
   DeviceDataLoader* dataLoader;
 };
 
-void MainAPExecutor::multiplyCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+void MainAPExecutor::multiplyMatrixCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+{
+  if (mt == CuHArnoldi::TYPE_WV)
+  {
+    UserData* udObj = static_cast<UserData*>(userData);
+    auto dataLoader = udObj->dataLoader;
+    auto dvalue = udObj->value;
+
+    math::Matrix* dmatrix = dataLoader->createDeviceMatrix();
+    cuProceduresApi.dotProduct(m_w, dmatrix, m_v);
+    oap::cuda::DeleteDeviceMatrix(dmatrix);
+  }
+}
+
+void MainAPExecutor::multiplyVecsCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
 {
   if (mt == CuHArnoldi::TYPE_WV)
   {
@@ -46,9 +60,15 @@ void MainAPExecutor::multiplyCallback(math::Matrix* m_w, math::Matrix* m_v, oap:
     auto dataLoader = udObj->dataLoader;
     auto dvalue = udObj->value;
     math::MatrixInfo matrixInfo = dataLoader->getMatrixInfo();
-    for (uintt index = 0; index < matrixInfo.m_matrixDim.columns; ++index)
+
+    math::Matrix* vec = dataLoader->createDeviceRowVector(0);
+    cuProceduresApi.dotProduct(dvalue, vec, m_v);
+    oap::cuda::SetMatrix(m_w, dvalue, 0, 0);
+    oap::cuda::DeleteDeviceMatrix(vec);
+
+    for (uintt index = 1; index < matrixInfo.m_matrixDim.rows; ++index)
     {
-      math::Matrix* vec = dataLoader->createDeviceRowVector(index);
+      vec = dataLoader->getDeviceRowVector(index, vec);
       cuProceduresApi.dotProduct(dvalue, vec, m_v);
       oap::cuda::SetMatrix(m_w, dvalue, 0, index);
       oap::cuda::DeleteDeviceMatrix(vec);
@@ -62,7 +82,7 @@ std::shared_ptr<Outcome> MainAPExecutor::run(ArnUtils::Type type)
 
   UserData userData = {dvalue, m_eigenCalc->getDataLoader()};
 
-  m_cuhArnoldi->setCallback (MainAPExecutor::multiplyCallback, &userData);
+  m_cuhArnoldi->setCallback (MainAPExecutor::multiplyMatrixCallback, &userData);
 
   std::vector<floatt> revalues;
   std::vector<floatt> errors;
