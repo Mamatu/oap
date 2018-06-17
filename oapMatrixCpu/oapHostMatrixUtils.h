@@ -257,31 +257,40 @@ floatt GetImValue(const math::Matrix* matrix, uintt column, uintt row);
  * @param row
  * @param value
  */
-void SetImValue(const math::Matrix* matrix, uintt column, uintt row,
-                floatt value);
+void SetImValue(const math::Matrix* matrix, uintt column, uintt row, floatt value);
 
 std::string GetMatrixStr(const math::Matrix* matrix);
 
 /**
- * @brief PrintMatrix
- * @param text
- * @param matrix
+ *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
  */
-void PrintMatrix(const std::string& text, const math::Matrix* matrix);
-
-void PrintMatrix(FILE* stream, const std::string& text, const math::Matrix* matrix);
-
-void PrintMatrix(FILE* stream, const math::Matrix* matrix);
+void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zrr = 0.f);
 
 /**
- * @brief PrintMatrix
- * @param matrix
+ *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
  */
-void PrintMatrix(const math::Matrix* matrix);
+void PrintMatrix(FILE* stream, const std::string& text, const math::Matrix* matrix, floatt zrr = 0.f);
 
-bool PrintMatrixToFile(const std::string& path, const std::string& text, const math::Matrix* matrix);
+/**
+ *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
+ */
+void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zrr = 0.f);
 
-bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix);
+/**
+ *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
+ */
+void PrintMatrix(const math::Matrix* matrix, floatt zrr = 0.f);
+
+/**
+ *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
+ */
+bool PrintMatrixToFile(const std::string& path, const std::string& text, const math::Matrix* matrix, floatt zrr = 0.f);
+
+/**
+ *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
+ */
+bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix, floatt zrr = 0.f);
+
 /**
  * @brief PrintImMatrix
  * @param stream
