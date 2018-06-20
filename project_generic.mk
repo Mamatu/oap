@@ -47,7 +47,7 @@ OAP_INCLUDES += ArnoldiPackage
 OAP_INCLUDES += oapQRTestSamples
 OAP_INCLUDES += oapTests
 OAP_INCLUDES += oapHostTests
-OAP_INCLUDES += oap2dt3dUtils
+OAP_INCLUDES += oapAppUtils
 OAP_INCLUDES += oap2dt3dDevice
 
 TARGET_ARCH := DEVICE_HOST
@@ -86,7 +86,7 @@ OAP_MODULES += oapDeviceTests
 endif
 
 ifeq ($(COMPILE_HOST),1)
-OAP_MODULES += oap2dt3dUtils
+OAP_MODULES += oapAppUtils
 OAP_MODULES += oap2dt3dTests
 OAP_MODULES += oap2dt3dFuncTests
 endif
