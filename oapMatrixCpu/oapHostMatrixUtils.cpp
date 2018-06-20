@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2017 Marcin Matula
+ * Copyright 2016 - 2018 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -276,35 +276,35 @@ std::string GetMatrixStr(const math::Matrix* matrix) {
   return output;
 }
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix) {
-  PrintMatrix(stdout, text, matrix);
+void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zrr) {
+  PrintMatrix(stdout, text, matrix, zrr);
 }
 
-void PrintMatrix(FILE* stream, const std::string& text, const math::Matrix* matrix) {
+void PrintMatrix(FILE* stream, const std::string& text, const math::Matrix* matrix, floatt zrr) {
   std::string output = text;
   if (text.size() > 0) {
     output += " ";
   }
-  matrixUtils::PrintMatrix(output, matrix);
+  matrixUtils::PrintMatrix(output, matrix, zrr);
   fprintf(stream, "%s HOST \n", output.c_str());
 }
 
-void PrintMatrix(FILE* stream, const math::Matrix* matrix) {
-  PrintMatrix(stdout, "", matrix);
+void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zrr) {
+  PrintMatrix(stdout, "", matrix, zrr);
 }
 
-void PrintMatrix(const math::Matrix* matrix) { PrintMatrix("", matrix); }
+void PrintMatrix(const math::Matrix* matrix, floatt zrr) { PrintMatrix("", matrix, zrr); }
 
-bool PrintMatrixToFile(const std::string& path, const std::string& text, const math::Matrix* matrix) {
+bool PrintMatrixToFile(const std::string& path, const std::string& text, const math::Matrix* matrix, floatt zrr) {
   FILE* file = fopen(path.c_str(), "w");
   if (file == NULL) { return false; }
-  PrintMatrix(file, text, matrix);
+  PrintMatrix(file, text, matrix, zrr);
   fclose(file);
   return true;
 }
 
-bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix) {
-  return PrintMatrixToFile(path, "", matrix);
+bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix, floatt zrr) {
+  return PrintMatrixToFile(path, "", matrix, zrr);
 }
 
 void Copy(math::Matrix* dst, const math::Matrix* src, const MatrixEx& subMatrix,
