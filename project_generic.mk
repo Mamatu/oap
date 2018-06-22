@@ -97,6 +97,11 @@ OAP_MODULES += oap2dt3dDeviceTests
 OAP_MODULES += oap2dt3d
 endif
 
+ifeq ($(COMPILE_DEVICE),1)
+OAP_MODULES += oapNeuralDevice
+OAP_MODULES += oapNeural
+endif
+
 CU_OAP_MODULES := oapCuda
 CU_OAP_MODULES += oapMatrixCuda
 CU_OAP_MODULES += oapCudaTests
