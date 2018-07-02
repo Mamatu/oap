@@ -113,6 +113,8 @@ class CuProceduresApi
 
   bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0);
 
+  void sigmoid(math::Matrix* matrix);
+
   floatt getCompareOperationSum() const;
 
   void QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H, math::Matrix* R1,

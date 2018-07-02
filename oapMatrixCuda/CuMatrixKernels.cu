@@ -273,6 +273,10 @@ extern "C" __global__ void CUDAKernel_IsUpperTriangular(int* outcome,
   (*outcome) = is;
 }
 
+extern "C" __global__ void CUDAKernel_Sigmoid(math::Matrix* matrix) {
+  CUDA_sigmoidMatrix (matrix, matrix);
+}
+
 extern "C" __global__ void CUDAKernel_CalculateTriangularH(
     math::Matrix* H, math::Matrix* Q, math::Matrix* R,
     math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,

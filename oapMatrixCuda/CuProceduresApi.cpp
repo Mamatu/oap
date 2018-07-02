@@ -345,6 +345,16 @@ bool CuProceduresApi::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, 
   return (-tolerance <= o && o <= tolerance);
 }
 
+void CuProceduresApi::sigmoid(math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(matrix);
+  const uintt h = CudaUtils::GetRows(matrix);
+
+  void* params[] = {&matrix, &matrix};
+
+  m_cuResult = execute("CUDAKernel_Sigmoid", w, h, params, 0);
+}
+
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
                                 math::Matrix* matrix2, uintt w, uintt h,
                                 uintt wthreads, uintt hthreads) {
