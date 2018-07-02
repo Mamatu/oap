@@ -28,9 +28,10 @@
 
 #include "Matrix.h"
 
-namespace deleters {
+namespace deleters
+{
 
-  using MatrixDeleter = void(*)(math::Matrix*);
+  using MatrixDeleter = void(*)(const math::Matrix*);
 
   class MatricesDeleter {
       unsigned int m_count;
@@ -49,7 +50,8 @@ namespace deleters {
   };
 }
 
-namespace smartptr_utils {
+namespace smartptr_utils
+{
 
   template<typename T>
   T* makeArray(size_t count)

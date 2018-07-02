@@ -37,6 +37,11 @@ Image::~Image() {}
 bool Image::read(void* buffer, size_t size) { return read(buffer, 1, size); }
 
 void Image::loadBitmap() {
+  if (!isOpened ())
+  {
+    open();
+  }
+
   if (!m_loadedBitmap) {
     m_loadedBitmap = true;
     loadBitmapProtected();
