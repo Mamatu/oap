@@ -220,7 +220,7 @@ math::Matrix* NewImMatrixCopy(uint columns, uint rows, T* imArray)
  * @brief DeleteMatrix
  * @param matrix
  */
-void DeleteMatrix(math::Matrix* matrix);
+void DeleteMatrix(const math::Matrix* matrix);
 
 /**
  * @brief GetReValue
@@ -623,7 +623,6 @@ bool WriteMatrix(const std::string& path, const math::Matrix* matrix);
 inline bool IsReMatrix(math::Matrix* m) { return m != NULL && m->reValues != NULL; }
 
 inline bool IsImMatrix(math::Matrix* m) { return m != NULL && m->imValues != NULL; }
-
 }
 }
 

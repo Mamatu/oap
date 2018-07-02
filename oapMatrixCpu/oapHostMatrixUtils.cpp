@@ -39,30 +39,9 @@ std::ostream& operator<<(std::ostream& output, const math::Matrix*& matrix) {
                 << "]";
 }
 
-class MatricesCounter : public ReferencesCounter<math::Matrix*> {
- public:
-  MatricesCounter() : ReferencesCounter<math::Matrix*>("MatricesCounter") {}
+#define NEW_MATRIX() new math::Matrix();
 
-  static MatricesCounter& GetInstance();
-
- protected:
-  virtual math::Matrix* createObject() { return new math::Matrix(); }
-
-  virtual void destroyObject(math::Matrix*& t) { delete t; }
-
- private:
-  static MatricesCounter m_matricesCounter;
-};
-
-MatricesCounter MatricesCounter::m_matricesCounter;
-
-MatricesCounter& MatricesCounter::GetInstance() {
-  return MatricesCounter::m_matricesCounter;
-}
-
-#define NEW_MATRIX() MatricesCounter::GetInstance().create();
-
-#define DELETE_MATRIX(matrix) MatricesCounter::GetInstance().destroy(matrix);
+#define DELETE_MATRIX(matrix) delete matrix;
 
 #else
 
@@ -229,7 +208,7 @@ math::Matrix* NewMatrix(const std::string& text) {
   return matrix;
 }
 
-void DeleteMatrix(math::Matrix* matrix) {
+void DeleteMatrix(const math::Matrix* matrix) {
   if (NULL == matrix) {
     return;
   }

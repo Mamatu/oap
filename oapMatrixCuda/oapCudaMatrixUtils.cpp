@@ -124,7 +124,7 @@ math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue,
   return dmatrix;
 }
 
-void DeleteDeviceMatrix(math::Matrix* dMatrix) {
+void DeleteDeviceMatrix(const math::Matrix* dMatrix) {
   if (dMatrix != NULL) {
     MatrixInfos::iterator it = globalMatrixInfos.find(dMatrix);
     if (globalMatrixInfos.end() != it) {

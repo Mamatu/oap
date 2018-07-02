@@ -101,7 +101,7 @@ math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
  * @brief DeleteDeviceMatrix
  * @param deviceMatrix
  */
-void DeleteDeviceMatrix(math::Matrix* deviceMatrix);
+void DeleteDeviceMatrix(const math::Matrix* deviceMatrix);
 
 /**
  *
