@@ -63,14 +63,14 @@ class OapSchurDecomposition : public testing::Test {
                    OapSchurDecomposition::KernelType kernelType) {
     oap::CuProceduresApi cuMatrix;
     math::Matrix* matrix = oap::cuda::NewDeviceMatrix(matrixStr);
-    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(matrix);
-    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(matrix);
-    math::Matrix* matrix3 = oap::cuda::NewDeviceMatrix(matrix);
-    math::Matrix* matrix4 = oap::cuda::NewDeviceMatrix(matrix);
-    math::Matrix* matrix5 = oap::cuda::NewDeviceMatrix(matrix);
-    math::Matrix* matrix6 = oap::cuda::NewDeviceMatrix(matrix);
-    math::Matrix* matrix7 = oap::cuda::NewDeviceMatrix(matrix);
-    math::Matrix* matrix8 = oap::cuda::NewDeviceMatrix(matrix);
+    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::Matrix* matrix3 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::Matrix* matrix4 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::Matrix* matrix5 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::Matrix* matrix6 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::Matrix* matrix7 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::Matrix* matrix8 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
 
     math::Matrix* eq_hostMatrix = oap::host::NewMatrix(eq_matrixStr);
     math::Matrix* eq_initMatrix = oap::host::NewMatrix(matrixStr);

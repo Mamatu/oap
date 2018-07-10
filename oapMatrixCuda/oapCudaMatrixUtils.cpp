@@ -54,7 +54,7 @@ math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix) {
   return NewDeviceMatrix(hostMatrix, hostMatrix->columns, hostMatrix->rows);
 }
 
-math::Matrix* NewDeviceMatrix(const math::Matrix* deviceMatrix) {
+math::Matrix* NewDeviceMatrixDeviceRef(const math::Matrix* deviceMatrix) {
   uintt columns = CudaUtils::GetColumns(deviceMatrix);
   uintt rows = CudaUtils::GetRows(deviceMatrix);
   bool hasRe = CudaUtils::GetReValues(deviceMatrix) != NULL;

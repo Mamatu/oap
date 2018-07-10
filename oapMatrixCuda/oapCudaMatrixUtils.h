@@ -50,8 +50,7 @@ math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue = 0.f,
  * @return
  */
 math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix);
-
-math::Matrix* NewDeviceMatrix(const math::Matrix* deviceMatrix);
+math::Matrix* NewDeviceMatrixDeviceRef(const math::Matrix* deviceMatrix);
 
 math::Matrix* NewDeviceMatrix(const std::string& matrixStr);
 
