@@ -355,6 +355,26 @@ void CuProceduresApi::sigmoid(math::Matrix* matrix)
   m_cuResult = execute("CUDAKernel_Sigmoid", w, h, params, 0);
 }
 
+void CuProceduresApi::sigmoidDerivative(math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(matrix);
+  const uintt h = CudaUtils::GetRows(matrix);
+
+  void* params[] = {&matrix, &matrix};
+
+  m_cuResult = execute("CUDAKernel_SigmoidDerivative", w, h, params, 0);
+}
+
+void CuProceduresApi::multiplySigmoidDerivative(math::Matrix* omatrix, math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(omatrix);
+  const uintt h = CudaUtils::GetRows(omatrix);
+
+  void* params[] = {&omatrix, &matrix};
+
+  m_cuResult = execute("CUDAKernel_MultiplySigmoidDerivative", w, h, params, 0);
+}
+
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
                                 math::Matrix* matrix2, uintt w, uintt h,
                                 uintt wthreads, uintt hthreads) {
