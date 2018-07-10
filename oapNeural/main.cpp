@@ -26,7 +26,9 @@
 
 #include "KernelExecutor.h"
 #include "CuProceduresApi.h"
+
 #include "oapHostMatrixUPtr.h"
+#include "oapDeviceMatrixUPtr.h"
 
 #include <vector>
 #include <cmath>
@@ -37,11 +39,12 @@ class Layer
 {
   public:
     math::Matrix* m_inputs;
+    math::Matrix* m_errors;
     math::Matrix* m_weights;
     size_t m_neuronsCount;
     std::pair<size_t, size_t> m_weightsDim;
   
-    Layer() : m_inputs(nullptr), m_weights(nullptr), m_neuronsCount(0)
+    Layer() : m_inputs(nullptr), m_errors(nullptr), m_weights(nullptr), m_neuronsCount(0)
     {}
 
     ~Layer()
@@ -53,6 +56,7 @@ class Layer
     {
       m_neuronsCount = neuronsCount;
       m_inputs = oap::cuda::NewDeviceMatrix(1, m_neuronsCount);
+      m_errors = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
     }
   
     void allocateWeights(const Layer* nextLayer)
@@ -67,6 +71,12 @@ class Layer
       {
         oap::cuda::DeleteDeviceMatrix(m_inputs);
         m_inputs = nullptr;
+      }
+
+      if (m_errors != nullptr)
+      {
+        oap::cuda::DeleteDeviceMatrix (m_errors);
+        m_errors = nullptr;
       }
 
       if (m_weights != nullptr)
@@ -118,8 +128,14 @@ class Layer
 
 class Network
 {
-    oap::CuProceduresApi m_cpApi;
+    oap::CuProceduresApi m_cuApi;
+    enum class AlgoType
+    {
+      TEST_MODE,
+      NORMAL_MODE
+    };
   public:
+
     static floatt sigma(floatt value)
     {
       return 1.f / (1.f + std::exp(-value));
@@ -159,9 +175,10 @@ class Network
     {
       Layer* layer = m_layers.front();
 
+      oap::DeviceMatrixUPtr expectedDevicOutputs = oap::cuda::NewDeviceMatrixCopy (expectedHostOutputs);
       oap::cuda::CopyHostMatrixToDeviceMatrix (layer->m_inputs, hostInputs);
 
-      executeAlgo(false);
+      executeAlgo (AlgoType::TEST_MODE, expectedDevicOutputs.get ());
     }
 
     void runDeviceArgsTest (math::Matrix* hostInputs, math::Matrix* expectedDeviceOutputs)
@@ -170,7 +187,7 @@ class Network
 
       oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, hostInputs);
 
-      executeAlgo(false);
+      executeAlgo (AlgoType::TEST_MODE, expectedDeviceOutputs);
     }
 
     oap::HostMatrixUPtr runHostArgs (math::Matrix* hostInputs)
@@ -179,7 +196,7 @@ class Network
 
       oap::cuda::CopyHostMatrixToDeviceMatrix (layer->m_inputs, hostInputs);
 
-      return executeAlgo(true);
+      return executeAlgo (AlgoType::NORMAL_MODE, nullptr);
     }
 
     oap::HostMatrixUPtr runDeviceArgs (math::Matrix* hostInputs)
@@ -188,7 +205,7 @@ class Network
 
       oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, hostInputs);
 
-      return executeAlgo(true);
+      return executeAlgo (AlgoType::NORMAL_MODE, nullptr);
     }
 
     void setHostWeights (math::Matrix* weights, size_t layerIndex = 0)
@@ -215,7 +232,41 @@ class Network
       m_layers.clear();
     }
 
-    oap::HostMatrixUPtr executeAlgo(bool mode)
+    void updateWeights()
+    {
+      Layer* previous = nullptr;
+      Layer* current = m_layers[0];
+ 
+      for (size_t idx = 1; idx < m_layers.size(); ++idx)
+      {
+        previous = current;
+
+        current = m_layers[idx];
+      }
+    }
+
+    void executeLearning(math::Matrix* deviceExpected)
+    {
+      size_t idx = m_layers.size () - 1;
+      Layer* next = nullptr;
+      Layer* current = m_layers[idx];
+
+      m_cuApi.substract (current->m_errors, deviceExpected, current->m_inputs);
+      m_cuApi.multiplySigmoidDerivative (current->m_errors, current->m_inputs);
+
+      do
+      {
+        next = current;
+        --idx;
+        current = m_layers[idx];
+
+        m_cuApi.dotProduct (current->m_errors, next->m_weights, next->m_errors);
+        m_cuApi.multiplySigmoidDerivative (current->m_errors, current->m_inputs);
+      }
+      while (idx > 0);
+    }
+
+    oap::HostMatrixUPtr executeAlgo(AlgoType algoType, math::Matrix* deviceExpected)
     {
       if (m_layers.size() < 2)
       {
@@ -231,16 +282,20 @@ class Network
 
         current = m_layers[idx];
 
-        m_cpApi.dotProduct (current->m_inputs, previous->m_weights, previous->m_inputs);
-        m_cpApi.sigmoid(current->m_inputs);
+        m_cuApi.dotProduct (current->m_inputs, previous->m_weights, previous->m_inputs);
+        m_cuApi.sigmoid (current->m_inputs);
       }
 
-      if (mode)
+      if (algoType == AlgoType::NORMAL_MODE)
       {
         auto llayer = m_layers.back();
-        math::Matrix* output = oap::host::NewMatrix(1, llayer->m_neuronsCount);
+        math::Matrix* output = oap::host::NewMatrix (1, llayer->m_neuronsCount);
         oap::cuda::CopyDeviceMatrixToHostMatrix (output, llayer->m_inputs);
         return oap::HostMatrixUPtr (output);
+      }
+      else if (algoType == AlgoType::TEST_MODE)
+      {
+        executeLearning (deviceExpected);
       }
 
       return oap::HostMatrixUPtr(nullptr);
@@ -254,6 +309,77 @@ Network* createNetwork(size_t width, size_t height)
   network->createLayer(width*height);
   network->createLayer(15);
   network->createLayer(10);
+
+  return network;
+}
+
+std::string getImagesPath()
+{
+  std::string dataPath = utils::Config::getPathInOap("oapNeural/data/");
+  dataPath = dataPath + "digits/";
+  return dataPath;
+}
+
+oap::HostMatrixUPtr getImageMatrix (const std::string& imagePath)
+{
+  oap::PngFile png(imagePath, false);
+  png.open();
+  png.loadBitmap();
+  
+  size_t width = png.getOutputWidth().optSize;
+  size_t height = png.getOutputHeight().optSize;
+
+  oap::HostMatrixUPtr input = oap::host::NewReMatrix (width, height);
+  png.getFloattVector(input->reValues);
+
+  return std::move (input);
+};
+
+Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet)
+{
+  Network* network = nullptr;
+
+  std::string dataPath = getImagesPath ();
+
+  auto getImagePath = [&](size_t idx)
+  {
+    auto pair = dataSet[idx];
+    std::string imagePath = dataPath + pair.first;
+    return imagePath;
+  };
+
+  auto getImageMatrixFromIdx = [&](size_t idx)
+  {
+    auto path = getImagePath (idx);
+    return getImageMatrix (path);
+  };
+
+  auto runTest = [&](math::Matrix* matrix, size_t idx)
+  {
+    math::Matrix* eoutput = oap::host::NewReMatrix (1, 10);
+    auto pair = dataSet[idx];
+
+    if (pair.second > -1)
+    {
+      eoutput->reValues[pair.second] = 1;
+    }
+
+    network->runHostArgsTest (matrix, eoutput);
+    oap::host::DeleteMatrix (eoutput);
+  };
+
+  auto imatrix = getImageMatrixFromIdx (0);
+
+  network = createNetwork (imatrix->columns, imatrix->rows);
+
+  runTest (imatrix, 0);
+
+  for (size_t idx = 1; idx < dataSet.size(); ++idx)
+  {
+    oap::HostMatrixUPtr imatrix = getImageMatrixFromIdx (idx);
+
+    runTest (imatrix, idx);
+  }
 
   return network;
 }
@@ -285,43 +411,12 @@ int main()
   };
   oap::cuda::Context::Instance().create();
 
-  Network* network = nullptr;
+  Network* network = prepareNetwork (dataSet);
+  std::string dataPath = getImagesPath ();
 
-  std::string dataPath = utils::Config::getPathInOap("oapNeural/data/");
-  dataPath = dataPath + "digits/";
-
-  for (size_t idx = 0; idx < dataSet.size(); ++idx)
-  {
-    auto pair = dataSet[idx];
-    std::string imagePath = dataPath + pair.first;
-    oap::PngFile png(imagePath, false);
-    png.loadBitmap();
-
-    size_t width = png.getOutputWidth().optSize;
-    size_t height = png.getOutputHeight().optSize;
-
-    if (idx == 0)
-    {
-      network = createNetwork (width, height);
-    }
-
-    math::Matrix* input = oap::host::NewReMatrix (width, height);
-    math::Matrix* eoutput = oap::host::NewReMatrix (1, 10);
-    png.getFloattVector(input->reValues); 
-
-    if (pair.second > -1)
-    {
-      eoutput->reValues[pair.second] = 1;
-    }
-
-    network->runHostArgsTest (input, eoutput);
-
-    oap::host::DeleteMatrix (input);
-    oap::host::DeleteMatrix (eoutput);
-  }
-
-  //auto output = network->runHostArgs (input);
-  //oap::host::PrintMatrix (output.get ());
+  oap::HostMatrixUPtr imatrix = getImageMatrix (dataPath + "i8_3.png");
+  auto output = network->runHostArgs (imatrix.get());
+  oap::host::PrintMatrix (output.get ());
 
   delete network;
   oap::cuda::Context::Instance().destroy();
