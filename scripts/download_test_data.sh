@@ -15,7 +15,7 @@ if [ "$1" == "preclean" ]; then
 fi
 
 if [ "$(ls -A $DIR1)" -o "$(ls -A $DIR2)" -o "$(ls -A $DIR3)" ] ; then
-  echo "Dirs oap2dt3d/data, oap2dt3dFuncTests/data, oapDeviceTests/data must be empty for this operation."
+  echo "Dirs oap2dt3d/data, oap2dt3dFuncTests/data, oapArnoldiDeviceTests/data must be empty for this operation."
 else
   wget $URL/$ARCHIVE_NAME
   tar -xvf $ARCHIVE_NAME -C .. --strip-components=1

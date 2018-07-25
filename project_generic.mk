@@ -49,6 +49,7 @@ OAP_INCLUDES += oapTests
 OAP_INCLUDES += oapHostTests
 OAP_INCLUDES += oapAppUtils
 OAP_INCLUDES += oap2dt3dDevice
+OAP_INCLUDES += oapNeuralDevice
 
 TARGET_ARCH := DEVICE_HOST
 
@@ -83,6 +84,7 @@ OAP_MODULES += oapMatrixCuda
 OAP_MODULES += oapCudaTests
 OAP_MODULES += ArnoldiPackage
 OAP_MODULES += oapDeviceTests
+OAP_MODULES += oapArnoldiDeviceTests
 endif
 
 ifeq ($(COMPILE_HOST),1)

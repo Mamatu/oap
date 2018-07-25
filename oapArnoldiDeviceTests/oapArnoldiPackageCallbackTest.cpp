@@ -67,7 +67,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
      public:
       Data(const std::string& dir)
           : m_counter(0), refV(NULL), hostV(NULL), refW(NULL), hostW(NULL) {
-        std::string absdir = utils::Config::getPathInOap("oapDeviceTests") + dir;
+        std::string absdir = utils::Config::getPathInOap("oapArnoldiDeviceTests") + dir;
         m_vredir = absdir + "/vre.tdata";
         m_vimdir = absdir + "/vim.tdata";
         m_wredir = absdir + "/wre.tdata";
