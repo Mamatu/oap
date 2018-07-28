@@ -25,7 +25,7 @@
 
 __hostdeviceinline__ void sigmoid (floatt* output, floatt value)
 {
-  (*output) =  1.f / (1.f + exp(-value));
+  (*output) =  (1. / (1. + exp(-value)));
 }
 
 __hostdeviceinline__ void sigmoidDerivative (floatt* output, floatt value)
@@ -50,44 +50,48 @@ __hostdeviceinline__ void sigmoid2(floatt* reoutput, floatt* imoutput, floatt re
 {
 }
 
-__hostdeviceinline__ void CUDA_sigmoidRe(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_sigmoidRe(math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
 
   uintt offset = omatrix->columns;
   uintt index = threadIdx.x + offset * threadIdx.y;
 
   floatt* output = &omatrix->reValues[index];
-  sigmoid(output, imatrix->reValues[index]);
+  sigmoid (output, imatrix->reValues[index]);
 
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_sigmoidIm(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_sigmoidIm(math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
 
   uintt offset = omatrix->columns;
   uintt index = threadIdx.x + offset * threadIdx.y;
 
-  floatt* output = &omatrix->reValues[index];
-  sigmoid(output, imatrix->reValues[index]);
+  floatt* output = &omatrix->imValues[index];
+  sigmoid(output, imatrix->imValues[index]);
 
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_sigmoidReal(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_sigmoidReal(math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
 
   uintt offset = omatrix->columns;
   uintt index = threadIdx.x + offset * threadIdx.y;
 
   floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->reValues[index];
+  floatt* imoutput = &omatrix->imValues[index];
   sigmoid2(reoutput, imoutput, imatrix->reValues[index], imatrix->imValues[index]);
 
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_sigmoid(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_sigmoid (math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
   bool isre = omatrix->reValues != NULL;
   bool isim = omatrix->imValues != NULL;
@@ -100,7 +104,8 @@ __hostdeviceinline__ void CUDA_sigmoid(math::Matrix* omatrix, math::Matrix* imat
   }
 }
 
-__hostdeviceinline__ void CUDA_sigmoidDerivativeRe(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_sigmoidDerivativeRe(math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
 
   uintt offset = omatrix->columns;
@@ -108,36 +113,41 @@ __hostdeviceinline__ void CUDA_sigmoidDerivativeRe(math::Matrix* omatrix, math::
 
   floatt* output = &omatrix->reValues[index];
   sigmoidDerivative (output, imatrix->reValues[index]);
+  omatrix->reValues[index] = 1;
 
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_sigmoidDerivativeIm (math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_sigmoidDerivativeIm (math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
 
   uintt offset = omatrix->columns;
   uintt index = threadIdx.x + offset * threadIdx.y;
 
-  floatt* output = &omatrix->reValues[index];
+  floatt* output = &omatrix->imValues[index];
   sigmoidDerivative (output, imatrix->reValues[index]);
 
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_sigmoidDerivativeReal(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_sigmoidDerivativeReal(math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
 
   uintt offset = omatrix->columns;
   uintt index = threadIdx.x + offset * threadIdx.y;
 
+  omatrix->reValues[index] = 1;
   floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->reValues[index];
+  floatt* imoutput = &omatrix->imValues[index];
   sigmoid2Derivative (reoutput, imoutput, imatrix->reValues[index], imatrix->imValues[index]);
 
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_sigmoidDerivative(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_sigmoidDerivative(math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
   bool isre = omatrix->reValues != NULL;
   bool isim = omatrix->imValues != NULL;
@@ -150,7 +160,8 @@ __hostdeviceinline__ void CUDA_sigmoidDerivative(math::Matrix* omatrix, math::Ma
   }
 }
 
-__hostdeviceinline__ void CUDA_multiplySigmoidDerivativeRe(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_multiplySigmoidDerivativeRe (math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
 
   uintt offset = omatrix->columns;
@@ -162,7 +173,8 @@ __hostdeviceinline__ void CUDA_multiplySigmoidDerivativeRe(math::Matrix* omatrix
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_multiplySigmoidDerivativeIm (math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_multiplySigmoidDerivativeIm (math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
 
   uintt offset = omatrix->columns;
@@ -174,7 +186,8 @@ __hostdeviceinline__ void CUDA_multiplySigmoidDerivativeIm (math::Matrix* omatri
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_multiplySigmoidDerivativeReal(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_multiplySigmoidDerivativeReal(math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
 
   uintt offset = omatrix->columns;
@@ -187,7 +200,8 @@ __hostdeviceinline__ void CUDA_multiplySigmoidDerivativeReal(math::Matrix* omatr
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_multiplySigmoidDerivative(math::Matrix* omatrix, math::Matrix* imatrix) {
+__hostdeviceinline__ void CUDA_multiplySigmoidDerivative(math::Matrix* omatrix, math::Matrix* imatrix)
+{
   HOST_INIT();
   bool isre = omatrix->reValues != NULL;
   bool isim = omatrix->imValues != NULL;

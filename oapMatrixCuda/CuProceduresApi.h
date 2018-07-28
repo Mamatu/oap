@@ -113,9 +113,10 @@ class CuProceduresApi
 
   bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0);
 
-  void sigmoid(math::Matrix* matrix);
-  void sigmoidDerivative(math::Matrix* matrix);
-  void multiplySigmoidDerivative(math::Matrix* omatrix, math::Matrix* matrix);
+  void sigmoid (math::Matrix* matrix);
+  void sigmoid (math::Matrix* output, math::Matrix* matrix);
+  void sigmoidDerivative (math::Matrix* matrix);
+  void multiplySigmoidDerivative (math::Matrix* omatrix, math::Matrix* matrix);
 
   floatt getCompareOperationSum() const;
 
