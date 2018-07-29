@@ -30,12 +30,12 @@ __hostdeviceinline__ void sigmoid (floatt* output, floatt value)
 
 __hostdeviceinline__ void sigmoidDerivative (floatt* output, floatt value)
 {
-  (*output) =  1.f * (1.f  - value);
+  (*output) =  value * (1.f  - value);
 }
 
 __hostdeviceinline__ void multiplySigmoidDerivative (floatt* output, floatt value)
 {
-  (*output) =  (*output) * (1.f  - value);
+  (*output) =  (*output) * value * (1.f  - value);
 }
 
 __hostdeviceinline__ void multiplySigmoid2Derivative (floatt* reoutput, floatt* imoutput, floatt revalue, floatt imvalue)

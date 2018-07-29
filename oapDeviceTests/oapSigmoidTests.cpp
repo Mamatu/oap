@@ -82,3 +82,35 @@ TEST_F(OapSigmoidTests, SigmoidTest)
   }
 }
 
+TEST_F(OapSigmoidTests, MultiplySigmoidDerivativeTest)
+{
+  auto multiplySigmoidDerivative = [](floatt input, floatt x)
+  {
+    return input * x * (1.f - x);
+  };
+
+  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (1, 10);
+  math::Matrix* houtput = oap::host::NewReMatrix (1, 10);
+
+  math::Matrix* dinput = oap::cuda::NewDeviceReMatrix (1, 10);
+  math::Matrix* hinput = oap::host::NewReMatrix (1, 10);
+
+  for (size_t idx = 0; idx < 10; ++idx)
+  {
+    hinput->reValues[idx] = idx + 1;
+    houtput->reValues[idx] = idx + 1;
+  }
+
+  oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (dinput, hinput);
+
+  m_cuApi->multiplySigmoidDerivative (doutput, dinput);
+
+  oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
+
+  for (size_t idx = 0; idx < 10; ++idx)
+  {
+    EXPECT_DOUBLE_EQ(multiplySigmoidDerivative (idx + 1, idx + 1), houtput->reValues[idx]);
+  }
+}
+
