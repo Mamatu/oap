@@ -19,7 +19,7 @@
 
 #include "oapLayer.h"
 
-Layer::Layer() : m_inputs(nullptr), m_sums(nullptr), m_errors(nullptr), m_weights(nullptr), m_neuronsCount(0)
+Layer::Layer() : m_inputs(nullptr), m_sums(nullptr), m_errors(nullptr), m_weights(nullptr), m_weights1(nullptr), m_weights2(nullptr), m_neuronsCount(0)
 {}
 
 Layer::~Layer()
