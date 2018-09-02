@@ -19,7 +19,7 @@
 
 #include "oapNetwork.h"
 
-Network::Network() : m_learningRate(0.001f)
+Network::Network() : m_learningRate(0.1f)
 {
 }
 
@@ -33,12 +33,12 @@ Layer* Network::createLayer(size_t neurons)
   Layer* layer = new Layer();
 
   Layer* previous = nullptr;
-  
+
   if (m_layers.size() > 0)
   {
     previous = m_layers.back();
   }
-  
+
   layer->allocateNeurons (neurons);
   m_layers.push_back (layer);
 
@@ -110,6 +110,7 @@ void Network::destroyLayers()
 
 void Network::updateWeights()
 {
+  debugFunc();
   Layer* current = nullptr;
   Layer* next = m_layers[0];
 
@@ -117,17 +118,18 @@ void Network::updateWeights()
   {
     current = next;
     next = m_layers[idx];
-
-    m_cuApi.dotProduct (current->m_weights1, current->m_inputs, next->m_errors);
-    m_cuApi.sigmoidDerivative (current->m_sums);
-    m_cuApi.dotProduct (current->m_weights2, current->m_weights1, current->m_sums);
-    m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights2, m_learningRate);
+    m_cuApi.transpose (current->m_tinputs, current->m_inputs);
+    m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
+    m_cuApi.multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
+    m_cuApi.multiplySigmoidDerivative (next->m_sums, next->m_sums);
+    m_cuApi.phadamardProduct (current->m_weights2, current->m_weights1, next->m_sums);
     m_cuApi.add (current->m_weights, current->m_weights, current->m_weights2);
   }
 }
 
-void Network::executeLearning(math::Matrix* deviceExpected)
+void Network::executeLearning (math::Matrix* deviceExpected)
 {
+  debugFunc();
   size_t idx = m_layers.size () - 1;
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
@@ -135,33 +137,28 @@ void Network::executeLearning(math::Matrix* deviceExpected)
   m_cuApi.substract (current->m_errors, deviceExpected, current->m_inputs);
   m_cuApi.multiplySigmoidDerivative (current->m_errors, current->m_inputs);
 
-  fprintf(stderr,"start\n");
   do
   {
     next = current;
     --idx;
     current = m_layers[idx];
 
-    m_cuApi.dotProduct (current->m_errors, current->m_weights, next->m_errors);
-
-    printf("\n");
-    oap::cuda::PrintMatrix("current->m_inputs", current->m_inputs);
-    m_cuApi.multiplySigmoidDerivative (current->m_errors, current->m_inputs);
-    oap::cuda::PrintMatrix("current->m_errors", current->m_errors);
-    printf("\n");
+    m_cuApi.transpose (current->m_tweights, current->m_weights);
+    m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
   }
   while (idx > 0);
-  fprintf(stderr,"start1\n");
   updateWeights();
-  fprintf(stderr,"start2\n");
 }
 
 oap::HostMatrixUPtr Network::executeAlgo(AlgoType algoType, math::Matrix* deviceExpected)
 {
+  debugFunc();
+
   if (m_layers.size() < 2)
   {
     throw std::runtime_error ("m_layers.size() is lower than 2");
   }
+
   Layer* previous = nullptr;
   Layer* current = m_layers[0];
 

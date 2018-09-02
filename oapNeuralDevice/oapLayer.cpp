@@ -19,7 +19,7 @@
 
 #include "oapLayer.h"
 
-Layer::Layer() : m_inputs(nullptr), m_sums(nullptr), m_errors(nullptr), m_weights(nullptr), m_weights1(nullptr), m_weights2(nullptr), m_neuronsCount(0)
+Layer::Layer() : m_inputs(nullptr), m_tinputs(nullptr), m_sums(nullptr), m_tsums(nullptr), m_errors(nullptr), m_terrors(nullptr), m_weights(nullptr), m_tweights(nullptr), m_weights1(nullptr), m_weights2(nullptr), m_neuronsCount(0)
 {}
 
 Layer::~Layer()
@@ -41,12 +41,16 @@ void Layer::allocateNeurons(size_t neuronsCount)
   m_neuronsCount = neuronsCount;
   m_inputs = oap::cuda::NewDeviceReMatrix (1, m_neuronsCount);
   m_sums = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_tsums = oap::cuda::NewDeviceMatrix (m_neuronsCount, 1);
   m_errors = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_terrors = oap::cuda::NewDeviceReMatrix (m_neuronsCount, 1); //todo: use transpose
+  m_tinputs = oap::cuda::NewDeviceReMatrix (m_neuronsCount, 1); //todo: use transpose
 }
 
 void Layer::allocateWeights(const Layer* nextLayer)
 {
   m_weights = oap::cuda::NewDeviceReMatrix (m_neuronsCount, nextLayer->m_neuronsCount);
+  m_tweights = oap::cuda::NewDeviceReMatrix (nextLayer->m_neuronsCount, m_neuronsCount);
   m_weights1 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
   m_weights2 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
   m_weightsDim = std::make_pair(m_neuronsCount, nextLayer->m_neuronsCount);
@@ -60,6 +64,7 @@ void Layer::deallocate()
   deallocate (&m_sums);
   deallocate (&m_errors);
   deallocate (&m_weights);
+  deallocate (&m_tweights);
   deallocate (&m_weights1);
   deallocate (&m_weights2);
 }

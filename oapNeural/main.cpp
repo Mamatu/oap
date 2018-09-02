@@ -107,14 +107,12 @@ Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet)
 
   network = createNetwork (imatrix->columns, imatrix->rows);
   runTest (imatrix, 0);
-/*
   for (size_t idx = 1; idx < dataSet.size(); ++idx)
   {
     oap::HostMatrixUPtr imatrix = getImageMatrixFromIdx (idx);
 
     runTest (imatrix, idx);
   }
-*/
   return network;
 }
 
@@ -147,13 +145,18 @@ int main()
   oap::cuda::Context::Instance().create();
 
   Network* network = prepareNetwork (dataSet);
-/*  std::string dataPath = getImagesPath ();
+  std::string dataPath = getImagesPath ();
 
-  oap::HostMatrixUPtr imatrix = getImageMatrix (dataPath + "i8_3.png");
-  auto output = network->runHostArgs (imatrix.get());
-  oap::host::PrintMatrix (output.get ());
+  auto run = [&](const std::string& image)
+  {
+    oap::HostMatrixUPtr imatrix = getImageMatrix (dataPath + image);
+    auto output = network->runHostArgs (imatrix.get());
+    oap::host::PrintMatrix (output.get ());
+  };
 
-  delete network;*/
+  run("i9_4");
+
+  delete network;
   oap::cuda::Context::Instance().destroy();
   return 0;
 }

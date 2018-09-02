@@ -29,9 +29,13 @@ class Layer
 {
 public:
   math::Matrix* m_inputs;
+  math::Matrix* m_tinputs;
   math::Matrix* m_sums;
+  math::Matrix* m_tsums;
   math::Matrix* m_errors;
+  math::Matrix* m_terrors;
   math::Matrix* m_weights;
+  math::Matrix* m_tweights;
   math::Matrix* m_weights1;
   math::Matrix* m_weights2;
 
