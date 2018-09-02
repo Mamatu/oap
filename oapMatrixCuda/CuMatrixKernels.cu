@@ -300,3 +300,22 @@ extern "C" __global__ void CUDAKernel_CalculateTriangularHStep(
 {
   CUDA_HMtoUTMStep(H, Q, R, aux1, aux2, aux3, aux4, aux5, aux6);
 }
+
+extern "C" __global__ void
+CUDAKernel_TensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  CUDA_tensorProduct (output, params0, params1);
+}
+
+extern "C" __global__ void
+CUDAKernel_HadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  CUDA_hadamardProduct (output, params0, params1);
+}
+
+extern "C" __global__ void
+CUDAKernel_PHadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  CUDA_phadamardProduct (output, params0, params1);
+}
+

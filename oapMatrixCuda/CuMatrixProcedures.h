@@ -46,7 +46,10 @@
 #include "CuProcedures/CuMagnitudeOptProcedures.h"
 #include "CuProcedures/CuMagnitudeOptProcedures2.h"
 #include "CuProcedures/CuTriangularH.h"
+#include "CuProcedures/CuTensorProductProcedures.h"
 #include "CuProcedures/CuSigmoidProcedures.h"
+#include "CuProcedures/CuHadamardProductProcedures.h"
+#include "CuProcedures/CuPartialHadamardProductProcedures.h"
 
 __hostdevice__ void CUDA_setDiagonalReMatrix(math::Matrix* dst, floatt v) {
   HOST_INIT();

@@ -27,6 +27,7 @@
 namespace oap
 {
 
+
 void CuProceduresApi::prepareDims(uintt w, uintt h) {
   uint blocks[2];
   uint threads[2];
@@ -35,14 +36,16 @@ void CuProceduresApi::prepareDims(uintt w, uintt h) {
   m_kernel.setThreadsCount(threads[0], threads[1]);
 }
 
-CUresult CuProceduresApi::execute(const char* functionName, uintt w, uintt h,
-                           void** params, uintt sharedMemory,
-                           bool _prepareDims) {
-  if (_prepareDims) {
+CUresult CuProceduresApi::execute(const char* functionName, uintt w, uintt h, void** params, uintt sharedMemory, bool _prepareDims)
+{
+  if (_prepareDims)
+  {
     prepareDims(w, h);
   }
   m_kernel.setSharedMemory(sharedMemory);
+
   resetFlags();
+
   return ::oap::cuda::Kernel::Execute(functionName, params, m_kernel);
 }
 
@@ -78,10 +81,28 @@ CuProceduresApi::~CuProceduresApi() {
   m_kernel.unload();
 }
 
-void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0,
-                          math::Matrix* params1, uintt columns, uintt rows) {
+void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+{
   void* params[] = {&output, &params0, &params1};
   m_cuResult = execute("CUDAKernel_DotProduct", columns, rows, params, 0);
+}
+
+void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+{
+  void* params[] = {&output, &params0, &params1};
+  m_cuResult = execute("CUDAKernel_TensorProduct", columns, rows, params, 0);
+}
+
+void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+{
+  void* params[] = {&output, &params0, &params1};
+  m_cuResult = execute("CUDAKernel_HadamardProduct", columns, rows, params, 0);
+}
+
+void CuProceduresApi::phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+{
+  void* params[] = {&output, &params0, &params1};
+  m_cuResult = execute("CUDAKernel_PHadamardProduct", columns, rows, params, 0);
 }
 
 void CuProceduresApi::calculateQTHQ(math::Matrix* output, math::Matrix* H,
@@ -365,12 +386,12 @@ void CuProceduresApi::sigmoid (math::Matrix* output, math::Matrix* matrix)
   m_cuResult = execute("CUDAKernel_Sigmoid", w, h, params, 0);
 }
 
-void CuProceduresApi::sigmoidDerivative(math::Matrix* matrix)
+void CuProceduresApi::sigmoidDerivative (math::Matrix* omatrix, math::Matrix* imatrix)
 {
-  const uintt w = CudaUtils::GetColumns(matrix);
-  const uintt h = CudaUtils::GetRows(matrix);
+  const uintt w = CudaUtils::GetColumns(omatrix);
+  const uintt h = CudaUtils::GetRows(omatrix);
 
-  void* params[] = {&matrix, &matrix};
+  void* params[] = {&omatrix, &imatrix};
 
   m_cuResult = execute("CUDAKernel_SigmoidDerivative", w, h, params, 0);
 }

@@ -42,7 +42,8 @@ class OapDotProductTests : public testing::Test {
   }
 };
 
-TEST_F(OapDotProductTests, Test1) {
+TEST_F(OapDotProductTests, Test1)
+{
   math::Matrix* hostM1 = oap::host::NewReMatrix(1, 10, 2);
   math::Matrix* hostM2 = oap::host::NewReMatrix(10, 1, 2);
 
@@ -64,10 +65,10 @@ TEST_F(OapDotProductTests, Test1) {
   oap::host::DeleteMatrix(hostM2);
 }
 
-
-TEST_F(OapDotProductTests, Test2) {
-  math::Matrix* hostM1 = oap::host::NewReMatrix(1, 100, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrix(100, 1, 2);
+TEST_F(OapDotProductTests, Test2)
+{
+  math::Matrix* hostM1 = oap::host::NewReMatrix(1, 10, 2);
+  math::Matrix* hostM2 = oap::host::NewReMatrix(10, 1, 2);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopy(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopy(hostM2);
