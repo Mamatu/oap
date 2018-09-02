@@ -83,6 +83,7 @@ OAP_MODULES += oapCuda
 OAP_MODULES += oapMatrixCuda
 OAP_MODULES += oapCudaTests
 OAP_MODULES += ArnoldiPackage
+OAP_MODULES += oapNeuralDevice
 OAP_MODULES += oapDeviceTests
 OAP_MODULES += oapArnoldiDeviceTests
 endif
@@ -100,7 +101,6 @@ OAP_MODULES += oap2dt3d
 endif
 
 ifeq ($(COMPILE_DEVICE),1)
-OAP_MODULES += oapNeuralDevice
 OAP_MODULES += oapNeural
 endif
 
