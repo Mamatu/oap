@@ -255,8 +255,8 @@ void GetMatrixEx(MatrixEx* hostMatrixEx, const MatrixEx* deviceMatrixEx) {
   CudaUtils::CopyDeviceToHost(hostMatrixEx, deviceMatrixEx, sizeof(MatrixEx));
 }
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix,
-                 floatt zeroLimit) {
+void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zeroLimit)
+{
   CudaUtils::PrintMatrix(text, matrix, zeroLimit);
 }
 
@@ -354,12 +354,20 @@ void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
   }
 }
 
-math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix) {
+math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
+{
   uintt columns = CudaUtils::GetColumns(devMatrix);
   uintt rows = CudaUtils::GetRows(devMatrix);
   bool isRe = CudaUtils::GetReValues(devMatrix) != NULL;
   bool isIm = CudaUtils::GetImValues(devMatrix) != NULL;
   return math::MatrixInfo(isRe, isIm, columns, rows);
+}
+
+void PrintMatrixInfo(const std::string& msg, const math::Matrix* devMatrix)
+{
+  math::MatrixInfo minfo = GetMatrixInfo (devMatrix);
+  printf ("%s (columns=%u rows=%u) (isRe=%d isIm=%d)\n",
+          msg.c_str(), minfo.m_matrixDim.columns, minfo.m_matrixDim.rows, minfo.isRe, minfo.isIm);
 }
 
 math::Matrix* ReadMatrix(const std::string& path) {

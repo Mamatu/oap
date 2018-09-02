@@ -212,6 +212,8 @@ void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uint
 
 math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
 
+void PrintMatrixInfo(const std::string& msg, const math::Matrix* devMatrix);
+
 bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix);
 
 math::Matrix* ReadMatrix(const std::string& path);
