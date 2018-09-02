@@ -56,14 +56,14 @@ class OapNeuralTests : public testing::Test {
     network->runHostArgsTest(inputs.get(), expected.get());
   }
 
-  void run(floatt a1, floatt a2, floatt e1)
+  floatt run(floatt a1, floatt a2)
   {
     oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(2, 1);
     inputs->reValues[0] = a1;
     inputs->reValues[1] = a2;
 
     auto output = network->runHostArgs(inputs.get());
-    EXPECT_EQ(e1, is(output->reValues[0]));
+    return is(output->reValues[0]);
   }
 
   floatt sigmoid(floatt x)
@@ -73,6 +73,7 @@ class OapNeuralTests : public testing::Test {
 
   floatt is(floatt a)
   {
+    debug("arg is %f", a);
     if (a > 0.5)
     {
       return 1;
@@ -86,18 +87,17 @@ TEST_F(OapNeuralTests, LogicalOr)
   Layer* l1 = network->createLayer(2);
   network->createLayer(1);
 
-  network->setLearningRate (0.001);
+  network->setLearningRate (0.1);
 
   runTest(1, 1, 1);
   runTest(1, 0, 1);
   runTest(0, 1, 1);
   runTest(0, 0, 0);
-  runTest(0.1, 0, 0);
 
-  run(1, 1, 1);
-  run(1, 0, 1);
-  run(0, 0, 0);
-  run(1, 0, 1);
+  EXPECT_EQ(1, run(1, 1));
+  EXPECT_EQ(1, run(1, 0));
+  EXPECT_EQ(0, run(0, 0));
+  EXPECT_EQ(1, run(1, 0));
 }
 
 TEST_F(OapNeuralTests, LogicalAnd)
@@ -105,17 +105,16 @@ TEST_F(OapNeuralTests, LogicalAnd)
   Layer* l1 = network->createLayer(2);
   network->createLayer(1);
 
-  network->setLearningRate (0.001);
+  network->setLearningRate (0.1);
 
   runTest(1, 1, 1);
   runTest(1, 0, 0);
   runTest(0, 1, 0);
   runTest(0, 0, 0);
-  runTest(1, .6, 1);
 
-  run(1, 1, 1);
-  run(1, 0, 0);
-  run(0, 0, 0);
-  run(1, 0, 0);
+  EXPECT_EQ(1, run(1, 1));
+  EXPECT_EQ(0, run(1, 0));
+  EXPECT_EQ(0, run(0, 0));
+  EXPECT_EQ(0, run(0, 1));
 }
 
