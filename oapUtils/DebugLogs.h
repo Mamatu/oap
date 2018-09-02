@@ -25,6 +25,9 @@
 #include <string.h>
 #include <assert.h>
 #include <typeinfo>
+#include <stdexcept>
+#include <sstream>
+#include <iostream>
 
 #include "TraceLog.h"
 
@@ -38,7 +41,10 @@
 
 #define debugAssert(x) assert(x);
 
-#define debugAssertMsg(x, msg) if (!(x)) { debug(msg); abort(); }
+#define debugAssertMsg(x, msg, ...) if (!(x)) { debug(msg, ##__VA_ARGS__); debugAssert(x); }
+
+inline void debugExceptionMsg(bool x, const std::string& str) { if (!(x)) { std::cout << str << std::endl; throw std::runtime_error(str); } }
+inline void debugExceptionMsg(bool x, const std::stringstream& stream) { debugExceptionMsg(x, stream.str()); }
 
 #define debugError(x, ...) fprintf(stderr, x, ##__VA_ARGS__); fprintf(stderr, "\n");
 
@@ -66,7 +72,10 @@
 
 #define debugAssert(x)
 
-#define debugAssertMsg(x, msg)
+#define debugAssertMsg(x, msg, ...)
+
+inline void debugExceptionMsg(bool, const std::stringstream&) {}
+inline void debugExceptionMsg(bool, const std::string&) {}
 
 #define debugError(x, ...)
 
