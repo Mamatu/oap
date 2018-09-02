@@ -37,13 +37,15 @@
 #include <utility>
 #include <random>
 
-Network* createNetwork (size_t width, size_t height)
+Network* createNetwork (size_t width, size_t height, floatt lr)
 {
   Network* network = new Network();
 
   network->createLayer(width*height);
   network->createLayer(15);
   network->createLayer(10);
+
+  network->setLearningRate (lr);
 
   return network;
 }
@@ -70,7 +72,7 @@ oap::HostMatrixUPtr getImageMatrix (const std::string& imagePath)
   return std::move (input);
 };
 
-Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet)
+Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet, floatt lr)
 {
   Network* network = nullptr;
 
@@ -105,7 +107,7 @@ Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet)
 
   auto imatrix = getImageMatrixFromIdx (0);
 
-  network = createNetwork (imatrix->columns, imatrix->rows);
+  network = createNetwork (imatrix->columns, imatrix->rows, lr);
   runTest (imatrix, 0);
   for (size_t idx = 1; idx < dataSet.size(); ++idx)
   {
@@ -144,7 +146,7 @@ int main()
 
   oap::cuda::Context::Instance().create();
 
-  Network* network = prepareNetwork (dataSet);
+  Network* network = prepareNetwork (dataSet, 0.01f);
   std::string dataPath = getImagesPath ();
 
   auto run = [&](const std::string& image)

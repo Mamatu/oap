@@ -52,6 +52,7 @@ public:
 
   void setDeviceWeights (math::Matrix* weights, size_t layerIndex = 0);
 
+  void setLearningRate (floatt lr);
 private:
   std::vector<Layer*> m_layers;
 

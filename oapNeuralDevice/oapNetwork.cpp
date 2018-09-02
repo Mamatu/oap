@@ -99,6 +99,11 @@ void Network::setDeviceWeights (math::Matrix* weights, size_t layerIndex)
   layer->setDeviceWeights (weights);
 }
 
+void Network::setLearningRate (floatt lr)
+{
+  m_learningRate = lr;
+}
+
 void Network::destroyLayers()
 {
   for (auto it = m_layers.begin(); it != m_layers.end(); ++it)
