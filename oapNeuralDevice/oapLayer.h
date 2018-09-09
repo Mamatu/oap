@@ -40,6 +40,7 @@ public:
   math::Matrix* m_weights2;
 
   size_t m_neuronsCount;
+  size_t m_nextLayerNeuronsCount;
 
   std::pair<size_t, size_t> m_weightsDim;
 
@@ -56,6 +57,10 @@ public:
   void deallocate();
 
   void setHostWeights (math::Matrix* weights);
+
+  void getHostWeights (math::Matrix* output);
+
+  void printHostWeights ();
 
   void setDeviceWeights (math::Matrix* weights);
 

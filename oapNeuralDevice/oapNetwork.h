@@ -25,18 +25,13 @@
 class Network
 {
   oap::CuProceduresApi m_cuApi;
-  enum class AlgoType
-  {
-    TEST_MODE,
-    NORMAL_MODE
-  };
   floatt m_learningRate;
         
 public:
 
   Network();
 
-  ~Network();
+  virtual ~Network();
 
   Layer* createLayer(size_t neurons);
 
@@ -48,21 +43,36 @@ public:
 
   oap::HostMatrixUPtr runDeviceArgs (math::Matrix* hostInputs);
 
-  void setHostWeights (math::Matrix* weights, size_t layerIndex = 0);
+  void setHostWeights (math::Matrix* weights, size_t layerIndex);
 
-  void setDeviceWeights (math::Matrix* weights, size_t layerIndex = 0);
+  void getHostWeights (math::Matrix* weights, size_t layerIndex);
+
+  void setDeviceWeights (math::Matrix* weights, size_t layerIndex);
 
   void setLearningRate (floatt lr);
+
+protected:
+  enum class AlgoType
+  {
+    TEST_MODE,
+    NORMAL_MODE
+  };
+
+  void setHostInputs (math::Matrix* inputs, size_t layerIndex);
+
+  void executeLearning(math::Matrix* deviceExpected);
+
+  oap::HostMatrixUPtr executeAlgo(AlgoType algoType, math::Matrix* deviceExpected);
+
 private:
   std::vector<Layer*> m_layers;
+
+  Layer* getLayer(size_t layerIndex) const;
 
   void destroyLayers();
 
   void updateWeights();
 
-  void executeLearning(math::Matrix* deviceExpected);
-
-  oap::HostMatrixUPtr executeAlgo(AlgoType algoType, math::Matrix* deviceExpected);
 };
 
 #endif

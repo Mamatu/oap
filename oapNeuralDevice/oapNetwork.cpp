@@ -93,6 +93,12 @@ void Network::setHostWeights (math::Matrix* weights, size_t layerIndex)
   layer->setHostWeights (weights);
 }
 
+void Network::getHostWeights (math::Matrix* weights, size_t layerIndex)
+{
+  Layer* layer = getLayer (layerIndex);
+  oap::cuda::CopyDeviceMatrixToHostMatrix (weights, layer->m_weights);
+}
+
 void Network::setDeviceWeights (math::Matrix* weights, size_t layerIndex)
 {
   Layer* layer = m_layers[layerIndex];
@@ -102,6 +108,16 @@ void Network::setDeviceWeights (math::Matrix* weights, size_t layerIndex)
 void Network::setLearningRate (floatt lr)
 {
   m_learningRate = lr;
+}
+
+Layer* Network::getLayer(size_t layerIndex) const
+{
+  if (layerIndex >= m_layers.size())
+  {
+    throw std::runtime_error ("Layer index out of scope.");
+  }
+
+  return m_layers[layerIndex];
 }
 
 void Network::destroyLayers()
@@ -124,12 +140,26 @@ void Network::updateWeights()
     current = next;
     next = m_layers[idx];
     m_cuApi.transpose (current->m_tinputs, current->m_inputs);
+    oap::cuda::PrintMatrix ("current->m_tinputs = ", current->m_tinputs);
+    oap::cuda::PrintMatrix ("next->m_errors = ", next->m_errors);
     m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
     m_cuApi.multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
-    m_cuApi.multiplySigmoidDerivative (next->m_sums, next->m_sums);
+    oap::cuda::PrintMatrix ("current->m_weights1 = ", current->m_weights1);
+    oap::cuda::PrintMatrix ("next->m_sums = ", next->m_sums);
+    m_cuApi.sigmoidDerivative (next->m_sums, next->m_sums);
+    oap::cuda::PrintMatrix ("next->m_sums = ", next->m_sums);
     m_cuApi.phadamardProduct (current->m_weights2, current->m_weights1, next->m_sums);
+    oap::cuda::PrintMatrix ("current->m_weights2 = ", current->m_weights2);
+    oap::cuda::PrintMatrix ("current->m_weights = ", current->m_weights);
     m_cuApi.add (current->m_weights, current->m_weights, current->m_weights2);
+    oap::cuda::PrintMatrix ("current->m_weights = ", current->m_weights);
   }
+}
+
+void Network::setHostInputs (math::Matrix* inputs, size_t layerIndex)
+{
+  Layer* layer = getLayer(layerIndex);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (layer->m_inputs, inputs);
 }
 
 void Network::executeLearning (math::Matrix* deviceExpected)
@@ -140,7 +170,7 @@ void Network::executeLearning (math::Matrix* deviceExpected)
   Layer* current = m_layers[idx];
 
   m_cuApi.substract (current->m_errors, deviceExpected, current->m_inputs);
-  m_cuApi.multiplySigmoidDerivative (current->m_errors, current->m_inputs);
+  oap::cuda::PrintMatrix ("pcurrent->m_errors = ", current->m_errors);
 
   do
   {
@@ -150,6 +180,7 @@ void Network::executeLearning (math::Matrix* deviceExpected)
 
     m_cuApi.transpose (current->m_tweights, current->m_weights);
     m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
+    oap::cuda::PrintMatrix ("current->m_errors = ", current->m_errors);
   }
   while (idx > 0);
   updateWeights();

@@ -19,7 +19,11 @@
 
 #include "oapLayer.h"
 
-Layer::Layer() : m_inputs(nullptr), m_tinputs(nullptr), m_sums(nullptr), m_tsums(nullptr), m_errors(nullptr), m_terrors(nullptr), m_weights(nullptr), m_tweights(nullptr), m_weights1(nullptr), m_weights2(nullptr), m_neuronsCount(0)
+Layer::Layer() :
+m_inputs(nullptr), m_tinputs(nullptr), m_sums(nullptr),
+m_tsums(nullptr), m_errors(nullptr), m_terrors(nullptr),
+m_weights(nullptr), m_tweights(nullptr), m_weights1(nullptr),
+m_weights2(nullptr), m_neuronsCount(0), m_nextLayerNeuronsCount(0)
 {}
 
 Layer::~Layer()
@@ -55,6 +59,8 @@ void Layer::allocateWeights(const Layer* nextLayer)
   m_weights2 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
   m_weightsDim = std::make_pair(m_neuronsCount, nextLayer->m_neuronsCount);
 
+  m_nextLayerNeuronsCount = nextLayer->m_neuronsCount;
+
   initRandomWeights ();
 }
 
@@ -72,6 +78,20 @@ void Layer::deallocate()
 void Layer::setHostWeights (math::Matrix* weights)
 {
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_weights, weights);
+}
+
+void Layer::getHostWeights (math::Matrix* output)
+{
+  oap::cuda::CopyDeviceMatrixToHostMatrix (output, m_weights);
+}
+
+void Layer::printHostWeights ()
+{
+  oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (m_neuronsCount, m_nextLayerNeuronsCount);
+  getHostWeights (matrix.get());
+  std::stringstream sstream;
+  sstream << "Layer (" << this << ") weights = ";
+  oap::host::PrintMatrix (sstream.str(), matrix.get());
 }
 
 void Layer::setDeviceWeights (math::Matrix* weights)
