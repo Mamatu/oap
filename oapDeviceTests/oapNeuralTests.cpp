@@ -47,7 +47,8 @@ class NetworkT : public Network
     }
 };
 
-class OapNeuralTests : public testing::Test {
+class OapNeuralTests : public testing::Test
+{
  public:
   CUresult status;
   NetworkT* network;
@@ -74,7 +75,7 @@ class OapNeuralTests : public testing::Test {
     inputs->reValues[1] = a2;
     expected->reValues[0] = e1;
 
-    network->runHostArgsTest(inputs.get(), expected.get());
+    network->runHostArgsTest(inputs, expected);
   }
 
   floatt run(floatt a1, floatt a2)
@@ -83,7 +84,7 @@ class OapNeuralTests : public testing::Test {
     inputs->reValues[0] = a1;
     inputs->reValues[1] = a2;
 
-    auto output = network->runHostArgs(inputs.get());
+    auto output = network->runHostArgs(inputs);
     return is(output->reValues[0]);
   }
 
@@ -94,7 +95,7 @@ class OapNeuralTests : public testing::Test {
 
   floatt dsigmoid(floatt x)
   {
-    return x * (1.f - x);
+    return sigmoid(x) * (1.f - sigmoid(x));
   }
 
   floatt is(floatt a)
@@ -111,27 +112,27 @@ class OapNeuralTests : public testing::Test {
   {
     Layer* l1 = network->createLayer(2);
     network->createLayer(1);
-  
+
     network->setLearningRate (1);
-  
+
     oap::HostMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
     oap::HostMatrixUPtr hw1 = oap::host::NewReMatrix (2, 1);
-  
+
     floatt hw_1 = w_1;
     floatt hw_2 = w_2;
     floatt hw1_1 = i_1;
     floatt hw1_2 = i_2;
-  
+
     hw->reValues[0] = hw_1;
     hw->reValues[1] = hw_2;
-  
+
     hw1->reValues[0] = hw1_1;
     hw1->reValues[1] = hw1_2;
-  
+
     l1->setHostWeights (hw.get ());
-  
+
     auto output = network->runHostArgs (hw1);
-  
+
     EXPECT_THAT(output->reValues[0], testing::DoubleNear(sigmoid(hw_1 * hw1_1 + hw_2 * hw1_2), 0.0001));
     EXPECT_EQ(1, output->columns);
     EXPECT_EQ(1, output->rows);
@@ -141,9 +142,9 @@ class OapNeuralTests : public testing::Test {
   {
     Layer* l1 = network->createLayer(2);
     network->createLayer(1);
-  
+
     network->setLearningRate (1);
-  
+
     oap::HostMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
     oap::HostMatrixUPtr io = oap::host::NewReMatrix (2, 1);
     oap::HostMatrixUPtr io1 = oap::host::NewReMatrix (1, 1);
@@ -155,7 +156,7 @@ class OapNeuralTests : public testing::Test {
 
     hw->reValues[0] = hw_1;
     hw->reValues[1] = hw_2;
-  
+
     io->reValues[0] = i_1;
     io->reValues[1] = i_2;
 
@@ -163,12 +164,12 @@ class OapNeuralTests : public testing::Test {
     e1->reValues[0] = e_1;
 
     oap::cuda::CopyHostMatrixToDeviceMatrix (de1, e1);
-  
+
     l1->setHostWeights (hw.get ());
-  
+
     network->setHostInput (io, 0);
     network->runHostArgsTest (io, e1);
-  
+
     hw->reValues[0] = 0;
     hw->reValues[1] = 0;
 
@@ -215,6 +216,16 @@ TEST_F(OapNeuralTests, BackPropagation_2)
   testBackPropagation_1_to_2 (2, 1, 1, 1, 0);
 }
 
+TEST_F(OapNeuralTests, BackPropagation_3)
+{
+  testBackPropagation_1_to_2 (2, 1, 3, 2, 1);
+}
+
+TEST_F(OapNeuralTests, BackPropagation_4)
+{
+  testBackPropagation_1_to_2 (1, 2, 3, 4, 5);
+}
+
 TEST_F(OapNeuralTests, LogicalOr)
 {
   Layer* l1 = network->createLayer(2);
@@ -244,14 +255,42 @@ TEST_F(OapNeuralTests, LogicalAnd)
 
   network->setLearningRate (1);
 
-  runTest(1, 1, 1);
+  size_t value = 1;
+  floatt fvalue = static_cast<floatt>(value);
+  runTest(fvalue, fvalue, 1);
   l1->printHostWeights();
-  runTest(1, 0, 0);
+  runTest(fvalue, 0, 0);
   l1->printHostWeights();
-  runTest(0, 1, 0);
+  runTest(0, fvalue, 0);
   l1->printHostWeights();
   runTest(0, 0, 0);
   l1->printHostWeights();
+
+  EXPECT_EQ(1, run(1, 1));
+  EXPECT_EQ(0, run(1, 0));
+  EXPECT_EQ(0, run(0, 0));
+  EXPECT_EQ(0, run(0, 1));
+}
+
+TEST_F(OapNeuralTests, LogicalAnd_LargeValues)
+{
+  Layer* l1 = network->createLayer(2);
+  network->createLayer(1);
+
+  network->setLearningRate (0.01);
+
+  for (size_t value = 1; value < 1000; ++value)
+  {
+    floatt fvalue = static_cast<floatt>(value);
+    runTest(fvalue, fvalue, 1);
+    l1->printHostWeights();
+    runTest(fvalue, 0, 0);
+    l1->printHostWeights();
+    runTest(0, fvalue, 0);
+    l1->printHostWeights();
+    runTest(0, 0, 0);
+    l1->printHostWeights();
+  }
 
   EXPECT_EQ(1, run(1, 1));
   EXPECT_EQ(0, run(1, 0));
