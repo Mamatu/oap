@@ -30,6 +30,11 @@
 
 using namespace ::testing;
 
+inline floatt sigmoid(floatt x)
+{
+  return 1.f / (1.f + exp (-x));
+}
+
 class OapSigmoidTests : public testing::Test
 {
  public:
@@ -50,13 +55,9 @@ class OapSigmoidTests : public testing::Test
   using NewMatrix = std::function<math::Matrix*(uintt, uintt)>;
   using GetValue = std::function<floatt(const math::Matrix*, size_t)>;
 
+
   void test_Sigmoid (const NewMatrix& newDMatrix, const NewMatrix& newHMatrix, const GetValue& getReValue, const GetValue& getImValue)
   {
-    auto sigmoid = [](floatt x)
-    {
-      return 1.f / (1.f + exp (-x));
-    };
-
     math::Matrix* doutput = newDMatrix (1, 10);
     math::Matrix* houtput = newHMatrix (1, 10);
 
@@ -216,7 +217,7 @@ TEST_F(OapSigmoidTests, SigmoidDerivativeReTest)
 {
   auto sigmoidDerivative = [](floatt input, floatt x)
   {
-    return x * (1.f - x);
+    return sigmoid(x) * (1.f - sigmoid(x));
   };
 
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (1, 10);
@@ -248,7 +249,7 @@ TEST_F(OapSigmoidTests, MultiplySigmoidDerivativeReTest)
 {
   auto multiplySigmoidDerivative = [](floatt input, floatt x)
   {
-    return input * x * (1.f - x);
+    return input * sigmoid(x) * (1.f - sigmoid(x));
   };
 
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (1, 10);
