@@ -83,24 +83,60 @@ CuProceduresApi::~CuProceduresApi() {
 
 void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
+#ifdef DEBUG
+  debug(__func__);
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+
+  check_dotProduct (output, params0, params1, columns, rows);
+#endif
+
   void* params[] = {&output, &params0, &params1};
   m_cuResult = execute("CUDAKernel_DotProduct", columns, rows, params, 0);
 }
 
 void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
+#ifdef DEBUG
+  debug(__func__);
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+
+  check_tensorProduct (output, params0, params1, columns, rows);
+#endif
+
   void* params[] = {&output, &params0, &params1};
   m_cuResult = execute("CUDAKernel_TensorProduct", columns, rows, params, 0);
 }
 
 void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
+#ifdef DEBUG
+  debug(__func__);
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+
+  check_hadamardProduct (output, params0, params1, columns, rows);
+#endif
+
   void* params[] = {&output, &params0, &params1};
   m_cuResult = execute("CUDAKernel_HadamardProduct", columns, rows, params, 0);
 }
 
 void CuProceduresApi::phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
+#ifdef DEBUG
+  debug(__func__);
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+
+  check_phadamardProduct (output, params0, params1, columns, rows);
+#endif
+
   void* params[] = {&output, &params0, &params1};
   m_cuResult = execute("CUDAKernel_PHadamardProduct", columns, rows, params, 0);
 }
@@ -525,4 +561,100 @@ floatt CuProceduresApi::getCompareOperationSum() const {
 }
 
 CUresult CuProceduresApi::getStatus() const { return m_cuResult; }
+
+void CuProceduresApi::check_dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const
+{
+  const uintt output_columns = columns;
+  const uintt output_rows = rows;
+
+  const uintt params0_columns = CudaUtils::GetColumns(params0);
+  const uintt params0_rows = CudaUtils::GetRows(params0);
+
+  const uintt params1_columns = CudaUtils::GetColumns(params1);
+  const uintt params1_rows = CudaUtils::GetRows(params1);
+
+  oap::cuda::PrintMatrixInfo("params0 = ", params0);
+  oap::cuda::PrintMatrixInfo("params1 = ", params1);
+  oap::cuda::PrintMatrixInfo("ouput = ", output);
+  debugAssertMsg(params0_columns == params1_rows, "params0_columns = %u params1_rows = %u", params0_columns, params1_rows);
+  debugAssertMsg(output_columns == params1_columns, "output_columns = %u params1_columns = %u", output_columns, params1_columns);
+  debugAssertMsg(output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
+}
+
+void CuProceduresApi::check_tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const
+{
+  const uintt output_columns = columns;
+  const uintt output_rows = rows;
+
+  const uintt params0_columns = CudaUtils::GetColumns(params0);
+  const uintt params0_rows = CudaUtils::GetRows(params0);
+
+  const uintt params1_columns = CudaUtils::GetColumns(params1);
+  const uintt params1_rows = CudaUtils::GetRows(params1);
+
+  oap::cuda::PrintMatrixInfo("params0 = ", params0);
+  oap::cuda::PrintMatrixInfo("params1 = ", params1);
+  oap::cuda::PrintMatrixInfo("ouput = ", output);
+
+  std::stringstream stream1, stream2;
+
+  stream1 << "output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
+  debugExceptionMsg(output_rows == params0_rows * params1_rows, stream1);
+
+  stream2 << "output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
+  debugExceptionMsg(output_columns == params0_columns * params1_columns, stream2);
+
+}
+
+void CuProceduresApi::check_hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const
+{
+  const uintt output_columns = columns;
+  const uintt output_rows = rows;
+
+  const uintt params0_columns = CudaUtils::GetColumns(params0);
+  const uintt params0_rows = CudaUtils::GetRows(params0);
+
+  const uintt params1_columns = CudaUtils::GetColumns(params1);
+  const uintt params1_rows = CudaUtils::GetRows(params1);
+
+  oap::cuda::PrintMatrixInfo("params0 = ", params0);
+  oap::cuda::PrintMatrixInfo("params1 = ", params1);
+  oap::cuda::PrintMatrixInfo("ouput = ", output);
+
+  std::stringstream stream1, stream2;
+
+  stream1 << "output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
+  debugExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
+
+  stream2 << "output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
+  debugExceptionMsg(output_columns == params0_columns && output_columns == params1_columns, stream2);
+}
+
+void CuProceduresApi::check_phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const
+{
+  const uintt output_columns = columns;
+  const uintt output_rows = rows;
+
+  const uintt params0_columns = CudaUtils::GetColumns(params0);
+  const uintt params0_rows = CudaUtils::GetRows(params0);
+
+  const uintt params1_columns = CudaUtils::GetColumns(params1);
+  const uintt params1_rows = CudaUtils::GetRows(params1);
+
+  oap::cuda::PrintMatrixInfo("params0 = ", params0);
+  oap::cuda::PrintMatrixInfo("params1 = ", params1);
+  oap::cuda::PrintMatrixInfo("ouput = ", output);
+
+  std::stringstream stream1, stream2, stream3;
+
+  stream1 << "output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
+  debugExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
+
+  stream2 << "params1_columns = " << params1_columns;
+  debugExceptionMsg(1 == params1_columns, stream1);
+
+  stream3 << "output_columns = " << output_columns << ", params0_columns = " << params0_columns;
+  debugExceptionMsg(output_columns == params0_columns, stream2);
+}
+
 }
