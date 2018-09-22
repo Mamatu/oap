@@ -142,121 +142,58 @@ class OapNeuralTests : public testing::Test
     }
     return 0;
   }
-
-  void testForwardPropagation_2_to_1(floatt w_1, floatt w_2, floatt i_1, floatt i_2)
-  {
-    Layer* l1 = network->createLayer(2);
-    network->createLayer(1);
-
-    network->setLearningRate (1);
-
-    oap::HostMatrixUPtr hw = oap::host::NewReMatrix (1, 2);
-    oap::HostMatrixUPtr hw1 = oap::host::NewReMatrix (1, 2);
-
-    floatt hw_1 = w_1;
-    floatt hw_2 = w_2;
-    floatt hw1_1 = i_1;
-    floatt hw1_2 = i_2;
-
-    hw->reValues[0] = hw_1;
-    hw->reValues[1] = hw_2;
-
-    hw1->reValues[0] = hw1_1;
-    hw1->reValues[1] = hw1_2;
-
-    l1->setHostWeights (hw.get ());
-
-    auto output = network->runHostArgs (hw1);
-
-    EXPECT_THAT(output->reValues[0], testing::DoubleNear(sigmoid(hw_1 * hw1_1 + hw_2 * hw1_2), 0.0001));
-    EXPECT_EQ(1, output->columns);
-    EXPECT_EQ(1, output->rows);
-  }
-
-  void testBackPropagation_1_to_2(floatt w_1, floatt w_2, floatt i_1, floatt i_2, floatt e_1)
-  {
-    Layer* l1 = network->createLayer(2);
-    network->createLayer(1);
-
-    network->setLearningRate (1);
-
-    oap::HostMatrixUPtr hw = oap::host::NewReMatrix (1, 2);
-    oap::HostMatrixUPtr io = oap::host::NewReMatrix (1, 2);
-    oap::HostMatrixUPtr io1 = oap::host::NewReMatrix (1, 1);
-    oap::HostMatrixUPtr e1 = oap::host::NewReMatrix (1, 1);
-    oap::DeviceMatrixUPtr de1 = oap::cuda::NewDeviceReMatrix(1, 1);
-
-    floatt hw_1 = w_1;
-    floatt hw_2 = w_2;
-
-    hw->reValues[0] = hw_1;
-    hw->reValues[1] = hw_2;
-
-    io->reValues[0] = i_1;
-    io->reValues[1] = i_2;
-
-    floatt i1_1 = sigmoid(i_1 * hw_1 + i_2 * hw_2);
-    e1->reValues[0] = e_1;
-
-    oap::cuda::CopyHostMatrixToDeviceMatrix (de1, e1);
-
-    l1->setHostWeights (hw.get ());
-
-    network->setHostInput (io, 0);
-    network->runHostArgsTest (io, e1);
-
-    hw->reValues[0] = 0;
-    hw->reValues[1] = 0;
-
-    network->getHostWeights(hw, 0);
-
-    floatt sigma = e_1 - i1_1;
-    floatt ds = dsigmoid(i_1 * hw_1 + i_2 * hw_2);
-
-    floatt c1 = ds * sigma * i_1;
-    floatt c2 = ds * sigma * i_2;
-
-    EXPECT_THAT(hw->reValues[0] - hw_1, testing::DoubleNear(c1, 0.0001));
-    EXPECT_THAT(hw->reValues[1] - hw_2, testing::DoubleNear(c2, 0.0001));
-  }
 };
 
-TEST_F(OapNeuralTests, ForwardPropagation_1)
+TEST_F(OapNeuralTests, LogicalOr)
 {
-  testForwardPropagation_2_to_1 (1, 1, 1, 1);
+  Layer* l1 = network->createLayer(2);
+  network->createLayer(1);
+
+  network->setLearningRate (1);
+
+  Runner r(false, this);
+
+  r.runTest(1, 1, 1);
+  l1->printHostWeights();
+  r.runTest(1, 0, 1);
+  l1->printHostWeights();
+  r.runTest(0, 1, 1);
+  l1->printHostWeights();
+  r.runTest(0, 0, 0);
+  l1->printHostWeights();
+
+  EXPECT_EQ(1, r.run(1, 1));
+  EXPECT_EQ(1, r.run(1, 0));
+  EXPECT_EQ(0, r.run(0, 0));
+  EXPECT_EQ(1, r.run(1, 0));
 }
 
-TEST_F(OapNeuralTests, ForwardPropagation_2)
+TEST_F(OapNeuralTests, LogicalAnd)
 {
-  testForwardPropagation_2_to_1 (1, 2, 3, 4);
+  bool isbias = true;
+
+  Layer* l1 = network->createLayer(2, isbias);
+  network->createLayer(1);
+
+  Runner r(isbias, this, 1);
+  network->setLearningRate (0.01);
+
+  for (size_t value = 1; value < 10000; ++value)
+  {
+    floatt fvalue = static_cast<floatt>(1);
+    r.runTest(fvalue, fvalue, 1);
+    l1->printHostWeights();
+    r.runTest(fvalue, 0, 0);
+    l1->printHostWeights();
+    r.runTest(0, fvalue, 0);
+    l1->printHostWeights();
+    r.runTest(0, 0, 0);
+    l1->printHostWeights();
+  }
+
+  EXPECT_EQ(1, r.run(1, 1));
+  EXPECT_EQ(0, r.run(1, 0));
+  EXPECT_EQ(0, r.run(0, 0));
+  EXPECT_EQ(0, r.run(0, 1));
 }
 
-TEST_F(OapNeuralTests, ForwardPropagation_3)
-{
-  testForwardPropagation_2_to_1 (11, 22, 33, 44);
-}
-
-TEST_F(OapNeuralTests, ForwardPropagation_4)
-{
-  testForwardPropagation_2_to_1 (111, 221, 331, 441);
-}
-
-TEST_F(OapNeuralTests, BackPropagation_1)
-{
-  testBackPropagation_1_to_2 (1, 1, 1, 1, 1);
-}
-
-TEST_F(OapNeuralTests, BackPropagation_2)
-{
-  testBackPropagation_1_to_2 (2, 1, 1, 1, 0);
-}
-
-TEST_F(OapNeuralTests, BackPropagation_3)
-{
-  testBackPropagation_1_to_2 (2, 1, 3, 2, 1);
-}
-
-TEST_F(OapNeuralTests, BackPropagation_4)
-{
-  testBackPropagation_1_to_2 (1, 2, 3, 4, 5);
-}

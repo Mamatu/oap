@@ -102,6 +102,7 @@ endif
 
 ifeq ($(COMPILE_DEVICE),1)
 OAP_MODULES += oapNeural
+OAP_MODULES += oapNeuralDeviceTests
 endif
 
 CU_OAP_MODULES := oapCuda
