@@ -19,16 +19,44 @@
 
 #include "oapLayer.h"
 
-Layer::Layer() :
+void Layer::checkHostInputs(const math::Matrix* hostInputs)
+{
+  if (hostInputs->columns != 1)
+  {
+    throw std::runtime_error ("Columns of hostInputs matrix must be equal 1");
+  }
+
+  if (hostInputs->rows != m_neuronsCount)
+  {
+    throw std::runtime_error ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)");
+  }
+}
+
+Layer::Layer(bool hasBias) :
 m_inputs(nullptr), m_tinputs(nullptr), m_sums(nullptr),
 m_tsums(nullptr), m_errors(nullptr), m_terrors(nullptr),
 m_weights(nullptr), m_tweights(nullptr), m_weights1(nullptr),
-m_weights2(nullptr), m_neuronsCount(0), m_nextLayerNeuronsCount(0)
+m_weights2(nullptr), m_neuronsCount(0), m_nextLayerNeuronsCount(0),
+m_hasBias(hasBias)
 {}
 
 Layer::~Layer()
 {
   deallocate();
+}
+
+void Layer::setHostInputs(const math::Matrix* hostInputs)
+{
+  checkHostInputs (hostInputs);
+
+  //if (m_hasBias)
+  //{
+  //  hostInputs->reValues[m_neuronsCount - 1] = 1;
+  //}
+
+  oap::host::PrintMatrix ("hostInputs =", hostInputs);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (m_inputs, hostInputs);
+  oap::cuda::PrintMatrix ("m_inputss =", m_inputs);
 }
 
 void Layer::deallocate(math::Matrix** matrix)
@@ -42,7 +70,9 @@ void Layer::deallocate(math::Matrix** matrix)
 
 void Layer::allocateNeurons(size_t neuronsCount)
 {
-  m_neuronsCount = neuronsCount;
+
+  m_neuronsCount = m_hasBias ? neuronsCount + 1 : neuronsCount;
+
   m_inputs = oap::cuda::NewDeviceReMatrix (1, m_neuronsCount);
   m_sums = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
   m_tsums = oap::cuda::NewDeviceMatrix (m_neuronsCount, 1);

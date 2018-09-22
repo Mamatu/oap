@@ -33,7 +33,7 @@ public:
 
   virtual ~Network();
 
-  Layer* createLayer(size_t neurons);
+  Layer* createLayer(size_t neurons, bool bias = false);
 
   void runHostArgsTest (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs);
 

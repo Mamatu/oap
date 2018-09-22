@@ -25,9 +25,11 @@
 #include "oapHostMatrixUPtr.h"
 #include "oapDeviceMatrixUPtr.h"
 
+class Network;
+
 class Layer
 {
-public:
+private:
   math::Matrix* m_inputs;
   math::Matrix* m_tinputs;
   math::Matrix* m_sums;
@@ -45,10 +47,18 @@ public:
   std::pair<size_t, size_t> m_weightsDim;
 
   static void deallocate(math::Matrix** matrix);
+
+  bool m_hasBias;
+
+  void checkHostInputs(const math::Matrix* hostInputs);
+
+  friend class Network;
 public:
-  Layer();
+  Layer(bool hasBias = false);
 
   ~Layer();
+
+  void setHostInputs(const math::Matrix* inputs);
 
   void allocateNeurons(size_t neuronsCount);
 
