@@ -38,8 +38,13 @@ PngFile::~PngFile() {
   closeProtected();
 }
 
-bool PngFile::read(void* buffer, size_t repeat, size_t size) {
-  fread(buffer, repeat, size, m_fp);
+bool PngFile::read(void* buffer, size_t count, size_t size) {
+  size_t result = fread(buffer, size, count, m_fp);
+  if (result != count && feof(m_fp))
+  {
+    return true;
+  }
+  return false;
 }
 
 oap::OptSize PngFile::getWidth() const {
