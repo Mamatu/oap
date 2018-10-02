@@ -269,7 +269,7 @@ void PrintMatrix(FILE* stream, const std::string& text, const math::Matrix* matr
 }
 
 void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zrr) {
-  PrintMatrix(stdout, "", matrix, zrr);
+  PrintMatrix(stream, "", matrix, zrr);
 }
 
 void PrintMatrix(const math::Matrix* matrix, floatt zrr) { PrintMatrix("", matrix, zrr); }
@@ -883,6 +883,16 @@ math::Matrix* ReadColumnVector(const std::string& path, size_t index) {
   me.rowsLength = static_cast<uintt>(-1);
 
   return ReadMatrix(path, me);
+}
+
+void CopyReBuffer (math::Matrix* houtput, math::Matrix* hinput)
+{
+  size_t sOutput = houtput->columns * houtput->rows;
+  size_t sInput = hinput->columns * hinput->rows;
+
+  debugExceptionMsg(sOutput == sInput, "Buffers have different sizes.");
+
+  memcpy (houtput->reValues, hinput->reValues, sOutput * sizeof (floatt));
 }
 
 bool WriteMatrix(const std::string& path, const math::Matrix* matrix) {

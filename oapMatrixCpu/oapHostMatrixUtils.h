@@ -604,6 +604,8 @@ math::Matrix* ReadRowVector(const std::string& path, size_t index);
 
 math::Matrix* ReadColumnVector(const std::string& path, size_t index);
 
+void CopyReBuffer (math::Matrix* houput, math::Matrix* hinput);
+
 /**
  * @brief Save matrix to file
  * 4 byte - size of boolean variable
