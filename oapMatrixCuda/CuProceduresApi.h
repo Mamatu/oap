@@ -289,8 +289,10 @@ T* CuProceduresApi::Buffer<T>::alloc(uintt length) {
 
 inline void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-#ifdef DEBUG
+#ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
+#endif
+#ifdef DEBUG
   CHECK_MATRIX(output);
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
@@ -303,8 +305,10 @@ inline void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* para
 
 inline void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-#ifdef DEBUG
+#ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
+#endif
+#ifdef DEBUG
   CHECK_MATRIX(output);
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
@@ -318,8 +322,10 @@ inline void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* p
 
 inline void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-#ifdef DEBUG
+#ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
+#endif
+#ifdef DEBUG
   CHECK_MATRIX(output);
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
@@ -333,8 +339,10 @@ inline void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix*
 
 inline void CuProceduresApi::phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-#ifdef DEBUG
+#ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
+#endif
+#ifdef DEBUG
   CHECK_MATRIX(output);
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
