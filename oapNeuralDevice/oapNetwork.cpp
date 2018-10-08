@@ -19,7 +19,7 @@
 
 #include "oapNetwork.h"
 
-Network::Network() : m_learningRate(0.1f)
+Network::Network() : m_learningRate(0.1f), m_expectedDevicOutputs(nullptr), m_icontroller(nullptr), m_step(1)
 {
 }
 
@@ -50,41 +50,51 @@ Layer* Network::createLayer(size_t neurons, bool bias)
   return layer;
 }
 
-void Network::runHostArgsTest (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs)
+void Network::runTest (math::Matrix* inputs, math::Matrix* expectedOutputs, MatrixType argsType)
 {
   Layer* layer = m_layers.front();
-  layer->setHostInputs (hostInputs);
 
-  oap::DeviceMatrixUPtr expectedDevicOutputs = oap::cuda::NewDeviceMatrixCopy (expectedHostOutputs);
+  if (argsType == Network::HOST)
+  {
+    layer->setHostInputs (inputs);
+    if (!m_expectedDevicOutputs)
+    {
+      m_expectedDevicOutputs = oap::cuda::NewDeviceMatrixCopy (expectedOutputs);
+    }
+    else
+    {
+      oap::cuda::CopyHostMatrixToDeviceMatrix (m_expectedDevicOutputs, expectedOutputs);
+    }
 
-  executeAlgo (AlgoType::TEST_MODE, expectedDevicOutputs.get ());
+    expectedOutputs = m_expectedDevicOutputs.get();
+  }
+  else if (argsType == Network::DEVICE)
+  {
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
+  }
+
+  executeAlgo (AlgoType::TEST_MODE, expectedOutputs);
 }
 
-void Network::runDeviceArgsTest (math::Matrix* deviceInputs, math::Matrix* expectedDeviceOutputs)
+oap::HostMatrixUPtr Network::run (math::Matrix* inputs, MatrixType argsType)
 {
   Layer* layer = m_layers.front();
 
-  oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, deviceInputs);
-
-  executeAlgo (AlgoType::TEST_MODE, expectedDeviceOutputs);
-}
-
-oap::HostMatrixUPtr Network::runHostArgs (math::Matrix* hostInputs)
-{
-  Layer* layer = m_layers.front();
-  layer->setHostInputs (hostInputs);
-
-  oap::cuda::CopyHostMatrixToDeviceMatrix (layer->m_inputs, hostInputs);
+  if (argsType == Network::HOST)
+  {
+    layer->setHostInputs (inputs);
+  }
+  else if (argsType == Network::DEVICE)
+  {
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
+  }
 
   return executeAlgo (AlgoType::NORMAL_MODE, nullptr);
 }
 
-oap::HostMatrixUPtr Network::runDeviceArgs (math::Matrix* deviceInputs)
+void Network::setController(Network::IController* icontroller)
 {
-  Layer* layer = m_layers.front();
-  oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, deviceInputs);
-
-  return executeAlgo (AlgoType::NORMAL_MODE, nullptr);
+  m_icontroller = icontroller;
 }
 
 void Network::setHostWeights (math::Matrix* weights, size_t layerIndex)
@@ -108,6 +118,16 @@ void Network::setDeviceWeights (math::Matrix* weights, size_t layerIndex)
 void Network::setLearningRate (floatt lr)
 {
   m_learningRate = lr;
+}
+
+void Network::save(const std::string& filepath)
+{
+
+}
+
+void Network::load(const std::string& filepath)
+{
+
 }
 
 Layer* Network::getLayer(size_t layerIndex) const
@@ -163,6 +183,11 @@ void Network::executeLearning (math::Matrix* deviceExpected)
 
   m_cuApi.substract (current->m_errors, deviceExpected, current->m_inputs);
 
+  if(!shouldContinue())
+  {
+    return;
+  }
+
   do
   {
     next = current;
@@ -206,7 +231,29 @@ oap::HostMatrixUPtr Network::executeAlgo(AlgoType algoType, math::Matrix* device
   else if (algoType == AlgoType::TEST_MODE)
   {
     executeLearning (deviceExpected);
+    ++m_step;
   }
 
   return oap::HostMatrixUPtr(nullptr);
 }
+
+bool Network::shouldContinue()
+{
+  if (m_icontroller != nullptr && m_icontroller->shouldCalculateError(m_step))
+  {
+    floatt sqe = 0;
+    Layer* llayer = m_layers.back();
+
+    m_cuApi.magnitude2 (sqe, llayer->m_errors);
+
+    m_icontroller->setSquareError (sqe);
+
+    if(!m_icontroller->shouldContinue())
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+

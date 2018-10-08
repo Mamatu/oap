@@ -21,6 +21,7 @@
 #define OAP_NEURAL_NETWORK_H
 
 #include "oapLayer.h"
+#include "oapDeviceMatrixPtr.h"
 
 class Network
 {
@@ -28,20 +29,31 @@ class Network
   floatt m_learningRate;
         
 public:
+  enum MatrixType
+  {
+    HOST,
+    DEVICE
+  };
 
   Network();
+
+  class IController
+  {
+    public:
+      virtual ~IController() {}
+      virtual bool shouldCalculateError(size_t step) = 0;
+      virtual void setSquareError (floatt sqe) = 0;
+      virtual bool shouldContinue() = 0;
+  };
 
   virtual ~Network();
 
   Layer* createLayer(size_t neurons, bool bias = false);
 
-  void runHostArgsTest (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs);
+  void runTest (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, MatrixType argsType);
+  oap::HostMatrixUPtr run (math::Matrix* hostInputs, MatrixType argsType);
 
-  void runDeviceArgsTest (math::Matrix* hostInputs, math::Matrix* expectedDeviceOutputs);
-
-  oap::HostMatrixUPtr runHostArgs (math::Matrix* hostInputs);
-
-  oap::HostMatrixUPtr runDeviceArgs (math::Matrix* hostInputs);
+  void setController(IController* icontroller);
 
   void setHostWeights (math::Matrix* weights, size_t layerIndex);
 
@@ -50,6 +62,10 @@ public:
   void setDeviceWeights (math::Matrix* weights, size_t layerIndex);
 
   void setLearningRate (floatt lr);
+
+  void save(const std::string& filepath);
+
+  void load(const std::string& filepath);
 
 protected:
   enum class AlgoType
@@ -73,6 +89,17 @@ private:
 
   void updateWeights();
 
+  inline void calculateError();
+
+  bool shouldContinue();
+
+  floatt m_serror;
+
+  oap::DeviceMatrixPtr m_expectedDevicOutputs;
+
+  IController* m_icontroller;
+
+  size_t m_step;
 };
 
 #endif

@@ -49,14 +49,12 @@ void Layer::setHostInputs(const math::Matrix* hostInputs)
 {
   checkHostInputs (hostInputs);
 
-  //if (m_hasBias)
-  //{
-  //  hostInputs->reValues[m_neuronsCount - 1] = 1;
-  //}
+  if (m_hasBias)
+  {
+    hostInputs->reValues[m_neuronsCount - 1] = 1;
+  }
 
-  oap::host::PrintMatrix ("hostInputs =", hostInputs);
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_inputs, hostInputs);
-  oap::cuda::PrintMatrix ("m_inputss =", m_inputs);
 }
 
 void Layer::deallocate(math::Matrix** matrix)
