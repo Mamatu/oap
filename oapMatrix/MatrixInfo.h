@@ -27,6 +27,22 @@ class MatrixInfo {
     m_matrixDim.rows = hostMatrix->rows;
   }
 
+  bool isInitialized() const
+  {
+    return !(!isRe && !isIm);
+  }
+
+  bool operator==(const MatrixInfo& mInfo)
+  {
+    return isRe != mInfo.isRe || isIm != mInfo.isIm || 
+           m_matrixDim.columns != mInfo.m_matrixDim.columns || m_matrixDim.rows != mInfo.m_matrixDim.rows;
+  }
+
+  bool operator!=(const MatrixInfo& minfo)
+  {
+    return !(*this == minfo);
+  }
+
   math::MatrixDim m_matrixDim;
   bool isRe;
   bool isIm;
