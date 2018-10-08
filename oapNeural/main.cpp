@@ -27,6 +27,7 @@
 #include "KernelExecutor.h"
 #include "CuProceduresApi.h"
 
+#include "oapHostMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"
 #include "oapDeviceMatrixUPtr.h"
 
@@ -57,22 +58,28 @@ std::string getImagesPath()
   return dataPath;
 }
 
-oap::HostMatrixUPtr getImageMatrix (const std::string& imagePath)
+oap::HostMatrixPtr getImageMatrix (const std::string& imagePath)
 {
   oap::PngFile png(imagePath, false);
   png.open();
   png.loadBitmap();
-  
+
   size_t width = png.getOutputWidth().optSize;
   size_t height = png.getOutputHeight().optSize;
 
-  oap::HostMatrixUPtr input = oap::host::NewReMatrix (width, height);
-  png.getFloattVector(input->reValues);
+  oap::HostMatrixUPtr imageMatrix = oap::host::NewReMatrix (width, height);
+  //math::Matrix* imageMatrix = oap::host::NewReMatrix (width, height);
+  png.getFloattVector(imageMatrix->reValues);
 
-  return std::move (input);
+  oap::HostMatrixPtr input = oap::host::NewReMatrix (1, width * height);
+  //math::Matrix* input = oap::host::NewReMatrix (1, width * height);
+
+  oap::host::CopyReBuffer (input, imageMatrix);
+
+  return input;
 };
 
-Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet, floatt lr)
+Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet, floatt lr, size_t repeats)
 {
   Network* network = nullptr;
 
@@ -93,7 +100,7 @@ Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet,
 
   auto runTest = [&](math::Matrix* matrix, size_t idx)
   {
-    math::Matrix* eoutput = oap::host::NewReMatrix (1, 10);
+    math::Matrix* eoutput = oap::host::NewReMatrix (10, 1);
     auto pair = dataSet[idx];
 
     if (pair.second > -1)
@@ -101,20 +108,33 @@ Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet,
       eoutput->reValues[pair.second] = 1;
     }
 
-    network->runHostArgsTest (matrix, eoutput);
+    network->runTest (matrix, eoutput, Network::HOST);
     oap::host::DeleteMatrix (eoutput);
   };
 
-  auto imatrix = getImageMatrixFromIdx (0);
+  std::vector<oap::HostMatrixPtr> matrices;
 
-  network = createNetwork (imatrix->columns, imatrix->rows, lr);
-  runTest (imatrix, 0);
-  for (size_t idx = 1; idx < dataSet.size(); ++idx)
+  for (size_t idx = 0; idx < dataSet.size(); ++idx)
   {
-    oap::HostMatrixUPtr imatrix = getImageMatrixFromIdx (idx);
+    oap::HostMatrixPtr imatrix = getImageMatrixFromIdx (idx);
 
-    runTest (imatrix, idx);
+    if (network == nullptr)
+    {
+      network = createNetwork (imatrix->columns, imatrix->rows, lr);
+    }
+
+    matrices.push_back (imatrix);
   }
+
+  for (size_t testIdx = 0; testIdx < repeats; ++testIdx)
+  {
+    for (size_t idx = 0; idx < matrices.size(); ++idx)
+    {
+      auto imatrix = matrices[idx];
+      runTest (imatrix, idx);
+    }
+  }
+
   return network;
 }
 
@@ -146,13 +166,13 @@ int main()
 
   oap::cuda::Context::Instance().create();
 
-  Network* network = prepareNetwork (dataSet, 0.01f);
+  Network* network = prepareNetwork (dataSet, 0.001f, 100);
   std::string dataPath = getImagesPath ();
 
   auto run = [&](const std::string& image)
   {
-    oap::HostMatrixUPtr imatrix = getImageMatrix (dataPath + image);
-    auto output = network->runHostArgs (imatrix.get());
+    oap::HostMatrixPtr imatrix = getImageMatrix (dataPath + image);
+    auto output = network->run (imatrix.get(), Network::HOST);
     oap::host::PrintMatrix (output.get ());
   };
 
