@@ -97,7 +97,7 @@ class OapNeuralTests : public testing::Test
 
       expected->reValues[0] = e1;
 
-      m_ont->network->runHostArgsTest(inputs, expected);
+      m_ont->network->runTest(inputs, expected, Network::HOST);
     }
 
     floatt run(floatt a1, floatt a2)
@@ -118,7 +118,7 @@ class OapNeuralTests : public testing::Test
         inputs->reValues[2] = m_bvalue;
       }
 
-      auto output = m_ont->network->runHostArgs(inputs);
+      auto output = m_ont->network->run (inputs, Network::HOST);
       return m_ont->is(output->reValues[0]);
     }
   };
@@ -166,7 +166,7 @@ class OapNeuralTests : public testing::Test
 
     l1->setHostWeights (hw.get ());
 
-    auto output = network->runHostArgs (hw1);
+    auto output = network->run (hw1, Network::HOST);
 
     EXPECT_THAT(output->reValues[0], testing::DoubleNear(sigmoid(hw_1 * hw1_1 + hw_2 * hw1_2), 0.0001));
     EXPECT_EQ(1, output->columns);
@@ -203,7 +203,7 @@ class OapNeuralTests : public testing::Test
     l1->setHostWeights (hw.get ());
 
     network->setHostInput (io, 0);
-    network->runHostArgsTest (io, e1);
+    network->runTest (io, e1, Network::HOST);
 
     hw->reValues[0] = 0;
     hw->reValues[1] = 0;
