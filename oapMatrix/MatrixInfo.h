@@ -32,15 +32,20 @@ class MatrixInfo {
     return !(!isRe && !isIm);
   }
 
-  bool operator==(const MatrixInfo& mInfo)
+  bool operator==(const MatrixInfo& mInfo) const
   {
-    return isRe != mInfo.isRe || isIm != mInfo.isIm || 
-           m_matrixDim.columns != mInfo.m_matrixDim.columns || m_matrixDim.rows != mInfo.m_matrixDim.rows;
+    return isRe == mInfo.isRe && isIm == mInfo.isIm &&
+           m_matrixDim.columns == mInfo.m_matrixDim.columns && m_matrixDim.rows == mInfo.m_matrixDim.rows;
   }
 
-  bool operator!=(const MatrixInfo& minfo)
+  bool operator!=(const MatrixInfo& minfo) const
   {
     return !(*this == minfo);
+  }
+
+  operator bool() const
+  {
+    return isInitialized ();
   }
 
   math::MatrixDim m_matrixDim;
