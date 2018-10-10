@@ -19,7 +19,6 @@
 
 #include "MatrixCreator.h"
 #include "oapCudaMatrixUtils.h"
-#include "oapDeviceMatrixUPtr.h"
 
 namespace oap
 {
@@ -32,6 +31,8 @@ MatrixCreator::~MatrixCreator()
 
 math::Matrix* MatrixCreator::createDeviceMatrix()
 {
+  debugFunc ();
+
   const math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
   if (minfo.m_matrixDim.columns == minfo.m_matrixDim.rows)
   {
@@ -43,6 +44,8 @@ math::Matrix* MatrixCreator::createDeviceMatrix()
 
 math::Matrix* MatrixCreator::createDeviceRowVector(size_t index)
 {
+  debugFunc ();
+
   const math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
 
   math::Matrix* output = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, 1);
@@ -51,40 +54,54 @@ math::Matrix* MatrixCreator::createDeviceRowVector(size_t index)
 
 math::Matrix* MatrixCreator::getDeviceRowVector(size_t index, math::Matrix* dmatrix)
 {
+  debugFunc ();
+
   const math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
   if (minfo.m_matrixDim.columns == minfo.m_matrixDim.rows)
   {
     return m_ddl->getDeviceRowVector (index, dmatrix);
   }
 
-  oap::DeviceMatrixUPtr matrixT = getMatrixT (minfo);
+  math::Matrix* matrixT = getMatrixT (minfo);
 
-  oap::DeviceMatrixUPtr rowVector = getRowVector (index, minfo);
+  math::Matrix* rowVector = getRowVector (index, minfo);
 
-  m_api.dotProduct (dmatrix, matrixT, rowVector);
+  m_api.dotProduct (dmatrix, rowVector, matrixT);
 
   return dmatrix;
 }
 
 math::Matrix* MatrixCreator::constructSquareMatrix (const math::MatrixInfo& minfo)
 {
-  oap::DeviceMatrixUPtr matrix = m_ddl->createDeviceMatrix ();
-  oap::DeviceMatrixUPtr matrixT = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, minfo.m_matrixDim.columns);
-  m_api.transpose (matrixT, matrix);
+  math::Matrix* matrix = getMatrix (minfo);
+  math::Matrix* matrixT = getMatrixT (minfo);
 
   math::Matrix* output = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, minfo.m_matrixDim.rows);
+
   m_api.dotProduct (output, matrix, matrixT);
+
   return output;
+}
+
+math::Matrix* MatrixCreator::getMatrix (const math::MatrixInfo& minfo)
+{
+  if(!m_matrixInfo.isInitialized () || m_matrixInfo != minfo)
+  {
+    m_matrix = m_ddl->createDeviceMatrix ();
+    m_matrixInfo = minfo;
+  }
+
+  return m_matrix.get();
 }
 
 math::Matrix* MatrixCreator::getMatrixT (const math::MatrixInfo& minfo)
 {
-  if(!m_matrixInfo.isInitialized () || m_matrixInfo != minfo)
+  if(!m_matrixTInfo.isInitialized () || m_matrixTInfo != minfo)
   {
-    oap::DeviceMatrixUPtr matrix = m_ddl->createDeviceMatrix ();
+    oap::DeviceMatrixPtr matrix = getMatrix (minfo);
     m_matrixT = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, minfo.m_matrixDim.columns);
     m_api.transpose (m_matrixT, matrix);
-    m_matrixInfo = minfo;
+    m_matrixTInfo = minfo;
   }
 
   return m_matrixT.get();
@@ -92,9 +109,11 @@ math::Matrix* MatrixCreator::getMatrixT (const math::MatrixInfo& minfo)
 
 math::Matrix* MatrixCreator::getRowVector (size_t index, const math::MatrixInfo& minfo)
 {
-  if (!m_matrixInfo.isInitialized () || m_matrixInfo != minfo)
+  if (!m_rowVectorInfo.isInitialized () || m_rowVectorInfo != minfo)
   {
     m_rowVector = m_ddl->createDeviceRowVector (index);
+    m_rowVectorInfo = minfo;
+    return m_rowVector.get ();
   }
 
   return m_ddl->getDeviceRowVector (index, m_rowVector);

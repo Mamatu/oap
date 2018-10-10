@@ -45,11 +45,14 @@ class MatrixCreator
     CuProceduresApi m_api;
 
     math::MatrixInfo     m_matrixInfo;
-    math::MatrixInfo     m_rowVecInfo;
+    math::MatrixInfo     m_matrixTInfo;
+    math::MatrixInfo     m_rowVectorInfo;
+    oap::DeviceMatrixPtr m_matrix;
     oap::DeviceMatrixPtr m_matrixT;
     oap::DeviceMatrixPtr m_rowVector;
 
     math::Matrix* constructSquareMatrix (const math::MatrixInfo& minfo);
+    math::Matrix* getMatrix (const math::MatrixInfo& minfo);
     math::Matrix* getMatrixT (const math::MatrixInfo& minfo);
     math::Matrix* getRowVector (size_t index, const math::MatrixInfo& minfo);
 };
