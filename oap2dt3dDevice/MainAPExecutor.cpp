@@ -2,6 +2,7 @@
 
 #include "IEigenCalculator.h"
 #include "DeviceDataLoader.h"
+#include "MatrixCreator.h"
 
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
@@ -36,43 +37,46 @@ struct UserData
 {
   oap::DeviceMatrixPtr value;
   DeviceDataLoader* dataLoader;
+  MatrixCreator* matrixCreator;
 };
 
-void MainAPExecutor::multiplyMatrixCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
 {
   if (mt == CuHArnoldi::TYPE_WV)
   {
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
     auto dvalue = udObj->value;
+    auto mc = udObj->matrixCreator;
 
-    math::Matrix* dmatrix = dataLoader->createDeviceMatrix();
+    math::Matrix* dmatrix = mc->createDeviceMatrix();
     cuProceduresApi.dotProduct(m_w, dmatrix, m_v);
     oap::cuda::DeleteDeviceMatrix(dmatrix);
   }
 }
 
-void MainAPExecutor::multiplyVecsCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
 {
   if (mt == CuHArnoldi::TYPE_WV)
   {
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
     auto dvalue = udObj->value;
+    auto mc = udObj->matrixCreator;
+
     math::MatrixInfo matrixInfo = dataLoader->getMatrixInfo();
 
-    math::Matrix* vec = dataLoader->createDeviceRowVector(0);
+    math::Matrix* vec = mc->createDeviceRowVector(0);
     cuProceduresApi.dotProduct(dvalue, vec, m_v);
     oap::cuda::SetMatrix(m_w, dvalue, 0, 0);
-    oap::cuda::DeleteDeviceMatrix(vec);
 
     for (uintt index = 1; index < matrixInfo.m_matrixDim.rows; ++index)
     {
-      vec = dataLoader->getDeviceRowVector(index, vec);
+      vec = mc->getDeviceRowVector(index, vec);
       cuProceduresApi.dotProduct(dvalue, vec, m_v);
       oap::cuda::SetMatrix(m_w, dvalue, 0, index);
-      oap::cuda::DeleteDeviceMatrix(vec);
     }
+    oap::cuda::DeleteDeviceMatrix(vec);
   }
 }
 
@@ -80,9 +84,12 @@ std::shared_ptr<Outcome> MainAPExecutor::run(ArnUtils::Type type)
 {
   oap::DeviceMatrixPtr dvalue = oap::cuda::NewDeviceReMatrix(1, 1); 
 
-  UserData userData = {dvalue, m_eigenCalc->getDataLoader()};
+  MatrixCreator matrixCreator (m_eigenCalc->getDataLoader());
 
-  m_cuhArnoldi->setCallback (MainAPExecutor::multiplyMatrixCallback, &userData);
+  UserData userData = {dvalue, m_eigenCalc->getDataLoader(), &matrixCreator};
+
+  //m_cuhArnoldi->setCallback (MainAPExecutor::multiplyMatrixCallback, &userData);
+  m_cuhArnoldi->setCallback (MainAPExecutor::multiplyVecsCallback, &userData);
 
   std::vector<floatt> revalues;
   std::vector<floatt> errors;
