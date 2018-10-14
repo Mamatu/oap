@@ -333,8 +333,6 @@ void Copy(math::Matrix* dst, const math::Matrix* src, uintt column, uintt row) {
   }
 }
 
-void CopySubMatrix(math::Matrix* dst, const math::Matrix* src);
-
 void CopyMatrix(math::Matrix* dst, const math::Matrix* src) {
   const uintt length1 = dst->columns * dst->rows;
   const uintt length2 = src->columns * src->rows;
@@ -347,20 +345,7 @@ void CopyMatrix(math::Matrix* dst, const math::Matrix* src) {
     }
   } else if (length1 < length2 && dst->columns <= src->columns &&
              dst->rows <= src->rows) {
-    CopySubMatrix(dst, src);
-  }
-}
-
-void CopySubMatrix(math::Matrix* dst, const math::Matrix* src) {
-  if (ReIsNotNULL(dst) && ReIsNotNULL(src)) {
-    for (uintt fa = 0; fa < dst->rows; ++fa) {
-      CopyBuffer(GetRePtr(dst, 0, fa), GetRePtr(src, 0, fa), dst->columns);
-    }
-  }
-  if (ImIsNotNULL(dst) && ImIsNotNULL(src)) {
-    for (uintt fa = 0; fa < dst->rows; ++fa) {
-      CopyBuffer(GetImPtr(dst, 0, fa), GetImPtr(src, 0, fa), dst->columns);
-    }
+    CopySubMatrix(dst, src, 0, 0);
   }
 }
 
@@ -928,6 +913,59 @@ bool WriteMatrix(const std::string& path, const math::Matrix* matrix) {
   fclose(file);
 
   return true;
+}
+
+void copySubMatrix (math::Matrix* dst, const math::Matrix* src, uintt cindex, uintt rindex)
+{
+  if (ReIsNotNULL(dst) && ReIsNotNULL(src))
+  {
+    for (uintt fa = 0; fa < dst->rows; ++fa)
+    {
+      CopyBuffer(GetRePtr(dst, 0, fa), GetRePtr(src, cindex, fa + rindex), dst->columns);
+    }
+  }
+  if (ImIsNotNULL(dst) && ImIsNotNULL(src))
+  {
+    for (uintt fa = 0; fa < dst->rows; ++fa)
+    {
+      CopyBuffer(GetImPtr(dst, 0, fa), GetImPtr(src, cindex, fa + rindex), dst->columns);
+    }
+  }
+}
+
+void CopySubMatrix(math::Matrix* dst, const math::Matrix* src, uintt cindex, uintt rindex)
+{
+  copySubMatrix (dst, src, cindex, rindex);
+}
+
+inline uintt calculate (uintt matrixd, uintt dindex, uintt dlength)
+{
+  return dindex + dlength < matrixd ? dlength : matrixd - dindex;
+}
+
+math::Matrix* CreateSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, uintt clength, uintt rlength)
+{
+  clength = calculate (orig->columns, cindex, clength);
+  rlength = calculate (orig->rows, rindex, rlength);
+
+  math::Matrix* submatrix = oap::host::NewMatrix (orig, clength, rlength);
+  copySubMatrix (submatrix, orig, cindex, rindex);
+  return submatrix;
+}
+
+math::Matrix* GetSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, math::Matrix* matrix)
+{
+  uintt clength = calculate (orig->columns, cindex, matrix->columns);
+  uintt rlength = calculate (orig->rows, rindex, matrix->rows);
+
+  if (matrix->columns == clength && matrix->rows == rlength)
+  {
+    copySubMatrix (matrix, orig, cindex, rindex);
+    return matrix;
+  }
+
+  oap::host::DeleteMatrix (matrix);
+  return CreateSubMatrix (orig, cindex, rindex, clength, rlength);
 }
 
 }

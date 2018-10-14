@@ -625,6 +625,13 @@ bool WriteMatrix(const std::string& path, const math::Matrix* matrix);
 inline bool IsReMatrix(math::Matrix* m) { return m != NULL && m->reValues != NULL; }
 
 inline bool IsImMatrix(math::Matrix* m) { return m != NULL && m->imValues != NULL; }
+
+void CopySubMatrix(math::Matrix* dst, const math::Matrix* src, uintt cindex, uintt rindex);
+
+math::Matrix* CreateSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, uintt clength, uintt rlength);
+
+math::Matrix* GetSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, math::Matrix* matrix);
+
 }
 }
 
