@@ -35,10 +35,15 @@ class MatrixCreator
 
     virtual ~MatrixCreator();
 
+    math::MatrixInfo getMatrixInfo() const;
+
     math::Matrix* createDeviceMatrix();
 
     math::Matrix* createDeviceRowVector(size_t index);
+    math::Matrix* createDeviceSubMatrix (size_t rindex, size_t rlength);
+
     math::Matrix* getDeviceRowVector(size_t index, math::Matrix* dmatrix);
+    math::Matrix* getDeviceSubMatrix (size_t rindex, size_t rlength, math::Matrix* dmatrix);
 
   private:
     DeviceDataLoader* m_ddl;
@@ -47,14 +52,17 @@ class MatrixCreator
     math::MatrixInfo     m_matrixInfo;
     math::MatrixInfo     m_matrixTInfo;
     math::MatrixInfo     m_rowVectorInfo;
+    math::MatrixInfo     m_subMatrixInfo;
     oap::DeviceMatrixPtr m_matrix;
     oap::DeviceMatrixPtr m_matrixT;
     oap::DeviceMatrixPtr m_rowVector;
+    oap::DeviceMatrixPtr m_subMatrix;
 
     math::Matrix* constructSquareMatrix (const math::MatrixInfo& minfo);
     math::Matrix* getMatrix (const math::MatrixInfo& minfo);
     math::Matrix* getMatrixT (const math::MatrixInfo& minfo);
     math::Matrix* getRowVector (size_t index, const math::MatrixInfo& minfo);
+    math::Matrix* getSubMatrix (size_t rindex, size_t rlength, const math::MatrixInfo& minfo);
 };
 }
 

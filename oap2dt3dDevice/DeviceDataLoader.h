@@ -42,7 +42,11 @@ class DeviceDataLoader : public DataLoader {
 
   math::Matrix* createDeviceColumnVector(size_t index);
   math::Matrix* getDeviceColumnVector(size_t index, math::Matrix* dmatrix);
+  
+  math::Matrix* createDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows);
+  math::Matrix* getDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows, math::Matrix* dmatrix);
 };
+
 }
 
 #endif  // DEVICEDATALOADER_H

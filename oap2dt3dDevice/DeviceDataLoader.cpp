@@ -63,4 +63,21 @@ math::Matrix* DeviceDataLoader::getDeviceColumnVector(size_t index, math::Matrix
   oap::host::DeleteMatrix(host);
   return dmatrix;
 }
+
+math::Matrix* DeviceDataLoader::createDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
+{
+  math::Matrix* host = createSubMatrix (cindex, rindex, columns, rows);
+  math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
+  oap::host::DeleteMatrix(host);
+  return device;
+}
+
+math::Matrix* DeviceDataLoader::getDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows, math::Matrix* dmatrix)
+{
+  math::Matrix* host = createDeviceSubMatrix (cindex, rindex, columns, rows);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (dmatrix, host);
+  oap::host::DeleteMatrix(host);
+  return dmatrix;
+}
+
 }

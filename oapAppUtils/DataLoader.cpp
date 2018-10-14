@@ -65,6 +65,12 @@ math::Matrix* DataLoader::createMatrix(uintt index, uintt length) {
   return hostMatrix;
 }
 
+math::Matrix* DataLoader::createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
+{
+  math::Matrix* matrix = createMatrix();
+  return oap::host::CreateSubMatrix(matrix, cindex, rindex, columns, rows);
+}
+
 math::Matrix* DataLoader::createColumnVector(size_t index) {
   const size_t refLength = m_images[0]->getLength();
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);

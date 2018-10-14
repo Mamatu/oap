@@ -119,6 +119,8 @@ class DataLoader {
 
   math::Matrix* createMatrix(uintt index, uintt length);
 
+  math::Matrix* createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows);
+
   math::Matrix* createColumnVector(size_t index);
 
   math::Matrix* createRowVector(size_t index);

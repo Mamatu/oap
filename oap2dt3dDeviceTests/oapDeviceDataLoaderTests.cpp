@@ -21,8 +21,10 @@
 #include "gmock/gmock.h"
 
 #include "DeviceDataLoader.h"
+#include "MatrixCreator.h"
 #include "KernelExecutor.h"
 #include "oapCudaMatrixUtils.h"
+#include "oapDeviceMatrixUPtr.h"
 
 #include "PngFile.h"
 
@@ -59,3 +61,20 @@ TEST_F(OapDeviceDataLoaderTests, LoadImagesAllocDeallocTest)
   oap::host::DeleteMatrix(matrix1);
   oap::cuda::DeleteDeviceMatrix(dmatrix);
 }
+
+TEST_F(OapDeviceDataLoaderTests, MatrixCreatorTest)
+{
+  oap::DataLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
+  oap::DeviceDataLoader* ddl = oap::DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info);
+  oap::MatrixCreator* mcreator = new oap::MatrixCreator (ddl);
+
+  math::MatrixInfo minfo = mcreator->getMatrixInfo ();
+
+  //oap::DeviceMatrixUPtr submatrix = mcreator.createDeviceSubMatrix (0, 1);
+  //oap::DeviceMatrixUPtr rowVector = mcreator->createDeviceRowVector (0);
+  //math::Matrix* rowVector = mcreator->createDeviceRowVector (0);
+  //EXPECT_EQ(1, CudaUtils::GetRows (submatrix));
+  //EXPECT_EQ(minfo.m_matrixDim.columns, CudaUtils::GetColumns (submatrix));
+  delete mcreator;
+}
+
