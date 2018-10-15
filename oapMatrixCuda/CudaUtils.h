@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <string>
 #include "Matrix.h"
+#include "MatrixInfo.h"
 #include "MatrixEx.h"
 
 namespace CudaUtils {
@@ -68,6 +69,8 @@ void* AllocDeviceMem(uintt size, const void* src);
 void FreeDeviceMem(void* devicePtr);
 
 void FreeDeviceMem(CUdeviceptr ptr);
+
+math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
 
 /**
  *

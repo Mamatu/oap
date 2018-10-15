@@ -184,6 +184,11 @@ uintt GetRows(const math::Matrix* dMatrix)
   return gMatrixInfos[dMatrix].m_matrixDim.rows;
 }
 
+math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
+{
+  return gMatrixInfos[devMatrix];
+}
+
 void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src) {
   uintt length1 = dst->columns * dst->rows;
   uintt length2 = CudaUtils::GetColumns(src) * CudaUtils::GetRows(src);
@@ -387,15 +392,6 @@ void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
     CudaUtils::CopyDeviceToDevice(dstimptr + index, srcimptr + columns1 * fa,
                                   columns1 * sizeof(floatt));
   }
-}
-
-math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
-{
-  uintt columns = CudaUtils::GetColumns(devMatrix);
-  uintt rows = CudaUtils::GetRows(devMatrix);
-  bool isRe = CudaUtils::GetReValues(devMatrix) != NULL;
-  bool isIm = CudaUtils::GetImValues(devMatrix) != NULL;
-  return math::MatrixInfo(isRe, isIm, columns, rows);
 }
 
 void PrintMatrixInfo(const std::string& msg, const math::Matrix* devMatrix)
