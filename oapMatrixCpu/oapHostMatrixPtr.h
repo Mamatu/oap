@@ -28,7 +28,7 @@
 namespace oap {
   class HostMatrixPtr : public oap::MatrixSharedPtr {
     public:
-      HostMatrixPtr(math::Matrix* matrix) : oap::MatrixSharedPtr(matrix, oap::host::DeleteMatrix) {}
+      HostMatrixPtr(math::Matrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix, oap::host::DeleteMatrix) {}
   };
 
   class HostMatricesPtr : public oap::MatricesSharedPtr {

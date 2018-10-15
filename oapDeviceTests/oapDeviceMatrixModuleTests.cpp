@@ -20,6 +20,7 @@
 #include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 #include "gtest/gtest.h"
+#include "oapDeviceMatrixUPtr.h"
 
 class OapDeviceMatrixModuleTests : public testing::Test {
  public:
@@ -82,6 +83,13 @@ TEST_F(OapDeviceMatrixModuleTests, GetRowsTest) {
   EXPECT_EQ(expected, tested);
   EXPECT_EQ(rows, tested);
   oap::cuda::DeleteDeviceMatrix(matrix);
+}
+
+TEST_F(OapDeviceMatrixModuleTests, GetRowsGetColumns)
+{
+  oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrix (10, 20);
+  EXPECT_EQ(20, oap::cuda::GetRows (matrix));
+  EXPECT_EQ(10, oap::cuda::GetColumns (matrix));
 }
 
 TEST_F(OapDeviceMatrixModuleTests, SetSubMatrix00) {
