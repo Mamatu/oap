@@ -77,8 +77,56 @@ math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
 
 typedef std::map<const math::Matrix*, math::MatrixInfo> MatrixInfos;
 
+namespace
+{
 MatrixInfos gMatrixInfos;
 MatrixInfos gDeletedMatrixInfos;
+}
+
+void gRegister (math::Matrix* dMatrix, const math::MatrixInfo& minfo)
+{
+  gMatrixInfos[dMatrix] = minfo;
+
+  MatrixInfos::iterator it = gDeletedMatrixInfos.find (dMatrix);
+  if (it != gDeletedMatrixInfos.end ())
+  {
+    gDeletedMatrixInfos.erase (it);
+  }
+
+  debug("Allocate: dMatrix = %p %s", dMatrix, minfo.toString().c_str());
+}
+
+math::MatrixInfo gUnregister (const math::Matrix* dMatrix)
+{
+  math::MatrixInfo minfo;
+
+  MatrixInfos::iterator it = gMatrixInfos.find(dMatrix);
+  if (gMatrixInfos.end() != it)
+  {
+    gDeletedMatrixInfos[dMatrix] = it->second;
+    minfo = it->second;
+
+    gMatrixInfos.erase(it);
+  }
+  else
+  {
+
+    MatrixInfos::iterator it = gDeletedMatrixInfos.find(dMatrix);
+    if (it != gDeletedMatrixInfos.end ())
+    {
+      debugError ("Double deallocation: dMatrix = %p %s", dMatrix, it->second.toString().c_str());
+      //debugAssert (false);
+    }
+    else
+    {
+      debugError ("Not found: dMatrix = %p", dMatrix);
+      //debugAssert (false);
+    }
+  }
+
+  return minfo;
+}
+
 
 math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
                           floatt revalue = 0.f, floatt imvalue = 0.f) {
@@ -87,13 +135,7 @@ math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
 
   math::MatrixInfo matrixInfo = math::MatrixInfo (allocRe, allocIm, columns, rows);
 
-  gMatrixInfos[mptr] = matrixInfo;
-
-  MatrixInfos::iterator it = gDeletedMatrixInfos.find (mptr);
-  if (it != gDeletedMatrixInfos.end ())
-  {
-    gDeletedMatrixInfos.erase (it);
-  }
+  gRegister (mptr, matrixInfo);
 
   return mptr;
 }
@@ -130,32 +172,7 @@ math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue,
 void DeleteDeviceMatrix(const math::Matrix* dMatrix) {
   if (dMatrix != NULL)
   {
-
-    math::MatrixInfo minfo;
-
-    MatrixInfos::iterator it = gMatrixInfos.find(dMatrix);
-    if (gMatrixInfos.end() != it)
-    {
-      gDeletedMatrixInfos[dMatrix] = it->second;
-      minfo = it->second;
-
-      gMatrixInfos.erase(it);
-    }
-    else
-    {
-
-      MatrixInfos::iterator it = gDeletedMatrixInfos.find(dMatrix);
-      if (it != gDeletedMatrixInfos.end ())
-      {
-        debugError ("dMatrix = %p %s double deallocation).", dMatrix, it->second.toString().c_str());
-        //debugAssert (false);
-      }
-      else
-      {
-        debugError ("dMatrix = %p is invalid (never registered).", dMatrix);
-        //debugAssert (false);
-      }
-    }
+    math::MatrixInfo minfo = gUnregister (dMatrix);
 
     CUdeviceptr rePtr = reinterpret_cast<CUdeviceptr>(CudaUtils::GetReValues(dMatrix));
 
@@ -169,7 +186,7 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix) {
 
     if (minfo.isInitialized ())
     {
-      debug ("dMatrix = %p %s correctly deallocated.", dMatrix, minfo.toString().c_str());
+      debug ("Deallocate: dMatrix = %p %s", dMatrix, minfo.toString().c_str());
     }
   }
 }
