@@ -28,7 +28,11 @@
 namespace oap {
   class DeviceMatrixUPtr : public oap::MatrixUniquePtr {
     public:
-      DeviceMatrixUPtr(math::Matrix* matrix = nullptr) : oap::MatrixUniquePtr(matrix, oap::cuda::DeleteDeviceMatrix) {}
+      DeviceMatrixUPtr(math::Matrix* matrix = nullptr) : oap::MatrixUniquePtr(matrix,
+        [this](const math::Matrix* matrix) { debug("Destroy: DeviceMatrixUPtr = %p matrix = %p", this, matrix); oap::cuda::DeleteDeviceMatrix(matrix); })
+      {
+        debug("Create: DeviceMatrixUPtr = %p matrix = %p", this, matrix);
+      }
   };
 
   class DeviceMatricesUPtr : public oap::MatricesUniquePtr {
