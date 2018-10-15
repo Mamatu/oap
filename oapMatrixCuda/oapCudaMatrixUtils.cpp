@@ -152,14 +152,9 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix) {
       }
       else
       {
-        debugError ("dMatrix = %p is invalid (never created).", dMatrix);
+        debugError ("dMatrix = %p is invalid (never registered).", dMatrix);
         //debugAssert (false);
       }
-    }
-
-    if (minfo.isInitialized ())
-    {
-      debug ("dMatrix = %p %s is deallocated).", dMatrix, minfo.toString().c_str());
     }
 
     CUdeviceptr rePtr = reinterpret_cast<CUdeviceptr>(CudaUtils::GetReValues(dMatrix));
@@ -171,6 +166,11 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix) {
     CudaUtils::FreeDeviceMem(matrixPtr);
     CudaUtils::FreeDeviceMem(rePtr);
     CudaUtils::FreeDeviceMem(imPtr);
+
+    if (minfo.isInitialized ())
+    {
+      debug ("dMatrix = %p %s correctly deallocated.", dMatrix, minfo.toString().c_str());
+    }
   }
 }
 
