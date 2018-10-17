@@ -253,6 +253,15 @@ void FreeDeviceMem(void* devicePtr) {
   }
 }
 
+math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
+{
+  uintt columns = CudaUtils::GetColumns(devMatrix);
+  uintt rows = CudaUtils::GetRows(devMatrix);
+  bool isRe = CudaUtils::GetReValues(devMatrix) != NULL;
+  bool isIm = CudaUtils::GetImValues(devMatrix) != NULL;
+  return math::MatrixInfo(isRe, isIm, columns, rows);
+}
+
 void CopyHostToDevice(void* dst, const void* src, uintt size) {
   CUdeviceptr dstPtr = reinterpret_cast<CUdeviceptr>(dst);
   cuMemcpyHtoD(dstPtr, src, size);

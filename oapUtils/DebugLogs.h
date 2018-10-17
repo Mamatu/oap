@@ -46,7 +46,7 @@
 inline void debugExceptionMsg(bool x, const std::string& str) { if (!(x)) { std::cout << str << std::endl; throw std::runtime_error(str); } }
 inline void debugExceptionMsg(bool x, const std::stringstream& stream) { debugExceptionMsg(x, stream.str()); }
 
-#define debugError(x, ...) fprintf(stderr, x, ##__VA_ARGS__); fprintf(stderr, "\n");
+#define debugError(x, ...) fprintf(stderr, "ERROR: "); fprintf(stderr, x, ##__VA_ARGS__); fprintf(stderr, "\n");
 
 #define debugFunc() fprintf(STREAM, "%s %s : %d  \n", __FUNCTION__,__FILE__,__LINE__); 
 

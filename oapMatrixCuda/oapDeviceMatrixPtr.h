@@ -28,7 +28,11 @@
 namespace oap {
   class DeviceMatrixPtr : public oap::MatrixSharedPtr {
     public:
-      DeviceMatrixPtr(math::Matrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix, oap::cuda::DeleteDeviceMatrix) {}
+      DeviceMatrixPtr(math::Matrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix,
+      [this](const math::Matrix* matrix) { debug("Destroy: DeviceMatrixPtr = %p matrix = %p", this, matrix); oap::cuda::DeleteDeviceMatrix(matrix); })
+      {
+        debug("Create: DeviceMatrixPtr = %p matrix = %p", this, matrix);
+      }
   };
 
   class DeviceMatricesPtr : public oap::MatricesSharedPtr {

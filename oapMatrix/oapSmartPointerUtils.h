@@ -21,6 +21,7 @@
 #define OAP_SMARTPOINTERUTILS_H
 
 #include <algorithm>
+#include <functional>
 #include <initializer_list>
 #include <iterator>
 #include <memory>
@@ -31,7 +32,7 @@
 namespace deleters
 {
 
-  using MatrixDeleter = void(*)(const math::Matrix*);
+  using MatrixDeleter = std::function<void(const math::Matrix*)>;
 
   class MatricesDeleter {
       unsigned int m_count;

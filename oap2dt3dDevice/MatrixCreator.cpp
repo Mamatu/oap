@@ -34,6 +34,8 @@ MatrixCreator::~MatrixCreator()
 
 math::MatrixInfo MatrixCreator::getMatrixInfo() const
 {
+  debugFunc ();
+
   math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
 
   if (minfo.m_matrixDim.columns != minfo.m_matrixDim.rows)
@@ -120,6 +122,8 @@ math::Matrix* MatrixCreator::getDeviceRowVector(size_t index, math::Matrix* dmat
 
 math::Matrix* MatrixCreator::constructSquareMatrix (const math::MatrixInfo& minfo)
 {
+  debugFunc ();
+
   math::Matrix* matrix = getMatrix (minfo);
   math::Matrix* matrixT = getMatrixT (minfo);
 
@@ -132,6 +136,8 @@ math::Matrix* MatrixCreator::constructSquareMatrix (const math::MatrixInfo& minf
 
 math::Matrix* MatrixCreator::getMatrix (const math::MatrixInfo& minfo)
 {
+  debugFunc ();
+
   if(!m_matrixInfo.isInitialized () || m_matrixInfo != minfo)
   {
     m_matrix = m_ddl->createDeviceMatrix ();
@@ -143,9 +149,11 @@ math::Matrix* MatrixCreator::getMatrix (const math::MatrixInfo& minfo)
 
 math::Matrix* MatrixCreator::getMatrixT (const math::MatrixInfo& minfo)
 {
+  debugFunc ();
+
   if(!m_matrixTInfo.isInitialized () || m_matrixTInfo != minfo)
   {
-    oap::DeviceMatrixUPtr matrix = getMatrix (minfo);
+    math::Matrix* matrix = getMatrix (minfo);
     m_matrixT = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, minfo.m_matrixDim.columns);
     m_api.transpose (m_matrixT, matrix);
     m_matrixTInfo = minfo;
@@ -156,6 +164,8 @@ math::Matrix* MatrixCreator::getMatrixT (const math::MatrixInfo& minfo)
 
 math::Matrix* MatrixCreator::getRowVector (size_t index, const math::MatrixInfo& minfo)
 {
+  debugFunc ();
+
   if (!m_rowVectorInfo.isInitialized () || m_rowVectorInfo != minfo)
   {
     m_rowVector = m_ddl->createDeviceRowVector (index);
@@ -168,6 +178,8 @@ math::Matrix* MatrixCreator::getRowVector (size_t index, const math::MatrixInfo&
 
 math::Matrix* MatrixCreator::getSubMatrix (size_t rindex, size_t rlength, const math::MatrixInfo& minfo)
 {
+  debugFunc ();
+
   if (!m_subMatrixInfo.isInitialized () || m_subMatrixInfo != minfo)
   {
     m_subMatrix = m_ddl->createDeviceSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);

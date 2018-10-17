@@ -671,9 +671,12 @@ void SetDiagonalImMatrix(math::Matrix* matrix, floatt a) {
   }
 }
 
-math::MatrixInfo GetMatrixInfo(const math::Matrix* matrix) {
-  return math::MatrixInfo(matrix->reValues != NULL, matrix->imValues != NULL,
-                          matrix->columns, matrix->rows);
+math::MatrixInfo GetMatrixInfo(const math::Matrix* matrix)
+{
+  return math::MatrixInfo (matrix->reValues != NULL,
+                           matrix->imValues != NULL,
+                           matrix->columns,
+                           matrix->rows);
 }
 
 void SetSubs(math::Matrix* matrix, uintt subcolumns, uintt subrows) {

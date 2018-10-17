@@ -2,9 +2,11 @@
 #define MATRIXINFO_H
 
 #include "Matrix.h"
+#include <sstream>
 #include <cstddef>
 
-namespace math {
+namespace math
+{
 
 class MatrixInfo {
  public:
@@ -48,10 +50,18 @@ class MatrixInfo {
     return isInitialized ();
   }
 
+  std::string toString() const
+  {
+    std::stringstream stream;
+    stream << "(" << isRe << ", " << isIm << ", " << m_matrixDim.columns << ", " << m_matrixDim.rows << ")";
+    return stream.str();
+  }
+
   math::MatrixDim m_matrixDim;
   bool isRe;
   bool isIm;
 };
+
 }
 
 #endif  // MATRIXINFO_H
