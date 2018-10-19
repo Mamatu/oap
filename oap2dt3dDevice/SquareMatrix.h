@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MATRIXCREATOR_H
-#define MATRIXCREATOR_H
+#ifndef OAP_SQUAREMATRIX_H
+#define OAP_SQUAREMATRIX_H
 
 #include "DeviceDataLoader.h"
 #include "CuProceduresApi.h"
@@ -28,12 +28,12 @@
 namespace oap
 {
 
-class MatrixCreator
+class SquareMatrix
 {
   public:
-    MatrixCreator(DeviceDataLoader* ddl);
+    SquareMatrix (DeviceDataLoader* ddl);
 
-    virtual ~MatrixCreator();
+    virtual ~SquareMatrix();
 
     math::MatrixInfo getMatrixInfo() const;
 
@@ -53,10 +53,10 @@ class MatrixCreator
     math::MatrixInfo     m_matrixTInfo;
     math::MatrixInfo     m_rowVectorInfo;
     math::MatrixInfo     m_subMatrixInfo;
-    oap::DeviceMatrixPtr m_matrix;
-    oap::DeviceMatrixPtr m_matrixT;
-    oap::DeviceMatrixPtr m_rowVector;
-    oap::DeviceMatrixPtr m_subMatrix;
+    math::Matrix* m_matrix;
+    math::Matrix* m_matrixT;
+    math::Matrix* m_rowVector;
+    math::Matrix* m_subMatrix;
 
     math::Matrix* constructSquareMatrix (const math::MatrixInfo& minfo);
     math::Matrix* getMatrix (const math::MatrixInfo& minfo);
@@ -66,4 +66,4 @@ class MatrixCreator
 };
 }
 
-#endif  // MATRIXCREATOR_H
+#endif  // SQUAREMATRIX_H

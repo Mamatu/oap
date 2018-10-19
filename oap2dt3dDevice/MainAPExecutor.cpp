@@ -2,7 +2,7 @@
 
 #include "IEigenCalculator.h"
 #include "DeviceDataLoader.h"
-#include "MatrixCreator.h"
+#include "SquareMatrix.h"
 
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
@@ -37,7 +37,7 @@ struct UserData
 {
   oap::DeviceMatrixPtr value;
   DeviceDataLoader* dataLoader;
-  MatrixCreator* matrixCreator;
+  SquareMatrix* squareMatrix;
 };
 
 void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
@@ -47,7 +47,7 @@ void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
     auto dvalue = udObj->value;
-    auto mc = udObj->matrixCreator;
+    auto mc = udObj->squareMatrix;
 
     math::Matrix* dmatrix = mc->createDeviceMatrix();
     cuProceduresApi.dotProduct(m_w, dmatrix, m_v);
@@ -62,7 +62,7 @@ void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v,
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
     auto dvalue = udObj->value;
-    auto mc = udObj->matrixCreator;
+    auto mc = udObj->squareMatrix;
 
     math::MatrixInfo matrixInfo = dataLoader->getMatrixInfo();
 
@@ -84,9 +84,9 @@ std::shared_ptr<Outcome> MainAPExecutor::run(ArnUtils::Type type)
 {
   oap::DeviceMatrixPtr dvalue = oap::cuda::NewDeviceReMatrix(1, 1); 
 
-  MatrixCreator matrixCreator (m_eigenCalc->getDataLoader());
+  SquareMatrix squareMatrix (m_eigenCalc->getDataLoader());
 
-  UserData userData = {dvalue, m_eigenCalc->getDataLoader(), &matrixCreator};
+  UserData userData = {dvalue, m_eigenCalc->getDataLoader(), &squareMatrix};
 
   //m_cuhArnoldi->setCallback (MainAPExecutor::multiplyMatrixCallback, &userData);
   m_cuhArnoldi->setCallback (MainAPExecutor::multiplyVecsCallback, &userData);
