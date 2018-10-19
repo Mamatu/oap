@@ -90,7 +90,7 @@ class MatricesMgr
         debugError ("Memleak: not deallocated matrices");
         for (MatrixInfos::iterator it = m_matrixInfos.begin(); it != m_matrixInfos.end(); ++it)
         {
-          debug("Not deallocate: dMatrix = %p %s", it->first, it->second.toString().c_str());
+          debug("Memleak: dMatrix = %p %s not deallocated", it->first, it->second.toString().c_str());
         }
         debugAssert (false);
       }
