@@ -66,12 +66,12 @@ TEST_F(OapDeviceDataLoaderTests, SquareMatrixTest)
 {
   oap::DataLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
   oap::DeviceDataLoader* ddl = oap::DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info);
-  oap::SquareMatrix mcreator (ddl);
+  oap::SquareMatrix smatrix (ddl);
 
-  math::MatrixInfo minfo = mcreator.getMatrixInfo ();
+  math::MatrixInfo minfo = smatrix.getMatrixInfo ();
 
-  oap::DeviceMatrixUPtr submatrix = mcreator.createDeviceSubMatrix (0, 1);
-  oap::DeviceMatrixUPtr rowVector = mcreator.createDeviceRowVector (0);
+  oap::DeviceMatrixUPtr submatrix = smatrix.createDeviceSubMatrix (0, 1);
+  oap::DeviceMatrixUPtr rowVector = smatrix.createDeviceRowVector (0);
 
   EXPECT_EQ(1, CudaUtils::GetRows (submatrix));
   EXPECT_EQ(minfo.m_matrixDim.columns, CudaUtils::GetColumns (submatrix));
