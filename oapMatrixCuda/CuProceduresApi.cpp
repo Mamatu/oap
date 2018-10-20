@@ -27,7 +27,6 @@
 namespace oap
 {
 
-
 void CuProceduresApi::prepareDims(uintt w, uintt h) {
   uint blocks[2];
   uint threads[2];
@@ -205,11 +204,14 @@ void CuProceduresApi::transposeEx(math::Matrix* output, math::Matrix* params0,
 }
 
 void CuProceduresApi::transpose(math::Matrix* output, math::Matrix* params0) {
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
-  if (w == 1 || h == 1) {
+  const uintt w = oap::cuda::GetColumns (output);
+  const uintt h = oap::cuda::GetRows (output);
+  if (w == 1 && h == 1)
+  {
     oap::cuda::CopyDeviceMatrixToDeviceMatrix(output, params0);
-  } else {
+  }
+  else
+  {
     void* params[] = {&output, &params0};
     m_cuResult = execute("CUDAKernel_Transpose", w, h, params, 0);
   }
@@ -218,9 +220,12 @@ void CuProceduresApi::transpose(math::Matrix* output, math::Matrix* params0) {
 void CuProceduresApi::conjugateTranspose(math::Matrix* output, math::Matrix* params0) {
   const uintt w = CudaUtils::GetColumns(output);
   const uintt h = CudaUtils::GetRows(output);
-  if (w == 1 || h == 1) {
+  if (w == 1 && h == 1)
+  {
     oap::cuda::CopyDeviceMatrixToDeviceMatrix(output, params0);
-  } else {
+  }
+  else
+  {
     void* params[] = {&output, &params0};
     m_cuResult = execute("CUDAKernel_ConjugateTranspose", w, h, params, 0);
   }
