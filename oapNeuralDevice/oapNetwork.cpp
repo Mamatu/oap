@@ -19,7 +19,7 @@
 
 #include "oapNetwork.h"
 
-Network::Network() : m_learningRate(0.1f), m_expectedDevicOutputs(nullptr), m_icontroller(nullptr), m_step(1)
+Network::Network() : m_learningRate(0.1f), m_expectedDeviceOutputs(nullptr), m_icontroller(nullptr), m_step(1)
 {
 }
 
@@ -57,16 +57,16 @@ void Network::runTest (math::Matrix* inputs, math::Matrix* expectedOutputs, Matr
   if (argsType == Network::HOST)
   {
     layer->setHostInputs (inputs);
-    if (!m_expectedDevicOutputs)
+    if (!m_expectedDeviceOutputs)
     {
-      m_expectedDevicOutputs = oap::cuda::NewDeviceMatrixCopy (expectedOutputs);
+      m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixCopy (expectedOutputs);
     }
     else
     {
-      oap::cuda::CopyHostMatrixToDeviceMatrix (m_expectedDevicOutputs, expectedOutputs);
+      oap::cuda::CopyHostMatrixToDeviceMatrix (m_expectedDeviceOutputs, expectedOutputs);
     }
 
-    expectedOutputs = m_expectedDevicOutputs.get();
+    expectedOutputs = m_expectedDeviceOutputs.get();
   }
   else if (argsType == Network::DEVICE)
   {
