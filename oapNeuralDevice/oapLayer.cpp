@@ -95,8 +95,11 @@ void Layer::allocateWeights(const Layer* nextLayer)
 void Layer::deallocate()
 {
   deallocate (&m_inputs);
+  deallocate (&m_tinputs);
   deallocate (&m_sums);
+  deallocate (&m_tsums);
   deallocate (&m_errors);
+  deallocate (&m_terrors);
   deallocate (&m_weights);
   deallocate (&m_tweights);
   deallocate (&m_weights1);
