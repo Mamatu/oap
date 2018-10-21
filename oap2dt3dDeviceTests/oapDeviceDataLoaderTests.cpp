@@ -62,7 +62,7 @@ TEST_F(OapDeviceDataLoaderTests, LoadImagesAllocDeallocTest)
   oap::cuda::DeleteDeviceMatrix(dmatrix);
 }
 
-TEST_F(OapDeviceDataLoaderTests, SquareMatrixTest)
+TEST_F(OapDeviceDataLoaderTests, SquareMatrixAllocationTest)
 {
   oap::DataLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
   oap::DeviceDataLoader* ddl = oap::DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info);
@@ -72,6 +72,21 @@ TEST_F(OapDeviceDataLoaderTests, SquareMatrixTest)
 
   oap::DeviceMatrixUPtr submatrix = smatrix.createDeviceSubMatrix (0, 1);
   oap::DeviceMatrixUPtr rowVector = smatrix.createDeviceRowVector (0);
+
+  {
+    oap::DeviceMatrixUPtr submatrix1 = smatrix.createDeviceSubMatrix (0, 100);
+    oap::DeviceMatrixUPtr submatrix2 = smatrix.createDeviceSubMatrix (1, 100);
+    oap::DeviceMatrixUPtr submatrix3 = smatrix.createDeviceSubMatrix (2, 100);
+    oap::DeviceMatrixUPtr submatrix4 = smatrix.createDeviceSubMatrix (3, 100);
+    EXPECT_THROW(smatrix.createDeviceSubMatrix (100000, 100), std::runtime_error);
+  }
+
+  math::Matrix* sm1 = smatrix.createDeviceSubMatrix (0, 100);
+  sm1 = smatrix.getDeviceSubMatrix (1, 100, sm1);
+  sm1 = smatrix.getDeviceSubMatrix (1, 100, sm1);
+  EXPECT_THROW(smatrix.getDeviceSubMatrix (10000000, 100, sm1), std::runtime_error);
+
+  oap::cuda::DeleteDeviceMatrix (sm1);
 
   EXPECT_EQ(1, CudaUtils::GetRows (submatrix));
   EXPECT_EQ(minfo.m_matrixDim.columns, CudaUtils::GetColumns (submatrix));
