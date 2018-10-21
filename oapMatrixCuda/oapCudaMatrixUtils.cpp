@@ -119,8 +119,25 @@ class MatricesMgr
       {
         m_deletedMatrixInfos.erase (it);
       }
-
-      debug("Allocate: dMatrix = %p %s", dMatrix, minfo.toString().c_str());
+      auto toInt = [](bool b) -> int
+      {
+        return b ? 1 : 0;
+      };
+      size_t size = (toInt (minfo.isRe) + toInt (minfo.isIm)) * minfo.m_matrixDim.columns * minfo.m_matrixDim.rows * sizeof(floatt);
+      std::string units = "bytes";
+      if (size / 1024 > 0)
+      {
+        size = size / 1024; units = "KB";
+      }
+      if (size / 1024 > 0)
+      {
+        size = size / 1024; units = "MB";
+      }
+      if (size / 1024 > 0)
+      {
+        size = size / 1024; units = "GB";
+      }
+      debug("Allocate: dMatrix = %p %s size: %lu in %s", dMatrix, minfo.toString().c_str(), size, units.c_str());
     }
 
     math::MatrixInfo remove (const math::Matrix* dMatrix)
@@ -238,10 +255,21 @@ math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
 }
 
 void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src) {
-  uintt length1 = dst->columns * dst->rows;
-  uintt length2 = CudaUtils::GetColumns(src) * CudaUtils::GetRows(src);
-  length1 = length1 < length2 ? length1 : length2;
+
+  uintt hcolumns = dst->columns;
+  uintt hrows = dst->rows;
+
+  uintt dcolumns = CudaUtils::GetColumns (src);
+  uintt drows = CudaUtils::GetRows (src);
+
+  debugAssert(hcolumns == dcolumns);
+  debugAssert(hrows == drows);
+
+  uintt length1 = hcolumns * hrows;
+  uintt length2 = dcolumns * drows;
+
   debugAssert(length1 == length2);
+
   CUdeviceptr srcRePtr =
       reinterpret_cast<CUdeviceptr>(CudaUtils::GetReValues(src));
   CUdeviceptr srcImPtr =
@@ -255,9 +283,19 @@ void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src) {
 }
 
 void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src) {
-  uintt length1 = CudaUtils::GetColumns(dst) * CudaUtils::GetRows(dst);
-  uintt length2 = src->columns * src->rows;
-  length1 = length1 < length2 ? length1 : length2;
+
+  uintt hcolumns = src->columns;
+  uintt hrows = src->rows;
+
+  uintt dcolumns = CudaUtils::GetColumns (dst);
+  uintt drows = CudaUtils::GetRows (dst);
+
+  debugAssert(hcolumns == dcolumns);
+  debugAssert(hrows == drows);
+
+  uintt length1 = src->columns * src->rows;
+  debugAssert(length1 == length2);
+
   CUdeviceptr dstRePtr =
       reinterpret_cast<CUdeviceptr>(CudaUtils::GetReValues(dst));
   CUdeviceptr dstImPtr =
@@ -272,9 +310,17 @@ void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src) {
 
 void CopyDeviceMatrixToDeviceMatrix(math::Matrix* dst,
                                     const math::Matrix* src) {
-  uintt length1 = CudaUtils::GetColumns(dst) * CudaUtils::GetRows(dst);
-  uintt length2 = CudaUtils::GetColumns(src) * CudaUtils::GetRows(src);
-  length1 = length1 < length2 ? length1 : length2;
+  uintt dcolumns1 = CudaUtils::GetColumns (src);
+  uintt drows1 = CudaUtils::GetRows (src);
+
+  uintt dcolumns2 = CudaUtils::GetColumns (dst);
+  uintt drows2 = CudaUtils::GetRows (dst);
+
+  debugAssert(dcolumns1 == dcolumns2);
+  debugAssert(drows1 == drows2);
+
+  uintt length1 = dcolumns1 * drows1;
+
   CUdeviceptr dstRePtr =
       reinterpret_cast<CUdeviceptr>(CudaUtils::GetReValues(dst));
   CUdeviceptr dstImPtr =
