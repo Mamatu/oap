@@ -204,30 +204,43 @@ void CuProceduresApi::transposeEx(math::Matrix* output, math::Matrix* params0,
 }
 
 void CuProceduresApi::transpose(math::Matrix* output, math::Matrix* params0) {
-  const uintt w = oap::cuda::GetColumns (output);
-  const uintt h = oap::cuda::GetRows (output);
-  if (w == 1 && h == 1)
+  const uintt wo = oap::cuda::GetColumns (output);
+  const uintt ho = oap::cuda::GetRows (output);
+
+  const uintt wp = oap::cuda::GetColumns (params0);
+  const uintt hp = oap::cuda::GetRows (params0);
+
+  debugAssert (ho == wp || hp == wo);
+
+  if ((wo == 1 && ho == wp && hp == 1) || (ho == 1 && hp == wo && wp == 1))
   {
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix(output, params0);
+    oap::cuda::CopyDeviceToDevice(output, params0);
   }
   else
   {
     void* params[] = {&output, &params0};
-    m_cuResult = execute("CUDAKernel_Transpose", w, h, params, 0);
+    m_cuResult = execute("CUDAKernel_Transpose", wo, ho, params, 0);
   }
 }
 
 void CuProceduresApi::conjugateTranspose(math::Matrix* output, math::Matrix* params0) {
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
-  if (w == 1 && h == 1)
+
+  const uintt wo = oap::cuda::GetColumns(output);
+  const uintt ho = oap::cuda::GetRows(output);
+
+  const uintt wp = oap::cuda::GetColumns (params0);
+  const uintt hp = oap::cuda::GetRows (params0);
+
+  debugAssert (ho == wp || hp == wo);
+
+  if ((wo == 1 && ho == wp && hp == 1) || (ho == 1 && hp == wo && wp == 1))
   {
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix(output, params0);
+    oap::cuda::CopyDeviceToDevice(output, params0);
   }
   else
   {
     void* params[] = {&output, &params0};
-    m_cuResult = execute("CUDAKernel_ConjugateTranspose", w, h, params, 0);
+    m_cuResult = execute("CUDAKernel_ConjugateTranspose", wo, ho, params, 0);
   }
 }
 
