@@ -32,10 +32,7 @@ m_rowVector(nullptr), m_subMatrix(nullptr)
 
 SquareMatrix::~SquareMatrix()
 {
-  oap::cuda::DeleteDeviceMatrix (m_matrix);
-  oap::cuda::DeleteDeviceMatrix (m_matrixT);
-  oap::cuda::DeleteDeviceMatrix (m_rowVector);
-  oap::cuda::DeleteDeviceMatrix (m_subMatrix);
+  destroyMatrices ();
 }
 
 math::MatrixInfo SquareMatrix::getMatrixInfo() const
@@ -89,7 +86,16 @@ math::Matrix* SquareMatrix::getDeviceSubMatrix(size_t rindex, size_t rlength, ma
 
   math::Matrix* matrixT = getMatrixT (minfo);
 
-  math::Matrix* subMatrix = getSubMatrix (rindex, rlength, minfo);
+  math::Matrix* subMatrix = nullptr;
+  try
+  {
+    subMatrix = getSubMatrix (rindex, rlength, minfo);
+  }
+  catch (...)
+  {
+    oap::cuda::DeleteDeviceMatrix (dmatrix);
+    throw;
+  }
 
   m_api.dotProduct (dmatrix, subMatrix, matrixT);
 
@@ -119,7 +125,17 @@ math::Matrix* SquareMatrix::getDeviceRowVector(size_t index, math::Matrix* dmatr
 
   math::Matrix* matrixT = getMatrixT (minfo);
 
-  math::Matrix* rowVector = getRowVector (index, minfo);
+  math::Matrix* rowVector = nullptr;
+
+  try
+  {
+    getRowVector (index, minfo);
+  }
+  catch(...)
+  {
+    oap::cuda::DeleteDeviceMatrix (dmatrix);
+    throw;
+  }
 
   m_api.dotProduct (dmatrix, rowVector, matrixT);
 
@@ -171,6 +187,7 @@ math::Matrix* SquareMatrix::getMatrixT (const math::MatrixInfo& minfo)
 math::Matrix* SquareMatrix::getRowVector (size_t index, const math::MatrixInfo& minfo)
 {
   debugFunc ();
+  checkRIndex (index, minfo);
 
   if (!m_rowVectorInfo.isInitialized () || m_rowVectorInfo != minfo)
   {
@@ -187,6 +204,7 @@ math::Matrix* SquareMatrix::getRowVector (size_t index, const math::MatrixInfo& 
 math::Matrix* SquareMatrix::getSubMatrix (size_t rindex, size_t rlength, const math::MatrixInfo& minfo)
 {
   debugFunc ();
+  checkRIndex (rindex, minfo);
 
   if (!m_subMatrixInfo.isInitialized () || m_subMatrixInfo != minfo)
   {
@@ -198,6 +216,28 @@ math::Matrix* SquareMatrix::getSubMatrix (size_t rindex, size_t rlength, const m
     m_subMatrix = m_ddl->getDeviceSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength, m_subMatrix);
   }
   return m_subMatrix;
+}
+
+void SquareMatrix::destroyMatrix(math::Matrix** matrix)
+{
+  if (matrix != nullptr && *matrix != nullptr)
+  {
+    oap::cuda::DeleteDeviceMatrix (*matrix);
+    *matrix = nullptr;
+  }
+}
+
+void SquareMatrix::destroyMatrices ()
+{
+  destroyMatrix (&m_matrix);
+  destroyMatrix (&m_matrixT);
+  destroyMatrix (&m_rowVector);
+  destroyMatrix (&m_subMatrix);
+
+  m_matrixInfo.deinitialize();
+  m_matrixTInfo.deinitialize();
+  m_rowVectorInfo.deinitialize();
+  m_subMatrixInfo.deinitialize();
 }
 
 }

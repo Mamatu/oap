@@ -63,6 +63,18 @@ class SquareMatrix
     math::Matrix* getMatrixT (const math::MatrixInfo& minfo);
     math::Matrix* getRowVector (size_t index, const math::MatrixInfo& minfo);
     math::Matrix* getSubMatrix (size_t rindex, size_t rlength, const math::MatrixInfo& minfo);
+
+    void destroyMatrix(math::Matrix** matrix);
+    void destroyMatrices ();
+
+    void checkRIndex(uintt rindex, const math::MatrixInfo& minfo)
+    {
+      if (rindex >= minfo.m_matrixDim.rows)
+      {
+        destroyMatrices ();
+        throw std::runtime_error ("rindex is higher than rows of matrix");
+      }
+    }
 };
 }
 
