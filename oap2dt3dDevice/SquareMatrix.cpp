@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MatrixCreator.h"
+#include "SquareMatrix.h"
 #include "oapCudaMatrixUtils.h"
 
 #include "oapDeviceMatrixUPtr.h"
@@ -25,14 +25,17 @@
 namespace oap
 {
 
-MatrixCreator::MatrixCreator(DeviceDataLoader* ddl) : m_ddl(ddl)
+SquareMatrix::SquareMatrix(DeviceDataLoader* ddl) :
+m_ddl(ddl), m_matrix(nullptr), m_matrixT(nullptr),
+m_rowVector(nullptr), m_subMatrix(nullptr)
 {}
 
-MatrixCreator::~MatrixCreator()
+SquareMatrix::~SquareMatrix()
 {
+  destroyMatrices ();
 }
 
-math::MatrixInfo MatrixCreator::getMatrixInfo() const
+math::MatrixInfo SquareMatrix::getMatrixInfo() const
 {
   debugFunc ();
 
@@ -46,7 +49,7 @@ math::MatrixInfo MatrixCreator::getMatrixInfo() const
   return minfo;
 }
 
-math::Matrix* MatrixCreator::createDeviceMatrix()
+math::Matrix* SquareMatrix::createDeviceMatrix()
 {
   debugFunc ();
 
@@ -59,7 +62,7 @@ math::Matrix* MatrixCreator::createDeviceMatrix()
   return constructSquareMatrix (minfo);
 }
 
-math::Matrix* MatrixCreator::createDeviceSubMatrix(size_t rindex, size_t rlength)
+math::Matrix* SquareMatrix::createDeviceSubMatrix(size_t rindex, size_t rlength)
 {
   debugFunc ();
 
@@ -67,10 +70,18 @@ math::Matrix* MatrixCreator::createDeviceSubMatrix(size_t rindex, size_t rlength
 
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, rlength);
 
-  return getDeviceSubMatrix (rindex, rlength, doutput);
+  try
+  {
+    return getDeviceSubMatrix (rindex, rlength, doutput);
+  }
+  catch (...)
+  {
+    oap::cuda::DeleteDeviceMatrix (doutput);
+    throw;
+  }
 }
 
-math::Matrix* MatrixCreator::getDeviceSubMatrix(size_t rindex, size_t rlength, math::Matrix* dmatrix)
+math::Matrix* SquareMatrix::getDeviceSubMatrix(size_t rindex, size_t rlength, math::Matrix* dmatrix)
 {
   debugFunc ();
 
@@ -90,17 +101,26 @@ math::Matrix* MatrixCreator::getDeviceSubMatrix(size_t rindex, size_t rlength, m
   return dmatrix;
 }
 
-math::Matrix* MatrixCreator::createDeviceRowVector(size_t index)
+math::Matrix* SquareMatrix::createDeviceRowVector(size_t index)
 {
   debugFunc ();
 
   const math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
 
-  math::Matrix* output = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, 1);
-  return getDeviceRowVector (index, output);
+  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, 1);
+
+  try
+  {
+    return getDeviceRowVector (index, doutput);
+  }
+  catch (...)
+  {
+    oap::cuda::DeleteDeviceMatrix (doutput);
+    throw;
+  }
 }
 
-math::Matrix* MatrixCreator::getDeviceRowVector(size_t index, math::Matrix* dmatrix)
+math::Matrix* SquareMatrix::getDeviceRowVector(size_t index, math::Matrix* dmatrix)
 {
   debugFunc ();
 
@@ -120,7 +140,7 @@ math::Matrix* MatrixCreator::getDeviceRowVector(size_t index, math::Matrix* dmat
   return dmatrix;
 }
 
-math::Matrix* MatrixCreator::constructSquareMatrix (const math::MatrixInfo& minfo)
+math::Matrix* SquareMatrix::constructSquareMatrix (const math::MatrixInfo& minfo)
 {
   debugFunc ();
 
@@ -134,7 +154,7 @@ math::Matrix* MatrixCreator::constructSquareMatrix (const math::MatrixInfo& minf
   return output;
 }
 
-math::Matrix* MatrixCreator::getMatrix (const math::MatrixInfo& minfo)
+math::Matrix* SquareMatrix::getMatrix (const math::MatrixInfo& minfo)
 {
   debugFunc ();
 
@@ -144,10 +164,10 @@ math::Matrix* MatrixCreator::getMatrix (const math::MatrixInfo& minfo)
     m_matrixInfo = minfo;
   }
 
-  return m_matrix.get();
+  return m_matrix;
 }
 
-math::Matrix* MatrixCreator::getMatrixT (const math::MatrixInfo& minfo)
+math::Matrix* SquareMatrix::getMatrixT (const math::MatrixInfo& minfo)
 {
   debugFunc ();
 
@@ -159,35 +179,63 @@ math::Matrix* MatrixCreator::getMatrixT (const math::MatrixInfo& minfo)
     m_matrixTInfo = minfo;
   }
 
-  return m_matrixT.get();
+  return m_matrixT;
 }
 
-math::Matrix* MatrixCreator::getRowVector (size_t index, const math::MatrixInfo& minfo)
+math::Matrix* SquareMatrix::getRowVector (size_t index, const math::MatrixInfo& minfo)
 {
   debugFunc ();
+  checkRIndex (index, minfo);
 
   if (!m_rowVectorInfo.isInitialized () || m_rowVectorInfo != minfo)
   {
     m_rowVector = m_ddl->createDeviceRowVector (index);
     m_rowVectorInfo = minfo;
-    return m_rowVector.get ();
   }
-
-  return m_ddl->getDeviceRowVector (index, m_rowVector);
+  else
+  {
+    m_rowVector = m_ddl->getDeviceRowVector (index, m_rowVector);
+  }
+  return m_rowVector;
 }
 
-math::Matrix* MatrixCreator::getSubMatrix (size_t rindex, size_t rlength, const math::MatrixInfo& minfo)
+math::Matrix* SquareMatrix::getSubMatrix (size_t rindex, size_t rlength, const math::MatrixInfo& minfo)
 {
   debugFunc ();
+  checkRIndex (rindex, minfo);
 
   if (!m_subMatrixInfo.isInitialized () || m_subMatrixInfo != minfo)
   {
     m_subMatrix = m_ddl->createDeviceSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);
     m_subMatrixInfo = minfo;
-    return m_subMatrix.get ();
   }
+  else
+  {
+    m_subMatrix = m_ddl->getDeviceSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength, m_subMatrix);
+  }
+  return m_subMatrix;
+}
 
-  return m_ddl->getDeviceSubMatrix (0, rindex, minfo.m_matrixDim.columns, minfo.m_matrixDim.rows, m_subMatrix);
+void SquareMatrix::destroyMatrix(math::Matrix** matrix)
+{
+  if (matrix != nullptr && *matrix != nullptr)
+  {
+    oap::cuda::DeleteDeviceMatrix (*matrix);
+    *matrix = nullptr;
+  }
+}
+
+void SquareMatrix::destroyMatrices ()
+{
+  destroyMatrix (&m_matrix);
+  destroyMatrix (&m_matrixT);
+  destroyMatrix (&m_rowVector);
+  destroyMatrix (&m_subMatrix);
+
+  m_matrixInfo.deinitialize();
+  m_matrixTInfo.deinitialize();
+  m_rowVectorInfo.deinitialize();
+  m_subMatrixInfo.deinitialize();
 }
 
 }

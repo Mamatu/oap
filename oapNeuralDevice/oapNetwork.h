@@ -95,7 +95,7 @@ private:
 
   floatt m_serror;
 
-  oap::DeviceMatrixPtr m_expectedDevicOutputs;
+  oap::DeviceMatrixPtr m_expectedDeviceOutputs;
 
   IController* m_icontroller;
 

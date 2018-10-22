@@ -34,6 +34,12 @@ class MatrixInfo {
     return !(!isRe && !isIm);
   }
 
+  void deinitialize ()
+  {
+    isRe = false;
+    isIm = false;
+  }
+
   bool operator==(const MatrixInfo& mInfo) const
   {
     return isRe == mInfo.isRe && isIm == mInfo.isIm &&

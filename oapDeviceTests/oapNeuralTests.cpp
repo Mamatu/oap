@@ -150,25 +150,23 @@ class OapNeuralTests : public testing::Test
 
     network->setLearningRate (1);
 
-    oap::HostMatrixUPtr hw = oap::host::NewReMatrix (1, 2);
-    oap::HostMatrixUPtr hw1 = oap::host::NewReMatrix (1, 2);
+    oap::HostMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
+    oap::HostMatrixUPtr hinputs = oap::host::NewReMatrix (1, 2);
 
     floatt hw_1 = w_1;
     floatt hw_2 = w_2;
-    floatt hw1_1 = i_1;
-    floatt hw1_2 = i_2;
 
     hw->reValues[0] = hw_1;
     hw->reValues[1] = hw_2;
 
-    hw1->reValues[0] = hw1_1;
-    hw1->reValues[1] = hw1_2;
+    hinputs->reValues[0] = i_1;
+    hinputs->reValues[1] = i_2;
 
     l1->setHostWeights (hw.get ());
 
-    auto output = network->run (hw1, Network::HOST);
+    auto output = network->run (hinputs, Network::HOST);
 
-    EXPECT_THAT(output->reValues[0], testing::DoubleNear(sigmoid(hw_1 * hw1_1 + hw_2 * hw1_2), 0.0001));
+    EXPECT_THAT(output->reValues[0], testing::DoubleNear(sigmoid(hw_1 * i_1 + hw_2 * i_2), 0.0001));
     EXPECT_EQ(1, output->columns);
     EXPECT_EQ(1, output->rows);
   }
@@ -180,7 +178,7 @@ class OapNeuralTests : public testing::Test
 
     network->setLearningRate (1);
 
-    oap::HostMatrixUPtr hw = oap::host::NewReMatrix (1, 2);
+    oap::HostMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
     oap::HostMatrixUPtr io = oap::host::NewReMatrix (1, 2);
     oap::HostMatrixUPtr io1 = oap::host::NewReMatrix (1, 1);
     oap::HostMatrixUPtr e1 = oap::host::NewReMatrix (1, 1);

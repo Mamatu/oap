@@ -74,9 +74,20 @@ math::Matrix* DeviceDataLoader::createDeviceSubMatrix(uintt cindex, uintt rindex
 
 math::Matrix* DeviceDataLoader::getDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows, math::Matrix* dmatrix)
 {
-  math::Matrix* host = createDeviceSubMatrix (cindex, rindex, columns, rows);
+  uintt columns1 = oap::cuda::GetColumns (dmatrix);
+  uintt rows1 = oap::cuda::GetRows (dmatrix);
+
+  math::Matrix* host = createSubMatrix (cindex, rindex, columns, rows);
+
+  if (columns != columns1 || rows != rows1)
+  {
+    oap::cuda::DeleteDeviceMatrix (dmatrix);
+    dmatrix = oap::cuda::NewDeviceMatrixHostRef (host);
+  }
+
   oap::cuda::CopyHostMatrixToDeviceMatrix (dmatrix, host);
   oap::host::DeleteMatrix(host);
+
   return dmatrix;
 }
 
