@@ -210,7 +210,7 @@ void CuProceduresApi::transpose(math::Matrix* output, math::Matrix* params0) {
   const uintt wp = oap::cuda::GetColumns (params0);
   const uintt hp = oap::cuda::GetRows (params0);
 
-  debugAssert (ho == wp || hp == wo);
+  debugAssert (ho == wp && hp == wo);
 
   if ((wo == 1 && ho == wp && hp == 1) || (ho == 1 && hp == wo && wp == 1))
   {
