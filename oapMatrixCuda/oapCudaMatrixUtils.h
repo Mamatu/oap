@@ -35,71 +35,32 @@ namespace oap
 namespace cuda
 {
 
-/**
- * @brief NewDeviceMatrix
- * @param columns
- * @param rows
- * @return
- */
-math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue = 0.f,
-                              floatt imvalue = 0.f);
+math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue = 0.f, floatt imvalue = 0.f);
 
-/**
- * @brief NewDeviceMatrix
- * @param hostMatrix
- * @return
- */
 math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix);
+
 math::Matrix* NewDeviceMatrixDeviceRef(const math::Matrix* deviceMatrix);
 
 math::Matrix* NewDeviceMatrix(const std::string& matrixStr);
+
+math::Matrix* NewDeviceMatrix(const math::MatrixInfo& minfo);
 
 uintt GetColumns(const math::Matrix* dMatrix);
 
 uintt GetRows(const math::Matrix* dMatrix);
 
-/**
- * @brief NewDeviceMatrixCopy
- * @param hostMatrix
- * @return
- */
 math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix);
 
-/**
- * @brief NewDeviceMatrix
- * @param hostMatrix
- * @param columns
- * @param rows
- * @return
- */
-math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns,
-                              uintt rows);
+math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns, uintt rows);
 
-/**
- * @brief NewDeviceMatrix
- * @param allocRe
- * @param allocIm
- * @param columns
- * @param rows
- * @return
- */
-math::Matrix* NewDeviceMatrix(bool allocRe, bool allocIm, uintt columns,
-                              uintt rows);
+math::Matrix* NewDeviceMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows);
 
 math::Matrix* NewDeviceReMatrix(uintt columns, uintt rows);
+
 math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows);
 
-/**
- * @brief NewHostMatrixCopyOfDeviceMatrix
- * @param matrix
- * @return
- */
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
 
-/**
- * @brief DeleteDeviceMatrix
- * @param deviceMatrix
- */
 void DeleteDeviceMatrix(const math::Matrix* deviceMatrix);
 
 /**
@@ -149,71 +110,32 @@ void CopyDeviceToDevice(math::Matrix* dst, const math::Matrix* src);
 
 /**
  *
- * @param dst
- * @param src
  */
+void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+
+void SetReMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+
+void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+
 void CopyHostArraysToDeviceMatrix(math::Matrix* dst, const floatt* rearray,
                                   const floatt* imarray);
-
-/**
- * @brief NewDeviceMatrixEx
- * @param count
- * @return
- */
 MatrixEx** NewDeviceMatrixEx(uintt count);
 
-/**
- * @brief DeleteDeviceMatrixEx
- * @param matrixEx
- */
 void DeleteDeviceMatrixEx(MatrixEx** matrixEx);
 
-/**
- * @brief SetMatrixEx
- * @param deviceMatrixEx
- * @param buffer
- * @param count
- */
 void SetMatrixEx(MatrixEx** deviceMatrixEx, const uintt* buffer, uintt count);
 
-/**
- * @brief SetMatrixEx
- * @param deviceMatrixEx
- * @param hostMatrixEx
- */
 void SetMatrixEx(MatrixEx* deviceMatrixEx, const MatrixEx* hostMatrixEx);
 
-/**
-* @brief GetMatrixEx
-* @param hostMatrixEx
-* @param deviceMatrixEx
-*/
 void GetMatrixEx(MatrixEx* hostMatrixEx, const MatrixEx* deviceMatrixEx);
 
-/**
- * @brief NewDeviceMatrixEx
- * @return
- */
 MatrixEx* NewDeviceMatrixEx();
 
-/**
- * @brief DeleteDeviceMatrixEx
- * @param matrixEx
- */
 void DeleteDeviceMatrixEx(MatrixEx* matrixEx);
 
-/**
- * @brief PrintMatrix
- * @param text
- * @param matrix
- */
 void PrintMatrix(const std::string& text, const math::Matrix* matrix,
                  floatt zeroLimit = 0);
 
-/**
- * @brief PrintMatrix
- * @param matrix
- */
 void PrintMatrix(const math::Matrix* matrix);
 
 void SetReValue(math::Matrix* matrix, floatt value, uintt column, uintt row);
@@ -227,12 +149,6 @@ void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
 
 void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
               uintt index);
-
-void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
-
-void SetReMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
-
-void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
 math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
 
