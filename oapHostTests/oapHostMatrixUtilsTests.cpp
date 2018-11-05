@@ -149,7 +149,7 @@ TEST_F(OapHostMatrixUtilsTests, WriteMatrixReadVector) {
   oap::host::DeleteMatrix(matrix);
 }
 
-TEST_F(OapHostMatrixUtilsTests, CreateSubMatrixTests)
+TEST_F(OapHostMatrixUtilsTests, NewSubMatrixTests)
 {
   auto initMatrix = [](math::Matrix* matrix)
   {
@@ -166,7 +166,7 @@ TEST_F(OapHostMatrixUtilsTests, CreateSubMatrixTests)
   {
     oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
-    oap::HostMatrixUPtr submatrix = oap::host::CreateSubMatrix (matrix, 1, 1, 2, 2);
+    oap::HostMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 2, 2);
     EXPECT_EQ(11, submatrix->reValues[0]);
     EXPECT_EQ(12, submatrix->reValues[1]);
     EXPECT_EQ(21, submatrix->reValues[2]);
@@ -178,7 +178,7 @@ TEST_F(OapHostMatrixUtilsTests, CreateSubMatrixTests)
   {
     oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
-    oap::HostMatrixUPtr submatrix = oap::host::CreateSubMatrix (matrix, 1, 1, 6, 6);
+    oap::HostMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 6, 6);
     EXPECT_EQ(11, submatrix->reValues[0]);
     EXPECT_EQ(12, submatrix->reValues[1]);
     EXPECT_EQ(13, submatrix->reValues[2]);
@@ -192,7 +192,7 @@ TEST_F(OapHostMatrixUtilsTests, CreateSubMatrixTests)
   {
     oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
-    oap::HostMatrixUPtr submatrix = oap::host::CreateSubMatrix (matrix, 0, 0, 4, 4);
+    oap::HostMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 0, 0, 4, 4);
 
     EXPECT_EQ(0, oap::host::GetReValue(submatrix, 0, 0));
     EXPECT_EQ(1, oap::host::GetReValue(submatrix, 1, 0));
@@ -233,7 +233,7 @@ TEST_F(OapHostMatrixUtilsTests, GetSubMatrixTest)
   {
     oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
-    math::Matrix* submatrix = oap::host::CreateSubMatrix (matrix, 1, 1, 2, 2);
+    math::Matrix* submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 2, 2);
 
     EXPECT_EQ(2, submatrix->columns);
     EXPECT_EQ(2, submatrix->rows);

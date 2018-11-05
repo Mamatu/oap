@@ -68,7 +68,7 @@ math::Matrix* DataLoader::createMatrix(uintt index, uintt length) {
 math::Matrix* DataLoader::createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
 {
   math::Matrix* matrix = createMatrix();
-  return oap::host::CreateSubMatrix(matrix, cindex, rindex, columns, rows);
+  return oap::host::NewSubMatrix(matrix, cindex, rindex, columns, rows);
 }
 
 math::Matrix* DataLoader::createColumnVector(size_t index) {
