@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "DeviceMatrixKernels.h"
 #include "CudaUtils.h"
 #include "ThreadsMapper.h"
