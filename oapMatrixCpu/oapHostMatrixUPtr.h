@@ -29,9 +29,9 @@ namespace oap {
   class HostMatrixUPtr : public oap::MatrixUniquePtr {
     public:
       HostMatrixUPtr(math::Matrix* matrix) : oap::MatrixUniquePtr(matrix,
-        [this](const math::Matrix* matrix) { debug("Destroy: HostMatrixUPtr = %p matrix = %p", this, matrix); oap::host::DeleteMatrix(matrix); })
+        [this](const math::Matrix* matrix) { debugInfo("Destroy: HostMatrixUPtr = %p matrix = %p", this, matrix); oap::host::DeleteMatrix(matrix); })
       {
-        debug("Create: HostMatrixUPtr = %p matrix = %p", this, matrix);
+        debugInfo("Create: HostMatrixUPtr = %p matrix = %p", this, matrix);
       }
   };
 

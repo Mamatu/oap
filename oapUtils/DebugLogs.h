@@ -39,6 +39,8 @@
 
 #define debug(x, ...) fprintf(STREAM, "%s %s : %d  ", __FUNCTION__,__FILE__,__LINE__);  fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
 
+#define debugInfo(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
+
 #define debugAssert(x) assert(x);
 
 #define debugAssertMsg(x, msg, ...) if (!(x)) { debug(msg, ##__VA_ARGS__); debugAssert(x); }
@@ -69,6 +71,8 @@ inline void debugExceptionMsg(bool x, const std::stringstream& stream) { debugEx
 #else
 
 #define debug( x, ...) 
+
+#define debugInfo(x, ...)
 
 #define debugAssert(x)
 
