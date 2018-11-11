@@ -628,9 +628,9 @@ inline bool IsImMatrix(math::Matrix* m) { return m != NULL && m->imValues != NUL
 
 void CopySubMatrix(math::Matrix* dst, const math::Matrix* src, uintt cindex, uintt rindex);
 
-math::Matrix* CreateSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, uintt clength, uintt rlength);
+math::Matrix* NewSubMatrix (const math::Matrix* orig, uintt cindex, uintt rindex, uintt clength, uintt rlength);
 
-math::Matrix* GetSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, math::Matrix* matrix);
+math::Matrix* GetSubMatrix (const math::Matrix* orig, uintt cindex, uintt rindex, math::Matrix* matrix);
 
 }
 }

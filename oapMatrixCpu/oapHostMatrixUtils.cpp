@@ -946,7 +946,7 @@ inline uintt calculate (uintt matrixd, uintt dindex, uintt dlength)
   return dindex + dlength < matrixd ? dlength : matrixd - dindex;
 }
 
-math::Matrix* CreateSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, uintt clength, uintt rlength)
+math::Matrix* NewSubMatrix (const math::Matrix* orig, uintt cindex, uintt rindex, uintt clength, uintt rlength)
 {
   clength = calculate (orig->columns, cindex, clength);
   rlength = calculate (orig->rows, rindex, rlength);
@@ -956,7 +956,7 @@ math::Matrix* CreateSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, u
   return submatrix;
 }
 
-math::Matrix* GetSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, math::Matrix* matrix)
+math::Matrix* GetSubMatrix (const math::Matrix* orig, uintt cindex, uintt rindex, math::Matrix* matrix)
 {
   uintt clength = calculate (orig->columns, cindex, matrix->columns);
   uintt rlength = calculate (orig->rows, rindex, matrix->rows);
@@ -968,7 +968,7 @@ math::Matrix* GetSubMatrix (math::Matrix* orig, uintt cindex, uintt rindex, math
   }
 
   oap::host::DeleteMatrix (matrix);
-  return CreateSubMatrix (orig, cindex, rindex, clength, rlength);
+  return NewSubMatrix (orig, cindex, rindex, clength, rlength);
 }
 
 }

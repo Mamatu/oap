@@ -26,20 +26,21 @@ namespace oap
 {
 
 SquareMatrix::SquareMatrix(DeviceDataLoader* ddl) :
-m_ddl(ddl), m_matrix(nullptr), m_matrixT(nullptr),
-m_rowVector(nullptr), m_subMatrix(nullptr)
+SquareMatrix (ddl->createMatrix (), true)
+{}
+
+SquareMatrix::SquareMatrix (const math::Matrix* recHostMatrix, bool deallocate) :
+m_orig (recHostMatrix, deallocate), m_sq (m_orig)
 {}
 
 SquareMatrix::~SquareMatrix()
-{
-  destroyMatrices ();
-}
+{}
 
 math::MatrixInfo SquareMatrix::getMatrixInfo() const
 {
   debugFunc ();
 
-  math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
+  math::MatrixInfo minfo = m_orig.getMatrixInfo ();
 
   if (minfo.m_matrixDim.columns != minfo.m_matrixDim.rows)
   {
@@ -53,22 +54,24 @@ math::Matrix* SquareMatrix::createDeviceMatrix()
 {
   debugFunc ();
 
-  const math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
+  const math::MatrixInfo minfo = m_orig.getMatrixInfo ();
+
   if (minfo.m_matrixDim.columns == minfo.m_matrixDim.rows)
   {
-    return m_ddl->createDeviceMatrix ();
+    return m_orig.createDeviceMatrix ();
   }
 
-  return constructSquareMatrix (minfo);
+  return m_sq.createDeviceMatrix ();
 }
 
-math::Matrix* SquareMatrix::createDeviceSubMatrix(size_t rindex, size_t rlength)
+math::Matrix* SquareMatrix::createDeviceSubMatrix(uintt rindex, uintt rlength)
 {
   debugFunc ();
 
-  const math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
+  math::MatrixInfo minfo = m_orig.getMatrixInfo ();
+  minfo.m_matrixDim = {minfo.m_matrixDim.rows, rlength};
 
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, rlength);
+  math::Matrix* doutput = oap::cuda::NewDeviceMatrix (minfo);
 
   try
   {
@@ -81,31 +84,30 @@ math::Matrix* SquareMatrix::createDeviceSubMatrix(size_t rindex, size_t rlength)
   }
 }
 
-math::Matrix* SquareMatrix::getDeviceSubMatrix(size_t rindex, size_t rlength, math::Matrix* dmatrix)
+math::Matrix* SquareMatrix::getDeviceSubMatrix(uintt rindex, uintt rlength, math::Matrix* dmatrix)
 {
   debugFunc ();
 
-  const math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
+  if (dmatrix == nullptr)
+  {
+    return createDeviceSubMatrix (rindex, rlength); 
+  }
+
+  const math::MatrixInfo minfo = m_orig.getMatrixInfo ();
 
   if (minfo.m_matrixDim.columns == minfo.m_matrixDim.rows)
   {
-    return m_ddl->getDeviceSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength, dmatrix);
+    return m_orig.getDeviceSubMatrix (rindex, rlength, dmatrix);
   }
 
-  math::Matrix* matrixT = getMatrixT (minfo);
-
-  math::Matrix* subMatrix = getSubMatrix (rindex, rlength, minfo);
-
-  m_api.dotProduct (dmatrix, subMatrix, matrixT);
-
-  return dmatrix;
+  return m_sq.getDeviceSubMatrix (rindex, rlength, dmatrix);
 }
 
-math::Matrix* SquareMatrix::createDeviceRowVector(size_t index)
+math::Matrix* SquareMatrix::createDeviceRowVector(uintt index)
 {
   debugFunc ();
 
-  const math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
+  const math::MatrixInfo minfo = m_orig.getMatrixInfo ();
 
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, 1);
 
@@ -120,100 +122,23 @@ math::Matrix* SquareMatrix::createDeviceRowVector(size_t index)
   }
 }
 
-math::Matrix* SquareMatrix::getDeviceRowVector(size_t index, math::Matrix* dmatrix)
+math::Matrix* SquareMatrix::getDeviceRowVector(uintt index, math::Matrix* dmatrix)
 {
   debugFunc ();
 
-  const math::MatrixInfo minfo = m_ddl->getMatrixInfo ();
+  if (dmatrix == nullptr)
+  {
+    return createDeviceRowVector (index); 
+  }
+
+  const math::MatrixInfo minfo = m_orig.getMatrixInfo ();
 
   if (minfo.m_matrixDim.columns == minfo.m_matrixDim.rows)
   {
-    return m_ddl->getDeviceRowVector (index, dmatrix);
+    return m_orig.getDeviceSubMatrix (index, 1, dmatrix);
   }
 
-  math::Matrix* matrixT = getMatrixT (minfo);
-
-  math::Matrix* rowVector = getRowVector (index, minfo);
-
-  m_api.dotProduct (dmatrix, rowVector, matrixT);
-
-  return dmatrix;
-}
-
-math::Matrix* SquareMatrix::constructSquareMatrix (const math::MatrixInfo& minfo)
-{
-  debugFunc ();
-
-  math::Matrix* matrix = getMatrix (minfo);
-  math::Matrix* matrixT = getMatrixT (minfo);
-
-  math::Matrix* output = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, minfo.m_matrixDim.rows);
-
-  m_api.dotProduct (output, matrix, matrixT);
-
-  return output;
-}
-
-math::Matrix* SquareMatrix::getMatrix (const math::MatrixInfo& minfo)
-{
-  debugFunc ();
-
-  if(!m_matrixInfo.isInitialized () || m_matrixInfo != minfo)
-  {
-    m_matrix = m_ddl->createDeviceMatrix ();
-    m_matrixInfo = minfo;
-  }
-
-  return m_matrix;
-}
-
-math::Matrix* SquareMatrix::getMatrixT (const math::MatrixInfo& minfo)
-{
-  debugFunc ();
-
-  if(!m_matrixTInfo.isInitialized () || m_matrixTInfo != minfo)
-  {
-    math::Matrix* matrix = getMatrix (minfo);
-    m_matrixT = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, minfo.m_matrixDim.columns);
-    m_api.transpose (m_matrixT, matrix);
-    m_matrixTInfo = minfo;
-  }
-
-  return m_matrixT;
-}
-
-math::Matrix* SquareMatrix::getRowVector (size_t index, const math::MatrixInfo& minfo)
-{
-  debugFunc ();
-  checkRIndex (index, minfo);
-
-  if (!m_rowVectorInfo.isInitialized () || m_rowVectorInfo != minfo)
-  {
-    m_rowVector = m_ddl->createDeviceRowVector (index);
-    m_rowVectorInfo = minfo;
-  }
-  else
-  {
-    m_rowVector = m_ddl->getDeviceRowVector (index, m_rowVector);
-  }
-  return m_rowVector;
-}
-
-math::Matrix* SquareMatrix::getSubMatrix (size_t rindex, size_t rlength, const math::MatrixInfo& minfo)
-{
-  debugFunc ();
-  checkRIndex (rindex, minfo);
-
-  if (!m_subMatrixInfo.isInitialized () || m_subMatrixInfo != minfo)
-  {
-    m_subMatrix = m_ddl->createDeviceSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);
-    m_subMatrixInfo = minfo;
-  }
-  else
-  {
-    m_subMatrix = m_ddl->getDeviceSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength, m_subMatrix);
-  }
-  return m_subMatrix;
+  return m_sq.getDeviceSubMatrix (index, 1, dmatrix);
 }
 
 void SquareMatrix::destroyMatrix(math::Matrix** matrix)
@@ -225,17 +150,11 @@ void SquareMatrix::destroyMatrix(math::Matrix** matrix)
   }
 }
 
-void SquareMatrix::destroyMatrices ()
+math::Matrix* SquareMatrix::resetMatrix (math::Matrix* matrix, const math::MatrixInfo& minfo)
 {
-  destroyMatrix (&m_matrix);
-  destroyMatrix (&m_matrixT);
-  destroyMatrix (&m_rowVector);
-  destroyMatrix (&m_subMatrix);
-
-  m_matrixInfo.deinitialize();
-  m_matrixTInfo.deinitialize();
-  m_rowVectorInfo.deinitialize();
-  m_subMatrixInfo.deinitialize();
+  oap::cuda::DeleteDeviceMatrix (matrix);
+  return oap::cuda::NewDeviceMatrix (minfo);
 }
 
 }
+

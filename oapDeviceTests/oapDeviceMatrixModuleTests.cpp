@@ -34,26 +34,20 @@ class OapDeviceMatrixModuleTests : public testing::Test {
     math::Matrix* hmatrix = oap::host::NewMatrix(true, true, columns, rows, value);
     math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy(hmatrix);
 
-    math::Matrix* hsubmatrix =
-        oap::host::NewMatrix(true, true, subcolumns, subrows, subvalue);
+    math::Matrix* hsubmatrix = oap::host::NewMatrix(true, true, subcolumns, subrows, subvalue);
     math::Matrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopy(hsubmatrix);
 
     oap::cuda::SetMatrix(dmatrix, dsubmatrix, column, row);
     oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
 
-    for (uintt fa = 0; fa < subcolumns; ++fa) {
-      for (uintt fb = 0; fb < subrows; ++fb) {
-        EXPECT_EQ(subvalue,
-                  hmatrix->reValues[(fa + column) + columns * (row + fb)]);
-        EXPECT_EQ(subvalue,
-                  hmatrix->imValues[(fa + column) + columns * (row + fb)]);
+    for (uintt fa = 0; fa < subcolumns; ++fa)
+    {
+      for (uintt fb = 0; fb < subrows; ++fb)
+      {
+        EXPECT_EQ(subvalue, hmatrix->reValues[(fa + column) + columns * (row + fb)]);
+        EXPECT_EQ(subvalue, hmatrix->imValues[(fa + column) + columns * (row + fb)]);
       }
     }
-
-    /*for (uintt fa = subrows * subcolumns; fa < columns * rows; ++fa) {
-      EXPECT_EQ(value, hmatrix->reValues[fa]);
-      EXPECT_EQ(value, hmatrix->imValues[fa]);
-    }*/
 
     oap::cuda::DeleteDeviceMatrix(dmatrix);
     oap::cuda::DeleteDeviceMatrix(dsubmatrix);

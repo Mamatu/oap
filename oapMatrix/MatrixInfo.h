@@ -3,65 +3,52 @@
 
 #include "Matrix.h"
 #include <sstream>
+#include <utility>
 #include <cstddef>
+
+#include <array>
+#include <limits>
+#include <cmath>
 
 namespace math
 {
 
-class MatrixInfo {
+class MatrixInfo
+{
+ int toInt (bool b) const;
+
  public:
-  inline MatrixInfo() : isRe(false), isIm(false) {
-    m_matrixDim.columns = 0;
-    m_matrixDim.rows = 0;
-  }
-
-  inline MatrixInfo(bool _isRe, bool _isIm, uintt _columns, uintt _rows)
-      : isRe(_isRe), isIm(_isIm) {
-    m_matrixDim.columns = _columns;
-    m_matrixDim.rows = _rows;
-  }
-
-  inline MatrixInfo(math::Matrix* hostMatrix) {
-    isRe = hostMatrix->reValues != NULL;
-    isIm = hostMatrix->imValues != NULL;
-
-    m_matrixDim.columns = hostMatrix->columns;
-    m_matrixDim.rows = hostMatrix->rows;
-  }
-
-  bool isInitialized() const
+  enum Units
   {
-    return !(!isRe && !isIm);
-  }
+    B = 0,
+    KB = 1,
+    MB,
+    GB
+  };
 
-  void deinitialize ()
-  {
-    isRe = false;
-    isIm = false;
-  }
+  MatrixInfo();
 
-  bool operator==(const MatrixInfo& mInfo) const
-  {
-    return isRe == mInfo.isRe && isIm == mInfo.isIm &&
-           m_matrixDim.columns == mInfo.m_matrixDim.columns && m_matrixDim.rows == mInfo.m_matrixDim.rows;
-  }
+  MatrixInfo(bool _isRe, bool _isIm, uintt _columns, uintt _rows);
 
-  bool operator!=(const MatrixInfo& minfo) const
-  {
-    return !(*this == minfo);
-  }
+  explicit MatrixInfo (math::Matrix* hostMatrix);
 
-  operator bool() const
-  {
-    return isInitialized ();
-  }
+  bool isInitialized() const;
 
-  std::string toString() const
-  {
-    std::stringstream stream;
-    stream << "(" << isRe << ", " << isIm << ", " << m_matrixDim.columns << ", " << m_matrixDim.rows << ")";
-    return stream.str();
-  }
+  void deinitialize ();
+
+  bool operator==(const MatrixInfo& mInfo) const;
+
+  bool operator!=(const MatrixInfo& minfo) const;
+
+  operator bool() const;
+
+  std::string toString() const;
+
+  std::string toString(Units units) const;
+
+  std::array<size_t, 4> getSizeInBuffers() const;
+
+  std::pair<size_t, Units> getSize () const;
 
   math::MatrixDim m_matrixDim;
   bool isRe;

@@ -42,39 +42,84 @@ struct UserData
 
 void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
 {
+  debugFunc ();
+
   if (mt == CuHArnoldi::TYPE_WV)
   {
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
     auto dvalue = udObj->value;
-    auto mc = udObj->squareMatrix;
+    auto sq = udObj->squareMatrix;
 
-    math::Matrix* dmatrix = mc->createDeviceMatrix();
+    math::Matrix* dmatrix = sq->createDeviceMatrix();
     cuProceduresApi.dotProduct(m_w, dmatrix, m_v);
     oap::cuda::DeleteDeviceMatrix(dmatrix);
   }
 }
 
-void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+void MainAPExecutor::multiplySubMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
 {
+  debugFunc ();
+
   if (mt == CuHArnoldi::TYPE_WV)
   {
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
-    auto dvalue = udObj->value;
-    auto mc = udObj->squareMatrix;
+    auto sq = udObj->squareMatrix;
 
-    math::MatrixInfo matrixInfo = dataLoader->getMatrixInfo();
+    math::MatrixInfo subInfo = sq->getMatrixInfo();
+    math::MatrixInfo matrixInfo = sq->getMatrixInfo();
 
-    math::Matrix* vec = mc->createDeviceRowVector(0);
-    cuProceduresApi.dotProduct(dvalue, vec, m_v);
-    oap::cuda::SetMatrix(m_w, dvalue, 0, 0);
+    while  (!sizeCondition (subInfo))
+    {
+      subInfo.m_matrixDim.rows = subInfo.m_matrixDim.rows - 1; // Todo: binary search
+    }
+
+    math::Matrix* submatrix = nullptr;
+
+    uintt index = 0;
+    while (index < matrixInfo.m_matrixDim.rows)
+    {
+      submatrix = sq->getDeviceSubMatrix (index, subInfo.m_matrixDim.rows, submatrix);
+      uintt rows = oap::cuda::GetRows (submatrix);
+
+      if (udObj->value == nullptr || rows != oap::cuda::GetRows (udObj->value))
+      {
+        udObj->value = oap::cuda::NewDeviceReMatrix (1, rows);
+      }
+
+      cuProceduresApi.dotProduct(udObj->value, submatrix, m_v);
+      oap::cuda::SetMatrix(m_w, udObj->value, 0, index);
+
+      index += rows;
+    }
+
+    oap::cuda::DeleteDeviceMatrix (submatrix);
+  }
+}
+
+void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+{
+  debugFunc ();
+
+  if (mt == CuHArnoldi::TYPE_WV)
+  {
+    UserData* udObj = static_cast<UserData*>(userData);
+    auto dataLoader = udObj->dataLoader;
+    udObj->value = oap::cuda::NewDeviceReMatrix (1, 1);;
+    auto sq = udObj->squareMatrix;
+
+    math::MatrixInfo matrixInfo = sq->getMatrixInfo();
+
+    math::Matrix* vec = sq->createDeviceRowVector(0);
+    cuProceduresApi.dotProduct(udObj->value, vec, m_v);
+    oap::cuda::SetMatrix(m_w, udObj->value, 0, 0);
 
     for (uintt index = 1; index < matrixInfo.m_matrixDim.rows; ++index)
     {
-      vec = mc->getDeviceRowVector(index, vec);
-      cuProceduresApi.dotProduct(dvalue, vec, m_v);
-      oap::cuda::SetMatrix(m_w, dvalue, 0, index);
+      vec = sq->getDeviceRowVector(index, vec);
+      cuProceduresApi.dotProduct(udObj->value, vec, m_v);
+      oap::cuda::SetMatrix(m_w, udObj->value, 0, index);
     }
     oap::cuda::DeleteDeviceMatrix(vec);
   }
@@ -82,14 +127,20 @@ void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v,
 
 std::shared_ptr<Outcome> MainAPExecutor::run(ArnUtils::Type type)
 {
-  oap::DeviceMatrixPtr dvalue = oap::cuda::NewDeviceReMatrix(1, 1); 
-
   SquareMatrix squareMatrix (m_eigenCalc->getDataLoader());
 
-  UserData userData = {dvalue, m_eigenCalc->getDataLoader(), &squareMatrix};
+  auto dataLoader = m_eigenCalc->getDataLoader ();
+  UserData userData = {nullptr, m_eigenCalc->getDataLoader(), &squareMatrix};
 
-  //m_cuhArnoldi->setCallback (MainAPExecutor::multiplyMatrixCallback, &userData);
-  m_cuhArnoldi->setCallback (MainAPExecutor::multiplyVecsCallback, &userData);
+  auto minfo = squareMatrix.getMatrixInfo ();
+  if (sizeCondition (minfo))
+  {
+    m_cuhArnoldi->setCallback (MainAPExecutor::multiplyMatrixCallback, &userData);
+  }
+  else
+  {
+    m_cuhArnoldi->setCallback (MainAPExecutor::multiplySubMatrixCallback, &userData);
+  }
 
   std::vector<floatt> revalues;
   std::vector<floatt> errors;
