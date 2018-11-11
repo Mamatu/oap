@@ -115,7 +115,7 @@ std::pair<T, uintt> getLargest(T* buffer, size_t length) {
       index = fa;
     }
   }
-  return std::make_pair<T, uintt>(max, index);
+  return std::make_pair(max, index);
 }
 
 template <typename T>
@@ -128,7 +128,7 @@ std::pair<T, uintt> getSmallest(T* buffer, size_t length) {
       index = fa;
     }
   }
-  return std::make_pair<T, uintt>(min, index);
+  return std::make_pair(min, index);
 }
 
 #ifndef CUDA
