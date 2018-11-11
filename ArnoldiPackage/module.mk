@@ -8,3 +8,5 @@ EXTRA_LIBS := $(OAP_PATH)/dist/$(MODE)/$(PLATFORM)/lib/liboapMatrixCpu.so \
 	$(OAP_PATH)/dist/$(MODE)/$(PLATFORM)/lib/liboapMatrixCuda.so \
 	$(OAP_PATH)/dist/$(MODE)/$(PLATFORM)/lib/liboapMath.so \
 	$(OAP_PATH)/dist/$(MODE)/$(PLATFORM)/lib/liboapUtils.so 
+
+EXTRA_CXXOPTIONS := -std=c++11
