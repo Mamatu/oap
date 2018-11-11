@@ -389,8 +389,8 @@ void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt 
   uintt columns1 = oap::cuda::GetColumns(matrix1);
   uintt rows1 = oap::cuda::GetRows(matrix1);
 
-  debugAssert (columns1 + column < columns);
-  debugAssert (rows1 + row < rows);
+  debugAssert (columns1 + column <= columns);
+  debugAssert (rows1 + row <= rows);
 
   floatt* dstreptr = CudaUtils::GetReValues(matrix);
   floatt* dstimptr = CudaUtils::GetImValues(matrix);
