@@ -67,7 +67,7 @@ math::Matrix* SquareMatrix::SqMatrix::getRowVector (uintt index)
   math::MatrixInfo minfo = m_orig.getMatrixInfo ();
   minfo.m_matrixDim = {minfo.m_matrixDim.columns, 1};
 
-  checkArgs (index, 1, minfo);
+  checkArgs (index, 1, getMatrixInfo ());
 
   if (!m_rowVectorInfo.isInitialized () || m_rowVectorInfo != minfo)
   {
@@ -89,7 +89,7 @@ math::Matrix* SquareMatrix::SqMatrix::getSubMatrix (uintt rindex, uintt rlength)
   math::MatrixInfo minfo = m_orig.getMatrixInfo ();
   minfo.m_matrixDim = {minfo.m_matrixDim.columns, rlength};
 
-  checkArgs (rindex, rlength, minfo);
+  checkArgs (rindex, rlength, getMatrixInfo ());
 
   if (!m_subMatrixInfo.isInitialized () || m_subMatrixInfo != minfo)
   {
