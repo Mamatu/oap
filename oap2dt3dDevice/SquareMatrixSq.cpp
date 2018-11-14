@@ -86,10 +86,13 @@ math::Matrix* SquareMatrix::SqMatrix::getSubMatrix (uintt rindex, uintt rlength)
 {
   debugFunc ();
 
-  math::MatrixInfo minfo = m_orig.getMatrixInfo ();
-  minfo.m_matrixDim = {minfo.m_matrixDim.columns, rlength};
-
   checkArgs (rindex, rlength, getMatrixInfo ());
+
+  math::MatrixInfo minfo = m_orig.getMatrixInfo ();
+
+  math::Matrix* hmatrix = m_orig.getHostSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);
+
+  minfo = oap::host::GetMatrixInfo (hmatrix);
 
   if (!m_subMatrixInfo.isInitialized () || m_subMatrixInfo != minfo)
   {

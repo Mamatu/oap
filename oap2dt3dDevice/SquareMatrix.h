@@ -144,6 +144,17 @@ class SquareMatrix
 
           math::Matrix* subMatrix = getSubMatrix (rindex, rlength);
 
+          auto subinfo = oap::cuda::GetMatrixInfo (subMatrix);
+          auto dinfo = oap::cuda::GetMatrixInfo (dmatrix);
+
+          if (dinfo.m_matrixDim.rows != subinfo.m_matrixDim.rows)
+          {
+            dinfo.m_matrixDim.rows = subinfo.m_matrixDim.rows;
+
+            oap::cuda::DeleteDeviceMatrix (dmatrix);
+            dmatrix = oap::cuda::NewDeviceMatrix (dinfo);
+          }
+
           m_api.dotProduct (dmatrix, subMatrix, matrixT);
 
           return dmatrix;
