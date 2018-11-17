@@ -15,7 +15,7 @@
 namespace oap
 {
 
-class MainAPExecutor
+class MainAPExecutor final
 {
   public:
     MainAPExecutor();
@@ -38,7 +38,8 @@ class MainAPExecutor
     static bool sizeCondition (const math::MatrixInfo& info)
     {
       auto size = info.getSize ();
-      return (size.first <= 100 && size.second <= math::MatrixInfo::Units::MB);
+      debugInfo ("info = %s", info.toString().c_str());
+      return (size.first <= 800 && size.second <= math::MatrixInfo::Units::MB);
     }
 
     EigenCalculator* m_eigenCalc;

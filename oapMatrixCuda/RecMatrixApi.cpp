@@ -17,24 +17,26 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SquareMatrix.h"
-#include "oapCudaMatrixUtils.h"
+#include "RecMatrixApi.h"
 
+#include "oapCudaMatrixUtils.h"
 #include "oapDeviceMatrixUPtr.h"
+
+#include "CuProceduresApi.h"
 
 namespace oap
 {
 
-math::MatrixInfo SquareMatrix::Orig::getMatrixInfo () const
+math::MatrixInfo RecMatrixApi::getMatrixInfo () const
 {
   return oap::host::GetMatrixInfo (m_recHostMatrix);
 }
 
-SquareMatrix::Orig::Orig (const math::Matrix* recHostMatrix, const bool deallocate) :
+RecMatrixApi::RecMatrixApi (const math::Matrix* recHostMatrix, const bool deallocate) :
   m_recHostMatrix (recHostMatrix), m_deallocate (deallocate)
 {}
 
-SquareMatrix::Orig::~Orig ()
+RecMatrixApi::~RecMatrixApi ()
 {
   if (m_deallocate)
   {
@@ -42,20 +44,20 @@ SquareMatrix::Orig::~Orig ()
   }
 }
 
-math::Matrix* SquareMatrix::Orig::createDeviceMatrix ()
+math::Matrix* RecMatrixApi::createDeviceMatrix ()
 {
   auto minfo = getMatrixInfo ();
   math::Matrix* matrix = oap::cuda::NewDeviceMatrix (minfo);
   return getDeviceMatrix (matrix);
 }
 
-math::Matrix* SquareMatrix::Orig::getDeviceMatrix (math::Matrix* dmatrix)
+math::Matrix* RecMatrixApi::getDeviceMatrix (math::Matrix* dmatrix)
 {
   oap::cuda::CopyHostMatrixToDeviceMatrix (dmatrix, m_recHostMatrix);
   return dmatrix;
 }
 
-math::Matrix* SquareMatrix::Orig::getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix)
+math::Matrix* RecMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix)
 {
   auto minfo = getMatrixInfo ();
   math::Matrix* subMatrix = getHostSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);
@@ -63,12 +65,12 @@ math::Matrix* SquareMatrix::Orig::getDeviceSubMatrix (uintt rindex, uintt rlengt
   return dmatrix;
 }
 
-const math::Matrix* SquareMatrix::Orig::getHostMatrix () const
+const math::Matrix* RecMatrixApi::getHostMatrix () const
 {
   return m_recHostMatrix;
 }
 
-math::Matrix* SquareMatrix::Orig::getHostSubMatrix (uintt cindex, uintt rindex, uintt clength, uintt rlength)
+math::Matrix* RecMatrixApi::getHostSubMatrix (uintt cindex, uintt rindex, uintt clength, uintt rlength)
 {
   m_recSubHostMatrix.reset (oap::host::NewSubMatrix (m_recHostMatrix, cindex, rindex, clength, rlength));
   return m_recSubHostMatrix.get ();

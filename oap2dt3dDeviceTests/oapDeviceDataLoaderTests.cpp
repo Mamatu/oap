@@ -21,12 +21,12 @@
 #include "gmock/gmock.h"
 
 #include "DeviceDataLoader.h"
-#include "SquareMatrix.h"
 #include "KernelExecutor.h"
 #include "oapCudaMatrixUtils.h"
 #include "oapDeviceMatrixUPtr.h"
 
 #include "PngFile.h"
+#include "CuProceduresApi.h"
 
 #include <memory>
 
@@ -66,7 +66,7 @@ TEST_F(OapDeviceDataLoaderTests, SquareMatrixAllocationTest)
 {
   oap::DataLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
   oap::DeviceDataLoader* ddl = oap::DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info);
-  oap::SquareMatrix smatrix (ddl);
+  oap::RecToSquareApi smatrix (ddl->createMatrix(), true);
 
   math::MatrixInfo minfo = smatrix.getMatrixInfo ();
 
@@ -113,7 +113,7 @@ TEST_F(OapDeviceDataLoaderTests, SquareMatrixSubMatrix)
 {
   oap::DataLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
   oap::DeviceDataLoader* ddl = oap::DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info);
-  oap::SquareMatrix smatrix (ddl);
+  oap::RecToSquareApi smatrix (ddl->createMatrix (), true);
 
   math::MatrixInfo minfo = smatrix.getMatrixInfo ();
 

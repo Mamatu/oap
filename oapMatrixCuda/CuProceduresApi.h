@@ -20,6 +20,7 @@
 #ifndef OAP_CUPROCEDURESAPI_H
 #define OAP_CUPROCEDURESAPI_H
 
+#include <map>
 #include <sstream>
 
 #include "Matrix.h"
@@ -28,6 +29,8 @@
 #include "KernelExecutor.h"
 
 #include "oapCudaMatrixUtils.h"
+
+#include "RecToSquareApi.h"
 
 #define CHECK_MATRIX(m) debugExceptionMsg (m != NULL, "Matrix is nullptr.");
 
@@ -148,6 +151,8 @@ class CuProceduresApi
             math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
             math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6,
             uint columns, uint rows);
+
+  
 
   CUresult getStatus() const;
 

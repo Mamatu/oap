@@ -17,15 +17,17 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SquareMatrix.h"
-#include "oapCudaMatrixUtils.h"
+#include "SquareMatrixApi.h"
 
+#include "oapCudaMatrixUtils.h"
 #include "oapDeviceMatrixUPtr.h"
+
+#include "CuProceduresApi.h"
 
 namespace oap
 {
 
-math::Matrix* SquareMatrix::SqMatrix::getMatrix ()
+math::Matrix* SquareMatrixApi::getMatrix ()
 {
   debugFunc ();
 
@@ -41,7 +43,7 @@ math::Matrix* SquareMatrix::SqMatrix::getMatrix ()
   return m_matrix;
 }
 
-math::Matrix* SquareMatrix::SqMatrix::getMatrixT ()
+math::Matrix* SquareMatrixApi::getMatrixT ()
 {
   debugFunc ();
 
@@ -60,7 +62,7 @@ math::Matrix* SquareMatrix::SqMatrix::getMatrixT ()
   return m_matrixT;
 }
 
-math::Matrix* SquareMatrix::SqMatrix::getRowVector (uintt index)
+math::Matrix* SquareMatrixApi::getRowVector (uintt index)
 {
   debugFunc ();
 
@@ -82,7 +84,7 @@ math::Matrix* SquareMatrix::SqMatrix::getRowVector (uintt index)
   return m_rowVector;
 }
 
-math::Matrix* SquareMatrix::SqMatrix::getSubMatrix (uintt rindex, uintt rlength)
+math::Matrix* SquareMatrixApi::getSubMatrix (uintt rindex, uintt rlength)
 {
   debugFunc ();
 
@@ -107,7 +109,7 @@ math::Matrix* SquareMatrix::SqMatrix::getSubMatrix (uintt rindex, uintt rlength)
   return m_subMatrix;
 }
 
-void SquareMatrix::SqMatrix::destroyMatrices ()
+void SquareMatrixApi::destroyMatrices ()
 {
   destroyMatrix (&m_matrix);
   destroyMatrix (&m_matrixT);
@@ -120,5 +122,96 @@ void SquareMatrix::SqMatrix::destroyMatrices ()
   m_subMatrixInfo.deinitialize();
 }
 
+SquareMatrixApi::SquareMatrixApi (CuProceduresApi& api, RecMatrixApi& orig) : m_api(api), m_orig(orig), m_matrix (nullptr), m_matrixT (nullptr), m_rowVector (nullptr), m_subMatrix (nullptr)
+{}
+
+SquareMatrixApi::~SquareMatrixApi ()
+{
+  destroyMatrices ();
 }
 
+math::MatrixInfo SquareMatrixApi::getMatrixInfo () const
+{
+  auto minfo = m_orig.getMatrixInfo ();
+  minfo.m_matrixDim.columns = minfo.m_matrixDim.rows;
+  return minfo;
+}
+
+math::Matrix* SquareMatrixApi::createDeviceMatrix ()
+{
+  auto minfo = getMatrixInfo ();
+  math::Matrix* matrix = oap::cuda::NewDeviceMatrix (minfo);
+  return getDeviceMatrix (matrix);
+}
+
+math::Matrix* SquareMatrixApi::getDeviceMatrix (math::Matrix* dmatrix)
+{
+  debugFunc ();
+  auto minfo = m_orig.getMatrixInfo ();
+
+  math::Matrix* matrix = getMatrix ();
+  math::Matrix* matrixT = getMatrixT ();
+
+  math::Matrix* output = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, minfo.m_matrixDim.rows);
+
+  m_api.dotProduct (output, matrix, matrixT);
+
+  return output;
+}
+
+math::Matrix* SquareMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix)
+{
+  debugFunc ();
+  auto minfo = m_orig.getMatrixInfo ();
+
+  math::Matrix* matrixT = getMatrixT ();
+
+  math::Matrix* subMatrix = getSubMatrix (rindex, rlength);
+
+  auto subinfo = oap::cuda::GetMatrixInfo (subMatrix);
+  auto dinfo = oap::cuda::GetMatrixInfo (dmatrix);
+
+  if (dinfo.m_matrixDim.rows != subinfo.m_matrixDim.rows)
+  {
+    dinfo.m_matrixDim.rows = subinfo.m_matrixDim.rows;
+
+    oap::cuda::DeleteDeviceMatrix (dmatrix);
+    dmatrix = oap::cuda::NewDeviceMatrix (dinfo);
+  }
+
+  m_api.dotProduct (dmatrix, subMatrix, matrixT);
+
+  return dmatrix;
+}
+
+void SquareMatrixApi::checkArgs(uintt rindex, uintt rlength, const math::MatrixInfo& minfo)
+{
+  if (rindex >= minfo.m_matrixDim.rows)
+  {
+    destroyMatrices ();
+    throw std::runtime_error ("rindex is higher than rows of matrix");
+  }
+
+  if (rlength == 0)
+  {
+    destroyMatrices ();
+    throw std::runtime_error ("rlength cannot be zero");
+  }
+}
+
+void SquareMatrixApi::destroyMatrix(math::Matrix** matrix)
+{
+  if (matrix != nullptr && *matrix != nullptr)
+  {
+    oap::cuda::DeleteDeviceMatrix (*matrix);
+    *matrix = nullptr;
+  }
+}
+
+math::Matrix* SquareMatrixApi::resetMatrix (math::Matrix* matrix, const math::MatrixInfo& minfo)
+{
+  oap::cuda::DeleteDeviceMatrix (matrix);
+  return oap::cuda::NewDeviceMatrix (minfo);
+}
+
+}

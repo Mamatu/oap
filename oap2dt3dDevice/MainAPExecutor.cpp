@@ -2,7 +2,6 @@
 
 #include "IEigenCalculator.h"
 #include "DeviceDataLoader.h"
-#include "SquareMatrix.h"
 
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
@@ -37,7 +36,7 @@ struct UserData
 {
   oap::DeviceMatrixPtr value;
   DeviceDataLoader* dataLoader;
-  SquareMatrix* squareMatrix;
+  oap::RecToSquareApi* rtsApi;
 };
 
 void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
@@ -49,9 +48,9 @@ void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
     auto dvalue = udObj->value;
-    auto sq = udObj->squareMatrix;
+    auto rts = udObj->rtsApi;
 
-    math::Matrix* dmatrix = sq->createDeviceMatrix();
+    math::Matrix* dmatrix = rts->createDeviceMatrix();
     cuProceduresApi.dotProduct(m_w, dmatrix, m_v);
     oap::cuda::DeleteDeviceMatrix(dmatrix);
   }
@@ -65,10 +64,10 @@ void MainAPExecutor::multiplySubMatrixCallback (math::Matrix* m_w, math::Matrix*
   {
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
-    auto sq = udObj->squareMatrix;
+    auto rts = udObj->rtsApi;
 
-    math::MatrixInfo subInfo = sq->getMatrixInfo();
-    math::MatrixInfo matrixInfo = sq->getMatrixInfo();
+    math::MatrixInfo subInfo = rts->getMatrixInfo();
+    math::MatrixInfo matrixInfo = rts->getMatrixInfo();
 
     while  (!sizeCondition (subInfo))
     {
@@ -80,8 +79,10 @@ void MainAPExecutor::multiplySubMatrixCallback (math::Matrix* m_w, math::Matrix*
     uintt index = 0;
     while (index < matrixInfo.m_matrixDim.rows)
     {
-      submatrix = sq->getDeviceSubMatrix (index, subInfo.m_matrixDim.rows, submatrix);
+      submatrix = rts->getDeviceSubMatrix (index, subInfo.m_matrixDim.rows, submatrix);
       uintt rows = oap::cuda::GetRows (submatrix);
+
+      debugInfo ("rows = %u", rows);
 
       if (udObj->value == nullptr || rows != oap::cuda::GetRows (udObj->value))
       {
@@ -107,17 +108,17 @@ void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v,
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
     udObj->value = oap::cuda::NewDeviceReMatrix (1, 1);;
-    auto sq = udObj->squareMatrix;
+    auto rts = udObj->rtsApi;
 
-    math::MatrixInfo matrixInfo = sq->getMatrixInfo();
+    math::MatrixInfo matrixInfo = rts->getMatrixInfo();
 
-    math::Matrix* vec = sq->createDeviceRowVector(0);
+    math::Matrix* vec = rts->createDeviceRowVector(0);
     cuProceduresApi.dotProduct(udObj->value, vec, m_v);
     oap::cuda::SetMatrix(m_w, udObj->value, 0, 0);
 
     for (uintt index = 1; index < matrixInfo.m_matrixDim.rows; ++index)
     {
-      vec = sq->getDeviceRowVector(index, vec);
+      vec = rts->getDeviceRowVector(index, vec);
       cuProceduresApi.dotProduct(udObj->value, vec, m_v);
       oap::cuda::SetMatrix(m_w, udObj->value, 0, index);
     }
@@ -127,12 +128,12 @@ void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v,
 
 std::shared_ptr<Outcome> MainAPExecutor::run(ArnUtils::Type type)
 {
-  SquareMatrix squareMatrix (m_eigenCalc->getDataLoader());
+  oap::RecToSquareApi rtsApi (m_eigenCalc->getDataLoader()->createMatrix (), true);
 
   auto dataLoader = m_eigenCalc->getDataLoader ();
-  UserData userData = {nullptr, m_eigenCalc->getDataLoader(), &squareMatrix};
+  UserData userData = {nullptr, m_eigenCalc->getDataLoader(), &rtsApi};
 
-  auto minfo = squareMatrix.getMatrixInfo ();
+  auto minfo = rtsApi.getMatrixInfo ();
   if (sizeCondition (minfo))
   {
     m_cuhArnoldi->setCallback (MainAPExecutor::multiplyMatrixCallback, &userData);
