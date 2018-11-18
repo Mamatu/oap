@@ -174,7 +174,7 @@ class OapNeuralTests : public testing::Test
   void testBackPropagation_1_to_2(floatt w_1, floatt w_2, floatt i_1, floatt i_2, floatt e_1)
   {
     Layer* l1 = network->createLayer(2);
-    network->createLayer(1);
+    Layer* l2 = network->createLayer(1);
 
     network->setLearningRate (1);
 
@@ -216,6 +216,9 @@ class OapNeuralTests : public testing::Test
 
     EXPECT_THAT(hw->reValues[0] - hw_1, testing::DoubleNear(c1, 0.0001));
     EXPECT_THAT(hw->reValues[1] - hw_2, testing::DoubleNear(c2, 0.0001));
+
+    l1->printHostWeights ();
+    l2->printHostWeights ();
   }
 };
 
