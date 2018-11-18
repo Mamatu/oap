@@ -116,4 +116,15 @@ std::pair<size_t, MatrixInfo::Units> MatrixInfo::getSize () const
   }
   return std::make_pair(0, KB);
 }
+
+uintt MatrixInfo::columns() const
+{
+  return m_matrixDim.columns;
+}
+
+uintt MatrixInfo::rows() const
+{
+  return m_matrixDim.rows;
+}
+
 }

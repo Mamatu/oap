@@ -50,6 +50,9 @@ class MatrixInfo
 
   std::pair<size_t, Units> getSize () const;
 
+  uintt columns() const;
+  uintt rows() const;
+
   math::MatrixDim m_matrixDim;
   bool isRe;
   bool isIm;
