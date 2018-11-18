@@ -39,21 +39,41 @@ TEST_F(OapMatrixInfoTests, SizeTests)
     math::MatrixInfo minfo (false, true, 1, 1024);
     EXPECT_EQ(sizeof(floatt), minfo.getSize().first);
     EXPECT_EQ(math::MatrixInfo::KB, minfo.getSize().second);
+
+    EXPECT_EQ(1, minfo.columns());
+    EXPECT_EQ(1024, minfo.rows());
+    EXPECT_EQ(minfo.columns(), minfo.m_matrixDim.columns);
+    EXPECT_EQ(minfo.rows(), minfo.m_matrixDim.rows);
   }
   {
     math::MatrixInfo minfo (false, true, 1024, 1024);
     EXPECT_EQ(sizeof(floatt), minfo.getSize().first);
     EXPECT_EQ(math::MatrixInfo::MB, minfo.getSize().second);
+
+    EXPECT_EQ(1024, minfo.columns());
+    EXPECT_EQ(1024, minfo.rows());
+    EXPECT_EQ(minfo.columns(), minfo.m_matrixDim.columns);
+    EXPECT_EQ(minfo.rows(), minfo.m_matrixDim.rows);
   }
   {
     math::MatrixInfo minfo (true, false, 1024, 1024);
     EXPECT_EQ(sizeof(floatt), minfo.getSize().first);
     EXPECT_EQ(math::MatrixInfo::MB, minfo.getSize().second);
+
+    EXPECT_EQ(1024, minfo.columns());
+    EXPECT_EQ(1024, minfo.rows());
+    EXPECT_EQ(minfo.columns(), minfo.m_matrixDim.columns);
+    EXPECT_EQ(minfo.rows(), minfo.m_matrixDim.rows);
   }
   {
     math::MatrixInfo minfo (true, true, 1024, 1024);
     EXPECT_EQ(sizeof(floatt) * 2, minfo.getSize().first);
     EXPECT_EQ(math::MatrixInfo::MB, minfo.getSize().second);
+
+    EXPECT_EQ(1024, minfo.columns());
+    EXPECT_EQ(1024, minfo.rows());
+    EXPECT_EQ(minfo.columns(), minfo.m_matrixDim.columns);
+    EXPECT_EQ(minfo.rows(), minfo.m_matrixDim.rows);
   }
 }
 
@@ -63,11 +83,21 @@ TEST_F(OapMatrixInfoTests, LargeSizeTests)
     math::MatrixInfo minfo (true, false, 1024*10, 1024*1024);
     EXPECT_EQ(sizeof(floatt) * 10, minfo.getSize().first);
     EXPECT_EQ(math::MatrixInfo::GB, minfo.getSize().second);
+
+    EXPECT_EQ(1024*10, minfo.columns());
+    EXPECT_EQ(1024*1024, minfo.rows());
+    EXPECT_EQ(minfo.columns(), minfo.m_matrixDim.columns);
+    EXPECT_EQ(minfo.rows(), minfo.m_matrixDim.rows);
   }
   {
     math::MatrixInfo minfo (true, false, 1024, 1024*1024*2);
     EXPECT_EQ(sizeof(floatt) * 2, minfo.getSize().first);
     EXPECT_EQ(math::MatrixInfo::GB, minfo.getSize().second);
+
+    EXPECT_EQ(1024, minfo.columns());
+    EXPECT_EQ(1024*1024*2, minfo.rows());
+    EXPECT_EQ(minfo.columns(), minfo.m_matrixDim.columns);
+    EXPECT_EQ(minfo.rows(), minfo.m_matrixDim.rows);
   }
 
 }
