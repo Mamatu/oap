@@ -186,17 +186,8 @@ math::Matrix* SquareMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, 
 
 void SquareMatrixApi::checkArgs(uintt rindex, uintt rlength, const math::MatrixInfo& minfo)
 {
-  if (rindex >= minfo.m_matrixDim.rows)
-  {
-    destroyMatrices ();
-    throw std::runtime_error ("rindex is higher than rows of matrix");
-  }
-
-  if (rlength == 0)
-  {
-    destroyMatrices ();
-    throw std::runtime_error ("rlength cannot be zero");
-  }
+  debugAssert (rindex < minfo.m_matrixDim.rows);
+  debugAssert (rlength > 0);
 }
 
 void SquareMatrixApi::destroyMatrix(math::Matrix** matrix)

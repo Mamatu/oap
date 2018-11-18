@@ -77,15 +77,7 @@ math::Matrix* RecToSquareApi::createDeviceSubMatrix(uintt rindex, uintt rlength)
 
   math::Matrix* doutput = oap::cuda::NewDeviceMatrix (minfo);
 
-  try
-  {
-    return getDeviceSubMatrix (rindex, rlength, doutput);
-  }
-  catch (...)
-  {
-    oap::cuda::DeleteDeviceMatrix (doutput);
-    throw;
-  }
+  return getDeviceSubMatrix (rindex, rlength, doutput);
 }
 
 math::Matrix* RecToSquareApi::getDeviceSubMatrix(uintt rindex, uintt rlength, math::Matrix* dmatrix)
@@ -115,15 +107,7 @@ math::Matrix* RecToSquareApi::createDeviceRowVector(uintt index)
 
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, 1);
 
-  try
-  {
-    return getDeviceRowVector (index, doutput);
-  }
-  catch (...)
-  {
-    oap::cuda::DeleteDeviceMatrix (doutput);
-    throw;
-  }
+  return getDeviceRowVector (index, doutput);
 }
 
 math::Matrix* RecToSquareApi::getDeviceRowVector(uintt index, math::Matrix* dmatrix)
