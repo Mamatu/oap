@@ -245,6 +245,7 @@ inline void PrintMatrix(std::string& output, const math::Matrix* matrix,
                         floatt zeroLimit = 0, bool repeats = true,
                         bool pipe = true, bool endl = true) {
   if (matrix == NULL) {
+    output = "nullptr";
     return;
   }
   MatrixRange matrixRange(matrix);
