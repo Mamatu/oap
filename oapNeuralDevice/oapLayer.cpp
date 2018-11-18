@@ -118,10 +118,17 @@ void Layer::getHostWeights (math::Matrix* output)
 
 void Layer::printHostWeights ()
 {
-  oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (m_neuronsCount, m_nextLayerNeuronsCount);
-  getHostWeights (matrix.get());
   std::stringstream sstream;
   sstream << "Layer (" << this << ") weights = ";
+
+  if (m_weights == nullptr)
+  {
+    oap::host::PrintMatrix (sstream.str(), nullptr);
+    return;
+  }
+
+  oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (m_neuronsCount, m_nextLayerNeuronsCount);
+  getHostWeights (matrix.get());
   oap::host::PrintMatrix (sstream.str(), matrix.get());
 }
 
