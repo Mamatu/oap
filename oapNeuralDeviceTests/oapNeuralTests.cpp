@@ -252,7 +252,8 @@ TEST_F(OapNeuralTests, LogicalAnd)
   bool isbias = true;
 
   Layer* l1 = network->createLayer(2, isbias);
-  network->createLayer(1);
+  Layer* l2 = network->createLayer(6);
+  Layer* l3 = network->createLayer(1);
 
   Runner r(isbias, this, 1);
   network->setLearningRate (0.001);
@@ -274,6 +275,7 @@ TEST_F(OapNeuralTests, LogicalAnd)
       floatt output = (fvalue >= 1. && fvalue1 >= 1.) ? 1. : 0.;
       r.runTest(fvalue, fvalue1, output);
       l1->printHostWeights();
+      l2->printHostWeights();
     }
   };
 

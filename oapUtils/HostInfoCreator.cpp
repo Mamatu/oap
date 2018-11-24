@@ -18,8 +18,11 @@
  */
 
 #include "HostInfoCreator.h"
-#include "MatrixUtils.h"
+
+#include "MatrixPrinter.h"
+
 #include "oapHostMatrixUtils.h"
+
 #include "Utils.h"
 
 void HostInfoCreator::setInfoTypeCallback(const InfoType& infoType) {}
@@ -28,9 +31,9 @@ void HostInfoCreator::setExpectedCallback(math::Matrix* expected) {}
 
 void HostInfoCreator::setOutputCallback(math::Matrix* output) {}
 
-void HostInfoCreator::getString(std::string& output,
-                                math::Matrix* matrix) const {
-  matrixUtils::PrintMatrix(output, matrix);
+void HostInfoCreator::getString(std::string& output, math::Matrix* matrix) const
+{
+  matrixUtils::PrintMatrix(output, matrix, matrixUtils::PrintArgs<floatt>());
 }
 
 void HostInfoCreator::getMean(floatt& re, floatt& im,

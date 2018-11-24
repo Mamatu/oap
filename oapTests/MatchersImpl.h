@@ -28,6 +28,7 @@
 
 #include "oapHostMatrixUtils.h"
 
+#include "MatrixPrinter.h"
 #include "Utils.h"
 
 using ::testing::PrintToString;
@@ -258,9 +259,7 @@ class BufferSumIsEqualMatcherSum : public BufferSumIsEqualMatcher<T> {
   virtual bool MatchAndExplain(T actualSum,
                                MatchResultListener* listener) const {
     std::string v;
-    matrixUtils::PrintArray(v, BufferSumIsEqualMatcher<T>::m_buffer,
-                            BufferSumIsEqualMatcher<T>::m_length,
-                            static_cast<T>(0));
+    matrixUtils::PrintArray(v, BufferSumIsEqualMatcher<T>::m_buffer, BufferSumIsEqualMatcher<T>::m_length, matrixUtils::PrintArgs<T>(static_cast<T>(0)));
     (*listener) << v;
     return BufferSumIsEqualMatcher<T>::m_expectedSum == actualSum;
   }

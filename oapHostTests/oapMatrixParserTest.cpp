@@ -22,6 +22,7 @@
 #include <math.h>
 #include "gtest/gtest.h"
 #include "MatrixUtils.h"
+#include "MatrixParser.h"
 #include "parsertest1.h"
 
 namespace samples {

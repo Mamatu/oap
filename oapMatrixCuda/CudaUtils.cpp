@@ -23,6 +23,7 @@
 #include <map>
 #include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
+#include "MatrixPrinter.h"
 #include "MatrixUtils.h"
 
 namespace CudaUtils {
@@ -353,7 +354,7 @@ void printHostMatrix(std::string& output, const math::Matrix* dmatrix,
   bool isim = CudaUtils::GetImValues(dmatrix) != NULL;
   math::Matrix* hmatrix = oap::host::NewMatrix(isre, isim, columns, rows);
   oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
-  matrixUtils::PrintMatrix(output, hmatrix, zeroLimit, repeats, pipe, endl);
+  matrixUtils::PrintMatrix(output, hmatrix, matrixUtils::PrintArgs<floatt>(zeroLimit, repeats, pipe, endl));
   oap::host::DeleteMatrix(hmatrix);
 }
 
