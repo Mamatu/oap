@@ -89,36 +89,41 @@ class MatrixRange : public Range {
   void getImSubArrays(SubArrays<floatt>& subArrays) const;
 };
 
-template <typename T>
-void mergeTheSameValues(OccurencesList<T>& occurencesList,
-                        uintt sectionLength) {
-  std::pair<uintt, T>& pair1 = occurencesList[occurencesList.size() - 2];
-  std::pair<uintt, T> pair2 = occurencesList[occurencesList.size() - 3];
-  if (pair1.second == pair2.second && pair1.first == sectionLength) {
-    pair1.first += pair2.first;
-    occurencesList.erase(occurencesList.begin() + occurencesList.size() - 3);
-  }
-}
+template<typename T>
+class PrintArgs
+{
+  public:
+    T zeroLimit;
+    bool repeats;
+    std::string sectionSeparator;
+    size_t sectionLength;
+
+    PrintArgs(T _zeroLimit = 0, bool _repeats = true, const std::string& _sectionSeparator = "|\n", size_t _sectionLength = std::numeric_limits<size_t>::max()):
+      zeroLimit(_zeroLimit), repeats(_repeats), sectionSeparator(_sectionSeparator), sectionLength(_sectionLength)
+    {}
+};
 
 template <typename T>
-void PrepareOccurencesList(
-    OccurencesList<T>& occurencesList, T* array, uintt length, bool repeats,
-    T zeroLimit, size_t sectionLength = std::numeric_limits<size_t>::max(),
-    uintt extra = 0) {
-  for (uintt fa = 0, fa1 = extra; fa < length; ++fa, ++fa1) {
+void PrepareOccurencesList (OccurencesList<T>& occurencesList, T* array, uintt length, const PrintArgs<T>& args = PrintArgs<T>())
+{
+  const T zeroLimit = args.zeroLimit;
+  const bool repeats = args.repeats;
+  const size_t sectionLength = args.sectionLength;
+
+  for (uintt fa = 0; fa < length; ++fa)
+  {
     floatt value = array[fa];
-    if (-zeroLimit < value && value < zeroLimit) {
+    if (-zeroLimit < value && value < zeroLimit)
+    {
       value = 0.f;
     }
-    if (repeats == false || occurencesList.size() == 0 ||
-        value != occurencesList[occurencesList.size() - 1].second ||
-        fa1 % sectionLength == 0) {
+    if (repeats == false || occurencesList.size() == 0 || value != occurencesList[occurencesList.size() - 1].second)
+    {
       uintt a = 1;
       occurencesList.push_back(std::make_pair<uintt&, floatt&>(a, value));
-      if (occurencesList.size() > 2) {
-        mergeTheSameValues(occurencesList, sectionLength);
-      }
-    } else {
+    }
+    else
+    {
       occurencesList[occurencesList.size() - 1].first++;
     }
   }
