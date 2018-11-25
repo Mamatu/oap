@@ -98,7 +98,7 @@ class PrintArgs
     std::string sectionSeparator;
     size_t sectionLength;
 
-    PrintArgs(T _zeroLimit = 0, bool _repeats = true, const std::string& _sectionSeparator = "|\n", size_t _sectionLength = std::numeric_limits<size_t>::max()):
+    PrintArgs(T _zeroLimit = 0, bool _repeats = false, const std::string& _sectionSeparator = "|\n", size_t _sectionLength = std::numeric_limits<size_t>::max()):
       zeroLimit(_zeroLimit), repeats(_repeats), sectionSeparator(_sectionSeparator), sectionLength(_sectionLength)
     {}
 };
@@ -117,7 +117,7 @@ void PrepareOccurencesList (OccurencesList<T>& occurencesList, T* array, uintt l
     {
       value = 0.f;
     }
-    if (repeats == false || occurencesList.size() == 0 || value != occurencesList[occurencesList.size() - 1].second)
+    if (repeats == true || occurencesList.size() == 0 || value != occurencesList[occurencesList.size() - 1].second)
     {
       uintt a = 1;
       occurencesList.push_back(std::make_pair<uintt&, floatt&>(a, value));
