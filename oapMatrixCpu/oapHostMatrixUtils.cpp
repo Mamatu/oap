@@ -17,15 +17,20 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapHostMatrixUtils.h"
-#include <cstring>
-#include <vector>
 #include <algorithm>
-#include <stdio.h>
-#include <sstream>
+#include <cstring>
 #include <math.h>
 #include <memory>
+#include <stdio.h>
+#include <sstream>
+#include <vector>
+
 #include <linux/fs.h>
+
+#include "oapHostMatrixUtils.h"
+
+#include "MatrixParser.h"
+#include "MatrixPrinter.h"
 #include "MatrixUtils.h"
 #include "ReferencesCounter.h"
 
@@ -251,7 +256,7 @@ void SetImValue(const math::Matrix* matrix, uintt column, uintt row,
 
 std::string GetMatrixStr(const math::Matrix* matrix) {
   std::string output;
-  matrixUtils::PrintMatrix(output, matrix);
+  matrixUtils::PrintMatrix (output, matrix, matrixUtils::PrintArgs<floatt>());
   return output;
 }
 
@@ -439,11 +444,11 @@ void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector) {
 }
 
 void GetMatrixStr(std::string& text, const math::Matrix* matrix) {
-  matrixUtils::PrintMatrix(text, matrix);
+  matrixUtils::PrintMatrix(text, matrix, matrixUtils::PrintArgs<floatt>());
 }
 
 void GetReMatrixStr(std::string& text, const math::Matrix* matrix) {
-  matrixUtils::PrintMatrix(text, matrix);
+  matrixUtils::PrintMatrix(text, matrix, matrixUtils::PrintArgs<floatt>());
 }
 
 void GetImMatrixStr(std::string& str, const math::Matrix* matrix) {

@@ -23,6 +23,7 @@
 #include <map>
 #include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
+#include "MatrixPrinter.h"
 #include "MatrixUtils.h"
 
 namespace CudaUtils {
@@ -345,39 +346,39 @@ void SetZeroRow(math::Matrix* matrix, uintt index, bool re, bool im) {
   }
 }
 
-void printHostMatrix(std::string& output, const math::Matrix* dmatrix,
-                     floatt zeroLimit, bool repeats, bool pipe, bool endl) {
+void printHostMatrix(std::string& output, const math::Matrix* dmatrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
+{
   uintt columns = CudaUtils::GetColumns(dmatrix);
   uintt rows = CudaUtils::GetRows(dmatrix);
   bool isre = CudaUtils::GetReValues(dmatrix) != NULL;
   bool isim = CudaUtils::GetImValues(dmatrix) != NULL;
   math::Matrix* hmatrix = oap::host::NewMatrix(isre, isim, columns, rows);
   oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
-  matrixUtils::PrintMatrix(output, hmatrix, zeroLimit, repeats, pipe, endl);
+  matrixUtils::PrintMatrix(output, hmatrix, matrixUtils::PrintArgs<floatt>(zeroLimit, repeats, sectionSeparator));
   oap::host::DeleteMatrix(hmatrix);
 }
 
-void GetMatrixStr(std::string& output, math::Matrix* matrix, floatt zeroLimit,
-                  bool repeats, bool pipe, bool endl) {
-  printHostMatrix(output, matrix, zeroLimit, repeats, pipe, endl);
+void GetMatrixStr(std::string& output, math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
+{
+  printHostMatrix(output, matrix, zeroLimit, repeats, sectionSeparator);
 }
 
-void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit,
-                 bool repeats, bool pipe, bool endl) {
+void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
+{
   std::string output;
-  printHostMatrix(output, matrix, zeroLimit, repeats, pipe, endl);
+  printHostMatrix(output, matrix, zeroLimit, repeats, sectionSeparator);
   fprintf(stream, "%s CUDA \n", output.c_str());
 }
 
-void PrintMatrix(const math::Matrix* matrix, floatt zeroLimit, bool repeats,
-                 bool pipe, bool endl) {
-  PrintMatrix("", matrix, zeroLimit, repeats, pipe, endl);
+void PrintMatrix(const math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
+{
+  PrintMatrix("", matrix, zeroLimit, repeats, sectionSeparator);
 }
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix,
-                 floatt zeroLimit, bool repeats, bool pipe, bool endl) {
+void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
+{
   std::string output;
-  printHostMatrix(output, matrix, zeroLimit, repeats, pipe, endl);
+  printHostMatrix(output, matrix, zeroLimit, repeats, sectionSeparator);
   printf("%s %s CUDA \n", text.c_str(), output.c_str());
 }
 }

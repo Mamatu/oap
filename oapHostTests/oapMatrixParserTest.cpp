@@ -22,6 +22,7 @@
 #include <math.h>
 #include "gtest/gtest.h"
 #include "MatrixUtils.h"
+#include "MatrixParser.h"
 #include "parsertest1.h"
 
 namespace samples {
@@ -83,8 +84,13 @@ TEST_F(OapMatrixParserTests, Test3) {
 
   m_parser->setText(text);
   EXPECT_TRUE(m_parser->parseArray(1));
+
   for (int fa = 0; fa < 10; ++fa) {
     EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(fa));
+  }
+
+  for (int fa = 0; fa < 10; ++fa) {
+    EXPECT_DOUBLE_EQ(double(fa + 1), m_parser->getValue(fa + 10));
   }
 
   uintt columns = 0;

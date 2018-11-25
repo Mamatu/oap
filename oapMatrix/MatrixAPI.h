@@ -22,8 +22,10 @@
 
 #include "Matrix.h"
 #include "MatrixTestAPI.h"
+
 #include "CuCore.h"
 #include "Dim3.h"
+
 #include "assert.h"
 
 #ifdef CUDA
