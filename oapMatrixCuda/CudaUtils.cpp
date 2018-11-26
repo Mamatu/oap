@@ -354,7 +354,7 @@ void printHostMatrix(std::string& output, const math::Matrix* dmatrix, floatt ze
   bool isim = CudaUtils::GetImValues(dmatrix) != NULL;
   math::Matrix* hmatrix = oap::host::NewMatrix(isre, isim, columns, rows);
   oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
-  matrixUtils::PrintMatrix(output, hmatrix, matrixUtils::PrintArgs<floatt>(zeroLimit, repeats, sectionSeparator));
+  matrixUtils::PrintMatrix(output, hmatrix, matrixUtils::PrintArgs(zeroLimit, repeats, sectionSeparator, columns));
   oap::host::DeleteMatrix(hmatrix);
 }
 

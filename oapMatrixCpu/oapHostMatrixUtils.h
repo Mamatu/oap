@@ -25,6 +25,7 @@
 #include "Matrix.h"
 #include "MatrixInfo.h"
 #include "MatrixEx.h"
+#include "MatrixUtils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -261,35 +262,14 @@ void SetImValue(const math::Matrix* matrix, uintt column, uintt row, floatt valu
 
 std::string GetMatrixStr(const math::Matrix* matrix);
 
-/**
- *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
- */
-void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zrr = 0.f);
+void PrintMatrix(FILE* stream, const matrixUtils::PrintArgs& args, const math::Matrix* matrix);
+void PrintMatrix(FILE* stream, const math::Matrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
 
-/**
- *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
- */
-void PrintMatrix(FILE* stream, const std::string& text, const math::Matrix* matrix, floatt zrr = 0.f);
+void PrintMatrix(const matrixUtils::PrintArgs& args, const math::Matrix* matrix);
+void PrintMatrix(const math::Matrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
 
-/**
- *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
- */
-void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zrr = 0.f);
-
-/**
- *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
- */
-void PrintMatrix(const math::Matrix* matrix, floatt zrr = 0.f);
-
-/**
- *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
- */
-bool PrintMatrixToFile(const std::string& path, const std::string& text, const math::Matrix* matrix, floatt zrr = 0.f);
-
-/**
- *  \param zrr - zero round range any number which fullfils condition |number| <= zrr, will be print as zero
- */
-bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix, floatt zrr = 0.f);
+bool PrintMatrixToFile(const std::string& path, const matrixUtils::PrintArgs& args, const math::Matrix* matrix);
+bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
 
 /**
  * @brief PrintImMatrix
