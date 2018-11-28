@@ -92,6 +92,15 @@ TEST_F(OapMatrixPrinterTests, TestIm1x10WithZero)
   printf("%s\n", str.c_str());
 }
 
+TEST_F(OapMatrixPrinterTests, TestIm1x5WithZeroNoRepeats)
+{
+  oap::HostMatrixPtr matrix = oap::host::NewMatrix(false, true, 1, 5);
+  std::string str;
+  matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, true));
+  EXPECT_THAT(str, ::testing::HasSubstr("[0, 0, 0, 0, 0]"));
+  printf("%s\n", str.c_str());
+}
+
 TEST_F(OapMatrixPrinterTests, TestIm10x1WithZero)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(false, true, 10, 1);
@@ -126,7 +135,7 @@ TEST_F(OapMatrixPrinterTests, Test5x1)
   printf("%s\n", str.c_str());
 }
 
-TEST_F(OapMatrixPrinterTests, Tests5x2DifferentArgs)
+TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 {
   {
     oap::HostMatrixPtr matrix = oap::host::NewMatrix(true, true, 5, 2);
@@ -138,9 +147,8 @@ TEST_F(OapMatrixPrinterTests, Tests5x2DifferentArgs)
     }
 
     std::string str;
-    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs<floatt>(0, true, "\n", matrix->columns));
-    EXPECT_THAT(str, ::testing::HasSubstr("[0, 1, 2, 3, 4"));
-    EXPECT_THAT(str, ::testing::HasSubstr("5, 6, 7, 8, 9]"));
+    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "\n", matrix->columns));
+    EXPECT_THAT(str, ::testing::HasSubstr("[0, 1, 2, 3, 4\n5, 6, 7, 8, 9]"));
     printf("%s\n", str.c_str());
   }
   {
@@ -153,8 +161,62 @@ TEST_F(OapMatrixPrinterTests, Tests5x2DifferentArgs)
     }
 
     std::string str;
-    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs<floatt>(0, true, "|", matrix->columns));
+    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "|", matrix->columns));
     EXPECT_THAT(str, ::testing::HasSubstr("[0, 1, 2, 3, 4|5, 6, 7, 8, 9]"));
+    printf("%s\n", str.c_str());
+  }
+  {
+    oap::HostMatrixPtr matrix = oap::host::NewMatrix(true, true, 5, 2);
+
+    for (size_t idx = 0; idx < 10; ++idx)
+    {
+      matrix->reValues[idx] = idx;
+      matrix->imValues[idx] = idx;
+    }
+
+    std::string str;
+    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs("matrix = ", "", 0, false, "|", matrix->columns));
+    EXPECT_EQ (str, "matrix = [0, 1, 2, 3, 4|5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]");
+    printf("%s\n", str.c_str());
+  }
+  {
+    oap::HostMatrixPtr matrix = oap::host::NewMatrix(true, true, 5, 2);
+
+    for (size_t idx = 0; idx < 10; ++idx)
+    {
+      matrix->reValues[idx] = idx;
+      matrix->imValues[idx] = idx;
+    }
+
+    std::string str;
+    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs("matrix = {", "}", 0, false, "|", matrix->columns));
+    EXPECT_EQ(str, "matrix = {[0, 1, 2, 3, 4|5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]}");
+    printf("%s\n", str.c_str());
+  }
+  {
+    oap::HostMatrixPtr matrix = oap::host::NewMatrix(true, false, 5, 2);
+
+    for (size_t idx = 0; idx < 10; ++idx)
+    {
+      matrix->reValues[idx] = idx;
+    }
+
+    std::string str;
+    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "|", matrix->columns));
+    EXPECT_EQ(str, "[0, 1, 2, 3, 4|5, 6, 7, 8, 9]");
+    printf("%s\n", str.c_str());
+  }
+  {
+    oap::HostMatrixPtr matrix = oap::host::NewMatrix(false, true, 5, 2);
+
+    for (size_t idx = 0; idx < 10; ++idx)
+    {
+      matrix->imValues[idx] = idx;
+    }
+
+    std::string str;
+    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "|", matrix->columns));
+    EXPECT_EQ(str, "i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]");
     printf("%s\n", str.c_str());
   }
 }

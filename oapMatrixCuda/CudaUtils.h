@@ -112,13 +112,13 @@ floatt GetImDiagonal(math::Matrix* m, uintt index);
 void SetZeroMatrix(math::Matrix* matrix, bool re = true, bool im = true);
 void SetZeroRow(math::Matrix* matrix, uintt index, bool re = true, bool im = true);
 
-void GetMatrixStr(std::string& output, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = true, const std::string& sectionSeparator = "|\n");
+void GetMatrixStr(std::string& output, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 
-void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = true, const std::string& sectionSeparator = "|\n");
+void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 
-void PrintMatrix(const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = true, const std::string& sectionSeparator = "|\n");
+void PrintMatrix(const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 
-void PrintMatrix(const std::string& output, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = true, const std::string& sectionSeparator = "|\n");
+void PrintMatrix(const std::string& output, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 }
 
 template <typename T>

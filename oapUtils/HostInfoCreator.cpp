@@ -33,7 +33,7 @@ void HostInfoCreator::setOutputCallback(math::Matrix* output) {}
 
 void HostInfoCreator::getString(std::string& output, math::Matrix* matrix) const
 {
-  matrixUtils::PrintMatrix(output, matrix, matrixUtils::PrintArgs<floatt>());
+  matrixUtils::PrintMatrix(output, matrix, matrixUtils::PrintArgs());
 }
 
 void HostInfoCreator::getMean(floatt& re, floatt& im,

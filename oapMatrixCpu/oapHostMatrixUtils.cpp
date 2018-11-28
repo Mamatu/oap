@@ -31,7 +31,6 @@
 
 #include "MatrixParser.h"
 #include "MatrixPrinter.h"
-#include "MatrixUtils.h"
 #include "ReferencesCounter.h"
 
 #define ReIsNotNULL(m) m->reValues != NULL
@@ -256,39 +255,49 @@ void SetImValue(const math::Matrix* matrix, uintt column, uintt row,
 
 std::string GetMatrixStr(const math::Matrix* matrix) {
   std::string output;
-  matrixUtils::PrintMatrix (output, matrix, matrixUtils::PrintArgs<floatt>());
+  matrixUtils::PrintMatrix (output, matrix, matrixUtils::PrintArgs());
   return output;
 }
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zrr) {
-  PrintMatrix(stdout, text, matrix, zrr);
+void PrintMatrix(FILE* stream, const matrixUtils::PrintArgs& args, const math::Matrix* matrix)
+{
+  std::string output;
+  matrixUtils::PrintMatrix (output, matrix, args);
+  fprintf(stream, "%s", output.c_str());
 }
 
-void PrintMatrix(FILE* stream, const std::string& text, const math::Matrix* matrix, floatt zrr) {
-  std::string output = text;
-  if (text.size() > 0) {
-    output += " ";
-  }
-  matrixUtils::PrintMatrix(output, matrix, zrr);
-  fprintf(stream, "%s HOST \n", output.c_str());
+void PrintMatrix(FILE* stream, const math::Matrix* matrix, const matrixUtils::PrintArgs& args)
+{
+  PrintMatrix(stream, args, matrix);
 }
 
-void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zrr) {
-  PrintMatrix(stream, "", matrix, zrr);
+void PrintMatrix(const matrixUtils::PrintArgs& args, const math::Matrix* matrix)
+{
+  PrintMatrix(stdout, args, matrix);
 }
 
-void PrintMatrix(const math::Matrix* matrix, floatt zrr) { PrintMatrix("", matrix, zrr); }
+void PrintMatrix(const math::Matrix* matrix, const matrixUtils::PrintArgs& args)
+{
+  PrintMatrix(args, matrix);
+}
 
-bool PrintMatrixToFile(const std::string& path, const std::string& text, const math::Matrix* matrix, floatt zrr) {
+bool PrintMatrixToFile(const std::string& path, const matrixUtils::PrintArgs& args, const math::Matrix* matrix) {
   FILE* file = fopen(path.c_str(), "w");
-  if (file == NULL) { return false; }
-  PrintMatrix(file, text, matrix, zrr);
+
+  if (file == NULL)
+  {
+    return false;
+  }
+
+  PrintMatrix (file, args, matrix);
+
   fclose(file);
   return true;
 }
 
-bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix, floatt zrr) {
-  return PrintMatrixToFile(path, "", matrix, zrr);
+bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix, const matrixUtils::PrintArgs& args)
+{
+  return PrintMatrixToFile(path, args, matrix);
 }
 
 void Copy(math::Matrix* dst, const math::Matrix* src, const MatrixEx& subMatrix,
@@ -444,11 +453,11 @@ void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector) {
 }
 
 void GetMatrixStr(std::string& text, const math::Matrix* matrix) {
-  matrixUtils::PrintMatrix(text, matrix, matrixUtils::PrintArgs<floatt>());
+  matrixUtils::PrintMatrix(text, matrix, matrixUtils::PrintArgs());
 }
 
 void GetReMatrixStr(std::string& text, const math::Matrix* matrix) {
-  matrixUtils::PrintMatrix(text, matrix, matrixUtils::PrintArgs<floatt>());
+  matrixUtils::PrintMatrix(text, matrix, matrixUtils::PrintArgs());
 }
 
 void GetImMatrixStr(std::string& str, const math::Matrix* matrix) {

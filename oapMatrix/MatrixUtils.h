@@ -89,35 +89,57 @@ class MatrixRange : public Range {
   void getImSubArrays(SubArrays<floatt>& subArrays) const;
 };
 
-template<typename T>
 class PrintArgs
 {
   public:
-    T zeroLimit;
-    bool repeats;
-    std::string sectionSeparator;
-    size_t sectionLength;
+    std::string pretext = ""; ///<text printed before matrix string representation
+    std::string posttext = ""; ///<text printed after matrix string representation
 
-    PrintArgs(T _zeroLimit = 0, bool _repeats = true, const std::string& _sectionSeparator = "|\n", size_t _sectionLength = std::numeric_limits<size_t>::max()):
-      zeroLimit(_zeroLimit), repeats(_repeats), sectionSeparator(_sectionSeparator), sectionLength(_sectionLength)
+    floatt zrr = 0; ///< zero round range any number which fullfils condition |number| <= zrr, will be print as zero
+    bool repeats = false; ///< if true the same number will be repeatedly printed, otherwise will be used pattern <repeats x times>
+    std::string sectionSeparator = "|\n";
+    size_t sectionLength = std::numeric_limits<size_t>::max();
+
+    PrintArgs ()
+    {}
+
+    PrintArgs (const std::string& _pretext, const std::string& _posttext, floatt _zrr, bool _repeats, const std::string& _sectionSeparator, size_t _sectionLength):
+      pretext(_pretext), posttext(_posttext), zrr(_zrr), repeats(_repeats), sectionSeparator(_sectionSeparator), sectionLength(_sectionLength)
+    {}
+
+    PrintArgs (floatt _zrr, bool _repeats):
+      zrr(_zrr), repeats(_repeats)
+    {}
+
+    PrintArgs (floatt _zrr, bool _repeats, const std::string& _sectionSeparator, size_t _sectionLength):
+      zrr(_zrr), repeats(_repeats), sectionSeparator(_sectionSeparator), sectionLength(_sectionLength)
+    {}
+
+    PrintArgs (const std::string& _pretext, const std::string& _posttext) : pretext(_pretext), posttext(_posttext)
+    {}
+
+    PrintArgs (const std::string& _pretext) : pretext(_pretext)
+    {}
+
+    PrintArgs (const char* _pretext) : pretext(_pretext)
     {}
 };
 
 template <typename T>
-void PrepareOccurencesList (OccurencesList<T>& occurencesList, T* array, uintt length, const PrintArgs<T>& args = PrintArgs<T>())
+void PrepareOccurencesList (OccurencesList<T>& occurencesList, T* array, uintt length, const PrintArgs& args = PrintArgs())
 {
-  const T zeroLimit = args.zeroLimit;
+  const T zrr = args.zrr;
   const bool repeats = args.repeats;
   const size_t sectionLength = args.sectionLength;
 
   for (uintt fa = 0; fa < length; ++fa)
   {
     floatt value = array[fa];
-    if (-zeroLimit < value && value < zeroLimit)
+    if (-zrr < value && value < zrr)
     {
       value = 0.f;
     }
-    if (repeats == false || occurencesList.size() == 0 || value != occurencesList[occurencesList.size() - 1].second)
+    if (repeats == true || occurencesList.size() == 0 || value != occurencesList[occurencesList.size() - 1].second)
     {
       uintt a = 1;
       occurencesList.push_back(std::make_pair<uintt&, floatt&>(a, value));

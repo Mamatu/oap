@@ -26,14 +26,15 @@ namespace matrixUtils
 {
 
 template <typename T>
-void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, const PrintArgs<T>& args = PrintArgs<T>())
+void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, const PrintArgs& args = PrintArgs())
 {
-  const T zeroLimit = args.zeroLimit;
+  const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
   const std::string sectionSeparator = args.sectionSeparator;
   const size_t sectionLength = args.sectionLength;
 
-  output = "[";
+  output = "";
+
   OccurencesList<T> valuesVec;
   uintt totalLength = 0;
   for (uintt index = 0; index < count; ++index)
@@ -43,7 +44,11 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
     PrepareOccurencesList (valuesVec, array, length, args);
     totalLength += length;
   }
+
   std::stringstream sstream;
+  sstream << args.pretext;
+  sstream << "[";
+
   for (uintt fa = 0, fa1 = 0; fa < valuesVec.size(); ++fa)
   {
     sstream << valuesVec[fa].second;
@@ -66,19 +71,17 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
         sstream << sectionSeparator;
       }
     }
-    output += sstream.str();
-    sstream.str(std::string());
   }
-  sstream.str(std::string());
-  sstream << "] (" << ID_LENGTH << "=" << totalLength;
+
+  sstream << "]";
+  sstream << args.posttext;
   output += sstream.str();
-  output += ")\n";
 }
 
 template <typename T>
-void PrintArrays(std::string& output, const SubArrays<T>& subArrays, const PrintArgs<T>& args = PrintArgs<T>())
+void PrintArrays(std::string& output, const SubArrays<T>& subArrays, const PrintArgs& args = PrintArgs())
 {
-  const T zeroLimit = args.zeroLimit;
+  const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
   const std::string sectionSeparator = args.sectionSeparator;
   const size_t sectionLength = args.sectionLength;
@@ -99,9 +102,9 @@ void PrintArrays(std::string& output, const SubArrays<T>& subArrays, const Print
 }
 
 template <typename T>
-void PrintArray(std::string& output, T* array, uintt length, const PrintArgs<T>& args = PrintArgs<T>())
+void PrintArray(std::string& output, T* array, uintt length, const PrintArgs& args = PrintArgs())
 {
-  const T zeroLimit = args.zeroLimit;
+  const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
   const std::string sectionSeparator = args.sectionSeparator;
   const size_t sectionLength = args.sectionLength;
@@ -111,71 +114,13 @@ void PrintArray(std::string& output, T* array, uintt length, const PrintArgs<T>&
   PrintArrays(output, arrays, lengths, 1, args);
 }
 
-template <typename T>
-void PrintReValues(std::string& output, const MatrixRange& matrixRange, const PrintArgs<T>& args = PrintArgs<T>())
-{
-  const T zeroLimit = args.zeroLimit;
-  const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
-  const size_t sectionLength = args.sectionLength;
+void PrintReValues(std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
 
-  SubArrays<floatt> subArrrays;
-  matrixRange.getReSubArrays(subArrrays);
-  PrintArrays(output, subArrrays, args);
-}
+void PrintImValues(std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
 
-template <typename T>
-void PrintImValues(std::string& output, const MatrixRange& matrixRange, const PrintArgs<T>& args = PrintArgs<T>())
-{
-  const T zeroLimit = args.zeroLimit;
-  const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
-  const size_t sectionLength = args.sectionLength;
+void PrintMatrix(std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
 
-  SubArrays<floatt> subArrrays;
-  matrixRange.getImSubArrays(subArrrays);
-  PrintArrays(output, subArrrays, args);
-}
-
-inline void PrintMatrix(std::string& output, const MatrixRange& matrixRange, const PrintArgs<floatt>& args = PrintArgs<floatt>())
-{
-  const floatt zeroLimit = args.zeroLimit;
-  const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
-
-  std::stringstream sstream;
-  sstream << "(" << ID_COLUMNS << "=" << matrixRange.getColumns() << ", " << ID_ROWS << "=" << matrixRange.getRows() << ") ";
-  output += sstream.str();
-  std::string output1;
-
-  size_t sectionLength = matrixRange.getColumns() > 1 ? matrixRange.getColumns() : matrixRange.getRows();
-
-  if (matrixRange.isReValues())
-  {
-    PrintReValues(output1, matrixRange, args);
-    output += output1 + " ";
-  }
-  if (matrixRange.isImValues())
-  {
-    PrintImValues(output1, matrixRange, args);
-    output += output1;
-  }
-}
-
-inline void PrintMatrix(std::string& output, const math::Matrix* matrix, const PrintArgs<floatt>& args = PrintArgs<floatt>())
-{
-  const floatt zeroLimit = args.zeroLimit;
-  const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
-
-  if (matrix == NULL)
-  {
-    output = "nullptr";
-    return;
-  }
-  MatrixRange matrixRange(matrix);
-  PrintMatrix(output, matrixRange, args);
-}
+void PrintMatrix(std::string& output, const math::Matrix* matrix, const PrintArgs& args = PrintArgs());
 
 }
 
