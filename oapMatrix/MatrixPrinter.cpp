@@ -7,8 +7,6 @@ void PrintReValues(std::string& output, const MatrixRange& matrixRange, const Pr
 {
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
-  const size_t sectionLength = args.sectionLength;
 
   SubArrays<floatt> subArrrays;
   matrixRange.getReSubArrays(subArrrays);
@@ -19,8 +17,6 @@ void PrintImValues(std::string& output, const MatrixRange& matrixRange, const Pr
 {
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
-  const size_t sectionLength = args.sectionLength;
 
   SubArrays<floatt> subArrrays;
   matrixRange.getImSubArrays(subArrrays);
@@ -31,10 +27,8 @@ void PrintMatrix(std::string& output, const MatrixRange& matrixRange, const Prin
 {
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
 
   std::stringstream sstream;
-  const std::string reImSeparator[] = {" + ", "i * "};
 
   sstream << args.pretext;
 
@@ -54,9 +48,9 @@ void PrintMatrix(std::string& output, const MatrixRange& matrixRange, const Prin
   {
     if (matrixRange.isReValues ())
     {
-      sstream << reImSeparator[0];
+      sstream << args.postRe;
     }
-    sstream << reImSeparator[1];
+    sstream << args.preIm;
 
     PrintArgs args1 = args;
     args1.pretext = "";
@@ -76,7 +70,6 @@ void PrintMatrix(std::string& output, const math::Matrix* matrix, const PrintArg
 {
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
 
   if (matrix == NULL)
   {
@@ -86,4 +79,5 @@ void PrintMatrix(std::string& output, const math::Matrix* matrix, const PrintArg
   MatrixRange matrixRange (matrix);
   PrintMatrix(output, matrixRange, args);
 }
+
 }

@@ -85,4 +85,40 @@ void MatrixRange::getSubArrays(SubArrays<floatt>& subArrays, floatt* array,
   }
 }
 
+Section::Section ()
+{}
+
+Section::Section (const std::string& _separator, size_t _length) : separator (_separator), length (_length)
+{}
+
+PrintArgs::PrintArgs ()
+{}
+
+PrintArgs::PrintArgs (const std::string& _pretext, const std::string& _posttext, floatt _zrr, bool _repeats, const std::string& _sectionSeparator, size_t _sectionLength):
+  pretext(_pretext), posttext(_posttext), zrr(_zrr), repeats(_repeats), section(_sectionSeparator, _sectionLength)
+{}
+
+PrintArgs::PrintArgs (floatt _zrr, bool _repeats):
+  zrr(_zrr), repeats(_repeats)
+{}
+
+PrintArgs::PrintArgs (floatt _zrr, bool _repeats, const std::string& _sectionSeparator, size_t _sectionLength):
+  zrr(_zrr), repeats(_repeats), section (_sectionSeparator, _sectionLength)
+{}
+
+PrintArgs::PrintArgs (const std::string& _pretext, const std::string& _posttext) : pretext(_pretext), posttext(_posttext)
+{}
+
+PrintArgs::PrintArgs (const std::string& _pretext) : pretext(_pretext)
+{}
+
+PrintArgs::PrintArgs (const char* _pretext) : pretext(_pretext)
+{}
+
+void PrintArgs::setReImSeparator (const std::string& _postRe, const std::string& _preIm)
+{
+  postRe = _postRe;
+  preIm = _preIm;
+}
+
 }

@@ -30,8 +30,8 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
 {
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
-  const size_t sectionLength = args.sectionLength;
+  const std::string sectionSeparator = args.section.separator;
+  const size_t sectionLength = args.section.length;
 
   output = "";
 
@@ -83,8 +83,6 @@ void PrintArrays(std::string& output, const SubArrays<T>& subArrays, const Print
 {
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
-  const size_t sectionLength = args.sectionLength;
 
   uintt count = subArrays.size();
   T** arrays = new T* [count];
@@ -106,21 +104,19 @@ void PrintArray(std::string& output, T* array, uintt length, const PrintArgs& ar
 {
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
-  const std::string sectionSeparator = args.sectionSeparator;
-  const size_t sectionLength = args.sectionLength;
 
   T* arrays[] = {array};
   uintt lengths[] = {length};
   PrintArrays(output, arrays, lengths, 1, args);
 }
 
-void PrintReValues(std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
+void PrintReValues (std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
 
-void PrintImValues(std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
+void PrintImValues (std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
 
-void PrintMatrix(std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
+void PrintMatrix (std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
 
-void PrintMatrix(std::string& output, const math::Matrix* matrix, const PrintArgs& args = PrintArgs());
+void PrintMatrix (std::string& output, const math::Matrix* matrix, const PrintArgs& args = PrintArgs());
 
 }
 
