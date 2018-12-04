@@ -89,6 +89,17 @@ class MatrixRange : public Range {
   void getImSubArrays(SubArrays<floatt>& subArrays) const;
 };
 
+class Section
+{
+  public:
+    std::string separator = "|\n";
+    size_t length = std::numeric_limits<size_t>::max();
+
+    Section ();
+
+    Section (const std::string& _separator, size_t _length);
+};
+
 class PrintArgs
 {
   public:
@@ -97,32 +108,27 @@ class PrintArgs
 
     floatt zrr = 0; ///< zero round range any number which fullfils condition |number| <= zrr, will be print as zero
     bool repeats = false; ///< if true the same number will be repeatedly printed, otherwise will be used pattern <repeats x times>
-    std::string sectionSeparator = "|\n";
-    size_t sectionLength = std::numeric_limits<size_t>::max();
 
-    PrintArgs ()
-    {}
+    Section section;
 
-    PrintArgs (const std::string& _pretext, const std::string& _posttext, floatt _zrr, bool _repeats, const std::string& _sectionSeparator, size_t _sectionLength):
-      pretext(_pretext), posttext(_posttext), zrr(_zrr), repeats(_repeats), sectionSeparator(_sectionSeparator), sectionLength(_sectionLength)
-    {}
+    std::string postRe = " + ";
+    std::string preIm = "i * ";
 
-    PrintArgs (floatt _zrr, bool _repeats):
-      zrr(_zrr), repeats(_repeats)
-    {}
+    PrintArgs ();
 
-    PrintArgs (floatt _zrr, bool _repeats, const std::string& _sectionSeparator, size_t _sectionLength):
-      zrr(_zrr), repeats(_repeats), sectionSeparator(_sectionSeparator), sectionLength(_sectionLength)
-    {}
+    PrintArgs (const std::string& _pretext, const std::string& _posttext, floatt _zrr, bool _repeats, const std::string& _sectionSeparator, size_t _sectionLength);
 
-    PrintArgs (const std::string& _pretext, const std::string& _posttext) : pretext(_pretext), posttext(_posttext)
-    {}
+    PrintArgs (floatt _zrr, bool _repeats);
 
-    PrintArgs (const std::string& _pretext) : pretext(_pretext)
-    {}
+    PrintArgs (floatt _zrr, bool _repeats, const std::string& _sectionSeparator, size_t _sectionLength);
 
-    PrintArgs (const char* _pretext) : pretext(_pretext)
-    {}
+    PrintArgs (const std::string& _pretext, const std::string& _posttext);
+
+    PrintArgs (const std::string& _pretext);
+
+    PrintArgs (const char* _pretext);
+
+    void setReImSeparator (const std::string& _postRe, const std::string& _preIm);
 };
 
 template <typename T>
@@ -130,7 +136,6 @@ void PrepareOccurencesList (OccurencesList<T>& occurencesList, T* array, uintt l
 {
   const T zrr = args.zrr;
   const bool repeats = args.repeats;
-  const size_t sectionLength = args.sectionLength;
 
   for (uintt fa = 0; fa < length; ++fa)
   {
