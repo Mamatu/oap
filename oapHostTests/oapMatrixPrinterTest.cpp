@@ -176,7 +176,7 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     std::string str;
     matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs("matrix = ", "", 0, false, "|", matrix->columns));
-    EXPECT_EQ (str, "matrix = [0, 1, 2, 3, 4|5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]");
+    EXPECT_EQ ("matrix = [0, 1, 2, 3, 4|5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]", str);
     printf("%s\n", str.c_str());
   }
   {
@@ -190,7 +190,7 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     std::string str;
     matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs("matrix = {", "}", 0, false, "|", matrix->columns));
-    EXPECT_EQ(str, "matrix = {[0, 1, 2, 3, 4|5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]}");
+    EXPECT_EQ ("matrix = {[0, 1, 2, 3, 4|5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]}", str);
     printf("%s\n", str.c_str());
   }
   {
@@ -203,7 +203,7 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     std::string str;
     matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "|", matrix->columns));
-    EXPECT_EQ(str, "[0, 1, 2, 3, 4|5, 6, 7, 8, 9]");
+    EXPECT_EQ("[0, 1, 2, 3, 4|5, 6, 7, 8, 9]", str);
     printf("%s\n", str.c_str());
   }
   {
@@ -216,7 +216,7 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     std::string str;
     matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "|", matrix->columns));
-    EXPECT_EQ(str, "i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]");
+    EXPECT_EQ("i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]", str);
     printf("%s\n", str.c_str());
   }
 }

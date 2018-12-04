@@ -112,7 +112,7 @@ class PrintArgs
     Section section;
 
     std::string postRe = " + ";
-    std::string preIm = " + i * ";
+    std::string preIm = "i * ";
 
     PrintArgs ();
 
