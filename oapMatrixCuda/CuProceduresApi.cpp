@@ -50,18 +50,8 @@ CUresult CuProceduresApi::execute(const char* functionName, uintt w, uintt h, vo
 
 CuProceduresApi::CuProceduresApi()
     : m_cuResult(CUDA_SUCCESS),
-      m_dmagnitudeOutputBuffer(CuProceduresApi::CUDA),
-      m_dmagnitudeBuffer(CuProceduresApi::CUDA),
-      m_hmagnitudeOutputBuffer(CuProceduresApi::HOST),
-      m_dcompareOutputBuffer(CuProceduresApi::CUDA),
-      m_dcompareBuffer(CuProceduresApi::CUDA),
-      m_hcompareOutputBuffer(CuProceduresApi::HOST),
-      m_magnitudeBuffer(CuProceduresApi::CUDA),
-      m_disuppertriangularOutputBuffer(CuProceduresApi::CUDA),
-      m_hisuppertriangularOutputBuffer(CuProceduresApi::HOST),
-      m_dqrSums(CuProceduresApi::CUDA),
-      m_dqrBuffer(CuProceduresApi::CUDA),
-      m_compareOperationOutput(0) {
+      m_compareOperationOutput(0)
+{
   init();
   m_magnitudeOutput = CudaUtils::AllocDeviceObj<floatt>(0);
   m_doutputIsTriangular = CudaUtils::AllocDeviceObj<int>(0);
