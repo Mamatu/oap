@@ -23,6 +23,9 @@
 #include <map>
 #include <sstream>
 
+#include "CudaBuffer.h"
+#include "HostBuffer.h"
+
 #include "Matrix.h"
 #include "MatrixEx.h"
 #include "CudaUtils.h"
@@ -218,79 +221,18 @@ private:
   void check_phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
 private:
 
-  template <typename T>
-  class Buffer {
-   public:
-    T* m_buffer;
-    uintt m_length;
-
-    Buffer(oap::CuProceduresApi::Type type);
-    ~Buffer();
-
-    void realloc(uintt length);
-    size_t GetSizeOfType() const { return sizeof(T); }
-
-   private:
-    Type m_type;
-    void free(T* buffer);
-    T* alloc(uintt length);
-  };
-
-  Buffer<floatt> m_dcompareOutputBuffer;
-  Buffer<floatt> m_dcompareBuffer;
-  Buffer<floatt> m_hcompareOutputBuffer;
-  Buffer<floatt> m_magnitudeBuffer;
-  Buffer<floatt> m_dmagnitudeOutputBuffer;
-  Buffer<floatt> m_dmagnitudeBuffer;
-  Buffer<floatt> m_hmagnitudeOutputBuffer;
-  Buffer<int> m_disuppertriangularOutputBuffer;
-  Buffer<int> m_hisuppertriangularOutputBuffer;
-  Buffer<floatt> m_dqrSums;
-  Buffer<floatt> m_dqrBuffer;
+  oap::TBuffer<floatt, oap::Type::CUDA> m_dcompareOutputBuffer;
+  oap::TBuffer<floatt, oap::Type::CUDA> m_dcompareBuffer;
+  oap::TBuffer<floatt, oap::Type::HOST> m_hcompareOutputBuffer;
+  oap::TBuffer<floatt, oap::Type::CUDA> m_magnitudeBuffer;
+  oap::TBuffer<floatt, oap::Type::CUDA> m_dmagnitudeOutputBuffer;
+  oap::TBuffer<floatt, oap::Type::CUDA> m_dmagnitudeBuffer;
+  oap::TBuffer<floatt, oap::Type::HOST> m_hmagnitudeOutputBuffer;
+  oap::TBuffer<int, oap::Type::CUDA> m_disuppertriangularOutputBuffer;
+  oap::TBuffer<int, oap::Type::HOST> m_hisuppertriangularOutputBuffer;
+  oap::TBuffer<floatt, oap::Type::CUDA> m_dqrSums;
+  oap::TBuffer<floatt, oap::Type::CUDA> m_dqrBuffer;
 };
-
-template <typename T>
-CuProceduresApi::Buffer<T>::Buffer(oap::CuProceduresApi::Type type)
-    : m_buffer(NULL), m_length(0), m_type(type) {
-  // not implemented
-}
-
-template <typename T>
-CuProceduresApi::Buffer<T>::~Buffer() {
-  if (m_buffer != NULL && m_type == CUDA) {
-    free(m_buffer);
-  }
-}
-
-template <typename T>
-void CuProceduresApi::Buffer<T>::realloc(uintt length) {
-  if (length > m_length) {
-    if (m_buffer != NULL) {
-      free(m_buffer);
-    }
-    m_buffer = alloc(length);
-    m_length = length;
-  }
-}
-
-template <typename T>
-void CuProceduresApi::Buffer<T>::free(T* buffer) {
-  if (m_type == oap::CuProceduresApi::CUDA) {
-    CudaUtils::FreeDeviceMem(m_buffer);
-  } else if (m_type == oap::CuProceduresApi::HOST) {
-    delete[] buffer;
-  }
-}
-
-template <typename T>
-T* CuProceduresApi::Buffer<T>::alloc(uintt length) {
-  switch (m_type) {
-    case oap::CuProceduresApi::CUDA:
-      return static_cast<T*>(CudaUtils::AllocDeviceMem(length * sizeof(T)));
-    case oap::CuProceduresApi::HOST:
-      return new T[length];
-  };
-}
 
 inline void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
