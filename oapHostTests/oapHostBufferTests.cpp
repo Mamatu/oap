@@ -26,12 +26,12 @@ template<typename T>
 class TBuffer : public utils::Buffer<T, utils::HostMemUtl>
 {
   public:
-  
-  template<typename Arg>
-  uintt convertSize() const
-  {
-    return utils::Buffer<T, utils::HostMemUtl>::template convertSize<Arg>();
-  }
+
+    template<typename Arg>
+    uintt convertSize() const
+    {
+      return utils::Buffer<T, utils::HostMemUtl>::template convertSize<Arg>();
+    }
 };
 
 class OapHostBufferTests : public testing::Test {
