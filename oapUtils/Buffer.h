@@ -60,7 +60,7 @@ class HostMemUtl
     }
 };
 
-template <typename T, template<typename> typename MemUtl>
+template <typename T, template<typename> class MemUtl>
 class Buffer
 {
   public:
@@ -243,18 +243,18 @@ class ByteBuffer : public Buffer<char, HostMemUtl>
     {}
 };
 
-template <typename T, template<typename> typename MemUtl>
+template <typename T, template<typename> class MemUtl>
 Buffer<T, MemUtl>::Buffer() : m_buffer(nullptr), m_length(0), m_idx(0)
 {
 }
 
-template <typename T, template<typename> typename MemUtl>
+template <typename T, template<typename> class MemUtl>
 Buffer<T, MemUtl>::~Buffer()
 {
   freeBuffer ();
 }
 
-template <typename T, template<typename> typename MemUtl>
+template <typename T, template<typename> class MemUtl>
 void Buffer<T, MemUtl>::realloc (uintt newLength)
 {
   if (m_length == 0)
@@ -277,7 +277,7 @@ void Buffer<T, MemUtl>::realloc (uintt newLength)
   }
 }
 
-template <typename T, template<typename> typename MemUtl>
+template <typename T, template<typename> class MemUtl>
 void Buffer<T, MemUtl>::free (T* buffer)
 {
   if (buffer != nullptr)
@@ -286,7 +286,7 @@ void Buffer<T, MemUtl>::free (T* buffer)
   }
 }
 
-template <typename T, template<typename> typename MemUtl>
+template <typename T, template<typename> class MemUtl>
 void Buffer<T, MemUtl>::allocBuffer (uintt length)
 {
   if (m_buffer != nullptr)
@@ -298,7 +298,7 @@ void Buffer<T, MemUtl>::allocBuffer (uintt length)
   m_length = length;
 }
 
-template <typename T, template<typename> typename MemUtl>
+template <typename T, template<typename> class MemUtl>
 void Buffer<T, MemUtl>::freeBuffer ()
 {
   free (m_buffer);
@@ -306,7 +306,7 @@ void Buffer<T, MemUtl>::freeBuffer ()
   m_idx = 0;
 }
 
-template <typename T, template<typename> typename MemUtl>
+template <typename T, template<typename> class MemUtl>
 T* Buffer<T, MemUtl>::alloc (uintt length)
 {
   return m_memUtl.alloc (length);
