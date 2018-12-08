@@ -64,6 +64,26 @@ TEST_F(OapHostBufferTests, SimpleBufferTest)
   }
 }
 
+TEST_F(OapHostBufferTests, ReallocTest)
+{
+  oap::host::HostBuffer<int> buffer;
+
+  buffer.realloc (100);
+
+  uintt index = buffer.push_back (2);
+  uintt index1 = buffer.push_back (20);
+  uintt index2 = buffer.push_back (25);
+
+  EXPECT_EQ(2, buffer.get (index));
+  EXPECT_EQ(20, buffer.get (index1));
+  EXPECT_EQ(25, buffer.get (index2));
+
+  buffer.realloc (200);
+  EXPECT_EQ(2, buffer.get (index));
+  EXPECT_EQ(20, buffer.get (index1));
+  EXPECT_EQ(25, buffer.get (index2));
+}
+
 TEST_F(OapHostBufferTests, ConvertSizeTest)
 {
   TBuffer<int> tbuffer;
