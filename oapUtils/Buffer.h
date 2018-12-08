@@ -24,6 +24,8 @@
 #include <iterator>
 
 #include <cstring>
+#include <sstream>
+#include <memory>
 #include <Math.h>
 
 namespace utils
@@ -33,28 +35,29 @@ template<typename T>
 class HostMemUtl
 {
   public:
-    T* alloc (uintt length)
+    T* alloc (uintt length) const
     {
       return new T[length];
     }
 
-    void free (T* buffer)
+    void free (T* buffer) const
     {
       delete[] buffer;
     }
 
-    void copyBuffer (T* dst, T* src, uintt length)
+    template<typename Arg>
+    void set (T* buffer, uintt idx, const Arg* src, uintt length) const
     {
-      memcpy (dst, src, sizeof(T) * length);
+      memcpy (&buffer[idx], src, sizeof(T) * length);
     }
 
     template<typename Arg>
-    void copy (T* dst, const Arg* src, uintt length)
+    void get (Arg* dst, uintt length, const T* buffer, uintt idx) const
     {
-      memcpy (dst, src, sizeof(T) * length);
+      memcpy (dst, &buffer[idx], sizeof(T) * length);
     }
 
-    void copy (T* dst, const T* src, uintt length)
+    void copyBuffer (T* dst, const T* src, uintt length) const
     {
       memcpy (dst, src, sizeof(T) * length);
     }
@@ -82,80 +85,51 @@ class Buffer
       return m_buffer;
     }
 
-    size_t GetSizeOfType() const
+    uintt getSizeOfBuffer() const
+    {
+      return sizeof (T) * m_length;
+    }
+
+    uintt getRealSizeOfBuffer() const
+    {
+      return sizeof (T) * m_realLength;
+    }
+
+    size_t getSizeOfType() const
     { 
       return sizeof(T);
     }
 
     uintt getLength() const
     {
-      return m_idx;
+      return m_length;
     }
-
-    /*
-    uintt push_back (const T& value)
-    {
-      uintt size = convertSize<T>();
-
-      tryRealloc (size);
-      m_memUtl.copy (&m_buffer[m_idx], &value, size);
-
-      return increaseIdx (size);
-    }
-
-    uintt push_back (T&& value)
-    {
-      uintt size = convertSize<T>();
-
-      tryRealloc (size);
-      m_memUtl.copy (&m_buffer[m_idx], &value, size);
-
-      return increaseIdx (size);
-    }*/
 
     template<typename Arg>
     uintt push_back (const Arg& value)
     {
-      uintt size = convertSize<Arg>();
+      uintt size = getArgLength<Arg>();
 
       tryRealloc (size);
 
       if (std::is_same<Arg, T>::value)
       {
-        m_memUtl.copy (&m_buffer[m_idx], &value, size);
+        m_memUtl.set (m_buffer, m_length, &value, size);
       }
       else
       {
-        m_memUtl.template copy<Arg> (&m_buffer[m_idx], &value, size);
+        m_memUtl.template set<Arg> (m_buffer, m_length, &value, size);
       }
 
       return increaseIdx (size);
     }
 
-    /*
-    template<typename Arg>
-    uintt push_back (Arg&& value)
-    {
-      uintt size = convertSize<Arg>();
-
-      tryRealloc (size);
-
-      if (std::is_same<Arg, T>::value)
-      {
-        m_memUtl.copy (&m_buffer[m_idx], &value, size);
-      }
-      else
-      {
-        m_memUtl.template copy<Arg> (&m_buffer[m_idx], &value, size);
-      }
-
-      return increaseIdx (size);
-    }*/
-
     T get (uintt idx) const
     {
       checkIdx (idx);
-      T value = m_buffer[idx];
+
+      T value;
+      m_memUtl.get (&value, 1, m_buffer, idx);
       return value;
     }
 
@@ -165,26 +139,77 @@ class Buffer
       checkIdx (idx);
       checkLength<Arg> (idx);
 
-      Arg* ptr = reinterpret_cast<Arg*>(&m_buffer[idx]);
-      Arg value = *ptr;
+      Arg value;
+      m_memUtl.template get<Arg> (&value, getArgLength<Arg>(), m_buffer, idx);
 
       return value;
+    }
+
+    void write (const std::string& path)
+    {
+      std::unique_ptr<FILE, decltype(&fclose)> f (fopen (path.c_str(), "wb"), fclose);
+
+      if (!f)
+      {
+        std::stringstream sstr;
+        sstr << "Cannot open " << path << " ";
+        throw std::runtime_error (sstr.str());
+      }
+
+      size_t sizeOfT = getSizeOfType ();
+      size_t length = getLength ();
+
+      std::unique_ptr<T[]> hostBuffer (new T[length]);
+      m_memUtl.get (hostBuffer.get(), length, m_buffer, 0);
+
+
+      fwrite (&sizeOfT, sizeof (size_t), 1, f.get());
+      fwrite (&length, sizeof(size_t), 1, f.get());
+      fwrite (hostBuffer.get(), getSizeOfBuffer (), 1, f.get());
+    }
+
+    void read (const std::string& path)
+    {
+      std::unique_ptr<FILE, decltype(&fclose)> f (fopen (path.c_str(), "rb"), fclose);
+    
+      if (!f)
+      {
+        throw std::runtime_error ("File not found");
+      }
+
+      size_t sizeOfT = 0;
+      size_t length = 0;
+
+      fread (&sizeOfT, sizeof(size_t), 1, f.get());
+
+      if (sizeOfT != getSizeOfType ())
+      {
+        throw std::runtime_error ("Loaded size of type is not equal with current class");
+      }
+
+      fread (&length, sizeof(size_t), 1, f.get());
+  
+      std::unique_ptr<T[]> hostBuffer (new T[length]);
+      fread (hostBuffer.get (), getSizeOfBuffer (), 1, f.get());
+
+      realloc (length);
+      m_memUtl.set (m_buffer, 0, hostBuffer.get (), length);
     }
 
   protected:
 
     void tryRealloc (uintt value)
     {
-      if (m_idx + value >= m_length)
+      if (m_length + value >= m_realLength)
       {
-        realloc (m_idx + value);
+        realloc (m_length + value);
       }
     }
 
     uintt increaseIdx (uintt value)
     {
-      uintt idx = m_idx;
-      m_idx += value;
+      uintt idx = m_length;
+      m_length += value;
       return idx;
     }
 
@@ -209,7 +234,7 @@ class Buffer
     }
 
     template<typename Arg>
-    uintt convertSize() const
+    uintt getArgLength() const
     {
       uintt size = sizeof (Arg) / sizeof(T);
       if (sizeof (Arg) % sizeof(T) > 0)
@@ -221,8 +246,8 @@ class Buffer
 
   private:
 
-    uintt m_length;
-    uintt m_idx;
+    uintt m_realLength; ///< Real number of allocated elements in buffer
+    uintt m_length; ///< Number of used elements in buffer
 
     void free (T* buffer);
     T* alloc (uintt length);
@@ -244,7 +269,7 @@ class ByteBuffer : public Buffer<char, HostMemUtl>
 };
 
 template <typename T, template<typename> class MemUtl>
-Buffer<T, MemUtl>::Buffer() : m_buffer(nullptr), m_length(0), m_idx(0)
+Buffer<T, MemUtl>::Buffer() : m_buffer(nullptr), m_realLength(0), m_length(0)
 {
 }
 
@@ -257,19 +282,19 @@ Buffer<T, MemUtl>::~Buffer()
 template <typename T, template<typename> class MemUtl>
 void Buffer<T, MemUtl>::realloc (uintt newLength)
 {
-  if (m_length == 0)
+  if (m_realLength == 0)
   {
     allocBuffer (newLength);
     return;
   }
 
-  if (newLength > m_length)
+  if (newLength > m_realLength)
   {
     T* buffer = m_buffer;
-    uintt length = m_length;
+    uintt length = m_realLength;
 
     m_buffer = alloc (newLength);
-    m_length = newLength;
+    m_realLength = newLength;
 
     m_memUtl.copyBuffer (m_buffer, buffer, length);
 
@@ -295,15 +320,15 @@ void Buffer<T, MemUtl>::allocBuffer (uintt length)
   }
 
   m_buffer = alloc(length);
-  m_length = length;
+  m_realLength = length;
 }
 
 template <typename T, template<typename> class MemUtl>
 void Buffer<T, MemUtl>::freeBuffer ()
 {
   free (m_buffer);
+  m_realLength = 0;
   m_length = 0;
-  m_idx = 0;
 }
 
 template <typename T, template<typename> class MemUtl>
