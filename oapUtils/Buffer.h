@@ -92,47 +92,6 @@ class Buffer
       return m_idx;
     }
 
-    /*
-    uintt push_back (const T& value)
-    {
-      uintt size = convertSize<T>();
-
-      tryRealloc (size);
-      m_memUtl.copy (&m_buffer[m_idx], &value, size);
-
-      return increaseIdx (size);
-    }
-
-    uintt push_back (T&& value)
-    {
-      uintt size = convertSize<T>();
-
-      tryRealloc (size);
-      m_memUtl.copy (&m_buffer[m_idx], &value, size);
-
-      return increaseIdx (size);
-    }*/
-
-    template<typename Arg>
-    uintt push_back (const Arg& value)
-    {
-      uintt size = convertSize<Arg>();
-
-      tryRealloc (size);
-
-      if (std::is_same<Arg, T>::value)
-      {
-        m_memUtl.copy (&m_buffer[m_idx], &value, size);
-      }
-      else
-      {
-        m_memUtl.template copy<Arg> (&m_buffer[m_idx], &value, size);
-      }
-
-      return increaseIdx (size);
-    }
-
-    /*
     template<typename Arg>
     uintt push_back (Arg&& value)
     {
@@ -150,7 +109,7 @@ class Buffer
       }
 
       return increaseIdx (size);
-    }*/
+    }
 
     T get (uintt idx) const
     {
