@@ -45,38 +45,21 @@ class HostMemUtl
       delete[] buffer;
     }
 
-    void copyBuffer (T* dst, T* src, uintt length) const
+    template<typename Arg>
+    void set (T* buffer, uintt idx, const Arg* src, uintt length) const
     {
-      memcpy (dst, src, sizeof(T) * length);
+      memcpy (&buffer[idx], src, sizeof(T) * length);
     }
 
     template<typename Arg>
-    void copy (T* dst, const Arg* src, uintt length) const
+    void get (Arg* dst, uintt length, const T* buffer, uintt idx) const
+    {
+      memcpy (dst, &buffer[idx], sizeof(T) * length);
+    }
+
+    void copyBuffer (T* dst, const T* src, uintt length) const
     {
       memcpy (dst, src, sizeof(T) * length);
-    }
-
-    void copyFromLoad (T* dst, const T* src, uintt length) const
-    {
-      memcpy (dst, src, sizeof (T) * length);
-    }
-
-    void copyToWrite (T* dst, const T* src, uintt length) const
-    {
-      memcpy (dst, src, sizeof(T) * length);
-    }
-
-    T get (T* buffer, uintt idx) const
-    {
-      return buffer [idx];
-    }
-
-    template<typename Arg>
-    Arg get (T* buffer, uintt idx) const
-    {
-      T* valuePtr = &buffer[idx];
-      Arg* arg = reinterpret_cast<Arg*>(valuePtr);
-      return *arg;
     }
 };
 
@@ -125,17 +108,17 @@ class Buffer
     template<typename Arg>
     uintt push_back (const Arg& value)
     {
-      uintt size = convertSize<Arg>();
+      uintt size = getArgLength<Arg>();
 
       tryRealloc (size);
 
       if (std::is_same<Arg, T>::value)
       {
-        m_memUtl.copy (&m_buffer[m_length], &value, size);
+        m_memUtl.set (m_buffer, m_length, &value, size);
       }
       else
       {
-        m_memUtl.template copy<Arg> (&m_buffer[m_length], &value, size);
+        m_memUtl.template set<Arg> (m_buffer, m_length, &value, size);
       }
 
       return increaseIdx (size);
@@ -144,7 +127,9 @@ class Buffer
     T get (uintt idx) const
     {
       checkIdx (idx);
-      T value = m_memUtl.get (m_buffer, idx);
+
+      T value;
+      m_memUtl.get (&value, 1, m_buffer, idx);
       return value;
     }
 
@@ -154,7 +139,8 @@ class Buffer
       checkIdx (idx);
       checkLength<Arg> (idx);
 
-      Arg value = m_memUtl.template get<Arg> (m_buffer, idx);
+      Arg value;
+      m_memUtl.template get<Arg> (&value, getArgLength<Arg>(), m_buffer, idx);
 
       return value;
     }
@@ -174,7 +160,7 @@ class Buffer
       size_t length = getLength ();
 
       std::unique_ptr<T[]> hostBuffer (new T[length]);
-      m_memUtl.copyToWrite (hostBuffer.get(), m_buffer, length);
+      m_memUtl.get (hostBuffer.get(), length, m_buffer, 0);
 
 
       fwrite (&sizeOfT, sizeof (size_t), 1, f.get());
@@ -207,7 +193,7 @@ class Buffer
       fread (hostBuffer.get (), getSizeOfBuffer (), 1, f.get());
 
       realloc (length);
-      m_memUtl.copyFromLoad (m_buffer, hostBuffer.get (), length);
+      m_memUtl.set (m_buffer, 0, hostBuffer.get (), length);
     }
 
   protected:
@@ -248,7 +234,7 @@ class Buffer
     }
 
     template<typename Arg>
-    uintt convertSize() const
+    uintt getArgLength() const
     {
       uintt size = sizeof (Arg) / sizeof(T);
       if (sizeof (Arg) % sizeof(T) > 0)

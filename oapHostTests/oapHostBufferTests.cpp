@@ -29,9 +29,9 @@ class TBuffer : public utils::Buffer<T, utils::HostMemUtl>
   public:
 
     template<typename Arg>
-    uintt convertSize() const
+    uintt getArgLength() const
     {
-      return utils::Buffer<T, utils::HostMemUtl>::template convertSize<Arg>();
+      return utils::Buffer<T, utils::HostMemUtl>::template getArgLength<Arg>();
     }
 };
 
@@ -90,9 +90,9 @@ TEST_F(OapHostBufferTests, ConvertSizeTest)
 {
   TBuffer<int> tbuffer;
   TBuffer<char> tbuffer1;
-  EXPECT_EQ(sizeof(double) / sizeof(int), tbuffer.template convertSize<double>());
-  EXPECT_EQ(sizeof(double) / sizeof(char), tbuffer1.template convertSize<double>());
-  EXPECT_EQ(sizeof(int) / sizeof(char), tbuffer1.template convertSize<int>());
+  EXPECT_EQ(sizeof(double) / sizeof(int), tbuffer.template getArgLength<double>());
+  EXPECT_EQ(sizeof(double) / sizeof(char), tbuffer1.template getArgLength<double>());
+  EXPECT_EQ(sizeof(int) / sizeof(char), tbuffer1.template getArgLength<int>());
 }
 
 TEST_F(OapHostBufferTests, ConvertBufferTest)

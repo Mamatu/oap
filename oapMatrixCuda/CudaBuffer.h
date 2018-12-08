@@ -46,37 +46,15 @@ class HtoDMemUtl
     }
 
     template<typename Arg>
-    void copy (T* dst, const Arg* src, uintt length) const
+    void set (T* buffer, uintt idx, const Arg* src, uintt length) const
     {
-      CudaUtils::CopyHostToDevice (dst, src, sizeof(T) * length);
-    }
-
-    void copyFromLoad (T* dst, const T* src, uintt length) const
-    {
-      CudaUtils::CopyHostToDevice (dst, src, sizeof (T) * length);
-    }
-
-    void copyToWrite (T* dst, const T* src, uintt length) const
-    {
-      CudaUtils::CopyDeviceToHost (dst, src, sizeof (T) * length);
-    }
-
-    T get (T* buffer, uintt idx) const
-    {
-      T value;
-      CudaUtils::CopyDeviceToHost (&value, &buffer[idx], sizeof(T));
-      return value;
+      CudaUtils::CopyHostToDevice (buffer + idx, src, sizeof (T) * length);
     }
 
     template<typename Arg>
-    Arg get (T* buffer, uintt idx) const
+    void get (Arg* dst, uintt length, const T* buffer, uintt idx) const
     {
-      Arg value;
-
-      T* entry = buffer + idx;
-      CudaUtils::CopyDeviceToHost (&value, reinterpret_cast<Arg*>(entry), sizeof(Arg));
-
-      return value;
+      CudaUtils::CopyDeviceToHost (dst, buffer + idx, sizeof (T) * length);
     }
 };
 
