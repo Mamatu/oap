@@ -21,34 +21,41 @@
 #include "gmock/gmock.h"
 
 #include "Config.h"
-#include "HostBuffer.h"
+#include "CudaBuffer.h"
+#include "KernelExecutor.h"
 
 template<typename T>
-class TBuffer : public utils::Buffer<T, utils::HostMemUtl>
+class TBuffer : public utils::Buffer<T, oap::cuda::HtoDMemUtl>
 {
   public:
 
     template<typename Arg>
     uintt convertSize() const
     {
-      return utils::Buffer<T, utils::HostMemUtl>::template convertSize<Arg>();
+      return utils::Buffer<T, oap::cuda::HtoDMemUtl>::template convertSize<Arg>();
     }
 };
 
-class OapHostBufferTests : public testing::Test {
+class OapCudaBufferTests : public testing::Test {
  public:
-  OapHostBufferTests() {}
+  OapCudaBufferTests() {}
 
-  virtual ~OapHostBufferTests() {}
+  virtual ~OapCudaBufferTests() {}
 
-  virtual void SetUp() {}
+  virtual void SetUp()
+  {
+    oap::cuda::Context::Instance().create();
+  }
 
-  virtual void TearDown() {}
+  virtual void TearDown()
+  {
+    oap::cuda::Context::Instance().destroy();
+  }
 };
 
-TEST_F(OapHostBufferTests, SimpleBufferTest)
+TEST_F(OapCudaBufferTests, SimpleBufferTest)
 {
-  oap::host::HostBuffer<int> buffer;
+  oap::cuda::HtoDBuffer<int> buffer;
   for (int value = 0; value < 10000; ++value)
   {
     buffer.push_back (value);
@@ -65,9 +72,9 @@ TEST_F(OapHostBufferTests, SimpleBufferTest)
   }
 }
 
-TEST_F(OapHostBufferTests, ReallocTest)
+TEST_F(OapCudaBufferTests, ReallocTest)
 {
-  oap::host::HostBuffer<int> buffer;
+  oap::cuda::HtoDBuffer<int> buffer;
 
   buffer.realloc (100);
 
@@ -86,7 +93,7 @@ TEST_F(OapHostBufferTests, ReallocTest)
   EXPECT_THROW (buffer.get (index2 + 10), std::runtime_error);
 }
 
-TEST_F(OapHostBufferTests, ConvertSizeTest)
+TEST_F(OapCudaBufferTests, ConvertSizeTest)
 {
   TBuffer<int> tbuffer;
   TBuffer<char> tbuffer1;
@@ -95,9 +102,9 @@ TEST_F(OapHostBufferTests, ConvertSizeTest)
   EXPECT_EQ(sizeof(int) / sizeof(char), tbuffer1.template convertSize<int>());
 }
 
-TEST_F(OapHostBufferTests, ConvertBufferTest)
+TEST_F(OapCudaBufferTests, ConvertBufferTest)
 {
-  oap::host::HostBuffer<int> buffer;
+  oap::cuda::HtoDBuffer<int> buffer;
   std::vector<uintt> indices;
 
   for (int value = 0; value < 10000; ++value)
@@ -126,11 +133,11 @@ TEST_F(OapHostBufferTests, ConvertBufferTest)
   }
 }
 
-TEST_F(OapHostBufferTests, WriteReadBufferTest)
+TEST_F(OapCudaBufferTests, WriteReadBufferTest)
 {
-  oap::host::HostBuffer<floatt> buffer;
-  std::string test_path = utils::Config::getPathInTmp("host_tests");
-  std::string file = test_path + "OapHostBufferTests_WriteReadBufferTest.bin";
+  oap::cuda::HtoDBuffer<floatt> buffer;
+  std::string test_path = utils::Config::getPathInTmp("device_tests");
+  std::string file = test_path + "OapCudaBufferTests_WriteReadBufferTest.bin";
 
   for (int idx = 0; idx < 10000; ++idx)
   {
@@ -140,7 +147,7 @@ TEST_F(OapHostBufferTests, WriteReadBufferTest)
 
   buffer.write (file);
 
-  oap::host::HostBuffer<floatt> buffer1;
+  oap::cuda::HtoDBuffer<floatt> buffer1;
   buffer1.read (file);
 
   for (int idx = 0; idx < 10000; ++idx)

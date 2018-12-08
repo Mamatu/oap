@@ -488,7 +488,7 @@ floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix*
 
   CudaUtils::CopyDeviceToHost(
       m_hcompareOutputBuffer.m_buffer, m_dcompareOutputBuffer.m_buffer,
-      outputLength * m_hcompareOutputBuffer.GetSizeOfType());
+      outputLength * m_hcompareOutputBuffer.getSizeOfType());
 
   floatt outcome = 0;
   for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {
@@ -533,7 +533,7 @@ floatt CuProceduresApi::magnitude2Procedure_GetOutput(uint blocks[2], uintt outp
 
   CudaUtils::CopyDeviceToHost(
       m_hmagnitudeOutputBuffer.m_buffer, m_dmagnitudeOutputBuffer.m_buffer,
-      outputLength * m_dmagnitudeOutputBuffer.GetSizeOfType());
+      outputLength * m_dmagnitudeOutputBuffer.getSizeOfType());
 
   floatt outcome = 0;
   for (uint fa = 0; fa < blocks[0] * blocks[1]; ++fa) {

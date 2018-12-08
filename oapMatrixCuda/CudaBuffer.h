@@ -29,25 +29,54 @@ template<typename T>
 class HtoDMemUtl
 {
   public:
-    T* alloc (uintt length)
+    T* alloc (uintt length) const
     {
       void* ptr = CudaUtils::AllocDeviceMem (sizeof(T) * length);
       return static_cast<T*>(ptr);
     }
 
-    void free (T* buffer)
+    void free (T* buffer) const
     {
       CudaUtils::FreeDeviceMem (buffer);
     }
 
-    void copyBuffer (T* dst, T* src, uintt length)
+    void copyBuffer (T* dst, const T* src, uintt length) const
     {
       CudaUtils::CopyDeviceToDevice (dst, src, sizeof(T) * length);
     }
 
-    void copy (T* dst, T* src, uintt length)
+    template<typename Arg>
+    void copy (T* dst, const Arg* src, uintt length) const
     {
       CudaUtils::CopyHostToDevice (dst, src, sizeof(T) * length);
+    }
+
+    void copyFromLoad (T* dst, const T* src, uintt length) const
+    {
+      CudaUtils::CopyHostToDevice (dst, src, sizeof (T) * length);
+    }
+
+    void copyToWrite (T* dst, const T* src, uintt length) const
+    {
+      CudaUtils::CopyDeviceToHost (dst, src, sizeof (T) * length);
+    }
+
+    T get (T* buffer, uintt idx) const
+    {
+      T value;
+      CudaUtils::CopyDeviceToHost (&value, &buffer[idx], sizeof(T));
+      return value;
+    }
+
+    template<typename Arg>
+    Arg get (T* buffer, uintt idx) const
+    {
+      Arg value;
+
+      T* entry = buffer + idx;
+      CudaUtils::CopyDeviceToHost (&value, reinterpret_cast<Arg*>(entry), sizeof(Arg));
+
+      return value;
     }
 };
 
@@ -59,17 +88,6 @@ using HtoDBuffer = utils::Buffer<T, HtoDMemUtl>;
 enum Type
 {
   HOST, CUDA
-};
-
-template<typename, Type type>
-class Buffer
-{
-  public:
-    
-    Buffer()
-    {
-    
-    }
 };
 
 template<typename T, Type type>
