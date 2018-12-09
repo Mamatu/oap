@@ -144,59 +144,90 @@ void CuHArnoldi::setCalcTraingularHType(ArnUtils::TriangularHProcedureType type)
 }
 
 
-void CuHArnoldi::execute(uint hdim, uint m_wantedCount,
-                         const math::MatrixInfo& matrixInfo,
-                         ArnUtils::Type matrixType)
+void CuHArnoldi::execute(uint hdim, uint m_wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType)
+{
+  begin (hdim, m_wantedCount, matrixInfo, matrixType);
+
+  bool status = true;
+
+  for (uint fax = 0; fax == 0 || status == true; ++fax) {
+    status = step ();
+  }
+
+  end ();
+}
+
+void CuHArnoldi::begin (uint hdim, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType)
 {
   traceFunction();
-  debugAssert(m_wantedCount != 0);
+
+  debugAssert(wantedCount != 0);
+  m_wantedCount = wantedCount;
+
   debugAssert(m_outputType != ArnUtils::UNDEFINED);
+
   debugAssert(hdim >= m_wantedCount);
 
   setCalculateTriangularHPtr(hdim);
 
   alloc(matrixInfo, hdim);
 
-  m_cuMatrix.setIdentity(m_QT2);
+  m_cuMatrix.setIdentity (m_QT2);
 
   m_matrixInfo = matrixInfo;
+
   initVvector();
-  bool status = false;
 
   traceFunction();
-  uint startIndex = 0;
 
   executeInit();
 
-  for (uint fax = 0; fax == 0 || status == true; ++fax) {
-    traceFunction();
+  m_beginInvoked = true;
+}
 
-    status = executeArnoldiFactorization(startIndex, m_rho);
+bool CuHArnoldi::step ()
+{
+  debugAssert (m_beginInvoked);
 
-    m_unwanted.clear();
-    m_wanted.clear();
+  bool status = false;
 
-    calculateTriangularHEigens(m_H, m_matrixInfo);
-    sortPWorstEigens(m_wantedCount);
+  traceFunction();
 
-    m_cuMatrix.setIdentity(m_QJ);
-    m_cuMatrix.setIdentity(m_Q);
+  status = executeArnoldiFactorization(m_startIndex, m_rho);
 
-    uint m_unwantedCount = hdim - m_wantedCount; // m_unwanted - p, m_wanted - k
+  m_unwanted.clear();
+  m_wanted.clear();
 
-    executeShiftedQRIteration(m_unwantedCount);
+  calculateTriangularHEigens(m_H, m_matrixInfo);
+  sortPWorstEigens (m_wantedCount);
 
-    executefVHplusfq(m_wantedCount);
+  m_cuMatrix.setIdentity(m_QJ);
+  m_cuMatrix.setIdentity(m_Q);
 
-    calculateTriangularHEigens(m_H, m_matrixInfo);
-    sortPWorstEigens(m_wantedCount);
+  uint m_unwantedCount = m_k - m_wantedCount; // m_unwanted - p, m_wanted - k
 
-    status = executeChecking(m_wantedCount);
+  executeShiftedQRIteration(m_unwantedCount);
 
-    startIndex = m_wantedCount - 1;
-  }
+  executefVHplusfq (m_wantedCount);
 
-  extractOutput(m_V);
+  calculateTriangularHEigens(m_H, m_matrixInfo);
+  sortPWorstEigens (m_wantedCount);
+
+  status = executeChecking (m_wantedCount);
+
+  m_startIndex = m_wantedCount - 1;
+
+  m_stepInvoked = true;
+
+  return status;
+}
+
+void CuHArnoldi::end ()
+{
+  debugAssert (m_beginInvoked);
+  debugAssert (m_stepInvoked);
+
+  extractOutput (m_V);
 }
 
 void CuHArnoldi::extractOutput() {
