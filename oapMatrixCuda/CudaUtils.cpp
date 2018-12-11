@@ -17,11 +17,14 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
-#include <vector>
 #include <algorithm>
 #include <map>
+#include <string.h>
+#include <vector>
+
 #include "oapCudaMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
+
 #include "KernelExecutor.h"
 #include "MatrixPrinter.h"
 #include "MatrixUtils.h"
