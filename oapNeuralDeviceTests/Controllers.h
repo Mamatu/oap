@@ -55,4 +55,19 @@ class DerivativeController : public Network::IController
    virtual bool shouldContinue() override;
 };
 
+class StepController : public Network::IController
+{
+  size_t m_sstep;
+  size_t m_step = 0;
+  public:
+    StepController (size_t sstep);
+    virtual ~StepController ();
+
+    virtual bool shouldCalculateError(size_t step) override;
+
+   virtual void setSquareError (floatt sqe) override;
+
+   virtual bool shouldContinue() override;
+};
+
 #endif

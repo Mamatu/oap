@@ -49,3 +49,21 @@ bool DerivativeController::shouldContinue()
   return true;
 }
 
+StepController::StepController (size_t sstep) : m_sstep (sstep)
+{}
+
+StepController::~StepController () {}
+
+bool StepController::shouldCalculateError (size_t step)
+{
+  m_step = step;
+  return false;
+}
+
+void StepController::setSquareError (floatt sqe) {}
+
+bool StepController::shouldContinue()
+{
+  return (m_step < m_sstep);
+}
+
