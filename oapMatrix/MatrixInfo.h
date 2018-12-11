@@ -53,6 +53,14 @@ class MatrixInfo
   uintt columns() const;
   uintt rows() const;
 
+  /**
+   * Length of array in c++ meaning (columns () * rows ())
+   */
+  uintt length() const
+  {
+    return columns() * rows();
+  }
+
   math::MatrixDim m_matrixDim;
   bool isRe;
   bool isIm;
