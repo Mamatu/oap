@@ -391,9 +391,19 @@ void CuProceduresApi::multiplyConstant(math::Matrix* output, math::Matrix* param
   m_cuResult = execute("CUDAKernel_MultiplyConstant", w, h, params, 0);
 }
 
-bool CuProceduresApi::compare(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance) {
+bool CuProceduresApi::compare (math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance) {
   if (matrix1 == matrix2) {
     return true;
+  }
+
+  if (matrix1 == nullptr && matrix2 != nullptr)
+  {
+    return false;
+  }
+
+  if (matrix2 == nullptr && matrix1 != nullptr)
+  {
+    return false;
   }
 
   const uintt w = CudaUtils::GetColumns(matrix1);
