@@ -21,6 +21,7 @@
 #define ARNOLDIPROCEDURESIMPL_H
 
 #include "ArnoldiProcedures.h"
+#include <thread>
 
 class CuHArnoldiDefault : public CuHArnoldi {
  public:
@@ -43,29 +44,26 @@ class CuHArnoldiDefault : public CuHArnoldi {
   math::Matrix* m_A;
 };
 
-class CuHArnoldiCallback : public CuHArnoldi {
- public:
-  CuHArnoldiCallback();
-  virtual ~CuHArnoldiCallback();
+class CuHArnoldiCallbackBase : public CuHArnoldi
+{
+  public:
+    CuHArnoldiCallbackBase();
+    virtual ~CuHArnoldiCallbackBase();
 
-  typedef void (*MultiplyFunc)(math::Matrix* m_w, math::Matrix* m_v,
-                               oap::CuProceduresApi& cuProceduresApi,
-                               void* userData,
-                               CuHArnoldi::MultiplicationType mt);
+    typedef void (*MultiplyFunc)(math::Matrix* m_w, math::Matrix* m_v,  oap::CuProceduresApi& cuProceduresApi,
+                                 void* userData, CuHArnoldi::MultiplicationType mt);
 
-  typedef bool (*CheckFunc) (floatt reevalue, floatt imevalue,
-                             math::Matrix* vector, uint index, uint max,
-                             void* userData);
+    typedef bool (*CheckFunc) (floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max, void* userData);
 
-  void setCallback(MultiplyFunc multiplyFunc, void* userData);
-  void setCheckCallback(CheckFunc multiplyFunc, void* userData);
+    void setCallback(MultiplyFunc multiplyFunc, void* userData);
+    void setCheckCallback(CheckFunc multiplyFunc, void* userData);
 
- protected:
-  virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
-                        oap::CuProceduresApi& cuProceduresApi,
-                        CuHArnoldi::MultiplicationType mt);
+  protected:
+    virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
+                          oap::CuProceduresApi& cuProceduresApi,
+                          CuHArnoldi::MultiplicationType mt);
 
-  virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max);
+    virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max);
 
  private:
   MultiplyFunc m_multiplyFunc;
@@ -73,4 +71,22 @@ class CuHArnoldiCallback : public CuHArnoldi {
   void* m_userData;
   void* m_checkUserData;
 };
+
+class CuHArnoldiCallback : public CuHArnoldiCallbackBase
+{
+  public:
+    void execute (uint k, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType = ArnUtils::DEVICE);
+};
+
+class CuHArnoldiCallbackThread : public CuHArnoldiCallbackBase
+{
+  public:
+  void execute (uint k, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType = ArnUtils::DEVICE);
+
+  void stop (const std::string& path);
+
+  void save (const std::string& path);
+  void load (const std::string& path);
+};
+
 #endif  // ARNOLDIPROCEDURESIMPL_H

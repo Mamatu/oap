@@ -19,9 +19,9 @@
 
 #include "ArnoldiProceduresImpl.h"
 
-CuHArnoldiCallback::CuHArnoldiCallback() : CuHArnoldi() {}
+CuHArnoldiCallbackBase::CuHArnoldiCallbackBase() : CuHArnoldi() {}
 
-CuHArnoldiCallback::~CuHArnoldiCallback() {}
+CuHArnoldiCallbackBase::~CuHArnoldiCallbackBase() {}
 
 void CuHArnoldiDefault::multiply(math::Matrix* w, math::Matrix* v,
                                  oap::CuProceduresApi& cuProceduresApi,
@@ -29,22 +29,41 @@ void CuHArnoldiDefault::multiply(math::Matrix* w, math::Matrix* v,
   cuProceduresApi.dotProduct(w, m_A, v);
 }
 
-void CuHArnoldiCallback::multiply(math::Matrix* w, math::Matrix* v,
-                                  oap::CuProceduresApi& cuProceduresApi,
-                                  CuHArnoldi::MultiplicationType mt) {
+void CuHArnoldiCallbackBase::multiply(math::Matrix* w, math::Matrix* v, oap::CuProceduresApi& cuProceduresApi, CuHArnoldi::MultiplicationType mt)
+{
   m_multiplyFunc(w, v, cuProceduresApi, m_userData, mt);
 }
 
-bool CuHArnoldiCallback::checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max) {
+bool CuHArnoldiCallbackBase::checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max)
+{
   return m_checkFunc(reevalue, imevalue, vector, index, max, m_checkUserData);
 }
 
-void CuHArnoldiCallback::setCallback(CuHArnoldiCallback::MultiplyFunc multiplyFunc, void* userData) {
+void CuHArnoldiCallbackBase::setCallback(CuHArnoldiCallbackBase::MultiplyFunc multiplyFunc, void* userData)
+{
   m_multiplyFunc = multiplyFunc;
   m_userData = userData;
 }
 
-void CuHArnoldiCallback::setCheckCallback(CuHArnoldiCallback::CheckFunc checkFunc, void* userData) {
+void CuHArnoldiCallbackBase::setCheckCallback(CuHArnoldiCallbackBase::CheckFunc checkFunc, void* userData)
+{
   m_checkFunc = checkFunc;
   m_checkUserData = userData;
 }
+
+void CuHArnoldiCallback::execute (uint k, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType)
+{
+  CuHArnoldi::execute (k, wantedCount, matrixInfo, matrixType);
+}
+
+void CuHArnoldiCallbackThread::execute (uint k, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType)
+{}
+
+void CuHArnoldiCallbackThread::stop (const std::string& path)
+{}
+
+void CuHArnoldiCallbackThread::save (const std::string& path)
+{}
+
+void CuHArnoldiCallbackThread::load (const std::string& path)
+{}

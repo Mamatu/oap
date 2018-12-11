@@ -54,7 +54,7 @@ class CuHArnoldi {
 
   void setCalcTraingularHType(ArnUtils::TriangularHProcedureType type);
 
-
+ protected:
   void begin (uint hdim, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType);
 
   bool step ();

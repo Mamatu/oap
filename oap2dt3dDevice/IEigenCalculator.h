@@ -31,7 +31,7 @@ using DataLoaders = std::vector<DataLoader*>;
 
 class IEigenCalculator {
  public:
-  IEigenCalculator(CuHArnoldi* cuHArnoldi);
+  IEigenCalculator(CuHArnoldiCallback* cuHArnoldi);
   virtual ~IEigenCalculator() = 0;
 
   void loadData (const DataLoader::Info& dataInfo);
@@ -80,7 +80,7 @@ class IEigenCalculator {
   ArnUtils::Type m_eigenvectorsType;
   DeviceDataLoader* m_dataLoader;
   bool m_bDestroyDataLoader;
-  CuHArnoldi* m_cuHArnoldi;
+  CuHArnoldiCallback* m_cuHArnoldi;
 
   floatt* m_revalues;
   math::Matrix** m_eigenvectors;
