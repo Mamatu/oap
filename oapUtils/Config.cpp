@@ -26,6 +26,14 @@ namespace utils {
 std::string Config::oapPath;
 std::string Config::tmpPath;
 
+void endSlash (std::string& str)
+{
+  if (str[str.size() - 1] != '/')
+  {
+    str = str + "/";
+  }
+}
+
 const std::string& Config::getOapPath()
 {
   createPath(TO_STRING(OAP_PATH), oapPath);
@@ -48,25 +56,37 @@ std::string Config::getPathInTmp(const std::string& relativePath)
   return getPathInRoot(getTmpPath(), relativePath);
 }
 
+std::string Config::getFileInOap(const std::string& relativePath)
+{
+  return getPathInRoot(getOapPath(), relativePath, false);
+}
+
+std::string Config::getFileInTmp(const std::string& relativePath)
+{
+  return getPathInRoot(getTmpPath(), relativePath, false);
+}
+
 void Config::createPath(const std::string& root, std::string& storePath)
 {
   if (storePath.empty())
   {
     storePath = root;
-    if (storePath[storePath.size() - 1] != '/')
-    {
-      storePath = storePath + "/";
-    }
+    endSlash (storePath);
   }
 }
 
-std::string Config::getPathInRoot(const std::string& root, const std::string& relativePath)
+std::string Config::getPathInRoot(const std::string& root, const std::string& relativePath, bool slashOnEnd)
 {
-  std::string output =  root + relativePath;
-  if (output[output.size() - 1] != '/')
+  std::string output = root;
+  endSlash (output);
+
+  output += relativePath;
+
+  if (slashOnEnd)
   {
-      output += '/';
+    endSlash (output);
   }
+
   return output;
 }
 }
