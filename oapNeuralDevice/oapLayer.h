@@ -20,6 +20,8 @@
 #ifndef OAP_NEURAL_LAYER_H
 #define OAP_NEURAL_LAYER_H
 
+#include "ByteBuffer.h"
+
 #include "CuProceduresApi.h"
 
 #include "oapHostMatrixUPtr.h"
@@ -46,10 +48,9 @@ private:
 
   std::pair<size_t, size_t> m_weightsDim;
 
-  static void deallocate(math::Matrix** matrix);
-
   bool m_hasBias;
 
+  static void deallocate(math::Matrix** matrix);
   void checkHostInputs(const math::Matrix* hostInputs);
 
   friend class Network;
@@ -77,6 +78,12 @@ public:
   void initRandomWeights();
 
   static std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix(size_t columns, size_t rows);
+
+  void save (utils::ByteBuffer& buffer) const;
+  static Layer* load (const utils::ByteBuffer& buffer);
+
+  bool operator== (const Layer& layer) const;
+  bool operator!= (const Layer& layer) const;
 };
 
 #endif

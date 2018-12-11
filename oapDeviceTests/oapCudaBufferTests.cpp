@@ -145,14 +145,46 @@ TEST_F(OapCudaBufferTests, WriteReadBufferTest)
     buffer.push_back (v);
   }
 
-  buffer.write (file);
+  buffer.fwrite (file);
 
   oap::cuda::HtoDBuffer<floatt> buffer1;
-  buffer1.read (file);
+  buffer1.fread (file);
 
   for (int idx = 0; idx < 10000; ++idx)
   {
     floatt expected = (idx) + .5;
     EXPECT_EQ(expected, buffer.get(idx));
+  }
+}
+
+TEST_F(OapCudaBufferTests, BufferInBufferTest)
+{
+  oap::cuda::HtoDBuffer<int> buffer;
+  for (int idx = 1; idx < 100; ++idx)
+  {
+    buffer.push_back (idx);
+
+    std::unique_ptr<int[]> ints (new int[idx]);
+
+    for (int idx1 = 0; idx1 < idx; ++idx1)
+    {
+      ints[idx1] = idx1;
+    }
+
+    buffer.push_back (ints.get (), idx);
+  }
+
+  for (int idx = 1; idx < 100; ++idx)
+  {
+    EXPECT_EQ(idx, buffer.read());
+
+    std::unique_ptr<int[]> ints (new int[idx]);
+
+    buffer.read (ints.get (), idx);
+
+    for (int idx1 = 0; idx1 < idx; ++idx1)
+    {
+      EXPECT_EQ(idx1, ints[idx1]);
+    }
   }
 }

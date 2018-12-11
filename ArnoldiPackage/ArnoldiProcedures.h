@@ -54,8 +54,14 @@ class CuHArnoldi {
 
   void setCalcTraingularHType(ArnUtils::TriangularHProcedureType type);
 
-  void execute(uint k, uint wantedCount, const math::MatrixInfo& matrixInfo,
-               ArnUtils::Type matrixType = ArnUtils::DEVICE);
+ protected:
+  void begin (uint hdim, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType);
+
+  bool step ();
+
+  void end ();
+
+  void execute (uint k, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType = ArnUtils::DEVICE);
 
  public:  // types
   enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
@@ -149,6 +155,11 @@ class CuHArnoldi {
   uint m_triangularHcolumns;
   uint m_Qrows;
   uint m_Qcolumns;
+
+  uint m_startIndex = 0;
+  uint m_wantedCount = 0;
+  bool m_beginInvoked = false;
+  bool m_stepInvoked = false;
 
   floatt m_previousInternalSum;
  private:  // internal methods - inline

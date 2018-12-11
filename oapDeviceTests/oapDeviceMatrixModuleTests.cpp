@@ -18,9 +18,12 @@
  */
 
 #include "oapCudaMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
+
+#include "oapDeviceMatrixUPtr.h"
+
 #include "KernelExecutor.h"
 #include "gtest/gtest.h"
-#include "oapDeviceMatrixUPtr.h"
 
 class OapDeviceMatrixModuleTests : public testing::Test {
  public:

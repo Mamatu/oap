@@ -46,6 +46,7 @@ OAP_INCLUDES += oapCudaTests
 OAP_INCLUDES += ArnoldiPackage
 OAP_INCLUDES += oapQRTestSamples
 OAP_INCLUDES += oapTests
+OAP_INCLUDES += oapSmsDataTests
 OAP_INCLUDES += oapHostTests
 OAP_INCLUDES += oapAppUtils
 OAP_INCLUDES += oap2dt3dDevice
@@ -75,6 +76,7 @@ OAP_MODULES := oapUtils
 OAP_MODULES += oapMath
 OAP_MODULES += oapMatrix
 OAP_MODULES += oapMatrixCpu
+OAP_MODULES += oapSmsDataTests
 OAP_MODULES += oapHostTests
 endif
 

@@ -19,6 +19,8 @@
 
 #include "oapLayer.h"
 
+#include <list>
+
 void Layer::checkHostInputs(const math::Matrix* hostInputs)
 {
   if (hostInputs->columns != 1)
@@ -163,4 +165,118 @@ void Layer::initRandomWeights()
 
   auto randomMatrix = createRandomMatrix (m_weightsDim.first, m_weightsDim.second);
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_weights, randomMatrix.get());
+}
+
+void Layer::save (utils::ByteBuffer& buffer) const
+{
+  buffer.push_back (m_neuronsCount);
+  buffer.push_back (m_nextLayerNeuronsCount);
+
+  buffer.push_back (m_weightsDim.first);
+  buffer.push_back (m_weightsDim.second);
+
+  buffer.push_back (m_hasBias);
+
+  oap::cuda::SaveMatrix (m_inputs, buffer);;
+  oap::cuda::SaveMatrix (m_tinputs, buffer);
+  oap::cuda::SaveMatrix (m_sums, buffer);
+  oap::cuda::SaveMatrix (m_tsums, buffer);
+  oap::cuda::SaveMatrix (m_errors, buffer);
+  oap::cuda::SaveMatrix (m_terrors, buffer);
+  oap::cuda::SaveMatrix (m_weights, buffer);
+  oap::cuda::SaveMatrix (m_tweights, buffer);
+  oap::cuda::SaveMatrix (m_weights1, buffer);
+  oap::cuda::SaveMatrix (m_weights2, buffer);
+}
+
+Layer* Layer::load (const utils::ByteBuffer& buffer)
+{
+  Layer* layer = new Layer ();
+
+  layer->m_neuronsCount = buffer.read <decltype (layer->m_neuronsCount)>();
+  layer->m_nextLayerNeuronsCount = buffer.read <decltype (layer->m_nextLayerNeuronsCount)>();
+
+  layer->m_weightsDim.first = buffer.read <decltype (layer->m_weightsDim.first)>();
+  layer->m_weightsDim.second = buffer.read <decltype (layer->m_weightsDim.second)>();
+
+  layer->m_hasBias = buffer.read <decltype (layer->m_hasBias)>();
+
+  layer->m_inputs = oap::cuda::LoadMatrix (buffer);
+  layer->m_tinputs = oap::cuda::LoadMatrix (buffer);
+  layer->m_sums = oap::cuda::LoadMatrix (buffer);
+  layer->m_tsums = oap::cuda::LoadMatrix (buffer);
+  layer->m_errors = oap::cuda::LoadMatrix (buffer);
+  layer->m_terrors = oap::cuda::LoadMatrix (buffer);
+  layer->m_weights = oap::cuda::LoadMatrix (buffer);
+  layer->m_tweights = oap::cuda::LoadMatrix (buffer);
+  layer->m_weights1 = oap::cuda::LoadMatrix (buffer);
+  layer->m_weights2 = oap::cuda::LoadMatrix (buffer);
+
+  return layer;
+}
+
+bool Layer::operator== (const Layer& layer) const
+{
+  if (&layer == this)
+  {
+    return true;
+  }
+
+  if (m_neuronsCount != layer.m_neuronsCount)
+  {
+    return false;
+  }
+
+  if (m_nextLayerNeuronsCount != layer.m_nextLayerNeuronsCount)
+  {
+    return false;
+  }
+
+  if (m_weightsDim.first != layer.m_weightsDim.first)
+  {
+    return false;
+  }
+
+  if (m_weightsDim.second != layer.m_weightsDim.second)
+  {
+    return false;
+  }
+
+  if (m_hasBias != layer.m_hasBias)
+  {
+    return false;
+  }
+
+  oap::CuProceduresApi cuApi;
+
+  std::list<std::pair<math::Matrix*, math::Matrix*>> list =
+  {
+    {m_inputs, layer.m_inputs},
+     {m_tinputs, layer.m_tinputs},
+     {m_sums, layer.m_sums},
+     {m_tsums, layer.m_tsums},
+     {m_errors , layer.m_errors },
+     {m_terrors, layer.m_terrors},
+     {m_weights, layer.m_weights},
+     {m_tweights, layer.m_tweights},
+     {m_weights1, layer.m_weights1},
+     {m_weights2, layer.m_weights2}
+  };
+
+  for (auto& pair : list)
+  {
+    debugAssert ((pair.first != nullptr && pair.second != nullptr) || (pair.first == nullptr && pair.second == nullptr));
+    if (pair.first != nullptr && pair.second != nullptr && !cuApi.compare (pair.first, pair.second))
+    {
+      oap::cuda::PrintMatrix ("pair.first = ", pair.first);
+      oap::cuda::PrintMatrix ("pair.second = ", pair.second);
+      return false;
+    }
+  }
+  return true;
+}
+
+bool Layer::operator!= (const Layer& layer) const
+{
+  return !(*this == layer);
 }

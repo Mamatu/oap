@@ -30,15 +30,17 @@ class Config {
   static const std::string& getTmpPath();
 
   static std::string getPathInOap(const std::string& relativePath);
+  static std::string getFileInOap(const std::string& relativePath);
 
   static std::string getPathInTmp(const std::string& relativePath);
+  static std::string getFileInTmp(const std::string& relativePath);
 
  private:
   static std::string oapPath;
   static std::string tmpPath;
 
   static void createPath(const std::string& root, std::string& storePath);
-  static std::string getPathInRoot(const std::string& root, const std::string& relativePath);
+  static std::string getPathInRoot(const std::string& root, const std::string& relativePath, bool slashOnEnd = true);
 };
 }
 

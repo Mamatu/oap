@@ -20,15 +20,15 @@
 #ifndef OAP_CUDA_MATRIX_UTILS_H
 #define OAP_CUDA_MATRIX_UTILS_H
 
-#include "oapHostMatrixUtils.h"
+#include "ByteBuffer.h"
 
-#include <stdio.h>
-#include <cuda.h>
-#include <map>
 #include "Matrix.h"
 #include "MatrixEx.h"
+
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
+
+//#include "oapHostMatrixUtils.h"
 
 namespace oap
 {
@@ -157,6 +157,12 @@ void PrintMatrixInfo(const std::string& msg, const math::Matrix* devMatrix);
 bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix);
 
 math::Matrix* ReadMatrix(const std::string& path);
+
+void SaveMatrix (const math::Matrix* matrix, utils::ByteBuffer& buffer);
+void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
+
+math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
+math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
 }
 }

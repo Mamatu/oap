@@ -985,5 +985,76 @@ math::Matrix* GetSubMatrix (const math::Matrix* orig, uintt cindex, uintt rindex
   return NewSubMatrix (orig, cindex, rindex, clength, rlength);
 }
 
+void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer)
+{
+  buffer.push_back (minfo.isRe);
+  buffer.push_back (minfo.isIm);
+  buffer.push_back (minfo.columns ());
+  buffer.push_back (minfo.rows ());
+}
+
+void SaveMatrix (const math::Matrix* matrix, utils::ByteBuffer& buffer)
+{
+  bool isMatrix = (matrix != nullptr);
+
+  buffer.push_back (isMatrix);
+
+  if (!isMatrix)
+  {
+    return;
+  }
+
+  auto minfo = oap::host::GetMatrixInfo (matrix);
+
+  SaveMatrixInfo (minfo, buffer);
+
+  if (minfo.isRe)
+  {
+    buffer.push_back (matrix->reValues, minfo.length ());
+  }
+
+  if (minfo.isIm)
+  {
+    buffer.push_back (matrix->imValues, minfo.length ());
+  }
+}
+
+math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer)
+{
+  bool isMatrix = buffer.read <bool>();
+
+  if (!isMatrix)
+  {
+    return nullptr;
+  }
+
+  math::MatrixInfo minfo = LoadMatrixInfo (buffer);
+  math::Matrix* matrix = NewMatrix (minfo);
+
+  if (minfo.isRe)
+  {
+    buffer.read (matrix->reValues, minfo.length ());
+  }
+
+  if (minfo.isIm)
+  {
+    buffer.read (matrix->imValues, minfo.length ());
+  }
+
+  return matrix;
+}
+
+math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
+{
+  math::MatrixInfo minfo;
+
+  minfo.isRe = buffer.read<decltype (minfo.isRe)> ();
+  minfo.isIm = buffer.read<decltype (minfo.isIm)> ();
+  minfo.m_matrixDim.columns = buffer.read<decltype (minfo.m_matrixDim.columns)> ();
+  minfo.m_matrixDim.rows = buffer.read<decltype (minfo.m_matrixDim.rows)> ();
+
+  return minfo;
+}
+
 }
 }

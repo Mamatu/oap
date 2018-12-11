@@ -27,7 +27,7 @@
 
 namespace oap {
 
-IEigenCalculator::IEigenCalculator(CuHArnoldi* cuHArnoldi)
+IEigenCalculator::IEigenCalculator(CuHArnoldiCallback* cuHArnoldi)
     : m_eigensCount(0),
       m_eigenvectorsType(ArnUtils::UNDEFINED),
       m_dataLoader(nullptr),

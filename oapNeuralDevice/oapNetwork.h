@@ -25,17 +25,13 @@
 
 class Network
 {
-  oap::CuProceduresApi m_cuApi;
-  floatt m_learningRate;
-        
-public:
+public: // types
+
   enum MatrixType
   {
     HOST,
     DEVICE
   };
-
-  Network();
 
   class IController
   {
@@ -46,14 +42,27 @@ public:
       virtual bool shouldContinue() = 0;
   };
 
+public:
+
+  Network();
   virtual ~Network();
+
+  Network (const Network&) = delete;
+  Network (Network&&) = delete;
+  Network& operator= (const Network&) = delete;
+  Network& operator= (Network&&) = delete;
 
   Layer* createLayer(size_t neurons, bool bias = false);
 
+  void createLevel(Layer* layer);
+
+  void addLayer(Layer* layer);
+
   void runTest (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, MatrixType argsType);
+
   oap::HostMatrixUPtr run (math::Matrix* hostInputs, MatrixType argsType);
 
-  void setController(IController* icontroller);
+  void setController (IController* icontroller);
 
   void setHostWeights (math::Matrix* weights, size_t layerIndex);
 
@@ -63,9 +72,19 @@ public:
 
   void setLearningRate (floatt lr);
 
-  void save(const std::string& filepath);
+  void save (utils::ByteBuffer& buffer) const;
 
-  void load(const std::string& filepath);
+  static Network* load (const utils::ByteBuffer& buffer);
+
+  size_t getLayersCount () const
+  {
+    return m_layers.size ();
+  }
+  
+  Layer* getLayer(size_t layerIndex) const;
+
+  bool operator== (const Network& network) const;
+  bool operator!= (const Network& network) const;
 
 protected:
   enum class AlgoType
@@ -83,8 +102,6 @@ protected:
 private:
   std::vector<Layer*> m_layers;
 
-  Layer* getLayer(size_t layerIndex) const;
-
   void destroyLayers();
 
   void updateWeights();
@@ -93,13 +110,14 @@ private:
 
   bool shouldContinue();
 
-  floatt m_serror;
+  oap::CuProceduresApi m_cuApi;
 
-  oap::DeviceMatrixPtr m_expectedDeviceOutputs;
+  floatt m_learningRate = 0.1f;
+  floatt m_serror = 0;
+  size_t m_step = 1;
 
-  IController* m_icontroller;
-
-  size_t m_step;
+  oap::DeviceMatrixPtr m_expectedDeviceOutputs = nullptr;
+  IController* m_icontroller = nullptr;
 };
 
 #endif

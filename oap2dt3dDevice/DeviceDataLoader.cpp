@@ -18,7 +18,9 @@
  */
 
 #include "DeviceDataLoader.h"
+
 #include "oapCudaMatrixUtils.h"
+#include "oapHostMatrixUtils.h"
 
 namespace oap {
 DeviceDataLoader::DeviceDataLoader(const Images& images, bool dealocateImages,

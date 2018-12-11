@@ -43,7 +43,7 @@
 
 #define debugAssert(x) assert(x);
 
-#define debugAssertMsg(x, msg, ...) if (!(x)) { debug(msg, ##__VA_ARGS__); debugAssert(x); }
+#define debugAssertMsg(x, msg, ...) if (!(x)) { debug ("ASSERTION\n"); debug(msg, ##__VA_ARGS__); debugAssert(x); }
 
 inline void debugExceptionMsg(bool x, const std::string& str) { if (!(x)) { std::cout << str << std::endl; throw std::runtime_error(str); } }
 inline void debugExceptionMsg(bool x, const std::stringstream& stream) { debugExceptionMsg(x, stream.str()); }
