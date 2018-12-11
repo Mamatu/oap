@@ -17,16 +17,19 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
-#include "KernelExecutor.h"
+#include <algorithm>
 #include <csignal>
 #include <string.h>
 #include <vector>
-#include <algorithm>
 #include <netdb.h>
 #include <execinfo.h>
 #include <map>
+
+#include "oapCudaMatrixUtils.h"
+
+#include "oapHostMatrixUPtr.h"
+
+#include "KernelExecutor.h"
 
 namespace oap
 {
@@ -234,17 +237,20 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix) {
 
 uintt GetColumns(const math::Matrix* dMatrix)
 {
+  debugAssert (dMatrix != nullptr);
   return gMatricesMgr.getAllocated().at(dMatrix).m_matrixDim.columns;
 }
 
 uintt GetRows(const math::Matrix* dMatrix)
 {
+  debugAssert (dMatrix != nullptr);
   return gMatricesMgr.getAllocated().at(dMatrix).m_matrixDim.rows;
 }
 
-math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
+math::MatrixInfo GetMatrixInfo(const math::Matrix* dMatrix)
 {
-  return gMatricesMgr.getAllocated().at(devMatrix);
+  debugAssert (dMatrix != nullptr);
+  return gMatricesMgr.getAllocated().at(dMatrix);
 }
 
 void copyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src, uintt columns, uintt rows)
@@ -564,6 +570,59 @@ bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix) {
   bool status = oap::host::WriteMatrix(path, hostMatrix);
   oap::host::DeleteMatrix(hostMatrix);
   return status;
+}
+
+void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer)
+{
+  oap::host::SaveMatrixInfo (minfo, buffer);
+}
+
+void SaveMatrix (const math::Matrix* matrix, utils::ByteBuffer& buffer)
+{
+  bool isMatrix = (matrix != nullptr);
+
+  buffer.push_back (isMatrix);
+
+  if (!isMatrix)
+  {
+    return;
+  }
+
+  auto minfo = oap::cuda::GetMatrixInfo (matrix);
+  SaveMatrixInfo (minfo, buffer);
+
+  oap::HostMatrixUPtr hmatrix = oap::host::NewMatrix (minfo);
+
+  oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, matrix);
+
+  if (minfo.isRe)
+  {
+    buffer.push_back (hmatrix->reValues, minfo.length ());
+  }
+
+  if (minfo.isIm)
+  {
+    buffer.push_back (hmatrix->imValues, minfo.length ());
+  }
+}
+
+math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer)
+{
+  oap::HostMatrixUPtr hmatrix = oap::host::LoadMatrix (buffer);
+
+  if (!hmatrix)
+  {
+    return nullptr;
+  }
+
+  math::Matrix* matrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
+
+  return matrix;
+}
+
+math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
+{
+  return oap::host::LoadMatrixInfo (buffer);
 }
 
 }

@@ -63,6 +63,43 @@ TEST_F(OapHostBufferTests, SimpleBufferTest)
   {
     EXPECT_EQ(value, buffer.get(value));
   }
+
+  for (int idx = 0; idx < 10000; ++idx)
+  {
+    EXPECT_EQ(idx, buffer.read());
+  }
+}
+
+TEST_F(OapHostBufferTests, BufferInBufferTest)
+{
+  oap::host::HostBuffer<int> buffer;
+  for (int idx = 1; idx < 100; ++idx)
+  {
+    buffer.push_back (idx);
+
+    std::unique_ptr<int[]> ints (new int[idx]);
+
+    for (int idx1 = 0; idx1 < idx; ++idx1)
+    {
+      ints[idx1] = idx1;
+    }
+
+    buffer.push_back (ints.get (), idx);
+  }
+
+  for (int idx = 1; idx < 100; ++idx)
+  {
+    EXPECT_EQ(idx, buffer.read());
+
+    std::unique_ptr<int[]> ints (new int[idx]);
+
+    buffer.read (ints.get (), idx);
+
+    for (int idx1 = 0; idx1 < idx; ++idx1)
+    {
+      EXPECT_EQ(idx1, ints[idx1]);
+    }
+  }
 }
 
 TEST_F(OapHostBufferTests, ReallocTest)
@@ -138,10 +175,10 @@ TEST_F(OapHostBufferTests, WriteReadBufferTest)
     buffer.push_back (v);
   }
 
-  buffer.write (file);
+  buffer.fwrite (file);
 
   oap::host::HostBuffer<floatt> buffer1;
-  buffer1.read (file);
+  buffer1.fread (file);
 
   for (int idx = 0; idx < 10000; ++idx)
   {

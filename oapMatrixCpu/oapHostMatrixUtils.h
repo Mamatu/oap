@@ -20,6 +20,7 @@
 #ifndef OAP_HOST_MATRIX_UTILS_H
 #define OAP_HOST_MATRIX_UTILS_H
 
+#include "ByteBuffer.h"
 #include "DebugLogs.h"
 
 #include "Matrix.h"
@@ -611,6 +612,12 @@ void CopySubMatrix(math::Matrix* dst, const math::Matrix* src, uintt cindex, uin
 math::Matrix* NewSubMatrix (const math::Matrix* orig, uintt cindex, uintt rindex, uintt clength, uintt rlength);
 
 math::Matrix* GetSubMatrix (const math::Matrix* orig, uintt cindex, uintt rindex, math::Matrix* matrix);
+
+void SaveMatrix (const math::Matrix* matrix, utils::ByteBuffer& buffer);
+void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
+
+math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
+math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
 }
 }

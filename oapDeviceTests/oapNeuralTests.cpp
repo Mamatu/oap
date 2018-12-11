@@ -28,6 +28,8 @@
 #include "oapHostMatrixUtils.h"
 #include "oapNetwork.h"
 
+#include "Config.h"
+
 class NetworkT : public Network
 {
   public:
@@ -260,4 +262,104 @@ TEST_F(OapNeuralTests, BackPropagation_3)
 TEST_F(OapNeuralTests, BackPropagation_4)
 {
   testBackPropagation_1_to_2 (1, 2, 3, 4, 5);
+}
+
+TEST_F(OapNeuralTests, SaveLoadBufferTest)
+{
+  bool isbias = true;
+
+  Layer* l1 = network->createLayer(2, isbias);
+  Layer* l2 = network->createLayer(6);
+  Layer* l3 = network->createLayer(1);
+
+  Runner r(isbias, this, 1);
+  network->setLearningRate (0.001);
+
+  std::random_device rd;
+  std::default_random_engine dre (rd());
+  std::uniform_real_distribution<> dis_0_1(0., 1.);
+  std::uniform_real_distribution<> dis_1_2(1., 2.);
+
+  auto for_test = [&](std::uniform_real_distribution<>& dis1, std::uniform_real_distribution<>& dis2)
+  {
+    for (size_t idx1 = 0; idx1 < 25; ++idx1)
+    {
+      floatt fvalue = dis1(dre);
+      floatt fvalue1 = dis2(dre);
+      floatt output = (fvalue >= 1. && fvalue1 >= 1.) ? 1. : 0.;
+      r.runTest(fvalue, fvalue1, output);
+    }
+  };
+
+  for (size_t idx = 0; idx < 1; ++idx)
+  {
+    for_test(dis_0_1, dis_0_1);
+    for_test(dis_0_1, dis_1_2);
+    for_test(dis_1_2, dis_1_2);
+    for_test(dis_1_2, dis_0_1);
+  }
+
+  utils::ByteBuffer buffer;
+  network->save (buffer);
+
+  std::unique_ptr<Network> cnetwork (Network::load (buffer));
+
+  EXPECT_TRUE (*network == *cnetwork);
+}
+
+TEST_F(OapNeuralTests, SaveLoadFileTest)
+{
+  bool isbias = true;
+
+  Layer* l1 = network->createLayer(2, isbias);
+  Layer* l2 = network->createLayer(6);
+  Layer* l3 = network->createLayer(1);
+
+  Runner r(isbias, this, 1);
+  network->setLearningRate (0.001);
+
+  std::random_device rd;
+  std::default_random_engine dre (rd());
+  std::uniform_real_distribution<> dis_0_1(0., 1.);
+  std::uniform_real_distribution<> dis_1_2(1., 2.);
+
+  auto for_test = [&](std::uniform_real_distribution<>& dis1, std::uniform_real_distribution<>& dis2)
+  {
+    for (size_t idx1 = 0; idx1 < 25; ++idx1)
+    {
+      floatt fvalue = dis1(dre);
+      floatt fvalue1 = dis2(dre);
+      floatt output = (fvalue >= 1. && fvalue1 >= 1.) ? 1. : 0.;
+      r.runTest(fvalue, fvalue1, output);
+    }
+  };
+
+  for (size_t idx = 0; idx < 1; ++idx)
+  {
+    for_test(dis_0_1, dis_0_1);
+    for_test(dis_0_1, dis_1_2);
+    for_test(dis_1_2, dis_1_2);
+    for_test(dis_1_2, dis_0_1);
+  }
+
+  std::string path = "device_tests/OapNeuralTests_SaveLoadFileTest.bin";
+  path = utils::Config::getFileInTmp (path);
+
+  auto save = [&]()
+  {
+    utils::ByteBuffer buffer;
+    network->save (buffer);
+    buffer.fwrite (path);
+  };
+
+  auto load = [&]() -> std::unique_ptr<Network>
+  {
+    utils::ByteBuffer buffer (path);
+    return std::unique_ptr<Network> (Network::load (buffer));
+  };
+
+  save ();
+  auto cnetwork = load ();
+
+  EXPECT_TRUE (*network == *cnetwork);
 }

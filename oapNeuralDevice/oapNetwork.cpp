@@ -19,7 +19,9 @@
 
 #include "oapNetwork.h"
 
-Network::Network() : m_learningRate(0.1f), m_expectedDeviceOutputs(nullptr), m_icontroller(nullptr), m_step(1)
+using LC_t = size_t;
+
+Network::Network()
 {
 }
 
@@ -28,10 +30,18 @@ Network::~Network()
   destroyLayers();
 }
 
-Layer* Network::createLayer(size_t neurons, bool bias)
+Layer* Network::createLayer (size_t neurons, bool bias)
 {
   Layer* layer = new Layer(bias);
 
+  layer->allocateNeurons (neurons);
+  createLevel (layer);
+
+  return layer;
+}
+
+void Network::createLevel (Layer* layer)
+{
   Layer* previous = nullptr;
 
   if (m_layers.size() > 0)
@@ -39,15 +49,17 @@ Layer* Network::createLayer(size_t neurons, bool bias)
     previous = m_layers.back();
   }
 
-  layer->allocateNeurons (neurons);
-  m_layers.push_back (layer);
+  addLayer (layer);
 
   if (previous != nullptr)
   {
     previous->allocateWeights (layer);
   }
+}
 
-  return layer;
+void Network::addLayer (Layer* layer)
+{
+  m_layers.push_back (layer);
 }
 
 void Network::runTest (math::Matrix* inputs, math::Matrix* expectedOutputs, MatrixType argsType)
@@ -120,14 +132,42 @@ void Network::setLearningRate (floatt lr)
   m_learningRate = lr;
 }
 
-void Network::save(const std::string& filepath)
+void Network::save (utils::ByteBuffer& buffer) const
 {
+  buffer.push_back (m_learningRate);
+  buffer.push_back (m_step);
+  buffer.push_back (m_serror);
 
+  LC_t layersCount = m_layers.size ();
+  buffer.push_back (layersCount);
+
+  for (const auto& layer : m_layers)
+  {
+    layer->save (buffer);
+  }
 }
 
-void Network::load(const std::string& filepath)
+Network* Network::load (const utils::ByteBuffer& buffer)
 {
+  Network* network = new Network ();
 
+  decltype(Network::m_learningRate) learningRate = buffer.template read<decltype(Network::m_learningRate)> ();
+  decltype(Network::m_step) step = buffer.template read<decltype(Network::m_step)> ();
+  decltype(Network::m_serror) serror = buffer.template read<decltype(Network::m_serror)> ();
+
+  network->setLearningRate (learningRate);
+  network->m_step = step;
+  network->m_serror = serror;
+
+  LC_t layersCount = buffer.template read<LC_t> ();
+
+  for (LC_t idx = 0; idx < layersCount; ++idx)
+  {
+    Layer* layer = Layer::load (buffer);
+    network->addLayer (layer);
+  }
+
+  return network;
 }
 
 Layer* Network::getLayer(size_t layerIndex) const
@@ -257,3 +297,32 @@ bool Network::shouldContinue()
   return true;
 }
 
+bool Network::operator== (const Network& network) const
+{
+  if (&network == this)
+  {
+    return true;
+  }
+
+  if (getLayersCount () != network.getLayersCount ())
+  {
+    return false;
+  }
+
+  for (size_t idx = 0; idx < getLayersCount (); ++idx)
+  {
+    Layer* layer = getLayer (idx);
+    Layer* layer1 = network.getLayer (idx);
+    if ((*layer) != (*layer1))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool Network::operator!= (const Network& network) const
+{
+  return !(*this == network);
+}

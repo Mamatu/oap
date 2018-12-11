@@ -26,6 +26,8 @@
 #include <cstring>
 #include <sstream>
 #include <memory>
+
+#include <DebugLogs.h>
 #include <Math.h>
 
 namespace utils
@@ -68,9 +70,15 @@ class Buffer
 {
   public:
 
-    T* m_buffer;
+    T* m_buffer = nullptr;
 
     Buffer();
+
+    /**
+     * Loads binary content of file into this buffer
+     */
+    Buffer(const std::string& filepath);
+
     virtual ~Buffer();
 
     Buffer (const Buffer&) = delete;
@@ -108,29 +116,30 @@ class Buffer
     template<typename Arg>
     uintt push_back (const Arg& value)
     {
-      uintt size = getArgLength<Arg>();
+      uintt argLen = getArgLength<Arg>();
 
-      tryRealloc (size);
+      tryRealloc (argLen);
 
-      if (std::is_same<Arg, T>::value)
-      {
-        m_memUtl.set (m_buffer, m_length, &value, size);
-      }
-      else
-      {
-        m_memUtl.template set<Arg> (m_buffer, m_length, &value, size);
-      }
+      m_memUtl.template set<Arg> (m_buffer, m_length, &value, argLen);
 
-      return increaseIdx (size);
+      return increaseIdx (argLen);
+    }
+
+    template<typename Arg>
+    uintt push_back (const Arg* buffer, size_t count)
+    {
+      uintt argLen = getArgLength<Arg>(count);
+
+      tryRealloc (argLen);
+
+      m_memUtl.template set<Arg> (m_buffer, m_length, buffer, argLen);
+
+      return increaseIdx (argLen);
     }
 
     T get (uintt idx) const
     {
-      checkIdx (idx);
-
-      T value;
-      m_memUtl.get (&value, 1, m_buffer, idx);
-      return value;
+      return this->template get<T> (idx);
     }
 
     template<typename Arg>
@@ -145,7 +154,52 @@ class Buffer
       return value;
     }
 
-    void write (const std::string& path)
+    void get (T* buffer, size_t count, uintt idx) const
+    {
+      this->template get<T> (buffer, count, idx);
+    }
+
+    template<typename Arg>
+    void get (Arg* buffer, size_t count, uintt idx) const
+    {
+      checkIdx (idx);
+      checkLength<Arg> (idx, count);
+
+      m_memUtl.template get<Arg> (buffer, getArgLength<Arg>(count), m_buffer, idx);
+    }
+
+    T read ()
+    {
+      return this->template read<T> ();
+    }
+
+    template<typename Arg>
+    Arg read () const
+    {
+      Arg value = this->template get<Arg> (m_readIdx);
+      increaseReadIdx<Arg> ();
+      return value;
+    }
+
+    void read (T* buffer, size_t count) const
+    {
+      this->template read<T> (buffer, count);
+    }
+
+    template<typename Arg>
+    void read (Arg* buffer, size_t count) const
+    {
+      this->template get<Arg> (buffer, count, m_readIdx);
+      increaseReadIdx<Arg> (count);
+    }
+
+    void readReset ()
+    {
+      m_readIdx = 0;
+    }
+
+  public:
+    void fwrite (const std::string& path) const
     {
       std::unique_ptr<FILE, decltype(&fclose)> f (fopen (path.c_str(), "wb"), fclose);
 
@@ -160,18 +214,31 @@ class Buffer
       size_t length = getLength ();
 
       std::unique_ptr<T[]> hostBuffer (new T[length]);
-      m_memUtl.get (hostBuffer.get(), length, m_buffer, 0);
+      get (hostBuffer.get(), length, 0);
 
+      auto std_fwrite = [&](const void* ptr, size_t size)
+      {
+        const size_t count = 1;
+        size_t wcount = std::fwrite (ptr, size, count, f.get ());
+        debugAssertMsg (wcount == count, "%s", strerror(errno));
+      };
 
-      fwrite (&sizeOfT, sizeof (size_t), 1, f.get());
-      fwrite (&length, sizeof(size_t), 1, f.get());
-      fwrite (hostBuffer.get(), getSizeOfBuffer (), 1, f.get());
+      std_fwrite (&sizeOfT, sizeof (size_t));
+      std_fwrite (&length, sizeof (size_t));
+      std_fwrite (hostBuffer.get (), getSizeOfBuffer ());
     }
 
-    void read (const std::string& path)
+    void fread (const std::string& path)
     {
       std::unique_ptr<FILE, decltype(&fclose)> f (fopen (path.c_str(), "rb"), fclose);
-    
+
+      auto std_fread = [&](void* ptr, size_t size)
+      {
+        const size_t count = 1;
+        size_t rcount = std::fread (ptr, size, count, f.get ());
+        debugAssertMsg (rcount == count, "%s", strerror(errno));
+      };
+
       if (!f)
       {
         throw std::runtime_error ("File not found");
@@ -180,20 +247,19 @@ class Buffer
       size_t sizeOfT = 0;
       size_t length = 0;
 
-      fread (&sizeOfT, sizeof(size_t), 1, f.get());
+      std_fread (&sizeOfT, sizeof(size_t));
 
       if (sizeOfT != getSizeOfType ())
       {
         throw std::runtime_error ("Loaded size of type is not equal with current class");
       }
 
-      fread (&length, sizeof(size_t), 1, f.get());
-  
-      std::unique_ptr<T[]> hostBuffer (new T[length]);
-      fread (hostBuffer.get (), getSizeOfBuffer (), 1, f.get());
+      std_fread (&length, sizeof(size_t));
 
-      realloc (length);
-      m_memUtl.set (m_buffer, 0, hostBuffer.get (), length);
+      std::unique_ptr<T[]> hostBuffer (new T[length]);
+      std_fread (hostBuffer.get (), sizeOfT * length);
+
+      push_back (hostBuffer.get (), length);
     }
 
   protected:
@@ -217,37 +283,47 @@ class Buffer
     {
       if (idx >= m_length)
       {
-        throw std::runtime_error ("out of scope");
+        std::stringstream stream;
+        stream << "out of scope - idx too high idx: " << idx << ", m_length: " << m_length;
+        throw std::runtime_error (stream.str ());
       }
     }
 
     template<typename Arg>
-    void checkLength (uintt idx) const
+    void checkLength (uintt idx, uintt count = 1) const
     {
-      uintt args = sizeof(Arg);
-      uintt ts = sizeof(T);
+       uintt offset = getArgLength<Arg> (count);
 
-      if (idx >= m_length)
+      if (idx + offset > m_length)
       {
-        throw std::runtime_error ("out of scope");
+        std::stringstream stream;
+        stream << "out of scope - length too high idx: " << idx << "offset: " << offset << ", m_length: " << m_length;
+        throw std::runtime_error (stream.str ());
       }
     }
 
     template<typename Arg>
-    uintt getArgLength() const
+    uintt getArgLength(size_t count = 1) const
     {
       uintt size = sizeof (Arg) / sizeof(T);
       if (sizeof (Arg) % sizeof(T) > 0)
       {
         size = size + 1;
       }
-      return size;
+      return size * count;
+    }
+
+    template<typename Arg>
+    uintt increaseReadIdx (size_t count = 1) const
+    {
+      m_readIdx += getArgLength<Arg> (count);
     }
 
   private:
 
-    uintt m_realLength; ///< Real number of allocated elements in buffer
-    uintt m_length; ///< Number of used elements in buffer
+    uintt m_realLength = 0; ///< Real number of allocated elements in buffer
+    uintt m_length = 0; ///< Number of used elements in buffer
+    mutable uintt m_readIdx = 0; ///< Read index
 
     void free (T* buffer);
     T* alloc (uintt length);
@@ -258,19 +334,15 @@ class Buffer
     MemUtl<T> m_memUtl;
 };
 
-class ByteBuffer : public Buffer<char, HostMemUtl>
+template <typename T, template<typename> class MemUtl>
+Buffer<T, MemUtl>::Buffer()
 {
-  public:
-    ByteBuffer()
-    {}
-
-    virtual ~ByteBuffer()
-    {}
-};
+}
 
 template <typename T, template<typename> class MemUtl>
-Buffer<T, MemUtl>::Buffer() : m_buffer(nullptr), m_realLength(0), m_length(0)
+Buffer<T, MemUtl>::Buffer(const std::string& filepath)
 {
+  fread (filepath);
 }
 
 template <typename T, template<typename> class MemUtl>
