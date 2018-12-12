@@ -69,8 +69,6 @@ math::Matrix* SquareMatrixApi::getRowVector (uintt index)
   math::MatrixInfo minfo = m_orig.getMatrixInfo ();
   minfo.m_matrixDim = {minfo.m_matrixDim.columns, 1};
 
-  checkArgs (index, 1, getMatrixInfo ());
-
   if (!m_rowVectorInfo.isInitialized () || m_rowVectorInfo != minfo)
   {
     m_rowVector = resetMatrix (m_rowVector, minfo);
@@ -87,8 +85,6 @@ math::Matrix* SquareMatrixApi::getRowVector (uintt index)
 math::Matrix* SquareMatrixApi::getSubMatrix (uintt rindex, uintt rlength)
 {
   debugFunc ();
-
-  checkArgs (rindex, rlength, getMatrixInfo ());
 
   math::MatrixInfo minfo = m_orig.getMatrixInfo ();
 
@@ -182,12 +178,6 @@ math::Matrix* SquareMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, 
   m_api.dotProduct (dmatrix, subMatrix, matrixT);
 
   return dmatrix;
-}
-
-void SquareMatrixApi::checkArgs(uintt rindex, uintt rlength, const math::MatrixInfo& minfo)
-{
-  debugAssert (rindex < minfo.m_matrixDim.rows);
-  debugAssert (rlength > 0);
 }
 
 void SquareMatrixApi::destroyMatrix(math::Matrix** matrix)

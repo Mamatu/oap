@@ -73,6 +73,10 @@ math::Matrix* RecToSquareApi::createDeviceSubMatrix(uintt rindex, uintt rlength)
   debugFunc ();
 
   math::MatrixInfo minfo = m_rec.getMatrixInfo ();
+
+  checkIdx (rindex, minfo);
+  checkIfZero (rlength);
+
   minfo.m_matrixDim = {minfo.m_matrixDim.rows, rlength};
 
   math::Matrix* doutput = oap::cuda::NewDeviceMatrix (minfo);
@@ -80,7 +84,7 @@ math::Matrix* RecToSquareApi::createDeviceSubMatrix(uintt rindex, uintt rlength)
   return getDeviceSubMatrix (rindex, rlength, doutput);
 }
 
-math::Matrix* RecToSquareApi::getDeviceSubMatrix(uintt rindex, uintt rlength, math::Matrix* dmatrix)
+math::Matrix* RecToSquareApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix)
 {
   debugFunc ();
 
@@ -91,6 +95,9 @@ math::Matrix* RecToSquareApi::getDeviceSubMatrix(uintt rindex, uintt rlength, ma
 
   const math::MatrixInfo minfo = m_rec.getMatrixInfo ();
 
+  checkIdx (rindex, minfo, dmatrix);
+  checkIfZero (rlength, dmatrix);
+
   if (minfo.m_matrixDim.columns == minfo.m_matrixDim.rows)
   {
     return m_rec.getDeviceSubMatrix (rindex, rlength, dmatrix);
@@ -99,18 +106,20 @@ math::Matrix* RecToSquareApi::getDeviceSubMatrix(uintt rindex, uintt rlength, ma
   return m_sq.getDeviceSubMatrix (rindex, rlength, dmatrix);
 }
 
-math::Matrix* RecToSquareApi::createDeviceRowVector(uintt index)
+math::Matrix* RecToSquareApi::createDeviceRowVector (uintt index)
 {
   debugFunc ();
 
   const math::MatrixInfo minfo = m_rec.getMatrixInfo ();
+
+  checkIdx (index, minfo);
 
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, 1);
 
   return getDeviceRowVector (index, doutput);
 }
 
-math::Matrix* RecToSquareApi::getDeviceRowVector(uintt index, math::Matrix* dmatrix)
+math::Matrix* RecToSquareApi::getDeviceRowVector (uintt index, math::Matrix* dmatrix)
 {
   debugFunc ();
 
@@ -121,12 +130,38 @@ math::Matrix* RecToSquareApi::getDeviceRowVector(uintt index, math::Matrix* dmat
 
   const math::MatrixInfo minfo = m_rec.getMatrixInfo ();
 
+  checkIdx (index, minfo, dmatrix);
+
   if (minfo.m_matrixDim.columns == minfo.m_matrixDim.rows)
   {
     return m_rec.getDeviceSubMatrix (index, 1, dmatrix);
   }
 
   return m_sq.getDeviceSubMatrix (index, 1, dmatrix);
+}
+
+void RecToSquareApi::checkIdx (uintt row, const math::MatrixInfo& minfo, math::Matrix* matrix) const
+{
+  if (row >= minfo.rows ())
+  {
+    oap::cuda::DeleteDeviceMatrix (matrix);
+
+    std::stringstream stream;
+    stream << "row out of scope. row: " << row << ", rows: " << minfo.rows ();
+    throw std::runtime_error (stream.str());
+  }
+}
+
+void RecToSquareApi::checkIfZero (uintt length, math::Matrix* matrix) const
+{
+  if (length == 0)
+  {
+    oap::cuda::DeleteDeviceMatrix (matrix);
+
+    std::stringstream stream;
+    stream << "length is zero";
+    throw std::runtime_error (stream.str());
+  }
 }
 
 }
