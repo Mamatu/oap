@@ -29,6 +29,8 @@
 
 #include "oapHostMatrixUtils.h"
 
+#include "oapHostMatrixUPtr.h"
+
 #include "MatrixParser.h"
 #include "MatrixPrinter.h"
 #include "ReferencesCounter.h"
@@ -737,154 +739,26 @@ void SetSubRowsSafe(math::Matrix* matrix, uintt subrows) {
   }
 }
 
-struct FileHeader {
-  math::MatrixInfo matrixInfo;
-  uint32_t sizeofbool;
-  uint32_t sizeofuintt;
-  uint32_t sizeoffloatt;
-};
-
-FileHeader loadHeader(FILE* file) {
-
-  FileHeader fh;
-
-  auto readValue = [file](uint32_t& value) {
-    fread(&value, sizeof(value), 1, file);
-  };
-
-  auto readBuffer = [file](void* buffer, uint32_t size) {
-    fread(buffer, size, 1, file);
-  };
-
-  readValue(fh.sizeofbool);
-  readValue(fh.sizeofuintt);
-  readValue(fh.sizeoffloatt);
-
-  if (fh.sizeofbool == sizeof(bool) && fh.sizeofuintt == sizeof(uintt)) {
-    readBuffer(&fh.matrixInfo, sizeof(fh.matrixInfo));
-  } else {
-    readBuffer(&fh.matrixInfo.m_matrixDim.columns, fh.sizeofuintt);
-    readBuffer(&fh.matrixInfo.m_matrixDim.rows, fh.sizeofuintt);
-    readBuffer(&fh.matrixInfo.isRe, fh.sizeofbool);
-    readBuffer(&fh.matrixInfo.isIm, fh.sizeofbool);
-  }
-
-  return fh;
-}
-
-math::Matrix* ReadMatrix(const std::string& path, const MatrixEx& a_matrixEx) {
-
-  FILE* file = fopen(path.c_str(), "rb");
-
-  if (file == NULL) {
-    return NULL;
-  }
-
-  MatrixEx matrixEx = a_matrixEx;
-
-  FileHeader fileHeader = loadHeader(file);
-
-  const math::MatrixInfo lMatrixInfo = fileHeader.matrixInfo;
-  const uint32_t sizeoffloatt = fileHeader.sizeoffloatt;
-
-  const uintt columns = lMatrixInfo.m_matrixDim.columns;
-  const uintt rows = lMatrixInfo.m_matrixDim.rows;
-
-  if (!adjustRows(matrixEx, rows) || !adjustColumns(matrixEx, columns)) {
-    fclose(file);
-    return nullptr;
-  }
-
-  math::MatrixInfo matrixInfo = lMatrixInfo;
-
-  bool isIdentical = matrixEx.beginRow == 0 && matrixEx.beginColumn == 0 &&
-          erow(matrixEx) == rows && ecolumn(matrixEx) == columns;
-
-  matrixInfo.m_matrixDim.columns = matrixEx.columnsLength;
-  matrixInfo.m_matrixDim.rows = matrixEx.rowsLength;
-
-  math::Matrix* matrix = oap::host::NewMatrix(matrixInfo);
-
-  size_t lcounts = lMatrixInfo.m_matrixDim.columns * lMatrixInfo.m_matrixDim.rows;
-  size_t lsize = sizeoffloatt * lcounts;
-
-  std::shared_ptr<floatt> sectionPtr(nullptr);
-  if (isIdentical == false) {
-    sectionPtr.reset(new floatt[lcounts], std::default_delete<floatt[]>());
-  }
-
-  auto loadSection = [isIdentical, sizeoffloatt, lMatrixInfo,
-       lcounts, lsize, matrixEx, sectionPtr, file] (floatt* section)
-  {
-    if (section == nullptr) { return; }
-
-    floatt* sectionTmp = section;
-
-    if (isIdentical == false) {
-      sectionTmp = sectionPtr.get();
-    }
-
-    if (sizeoffloatt == sizeof(floatt)) {
-      fread(sectionTmp, lsize, 1, file);
-    } else {
-      std::unique_ptr<char[]> buffer(new char[lsize]);
-      fread(buffer.get(), lsize, 1, file);
-      for (size_t idx = 0; idx < lcounts; ++idx) {
-        memcpy(&sectionTmp[idx], &buffer[idx * sizeoffloatt], sizeoffloatt);
-      }
-    }
-
-    if (isIdentical == false) {
-      for (uint idx = 0; idx < matrixEx.rowsLength; ++idx) {
-        memcpy(&section[idx * matrixEx.columnsLength],
-               &sectionTmp[(idx + matrixEx.beginRow) * lMatrixInfo.m_matrixDim.columns + matrixEx.beginColumn],
-               matrixEx.columnsLength * sizeof(floatt));
-      }
-    }
-  };
-
-  loadSection(matrix->reValues);
-  loadSection(matrix->imValues);
-
-  fclose(file);
+math::Matrix* ReadMatrix (const std::string& path)
+{
+  utils::ByteBuffer buffer (path);
+  math::Matrix* matrix = oap::host::LoadMatrix (buffer);
 
   return matrix;
 }
 
-math::Matrix* ReadMatrix(const std::string& path) {
-  MatrixEx me;
-
-  me.beginColumn = 0;
-  me.columnsLength = static_cast<uintt>(-1);
-
-  me.beginRow = 0;
-  me.rowsLength = static_cast<uintt>(-1);
-
-  return ReadMatrix(path, me);
+math::Matrix* ReadRowVector (const std::string& path, size_t index)
+{
+  oap::HostMatrixUPtr matrix = ReadMatrix (path);
+  math::Matrix* subMatrix = oap::host::NewSubMatrix (matrix, 0, index, matrix->columns, 1);
+  return subMatrix;
 }
 
-math::Matrix* ReadRowVector(const std::string& path, size_t index) {
-  MatrixEx me;
-
-  me.beginColumn = 0;
-  me.columnsLength = static_cast<uintt>(-1);
-
-  me.beginRow = index;
-  me.rowsLength = 1;
-
-  return ReadMatrix(path, me);
-}
-
-math::Matrix* ReadColumnVector(const std::string& path, size_t index) {
-  MatrixEx me;
-
-  me.beginColumn = index;
-  me.columnsLength = 1;
-
-  me.beginRow = 0;
-  me.rowsLength = static_cast<uintt>(-1);
-
-  return ReadMatrix(path, me);
+math::Matrix* ReadColumnVector (const std::string& path, size_t index)
+{
+  oap::HostMatrixUPtr matrix = ReadMatrix (path);
+  math::Matrix* subMatrix = oap::host::NewSubMatrix (matrix, index, 0, 1, matrix->rows);
+  return subMatrix;
 }
 
 void CopyReBuffer (math::Matrix* houtput, math::Matrix* hinput)
@@ -897,38 +771,18 @@ void CopyReBuffer (math::Matrix* houtput, math::Matrix* hinput)
   memcpy (houtput->reValues, hinput->reValues, sOutput * sizeof (floatt));
 }
 
-bool WriteMatrix(const std::string& path, const math::Matrix* matrix) {
-
-  FILE* file = fopen(path.c_str(), "wb");
-
-  if (file == NULL) {
+bool WriteMatrix (const std::string& path, const math::Matrix* matrix)
+{
+  utils::ByteBuffer buffer;
+  oap::host::SaveMatrix (matrix, buffer);
+  try
+  {
+    buffer.fwrite (path);
+  } catch (const std::runtime_error& error)
+  {
+    debugError ("Write to file error: %s", error.what());
     return false;
   }
-
-  const size_t size = sizeof(floatt) * matrix->columns * matrix->rows;
-
-  uint32_t sizeofbool = sizeof(bool);
-  uint32_t sizeofuintt = sizeof(uintt);
-  uint32_t sizeoffloatt = sizeof(floatt);
-
-  fwrite(&sizeofbool, sizeof(uint32_t), 1, file);
-  fwrite(&sizeofuintt, sizeof(uint32_t), 1, file);
-  fwrite(&sizeoffloatt, sizeof(uint32_t), 1, file);
-
-  math::MatrixInfo matrixInfo = oap::host::GetMatrixInfo(matrix);
-
-  fwrite(&matrixInfo, sizeof(matrixInfo), 1, file);
-
-  if (matrixInfo.isRe) {
-    fwrite(matrix->reValues, size, 1, file);
-  }
-
-  if (matrixInfo.isIm) {
-    fwrite(matrix->imValues, size, 1, file);
-  }
-
-  fclose(file);
-
   return true;
 }
 

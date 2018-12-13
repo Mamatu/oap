@@ -89,6 +89,7 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrix) {
   oap::host::DeleteMatrix(m1);
 }
 
+#if 0
 TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
 
   math::Matrix* m1 = createMatrix(10, 10, [](uintt idx, uintt, uintt) { return idx; });
@@ -110,8 +111,10 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
     EXPECT_EQ(m2->columns, mex.columnsLength);
     EXPECT_EQ(m2->rows, mex.rowsLength);
 
-    for (int fa = 0; fa < m2->columns; ++fa) {
-      for (int fb = 0; fb < m2->rows; ++fb) {
+    for (int fa = 0; fa < m2->columns; ++fa)
+    {
+      for (int fb = 0; fb < m2->rows; ++fb)
+      {
         int idx = fa + m2->columns * fb;
         int idx1 = (mex.beginColumn + fa) + m1->columns * (mex.beginRow + fb);
         EXPECT_EQ(m2->reValues[idx], m1->reValues[idx1]);
@@ -123,6 +126,7 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
   }
   oap::host::DeleteMatrix(m1);
 }
+#endif
 
 TEST_F(OapHostMatrixUtilsTests, WriteMatrixReadVector) {
 

@@ -67,8 +67,6 @@ class SquareMatrixApi
 
     math::Matrix* getDeviceMatrix (math::Matrix* dmatrix);
     math::Matrix* getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix);
-
-    void checkArgs(uintt rindex, uintt rlength, const math::MatrixInfo& minfo);
 };
 
 }

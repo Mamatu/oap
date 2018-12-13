@@ -56,6 +56,9 @@ class RecToSquareApi
     CuProceduresApi* m_api;
     RecMatrixApi m_rec;
     SquareMatrixApi m_sq;
+
+    void checkIdx (uintt row, const math::MatrixInfo& minfo, math::Matrix* matrix = nullptr) const;
+    void checkIfZero (uintt length, math::Matrix* matrix = nullptr) const;
 };
 
 }
