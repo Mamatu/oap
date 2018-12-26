@@ -41,6 +41,8 @@
 
 #define debugInfo(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
 
+#define logInfo(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
+
 #define debugAssert(x) assert(x);
 
 #define debugAssertMsg(x, msg, ...) if (!(x)) { debug ("ASSERTION\n"); debug(msg, ##__VA_ARGS__); debugAssert(x); }
@@ -58,7 +60,7 @@ inline void debugExceptionMsg(bool x, const std::stringstream& stream) { debugEx
 
 #define debugPrintStack() BacktraceUtils::GetInstance().printBacktrace();
 
-#define debugLongTest() debug("Test in progress. Please wait it can take some time...")
+#define logInfoLongTest() logInfo("Test in progress. Please wait it can take some time...")
 
 #define debugException(ex) debug("Exception: %s %s", typeid(ex).name(), ex.what())
 
@@ -73,6 +75,8 @@ inline void debugExceptionMsg(bool x, const std::stringstream& stream) { debugEx
 #define debug( x, ...) 
 
 #define debugInfo(x, ...)
+
+#define logInfo(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
 
 #define debugAssert(x)
 
@@ -91,7 +95,7 @@ inline void debugExceptionMsg(bool, const std::string&) {}
 
 #define debugPrintStack()
 
-#define debugLongTest()
+#define logInfoLongTest() logInfo("Test in progress. Please wait it can take some time...")
 
 #define debugException(ex) debug("Exception: %s %s", typeid(ex).name(), ex.getMessage().c_str())
 

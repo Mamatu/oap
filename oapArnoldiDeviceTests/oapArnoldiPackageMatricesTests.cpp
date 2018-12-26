@@ -163,7 +163,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
     void runMatrixTest(oap::HostMatrixPtr hmatrix, oap::HostMatrixPtr eigenvectors, const std::vector<EigenPair>& eigenPairs, uint hdim, floatt tolerance)
     {
-      debugLongTest();
+      logInfoLongTest();
 
       UserData userData = {
               hmatrix,

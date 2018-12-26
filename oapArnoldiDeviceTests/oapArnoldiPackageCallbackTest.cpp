@@ -234,7 +234,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
       math::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
                                       data.getElementsCount());
 
-      debugLongTest();
+      logInfoLongTest();
 
       arnoldiCuda->execute(hdim, wanted, matrixInfo);
       EXPECT_THAT(revalues[0], ::testing::DoubleNear(value, tolerance));

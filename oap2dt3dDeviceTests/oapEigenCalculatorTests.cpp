@@ -273,7 +273,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
   static void launchDataTest(const oap::DataLoader::Info& info, const std::string& testFilename,
                              int wantedEigensCount = 5, int maxIterationCount = 1)
   {
-    debugLongTest();
+    logInfoLongTest();
     try {
       std::string trace1;
       std::string trace2;

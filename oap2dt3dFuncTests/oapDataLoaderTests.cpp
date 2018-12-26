@@ -73,7 +73,7 @@ class OapDataLoaderTests : public testing::Test {
                              bool frugalMode = true) {
     oap::Images images;
 
-    debugLongTest();
+    logInfoLongTest();
 
     for (size_t fa = 0; fa < count; ++fa) {
       oap::PngFile* file = new oap::PngFile(getImagePath(imageName));
@@ -132,7 +132,7 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromMonkeyScreen) {
 TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix) {
   oap::DataLoader* dataloader = NULL;
   math::Matrix* matrix = NULL;
-  debugLongTest();
+  logInfoLongTest();
 
   EXPECT_NO_THROW(try {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
@@ -165,7 +165,7 @@ TEST_F(OapDataLoaderTests, LoadBlueRecTest) {
 TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix) {
   oap::DataLoader* dataloader = NULL;
   math::Matrix* matrix = NULL;
-  debugLongTest();
+  logInfoLongTest();
 
   EXPECT_NO_THROW(try {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
@@ -198,7 +198,7 @@ class DataLoaderTest : public oap::DataLoader {
 
   static void run(size_t imagesCount) {
     DataLoaderTest* dataloader = NULL;
-    debugLongTest();
+    logInfoLongTest();
 
     try {
       dataloader =
@@ -296,7 +296,7 @@ TEST_F(OapDataLoaderTests, Load2MonkeyImagesCreateRowVectors) {
 
 TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest) {
   math::Matrix* matrix = NULL;
-  debugLongTest();
+  logInfoLongTest();
 
   std::string dir = "/tmp/Oap/tests_data";
 
