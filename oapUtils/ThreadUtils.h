@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef OAP_THREAD_UTILS_H
 #define OAP_THREAD_UTILS_H
 
@@ -130,7 +127,7 @@ class Thread {
   bool m_isonethread;
 
  protected:
-  virtual void onRun(pthread_t threadId);
+  virtual void onRun (pthread_t threadId);
 
  public:
   Thread();
