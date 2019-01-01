@@ -1,6 +1,7 @@
 #include "Controllers.h"
 
-SquareErrorLimitController::SquareErrorLimitController (floatt limit, size_t dataSetSize): m_limit(limit), m_dataSetSize(dataSetSize), m_sqes(0), m_sc(true)
+SquareErrorLimitController::SquareErrorLimitController (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback) :
+  m_limit(limit), m_dataSetSize(dataSetSize), m_sqes(0), m_sc(true), m_callback(callback)
 {}
 
 SquareErrorLimitController::~SquareErrorLimitController()
@@ -20,6 +21,12 @@ void SquareErrorLimitController::setSquareError (floatt sqe)
     m_sqes = m_sqes / static_cast<floatt>(m_dataSetSize);
     m_sc = m_sqes > m_limit;
     debug("square error = %f limit = %f step = %lu", m_sqes, m_limit, m_step);
+
+    if (m_callback)
+    {
+      m_callback (m_sqes, m_step, m_limit);
+    }
+
     m_sqes = 0;
   }
 }

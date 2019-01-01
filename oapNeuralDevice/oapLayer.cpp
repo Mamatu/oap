@@ -70,7 +70,7 @@ void Layer::deallocate(math::Matrix** matrix)
 
 void Layer::allocateNeurons(size_t neuronsCount)
 {
-
+  debugInfo ("Layer %p allocates %lu neurons", this, neuronsCount);
   m_neuronsCount = m_hasBias ? neuronsCount + 1 : neuronsCount;
 
   m_inputs = oap::cuda::NewDeviceReMatrix (1, m_neuronsCount);

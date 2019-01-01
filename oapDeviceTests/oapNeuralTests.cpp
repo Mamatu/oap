@@ -35,7 +35,7 @@ class NetworkT : public Network
   public:
     void executeLearning(math::Matrix* expected)
     {
-      Network::executeLearning (expected);
+      Network::executeLearning (expected, Network::ErrorType::NORMAL_ERROR);
     }
 
     void setHostInput (math::Matrix* inputs, size_t index)
@@ -45,7 +45,7 @@ class NetworkT : public Network
 
     oap::HostMatrixUPtr executeTest(math::Matrix* deviceExpected)
     {
-      return Network::executeAlgo(Network::AlgoType::TEST_MODE, deviceExpected);
+      return Network::executeAlgo (Network::AlgoType::BACKWARD_PROPAGATION_MODE, deviceExpected, Network::ErrorType::NORMAL_ERROR);
     }
 };
 
@@ -99,7 +99,7 @@ class OapNeuralTests : public testing::Test
 
       expected->reValues[0] = e1;
 
-      m_ont->network->runTest(inputs, expected, Network::HOST);
+      m_ont->network->train (inputs, expected, Network::HOST, Network::ErrorType::NORMAL_ERROR);
     }
 
     floatt run(floatt a1, floatt a2)
@@ -120,7 +120,7 @@ class OapNeuralTests : public testing::Test
         inputs->reValues[2] = m_bvalue;
       }
 
-      auto output = m_ont->network->run (inputs, Network::HOST);
+      auto output = m_ont->network->run (inputs, Network::HOST, Network::ErrorType::NORMAL_ERROR);
       return m_ont->is(output->reValues[0]);
     }
   };
@@ -166,7 +166,7 @@ class OapNeuralTests : public testing::Test
 
     l1->setHostWeights (hw.get ());
 
-    auto output = network->run (hinputs, Network::HOST);
+    auto output = network->run (hinputs, Network::HOST, Network::ErrorType::NORMAL_ERROR);
 
     EXPECT_THAT(output->reValues[0], testing::DoubleNear(sigmoid(hw_1 * i_1 + hw_2 * i_2), 0.0001));
     EXPECT_EQ(1, output->columns);
@@ -203,7 +203,7 @@ class OapNeuralTests : public testing::Test
     l1->setHostWeights (hw.get ());
 
     network->setHostInput (io, 0);
-    network->runTest (io, e1, Network::HOST);
+    network->train (io, e1, Network::HOST, Network::ErrorType::NORMAL_ERROR);
 
     hw->reValues[0] = 0;
     hw->reValues[1] = 0;
