@@ -41,6 +41,11 @@ void ThreadIdx::setBlockDim(const dim3& dim3) { m_blockDim = dim3; }
 
 void ThreadIdx::setGridDim(const dim3& dim3) { m_gridDim = dim3; }
 
+void ThreadIdx::setSharedBuffer(void* buffer)
+{
+  m_sharedBuffer = buffer;
+}
+
 const uint3& ThreadIdx::getThreadIdx() const { return m_threadIdx; }
 
 const dim3& ThreadIdx::getBlockIdx() const { return m_blockIdx; }
@@ -48,6 +53,8 @@ const dim3& ThreadIdx::getBlockIdx() const { return m_blockIdx; }
 const dim3& ThreadIdx::getBlockDim() const { return m_blockDim; }
 
 const dim3& ThreadIdx::getGridDim() const { return m_gridDim; }
+
+void* ThreadIdx::getSharedBuffer() const { return m_sharedBuffer; }
 
 void ThreadIdx::createBarrier(const std::vector<pthread_t>& threads) {
   m_barriersMutex.lock();

@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef DIM3_H
 #define DIM3_H
 
@@ -37,27 +35,45 @@
 
 class dim3 {
  public:
-  dim3() {
+  dim3()
+  {
     x = 0;
     y = 0;
     z = 1;
   }
-
-  dim3(uint tuple[2]) {
-    x = tuple[0];
-    y = tuple[1];
-    z = 1;
+  
+  dim3 (const uint* const array)
+  {
+    x = array[0];
+    y = array[1];
+    z = array[2];
   }
 
-  dim3(uint x, uint y) {
+  dim3 (uint tuple[3])
+  {
+    x = tuple[0];
+    y = tuple[1];
+    z = tuple[2];
+  }
+
+  dim3 (uint x, uint y)
+  {
     this->x = x;
     this->y = y;
     z = 1;
   }
 
-  void clear() {
+  void clear()
+  {
     x = 0;
     y = 0;
+  }
+
+  void set (uint _x, uint _y, uint _z = 1)
+  {
+    x = _x;
+    y = _y;
+    z = _z;
   }
 
   uint x;
@@ -74,6 +90,7 @@ class ThreadIdx {
   dim3 m_blockIdx;
   dim3 m_blockDim;
   dim3 m_gridDim;
+  void* m_sharedBuffer;
 
   class BarrierMutex {
    public:
@@ -93,11 +110,13 @@ class ThreadIdx {
   void setBlockIdx(const dim3& dim3);
   void setBlockDim(const dim3& dim3);
   void setGridDim(const dim3& dim3);
+  void setSharedBuffer(void* buffer);
 
   const uint3& getThreadIdx() const;
   const dim3& getBlockIdx() const;
   const dim3& getBlockDim() const;
   const dim3& getGridDim() const;
+  void* getSharedBuffer() const;
 
   static void createBarrier(const std::vector<pthread_t>& threads);
   static void destroyBarrier(const std::vector<pthread_t>& threads);
