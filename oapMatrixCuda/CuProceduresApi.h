@@ -46,6 +46,11 @@ class CuProceduresApi
   CuProceduresApi();
   virtual ~CuProceduresApi();
 
+  CuProceduresApi(const CuProceduresApi&) = delete;
+  CuProceduresApi(CuProceduresApi&&) = delete;
+  CuProceduresApi& operator=(const CuProceduresApi&) = delete;
+  CuProceduresApi& operator=(CuProceduresApi&&) = delete;
+
   inline void dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   inline void tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
@@ -89,6 +94,9 @@ class CuProceduresApi
   inline void substract(math::Matrix* output, math::Matrix* params0,
                         math::Matrix* params1);
 
+  void crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+  void crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
+
   void substract(math::Matrix* output, math::Matrix* params0,
                  math::Matrix* params1, uintt columns, uintt rows);
 
@@ -106,7 +114,10 @@ class CuProceduresApi
 
   void getVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
 
-  void magnitude(floatt& output, math::Matrix* params0);
+  void magnitude (floatt& output, math::Matrix* params0);
+
+  void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
+  //void sumShared (floatt& output, math::Matrix* params0);
 
   void magnitudeOpt(floatt& output, math::Matrix* params0);
 
@@ -157,13 +168,13 @@ class CuProceduresApi
 
   
 
-  CUresult getStatus() const;
+  std::string getMsgStatus() const;
 
  private:
   enum QRType { NORMAL, OPT };
   enum Type { HOST, CUDA };
 
-  CUresult m_cuResult;
+  bool m_cuStatus;
 
   int* m_doutputIsTriangular;
   floatt* m_magnitudeOutput;
@@ -179,11 +190,13 @@ class CuProceduresApi
   bool m_isSetColumns;
   bool m_isSetRows;
 
-  CuProceduresApi(const CuProceduresApi&);
+  uint m_blocks[2];
+  uint m_threads[2];
 
   void init();
 
-  void prepareDims(uintt w, uintt h);
+  void calculateDims (uint blocks[2], uint threads[2], uintt w, uintt h);
+  void prepareDims (uintt w, uintt h);
 
   enum Types
   {
@@ -191,7 +204,7 @@ class CuProceduresApi
     SCALAR
   };
 
-  CUresult execute(const char* functionName, uintt w, uintt h, void** params, uintt sharedMemory, bool _prepareDims = true);
+  bool execute(const char* functionName, uintt w, uintt h, void** params, uintt sharedMemory, bool _prepareDims = true);
 
 
   void qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* R,
@@ -232,6 +245,10 @@ private:
   oap::TBuffer<int, oap::Type::HOST> m_hisuppertriangularOutputBuffer;
   oap::TBuffer<floatt, oap::Type::CUDA> m_dqrSums;
   oap::TBuffer<floatt, oap::Type::CUDA> m_dqrBuffer;
+  oap::TBuffer<floatt, oap::Type::CUDA> m_dsumsReBuffer;
+  oap::TBuffer<floatt, oap::Type::CUDA> m_dsumsImBuffer;
+  oap::TBuffer<floatt, oap::Type::HOST> m_hsumsReBuffer;
+  oap::TBuffer<floatt, oap::Type::HOST> m_hsumsImBuffer;
 };
 
 inline void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)

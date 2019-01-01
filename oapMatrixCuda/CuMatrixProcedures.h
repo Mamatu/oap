@@ -32,6 +32,7 @@
 #include "CuProcedures/CuCompareOptProcedures.h"
 #include "CuProcedures/CuCompareOptProcedures2.h"
 #include "CuProcedures/CuCopyProcedures.h"
+#include "CuProcedures/CuCrossEntropyProcedures.h"
 #include "CuProcedures/CuInversionProcedures.h"
 #include "CuProcedures/CuDotProductProcedures.h"
 #include "CuProcedures/CuDotProductOptProcedures.h"
@@ -48,6 +49,7 @@
 #include "CuProcedures/CuTriangularH.h"
 #include "CuProcedures/CuTensorProductProcedures.h"
 #include "CuProcedures/CuSigmoidProcedures.h"
+#include "CuProcedures/CuSumProcedures.h"
 #include "CuProcedures/CuHadamardProductProcedures.h"
 #include "CuProcedures/CuPartialHadamardProductProcedures.h"
 
