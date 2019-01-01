@@ -25,18 +25,18 @@
 #include "Matrix.h"
 #include "KernelExecutor.h"
 
-CUresult DEVICEKernel_DotProduct(math::Matrix* output, math::Matrix* params0,
+bool DEVICEKernel_DotProduct(math::Matrix* output, math::Matrix* params0,
                                  math::Matrix* params1, oap::cuda::Kernel& kernel);
 
-CUresult DEVICEKernel_Transpose(math::Matrix* output, math::Matrix* params0,
+bool DEVICEKernel_Transpose(math::Matrix* output, math::Matrix* params0,
                                 oap::cuda::Kernel& kernel);
 
-CUresult DEVICEKernel_SetIdentity(math::Matrix* matrix, oap::cuda::Kernel& kernel);
+bool DEVICEKernel_SetIdentity(math::Matrix* matrix, oap::cuda::Kernel& kernel);
 
-CUresult DEVICEKernel_Substract(math::Matrix* output, math::Matrix* params0,
+bool DEVICEKernel_Substract(math::Matrix* output, math::Matrix* params0,
                                 math::Matrix* params1, oap::cuda::Kernel& kernel);
 
-CUresult DEVICEKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
+bool DEVICEKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
                                       math::Matrix* R1, math::Matrix* Q1,
                                       math::Matrix* QJ, math::Matrix* Q2,
                                       math::Matrix* R2, math::Matrix* G,

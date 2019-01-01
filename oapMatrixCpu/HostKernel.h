@@ -17,47 +17,55 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-#ifndef THREADSHOST_H
-#define THREADSHOST_H
+#ifndef OAP_HOST_KERNEL_H
+#define OAP_HOST_KERNEL_H
 
 #include "Dim3.h"
+#include "IKernelExecutor.h"
 
 class ThreadImpl;
 class HostKernel;
 
-class HostKernel {
- public:
-  HostKernel();
+class HostKernel
+{
+  public:
+    HostKernel();
 
-  HostKernel(uintt columns, uintt rows);
+    HostKernel(uintt columns, uintt rows);
 
-  virtual ~HostKernel();
+    virtual ~HostKernel();
 
-  void setDims(const dim3& gridDim, const dim3& blockDim);
+    void setDims(const dim3& gridDim, const dim3& blockDim);
 
-  void calculateDims(uintt columns, uintt rows);
+    void calculateDims(uintt columns, uintt rows);
 
-  void executeKernelAsync();
+    void setSharedMemory (size_t sizeInBytes);
 
-  void executeKernelSync();
+    void executeKernelAsync();
 
- protected:
-  virtual void execute(const dim3& threadIdx, const dim3& blockIdx) = 0;
+    void executeKernelSync();
 
-  enum ContextChange { CUDA_THREAD, CUDA_BLOCK };
+  protected:
+    virtual void execute(const dim3& threadIdx, const dim3& blockIdx) = 0;
 
-  virtual void onChange(ContextChange contextChnage, const dim3& threadIdx,
-                        const dim3& blockIdx) {}
+    enum ContextChange { CUDA_THREAD, CUDA_BLOCK };
 
-  virtual void onSetDims(const dim3& gridDim, const dim3& blockDim) {}
+    virtual void onChange(ContextChange contextChnage, const dim3& threadIdx, const dim3& blockIdx)
+    {
+      // empty
+    }
 
-  dim3 gridDim;
-  dim3 blockDim;
+    virtual void onSetDims(const dim3& gridDim, const dim3& blockDim)
+    {
+      // empty
+    }
 
- private:
-  friend class ThreadImpl;
+    dim3 gridDim;
+    dim3 blockDim;
+    size_t m_sharedMemorySize = 0;
+
+  private:
+    friend class ThreadImpl;
 };
 
-#endif  // THREADSHOST_H
+#endif

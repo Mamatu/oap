@@ -17,12 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "HostKernel.h"
 #include "ThreadUtils.h"
 #include "ThreadsMapper.h"
 #include "Dim3.h"
+
+#include <memory>
 
 class ThreadImpl;
 
@@ -47,6 +47,11 @@ void HostKernel::calculateDims(uintt columns, uintt rows) {
   setDims(blocks, threads);
 }
 
+void HostKernel::setSharedMemory (size_t sizeInBytes)
+{
+  m_sharedMemorySize = sizeInBytes;
+}
+
 class ThreadImpl : public utils::Thread {
   dim3 m_threadIdx;
   dim3 m_blockIdx;
@@ -56,6 +61,7 @@ class ThreadImpl : public utils::Thread {
   utils::sync::Cond m_cond;
   utils::sync::Mutex m_mutex;
   bool m_cancontinue;
+  void* m_sharedBuffer;
 
  public:
   ThreadImpl() : m_hostKernel(NULL), m_pthreads(NULL), m_barrier(NULL) {
@@ -73,6 +79,8 @@ class ThreadImpl : public utils::Thread {
   void setPthreads(std::vector<pthread_t>* pthreads) { m_pthreads = pthreads; }
 
   void setBarrier(utils::sync::Barrier* barrier) { m_barrier = barrier; }
+  
+  void setSharedBuffer (void* buffer) { m_sharedBuffer = buffer; }
 
   virtual ~ThreadImpl() {}
 
@@ -88,25 +96,22 @@ class ThreadImpl : public utils::Thread {
  protected:
   static void Execute(void* ptr) {
     ThreadImpl* threadImpl = static_cast<ThreadImpl*>(ptr);
-    for (int fa = 0; fa < threadImpl->m_hostKernel->gridDim.x *
-                              threadImpl->m_hostKernel->gridDim.y;
-         ++fa) {
+    const int gridSize = threadImpl->m_hostKernel->gridDim.x * threadImpl->m_hostKernel->gridDim.y;
+    for (int fa = 0; fa < gridSize; ++fa)
+    {
       threadImpl->m_barrier->wait();
 
       ThreadIdx& ti = ThreadIdx::m_threadIdxs[pthread_self()];
       ti.setThreadIdx(threadImpl->m_threadIdx);
       ti.setBlockIdx(threadImpl->m_blockIdx);
 
-      threadImpl->m_hostKernel->execute(threadImpl->m_threadIdx,
-                                        threadImpl->m_blockIdx);
-      threadImpl->m_hostKernel->onChange(HostKernel::CUDA_THREAD,
-                                         threadImpl->m_threadIdx,
-                                         threadImpl->m_blockIdx);
+      threadImpl->m_hostKernel->execute(threadImpl->m_threadIdx, threadImpl->m_blockIdx);
+      threadImpl->m_hostKernel->onChange(HostKernel::CUDA_THREAD, threadImpl->m_threadIdx, threadImpl->m_blockIdx);
 
       threadImpl->m_mutex.lock();
       threadImpl->m_cancontinue = true;
-      threadImpl->m_cond.signal();
       threadImpl->m_mutex.unlock();
+      threadImpl->m_cond.signal();
     }
   }
 
@@ -117,6 +122,7 @@ class ThreadImpl : public utils::Thread {
     threadIndex.setBlockIdx(m_blockIdx);
     threadIndex.setBlockDim(m_hostKernel->blockDim);
     threadIndex.setGridDim(m_hostKernel->gridDim);
+    threadIndex.setSharedBuffer (m_sharedBuffer);
     m_pthreads->push_back(threadId);
     if (m_threadIdx.x == m_hostKernel->blockDim.x - 1 &&
         m_threadIdx.y == m_hostKernel->blockDim.y - 1) {
@@ -138,7 +144,7 @@ void HostKernel::executeKernelAsync() {
   unsigned int count = blockDim.y * blockDim.x + 1;
   utils::sync::Barrier barrier(count);
   // threads.resize(blockDim.x * blockDim.y);
-  pthreads.reserve(blockDim.x * blockDim.y);
+  pthreads.reserve (blockDim.x * blockDim.y);
 
   for (uintt threadIdxY = 0; threadIdxY < blockDim.y; ++threadIdxY) {
     for (uintt threadIdxX = 0; threadIdxX < blockDim.x; ++threadIdxX) {
@@ -160,8 +166,15 @@ void HostKernel::executeKernelAsync() {
     for (uintt blockIdxX = 0; blockIdxX < gridDim.x; ++blockIdxX) {
       blockIdx.x = blockIdxX;
       blockIdx.y = blockIdxY;
+
+      std::unique_ptr<char[]> sharedMemory (nullptr);
+      if (m_sharedMemorySize > 0)
+      {
+        sharedMemory.reset (new char[m_sharedMemorySize]);
+      }
       for (size_t fa = 0; fa < threads.size(); ++fa) {
-        threads.at(fa)->setBlockIdx(blockIdx);
+        threads.at(fa)->setBlockIdx (blockIdx);
+        threads.at(fa)->setSharedBuffer (sharedMemory.get());
         if (blockIdx.x == 0 && blockIdx.y == 0) {
           threads.at(fa)->run();
         }
@@ -195,6 +208,11 @@ void HostKernel::executeKernelSync() {
 
   for (uintt blockIdxY = 0; blockIdxY < gridDim.y; ++blockIdxY) {
     for (uintt blockIdxX = 0; blockIdxX < gridDim.x; ++blockIdxX) {
+      std::unique_ptr<char[]> sharedMemory (nullptr);
+      if (m_sharedMemorySize > 0)
+      {
+        sharedMemory.reset (new char[m_sharedMemorySize]);
+      }
       for (uintt threadIdxY = 0; threadIdxY < blockDim.y; ++threadIdxY) {
         for (uintt threadIdxX = 0; threadIdxX < blockDim.x; ++threadIdxX) {
           threadIdx.x = threadIdxX;
@@ -206,6 +224,7 @@ void HostKernel::executeKernelSync() {
           ti.setBlockIdx(blockIdx);
           ti.setBlockDim(blockDim);
           ti.setGridDim(gridDim);
+          ti.setSharedBuffer (sharedMemory.get ());
           this->execute(threadIdx, blockIdx);
           this->onChange(HostKernel::CUDA_THREAD, threadIdx, blockIdx);
         }

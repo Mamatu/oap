@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <pthread.h>
 #include "gtest/gtest.h"
-#include "TestProcedures.h"
 #include "oapCudaMatrixUtils.h"
 #include "DeviceMatrixKernels.h"
 #include "gmock/gmock-generated-function-mockers.h"
@@ -34,7 +33,6 @@ typedef std::vector<ValueIndex> ValueIndexVec;
 
 class OapCudaUtilsTests : public testing::Test {
  public:
-  CuTest cuTest;
   CUresult status;
 
   oap::cuda::Kernel* m_kernel;

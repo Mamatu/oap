@@ -17,22 +17,26 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef OAP_HOST_KERNEL_EXECUTOR_H
+#define OAP_HOST_KERNEL_EXECUTOR_H
+
+#include "Dim3.h"
+#include "IKernelExecutor.h"
 
 
-#ifndef TESTPROCEDURES_H
-#define TESTPROCEDURES_H
+class HostKernelExecutor : public oap::IKernelExecutor
+{
+  public:
+    HostKernelExecutor();
 
-#include "KernelExecutor.h"
+    virtual ~HostKernelExecutor();
 
-class CuTest {
-    void* m_image;
-    oap::cuda::Kernel m_kernel;
-    CUresult m_cuResult;
-public:
-    CuTest();
-    bool test1();
-    bool test2();
-    CUresult getStatus() const;
+    virtual std::string getErrorMsg () const override;
+
+    virtual uint getMaxThreadsPerBlock() const override;
+    
+  protected:
+    virtual bool run(const char* functionName) override;
 };
 
 #endif
