@@ -22,24 +22,23 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
-#include "CuMagnitudeUtilsCommon.h"
+#include "CuUtilsCommon.h"
 
-__hostdevice__ void cuda_SumValuesInBuffers (floatt* buffers[2], uintt bufferIndex, uintt bufferLength)
+__hostdevice__ void cuda_SumValuesInBuffers (floatt* buffers[2], uintt bufferIndex, uintt bufferLength, uintt xlimit, uintt ylimit)
 {
   HOST_INIT();
-  if (bufferIndex < bufferLength / 2 && threadIdx.x < blockDim.x &&
-      threadIdx.y < blockDim.y)
+  if (bufferIndex < bufferLength / 2 && threadIdx.x < xlimit && threadIdx.y < ylimit)
   {
-    int c = bufferLength & 1;
-      if (buffers [0] != NULL)
-      {
-        buffers [0][bufferIndex] += buffers[0][bufferIndex + bufferLength / 2];
-      }
-      if (buffers[1] != NULL)
-      {
-        buffers [1][bufferIndex] += buffers[1][bufferIndex + bufferLength / 2];
-      }
-    if (c == 1 && bufferIndex == bufferLength / 2 - 1)
+    bool isOdd = ((bufferLength & 1) == 1);
+    if (buffers [0] != NULL)
+    {
+      buffers [0][bufferIndex] += buffers[0][bufferIndex + bufferLength / 2];
+    }
+    if (buffers[1] != NULL)
+    {
+      buffers [1][bufferIndex] += buffers[1][bufferIndex + bufferLength / 2];
+    }
+    if (isOdd && bufferIndex == bufferLength / 2 - 1)
     {
       if (buffers [0] != NULL)
       {
@@ -70,12 +69,12 @@ __hostdevice__ void cuda_SumReal(floatt* buffers[2], uintt bufferIndex, math::Ma
 __hostdevice__ void cuda_SumRe(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1)
 {
   HOST_INIT();
-  const bool inScope =
-    GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-    GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+  const bool inYScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows;
+  const bool inXScope = GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+  const bool inScope = inYScope && inXScope;
   if (inScope)
   {
-    uintt index = GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
+    const uintt index = GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     buffers[0][bufferIndex] = m1->reValues[index];
   }
 }
@@ -92,113 +91,4 @@ __hostdevice__ void cuda_SumIm(floatt* buffers[2], uintt bufferIndex, math::Matr
   }
 }
 
-__hostdevice__ void cuda_SumRealVec(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1, uintt column)
-{
-  HOST_INIT();
-
-  uint3 lthreadIdx = threadIdx;
-  dim3 lblockIdx = blockIdx;
-  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
-
-  const bool inScope = GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < m1->rows &&
-                       GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
-  if (inScope)
-  {
-    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffers[0][bufferIndex] = m1->reValues[index];
-    buffers[1][bufferIndex] = m1->imValues[index];
-  }
-}
-
-__hostdevice__ void cuda_SumReVec(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1, uintt column)
-{
-  HOST_INIT();
-
-  uint3 lthreadIdx = threadIdx;
-  dim3 lblockIdx = blockIdx;
-  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
-
-  const bool inScope = GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < m1->rows &&
-                       GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
-  if (inScope)
-  {
-    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffers[0][bufferIndex] = m1->reValues[index];
-  }
-}
-
-__hostdevice__ void cuda_SumImVec(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1, uintt column)
-{
-  HOST_INIT();
-
-  uint3 lthreadIdx = threadIdx;
-  dim3 lblockIdx = blockIdx;
-  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
-
-  const bool inScope = GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < m1->rows &&
-                       GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
-  if (inScope)
-  {
-    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffers[1][bufferIndex] = m1->imValues[index];
-  }
-}
-
-__hostdevice__ void cuda_SumRealVecEx(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1, uintt column, uintt row1, uintt row2)
-{
-  HOST_INIT();
-
-  uint3 lthreadIdx = threadIdx;
-  dim3 lblockIdx = blockIdx;
-  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
-
-  uintt matrixYIndex = GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim);
-
-  const bool inScope = matrixYIndex >= row1 && matrixYIndex < row2 && GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
-  if (inScope)
-  {
-    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffers[0][bufferIndex] = m1->reValues[index];
-    buffers[1][bufferIndex] = m1->imValues[index];
-  }
-}
-
-__hostdevice__ void cuda_SumReVecEx(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1, uintt column, uintt row1, uintt row2)
-{
-  HOST_INIT();
-
-  uint3 lthreadIdx = threadIdx;
-  dim3 lblockIdx = blockIdx;
-  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
-
-  uintt matrixYIndex = GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim);
-
-  const bool inScope = matrixYIndex >= row1 && matrixYIndex < row2 && GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
-  if (inScope)
-  {
-    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffers[0][bufferIndex] = m1->reValues[index];
-  }
-}
-
-__hostdevice__ void cuda_SumImVecEx(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1, uintt column, uintt row1, uintt row2)
-{
-  HOST_INIT();
-
-  uint3 lthreadIdx = threadIdx;
-  dim3 lblockIdx = blockIdx;
-  cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
-
-  uintt matrixYIndex = GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim);
-
-  const bool inScope =
-    matrixYIndex >= row1 && matrixYIndex < row2 &&
-    GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
-  if (inScope)
-  {
-    uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffers[1][bufferIndex] = m1->imValues[index];
-  }
-}
-
-#endif /* CUCOMMONUTILS_H */
+#endif /* CU_SUM_UTILS_H */

@@ -575,7 +575,7 @@ void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
  */
 void SetDiagonalImMatrix(math::Matrix* matrix, floatt a);
 
-math::MatrixInfo GetMatrixInfo(const math::Matrix* matrix);
+math::MatrixInfo GetMatrixInfo (const math::Matrix* matrix);
 
 math::Matrix* ReadMatrix(const std::string& path);
 

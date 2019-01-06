@@ -295,9 +295,9 @@ extern "C" __global__ void CUDAKernel_CrossEntropyRe (math::Matrix* output, math
   CUDA_crossEntropyRe (output, params0, params1);
 }
 
-extern "C" __global__ void CUDAKernel_SumShared (floatt* output[2], math::Matrix* params0)
+extern "C" __global__ void CUDAKernel_SumShared (floatt* rebuffer, floatt* imbuffer, math::Matrix* params0)
 {
-  CUDA_sumShared (output, params0);
+  CUDA_sumShared (rebuffer, imbuffer, params0);
 }
 
 extern "C" __global__ void CUDAKernel_CalculateTriangularH(

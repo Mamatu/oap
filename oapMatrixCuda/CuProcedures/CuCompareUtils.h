@@ -21,18 +21,13 @@
 #define CU_COMPARE_UTILS_H
 
 #include "CuCompareUtilsCommon.h"
-
-#define GetMatrixIndex(threadIdx, blockIdx, blockDim, offset) \
-  ((threadIdx.y + blockIdx.y * blockDim.y) * (offset) +       \
-   ((blockIdx.x * blockDim.x + threadIdx.x)))
+#include "CuUtilsCommon.h"
 
 #define GetMatrixColumn(threadIdx, blockIdx, blockDim) \
   (blockIdx.x * blockDim.x + threadIdx.x)
 
 #define GetMatrixRow(threadIdx, blockIdx, blockDim) \
   (threadIdx.y + blockIdx.y * blockDim.y)
-
-#define GetLength(blockIdx, blockDim, limit) blockDim - ((blockIdx + 1) * blockDim > limit ? (blockIdx + 1) * blockDim - limit : 0);
 
 __hostdevice__ void cuda_CompareBuffer(floatt* buffer, uint sharedIndex,
                                        uint sharedLength, uint xlength,

@@ -49,18 +49,9 @@ class dim3 {
     z = array[2];
   }
 
-  dim3 (uint tuple[3])
+  dim3 (uint x, uint y, uint z = 1)
   {
-    x = tuple[0];
-    y = tuple[1];
-    z = tuple[2];
-  }
-
-  dim3 (uint x, uint y)
-  {
-    this->x = x;
-    this->y = y;
-    z = 1;
+    set (x, y, z);
   }
 
   void clear()

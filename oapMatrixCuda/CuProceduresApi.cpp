@@ -26,6 +26,8 @@
 #include <iterator>
 #include <math.h>
 
+#include "GenericProceduresApi.h"
+
 namespace oap
 {
 
@@ -290,39 +292,13 @@ void CuProceduresApi::sum (floatt& output, math::Matrix* matrix)
 */
 void CuProceduresApi::sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix)
 {
-  const uintt w = oap::cuda::GetColumns (matrix);
-  const uintt h = oap::cuda::GetRows (matrix);
-  auto minfo = oap::cuda::GetMatrixInfo (matrix);
+  generic::SumApi<decltype(oap::cuda::GetMatrixInfo), decltype(CudaUtils::CopyDeviceToHost)>
+  sumApi (oap::cuda::GetMatrixInfo, CudaUtils::CopyDeviceToHost);
 
-  prepareDims (w, h);
+  generic::SumBuffers<oap::Type::HOST, oap::Type::CUDA>
+  sumBuffers (m_hsumsReBuffer, m_dsumsReBuffer, m_hsumsImBuffer, m_dsumsImBuffer);
 
-  if (minfo.isRe)
-  {
-    m_dsumsReBuffer.realloc (m_blocks[0] * m_blocks[1]);
-    m_hsumsReBuffer.realloc (m_blocks[0] * m_blocks[1]);
-  }
-
-  if (minfo.isIm)
-  {
-    m_dsumsImBuffer.realloc (m_blocks[0] * m_blocks[1]);
-    m_hsumsImBuffer.realloc (m_blocks[0] * m_blocks[1]);
-  }
-
-  floatt* sumsBuffers[2] = {m_dsumsReBuffer.m_buffer, m_dsumsImBuffer.m_buffer};
-
-  void* params[] = {sumsBuffers, &matrix};
-  m_cuStatus = execute ("CUDAKernel_SumShared", w, h, params, w * h * sizeof(floatt), false);
-
-  CudaUtils::CopyDeviceToHost (m_hsumsReBuffer.m_buffer, m_dsumsReBuffer.m_buffer, m_hsumsReBuffer.getSizeOfBuffer());
-  CudaUtils::CopyDeviceToHost (m_hsumsImBuffer.m_buffer, m_dsumsImBuffer.m_buffer, m_hsumsImBuffer.getSizeOfBuffer());
-
-  reoutput = 0;
-  imoutput = 0;
-  for (size_t idx = 0; idx < m_hmagnitudeOutputBuffer.getLength(); ++idx)
-  {
-    reoutput += m_hsumsReBuffer.m_buffer[idx];
-    imoutput += m_hsumsImBuffer.m_buffer[idx];
-  }
+  generic::sum (reoutput, imoutput, matrix, &m_kernel, sumApi, sumBuffers);
 }
 
 void CuProceduresApi::magnitudeOpt(floatt& output, math::Matrix* param0) {

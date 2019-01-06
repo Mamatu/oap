@@ -17,29 +17,31 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_HOST_KERNEL_EXECUTOR_H
-#define OAP_HOST_KERNEL_EXECUTOR_H
+#include <string>
+#include "gtest/gtest.h"
+#include "MatchersUtils.h"
 
-#include "Dim3.h"
-#include "IKernelExecutor.h"
+#include "CuProcedures/CuUtilsCommon.h"
 
+class OapCuUtilsCommonTests : public testing::Test {
+ public:
+  virtual void SetUp()
+  {
+  }
 
-class HostKernelExecutor : public oap::IKernelExecutor
-{
-  public:
-    HostKernelExecutor (uint maxThreadsPerBlocks = 1024);
-
-    virtual ~HostKernelExecutor();
-
-    virtual std::string getErrorMsg () const override;
-
-    virtual uint getMaxThreadsPerBlock() const override;
-    
-  protected:
-    virtual bool run(const char* functionName) override;
-
-  private:
-    uint m_maxThreadsPerBlock;
+  virtual void TearDown()
+  {
+  }
+  
 };
 
-#endif
+TEST_F(OapCuUtilsCommonTests, GetLengthTests)
+{
+  {
+    EXPECT_EQ(32, GetLength (0, 32, 40));
+  }
+  {
+    EXPECT_EQ(8, GetLength (1, 32, 40));
+  }
+}
+

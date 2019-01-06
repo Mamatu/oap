@@ -40,7 +40,7 @@ void DotProductOperationCpu::execute() {
         threads[fa].thread.run((this->m_threadsCount == 1));
     }
     for (uintt fa = 0; fa < threadsCount; fa++) {
-        threads[fa].thread.yield();
+        threads[fa].thread.join();
     }
 }
 

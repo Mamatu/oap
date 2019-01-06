@@ -19,12 +19,19 @@
 
 #include <string>
 #include "gtest/gtest.h"
+
 #include "MatchersUtils.h"
+
 #include "CuProceduresApi.h"
 #include "MathOperationsCpu.h"
+
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
+
 #include "KernelExecutor.h"
+
+#include "oapHostMatrixPtr.h"
+#include "oapDeviceMatrixPtr.h"
 
 class OapSumTests : public testing::Test {
  public:
@@ -40,57 +47,49 @@ class OapSumTests : public testing::Test {
     delete cuApi;
     oap::cuda::Context::Instance().destroy();
   }
+
+  void test (size_t columns, size_t rows, const std::function<int(int)> getValue, const std::function<void(int,int)>& compare)
+  {
+    size_t expected = 0;
+    oap::HostMatrixPtr hmatrix = oap::host::NewReMatrix (columns, rows);
+    oap::DeviceMatrixPtr dmatrix = oap::cuda::NewDeviceReMatrix (columns, rows);
+    for (size_t idx = 0; idx < columns * rows; ++idx)
+    {
+      hmatrix->reValues[idx] = getValue(idx);
+      expected += getValue(idx);
+    }
+
+    floatt reoutput = 0;
+    floatt imoutput = 0;
+
+    oap::cuda::CopyHostMatrixToDeviceMatrix (dmatrix, hmatrix);
+
+    cuApi->sum (reoutput, imoutput, dmatrix);
+    compare (expected, reoutput);
+  };
 };
 
 TEST_F(OapSumTests, SimpleSums)
 {
   {
-    size_t columns = 10;
-    size_t rows = 1;
-    size_t expected = 0;
-    math::Matrix* hmatrix = oap::host::NewReMatrix (columns, rows);
-    for (size_t idx = 0; idx < columns * rows; ++idx)
-    {
-      hmatrix->reValues[idx] = idx;
-      expected += idx;
-    }
-    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
-    floatt reoutput = 0;
-    floatt imoutput = 0;
-    cuApi->sum (reoutput, imoutput, dmatrix);
-    EXPECT_EQ(expected, reoutput);
-  }
-  /*
-  {
-    size_t columns = 1;
-    size_t rows = 10;
-    size_t expected = 0;
-    math::Matrix* hmatrix = oap::host::NewReMatrix (columns, rows);
-    for (size_t idx = 0; idx < columns * rows; ++idx)
-    {
-      hmatrix->reValues[idx] = idx;
-      expected += idx;
-    }
-    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
-    floatt reoutput = 0;
-    floatt imoutput = 0;
-    cuApi->sum (reoutput, imoutput, dmatrix);
-    EXPECT_EQ(expected, reoutput);
+    test (1, 1, [](int idx){ return 1; }, [](int expected, int output){ EXPECT_EQ(expected, output); });
   }
   {
-    size_t columns = 10;
-    size_t rows = 10;
-    size_t expected = 0;
-    math::Matrix* hmatrix = oap::host::NewReMatrix (columns, rows);
-    for (size_t idx = 0; idx < columns * rows; ++idx)
-    {
-      hmatrix->reValues[idx] = idx;
-      expected += idx;
-    }
-    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
-    floatt reoutput = 0;
-    floatt imoutput = 0;
-    cuApi->sum (reoutput, imoutput, dmatrix);
-    EXPECT_EQ(expected, reoutput);
-  }*/
+    test (2, 1, [](int idx){ return 1; }, [](int expected, int output){ EXPECT_EQ(expected, output); });
+  }
+  {
+    test (10, 1, [](int idx){ return 1; }, [](int expected, int output){ EXPECT_EQ(expected, output); });
+  }
+  {
+    test (10, 1, [](int idx){ return idx; }, [](int expected, int output){ EXPECT_EQ(expected, output); });
+  }
+  {
+    test (1, 10, [](int idx){ return idx; }, [](int expected, int output){ EXPECT_EQ(expected, output); });
+  }
+  {
+    test (10, 10, [](int idx){ return idx; }, [](int expected, int output){ EXPECT_EQ(expected, output); });
+  }
+  {
+    test (2024, 1024, [](int idx){ return 1; }, [](int expected, int output){ EXPECT_EQ(expected, output); });
+  }
 }

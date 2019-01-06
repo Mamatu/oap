@@ -25,7 +25,7 @@
 #include <map>
 #include <functional>
 
-std::map<std::string, std::function<void(void**)>> g_kernelsList = {{"HOSTKernel_SumSharedRaw", HOSTKernel_SumSharedRaw}};
+std::map<std::string, std::function<void(void**)>> g_kernelsList = {{"CUDAKernel_SumShared", HOSTKernel_SumSharedRaw}};
 
 class HostKernelImpl : public HostKernel
 {
@@ -42,7 +42,7 @@ class HostKernelImpl : public HostKernel
     }
 };
 
-HostKernelExecutor::HostKernelExecutor()
+HostKernelExecutor::HostKernelExecutor(uint maxThreadsPerBlock) : m_maxThreadsPerBlock (maxThreadsPerBlock)
 {}
 
 HostKernelExecutor::~HostKernelExecutor()
@@ -55,7 +55,7 @@ std::string HostKernelExecutor::getErrorMsg () const
 
 uint HostKernelExecutor::getMaxThreadsPerBlock() const
 {
-  return 32*1024;
+  return m_maxThreadsPerBlock;
 }
 
 bool HostKernelExecutor::run (const char* functionName)

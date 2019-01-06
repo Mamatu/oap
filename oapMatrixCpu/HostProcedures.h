@@ -24,10 +24,11 @@
 
 #include "Matrix.h"
 #include "HostKernel.h"
+#include "HostKernelExecutor.h"
 
 class HostProcedures {
  public:
-  HostProcedures();
+  HostProcedures(uint maxThreadsPerBlock = 1024);
   virtual ~HostProcedures();
 
   void setThreadsCount(uintt threadsCount);
@@ -44,10 +45,14 @@ class HostProcedures {
 
   void transpose(math::Matrix* output, math::Matrix* matrix);
 
+  void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
+
  private:
   uint m_threads[2];
   uint m_blocks[2];
   uint m_threadsCount;
+
+  HostKernelExecutor m_kernel;
 
   void prepare(math::Matrix* matrix, HostKernel& hostKernel);
 };

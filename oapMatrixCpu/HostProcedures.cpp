@@ -22,8 +22,10 @@
 #include "CuProcedures/CuSubstractionProcedures.h"
 #include "CuProcedures/CuDotProductProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
+#include "GenericProceduresApi.h"
 #include "ThreadsMapper.h"
 #include "HostKernel.h"
+#include "oapHostMatrixUtils.h"
 
 class SubstractionImpl : public HostKernel {
  public:
@@ -154,7 +156,7 @@ void HostProcedures::prepare(math::Matrix* matrix, HostKernel& hostKernel) {
   hostKernel.setDims(m_blocks, m_threads);
 }
 
-HostProcedures::HostProcedures() : m_threadsCount(4) {}
+HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_threadsCount(4) {}
 
 HostProcedures::~HostProcedures() {}
 
@@ -196,3 +198,20 @@ void HostProcedures::transpose(math::Matrix* output, math::Matrix* matrix) {
   prepare(output, transposeImpl);
   transposeImpl.executeKernelAsync();
 }
+
+void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
+{
+  oap::TBuffer<floatt, oap::Type::HOST> m_hsumsReBuffer;
+  oap::TBuffer<floatt, oap::Type::HOST> m_dsumsReBuffer;
+  oap::TBuffer<floatt, oap::Type::HOST> m_hsumsImBuffer;
+  oap::TBuffer<floatt, oap::Type::HOST> m_dsumsImBuffer;
+
+  oap::generic::SumApi<decltype(oap::host::GetMatrixInfo), decltype(memcpy)>
+  sumApi (oap::host::GetMatrixInfo, memcpy);
+
+  oap::generic::SumBuffers<oap::Type::HOST, oap::Type::HOST>
+  sumBuffers (m_hsumsReBuffer, m_dsumsReBuffer, m_hsumsImBuffer, m_dsumsImBuffer);
+
+  oap::generic::sum (reoutput, imoutput, params0, &m_kernel, sumApi, sumBuffers);
+}
+

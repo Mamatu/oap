@@ -134,7 +134,7 @@ class Thread {
   virtual ~Thread();
   void setFunction(ThreadFunction_f _function, void* _ptr);
   void run(bool inTheSameThreead = false);
-  void yield();
+  void join();
 };
 }
 #endif

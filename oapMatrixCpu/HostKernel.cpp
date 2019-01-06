@@ -44,7 +44,7 @@ void HostKernel::calculateDims(uintt columns, uintt rows) {
   uint blocks[2];
   uint threads[2];
   utils::mapper::SetThreadsBlocks(blocks, threads, columns, rows, 1024);
-  setDims(blocks, threads);
+  setDims (dim3(blocks[0], blocks[1]), dim3(threads[0], threads[1]));
 }
 
 void HostKernel::setSharedMemory (size_t sizeInBytes)
@@ -162,16 +162,16 @@ void HostKernel::executeKernelAsync() {
     }
   }
 
+  std::unique_ptr<char[]> sharedMemory (nullptr);
+  if (m_sharedMemorySize > 0)
+  {
+    sharedMemory.reset (new char[m_sharedMemorySize]);
+  }
   for (uintt blockIdxY = 0; blockIdxY < gridDim.y; ++blockIdxY) {
     for (uintt blockIdxX = 0; blockIdxX < gridDim.x; ++blockIdxX) {
       blockIdx.x = blockIdxX;
       blockIdx.y = blockIdxY;
 
-      std::unique_ptr<char[]> sharedMemory (nullptr);
-      if (m_sharedMemorySize > 0)
-      {
-        sharedMemory.reset (new char[m_sharedMemorySize]);
-      }
       for (size_t fa = 0; fa < threads.size(); ++fa) {
         threads.at(fa)->setBlockIdx (blockIdx);
         threads.at(fa)->setSharedBuffer (sharedMemory.get());
@@ -188,7 +188,7 @@ void HostKernel::executeKernelAsync() {
   }
 
   for (size_t fa = 0; fa < threads.size(); ++fa) {
-    threads.at(fa)->yield();
+    threads.at(fa)->join();
     delete threads.at(fa);
   }
   threads.clear();

@@ -27,8 +27,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_magnitudeOptRealMatrix(floatt* sum, math::Matrix* matrix1,
-    floatt* buffer)
+__hostdevice__ void CUDA_magnitudeOptRealMatrix(floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
   uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);

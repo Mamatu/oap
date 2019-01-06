@@ -17,11 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
-#ifndef CUMAGNITUDEUTILSCOMMON_H
-#define CUMAGNITUDEUTILSCOMMON_H
+#ifndef CU_UTILS_COMMON_H
+#define CU_UTILS_COMMON_H
 
 #include "CuCore.h"
 #include "Matrix.h"
@@ -43,9 +40,10 @@
   (GetMatrixYIndex(threadIdx, blockIdx, blockDim) * (offset) + \
    (GetMatrixXIndex2(threadIdx, blockIdx, blockDim)))
 
-#define GetLength(blockIdx, blockDim, limit)          \
-  blockDim - ((blockIdx + 1) * blockDim > limit       \
-                  ? (blockIdx + 1) * blockDim - limit \
-                  : 0);
 
-#endif /* CUCOMMONUTILS_H */
+__hostdeviceinline__ int GetLength (int blockIdx, int blockDim, uint limit)
+{
+  return blockDim - ((blockIdx + 1) * blockDim > limit ? (blockIdx + 1) * blockDim - limit : 0);
+}
+
+#endif /* CU_UTILS_COMMON_H */

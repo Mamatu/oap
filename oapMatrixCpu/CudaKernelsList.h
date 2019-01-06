@@ -22,16 +22,29 @@
 
 #include "CuMatrixProcedures.h"
 
-void HOSTKernel_SumShared (floatt* output[2], math::Matrix* params0)
+template<typename T>
+T* getParam (void* param)
 {
-  CUDA_sumShared (output, params0);
+  return *static_cast<T**> (param);
+}
+
+template<typename T>
+T* getParam (void** params, size_t index)
+{
+  return getParam<T> (params[index]);
+}
+
+void HOSTKernel_SumShared (floatt* rebuffer, floatt* imbuffer, math::Matrix* matrix)
+{
+  CUDA_sumShared (rebuffer, imbuffer, matrix);
 }
 
 void HOSTKernel_SumSharedRaw (void** params)
 {
-  floatt** param1 = static_cast<floatt**> (params[0]);
-  math::Matrix* param2 = static_cast<math::Matrix*> (params[1]);
-  HOSTKernel_SumShared (param1, param2);
+  floatt* param1 = getParam<floatt> (params[0]);
+  floatt* param2 = getParam<floatt> (params[1]);
+  math::Matrix* param3 = getParam<math::Matrix> (params[2]);
+  HOSTKernel_SumShared (param1, param2, param3);
 }
 
 

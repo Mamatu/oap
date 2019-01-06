@@ -116,7 +116,7 @@ class CuProceduresApi
 
   void magnitude (floatt& output, math::Matrix* params0);
 
-  void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
+  void sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix);
   //void sumShared (floatt& output, math::Matrix* params0);
 
   void magnitudeOpt(floatt& output, math::Matrix* params0);
