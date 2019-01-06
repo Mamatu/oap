@@ -24,7 +24,8 @@
 #include "gtest/gtest.h"
 #include "ThreadsMapper.h"
 
-class OapThreadsMapperTests : public testing::Test {
+class OapThreadsMapperTests : public testing::Test
+{
  public:
   int m_columns;
   int m_rows;
@@ -47,28 +48,33 @@ class OapThreadsMapperTests : public testing::Test {
 
   virtual void TearDown() {}
 
-  void execute() {
-    utils::mapper::SetThreadsBlocks(m_blocks, m_threads, m_columns, m_rows,
-                                    m_threadsLimit);
-
+  void calculate()
+  {
+    utils::mapper::SetThreadsBlocks(m_blocks, m_threads, m_columns, m_rows, m_threadsLimit);
     EXPECT_GE(m_threadsLimit, m_threads[0] * m_threads[1]);
   }
 };
 
-TEST_F(OapThreadsMapperTests, Test1) {
+TEST_F(OapThreadsMapperTests, Test1)
+{
   m_columns = 20;
   m_rows = 20;
-  execute();
+
+  calculate();
+
   EXPECT_EQ(1, m_blocks[0]);
   EXPECT_EQ(1, m_blocks[1]);
   EXPECT_EQ(m_columns, m_threads[0]);
   EXPECT_EQ(m_rows, m_threads[1]);
 }
 
-TEST_F(OapThreadsMapperTests, Test2) {
+TEST_F(OapThreadsMapperTests, Test2)
+{
   m_columns = 256;
   m_rows = 256;
-  execute();
+
+  calculate();
+
   EXPECT_EQ(8, m_blocks[0]);
   EXPECT_EQ(8, m_blocks[1]);
   EXPECT_EQ(m_threadsLimitSqrt, m_threads[0]);
@@ -77,10 +83,13 @@ TEST_F(OapThreadsMapperTests, Test2) {
   EXPECT_GE(m_rows, m_blocks[1] * m_threads[1]);
 }
 
-TEST_F(OapThreadsMapperTests, Test3) {
+TEST_F(OapThreadsMapperTests, Test3)
+{
   m_columns = 1;
   m_rows = 16438;
-  execute();
+
+  calculate();
+
   EXPECT_EQ(1, m_blocks[0]);
   EXPECT_EQ(514, m_blocks[1]);
   EXPECT_EQ(1, m_threads[0]);
@@ -89,10 +98,13 @@ TEST_F(OapThreadsMapperTests, Test3) {
   EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
 }
 
-TEST_F(OapThreadsMapperTests, Test4) {
+TEST_F(OapThreadsMapperTests, Test4)
+{
   m_columns = 16384;
   m_rows = 2;
-  execute();
+
+  calculate();
+
   //EXPECT_EQ(32, m_blocks[0]);
   //EXPECT_EQ(514, m_blocks[1]);
   EXPECT_EQ(m_threadsLimitSqrt, m_threads[0]);
@@ -100,3 +112,46 @@ TEST_F(OapThreadsMapperTests, Test4) {
   EXPECT_LE(m_columns, m_blocks[0] * m_threads[0]);
   EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
 }
+
+TEST_F(OapThreadsMapperTests, Test5)
+{
+  m_columns = 1024;
+  m_rows = 1024;
+
+  calculate();
+
+  EXPECT_EQ(32, m_blocks[0]);
+  EXPECT_EQ(32, m_blocks[1]);
+  EXPECT_EQ(32, m_threads[0]);
+  EXPECT_EQ(32, m_threads[1]);
+  EXPECT_LE(m_columns, m_blocks[0] * m_threads[0]);
+  EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
+}
+
+TEST_F(OapThreadsMapperTests, Test6)
+{
+  m_columns = 1024*2;
+  m_rows = 1024*2;
+
+  calculate();
+
+  EXPECT_EQ(32*2, m_blocks[0]);
+  EXPECT_EQ(32*2, m_blocks[1]);
+  EXPECT_EQ(32, m_threads[0]);
+  EXPECT_EQ(32, m_threads[1]);
+  EXPECT_LE(m_columns, m_blocks[0] * m_threads[0]);
+  EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
+}
+
+TEST_F(OapThreadsMapperTests, Test7)
+{
+  m_columns = 5123;
+  m_rows = 2133;
+
+  calculate();
+
+  EXPECT_EQ(1024, m_threads[0] * m_threads[1]);
+  EXPECT_LE(m_columns, m_blocks[0] * m_threads[0]);
+  EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
+}
+
