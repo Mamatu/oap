@@ -93,19 +93,24 @@ class Buffer
       return m_buffer;
     }
 
+    uintt getUsedSizeOfBuffer() const
+    {
+      return sizeof (T) * m_usedLength;
+    }
+
     uintt getSizeOfBuffer() const
     {
       return sizeof (T) * m_length;
     }
 
-    uintt getRealSizeOfBuffer() const
-    {
-      return sizeof (T) * m_realLength;
-    }
-
     size_t getSizeOfType() const
     { 
       return sizeof(T);
+    }
+
+    uintt getUsedLength() const
+    {
+      return m_usedLength;
     }
 
     uintt getLength() const
@@ -120,7 +125,7 @@ class Buffer
 
       tryRealloc (argLen);
 
-      m_memUtl.template set<Arg> (m_buffer, m_length, &value, argLen);
+      m_memUtl.template set<Arg> (m_buffer, m_usedLength, &value, argLen);
 
       return increaseIdx (argLen);
     }
@@ -132,7 +137,7 @@ class Buffer
 
       tryRealloc (argLen);
 
-      m_memUtl.template set<Arg> (m_buffer, m_length, buffer, argLen);
+      m_memUtl.template set<Arg> (m_buffer, m_usedLength, buffer, argLen);
 
       return increaseIdx (argLen);
     }
@@ -225,7 +230,7 @@ class Buffer
 
       std_fwrite (&sizeOfT, sizeof (size_t));
       std_fwrite (&length, sizeof (size_t));
-      std_fwrite (hostBuffer.get (), getSizeOfBuffer ());
+      std_fwrite (hostBuffer.get (), getUsedSizeOfBuffer ());
     }
 
     void fread (const std::string& path)
@@ -266,25 +271,25 @@ class Buffer
 
     void tryRealloc (uintt value)
     {
-      if (m_length + value >= m_realLength)
+      if (m_usedLength + value >= m_length)
       {
-        realloc (m_length + value);
+        realloc (m_usedLength + value);
       }
     }
 
     uintt increaseIdx (uintt value)
     {
-      uintt idx = m_length;
-      m_length += value;
+      uintt idx = m_usedLength;
+      m_usedLength += value;
       return idx;
     }
 
     void checkIdx (uintt idx) const
     {
-      if (idx >= m_length)
+      if (idx >= m_usedLength)
       {
         std::stringstream stream;
-        stream << "out of scope - idx too high idx: " << idx << ", m_length: " << m_length;
+        stream << "out of scope - idx too high idx: " << idx << ", m_usedLength: " << m_usedLength;
         throw std::runtime_error (stream.str ());
       }
     }
@@ -294,10 +299,10 @@ class Buffer
     {
        uintt offset = getArgLength<Arg> (count);
 
-      if (idx + offset > m_length)
+      if (idx + offset > m_usedLength)
       {
         std::stringstream stream;
-        stream << "out of scope - length too high idx: " << idx << "offset: " << offset << ", m_length: " << m_length;
+        stream << "out of scope - length too high idx: " << idx << "offset: " << offset << ", m_usedLength: " << m_usedLength;
         throw std::runtime_error (stream.str ());
       }
     }
@@ -321,8 +326,8 @@ class Buffer
 
   private:
 
-    uintt m_realLength = 0; ///< Real number of allocated elements in buffer
-    uintt m_length = 0; ///< Number of used elements in buffer
+    uintt m_length = 0; ///< Real number of allocated elements in buffer
+    uintt m_usedLength = 0; ///< Number of used elements in buffer
     mutable uintt m_readIdx = 0; ///< Read index
 
     void free (T* buffer);
@@ -354,19 +359,19 @@ Buffer<T, MemUtl>::~Buffer()
 template <typename T, template<typename> class MemUtl>
 void Buffer<T, MemUtl>::realloc (uintt newLength)
 {
-  if (m_realLength == 0)
+  if (m_length == 0)
   {
     allocBuffer (newLength);
     return;
   }
 
-  if (newLength > m_realLength)
+  if (newLength > m_length)
   {
     T* buffer = m_buffer;
-    uintt length = m_realLength;
+    uintt length = m_length;
 
     m_buffer = alloc (newLength);
-    m_realLength = newLength;
+    m_length = newLength;
 
     m_memUtl.copyBuffer (m_buffer, buffer, length);
 
@@ -391,16 +396,16 @@ void Buffer<T, MemUtl>::allocBuffer (uintt length)
     freeBuffer ();
   }
 
-  m_buffer = alloc(length);
-  m_realLength = length;
+  m_buffer = alloc (length);
+  m_length = length;
 }
 
 template <typename T, template<typename> class MemUtl>
 void Buffer<T, MemUtl>::freeBuffer ()
 {
   free (m_buffer);
-  m_realLength = 0;
   m_length = 0;
+  m_usedLength = 0;
 }
 
 template <typename T, template<typename> class MemUtl>

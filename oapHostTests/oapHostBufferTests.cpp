@@ -46,6 +46,14 @@ class OapHostBufferTests : public testing::Test {
   virtual void TearDown() {}
 };
 
+TEST_F(OapHostBufferTests, InitializationTest)
+{
+  oap::host::HostBuffer<int> buffer;
+  buffer.realloc (1);
+  EXPECT_EQ(1, buffer.getLength ());
+  EXPECT_EQ(sizeof(int), buffer.getSizeOfBuffer ());
+}
+
 TEST_F(OapHostBufferTests, SimpleBufferTest)
 {
   oap::host::HostBuffer<int> buffer;
