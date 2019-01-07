@@ -62,7 +62,23 @@ void Network::addLayer (Layer* layer)
   m_layers.push_back (layer);
 }
 
-void Network::runTest (math::Matrix* inputs, math::Matrix* expectedOutputs, MatrixType argsType)
+oap::HostMatrixUPtr Network::run (math::Matrix* inputs, MatrixType argsType, ErrorType errorType)
+{
+  Layer* layer = m_layers.front();
+
+  if (argsType == Network::HOST)
+  {
+    layer->setHostInputs (inputs);
+  }
+  else if (argsType == Network::DEVICE)
+  {
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
+  }
+
+  return executeAlgo (AlgoType::FORWARD_PROPAGATION_MODE, nullptr, errorType);
+}
+
+void Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, MatrixType argsType, ErrorType errorType)
 {
   Layer* layer = m_layers.front();
 
@@ -85,23 +101,7 @@ void Network::runTest (math::Matrix* inputs, math::Matrix* expectedOutputs, Matr
     oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
   }
 
-  executeAlgo (AlgoType::TEST_MODE, expectedOutputs);
-}
-
-oap::HostMatrixUPtr Network::run (math::Matrix* inputs, MatrixType argsType)
-{
-  Layer* layer = m_layers.front();
-
-  if (argsType == Network::HOST)
-  {
-    layer->setHostInputs (inputs);
-  }
-  else if (argsType == Network::DEVICE)
-  {
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
-  }
-
-  return executeAlgo (AlgoType::NORMAL_MODE, nullptr);
+  executeAlgo (AlgoType::BACKWARD_PROPAGATION_MODE, expectedOutputs, errorType);
 }
 
 void Network::setController(Network::IController* icontroller)
@@ -130,6 +130,11 @@ void Network::setDeviceWeights (math::Matrix* weights, size_t layerIndex)
 void Network::setLearningRate (floatt lr)
 {
   m_learningRate = lr;
+}
+
+floatt Network::getLearningRate () const
+{
+  return m_learningRate;
 }
 
 void Network::save (utils::ByteBuffer& buffer) const
@@ -214,16 +219,23 @@ void Network::setHostInputs (math::Matrix* inputs, size_t layerIndex)
   oap::cuda::CopyHostMatrixToDeviceMatrix (layer->m_inputs, inputs);
 }
 
-void Network::executeLearning (math::Matrix* deviceExpected)
+void Network::executeLearning (math::Matrix* deviceExpected, ErrorType errorType)
 {
   debugFunc();
   size_t idx = m_layers.size () - 1;
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
 
-  m_cuApi.substract (current->m_errors, deviceExpected, current->m_inputs);
+  if (errorType == ErrorType::NORMAL_ERROR)
+  {
+    m_cuApi.substract (current->m_errors, deviceExpected, current->m_inputs);
+  }
+  else
+  {
+    m_cuApi.crossEntropy (current->m_errors, deviceExpected, current->m_inputs);
+  }
 
-  if(!shouldContinue())
+  if(!shouldContinue (errorType))
   {
     return;
   }
@@ -241,7 +253,7 @@ void Network::executeLearning (math::Matrix* deviceExpected)
   updateWeights();
 }
 
-oap::HostMatrixUPtr Network::executeAlgo(AlgoType algoType, math::Matrix* deviceExpected)
+oap::HostMatrixUPtr Network::executeAlgo (AlgoType algoType, math::Matrix* deviceExpected, ErrorType errorType)
 {
   debugFunc();
 
@@ -261,30 +273,40 @@ oap::HostMatrixUPtr Network::executeAlgo(AlgoType algoType, math::Matrix* device
     m_cuApi.sigmoid (current->m_inputs, current->m_sums);
   }
 
-  if (algoType == AlgoType::NORMAL_MODE)
+  if (algoType == AlgoType::FORWARD_PROPAGATION_MODE)
   {
     auto llayer = m_layers.back();
     math::Matrix* output = oap::host::NewMatrix (1, llayer->m_neuronsCount);
     oap::cuda::CopyDeviceMatrixToHostMatrix (output, llayer->m_inputs);
     return oap::HostMatrixUPtr (output);
   }
-  else if (algoType == AlgoType::TEST_MODE)
+  else if (algoType == AlgoType::BACKWARD_PROPAGATION_MODE)
   {
-    executeLearning (deviceExpected);
+    executeLearning (deviceExpected, errorType);
     ++m_step;
   }
 
   return oap::HostMatrixUPtr(nullptr);
 }
 
-bool Network::shouldContinue()
+bool Network::shouldContinue (ErrorType errorType)
 {
   if (m_icontroller != nullptr && m_icontroller->shouldCalculateError(m_step))
   {
     floatt sqe = 0;
     Layer* llayer = m_layers.back();
 
-    m_cuApi.magnitude2 (sqe, llayer->m_errors);
+    if (errorType == ErrorType::NORMAL_ERROR)
+    {
+      m_cuApi.magnitude2 (sqe, llayer->m_errors);
+      sqe = sqrt (sqe);
+    }
+    else
+    {
+      floatt imoutput = 0;
+      m_cuApi.sum (sqe, imoutput, llayer->m_errors);
+      sqe = sqe / llayer->getNeuronsCount ();
+    }
 
     m_icontroller->setSquareError (sqe);
 

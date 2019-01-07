@@ -71,7 +71,7 @@ void Thread::run(bool inTheSameThreead) {
   }
 }
 
-void Thread::yield() {
+void Thread::join() {
   if (m_isonethread == false) {
     void* o = NULL;
     pthread_join(m_thread, &o);

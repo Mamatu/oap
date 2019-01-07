@@ -30,9 +30,9 @@ inline void aux_switchPointer(math::Matrix** a, math::Matrix** b) {
   *a = temp;
 }
 
-inline CUresult host_prepareGMatrix(math::Matrix* A, uintt column, uintt row,
+inline bool host_prepareGMatrix(math::Matrix* A, uintt column, uintt row,
                                     math::Matrix* G, oap::cuda::Kernel& kernel) {
-  CUresult result = DEVICEKernel_SetIdentity(G, kernel);
+  bool result = DEVICEKernel_SetIdentity(G, kernel);
   if (result != CUDA_SUCCESS) {
     // return result;
   }
@@ -97,7 +97,7 @@ inline CUresult host_prepareGMatrix(math::Matrix* A, uintt column, uintt row,
   return CUDA_SUCCESS;
 }
 
-CUresult HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
+bool HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
                          math::Matrix* Q1, math::Matrix* R1, math::Matrix* G,
                          math::Matrix* GT, oap::cuda::Kernel& kernel) {
   math::Matrix* rQ = Q;
@@ -134,7 +134,7 @@ CUresult HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
     oap::cuda::CopyDeviceMatrixToDeviceMatrix(rQ, Q1);
     oap::cuda::CopyDeviceMatrixToDeviceMatrix(rR, R1);
   }
-  return CUDA_SUCCESS;
+  return true;
 }
 
 void HOSTKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,

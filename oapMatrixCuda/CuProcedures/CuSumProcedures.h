@@ -17,101 +17,126 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUMAGNITUDEOPTPROCEDURES_H
-#define	CUMAGNITUDEOPTPROCEDURES_H
+#ifndef CU_SUM_PROCEDURES_H
+#define	CU_SUM_PROCEDURES_H
 
 #include "CuCore.h"
-#include "CuMagnitudeUtils.h"
+
 #include "CuMatrixUtils.h"
+#include "CuSumUtils.h"
+
 #include <stdio.h>
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_magnitudeOptRealMatrix(floatt* sum, math::Matrix* matrix1, floatt* buffer)
+__hostdevice__ void CUDA_sumReal (floatt* sumBuffers[2], math::Matrix* matrix1, floatt* buffers[2])
 {
   HOST_INIT();
+
   uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
   uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-  cuda_MagnitudeRealOpt(buffer, sharedIndex, matrix1);
+
+  cuda_SumReal(buffers, sharedIndex, matrix1);
   threads_sync();
   do
   {
-    cuda_SumValues(buffer, sharedIndex, sharedLength, xlength, ylength);
+    cuda_SumValuesInBuffers (buffers, sharedIndex, sharedLength, xlength, ylength);
     sharedLength = sharedLength / 2;
     threads_sync();
   }
   while (sharedLength > 1);
   if (threadIdx.x == 0 && threadIdx.y == 0)
   {
-    sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
+    sumBuffers [0][gridDim.x * blockIdx.y + blockIdx.x] = buffers[0][0];
+    sumBuffers [1][gridDim.x * blockIdx.y + blockIdx.x] = buffers[1][0];
   }
 }
 
-__hostdevice__ void CUDA_magnitudeOptReMatrix(floatt* sum, math::Matrix* matrix1,
-    floatt* buffer)
+__hostdevice__ void CUDA_sumRe (floatt* sumBuffers[2], math::Matrix* matrix1, floatt* buffers[2])
 {
   HOST_INIT();
+
   uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
   uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-  cuda_MagnitudeReOpt(buffer, sharedIndex, matrix1);
+
+  cuda_SumRe (buffers, sharedIndex, matrix1);
+
   threads_sync();
   do
   {
-    cuda_SumValues(buffer, sharedIndex, sharedLength, xlength, ylength);
+    cuda_SumValuesInBuffers (buffers, sharedIndex, sharedLength, xlength, ylength);
+    sharedLength = sharedLength / 2;
+    threads_sync();
+  }
+  while (sharedLength > 1);
+
+  if (threadIdx.x == 0 && threadIdx.y == 0)
+  {
+    sumBuffers [0][gridDim.x * blockIdx.y + blockIdx.x] = buffers[0][0];
+  }
+}
+
+__hostdevice__ void CUDA_sumIm (floatt* sumBuffers[2], math::Matrix* matrix1, floatt* buffers[2])
+{
+  HOST_INIT();
+
+  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+
+  uintt sharedLength = xlength * ylength;
+  uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
+
+  cuda_SumIm (buffers, sharedIndex, matrix1);
+  threads_sync();
+  do
+  {
+    cuda_SumValuesInBuffers (buffers, sharedIndex, sharedLength, xlength, ylength);
     sharedLength = sharedLength / 2;
     threads_sync();
   }
   while (sharedLength > 1);
   if (threadIdx.x == 0 && threadIdx.y == 0)
   {
-    sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
+    sumBuffers [1][gridDim.x * blockIdx.y + blockIdx.x] = buffers[1][0];
   }
 }
 
-__hostdevice__ void CUDA_magnitudeOptImMatrix(floatt* sum, math::Matrix* matrix1,
-    floatt* buffer)
+__hostdevice__ void CUDA_sumShared (floatt* rebuffer, floatt* imbuffer, math::Matrix* matrix1)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
-  uintt sharedLength = xlength * ylength;
-  uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
-  cuda_MagnitudeImOpt(buffer, sharedIndex, matrix1);
-  threads_sync();
-  do
-  {
-    cuda_SumValues(buffer, sharedIndex, sharedLength, xlength, ylength);
-    sharedLength = sharedLength / 2;
-    threads_sync();
-  }
-  while (sharedLength > 1);
-  if (threadIdx.x == 0 && threadIdx.y == 0)
-  {
-    sum[gridDim.x * blockIdx.y + blockIdx.x] = buffer[0];
-  }
-}
 
-__hostdevice__ void CUDA_magnitudeOpt(floatt* sum, math::Matrix* matrix1,
-                                      floatt* buffer)
-{
-  HOST_INIT();
+  floatt* sumBuffers[2] = {rebuffer, imbuffer};
+
+  floatt* buffers[2];
+  floatt* sbuffers;
+
+  HOST_INIT_SHARED(floatt, sbuffers);
+
   bool isre = matrix1->reValues != NULL;
   bool isim = matrix1->imValues != NULL;
   if (isre && isim)
   {
-    CUDA_magnitudeOptRealMatrix(sum, matrix1, buffer);
+    buffers[0] = &sbuffers[0];
+    buffers[1] = &sbuffers[(blockDim.x * blockDim.y)];
+    CUDA_sumReal (sumBuffers, matrix1, buffers);
   }
   else if (isre)
   {
-    CUDA_magnitudeOptReMatrix(sum, matrix1, buffer);
+    buffers[0] = &sbuffers[0];
+    buffers[1] = NULL;
+    CUDA_sumRe (sumBuffers, matrix1, buffers);
   }
   else if (isim)
   {
-    CUDA_magnitudeOptImMatrix(sum, matrix1, buffer);
+    buffers[0] = NULL;
+    buffers[1] = &sbuffers[0];
+    CUDA_sumIm (sumBuffers, matrix1, buffers);
   }
 }
-#endif	/* CUMAGNITUDEPROCEDURES_H */
+#endif	/* CU_SUM_PROCEDURES_H */

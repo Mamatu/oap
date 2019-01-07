@@ -17,10 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-#ifndef CU_CORE_H
-#define CU_CORE_H
+#ifndef OAP_CU_CORE_H
+#define OAP_CU_CORE_H
 
 #ifdef CUDA
 
@@ -34,6 +32,8 @@
 #define threads_sync() __syncthreads()
 
 #define HOST_INIT()
+
+#define HOST_INIT_SHARED(type, buffer) extern __shared__ type oap_shared_buffer[]; buffer = oap_shared_buffer;
 
 #define HOST_CODE(code)
 
@@ -52,6 +52,8 @@
   dim3 blockIdx = ti.getBlockIdx();                        \
   dim3 blockDim = ti.getBlockDim();                        \
   dim3 gridDim = ti.getGridDim();
+
+#define HOST_INIT_SHARED(type, buffer)  ThreadIdx& his_ti = ThreadIdx::m_threadIdxs[pthread_self()]; buffer = static_cast<type*>(his_ti.getSharedBuffer());
 
 #define HOST_CODE(code) code
 

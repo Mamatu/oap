@@ -27,6 +27,8 @@
 #include "Matrix.h"
 #include "CudaUtils.h"
 
+#include "IKernelExecutor.h"
+
 #define printCuError(cuResult)                                                 \
   if (cuResult != 0) {                                                         \
     const char* buffer;                                                        \
@@ -68,7 +70,6 @@ class CuDeviceInfo : public CuDevice {
 
   void getDeviceProperties(CUdevprop& cuDevprop) const;
 
-  uint getMaxThreadsPerBlock() const;
   uint getMaxThreadsX() const;
   uint getMaxThreadsY() const;
   uint getMaxBlocksX() const;
@@ -96,72 +97,46 @@ class Context : public CuDeviceInfo {
   int deviceIndex;
 };
 
-class Kernel : public CuDeviceInfo {
- public:
-  Kernel();
+class Kernel : public oap::IKernelExecutor, public CuDeviceInfo {
+  public:
+    Kernel();
 
-  virtual ~Kernel();
+    virtual ~Kernel();
 
-  uint getThreadsX() const;
+    virtual std::string getErrorMsg () const override;
 
-  uint getThreadsY() const;
+    void setDimensionsDevice(math::Matrix* dmatrix);
 
-  uint getBlocksX() const;
+    virtual uint getMaxThreadsPerBlock() const override;
 
-  uint getBlocksY() const;
+    bool load(const char* path);
 
-  void setThreadsCount(intt x, intt y);
+    bool load(const char** pathes);
 
-  void setBlocksCount(intt x, intt y);
+    void unload();
 
-  void setDimensions(uintt w, uintt h);
-
-  void setDimensionsDevice(math::Matrix* dmatrix);
-
-  void setSharedMemory(uintt sizeInBytes);
-
-  void setParams(void** params);
-
-  int getParamsCount() const;
-
-  void** getParams() const;
-
-  bool load(const char* path);
-
-  bool load(const char** pathes);
-
-  void unload();
-
-  CUresult execute(const char* functionName);
-
-  void calculateThreadsBlocks(uint blocks[2], uint threads[2],
+    void calculateThreadsBlocks(uint blocks[2], uint threads[2],
                               uint w, uint h);
 
-  void calculateThreadsBlocksDevice(uint blocks[2], uint threads[2],
+    void calculateThreadsBlocksDevice(uint blocks[2], uint threads[2],
                                     math::Matrix* dmatrix);
 
-  static void SetThreadsBlocks(uint blocks[2], uint threads[2],
-                               uint w, uint h,
-                               uint maxThreadsPerBlock);
+    static void SetThreadsBlocks (uint blocks[2], uint threads[2], uint w, uint h, uint maxThreadsPerBlock);
 
-  static CUresult Execute(const char* functionName, void** params, oap::cuda::Kernel& kernel);
+    static bool Execute(const char* functionName, void** params, oap::cuda::Kernel& kernel);
 
- private:
-  void** m_params;
-  int m_paramsSize;
-  void* m_image;
-  std::string m_path;
-  CUmodule m_cuModule;
+  protected:
+    virtual bool run(const char* functionName) override;
 
-  uint m_threadsCount[3];
-  uint m_blocksCount[3];
-  uint m_sharedMemoryInBytes;
+  private:
+    void* m_image;
+    std::string m_path;
+    CUmodule m_cuModule;
 
-  void releaseImage();
-  void resetParameters();
-  void unloadCuModule();
-  void loadCuModule();
-  void setImage(void* image);
+    void releaseImage();
+    void unloadCuModule();
+    void loadCuModule();
+    void setImage(void* image);
 };
 }
 }

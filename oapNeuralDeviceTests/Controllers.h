@@ -21,17 +21,20 @@
 #define OAP_CONTROLLERS_H
 
 #include "oapNetwork.h"
+#include <functional>
 
 class SquareErrorLimitController : public Network::IController
 {
   size_t m_dataSetSize;
   size_t m_step;
   floatt m_limit;
+
   floatt m_sqes;
   bool m_sc;
 
+  std::function<void(floatt, size_t, floatt)> m_callback;
   public:
-   SquareErrorLimitController (floatt limit, size_t dataSetSize);
+   SquareErrorLimitController (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback = nullptr);
    virtual ~SquareErrorLimitController();
 
    virtual bool shouldCalculateError(size_t step) override;

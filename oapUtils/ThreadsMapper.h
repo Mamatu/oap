@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef THREADSMAPPER_H
 #define	THREADSMAPPER_H
 
@@ -128,9 +125,8 @@ template<typename T> T createThreadsMap(T* array,
     return threadsCount;
 }
 
-template<typename T> void createThreadsMap(T* array,
-    T threadsCount[2],
-    T width, T height) {
+template<typename T> void createThreadsMap(T* array, T threadsCount[2], T width, T height)
+{
     T blocksCount[2] = {1, 1};
     createThreadsMap(array, blocksCount, threadsCount, width, height);
 }

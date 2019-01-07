@@ -38,15 +38,13 @@
 #include <utility>
 #include <random>
 
-Network* createNetwork (size_t width, size_t height, floatt lr)
+Network* createNetwork (size_t width, size_t height)
 {
   Network* network = new Network();
 
   network->createLayer(width*height);
-  network->createLayer(15);
+  network->createLayer(80);
   network->createLayer(10);
-
-  network->setLearningRate (lr);
 
   return network;
 }
@@ -79,9 +77,26 @@ oap::HostMatrixPtr getImageMatrix (const std::string& imagePath)
   return input;
 };
 
-Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet, floatt lr, size_t repeats)
+class Context final
 {
-  Network* network = nullptr;
+  public:
+    Network* network = nullptr;
+    std::vector<oap::HostMatrixPtr> matrices;
+    std::vector<std::pair<std::string, int>> dataSet;
+
+    ~Context ()
+    {
+      delete network;
+      matrices.clear ();
+      dataSet.clear ();
+    }
+};
+
+Context* init (const std::vector<std::pair<std::string, int>>& dataSet)
+{
+  Context* ctx = new Context ();;
+  ctx->dataSet = dataSet;
+
 
   std::string dataPath = getImagesPath ();
 
@@ -98,47 +113,52 @@ Network* prepareNetwork(const std::vector<std::pair<std::string, int>>& dataSet,
     return getImageMatrix (path);
   };
 
+  for (size_t idx = 0; idx < dataSet.size(); ++idx)
+  {
+    oap::HostMatrixPtr imatrix = getImageMatrixFromIdx (idx);
+
+    if (ctx->network == nullptr)
+    {
+      ctx->network = createNetwork (imatrix->columns, imatrix->rows);
+    }
+
+    ctx->matrices.push_back (imatrix);
+  }
+
+  return ctx;
+}
+
+void runTraining (Context* ctx, floatt learningRate, int repeats)
+{
   auto runTest = [&](math::Matrix* matrix, size_t idx)
   {
     math::Matrix* eoutput = oap::host::NewReMatrix (10, 1);
-    auto pair = dataSet[idx];
+    auto pair = ctx->dataSet[idx];
 
     if (pair.second > -1)
     {
       eoutput->reValues[pair.second] = 1;
     }
 
-    network->runTest (matrix, eoutput, Network::HOST);
+    ctx->network->train (matrix, eoutput, Network::HOST, Network::ErrorType::NORMAL_ERROR);
     oap::host::DeleteMatrix (eoutput);
   };
 
-  std::vector<oap::HostMatrixPtr> matrices;
-
-  for (size_t idx = 0; idx < dataSet.size(); ++idx)
-  {
-    oap::HostMatrixPtr imatrix = getImageMatrixFromIdx (idx);
-
-    if (network == nullptr)
-    {
-      network = createNetwork (imatrix->columns, imatrix->rows, lr);
-    }
-
-    matrices.push_back (imatrix);
-  }
+  ctx->network->setLearningRate (learningRate);
 
   for (size_t testIdx = 0; testIdx < repeats; ++testIdx)
   {
-    for (size_t idx = 0; idx < matrices.size(); ++idx)
+    for (size_t idx = 0; idx < ctx->matrices.size(); ++idx)
     {
-      auto imatrix = matrices[idx];
+      debugInfo ("Training idx %lu", idx + testIdx * ctx->matrices.size());
+      auto imatrix = ctx->matrices[idx];
       runTest (imatrix, idx);
     }
+    ctx->network->getLayer(0)->printHostWeights ();
   }
-
-  return network;
 }
 
-int main()
+int main(int argc, char** argv)
 {
   std::vector<std::pair<std::string, int>> dataSet = 
   {
@@ -166,19 +186,22 @@ int main()
 
   oap::cuda::Context::Instance().create();
 
-  Network* network = prepareNetwork (dataSet, 0.001f, 100);
+  Context* ctx = init (dataSet);
+
+  runTraining (ctx, 0.01f, 10);
+
   std::string dataPath = getImagesPath ();
 
   auto run = [&](const std::string& image)
   {
     oap::HostMatrixPtr imatrix = getImageMatrix (dataPath + image);
-    auto output = network->run (imatrix.get(), Network::HOST);
-    oap::host::PrintMatrix (output.get ());
+    auto output = ctx->network->run (imatrix.get(), Network::HOST, Network::ErrorType::NORMAL_ERROR);
+    oap::host::PrintMatrix ("output = ", output.get ());
   };
 
   run("i9_4");
 
-  delete network;
+  delete ctx;
   oap::cuda::Context::Instance().destroy();
   return 0;
 }

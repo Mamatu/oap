@@ -33,6 +33,12 @@ public: // types
     DEVICE
   };
 
+  enum class ErrorType
+  {
+    NORMAL_ERROR,
+    CROSS_ENTROPY
+  };
+
   class IController
   {
     public:
@@ -52,15 +58,14 @@ public:
   Network& operator= (const Network&) = delete;
   Network& operator= (Network&&) = delete;
 
-  Layer* createLayer(size_t neurons, bool bias = false);
+  Layer* createLayer (size_t neurons, bool bias = false);
 
-  void createLevel(Layer* layer);
+  oap::HostMatrixUPtr run (math::Matrix* hostInputs, MatrixType argsType, ErrorType errorType);
+  void train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, MatrixType argsType, ErrorType errorType);
 
-  void addLayer(Layer* layer);
+  void createLevel (Layer* layer);
 
-  void runTest (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, MatrixType argsType);
-
-  oap::HostMatrixUPtr run (math::Matrix* hostInputs, MatrixType argsType);
+  void addLayer (Layer* layer);
 
   void setController (IController* icontroller);
 
@@ -71,6 +76,7 @@ public:
   void setDeviceWeights (math::Matrix* weights, size_t layerIndex);
 
   void setLearningRate (floatt lr);
+  floatt getLearningRate () const;
 
   void save (utils::ByteBuffer& buffer) const;
 
@@ -89,15 +95,15 @@ public:
 protected:
   enum class AlgoType
   {
-    TEST_MODE,
-    NORMAL_MODE
+    BACKWARD_PROPAGATION_MODE,
+    FORWARD_PROPAGATION_MODE
   };
 
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
 
-  void executeLearning(math::Matrix* deviceExpected);
+  void executeLearning(math::Matrix* deviceExpected, ErrorType errorType);
 
-  oap::HostMatrixUPtr executeAlgo(AlgoType algoType, math::Matrix* deviceExpected);
+  oap::HostMatrixUPtr executeAlgo(AlgoType algoType, math::Matrix* deviceExpected, ErrorType errorType);
 
 private:
   std::vector<Layer*> m_layers;
@@ -108,7 +114,7 @@ private:
 
   inline void calculateError();
 
-  bool shouldContinue();
+  bool shouldContinue (ErrorType errorType);
 
   oap::CuProceduresApi m_cuApi;
 

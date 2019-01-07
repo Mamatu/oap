@@ -285,6 +285,21 @@ extern "C" __global__ void CUDAKernel_MultiplySigmoidDerivative (math::Matrix* o
   CUDA_multiplySigmoidDerivative (omatrix, matrix);
 }
 
+extern "C" __global__ void CUDAKernel_CrossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  CUDA_crossEntropy (output, params0, params1);
+}
+
+extern "C" __global__ void CUDAKernel_CrossEntropyRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  CUDA_crossEntropyRe (output, params0, params1);
+}
+
+extern "C" __global__ void CUDAKernel_SumShared (floatt* rebuffer, floatt* imbuffer, math::Matrix* params0)
+{
+  CUDA_sumShared (rebuffer, imbuffer, params0);
+}
+
 extern "C" __global__ void CUDAKernel_CalculateTriangularH(
     math::Matrix* H, math::Matrix* Q, math::Matrix* R,
     math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,

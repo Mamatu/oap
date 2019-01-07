@@ -86,7 +86,7 @@ namespace math {
         }
         for (uint fa = 0; fa < threadsCount; fa++) {
 
-            threads[fa].thread.yield();
+            threads[fa].thread.join();
         }
         utils::mapper::freeMap(bmap);
         delete[] threads;

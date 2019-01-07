@@ -73,6 +73,11 @@ public:
 
   void printHostWeights ();
 
+  size_t getNeuronsCount() const
+  {
+    return m_neuronsCount;
+  }
+
   void setDeviceWeights (math::Matrix* weights);
 
   void initRandomWeights();
