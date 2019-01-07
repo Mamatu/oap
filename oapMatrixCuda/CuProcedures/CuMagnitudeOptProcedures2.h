@@ -20,11 +20,11 @@
 #ifndef CUMAGNITUDEOPTPROCEDURES2_H
 #define	CUMAGNITUDEOPTPROCEDURES2_H
 
-#include <cuda.h>
 #include "CuCore.h"
+
 #include "CuMagnitudeUtils2.h"
 #include "CuMatrixUtils.h"
-#include <stdio.h>
+
 #include "Matrix.h"
 #include "MatrixEx.h"
 

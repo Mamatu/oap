@@ -21,12 +21,12 @@
 #ifndef OAP_CU_MATRIXPROCEDURES_H
 #define OAP_CU_MATRIXPROCEDURES_H
 
-#include <cuda.h>
+#include "CuCore.h"
+
 #include "CuMatrixUtils.h"
 #include <stdio.h>
 #include "Matrix.h"
 #include "MatrixEx.h"
-#include "CuCore.h"
 
 #include "CuProcedures/CuCompareProcedures.h"
 #include "CuProcedures/CuCompareOptProcedures.h"

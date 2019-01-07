@@ -20,7 +20,6 @@
 #ifndef CUCOMPAREOPTPROCEDURES2_H
 #define	CUCOMPAREOPTPROCEDURES2_H
 
-#include <cuda.h>
 #include <stdio.h>
 
 #include "CuCore.h"

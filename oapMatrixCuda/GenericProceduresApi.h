@@ -29,7 +29,6 @@
 #include "Math.h"
 #include "Matrix.h"
 #include "MatrixEx.h"
-#include "CudaUtils.h"
 #include "IKernelExecutor.h"
 
 namespace oap

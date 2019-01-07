@@ -22,9 +22,12 @@
 #include "CuProcedures/CuSubstractionProcedures.h"
 #include "CuProcedures/CuDotProductProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
+
 #include "GenericProceduresApi.h"
+
 #include "ThreadsMapper.h"
 #include "HostKernel.h"
+
 #include "oapHostMatrixUtils.h"
 
 class SubstractionImpl : public HostKernel {
