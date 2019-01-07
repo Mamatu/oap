@@ -17,8 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef HOSTPROCEDURE_H
 #define HOSTPROCEDURE_H
 

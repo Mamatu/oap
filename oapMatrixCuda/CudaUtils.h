@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef CUDAUTILS_H
 #define CUDAUTILS_H
 

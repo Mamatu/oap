@@ -23,13 +23,11 @@
 #include <map>
 #include <sstream>
 
-#include "CudaBuffer.h"
-#include "HostBuffer.h"
+#include "Buffer.h"
 
 #include "Math.h"
 #include "Matrix.h"
 #include "MatrixEx.h"
-#include "CudaUtils.h"
 #include "IKernelExecutor.h"
 
 namespace oap
@@ -80,24 +78,22 @@ namespace generic
       Copy&& copy;
   };
 
-  template<oap::Type type, oap::Type dtype>
+  template<typename HBuffer, typename DBuffer>
   class SumBuffers
   {
     public:
-      using TBufferH = oap::TBuffer<floatt, type>;
-      using TBufferD = oap::TBuffer<floatt, dtype>;
 
-      SumBuffers (TBufferH& tbh1, TBufferD& tbd1, TBufferH& tbh2, TBufferD& tbd2):
-              re (std::pair<TBufferH&, TBufferD&>(tbh1, tbd1)),
-              im (std::pair<TBufferH&, TBufferD&>(tbh2, tbd2))
+      SumBuffers (HBuffer& tbh1, DBuffer& tbd1, HBuffer& tbh2, DBuffer& tbd2):
+              re (std::pair<HBuffer&, DBuffer&>(tbh1, tbd1)),
+              im (std::pair<HBuffer&, DBuffer&>(tbh2, tbd2))
       {}
 
-      std::pair<TBufferH&, TBufferD&> re;
-      std::pair<TBufferH&, TBufferD&> im;
+      std::pair<HBuffer&, DBuffer&> re;
+      std::pair<HBuffer&, DBuffer&> im;
   };
 
-  template<typename GetMatrixInfo, typename Copy, oap::Type type, oap::Type dtype>
-  bool sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix, oap::IKernelExecutor* kexec, SumApi<GetMatrixInfo, Copy>& sumApi, SumBuffers<type, dtype>& sumBuffers)
+  template<typename GetMatrixInfo, typename Copy, typename HBuffer, typename DBuffer>
+  bool sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix, oap::IKernelExecutor* kexec, SumApi<GetMatrixInfo, Copy>& sumApi, SumBuffers<HBuffer, DBuffer>& sumBuffers)
   {
     auto minfo = sumApi.getMatrixInfo (matrix);
 
@@ -138,7 +134,7 @@ namespace generic
     reoutput = 0;
     imoutput = 0;
 
-    auto sum = [length](const TBuffer<floatt, Type::HOST>& buffer) -> floatt
+    auto sum = [length](const HBuffer& buffer) -> floatt
     {
       floatt sum = 0;
       for (size_t idx = 0; idx < length; ++idx)

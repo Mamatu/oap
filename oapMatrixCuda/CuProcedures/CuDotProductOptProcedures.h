@@ -17,12 +17,9 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef CU_DOTPRODUCT_OPT_PROCEDURES_H
+#define CU_DOTPRODUCT_OPT_PROCEDURES_H
 
-
-#ifndef CUdotProductOPTPROCEDURES_H
-#define CUdotProductOPTPROCEDURES_H
-
-#include "cuda.h"
 #include "CuCore.h"
 #include "Matrix.h"
 #include "CuDotProductOptUtils.h"
