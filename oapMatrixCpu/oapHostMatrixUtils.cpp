@@ -35,8 +35,10 @@
 #include "MatrixPrinter.h"
 #include "ReferencesCounter.h"
 
-#define ReIsNotNULL(m) m->reValues != NULL
-#define ImIsNotNULL(m) m->imValues != NULL
+#include "MatricesList.h"
+
+#define ReIsNotNULL(m) m->reValues != nullptr
+#define ImIsNotNULL(m) m->imValues != nullptr
 
 #ifdef DEBUG
 
@@ -57,12 +59,19 @@ std::ostream& operator<<(std::ostream& output, const math::Matrix*& matrix) {
 
 #endif
 
-inline void fillRePart(math::Matrix* output, floatt value) {
-  math::Memset(output->reValues, value, output->columns * output->rows);
+inline void fillWithValue (floatt* values, floatt value, uintt length)
+{
+  math::Memset(values, value, length);
 }
 
-inline void fillImPart(math::Matrix* output, floatt value) {
-  math::Memset(output->imValues, value, output->columns * output->rows);
+inline void fillRePart(math::Matrix* output, floatt value)
+{
+  fillWithValue (output->reValues, value, output->columns * output->rows);
+}
+
+inline void fillImPart(math::Matrix* output, floatt value)
+{
+  fillWithValue (output->imValues, value, output->columns * output->rows);
 }
 
 namespace oap
@@ -70,25 +79,30 @@ namespace oap
 namespace host
 {
 
+namespace
+{
+  MatricesList gMatricesList;
+}
+
 math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value) {
-  math::Matrix* output = NULL;
-  if (matrix->reValues != NULL && matrix->imValues != NULL) {
+  math::Matrix* output = nullptr;
+  if (matrix->reValues != nullptr && matrix->imValues != nullptr) {
     output = NewMatrix(matrix->columns, matrix->rows, value);
-  } else if (matrix->reValues != NULL) {
+  } else if (matrix->reValues != nullptr) {
     output = NewReMatrix(matrix->columns, matrix->rows, value);
-  } else if (matrix->imValues != NULL) {
+  } else if (matrix->imValues != nullptr) {
     output = NewImMatrix(matrix->columns, matrix->rows, value);
   }
   return output;
 }
 
 math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows, floatt value) {
-  math::Matrix* output = NULL;
-  if (matrix->reValues != NULL && matrix->imValues != NULL) {
+  math::Matrix* output = nullptr;
+  if (matrix->reValues != nullptr && matrix->imValues != nullptr) {
     output = NewMatrix(columns, rows, value);
-  } else if (matrix->reValues != NULL) {
+  } else if (matrix->reValues != nullptr) {
     output = NewReMatrix(columns, rows, value);
-  } else if (matrix->imValues != NULL) {
+  } else if (matrix->imValues != nullptr) {
     output = NewImMatrix(columns, rows, value);
   }
   return output;
@@ -112,7 +126,8 @@ math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows,
   return nullptr;
 }
 
-math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value) {
+math::Matrix* allocMatrix (bool isRe, bool isIm, uintt columns, uintt rows, floatt value, floatt* rebuffer = nullptr, floatt* imbuffer = nullptr)
+{
   math::Matrix* output = NEW_MATRIX();
   uintt length = columns * rows;
 
@@ -121,44 +136,42 @@ math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value) {
   output->realRows = rows;
   output->rows = rows;
 
-  output->reValues = new floatt[length];
-  output->imValues = new floatt[length];
+  auto set = [length, value] (floatt** output, bool is, floatt* buffer)
+  {
+    floatt* tmp = nullptr;
+    if (is)
+    {
+      if (buffer)
+      {
+        tmp = buffer;
+      }
+      else
+      {
+        tmp = new floatt [length];
+        fillWithValue (tmp, value, length);
+      }
+    }
+    *output = tmp;
+  };
 
-  fillRePart(output, value);
-  fillImPart(output, value);
+  set (&(output->reValues), isRe, rebuffer);
+  set (&(output->imValues), isIm, imbuffer);
+
+  gMatricesList.add (output, CreateMatrixInfo (output));
+
   return output;
+}
+
+math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value) {
+  return allocMatrix (true, true, columns, rows, value);
 }
 
 math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value) {
-  math::Matrix* output = NEW_MATRIX();
-  uintt length = columns * rows;
-
-  output->realColumns = columns;
-  output->columns = columns;
-  output->realRows = rows;
-  output->rows = rows;
-
-  output->reValues = new floatt[length];
-  output->imValues = NULL;
-
-  fillRePart(output, value);
-  return output;
+  return allocMatrix (true, false, columns, rows, value);
 }
 
 math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value) {
-  math::Matrix* output = NEW_MATRIX();
-  uintt length = columns * rows;
-
-  output->realColumns = columns;
-  output->columns = columns;
-  output->realRows = rows;
-  output->rows = rows;
-
-  output->reValues = NULL;
-  output->imValues = new floatt[length];
-
-  fillImPart(output, value);
-  return output;
+  return allocMatrix (false, true, columns, rows, value);
 }
 
 math::Matrix* NewMatrix(const std::string& text) {
@@ -179,7 +192,7 @@ math::Matrix* NewMatrix(const std::string& text) {
   std::pair<floatt*, size_t> pairRe = matrixUtils::CreateArray(text, 1);
   std::pair<floatt*, size_t> pairIm = matrixUtils::CreateArray(text, 2);
 
-  debugAssert(pairRe.first == NULL || pairIm.first == NULL ||
+  debugAssert(pairRe.first == nullptr || pairIm.first == nullptr ||
               pairRe.second == pairIm.second);
 
   floatt* revalues = pairRe.first;
@@ -199,43 +212,38 @@ math::Matrix* NewMatrix(const std::string& text) {
     iscolumns = true;
   }
 
-  if (revalues == NULL && imvalues == NULL) {
-    return NULL;
+  if (revalues == nullptr && imvalues == nullptr) {
+    return nullptr;
   }
 
-  math::Matrix* matrix = NEW_MATRIX();
-  matrix->columns = columns;
-  matrix->realColumns = columns;
-  matrix->rows = rows;
-  matrix->realRows = rows;
-  matrix->reValues = revalues;
-  matrix->imValues = imvalues;
-
-  return matrix;
+  return allocMatrix (revalues != nullptr, imvalues != nullptr, columns, rows, 0, revalues, imvalues);
 }
 
 void DeleteMatrix(const math::Matrix* matrix) {
-  if (NULL == matrix) {
+  if (nullptr == matrix) {
     return;
   }
-  if (matrix->reValues != NULL) {
+
+  gMatricesList.remove (matrix);
+
+  if (matrix->reValues != nullptr) {
     delete[] matrix->reValues;
   }
-  if (matrix->imValues != NULL) {
+  if (matrix->imValues != nullptr) {
     delete[] matrix->imValues;
   }
   DELETE_MATRIX(matrix);
 }
 
 floatt GetReValue(const math::Matrix* matrix, uintt column, uintt row) {
-  if (matrix->reValues == NULL) {
+  if (matrix->reValues == nullptr) {
     return 0;
   }
   return matrix->reValues[row * matrix->columns + column];
 }
 
 floatt GetImValue(const math::Matrix* matrix, uintt column, uintt row) {
-  if (matrix->imValues == NULL) {
+  if (matrix->imValues == nullptr) {
     return 0;
   }
   return matrix->imValues[row * matrix->columns + column];
@@ -286,7 +294,7 @@ void PrintMatrix(const math::Matrix* matrix, const matrixUtils::PrintArgs& args)
 bool PrintMatrixToFile(const std::string& path, const matrixUtils::PrintArgs& args, const math::Matrix* matrix) {
   FILE* file = fopen(path.c_str(), "w");
 
-  if (file == NULL)
+  if (file == nullptr)
   {
     return false;
   }
@@ -395,11 +403,11 @@ void SetVector(math::Matrix* matrix, uintt column, math::Matrix* vector) {
 
 void SetVector(math::Matrix* matrix, uintt column, floatt* revector,
                floatt* imvector, uintt length) {
-  if (revector != NULL) {
+  if (revector != nullptr) {
     SetReVector(matrix, column, revector, length);
   }
 
-  if (imvector != NULL) {
+  if (imvector != nullptr) {
     SetImVector(matrix, column, imvector, length);
   }
 }
@@ -464,7 +472,7 @@ void GetReMatrixStr(std::string& text, const math::Matrix* matrix) {
 
 void GetImMatrixStr(std::string& str, const math::Matrix* matrix) {
   str = "";
-  if (matrix == NULL) {
+  if (matrix == nullptr) {
     return;
   }
   std::stringstream sstream;
@@ -492,21 +500,21 @@ void GetVector(math::Matrix* vector, math::Matrix* matrix, uintt column)
 
 void GetVector(floatt* revector, floatt* imvector, uint length, math::Matrix* matrix, uint column)
 {
-  if (revector != NULL) {
+  if (revector != nullptr) {
     GetReVector(revector, length, matrix, column);
   }
 
-  if (imvector != NULL) {
+  if (imvector != nullptr) {
     GetImVector(imvector, length, matrix, column);
   }
 }
 
 void GetTransposeVector(math::Matrix* vector, math::Matrix* matrix, uint column)
 {
-  if (vector->reValues != NULL) {
+  if (vector->reValues != nullptr) {
     GetTransposeReVector(vector, matrix, column);
   }
-  if (vector->imValues != NULL) {
+  if (vector->imValues != nullptr) {
     GetTransposeImVector(vector, matrix, column);
   }
 }
@@ -687,12 +695,17 @@ void SetDiagonalImMatrix(math::Matrix* matrix, floatt a) {
   }
 }
 
-math::MatrixInfo GetMatrixInfo(const math::Matrix* matrix)
+math::MatrixInfo CreateMatrixInfo(const math::Matrix* matrix)
 {
-  return math::MatrixInfo (matrix->reValues != NULL,
-                           matrix->imValues != NULL,
+  return math::MatrixInfo (matrix->reValues != nullptr,
+                           matrix->imValues != nullptr,
                            matrix->columns,
                            matrix->rows);
+}
+
+math::MatrixInfo GetMatrixInfo (const math::Matrix* matrix)
+{
+  return gMatricesList.getMatrixInfo (matrix);
 }
 
 void SetSubs(math::Matrix* matrix, uintt subcolumns, uintt subrows) {

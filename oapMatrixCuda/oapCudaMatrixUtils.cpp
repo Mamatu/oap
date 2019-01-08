@@ -29,12 +29,19 @@
 
 #include "oapHostMatrixUPtr.h"
 
+#include "MatricesList.h"
+
 #include "KernelExecutor.h"
 
 namespace oap
 {
 namespace cuda
 {
+
+namespace
+{
+  MatricesList gMatricesList;
+}
 
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix) {
   CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
@@ -83,92 +90,6 @@ math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix) {
   return dmatrix;
 }
 
-class MatricesMgr
-{
-  public:
-    typedef std::map<const math::Matrix*, math::MatrixInfo> MatrixInfos;
-  private:
-    MatrixInfos m_matrixInfos;
-    MatrixInfos m_deletedMatrixInfos;
-
-    void checkOnDelete()
-    {
-      if (m_matrixInfos.size() > 0)
-      {
-        debugError ("Memleak: not deallocated matrices");
-        for (MatrixInfos::iterator it = m_matrixInfos.begin(); it != m_matrixInfos.end(); ++it)
-        {
-          debug("Memleak: dMatrix = %p %s not deallocated", it->first, it->second.toString().c_str());
-        }
-        debugAssert (false);
-      }
-    }
-
-  public:
-
-    MatricesMgr ()
-    {}
-
-    ~MatricesMgr ()
-    {
-      checkOnDelete ();
-    }
-
-    const MatrixInfos& getAllocated() const
-    {
-      return m_matrixInfos;
-    }
-
-    void add (math::Matrix* dMatrix, const math::MatrixInfo& minfo)
-    {
-      m_matrixInfos[dMatrix] = minfo;
-
-      MatrixInfos::iterator it = m_deletedMatrixInfos.find (dMatrix);
-      if (it != m_deletedMatrixInfos.end ())
-      {
-        m_deletedMatrixInfos.erase (it);
-      }
-
-      auto size = minfo.getSize ();
-      debugInfo ("Allocate: dMatrix = %p %s", dMatrix, minfo.toString().c_str());
-    }
-
-    math::MatrixInfo remove (const math::Matrix* dMatrix)
-    {
-      math::MatrixInfo minfo;
-
-      MatrixInfos::iterator it = m_matrixInfos.find(dMatrix);
-      if (m_matrixInfos.end() != it)
-      {
-        m_deletedMatrixInfos[dMatrix] = it->second;
-        minfo = it->second;
-
-        m_matrixInfos.erase(it);
-      }
-      else
-      {
-
-        MatrixInfos::iterator it = m_deletedMatrixInfos.find(dMatrix);
-        if (it != m_deletedMatrixInfos.end ())
-        {
-          debugError ("Double deallocation: dMatrix = %p %s", dMatrix, it->second.toString().c_str());
-          debugAssert (false);
-        }
-        else
-        {
-          debugError ("Not found: dMatrix = %p", dMatrix);
-          debugAssert (false);
-        }
-      }
-      return minfo;
-    }
-};
-
-namespace
-{
-  MatricesMgr gMatricesMgr;
-}
-
 math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
                           floatt revalue = 0.f, floatt imvalue = 0.f)
 {
@@ -179,7 +100,7 @@ math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
   CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, columns, rows);
   math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
 
-  gMatricesMgr.add (mptr, matrixInfo);
+  gMatricesList.add (mptr, matrixInfo);
 
   return mptr;
 }
@@ -216,7 +137,7 @@ math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue,
 void DeleteDeviceMatrix(const math::Matrix* dMatrix) {
   if (dMatrix != NULL)
   {
-    math::MatrixInfo minfo = gMatricesMgr.remove (dMatrix);
+    math::MatrixInfo minfo = gMatricesList.remove (dMatrix);
 
     CUdeviceptr rePtr = reinterpret_cast<CUdeviceptr>(CudaUtils::GetReValues(dMatrix));
 
@@ -238,19 +159,19 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix) {
 uintt GetColumns(const math::Matrix* dMatrix)
 {
   debugAssert (dMatrix != nullptr);
-  return gMatricesMgr.getAllocated().at(dMatrix).m_matrixDim.columns;
+  return gMatricesList.getMatrixInfo (dMatrix).columns ();
 }
 
 uintt GetRows(const math::Matrix* dMatrix)
 {
   debugAssert (dMatrix != nullptr);
-  return gMatricesMgr.getAllocated().at(dMatrix).m_matrixDim.rows;
+  return gMatricesList.getMatrixInfo (dMatrix).rows ();
 }
 
 math::MatrixInfo GetMatrixInfo(const math::Matrix* dMatrix)
 {
   debugAssert (dMatrix != nullptr);
-  return gMatricesMgr.getAllocated().at(dMatrix);
+  return gMatricesList.getMatrixInfo (dMatrix);
 }
 
 void copyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src, uintt columns, uintt rows)
