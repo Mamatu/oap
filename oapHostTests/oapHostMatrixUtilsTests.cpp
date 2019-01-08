@@ -278,8 +278,13 @@ TEST_F(OapHostMatrixUtilsTests, GetSubMatrixTest)
     EXPECT_EQ(2, smatrix->columns);
     EXPECT_EQ(2, smatrix->rows);
     
+    math::MatrixInfo submatrixInfo = oap::host::GetMatrixInfo (submatrix);
+
     smatrix = oap::host::GetSubMatrix (matrix, 3, 3, smatrix);
-    EXPECT_NE(smatrix, submatrix);
+
+    math::MatrixInfo smatrixInfo = oap::host::GetMatrixInfo (smatrix);
+
+    EXPECT_NE(smatrixInfo, submatrixInfo);
 
     EXPECT_EQ(1, smatrix->columns);
     EXPECT_EQ(1, smatrix->rows);
