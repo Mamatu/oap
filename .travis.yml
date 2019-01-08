@@ -29,7 +29,10 @@ env:
 
 # Build steps
 script:
-  - make clean && make TARGET_ARCH=HOST MODE=DebugSanitizer && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapHostTests && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapSmsDataTests && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oap2dt3dTests
+  - > 
+     make clean 
+     && make TARGET_ARCH=HOST MODE=DebugSanitizer && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapHostTests && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapSmsDataTests && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oap2dt3dTests 
+     && make TARGET_ARCH=HOST MODE=Release && ${OAP_PATH}/dist/Release/x86/bin/oapHostTests && ${OAP_PATH}/dist/Release/x86/bin/oapSmsDataTests && ${OAP_PATH}/dist/Release/x86/bin/oap2dt3dTests
   
 # Notify after build
 notifications:

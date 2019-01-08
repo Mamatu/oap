@@ -15,6 +15,7 @@ class OapSmsData3 : public testing::Test {
     virtual void TearDown() {}
 };
 
+#ifdef SMS_TESTS
 TEST_F(OapSmsData3, Load_smsmatrix_Test) {
   uintt columns = 100;
   uintt rows = 100;
@@ -20132,3 +20133,4 @@ TEST_F(OapSmsData3, Load_eigenvalues_Test) {
   EXPECT_NEAR(eigenvalues->reValues[GetIndex(eigenvalues, 0, 98)],  3.53085203572305, 1.0E-7);
   EXPECT_NEAR(eigenvalues->reValues[GetIndex(eigenvalues, 0, 99)],  3.79078530817746, 1.0E-7);
 }
+#endif

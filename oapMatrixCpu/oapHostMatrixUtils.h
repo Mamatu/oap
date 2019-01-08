@@ -108,7 +108,8 @@ math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value = 0);
  */
 math::Matrix* NewMatrix(const std::string& text);
 
-inline void CopyBuffer(floatt* dst, floatt* src, uintt length) {
+inline void CopyBuffer(floatt* dst, floatt* src, uintt length)
+{
   memcpy(dst, src, length * sizeof(floatt));
 }
 
@@ -152,38 +153,46 @@ void CopyRe(math::Matrix* dst, const math::Matrix* src);
 void CopyIm(math::Matrix* dst, const math::Matrix* src);
 
 template<typename T>
-void Copy(floatt* dst, T* src, uint length) {
+void Copy(floatt* dst, T* src, uint length)
+{
   debugFunc();
-  if (dst == NULL || src == NULL) {
+  if (dst == NULL || src == NULL)
+  {
     return;
   }
-  for (uint idx = 0; idx < length; ++idx) {
+  for (uint idx = 0; idx < length; ++idx)
+  {
     dst[idx] = src[idx];
   }
 }
 
 template<>
-inline void Copy<floatt>(floatt* dst, floatt* src, uint length) {
+inline void Copy<floatt>(floatt* dst, floatt* src, uint length)
+{
   debugFunc();
-  if (dst == NULL || src == NULL) {
+  if (dst == NULL || src == NULL)
+  {
     return;
   }
   memcpy(dst, src, sizeof(floatt) * length);
 }
 
 template<typename T>
-void Copy(math::Matrix* dst, T* rearray, T* imarray) {
+void Copy(math::Matrix* dst, T* rearray, T* imarray)
+{
   Copy(dst->reValues, rearray, dst->columns * dst->rows);
   Copy(dst->imValues, imarray, dst->columns * dst->rows);
 }
 
 template<typename T>
-void CopyRe(math::Matrix* dst, T* array) {
+void CopyRe(math::Matrix* dst, T* array)
+{
   Copy(dst->reValues, array, dst->columns * dst->rows);
 }
 
 template<typename T>
-void CopyIm(math::Matrix* dst, T* array) {
+void CopyIm(math::Matrix* dst, T* array)
+{
   Copy(dst->imValues, array, dst->columns * dst->rows);
 }
 
@@ -575,6 +584,8 @@ void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
  */
 void SetDiagonalImMatrix(math::Matrix* matrix, floatt a);
 
+math::MatrixInfo CreateMatrixInfo (const math::Matrix* matrix);
+
 math::MatrixInfo GetMatrixInfo (const math::Matrix* matrix);
 
 math::Matrix* ReadMatrix(const std::string& path);
@@ -601,9 +612,15 @@ void CopyReBuffer (math::Matrix* houput, math::Matrix* hinput);
  */
 bool WriteMatrix(const std::string& path, const math::Matrix* matrix);
 
-inline bool IsReMatrix(math::Matrix* m) { return m != NULL && m->reValues != NULL; }
+inline bool IsReMatrix(math::Matrix* m)
+{
+  return m != NULL && m->reValues != NULL;
+}
 
-inline bool IsImMatrix(math::Matrix* m) { return m != NULL && m->imValues != NULL; }
+inline bool IsImMatrix(math::Matrix* m)
+{
+  return m != NULL && m->imValues != NULL;
+}
 
 void CopySubMatrix(math::Matrix* dst, const math::Matrix* src, uintt cindex, uintt rindex);
 
