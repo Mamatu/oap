@@ -58,8 +58,8 @@ class OapRecToSquareApiTests : public testing::Test
     EXPECT_EQ(expectedRows, dinfo.rows ());
 
     oap::cuda::CopyDeviceMatrixToHostMatrix (hostSub, deviceSub);
+
     EXPECT_THAT(hostSub.get (), MatrixHasValues(expectedValue));
-  
   }
 };
 

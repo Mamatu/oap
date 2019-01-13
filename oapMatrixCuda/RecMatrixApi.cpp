@@ -72,7 +72,7 @@ const math::Matrix* RecMatrixApi::getHostMatrix () const
 
 math::Matrix* RecMatrixApi::getHostSubMatrix (uintt cindex, uintt rindex, uintt clength, uintt rlength)
 {
-  m_recSubHostMatrix.reset (oap::host::NewSubMatrix (m_recHostMatrix, cindex, rindex, clength, rlength));
+  m_recSubHostMatrix = (oap::host::NewSubMatrix (m_recHostMatrix, cindex, rindex, clength, rlength));
   return m_recSubHostMatrix.get ();
 }
 

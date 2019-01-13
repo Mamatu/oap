@@ -27,6 +27,9 @@
 #include "KernelExecutor.h"
 #include "matrix6.h"
 
+#include "oapHostMatrixPtr.h"
+#include "oapDeviceMatrixPtr.h"
+
 class OapMatrixCudaTests : public testing::Test {
  public:
   math::Matrix* output;
@@ -253,8 +256,8 @@ TEST_F(OapMatrixCudaTests, MultiplyConstantReMatrixTest) {
   };
 
   output = oap::host::NewReMatrixCopy(10, 10, hArray);
-  math::Matrix* doutput = oap::cuda::NewDeviceMatrix(output, 10, 10);
-  math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
+  oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceMatrix(output, 10, 10);
+  oap::DeviceMatrixPtr dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
   oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
 
   cuMatrix->multiplyReConstant(doutput, dparam0, 5);
@@ -275,8 +278,8 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest1) {
   };
 
   output = oap::host::NewReMatrixCopy(10, 4, hArray);
-  math::Matrix* doutput = oap::cuda::NewDeviceMatrix(output, 10, 4);
-  math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(output, 4, 10);
+  oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceMatrix(output, 10, 4);
+  oap::DeviceMatrixPtr dparam0 = oap::cuda::NewDeviceMatrix(output, 4, 10);
   oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
 
   MatrixEx* matrixEx = oap::cuda::NewDeviceMatrixEx();
@@ -306,8 +309,8 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest2) {
   };
 
   output = oap::host::NewReMatrixCopy(10, 10, hArray);
-  math::Matrix* doutput = oap::cuda::NewDeviceMatrix(output, 10, 10);
-  math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
+  oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceMatrix(output, 10, 10);
+  oap::DeviceMatrixPtr dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
   oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
 
   MatrixEx* matrixEx = oap::cuda::NewDeviceMatrixEx();
@@ -335,8 +338,8 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest3) {
   };
 
   output = oap::host::NewReMatrixCopy(10, 4, hArray);
-  math::Matrix* doutput = oap::cuda::NewDeviceMatrix(output, 10, 4);
-  math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
+  oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceMatrix(output, 10, 4);
+  oap::DeviceMatrixPtr dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
   oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
 
   MatrixEx* matrixEx = oap::cuda::NewDeviceMatrixEx();

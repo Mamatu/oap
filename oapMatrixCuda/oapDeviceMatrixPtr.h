@@ -38,10 +38,10 @@ namespace oap {
   class DeviceMatricesPtr : public oap::MatricesSharedPtr {
     public:
       DeviceMatricesPtr(math::Matrix** matrices, unsigned int count) :
-        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(count, oap::cuda::DeleteDeviceMatrix)) {}
+        oap::MatricesSharedPtr (matrices, count, oap::cuda::DeleteDeviceMatrix) {}
 
       DeviceMatricesPtr(std::initializer_list<math::Matrix*> matrices) :
-        oap::MatricesSharedPtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), oap::cuda::DeleteDeviceMatrix)) {}
+        oap::MatricesSharedPtr (matrices, oap::cuda::DeleteDeviceMatrix) {}
   };
 
   template<template<typename, typename> class Container>

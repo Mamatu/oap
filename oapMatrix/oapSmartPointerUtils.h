@@ -32,23 +32,115 @@
 namespace deleters
 {
 
-  using MatrixDeleter = std::function<void(const math::Matrix*)>;
+using MatrixDeleter = std::function<void(const math::Matrix*)>;
 
-  class MatricesDeleter {
-      unsigned int m_count;
-      MatrixDeleter m_deleter;
-    public:
-      MatricesDeleter(unsigned int count, deleters::MatrixDeleter deleter) : 
-        m_count(count), m_deleter(deleter) {}
+class MatricesDeleter
+{
+    size_t m_count;
+    MatrixDeleter m_deleter;
+  
+  public:
+    MatricesDeleter (size_t count, deleters::MatrixDeleter deleter) : 
+      m_count(count), m_deleter(deleter) {}
 
-      MatricesDeleter& operator() (math::Matrix** matrices) {
-        for (unsigned int idx = 0; idx < m_count; ++idx) {
-          m_deleter(matrices[idx]);
-        }
-        delete[] matrices;
-        return *this;
+    MatricesDeleter& operator() (math::Matrix** matrices)
+    {
+      for (size_t idx = 0; idx < m_count; ++idx)
+      {
+        m_deleter (matrices[idx]);
       }
-  };
+      delete[] matrices;
+      return *this;
+    }
+
+    void setCount (size_t count)
+    {
+      m_count = count;
+    }
+};
+
+class SharedPtrGetDeleter
+{
+  public:
+
+    template<typename Deleter, typename StdMatrixPtr>
+    Deleter& get_deleter (StdMatrixPtr& stdMatrixPtr)
+    {
+      return *std::get_deleter<Deleter, typename StdMatrixPtr::element_type> (stdMatrixPtr);
+    }
+};
+
+class UniquePtrGetDeleter
+{
+  public:
+
+    template<typename Deleter, typename StdMatrixPtr>
+    Deleter& get_deleter (StdMatrixPtr& stdMatrixPtr)
+    {
+      return stdMatrixPtr.get_deleter ();
+    }
+};
+
+template<typename Deleter, typename SharedPtrType, typename UniquePtrType, typename StdMatrixPtr>
+Deleter& get_deleter (StdMatrixPtr& stdMatrixPtr)
+{
+  constexpr bool isSharedPtr = std::is_same<SharedPtrType, StdMatrixPtr>::value;
+  constexpr bool isUniquePtr = std::is_same<UniquePtrType, StdMatrixPtr>::value;
+  
+  static_assert ((isSharedPtr && !isUniquePtr) || (!isSharedPtr && isUniquePtr), "StdMatrixPtr is unsupported type");
+ 
+  typename std::conditional<isSharedPtr, SharedPtrGetDeleter, UniquePtrGetDeleter>:: type obj;
+  
+  return obj.template get_deleter<Deleter, StdMatrixPtr> (stdMatrixPtr);
+}
+}
+
+namespace reset
+{
+template<typename StdMatrixPtr, typename Deleter>
+class SharedPtrReset
+{
+    StdMatrixPtr& m_stdMatrixPtr;
+    Deleter&& m_deleter;
+
+  public:
+    SharedPtrReset (StdMatrixPtr& stdMatrixPtr, Deleter&& deleter) : m_stdMatrixPtr (stdMatrixPtr), m_deleter (deleter)
+    {}
+
+    void reset (typename StdMatrixPtr::element_type* t)
+    {
+      m_stdMatrixPtr.reset (t, m_deleter);
+    }
+};
+
+template<typename StdMatrixPtr, typename Deleter>
+class UniquePtrReset
+{
+    StdMatrixPtr& m_stdMatrixPtr;
+    Deleter m_deleter;
+
+  public:
+    UniquePtrReset (StdMatrixPtr& stdMatrixPtr, Deleter&& deleter) : m_stdMatrixPtr (stdMatrixPtr), m_deleter (deleter)
+    {}
+
+    void reset (typename StdMatrixPtr::element_type* t)
+    {
+      m_stdMatrixPtr.reset (t);
+    }
+};
+
+template<typename SharedPtrType, typename UniquePtrType, typename StdMatrixPtr, typename Deleter>
+void reset (StdMatrixPtr& stdMatrixPtr, Deleter&& deleter, typename StdMatrixPtr::element_type* t)
+{
+  constexpr bool isSharedPtr = std::is_same<SharedPtrType, StdMatrixPtr>::value;
+  constexpr bool isUniquePtr = std::is_same<UniquePtrType, StdMatrixPtr>::value;
+  
+  static_assert ((isSharedPtr && !isUniquePtr) || (!isSharedPtr && isUniquePtr), "StdMatrixPtr is unsupported type");
+ 
+  typename std::conditional<isSharedPtr, reset::SharedPtrReset<StdMatrixPtr, decltype(deleter)>, reset::UniquePtrReset<StdMatrixPtr, decltype(deleter)>>:: type obj(stdMatrixPtr, deleter);
+  
+  obj.reset (t);
+}
 }
 
 namespace smartptr_utils
@@ -62,17 +154,35 @@ namespace smartptr_utils
     return array;
   }
 
-  template<template<typename, typename> class Container, typename T>
-  T* makeArray(const Container<T, std::allocator<T> >& vec) {
-    T* array = new T[vec.size()];
-    std::copy(vec.begin(), vec.end(), array);
+  template<template<typename, typename> class Container, typename T, class Allocator>
+  T* makeArray(const Container<T, Allocator>& vec)
+  {
+    T* array = new T [vec.size()];
+    std::copy (vec.begin(), vec.end(), array);
     return array;
   }
 
   template<template<typename> class Container, typename T>
-  T* makeArray(const Container<T>& list) {
-    std::vector<T> vec(list);
-    return makeArray(vec);
+  T* makeArray(const Container<T>& list)
+  {
+    std::vector<T> vec (list);
+    return makeArray (vec);
+  }
+
+  template<template<typename, typename> class Container, typename T, class Allocator>
+  T* makeArray(const Container<T, Allocator>& vec, size_t& count)
+  {
+    T* array = new T [vec.size()];
+    std::copy (vec.begin(), vec.end(), array);
+    count = vec.size();
+    return array;
+  }
+
+  template<template<typename> class Container, typename T>
+  T* makeArray(const Container<T>& list, size_t& count)
+  {
+    std::vector<T> vec (list);
+    return makeArray (vec, count);
   }
 
   template<template<typename, typename>class Container, typename T>

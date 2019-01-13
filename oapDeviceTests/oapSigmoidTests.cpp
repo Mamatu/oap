@@ -28,6 +28,9 @@
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
 
+#include "oapHostMatrixPtr.h"
+#include "oapDeviceMatrixPtr.h"
+
 using namespace ::testing;
 
 inline floatt sigmoid(floatt x)
@@ -58,11 +61,11 @@ class OapSigmoidTests : public testing::Test
 
   void test_Sigmoid (const NewMatrix& newDMatrix, const NewMatrix& newHMatrix, const GetValue& getReValue, const GetValue& getImValue)
   {
-    math::Matrix* doutput = newDMatrix (1, 10);
-    math::Matrix* houtput = newHMatrix (1, 10);
+    oap::DeviceMatrixPtr doutput = newDMatrix (1, 10);
+    oap::HostMatrixPtr houtput = newHMatrix (1, 10);
 
-    math::Matrix* dinput = newDMatrix (1, 10);
-    math::Matrix* hinput = newHMatrix (1, 10);
+    oap::DeviceMatrixPtr dinput = newDMatrix (1, 10);
+    oap::HostMatrixPtr hinput = newHMatrix (1, 10);
 
     oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
 
@@ -220,11 +223,11 @@ TEST_F(OapSigmoidTests, SigmoidDerivativeReTest)
     return sigmoid(x) * (1.f - sigmoid(x));
   };
 
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (1, 10);
-  math::Matrix* houtput = oap::host::NewReMatrix (1, 10);
+  oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceReMatrix (1, 10);
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 10);
 
-  math::Matrix* dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
-  math::Matrix* hinput = oap::host::NewReMatrix (1, 10);
+  oap::DeviceMatrixPtr dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
+  oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 10);
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
@@ -252,11 +255,11 @@ TEST_F(OapSigmoidTests, MultiplySigmoidDerivativeReTest)
     return input * sigmoid(x) * (1.f - sigmoid(x));
   };
 
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (1, 10);
-  math::Matrix* houtput = oap::host::NewReMatrix (1, 10);
+  oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceReMatrix (1, 10);
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 10);
 
-  math::Matrix* dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
-  math::Matrix* hinput = oap::host::NewReMatrix (1, 10);
+  oap::DeviceMatrixPtr dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
+  oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 10);
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
