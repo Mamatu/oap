@@ -32,9 +32,14 @@ class MatricesList
   public:
     using MatrixInfos = std::map<const math::Matrix*, math::MatrixInfo>;
 
-    MatricesList ();
+    MatricesList (const std::string& id);
 
-    ~MatricesList ();
+    MatricesList (const MatricesList&) = delete;
+    MatricesList (MatricesList&&) = delete;
+    MatricesList& operator= (const MatricesList&) = delete;
+    MatricesList& operator= (MatricesList&&) = delete;
+
+    virtual ~MatricesList ();
 
     const MatrixInfos& getAllocated() const;
 
@@ -45,6 +50,8 @@ class MatricesList
     math::MatrixInfo remove (const math::Matrix* matrix);
 
   private:
+    std::string m_id;
+
     MatrixInfos m_matrixInfos;
     MatrixInfos m_deletedMatrixInfos;
 

@@ -82,7 +82,7 @@ namespace host
 
 namespace
 {
-MatricesList gMatricesList;
+MatricesList gMatricesList ("HOST");
 }
 
 math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value)
@@ -258,7 +258,7 @@ void DeleteMatrix(const math::Matrix* matrix)
     return;
   }
 
-  gMatricesList.remove (matrix);
+  auto minfo = gMatricesList.remove (matrix);
 
   if (matrix->reValues != nullptr)
   {
@@ -268,7 +268,13 @@ void DeleteMatrix(const math::Matrix* matrix)
   {
     delete[] matrix->imValues;
   }
+
   DELETE_MATRIX(matrix);
+
+  if (minfo.isInitialized ())
+  {
+    debugInfo ("Deallocate: host matrix = %p %s", matrix, minfo.toString().c_str());
+  }
 }
 
 floatt GetReValue(const math::Matrix* matrix, uintt column, uintt row)

@@ -19,7 +19,7 @@
 
 #include "MatricesList.h"
 
-MatricesList::MatricesList ()
+MatricesList::MatricesList (const std::string& id) : m_id(id)
 {}
 
 MatricesList::~MatricesList ()
@@ -43,7 +43,7 @@ void MatricesList::add (math::Matrix* matrix, const math::MatrixInfo& minfo)
   }
 
   auto size = minfo.getSize ();
-  debugInfo ("Allocate: matrix = %p %s", matrix, minfo.toString().c_str());
+  debugInfo ("Allocate in %s: matrix = %p %s", m_id.c_str(), matrix, minfo.toString().c_str());
 }
 
 math::MatrixInfo MatricesList::getMatrixInfo (const math::Matrix* matrix) const
@@ -75,16 +75,15 @@ math::MatrixInfo MatricesList::remove (const math::Matrix* matrix)
   }
   else
   {
-
     MatrixInfos::iterator it = m_deletedMatrixInfos.find(matrix);
     if (it != m_deletedMatrixInfos.end ())
     {
-      debugError ("Double deallocation: matrix = %p %s", matrix, it->second.toString().c_str());
+      debugError ("Double deallocation in %s: matrix = %p %s", m_id.c_str(), matrix, it->second.toString().c_str());
       debugAssert (false);
     }
     else
     {
-      debugError ("Not found: matrix = %p", matrix);
+      debugError ("Not found in %s: matrix = %p", m_id.c_str(), matrix);
       debugAssert (false);
     }
   }
@@ -99,8 +98,8 @@ void MatricesList::checkOnDelete()
     debugError ("Memleak: not deallocated matrices");
     for (MatrixInfos::iterator it = m_matrixInfos.begin(); it != m_matrixInfos.end(); ++it)
     {
-      debug("Memleak: matrix = %p %s not deallocated", it->first, it->second.toString().c_str());
+      debug("Memleak in %s: matrix = %p %s not deallocated", m_id.c_str(), it->first, it->second.toString().c_str());
     }
-    debugAssert (false);
+    //debugAssert (false);
   }
 }
