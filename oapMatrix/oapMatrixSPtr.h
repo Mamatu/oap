@@ -43,32 +43,31 @@ namespace stdlib
   class MatrixSPtr
   {
     public:
-      MatrixSPtr() : StdMatrixPtr()
-      {}
+      using Type = typename StdMatrixPtr::element_type;
 
-      MatrixSPtr(math::Matrix* matrix, deleters::MatrixDeleter deleter) : m_stdMatrixPtr (matrix, deleter) {}
+      MatrixSPtr (Type* matrix, deleters::MatrixDeleter deleter) : m_stdMatrixPtr (matrix, deleter) {}
 
       MatrixSPtr(const MatrixSPtr& orig) = default;
       MatrixSPtr(MatrixSPtr&& orig) = default;
       MatrixSPtr& operator=(const MatrixSPtr& orig) = default;
       MatrixSPtr& operator=(MatrixSPtr&& orig) = default;
 
-      operator math::Matrix*() { return this->get(); }
+      operator Type*() { return this->get(); }
 
-      math::Matrix* operator->() { return this->get(); }
+      Type* operator->() { return this->get(); }
 
       void reset ()
       {
         m_stdMatrixPtr.reset ();
       }
 
-      void reset (typename StdMatrixPtr::element_type* t)
+      void reset (Type* t)
       {
         auto& deleter = deleters::get_deleter<deleters::MatrixDeleter, stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr);
         reset::reset<stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr, deleter, t);
       }
 
-      typename StdMatrixPtr::element_type* get() const
+      Type* get() const
       {
         return m_stdMatrixPtr.get();
       }
@@ -81,31 +80,32 @@ namespace stdlib
   class MatricesSPtr
   {
     public:
-      MatricesSPtr() : StdMatrixPtr() {}
+      using ArrayType = typename StdMatrixPtr::element_type;
+      using Type = typename std::remove_pointer<ArrayType>::type;
 
-      MatricesSPtr(math::Matrix** matrices, size_t count, deleters::MatrixDeleter deleter) :
-        m_stdMatrixPtr(matrices, deleters::MatricesDeleter (count, deleter)) {}
+      MatricesSPtr (ArrayType* matrices, size_t count, deleters::MatrixDeleter deleter) :
+        m_stdMatrixPtr(smartptr_utils::makeArray (matrices, count), deleters::MatricesDeleter (count, deleter)) {}
 
-      MatricesSPtr(std::initializer_list<math::Matrix*> matrices, deleters::MatrixDeleter deleter) :
-         m_stdMatrixPtr (smartptr_utils::makeArray(matrices),
+      MatricesSPtr (std::initializer_list<ArrayType> matrices, deleters::MatrixDeleter deleter) :
+         m_stdMatrixPtr (smartptr_utils::makeArray (matrices).ptr,
                          deleters::MatricesDeleter (smartptr_utils::getElementsCount (matrices), deleter)) {}
 
-      MatricesSPtr(size_t count, deleters::MatrixDeleter deleter) :
-        m_stdMatrixPtr (smartptr_utils::makeArray<math::Matrix*>(count), deleters::MatricesDeleter (count, deleter))  {}
+      MatricesSPtr (size_t count, deleters::MatrixDeleter deleter) :
+        m_stdMatrixPtr (smartptr_utils::makeArray<ArrayType> (count), deleters::MatricesDeleter (count, deleter))  {}
 
       MatricesSPtr(const MatricesSPtr& orig) = default;
       MatricesSPtr(MatricesSPtr&& orig) = default;
       MatricesSPtr& operator=(const MatricesSPtr& orig) = default;
       MatricesSPtr& operator=(MatricesSPtr&& orig) = default;
 
-      operator math::Matrix**() { return this->get(); }
+      operator ArrayType*() { return this->get(); }
 
-      math::Matrix*& operator[](size_t index)
+      ArrayType& operator[](size_t index)
       {
         return this->get()[index];
       }
 
-      math::Matrix** operator->() { return this->get(); }
+      ArrayType* operator->() { return this->get(); }
 
       void reset ()
       {
@@ -113,42 +113,49 @@ namespace stdlib
       }
 
       template<template<typename, typename> class Container, typename Allocator>
-      void reset (const Container<math::Matrix*, Allocator>& matrices)
+      void reset (const Container<ArrayType, Allocator>& matrices)
       {
-        size_t newCount = 0;
+        using ArrayPtr = smartptr_utils::ArrayPtr<ArrayType>;
+
         auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
 
-        math::Matrix** array = smartptr_utils::makeArray<Container, math::Matrix*, Allocator> (matrices, newCount);
-        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array);
+        ArrayPtr array = smartptr_utils::makeArray<Container, ArrayType, Allocator> (matrices);
+        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array.ptr);
+
+        size_t newCount = array.count;
 
         auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
         ndeleter.setCount (newCount);
       }
 
       template<template<typename> class Container>
-      void reset (const Container<math::Matrix*>& matrices)
+      void reset (const Container<ArrayType>& matrices)
       {
-        size_t newCount = 0;
+        using ArrayPtr = smartptr_utils::ArrayPtr<ArrayType>;
+
         auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
 
-        math::Matrix** array = smartptr_utils::makeArray<Container, math::Matrix* >(matrices, newCount);
-        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array);
+        ArrayPtr array = smartptr_utils::makeArray<Container, ArrayType>(matrices);
+        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array.ptr);
+
+        size_t newCount = array.count;
 
         auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
         ndeleter.setCount (newCount);
       }
 
-      void reset (typename StdMatrixPtr::element_type* t, size_t count)
+      void reset (ArrayType* t, size_t count)
       {
         auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        ArrayType* array = smartptr_utils::makeArray<ArrayType> (t, count);
 
-        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, t);
+        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array);
 
         auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
         ndeleter.setCount (count);
       }
 
-      typename StdMatrixPtr::element_type* get() const
+      ArrayType* get() const
       {
         return m_stdMatrixPtr.get();
       }

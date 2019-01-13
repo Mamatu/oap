@@ -91,10 +91,20 @@ TEST_F(OapMatrixPtrTests, ResetPtrsTest)
   array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
   array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
 
+  math::Matrix* array1[3] =
+  {
+    oap::cuda::NewDeviceReMatrix (110, 25),
+    oap::cuda::NewDeviceImMatrix (110, 25),
+    oap::cuda::NewDeviceMatrix (110, 25),
+  };
+
   oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (vec);
   ptr.reset (vec1);
   ptr.reset (list);
   ptr.reset (array, 2);
+  ptr.reset (array1, 3);
+
+  delete[] array;
 }
 
 TEST_F(OapMatrixPtrTests, AssignmentPtrTest)
@@ -175,10 +185,20 @@ TEST_F(OapMatrixPtrTests, ResetUPtrsTest)
   array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
   array[1] = oap::cuda::NewDeviceReMatrix(10, 13);
 
+  math::Matrix* array1[3] =
+  {
+    oap::cuda::NewDeviceReMatrix (110, 25),
+    oap::cuda::NewDeviceImMatrix (110, 25),
+    oap::cuda::NewDeviceMatrix (110, 25),
+  };
+
   oap::DeviceMatricesUPtr ptr = oap::makeDeviceMatricesUPtr (vec);
   ptr.reset (vec1);
   ptr.reset (list);
   ptr.reset (array, 2);
+  ptr.reset (array1, 3);
+
+  delete[] array;
 }
 
 TEST_F(OapMatrixPtrTests, AssignmentUPtrTest)

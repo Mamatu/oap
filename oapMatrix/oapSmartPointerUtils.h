@@ -147,42 +147,50 @@ namespace smartptr_utils
 {
 
   template<typename T>
-  T* makeArray(size_t count)
+  T* makeArray (size_t count)
   {
     T* array = new T[count];
     memset(array, 0, sizeof(T) * count);
     return array;
   }
 
-  template<template<typename, typename> class Container, typename T, class Allocator>
-  T* makeArray(const Container<T, Allocator>& vec)
+  template<typename T>
+  T* makeArray (T* orig, size_t count)
   {
-    T* array = new T [vec.size()];
-    std::copy (vec.begin(), vec.end(), array);
+    T* array = new T[count];
+    memcpy (array, orig, sizeof(T) * count);
     return array;
   }
 
+  template<typename T>
+  class ArrayPtr
+  {
+    public:
+      T* ptr = nullptr;
+      size_t count = 0;
+
+      ArrayPtr (T* _ptr, size_t _count) : ptr(_ptr), count(_count)
+      {}
+
+      operator T*() const
+      {
+        return ptr;
+      }
+  };
+
+  template<template<typename, typename> class Container, typename T, class Allocator>
+  ArrayPtr<T> makeArray(const Container<T, Allocator>& vec)
+  {
+    T* array = new T [vec.size()];
+    std::copy (vec.begin(), vec.end(), array);
+    return ArrayPtr<T> (array, vec.size());
+  }
+
   template<template<typename> class Container, typename T>
-  T* makeArray(const Container<T>& list)
+  ArrayPtr<T> makeArray(const Container<T>& list)
   {
     std::vector<T> vec (list);
     return makeArray (vec);
-  }
-
-  template<template<typename, typename> class Container, typename T, class Allocator>
-  T* makeArray(const Container<T, Allocator>& vec, size_t& count)
-  {
-    T* array = new T [vec.size()];
-    std::copy (vec.begin(), vec.end(), array);
-    count = vec.size();
-    return array;
-  }
-
-  template<template<typename> class Container, typename T>
-  T* makeArray(const Container<T>& list, size_t& count)
-  {
-    std::vector<T> vec (list);
-    return makeArray (vec, count);
   }
 
   template<template<typename, typename>class Container, typename T>

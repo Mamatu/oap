@@ -84,10 +84,20 @@ TEST_F(OapMatrixPtrTests, ResetPtrsTest)
   array[0] = oap::host::NewReMatrix(10, 125);
   array[1] = oap::host::NewImMatrix (10, 13);
 
+  math::Matrix* array1[3] =
+  {
+    oap::host::NewReMatrix(10, 125),
+    oap::host::NewImMatrix (10, 13),
+    oap::host::NewMatrix (105, 13)
+  };
+
   oap::HostMatricesPtr ptr = oap::makeHostMatricesPtr (vec);
   ptr.reset (vec1);
   ptr.reset (list);
   ptr.reset (array, 2);
+  ptr.reset (array1, 3);
+
+  delete[] array;
 }
 
 TEST_F(OapMatrixPtrTests, AssignmentPtrTest)
@@ -168,10 +178,20 @@ TEST_F(OapMatrixPtrTests, ResetUPtrsTest)
   array[0] = oap::host::NewReMatrix(10, 125);
   array[1] = oap::host::NewReMatrix(10, 13);
 
+  math::Matrix* array1[3] =
+  {
+    oap::host::NewReMatrix(10, 125),
+    oap::host::NewImMatrix (10, 13),
+    oap::host::NewMatrix (105, 13)
+  };
+
   oap::HostMatricesUPtr ptr = oap::makeHostMatricesUPtr (vec);
   ptr.reset (vec1);
   ptr.reset (list);
   ptr.reset (array, 2);
+  ptr.reset (array1, 3);
+
+  delete[] array;
 }
 
 TEST_F(OapMatrixPtrTests, AssignmentUPtrTest)
