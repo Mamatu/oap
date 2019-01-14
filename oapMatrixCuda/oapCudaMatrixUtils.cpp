@@ -40,7 +40,7 @@ namespace cuda
 
 namespace
 {
-MatricesList gMatricesList;
+MatricesList gMatricesList ("CUDA");
 }
 
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix)
@@ -167,7 +167,7 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix)
 
     if (minfo.isInitialized ())
     {
-      debug ("Deallocate: dMatrix = %p %s", dMatrix, minfo.toString().c_str());
+      debugInfo ("Deallocate: cuda matrix = %p %s", dMatrix, minfo.toString().c_str());
     }
   }
 }

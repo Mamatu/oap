@@ -38,13 +38,13 @@ namespace oap {
   class HostMatricesUPtr : public oap::MatricesUniquePtr {
     public:
       HostMatricesUPtr(math::Matrix** matrices, unsigned int count) :
-        oap::MatricesUniquePtr(matrices, deleters::MatricesDeleter(count, oap::host::DeleteMatrix)) {}
+        oap::MatricesUniquePtr(matrices, count, oap::host::DeleteMatrix) {}
 
       HostMatricesUPtr(size_t count) :
-        oap::MatricesUniquePtr(count, deleters::MatricesDeleter(count, oap::host::DeleteMatrix)) {}
+        oap::MatricesUniquePtr(count, oap::host::DeleteMatrix) {}
 
       HostMatricesUPtr(std::initializer_list<math::Matrix*> matrices) :
-        oap::MatricesUniquePtr(matrices, deleters::MatricesDeleter(smartptr_utils::getElementsCount(matrices), oap::host::DeleteMatrix)) {}
+        oap::MatricesUniquePtr(matrices, oap::host::DeleteMatrix) {}
   };
 
   template<template<typename, typename> class Container>

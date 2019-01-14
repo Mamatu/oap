@@ -28,46 +28,6 @@
 
 namespace oap
 {
-
-  template<class StdMatrixPtr>
-  class MatrixSPtr : public StdMatrixPtr {
-    public:
-      MatrixSPtr() : StdMatrixPtr()
-      {}
-
-      MatrixSPtr(math::Matrix* matrix, deleters::MatrixDeleter deleter) : StdMatrixPtr(matrix, deleter) {}
-
-      operator math::Matrix*() { return this->get(); }
-
-      math::Matrix* operator->() { return this->get(); }
-  };
-
-  template<class StdMatrixPtr>
-  class MatricesSPtr : public StdMatrixPtr {
-    public:
-      MatricesSPtr() : StdMatrixPtr() {}
-
-      MatricesSPtr(math::Matrix** matrices, deleters::MatricesDeleter deleter) : StdMatrixPtr(matrices, deleter) {}
-
-      MatricesSPtr(std::initializer_list<math::Matrix*> matrices, deleters::MatricesDeleter deleter) :
-        StdMatrixPtr(smartptr_utils::makeArray(matrices), deleter) {}
-
-      MatricesSPtr(size_t count, deleters::MatricesDeleter deleter) :
-        StdMatrixPtr(smartptr_utils::makeArray<math::Matrix*>(count), deleter) {}
-
-      operator math::Matrix**() { return this->get(); }
-
-      math::Matrix*& operator[](size_t index)
-      {
-        return this->get()[index];
-      }
-
-      math::Matrix** operator->() { return this->get(); }
-  };
-}
-
-namespace oap
-{
 namespace stdlib
 {
   using MatrixSharedPtr = ::std::shared_ptr<math::Matrix>;
@@ -78,6 +38,135 @@ namespace stdlib
 
   using MatricesUniquePtr = ::std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>;
 }
+
+  template<class StdMatrixPtr>
+  class MatrixSPtr
+  {
+    public:
+      using Type = typename StdMatrixPtr::element_type;
+
+      MatrixSPtr (Type* matrix, deleters::MatrixDeleter deleter) : m_stdMatrixPtr (matrix, deleter) {}
+
+      MatrixSPtr(const MatrixSPtr& orig) = default;
+      MatrixSPtr(MatrixSPtr&& orig) = default;
+      MatrixSPtr& operator=(const MatrixSPtr& orig) = default;
+      MatrixSPtr& operator=(MatrixSPtr&& orig) = default;
+
+      operator Type*() { return this->get(); }
+
+      Type* operator->() { return this->get(); }
+
+      void reset ()
+      {
+        m_stdMatrixPtr.reset ();
+      }
+
+      void reset (Type* t)
+      {
+        auto& deleter = deleters::get_deleter<deleters::MatrixDeleter, stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr);
+        reset::reset<stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr, deleter, t);
+      }
+
+      Type* get() const
+      {
+        return m_stdMatrixPtr.get();
+      }
+
+    private:
+      StdMatrixPtr m_stdMatrixPtr;
+  };
+
+  template<class StdMatrixPtr>
+  class MatricesSPtr
+  {
+    public:
+      using ArrayType = typename StdMatrixPtr::element_type;
+      using Type = typename std::remove_pointer<ArrayType>::type;
+
+      MatricesSPtr (ArrayType* matrices, size_t count, deleters::MatrixDeleter deleter) :
+        m_stdMatrixPtr(smartptr_utils::makeArray (matrices, count), deleters::MatricesDeleter (count, deleter)) {}
+
+      MatricesSPtr (std::initializer_list<ArrayType> matrices, deleters::MatrixDeleter deleter) :
+         m_stdMatrixPtr (smartptr_utils::makeArray (matrices).ptr,
+                         deleters::MatricesDeleter (smartptr_utils::getElementsCount (matrices), deleter)) {}
+
+      MatricesSPtr (size_t count, deleters::MatrixDeleter deleter) :
+        m_stdMatrixPtr (smartptr_utils::makeArray<ArrayType> (count), deleters::MatricesDeleter (count, deleter))  {}
+
+      MatricesSPtr(const MatricesSPtr& orig) = default;
+      MatricesSPtr(MatricesSPtr&& orig) = default;
+      MatricesSPtr& operator=(const MatricesSPtr& orig) = default;
+      MatricesSPtr& operator=(MatricesSPtr&& orig) = default;
+
+      operator ArrayType*() { return this->get(); }
+
+      ArrayType& operator[](size_t index)
+      {
+        return this->get()[index];
+      }
+
+      ArrayType* operator->() { return this->get(); }
+
+      void reset ()
+      {
+        m_stdMatrixPtr.reset ();
+      }
+
+      template<template<typename, typename> class Container, typename Allocator>
+      void reset (const Container<ArrayType, Allocator>& matrices)
+      {
+        using ArrayPtr = smartptr_utils::ArrayPtr<ArrayType>;
+
+        auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+
+        ArrayPtr array = smartptr_utils::makeArray<Container, ArrayType, Allocator> (matrices);
+        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array.ptr);
+
+        size_t newCount = array.count;
+
+        auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        ndeleter.setCount (newCount);
+      }
+
+      template<template<typename> class Container>
+      void reset (const Container<ArrayType>& matrices)
+      {
+        using ArrayPtr = smartptr_utils::ArrayPtr<ArrayType>;
+
+        auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+
+        ArrayPtr array = smartptr_utils::makeArray<Container, ArrayType>(matrices);
+        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array.ptr);
+
+        size_t newCount = array.count;
+
+        auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        ndeleter.setCount (newCount);
+      }
+
+      void reset (ArrayType* t, size_t count)
+      {
+        auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        ArrayType* array = smartptr_utils::makeArray<ArrayType> (t, count);
+
+        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array);
+
+        auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        ndeleter.setCount (count);
+      }
+
+      ArrayType* get() const
+      {
+        return m_stdMatrixPtr.get();
+      }
+
+    private:
+      StdMatrixPtr m_stdMatrixPtr;
+  };
+}
+
+namespace oap
+{
 
 using MatrixSharedPtr = MatrixSPtr<stdlib::MatrixSharedPtr>;
 

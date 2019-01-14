@@ -76,6 +76,7 @@ TEST_F(OapMatrixUtilsTests, GetValuesTest) {
   oap::host::DeleteMatrix(matrix);
 }
 
+#if 0
 TEST_F(OapMatrixUtilsTests, PushPopTest) {
   uintt columns = 5;
   uintt rows = 5;
@@ -97,3 +98,4 @@ TEST_F(OapMatrixUtilsTests, PushPopTest) {
   EXPECT_EQ(1, test::getStackLevels(matrix));
   oap::host::DeleteMatrix(matrix);
 }
+#endif
