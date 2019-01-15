@@ -306,6 +306,7 @@ bool Network::shouldContinue (ErrorType errorType)
       floatt imoutput = 0;
       m_cuApi.sum (sqe, imoutput, llayer->m_errors);
       sqe = sqe / llayer->getNeuronsCount ();
+      sqe = -sqe;
     }
 
     m_icontroller->setSquareError (sqe);

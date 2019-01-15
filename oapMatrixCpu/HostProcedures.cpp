@@ -220,3 +220,10 @@ void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* para
   oap::generic::sum (reoutput, imoutput, params0, &m_kernel, sumApi, sumBuffers);
 }
 
+void HostProcedures::crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::crossEntropy (output, params0, params1, &m_kernel, bapi);
+}
+

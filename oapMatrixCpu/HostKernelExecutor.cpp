@@ -25,7 +25,11 @@
 #include <map>
 #include <functional>
 
-std::map<std::string, std::function<void(void**)>> g_kernelsList = {{"CUDAKernel_SumShared", HOSTKernel_SumSharedRaw}};
+std::map<std::string, std::function<void(void**)>> g_kernelsList =
+{
+  {"CUDAKernel_SumShared", HOSTKernel_SumSharedRaw},
+  {"CUDAKernel_CrossEntropy", HOSTKernel_CrossEntropyRaw}
+};
 
 class HostKernelImpl : public HostKernel
 {

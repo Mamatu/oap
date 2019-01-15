@@ -95,7 +95,6 @@ class CuProceduresApi
                         math::Matrix* params1);
 
   void crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
-  void crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
 
   void substract(math::Matrix* output, math::Matrix* params0,
                  math::Matrix* params1, uintt columns, uintt rows);
