@@ -273,7 +273,7 @@ TEST_F(OapMatrixPtrTests, InitializationUPtrsTest)
   oap::HostMatricesUPtr ptr1 = oap::makeHostMatricesUPtr (vec1);
   oap::HostMatricesUPtr ptr2 = oap::makeHostMatricesUPtr (list);
   oap::HostMatricesUPtr ptr3 = oap::makeHostMatricesUPtr (array, 2);
-  oap::HostMatricesUPtr ptr3 = oap::makeHostMatricesUPtr (array1, 3);
+  oap::HostMatricesUPtr ptr4 = oap::makeHostMatricesUPtr (array1, 3);
   
   delete[] array;
 }
