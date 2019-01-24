@@ -20,13 +20,18 @@
 #include "GraphicUtils.h"
 #include "GraphicsUtilsImpl.h"
 
-namespace oap {
-size_t getColumn(size_t index, size_t colorsCount) {
-  for (size_t fa = 0; fa < colorsCount; ++fa) {
-    if (index % colorsCount == 0) {
+namespace oap
+{
+size_t getColumn(size_t index, size_t colorsCount)
+{
+  for (size_t fa = 0; fa < colorsCount; ++fa)
+  {
+    if (index % colorsCount == 0)
+    {
       return index / colorsCount;
     }
     --index;
   }
+  return 0;
 }
 }
