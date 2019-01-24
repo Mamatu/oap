@@ -22,6 +22,9 @@
 #include "PngFile.h"
 #include "Exceptions.h"
 
+#include "DebugLogs.h"
+#include "Config.h"
+
 using namespace ::testing;
 
 class OapPngFileTests : public testing::Test {
@@ -57,6 +60,73 @@ class OapPngFileTests : public testing::Test {
 
     MOCK_CONST_METHOD0(getSufix, std::string());
   };
+
+  template<typename Callback, typename CallbackNL>
+  void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, Callback&& callback, CallbackNL&& cnl)
+  {
+    for (size_t y = 0; y < height.optSize; ++y)
+    {
+      for (size_t x = 0; x < width.optSize; ++x)
+      {
+        floatt value = pixels[x + width.optSize * y];
+        int pvalue = value > 0.5 ? 1 : 0;
+        callback (pvalue, x, y);
+      }
+      cnl ();
+    }
+    cnl ();
+  }
+
+  void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height)
+  {
+    iterateBitmap (pixels, width, height, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
+  }
+
+  void saveImage (oap::PngFile* pngFile, const std::string& tmp, const std::string& fileName)
+  {
+    std::stringstream sstream;
+    sstream << tmp;
+    if (fileName.empty ())
+    {
+      sstream << pngFile->getFileName ();
+    }
+    else
+    {
+      sstream << fileName << ".png";
+    }
+    pngFile->save (sstream.str ());
+  }
+
+  void print (char letter, bool truncate, const std::vector<int>& pattern = {}, const std::string& fileName = "")
+  {
+    std::stringstream sstream;
+    sstream << "oapNeural/data/text/" << letter << ".png";
+    oap::PngFile png (utils::Config::getFileInOap(sstream.str ()), truncate);
+    png.loadBitmap ();
+
+    const size_t length = png.getLength ();
+    std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[length]);
+
+    png.getFloattVector (pixels.get ());
+
+    EXPECT_EQ(20, png.getWidth().optSize + png.getWidth().begin);
+    EXPECT_EQ(20, png.getHeight().optSize + png.getHeight().begin);
+
+    const oap::OptSize& height = png.getOutputHeight ();
+    const oap::OptSize& width = png.getOutputWidth ();
+
+    debugInfo ("%lu %lu %lu %lu \n", height.begin, height.optSize, width.begin, width.optSize);
+
+    printBitmap (pixels.get (), width, height);
+    if (pattern.empty() == false)
+    {
+      std::vector<int> pixelsVec;
+      iterateBitmap (pixels.get(), width, height, [&pixelsVec](int pixel, size_t x, size_t y){ pixelsVec.push_back (pixel);}, [](){});
+      EXPECT_EQ(pattern, pixelsVec);
+    }
+    saveImage (&png, utils::Config::getPathInTmp("host_tests/OapPngFileTests_PrintLetters/"), fileName);
+  }
+
 };
 
 TEST_F(OapPngFileTests, LoadPixelOutOfRange) {
@@ -97,3 +167,106 @@ TEST_F(OapPngFileTests, FileNametest) {
   EXPECT_EQ("e", fileName);
   EXPECT_EQ("a/b/c/d", filePath);
 }
+
+TEST_F (OapPngFileTests, PrintLetters_a)
+{
+  std::vector<int> pattern =
+  {
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,0,0,1,1,1,0,1,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,0,0,0,1,1,0,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  };
+
+  print ('a', false, pattern);
+}
+
+TEST_F (OapPngFileTests, PrintLetters_b)
+{
+  std::vector<int> pattern =
+  {
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,0,0,0,0,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,
+  1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,
+  1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  };
+
+  print ('b', false, pattern);
+}
+
+TEST_F (OapPngFileTests, PrintLetters_a_truncated)
+{
+  std::vector<int> pattern =
+  {
+  1,1,1,0,0,0,0,1,1,
+  1,1,1,1,1,1,1,0,1,
+  1,1,1,1,1,1,1,1,0,
+  1,1,1,1,1,1,1,1,0,
+  1,1,1,0,0,0,0,0,0,
+  1,1,0,1,1,1,1,1,0,
+  1,0,1,1,1,1,1,1,0,
+  1,0,1,1,1,1,1,1,0,
+  1,0,1,1,1,1,1,0,0,
+  1,0,0,1,1,1,0,1,0,
+  1,1,0,0,0,0,1,1,0,
+  };
+
+  print ('a', true, pattern, "a_truncated");
+}
+
+TEST_F (OapPngFileTests, PrintLetters_b_truncated)
+{
+  std::vector<int> pattern =
+  {
+  1,0,1,1,1,1,1,1,1,1,
+  1,0,1,1,1,1,1,1,1,1,
+  1,0,1,1,1,1,1,1,1,1,
+  1,0,1,1,1,1,1,1,1,1,
+  1,0,1,0,0,0,0,1,1,1,
+  1,0,0,1,1,1,1,0,0,1,
+  1,0,1,1,1,1,1,1,0,1,
+  1,0,1,1,1,1,1,1,0,0,
+  1,0,1,1,1,1,1,1,1,0,
+  1,0,1,1,1,1,1,1,1,0,
+  1,0,1,1,1,1,1,1,1,0,
+  1,0,1,1,1,1,1,1,0,0,
+  1,0,1,1,1,1,1,1,0,1,
+  1,0,0,1,1,1,1,0,0,1,
+  1,1,1,0,0,0,0,1,1,1,
+  };
+
+  print ('b', true, pattern, "b_truncated");
+}
+
