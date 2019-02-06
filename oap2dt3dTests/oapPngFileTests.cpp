@@ -111,8 +111,8 @@ class OapPngFileTests : public testing::Test {
 
     EXPECT_EQ(20, png.getWidth().optSize + png.getWidth().begin);
     EXPECT_EQ(20, png.getHeight().optSize + png.getHeight().begin);
-    EXPECT_EQ(20, png.getOutputWidth().optSize + png.getOutputWidth().begin);
-    EXPECT_EQ(20, png.getOutputHeight().optSize + png.getOutputHeight().begin);
+    EXPECT_GE(20, png.getOutputWidth().optSize + png.getOutputWidth().begin);
+    EXPECT_GE(20, png.getOutputHeight().optSize + png.getOutputHeight().begin);
     EXPECT_EQ(png.getOutputWidth().optSize * png.getOutputHeight().optSize, png.getLength ());
 
     const oap::OptSize& height = png.getOutputHeight ();
