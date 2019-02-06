@@ -304,6 +304,12 @@ void CuProceduresApi::sum (floatt& reoutput, floatt& imoutput, math::Matrix* mat
   generic::sum (reoutput, imoutput, matrix, &m_kernel, sumApi, sumBuffers);
 }
 
+void CuProceduresApi::sum (floatt& reoutput, math::Matrix* matrix)
+{
+  floatt imoutput;
+  sum (reoutput, imoutput, matrix);
+}
+
 void CuProceduresApi::magnitudeOpt(floatt& output, math::Matrix* param0) {
   magnitude2Opt(output, param0);
   output = sqrt(output);
