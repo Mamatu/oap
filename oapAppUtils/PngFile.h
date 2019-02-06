@@ -86,8 +86,9 @@ class PngFile : public Image
     png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d, const OptSize& optWidth,
                                    const OptSize& optHeight, size_t colorsCount);
 
-    oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d, size_t width,
-                                           size_t height, size_t colorsCount);
+    oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d,
+                                           size_t width, size_t height,
+                                           size_t colorsCount);
 
     template <typename T>
     void destroyBuffer(T* buffer)

@@ -177,8 +177,9 @@ void PngFile::convertRawdataToBitmap1D()
   m_bitmap1d = createBitmap1dFrom2d(m_bitmap2d, getOutputWidth(),
                                     getOutputHeight(), m_colorsCount);
 
-  m_pixels = createPixelsVectorFrom1d(m_bitmap1d, getOutputWidth().optSize,
-                                      getOutputHeight().optSize, m_colorsCount);
+  m_pixels = createPixelsVectorFrom1d(m_bitmap1d,
+                                      getOutputWidth().optSize, getOutputHeight().optSize,
+                                      m_colorsCount);
 }
 
 void PngFile::destroyPngBitmaps()
@@ -236,7 +237,7 @@ bool PngFile::isCorrectFormat() const
 
 pixel_t PngFile::getPixelProtected(unsigned int x, unsigned int y) const
 {
-  const size_t width = getWidth().optSize;
+  const size_t width = getOutputWidth().optSize;
   return m_pixels[y * width + x];
 }
 
