@@ -140,7 +140,7 @@ void runTraining (Context* ctx, floatt learningRate, int repeats)
       eoutput->reValues[pair.second] = 1;
     }
 
-    ctx->network->train (matrix, eoutput, Network::HOST, Network::ErrorType::NORMAL_ERROR);
+    ctx->network->train (matrix, eoutput, Network::HOST, Network::ErrorType::ROOT_MEAN_SQUARE_ERROR);
     oap::host::DeleteMatrix (eoutput);
   };
 
@@ -195,7 +195,7 @@ int main(int argc, char** argv)
   auto run = [&](const std::string& image)
   {
     oap::HostMatrixPtr imatrix = getImageMatrix (dataPath + image);
-    auto output = ctx->network->run (imatrix.get(), Network::HOST, Network::ErrorType::NORMAL_ERROR);
+    auto output = ctx->network->run (imatrix.get(), Network::HOST, Network::ErrorType::ROOT_MEAN_SQUARE_ERROR);
     oap::host::PrintMatrix ("output = ", output.get ());
   };
 

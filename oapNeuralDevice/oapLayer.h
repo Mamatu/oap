@@ -32,19 +32,19 @@ class Network;
 class Layer
 {
 private:
-  math::Matrix* m_inputs;
-  math::Matrix* m_tinputs;
-  math::Matrix* m_sums;
-  math::Matrix* m_tsums;
-  math::Matrix* m_errors;
-  math::Matrix* m_terrors;
-  math::Matrix* m_weights;
-  math::Matrix* m_tweights;
-  math::Matrix* m_weights1;
-  math::Matrix* m_weights2;
+  math::Matrix* m_inputs = nullptr;
+  math::Matrix* m_tinputs = nullptr;
+  math::Matrix* m_sums = nullptr;
+  math::Matrix* m_tsums = nullptr;
+  math::Matrix* m_errors = nullptr;
+  math::Matrix* m_terrors = nullptr;
+  math::Matrix* m_weights = nullptr;
+  math::Matrix* m_tweights = nullptr;
+  math::Matrix* m_weights1 = nullptr;
+  math::Matrix* m_weights2 = nullptr;
 
-  size_t m_neuronsCount;
-  size_t m_nextLayerNeuronsCount;
+  size_t m_neuronsCount = 0;
+  size_t m_nextLayerNeuronsCount = 0;
 
   std::pair<size_t, size_t> m_weightsDim;
 

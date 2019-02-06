@@ -35,7 +35,10 @@ public: // types
 
   enum class ErrorType
   {
-    NORMAL_ERROR,
+    MEAN_SQUARE_ERROR,
+    ROOT_MEAN_SQUARE_ERROR,
+    SUM,
+    MEAN_OF_SUM,
     CROSS_ENTROPY
   };
 
@@ -44,7 +47,7 @@ public: // types
     public:
       virtual ~IController() {}
       virtual bool shouldCalculateError(size_t step) = 0;
-      virtual void setSquareError (floatt sqe) = 0;
+      virtual void setError (floatt value, ErrorType type) = 0;
       virtual bool shouldContinue() = 0;
   };
 
@@ -93,17 +96,11 @@ public:
   bool operator!= (const Network& network) const;
 
 protected:
-  enum class AlgoType
-  {
-    BACKWARD_PROPAGATION_MODE,
-    FORWARD_PROPAGATION_MODE
-  };
-
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
 
-  void executeLearning(math::Matrix* deviceExpected, ErrorType errorType);
+  void backwardPropagation (math::Matrix* deviceExpected, ErrorType errorType);
 
-  oap::HostMatrixUPtr executeAlgo(AlgoType algoType, math::Matrix* deviceExpected, ErrorType errorType);
+  void forwardPropagation ();
 
 private:
   std::vector<Layer*> m_layers;

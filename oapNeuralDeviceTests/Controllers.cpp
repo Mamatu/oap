@@ -1,19 +1,19 @@
 #include "Controllers.h"
 
-SquareErrorLimitController::SquareErrorLimitController (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback) :
+SE_ID_Controller::SE_ID_Controller (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback) :
   m_limit(limit), m_dataSetSize(dataSetSize), m_sqes(0), m_sc(true), m_callback(callback)
 {}
 
-SquareErrorLimitController::~SquareErrorLimitController()
+SE_ID_Controller::~SE_ID_Controller()
 {}
 
-bool SquareErrorLimitController::shouldCalculateError (size_t step)
+bool SE_ID_Controller::shouldCalculateError (size_t step)
 {
   m_step = step;
   return true;
 }
 
-void SquareErrorLimitController::setSquareError (floatt sqe)
+void SE_ID_Controller::setError (floatt sqe, Network::ErrorType etype)
 {
   m_sqes += sqe;
   if (m_step % m_dataSetSize == 0)
@@ -31,7 +31,46 @@ void SquareErrorLimitController::setSquareError (floatt sqe)
   }
 }
 
-bool SquareErrorLimitController::shouldContinue()
+bool SE_ID_Controller::shouldContinue()
+{
+  return m_sc;
+}
+
+SE_CD_Controller::SE_CD_Controller (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback) :
+  m_limit(limit), m_dataSetSize(dataSetSize), m_sqe(0), m_sc(true), m_callback(callback)
+{}
+
+SE_CD_Controller::~SE_CD_Controller()
+{}
+
+bool SE_CD_Controller::shouldCalculateError (size_t step)
+{
+  m_step = step;
+  return true;
+}
+
+void SE_CD_Controller::setError (floatt sqe, Network::ErrorType etype)
+{
+  m_sqe += sqe;
+  m_sqes.push (sqe);
+  if (m_step >= m_dataSetSize)
+  {
+    floatt e = m_sqes.front ();
+    m_sqes.pop ();
+    m_sqe -= e;
+
+    floatt csqe = m_sqe / static_cast<floatt>(m_dataSetSize);
+    m_sc = csqe > m_limit;
+    debug("square error = %f limit = %f step = %lu", csqe, m_limit, m_step);
+
+    if (m_callback)
+    {
+      m_callback (csqe, m_step, m_limit);
+    }
+  }
+}
+
+bool SE_CD_Controller::shouldContinue()
 {
   return m_sc;
 }
@@ -47,9 +86,8 @@ bool DerivativeController::shouldCalculateError (size_t step)
   return true;
 }
 
-void DerivativeController::setSquareError (floatt sqe)
-{
-}
+void DerivativeController::setError (floatt sqe, Network::ErrorType etype)
+{}
 
 bool DerivativeController::shouldContinue()
 {
@@ -67,10 +105,9 @@ bool StepController::shouldCalculateError (size_t step)
   return false;
 }
 
-void StepController::setSquareError (floatt sqe) {}
+void StepController::setError (floatt sqe, Network::ErrorType etype) {}
 
 bool StepController::shouldContinue()
 {
   return (m_step < m_sstep);
 }
-
