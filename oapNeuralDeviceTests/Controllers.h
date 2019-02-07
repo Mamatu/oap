@@ -22,8 +22,12 @@
 
 #include "oapNetwork.h"
 #include <functional>
+#include <queue>
 
-class SquareErrorLimitController : public Network::IController
+/**
+ * Square Error - Independent Data
+ */
+class SE_ID_Controller : public Network::IController
 {
   size_t m_dataSetSize;
   size_t m_step;
@@ -34,12 +38,37 @@ class SquareErrorLimitController : public Network::IController
 
   std::function<void(floatt, size_t, floatt)> m_callback;
   public:
-   SquareErrorLimitController (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback = nullptr);
-   virtual ~SquareErrorLimitController();
+   SE_ID_Controller (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback = nullptr);
+   virtual ~SE_ID_Controller();
 
    virtual bool shouldCalculateError(size_t step) override;
 
-   virtual void setSquareError (floatt sqe) override;
+   virtual void setError (floatt sqe, Network::ErrorType etype) override;
+
+   virtual bool shouldContinue() override;
+};
+
+/**
+ * Square Error - Continous Data
+ */
+class SE_CD_Controller : public Network::IController
+{
+  size_t m_dataSetSize;
+  size_t m_step;
+  floatt m_limit;
+
+  std::queue<floatt> m_sqes;
+  floatt m_sqe;
+  bool m_sc;
+
+  std::function<void(floatt, size_t, floatt)> m_callback;
+  public:
+   SE_CD_Controller (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback = nullptr);
+   virtual ~SE_CD_Controller();
+
+   virtual bool shouldCalculateError(size_t step) override;
+
+   virtual void setError (floatt sqe, Network::ErrorType etype) override;
 
    virtual bool shouldContinue() override;
 };
@@ -53,7 +82,7 @@ class DerivativeController : public Network::IController
 
    virtual bool shouldCalculateError(size_t step) override;
 
-   virtual void setSquareError (floatt sqe) override;
+   virtual void setError (floatt sqe, Network::ErrorType etype) override;
 
    virtual bool shouldContinue() override;
 };
@@ -68,7 +97,7 @@ class StepController : public Network::IController
 
     virtual bool shouldCalculateError(size_t step) override;
 
-   virtual void setSquareError (floatt sqe) override;
+   virtual void setError (floatt sqe, Network::ErrorType etype) override;
 
    virtual bool shouldContinue() override;
 };

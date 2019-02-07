@@ -29,36 +29,34 @@
 #include "oapNetwork.h"
 #include "Controllers.h"
 
+#include "PngFile.h"
+#include "Config.h"
+/*
 class NetworkT : public Network
 {
   public:
     void executeLearning(math::Matrix* expected)
     {
-      Network::executeLearning (expected, Network::ErrorType::NORMAL_ERROR);
+      Network::executeLearning (expected, Network::ErrorType::ROOT_MEAN_SQUARE_ERROR);
     }
 
     void setHostInput (math::Matrix* inputs, size_t index)
     {
       Network::setHostInputs (inputs, index);
     }
+};*/
 
-    oap::HostMatrixUPtr executeTest(math::Matrix* deviceExpected)
-    {
-      return Network::executeAlgo (Network::AlgoType::BACKWARD_PROPAGATION_MODE, deviceExpected, Network::ErrorType::NORMAL_ERROR);
-    }
-};
-
-class OapNeuralTests : public testing::Test
+class OapLogicalFunctionsTests : public testing::Test
 {
  public:
   CUresult status;
-  NetworkT* network;
+  Network* network;
   size_t m_learningSteps;
 
   virtual void SetUp()
   {
     oap::cuda::Context::Instance().create();
-    network = new NetworkT();
+    network = new Network();
     m_learningSteps = 100000;
   }
 
@@ -72,14 +70,17 @@ class OapNeuralTests : public testing::Test
   class Runner
   {
     bool m_hasBias;
-    OapNeuralTests* m_ont;
+    OapLogicalFunctionsTests* m_ont;
+    Network::ErrorType m_errorType;
     floatt m_bvalue;
 
+
   public:
-    Runner(bool hasBias, OapNeuralTests* ont, floatt bvalue = 1.f): m_hasBias(hasBias), m_ont(ont), m_bvalue(bvalue)
+    Runner(bool hasBias, OapLogicalFunctionsTests* ont, Network::ErrorType errorType = Network::ErrorType::ROOT_MEAN_SQUARE_ERROR, floatt bvalue = 1.f)
+          : m_hasBias(hasBias), m_ont(ont), m_errorType(errorType), m_bvalue(bvalue)
     {}
 
-    void runTest(floatt a1, floatt a2, floatt e1)
+    void train (floatt a1, floatt a2, floatt e1)
     {
       size_t neurons = 2;
 
@@ -100,10 +101,10 @@ class OapNeuralTests : public testing::Test
 
       expected->reValues[0] = e1;
 
-      m_ont->network->train(inputs, expected, Network::HOST, Network::ErrorType::NORMAL_ERROR);
+      m_ont->network->train(inputs, expected, Network::HOST, m_errorType);
     }
 
-    floatt run(floatt a1, floatt a2)
+    floatt run (floatt a1, floatt a2)
     {
       size_t neurons = 2;
 
@@ -121,7 +122,7 @@ class OapNeuralTests : public testing::Test
         inputs->reValues[2] = m_bvalue;
       }
 
-      auto output = m_ont->network->run (inputs, Network::HOST, Network::ErrorType::NORMAL_ERROR);
+      auto output = m_ont->network->run (inputs, Network::HOST, m_errorType);
       return m_ont->is(output->reValues[0]);
     }
   };
@@ -147,27 +148,27 @@ class OapNeuralTests : public testing::Test
   }
 };
 
-TEST_F(OapNeuralTests, LogicalOr_Binary)
+TEST_F(OapLogicalFunctionsTests, LogicalOr_Binary)
 {
   Layer* l1 = network->createLayer(2);
   network->createLayer(1);
 
   network->setLearningRate (0.01);
   
-  std::shared_ptr<SquareErrorLimitController> controller = std::make_shared<SquareErrorLimitController>(0.062, 4);
+  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.062, 4);
   network->setController (controller.get());
   
   Runner r(false, this);
 
   for (size_t idx = 0; idx < m_learningSteps && controller->shouldContinue(); ++idx)
   {
-    r.runTest(1, 1, 1);
+    r.train(1, 1, 1);
     l1->printHostWeights();
-    r.runTest(1, 0, 1);
+    r.train(1, 0, 1);
     l1->printHostWeights();
-    r.runTest(0, 1, 1);
+    r.train(0, 1, 1);
     l1->printHostWeights();
-    r.runTest(0, 0, 0);
+    r.train(0, 0, 0);
     l1->printHostWeights();
   }
 
@@ -177,29 +178,61 @@ TEST_F(OapNeuralTests, LogicalOr_Binary)
   EXPECT_EQ(1, r.run(1, 0));
 }
 
-TEST_F(OapNeuralTests, LogicalAnd_Binary)
+TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary)
 {
   bool isbias = true;
 
   Layer* l1 = network->createLayer(2, isbias);
   network->createLayer(1);
 
-  Runner r(isbias, this, 1);
+  Runner r(isbias, this);
   network->setLearningRate (0.01);
 
-  std::shared_ptr<SquareErrorLimitController> controller = std::make_shared<SquareErrorLimitController>(0.05, 4);
+  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.05, 4);
   network->setController (controller.get());
 
   for (size_t idx = 0; idx < m_learningSteps && controller->shouldContinue(); ++idx)
   {
     floatt fvalue = static_cast<floatt>(1);
-    r.runTest(fvalue, fvalue, 1);
+    r.train(fvalue, fvalue, 1);
     l1->printHostWeights();
-    r.runTest(fvalue, 0, 0);
+    r.train(fvalue, 0, 0);
     l1->printHostWeights();
-    r.runTest(0, fvalue, 0);
+    r.train(0, fvalue, 0);
     l1->printHostWeights();
-    r.runTest(0, 0, 0);
+    r.train(0, 0, 0);
+    l1->printHostWeights();
+  }
+
+  EXPECT_EQ(1, r.run(1, 1));
+  EXPECT_EQ(0, r.run(1, 0));
+  EXPECT_EQ(0, r.run(0, 0));
+  EXPECT_EQ(0, r.run(0, 1));
+}
+
+TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
+{
+  bool isbias = true;
+
+  Layer* l1 = network->createLayer(2, isbias);
+  network->createLayer(1);
+
+  Runner r(isbias, this, Network::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+  network->setLearningRate (0.01);
+
+  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.05, 4);
+  network->setController (controller.get());
+
+  for (size_t idx = 0; idx < m_learningSteps && controller->shouldContinue(); ++idx)
+  {
+    floatt fvalue = static_cast<floatt>(1);
+    r.train(fvalue, fvalue, 1);
+    l1->printHostWeights();
+    r.train(fvalue, 0, 0);
+    l1->printHostWeights();
+    r.train(0, fvalue, 0);
+    l1->printHostWeights();
+    r.train(0, 0, 0);
     l1->printHostWeights();
   }
 
@@ -210,7 +243,7 @@ TEST_F(OapNeuralTests, LogicalAnd_Binary)
 }
 
 
-TEST_F(OapNeuralTests, DISABLED_LogicalOr)
+TEST_F(OapLogicalFunctionsTests, DISABLED_LogicalOr)
 {
   Layer* l1 = network->createLayer(2);
   network->createLayer(1);
@@ -219,7 +252,7 @@ TEST_F(OapNeuralTests, DISABLED_LogicalOr)
 
   Runner r(false, this);
 
-  std::shared_ptr<SquareErrorLimitController> controller = std::make_shared<SquareErrorLimitController>(0.006, 40);
+  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.006, 40);
   network->setController (controller.get());
 
   for (size_t idx = 0; idx < m_learningSteps && controller->shouldContinue(); ++idx)
@@ -227,13 +260,13 @@ TEST_F(OapNeuralTests, DISABLED_LogicalOr)
     for (size_t value = 1; value <= 10 && controller->shouldContinue(); ++value)
     {
       floatt fvalue = static_cast<floatt>(value);
-      r.runTest(fvalue, fvalue, 1);
+      r.train(fvalue, fvalue, 1);
       l1->printHostWeights();
-      r.runTest(fvalue, 0, 1);
+      r.train(fvalue, 0, 1);
       l1->printHostWeights();
-      r.runTest(0, fvalue, 1);
+      r.train(0, fvalue, 1);
       l1->printHostWeights();
-      r.runTest(0, 0, 0);
+      r.train(0, 0, 0);
       l1->printHostWeights();
     }
   }
@@ -248,7 +281,7 @@ TEST_F(OapNeuralTests, DISABLED_LogicalOr)
   }
 }
 
-TEST_F(OapNeuralTests, LogicalAnd)
+TEST_F(OapLogicalFunctionsTests, LogicalAnd)
 {
   bool isbias = true;
 
@@ -256,15 +289,15 @@ TEST_F(OapNeuralTests, LogicalAnd)
   Layer* l2 = network->createLayer(4 * 20);
   Layer* l3 = network->createLayer(1);
 
-  Runner r(isbias, this, 1);
+  Runner r(isbias, this, Network::ErrorType::MEAN_SQUARE_ERROR);
   network->setLearningRate (0.01);
 
-  size_t setSize = 100;
+  size_t setSize = 1000;
 
   auto callback = [this](floatt sqe, size_t step, floatt limit)
   {
     floatt lr = network->getLearningRate ();
-    if (sqe < lr)
+    if (sqe < lr * 4)
     {
       floatt newlr = lr * 0.1;
       logInfo ("Learning rate %f previously %f", newlr, lr);
@@ -272,7 +305,7 @@ TEST_F(OapNeuralTests, LogicalAnd)
     }
   };
 
-  std::shared_ptr<SquareErrorLimitController> controller = std::make_shared<SquareErrorLimitController>(0.001, setSize, callback);
+  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.001, setSize, callback);
   network->setController (controller.get());
 
   std::random_device rd;
@@ -286,7 +319,7 @@ TEST_F(OapNeuralTests, LogicalAnd)
       floatt fvalue = dis(dre);
       floatt fvalue1 = dis(dre);
       floatt output = (fvalue >= 1. && fvalue1 >= 1.) ? 1. : 0.;
-      r.runTest(fvalue, fvalue1, output);
+      r.train (fvalue, fvalue1, output);
       l1->printHostWeights();
       l2->printHostWeights();
     }

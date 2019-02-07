@@ -35,11 +35,7 @@ void Layer::checkHostInputs(const math::Matrix* hostInputs)
 }
 
 Layer::Layer(bool hasBias) :
-m_inputs(nullptr), m_tinputs(nullptr), m_sums(nullptr),
-m_tsums(nullptr), m_errors(nullptr), m_terrors(nullptr),
-m_weights(nullptr), m_tweights(nullptr), m_weights1(nullptr),
-m_weights2(nullptr), m_neuronsCount(0), m_nextLayerNeuronsCount(0),
-m_hasBias(hasBias)
+  m_hasBias(hasBias)
 {}
 
 Layer::~Layer()

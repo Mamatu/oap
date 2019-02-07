@@ -75,7 +75,14 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, MatrixType argsType, Err
     oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
   }
 
-  return executeAlgo (AlgoType::FORWARD_PROPAGATION_MODE, nullptr, errorType);
+  forwardPropagation ();
+
+  auto llayer = m_layers.back();
+
+  math::Matrix* output = oap::host::NewMatrix (1, llayer->m_neuronsCount);
+  oap::cuda::CopyDeviceMatrixToHostMatrix (output, llayer->m_inputs);
+
+  return oap::HostMatrixUPtr (output);
 }
 
 void Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, MatrixType argsType, ErrorType errorType)
@@ -99,9 +106,13 @@ void Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, Matrix
   else if (argsType == Network::DEVICE)
   {
     oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_expectedDeviceOutputs, expectedOutputs);
   }
 
-  executeAlgo (AlgoType::BACKWARD_PROPAGATION_MODE, expectedOutputs, errorType);
+  forwardPropagation ();
+
+  backwardPropagation (expectedOutputs, errorType);
+  ++m_step;
 }
 
 void Network::setController(Network::IController* icontroller)
@@ -219,20 +230,20 @@ void Network::setHostInputs (math::Matrix* inputs, size_t layerIndex)
   oap::cuda::CopyHostMatrixToDeviceMatrix (layer->m_inputs, inputs);
 }
 
-void Network::executeLearning (math::Matrix* deviceExpected, ErrorType errorType)
+void Network::backwardPropagation (math::Matrix* deviceExpected, ErrorType errorType)
 {
   debugFunc();
   size_t idx = m_layers.size () - 1;
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
 
-  if (errorType == ErrorType::NORMAL_ERROR)
+  if (errorType == ErrorType::CROSS_ENTROPY)
   {
-    m_cuApi.substract (current->m_errors, deviceExpected, current->m_inputs);
+    m_cuApi.crossEntropy (current->m_errors, deviceExpected, current->m_inputs);
   }
   else
   {
-    m_cuApi.crossEntropy (current->m_errors, deviceExpected, current->m_inputs);
+    m_cuApi.substract (current->m_errors, deviceExpected, current->m_inputs);
   }
 
   if(!shouldContinue (errorType))
@@ -253,7 +264,7 @@ void Network::executeLearning (math::Matrix* deviceExpected, ErrorType errorType
   updateWeights();
 }
 
-oap::HostMatrixUPtr Network::executeAlgo (AlgoType algoType, math::Matrix* deviceExpected, ErrorType errorType)
+void Network::forwardPropagation ()
 {
   debugFunc();
 
@@ -272,43 +283,44 @@ oap::HostMatrixUPtr Network::executeAlgo (AlgoType algoType, math::Matrix* devic
     m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
     m_cuApi.sigmoid (current->m_inputs, current->m_sums);
   }
-
-  if (algoType == AlgoType::FORWARD_PROPAGATION_MODE)
-  {
-    auto llayer = m_layers.back();
-    math::Matrix* output = oap::host::NewMatrix (1, llayer->m_neuronsCount);
-    oap::cuda::CopyDeviceMatrixToHostMatrix (output, llayer->m_inputs);
-    return oap::HostMatrixUPtr (output);
-  }
-  else if (algoType == AlgoType::BACKWARD_PROPAGATION_MODE)
-  {
-    executeLearning (deviceExpected, errorType);
-    ++m_step;
-  }
-
-  return oap::HostMatrixUPtr(nullptr);
 }
 
 bool Network::shouldContinue (ErrorType errorType)
 {
   if (m_icontroller != nullptr && m_icontroller->shouldCalculateError(m_step))
   {
-    floatt sqe = 0;
+    floatt eValue = 0;
     Layer* llayer = m_layers.back();
 
-    if (errorType == ErrorType::NORMAL_ERROR)
+    switch (errorType)
     {
-      m_cuApi.magnitude2 (sqe, llayer->m_errors);
-      sqe = sqrt (sqe);
-    }
-    else
-    {
-      floatt imoutput = 0;
-      m_cuApi.sum (sqe, imoutput, llayer->m_errors);
-      sqe = sqe / llayer->getNeuronsCount ();
-    }
+      case ErrorType::MEAN_SQUARE_ERROR:
+        m_cuApi.magnitude2 (eValue, llayer->m_errors);
+        eValue = eValue / llayer->getNeuronsCount ();
+      break;
 
-    m_icontroller->setSquareError (sqe);
+      case ErrorType::ROOT_MEAN_SQUARE_ERROR:
+        m_cuApi.magnitude2 (eValue, llayer->m_errors);
+        eValue = eValue / llayer->getNeuronsCount ();
+        eValue = sqrt (eValue);
+      break;
+
+      case ErrorType::SUM:
+        m_cuApi.sum (eValue, llayer->m_errors);
+      break;
+
+      case ErrorType::MEAN_OF_SUM:
+        m_cuApi.sum (eValue, llayer->m_errors);
+        eValue = eValue / llayer->getNeuronsCount ();
+      break;
+
+      case ErrorType::CROSS_ENTROPY:
+        m_cuApi.sum (eValue, llayer->m_errors);
+        eValue = - eValue / llayer->getNeuronsCount ();
+      break;
+    };
+
+    m_icontroller->setError (eValue, errorType);
 
     if(!m_icontroller->shouldContinue())
     {

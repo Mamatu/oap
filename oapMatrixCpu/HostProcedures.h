@@ -45,6 +45,7 @@ class HostProcedures {
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 
+  void crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
  private:
   uint m_threads[2];
   uint m_blocks[2];

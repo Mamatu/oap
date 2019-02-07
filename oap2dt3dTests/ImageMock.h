@@ -63,6 +63,9 @@ class ImageMock : public oap::Image {
                      oap::pixel_t(unsigned int, unsigned int));
 
   MOCK_CONST_METHOD1(getPixelsVectorProtected, void(oap::pixel_t*));
+
+  MOCK_METHOD1(onSave, void(const std::string& path));
+  MOCK_METHOD1(saveProtected, bool(const std::string& path));
 };
 
 using NiceImageMock = NiceMock<ImageMock>;

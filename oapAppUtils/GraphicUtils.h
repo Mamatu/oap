@@ -24,9 +24,11 @@
 #include <stdio.h>
 #include <utility>
 
-namespace oap {
+namespace oap
+{
 
-struct OptSize {
+struct OptSize
+{
   OptSize() : optSize(0), begin(0) {}
 
   OptSize(size_t _optSize) : optSize(_optSize), begin(0) {}

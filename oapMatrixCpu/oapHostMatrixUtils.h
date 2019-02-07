@@ -634,6 +634,10 @@ void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
 math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
+void CopyArrayToMatrix (math::Matrix* matrix, void* rebuffer, void* imbuffer);
+void CopyArrayToReMatrix (math::Matrix* matrix, void* buffer);
+void CopyArrayToImMatrix (math::Matrix* matrix, void* buffer);
+
 }
 }
 

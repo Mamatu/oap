@@ -304,6 +304,12 @@ void CuProceduresApi::sum (floatt& reoutput, floatt& imoutput, math::Matrix* mat
   generic::sum (reoutput, imoutput, matrix, &m_kernel, sumApi, sumBuffers);
 }
 
+void CuProceduresApi::sum (floatt& reoutput, math::Matrix* matrix)
+{
+  floatt imoutput;
+  sum (reoutput, imoutput, matrix);
+}
+
 void CuProceduresApi::magnitudeOpt(floatt& output, math::Matrix* param0) {
   magnitude2Opt(output, param0);
   output = sqrt(output);
@@ -721,17 +727,9 @@ void CuProceduresApi::check_phadamardProduct(math::Matrix* output, math::Matrix*
 
 void CuProceduresApi::crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  const uintt columns = oap::cuda::GetColumns(output);
-  const uintt rows = oap::cuda::GetRows(output);
-  crossEntropy (output, params0, params1, columns, rows);
-}
+  oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> bapi (oap::cuda::GetMatrixInfo);
 
-void CuProceduresApi::crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
-{
-  void* params[] = {&output, &params0, &params1};
-  const uintt w = columns;
-  const uintt h = rows;
-  m_cuStatus = execute("CUDAKernel_", w, h, params, 0);
+  oap::generic::crossEntropy (output, params0, params1, &m_kernel, bapi);
 }
 
 }

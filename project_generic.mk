@@ -10,6 +10,7 @@ GTEST_DIR := $(OAP_GMOCK_PATH)/gtest
 $(shell test -d /tmp/Oap/tests_data || mkdir -p /tmp/Oap/tests_data)
 $(shell test -d /tmp/Oap/conversion_data || mkdir -p /tmp/Oap/conversion_data)
 $(shell test -d /tmp/Oap/host_tests || mkdir -p /tmp/Oap/host_tests)
+$(shell test -d /tmp/Oap/host_tests/OapPngFileTests_PrintLetters || mkdir -p /tmp/Oap/host_tests/OapPngFileTests_PrintLetters)
 $(shell test -d /tmp/Oap/device_tests || mkdir -p /tmp/Oap/device_tests)
 
 ifeq ($(PROJECT), albert)

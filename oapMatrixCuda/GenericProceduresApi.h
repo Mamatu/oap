@@ -158,6 +158,32 @@ namespace generic
 
     return cuStatus;
   }
+
+  template<typename GetMatrixInfo>
+  bool crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& api)
+  {
+    auto minfo = api.getMatrixInfo (output);
+
+    if (minfo.isIm)
+    {
+      debugAssert ("CrossEntropy doesn't support complex matrix (only real)");
+      return false;
+    }
+
+    const uintt w = minfo.columns ();
+    const uintt h = minfo.rows ();
+
+    uint blocks[2];
+    uint threads[2];
+
+    kexec->calculateThreadsBlocks(blocks, threads, w, h);
+    kexec->setBlocksCount(blocks[0], blocks[1]);
+    kexec->setThreadsCount(threads[0], threads[1]);   
+      
+    void* params[] = {&output, &params0, &params1};
+
+    return kexec->execute ("CUDAKernel_CrossEntropy", params);
+  }
 }
 }
 

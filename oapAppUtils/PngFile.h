@@ -25,99 +25,111 @@
 #include <stdio.h>
 #include "Image.h"
 
-namespace oap {
-class PngFile : public Image {
- public:
-  PngFile(const std::string& path, bool truncateImage = true);
+namespace oap
+{
+class PngFile : public Image
+{
+  public:
+    PngFile(const std::string& path, bool truncateImage = true);
 
-  virtual ~PngFile();
+    virtual ~PngFile();
 
-  virtual bool read(void* buffer, size_t repeat, size_t size);
+    virtual bool read(void* buffer, size_t repeat, size_t size) override;
 
-  virtual oap::OptSize getWidth() const;
+    virtual oap::OptSize getWidth() const override;
 
-  virtual oap::OptSize getHeight() const;
+    virtual oap::OptSize getHeight() const override;
 
-  virtual void forceOutputWidth(const oap::OptSize& optWidth);
+    virtual void forceOutputWidth(const oap::OptSize& optWidth) override;
 
-  virtual void forceOutputHeight(const oap::OptSize& optHeight);
+    virtual void forceOutputHeight(const oap::OptSize& optHeight) override;
 
-  virtual oap::OptSize getOutputWidth() const;
+    virtual oap::OptSize getOutputWidth() const override;
 
-  virtual oap::OptSize getOutputHeight() const;
+    virtual oap::OptSize getOutputHeight() const override;
 
-  virtual std::string getSufix() const;
+    virtual std::string getSufix() const override;
 
-  bool save(const std::string& path);
+  protected:
+    virtual void closeProtected() override;
 
-  bool save(const std::string& prefix, const std::string& path);
+    virtual void loadBitmapProtected() override;
 
- protected:
-  virtual void closeProtected();
+    void createPngBitmaps();
 
-  virtual void loadBitmapProtected();
+    void convertRawdataToBitmap1D();
 
-  void loadBitmapBuffers();
+    void destroyPngBitmaps();
 
-  void convertRawdataToBitmap1D();
+    void setDestroyPngBitmapsAfterLoad (bool destroy);
 
-  void destroyTmpData();
+    virtual void freeBitmapProtected() override;
 
-  void setAutomaticDestroyTmpData(bool destroyTmp);
+    virtual void getPixelsVectorProtected(pixel_t* pixels) const override;
 
-  virtual void freeBitmapProtected();
+    virtual bool openProtected(const std::string& path) override;
 
-  virtual void getPixelsVectorProtected(pixel_t* pixels) const;
+    virtual bool isCorrectFormat() const override;
 
-  virtual bool openProtected(const std::string& path);
+    virtual pixel_t getPixelProtected(unsigned int x, unsigned int y) const override;
 
-  bool isCorrectFormat() const;
+    virtual void onSave(const std::string& path) override;
+    virtual bool saveProtected(const std::string& path) override;
 
-  virtual pixel_t getPixelProtected(unsigned int x, unsigned int y) const;
+    png_bytep* copyBitmap(const OptSize& width, const OptSize& height);
 
-  png_bytep* copyBitmap(const OptSize& width, const OptSize& height);
+    png_bytep* createBitmap2D(size_t width, size_t height,
+                              size_t colorsCount) const;
 
-  png_bytep* createBitmap2D(size_t width, size_t height,
-                            size_t colorsCount) const;
+    void destroyBitmap2d(png_bytep* bitmap2d, size_t height) const;
 
-  void destroyBitmap2d(png_bytep* bitmap2d, size_t height) const;
+    png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d, const OptSize& optWidth,
+                                   const OptSize& optHeight, size_t colorsCount);
 
-  png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d, const OptSize& optWidth,
-                                 const OptSize& optHeight, size_t colorsCount);
+    oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d,
+                                           size_t width, size_t height,
+                                           size_t colorsCount);
 
-  oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d, size_t width,
-                                         size_t height, size_t colorsCount);
-
-  template <typename T>
-  void destroyBuffer(T* buffer) {
-    if (buffer != NULL) {
-      delete[] buffer;
+    template <typename T>
+    void destroyBuffer(T* buffer)
+    {
+      if (buffer != NULL)
+      {
+        delete[] buffer;
+      }
     }
-  }
 
- private:
-  void calculateColorsCount();
+  private:
+    void calculateColorsCount();
 
-  void calculateOutputSizes(size_t width, size_t height);
+    void calculateOutputSizes(size_t width, size_t height);
 
-  void destroyBitmap1d();
+    void destroyBitmap1d();
 
-  void destroyPixels();
+    void destroyPixels();
 
-  oap::OptSize m_optWidth;
-  oap::OptSize m_optHeight;
+    oap::OptSize m_optWidth;
+    oap::OptSize m_optHeight;
 
-  FILE* m_fp;
-  png_structp m_png_ptr;
-  png_infop m_info_ptr;
-  png_bytep* m_bitmap2d;
-  png_byte* m_bitmap1d;
-  oap::pixel_t* m_pixels;
+    FILE* m_fp;
+    png_structp m_png_ptr;
+    png_infop m_info_ptr;
+    png_bytep* m_bitmap2d;
+    png_byte* m_bitmap1d;
+    oap::pixel_t* m_pixels;
 
-  bool m_destroyTmp;
+    bool m_destroyPngBitmaps;
 
-  size_t m_colorsCount;
-  bool m_truncateImage;
+    size_t m_colorsCount;
+    bool m_truncateImage;
+
+    struct PngInfo
+    {
+      png_byte color_type;
+      png_byte bit_depth;
+    };
+
+    PngInfo m_pngInfo;
 };
 }
 

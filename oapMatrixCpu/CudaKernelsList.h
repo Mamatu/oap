@@ -47,6 +47,19 @@ void HOSTKernel_SumSharedRaw (void** params)
   HOSTKernel_SumShared (param1, param2, param3);
 }
 
+void HOSTKernel_CrossEntropy (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+{
+  CUDA_crossEntropy (output, param1, param2);
+}
+
+void HOSTKernel_CrossEntropyRaw (void** params)
+{
+  math::Matrix* output = getParam<math::Matrix> (params[0]);
+  math::Matrix* param1 = getParam<math::Matrix> (params[1]);
+  math::Matrix* param2 = getParam<math::Matrix> (params[2]);
+
+  HOSTKernel_CrossEntropy (output, param1, param2);
+}
 
 #endif
 
