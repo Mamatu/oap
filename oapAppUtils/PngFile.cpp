@@ -177,9 +177,7 @@ void PngFile::convertRawdataToBitmap1D()
   m_bitmap1d = createBitmap1dFrom2d(m_bitmap2d, getOutputWidth(),
                                     getOutputHeight(), m_colorsCount);
 
-  m_pixels = createPixelsVectorFrom1d(m_bitmap1d,
-                                      getOutputWidth().optSize, getOutputHeight().optSize,
-                                      m_colorsCount);
+  m_pixels = createPixelsVectorFrom1d(m_bitmap1d, getOutputWidth().optSize, getOutputHeight().optSize, m_colorsCount);
 }
 
 void PngFile::destroyPngBitmaps()
@@ -406,16 +404,36 @@ oap::pixel_t* PngFile::createPixelsVectorFrom1d(png_byte* bitmap1d,
 {
   oap::pixel_t* pixels = new pixel_t[width * height];
 
+  debugAssert (colorsCount == 3 || colorsCount == 1);
+
+  auto handleRGB = [&bitmap1d, &pixels] (const size_t index, const size_t index1)
+  {
+    const png_byte r = bitmap1d[index + 0];
+    const png_byte g = bitmap1d[index + 1];
+    const png_byte b = bitmap1d[index + 2];
+    pixels[index1] = convertRgbToPixel(r, g, b);
+  };
+
+  auto handleBlackWhite = [&bitmap1d, &pixels] (const size_t index, const size_t index1)
+  {
+    const png_byte p = bitmap1d[index];
+    pixels[index1] = convertRgbToPixel(p, p, p);
+  };
+
   for (size_t fa = 0; fa < height; ++fa)
   {
     for (size_t fb = 0; fb < width; ++fb)
     {
       const size_t index = fa * width * colorsCount + fb * colorsCount;
       const size_t index1 = fa * width + fb;
-      const png_byte r = bitmap1d[index + 0];
-      const png_byte g = bitmap1d[index + 1];
-      const png_byte b = bitmap1d[index + 2];
-      pixels[index1] = convertRgbToPixel(r, g, b);
+      if (colorsCount == 3)
+      {
+        handleRGB (index, index1);
+      }
+      else if (colorsCount == 1)
+      {
+        handleBlackWhite (index, index1);
+      }
     }
   }
   return pixels;
