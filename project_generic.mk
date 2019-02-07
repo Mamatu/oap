@@ -52,6 +52,8 @@ OAP_INCLUDES += oapHostTests
 OAP_INCLUDES += oapAppUtils
 OAP_INCLUDES += oap2dt3dDevice
 OAP_INCLUDES += oapNeuralDevice
+OAP_INCLUDES += oapNeuralCases
+OAP_INCLUDES += oapNeuralApps
 
 TARGET_ARCH := DEVICE_HOST
 
@@ -105,6 +107,8 @@ endif
 
 ifeq ($(COMPILE_DEVICE),1)
 OAP_MODULES += oapNeural
+OAP_MODULES += oapNeuralCases
+OAP_MODULES += oapNeuralApps
 OAP_MODULES += oapNeuralDeviceTests
 endif
 
