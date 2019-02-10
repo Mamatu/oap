@@ -1,5 +1,5 @@
 include ../project_generic.mk
-TARGET := liboapNeuralCases
+TARGET := liboapNeuralRoutines
 INCLUDE_PATHS :=
 EXTRA_CXXOPTIONS := -std=c++11
 

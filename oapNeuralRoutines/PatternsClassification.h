@@ -23,37 +23,30 @@
 #include <string>
 #include <functional>
 
+#include "Routine.h"
 #include "oapNetwork.h"
 #include "PngFile.h"
 
+#include "PatternsClassificationHost.h"
+
 namespace oap
 {
-namespace classification
+
+class PatternsClassification : public oap::Routine
 {
+  public:
+    using Args = oap::PatternsClassificationParser::Args;
 
-struct Args
-{
-  std::string patternPath1 = "oapNeural/data/text/a.png";
-  std::string patternPath2 = "oapNeural/data/text/b.png";
+    int run ();
+    int run (const oap::PatternsClassificationParser::Args& args);
 
-  Network::ErrorType errorTpe = Network::ErrorType::CROSS_ENTROPY;
+  protected:
+    virtual int runRoutine () override;
+    virtual const oap::IArgsParser& getArgsParser() const override;
 
-  std::vector<uint> networkLayers = {20*20, 20, 1};
-
-  using OutputCallback = std::function<void(const std::vector<floatt>&)>;
-
-  OutputCallback m_onOutput1;
-  OutputCallback m_onOutput2;
-  std::function<void(const oap::OptSize&, const oap::OptSize&, bool)> m_onOpenFile;
+  private:
+    oap::PatternsClassificationParser m_parser;
 };
-
-int run_PatternsClassification (int argc, char **argv);
-
-int run_PatternsClassification (const Args& args);
-
-int run_PatternsClassification ();
-
-}
 }
 
 #endif
