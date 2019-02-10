@@ -43,7 +43,7 @@ class SE_ID_Controller : public Network::IController
 
    virtual bool shouldCalculateError(size_t step) override;
 
-   virtual void setError (floatt sqe, Network::ErrorType etype) override;
+   virtual void setError (floatt sqe, oap::ErrorType etype) override;
 
    virtual bool shouldContinue() override;
 };
@@ -68,7 +68,7 @@ class SE_CD_Controller : public Network::IController
 
    virtual bool shouldCalculateError(size_t step) override;
 
-   virtual void setError (floatt sqe, Network::ErrorType etype) override;
+   virtual void setError (floatt sqe, oap::ErrorType etype) override;
 
    virtual bool shouldContinue() override;
 };
@@ -82,7 +82,7 @@ class DerivativeController : public Network::IController
 
    virtual bool shouldCalculateError(size_t step) override;
 
-   virtual void setError (floatt sqe, Network::ErrorType etype) override;
+   virtual void setError (floatt sqe, oap::ErrorType etype) override;
 
    virtual bool shouldContinue() override;
 };
@@ -97,7 +97,7 @@ class StepController : public Network::IController
 
     virtual bool shouldCalculateError(size_t step) override;
 
-   virtual void setError (floatt sqe, Network::ErrorType etype) override;
+   virtual void setError (floatt sqe, oap::ErrorType etype) override;
 
    virtual bool shouldContinue() override;
 };

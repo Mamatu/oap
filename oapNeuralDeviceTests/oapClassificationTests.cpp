@@ -42,7 +42,8 @@ class OapClassificationTests : public testing::Test
 
 TEST_F(OapClassificationTests, SimpleClassification)
 {
-  oap::classification::Args args;
+  oap::PatternsClassificationParser::Args args;
+  oap::PatternsClassification pc;
 
   args.m_onOutput1 = [](const std::vector<floatt>& outputs)
   {
@@ -63,5 +64,5 @@ TEST_F(OapClassificationTests, SimpleClassification)
     EXPECT_TRUE(isLoaded);
   };
 
-  oap::classification::run_PatternsClassification (args); 
+  pc.run (args); 
 }

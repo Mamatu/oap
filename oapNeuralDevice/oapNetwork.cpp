@@ -62,7 +62,7 @@ void Network::addLayer (Layer* layer)
   m_layers.push_back (layer);
 }
 
-oap::HostMatrixUPtr Network::run (math::Matrix* inputs, MatrixType argsType, ErrorType errorType)
+oap::HostMatrixUPtr Network::run (math::Matrix* inputs, MatrixType argsType, oap::ErrorType errorType)
 {
   Layer* layer = m_layers.front();
 
@@ -85,7 +85,7 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, MatrixType argsType, Err
   return oap::HostMatrixUPtr (output);
 }
 
-void Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, MatrixType argsType, ErrorType errorType)
+void Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, MatrixType argsType, oap::ErrorType errorType)
 {
   Layer* layer = m_layers.front();
 
@@ -230,14 +230,14 @@ void Network::setHostInputs (math::Matrix* inputs, size_t layerIndex)
   oap::cuda::CopyHostMatrixToDeviceMatrix (layer->m_inputs, inputs);
 }
 
-void Network::backwardPropagation (math::Matrix* deviceExpected, ErrorType errorType)
+void Network::backwardPropagation (math::Matrix* deviceExpected, oap::ErrorType errorType)
 {
   debugFunc();
   size_t idx = m_layers.size () - 1;
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
 
-  if (errorType == ErrorType::CROSS_ENTROPY)
+  if (errorType == oap::ErrorType::CROSS_ENTROPY)
   {
     m_cuApi.crossEntropy (current->m_errors, deviceExpected, current->m_inputs);
   }
@@ -285,7 +285,7 @@ void Network::forwardPropagation ()
   }
 }
 
-bool Network::shouldContinue (ErrorType errorType)
+bool Network::shouldContinue (oap::ErrorType errorType)
 {
   if (m_icontroller != nullptr && m_icontroller->shouldCalculateError(m_step))
   {
@@ -294,27 +294,27 @@ bool Network::shouldContinue (ErrorType errorType)
 
     switch (errorType)
     {
-      case ErrorType::MEAN_SQUARE_ERROR:
+      case oap::ErrorType::MEAN_SQUARE_ERROR:
         m_cuApi.magnitude2 (eValue, llayer->m_errors);
         eValue = eValue / llayer->getNeuronsCount ();
       break;
 
-      case ErrorType::ROOT_MEAN_SQUARE_ERROR:
+      case oap::ErrorType::ROOT_MEAN_SQUARE_ERROR:
         m_cuApi.magnitude2 (eValue, llayer->m_errors);
         eValue = eValue / llayer->getNeuronsCount ();
         eValue = sqrt (eValue);
       break;
 
-      case ErrorType::SUM:
+      case oap::ErrorType::SUM:
         m_cuApi.sum (eValue, llayer->m_errors);
       break;
 
-      case ErrorType::MEAN_OF_SUM:
+      case oap::ErrorType::MEAN_OF_SUM:
         m_cuApi.sum (eValue, llayer->m_errors);
         eValue = eValue / llayer->getNeuronsCount ();
       break;
 
-      case ErrorType::CROSS_ENTROPY:
+      case oap::ErrorType::CROSS_ENTROPY:
         m_cuApi.sum (eValue, llayer->m_errors);
         eValue = - eValue / llayer->getNeuronsCount ();
       break;

@@ -37,7 +37,7 @@ class NetworkT : public Network
   public:
     void executeLearning(math::Matrix* expected)
     {
-      Network::executeLearning (expected, Network::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+      Network::executeLearning (expected, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
     }
 
     void setHostInput (math::Matrix* inputs, size_t index)
@@ -71,12 +71,12 @@ class OapLogicalFunctionsTests : public testing::Test
   {
     bool m_hasBias;
     OapLogicalFunctionsTests* m_ont;
-    Network::ErrorType m_errorType;
+    oap::ErrorType m_errorType;
     floatt m_bvalue;
 
 
   public:
-    Runner(bool hasBias, OapLogicalFunctionsTests* ont, Network::ErrorType errorType = Network::ErrorType::ROOT_MEAN_SQUARE_ERROR, floatt bvalue = 1.f)
+    Runner(bool hasBias, OapLogicalFunctionsTests* ont, oap::ErrorType errorType = oap::ErrorType::ROOT_MEAN_SQUARE_ERROR, floatt bvalue = 1.f)
           : m_hasBias(hasBias), m_ont(ont), m_errorType(errorType), m_bvalue(bvalue)
     {}
 
@@ -217,7 +217,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
   Layer* l1 = network->createLayer(2, isbias);
   network->createLayer(1);
 
-  Runner r(isbias, this, Network::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+  Runner r(isbias, this, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
   network->setLearningRate (0.01);
 
   std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.05, 4);
@@ -289,7 +289,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd)
   Layer* l2 = network->createLayer(4 * 20);
   Layer* l3 = network->createLayer(1);
 
-  Runner r(isbias, this, Network::ErrorType::MEAN_SQUARE_ERROR);
+  Runner r(isbias, this, oap::ErrorType::MEAN_SQUARE_ERROR);
   network->setLearningRate (0.01);
 
   size_t setSize = 1000;

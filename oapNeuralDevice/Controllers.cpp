@@ -13,7 +13,7 @@ bool SE_ID_Controller::shouldCalculateError (size_t step)
   return true;
 }
 
-void SE_ID_Controller::setError (floatt sqe, Network::ErrorType etype)
+void SE_ID_Controller::setError (floatt sqe, oap::ErrorType etype)
 {
   m_sqes += sqe;
   if (m_step % m_dataSetSize == 0)
@@ -49,7 +49,7 @@ bool SE_CD_Controller::shouldCalculateError (size_t step)
   return true;
 }
 
-void SE_CD_Controller::setError (floatt sqe, Network::ErrorType etype)
+void SE_CD_Controller::setError (floatt sqe, oap::ErrorType etype)
 {
   m_sqe += sqe;
   m_sqes.push (sqe);
@@ -86,7 +86,7 @@ bool DerivativeController::shouldCalculateError (size_t step)
   return true;
 }
 
-void DerivativeController::setError (floatt sqe, Network::ErrorType etype)
+void DerivativeController::setError (floatt sqe, oap::ErrorType etype)
 {}
 
 bool DerivativeController::shouldContinue()
@@ -105,7 +105,7 @@ bool StepController::shouldCalculateError (size_t step)
   return false;
 }
 
-void StepController::setError (floatt sqe, Network::ErrorType etype) {}
+void StepController::setError (floatt sqe, oap::ErrorType etype) {}
 
 bool StepController::shouldContinue()
 {
