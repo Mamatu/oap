@@ -54,7 +54,7 @@ namespace stdlib
 
       operator Type*() { return this->get(); }
 
-      Type* operator->() { return this->get(); }
+      Type* operator->() const { return this->get(); }
 
       void reset ()
       {
@@ -105,7 +105,7 @@ namespace stdlib
         return this->get()[index];
       }
 
-      ArrayType* operator->() { return this->get(); }
+      ArrayType* operator->() const { return this->get(); }
 
       void reset ()
       {

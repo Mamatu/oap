@@ -20,6 +20,8 @@
 #ifndef OAP_NEURAL_NETWORK_H
 #define OAP_NEURAL_NETWORK_H
 
+#include "NeuralTypes.h"
+
 #include "oapLayer.h"
 #include "oapDeviceMatrixPtr.h"
 
@@ -33,21 +35,12 @@ public: // types
     DEVICE
   };
 
-  enum class ErrorType
-  {
-    MEAN_SQUARE_ERROR,
-    ROOT_MEAN_SQUARE_ERROR,
-    SUM,
-    MEAN_OF_SUM,
-    CROSS_ENTROPY
-  };
-
   class IController
   {
     public:
       virtual ~IController() {}
       virtual bool shouldCalculateError(size_t step) = 0;
-      virtual void setError (floatt value, ErrorType type) = 0;
+      virtual void setError (floatt value, oap::ErrorType type) = 0;
       virtual bool shouldContinue() = 0;
   };
 
@@ -63,8 +56,8 @@ public:
 
   Layer* createLayer (size_t neurons, bool bias = false);
 
-  oap::HostMatrixUPtr run (math::Matrix* hostInputs, MatrixType argsType, ErrorType errorType);
-  void train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, MatrixType argsType, ErrorType errorType);
+  oap::HostMatrixUPtr run (math::Matrix* hostInputs, MatrixType argsType, oap::ErrorType errorType);
+  void train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, MatrixType argsType, oap::ErrorType errorType);
 
   void createLevel (Layer* layer);
 
@@ -98,7 +91,7 @@ public:
 protected:
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
 
-  void backwardPropagation (math::Matrix* deviceExpected, ErrorType errorType);
+  void backwardPropagation (math::Matrix* deviceExpected, oap::ErrorType errorType);
 
   void forwardPropagation ();
 
@@ -111,7 +104,7 @@ private:
 
   inline void calculateError();
 
-  bool shouldContinue (ErrorType errorType);
+  bool shouldContinue (oap::ErrorType errorType);
 
   oap::CuProceduresApi m_cuApi;
 

@@ -43,6 +43,8 @@
 
 #define logInfo(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
 
+#define logError(x, ...) fprintf(stderr, x, ##__VA_ARGS__); fprintf(stderr, "\n");
+
 #define debugAssert(x) assert(x);
 
 #define debugAssertMsg(x, msg, ...) if (!(x)) { debug ("ASSERTION\n"); debug(msg, ##__VA_ARGS__); debugAssert(x); }
@@ -77,6 +79,8 @@ inline void debugExceptionMsg(bool x, const std::stringstream& stream) { debugEx
 #define debugInfo(x, ...)
 
 #define logInfo(x, ...) fprintf(STREAM, x, ##__VA_ARGS__); fprintf(STREAM, "\n");
+
+#define logError(x, ...) fprintf(stderr, x, ##__VA_ARGS__); fprintf(stderr, "\n");
 
 #define debugAssert(x)
 

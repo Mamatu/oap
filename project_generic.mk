@@ -51,7 +51,12 @@ OAP_INCLUDES += oapSmsDataTests
 OAP_INCLUDES += oapHostTests
 OAP_INCLUDES += oapAppUtils
 OAP_INCLUDES += oap2dt3dDevice
+OAP_INCLUDES += oapNeuralHost
 OAP_INCLUDES += oapNeuralDevice
+OAP_INCLUDES += oapNeuralApps
+OAP_INCLUDES += oapNeuralRoutinesHost
+OAP_INCLUDES += oapNeuralRoutinesHostTest
+OAP_INCLUDES += oapNeuralRoutines
 
 TARGET_ARCH := DEVICE_HOST
 
@@ -97,6 +102,12 @@ OAP_MODULES += oap2dt3dTests
 OAP_MODULES += oap2dt3dFuncTests
 endif
 
+ifeq ($(COMPILE_HOST),1)
+OAP_MODULES += oapNeuralHost
+OAP_MODULES += oapNeuralRoutinesHost
+OAP_MODULES += oapNeuralRoutinesHostTests
+endif
+
 ifeq ($(COMPILE_DEVICE),1)
 OAP_MODULES += oap2dt3dDevice
 OAP_MODULES += oap2dt3dDeviceTests
@@ -105,6 +116,8 @@ endif
 
 ifeq ($(COMPILE_DEVICE),1)
 OAP_MODULES += oapNeural
+OAP_MODULES += oapNeuralRoutines
+OAP_MODULES += oapNeuralApps
 OAP_MODULES += oapNeuralDeviceTests
 endif
 

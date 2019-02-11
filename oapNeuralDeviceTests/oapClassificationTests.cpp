@@ -20,17 +20,8 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "CuProceduresApi.h"
-#include "KernelExecutor.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
-#include "oapNetwork.h"
-#include "Controllers.h"
-
-#include "PngFile.h"
-#include "Config.h"
+#include "PatternsClassification.h"
 
 class OapClassificationTests : public testing::Test
 {
@@ -48,90 +39,30 @@ class OapClassificationTests : public testing::Test
   }
 };
 
-template<typename Callback, typename CallbackNL>
-void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, Callback&& callback, CallbackNL&& cnl)
-{
-  for (size_t y = 0; y < height.optSize; ++y)
-  {
-    for (size_t x = 0; x < width.optSize; ++x)
-    {
-      floatt value = pixels[x + width.optSize * y];
-      int pvalue = value > 0.5 ? 1 : 0;
-      callback (pvalue, x, y);
-    }
-    cnl ();
-  }
-  cnl ();
-}
-
-void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height)
-{
-  iterateBitmap (pixels, width, height, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
-}
 
 TEST_F(OapClassificationTests, SimpleClassification)
 {
-  auto load = [] (const std::string& path) -> std::unique_ptr<floatt[]>
+  oap::PatternsClassificationParser::Args args;
+  oap::PatternsClassification pc;
+
+  args.m_onOutput1 = [](const std::vector<floatt>& outputs)
   {
-    oap::PngFile png (path, false);
-    png.loadBitmap ();
-
-    EXPECT_EQ(20, png.getWidth().optSize);
-    EXPECT_EQ(20, png.getHeight().optSize);
-    EXPECT_TRUE(png.isLoaded ());
-  
-    std::unique_ptr<floatt[]> mask (new floatt[png.getLength()]);
-    png.getFloattVector (mask.get ());
-
-    return std::move (mask);
+    EXPECT_EQ(1, outputs.size());
+    EXPECT_LE(0.5, outputs[0]);
   };
 
-  auto patternA = load (utils::Config::getFileInOap("oapNeural/data/text/a.png"));
-  auto patternB = load (utils::Config::getFileInOap("oapNeural/data/text/b.png"));
-
-  Network network;
-  network.createLayer (20 * 20);
-  network.createLayer (20);
-  network.createLayer (1);
-
-  oap::HostMatrixPtr input = oap::host::NewReMatrix (1, 20*20, 0);
-  oap::HostMatrixPtr eoutput = oap::host::NewReMatrix (1, 1, 0);
-
-  SE_CD_Controller selc (0.001, 100);
-
-  network.setLearningRate (0.001);
-  network.setController (&selc);
-
-  Network::ErrorType errorType = Network::ErrorType::CROSS_ENTROPY;
-  //Network::ErrorType errorType = Network::ErrorType::MEAN_SQUARE_ERROR;
-  printBitmap (patternA.get(), 20, 20);
-  printBitmap (patternB.get(), 20, 20);
-
-  std::random_device rd;
-  std::default_random_engine dre (rd());
-  std::uniform_real_distribution<> dis(0., 1.);
-
-  while (selc.shouldContinue())
+  args.m_onOutput2 = [](const std::vector<floatt>& outputs)
   {
-    if (dis(dre) >= 0.5)
-    {
-      oap::host::CopyBuffer (input->reValues, patternA.get (), input->columns * input->rows);
-      eoutput->reValues[0] = 1;
-    }
-    else
-    {
-      oap::host::CopyBuffer (input->reValues, patternB.get (), input->columns * input->rows);
-      eoutput->reValues[0] = 0;
-    }
+    EXPECT_EQ(1, outputs.size());
+    EXPECT_GE(0.5, outputs[0]);
+  };
 
-    network.train (input, eoutput, Network::HOST, errorType);
-  }
+  args.m_onOpenFile = [](const oap::OptSize& width, const oap::OptSize& height, bool isLoaded)
+  {
+    EXPECT_EQ(20, width.optSize);
+    EXPECT_EQ(20, height.optSize);
+    EXPECT_TRUE(isLoaded);
+  };
 
-  oap::host::CopyBuffer (input->reValues, patternA.get (), input->columns * input->rows);
-  auto output = network.run (input, Network::HOST, errorType);
-  EXPECT_LE(0.5, output->reValues[0]);
-
-  oap::host::CopyBuffer (input->reValues, patternB.get (), input->columns * input->rows);
-  auto output1 = network.run (input, Network::HOST, errorType);
-  EXPECT_GE(0.5, output1->reValues[0]);
+  pc.run (args); 
 }
