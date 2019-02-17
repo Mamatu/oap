@@ -20,12 +20,15 @@
 #ifndef OAP_PATTERNS_CLASSIFICATION_H
 #define OAP_PATTERNS_CLASSIFICATION_H
 
+#include <atomic>
 #include <string>
 #include <functional>
 
 #include "Routine.h"
 #include "oapNetwork.h"
 #include "PngFile.h"
+
+#include "ThreadUtils.h"
 
 #include "PatternsClassificationHost.h"
 
@@ -37,8 +40,13 @@ class PatternsClassification : public oap::Routine
   public:
     using Args = oap::PatternsClassificationParser::Args;
 
+    PatternsClassification ();
+    virtual ~PatternsClassification ();
+
     int run ();
     int run (const oap::PatternsClassificationParser::Args& args);
+
+    virtual void onInterrupt() override;
 
   protected:
     virtual int runRoutine () override;
@@ -46,6 +54,8 @@ class PatternsClassification : public oap::Routine
 
   private:
     oap::PatternsClassificationParser m_parser;
+    std::atomic_bool m_bInterrupted;
+    utils::sync::CondBool m_cond;
 };
 }
 

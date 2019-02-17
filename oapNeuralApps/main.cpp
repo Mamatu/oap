@@ -18,7 +18,9 @@
  */
 
 #include <map>
+#include <csignal>
 #include <string>
+#include <thread>
 #include <functional>
 
 #include "Routine.h"
@@ -68,7 +70,20 @@ int main(int argc, char** argv)
 
     std::unique_ptr<oap::Routine> routine (it->second());
 
-    routine->run (argc, argv);
+    auto thread = std::thread([&routine, argc, argv]()
+    {
+      routine->run (argc, argv);
+    });
+
+    thread.detach ();
+    char c;
+    do
+    {
+      std::cin >> c;
+    }
+    while (c != 'q');
+
+    routine->onInterrupt ();
   };
 
   oap::ArgsParser argParser;

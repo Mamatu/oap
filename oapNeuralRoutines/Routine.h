@@ -43,6 +43,8 @@ class Routine
       return runRoutine ();
     }
 
+    virtual void onInterrupt() = 0;
+
   protected:
     virtual const oap::IArgsParser& getArgsParser() const = 0;
     virtual int runRoutine () = 0;
