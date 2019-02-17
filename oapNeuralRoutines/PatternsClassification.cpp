@@ -113,7 +113,7 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   auto invokeCallback = [&args](const oap::HostMatrixUPtr& matrix, const oap::PatternsClassificationParser::Args::OutputCallback& callback)
   {
     std::vector<floatt> vec;
-    for (size_t idx = 0; idx < args.networkLayers.back(); ++idx)
+    for (size_t idx = 0; idx < args.networkLayers.size(); ++idx)
     {
       vec.push_back (matrix->reValues[idx]);
     }
