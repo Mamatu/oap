@@ -36,6 +36,12 @@ void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize&
   iterateBitmap (pixels, width, height, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
 }
 
+PatternsClassification::PatternsClassification () : m_parser (), m_bInterrupted (false)
+{}
+
+PatternsClassification::~PatternsClassification ()
+{}
+
 int PatternsClassification::run ()
 {
   return PatternsClassification::run (PatternsClassificationParser::Args ());
@@ -43,8 +49,6 @@ int PatternsClassification::run ()
 
 int PatternsClassification::run (const oap::PatternsClassificationParser::Args& args)
 {
-  oap::cuda::Context::Instance().create();
-
   auto load = [&args] (const std::string& path) -> std::tuple<std::unique_ptr<floatt[]>, oap::OptSize, oap::OptSize>
   {
     oap::PngFile png (path, false);
@@ -67,11 +71,25 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   auto patternA = load (utils::Config::getFileInOap(args.patternPath1));
   auto patternB = load (utils::Config::getFileInOap(args.patternPath2));
 
-  Network network;
+
+  oap::cuda::Context::Instance().create();
+
+  Network* network = nullptr;
+
+  if (args.loadingPath.empty ())
+  {
+    network = new Network;
+  }
+  else
+  {
+    utils::ByteBuffer buffer;
+    buffer.fread (args.loadingPath);
+    network = Network::load (buffer);
+  }
 
   for (int layerSize : args.networkLayers)
   {
-    network.createLayer (layerSize);
+    network->createLayer (layerSize);
   }
 
   oap::HostMatrixPtr input = oap::host::NewReMatrix (1, args.networkLayers.front(), 0);
@@ -79,8 +97,8 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
 
   SE_CD_Controller selc (0.001, 100);
 
-  network.setLearningRate (0.001);
-  network.setController (&selc);
+  network->setLearningRate (0.001);
+  network->setController (&selc);
 
   oap::ErrorType errorType = args.errorType;
 
@@ -94,7 +112,7 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   std::default_random_engine dre (rd());
   std::uniform_real_distribution<> dis(0., 1.);
 
-  while (selc.shouldContinue())
+  while (selc.shouldContinue() && !m_bInterrupted)
   {
     if (dis(dre) >= 0.5)
     {
@@ -107,13 +125,13 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
       eoutput->reValues[0] = 0;
     }
 
-    network.train (input, eoutput, Network::HOST, errorType);
+    network->train (input, eoutput, Network::HOST, errorType);
   }
 
   auto invokeCallback = [&args](const oap::HostMatrixUPtr& matrix, const oap::PatternsClassificationParser::Args::OutputCallback& callback)
   {
     std::vector<floatt> vec;
-    for (size_t idx = 0; idx < args.networkLayers.back(); ++idx)
+    for (size_t idx = 0; idx < args.networkLayers.size(); ++idx)
     {
       vec.push_back (matrix->reValues[idx]);
     }
@@ -123,15 +141,30 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     }
   };
 
-  oap::host::CopyBuffer (input->reValues, upatternA.get (), input->columns * input->rows);
-  auto output1 = network.run (input, Network::HOST, errorType);
-  invokeCallback (output1, args.m_onOutput1);
+  if (!m_bInterrupted)
+  {
+    oap::host::CopyBuffer (input->reValues, upatternA.get (), input->columns * input->rows);
+    auto output1 = network->run (input, Network::HOST, errorType);
+    invokeCallback (output1, args.m_onOutput1);
 
-  oap::host::CopyBuffer (input->reValues, upatternB.get (), input->columns * input->rows);
-  auto output2 = network.run (input, Network::HOST, errorType);
-  invokeCallback (output2, args.m_onOutput2);
+    oap::host::CopyBuffer (input->reValues, upatternB.get (), input->columns * input->rows);
+    auto output2 = network->run (input, Network::HOST, errorType);
+    invokeCallback (output2, args.m_onOutput2);
+  }
+  else
+  {
+    if (!args.savingPath.empty ())
+    {
+      utils::ByteBuffer buffer;
+      network->save (buffer);
+      buffer.fwrite (args.savingPath);
+    }
+  }
 
+  delete network;
   oap::cuda::Context::Instance().destroy();
+
+  m_cond.signal ();
 
   return 0;
 }
@@ -145,4 +178,14 @@ const oap::IArgsParser& PatternsClassification::getArgsParser() const
 {
   return m_parser;
 }
+
+void PatternsClassification::onInterrupt()
+{
+  debugFunc ();
+  m_bInterrupted = true;
+  debugFunc ();
+  m_cond.wait ();
+  debugFunc ();
+}
+
 }

@@ -18,20 +18,24 @@
  */
 
 #include <map>
+#include <csignal>
 #include <string>
+#include <thread>
 #include <functional>
 
 #include "Routine.h"
 #include "PatternsClassification.h"
 
+using Factory = std::function<oap::Routine*()>;
+
 int main(int argc, char** argv)
 {
   using namespace std::placeholders;
 
-  using RoutinesMap = std::map<std::string, oap::Routine*>;
+  using RoutinesMap = std::map<std::string, Factory>;
   RoutinesMap routines;
 
-  routines["patterns_classification"] = new oap::PatternsClassification ();
+  routines["patterns_classification"] = []() -> oap::Routine* { return new oap::PatternsClassification (); };
 
   auto getNamesList = [](const RoutinesMap& routines) -> std::string
   {
@@ -64,7 +68,22 @@ int main(int argc, char** argv)
       throw std::runtime_error (sstream.str ());
     }
 
-    it->second->run (argc, argv);
+    std::unique_ptr<oap::Routine> routine (it->second());
+
+    auto thread = std::thread([&routine, argc, argv]()
+    {
+      routine->run (argc, argv);
+    });
+
+    thread.detach ();
+    char c;
+    do
+    {
+      std::cin >> c;
+    }
+    while (c != 'q');
+
+    routine->onInterrupt ();
   };
 
   oap::ArgsParser argParser;

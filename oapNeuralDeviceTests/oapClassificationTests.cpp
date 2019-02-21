@@ -29,14 +29,10 @@ class OapClassificationTests : public testing::Test
   CUresult status;
 
   virtual void SetUp()
-  {
-    oap::cuda::Context::Instance().create();
-  }
+  {}
 
   virtual void TearDown()
-  {
-    oap::cuda::Context::Instance().destroy();
-  }
+  {}
 };
 
 

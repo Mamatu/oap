@@ -56,7 +56,7 @@ namespace oap
       PatternsClassificationParser& operator= (const PatternsClassificationParser&) = delete;
       PatternsClassificationParser& operator= (PatternsClassificationParser&&) = delete;
 
-      void parse (int argc, char **argv) const override;
+      virtual void parse (int argc, char **argv) const override;
 
       Args getArgs() const
       {
