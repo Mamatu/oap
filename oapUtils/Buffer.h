@@ -210,9 +210,9 @@ class Buffer
 
       if (!f)
       {
-        std::stringstream sstr;
-        sstr << "Cannot open " << path << " ";
-        throw std::runtime_error (sstr.str());
+        std::stringstream sstream;
+        sstream << "File \"" << path << "\" cannot be open to write";
+        throw std::runtime_error (sstream.str());
       }
 
       size_t sizeOfT = getSizeOfType ();
@@ -246,7 +246,9 @@ class Buffer
 
       if (!f)
       {
-        throw std::runtime_error ("File not found");
+        std::stringstream sstream;
+        sstream << "File \"" << path << "\" cannot be open to read.";
+        throw std::runtime_error (sstream.str ());
       }
 
       size_t sizeOfT = 0;
