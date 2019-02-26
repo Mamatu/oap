@@ -55,6 +55,12 @@ TEST_F(OapCudaMatrixUtilsTests, SaveLoadMatrixToBuffer)
   size_t rows = 16;
 
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (columns, rows);
+
+  for (size_t idx = 0; idx < columns * rows; ++idx)
+  {
+    hmatrix->reValues[idx] = idx;
+  }
+
   oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
 
   utils::ByteBuffer buffer;
