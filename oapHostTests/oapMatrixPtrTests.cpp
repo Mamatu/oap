@@ -26,6 +26,8 @@
 #include "oapHostMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"
 
+#include <list>
+
 
 class OapMatrixPtrTests : public testing::Test {
   public:
@@ -60,44 +62,110 @@ TEST_F(OapMatrixPtrTests, ResetPtrTest)
 
 TEST_F(OapMatrixPtrTests, InitializationPtrsTest)
 {
-  std::vector<math::Matrix*> vec = {
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10)
-  };
-
-  std::vector<math::Matrix*> vec1 = {
-    oap::host::NewReMatrix(10, 13),
-    oap::host::NewReMatrix(10, 14),
-    oap::host::NewReMatrix(10, 15)
-  };
-
-  std::initializer_list<math::Matrix*> list = {
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 100)
-  };
-
-  math::Matrix** array =  new math::Matrix*[2];
-  array[0] = oap::host::NewReMatrix(10, 125);
-  array[1] = oap::host::NewImMatrix (10, 13);
-
-  math::Matrix* array1[3] =
   {
-    oap::host::NewReMatrix(10, 125),
-    oap::host::NewImMatrix (10, 13),
-    oap::host::NewMatrix (105, 13)
-  };
+    std::vector<math::Matrix*> vec = {
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10)
+    };
 
-  oap::HostMatricesPtr ptr = oap::makeHostMatricesPtr (vec);
-  oap::HostMatricesPtr ptr1 = oap::makeHostMatricesPtr (vec1);
-  oap::HostMatricesPtr ptr2 = oap::makeHostMatricesPtr (list);
-  oap::HostMatricesPtr ptr3 = oap::makeHostMatricesPtr (array, 2);
-  oap::HostMatricesPtr ptr3 = oap::makeHostMatricesPtr (array1, 3);
+    oap::HostMatricesPtr ptr = oap::makeHostMatricesPtr (vec);
 
-  delete[] array;
+    for (size_t idx = 0; idx < vec.size(); ++idx)
+    {
+      EXPECT_EQ (vec[idx], ptr[idx]);
+    }
+  }
+
+  {
+    std::vector<math::Matrix*> vec = {
+      oap::host::NewReMatrix(10, 13),
+      oap::host::NewReMatrix(10, 14),
+      oap::host::NewReMatrix(10, 15)
+    };
+
+    oap::HostMatricesPtr ptr = oap::makeHostMatricesPtr (vec);
+
+    for (size_t idx = 0; idx < vec.size(); ++idx)
+    {
+      EXPECT_EQ (vec[idx], ptr[idx]);
+    }
+  }
+
+  {
+    std::list<math::Matrix*> list = {
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 100)
+    };
+
+    oap::HostMatricesPtr ptr = oap::makeHostMatricesPtr (list);
+
+    size_t idx = 0;
+    for (auto it = list.cbegin(); it != list.cend(); ++idx, ++it)
+    {
+      EXPECT_EQ (*it, ptr[idx]);
+    }
+  }
+
+  {
+    math::Matrix** array =  new math::Matrix*[2];
+    array[0] = oap::host::NewReMatrix(10, 125);
+    array[1] = oap::host::NewImMatrix (10, 13);
+
+    oap::HostMatricesPtr ptr = oap::makeHostMatricesPtr (array, 2);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+
+    delete[] array;
+  }
+
+  {
+    math::Matrix** array =  new math::Matrix*[2];
+    array[0] = oap::host::NewReMatrix(10, 125);
+    array[1] = oap::host::NewImMatrix (10, 13);
+
+    oap::HostMatricesPtr ptr (array, 2);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+
+    delete[] array;
+  }
+
+  {
+    math::Matrix* array [3] =
+    {
+      oap::host::NewReMatrix(10, 125),
+      oap::host::NewImMatrix (10, 13),
+      oap::host::NewMatrix (105, 13)
+    };
+
+    oap::HostMatricesPtr ptr = oap::makeHostMatricesPtr (array, 3);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+    EXPECT_EQ (array[2], ptr[2]);
+  }
+
+  {
+    math::Matrix* array [3] =
+    {
+      oap::host::NewReMatrix(10, 125),
+      oap::host::NewImMatrix (10, 13),
+      oap::host::NewMatrix (105, 13)
+    };
+
+    oap::HostMatricesPtr ptr (array, 3);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+    EXPECT_EQ (array[2], ptr[2]);
+  }
+
 }
 
 TEST_F(OapMatrixPtrTests, ResetPtrsTest)
@@ -238,44 +306,110 @@ TEST_F(OapMatrixPtrTests, ResetUPtrsTest)
 
 TEST_F(OapMatrixPtrTests, InitializationUPtrsTest)
 {
-  std::vector<math::Matrix*> vec = {
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10)
-  };
-
-  std::vector<math::Matrix*> vec1 = {
-    oap::host::NewReMatrix(10, 13),
-    oap::host::NewReMatrix(10, 14),
-    oap::host::NewReMatrix(10, 15)
-  };
-
-  std::initializer_list<math::Matrix*> list = {
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 10),
-    oap::host::NewReMatrix(10, 100)
-  };
-
-  math::Matrix** array =  new math::Matrix*[2];
-  array[0] = oap::host::NewReMatrix(10, 125);
-  array[1] = oap::host::NewImMatrix (10, 13);
-
-  math::Matrix* array1[3] =
   {
-    oap::host::NewReMatrix(10, 125),
-    oap::host::NewImMatrix (10, 13),
-    oap::host::NewMatrix (105, 13)
-  };
+    std::vector<math::Matrix*> vec = {
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10)
+    };
 
-  oap::HostMatricesUPtr ptr = oap::makeHostMatricesUPtr (vec);
-  oap::HostMatricesUPtr ptr1 = oap::makeHostMatricesUPtr (vec1);
-  oap::HostMatricesUPtr ptr2 = oap::makeHostMatricesUPtr (list);
-  oap::HostMatricesUPtr ptr3 = oap::makeHostMatricesUPtr (array, 2);
-  oap::HostMatricesUPtr ptr3 = oap::makeHostMatricesUPtr (array1, 3);
+    oap::HostMatricesUPtr ptr = oap::makeHostMatricesUPtr (vec);
 
-  delete[] array;
+    for (size_t idx = 0; idx < vec.size(); ++idx)
+    {
+      EXPECT_EQ (vec[idx], ptr[idx]);
+    }
+  }
+
+  {
+    std::vector<math::Matrix*> vec = {
+      oap::host::NewReMatrix(10, 13),
+      oap::host::NewReMatrix(10, 14),
+      oap::host::NewReMatrix(10, 15)
+    };
+
+    oap::HostMatricesUPtr ptr = oap::makeHostMatricesUPtr (vec);
+
+    for (size_t idx = 0; idx < vec.size(); ++idx)
+    {
+      EXPECT_EQ (vec[idx], ptr[idx]);
+    }
+  }
+
+  {
+    std::list<math::Matrix*> list = {
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 10),
+      oap::host::NewReMatrix(10, 100)
+    };
+
+    oap::HostMatricesUPtr ptr = oap::makeHostMatricesUPtr (list);
+
+    size_t idx = 0;
+    for (auto it = list.cbegin(); it != list.cend(); ++idx, ++it)
+    {
+      EXPECT_EQ (*it, ptr[idx]);
+    }
+  }
+
+  {
+    math::Matrix** array =  new math::Matrix*[2];
+    array[0] = oap::host::NewReMatrix(10, 125);
+    array[1] = oap::host::NewImMatrix (10, 13);
+
+    oap::HostMatricesUPtr ptr = oap::makeHostMatricesUPtr (array, 2);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+
+    delete[] array;
+  }
+
+  {
+    math::Matrix** array =  new math::Matrix*[2];
+    array[0] = oap::host::NewReMatrix(10, 125);
+    array[1] = oap::host::NewImMatrix (10, 13);
+
+    oap::HostMatricesUPtr ptr (array, 2);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+
+    delete[] array;
+  }
+
+  {
+    math::Matrix* array [3] =
+    {
+      oap::host::NewReMatrix(10, 125),
+      oap::host::NewImMatrix (10, 13),
+      oap::host::NewMatrix (105, 13)
+    };
+
+    oap::HostMatricesUPtr ptr = oap::makeHostMatricesUPtr (array, 3);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+    EXPECT_EQ (array[2], ptr[2]);
+  }
+
+  {
+    math::Matrix* array [3] =
+    {
+      oap::host::NewReMatrix(10, 125),
+      oap::host::NewImMatrix (10, 13),
+      oap::host::NewMatrix (105, 13)
+    };
+
+    oap::HostMatricesUPtr ptr (array, 3);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+    EXPECT_EQ (array[2], ptr[2]);
+  }
+
 }
 
 TEST_F(OapMatrixPtrTests, AssignmentUPtrTest)
