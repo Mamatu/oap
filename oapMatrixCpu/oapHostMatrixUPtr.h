@@ -51,6 +51,15 @@ namespace oap {
   HostMatricesUPtr makeHostMatricesUPtr(const Container<math::Matrix*, std::allocator<math::Matrix*> >& matrices) {
     return smartptr_utils::makeSmartPtr<HostMatricesUPtr>(matrices);
   }
+
+  template<template<typename> class Container>
+  HostMatricesUPtr makeHostMatricesUPtr(const Container<math::Matrix*>& matrices) {
+    return smartptr_utils::makeSmartPtr<HostMatricesUPtr>(matrices);
+  }
+
+  inline HostMatricesUPtr makeHostMatricesUPtr(math::Matrix** array, size_t count) {
+    return smartptr_utils::makeSmartPtr<HostMatricesUPtr>(array, count);
+  }
 }
 
 #endif
