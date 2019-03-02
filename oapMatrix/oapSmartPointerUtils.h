@@ -193,13 +193,8 @@ namespace smartptr_utils
     return makeArray (vec);
   }
 
-  template<template<typename, typename>class Container, typename T>
-  unsigned int getElementsCount(const Container<T, std::allocator<T> >& container) {
-    return std::distance(container.begin(), container.end());
-  }
-
-  template<template<typename>class Container, typename T>
-  unsigned int getElementsCount(const Container<T>& container) {
+  template<class Container>
+  unsigned int getElementsCount(const Container& container) {
     return std::distance(container.begin(), container.end());
   }
 
