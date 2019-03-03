@@ -30,7 +30,7 @@ namespace oap {
   /**
    * @brief Shared pointer for host matrix type
    *
-   * Examples of use: oapHostTests/oapMatrixPtrTests.cpp
+   * Examples of use: oapHostTests/oapHostMatrixPtrTests.cpp
    */
   class HostMatrixPtr : public oap::MatrixSharedPtr {
     public:
@@ -47,7 +47,7 @@ namespace oap {
    * This class creates its own matrices array which contains copied pointers.
    * If array was allocated dynamically must be deallocated.
    *
-   * Examples of use: oapHostTests/oapMatrixPtrTests.cpp
+   * Examples of use: oapHostTests/oapHostMatrixPtrTests.cpp
    */
   class HostMatricesPtr : public oap::MatricesSharedPtr {
     public:
