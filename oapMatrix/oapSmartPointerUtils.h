@@ -179,27 +179,22 @@ namespace smartptr_utils
   };
 
   template<template<typename, typename> class Container, typename T, class Allocator>
-  ArrayPtr<T> makeArray(const Container<T, Allocator>& vec)
+  ArrayPtr<T> makeArray(const Container<T, Allocator>& container)
   {
-    T* array = new T [vec.size()];
-    std::copy (vec.begin(), vec.end(), array);
-    return ArrayPtr<T> (array, vec.size());
+    T* array = new T [container.size()];
+    std::copy (container.begin(), container.end(), array);
+    return ArrayPtr<T> (array, container.size());
   }
 
   template<template<typename> class Container, typename T>
-  ArrayPtr<T> makeArray(const Container<T>& list)
+  ArrayPtr<T> makeArray(const Container<T>& container)
   {
-    std::vector<T> vec (list);
+    std::vector<T> vec (container);
     return makeArray (vec);
   }
 
-  template<template<typename, typename>class Container, typename T>
-  unsigned int getElementsCount(const Container<T, std::allocator<T> >& container) {
-    return std::distance(container.begin(), container.end());
-  }
-
-  template<template<typename>class Container, typename T>
-  unsigned int getElementsCount(const Container<T>& container) {
+  template<class Container>
+  unsigned int getElementsCount(const Container& container) {
     return std::distance(container.begin(), container.end());
   }
 
@@ -207,6 +202,11 @@ namespace smartptr_utils
   SmartPtr makeSmartPtr(const Container<T, std::allocator<T> >& container) {
     T* array = smartptr_utils::makeArray(container);
     return  SmartPtr(array, smartptr_utils::getElementsCount(container));
+  }
+
+  template<class SmartPtr, typename T>
+  SmartPtr makeSmartPtr(T* array, size_t count) {
+    return  SmartPtr(array, count);
   }
 }
 

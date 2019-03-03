@@ -19,6 +19,7 @@
 
 
 #include <string>
+#include <list>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -29,7 +30,7 @@
 #include "oapDeviceMatrixUPtr.h"
 
 
-class OapMatrixPtrTests : public testing::Test {
+class OapDeviceMatrixUPtrTests : public testing::Test {
   public:
     virtual void SetUp()
     {
@@ -42,107 +43,12 @@ class OapMatrixPtrTests : public testing::Test {
     }
 };
 
-TEST_F(OapMatrixPtrTests, MemLeakPtrTest)
-{
-  oap::DeviceMatrixPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
-}
-
-TEST_F(OapMatrixPtrTests, MemLeakPtrsTest)
-{
-  std::vector<math::Matrix*> vec = {
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10)
-  };
-
-  oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr(vec);
-}
-
-TEST_F(OapMatrixPtrTests, ResetPtrTest)
-{
-  oap::DeviceMatrixPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
-
-  ptr.reset (oap::cuda::NewDeviceMatrix(11, 11));
-}
-
-TEST_F(OapMatrixPtrTests, ResetPtrsTest)
-{
-  std::vector<math::Matrix*> vec = {
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10)
-  };
-
-  std::vector<math::Matrix*> vec1 = {
-    oap::cuda::NewDeviceReMatrix(10, 13),
-    oap::cuda::NewDeviceReMatrix(10, 14),
-    oap::cuda::NewDeviceReMatrix(10, 15)
-  };
-
-  std::initializer_list<math::Matrix*> list = {
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 100)
-  };
-
-  math::Matrix** array =  new math::Matrix*[2];
-  array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
-  array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
-
-  math::Matrix* array1[3] =
-  {
-    oap::cuda::NewDeviceReMatrix (110, 25),
-    oap::cuda::NewDeviceImMatrix (110, 25),
-    oap::cuda::NewDeviceMatrix (110, 25),
-  };
-
-  oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (vec);
-  ptr.reset (vec1);
-  ptr.reset (list);
-  ptr.reset (array, 2);
-  ptr.reset (array1, 3);
-
-  delete[] array;
-}
-
-TEST_F(OapMatrixPtrTests, AssignmentPtrTest)
-{
-  oap::DeviceMatrixPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
-
-  ptr = oap::cuda::NewDeviceMatrix(11, 11);
-
-  oap::DeviceMatrixPtr ptr1 = oap::cuda::NewDeviceReMatrix (15, 15);
-
-  ptr = ptr1;
-}
-
-TEST_F(OapMatrixPtrTests, AssignmentPtrsTest)
-{
-  std::vector<math::Matrix*> vec = {
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10)
-  };
-
-  std::vector<math::Matrix*> vec1 = {
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10),
-    oap::cuda::NewDeviceReMatrix(10, 10)
-  };
-
-  oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (vec);
-  ptr = oap::makeDeviceMatricesPtr (vec1);
-}
-
-TEST_F(OapMatrixPtrTests, MemLeakUPtrTest)
+TEST_F(OapDeviceMatrixUPtrTests, MemLeakUPtrTest)
 {
   oap::DeviceMatrixUPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
 }
 
-TEST_F(OapMatrixPtrTests, MemLeakUPtrsTest)
+TEST_F(OapDeviceMatrixUPtrTests, MemLeakUPtrsTest)
 {
   std::vector<math::Matrix*> vec = {
     oap::cuda::NewDeviceReMatrix(10, 10),
@@ -153,14 +59,121 @@ TEST_F(OapMatrixPtrTests, MemLeakUPtrsTest)
   oap::DeviceMatricesUPtr ptr = oap::makeDeviceMatricesUPtr(vec);
 }
 
-TEST_F(OapMatrixPtrTests, ResetUPtrTest)
+TEST_F(OapDeviceMatrixUPtrTests, InitializationUPtrsTest)
+{
+  {
+    std::vector<math::Matrix*> vec = {
+      oap::cuda::NewDeviceReMatrix(10, 10),
+      oap::cuda::NewDeviceReMatrix(10, 10),
+      oap::cuda::NewDeviceReMatrix(10, 10)
+    };
+
+    oap::DeviceMatricesUPtr ptr = oap::makeDeviceMatricesUPtr (vec);
+
+    for (size_t idx = 0; idx < vec.size(); ++idx)
+    {
+      EXPECT_EQ (vec[idx], ptr[idx]);
+    }
+  }
+
+  {
+    std::vector<math::Matrix*> vec = {
+      oap::cuda::NewDeviceReMatrix(10, 13),
+      oap::cuda::NewDeviceReMatrix(10, 14),
+      oap::cuda::NewDeviceReMatrix(10, 15)
+    };
+
+    oap::DeviceMatricesUPtr ptr = oap::makeDeviceMatricesUPtr (vec);
+
+    for (size_t idx = 0; idx < vec.size(); ++idx)
+    {
+      EXPECT_EQ (vec[idx], ptr[idx]);
+    }
+  }
+
+  {
+    std::list<math::Matrix*> list = {
+      oap::cuda::NewDeviceReMatrix(10, 10),
+      oap::cuda::NewDeviceReMatrix(10, 10),
+      oap::cuda::NewDeviceReMatrix(10, 10),
+      oap::cuda::NewDeviceReMatrix(10, 10),
+      oap::cuda::NewDeviceReMatrix(10, 100)
+    };
+
+    oap::DeviceMatricesUPtr ptr = oap::makeDeviceMatricesUPtr (list);
+
+    size_t idx = 0;
+    for (auto it = list.cbegin(); it != list.cend(); ++idx, ++it)
+    {
+      EXPECT_EQ (*it, ptr[idx]);
+    }
+  }
+
+  {
+    math::Matrix** array =  new math::Matrix*[2];
+    array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
+    array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
+
+    oap::DeviceMatricesUPtr ptr = oap::makeDeviceMatricesUPtr (array, 2);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+
+    delete[] array;
+  }
+
+  {
+    math::Matrix** array =  new math::Matrix*[2];
+    array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
+    array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
+
+    oap::DeviceMatricesUPtr ptr (array, 2);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+
+    delete[] array;
+  }
+
+  {
+    math::Matrix* array [3] =
+    {
+      oap::cuda::NewDeviceReMatrix(10, 125),
+      oap::cuda::NewDeviceImMatrix (10, 13),
+      oap::cuda::NewDeviceMatrix (105, 13)
+    };
+
+    oap::DeviceMatricesUPtr ptr = oap::makeDeviceMatricesUPtr (array, 3);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+    EXPECT_EQ (array[2], ptr[2]);
+  }
+
+  {
+    math::Matrix* array [3] =
+    {
+      oap::cuda::NewDeviceReMatrix(10, 125),
+      oap::cuda::NewDeviceImMatrix (10, 13),
+      oap::cuda::NewDeviceMatrix (105, 13)
+    };
+
+    oap::DeviceMatricesUPtr ptr (array, 3);
+
+    EXPECT_EQ (array[0], ptr[0]);
+    EXPECT_EQ (array[1], ptr[1]);
+    EXPECT_EQ (array[2], ptr[2]);
+  }
+}
+
+TEST_F(OapDeviceMatrixUPtrTests, ResetUPtrTest)
 {
   oap::DeviceMatrixUPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
 
   ptr.reset (oap::cuda::NewDeviceMatrix(11, 11));
 }
 
-TEST_F(OapMatrixPtrTests, ResetUPtrsTest)
+TEST_F(OapDeviceMatrixUPtrTests, ResetUPtrsTest)
 {
   std::vector<math::Matrix*> vec = {
     oap::cuda::NewDeviceReMatrix(10, 10),
@@ -201,7 +214,7 @@ TEST_F(OapMatrixPtrTests, ResetUPtrsTest)
   delete[] array;
 }
 
-TEST_F(OapMatrixPtrTests, AssignmentUPtrTest)
+TEST_F(OapDeviceMatrixUPtrTests, AssignmentUPtrTest)
 {
   oap::DeviceMatrixUPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
 
@@ -211,7 +224,7 @@ TEST_F(OapMatrixPtrTests, AssignmentUPtrTest)
   ptr = std::move (ptr1);
 }
 
-TEST_F(OapMatrixPtrTests, AssignmentUPtrsTest)
+TEST_F(OapDeviceMatrixUPtrTests, AssignmentUPtrsTest)
 {
   std::vector<math::Matrix*> vec = {
     oap::cuda::NewDeviceReMatrix(10, 10),

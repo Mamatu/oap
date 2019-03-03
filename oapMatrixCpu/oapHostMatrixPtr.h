@@ -26,6 +26,12 @@
 #include "oapMatrixSPtr.h"
 
 namespace oap {
+
+  /**
+   * @brief Shared pointer for host matrix type
+   *
+   * Examples of use: oapHostTests/oapHostMatrixPtrTests.cpp
+   */
   class HostMatrixPtr : public oap::MatrixSharedPtr {
     public:
       HostMatrixPtr(math::Matrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix,
@@ -35,6 +41,14 @@ namespace oap {
       }
   };
 
+  /**
+   * @brief Shared pointer which points into array of host matrix pointers
+   *
+   * This class creates its own matrices array which contains copied pointers.
+   * If array was allocated dynamically must be deallocated.
+   *
+   * Examples of use: oapHostTests/oapHostMatrixPtrTests.cpp
+   */
   class HostMatricesPtr : public oap::MatricesSharedPtr {
     public:
       HostMatricesPtr(math::Matrix** matrices, unsigned int count) :
@@ -50,6 +64,15 @@ namespace oap {
   template<template<typename, typename> class Container>
   HostMatricesPtr makeHostMatricesPtr(const Container<math::Matrix*, std::allocator<math::Matrix*> >& matrices) {
     return smartptr_utils::makeSmartPtr<HostMatricesPtr>(matrices);
+  }
+
+  template<template<typename> class Container>
+  HostMatricesPtr makeHostMatricesPtr(const Container<math::Matrix*>& matrices) {
+    return smartptr_utils::makeSmartPtr<HostMatricesPtr>(matrices);
+  }
+
+  inline HostMatricesPtr makeHostMatricesPtr(math::Matrix** array, size_t count) {
+    return smartptr_utils::makeSmartPtr<HostMatricesPtr>(array, count);
   }
 }
 
