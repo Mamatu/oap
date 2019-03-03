@@ -26,6 +26,12 @@
 #include "oapMatrixSPtr.h"
 
 namespace oap {
+
+  /**
+   * @brief Unique pointer for host matrix type
+   *
+   * Examples of use: oapHostTests/oapMatrixPtrTests.cpp
+   */
   class HostMatrixUPtr : public oap::MatrixUniquePtr {
     public:
       HostMatrixUPtr(math::Matrix* matrix) : oap::MatrixUniquePtr(matrix,
@@ -35,6 +41,14 @@ namespace oap {
       }
   };
 
+  /**
+   * @brief Unique pointer which points into array of host matrix pointers
+   *
+   * This class creates its own matrices array which contains copied pointers.
+   * If array was allocated dynamically must be deallocated.
+   *
+   * Examples of use: oapHostTests/oapMatrixPtrTests.cpp
+   */
   class HostMatricesUPtr : public oap::MatricesUniquePtr {
     public:
       HostMatricesUPtr(math::Matrix** matrices, unsigned int count) :

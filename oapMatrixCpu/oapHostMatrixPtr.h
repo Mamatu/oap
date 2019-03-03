@@ -28,7 +28,7 @@
 namespace oap {
 
   /**
-   * @brief Smart pointer for host matrix type
+   * @brief Shared pointer for host matrix type
    *
    * Examples of use: oapHostTests/oapMatrixPtrTests.cpp
    */
@@ -42,7 +42,7 @@ namespace oap {
   };
 
   /**
-   * @brief Smart pointer which points into array of host matrix pointers
+   * @brief Shared pointer which points into array of host matrix pointers
    *
    * This class creates its own matrices array which contains copied pointers.
    * If array was allocated dynamically must be deallocated.

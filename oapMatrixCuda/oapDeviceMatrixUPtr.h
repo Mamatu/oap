@@ -26,6 +26,12 @@
 #include "oapMatrixSPtr.h"
 
 namespace oap {
+
+  /**
+   * @brief Unique pointer for cuda matrix type
+   *
+   * Examples of use: oapDeviceTests/oapMatrixPtrTests.cpp
+   */
   class DeviceMatrixUPtr : public oap::MatrixUniquePtr {
     public:
       DeviceMatrixUPtr(math::Matrix* matrix = nullptr) : oap::MatrixUniquePtr(matrix,
@@ -35,6 +41,14 @@ namespace oap {
       }
   };
 
+  /**
+   * @brief Unique pointer which points into array of cuda matrix pointers
+   *
+   * This class creates its own matrices array which contains copied pointers.
+   * If array was allocated dynamically must be deallocated.
+   *
+   * Examples of use: oapDeviceTests/oapMatrixPtrTests.cpp
+   */
   class DeviceMatricesUPtr : public oap::MatricesUniquePtr {
     public:
       DeviceMatricesUPtr(math::Matrix** matrices, unsigned int count) :
@@ -47,6 +61,15 @@ namespace oap {
   template<template<typename, typename> class Container>
   DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::Matrix*, std::allocator<math::Matrix*> >& matrices) {
     return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(matrices);
+  }
+
+  template<template<typename> class Container>
+  DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::Matrix*>& matrices) {
+    return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(matrices);
+  }
+
+  inline DeviceMatricesUPtr makeDeviceMatricesUPtr(math::Matrix** array, size_t count) {
+    return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(array, count);
   }
 }
 
