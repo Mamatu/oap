@@ -124,7 +124,7 @@ void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params
   m_cuStatus = execute("CUDAKernel_HadamardProduct", columns, rows, params, 0);
 }
 
-void CuProceduresApi::phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+void CuProceduresApi::hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
 #ifdef DEBUG
 #ifdef CU_PROCEDURES_API_PRINT
@@ -134,7 +134,7 @@ void CuProceduresApi::phadamardProduct(math::Matrix* output, math::Matrix* param
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  check_phadamardProduct (output, params0, params1, columns, rows);
+  check_hadamardProductVec (output, params0, params1, columns, rows);
 #endif
 
   void* params[] = {&output, &params0, &params1};
@@ -696,7 +696,7 @@ void CuProceduresApi::check_hadamardProduct(math::Matrix* output, math::Matrix* 
   debugExceptionMsg(output_columns == params0_columns && output_columns == params1_columns, stream2);
 }
 
-void CuProceduresApi::check_phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const
+void CuProceduresApi::check_hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const
 {
   const uintt output_columns = columns;
   const uintt output_rows = rows;
