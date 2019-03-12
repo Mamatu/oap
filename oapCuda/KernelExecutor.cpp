@@ -32,7 +32,7 @@
     status = cuResult;                                                         \
     const char* buffer;                                                        \
     cuGetErrorName(cuResult, &buffer);                                         \
-    debug("\n%s %s : %d cuError: %s (%d)\n", __FUNCTION__, __FILE__, __LINE__, \
+    logInfo("\n%s %s : %d cuError: %s (%d)\n", __FUNCTION__, __FILE__, __LINE__, \
           buffer, cuResult);                                                   \
     abort();                                                                   \
   }
