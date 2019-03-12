@@ -35,7 +35,7 @@
 
 #include "RecToSquareApi.h"
 
-#define CHECK_MATRIX(m) debugExceptionMsg (m != NULL, "Matrix is nullptr.");
+#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
 
 namespace oap
 {
