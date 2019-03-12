@@ -229,22 +229,21 @@ bool Kernel::run (const char* functionName)
     const uint* const blocksCount = getBlocksCount ();
 
 #if KERNEL_EXTENDED_INFO == 1
-    debug("Load kernel: %s", functionName);
-    debug("Image: %p", m_image);
-    debug("Module handle: %p", m_cuModule);
-    debug("Function handle: %p", cuFunction);
+    logInfo("Load kernel: %s", functionName);
+    logInfo("Image: %p", m_image);
+    logInfo("Module handle: %p", m_cuModule);
+    logInfo("Function handle: %p", cuFunction);
     PrintDeviceInfo(getDevice());
-    debug(" Execution:");
-    debug(" --threads counts: %d, %d, %d", threadsCount[0], threadsCount[1],
-          threadsCount[2]);
-    debug(" --blocks counts: %d, %d, %d", blocksCount[0], blocksCount[1],
-          blocksCount[2]);
-    debug(" --shared memory in bytes: %d", getSharedMemory());
+    logInfo(" Execution:");
+    logInfo(" --threads counts: %d, %d, %d", threadsCount[0], threadsCount[1], threadsCount[2]);
+    logInfo(" --blocks counts: %d, %d, %d", blocksCount[0], blocksCount[1], blocksCount[2]);
+    logInfo(" --shared memory in bytes: %d", getSharedMemory());
 #endif
     printCuErrorStatus(status,
-        cuLaunchKernel(cuFunction, blocksCount[0], blocksCount[1],
-                       blocksCount[2], threadsCount[0], threadsCount[1],
-                       threadsCount[2], getSharedMemory(), NULL,
+        cuLaunchKernel(cuFunction,
+                       blocksCount[0], blocksCount[1], blocksCount[2],
+                       threadsCount[0], threadsCount[1], threadsCount[2],
+                       getSharedMemory(), NULL,
                        this->getParams(), NULL));
   }
   else
