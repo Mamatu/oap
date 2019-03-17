@@ -353,3 +353,49 @@ TEST_F(OapNeuralTests, SaveLoadFileTest)
 
   EXPECT_TRUE (*network == *cnetwork);
 }
+
+TEST_F(OapNeuralTests, NeuralNetworkTest)
+{
+  // values come from https://www.nnwj.de/backpropagation.html
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(2);
+  Layer* l3 = network->createLayer(1);
+
+  network->setLearningRate (0.25);
+
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 2);
+  weights1to2->reValues[0] = 0.62;
+  weights1to2->reValues[2] = 0.42;
+
+  weights1to2->reValues[1] = 0.55;
+  weights1to2->reValues[3] = -0.17;
+
+  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (2, 1);
+  weights2to3->reValues[0] = 0.35;
+  weights2to3->reValues[1] = 0.81;
+
+  l1->setHostWeights (weights1to2);
+  l2->setHostWeights (weights2to3);
+
+  oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  inputs->reValues[0] = 0;
+  inputs->reValues[1] = 1;
+
+  oap::HostMatrixPtr eoutput = oap::host::NewReMatrix (1, 1, 0);
+
+  network->train (inputs, eoutput, Network::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+
+  weights1to2 = oap::host::NewReMatrix (2, 2);
+  weights2to3 = oap::host::NewReMatrix (2, 1);
+
+  l1->getHostWeights (weights1to2);
+  l2->getHostWeights (weights2to3);
+
+  EXPECT_NEAR (0.326593362, weights2to3->reValues[0], 0.00001);
+  EXPECT_NEAR (0.793109407, weights2to3->reValues[1], 0.00001);
+
+  EXPECT_NEAR (0.62, weights1to2->reValues[0], 0.00001);
+  EXPECT_NEAR (0.42, weights1to2->reValues[2], 0.00001);
+  EXPECT_NEAR (0.512648936, weights1to2->reValues[1], 0.00001);
+  EXPECT_NEAR (-0.209958271, weights1to2->reValues[3], 0.00001);
+}
