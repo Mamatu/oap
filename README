@@ -1,10 +1,3 @@
-
-#### Disable LFS during clone ####
-
-To disable LFS export GIT_LFS_SKIP_SMUDGE variable
-
-$ export GIT_LFS_SKIP_SMUDGE=1
-
 #### Download test data from sourceforge ####
 
 To download test data from sourcefourge server, not from
@@ -24,5 +17,10 @@ $ bash download_test_data.sh preclean
 
 To compile only host part of framework, use command
 
+$ make TARGET_ARCH=HOST
+
+#### Compilation modes ####
+
+Compile only host part of project:
 $ make TARGET_ARCH=HOST
 
