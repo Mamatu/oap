@@ -109,7 +109,7 @@ class SharedPtrReset
 
     void reset (typename StdMatrixPtr::element_type* t)
     {
-      m_stdMatrixPtr.reset (t, m_deleter);
+      m_stdMatrixPtr.reset (t, std::forward<Deleter> (m_deleter));
     }
 };
 
@@ -117,10 +117,9 @@ template<typename StdMatrixPtr, typename Deleter>
 class UniquePtrReset
 {
     StdMatrixPtr& m_stdMatrixPtr;
-    Deleter m_deleter;
 
   public:
-    UniquePtrReset (StdMatrixPtr& stdMatrixPtr, Deleter&& deleter) : m_stdMatrixPtr (stdMatrixPtr), m_deleter (deleter)
+    UniquePtrReset (StdMatrixPtr& stdMatrixPtr, Deleter&&) : m_stdMatrixPtr (stdMatrixPtr)
     {}
 
     void reset (typename StdMatrixPtr::element_type* t)
