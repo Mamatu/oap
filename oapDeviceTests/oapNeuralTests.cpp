@@ -258,7 +258,7 @@ TEST_F(OapNeuralTests, SaveLoadBufferTest)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(2, isbias);
+  Layer* l1 = network->createLayer(isbias ? 3 : 2);
   Layer* l2 = network->createLayer(6);
   Layer* l3 = network->createLayer(1);
 
@@ -301,7 +301,7 @@ TEST_F(OapNeuralTests, SaveLoadFileTest)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(2, isbias);
+  Layer* l1 = network->createLayer(isbias ? 3 : 2);
   Layer* l2 = network->createLayer(6);
   Layer* l3 = network->createLayer(1);
 

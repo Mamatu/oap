@@ -23,6 +23,8 @@
 #include "HostMatrixKernels.h"
 #include "oapCudaMatrixUtils.h"
 
+#include "oapHostMatrixUPtr.h"
+
 #include <iterator>
 #include <math.h>
 
@@ -492,6 +494,39 @@ void CuProceduresApi::multiplySigmoidDerivative(math::Matrix* omatrix, math::Mat
   void* params[] = {&omatrix, &matrix};
 
   m_cuStatus = execute("CUDAKernel_MultiplySigmoidDerivative", w, h, params, 0);
+}
+
+void CuProceduresApi::identity (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix (output, matrix);
+}
+
+void CuProceduresApi::identityDerivative (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::HostMatrixUPtr hmatrix (oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output)), 1);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
+}
+
+void CuProceduresApi::tanh (math::Matrix* output, const math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  void* params[] = {&output, &matrix};
+
+  m_cuStatus = execute("CUDAKernel_Tanh", w, h, params, 0);
+
+}
+
+void CuProceduresApi::tanhDerivative (math::Matrix* output, const math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  void* params[] = {&output, &matrix};
+
+  m_cuStatus = execute("CUDAKernel_TanhDerivative", w, h, params, 0);
+
 }
 
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,

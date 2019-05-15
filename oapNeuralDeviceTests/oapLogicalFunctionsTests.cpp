@@ -182,7 +182,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(2, isbias);
+  Layer* l1 = network->createLayer(isbias ? 3 : 2);
   network->createLayer(1);
 
   Runner r(isbias, this);
@@ -214,7 +214,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(2, isbias);
+  Layer* l1 = network->createLayer(isbias ? 3 : 2);
   network->createLayer(1);
 
   Runner r(isbias, this, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
@@ -285,19 +285,19 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(2, isbias);
-  Layer* l2 = network->createLayer(4 * 20);
+  Layer* l1 = network->createLayer(isbias ? 2 : 3);
+  Layer* l2 = network->createLayer(isbias ? 4*10 : 4*10+1);
   Layer* l3 = network->createLayer(1);
 
   Runner r(isbias, this, oap::ErrorType::MEAN_SQUARE_ERROR);
   network->setLearningRate (0.01);
 
-  size_t setSize = 1000;
+  size_t setSize = 100;
 
   auto callback = [this](floatt sqe, size_t step, floatt limit)
   {
     floatt lr = network->getLearningRate ();
-    if (sqe < lr * 4)
+    if (sqe < lr * 2)
     {
       floatt newlr = lr * 0.1;
       logInfo ("Learning rate %f previously %f", newlr, lr);
@@ -320,8 +320,8 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd)
       floatt fvalue1 = dis(dre);
       floatt output = (fvalue >= 1. && fvalue1 >= 1.) ? 1. : 0.;
       r.train (fvalue, fvalue1, output);
-      l1->printHostWeights();
-      l2->printHostWeights();
+      //l1->printHostWeights();
+      //l2->printHostWeights();
     }
   };
 

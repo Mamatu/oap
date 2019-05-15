@@ -155,12 +155,22 @@ class CuProceduresApi
 
   bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0);
 
+  // Sigmoid function and derivatives
   void sigmoid (math::Matrix* matrix);
   void sigmoid (math::Matrix* output, math::Matrix* matrix);
 
   void sigmoidDerivative (math::Matrix* omatrix, math::Matrix* imatrix);
 
   void multiplySigmoidDerivative (math::Matrix* omatrix, math::Matrix* matrix);
+
+  // Identity function and derivatives
+  void identity (math::Matrix* output, math::Matrix* matrix);
+  void identityDerivative (math::Matrix* output, math::Matrix* matrix);
+
+  // Tanh/tanh function and derivatives
+  void tanh (math::Matrix* output, const math::Matrix* matrix);
+  void tanhDerivative (math::Matrix* output, const math::Matrix* matrix);
+
 
   floatt getCompareOperationSum() const;
 
