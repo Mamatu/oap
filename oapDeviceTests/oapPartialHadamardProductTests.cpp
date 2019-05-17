@@ -52,10 +52,10 @@ TEST_F(OapPartialHadamardProductTests, InitTest)
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(16, 16);
   math::Matrix* houtput = oap::host::NewReMatrix(16, 16);
 
-  EXPECT_THROW(cuMatrix->phadamardProduct (nullptr, dM1, dM2), std::runtime_error);
-  EXPECT_THROW(cuMatrix->phadamardProduct (doutput, nullptr, dM2), std::runtime_error);
-  EXPECT_THROW(cuMatrix->phadamardProduct (doutput, dM1, nullptr), std::runtime_error);
-  EXPECT_THROW(cuMatrix->phadamardProduct (doutput, dM1, dM2), std::runtime_error);
+  EXPECT_THROW(cuMatrix->hadamardProductVec (nullptr, dM1, dM2), std::runtime_error);
+  EXPECT_THROW(cuMatrix->hadamardProductVec (doutput, nullptr, dM2), std::runtime_error);
+  EXPECT_THROW(cuMatrix->hadamardProductVec (doutput, dM1, nullptr), std::runtime_error);
+  EXPECT_THROW(cuMatrix->hadamardProductVec (doutput, dM1, dM2), std::runtime_error);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   oap::cuda::DeleteDeviceMatrix(doutput);
@@ -76,7 +76,7 @@ TEST_F(OapPartialHadamardProductTests, Test1)
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(4, 4);
   math::Matrix* houtput = oap::host::NewReMatrix(4, 4);
 
-  cuMatrix->phadamardProduct (doutput, dM1, dM2);
+  cuMatrix->hadamardProductVec (doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(1));
@@ -99,7 +99,7 @@ TEST_F(OapPartialHadamardProductTests, Test2)
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(3, 4);
   math::Matrix* houtput = oap::host::NewReMatrix(3, 4);
 
-  cuMatrix->phadamardProduct (doutput, dM1, dM2);
+  cuMatrix->hadamardProductVec (doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(1));
@@ -122,7 +122,7 @@ TEST_F(OapPartialHadamardProductTests, Test3)
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(3, 4);
   math::Matrix* houtput = oap::host::NewReMatrix(3, 4);
 
-  cuMatrix->phadamardProduct (doutput, dM1, dM2);
+  cuMatrix->hadamardProductVec (doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(2));
@@ -145,7 +145,7 @@ TEST_F(OapPartialHadamardProductTests, Test4)
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(3, 4);
   math::Matrix* houtput = oap::host::NewReMatrix(3, 4);
 
-  cuMatrix->phadamardProduct (doutput, dM1, dM2);
+  cuMatrix->hadamardProductVec (doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(6));
@@ -168,7 +168,7 @@ TEST_F(OapPartialHadamardProductTests, Test5)
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(312, 456);
   math::Matrix* houtput = oap::host::NewReMatrix(312, 456);
 
-  cuMatrix->phadamardProduct (doutput, dM1, dM2);
+  cuMatrix->hadamardProductVec (doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(6));

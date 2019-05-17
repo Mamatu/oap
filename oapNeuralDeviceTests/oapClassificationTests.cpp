@@ -22,6 +22,7 @@
 #include "CuProceduresApi.h"
 
 #include "PatternsClassification.h"
+#include "Controllers.h"
 
 class OapClassificationTests : public testing::Test
 {
@@ -35,8 +36,7 @@ class OapClassificationTests : public testing::Test
   {}
 };
 
-
-TEST_F(OapClassificationTests, SimpleClassification)
+TEST_F(OapClassificationTests, LetterClassification)
 {
   oap::PatternsClassificationParser::Args args;
   oap::PatternsClassification pc;

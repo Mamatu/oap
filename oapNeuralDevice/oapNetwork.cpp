@@ -18,21 +18,21 @@
  */
 
 #include "oapNetwork.h"
+#include "oapMatrixCudaCommon.h"
 
 using LC_t = size_t;
 
 Network::Network()
-{
-}
+{}
 
 Network::~Network()
 {
   destroyLayers();
 }
 
-Layer* Network::createLayer (size_t neurons, bool bias)
+Layer* Network::createLayer (size_t neurons, const Activation& activation)
 {
-  Layer* layer = new Layer(bias);
+  Layer* layer = new Layer(activation);
 
   layer->allocateNeurons (neurons);
   createLevel (layer);
@@ -62,7 +62,7 @@ void Network::addLayer (Layer* layer)
   m_layers.push_back (layer);
 }
 
-oap::HostMatrixUPtr Network::run (math::Matrix* inputs, MatrixType argsType, oap::ErrorType errorType)
+oap::HostMatrixUPtr Network::run (math::Matrix* inputs, Type argsType, oap::ErrorType errorType)
 {
   Layer* layer = m_layers.front();
 
@@ -85,34 +85,220 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, MatrixType argsType, oap
   return oap::HostMatrixUPtr (output);
 }
 
-void Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, MatrixType argsType, oap::ErrorType errorType)
+void Network::setInputs (math::Matrix* inputs, Type argsType)
 {
   Layer* layer = m_layers.front();
 
   if (argsType == Network::HOST)
   {
     layer->setHostInputs (inputs);
-    if (!m_expectedDeviceOutputs)
-    {
-      m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixCopy (expectedOutputs);
-    }
-    else
-    {
-      oap::cuda::CopyHostMatrixToDeviceMatrix (m_expectedDeviceOutputs, expectedOutputs);
-    }
-
-    expectedOutputs = m_expectedDeviceOutputs.get();
   }
   else if (argsType == Network::DEVICE)
   {
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_expectedDeviceOutputs, expectedOutputs);
+    layer->setDeviceInputs (inputs);
+  }
+}
+
+void Network::setExpected (math::Matrix* expected, Type argsType)
+{
+  Layer* layer = m_layers.front();
+
+  if (argsType == Network::HOST)
+  {
+    if (!m_expectedDeviceOutputs)
+    {
+      m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixHostRef (expected);
+    }
+    oap::cuda::CopyHostMatrixToDeviceMatrix (m_expectedDeviceOutputs, expected);
+  }
+  else if (argsType == Network::DEVICE)
+  {
+    m_expectedDeviceOutputs.reset (expected, false);
+  }
+  else if (argsType == Network::DEVICE_COPY)
+  {
+    if (!m_expectedDeviceOutputs)
+    {
+      m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixDeviceRef (expected);
+    }
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_expectedDeviceOutputs, expected);
+  }
+}
+
+math::Matrix* Network::getOutputs (math::Matrix* outputs, Type argsType) const
+{
+  Layer* llayer = m_layers.back();
+  if (argsType == Type::HOST)
+  {
+    oap::cuda::CopyDeviceMatrixToHostMatrix (outputs, llayer->m_inputs);
+    return outputs;
+  }
+  else if (argsType == Type::DEVICE_COPY)
+  {
+    math::Matrix* cmatrix = oap::cuda::NewDeviceMatrixDeviceRef (llayer->m_inputs);
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix (cmatrix, llayer->m_inputs);
+    return cmatrix;
+  }
+  else if (argsType == Type::DEVICE)
+  {
+    return llayer->m_inputs;
+  }
+  return nullptr;
+}
+
+math::Matrix* Network::getHostOutputs () const
+{
+  Layer* llayer = m_layers.back();
+  auto minfo = oap::cuda::GetMatrixInfo (llayer->m_inputs);
+
+  math::Matrix* matrix = oap::host::NewMatrix (minfo);
+  return getOutputs (matrix, Type::HOST);
+}
+
+void Network::forwardPropagation ()
+{
+  if (m_layers.size() < 2)
+  {
+    throw std::runtime_error ("m_layers.size() is lower than 2");
   }
 
-  forwardPropagation ();
+  Layer* previous = nullptr;
+  Layer* current = m_layers[0];
 
-  backwardPropagation (expectedOutputs, errorType);
+  for (size_t idx = 1; idx < m_layers.size(); ++idx)
+  {
+    previous = current;
+    current = m_layers[idx];
+    m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
+    activateFunc (current->m_inputs, current->m_sums, current->getActivation ());
+  }
+}
+
+void Network::calculateErrors (oap::ErrorType errorType)
+{
+  debugAssert (m_expectedDeviceOutputs != nullptr);
+
+  size_t idx = m_layers.size () - 1;
+  Layer* next = nullptr;
+  Layer* current = m_layers[idx];
+
+  if (errorType == oap::ErrorType::CROSS_ENTROPY)
+  {
+    m_cuApi.crossEntropy (current->m_errors, m_expectedDeviceOutputs, current->m_inputs);
+  }
+  else
+  {
+    m_cuApi.substract (current->m_errors, m_expectedDeviceOutputs, current->m_inputs);
+    //m_cuApi.hadamardProduct (current->m_errors, current->m_errors, current->m_errors);
+    //m_cuApi.multiplyReConstant (current->m_errors, current->m_errors, 0.5);
+  }
+}
+
+math::Matrix* Network::getErrors (Type type) const
+{
+  Layer* last = m_layers.back();
+
+  if (type == Network::DEVICE)
+  {
+    return last->m_errors;
+  }
+  else if (type == Network::HOST)
+  {
+    math::Matrix* matrix = oap::host::NewReMatrix (1, last->getNeuronsCount());
+    oap::cuda::CopyDeviceMatrixToHostMatrix (matrix, last->m_errors);
+    return matrix;
+  }
+  else if (type == Network::DEVICE_COPY)
+  {
+    math::Matrix* matrix = oap::cuda::NewDeviceReMatrix (1, last->getNeuronsCount());
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix (matrix, last->m_errors);
+    return matrix;
+  }
+
+  return nullptr;
+}
+
+floatt Network::calculateMSE ()
+{
+  floatt eValue = 0;
+  m_cuApi.magnitude2 (eValue, m_layers.back()->m_errors);
+  eValue = eValue / m_layers.back()->getNeuronsCount ();
+  return eValue;
+}
+
+floatt Network::calculateRMSE ()
+{
+  return sqrt (calculateMSE());
+}
+
+floatt Network::calculateSum ()
+{
+  floatt eValue = 0;
+  m_cuApi.sum (eValue, m_layers.back()->m_errors);
+  return eValue;
+}
+
+floatt Network::calculateSumMean ()
+{
+  return calculateSum() / m_layers.back()->getNeuronsCount ();
+}
+
+floatt Network::calculateCrossEntropy ()
+{       
+  return (- calculateSum()) / m_layers.back()->getNeuronsCount ();
+}
+
+floatt Network::calculateError (oap::ErrorType errorType)
+{
+  std::map<oap::ErrorType, std::function<floatt()>> errorsFunctions =
+  {
+    {oap::ErrorType::MEAN_SQUARE_ERROR, std::bind (&Network::calculateMSE, this)},
+    {oap::ErrorType::ROOT_MEAN_SQUARE_ERROR, std::bind (&Network::calculateRMSE, this)},
+    {oap::ErrorType::SUM, std::bind (&Network::calculateSum, this)},
+    {oap::ErrorType::MEAN_OF_SUM, std::bind (&Network::calculateSumMean, this)},
+    {oap::ErrorType::CROSS_ENTROPY, std::bind (&Network::calculateCrossEntropy, this)}
+  };
+
+  return errorsFunctions [errorType]();
+}
+
+void Network::backwardPropagation ()
+{
+  size_t idx = m_layers.size () - 1;
+  Layer* next = nullptr;
+  Layer* current = m_layers[idx];
+
+  do
+  {
+    next = current;
+    --idx;
+    current = m_layers[idx];
+
+    m_cuApi.transpose (current->m_tweights, current->m_weights);
+    m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
+  }
+  while (idx > 0);
+  updateWeights();
+}
+
+bool Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, Type argsType, oap::ErrorType errorType)
+{
+  Layer* layer = m_layers.front();
+
+  setExpected (expectedOutputs, argsType);
+  setInputs (inputs, argsType);
+
+  forwardPropagation ();
+  calculateErrors (errorType);
+  if(!shouldContinue (errorType))
+  {
+    return false;
+  }
+
+  backwardPropagation ();
+
   ++m_step;
+  return true;
 }
 
 void Network::setController(Network::IController* icontroller)
@@ -152,7 +338,6 @@ void Network::save (utils::ByteBuffer& buffer) const
 {
   buffer.push_back (m_learningRate);
   buffer.push_back (m_step);
-  buffer.push_back (m_serror);
 
   LC_t layersCount = m_layers.size ();
   buffer.push_back (layersCount);
@@ -169,11 +354,9 @@ Network* Network::load (const utils::ByteBuffer& buffer)
 
   decltype(Network::m_learningRate) learningRate = buffer.template read<decltype(Network::m_learningRate)> ();
   decltype(Network::m_step) step = buffer.template read<decltype(Network::m_step)> ();
-  decltype(Network::m_serror) serror = buffer.template read<decltype(Network::m_serror)> ();
 
   network->setLearningRate (learningRate);
   network->m_step = step;
-  network->m_serror = serror;
 
   LC_t layersCount = buffer.template read<LC_t> ();
 
@@ -215,12 +398,14 @@ void Network::updateWeights()
   {
     current = next;
     next = m_layers[idx];
-    m_cuApi.transpose (current->m_tinputs, current->m_inputs);
-    m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
-    m_cuApi.multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
-    m_cuApi.sigmoidDerivative (next->m_sums, next->m_sums);
-    m_cuApi.phadamardProduct (current->m_weights2, current->m_weights1, next->m_sums);
-    m_cuApi.add (current->m_weights, current->m_weights, current->m_weights2);
+
+    transpose (current->m_tinputs, current->m_inputs);
+    tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
+    multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
+    derivativeFunc (next->m_sums, next->m_sums, next->getActivation ());
+    hadamardProductVec (current->m_weights2, current->m_weights1, next->m_sums);
+    add (current->m_weights, current->m_weights, current->m_weights2);
+    logInfo ("m_weights %p %s", current, oap::cuda::to_string(current->m_weights).c_str());
   }
 }
 
@@ -230,95 +415,12 @@ void Network::setHostInputs (math::Matrix* inputs, size_t layerIndex)
   oap::cuda::CopyHostMatrixToDeviceMatrix (layer->m_inputs, inputs);
 }
 
-void Network::backwardPropagation (math::Matrix* deviceExpected, oap::ErrorType errorType)
-{
-  debugFunc();
-  size_t idx = m_layers.size () - 1;
-  Layer* next = nullptr;
-  Layer* current = m_layers[idx];
-
-  if (errorType == oap::ErrorType::CROSS_ENTROPY)
-  {
-    m_cuApi.crossEntropy (current->m_errors, deviceExpected, current->m_inputs);
-  }
-  else
-  {
-    m_cuApi.substract (current->m_errors, deviceExpected, current->m_inputs);
-  }
-
-  if(!shouldContinue (errorType))
-  {
-    return;
-  }
-
-  do
-  {
-    next = current;
-    --idx;
-    current = m_layers[idx];
-
-    m_cuApi.transpose (current->m_tweights, current->m_weights);
-    m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
-  }
-  while (idx > 0);
-  updateWeights();
-}
-
-void Network::forwardPropagation ()
-{
-  debugFunc();
-
-  if (m_layers.size() < 2)
-  {
-    throw std::runtime_error ("m_layers.size() is lower than 2");
-  }
-
-  Layer* previous = nullptr;
-  Layer* current = m_layers[0];
-
-  for (size_t idx = 1; idx < m_layers.size(); ++idx)
-  {
-    previous = current;
-    current = m_layers[idx];
-    m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
-    m_cuApi.sigmoid (current->m_inputs, current->m_sums);
-  }
-}
-
 bool Network::shouldContinue (oap::ErrorType errorType)
 {
   if (m_icontroller != nullptr && m_icontroller->shouldCalculateError(m_step))
   {
-    floatt eValue = 0;
     Layer* llayer = m_layers.back();
-
-    switch (errorType)
-    {
-      case oap::ErrorType::MEAN_SQUARE_ERROR:
-        m_cuApi.magnitude2 (eValue, llayer->m_errors);
-        eValue = eValue / llayer->getNeuronsCount ();
-      break;
-
-      case oap::ErrorType::ROOT_MEAN_SQUARE_ERROR:
-        m_cuApi.magnitude2 (eValue, llayer->m_errors);
-        eValue = eValue / llayer->getNeuronsCount ();
-        eValue = sqrt (eValue);
-      break;
-
-      case oap::ErrorType::SUM:
-        m_cuApi.sum (eValue, llayer->m_errors);
-      break;
-
-      case oap::ErrorType::MEAN_OF_SUM:
-        m_cuApi.sum (eValue, llayer->m_errors);
-        eValue = eValue / llayer->getNeuronsCount ();
-      break;
-
-      case oap::ErrorType::CROSS_ENTROPY:
-        m_cuApi.sum (eValue, llayer->m_errors);
-        eValue = - eValue / llayer->getNeuronsCount ();
-      break;
-    };
+    floatt eValue = calculateError (errorType);;
 
     m_icontroller->setError (eValue, errorType);
 
@@ -354,6 +456,14 @@ bool Network::operator== (const Network& network) const
   }
 
   return true;
+}
+
+void Network::printLayersWeights ()
+{
+  for (size_t idx = 0; idx < getLayersCount(); ++idx)
+  {
+    getLayer(idx)->printHostWeights (true);
+  }
 }
 
 bool Network::operator!= (const Network& network) const

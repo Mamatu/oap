@@ -560,6 +560,11 @@ void GetMatrixStr(std::string& text, const math::Matrix* matrix)
   matrixUtils::PrintMatrix(text, matrix, matrixUtils::PrintArgs());
 }
 
+void ToString (std::string& str, const math::Matrix* matrix)
+{
+  matrixUtils::PrintMatrix(str, matrix, matrixUtils::PrintArgs());
+}
+
 void GetReMatrixStr(std::string& text, const math::Matrix* matrix)
 {
   matrixUtils::PrintMatrix(text, matrix, matrixUtils::PrintArgs());

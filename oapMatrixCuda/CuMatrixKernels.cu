@@ -285,6 +285,14 @@ extern "C" __global__ void CUDAKernel_MultiplySigmoidDerivative (math::Matrix* o
   CUDA_multiplySigmoidDerivative (omatrix, matrix);
 }
 
+extern "C" __global__ void CUDAKernel_Tanh(math::Matrix* omatrix, math::Matrix* imatrix) {
+  CUDA_tanh (omatrix, imatrix);
+}
+
+extern "C" __global__ void CUDAKernel_TanhDerivative (math::Matrix* matrix) {
+  CUDA_tanhDerivative (matrix, matrix);
+}
+
 extern "C" __global__ void CUDAKernel_CrossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
   CUDA_crossEntropy (output, params0, params1);

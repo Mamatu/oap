@@ -29,9 +29,61 @@
 
 class Network;
 
+template<typename T>
+class SLEntity
+{
+    using SavingFunc = std::function<void(utils::ByteBuffer&)>;
+    using LoadingFunc = std::function<void(utils::ByteBuffer&)>;
+
+    SavingFunc m_savingFunc;
+    LoadingFunc m_loadingFunc;
+  public:
+    T&& m_raw;
+
+    SLEntity (T&& t) : m_raw (t)
+    {}
+
+    SLEntity (T&& t, const SavingFunc& sfunc, const LoadingFunc& lfunc) : m_raw (t),
+        m_savingFunc (sfunc), m_loadingFunc (lfunc)
+    {}
+
+    operator T() const
+    {
+      return m_raw;
+    }
+
+    void save (utils::ByteBuffer& buffer) const
+    {
+      if (m_savingFunc)
+      {
+        m_savingFunc (buffer);
+      }
+      else if (std::is_pod<T>::value)
+      {
+        buffer.push_back (m_raw);
+      }
+    }
+
+    void load (const utils::ByteBuffer& buffer)
+    {
+      if (m_loadingFunc)
+      {
+        m_loadingFunc (buffer);
+      }
+    }
+};
+
+enum class Activation
+{
+  IDENTITY,
+  SIGMOID,
+  TANH
+};
+
 class Layer
 {
 private:
+  friend class Network;
   math::Matrix* m_inputs = nullptr;
   math::Matrix* m_tinputs = nullptr;
   math::Matrix* m_sums = nullptr;
@@ -48,18 +100,28 @@ private:
 
   std::pair<size_t, size_t> m_weightsDim;
 
-  bool m_hasBias;
-
   static void deallocate(math::Matrix** matrix);
   void checkHostInputs(const math::Matrix* hostInputs);
 
   friend class Network;
+
+  Activation m_activation;
+
 public:
-  Layer(bool hasBias = false);
+  Layer(const Activation& activation = Activation::SIGMOID);
 
   ~Layer();
 
-  void setHostInputs(const math::Matrix* inputs);
+  inline Activation getActivation () const
+  {
+    return m_activation;
+  }
+
+  void setHostInputs(const math::Matrix* hInputs);
+  void setDeviceInputs(const math::Matrix* dInputs);
+
+  math::Matrix* getHostOutputs(math::Matrix* hInputs);
+  math::Matrix* getDeviceOutputs(math::Matrix* dInputs);
 
   void allocateNeurons(size_t neuronsCount);
 
@@ -71,7 +133,7 @@ public:
 
   void getHostWeights (math::Matrix* output);
 
-  void printHostWeights ();
+  void printHostWeights (bool newLine = false);
 
   size_t getNeuronsCount() const
   {

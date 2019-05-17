@@ -31,10 +31,10 @@
 namespace oap {
 
 DataLoader::DataLoader(const Images& images, bool dealocateImages,
-                       bool frugalMode)
+                       bool lazyMode)
     : m_images(images),
       m_deallocateImages(dealocateImages),
-      m_frugalMode(frugalMode),
+      m_lazyMode(lazyMode),
       m_matrixFileDir("/tmp/Oap/conversion_data") {
   load();
 }
@@ -149,12 +149,12 @@ void DataLoader::loadColumnVector(math::Matrix* matrix, size_t column,
     throw oap::exceptions::NotIdenticalLengths(refLength, length);
   }
 
-  if (m_frugalMode) {
+  if (m_lazyMode) {
     loadImage(it);
   }
 
   it->getFloattVector(vec);
-  if (m_frugalMode) {
+  if (m_lazyMode) {
     it->freeBitmap();
   }
 
@@ -221,7 +221,7 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
       forceOutputSizes(refOptWidth, refOptHeight, begin, fa);
       executeLoadProcess(refOptWidth, refOptHeight, begin, fa);
     }
-    if (m_frugalMode) {
+    if (m_lazyMode) {
       image->freeBitmap();
     }
   }

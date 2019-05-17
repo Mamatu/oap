@@ -23,6 +23,8 @@
 #include "HostMatrixKernels.h"
 #include "oapCudaMatrixUtils.h"
 
+#include "oapHostMatrixUPtr.h"
+
 #include <iterator>
 #include <math.h>
 
@@ -75,7 +77,6 @@ CuProceduresApi::~CuProceduresApi() {
 
 void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
-#ifdef DEBUG
 #ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
 #endif
@@ -84,7 +85,6 @@ void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, ma
   CHECK_MATRIX(params1);
 
   check_dotProduct (output, params0, params1, columns, rows);
-#endif
 
   void* params[] = {&output, &params0, &params1};
   m_cuStatus = execute("CUDAKernel_DotProduct", columns, rows, params, 0);
@@ -92,7 +92,6 @@ void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, ma
 
 void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
-#ifdef DEBUG
 #ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
 #endif
@@ -101,7 +100,6 @@ void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0,
   CHECK_MATRIX(params1);
 
   check_tensorProduct (output, params0, params1, columns, rows);
-#endif
 
   void* params[] = {&output, &params0, &params1};
   m_cuStatus = execute("CUDAKernel_TensorProduct", columns, rows, params, 0);
@@ -109,7 +107,6 @@ void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0,
 
 void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
-#ifdef DEBUG
 #ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
 #endif
@@ -118,15 +115,13 @@ void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params
   CHECK_MATRIX(params1);
 
   check_hadamardProduct (output, params0, params1, columns, rows);
-#endif
 
   void* params[] = {&output, &params0, &params1};
   m_cuStatus = execute("CUDAKernel_HadamardProduct", columns, rows, params, 0);
 }
 
-void CuProceduresApi::phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+void CuProceduresApi::hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
-#ifdef DEBUG
 #ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
 #endif
@@ -134,8 +129,7 @@ void CuProceduresApi::phadamardProduct(math::Matrix* output, math::Matrix* param
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  check_phadamardProduct (output, params0, params1, columns, rows);
-#endif
+  check_hadamardProductVec (output, params0, params1, columns, rows);
 
   void* params[] = {&output, &params0, &params1};
   m_cuStatus = execute("CUDAKernel_PHadamardProduct", columns, rows, params, 0);
@@ -502,6 +496,39 @@ void CuProceduresApi::multiplySigmoidDerivative(math::Matrix* omatrix, math::Mat
   m_cuStatus = execute("CUDAKernel_MultiplySigmoidDerivative", w, h, params, 0);
 }
 
+void CuProceduresApi::identity (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix (output, matrix);
+}
+
+void CuProceduresApi::identityDerivative (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::HostMatrixUPtr hmatrix (oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output)), 1);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
+}
+
+void CuProceduresApi::tanh (math::Matrix* output, const math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  void* params[] = {&output, &matrix};
+
+  m_cuStatus = execute("CUDAKernel_Tanh", w, h, params, 0);
+
+}
+
+void CuProceduresApi::tanhDerivative (math::Matrix* output, const math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  void* params[] = {&output, &matrix};
+
+  m_cuStatus = execute("CUDAKernel_TanhDerivative", w, h, params, 0);
+
+}
+
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
                                 math::Matrix* matrix2, uintt w, uintt h,
                                 uintt wthreads, uintt hthreads) {
@@ -663,10 +690,10 @@ void CuProceduresApi::check_tensorProduct(math::Matrix* output, math::Matrix* pa
   std::stringstream stream1, stream2;
 
   stream1 << "output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
-  debugExceptionMsg(output_rows == params0_rows * params1_rows, stream1);
+  throwExceptionMsg(output_rows == params0_rows * params1_rows, stream1);
 
   stream2 << "output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
-  debugExceptionMsg(output_columns == params0_columns * params1_columns, stream2);
+  throwExceptionMsg(output_columns == params0_columns * params1_columns, stream2);
 
 }
 
@@ -690,13 +717,13 @@ void CuProceduresApi::check_hadamardProduct(math::Matrix* output, math::Matrix* 
   std::stringstream stream1, stream2;
 
   stream1 << "output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
-  debugExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
+  throwExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
 
   stream2 << "output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
-  debugExceptionMsg(output_columns == params0_columns && output_columns == params1_columns, stream2);
+  throwExceptionMsg(output_columns == params0_columns && output_columns == params1_columns, stream2);
 }
 
-void CuProceduresApi::check_phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const
+void CuProceduresApi::check_hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const
 {
   const uintt output_columns = columns;
   const uintt output_rows = rows;
@@ -716,13 +743,13 @@ void CuProceduresApi::check_phadamardProduct(math::Matrix* output, math::Matrix*
   std::stringstream stream1, stream2, stream3;
 
   stream1 << "output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
-  debugExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
+  throwExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
 
   stream2 << "params1_columns = " << params1_columns;
-  debugExceptionMsg(1 == params1_columns, stream1);
+  throwExceptionMsg(1 == params1_columns, stream1);
 
   stream3 << "output_columns = " << output_columns << ", params0_columns = " << params0_columns;
-  debugExceptionMsg(output_columns == params0_columns, stream2);
+  throwExceptionMsg(output_columns == params0_columns, stream2);
 }
 
 void CuProceduresApi::crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)

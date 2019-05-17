@@ -35,7 +35,7 @@
 
 #include "RecToSquareApi.h"
 
-#define CHECK_MATRIX(m) debugExceptionMsg (m != NULL, "Matrix is nullptr.");
+#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
 
 namespace oap
 {
@@ -57,12 +57,24 @@ class CuProceduresApi
 
   inline void hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
-  inline void phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+  /**
+   *  @brief Calculate hadamard product of matrix and vector of the second matrix.
+   *  @param output - output matrix (dimension n columns x n rows)
+   *  @param params0 - matrix (dimension n columns x n rows)
+   *  @param params1 - vector of the second matrix. The second matrix consists of repeated column vector (dimenstion must be 1 columns x n rows).
+   *
+   *           |a00 a10 a20|                 |v0 v0 v0|                                              |v0|
+   *  output = |a01 a11 a21| hadamardProduct |v1 v1 v1| where a__ is values of params0 and params1 = |v1|
+   *           |a02 a12 a22|                 |v2 v2 v2|                                              |v2|
+   *
+   *  Example of use: oapPartialHadamardProductTests.cpp
+   */
+  inline void hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   void dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
-  void phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
+  void hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
 
   void calculateQTHQ(math::Matrix* output, math::Matrix* H, math::Matrix* Q,
                      math::Matrix* aux);
@@ -143,12 +155,22 @@ class CuProceduresApi
 
   bool compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0);
 
+  // Sigmoid function and derivatives
   void sigmoid (math::Matrix* matrix);
   void sigmoid (math::Matrix* output, math::Matrix* matrix);
 
   void sigmoidDerivative (math::Matrix* omatrix, math::Matrix* imatrix);
 
   void multiplySigmoidDerivative (math::Matrix* omatrix, math::Matrix* matrix);
+
+  // Identity function and derivatives
+  void identity (math::Matrix* output, math::Matrix* matrix);
+  void identityDerivative (math::Matrix* output, math::Matrix* matrix);
+
+  // Tanh/tanh function and derivatives
+  void tanh (math::Matrix* output, const math::Matrix* matrix);
+  void tanhDerivative (math::Matrix* output, const math::Matrix* matrix);
+
 
   floatt getCompareOperationSum() const;
 
@@ -231,7 +253,7 @@ private:
 
   void check_hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
 
-  void check_phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
+  void check_hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
 private:
 
   oap::TBuffer<floatt, oap::Type::CUDA> m_dcompareOutputBuffer;
@@ -301,7 +323,7 @@ inline void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix*
   hadamardProduct (output, params0, params1, output_columns, output_rows);
 }
 
-inline void CuProceduresApi::phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+inline void CuProceduresApi::hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
 #ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
@@ -315,7 +337,7 @@ inline void CuProceduresApi::phadamardProduct(math::Matrix* output, math::Matrix
   const uintt output_columns = CudaUtils::GetColumns(output);
   const uintt output_rows = CudaUtils::GetRows(output);
 
-  phadamardProduct (output, params0, params1, output_columns, output_rows);
+  hadamardProductVec (output, params0, params1, output_columns, output_rows);
 }
 
 inline void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* params0,

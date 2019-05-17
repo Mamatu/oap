@@ -37,21 +37,21 @@ typedef std::vector<oap::Image*> Images;
 class DataLoader {
  public:
   DataLoader(const Images& images, bool dealocateImages = false,
-             bool frugalMode = true);
+             bool lazyMode = true);
 
   class Info {
 
       std::string m_dirPath;
       std::string m_nameBase;
       size_t m_loadFilesCount;
-      bool m_frugalMode;
+      bool m_lazyMode;
 
     public:
-      Info() : m_dirPath(""), m_nameBase(""), m_loadFilesCount(0), m_frugalMode(false)
+      Info() : m_dirPath(""), m_nameBase(""), m_loadFilesCount(0), m_lazyMode(false)
       {}
 
-      Info(const std::string& dirPath, const std::string& nameBase, size_t loadFilesCount, bool frugalMode) :
-        m_dirPath(dirPath), m_nameBase(nameBase), m_loadFilesCount(loadFilesCount), m_frugalMode(frugalMode) {}
+      Info(const std::string& dirPath, const std::string& nameBase, size_t loadFilesCount, bool lazyMode) :
+        m_dirPath(dirPath), m_nameBase(nameBase), m_loadFilesCount(loadFilesCount), m_lazyMode(lazyMode) {}
 
       bool isValid() const
       {
@@ -83,20 +83,20 @@ class DataLoader {
    * @param dirPath         path to directory with images
    * @param nameBase        core of file name
    * @param loadFilesCount  count of images to load
-   * @param frugalMode      if true images content will be loaded
+   * @param lazyMode      if true images content will be loaded
    *                        and free after use, otherwise image contant
    *                        will be loaded one time and kept in memory
    *
    */
   template <typename T, typename DL = oap::DataLoader>
   static DL* createDataLoader(const std::string& dirPath, const std::string& nameBase,
-                              size_t loadFilesCount, bool frugalMode = true)
+                              size_t loadFilesCount, bool lazyMode = true)
   {
     const std::string& imageBasePath = constructAbsPath(dirPath);
     oap::Images images =
         createImagesVector<T>(imageBasePath, nameBase, loadFilesCount);
 
-    return new DL(images, true, frugalMode);
+    return new DL(images, true, lazyMode);
   }
 
   /**
@@ -106,7 +106,7 @@ class DataLoader {
   static DL* createDataLoader(const oap::DataLoader::Info& info)
   {
     return createDataLoader<T, DL>(info.m_dirPath, info.m_nameBase,
-                            info.m_loadFilesCount, info.m_frugalMode);
+                            info.m_loadFilesCount, info.m_lazyMode);
   }
 
   virtual ~DataLoader();
@@ -165,7 +165,7 @@ class DataLoader {
   Images m_images;
 
   bool m_deallocateImages;
-  bool m_frugalMode;
+  bool m_lazyMode;
 
   std::string m_matrixFileDir;
   std::string m_file;

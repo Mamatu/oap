@@ -45,7 +45,7 @@ namespace stdlib
     public:
       using Type = typename StdMatrixPtr::element_type;
 
-      MatrixSPtr (Type* matrix, deleters::MatrixDeleter deleter) : m_stdMatrixPtr (matrix, deleter) {}
+      MatrixSPtr (Type* matrix, deleters::MatrixDeleter deleter, bool bDeallocate = true);
 
       MatrixSPtr(const MatrixSPtr& orig) = default;
       MatrixSPtr(MatrixSPtr&& orig) = default;
@@ -61,10 +61,11 @@ namespace stdlib
         m_stdMatrixPtr.reset ();
       }
 
-      void reset (Type* t)
+      void reset (Type* t, bool bDeallocate = true)
       {
         auto& deleter = deleters::get_deleter<deleters::MatrixDeleter, stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr);
         reset::reset<stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr, deleter, t);
+        m_bDeallocate = bDeallocate;
       }
 
       Type* get() const
@@ -73,8 +74,15 @@ namespace stdlib
       }
 
     private:
+      bool m_bDeallocate;
+      std::function<void(const math::Matrix*)> m_deleterWrapper;
       StdMatrixPtr m_stdMatrixPtr;
   };
+
+  template<class StdMatrix>
+  MatrixSPtr<StdMatrix>::MatrixSPtr (Type* matrix, deleters::MatrixDeleter deleter, bool bDeallocate) : m_bDeallocate (bDeallocate),
+    m_deleterWrapper ([this, deleter](const math::Matrix* matrix){ if (this->m_bDeallocate) { deleter(matrix); } }),
+    m_stdMatrixPtr (matrix, m_deleterWrapper) {}
 
   template<class StdMatrixPtr>
   class MatricesSPtr

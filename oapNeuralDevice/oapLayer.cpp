@@ -34,8 +34,7 @@ void Layer::checkHostInputs(const math::Matrix* hostInputs)
   }
 }
 
-Layer::Layer(bool hasBias) :
-  m_hasBias(hasBias)
+Layer::Layer(const Activation& activation) : m_activation(activation)
 {}
 
 Layer::~Layer()
@@ -43,16 +42,28 @@ Layer::~Layer()
   deallocate();
 }
 
-void Layer::setHostInputs(const math::Matrix* hostInputs)
+void Layer::setHostInputs(const math::Matrix* hInputs)
 {
-  checkHostInputs (hostInputs);
+  checkHostInputs (hInputs);
 
-  if (m_hasBias)
-  {
-    hostInputs->reValues[m_neuronsCount - 1] = 1;
-  }
+  oap::cuda::CopyHostMatrixToDeviceMatrix (m_inputs, hInputs);
+}
 
-  oap::cuda::CopyHostMatrixToDeviceMatrix (m_inputs, hostInputs);
+void Layer::setDeviceInputs(const math::Matrix* dInputs)
+{
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_inputs, dInputs);
+}
+
+math::Matrix* Layer::getHostOutputs(math::Matrix* hInputs)
+{
+  oap::cuda::CopyDeviceMatrixToHostMatrix (m_inputs, hInputs);
+  return hInputs;
+}
+
+math::Matrix* Layer::getDeviceOutputs(math::Matrix* dInputs)
+{
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_inputs, dInputs);
+  return dInputs;
 }
 
 void Layer::deallocate(math::Matrix** matrix)
@@ -67,7 +78,7 @@ void Layer::deallocate(math::Matrix** matrix)
 void Layer::allocateNeurons(size_t neuronsCount)
 {
   debugInfo ("Layer %p allocates %lu neurons", this, neuronsCount);
-  m_neuronsCount = m_hasBias ? neuronsCount + 1 : neuronsCount;
+  m_neuronsCount = neuronsCount;
 
   m_inputs = oap::cuda::NewDeviceReMatrix (1, m_neuronsCount);
   m_sums = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
@@ -114,20 +125,25 @@ void Layer::getHostWeights (math::Matrix* output)
   oap::cuda::CopyDeviceMatrixToHostMatrix (output, m_weights);
 }
 
-void Layer::printHostWeights ()
+void Layer::printHostWeights (bool newLine)
 {
   std::stringstream sstream;
   sstream << "Layer (" << this << ") weights = ";
+  std::string matrixStr;
 
   if (m_weights == nullptr)
   {
-    oap::host::PrintMatrix (sstream.str(), nullptr);
-    return;
+    oap::host::ToString (matrixStr, nullptr);
+  }
+  else
+  {
+    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (m_neuronsCount, m_nextLayerNeuronsCount);
+    getHostWeights (matrix.get());
+
+    oap::host::ToString (matrixStr, matrix.get());
   }
 
-  oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (m_neuronsCount, m_nextLayerNeuronsCount);
-  getHostWeights (matrix.get());
-  oap::host::PrintMatrix (sstream.str(), matrix.get());
+  logInfo ("%s %s", sstream.str().c_str(), matrixStr.c_str());
 }
 
 void Layer::setDeviceWeights (math::Matrix* weights)
@@ -171,8 +187,6 @@ void Layer::save (utils::ByteBuffer& buffer) const
   buffer.push_back (m_weightsDim.first);
   buffer.push_back (m_weightsDim.second);
 
-  buffer.push_back (m_hasBias);
-
   oap::cuda::SaveMatrix (m_inputs, buffer);;
   oap::cuda::SaveMatrix (m_tinputs, buffer);
   oap::cuda::SaveMatrix (m_sums, buffer);
@@ -194,8 +208,6 @@ Layer* Layer::load (const utils::ByteBuffer& buffer)
 
   layer->m_weightsDim.first = buffer.read <decltype (layer->m_weightsDim.first)>();
   layer->m_weightsDim.second = buffer.read <decltype (layer->m_weightsDim.second)>();
-
-  layer->m_hasBias = buffer.read <decltype (layer->m_hasBias)>();
 
   layer->m_inputs = oap::cuda::LoadMatrix (buffer);
   layer->m_tinputs = oap::cuda::LoadMatrix (buffer);
@@ -234,11 +246,6 @@ bool Layer::operator== (const Layer& layer) const
   }
 
   if (m_weightsDim.second != layer.m_weightsDim.second)
-  {
-    return false;
-  }
-
-  if (m_hasBias != layer.m_hasBias)
   {
     return false;
   }
