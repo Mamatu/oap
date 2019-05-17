@@ -228,7 +228,7 @@ bool Kernel::run (const char* functionName)
     const uint* const threadsCount = getThreadsCount ();
     const uint* const blocksCount = getBlocksCount ();
 
-#if KERNEL_EXTENDED_INFO == 1
+#if 0
     logInfo("Load kernel: %s", functionName);
     logInfo("Image: %p", m_image);
     logInfo("Module handle: %p", m_cuModule);
