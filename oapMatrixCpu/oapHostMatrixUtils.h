@@ -272,6 +272,13 @@ void SetImValue(const math::Matrix* matrix, uintt column, uintt row, floatt valu
 
 std::string GetMatrixStr(const math::Matrix* matrix);
 
+inline std::string to_string (const math::Matrix* matrix)
+{
+  return GetMatrixStr (matrix);
+}
+
+void ToString(std::string& str, const math::Matrix* matrix);
+
 void PrintMatrix(FILE* stream, const matrixUtils::PrintArgs& args, const math::Matrix* matrix);
 void PrintMatrix(FILE* stream, const math::Matrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
 

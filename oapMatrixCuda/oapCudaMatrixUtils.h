@@ -152,6 +152,27 @@ void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
 
 math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
 
+bool IsCudaMatrix(const math::Matrix* devMatrix);
+
+inline bool IsDeviceMatrix(const math::Matrix* devMatrix)
+{
+	return IsCudaMatrix (devMatrix);
+}
+
+void ToString (std::string& str, const math::Matrix* devMatrix);
+
+inline std::string GetMatrixStr (const math::Matrix* devMatrix)
+{
+  std::string str;
+  ToString (str, devMatrix);
+  return str;
+}
+
+inline std::string to_string (const math::Matrix* devMatrix)
+{
+  return GetMatrixStr (devMatrix);
+}
+
 void PrintMatrixInfo(const std::string& msg, const math::Matrix* devMatrix);
 
 bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix);

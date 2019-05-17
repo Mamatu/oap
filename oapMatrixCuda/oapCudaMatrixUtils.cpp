@@ -190,6 +190,11 @@ math::MatrixInfo GetMatrixInfo(const math::Matrix* dMatrix)
   return gMatricesList.getMatrixInfo (dMatrix);
 }
 
+bool IsCudaMatrix(const math::Matrix* devMatrix)
+{
+	return gMatricesList.contains (devMatrix);
+}
+
 void copyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src, uintt columns, uintt rows)
 {
   uintt length = columns * rows;
@@ -506,6 +511,12 @@ void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
     CudaUtils::CopyDeviceToDevice(dstimptr + index, srcimptr + columns1 * fa,
                                   columns1 * sizeof(floatt));
   }
+}
+
+void ToString (std::string& str, const math::Matrix* devMatrix)
+{
+  oap::HostMatrixUPtr ptr = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (devMatrix);
+  oap::host::ToString (str, ptr);
 }
 
 void PrintMatrixInfo(const std::string& msg, const math::Matrix* devMatrix)
