@@ -47,6 +47,8 @@ class MatricesList
 
     math::MatrixInfo getMatrixInfo (const math::Matrix* matrix) const;
 
+		bool contains (const math::Matrix* matrix) const;
+
     math::MatrixInfo remove (const math::Matrix* matrix);
 
   private:

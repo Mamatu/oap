@@ -43,7 +43,7 @@ void MatricesList::add (math::Matrix* matrix, const math::MatrixInfo& minfo)
   }
 
   auto size = minfo.getSize ();
-  debugInfo ("Allocate in %s: matrix = %p %s", m_id.c_str(), matrix, minfo.toString().c_str());
+  //debugInfo ("Allocate in %s: matrix = %p %s", m_id.c_str(), matrix, minfo.toString().c_str());
 }
 
 math::MatrixInfo MatricesList::getMatrixInfo (const math::Matrix* matrix) const
@@ -59,6 +59,14 @@ math::MatrixInfo MatricesList::getMatrixInfo (const math::Matrix* matrix) const
   }
 
   return it->second;
+}
+
+bool MatricesList::contains (const math::Matrix* matrix) const
+{
+  const auto& map = getAllocated();
+  auto it = map.find (matrix);
+
+	return (it != map.end());
 }
 
 math::MatrixInfo MatricesList::remove (const math::Matrix* matrix)
