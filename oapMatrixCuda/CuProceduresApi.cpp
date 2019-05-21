@@ -503,7 +503,7 @@ void CuProceduresApi::identity (math::Matrix* output, math::Matrix* matrix)
 
 void CuProceduresApi::identityDerivative (math::Matrix* output, math::Matrix* matrix)
 {
-  oap::HostMatrixUPtr hmatrix (oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output)), 1);
+  oap::HostMatrixUPtr hmatrix (oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output), 1.f));
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
 }
 
