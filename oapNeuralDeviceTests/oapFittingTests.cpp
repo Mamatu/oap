@@ -69,11 +69,11 @@ class OapFittingTests : public testing::Test
     fit (std::make_pair(std::move(network), inputNeurons.second), limit, callback, function1d);
   }
 
-  void fit (std::pair<std::unique_ptr<Network>, bool>&& networkPair, floatt limit = 0.0000001,
+  void fit (std::pair<std::shared_ptr<Network>, bool>&& networkPair, floatt limit = 0.0000001,
              const ErrorCallback& callback = [](floatt error, Network*){},
              const Function1D& function1d = sigmoid)
   {
-    std::unique_ptr<Network> network (std::move(networkPair.first));
+    std::shared_ptr<Network> network (networkPair.first);
     bool isbias = networkPair.second;
 
     const size_t inputNeurons = network->getLayer(0)->getNeuronsCount();
@@ -178,14 +178,14 @@ TEST_F(OapFittingTests, SigmoidFitting_200to1_Test)
 
 TEST_F(OapFittingTests, SinFitting_200to1_Test)
 {
-  std::unique_ptr<Network> network (new Network());
+  std::shared_ptr<Network> network (new Network());
   Layer* l1 = network->createLayer(1 + 1, Activation::TANH);
   Layer* l2 = network->createLayer(10, Activation::TANH);
   Layer* l4 = network->createLayer(1, Activation::IDENTITY);
 
   network->setLearningRate (1);
   const floatt limit = 0.00001;
-  fit (std::make_pair(std::move(network), true), limit, [limit](floatt error, Network* network){ if (error < 0.00005) { network->setLearningRate(0.1); } }, sin);
+  fit (std::make_pair(network, true), limit, [limit](floatt error, Network* network){ if (error < 0.00005) { network->setLearningRate(0.1); } }, sin);
 
   oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, 2);
   oap::HostMatrixUPtr output = oap::host::NewReMatrix(1, 1);
