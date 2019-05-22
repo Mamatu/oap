@@ -32,7 +32,7 @@ using Function1D = std::function<floatt(floatt)>;
 
 using namespace ::testing;
 
-class OapFittingTests : public testing::Test
+class OapSimpleFittingTests : public testing::Test
 {
  public:
   CUresult status;
@@ -142,10 +142,10 @@ class OapFittingTests : public testing::Test
       }
       floatt em = mean ();
 
-      logInfo ("em = %f %lu", em, idx);
+      logInfo ("error = %.10f %lu", em, idx);
       for (const auto& tuple : ioData)
       {
-        logInfo ("em = (%f %f %f)", std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
+        logInfo ("outputs = (%.10f %.10f %.10f)", std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
       }
 
       callback (em, network.get());
@@ -160,32 +160,36 @@ class OapFittingTests : public testing::Test
 };
 
 
-TEST_F(OapFittingTests, SigmoidFitting_1to1_Test)
+TEST_F(OapSimpleFittingTests, SigmoidFitting_1to1_Test)
 {
   fit (std::make_pair(1, true));
 }
 
-TEST_F(OapFittingTests, SigmoidFitting_2to1_Test)
+TEST_F(OapSimpleFittingTests, SigmoidFitting_2to1_Test)
 {
   fit (std::make_pair(2, true));
 }
 
-TEST_F(OapFittingTests, SigmoidFitting_200to1_Test)
+TEST_F(OapSimpleFittingTests, SigmoidFitting_10to1_Test)
 {
   const floatt limit = 0.00000000001;
-  fit (std::make_pair(200, true), 1, limit, [limit](floatt error, Network* network){ if (error < limit * 100) { network->setLearningRate(0.1); } });
+  fit (std::make_pair(10, true), 1, limit, [limit](floatt error, Network* network){ if (error < limit * 100) { network->setLearningRate(0.1); } });
 }
 
-TEST_F(OapFittingTests, SinFitting_200to1_Test)
+TEST_F(OapSimpleFittingTests, SinFitting_Test)
 {
-  std::shared_ptr<Network> network (new Network());
-  Layer* l1 = network->createLayer(1 + 1, Activation::TANH);
-  Layer* l2 = network->createLayer(10, Activation::TANH);
-  Layer* l4 = network->createLayer(1, Activation::IDENTITY);
+  auto fSin = [] (floatt x)
+  {
+    return sin (0.5 * x - 4.f);
+  };
 
-  network->setLearningRate (1);
-  const floatt limit = 0.00001;
-  fit (std::make_pair(network, true), limit, [limit](floatt error, Network* network){ if (error < 0.00005) { network->setLearningRate(0.1); } }, sin);
+  std::shared_ptr<Network> network (new Network());
+  network->createLayer(1 + 1, Activation::IDENTITY);
+  network->createLayer(1, Activation::SIN);
+
+  network->setLearningRate (0.1);
+  const floatt limit = 0.00000000001;
+  fit (std::make_pair(network, true), limit, [limit](floatt error, Network* network){ if (error < 0.00000000005) { network->setLearningRate(0.01); } },fSin);
 
   oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, 2);
   oap::HostMatrixUPtr output = oap::host::NewReMatrix(1, 1);
@@ -199,11 +203,6 @@ TEST_F(OapFittingTests, SinFitting_200to1_Test)
     network->setInputs (inputs, Network::HOST);
     network->forwardPropagation ();
     network->getOutputs (output, Network::HOST);
-    EXPECT_THAT(output->reValues[0], DoubleNear (sin(fidx), 0.001));
+    EXPECT_THAT(output->reValues[0], DoubleNear (fSin(fidx), 0.001));
   }
-}
-
-TEST_F(OapFittingTests, SigmoidFitting_1000to1_Test)
-{
-  fit (std::make_pair(1000, true));
 }
