@@ -159,6 +159,9 @@ protected:
       case Activation::TANH:
         m_cuApi.tanh (output, input);
       break;
+      case Activation::SIN:
+        m_cuApi.sin (output, input);
+      break;
     };
   }
 
@@ -174,6 +177,9 @@ protected:
       break;
       case Activation::TANH:
         m_cuApi.tanhDerivative (output, input);
+      break;
+      case Activation::SIN:
+        m_cuApi.sinDerivative (output, input);
       break;
     };
   }
