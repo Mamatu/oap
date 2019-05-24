@@ -105,10 +105,7 @@ void Network::setExpected (math::Matrix* expected, Type argsType)
 
   if (argsType == Network::HOST)
   {
-    if (!m_expectedDeviceOutputs)
-    {
-      m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixHostRef (expected);
-    }
+    m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixHostRef (expected);
     oap::cuda::CopyHostMatrixToDeviceMatrix (m_expectedDeviceOutputs, expected);
   }
   else if (argsType == Network::DEVICE)
@@ -117,10 +114,7 @@ void Network::setExpected (math::Matrix* expected, Type argsType)
   }
   else if (argsType == Network::DEVICE_COPY)
   {
-    if (!m_expectedDeviceOutputs)
-    {
-      m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixDeviceRef (expected);
-    }
+    m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixDeviceRef (expected);
     oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_expectedDeviceOutputs, expected);
   }
 }
@@ -420,7 +414,7 @@ bool Network::shouldContinue (oap::ErrorType errorType)
   if (m_icontroller != nullptr && m_icontroller->shouldCalculateError(m_step))
   {
     Layer* llayer = m_layers.back();
-    floatt eValue = calculateError (errorType);;
+    floatt eValue = calculateError (errorType);
 
     m_icontroller->setError (eValue, errorType);
 
