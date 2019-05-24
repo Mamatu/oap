@@ -50,6 +50,7 @@
 #include "CuProcedures/CuTensorProductProcedures.h"
 #include "CuProcedures/CuSigmoidProcedures.h"
 #include "CuProcedures/CuTanhProcedures.h"
+#include "CuProcedures/CuSinProcedures.h"
 #include "CuProcedures/CuSumProcedures.h"
 #include "CuProcedures/CuHadamardProductProcedures.h"
 #include "CuProcedures/CuPartialHadamardProductProcedures.h"

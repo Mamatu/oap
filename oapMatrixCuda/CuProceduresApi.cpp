@@ -286,8 +286,8 @@ void CuProceduresApi::sum (floatt& output, math::Matrix* matrix)
 */
 void CuProceduresApi::sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix)
 {
-  using HBuffer = oap::TBuffer<floatt, oap::Type::HOST>; 
-  using DBuffer = oap::TBuffer<floatt, oap::Type::CUDA>; 
+  using HBuffer = oap::TBuffer<floatt, oap::Type::HOST>;
+  using DBuffer = oap::TBuffer<floatt, oap::Type::CUDA>;
 
   generic::SumApi<decltype(oap::cuda::GetMatrixInfo), decltype(CudaUtils::CopyDeviceToHost)>
   sumApi (oap::cuda::GetMatrixInfo, CudaUtils::CopyDeviceToHost);
@@ -527,6 +527,36 @@ void CuProceduresApi::tanhDerivative (math::Matrix* output, const math::Matrix* 
 
   m_cuStatus = execute("CUDAKernel_TanhDerivative", w, h, params, 0);
 
+}
+
+void CuProceduresApi::sin (math::Matrix* output, const math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  void* params[] = {&output, &matrix};
+
+  m_cuStatus = execute("CUDAKernel_Sin", w, h, params, 0);
+}
+
+void CuProceduresApi::multiplySinDerivative (math::Matrix* output, math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  void* params[] = {&output, &matrix};
+
+  m_cuStatus = execute("CUDAKernel_MultiplySinDerivative", w, h, params, 0);
+}
+
+void CuProceduresApi::sinDerivative (math::Matrix* output, const math::Matrix* matrix)
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  void* params[] = {&output, &matrix};
+
+  m_cuStatus = execute("CUDAKernel_SinDerivative", w, h, params, 0);
 }
 
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,

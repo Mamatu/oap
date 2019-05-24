@@ -171,6 +171,15 @@ class CuProceduresApi
   void tanh (math::Matrix* output, const math::Matrix* matrix);
   void tanhDerivative (math::Matrix* output, const math::Matrix* matrix);
 
+  // Sin/sin function and derivatives
+  void sin (math::Matrix* output, const math::Matrix* matrix);
+
+  void sinDerivative (math::Matrix* output, const math::Matrix* matrix);
+  void multiplySinDerivative (math::Matrix* output, math::Matrix* matrix);
+  inline void cos (math::Matrix* output, const math::Matrix* matrix)
+  {
+    sinDerivative (output, matrix);
+  }
 
   floatt getCompareOperationSum() const;
 
