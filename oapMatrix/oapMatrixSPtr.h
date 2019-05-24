@@ -34,7 +34,7 @@ namespace stdlib
 
   using MatricesSharedPtr = ::std::shared_ptr<math::Matrix*>;
 
-  using MatrixUniquePtr = ::std::unique_ptr<math::Matrix, deleters::MatrixDeleter>;
+  using MatrixUniquePtr = ::std::unique_ptr<math::Matrix, deleters::MatrixDeleterWrapper>;
 
   using MatricesUniquePtr = ::std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>;
 }
@@ -45,6 +45,7 @@ namespace stdlib
     public:
       using Type = typename StdMatrixPtr::element_type;
 
+      MatrixSPtr () = delete;
       MatrixSPtr (Type* matrix, deleters::MatrixDeleter deleter, bool bDeallocate = true);
 
       MatrixSPtr(const MatrixSPtr& orig) = default;
@@ -68,9 +69,9 @@ namespace stdlib
 
       void reset (Type* t, bool bDeallocate = true)
       {
-        auto& deleter = deleters::get_deleter<deleters::MatrixDeleter, stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr);
+        auto& deleter = deleters::get_deleter<deleters::MatrixDeleterWrapper, stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr);
         reset::reset<stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr, deleter, t);
-        m_bDeallocate = bDeallocate;
+        deleter.setDeallocate (bDeallocate);
       }
 
       Type* get() const
@@ -79,15 +80,14 @@ namespace stdlib
       }
 
     private:
-      bool m_bDeallocate;
-      std::function<void(const math::Matrix*)> m_deleterWrapper;
       StdMatrixPtr m_stdMatrixPtr;
   };
 
   template<class StdMatrix>
-  MatrixSPtr<StdMatrix>::MatrixSPtr (Type* matrix, deleters::MatrixDeleter deleter, bool bDeallocate) : m_bDeallocate (bDeallocate),
-    m_deleterWrapper ([this, deleter](const math::Matrix* matrix){ if (this->m_bDeallocate) { deleter(matrix); } }),
-    m_stdMatrixPtr (matrix, m_deleterWrapper) {}
+  MatrixSPtr<StdMatrix>::MatrixSPtr (Type* matrix, deleters::MatrixDeleter deleter, bool bDeallocate) :
+    m_stdMatrixPtr (matrix, [deleter, bDeallocate]() -> deleters::MatrixDeleterWrapper { return deleters::MatrixDeleterWrapper(bDeallocate, deleter); }())
+  {
+  }
 
   template<class StdMatrixPtr>
   class MatricesSPtr
