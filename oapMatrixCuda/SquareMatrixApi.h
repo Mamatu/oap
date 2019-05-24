@@ -29,7 +29,7 @@ namespace oap
 class CuProceduresApi;
 class RecMatrixApi;
 
-class SquareMatrixApi
+class SquareMatrixApi final
 {
   CuProceduresApi& m_api;
   RecMatrixApi& m_orig;

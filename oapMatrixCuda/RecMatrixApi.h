@@ -26,7 +26,7 @@
 namespace oap
 {
 
-class RecMatrixApi
+class RecMatrixApi final
 {
     const math::Matrix* m_recHostMatrix;
     const bool m_deallocate;
