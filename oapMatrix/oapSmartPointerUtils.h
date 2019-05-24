@@ -34,6 +34,33 @@ namespace deleters
 
 using MatrixDeleter = std::function<void(const math::Matrix*)>;
 
+class MatrixDeleterWrapper
+{
+  private:
+    bool m_bDeallocate;
+    deleters::MatrixDeleter m_deleter;
+
+  public:
+    MatrixDeleterWrapper (bool bDeallocate = false, deleters::MatrixDeleter deleter = nullptr) :
+      m_bDeallocate (bDeallocate),
+      m_deleter (deleter)
+    {}
+
+    void setDeallocate (bool bDeallocate)
+    {
+      m_bDeallocate = bDeallocate;
+    }
+
+    MatrixDeleterWrapper& operator() (math::Matrix* matrix)
+    {
+      if (m_bDeallocate)
+      {
+        m_deleter (matrix);
+      }
+      return *this;
+    }
+};
+
 class MatricesDeleter
 {
     size_t m_count;
@@ -140,6 +167,55 @@ void reset (StdMatrixPtr& stdMatrixPtr, Deleter&& deleter, typename StdMatrixPtr
   
   obj.reset (t);
 }
+
+template<typename StdMatrixPtr>
+class SharedPtrResetBool
+{
+    StdMatrixPtr& m_stdMatrixPtr;
+    bool m_bDeallocate;
+
+  public:
+    SharedPtrResetBool (StdMatrixPtr& stdMatrixPtr, bool bDeallocate) : m_stdMatrixPtr (stdMatrixPtr), m_bDeallocate (bDeallocate)
+    {}
+
+    void reset (typename StdMatrixPtr::element_type* t)
+    {
+      deleters::MatrixDeleterWrapper deleter = *std::get_deleter<deleters::MatrixDeleterWrapper> (m_stdMatrixPtr);
+      deleter.setDeallocate (m_bDeallocate);
+      m_stdMatrixPtr.reset (t, std::forward<decltype(deleter)> (deleter));
+    }
+};
+
+template<typename StdMatrixPtr>
+class UniquePtrResetBool
+{
+    StdMatrixPtr& m_stdMatrixPtr;
+    bool m_bDeallocate;
+
+  public:
+    UniquePtrResetBool (StdMatrixPtr& stdMatrixPtr, bool bDeallocate) : m_stdMatrixPtr (stdMatrixPtr), m_bDeallocate(bDeallocate)
+    {}
+
+    void reset (typename StdMatrixPtr::element_type* t)
+    {
+      m_stdMatrixPtr.reset (t);
+      auto& deleter = m_stdMatrixPtr.get_deleter ();
+      deleter.setDeallocate (m_bDeallocate);
+    }
+};
+
+template<typename SharedPtrType, typename UniquePtrType, typename StdMatrixPtr>
+void reset (StdMatrixPtr& stdMatrixPtr, bool bDeallocate, typename StdMatrixPtr::element_type* t)
+{
+  constexpr bool isSharedPtr = std::is_same<SharedPtrType, StdMatrixPtr>::value;
+  constexpr bool isUniquePtr = std::is_same<UniquePtrType, StdMatrixPtr>::value;
+
+  static_assert ((isSharedPtr && !isUniquePtr) || (!isSharedPtr && isUniquePtr), "StdMatrixPtr is unsupported type");
+
+  typename std::conditional<isSharedPtr, reset::SharedPtrResetBool<StdMatrixPtr>, reset::UniquePtrResetBool<StdMatrixPtr>>:: type obj(stdMatrixPtr, bDeallocate);
+
+  obj.reset (t);
+}
 }
 
 namespace smartptr_utils
@@ -198,14 +274,16 @@ namespace smartptr_utils
   }
 
   template<class SmartPtr, template<typename, typename> class Container, typename T>
-  SmartPtr makeSmartPtr(const Container<T, std::allocator<T> >& container) {
+  SmartPtr makeSmartPtr(const Container<T, std::allocator<T> >& container)
+  {
     T* array = smartptr_utils::makeArray(container);
-    return  SmartPtr(array, smartptr_utils::getElementsCount(container));
+    return  SmartPtr (array, smartptr_utils::getElementsCount(container), false);
   }
 
   template<class SmartPtr, typename T>
-  SmartPtr makeSmartPtr(T* array, size_t count) {
-    return  SmartPtr(array, count);
+  SmartPtr makeSmartPtr(T* array, size_t count)
+  {
+    return SmartPtr (array, count);
   }
 }
 

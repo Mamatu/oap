@@ -21,6 +21,8 @@
 #include "Exceptions.h"
 #include "DebugLogs.h"
 
+#include <map>
+
 namespace oap
 {
 
@@ -404,13 +406,20 @@ oap::pixel_t* PngFile::createPixelsVectorFrom1d(png_byte* bitmap1d,
 {
   oap::pixel_t* pixels = new pixel_t[width * height];
 
-  debugAssert (colorsCount == 3 || colorsCount == 1);
-
   auto handleRGB = [&bitmap1d, &pixels] (const size_t index, const size_t index1)
   {
     const png_byte r = bitmap1d[index + 0];
     const png_byte g = bitmap1d[index + 1];
     const png_byte b = bitmap1d[index + 2];
+    pixels[index1] = convertRgbToPixel(r, g, b);
+  };
+
+  auto handleRGBA = [&bitmap1d, &pixels] (const size_t index, const size_t index1)
+  {
+    const png_byte r = bitmap1d[index + 0];
+    const png_byte g = bitmap1d[index + 1];
+    const png_byte b = bitmap1d[index + 2];
+    const png_byte a = bitmap1d[index + 3];
     pixels[index1] = convertRgbToPixel(r, g, b);
   };
 
@@ -420,20 +429,24 @@ oap::pixel_t* PngFile::createPixelsVectorFrom1d(png_byte* bitmap1d,
     pixels[index1] = convertRgbToPixel(p, p, p);
   };
 
+  std::map<size_t, std::function<void(const size_t, const size_t)>> coloursMap =
+  {
+    {1, handleBlackWhite},
+    {3, handleRGB},
+    {4, handleRGBA},
+  };
+
+  auto it = coloursMap.find (colorsCount);
+
+  debugAssert (it != coloursMap.end ());
+
   for (size_t fa = 0; fa < height; ++fa)
   {
     for (size_t fb = 0; fb < width; ++fb)
     {
       const size_t index = fa * width * colorsCount + fb * colorsCount;
       const size_t index1 = fa * width + fb;
-      if (colorsCount == 3)
-      {
-        handleRGB (index, index1);
-      }
-      else if (colorsCount == 1)
-      {
-        handleBlackWhite (index, index1);
-      }
+      it->second (index, index1);
     }
   }
   return pixels;

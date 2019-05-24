@@ -77,7 +77,8 @@ enum class Activation
 {
   IDENTITY,
   SIGMOID,
-  TANH
+  TANH,
+  SIN
 };
 
 class Layer
