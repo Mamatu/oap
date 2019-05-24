@@ -25,7 +25,8 @@ branches:
 env:
   global:
     - OAP_PATH=$TRAVIS_BUILD_DIR
-    - OAP_GMOCK_PATH=/usr/src
+    - OAP_GMOCK_PATH=/usr/src/gmock
+    - OAP_GTEST_PATH=/usr/src/gtest
 
 # Build steps
 script:
