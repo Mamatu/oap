@@ -293,6 +293,18 @@ extern "C" __global__ void CUDAKernel_TanhDerivative (math::Matrix* matrix) {
   CUDA_tanhDerivative (matrix, matrix);
 }
 
+extern "C" __global__ void CUDAKernel_Sin(math::Matrix* omatrix, math::Matrix* imatrix) {
+  CUDA_sin (omatrix, imatrix);
+}
+
+extern "C" __global__ void CUDAKernel_MultiplySinDerivative (math::Matrix* matrix) {
+  CUDA_multiplySinDerivative (matrix, matrix);
+}
+
+extern "C" __global__ void CUDAKernel_SinDerivative (math::Matrix* matrix) {
+  CUDA_sinDerivative (matrix, matrix);
+}
+
 extern "C" __global__ void CUDAKernel_CrossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
   CUDA_crossEntropy (output, params0, params1);
