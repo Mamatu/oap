@@ -58,6 +58,13 @@ namespace oap {
 
       HostMatricesUPtr(std::initializer_list<math::Matrix*> matrices) :
         oap::MatricesUniquePtr(matrices, oap::host::DeleteMatrix) {}
+
+    private:
+      HostMatricesUPtr(math::Matrix** matrices, unsigned int count, bool bCopyArray) :
+        oap::MatricesUniquePtr (matrices, count, oap::host::DeleteMatrix, bCopyArray) {}
+
+      template<class SmartPtr, template<typename, typename> class Container, typename T>
+      friend SmartPtr smartptr_utils::makeSmartPtr(const Container<T, std::allocator<T> >& container);
   };
 
   template<template<typename, typename> class Container>
