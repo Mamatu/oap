@@ -69,9 +69,7 @@ namespace stdlib
 
       void reset (Type* t, bool bDeallocate = true)
       {
-        auto& deleter = deleters::get_deleter<deleters::MatrixDeleterWrapper, stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr);
-        reset::reset<stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr, deleter, t);
-        deleter.setDeallocate (bDeallocate);
+        reset::reset<stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr, bDeallocate, t);
       }
 
       Type* get() const
