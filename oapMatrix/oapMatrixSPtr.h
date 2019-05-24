@@ -52,6 +52,11 @@ namespace stdlib
       MatrixSPtr& operator=(const MatrixSPtr& orig) = default;
       MatrixSPtr& operator=(MatrixSPtr&& orig) = default;
 
+      virtual ~MatrixSPtr()
+      {
+        // empty
+      }
+
       operator Type*() { return this->get(); }
 
       Type* operator->() const { return this->get(); }
@@ -105,6 +110,11 @@ namespace stdlib
       MatricesSPtr(MatricesSPtr&& orig) = default;
       MatricesSPtr& operator=(const MatricesSPtr& orig) = default;
       MatricesSPtr& operator=(MatricesSPtr&& orig) = default;
+
+      virtual ~MatricesSPtr()
+      {
+        // empty
+      }
 
       operator ArrayType*() { return this->get(); }
 
