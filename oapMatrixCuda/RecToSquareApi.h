@@ -30,7 +30,7 @@ namespace oap
 
 class CuProceduresApi;
 
-class RecToSquareApi
+class RecToSquareApi final
 {
   public:
     explicit RecToSquareApi (CuProceduresApi& api, const math::Matrix* recMatrix, bool deallocate);
