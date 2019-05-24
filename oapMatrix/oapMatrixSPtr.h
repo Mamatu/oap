@@ -96,8 +96,8 @@ namespace stdlib
       using ArrayType = typename StdMatrixPtr::element_type;
       using Type = typename std::remove_pointer<ArrayType>::type;
 
-      MatricesSPtr (ArrayType* matrices, size_t count, deleters::MatrixDeleter deleter) :
-        m_stdMatrixPtr(smartptr_utils::makeArray (matrices, count), deleters::MatricesDeleter (count, deleter)) {}
+      MatricesSPtr (ArrayType* matrices, size_t count, deleters::MatrixDeleter deleter, bool bCopyArray = true) :
+        m_stdMatrixPtr( bCopyArray ? smartptr_utils::makeArray (matrices, count) : matrices, deleters::MatricesDeleter (count, deleter)) {}
 
       MatricesSPtr (std::initializer_list<ArrayType> matrices, deleters::MatrixDeleter deleter) :
          m_stdMatrixPtr (smartptr_utils::makeArray (matrices).ptr,

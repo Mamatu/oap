@@ -198,14 +198,16 @@ namespace smartptr_utils
   }
 
   template<class SmartPtr, template<typename, typename> class Container, typename T>
-  SmartPtr makeSmartPtr(const Container<T, std::allocator<T> >& container) {
+  SmartPtr makeSmartPtr(const Container<T, std::allocator<T> >& container)
+  {
     T* array = smartptr_utils::makeArray(container);
-    return  SmartPtr(array, smartptr_utils::getElementsCount(container));
+    return  SmartPtr (array, smartptr_utils::getElementsCount(container), false);
   }
 
   template<class SmartPtr, typename T>
-  SmartPtr makeSmartPtr(T* array, size_t count) {
-    return  SmartPtr(array, count);
+  SmartPtr makeSmartPtr(T* array, size_t count)
+  {
+    return SmartPtr (array, count);
   }
 }
 

@@ -56,6 +56,13 @@ namespace oap {
 
       DeviceMatricesPtr(std::initializer_list<math::Matrix*> matrices) :
         oap::MatricesSharedPtr (matrices, oap::cuda::DeleteDeviceMatrix) {}
+
+    private:
+      DeviceMatricesPtr(math::Matrix** matrices, unsigned int count, bool bCopyArray) :
+        oap::MatricesSharedPtr (matrices, count, oap::cuda::DeleteDeviceMatrix, bCopyArray) {}
+
+      template<class SmartPtr, template<typename, typename> class Container, typename T>
+      friend SmartPtr smartptr_utils::makeSmartPtr(const Container<T, std::allocator<T> >& container);
   };
 
   template<template<typename, typename> class Container>
