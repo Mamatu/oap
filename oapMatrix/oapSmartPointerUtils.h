@@ -34,6 +34,33 @@ namespace deleters
 
 using MatrixDeleter = std::function<void(const math::Matrix*)>;
 
+class MatrixDeleterWrapper
+{
+  private:
+    bool m_bDeallocate;
+    deleters::MatrixDeleter m_deleter;
+
+  public:
+    MatrixDeleterWrapper (bool bDeallocate = false, deleters::MatrixDeleter deleter = nullptr) :
+      m_bDeallocate (bDeallocate),
+      m_deleter (deleter)
+    {}
+
+    void setDeallocate (bool bDeallocate)
+    {
+      m_bDeallocate = bDeallocate;
+    }
+
+    MatrixDeleterWrapper& operator() (math::Matrix* matrix)
+    {
+      if (m_bDeallocate)
+      {
+        m_deleter (matrix);
+      }
+      return *this;
+    }
+};
+
 class MatricesDeleter
 {
     size_t m_count;
