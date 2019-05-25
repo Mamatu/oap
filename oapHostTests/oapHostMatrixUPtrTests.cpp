@@ -60,6 +60,44 @@ TEST_F(OapHostMatrixUPtrTests, ResetUPtrTest)
   ptr.reset (oap::host::NewMatrix(11, 11));
 }
 
+TEST_F(OapHostMatrixUPtrTests, NotDeallocationTest)
+{
+  {
+    math::Matrix* rptr = oap::host::NewReMatrix (10, 10);
+    {
+      oap::HostMatrixUPtr ptr (rptr, false); // it will be not deallocated
+    }
+    oap::host::DeleteMatrix (rptr);
+  }
+  {
+    math::Matrix* rptr = oap::host::NewReMatrix (10, 10);
+    {
+      math::Matrix* rptr1 = oap::host::NewMatrix (10, 10);
+
+      oap::HostMatrixUPtr ptr (rptr, false); // it will be not deallocated
+
+      ptr.reset (rptr1); // it will be deallocated
+    }
+    oap::host::DeleteMatrix (rptr);
+  }
+  {
+    math::Matrix* rptr = oap::host::NewReMatrix (10, 10);
+    math::Matrix* rptr2 = oap::host::NewImMatrix (100, 100);
+    math::Matrix* rptr3 = oap::host::NewMatrix (100, 101);
+    {
+      math::Matrix* rptr1 = oap::host::NewMatrix (100, 10);
+
+      oap::HostMatrixUPtr ptr (rptr, false); // it will be not deallocated
+
+      ptr.reset (rptr1); // it will be deallocated
+      ptr.reset (rptr2, false); // it will be not deallocated
+      ptr.reset (rptr3, true); // it will be deallocated
+    }
+    oap::host::DeleteMatrix (rptr);
+    oap::host::DeleteMatrix (rptr2);
+  }
+}
+
 TEST_F(OapHostMatrixUPtrTests, ResetUPtrsTest)
 {
   std::vector<math::Matrix*> vec = {
