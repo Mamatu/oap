@@ -173,6 +173,44 @@ TEST_F(OapDeviceMatrixUPtrTests, ResetUPtrTest)
   ptr.reset (oap::cuda::NewDeviceMatrix(11, 11));
 }
 
+TEST_F(OapDeviceMatrixUPtrTests, NotDeallocationTest)
+{
+  {
+    math::Matrix* rptr = oap::cuda::NewDeviceReMatrix (10, 10);
+    {
+      oap::DeviceMatrixUPtr ptr (rptr, false); // it will be not deallocated
+    }
+    oap::cuda::DeleteDeviceMatrix (rptr);
+  }
+  {
+    math::Matrix* rptr = oap::cuda::NewDeviceReMatrix (10, 10);
+    {
+      math::Matrix* rptr1 = oap::cuda::NewDeviceMatrix (10, 10);
+
+      oap::DeviceMatrixUPtr ptr (rptr, false); // it will be not deallocated
+
+      ptr.reset (rptr1); // it will be deallocated
+    }
+    oap::cuda::DeleteDeviceMatrix (rptr);
+  }
+  {
+    math::Matrix* rptr = oap::cuda::NewDeviceReMatrix (10, 10);
+    math::Matrix* rptr2 = oap::cuda::NewDeviceImMatrix (100, 100);
+    math::Matrix* rptr3 = oap::cuda::NewDeviceMatrix (100, 101);
+    {
+      math::Matrix* rptr1 = oap::cuda::NewDeviceMatrix (100, 10);
+
+      oap::DeviceMatrixUPtr ptr (rptr, false); // it will be not deallocated
+
+      ptr.reset (rptr1); // it will be deallocated
+      ptr.reset (rptr2, false); // it will be not deallocated
+      ptr.reset (rptr3, true); // it will be deallocated
+    }
+    oap::cuda::DeleteDeviceMatrix (rptr);
+    oap::cuda::DeleteDeviceMatrix (rptr2);
+  }
+}
+
 TEST_F(OapDeviceMatrixUPtrTests, ResetUPtrsTest)
 {
   std::vector<math::Matrix*> vec = {
