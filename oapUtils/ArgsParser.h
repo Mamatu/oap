@@ -39,7 +39,7 @@ namespace oap
       IArgsParser () {}
       virtual ~IArgsParser () {}
 
-      virtual void parse (int argc, char **argv) const = 0;
+      virtual void parse (int argc, char* const* argv) const = 0;
   };
 
   class ArgsParser : public IArgsParser
@@ -92,7 +92,7 @@ namespace oap
 
       void registerArg (const std::string& larg, const Callback& callback);
 
-      void parse (int argc, char **argv) const override;
+      void parse (int argc, char* const* argv) const override;
 
     private:
       char m_sarg = 0;

@@ -40,7 +40,7 @@ namespace oap
 
         oap::ErrorType errorType = oap::ErrorType::CROSS_ENTROPY;
 
-        std::vector<uint> networkLayers = {20*20, 20, 1};
+        std::vector<uint> networkLayers = {20*20, 2, 1};
       
         using OutputCallback = std::function<void(const std::vector<floatt>&)>;
       
@@ -56,7 +56,7 @@ namespace oap
       PatternsClassificationParser& operator= (const PatternsClassificationParser&) = delete;
       PatternsClassificationParser& operator= (PatternsClassificationParser&&) = delete;
 
-      virtual void parse (int argc, char **argv) const override;
+      virtual void parse (int argc, char* const* argv) const override;
 
       Args getArgs() const
       {

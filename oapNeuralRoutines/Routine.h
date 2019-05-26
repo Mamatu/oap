@@ -36,7 +36,7 @@ class Routine
     Routine& operator=(const Routine&) = delete;
     Routine& operator=(Routine&&) = delete;
 
-    int run (int argc, char **argv)
+    int run (int argc, char* const* argv)
     {
       const oap::IArgsParser& parser = getArgsParser ();
       parser.parse (argc, argv);

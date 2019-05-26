@@ -1,5 +1,7 @@
 #include "PatternsClassificationHost.h"
 
+#include <memory>
+
 namespace oap
 {
   PatternsClassificationParser::PatternsClassificationParser ()
@@ -87,6 +89,7 @@ namespace oap
     {
       m_args.savingPath = path;
     };
+
     auto loadingF = [this](const std::string& path)
     {
       m_args.loadingPath = path;
@@ -96,7 +99,7 @@ namespace oap
     m_parser.registerArg ("load", loadingF);
   }
 
-  void PatternsClassificationParser::parse (int argc, char **argv) const
+  void PatternsClassificationParser::parse (int argc, char* const* argv) const
   {
     m_parser.parse (argc, argv);
   }
