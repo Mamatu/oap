@@ -28,6 +28,36 @@
 
 using Factory = std::function<oap::Routine*()>;
 
+const char* g_routinesNameArg = "name";
+
+template<typename UnaryPredicate>
+std::vector<char*>&& copyArgsIf (char** argv, int argc, UnaryPredicate predicate)
+{
+  std::vector<char*> vec;
+  for (int idx = 0; idx < argc; ++idx)
+  {
+    if (predicate (argv[idx]))
+    {
+      const size_t len = strlen(argv[idx]);
+      char* narg = new char[len + 1];
+      strcpy (narg, argv[idx]);
+      narg[len] = '\0';
+      vec.push_back (narg);
+    }
+  }
+
+  return std::move(vec);
+}
+
+void deleteArgv (std::vector<char*>& argv)
+{
+  for (size_t idx = 0; idx < argv.size(); ++idx)
+  {
+    delete[] argv[idx];
+  }
+  argv.clear();
+}
+
 int main(int argc, char** argv)
 {
   using namespace std::placeholders;
@@ -70,9 +100,17 @@ int main(int argc, char** argv)
 
     std::unique_ptr<oap::Routine> routine (it->second());
 
-    auto thread = std::thread([&routine, argc, argv]()
+    auto pred = [] (const std::string& arg)
     {
-      routine->run (argc, argv);
+      return !(arg == std::string(g_routinesNameArg));
+    };
+    std::vector<char*>&& nargv = copyArgsIf (argv, argc, pred);
+
+    auto thread = std::thread([&routine, nargv]()
+    {
+      char* const* argv = nargv.data();
+      const size_t nargc = nargv.size();
+      routine->run (nargc, argv);
     });
 
     thread.detach ();
@@ -87,7 +125,7 @@ int main(int argc, char** argv)
   };
 
   oap::ArgsParser argParser;
-  argParser.registerArg ("name", nameCallback);
+  argParser.registerArg (g_routinesNameArg, nameCallback);
 
   try
   {
