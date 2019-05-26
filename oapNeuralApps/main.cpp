@@ -104,7 +104,7 @@ int main(int argc, char** argv)
     {
       return !(arg == std::string(g_routinesNameArg));
     };
-    std::vector<char*>&& nargv = copyArgsIf (argv, argc, pred);
+    std::vector<char*> nargv = copyArgsIf (argv, argc, pred);
 
     auto thread = std::thread([&routine, nargv]()
     {
@@ -113,15 +113,8 @@ int main(int argc, char** argv)
       routine->run (nargc, argv);
     });
 
-    thread.detach ();
-    char c;
-    do
-    {
-      std::cin >> c;
-    }
-    while (c != 'q');
-
-    routine->onInterrupt ();
+    thread.join ();
+    deleteArgv (nargv);
   };
 
   oap::ArgsParser argParser;
