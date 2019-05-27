@@ -31,7 +31,7 @@ using Factory = std::function<oap::Routine*()>;
 const char* g_routinesNameArg = "name";
 
 template<typename UnaryPredicate>
-std::vector<char*>&& copyArgsIf (char** argv, int argc, UnaryPredicate predicate)
+std::vector<char*> copyArgsIf (char** argv, int argc, UnaryPredicate predicate)
 {
   std::vector<char*> vec;
   for (int idx = 0; idx < argc; ++idx)
@@ -46,7 +46,7 @@ std::vector<char*>&& copyArgsIf (char** argv, int argc, UnaryPredicate predicate
     }
   }
 
-  return std::move(vec);
+  return vec;
 }
 
 void deleteArgv (std::vector<char*>& argv)
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
     {
       return !(arg == std::string(g_routinesNameArg));
     };
-    std::vector<char*> nargv = copyArgsIf (argv, argc, pred);
+    std::vector<char*> nargv = std::move (copyArgsIf (argv, argc, pred));
 
     auto thread = std::thread([&routine, nargv]()
     {
