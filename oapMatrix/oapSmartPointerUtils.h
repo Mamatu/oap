@@ -116,7 +116,7 @@ Deleter& get_deleter (StdMatrixPtr& stdMatrixPtr)
   
   static_assert ((isSharedPtr && !isUniquePtr) || (!isSharedPtr && isUniquePtr), "StdMatrixPtr is unsupported type");
  
-  typename std::conditional<isSharedPtr, SharedPtrGetDeleter, UniquePtrGetDeleter>:: type obj;
+  typename std::conditional<isSharedPtr, SharedPtrGetDeleter, UniquePtrGetDeleter>::type obj;
   
   return obj.template get_deleter<Deleter, StdMatrixPtr> (stdMatrixPtr);
 }
@@ -163,19 +163,19 @@ void reset (StdMatrixPtr& stdMatrixPtr, Deleter&& deleter, typename StdMatrixPtr
   
   static_assert ((isSharedPtr && !isUniquePtr) || (!isSharedPtr && isUniquePtr), "StdMatrixPtr is unsupported type");
  
-  typename std::conditional<isSharedPtr, reset::SharedPtrReset<StdMatrixPtr, decltype(deleter)>, reset::UniquePtrReset<StdMatrixPtr, decltype(deleter)>>:: type obj(stdMatrixPtr, deleter);
+  typename std::conditional<isSharedPtr, reset::SharedPtrReset<StdMatrixPtr, decltype(deleter)>, reset::UniquePtrReset<StdMatrixPtr, decltype(deleter)>>::type obj(stdMatrixPtr, deleter);
   
   obj.reset (t);
 }
 
 template<typename StdMatrixPtr>
-class SharedPtrResetBool
+class SharedPtrResetSetDeleter
 {
     StdMatrixPtr& m_stdMatrixPtr;
     bool m_bDeallocate;
 
   public:
-    SharedPtrResetBool (StdMatrixPtr& stdMatrixPtr, bool bDeallocate) : m_stdMatrixPtr (stdMatrixPtr), m_bDeallocate (bDeallocate)
+    SharedPtrResetSetDeleter (StdMatrixPtr& stdMatrixPtr, bool bDeallocate) : m_stdMatrixPtr (stdMatrixPtr), m_bDeallocate (bDeallocate)
     {}
 
     void reset (typename StdMatrixPtr::element_type* t)
@@ -187,13 +187,13 @@ class SharedPtrResetBool
 };
 
 template<typename StdMatrixPtr>
-class UniquePtrResetBool
+class UniquePtrResetSetDeleter
 {
     StdMatrixPtr& m_stdMatrixPtr;
     bool m_bDeallocate;
 
   public:
-    UniquePtrResetBool (StdMatrixPtr& stdMatrixPtr, bool bDeallocate) : m_stdMatrixPtr (stdMatrixPtr), m_bDeallocate(bDeallocate)
+    UniquePtrResetSetDeleter (StdMatrixPtr& stdMatrixPtr, bool bDeallocate) : m_stdMatrixPtr (stdMatrixPtr), m_bDeallocate(bDeallocate)
     {}
 
     void reset (typename StdMatrixPtr::element_type* t)
@@ -212,7 +212,7 @@ void reset (StdMatrixPtr& stdMatrixPtr, bool bDeallocate, typename StdMatrixPtr:
 
   static_assert ((isSharedPtr && !isUniquePtr) || (!isSharedPtr && isUniquePtr), "StdMatrixPtr is unsupported type");
 
-  typename std::conditional<isSharedPtr, reset::SharedPtrResetBool<StdMatrixPtr>, reset::UniquePtrResetBool<StdMatrixPtr>>:: type obj(stdMatrixPtr, bDeallocate);
+  typename std::conditional<isSharedPtr, reset::SharedPtrResetSetDeleter<StdMatrixPtr>, reset::UniquePtrResetSetDeleter<StdMatrixPtr>>::type obj(stdMatrixPtr, bDeallocate);
 
   obj.reset (t);
 }
