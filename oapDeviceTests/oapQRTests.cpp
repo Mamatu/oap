@@ -51,9 +51,9 @@ class OapQRTests : public testing::Test {
   }
 
   void executeOrthogonalityTest(math::Matrix* q, math::Matrix* dq) {
-    math::Matrix* tdq = oap::cuda::NewDeviceMatrixCopy(q);
-    math::Matrix* doutput = oap::cuda::NewDeviceMatrixCopy(q);
-    math::Matrix* doutput1 = oap::cuda::NewDeviceMatrixCopy(q);
+    math::Matrix* tdq = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(q);
+    math::Matrix* doutput = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(q);
+    math::Matrix* doutput1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(q);
     math::Matrix* houtput = oap::host::NewMatrix(q);
 
     m_cuMatrix->transpose(tdq, dq);
@@ -81,8 +81,8 @@ class OapQRTests : public testing::Test {
     math::Matrix* temp2 = oap::cuda::NewDeviceMatrixHostRef(matrix);
     math::Matrix* temp3 = oap::cuda::NewDeviceMatrixHostRef(matrix);
     math::Matrix* temp4 = oap::cuda::NewDeviceMatrixHostRef(matrix);
-    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy(matrix);
-    math::Matrix* drmatrix = oap::cuda::NewDeviceMatrixCopy(matrix);
+    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(matrix);
+    math::Matrix* drmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(matrix);
 
     math::Matrix* eq_q = oap::host::NewMatrix(qr1q);
     math::Matrix* q = oap::host::NewMatrix(eq_q);

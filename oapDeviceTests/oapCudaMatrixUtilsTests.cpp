@@ -61,7 +61,7 @@ TEST_F(OapCudaMatrixUtilsTests, SaveLoadMatrixToBuffer)
     hmatrix->reValues[idx] = idx;
   }
 
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hmatrix);
 
   utils::ByteBuffer buffer;
   oap::cuda::SaveMatrix (dmatrix, buffer);
@@ -81,7 +81,7 @@ TEST_F(OapCudaMatrixUtilsTests, SaveLoadMatrixToFile)
   size_t rows = 16;
 
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (columns, rows);
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hmatrix);
 
   auto save = [&](math::Matrix* matrix)
   {

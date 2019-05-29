@@ -45,25 +45,29 @@ MatricesList gMatricesList ("CUDA");
 
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix)
 {
-  CUdeviceptr matrixRePtr = CudaUtils::GetReValuesAddress(matrix);
-  CUdeviceptr matrixImPtr = CudaUtils::GetImValuesAddress(matrix);
+  bool hasRe = CudaUtils::GetReValues (matrix) != nullptr;
+  bool hasIm = CudaUtils::GetImValues (matrix) != nullptr;
+
   uintt columns = CudaUtils::GetColumns(matrix);
   uintt rows = CudaUtils::GetRows(matrix);
-  math::Matrix* matrix1 = NULL;
-  if (matrixRePtr != 0 && matrixImPtr != 0)
+
+  math::Matrix* hostMatrix = NULL;
+  if (hasRe && hasIm)
   {
-    matrix1 = oap::host::NewMatrix(columns, rows);
+    hostMatrix = oap::host::NewMatrix(columns, rows);
   }
-  else if (matrixRePtr != 0)
+  else if (hasRe)
   {
-    matrix1 = oap::host::NewReMatrix(columns, rows);
+    hostMatrix = oap::host::NewReMatrix(columns, rows);
   }
-  else if (matrixImPtr != 0)
+  else if (hasIm)
   {
-    matrix1 = oap::host::NewImMatrix(columns, rows);
+    hostMatrix = oap::host::NewImMatrix(columns, rows);
   }
-  oap::cuda::CopyDeviceMatrixToHostMatrix(matrix1, matrix);
-  return matrix1;
+
+  oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, matrix);
+
+  return hostMatrix;
 }
 
 math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix)
@@ -77,13 +81,13 @@ math::Matrix* NewDeviceMatrixDeviceRef(const math::Matrix* deviceMatrix)
   uintt rows = CudaUtils::GetRows(deviceMatrix);
   bool hasRe = CudaUtils::GetReValues(deviceMatrix) != NULL;
   bool hasIm = CudaUtils::GetImValues(deviceMatrix) != NULL;
-  return NewDeviceMatrix(hasRe, hasIm, columns, rows);
+  return NewDeviceMatrix (hasRe, hasIm, columns, rows);
 }
 
 math::Matrix* NewDeviceMatrix(const std::string& matrixStr)
 {
   math::Matrix* host = oap::host::NewMatrix(matrixStr);
-  math::Matrix* device = NewDeviceMatrixCopy(host);
+  math::Matrix* device = NewDeviceMatrixCopyOfHostMatrix (host);
   oap::host::DeleteMatrix(host);
   return device;
 }
@@ -93,7 +97,7 @@ math::Matrix* NewDeviceMatrix(const math::MatrixInfo& minfo)
   return NewDeviceMatrix (minfo.isRe, minfo.isIm, minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
 }
 
-math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix)
+math::Matrix* NewDeviceMatrixCopyOfHostMatrix(const math::Matrix* hostMatrix)
 {
   math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixHostRef(hostMatrix);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, hostMatrix);
@@ -529,7 +533,7 @@ void PrintMatrixInfo(const std::string& msg, const math::Matrix* devMatrix)
 math::Matrix* ReadMatrix(const std::string& path)
 {
   math::Matrix* hostMatrix = oap::host::ReadMatrix(path);
-  math::Matrix* devMatrix = oap::cuda::NewDeviceMatrixCopy(hostMatrix);
+  math::Matrix* devMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
   oap::host::DeleteMatrix(hostMatrix);
   return devMatrix;
 }
@@ -587,7 +591,7 @@ math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer)
     return nullptr;
   }
 
-  math::Matrix* matrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
+  math::Matrix* matrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hmatrix);
 
   return matrix;
 }

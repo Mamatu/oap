@@ -611,7 +611,7 @@ TEST_F(OapMatrixCudaTests, SetVectorAndCopyTest) {
     host->reValues[fa] = fa;
   }
 
-  math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
+  math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   host = NULL;
 

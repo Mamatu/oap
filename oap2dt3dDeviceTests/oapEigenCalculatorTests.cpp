@@ -108,7 +108,7 @@ class ArnoldiOperations {
     vectorrows = matrix->columns;
 
     if (eigenCalc->getEigenvectorsType() == ArnUtils::HOST) {
-      dvector = oap::cuda::NewDeviceMatrixCopy(vector);
+      dvector = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(vector);
       dvectorIsCopy = true;
     } else if (eigenCalc->getEigenvectorsType() == ArnUtils::DEVICE) {
       dvector = vector;
@@ -123,7 +123,7 @@ class ArnoldiOperations {
 
     oap::host::CopyMatrix(refMatrix, matrix);
 
-    oap::DeviceMatrixUPtr drefMatrix = oap::cuda::NewDeviceMatrixCopy(refMatrix);
+    oap::DeviceMatrixUPtr drefMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(refMatrix);
 
     math::MatrixInfo info = oap::host::GetMatrixInfo(refMatrix);
 
