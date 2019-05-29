@@ -31,14 +31,14 @@ DeviceDataLoader::~DeviceDataLoader() {}
 
 math::Matrix* DeviceDataLoader::createDeviceMatrix() {
   math::Matrix* host = createMatrix();
-  math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
+  math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
 
 math::Matrix* DeviceDataLoader::createDeviceRowVector(size_t index) {
   math::Matrix* host = createRowVector(index);
-  math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
+  math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
@@ -53,7 +53,7 @@ math::Matrix* DeviceDataLoader::getDeviceRowVector(size_t index, math::Matrix* d
 
 math::Matrix* DeviceDataLoader::createDeviceColumnVector(size_t index) {
   math::Matrix* host = createColumnVector(index);
-  math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
+  math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
@@ -69,7 +69,7 @@ math::Matrix* DeviceDataLoader::getDeviceColumnVector(size_t index, math::Matrix
 math::Matrix* DeviceDataLoader::createDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
 {
   math::Matrix* host = createSubMatrix (cindex, rindex, columns, rows);
-  math::Matrix* device = oap::cuda::NewDeviceMatrixCopy(host);
+  math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
