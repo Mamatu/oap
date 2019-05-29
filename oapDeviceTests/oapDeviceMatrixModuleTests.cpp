@@ -35,10 +35,10 @@ class OapDeviceMatrixModuleTests : public testing::Test {
                         uintt subcolumns, uint subrows, floatt subvalue,
                         uintt column, uintt row) {
     math::Matrix* hmatrix = oap::host::NewMatrix(true, true, columns, rows, value);
-    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopy(hmatrix);
+    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hmatrix);
 
     math::Matrix* hsubmatrix = oap::host::NewMatrix(true, true, subcolumns, subrows, subvalue);
-    math::Matrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopy(hsubmatrix);
+    math::Matrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hsubmatrix);
 
     oap::cuda::SetMatrix(dmatrix, dsubmatrix, column, row);
     oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
@@ -141,7 +141,7 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
     m1->imValues[fa] = fa;
   }
 
-  math::Matrix* d1 = oap::cuda::NewDeviceMatrixCopy(m1);
+  math::Matrix* d1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(m1);
 
   bool status = oap::cuda::WriteMatrix(path, d1);
 

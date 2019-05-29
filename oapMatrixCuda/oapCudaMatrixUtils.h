@@ -49,7 +49,7 @@ uintt GetColumns(const math::Matrix* dMatrix);
 
 uintt GetRows(const math::Matrix* dMatrix);
 
-math::Matrix* NewDeviceMatrixCopy(const math::Matrix* hostMatrix);
+math::Matrix* NewDeviceMatrixCopyOfHostMatrix(const math::Matrix* hostMatrix);
 
 math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns, uintt rows);
 
