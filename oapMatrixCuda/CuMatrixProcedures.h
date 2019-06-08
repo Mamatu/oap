@@ -39,6 +39,7 @@
 #include "CuProcedures/CuMultiplicationProcedures.h"
 #include "CuProcedures/CuAdditionProcedures.h"
 #include "CuProcedures/CuSubstractionProcedures.h"
+#include "CuProcedures/CuAddSubstractionProcedures.h"
 #include "CuProcedures/CuConjugateTransposeProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
 #include "CuProcedures/CuIdentityProcedures.h"

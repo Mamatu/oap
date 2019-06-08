@@ -231,10 +231,16 @@ void CuProceduresApi::conjugateTranspose(math::Matrix* output, math::Matrix* par
   }
 }
 
-void CuProceduresApi::substract(math::Matrix* output, math::Matrix* params0,
-                         math::Matrix* params1, uintt columns, uintt rows) {
+void CuProceduresApi::substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+{
   void* params[] = {&output, &params0, &params1};
   m_cuStatus = execute("CUDAKernel_Substract", columns, rows, params, 0);
+}
+
+void CuProceduresApi::addSubstract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+{
+  void* params[] = {&output, &params0, &params1};
+  m_cuStatus = execute("CUDAKernel_AddSubstract", columns, rows, params, 0);
 }
 
 void CuProceduresApi::add(math::Matrix* output, math::Matrix* params0,
@@ -719,10 +725,10 @@ void CuProceduresApi::check_tensorProduct(math::Matrix* output, math::Matrix* pa
 
   std::stringstream stream1, stream2;
 
-  stream1 << "output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
+  stream1 << __func__ << " output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
   throwExceptionMsg(output_rows == params0_rows * params1_rows, stream1);
 
-  stream2 << "output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
+  stream2 << __func__ << " output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
   throwExceptionMsg(output_columns == params0_columns * params1_columns, stream2);
 
 }
@@ -746,10 +752,10 @@ void CuProceduresApi::check_hadamardProduct(math::Matrix* output, math::Matrix* 
 
   std::stringstream stream1, stream2;
 
-  stream1 << "output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
+  stream1 << __func__ << " output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
   throwExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
 
-  stream2 << "output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
+  stream2 << __func__ << " output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
   throwExceptionMsg(output_columns == params0_columns && output_columns == params1_columns, stream2);
 }
 
@@ -772,13 +778,13 @@ void CuProceduresApi::check_hadamardProductVec (math::Matrix* output, math::Matr
 
   std::stringstream stream1, stream2, stream3;
 
-  stream1 << "output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
+  stream1 << __func__ << " output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
   throwExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
 
-  stream2 << "params1_columns = " << params1_columns;
+  stream2 << __func__ << " params1_columns = " << params1_columns;
   throwExceptionMsg(1 == params1_columns, stream1);
 
-  stream3 << "output_columns = " << output_columns << ", params0_columns = " << params0_columns;
+  stream3 << __func__ <<  "output_columns = " << output_columns << ", params0_columns = " << params0_columns;
   throwExceptionMsg(output_columns == params0_columns, stream2);
 }
 
