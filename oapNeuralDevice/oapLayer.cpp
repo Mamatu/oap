@@ -94,6 +94,7 @@ void Layer::allocateWeights(const Layer* nextLayer)
   m_tweights = oap::cuda::NewDeviceReMatrix (nextLayer->m_neuronsCount, m_neuronsCount);
   m_weights1 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
   m_weights2 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
+  logInfo ("m_weights2 %p %s", this, oap::cuda::to_string(m_weights2).c_str());
   m_weightsDim = std::make_pair(m_neuronsCount, nextLayer->m_neuronsCount);
 
   m_nextLayerNeuronsCount = nextLayer->m_neuronsCount;
