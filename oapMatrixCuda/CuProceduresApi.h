@@ -52,6 +52,7 @@ class CuProceduresApi
   CuProceduresApi& operator=(CuProceduresApi&&) = delete;
 
   inline void dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+  inline void addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   inline void tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
@@ -72,6 +73,7 @@ class CuProceduresApi
   inline void hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   void dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
+  void addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
@@ -296,6 +298,22 @@ inline void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* para
   const uintt output_rows = CudaUtils::GetRows(output);
 
   dotProduct(output, params0, params1, output_columns, output_rows);
+}
+
+inline void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+#ifdef CU_PROCEDURES_API_PRINT
+  debug(__func__);
+#endif
+#ifdef DEBUG
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+#endif
+  const uintt output_columns = CudaUtils::GetColumns(output);
+  const uintt output_rows = CudaUtils::GetRows(output);
+
+  addDotProduct(output, params0, params1, output_columns, output_rows);
 }
 
 inline void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)

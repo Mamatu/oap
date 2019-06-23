@@ -28,6 +28,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
+#include "CuProcedures/CuAddDotProductProcedures.h"
 #include "CuProcedures/CuCompareProcedures.h"
 #include "CuProcedures/CuCompareOptProcedures.h"
 #include "CuProcedures/CuCompareOptProcedures2.h"
