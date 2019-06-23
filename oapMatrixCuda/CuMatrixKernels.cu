@@ -1,6 +1,24 @@
 #include "CuMatrixProcedures.h"
 #include "CuMatrixUtils.h"
 
+extern "C" __global__ void CUDAKernel_AddDotProductRe(math::Matrix* output,
+                                                   math::Matrix* params0,
+                                                   math::Matrix* params1) {
+  CUDA_addDotProductRe(output, params0, params1);
+}
+
+extern "C" __global__ void CUDAKernel_AddDotProductIm(math::Matrix* output,
+                                                   math::Matrix* params0,
+                                                   math::Matrix* params1) {
+  CUDA_addDotProductIm(output, params0, params1);
+}
+
+extern "C" __global__ void CUDAKernel_AddDotProduct(math::Matrix* output,
+                                                 math::Matrix* params0,
+                                                 math::Matrix* params1) {
+  CUDA_addDotProduct(output, params0, params1);
+}
+
 extern "C" __global__ void CUDAKernel_DotProductRe(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
