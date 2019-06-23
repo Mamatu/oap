@@ -32,7 +32,11 @@ __hostdevice__ void cuda_multiplyConstantReMatrix(math::Matrix* output,
   THREAD_INDICES_INIT();
 
   uintt index = threadIndexX + threadIndexY * output->columns;
-  output->reValues[index] = params0->reValues[index] * re;
+  const uintt limit = output->rows * output->columns;
+  if (index < limit)
+  {
+    output->reValues[index] = params0->reValues[index] * re;
+  }
 }
 
 __hostdevice__ void cuda_multiplyConstantImMatrix(math::Matrix* output,
@@ -42,7 +46,11 @@ __hostdevice__ void cuda_multiplyConstantImMatrix(math::Matrix* output,
   THREAD_INDICES_INIT();
 
   uintt index = threadIndexX + threadIndexY * output->columns;
-  output->imValues[index] = params0->imValues[index] * im;
+  const uintt limit = output->rows * output->columns;
+  if (index < limit)
+  {
+    output->imValues[index] = params0->imValues[index] * im;
+  }
 }
 
 __hostdevice__ void cuda_multiplyConstantRealMatrix(math::Matrix* output,
@@ -52,8 +60,12 @@ __hostdevice__ void cuda_multiplyConstantRealMatrix(math::Matrix* output,
   THREAD_INDICES_INIT();
 
   uintt index = threadIndexX + threadIndexY * output->columns;
-  output->reValues[index] = params0->reValues[index] * re;
-  output->imValues[index] = params0->imValues[index] * im;
+  const uintt limit = output->rows * output->columns;
+  if (index < limit)
+  {
+    output->reValues[index] = params0->reValues[index] * re;
+    output->imValues[index] = params0->imValues[index] * im;
+  }
 }
 
 __hostdevice__ void CUDA_multiplyConstantReMatrix(math::Matrix* output,
