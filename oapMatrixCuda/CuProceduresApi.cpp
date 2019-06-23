@@ -90,6 +90,21 @@ void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, ma
   m_cuStatus = execute("CUDAKernel_DotProduct", columns, rows, params, 0);
 }
 
+void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+{
+#ifdef CU_PROCEDURES_API_PRINT
+  debug(__func__);
+#endif
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+
+  check_dotProduct (output, params0, params1, columns, rows);
+
+  void* params[] = {&output, &params0, &params1};
+  m_cuStatus = execute("CUDAKernel_AddDotProduct", columns, rows, params, 0);
+}
+
 void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
 #ifdef CU_PROCEDURES_API_PRINT

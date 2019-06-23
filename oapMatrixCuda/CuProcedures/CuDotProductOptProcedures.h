@@ -22,6 +22,7 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
+#include "MatrixEx.h"
 #include "CuDotProductOptUtils.h"
 
 __hostdevice__ void CUDA_dotProductReExOpt(math::Matrix* output,
