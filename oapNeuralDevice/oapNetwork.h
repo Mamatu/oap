@@ -80,6 +80,8 @@ public:
 
   void backwardPropagation ();
 
+  void updateWeights();
+
   bool train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, Type argsType, oap::ErrorType errorType);
 
   void createLevel (Layer* layer);
@@ -112,6 +114,9 @@ public:
   bool operator!= (const Network& network) const;
 
   void printLayersWeights ();
+
+  void resetErrors (Layer* layer);
+  void resetErrors ();
 
 protected:
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
@@ -183,13 +188,10 @@ protected:
       break;
     };
   }
-
 private:
   std::vector<Layer*> m_layers;
 
   void destroyLayers();
-
-  void updateWeights();
 
   inline void calculateError();
 
@@ -202,6 +204,7 @@ private:
 
   oap::DeviceMatrixPtr m_expectedDeviceOutputs = nullptr;
   IController* m_icontroller = nullptr;
+  size_t m_backwardCount = 0;
 
   std::ostream& log()
   {
