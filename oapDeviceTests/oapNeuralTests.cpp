@@ -380,14 +380,12 @@ TEST_F(OapNeuralTests, NeuralNetworkTest)
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
   inputs->reValues[0] = 0;
   inputs->reValues[1] = 1;
-
   oap::HostMatrixPtr eoutput = oap::host::NewReMatrix (1, 1, 0);
 
   network->train (inputs, eoutput, Network::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
 
   weights1to2 = oap::host::NewReMatrix (2, 2);
   weights2to3 = oap::host::NewReMatrix (2, 1);
-
   l1->getHostWeights (weights1to2);
   l2->getHostWeights (weights2to3);
 
@@ -399,3 +397,184 @@ TEST_F(OapNeuralTests, NeuralNetworkTest)
   EXPECT_NEAR (0.512648936, weights1to2->reValues[1], 0.00001);
   EXPECT_NEAR (-0.209958271, weights1to2->reValues[3], 0.00001);
 }
+
+inline floatt sigmoid(floatt x)
+{
+  return 1.f / (1.f + exp (-x));
+}
+
+TEST_F(OapNeuralTests, SimpleForwardPropagation_1)
+{
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(2);
+  Layer* l3 = network->createLayer(1);
+  
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 2);
+  weights1to2->reValues[0] = 1;
+  weights1to2->reValues[2] = 1;
+
+  weights1to2->reValues[1] = 1;
+  weights1to2->reValues[3] = 1;
+
+  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (2, 1);
+  weights2to3->reValues[0] = 1;
+  weights2to3->reValues[1] = 1;
+
+  l1->setHostWeights (weights1to2);
+  l2->setHostWeights (weights2to3);
+
+  oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  inputs->reValues[0] = 1;
+  inputs->reValues[1] = 1;
+
+  network->setInputs (inputs, Network::HOST);
+
+  network->forwardPropagation ();
+
+  auto minfo = l3->getOutputsDim ();
+  oap::HostMatrixPtr outputsL3 = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
+  l3->getOutputs (outputsL3, oap::HOST);
+
+  EXPECT_EQ (sigmoid (sigmoid(2) + sigmoid(2)), outputsL3->reValues[0]);
+}
+
+TEST_F(OapNeuralTests, SimpleForwardPropagation_2)
+{
+  Layer* l1 = network->createLayer(3);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
+  
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
+  weights1to2->reValues[0] = 1;
+  weights1to2->reValues[3] = 1;
+  weights1to2->reValues[6] = 1;
+
+  weights1to2->reValues[1] = 1;
+  weights1to2->reValues[4] = 1;
+  weights1to2->reValues[7] = 1;
+
+  weights1to2->reValues[2] = 1;
+  weights1to2->reValues[5] = 1;
+  weights1to2->reValues[8] = 1;
+
+  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  weights2to3->reValues[0] = 1;
+  weights2to3->reValues[1] = 1;
+  weights2to3->reValues[2] = 1;
+
+  l1->setHostWeights (weights1to2);
+  l2->setHostWeights (weights2to3);
+
+  oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 3);
+  inputs->reValues[0] = 1;
+  inputs->reValues[1] = 1;
+  inputs->reValues[2] = 1;
+
+  network->setInputs (inputs, Network::HOST);
+
+  network->forwardPropagation ();
+
+  auto minfo = l3->getOutputsDim ();
+  oap::HostMatrixPtr outputsL3 = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
+  l3->getOutputs (outputsL3, oap::HOST);
+
+  EXPECT_EQ (sigmoid (sigmoid(3) + sigmoid(3) + sigmoid(3)), outputsL3->reValues[0]);
+}
+
+TEST_F(OapNeuralTests, SimpleForwardPropagation_3)
+{
+  Layer* l1 = network->createLayer(3);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
+  
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
+  weights1to2->reValues[0] = 2;
+  weights1to2->reValues[3] = 2;
+  weights1to2->reValues[6] = 2;
+
+  weights1to2->reValues[1] = 1;
+  weights1to2->reValues[4] = 1;
+  weights1to2->reValues[7] = 1;
+
+  weights1to2->reValues[2] = 1;
+  weights1to2->reValues[5] = 1;
+  weights1to2->reValues[8] = 1;
+
+  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  weights2to3->reValues[0] = 1;
+  weights2to3->reValues[1] = 1;
+  weights2to3->reValues[2] = 1;
+
+  l1->setHostWeights (weights1to2);
+  l2->setHostWeights (weights2to3);
+
+  oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 3);
+  inputs->reValues[0] = 1;
+  inputs->reValues[1] = 1;
+  inputs->reValues[2] = 1;
+
+  network->setInputs (inputs, Network::HOST);
+
+  network->forwardPropagation ();
+
+  auto minfo = l3->getOutputsDim ();
+  oap::HostMatrixPtr outputsL3 = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
+  l3->getOutputs (outputsL3, oap::HOST);
+
+  EXPECT_EQ (sigmoid (sigmoid(4) + sigmoid(4) + sigmoid(4)), outputsL3->reValues[0]);
+}
+
+TEST_F(OapNeuralTests, SimpleForwardPropagation_4)
+{
+  Layer* l1 = network->createLayer(3);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
+  
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
+  weights1to2->reValues[0] = 4;
+  weights1to2->reValues[3] = 3;
+  weights1to2->reValues[6] = 2;
+
+  weights1to2->reValues[1] = 1;
+  weights1to2->reValues[4] = 1;
+  weights1to2->reValues[7] = 1;
+
+  weights1to2->reValues[2] = 1;
+  weights1to2->reValues[5] = 1;
+  weights1to2->reValues[8] = 1;
+
+  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  weights2to3->reValues[0] = 1;
+  weights2to3->reValues[1] = 1;
+  weights2to3->reValues[2] = 1;
+
+  l1->setHostWeights (weights1to2);
+  l2->setHostWeights (weights2to3);
+
+  oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 3);
+  inputs->reValues[0] = 1;
+  inputs->reValues[1] = 1;
+  inputs->reValues[2] = 1;
+
+  network->setInputs (inputs, Network::HOST);
+
+  network->forwardPropagation ();
+
+  auto getLayerOutput = [](Layer* layer)
+  {
+    auto minfo = layer->getOutputsDim ();
+    oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
+    layer->getOutputs (outputsL, oap::HOST);
+    return outputsL;
+  };
+
+  auto outputsL2 = getLayerOutput(l2);
+  auto outputsL3 = getLayerOutput(l3);
+
+  logInfo ("FP o2 %p %s", l2, oap::host::to_string(outputsL2).c_str());
+  EXPECT_EQ (sigmoid(6), outputsL2->reValues[0]);
+  EXPECT_EQ (sigmoid(5), outputsL2->reValues[1]);
+  EXPECT_EQ (sigmoid(4), outputsL2->reValues[2]);
+  EXPECT_EQ (sigmoid (sigmoid(6) + sigmoid(5) + sigmoid(4)), outputsL3->reValues[0]);
+}
+

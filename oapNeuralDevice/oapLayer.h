@@ -90,7 +90,6 @@ private:
   math::Matrix* m_sums = nullptr;
   math::Matrix* m_tsums = nullptr;
   math::Matrix* m_errors = nullptr;
-  math::Matrix* m_terrors = nullptr;
   math::Matrix* m_weights = nullptr;
   math::Matrix* m_tweights = nullptr;
   math::Matrix* m_weights1 = nullptr;
@@ -117,6 +116,9 @@ public:
   {
     return m_activation;
   }
+
+  math::MatrixInfo getOutputsDim () const;
+  void getOutputs (math::Matrix* matrix, oap::Type type) const;
 
   void setHostInputs(const math::Matrix* hInputs);
   void setDeviceInputs(const math::Matrix* dInputs);
