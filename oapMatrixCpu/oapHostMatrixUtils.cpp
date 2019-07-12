@@ -562,6 +562,11 @@ void GetMatrixStr(std::string& text, const math::Matrix* matrix)
 
 void ToString (std::string& str, const math::Matrix* matrix)
 {
+  if (matrix == nullptr)
+  {
+    str = "nullptr";
+    return;
+  }
   matrixUtils::PrintMatrix(str, matrix, matrixUtils::PrintArgs());
 }
 
