@@ -75,7 +75,7 @@ class SLEntity
 
 enum class Activation
 {
-  IDENTITY,
+  LINEAR,
   SIGMOID,
   TANH,
   SIN
@@ -98,6 +98,13 @@ private:
   size_t m_neuronsCount = 0;
   size_t m_nextLayerNeuronsCount = 0;
 
+  size_t m_biasCount = 0;
+
+  inline size_t getTotalNeuronsCount () const
+  {
+    return m_neuronsCount + m_biasCount;
+  }
+
   std::pair<size_t, size_t> m_weightsDim;
 
   static void deallocate(math::Matrix** matrix);
@@ -108,7 +115,7 @@ private:
   Activation m_activation;
 
 public:
-  Layer(const Activation& activation = Activation::SIGMOID);
+  Layer(const Activation& activation = Activation::SIGMOID, bool addBias = false);
 
   ~Layer();
 
@@ -145,7 +152,7 @@ public:
 
   void setDeviceWeights (math::Matrix* weights);
 
-  void initRandomWeights();
+  void initRandomWeights ();
 
   static std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix(size_t columns, size_t rows);
 

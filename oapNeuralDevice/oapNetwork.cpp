@@ -32,7 +32,12 @@ Network::~Network()
 
 Layer* Network::createLayer (size_t neurons, const Activation& activation)
 {
-  Layer* layer = new Layer(activation);
+  return createLayer (neurons, false, activation);
+}
+
+Layer* Network::createLayer (size_t neurons, bool addBias, const Activation& activation)
+{
+  Layer* layer = new Layer(activation, addBias);
 
   layer->allocateNeurons (neurons);
   createLevel (layer);
@@ -163,7 +168,6 @@ void Network::calculateErrors (oap::ErrorType errorType)
   }
   else
   {
-
     m_cuApi.addSubstract (current->m_errors, m_expectedDeviceOutputs, current->m_inputs);
     //m_cuApi.hadamardProduct (current->m_errors, current->m_errors, current->m_errors);
     //m_cuApi.multiplyReConstant (current->m_errors, current->m_errors, 0.5);
@@ -255,6 +259,12 @@ void Network::forwardPropagation ()
   {
     previous = current;
     current = m_layers[idx];
+
+    if (previous->m_biasCount == 1)
+    {
+      oap::cuda::SetReValue (previous->m_inputs, 1, 1, previous->m_neuronsCount - 1);
+    }
+
     m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
     activateFunc (current->m_inputs, current->m_sums, current->getActivation ());
   }
