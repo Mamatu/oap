@@ -59,14 +59,14 @@ class CuProceduresApi
   inline void hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   /**
-   *  @brief Calculate hadamard product of matrix and vector of the second matrix.
+   *  @brief Calculates hadamard product of matrix and vector of the second matrix.
    *  @param output - output matrix (dimension n columns x n rows)
    *  @param params0 - matrix (dimension n columns x n rows)
    *  @param params1 - vector of the second matrix. The second matrix consists of repeated column vector (dimenstion must be 1 columns x n rows).
    *
-   *           |a00 a10 a20|                 |v0 v0 v0|                                              |v0|
-   *  output = |a01 a11 a21| hadamardProduct |v1 v1 v1| where a__ is values of params0 and params1 = |v1|
-   *           |a02 a12 a22|                 |v2 v2 v2|                                              |v2|
+   *           |a00 a10 a20|                 |v0 v0 v0|                                               |v0|
+   *  output = |a01 a11 a21| hadamardProduct |v1 v1 v1| where a__ are values of params0 and params1 = |v1|
+   *           |a02 a12 a22|                 |v2 v2 v2|                                               |v2|
    *
    *  Example of use: oapPartialHadamardProductTests.cpp
    */
