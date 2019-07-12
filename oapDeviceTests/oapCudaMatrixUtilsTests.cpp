@@ -23,6 +23,7 @@
 #include "ByteBuffer.h"
 #include "CuProceduresApi.h"
 #include "Config.h"
+#include "CudaUtils.h"
 
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
@@ -61,7 +62,7 @@ TEST_F(OapCudaMatrixUtilsTests, SaveLoadMatrixToBuffer)
     hmatrix->reValues[idx] = idx;
   }
 
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hmatrix);
 
   utils::ByteBuffer buffer;
   oap::cuda::SaveMatrix (dmatrix, buffer);
@@ -81,7 +82,7 @@ TEST_F(OapCudaMatrixUtilsTests, SaveLoadMatrixToFile)
   size_t rows = 16;
 
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (columns, rows);
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopy (hmatrix);
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hmatrix);
 
   auto save = [&](math::Matrix* matrix)
   {
@@ -102,3 +103,144 @@ TEST_F(OapCudaMatrixUtilsTests, SaveLoadMatrixToFile)
   EXPECT_TRUE(cuApi.compare (dmatrix, cmatrix));
 }
 
+TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixHostRefTest)
+{
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
+    EXPECT_EQ (rows, CudaUtils::GetRows (matrix));
+    EXPECT_EQ (columns, CudaUtils::GetColumns (matrix));
+    EXPECT_TRUE (CudaUtils::GetReValues (matrix) != nullptr);
+    EXPECT_TRUE (CudaUtils::GetImValues (matrix) != nullptr);
+  }
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
+    EXPECT_EQ (rows, CudaUtils::GetRows (matrix));
+    EXPECT_EQ (columns, CudaUtils::GetColumns (matrix));
+    EXPECT_TRUE (CudaUtils::GetReValues (matrix) != nullptr);
+    EXPECT_FALSE (CudaUtils::GetImValues (matrix) != nullptr);
+  }
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewImMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
+    EXPECT_EQ (rows, CudaUtils::GetRows (matrix));
+    EXPECT_EQ (columns, CudaUtils::GetColumns (matrix));
+    EXPECT_FALSE (CudaUtils::GetReValues (matrix) != nullptr);
+    EXPECT_TRUE (CudaUtils::GetImValues (matrix) != nullptr);
+  }
+}
+
+TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixDeviceRefTest)
+{
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
+    oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrixDeviceRef(deviceMatrix);
+    EXPECT_EQ (rows, CudaUtils::GetRows (matrix));
+    EXPECT_EQ (columns, CudaUtils::GetColumns (matrix));
+    EXPECT_TRUE (CudaUtils::GetReValues (matrix) != nullptr);
+    EXPECT_TRUE (CudaUtils::GetImValues (matrix) != nullptr);
+  }
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
+    oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrixDeviceRef(deviceMatrix);
+    EXPECT_EQ (rows, CudaUtils::GetRows (matrix));
+    EXPECT_EQ (columns, CudaUtils::GetColumns (matrix));
+    EXPECT_TRUE (CudaUtils::GetReValues (matrix) != nullptr);
+    EXPECT_FALSE (CudaUtils::GetImValues (matrix) != nullptr);
+  }
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewImMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
+    oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrixDeviceRef(deviceMatrix);
+    EXPECT_EQ (rows, CudaUtils::GetRows (matrix));
+    EXPECT_EQ (columns, CudaUtils::GetColumns (matrix));
+    EXPECT_FALSE (CudaUtils::GetReValues (matrix) != nullptr);
+    EXPECT_TRUE (CudaUtils::GetImValues (matrix) != nullptr);
+  }
+}
+
+TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixCopyOfHostMatrixTest)
+{
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
+    EXPECT_EQ (rows, CudaUtils::GetRows (matrix));
+    EXPECT_EQ (columns, CudaUtils::GetColumns (matrix));
+    EXPECT_TRUE (CudaUtils::GetReValues (matrix) != nullptr);
+    EXPECT_TRUE (CudaUtils::GetImValues (matrix) != nullptr);
+  }
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
+    EXPECT_EQ (rows, CudaUtils::GetRows (matrix));
+    EXPECT_EQ (columns, CudaUtils::GetColumns (matrix));
+    EXPECT_TRUE (CudaUtils::GetReValues (matrix) != nullptr);
+    EXPECT_FALSE (CudaUtils::GetImValues (matrix) != nullptr);
+  }
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewImMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
+    EXPECT_EQ (rows, CudaUtils::GetRows (matrix));
+    EXPECT_EQ (columns, CudaUtils::GetColumns (matrix));
+    EXPECT_FALSE (CudaUtils::GetReValues (matrix) != nullptr);
+    EXPECT_TRUE (CudaUtils::GetImValues (matrix) != nullptr);
+  }
+}
+
+TEST_F(OapCudaMatrixUtilsTests, NewHostMatrixCopyOfDeviceMatrixTest)
+{
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
+    oap::HostMatrixUPtr matrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix(deviceMatrix);
+    EXPECT_EQ (rows, matrix->rows);
+    EXPECT_EQ (columns, matrix->columns);
+    EXPECT_TRUE (matrix->reValues != nullptr);
+    EXPECT_TRUE (matrix->imValues != nullptr);
+  }
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
+    oap::HostMatrixUPtr matrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix(deviceMatrix);
+    EXPECT_EQ (rows, matrix->rows);
+    EXPECT_EQ (columns, matrix->columns);
+    EXPECT_TRUE (matrix->reValues != nullptr);
+    EXPECT_FALSE (matrix->imValues != nullptr);
+  }
+  {
+    const uintt rows = 10;
+    const uintt columns = 5;
+    oap::HostMatrixUPtr hostMatrix = oap::host::NewImMatrix (columns, rows, 2.f);
+    oap::DeviceMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
+    oap::HostMatrixUPtr matrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix(deviceMatrix);
+    EXPECT_EQ (rows, matrix->rows);
+    EXPECT_EQ (columns, matrix->columns);
+    EXPECT_FALSE (matrix->reValues != nullptr);
+    EXPECT_TRUE (matrix->imValues != nullptr);
+  }
+}

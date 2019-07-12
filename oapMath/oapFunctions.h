@@ -17,37 +17,37 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_ROUTINE_H
-#define OAP_ROUTINE_H
+#ifndef OAP_MATH_FUNCTIONS
+#define OAP_MATH_FUNCTIONS
 
-#include "ArgsParser.h"
+#include <cmath>
+#include <numeric>
+#include <vector>
 
-namespace oap
-{
+#include "Math.h"
 
-class Routine
-{
-  public:
-    Routine() {}
-    virtual ~Routine() {}
+namespace oap { namespace math {
 
-    Routine(const Routine&) = delete;
-    Routine(Routine&&) = delete;
-    Routine& operator=(const Routine&) = delete;
-    Routine& operator=(Routine&&) = delete;
+  inline floatt sigmoid(floatt x)
+  {
+    return 1.f / (1.f + exp (-x));
+  }
 
-    int run (int argc, char* const* argv)
-    {
-      const oap::IArgsParser& parser = getArgsParser ();
-      parser.parse (argc, argv);
-      return runRoutine ();
-    }
+  inline floatt dsigmoid(floatt x)
+  {
+    return sigmoid(x) * (1.f - sigmoid(x));
+  }
 
-    virtual void onInterrupt() = 0;
+  inline floatt sum(const std::vector<floatt>& values)
+  {
+    return std::accumulate(values.begin(), values.end(), static_cast<floatt>(0));
+  }
 
-  protected:
-    virtual const oap::IArgsParser& getArgsParser() const = 0;
-    virtual int runRoutine () = 0;
-};;
+  inline floatt tanh(floatt x)
+  {
+    return ::tanh (x);
+  }
 }
+}
+
 #endif

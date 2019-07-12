@@ -28,6 +28,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
+#include "CuProcedures/CuAddDotProductProcedures.h"
 #include "CuProcedures/CuCompareProcedures.h"
 #include "CuProcedures/CuCompareOptProcedures.h"
 #include "CuProcedures/CuCompareOptProcedures2.h"
@@ -39,6 +40,7 @@
 #include "CuProcedures/CuMultiplicationProcedures.h"
 #include "CuProcedures/CuAdditionProcedures.h"
 #include "CuProcedures/CuSubstractionProcedures.h"
+#include "CuProcedures/CuAddSubstractionProcedures.h"
 #include "CuProcedures/CuConjugateTransposeProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
 #include "CuProcedures/CuIdentityProcedures.h"

@@ -32,7 +32,12 @@ Network::~Network()
 
 Layer* Network::createLayer (size_t neurons, const Activation& activation)
 {
-  Layer* layer = new Layer(activation);
+  return createLayer (neurons, false, activation);
+}
+
+Layer* Network::createLayer (size_t neurons, bool addBias, const Activation& activation)
+{
+  Layer* layer = new Layer(activation, addBias);
 
   layer->allocateNeurons (neurons);
   createLevel (layer);
@@ -149,25 +154,6 @@ math::Matrix* Network::getHostOutputs () const
   return getOutputs (matrix, Type::HOST);
 }
 
-void Network::forwardPropagation ()
-{
-  if (m_layers.size() < 2)
-  {
-    throw std::runtime_error ("m_layers.size() is lower than 2");
-  }
-
-  Layer* previous = nullptr;
-  Layer* current = m_layers[0];
-
-  for (size_t idx = 1; idx < m_layers.size(); ++idx)
-  {
-    previous = current;
-    current = m_layers[idx];
-    m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
-    activateFunc (current->m_inputs, current->m_sums, current->getActivation ());
-  }
-}
-
 void Network::calculateErrors (oap::ErrorType errorType)
 {
   debugAssert (m_expectedDeviceOutputs != nullptr);
@@ -182,10 +168,13 @@ void Network::calculateErrors (oap::ErrorType errorType)
   }
   else
   {
-    m_cuApi.substract (current->m_errors, m_expectedDeviceOutputs, current->m_inputs);
+    m_cuApi.addSubstract (current->m_errors, m_expectedDeviceOutputs, current->m_inputs);
     //m_cuApi.hadamardProduct (current->m_errors, current->m_errors, current->m_errors);
     //m_cuApi.multiplyReConstant (current->m_errors, current->m_errors, 0.5);
+    //++m_count;
   }
+
+  ++m_backwardCount;
 }
 
 math::Matrix* Network::getErrors (Type type) const
@@ -239,7 +228,7 @@ floatt Network::calculateSumMean ()
 
 floatt Network::calculateCrossEntropy ()
 {       
-  return (- calculateSum()) / m_layers.back()->getNeuronsCount ();
+  return (-calculateSum()) / m_layers.back()->getNeuronsCount ();
 }
 
 floatt Network::calculateError (oap::ErrorType errorType)
@@ -256,12 +245,36 @@ floatt Network::calculateError (oap::ErrorType errorType)
   return errorsFunctions [errorType]();
 }
 
+void Network::forwardPropagation ()
+{
+  if (m_layers.size() < 2)
+  {
+    throw std::runtime_error ("m_layers.size() is lower than 2");
+  }
+
+  Layer* previous = nullptr;
+  Layer* current = m_layers[0];
+
+  for (size_t idx = 1; idx < m_layers.size(); ++idx)
+  {
+    previous = current;
+    current = m_layers[idx];
+
+    if (previous->m_biasCount == 1)
+    {
+      oap::cuda::SetReValue (previous->m_inputs, 1, 1, previous->m_neuronsCount - 1);
+    }
+
+    m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
+    activateFunc (current->m_inputs, current->m_sums, current->getActivation ());
+  }
+}
+
 void Network::backwardPropagation ()
 {
   size_t idx = m_layers.size () - 1;
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
-
   do
   {
     next = current;
@@ -269,10 +282,38 @@ void Network::backwardPropagation ()
     current = m_layers[idx];
 
     m_cuApi.transpose (current->m_tweights, current->m_weights);
-    m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
+    m_cuApi.addDotProduct (current->m_errors, current->m_tweights, next->m_errors);
   }
   while (idx > 0);
   updateWeights();
+}
+
+void Network::updateWeights()
+{
+  debugFunc();
+  Layer* current = nullptr;
+  Layer* next = m_layers[0];
+
+  for (size_t idx = 1; idx < m_layers.size(); ++idx)
+  {
+    current = next;
+    next = m_layers[idx];
+
+    multiplyReConstant (current->m_errors, current->m_errors, 1. / this->m_backwardCount);
+    transpose (current->m_tinputs, current->m_inputs);
+    tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
+    multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
+    derivativeFunc (next->m_sums, next->m_sums, next->getActivation ());
+    hadamardProductVec (current->m_weights2, current->m_weights1, next->m_sums);
+    add (current->m_weights, current->m_weights, current->m_weights2);
+  }
+
+  for (size_t idx = 0; idx < m_layers.size(); ++idx)
+  {
+    resetErrors (m_layers[idx]);
+  }
+
+  m_backwardCount = 0;
 }
 
 bool Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, Type argsType, oap::ErrorType errorType)
@@ -382,27 +423,6 @@ void Network::destroyLayers()
   m_layers.clear();
 }
 
-void Network::updateWeights()
-{
-  debugFunc();
-  Layer* current = nullptr;
-  Layer* next = m_layers[0];
-
-  for (size_t idx = 1; idx < m_layers.size(); ++idx)
-  {
-    current = next;
-    next = m_layers[idx];
-
-    transpose (current->m_tinputs, current->m_inputs);
-    tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
-    multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
-    derivativeFunc (next->m_sums, next->m_sums, next->getActivation ());
-    hadamardProductVec (current->m_weights2, current->m_weights1, next->m_sums);
-    add (current->m_weights, current->m_weights, current->m_weights2);
-    logInfo ("m_weights %p %s", current, oap::cuda::to_string(current->m_weights).c_str());
-  }
-}
-
 void Network::setHostInputs (math::Matrix* inputs, size_t layerIndex)
 {
   Layer* layer = getLayer(layerIndex);
@@ -459,6 +479,20 @@ void Network::printLayersWeights ()
     getLayer(idx)->printHostWeights (true);
   }
 }
+
+void Network::resetErrors (Layer* layer)
+{
+  m_cuApi.setZeroMatrix (layer->m_errors);
+}
+
+void Network::resetErrors ()
+{
+  for (size_t idx = 0; idx < getLayersCount(); ++idx)
+  {
+    resetErrors (m_layers[idx]);
+  }
+}
+
 
 bool Network::operator!= (const Network& network) const
 {

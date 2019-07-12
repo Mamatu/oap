@@ -75,7 +75,7 @@ class SLEntity
 
 enum class Activation
 {
-  IDENTITY,
+  LINEAR,
   SIGMOID,
   TANH,
   SIN
@@ -90,7 +90,6 @@ private:
   math::Matrix* m_sums = nullptr;
   math::Matrix* m_tsums = nullptr;
   math::Matrix* m_errors = nullptr;
-  math::Matrix* m_terrors = nullptr;
   math::Matrix* m_weights = nullptr;
   math::Matrix* m_tweights = nullptr;
   math::Matrix* m_weights1 = nullptr;
@@ -98,6 +97,13 @@ private:
 
   size_t m_neuronsCount = 0;
   size_t m_nextLayerNeuronsCount = 0;
+
+  size_t m_biasCount = 0;
+
+  inline size_t getTotalNeuronsCount () const
+  {
+    return m_neuronsCount + m_biasCount;
+  }
 
   std::pair<size_t, size_t> m_weightsDim;
 
@@ -109,7 +115,7 @@ private:
   Activation m_activation;
 
 public:
-  Layer(const Activation& activation = Activation::SIGMOID);
+  Layer(const Activation& activation = Activation::SIGMOID, bool addBias = false);
 
   ~Layer();
 
@@ -117,6 +123,9 @@ public:
   {
     return m_activation;
   }
+
+  math::MatrixInfo getOutputsDim () const;
+  void getOutputs (math::Matrix* matrix, oap::Type type) const;
 
   void setHostInputs(const math::Matrix* hInputs);
   void setDeviceInputs(const math::Matrix* dInputs);
@@ -143,7 +152,7 @@ public:
 
   void setDeviceWeights (math::Matrix* weights);
 
-  void initRandomWeights();
+  void initRandomWeights ();
 
   static std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix(size_t columns, size_t rows);
 

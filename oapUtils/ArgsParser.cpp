@@ -87,7 +87,7 @@ void ArgsParser::registerArg (const std::string& larg, const ArgsParser::Callbac
   m_callbacks[std::make_pair(larg, 0)] = callback;
 }
 
-void ArgsParser::parse (int argc, char **argv) const
+void ArgsParser::parse (int argc, char* const* argv) const
 {
   if (m_callbacks.size() > 0 && argc == 1)
   {
@@ -141,7 +141,7 @@ void ArgsParser::parse (int argc, char **argv) const
 
   resetOptGet ();
 
-  while ((opt = getopt_long_only(argc, argv, "", long_options.data(), &long_index)) != -1)
+  while ((opt = getopt_long_only (argc, argv, "", long_options.data(), &long_index)) != -1)
   {
     switch (opt)
     {

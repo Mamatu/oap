@@ -56,6 +56,7 @@ public:
   Network& operator= (Network&&) = delete;
 
   Layer* createLayer (size_t neurons, const Activation& activation = Activation::SIGMOID);
+  Layer* createLayer (size_t neurons, bool addBias, const Activation& activation = Activation::SIGMOID);
 
   oap::HostMatrixUPtr run (math::Matrix* hostInputs, Type argsType, oap::ErrorType errorType);
 
@@ -79,6 +80,8 @@ public:
   floatt calculateError (oap::ErrorType errorType);
 
   void backwardPropagation ();
+
+  void updateWeights();
 
   bool train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, Type argsType, oap::ErrorType errorType);
 
@@ -112,6 +115,18 @@ public:
   bool operator!= (const Network& network) const;
 
   void printLayersWeights ();
+
+  void resetErrors (Layer* layer);
+  void resetErrors ();
+
+  template<typename Callback>
+  void iterateLayers (Callback&& callback)
+  {
+    for (auto it = m_layers.cbegin(); it != m_layers.cend(); ++it)
+    {
+      callback (*it);
+    }
+  }
 
 protected:
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
@@ -153,7 +168,7 @@ protected:
       case Activation::SIGMOID:
         m_cuApi.sigmoid (output, input);
       break;
-      case Activation::IDENTITY:
+      case Activation::LINEAR:
         m_cuApi.identity (output, input);
       break;
       case Activation::TANH:
@@ -172,7 +187,7 @@ protected:
       case Activation::SIGMOID:
         m_cuApi.sigmoidDerivative (output, input);
       break;
-      case Activation::IDENTITY:
+      case Activation::LINEAR:
         m_cuApi.identityDerivative (output, input);
       break;
       case Activation::TANH:
@@ -183,13 +198,10 @@ protected:
       break;
     };
   }
-
 private:
   std::vector<Layer*> m_layers;
 
   void destroyLayers();
-
-  void updateWeights();
 
   inline void calculateError();
 
@@ -202,6 +214,7 @@ private:
 
   oap::DeviceMatrixPtr m_expectedDeviceOutputs = nullptr;
   IController* m_icontroller = nullptr;
+  size_t m_backwardCount = 0;
 
   std::ostream& log()
   {

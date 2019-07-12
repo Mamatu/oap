@@ -155,3 +155,14 @@ TEST_F(OapThreadsMapperTests, Test7)
   EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
 }
 
+TEST_F(OapThreadsMapperTests, Test8)
+{
+  m_columns = 400;
+  m_rows = 20;
+
+  calculate();
+
+  EXPECT_LE(m_columns, m_blocks[0] * m_threads[0]);
+  EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
+}
+
