@@ -25,7 +25,7 @@
 #include "Matrix.h"
 #include "MatrixInfo.h"
 
-#include "DebugLogs.h"
+#include "Logger.h"
 
 class MatricesList
 {

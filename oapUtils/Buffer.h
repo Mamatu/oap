@@ -27,7 +27,7 @@
 #include <sstream>
 #include <memory>
 
-#include <DebugLogs.h>
+#include <Logger.h>
 #include <Math.h>
 
 namespace utils

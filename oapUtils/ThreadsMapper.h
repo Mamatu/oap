@@ -21,7 +21,7 @@
 #define	THREADSMAPPER_H
 
 #include <stdio.h>
-#include "DebugLogs.h"
+#include "Logger.h"
 #include "Math.h"
 
 namespace utils {

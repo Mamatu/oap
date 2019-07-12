@@ -109,7 +109,7 @@ math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
 {
 
   math::MatrixInfo matrixInfo = math::MatrixInfo (allocRe, allocIm, columns, rows);
-  debug ("Try to allocate: %s", matrixInfo.toString().c_str());
+  logTrace ("Try to allocate: %s", matrixInfo.toString().c_str());
 
   CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, columns, rows);
   math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
@@ -171,7 +171,7 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix)
 
     if (minfo.isInitialized ())
     {
-      debugInfo ("Deallocate: cuda matrix = %p %s", dMatrix, minfo.toString().c_str());
+      logTrace ("Deallocate: cuda matrix = %p %s", dMatrix, minfo.toString().c_str());
     }
   }
 }

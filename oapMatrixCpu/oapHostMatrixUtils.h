@@ -21,7 +21,7 @@
 #define OAP_HOST_MATRIX_UTILS_H
 
 #include "ByteBuffer.h"
-#include "DebugLogs.h"
+#include "Logger.h"
 
 #include "Matrix.h"
 #include "MatrixInfo.h"

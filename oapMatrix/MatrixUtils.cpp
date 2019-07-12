@@ -22,7 +22,7 @@
 #include <locale>
 #include <math.h>
 #include <stdlib.h>
-#include <DebugLogs.h>
+#include <Logger.h>
 
 namespace matrixUtils {
 

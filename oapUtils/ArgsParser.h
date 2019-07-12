@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <getopt.h>
 
-#include <DebugLogs.h>
+#include <Logger.h>
 
 namespace oap
 {

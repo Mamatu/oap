@@ -6,7 +6,7 @@
 #include <functional>
 
 #include "Math.h"
-#include "DebugLogs.h"
+#include "Logger.h"
 
 namespace test_ForwardPropagation_PyPlotCoords
 {

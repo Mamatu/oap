@@ -18,7 +18,7 @@
  */
 
 #include "CuProceduresApi.h"
-#include "DebugLogs.h"
+#include "Logger.h"
 #include "ThreadsMapper.h"
 #include "HostMatrixKernels.h"
 #include "oapCudaMatrixUtils.h"
