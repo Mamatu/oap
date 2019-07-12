@@ -40,7 +40,7 @@ namespace oap
 
         oap::ErrorType errorType = oap::ErrorType::CROSS_ENTROPY;
 
-        std::vector<uint> networkLayers = {20*20, 2, 1};
+        std::vector<uint> networkLayers;
       
         using OutputCallback = std::function<void(const std::vector<floatt>&)>;
       
