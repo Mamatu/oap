@@ -34,6 +34,7 @@ template<typename UnaryPredicate>
 std::vector<char*> copyArgsIf (char** argv, int argc, UnaryPredicate predicate)
 {
   std::vector<char*> vec;
+
   for (int idx = 0; idx < argc; ++idx)
   {
     if (predicate (argv[idx]))
@@ -43,6 +44,10 @@ std::vector<char*> copyArgsIf (char** argv, int argc, UnaryPredicate predicate)
       strcpy (narg, argv[idx]);
       narg[len] = '\0';
       vec.push_back (narg);
+    }
+    else
+    {
+      ++idx; // in the case of skipping some argument we must also skip its value (for example: --name (idx = 1) some_name(idx = 2))
     }
   }
 
@@ -102,15 +107,19 @@ int main(int argc, char** argv)
 
     auto pred = [] (const std::string& arg)
     {
-      return !(arg == std::string(g_routinesNameArg));
+      return !(arg == "--" + std::string(g_routinesNameArg));
     };
     std::vector<char*> nargv = std::move (copyArgsIf (argv, argc, pred));
 
-    auto thread = std::thread([&routine, nargv]()
+    auto thread = std::thread([&routine, &value, nargv]()
     {
       char* const* argv = nargv.data();
       const size_t nargc = nargv.size();
-      routine->run (nargc, argv);
+      int status = routine->run (nargc, argv);
+      if (status != 0)
+      {
+        logError ("Routine %s exit with %d", value.c_str(), status);
+      }
     });
 
     thread.join ();
