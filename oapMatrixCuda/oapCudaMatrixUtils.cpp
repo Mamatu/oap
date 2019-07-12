@@ -519,6 +519,11 @@ void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
 
 void ToString (std::string& str, const math::Matrix* devMatrix)
 {
+  if (devMatrix == nullptr)
+  {
+    str = "nullptr";
+    return;
+  }
   oap::HostMatrixUPtr ptr = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (devMatrix);
   oap::host::ToString (str, ptr);
 }
