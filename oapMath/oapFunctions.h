@@ -20,9 +20,9 @@
 #ifndef OAP_MATH_FUNCTIONS
 #define OAP_MATH_FUNCTIONS
 
-#include "cmath"
-#include "numeric"
-#include "vector"
+#include <cmath>
+#include <numeric>
+#include <vector>
 
 #include "Math.h"
 
@@ -41,6 +41,11 @@ namespace oap { namespace math {
   inline floatt sum(const std::vector<floatt>& values)
   {
     return std::accumulate(values.begin(), values.end(), static_cast<floatt>(0));
+  }
+
+  inline floatt tanh(floatt x)
+  {
+    return ::tanh (x);
   }
 }
 }
