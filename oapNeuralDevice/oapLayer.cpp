@@ -34,7 +34,7 @@ void Layer::checkHostInputs(const math::Matrix* hostInputs)
   }
 }
 
-Layer::Layer(const Activation& activation) : m_activation(activation)
+Layer::Layer(const Activation& activation, bool addBias) : m_activation(activation), m_biasCount (addBias ? 1 : 0)
 {}
 
 Layer::~Layer()
@@ -94,24 +94,24 @@ void Layer::deallocate(math::Matrix** matrix)
 
 void Layer::allocateNeurons(size_t neuronsCount)
 {
-  debugInfo ("Layer %p allocates %lu neurons", this, neuronsCount);
+  debugInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", this, neuronsCount + m_biasCount, neuronsCount, m_biasCount);
   m_neuronsCount = neuronsCount;
 
-  m_inputs = oap::cuda::NewDeviceReMatrix (1, m_neuronsCount);
+  m_inputs = oap::cuda::NewDeviceReMatrix (1, getTotalNeuronsCount());
   m_sums = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
-  m_tsums = oap::cuda::NewDeviceMatrix (m_neuronsCount, 1);
+  m_tsums = oap::cuda::NewDeviceMatrix (getTotalNeuronsCount(), 1);
   m_errors = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
-  m_tinputs = oap::cuda::NewDeviceReMatrix (m_neuronsCount, 1); //todo: use transpose
+  m_tinputs = oap::cuda::NewDeviceReMatrix (getTotalNeuronsCount(), 1); //todo: use transpose
 }
 
 void Layer::allocateWeights(const Layer* nextLayer)
 {
-  m_weights = oap::cuda::NewDeviceReMatrix (m_neuronsCount, nextLayer->m_neuronsCount);
-  m_tweights = oap::cuda::NewDeviceReMatrix (nextLayer->m_neuronsCount, m_neuronsCount);
+  m_weights = oap::cuda::NewDeviceReMatrix (getTotalNeuronsCount(), nextLayer->getTotalNeuronsCount());
+  m_tweights = oap::cuda::NewDeviceReMatrix (nextLayer->getTotalNeuronsCount(), getTotalNeuronsCount());
   m_weights1 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
   m_weights2 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
   logInfo ("m_weights2 %p %s", this, oap::cuda::to_string(m_weights2).c_str());
-  m_weightsDim = std::make_pair(m_neuronsCount, nextLayer->m_neuronsCount);
+  m_weightsDim = std::make_pair(getTotalNeuronsCount(), nextLayer->getTotalNeuronsCount());
 
   m_nextLayerNeuronsCount = nextLayer->m_neuronsCount;
 
@@ -174,7 +174,7 @@ std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> Layer::c
 
   std::random_device rd;
   std::default_random_engine dre (rd());
-  std::uniform_real_distribution<> dis(0., 1.);
+  std::uniform_real_distribution<> dis(-0.5, 0.5);
 
   for (size_t idx = 0; idx < columns * rows; ++idx)
   {
@@ -184,7 +184,7 @@ std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> Layer::c
   return std::move (randomMatrix);
 }
 
-void Layer::initRandomWeights()
+void Layer::initRandomWeights ()
 {
   if (m_weights == nullptr)
   {
