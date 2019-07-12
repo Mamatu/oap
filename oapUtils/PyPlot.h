@@ -3,8 +3,6 @@
 
 #include "Math.h"
 
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -14,23 +12,11 @@
 
 namespace oap { namespace pyplot {
 
-template<typename T>
-std::ostream& operator<< (std::ostream& stream, const std::vector<T>& vec)
+enum class FileType
 {
-  stream << "[";
-  const size_t sizeM1 = vec.size() - 1;
-
-  for (size_t idx = 0; idx < sizeM1; ++idx)
-  {
-    stream << vec[idx];
-    stream << ", ";
-  }
-
-  stream << vec[sizeM1];
-  stream << "]";
-
-  return stream;
-}
+  OAP_PYTHON_FILE,
+  OAP_PYTHON_AND_CSV_FILE
+};
 
 class Feature
 {
@@ -57,21 +43,21 @@ class DataSet
     std::vector<Feature> m_features;
 };
 
-using Data = std::map<size_t, DataSet>;
+using Data = std::map<int, DataSet>;
 
 template<typename Coordinates>
 void convert(Data& data, const Coordinates& coordinates)
 {
   for (const auto& coord : coordinates)
   {
-    size_t id = coord.getSetId();
-    auto it = data.find (id);
+    int label = coord.getGeneralLabel();
+    auto it = data.find (label);
     if (it == data.end ())
     {
-      data[id] = DataSet ();
+      data[label] = DataSet ();
     }
 
-    DataSet& dataSet = data [id];
+    DataSet& dataSet = data [label];
     dataSet.m_features.resize (coord.size());
     for (size_t idx = 0; idx < coord.size(); ++idx)
     {
@@ -89,91 +75,13 @@ Data convert(const Coordinates& coordinates)
   return data;
 }
 
-void plot2D(const std::string& filePath, const Data& data, const std::vector<size_t>& indecies)
-{
-  const std::vector<std::pair<std::string, std::string>> imports = {std::make_pair("matplotlib.pyplot","plt")};
-  
-  auto deleter = [](std::ofstream* stream)
-  {
-    stream->close();
-    delete stream;
-  };
+void plot2D(const std::string& filePath, const Data& data, FileType fileType = FileType::OAP_PYTHON_AND_CSV_FILE);
+void plot2D(const std::string& filePath, const Data& data, const std::vector<size_t>& indecies, FileType fileType = FileType::OAP_PYTHON_AND_CSV_FILE);
 
-  std::unique_ptr<std::ofstream, decltype(deleter)> file (new std::ofstream(filePath, std::ofstream::out), deleter);
-
-  for (const auto& import : imports)
-  {
-    if (!import.first.empty ())
-    {
-      *file << "import " << import.first;
-    }
-
-    if (!import.second.empty ())
-    {
-      *file << " as " << import.second;
-    }
-
-    *file << std::endl;
-  }
-
-  auto printArray = [&file](const std::string& marker, const std::vector<floatt>& values)
-  {
-    std::stringstream stream;
-    stream << marker << " = " << values;
-    stream << std::endl;
-    *file << stream.str();
-  };
-
-  for (const auto& dataSetId : data)
-  {
-    const auto& dataSet = dataSetId.second;
-    size_t id = dataSetId.first;
-
-    auto getIndex = [&indecies] (size_t idx)
-    {
-      if (indecies.empty())
-      {
-        return idx;
-      }
-      return indecies[idx];
-    };
-
-    auto getSize = [&indecies, &dataSet]()
-    {
-      if (indecies.empty())
-      {
-        return dataSet.m_features.size();
-      }
-      return indecies.size();
-    };
-
-    std::stringstream x_marker;
-    x_marker << "x_" << id;
-    printArray (x_marker.str(), dataSet.m_features[getIndex(0)].m_values);
-
-    for (size_t idx = 1; idx < getSize(); ++idx)
-    {
-      std::stringstream y_marker;
-      size_t dataIdx = getIndex(idx);
-
-      y_marker << "y_" << id << "_" << idx;
-
-      printArray (y_marker.str (), dataSet.m_features[dataIdx].m_values);
-
-      *file << "plt.plot(" << x_marker.str() << "," << y_marker.str () << ",\"" << dataSet.m_features[dataIdx].m_formatString << "\")" << std::endl;
-    }
-  }
-  *file << "plt.show()" << std::endl;
-}
-
-void plot2DAll(const std::string& filePath, const Data& data)
-{
-  std::vector<size_t> indecies;
-  plot2D (filePath, data, indecies);
-}
+void plot2DAll(const std::string& filePath, const Data& data, FileType fileType = FileType::OAP_PYTHON_AND_CSV_FILE);
 
 template<typename Values>
-void plotLinear (const std::string& filePath, std::initializer_list<Values> valuesVec, std::vector<std::string> formatStrings)
+void plotLinear (const std::string& filePath, std::initializer_list<Values> valuesVec, std::vector<std::string> formatStrings, FileType fileType = FileType::OAP_PYTHON_AND_CSV_FILE)
 {
   debugAssert (valuesVec.size() > 1);
 
@@ -200,12 +108,74 @@ void plotLinear (const std::string& filePath, std::initializer_list<Values> valu
 
   Data data;
   data[0] = (dataSet);
-  plot2DAll (filePath, data);
+  plot2DAll (filePath, data, fileType);
 }
 
-void plot2D(const std::string& filePath, const Data& data)
+template<typename GetLabel>
+void plotCoords2D /*= [&network, &houtput, &hinput]*/ (const std::string& path, const std::tuple<floatt, floatt, floatt>& xRange, const std::tuple<floatt, floatt, floatt>& yRange, GetLabel&& getLabel, const std::vector<std::string>& formatStrings)
 {
-  plot2D (filePath, data, {0, 1});
+  class CoordXY
+  {
+    private:
+      floatt x;
+      floatt y;
+      size_t label;
+      const std::vector<std::string>& formatStrings;
+
+    public:
+      CoordXY (floatt _x, floatt _y, size_t _label, const std::vector<std::string>& _formatStrings) : x(_x), y(_y), label(_label), formatStrings(_formatStrings)
+      {}
+
+      floatt getX() const { return x; }
+      floatt getY() const { return y; }
+      int getGeneralLabel () const { return static_cast<int>(label); }
+
+      size_t size() const
+      {
+        return 2;
+      }
+
+      floatt at (size_t idx) const
+      {
+        switch (idx)
+        {
+          case 0:
+          return getX();
+          case 1:
+          return getY();
+        };
+        return getY();
+      }
+
+      std::string getFormatString (size_t idx) const
+      {
+        return formatStrings[getGeneralLabel()];
+      }
+  };
+
+  std::vector<CoordXY> coords;
+  //oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
+  //oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+
+  for (floatt x = std::get<0>(xRange); x < std::get<1>(xRange); x += std::get<2>(xRange))
+  {
+    for (floatt y = std::get<0>(yRange); y < std::get<1>(yRange); y += std::get<2>(yRange))
+    {
+     // hinput->reValues[0] = x;
+     // hinput->reValues[1] = y;
+     // hinput->reValues[2] = 1;
+
+     // network->setInputs (hinput, Network::HOST);
+     // network->setExpected (houtput, Network::HOST);
+
+     // network->forwardPropagation ();
+
+     // network->getOutputs (houtput.get(), Network::HOST);
+      coords.push_back (CoordXY(x, y, getLabel(x, y), formatStrings));
+    }
+  }
+
+  oap::pyplot::plot2DAll (path, oap::pyplot::convert (coords), oap::pyplot::FileType::OAP_PYTHON_FILE);
 }
 
 }}
