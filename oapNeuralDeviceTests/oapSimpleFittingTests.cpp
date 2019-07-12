@@ -184,7 +184,7 @@ TEST_F(OapSimpleFittingTests, SinFitting_Test)
   };
 
   std::shared_ptr<Network> network (new Network());
-  network->createLayer(1 + 1, Activation::IDENTITY);
+  network->createLayer(1 + 1, Activation::LINEAR);
   network->createLayer(1, Activation::SIN);
 
   network->setLearningRate (0.1);
