@@ -1,6 +1,6 @@
 MODE := Debug
 PLATFORM := samsung
-EXTRA_CXXOPTIONS :=
-EXTRA_NVCCOPTIONS :=
+USER_CXXOPTIONS :=
+USER_NVCCOPTIONS :=
 CXX := g++
 NVCC := nvcc --compiler-bindir /usr/bin/gcc-4.8
