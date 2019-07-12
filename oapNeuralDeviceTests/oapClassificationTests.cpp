@@ -147,7 +147,7 @@ class Coordinate
       return "b*";
     }
 
-    int getLabel () const
+    int getGeneralLabel () const
     {
       if (label < 0)
       {
@@ -155,6 +155,11 @@ class Coordinate
       }
 
       return 1;
+    }
+
+    floatt getPreciseLabel () const
+    {
+      return label;
     }
 
     void setLabel (floatt label)
@@ -187,8 +192,8 @@ TEST_F(OapClassificationTests, CircleDataTest)
   };
 
   Coordinates coordinates;
-  generateCoords (coordinates, 0.0, 0.75, 100, 1);
-  generateCoords (coordinates, 1.3, 2, 100, -1);
+  generateCoords (coordinates, 0.0, 0.75, 200, 1);
+  generateCoords (coordinates, 1.3, 2, 200, -1);
 
   Coordinates trainingData, testData;
 
@@ -245,13 +250,16 @@ TEST_F(OapClassificationTests, CircleDataTest)
     return modifiableCoordinates;
   };
 
-  oap::pyplot::plot2DAll ("/tmp/plot_coords.py", oap::pyplot::convert (coordinates));
-  //normalize (coordinates);
-  oap::pyplot::plot2DAll ("/tmp/plot_normalize_coords.py", oap::pyplot::convert(coordinates));
+  oap::pyplot::FileType fileType = oap::pyplot::FileType::OAP_PYTHON_FILE;
+
+  oap::pyplot::plot2DAll ("/tmp/plot_coords.py", oap::pyplot::convert (coordinates), fileType);
+  normalize (coordinates);
+  oap::pyplot::plot2DAll ("/tmp/plot_normalize_coords.py", oap::pyplot::convert(coordinates), fileType);
+
   auto modifiedCoordinates = splitIntoTestAndTrainingSet (coordinates, trainingData, testData, 2.f / 3.f);
 
-  oap::pyplot::plot2DAll ("/tmp/plot_test_data.py", oap::pyplot::convert(testData));
-  oap::pyplot::plot2DAll ("/tmp/plot_training_data.py", oap::pyplot::convert(trainingData));
+  oap::pyplot::plot2DAll ("/tmp/plot_test_data.py", oap::pyplot::convert(testData), fileType);
+  oap::pyplot::plot2DAll ("/tmp/plot_training_data.py", oap::pyplot::convert(trainingData), fileType);
  
   for (size_t idx = 0; idx < trainingData.size(); ++idx)
   {
@@ -266,33 +274,32 @@ TEST_F(OapClassificationTests, CircleDataTest)
   logInfo ("training data = %lu", trainingData.size());
 
   size_t batchSize = 10;
-  std::random_device r;
-  std::default_random_engine e1(r());
-  std::uniform_int_distribution<int> uniform_dist(0, trainingData.size());
 
   {
     std::unique_ptr<Network> network (new Network());
-    network->setLearningRate (0.03);
 
-    network->createLayer(2, Activation::TANH);
+    floatt initLR = 0.03;
+    network->setLearningRate (initLR);
+
+    network->createLayer(3, Activation::TANH);
     network->createLayer(3, Activation::TANH);
     network->createLayer(1, Activation::TANH);
 
-
-    oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 2);
+    oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
     oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
     auto forwardPropagation = [&hinput, &houtput, &network] (const Coordinate& coordinate)
     {
       hinput->reValues[0] = coordinate.getX();
       hinput->reValues[1] = coordinate.getY();
-      houtput->reValues[0] = coordinate.label;
+      hinput->reValues[2] = 1;
+      houtput->reValues[0] = coordinate.getPreciseLabel();
 
       network->setInputs (hinput, Network::HOST);
       network->setExpected (houtput, Network::HOST);
 
       network->forwardPropagation ();
-      network->calculateErrors (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+      network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
     };
 
     auto calculateCoordsError = [&forwardPropagation, &network, &houtput](const Coordinates& coords, Coordinates* output = nullptr)
@@ -311,25 +318,39 @@ TEST_F(OapClassificationTests, CircleDataTest)
         }
       }
 
-
-      floatt error = network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+      floatt error = network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
       network->resetErrors ();
       return error / static_cast<floatt> (coords.size());
     };
 
-    auto calculateCoordsErrorPlot = [&calculateCoordsError](const Coordinates& coords, const std::string& path)
+    auto calculateCoordsErrorPlot = [&calculateCoordsError, fileType](const Coordinates& coords, const std::string& path)
     {
       Coordinates pcoords;
       floatt output = calculateCoordsError (coords, &pcoords);
-      oap::pyplot::plot2DAll (path, oap::pyplot::convert (pcoords));
+      oap::pyplot::plot2DAll (path, oap::pyplot::convert (pcoords), fileType);
       return output;
+    };
+
+    auto getLabel = [&network, &houtput, &hinput] (floatt x, floatt y)
+    {
+      hinput->reValues[0] = x;
+      hinput->reValues[1] = y;
+      hinput->reValues[2] = 1;
+
+      network->setInputs (hinput, Network::HOST);
+      network->setExpected (houtput, Network::HOST);
+
+      network->forwardPropagation ();
+
+      network->getOutputs (houtput.get(), Network::HOST);
+
+      return houtput->reValues[0] < 0 ? 0 : 1;
     };
 
     std::vector<floatt> trainingErrors;
     std::vector<floatt> testErrors;
-    trainingErrors.reserve(250000);
-    testErrors.reserve(250000);
-
+    trainingErrors.reserve(1500);
+    testErrors.reserve(1500);
 
     floatt testError = std::numeric_limits<floatt>::max();
     size_t terrorCount = 1;
@@ -350,18 +371,18 @@ TEST_F(OapClassificationTests, CircleDataTest)
       while (idx < trainingData.size());
 
       floatt trainingError = -1;
-      if (terrorCount % 100 == 0)
+      if (true || terrorCount % 100 == 0 || terrorCount <= 100)
       {
-      {
-        std::stringstream path;
-        path << "/tmp/plot_estimated_test_" << terrorCount << ".py";
-        testError = calculateCoordsErrorPlot (testData, path.str());
-      }
-      {
-        std::stringstream path;
-        path << "/tmp/plot_estimated_train_" << terrorCount << ".py";
-        trainingError = calculateCoordsErrorPlot (trainingData, path.str());
-      }
+        {
+          std::stringstream path;
+          path << "/tmp/plot_estimated_test_" << terrorCount << ".py";
+          testError = calculateCoordsErrorPlot (testData, path.str());
+        }
+        {
+          std::stringstream path;
+          path << "/tmp/plot_estimated_train_" << terrorCount << ".py";
+          trainingError = calculateCoordsErrorPlot (trainingData, path.str());
+        }
       }
       else
       {
@@ -373,11 +394,18 @@ TEST_F(OapClassificationTests, CircleDataTest)
 
       testErrors.push_back (testError);
       trainingErrors.push_back (trainingError);
-      oap::pyplot::plotLinear ("/tmp/plot_errors.py", {trainingErrors, testErrors}, {"r-","b-"});
+      oap::pyplot::plotLinear ("/tmp/plot_errors.py", {trainingErrors, testErrors}, {"r-","b-"}, fileType);
 
       ++terrorCount;
+
+      if (testError < network->getLearningRate())
+      {
+        //network->setLearningRate (network->getLearningRate() * 0.1);
+      }
     }
-    while (testError > 0.00000001);
+    while (testError > 0.005 && terrorCount < 150);
+
+    oap::pyplot::plotCoords2D ("/tmp/plot_plane_xy.py", std::make_tuple(-200, 200, 1), std::make_tuple(-200, 200, 1), getLabel, {"r*", "b*"});
   }
 
   oap::cuda::Context::Instance().destroy();
