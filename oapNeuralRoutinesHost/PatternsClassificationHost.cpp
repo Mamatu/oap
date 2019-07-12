@@ -18,7 +18,7 @@ namespace oap
       debug ("patternPath2 = %s", m_args.patternPath2.c_str ());
     });
 
-    auto errorTypeF = [this](const std::string& value)
+    auto errorTypeCallback = [this](const std::string& value)
     {
       std::array<std::string, 4> expected =
       {
@@ -46,9 +46,9 @@ namespace oap
       }
     };
 
-    m_parser.registerArg ("error_type", errorTypeF);
+    m_parser.registerArg ("error_type", errorTypeCallback);
 
-    auto layersF = [this](const std::string& value)
+    auto layersCallback = [this](const std::string& value)
     {
       try
       {
@@ -83,20 +83,20 @@ namespace oap
       }
     };
   
-    m_parser.registerArg ("layers", layersF);
+    m_parser.registerArg ("layers", layersCallback);
 
-    auto savingF = [this](const std::string& path)
+    auto savingCallback = [this](const std::string& path)
     {
       m_args.savingPath = path;
     };
 
-    auto loadingF = [this](const std::string& path)
+    auto loadingCallback = [this](const std::string& path)
     {
       m_args.loadingPath = path;
     };
 
-    m_parser.registerArg ("save", savingF);
-    m_parser.registerArg ("load", loadingF);
+    m_parser.registerArg ("save", savingCallback);
+    m_parser.registerArg ("load", loadingCallback);
   }
 
   void PatternsClassificationParser::parse (int argc, char* const* argv) const
