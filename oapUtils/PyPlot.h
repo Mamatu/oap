@@ -8,7 +8,7 @@
 #include <map>
 
 #include <memory>
-#include "DebugLogs.h"
+#include "Logger.h"
 
 namespace oap { namespace pyplot {
 

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-#include "DebugLogs.h"
+#include "Logger.h"
 #include "KernelExecutor.h"
 #include "ThreadsMapper.h"
 

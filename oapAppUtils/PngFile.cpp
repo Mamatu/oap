@@ -19,7 +19,7 @@
 
 #include "PngFile.h"
 #include "Exceptions.h"
-#include "DebugLogs.h"
+#include "Logger.h"
 
 #include <map>
 

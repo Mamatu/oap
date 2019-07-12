@@ -22,7 +22,7 @@
 
 #include <pthread.h>
 #include <semaphore.h>
-#include "DebugLogs.h"
+#include "Logger.h"
 
 namespace utils {
 
