@@ -28,8 +28,10 @@
 #include "oapHostMatrixUtils.h"
 #include "oapNetwork.h"
 #include "oapFunctions.h"
-
+#include "PyPlot.h"
 #include "Config.h"
+
+#include "oapExpectedOutputs_ForwardPropagation_PyPlotCoords.h"
 
 class NetworkT : public Network
 {
@@ -396,7 +398,7 @@ TEST_F(OapNeuralTests, SimpleForwardPropagation_1)
   Layer* l1 = network->createLayer(2);
   Layer* l2 = network->createLayer(2);
   Layer* l3 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 2);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[2] = 1;
@@ -433,7 +435,7 @@ TEST_F(OapNeuralTests, SimpleForwardPropagation_2)
   Layer* l1 = network->createLayer(3);
   Layer* l2 = network->createLayer(3);
   Layer* l3 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[3] = 1;
@@ -478,7 +480,7 @@ TEST_F(OapNeuralTests, SimpleForwardPropagation_3)
   Layer* l1 = network->createLayer(3);
   Layer* l2 = network->createLayer(3);
   Layer* l3 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = 2;
   weights1to2->reValues[3] = 2;
@@ -523,7 +525,7 @@ TEST_F(OapNeuralTests, SimpleForwardPropagation_4)
   Layer* l1 = network->createLayer(3);
   Layer* l2 = network->createLayer(3);
   Layer* l3 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = 4;
   weights1to2->reValues[3] = 3;
@@ -572,13 +574,86 @@ TEST_F(OapNeuralTests, SimpleForwardPropagation_4)
   EXPECT_DOUBLE_EQ (sigmoid (sigmoid(6) + sigmoid(5) + sigmoid(4)), outputsL3->reValues[0]);
 }
 
+TEST_F(OapNeuralTests, ForwardPropagation_PyPlotCoords)
+{
+  Layer* l1 = network->createLayer(3, false, Activation::TANH);
+  Layer* l2 = network->createLayer(3, true, Activation::TANH);
+  Layer* l3 = network->createLayer(1, Activation::TANH);
+
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
+  weights1to2->reValues[0] = -1;
+  weights1to2->reValues[3] = 0.53;
+  weights1to2->reValues[6] = 0.33;
+  weights1to2->reValues[9] = 0;
+
+  weights1to2->reValues[1] = -0.1;
+  weights1to2->reValues[4] = -0.81;
+  weights1to2->reValues[7] = 0.92;
+  weights1to2->reValues[10] = 0;
+
+  weights1to2->reValues[2] = 2.2;
+  weights1to2->reValues[5] = 1.8;
+  weights1to2->reValues[8] = 1.8;
+  weights1to2->reValues[11] = 0;
+
+  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
+  weights2to3->reValues[0] = 4.7;
+  weights2to3->reValues[1] = 4.7;
+  weights2to3->reValues[2] = 4.7;
+  weights2to3->reValues[3] = -7.08;
+
+  l1->setHostWeights (weights1to2);
+  l2->setHostWeights (weights2to3);
+
+  oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+
+  size_t idx = 0;
+  auto getLabelIdx = [&hinputs, &houtput, this, &idx] (floatt x, floatt y)
+  {
+    hinputs->reValues[0] = x;
+    hinputs->reValues[1] = y;
+    hinputs->reValues[2] = 1;
+
+    network->setInputs (hinputs, Network::Type::HOST);
+
+    network->forwardPropagation ();
+
+    network->getOutputs (houtput.get(), Network::Type::HOST);
+
+    floatt output = houtput->reValues[0];
+
+    floatt expectedOutput = test_ForwardPropagation_PyPlotCoords::g_expected.at(idx).second;
+    EXPECT_NEAR (expectedOutput, output, 0.00001) << "Failure: x: " << x << " y: " << y << " expected: " << expectedOutput << " actual: " << output;
+    EXPECT_NEAR (x, test_ForwardPropagation_PyPlotCoords::g_expected.at(idx).first.first, 0.05);
+    EXPECT_NEAR (y, test_ForwardPropagation_PyPlotCoords::g_expected.at(idx).first.second, 0.05);
+    ++idx;
+
+    if (output < -0.5)
+    {
+      return 0;
+    }
+    else if (output >= -0.5 && output < 0)
+    {
+      return 1;
+    }
+    else if (output >= 0 && output < 0.5)
+    {
+      return 2;
+    }
+    return 3;
+  };
+
+  oap::pyplot::plotCoords2D ("/tmp/ForwardPropagation_PyPlotCoords.py", std::make_tuple(-6,6,0.1), std::make_tuple(-6,6,0.1), getLabelIdx, {"r.", "g.", "y.", "b."});
+}
+
 TEST_F(OapNeuralTests, SimpleBackwardPropagation_1)
 {
   using namespace oap::math;
 
   Layer* l1 = network->createLayer(2);
   Layer* l2 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[1] = 1;
@@ -591,7 +666,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_1)
 
   oap::HostMatrixPtr outputs = oap::host::NewReMatrix (1, 1);
   outputs->reValues[0] = sigmoid (2);
-  
+
   network->setInputs (inputs, Network::HOST);
   network->setExpected (outputs, Network::HOST);
 
@@ -624,7 +699,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_2)
 
   Layer* l1 = network->createLayer(2);
   Layer* l2 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[1] = 1;
@@ -637,7 +712,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_2)
 
   oap::HostMatrixPtr outputs = oap::host::NewReMatrix (1, 1);
   outputs->reValues[0] = sigmoid (2);
-  
+
   network->setInputs (inputs, Network::HOST);
   network->setExpected (outputs, Network::HOST);
 
@@ -670,7 +745,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_3)
 
   Layer* l1 = network->createLayer(2);
   Layer* l2 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[1] = 1;
@@ -690,7 +765,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_3)
   expectedOutputs->reValues[0] = sigmoid (2) + error;
 
   floatt lr = 0.01;
-  network->setLearningRate (lr);  
+  network->setLearningRate (lr);
 
   network->setInputs (inputs, Network::HOST);
   network->setExpected (expectedOutputs, Network::HOST);
@@ -724,7 +799,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_4)
 
   Layer* l1 = network->createLayer(2);
   Layer* l2 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[1] = 1;
@@ -743,7 +818,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_4)
   expectedOutputs->reValues[0] = sigmoid (3) + error;
 
   floatt lr = 0.01;
-  network->setLearningRate (lr);  
+  network->setLearningRate (lr);
 
   network->setInputs (inputs, Network::HOST);
   network->setExpected (expectedOutputs, Network::HOST);
@@ -766,11 +841,11 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_4)
 TEST_F(OapNeuralTests, SimpleBackwardPropagation_5)
 {
   using namespace oap::math;
-      
+
   Layer* l1 = network->createLayer(2);
   Layer* l2 = network->createLayer(3);
   Layer* l3 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
   weights1to2->reValues[0] = 1;
@@ -800,7 +875,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_5)
   expectedOutputs->reValues[0] = sigmoid (sigmoid (2) + sigmoid (2) + sigmoid (2));
 
   floatt lr = 0.01;
-  network->setLearningRate (lr);  
+  network->setLearningRate (lr);
 
   network->setInputs (inputs, Network::HOST);
   network->setExpected (expectedOutputs, Network::HOST);
@@ -829,11 +904,11 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_5)
 TEST_F(OapNeuralTests, SimpleBackwardPropagation_6)
 {
   using namespace oap::math;
-      
+
   Layer* l1 = network->createLayer(2);
   Layer* l2 = network->createLayer(3);
   Layer* l3 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
   std::vector<floatt> w1to2 = {1,1,1,1,1,1};
@@ -873,7 +948,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_6)
   expectedOutputs->reValues[0] = sigmoid (sum (activs2to3)) + error;
 
   floatt lr = 0.01;
-  network->setLearningRate (lr);  
+  network->setLearningRate (lr);
 
   network->setInputs (inputs, Network::HOST);
   network->setExpected (expectedOutputs, Network::HOST);
@@ -911,11 +986,11 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_6)
 TEST_F(OapNeuralTests, SimpleBackwardPropagation_7)
 {
   using namespace oap::math;
-      
+
   Layer* l1 = network->createLayer(2);
   Layer* l2 = network->createLayer(3);
   Layer* l3 = network->createLayer(1);
-  
+
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
   weights1to2->reValues[0] = 2;
@@ -946,7 +1021,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_7)
   expectedOutputs->reValues[0] = sigmoid (sigmoid (3) + sigmoid (2) + sigmoid (2)) + error;
 
   floatt lr = 0.01;
-  network->setLearningRate (lr);  
+  network->setLearningRate (lr);
 
   network->setInputs (inputs, Network::HOST);
   network->setExpected (expectedOutputs, Network::HOST);
@@ -980,3 +1055,77 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_7)
   EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), bweights2to3->reValues[1], limit);
   EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), bweights2to3->reValues[2], limit);
 }
+
+TEST_F(OapNeuralTests, SimpleBackwardPropagation_8)
+{
+  using namespace oap::math;
+
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
+
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
+
+  weights1to2->reValues[0] = 2;
+  weights1to2->reValues[1] = 1;
+  weights1to2->reValues[2] = 1;
+  weights1to2->reValues[3] = 1;
+  weights1to2->reValues[4] = 1;
+  weights1to2->reValues[5] = 1;
+
+  l1->setHostWeights (weights1to2);
+
+  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  weights2to3->reValues[0] = 1;
+  weights2to3->reValues[1] = 1;
+  weights2to3->reValues[2] = 1;
+
+  l2->setHostWeights (weights2to3);
+
+  oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+
+  std::vector<floatt> inputsVec = {1, 1};
+
+  inputs->reValues[0] = inputsVec[0];
+  inputs->reValues[1] = inputsVec[1];
+
+  oap::HostMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
+  floatt error = 0.001;
+  expectedOutputs->reValues[0] = sigmoid (sigmoid (3) + sigmoid (2) + sigmoid (2)) + error;
+
+  floatt lr = 0.01;
+  network->setLearningRate (lr);
+
+  network->setInputs (inputs, Network::HOST);
+  network->setExpected (expectedOutputs, Network::HOST);
+
+  network->forwardPropagation ();
+
+  network->calculateErrors (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+  logInfo ("BP %f", network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+
+  EXPECT_DOUBLE_EQ (error, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  network->backwardPropagation ();
+
+  oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
+  l1->getHostWeights (bweights1to2);
+
+  oap::HostMatrixPtr bweights2to3 = oap::host::NewReMatrix (3, 1);
+  l2->getHostWeights (bweights2to3);
+
+  floatt limit = 0.00001;
+
+  EXPECT_NEAR (2 + lr * (error * 1) * dsigmoid (sigmoid(3) + sigmoid(2)) * inputsVec[0], bweights1to2->reValues[0], limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], bweights1to2->reValues[1], limit);
+
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], bweights1to2->reValues[2], limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], bweights1to2->reValues[3], limit);
+
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], bweights1to2->reValues[4], limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], bweights1to2->reValues[5], limit);
+
+  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(3), bweights2to3->reValues[0], limit);
+  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), bweights2to3->reValues[1], limit);
+  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), bweights2to3->reValues[2], limit);
+}
+
