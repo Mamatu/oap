@@ -23,7 +23,7 @@
 #ifndef PARAMETERS_H
 #define	PARAMETERS_H
 
-#include "DebugLogs.h"
+#include "Logger.h"
 #include "Math.h"
 
 class Parameters {

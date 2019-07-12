@@ -21,7 +21,7 @@
 #include "gmock/gmock.h"
 
 #include "Config.h"
-#include "DebugLogs.h"
+#include "Logger.h"
 #include "Exceptions.h"
 #include "PngFile.h"
 

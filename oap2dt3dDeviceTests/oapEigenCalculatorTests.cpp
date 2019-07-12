@@ -278,13 +278,8 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
       std::string trace1;
       std::string trace2;
 
-      initTraceBuffer(1024);
       MatricesUPtr deviceEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::DEVICE, info, wantedEigensCount, maxIterationCount);
-      getTraceOutput(trace1);
-
-      initTraceBuffer(1024);
       MatricesUPtr hostEVectors = TestCuHArnoldiCallback::launchTest(ArnUtils::HOST, info, wantedEigensCount, maxIterationCount);
-      getTraceOutput(trace2);
 
       std::string pathTestDir = "/tmp/Oap/device_tests/";
       std::string pathTraceFiles = pathTestDir;
