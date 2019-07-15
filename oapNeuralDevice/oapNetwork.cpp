@@ -299,7 +299,7 @@ void Network::updateWeights()
     current = next;
     next = m_layers[idx];
 
-    multiplyReConstant (current->m_errors, current->m_errors, 1. / this->m_backwardCount);
+    multiplyReConstant (next->m_errors, next->m_errors, 1. / this->m_backwardCount);
     transpose (current->m_tinputs, current->m_inputs);
     tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
     multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
