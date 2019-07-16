@@ -275,6 +275,9 @@ void Network::backwardPropagation ()
   size_t idx = m_layers.size () - 1;
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
+
+  m_cuApi.multiplyReConstant (current->m_errors, current->m_errors, 1. / this->m_backwardCount);
+
   do
   {
     next = current;
@@ -299,13 +302,12 @@ void Network::updateWeights()
     current = next;
     next = m_layers[idx];
 
-    multiplyReConstant (next->m_errors, next->m_errors, 1. / this->m_backwardCount);
-    transpose (current->m_tinputs, current->m_inputs);
-    tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
-    multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
+    m_cuApi.transpose (current->m_tinputs, current->m_inputs);
+    m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
+    m_cuApi.multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
     derivativeFunc (next->m_sums, next->m_sums, next->getActivation ());
-    hadamardProductVec (current->m_weights2, current->m_weights1, next->m_sums);
-    add (current->m_weights, current->m_weights, current->m_weights2);
+    m_cuApi.hadamardProductVec (current->m_weights2, current->m_weights1, next->m_sums);
+    m_cuApi.add (current->m_weights, current->m_weights, current->m_weights2);
   }
 
   for (size_t idx = 0; idx < m_layers.size(); ++idx)

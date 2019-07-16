@@ -131,36 +131,6 @@ public:
 protected:
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
 
-  inline void transpose (math::Matrix* m_tinputs, math::Matrix* m_inputs)
-  {
-    m_cuApi.transpose (m_tinputs, m_inputs);
-  }
-
-  inline void tensorProduct (math::Matrix* m_weights1, math::Matrix* m_tinputs, math::Matrix* next_errors)
-  {
-    m_cuApi.tensorProduct (m_weights1, m_tinputs, next_errors);
-  }
-
-  inline void multiplyReConstant (math::Matrix* m_weights1Output, math::Matrix* m_weights1Input, floatt m_learningRate)
-  {
-    m_cuApi.multiplyReConstant (m_weights1Output, m_weights1Input, m_learningRate);
-  }
-
-  inline void sigmoidDerivative (math::Matrix* next_sums, math::Matrix* next_sums1)
-  {
-    m_cuApi.sigmoidDerivative (next_sums, next_sums1);
-  }
-
-  inline void hadamardProductVec (math::Matrix* m_weights2, math::Matrix* m_weights1, math::Matrix* next_sums)
-  {
-    m_cuApi.hadamardProductVec (m_weights2, m_weights1, next_sums);
-  }
-
-  inline void add (math::Matrix* m_weightsOutput, math::Matrix* m_weightsInput, math::Matrix* m_weights2)
-  {
-    m_cuApi.add (m_weightsOutput, m_weightsInput, m_weights2);
-  }
-
   inline void activateFunc (math::Matrix* output, math::Matrix* input, const Activation& activation)
   {
     switch (activation)
