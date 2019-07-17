@@ -146,10 +146,8 @@ math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows)
 math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue,
                               floatt imvalue)
 {
-  debugFuncBegin();
   math::Matrix* dmatrix =
     allocMatrix(true, true, columns, rows, revalue, imvalue);
-  debugFuncEnd();
   return dmatrix;
 }
 
