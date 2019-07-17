@@ -273,7 +273,7 @@ void DeleteMatrix(const math::Matrix* matrix)
 
   if (minfo.isInitialized ())
   {
-    debugInfo ("Deallocate: host matrix = %p %s", matrix, minfo.toString().c_str());
+    logTrace ("Deallocate: host matrix = %p %s", matrix, minfo.toString().c_str());
   }
 }
 
