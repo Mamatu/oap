@@ -67,17 +67,21 @@ void Network::addLayer (Layer* layer)
   m_layers.push_back (layer);
 }
 
-oap::HostMatrixUPtr Network::run (math::Matrix* inputs, Type argsType, oap::ErrorType errorType)
+oap::HostMatrixUPtr Network::run (math::Matrix* inputs, ArgType argType, oap::ErrorType errorType)
 {
   Layer* layer = m_layers.front();
 
-  if (argsType == Network::HOST)
+  if (argType == ArgType::HOST)
   {
     layer->setHostInputs (inputs);
   }
-  else if (argsType == Network::DEVICE)
+  else if (argType == ArgType::DEVICE_COPY)
   {
     oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
+  }
+  else if (argType == ArgType::DEVICE)
+  {
+    debugAssert ("not implemented yet" == nullptr);
   }
 
   forwardPropagation ();
@@ -90,55 +94,55 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, Type argsType, oap::Erro
   return oap::HostMatrixUPtr (output);
 }
 
-void Network::setInputs (math::Matrix* inputs, Type argsType)
+void Network::setInputs (math::Matrix* inputs, ArgType argType)
 {
   Layer* layer = m_layers.front();
 
-  if (argsType == Network::HOST)
+  if (argType == ArgType::HOST)
   {
     layer->setHostInputs (inputs);
   }
-  else if (argsType == Network::DEVICE)
+  else if (argType == ArgType::DEVICE)
   {
     layer->setDeviceInputs (inputs);
   }
 }
 
-void Network::setExpected (math::Matrix* expected, Type argsType)
+void Network::setExpected (math::Matrix* expected, ArgType argType)
 {
   Layer* layer = m_layers.front();
 
-  if (argsType == Network::HOST)
+  if (argType == ArgType::HOST)
   {
     m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixHostRef (expected);
     oap::cuda::CopyHostMatrixToDeviceMatrix (m_expectedDeviceOutputs, expected);
   }
-  else if (argsType == Network::DEVICE)
+  else if (argType == ArgType::DEVICE)
   {
     m_expectedDeviceOutputs.reset (expected, false);
   }
-  else if (argsType == Network::DEVICE_COPY)
+  else if (argType == ArgType::DEVICE_COPY)
   {
     m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixDeviceRef (expected);
     oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_expectedDeviceOutputs, expected);
   }
 }
 
-math::Matrix* Network::getOutputs (math::Matrix* outputs, Type argsType) const
+math::Matrix* Network::getOutputs (math::Matrix* outputs, ArgType argType) const
 {
   Layer* llayer = m_layers.back();
-  if (argsType == Type::HOST)
+  if (argType == ArgType::HOST)
   {
     oap::cuda::CopyDeviceMatrixToHostMatrix (outputs, llayer->m_inputs);
     return outputs;
   }
-  else if (argsType == Type::DEVICE_COPY)
+  else if (argType == ArgType::DEVICE_COPY)
   {
     math::Matrix* cmatrix = oap::cuda::NewDeviceMatrixDeviceRef (llayer->m_inputs);
     oap::cuda::CopyDeviceMatrixToDeviceMatrix (cmatrix, llayer->m_inputs);
     return cmatrix;
   }
-  else if (argsType == Type::DEVICE)
+  else if (argType == ArgType::DEVICE)
   {
     return llayer->m_inputs;
   }
@@ -151,7 +155,7 @@ math::Matrix* Network::getHostOutputs () const
   auto minfo = oap::cuda::GetMatrixInfo (llayer->m_inputs);
 
   math::Matrix* matrix = oap::host::NewMatrix (minfo);
-  return getOutputs (matrix, Type::HOST);
+  return getOutputs (matrix, ArgType::HOST);
 }
 
 void Network::calculateErrors (oap::ErrorType errorType)
@@ -177,21 +181,21 @@ void Network::calculateErrors (oap::ErrorType errorType)
   ++m_backwardCount;
 }
 
-math::Matrix* Network::getErrors (Type type) const
+math::Matrix* Network::getErrors (ArgType type) const
 {
   Layer* last = m_layers.back();
 
-  if (type == Network::DEVICE)
+  if (type == ArgType::DEVICE)
   {
     return last->m_errors;
   }
-  else if (type == Network::HOST)
+  else if (type == ArgType::HOST)
   {
     math::Matrix* matrix = oap::host::NewReMatrix (1, last->getNeuronsCount());
     oap::cuda::CopyDeviceMatrixToHostMatrix (matrix, last->m_errors);
     return matrix;
   }
-  else if (type == Network::DEVICE_COPY)
+  else if (type == ArgType::DEVICE_COPY)
   {
     math::Matrix* matrix = oap::cuda::NewDeviceReMatrix (1, last->getNeuronsCount());
     oap::cuda::CopyDeviceMatrixToDeviceMatrix (matrix, last->m_errors);
@@ -318,12 +322,12 @@ void Network::updateWeights()
   m_backwardCount = 0;
 }
 
-bool Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, Type argsType, oap::ErrorType errorType)
+bool Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, ArgType argType, oap::ErrorType errorType)
 {
   Layer* layer = m_layers.front();
 
-  setExpected (expectedOutputs, argsType);
-  setInputs (inputs, argsType);
+  setExpected (expectedOutputs, argType);
+  setInputs (inputs, argType);
 
   forwardPropagation ();
   calculateErrors (errorType);
