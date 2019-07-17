@@ -29,56 +29,19 @@
 
 class Network;
 
-template<typename T>
-class SLEntity
-{
-    using SavingFunc = std::function<void(utils::ByteBuffer&)>;
-    using LoadingFunc = std::function<void(utils::ByteBuffer&)>;
-
-    SavingFunc m_savingFunc;
-    LoadingFunc m_loadingFunc;
-  public:
-    T&& m_raw;
-
-    SLEntity (T&& t) : m_raw (t)
-    {}
-
-    SLEntity (T&& t, const SavingFunc& sfunc, const LoadingFunc& lfunc) : m_raw (t),
-        m_savingFunc (sfunc), m_loadingFunc (lfunc)
-    {}
-
-    operator T() const
-    {
-      return m_raw;
-    }
-
-    void save (utils::ByteBuffer& buffer) const
-    {
-      if (m_savingFunc)
-      {
-        m_savingFunc (buffer);
-      }
-      else if (std::is_pod<T>::value)
-      {
-        buffer.push_back (m_raw);
-      }
-    }
-
-    void load (const utils::ByteBuffer& buffer)
-    {
-      if (m_loadingFunc)
-      {
-        m_loadingFunc (buffer);
-      }
-    }
-};
-
 enum class Activation
 {
   LINEAR,
   SIGMOID,
   TANH,
   SIN
+};
+
+enum class ArgType
+{
+  HOST,
+  DEVICE,
+  DEVICE_COPY,
 };
 
 class Layer
@@ -138,6 +101,11 @@ public:
   void allocateWeights(const Layer* nextLayer);
 
   void deallocate();
+
+  math::MatrixInfo getWeightsInfo () const
+  {
+    return oap::cuda::GetMatrixInfo (m_weights);
+  }
 
   void setHostWeights (math::Matrix* weights);
 

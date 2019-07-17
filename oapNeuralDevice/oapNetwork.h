@@ -29,13 +29,6 @@ class Network
 {
 public: // types
 
-  enum Type
-  {
-    HOST,
-    DEVICE,
-    DEVICE_COPY,
-  };
-
   class IController
   {
     public:
@@ -58,18 +51,18 @@ public:
   Layer* createLayer (size_t neurons, const Activation& activation = Activation::SIGMOID);
   Layer* createLayer (size_t neurons, bool addBias, const Activation& activation = Activation::SIGMOID);
 
-  oap::HostMatrixUPtr run (math::Matrix* hostInputs, Type argsType, oap::ErrorType errorType);
+  oap::HostMatrixUPtr run (math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
 
-  void setInputs (math::Matrix* inputs, Type argsType);
-  void setExpected (math::Matrix* expected, Type argsType);
+  void setInputs (math::Matrix* inputs, ArgType argType);
+  void setExpected (math::Matrix* expected, ArgType argType);
 
-  math::Matrix* getOutputs (math::Matrix* outputs, Type argsType) const;
+  math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType) const;
   math::Matrix* getHostOutputs () const;
 
   void forwardPropagation ();
   void calculateErrors (oap::ErrorType errorType);
 
-  math::Matrix* getErrors (Type type) const;
+  math::Matrix* getErrors (ArgType type) const;
 
   floatt calculateMSE ();
   floatt calculateRMSE ();
@@ -83,7 +76,7 @@ public:
 
   void updateWeights();
 
-  bool train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, Type argsType, oap::ErrorType errorType);
+  bool train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, ArgType argType, oap::ErrorType errorType);
 
   void createLevel (Layer* layer);
 
