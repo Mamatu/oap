@@ -45,33 +45,34 @@
 #define LOG_LEVEL DEBUG_LEVEL
 #endif
 
-#define logP(x, ...) fprintf(stdout, x, ##__VA_ARGS__);
+#define logIntoStdout(x, ...) fprintf(stdout, x, ##__VA_ARGS__);
+#define logIntoStderr(x, ...) fprintf(stderr, x, ##__VA_ARGS__);
 
 #define LOCATION_FORMAT "%s %s %d "
-#define LOCATION __FUNCTION__ __FILE__ __LINE__ 
+#define LOCATION __FUNCTION__ __FILE__ __LINE__
 
 #define ENDL "\n"
 
 #if LOG_LEVEL >= ERROR_LEVEL
-#define logError(x, ...) logP (LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__); 
+#define logError(x, ...) logIntoStderr (LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__);
 #else
 #define logError(x, ...)
 #endif
 
 #if LOG_LEVEL >= INFO_LEVEL
-#define logInfo(x, ...) logP (LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__); 
+#define logInfo(x, ...) logIntoStdout (LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__);
 #else
 #define logInfo(x, ...)
 #endif
 
 #if LOG_LEVEL >= DEBUG_LEVEL
-#define logDebug(x, ...) logP (LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__); 
+#define logDebug(x, ...) logIntoStdout (LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__);
 #else
 #define logDebug(x, ...)
 #endif
 
 #if LOG_LEVEL >= TRACE_LEVEL
-#define logTrace(x, ...) logP (LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__); 
+#define logTrace(x, ...) logIntoStdout (LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__);
 #else
 #define logTrace(x, ...)
 #endif
