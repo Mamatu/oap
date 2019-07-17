@@ -126,8 +126,8 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
       eoutput->reValues[0] = 0;
     }
 
-    network->setExpected (eoutput, Network::HOST);
-    network->setInputs (input, Network::HOST);
+    network->setExpected (eoutput, ArgType::HOST);
+    network->setInputs (input, ArgType::HOST);
     network->forwardPropagation ();
     network->calculateErrors (errorType);
     floatt error = network->calculateError (errorType);
@@ -151,11 +151,11 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   if (!m_bInterrupted)
   {
     oap::host::CopyBuffer (input->reValues, upatternA.get (), input->columns * input->rows);
-    auto output1 = network->run (input, Network::HOST, errorType);
+    auto output1 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output1, args.m_onOutput1);
 
     oap::host::CopyBuffer (input->reValues, upatternB.get (), input->columns * input->rows);
-    auto output2 = network->run (input, Network::HOST, errorType);
+    auto output2 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output2, args.m_onOutput2);
   }
   else

@@ -295,8 +295,8 @@ TEST_F(OapClassificationTests, CircleDataTest)
       hinput->reValues[2] = 1;
       houtput->reValues[0] = coordinate.getPreciseLabel();
 
-      network->setInputs (hinput, Network::HOST);
-      network->setExpected (houtput, Network::HOST);
+      network->setInputs (hinput, ArgType::HOST);
+      network->setExpected (houtput, ArgType::HOST);
 
       network->forwardPropagation ();
       network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
@@ -309,7 +309,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
       for (const auto& coord : coords)
       {
         forwardPropagation (coord);
-        network->getOutputs (houtput.get(), Network::HOST);
+        network->getOutputs (houtput.get(), ArgType::HOST);
         if (output != nullptr)
         {
           Coordinate ncoord = coord;
@@ -337,12 +337,12 @@ TEST_F(OapClassificationTests, CircleDataTest)
       hinput->reValues[1] = y;
       hinput->reValues[2] = 1;
 
-      network->setInputs (hinput, Network::HOST);
-      network->setExpected (houtput, Network::HOST);
+      network->setInputs (hinput, ArgType::HOST);
+      network->setExpected (houtput, ArgType::HOST);
 
       network->forwardPropagation ();
 
-      network->getOutputs (houtput.get(), Network::HOST);
+      network->getOutputs (houtput.get(), ArgType::HOST);
 
       return houtput->reValues[0] < 0 ? 0 : 1;
     };
