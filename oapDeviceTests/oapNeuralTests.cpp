@@ -950,7 +950,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_3)
   network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
   logInfo ("BP %f", network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR));
 
-  EXPECT_DOUBLE_EQ (error, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR));
+  EXPECT_NEAR (error * error, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR), 0.000000000001);
   network->backwardPropagation ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
