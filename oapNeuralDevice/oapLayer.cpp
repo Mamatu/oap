@@ -94,7 +94,7 @@ void Layer::deallocate(math::Matrix** matrix)
 
 void Layer::allocateNeurons(size_t neuronsCount)
 {
-  debugInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", this, neuronsCount + m_biasCount, neuronsCount, m_biasCount);
+  logInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", this, neuronsCount + m_biasCount, neuronsCount, m_biasCount);
   m_neuronsCount = neuronsCount;
 
   m_inputs = oap::cuda::NewDeviceReMatrix (1, getTotalNeuronsCount());
