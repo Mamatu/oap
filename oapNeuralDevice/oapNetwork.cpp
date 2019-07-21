@@ -158,29 +158,6 @@ math::Matrix* Network::getHostOutputs () const
   return getOutputs (matrix, ArgType::HOST);
 }
 
-void Network::calculateErrors (oap::ErrorType errorType)
-{
-  debugAssert (m_expectedDeviceOutputs != nullptr);
-
-  size_t idx = m_layers.size () - 1;
-  Layer* next = nullptr;
-  Layer* current = m_layers[idx];
-
-  if (errorType == oap::ErrorType::CROSS_ENTROPY)
-  {
-    m_cuApi.crossEntropy (current->m_errors, m_expectedDeviceOutputs, current->m_inputs);
-  }
-  else
-  {
-    m_cuApi.addSubstract (current->m_errors, m_expectedDeviceOutputs, current->m_inputs);
-    //m_cuApi.hadamardProduct (current->m_errors, current->m_errors, current->m_errors);
-    //m_cuApi.multiplyReConstant (current->m_errors, current->m_errors, 0.5);
-    //++m_count;
-  }
-
-  ++m_backwardCount;
-}
-
 math::Matrix* Network::getErrors (ArgType type) const
 {
   Layer* last = m_layers.back();
@@ -268,9 +245,28 @@ void Network::forwardPropagation ()
     {
       oap::cuda::SetReValue (previous->m_inputs, 1, 1, previous->m_neuronsCount - 1);
     }
-
     m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
     activateFunc (current->m_inputs, current->m_sums, current->getActivation ());
+  }
+}
+
+void Network::calculateErrors (oap::ErrorType errorType)
+{
+  debugAssert (m_expectedDeviceOutputs != nullptr);
+
+  size_t idx = m_layers.size () - 1;
+  Layer* next = nullptr;
+  Layer* current = m_layers[idx];
+
+  if (errorType == oap::ErrorType::CROSS_ENTROPY)
+  {
+    m_cuApi.crossEntropy (current->m_errors, m_expectedDeviceOutputs, current->m_inputs);
+    m_backwardCount = 1;
+  }
+  else
+  {
+    m_cuApi.substract (current->m_errors, current->m_inputs, m_expectedDeviceOutputs);
+    ++m_backwardCount;
   }
 }
 
@@ -280,7 +276,22 @@ void Network::backwardPropagation ()
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
 
-  m_cuApi.multiplyReConstant (current->m_errors, current->m_errors, 1. / this->m_backwardCount);
+  auto normalizeErrors = [this](Layer* layer)
+  {
+    if (m_backwardCount > 1)
+    {
+      m_cuApi.multiplyReConstant (layer->m_errors, layer->m_errors, 1. / m_backwardCount);
+    } 
+  };
+
+  auto calculateCurrentErrors = [this] (Layer* current)
+  {
+    derivativeFunc (current->m_sums, current->m_sums, current->getActivation ());
+    m_cuApi.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
+  };
+
+  //normalizeErrors (current);
+  calculateCurrentErrors (current);
 
   do
   {
@@ -289,9 +300,12 @@ void Network::backwardPropagation ()
     current = m_layers[idx];
 
     m_cuApi.transpose (current->m_tweights, current->m_weights);
-    m_cuApi.addDotProduct (current->m_errors, current->m_tweights, next->m_errors);
+    m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
+
+    calculateCurrentErrors (current);
   }
-  while (idx > 0);
+  while (idx > 1);
+
   updateWeights();
 }
 
@@ -307,11 +321,12 @@ void Network::updateWeights()
     next = m_layers[idx];
 
     m_cuApi.transpose (current->m_tinputs, current->m_inputs);
+
     m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
-    m_cuApi.multiplyReConstant (current->m_weights1, current->m_weights1, m_learningRate);
-    derivativeFunc (next->m_sums, next->m_sums, next->getActivation ());
-    m_cuApi.hadamardProductVec (current->m_weights2, current->m_weights1, next->m_sums);
-    m_cuApi.add (current->m_weights, current->m_weights, current->m_weights2);
+
+    floatt lr = m_learningRate / static_cast<floatt>(m_backwardCount);
+    m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights1, lr);
+    m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
   }
 
   for (size_t idx = 0; idx < m_layers.size(); ++idx)
