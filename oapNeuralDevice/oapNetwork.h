@@ -124,7 +124,7 @@ public:
 protected:
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
 
-  inline void activateFunc (math::Matrix* output, math::Matrix* input, const Activation& activation)
+  inline void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation)
   {
     switch (activation)
     {
@@ -143,7 +143,7 @@ protected:
     };
   }
 
-  inline void derivativeFunc (math::Matrix* output, math::Matrix* input, const Activation& activation)
+  inline void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation)
   {
     switch (activation)
     {
