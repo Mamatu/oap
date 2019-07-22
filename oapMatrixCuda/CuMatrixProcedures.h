@@ -9,7 +9,7 @@
  * (at your option) any later version.
  *
  * Oap is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANthreadIndexY; without even the implied
+ * but WITHOUT ANY WARRANTY; without even the implied
  *warranthreadIndexY of
  * MERCHANTABILIthreadIndexY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
