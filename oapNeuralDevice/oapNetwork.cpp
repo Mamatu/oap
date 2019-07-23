@@ -524,6 +524,8 @@ void Network::printLayersWeights ()
 void Network::resetErrors (Layer* layer)
 {
   m_cuApi.setZeroMatrix (layer->m_errors);
+  m_cuApi.setZeroMatrix (layer->m_errorsAcc);
+  m_cuApi.setZeroMatrix (layer->m_errorsAux);
 }
 
 void Network::resetErrors ()
