@@ -53,6 +53,8 @@ private:
   math::Matrix* m_sums = nullptr;
   math::Matrix* m_tsums = nullptr;
   math::Matrix* m_errors = nullptr;
+  math::Matrix* m_errorsAcc = nullptr;
+  math::Matrix* m_errorsAux = nullptr;
   math::Matrix* m_weights = nullptr;
   math::Matrix* m_tweights = nullptr;
   math::Matrix* m_weights1 = nullptr;
