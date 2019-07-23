@@ -28,7 +28,7 @@ void Layer::checkHostInputs(const math::Matrix* hostInputs)
     throw std::runtime_error ("Columns of hostInputs matrix must be equal 1");
   }
 
-  if (hostInputs->rows != m_neuronsCount)
+  if (hostInputs->rows != getTotalNeuronsCount())
   {
     throw std::runtime_error ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)");
   }
