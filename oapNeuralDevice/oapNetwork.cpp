@@ -185,7 +185,7 @@ math::Matrix* Network::getErrors (ArgType type) const
 floatt Network::calculateMSE ()
 {
   floatt eValue = 0;
-  m_cuApi.magnitude2 (eValue, m_layers.back()->m_errors);
+  m_cuApi.magnitude2 (eValue, m_layers.back()->m_errorsAux);
   eValue = eValue / m_layers.back()->getNeuronsCount ();
   return eValue;
 }
@@ -245,6 +245,7 @@ void Network::forwardPropagation ()
     {
       oap::cuda::SetReValue (previous->m_inputs, 1, 1, previous->m_neuronsCount - 1);
     }
+
     m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
     activateFunc (current->m_inputs, current->m_sums, current->getActivation ());
   }
@@ -266,12 +267,10 @@ void Network::calculateErrors (oap::ErrorType errorType)
   else
   {
     m_cuApi.substract (current->m_errors, current->m_inputs, m_expectedDeviceOutputs);
+    m_cuApi.substract (current->m_errorsAux, current->m_inputs, m_expectedDeviceOutputs);
     ++m_backwardCount;
   }
-}
-
-void Network::backwardPropagation ()
-{
+  {
   size_t idx = m_layers.size () - 1;
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
@@ -288,6 +287,7 @@ void Network::backwardPropagation ()
   {
     derivativeFunc (current->m_sums, current->m_sums, current->getActivation ());
     m_cuApi.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
+    //m_cuApi.add (current->m_errorsAcc, current->m_errorsAcc, current->m_errors);
   };
 
   //normalizeErrors (current);
@@ -305,6 +305,27 @@ void Network::backwardPropagation ()
     calculateCurrentErrors (current);
   }
   while (idx > 1);
+  }
+
+  {
+  Layer* current = nullptr;
+  Layer* next = m_layers[0];
+
+  for (size_t idx = 1; idx < m_layers.size(); ++idx)
+  {
+    current = next;
+    next = m_layers[idx];
+
+    m_cuApi.transpose (current->m_tinputs, current->m_inputs);
+
+    m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
+    m_cuApi.add (current->m_weights2, current->m_weights2, current->m_weights1);
+  }
+  }
+}
+
+void Network::backwardPropagation ()
+{
 
   updateWeights();
 }
@@ -325,7 +346,7 @@ void Network::updateWeights()
     m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
 
     floatt lr = m_learningRate / static_cast<floatt>(m_backwardCount);
-    m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights1, lr);
+    m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
     m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
   }
 
