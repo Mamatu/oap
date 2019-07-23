@@ -530,13 +530,9 @@ void CuProceduresApi::identityDerivative (math::Matrix* output, math::Matrix* ma
 
 void CuProceduresApi::tanh (math::Matrix* output, const math::Matrix* matrix)
 {
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
-
-  void* params[] = {&output, &matrix};
-
-  m_cuStatus = execute("CUDAKernel_Tanh", w, h, params, 0);
-
+  oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> bapi (oap::cuda::GetMatrixInfo);
+  m_cuStatus = oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, bapi, true,
+               std::function<void()>(std::bind(&CuProceduresApi::resetFlags, this)));
 }
 
 void CuProceduresApi::tanhDerivative (math::Matrix* output, const math::Matrix* matrix)

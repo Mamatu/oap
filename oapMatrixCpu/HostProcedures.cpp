@@ -204,6 +204,13 @@ void HostProcedures::transpose(math::Matrix* output, math::Matrix* matrix) {
   transposeImpl.executeKernelAsync();
 }
 
+void HostProcedures::tanh(math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, bapi, true, [](){});
+}
+
 void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
 {
   oap::host::HostBuffer<floatt> m_hsumsReBuffer;

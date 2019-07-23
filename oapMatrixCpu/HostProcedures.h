@@ -43,6 +43,8 @@ class HostProcedures {
 
   void transpose(math::Matrix* output, math::Matrix* matrix);
 
+  void tanh(math::Matrix* output, math::Matrix* matrix);
+
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 
   void crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
