@@ -332,7 +332,6 @@ void Network::backwardPropagation ()
 
 void Network::updateWeights()
 {
-  debugFunc();
   Layer* current = nullptr;
   Layer* next = m_layers[0];
 
