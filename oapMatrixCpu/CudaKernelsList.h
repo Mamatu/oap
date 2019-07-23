@@ -52,6 +52,18 @@ void HOSTKernel_CrossEntropy (math::Matrix* output, math::Matrix* param1, math::
   CUDA_crossEntropy (output, param1, param2);
 }
 
+void HOSTKernel_Tanh (math::Matrix* output, math::Matrix* param1)
+{
+  CUDA_tanh (output, param1);
+}
+
+void HOSTKernel_TanhRaw (void** params)
+{
+  math::Matrix* output = getParam<math::Matrix> (params[0]);
+  math::Matrix* matrix = getParam<math::Matrix> (params[1]);
+  HOSTKernel_Tanh (output, matrix);
+}
+
 void HOSTKernel_CrossEntropyRaw (void** params)
 {
   math::Matrix* output = getParam<math::Matrix> (params[0]);
