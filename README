@@ -3,6 +3,8 @@
 To download test data from sourcefourge server, not from
 github (LFS), please execute below command in ./script directory
 
+LFS is not available in recent version.
+
 $ bash download_test_data.sh
 
 or download test data package from link:
@@ -24,3 +26,7 @@ $ make TARGET_ARCH=HOST
 Compile only host part of project:
 $ make TARGET_ARCH=HOST
 
+
+#### MACROS ####
+
+OAP_TESTS_PLOT - plot data into python file in tests scope (can influence on time of tests execution)
