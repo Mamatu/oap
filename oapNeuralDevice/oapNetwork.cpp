@@ -185,7 +185,7 @@ math::Matrix* Network::getErrors (ArgType type) const
 floatt Network::calculateMSE ()
 {
   floatt eValue = 0;
-  m_cuApi.magnitude2 (eValue, m_layers.back()->m_errorsAux);
+  m_cuApi.magnitude2 (eValue, m_layers.back()->m_errorsAcc);
   eValue = eValue / m_layers.back()->getNeuronsCount ();
   return eValue;
 }
@@ -198,7 +198,7 @@ floatt Network::calculateRMSE ()
 floatt Network::calculateSum ()
 {
   floatt eValue = 0;
-  m_cuApi.sum (eValue, m_layers.back()->m_errors);
+  m_cuApi.sum (eValue, m_layers.back()->m_errorsAux);
   return eValue;
 }
 
@@ -223,7 +223,9 @@ floatt Network::calculateError (oap::ErrorType errorType)
     {oap::ErrorType::CROSS_ENTROPY, std::bind (&Network::calculateCrossEntropy, this)}
   };
 
-  return errorsFunctions [errorType]();
+  floatt error = std::accumulate(m_errorsVec.begin(), m_errorsVec.end(), 0.);
+  error = error / m_errorsVec.size();
+  return  error; //errorsFunctions [errorType]() / m_backwardCount;
 }
 
 void Network::forwardPropagation ()
@@ -267,7 +269,14 @@ void Network::calculateErrors (oap::ErrorType errorType)
   else
   {
     m_cuApi.substract (current->m_errors, current->m_inputs, m_expectedDeviceOutputs);
-    m_cuApi.substract (current->m_errorsAux, current->m_inputs, m_expectedDeviceOutputs);
+    oap::cuda::CopyDeviceMatrixToHostMatrix (current->m_errorsHost, current->m_errors);
+    floatt error;
+    for (size_t idx = 0; idx < current->m_errorsHost->rows; ++idx)
+    {
+      error += current->m_errorsHost->reValues[idx];
+    }
+    m_errorsVec.emplace_back(error * error * 0.5);
+    //m_cuApi.addSubstract (current->m_errorsAux, current->m_inputs, m_expectedDeviceOutputs);
     ++m_backwardCount;
   }
   {
@@ -292,6 +301,7 @@ void Network::calculateErrors (oap::ErrorType errorType)
 
   //normalizeErrors (current);
   calculateCurrentErrors (current);
+  //m_cuApi.add (current->m_errorsAux, current->m_errorsAux, current->m_errors);
 
   do
   {
@@ -300,6 +310,7 @@ void Network::calculateErrors (oap::ErrorType errorType)
     current = m_layers[idx];
 
     m_cuApi.transpose (current->m_tweights, current->m_weights);
+
     m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
 
     calculateCurrentErrors (current);
@@ -349,10 +360,7 @@ void Network::updateWeights()
     m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
   }
 
-  for (size_t idx = 0; idx < m_layers.size(); ++idx)
-  {
-    resetErrors (m_layers[idx]);
-  }
+  resetErrors ();
 
   m_backwardCount = 0;
 }
@@ -534,6 +542,8 @@ void Network::resetErrors ()
   {
     resetErrors (m_layers[idx]);
   }
+
+  m_errorsVec.clear();
 }
 
 
