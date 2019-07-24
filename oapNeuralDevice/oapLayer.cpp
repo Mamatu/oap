@@ -103,6 +103,7 @@ void Layer::allocateNeurons(size_t neuronsCount)
   m_errors = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
   m_errorsAcc = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
   m_errorsAux = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_errorsHost = oap::host::NewReMatrix (1, getTotalNeuronsCount());
   m_tinputs = oap::cuda::NewDeviceReMatrix (getTotalNeuronsCount(), 1); //todo: use transpose
 }
 
@@ -133,6 +134,7 @@ void Layer::deallocate()
   deallocate (&m_tweights);
   deallocate (&m_weights1);
   deallocate (&m_weights2);
+  oap::host::DeleteMatrix (m_errorsHost);
 }
 
 void Layer::setHostWeights (math::Matrix* weights)
