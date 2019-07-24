@@ -270,6 +270,7 @@ class OapNeuralTests : public testing::Test
     l1->printHostWeights ();
     l2->printHostWeights ();
   }
+
 };
 
 TEST_F(OapNeuralTests, ForwardPropagation_1)
@@ -880,45 +881,21 @@ TEST_F(OapNeuralTests, ForwardPropagation_PyPlotCoords_Parallel)
   checkWeights (weights1to2Vec, weights1to2, idxToCheck1);
 }*/
 
-TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_1)
+using PConvert = std::pair<floatt, floatt>;
+void testOneStep (Network* network,
+                  const std::vector<PConvert>& weights1to2Vec,
+                  const std::vector<PConvert>& weights2to3Vec,
+                  const std::vector<std::pair<std::pair<floatt, floatt>, floatt>>& points,
+                  oap::HostMatrixPtr hinputs,
+                  oap::HostMatrixPtr houtput)
 {
   Layer* l1 = network->createLayer(3, false, Activation::TANH);
   Layer* l2 = network->createLayer(3, true, Activation::TANH);
   Layer* l3 = network->createLayer(1, Activation::TANH);
   network->setLearningRate (0.03);
 
-  using PConvert = std::pair<floatt, floatt>;
-  std::vector<PConvert> weights1to2Vec =
-  {
-    {0.2, 0.2015415656559217},
-    {0.2, 0.2019262554160332},
-    {0.1, 0.1038135365011816},
-    {0.2, 0.2015415656559217},
-    {0.2, 0.2019262554160332},
-    {0.1, 0.1038135365011816},
-    {0.2, 0.2015415656559217},
-    {0.2, 0.2019262554160332},
-    {0.1, 0.1038135365011816},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-  };
-
-  std::vector<PConvert> weights2to3Vec =
-  {
-    {0.2, 0.20569433279687238},
-    {0.2, 0.20569433279687238},
-    {0.2, 0.20569433279687238},
-    {0.1, 0.12068242867556898},
-  };
   std::vector<size_t> idxToCheck1 = {0, 1, 2, 3, 4, 5, 6, 7, 8};
   std::vector<size_t> idxToCheck2 = {0, 1, 2, 3};
-
-  std::vector<std::pair<std::pair<floatt, floatt>, floatt>> points =
-  {
-    {{0.44357233490399445, 0.22756905427903037}, 1},
-    {{0.3580909454680603, 0.8306780543693363}, 1},
-  };
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
   for (size_t idx = 0; idx < weights1to2Vec.size(); ++idx)
@@ -934,9 +911,6 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_1)
 
   l1->setHostWeights (weights1to2);
   l2->setHostWeights (weights2to3);
-
-  oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
   size_t idx = 0;
   for (const auto& p : points)
@@ -964,14 +938,54 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_1)
   checkWeights (weights2to3Vec, weights2to3, idxToCheck2);
 }
 
+void testOneStep (Network* network,
+                  const std::vector<PConvert>& weights1to2Vec,
+                  const std::vector<PConvert>& weights2to3Vec,
+                  const std::vector<std::pair<std::pair<floatt, floatt>, floatt>>& points)
+{
+  oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+
+  testOneStep (network, weights1to2Vec, weights2to3Vec, points, hinputs, houtput);
+}
+
+TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_1)
+{
+  std::vector<PConvert> weights1to2Vec =
+  {
+    {0.2, 0.2015415656559217},
+    {0.2, 0.2019262554160332},
+    {0.1, 0.1038135365011816},
+    {0.2, 0.2015415656559217},
+    {0.2, 0.2019262554160332},
+    {0.1, 0.1038135365011816},
+    {0.2, 0.2015415656559217},
+    {0.2, 0.2019262554160332},
+    {0.1, 0.1038135365011816},
+    {0, 0},
+    {0, 0},
+    {0, 0},
+  };
+
+  std::vector<PConvert> weights2to3Vec =
+  {
+    {0.2, 0.20569433279687238},
+    {0.2, 0.20569433279687238},
+    {0.2, 0.20569433279687238},
+    {0.1, 0.12068242867556898},
+  };
+
+  std::vector<std::pair<std::pair<floatt, floatt>, floatt>> points =
+  {
+    {{0.44357233490399445, 0.22756905427903037}, 1},
+    {{0.3580909454680603, 0.8306780543693363}, 1},
+  };
+  
+  testOneStep (network, weights1to2Vec, weights2to3Vec, points);
+}
+
 TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
 {
-  Layer* l1 = network->createLayer(2, true, Activation::TANH);
-  Layer* l2 = network->createLayer(3, true, Activation::TANH);
-  Layer* l3 = network->createLayer(1, Activation::TANH);
-  network->setLearningRate (0.03);
-
-  using PConvert = std::pair<floatt, floatt>;
   std::vector<PConvert> weights1to2Vec =
   {
     {0.18889833379294582, 0.18747739212831752},
@@ -996,9 +1010,6 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
     {0.05120154361408274, 0.028814535268009908},
   };
 
-  std::vector<size_t> idxToCheck1 = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-  std::vector<size_t> idxToCheck2 = {0, 1, 2, 3};
-
   std::vector<std::pair<std::pair<floatt, floatt>, floatt>> points =
   {
     {{1.1171665268436015, 1.6264896739229502}, 1},
@@ -1007,45 +1018,11 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
     {{3.1655171307757155, 3.690154247154129}, -1},
     {{4.3098981190509935, -1.8380685678345827}, -1},
   };
-  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
-  for (size_t idx = 0; idx < weights1to2Vec.size(); ++idx)
-  {
-    weights1to2->reValues[idx] = weights1to2Vec[idx].first;
-  }
 
-  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
-  for (size_t idx = 0; idx < weights2to3Vec.size(); ++idx)
-  {
-    weights2to3->reValues[idx] = weights2to3Vec[idx].first;
-  }
-
-  l1->setHostWeights (weights1to2);
-  l2->setHostWeights (weights2to3);
+  testOneStep (network, weights1to2Vec, weights2to3Vec, points);
 
   oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
   oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
-
-  size_t idx = 0;
-  for (const auto& p : points)
-  {
-    hinputs->reValues[0] = p.first.first;
-    hinputs->reValues[1] = p.first.second;
-
-    houtput->reValues[0] = p.second;
-
-    network->setInputs (hinputs, ArgType::HOST);
-    network->setExpected (houtput, ArgType::HOST);
-
-    network->forwardPropagation ();
-    network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
-  }
-  network->backwardPropagation ();
-
-  l1->getHostWeights (weights1to2);
-  checkWeights (weights1to2Vec, weights1to2, idxToCheck1);
-
-  l2->getHostWeights (weights2to3);
-  checkWeights (weights2to3Vec, weights2to3, idxToCheck2);
 
   auto checkErrors = [&hinputs, &houtput, this](floatt expected, const std::vector<std::pair<std::pair<floatt, floatt>, floatt>>& points)
   {
@@ -1073,34 +1050,28 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
 
 TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_3)
 {
-  Layer* l1 = network->createLayer(3, false, Activation::TANH);
-  Layer* l2 = network->createLayer(3, true, Activation::TANH);
-  Layer* l3 = network->createLayer(1, Activation::TANH);
-  network->setLearningRate (0.03);
-
-  using PConvert = std::tuple<floatt, floatt, bool>;
   std::vector<PConvert> weights1to2Vec =
   {
-    std::make_tuple(0.2, 0.19908199840345, true),
-    std::make_tuple(0.2, 0.19356847603468466, true),
-    std::make_tuple(0.1, 0.10580908512486277, true),
-    std::make_tuple(0.2, 0.19908199840345, true),
-    std::make_tuple(0.2, 0.19356847603468466, true),
-    std::make_tuple(0.1, 0.10580908512486277, true),
-    std::make_tuple(0.2, 0.19908199840345, true),
-    std::make_tuple(0.2, 0.19356847603468466, true),
-    std::make_tuple(0.1, 0.10580908512486277, true),
-    std::make_tuple(0, 0, false),
-    std::make_tuple(0, 0, false),
-    std::make_tuple(0, 0, false),
+    {0.2, 0.19908199840345},
+    {0.2, 0.19356847603468466},
+    {0.1, 0.10580908512486277},
+    {0.2, 0.19908199840345},
+    {0.2, 0.19356847603468466},
+    {0.1, 0.10580908512486277},
+    {0.2, 0.19908199840345},
+    {0.2, 0.19356847603468466},
+    {0.1, 0.10580908512486277},
+    {0, 0},
+    {0, 0},
+    {0, 0},
   };
 
   std::vector<PConvert> weights2to3Vec =
   {
-    std::make_tuple(0.2, 0.1954852905493779, true),
-    std::make_tuple(0.2, 0.1954852905493779, true),
-    std::make_tuple(0.2, 0.1954852905493779, true),
-    std::make_tuple(0.1, 0.1297309930846901, true),
+    {0.2, 0.1954852905493779},
+    {0.2, 0.1954852905493779},
+    {0.2, 0.1954852905493779},
+    {0.1, 0.1297309930846901},
   };
 
   std::vector<std::pair<std::pair<floatt, floatt>, floatt>> points =
@@ -1108,50 +1079,11 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_3)
     {{-0.15802860120278975, -1.1071492028561536}, 1},
   };
 
-  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
-  setReValuesToMatrix (weights1to2, weights1to2Vec);
-
-  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
-  setReValuesToMatrix (weights2to3, weights2to3Vec);
-
-  l1->setHostWeights (weights1to2);
-  l2->setHostWeights (weights2to3);
-
-  oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
-
-  size_t idx = 0;
-  for (const auto& p : points)
-  {
-    hinputs->reValues[0] = p.first.first;
-    hinputs->reValues[1] = p.first.second;
-    hinputs->reValues[2] = 1;
-
-    houtput->reValues[0] = p.second;
-
-    network->setInputs (hinputs, ArgType::HOST);
-    network->setExpected (houtput, ArgType::HOST);
-
-    network->forwardPropagation ();
-    network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
-  }
-
-  network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
-  network->backwardPropagation ();
-
-  l1->getHostWeights (weights1to2);
-
-  checkWeights (weights1to2Vec, weights1to2);
+  testOneStep (network, weights1to2Vec, weights2to3Vec, points);
 }
 
 TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_4)
 {
-  Layer* l1 = network->createLayer(3, false, Activation::TANH);
-  Layer* l2 = network->createLayer(3, true, Activation::TANH);
-  Layer* l3 = network->createLayer(1, Activation::TANH);
-  network->setLearningRate (0.03);
-
-  using PConvert = std::pair<floatt, floatt>;
   std::vector<PConvert> weights1to2Vec =
   {
     {0.2, 0.20182628407433365},
@@ -1176,59 +1108,12 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_4)
     {0.1, 0.12173630913135866},
   };
 
-  std::vector<size_t> idxToCheck1 = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-  std::vector<size_t> idxToCheck2 = {0, 1, 2, 3};
-
   std::vector<std::pair<std::pair<floatt, floatt>, floatt>> points =
   {
     {{0.44357233490399445, 0.22756905427903037}, 1},
   };
 
-  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
-  setReValuesToMatrix (weights1to2, weights1to2Vec);
-
-  oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
-  setReValuesToMatrix (weights2to3, weights2to3Vec);
-
-  l1->setHostWeights (weights1to2);
-  l2->setHostWeights (weights2to3);
-
-  oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
-
-  size_t idx = 0;
-  for (const auto& p : points)
-  {
-    hinputs->reValues[0] = p.first.first;
-    hinputs->reValues[1] = p.first.second;
-    hinputs->reValues[2] = 1;
-
-    houtput->reValues[0] = p.second;
-
-    network->setInputs (hinputs, ArgType::HOST);
-    network->setExpected (houtput, ArgType::HOST);
-
-    network->forwardPropagation ();
-    network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
-  }
-
-  network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
-  network->backwardPropagation ();
-
-  l1->getHostWeights (weights1to2);
-  for (size_t idx = 0; idx < idxToCheck1.size(); ++idx)
-  {
-    size_t trueIdx = idxToCheck1[idx];
-    EXPECT_NEAR (weights1to2Vec[trueIdx].second, weights1to2->reValues[trueIdx], 0.00000000001) << "Idx: " << idx;
-  }
-
-  l2->getHostWeights (weights2to3);
-  for (size_t idx = 0; idx < idxToCheck2.size(); ++idx)
-  {
-    size_t trueIdx = idxToCheck2[idx];
-    EXPECT_NEAR (weights2to3Vec[trueIdx].second, weights2to3->reValues[trueIdx], 0.00000000001) << "Idx: " << idx;
-    EXPECT_DOUBLE_EQ (weights2to3Vec[trueIdx].second, weights2to3->reValues[trueIdx]) << "Idx: " << idx;
-  }
+  testOneStep (network, weights1to2Vec, weights2to3Vec, points);
 }
 
 TEST_F(OapNeuralTests, SimpleBackwardPropagation_1)
