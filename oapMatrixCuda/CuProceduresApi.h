@@ -35,6 +35,8 @@
 
 #include "RecToSquareApi.h"
 
+#include "GenericProceduresApi.h"
+
 #define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
 
 namespace oap
@@ -282,6 +284,9 @@ private:
   oap::TBuffer<floatt, oap::Type::CUDA> m_dsumsImBuffer;
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsReBuffer;
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsImBuffer;
+
+  oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> m_bapi;
+  std::function<void()> m_preExecCallback;//(std::bind(&CuProceduresApi::resetFlags, this)
 };
 
 inline void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
