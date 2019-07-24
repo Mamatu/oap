@@ -55,27 +55,72 @@ class CuDevice {
 };
 
 class CuDeviceInfo : public CuDevice {
-  CUdevice m_cuDevice;
+  public:
 
- public:
+    CuDeviceInfo();
+    CuDeviceInfo(const CuDeviceInfo& orig);
+    virtual ~CuDeviceInfo();
 
-  CuDeviceInfo();
-  CuDeviceInfo(const CuDeviceInfo& orig);
-  virtual ~CuDeviceInfo();
+    CUdevice getDevice() const;
 
-  CUdevice getDevice() const;
+    void setDevice(CUdevice cuDecive);
+    void setDeviceInfo(const CuDevice& deviceInfo);
 
-  void setDevice(CUdevice cuDecive);
-  void setDeviceInfo(const CuDevice& deviceInfo);
+    void getDeviceProperties (DeviceProperties& cuDevprop);
 
-  void getDeviceProperties(CUdevprop& cuDevprop) const;
+    uint getMaxThreadsX() const;
+    uint getMaxThreadsY() const;
+    uint getMaxBlocksX() const;
+    uint getMaxBlocksY() const;
 
-  uint getMaxThreadsX() const;
-  uint getMaxThreadsY() const;
-  uint getMaxBlocksX() const;
-  uint getMaxBlocksY() const;
+    uint getSharedMemorySize() const;
+    uint getMaxThreadsPerBlock() const;
 
-  uint getSharedMemorySize() const;
+    void printDeviceInfo ()
+    {
+      initDeviceProperties ();
+
+      logInfo ("Device properties: \n --Max grid size: %d, %d, %d.\n --Max threads dim: %d, %d, %d\
+                --Max threads per block: %d \n --Register per block: %d \n --Shared memory per block in bytes: %d \n",
+        m_deviceProperties.maxBlocksCount[0],
+        m_deviceProperties.maxBlocksCount[1],
+        m_deviceProperties.maxBlocksCount[2],
+        m_deviceProperties.maxThreadsCount[0],
+        m_deviceProperties.maxThreadsCount[1],
+        m_deviceProperties.maxThreadsCount[2],
+        m_deviceProperties.maxThreadsPerBlock,
+        m_deviceProperties.regsPerBlock,
+        m_deviceProperties.sharedMemPerBlock);
+    }
+
+    bool isInitialized () const
+    {
+      return m_initialized;
+    }
+
+  private:
+    CUdevice m_cuDevice = 0;
+  
+    bool m_initialized = false;
+  
+    int m_values[9];
+    const CUdevice_attribute m_attributes[9] =
+    {
+      CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X, 
+      CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y, 
+      CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Z,
+      CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_X,
+      CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y,
+      CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z,
+      CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK,
+      CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK,
+      CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK
+    };
+
+    void initDeviceProperties ();
+
+  protected:
+    DeviceProperties m_deviceProperties;
 };
 
 class Context : public CuDeviceInfo {
@@ -97,7 +142,8 @@ class Context : public CuDeviceInfo {
   int deviceIndex;
 };
 
-class Kernel : public oap::IKernelExecutor, public CuDeviceInfo {
+class Kernel : public oap::IKernelExecutor
+{
   public:
     Kernel();
 

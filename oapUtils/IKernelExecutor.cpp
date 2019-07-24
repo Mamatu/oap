@@ -23,7 +23,7 @@
 
 namespace oap
 {
-  IKernelExecutor::IKernelExecutor()
+  IKernelExecutor::IKernelExecutor ()
   {
     reset ();
   }
@@ -31,48 +31,36 @@ namespace oap
   IKernelExecutor::~IKernelExecutor()
   {}
 
-  uint IKernelExecutor::getThreadsX() const { return m_threadsCount[0]; }
-  
-  uint IKernelExecutor::getThreadsY() const { return m_threadsCount[1]; }
-
-  uint IKernelExecutor::getThreadsZ() const { return m_threadsCount[2]; }
-  
-  uint IKernelExecutor::getBlocksX() const { return m_blocksCount[0]; }
-  
-  uint IKernelExecutor::getBlocksY() const { return m_blocksCount[1]; }
-
-  uint IKernelExecutor::getBlocksZ() const { return m_blocksCount[2]; }
-  
-  const uint* const IKernelExecutor::getThreadsCount () const
+  void IKernelExecutor::setExecutionParams (const ExecutionParams& executionParams)
   {
-    return m_threadsCount;
+    m_executionParams = executionParams;
   }
 
-  const uint* const IKernelExecutor::getBlocksCount () const
+  const ExecutionParams& IKernelExecutor::getExecutionParams () const
   {
-    return m_blocksCount;
+    return m_executionParams;
   }
-  
-  void IKernelExecutor::setThreadsCount(intt x, intt y)
+
+  void IKernelExecutor::setBlocksCount (uint x, uint y)
   {
-    m_threadsCount[0] = x;
-    m_threadsCount[1] = y;
+    m_executionParams.blocksCount [0] = x; 
+    m_executionParams.blocksCount [1] = y; 
   }
-  
-  void IKernelExecutor::setBlocksCount(intt x, intt y)
+
+  void IKernelExecutor::setThreadsCount (uint x, uint y)
   {
-    m_blocksCount[0] = x;
-    m_blocksCount[1] = y;
+    m_executionParams.threadsCount [0] = x; 
+    m_executionParams.threadsCount [1] = y; 
+  }
+
+  void IKernelExecutor::setSharedMemory (uint size)
+  {
+    m_executionParams.sharedMemSize = size;
   }
   
   void IKernelExecutor::setDimensions (uintt w, uintt h)
   {
-    calculateThreadsBlocks (m_blocksCount, m_threadsCount, w, h);
-  }
-
-  void IKernelExecutor::setSharedMemory(uintt sizeInBytes)
-  {
-    m_sharedMemoryInBytes = sizeInBytes;
+    calculateThreadsBlocks (m_executionParams.blocksCount, m_executionParams.threadsCount, w, h);
   }
 
   void IKernelExecutor::setParams(void** params) { m_params = params; }
@@ -97,7 +85,7 @@ namespace oap
 
   bool IKernelExecutor::execute (const char* functionName, void** params, uintt sharedMemorySize)
   {
-    setSharedMemory (sharedMemorySize);
+    m_executionParams.sharedMemSize = sharedMemorySize;
     return execute (functionName, params);
   }
   
@@ -118,15 +106,15 @@ namespace oap
 
   void IKernelExecutor::reset ()
   {
-    m_blocksCount[0] = 1;
-    m_blocksCount[1] = 1;
-    m_blocksCount[2] = 1;
+    m_executionParams.blocksCount[0] = 1;
+    m_executionParams.blocksCount[1] = 1;
+    m_executionParams.blocksCount[2] = 1;
 
-    m_threadsCount[0] = 1;
-    m_threadsCount[1] = 1;
-    m_threadsCount[2] = 1;
+    m_executionParams.threadsCount[0] = 1;
+    m_executionParams.threadsCount[1] = 1;
+    m_executionParams.threadsCount[2] = 1;
 
-    m_sharedMemoryInBytes = 0;
+    m_executionParams.sharedMemSize = 0;
 
     m_params = nullptr;
     m_paramsSize = 0;

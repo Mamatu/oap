@@ -28,8 +28,6 @@
 #include <iterator>
 #include <math.h>
 
-#include "GenericProceduresApi.h"
-
 namespace oap
 {
 
@@ -55,7 +53,9 @@ bool CuProceduresApi::execute (const char* functionName, uintt w, uintt h, void*
 
 CuProceduresApi::CuProceduresApi()
     : m_cuStatus(CUDA_SUCCESS),
-      m_compareOperationOutput(0)
+      m_compareOperationOutput(0),
+      m_bapi (oap::cuda::GetMatrixInfo),
+      m_preExecCallback (std::bind(&CuProceduresApi::resetFlags, this))
 {
   init();
   m_magnitudeOutput = CudaUtils::AllocDeviceObj<floatt>(0);
@@ -64,9 +64,7 @@ CuProceduresApi::CuProceduresApi()
 
 void CuProceduresApi::init() {
   m_kernel.load("liboapMatrixCuda.cubin");
-  CUdevprop devprop;
-  m_kernel.getDeviceProperties(devprop);
-  m_maxThreadsPerBlock = devprop.maxThreadsPerBlock;
+  m_maxThreadsPerBlock = m_kernel.getMaxThreadsPerBlock ();
 }
 
 CuProceduresApi::~CuProceduresApi() {
@@ -102,7 +100,9 @@ void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0,
   check_dotProduct (output, params0, params1, columns, rows);
 
   void* params[] = {&output, &params0, &params1};
-  m_cuStatus = execute("CUDAKernel_AddDotProduct", columns, rows, params, 0);
+  const char* kname = "CUDAKernel_AddDotProduct";
+
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
 }
 
 void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -117,7 +117,9 @@ void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0,
   check_tensorProduct (output, params0, params1, columns, rows);
 
   void* params[] = {&output, &params0, &params1};
-  m_cuStatus = execute("CUDAKernel_TensorProduct", columns, rows, params, 0);
+  const char* kname = "CUDAKernel_TensorProduct";
+
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
 }
 
 void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -132,7 +134,9 @@ void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params
   check_hadamardProduct (output, params0, params1, columns, rows);
 
   void* params[] = {&output, &params0, &params1};
-  m_cuStatus = execute("CUDAKernel_HadamardProduct", columns, rows, params, 0);
+  const char* kname = "CUDAKernel_HadamardProduct";
+
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
 }
 
 void CuProceduresApi::hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -147,7 +151,9 @@ void CuProceduresApi::hadamardProductVec (math::Matrix* output, math::Matrix* pa
   check_hadamardProductVec (output, params0, params1, columns, rows);
 
   void* params[] = {&output, &params0, &params1};
-  m_cuStatus = execute("CUDAKernel_PHadamardProduct", columns, rows, params, 0);
+  const char* kname = "CUDAKernel_PHadamardProduct";
+
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
 }
 
 void CuProceduresApi::calculateQTHQ(math::Matrix* output, math::Matrix* H,
@@ -158,10 +164,13 @@ void CuProceduresApi::calculateQTHQ(math::Matrix* output, math::Matrix* H,
 }
 
 void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* params0,
-                            math::Matrix* params1, MatrixEx* matrixEx,
-                            uintt columns, uintt rows) {
+                                  math::Matrix* params1, MatrixEx* matrixEx,
+                                  uintt columns, uintt rows)
+{
   void* params[] = {&output, &params0, &params1, &matrixEx};
-  m_cuStatus = execute("CUDAKernel_DotProductEx", columns, rows, params, 0);
+  const char* kname = "CUDAKernel_DotProductEx";
+
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
 }
 
 void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* params0,
@@ -530,9 +539,8 @@ void CuProceduresApi::identityDerivative (math::Matrix* output, math::Matrix* ma
 
 void CuProceduresApi::tanh (math::Matrix* output, const math::Matrix* matrix)
 {
-  oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> bapi (oap::cuda::GetMatrixInfo);
-  m_cuStatus = oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, bapi, true,
-               std::function<void()>(std::bind(&CuProceduresApi::resetFlags, this)));
+  m_cuStatus = oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, m_bapi, true,
+               m_preExecCallback);
 }
 
 void CuProceduresApi::tanhDerivative (math::Matrix* output, const math::Matrix* matrix)
@@ -588,8 +596,7 @@ floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix*
 
   m_kernel.calculateThreadsBlocks(blocks, threads, wthreads, hthreads);
 
-  assert(threads[0] * threads[1] * sizeof(floatt) <
-         m_kernel.getSharedMemorySize());
+  assert (threads[0] * threads[1] * sizeof(floatt) < oap::cuda::Context::Instance().getSharedMemorySize());
 
   m_kernel.setBlocksCount(blocks[0], blocks[1]);
   m_kernel.setThreadsCount(threads[0], threads[1]);
@@ -628,8 +635,7 @@ floatt CuProceduresApi::magnitude2Procedure(const char* cuKernelName,
 
   m_kernel.calculateThreadsBlocks(blocks, threads, wthreads, hthreads);
 
-  assert(threads[0] * threads[1] * sizeof(floatt) <
-         m_kernel.getSharedMemorySize());
+  assert (threads[0] * threads[1] * sizeof(floatt) < oap::cuda::Context::Instance().getSharedMemorySize());
 
   m_kernel.setBlocksCount(blocks[0], blocks[1]);
   m_kernel.setThreadsCount(threads[0], threads[1]);
@@ -801,9 +807,7 @@ void CuProceduresApi::check_hadamardProductVec (math::Matrix* output, math::Matr
 
 void CuProceduresApi::crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> bapi (oap::cuda::GetMatrixInfo);
-
-  oap::generic::crossEntropy (output, params0, params1, &m_kernel, bapi);
+  oap::generic::crossEntropy (output, params0, params1, &m_kernel, m_bapi);
 }
 
 }

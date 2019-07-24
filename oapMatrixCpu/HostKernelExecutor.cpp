@@ -76,10 +76,11 @@ bool HostKernelExecutor::run (const char* functionName)
   }
 
   HostKernelImpl hki (it->second, getParams());
-  dim3 blockDim (getThreadsCount());
-  dim3 gridDim (getBlocksCount());
+  const oap::ExecutionParams& eParams = this->getExecutionParams ();
+  dim3 blockDim (eParams.threadsCount);
+  dim3 gridDim (eParams.blocksCount);
   hki.setDims (gridDim, blockDim);
-  hki.setSharedMemory (getSharedMemory ());
+  hki.setSharedMemory (eParams.sharedMemSize);
 
   hki.executeKernelAsync ();
 

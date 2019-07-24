@@ -27,41 +27,38 @@
 
 namespace oap
 {
+  struct DeviceProperties
+  {
+    int maxThreadsCount[3];
+    int maxBlocksCount[3];
+  
+    int maxThreadsPerBlock;
+    int regsPerBlock;
+    int sharedMemPerBlock;
+  };
+
+  struct ExecutionParams
+  {
+    uint threadsCount[3];
+    uint blocksCount[3];
+    uint sharedMemSize;
+  };
+
   class IKernelExecutor
   {
     public:
-      IKernelExecutor();
 
+      IKernelExecutor();
       virtual ~IKernelExecutor();
 
-      uint getThreadsX() const;
-    
-      uint getThreadsY() const;
+      void setExecutionParams (const ExecutionParams& executionParams);
+      const ExecutionParams& getExecutionParams () const;
 
-      uint getThreadsZ() const;
-    
-      uint getBlocksX() const;
-    
-      uint getBlocksY() const;
+      void setBlocksCount (uint x, uint y);
+      void setThreadsCount (uint x, uint y);
+      void setSharedMemory (uint size);
 
-      uint getBlocksZ() const;
-
-      const uint* const getThreadsCount () const;
-
-      const uint* const getBlocksCount () const;
-    
-      void setThreadsCount (intt x, intt y);
-    
-      void setBlocksCount (intt x, intt y);
-    
       void setDimensions (uintt w, uintt h);
-    
-      void setSharedMemory (uintt sizeInBytes);
-
-      uintt getSharedMemory () const
-      {
-        return m_sharedMemoryInBytes;
-      }
 
       void setParams (void** params);
     
@@ -85,11 +82,8 @@ namespace oap
       virtual bool run (const char* function) = 0;
 
     private:
-      uint m_threadsCount[3];
-      uint m_blocksCount[3];
+      ExecutionParams m_executionParams;
 
-      uint m_sharedMemoryInBytes;
- 
       void** m_params = nullptr;
       int m_paramsSize = 0;
 
