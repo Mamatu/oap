@@ -34,6 +34,7 @@
 
 class OapHostTanhTests : public testing::Test {
  public:
+
   virtual void SetUp()
   {
   }
@@ -66,7 +67,7 @@ class OapHostTanhTests : public testing::Test {
     {
       for (size_t idx1 = 0; idx1 < rows; ++idx1)
       {
-        EXPECT_NEAR (oap::math::tanh(GetRe(matrix1, idx, idx1)), GetRe(output, idx, idx1), 0.00001);
+        ASSERT_NEAR (oap::math::tanh(GetRe(matrix1, idx, idx1)), GetRe(output, idx, idx1), 0.00001);
       }
     }
   }
@@ -85,5 +86,32 @@ TEST_F(OapHostTanhTests, TanhTest_1)
 TEST_F(OapHostTanhTests, TanhTest_2)
 {
   test (3, 3);
+}
+
+TEST_F(OapHostTanhTests, TanhTest_3)
+{
+  test (4, 4);
+}
+
+TEST_F(OapHostTanhTests, TanhTest_4)
+{
+  for (size_t c = 1; c < 10; ++c)
+  {
+    for (size_t r = 1; r < 10; ++r)
+    {
+      test (c, r);
+    }
+  }
+}
+
+TEST_F(OapHostTanhTests, TanhTest_5)
+{
+  for (size_t c = 10; c < 30; ++c)
+  {
+    for (size_t r = 10; r < 30; ++r)
+    {
+      test (c, r);
+    }
+  }
 }
 
