@@ -33,6 +33,8 @@
 
 #include "oapExpectedOutputs_ForwardPropagation_PyPlotCoords.h"
 
+#include "oapNeuralTests_Data.h"
+
 void setReValueToMatrix (math::Matrix* matrix, floatt value, size_t idx = 0)
 {
   matrix->reValues[idx] = value;
@@ -961,7 +963,7 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_1)
 
 TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
 {
-  Layer* l1 = network->createLayer(3, false, Activation::TANH);
+  Layer* l1 = network->createLayer(2, true, Activation::TANH);
   Layer* l2 = network->createLayer(3, true, Activation::TANH);
   Layer* l3 = network->createLayer(1, Activation::TANH);
   network->setLearningRate (0.03);
@@ -1002,7 +1004,6 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
     {{3.1655171307757155, 3.690154247154129}, -1},
     {{4.3098981190509935, -1.8380685678345827}, -1},
   };
-
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
   for (size_t idx = 0; idx < weights1to2Vec.size(); ++idx)
   {
@@ -1026,7 +1027,6 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
   {
     hinputs->reValues[0] = p.first.first;
     hinputs->reValues[1] = p.first.second;
-    hinputs->reValues[2] = 1;
 
     houtput->reValues[0] = p.second;
 
@@ -1036,8 +1036,6 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
     network->forwardPropagation ();
     network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
   }
-
-  network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
   network->backwardPropagation ();
 
   l1->getHostWeights (weights1to2);
@@ -1045,6 +1043,29 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
 
   l2->getHostWeights (weights2to3);
   checkWeights (weights2to3Vec, weights2to3, idxToCheck2);
+
+  auto checkErrors = [&hinputs, &houtput, this](floatt expected, const std::vector<std::pair<std::pair<floatt, floatt>, floatt>>& points)
+  {
+    for (const auto& p : points)
+    {
+      hinputs->reValues[0] = p.first.first;
+      hinputs->reValues[1] = p.first.second;
+      hinputs->reValues[2] = 1;
+
+      houtput->reValues[0] = p.second;
+
+      network->setInputs (hinputs, ArgType::HOST);
+      network->setExpected (houtput, ArgType::HOST);
+
+      network->forwardPropagation ();
+      network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
+    }
+    EXPECT_NEAR (expected, network->calculateError(oap::ErrorType::MEAN_SQUARE_ERROR), 0.0000001);
+    network->resetErrors ();
+  };
+  
+  checkErrors(0.4947014772704021, oap::BackwardPropagation_PyPlotCoords_2::trainPoints);
+  checkErrors(0.5021636175010554, oap::BackwardPropagation_PyPlotCoords_2::testPoints);
 }
 
 TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_3)
@@ -1343,7 +1364,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_3)
   network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
   logInfo ("BP %f", network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR));
 
-  EXPECT_NEAR (error * error, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR), 0.000000000001);
+  EXPECT_NEAR (error * error * 0.5, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR), 0.000000000001);
   network->backwardPropagation ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
@@ -1385,10 +1406,10 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_4)
 
   network->forwardPropagation ();
 
-  network->calculateErrors (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
-  logInfo ("BP %f", network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
+  logInfo ("BP %f", network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR));
 
-  EXPECT_DOUBLE_EQ (error, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  EXPECT_FLOAT_EQ (error * error * 0.5, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR));
   network->backwardPropagation ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
@@ -1436,10 +1457,10 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_5)
 
   network->forwardPropagation ();
 
-  network->calculateErrors (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
-  logInfo ("BP %f", network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
+  logInfo ("BP %f", network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR));
 
-  EXPECT_DOUBLE_EQ (0, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  EXPECT_DOUBLE_EQ (0, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR));
   network->backwardPropagation ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
@@ -1753,7 +1774,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_7)
   network->calculateErrors (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
   logInfo ("BP %f", network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
 
-  EXPECT_DOUBLE_EQ (error, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  EXPECT_FLOAT_EQ (error*error*0.5, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
   network->backwardPropagation ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
@@ -1819,7 +1840,7 @@ TEST_F(OapNeuralTests, SimpleBackwardPropagation_8)
   network->calculateErrors (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
   logInfo ("BP %f", network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
 
-  EXPECT_DOUBLE_EQ (error, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  EXPECT_FLOAT_EQ (error*error*0.5, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
   network->backwardPropagation ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
