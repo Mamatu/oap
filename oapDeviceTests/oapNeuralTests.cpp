@@ -78,7 +78,10 @@ void checkWeights (const std::vector<Conversion>& conversions, const math::Matri
   for (size_t idx = 0; idx < idxsToCheck.size(); ++idx)
   {
     size_t trueIdx = idxsToCheck[idx];
-    callback (std::get<1>(conversions[trueIdx]), weights->reValues[trueIdx], trueIdx);
+    floatt expected = std::get<1>(conversions[trueIdx]);
+    floatt actual = weights->reValues[trueIdx];
+    callback (expected, actual, trueIdx);
+    EXPECT_NEAR (expected, actual, 0.0001) << "Standard expect_near: " << idx;
   }
 }
 
