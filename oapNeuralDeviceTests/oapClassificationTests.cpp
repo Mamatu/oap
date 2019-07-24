@@ -410,7 +410,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
     }
     while (testError > 0.005 && terrorCount < 10000);
 
-    oap::pyplot::plotCoords2D ("/tmp/plot_plane_xy.py", std::make_tuple(-200, 200, 1), std::make_tuple(-200, 200, 1), getLabel, {"r*", "b*"});
+    oap::pyplot::plotCoords2D ("/tmp/plot_plane_xy.py", std::make_tuple(-5, 5, 0.01), std::make_tuple(-5, 5, 0.01), getLabel, {"r*", "b*"});
   }
 
   oap::cuda::Context::Instance().destroy();
