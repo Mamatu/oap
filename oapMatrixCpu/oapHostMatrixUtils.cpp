@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -273,7 +273,7 @@ void DeleteMatrix(const math::Matrix* matrix)
 
   if (minfo.isInitialized ())
   {
-    debugInfo ("Deallocate: host matrix = %p %s", matrix, minfo.toString().c_str());
+    logTrace ("Deallocate: host matrix = %p %s", matrix, minfo.toString().c_str());
   }
 }
 
@@ -562,6 +562,11 @@ void GetMatrixStr(std::string& text, const math::Matrix* matrix)
 
 void ToString (std::string& str, const math::Matrix* matrix)
 {
+  if (matrix == nullptr)
+  {
+    str = "nullptr";
+    return;
+  }
   matrixUtils::PrintMatrix(str, matrix, matrixUtils::PrintArgs());
 }
 

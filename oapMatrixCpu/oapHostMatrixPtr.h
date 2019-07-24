@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -35,9 +35,9 @@ namespace oap {
   class HostMatrixPtr : public oap::MatrixSharedPtr {
     public:
       HostMatrixPtr(math::Matrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix,
-        [this](const math::Matrix* matrix) { debugInfo("Destroy: HostMatrixPtr = %p matrix = %p", this, matrix); oap::host::DeleteMatrix(matrix); })
+        [this](const math::Matrix* matrix) { logTrace("Destroy: HostMatrixPtr = %p matrix = %p", this, matrix); oap::host::DeleteMatrix(matrix); })
       {
-        debugInfo("Create: HostMatrixPtr = %p matrix = %p", this, matrix);
+        logTrace("Create: HostMatrixPtr = %p matrix = %p", this, matrix);
       }
   };
 

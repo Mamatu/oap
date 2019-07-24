@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -66,7 +66,6 @@ namespace generic
       GetMatrixInfo&& getMatrixInfo;
   };
 
-
   template<typename GetMatrixInfo, typename Copy>
   class SumApi : public BasicMatrixApi<GetMatrixInfo>
   {
@@ -91,6 +90,51 @@ namespace generic
       std::pair<HBuffer&, DBuffer&> re;
       std::pair<HBuffer&, DBuffer&> im;
   };
+
+  void prepareDims (oap::IKernelExecutor* kexec, uintt w, uintt h, uint blocks[2], uint threads[2])
+  {
+    kexec->calculateThreadsBlocks (blocks, threads, w, h);
+    kexec->setBlocksCount (blocks[0], blocks[1]);
+    kexec->setThreadsCount (threads[0], threads[1]);
+  }
+
+  template<typename PreExecCallback, typename PostExecCallback>
+  bool execute (oap::IKernelExecutor* kexec, const char* functionName, uintt w, uintt h, void** params, uintt sharedMemory, bool _prepareDims,
+               uint blocks[2], uint threads[2],
+               PreExecCallback&& preExecCallback, PostExecCallback&& postExecCallback)
+  {
+    if (_prepareDims)
+    {
+      prepareDims (kexec, w, h, blocks, threads);
+    }
+
+    kexec->setSharedMemory(sharedMemory);
+
+    preExecCallback ();
+
+    kexec->setParams (params);
+    bool status = kexec->execute(functionName);
+
+    postExecCallback ();
+
+    return status;
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, const math::Matrix* arg, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, bool _prepareDims, PreExecCallback&& preExecCallback)
+  {
+    uint blocks[2];
+    uint threads[2];
+
+    auto minfo = bmApi.getMatrixInfo (output);
+
+    const uintt w = minfo.columns ();
+    const uintt h = minfo.rows ();
+
+    void* params[] = {&output, &arg};
+
+    return execute (kexec, kernelName.c_str(), w, h, params, 0, _prepareDims, blocks, threads, preExecCallback, [](){});
+  }
 
   template<typename GetMatrixInfo, typename Copy, typename HBuffer, typename DBuffer>
   bool sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix, oap::IKernelExecutor* kexec, SumApi<GetMatrixInfo, Copy>& sumApi, SumBuffers<HBuffer, DBuffer>& sumBuffers)

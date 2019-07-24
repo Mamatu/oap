@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -101,7 +101,7 @@ class OapLogicalFunctionsTests : public testing::Test
 
       expected->reValues[0] = e1;
 
-      m_ont->network->train(inputs, expected, Network::HOST, m_errorType);
+      m_ont->network->train(inputs, expected, ArgType::HOST, m_errorType);
     }
 
     floatt run (floatt a1, floatt a2)
@@ -122,7 +122,7 @@ class OapLogicalFunctionsTests : public testing::Test
         inputs->reValues[2] = m_bvalue;
       }
 
-      auto output = m_ont->network->run (inputs, Network::HOST, m_errorType);
+      auto output = m_ont->network->run (inputs, ArgType::HOST, m_errorType);
       return m_ont->is(output->reValues[0]);
     }
   };

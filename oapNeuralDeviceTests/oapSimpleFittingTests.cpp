@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -128,8 +128,8 @@ class OapSimpleFittingTests : public testing::Test
         }
         expected->reValues[0] = eoutput;
 
-        network->setExpected (expected, Network::HOST);
-        network->setInputs (inputs, Network::HOST);
+        network->setExpected (expected, ArgType::HOST);
+        network->setInputs (inputs, ArgType::HOST);
 
         network->forwardPropagation();
         network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
@@ -200,9 +200,9 @@ TEST_F(OapSimpleFittingTests, SinFitting_Test)
     inputs->reValues[1] = 1; // bias
 
 
-    network->setInputs (inputs, Network::HOST);
+    network->setInputs (inputs, ArgType::HOST);
     network->forwardPropagation ();
-    network->getOutputs (output, Network::HOST);
+    network->getOutputs (output, ArgType::HOST);
     EXPECT_THAT(output->reValues[0], DoubleNear (fSin(fidx), 0.001));
   }
 }

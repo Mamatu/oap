@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-#include "DebugLogs.h"
+#include "Logger.h"
 #include "KernelExecutor.h"
 #include "ThreadsMapper.h"
 
@@ -228,7 +228,7 @@ bool Kernel::run (const char* functionName)
     const uint* const threadsCount = getThreadsCount ();
     const uint* const blocksCount = getBlocksCount ();
 
-#if 0
+#ifdef OAP_PRINT_KERNEL_INFO
     logInfo("Load kernel: %s", functionName);
     logInfo("Image: %p", m_image);
     logInfo("Module handle: %p", m_cuModule);

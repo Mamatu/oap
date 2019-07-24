@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -28,7 +28,7 @@ void Layer::checkHostInputs(const math::Matrix* hostInputs)
     throw std::runtime_error ("Columns of hostInputs matrix must be equal 1");
   }
 
-  if (hostInputs->rows != m_neuronsCount)
+  if (hostInputs->rows != getTotalNeuronsCount())
   {
     throw std::runtime_error ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)");
   }
@@ -94,13 +94,16 @@ void Layer::deallocate(math::Matrix** matrix)
 
 void Layer::allocateNeurons(size_t neuronsCount)
 {
-  debugInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", this, neuronsCount + m_biasCount, neuronsCount, m_biasCount);
+  logInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", this, neuronsCount + m_biasCount, neuronsCount, m_biasCount);
   m_neuronsCount = neuronsCount;
 
   m_inputs = oap::cuda::NewDeviceReMatrix (1, getTotalNeuronsCount());
   m_sums = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
   m_tsums = oap::cuda::NewDeviceMatrix (getTotalNeuronsCount(), 1);
   m_errors = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_errorsAcc = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_errorsAux = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_errorsHost = oap::host::NewReMatrix (1, getTotalNeuronsCount());
   m_tinputs = oap::cuda::NewDeviceReMatrix (getTotalNeuronsCount(), 1); //todo: use transpose
 }
 
@@ -125,10 +128,13 @@ void Layer::deallocate()
   deallocate (&m_sums);
   deallocate (&m_tsums);
   deallocate (&m_errors);
+  deallocate (&m_errorsAcc);
+  deallocate (&m_errorsAux);
   deallocate (&m_weights);
   deallocate (&m_tweights);
   deallocate (&m_weights1);
   deallocate (&m_weights2);
+  oap::host::DeleteMatrix (m_errorsHost);
 }
 
 void Layer::setHostWeights (math::Matrix* weights)
@@ -208,6 +214,8 @@ void Layer::save (utils::ByteBuffer& buffer) const
   oap::cuda::SaveMatrix (m_sums, buffer);
   oap::cuda::SaveMatrix (m_tsums, buffer);
   oap::cuda::SaveMatrix (m_errors, buffer);
+  oap::cuda::SaveMatrix (m_errorsAcc, buffer);
+  oap::cuda::SaveMatrix (m_errorsAux, buffer);
   oap::cuda::SaveMatrix (m_weights, buffer);
   oap::cuda::SaveMatrix (m_tweights, buffer);
   oap::cuda::SaveMatrix (m_weights1, buffer);
@@ -229,6 +237,8 @@ Layer* Layer::load (const utils::ByteBuffer& buffer)
   layer->m_sums = oap::cuda::LoadMatrix (buffer);
   layer->m_tsums = oap::cuda::LoadMatrix (buffer);
   layer->m_errors = oap::cuda::LoadMatrix (buffer);
+  layer->m_errorsAcc = oap::cuda::LoadMatrix (buffer);
+  layer->m_errorsAux = oap::cuda::LoadMatrix (buffer);
   layer->m_weights = oap::cuda::LoadMatrix (buffer);
   layer->m_tweights = oap::cuda::LoadMatrix (buffer);
   layer->m_weights1 = oap::cuda::LoadMatrix (buffer);
@@ -273,6 +283,8 @@ bool Layer::operator== (const Layer& layer) const
      {m_sums, layer.m_sums},
      {m_tsums, layer.m_tsums},
      {m_errors , layer.m_errors },
+     {m_errorsAcc , layer.m_errorsAcc },
+     {m_errorsAux , layer.m_errorsAux },
      {m_weights, layer.m_weights},
      {m_tweights, layer.m_tweights},
      {m_weights1, layer.m_weights1},

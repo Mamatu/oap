@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -29,56 +29,19 @@
 
 class Network;
 
-template<typename T>
-class SLEntity
-{
-    using SavingFunc = std::function<void(utils::ByteBuffer&)>;
-    using LoadingFunc = std::function<void(utils::ByteBuffer&)>;
-
-    SavingFunc m_savingFunc;
-    LoadingFunc m_loadingFunc;
-  public:
-    T&& m_raw;
-
-    SLEntity (T&& t) : m_raw (t)
-    {}
-
-    SLEntity (T&& t, const SavingFunc& sfunc, const LoadingFunc& lfunc) : m_raw (t),
-        m_savingFunc (sfunc), m_loadingFunc (lfunc)
-    {}
-
-    operator T() const
-    {
-      return m_raw;
-    }
-
-    void save (utils::ByteBuffer& buffer) const
-    {
-      if (m_savingFunc)
-      {
-        m_savingFunc (buffer);
-      }
-      else if (std::is_pod<T>::value)
-      {
-        buffer.push_back (m_raw);
-      }
-    }
-
-    void load (const utils::ByteBuffer& buffer)
-    {
-      if (m_loadingFunc)
-      {
-        m_loadingFunc (buffer);
-      }
-    }
-};
-
 enum class Activation
 {
   LINEAR,
   SIGMOID,
   TANH,
   SIN
+};
+
+enum class ArgType
+{
+  HOST,
+  DEVICE,
+  DEVICE_COPY,
 };
 
 class Layer
@@ -90,6 +53,9 @@ private:
   math::Matrix* m_sums = nullptr;
   math::Matrix* m_tsums = nullptr;
   math::Matrix* m_errors = nullptr;
+  math::Matrix* m_errorsAcc = nullptr;
+  math::Matrix* m_errorsAux = nullptr;
+  math::Matrix* m_errorsHost = nullptr;
   math::Matrix* m_weights = nullptr;
   math::Matrix* m_tweights = nullptr;
   math::Matrix* m_weights1 = nullptr;
@@ -138,6 +104,11 @@ public:
   void allocateWeights(const Layer* nextLayer);
 
   void deallocate();
+
+  math::MatrixInfo getWeightsInfo () const
+  {
+    return oap::cuda::GetMatrixInfo (m_weights);
+  }
 
   void setHostWeights (math::Matrix* weights);
 

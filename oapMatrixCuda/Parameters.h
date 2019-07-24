@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -23,7 +23,7 @@
 #ifndef PARAMETERS_H
 #define	PARAMETERS_H
 
-#include "DebugLogs.h"
+#include "Logger.h"
 #include "Math.h"
 
 class Parameters {

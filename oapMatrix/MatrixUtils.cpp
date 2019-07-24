@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -22,7 +22,7 @@
 #include <locale>
 #include <math.h>
 #include <stdlib.h>
-#include <DebugLogs.h>
+#include <Logger.h>
 
 namespace matrixUtils {
 

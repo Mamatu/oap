@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -35,9 +35,9 @@ namespace oap {
   class DeviceMatrixPtr : public oap::MatrixSharedPtr {
     public:
       DeviceMatrixPtr(math::Matrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix,
-      [this](const math::Matrix* matrix) { debugInfo("Destroy: DeviceMatrixPtr = %p matrix = %p", this, matrix); oap::cuda::DeleteDeviceMatrix(matrix); })
+      [this](const math::Matrix* matrix) { logTrace("Destroy: DeviceMatrixPtr = %p matrix = %p", this, matrix); oap::cuda::DeleteDeviceMatrix(matrix); })
       {
-        debugInfo("Create: DeviceMatrixPtr = %p matrix = %p", this, matrix);
+        logTrace("Create: DeviceMatrixPtr = %p matrix = %p", this, matrix);
       }
   };
 

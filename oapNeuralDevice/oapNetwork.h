@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -29,13 +29,6 @@ class Network
 {
 public: // types
 
-  enum Type
-  {
-    HOST,
-    DEVICE,
-    DEVICE_COPY,
-  };
-
   class IController
   {
     public:
@@ -58,18 +51,18 @@ public:
   Layer* createLayer (size_t neurons, const Activation& activation = Activation::SIGMOID);
   Layer* createLayer (size_t neurons, bool addBias, const Activation& activation = Activation::SIGMOID);
 
-  oap::HostMatrixUPtr run (math::Matrix* hostInputs, Type argsType, oap::ErrorType errorType);
+  oap::HostMatrixUPtr run (math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
 
-  void setInputs (math::Matrix* inputs, Type argsType);
-  void setExpected (math::Matrix* expected, Type argsType);
+  void setInputs (math::Matrix* inputs, ArgType argType);
+  void setExpected (math::Matrix* expected, ArgType argType);
 
-  math::Matrix* getOutputs (math::Matrix* outputs, Type argsType) const;
+  math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType) const;
   math::Matrix* getHostOutputs () const;
 
   void forwardPropagation ();
   void calculateErrors (oap::ErrorType errorType);
 
-  math::Matrix* getErrors (Type type) const;
+  math::Matrix* getErrors (ArgType type) const;
 
   floatt calculateMSE ();
   floatt calculateRMSE ();
@@ -83,7 +76,7 @@ public:
 
   void updateWeights();
 
-  bool train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, Type argsType, oap::ErrorType errorType);
+  bool train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, ArgType argType, oap::ErrorType errorType);
 
   void createLevel (Layer* layer);
 
@@ -131,37 +124,7 @@ public:
 protected:
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
 
-  inline void transpose (math::Matrix* m_tinputs, math::Matrix* m_inputs)
-  {
-    m_cuApi.transpose (m_tinputs, m_inputs);
-  }
-
-  inline void tensorProduct (math::Matrix* m_weights1, math::Matrix* m_tinputs, math::Matrix* next_errors)
-  {
-    m_cuApi.tensorProduct (m_weights1, m_tinputs, next_errors);
-  }
-
-  inline void multiplyReConstant (math::Matrix* m_weights1Output, math::Matrix* m_weights1Input, floatt m_learningRate)
-  {
-    m_cuApi.multiplyReConstant (m_weights1Output, m_weights1Input, m_learningRate);
-  }
-
-  inline void sigmoidDerivative (math::Matrix* next_sums, math::Matrix* next_sums1)
-  {
-    m_cuApi.sigmoidDerivative (next_sums, next_sums1);
-  }
-
-  inline void hadamardProductVec (math::Matrix* m_weights2, math::Matrix* m_weights1, math::Matrix* next_sums)
-  {
-    m_cuApi.hadamardProductVec (m_weights2, m_weights1, next_sums);
-  }
-
-  inline void add (math::Matrix* m_weightsOutput, math::Matrix* m_weightsInput, math::Matrix* m_weights2)
-  {
-    m_cuApi.add (m_weightsOutput, m_weightsInput, m_weights2);
-  }
-
-  inline void activateFunc (math::Matrix* output, math::Matrix* input, const Activation& activation)
+  inline void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation)
   {
     switch (activation)
     {
@@ -180,7 +143,7 @@ protected:
     };
   }
 
-  inline void derivativeFunc (math::Matrix* output, math::Matrix* input, const Activation& activation)
+  inline void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation)
   {
     switch (activation)
     {
@@ -200,6 +163,7 @@ protected:
   }
 private:
   std::vector<Layer*> m_layers;
+  std::vector<floatt> m_errorsVec;
 
   void destroyLayers();
 

@@ -49,6 +49,11 @@ int PatternsClassification::run ()
 
 int PatternsClassification::run (const oap::PatternsClassificationParser::Args& args)
 {
+  if (args.networkLayers.empty ())
+  {
+    return 1;
+  }
+
   auto load = [&args] (const std::string& path) -> std::tuple<std::unique_ptr<floatt[]>, oap::OptSize, oap::OptSize>
   {
     oap::PngFile png (path, false);
@@ -70,7 +75,6 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
 
   auto patternA = load (utils::Config::getFileInOap(args.patternPath1));
   auto patternB = load (utils::Config::getFileInOap(args.patternPath2));
-
 
   oap::cuda::Context::Instance().create();
 
@@ -95,10 +99,7 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   oap::HostMatrixPtr input = oap::host::NewReMatrix (1, args.networkLayers.front(), 0);
   oap::HostMatrixPtr eoutput = oap::host::NewReMatrix (1, args.networkLayers.back(), 0);
 
-  SE_CD_Controller selc (0.001, 100);
-
   network->setLearningRate (0.001);
-  network->setController (&selc);
 
   oap::ErrorType errorType = args.errorType;
 
@@ -112,7 +113,7 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   std::default_random_engine dre (rd());
   std::uniform_real_distribution<> dis(0., 1.);
 
-  while (selc.shouldContinue() && !m_bInterrupted)
+  while (!m_bInterrupted)
   {
     if (dis(dre) >= 0.5)
     {
@@ -125,7 +126,13 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
       eoutput->reValues[0] = 0;
     }
 
-    network->train (input, eoutput, Network::HOST, errorType);
+    network->setExpected (eoutput, ArgType::HOST);
+    network->setInputs (input, ArgType::HOST);
+    network->forwardPropagation ();
+    network->calculateErrors (errorType);
+    floatt error = network->calculateError (errorType);
+    network->backwardPropagation ();
+    logInfo ("error = %f", error);
   }
 
   auto invokeCallback = [&args](const oap::HostMatrixUPtr& matrix, const oap::PatternsClassificationParser::Args::OutputCallback& callback)
@@ -144,11 +151,11 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   if (!m_bInterrupted)
   {
     oap::host::CopyBuffer (input->reValues, upatternA.get (), input->columns * input->rows);
-    auto output1 = network->run (input, Network::HOST, errorType);
+    auto output1 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output1, args.m_onOutput1);
 
     oap::host::CopyBuffer (input->reValues, upatternB.get (), input->columns * input->rows);
-    auto output2 = network->run (input, Network::HOST, errorType);
+    auto output2 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output2, args.m_onOutput2);
   }
   else
@@ -186,6 +193,25 @@ void PatternsClassification::onInterrupt()
   debugFunc ();
   m_cond.wait ();
   debugFunc ();
+}
+
+void fclose_safe (FILE* file)
+{
+  if (file != nullptr)
+  {
+    debug ("Fclose of %p", file);
+    fclose (file);
+  }
+}
+
+void checkIfFileExists (FILE* file, const std::string& path)
+{
+  if (!file)
+  {
+    std::stringstream sstream;
+    sstream << "File \"" << path << "\" cannot be open to read.";
+    throw std::runtime_error (sstream.str ());
+  }
 }
 
 }

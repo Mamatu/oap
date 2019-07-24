@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -109,7 +109,7 @@ math::Matrix* allocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
 {
 
   math::MatrixInfo matrixInfo = math::MatrixInfo (allocRe, allocIm, columns, rows);
-  debug ("Try to allocate: %s", matrixInfo.toString().c_str());
+  logTrace ("Try to allocate: %s", matrixInfo.toString().c_str());
 
   CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, columns, rows);
   math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
@@ -146,10 +146,8 @@ math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows)
 math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue,
                               floatt imvalue)
 {
-  debugFuncBegin();
   math::Matrix* dmatrix =
     allocMatrix(true, true, columns, rows, revalue, imvalue);
-  debugFuncEnd();
   return dmatrix;
 }
 
@@ -171,7 +169,7 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix)
 
     if (minfo.isInitialized ())
     {
-      debugInfo ("Deallocate: cuda matrix = %p %s", dMatrix, minfo.toString().c_str());
+      logTrace ("Deallocate: cuda matrix = %p %s", dMatrix, minfo.toString().c_str());
     }
   }
 }
@@ -519,6 +517,11 @@ void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column,
 
 void ToString (std::string& str, const math::Matrix* devMatrix)
 {
+  if (devMatrix == nullptr)
+  {
+    str = "nullptr";
+    return;
+  }
   oap::HostMatrixUPtr ptr = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (devMatrix);
   oap::host::ToString (str, ptr);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -202,6 +202,13 @@ void HostProcedures::transpose(math::Matrix* output, math::Matrix* matrix) {
   TransposeImpl transposeImpl(output, matrix);
   prepare(output, transposeImpl);
   transposeImpl.executeKernelAsync();
+}
+
+void HostProcedures::tanh(math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, bapi, true, [](){});
 }
 
 void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)

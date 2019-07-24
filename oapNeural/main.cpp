@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -140,7 +140,7 @@ void runTraining (Context* ctx, floatt learningRate, int repeats)
       eoutput->reValues[pair.second] = 1;
     }
 
-    ctx->network->train (matrix, eoutput, Network::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+    ctx->network->train (matrix, eoutput, ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
     oap::host::DeleteMatrix (eoutput);
   };
 
@@ -195,7 +195,7 @@ int main(int argc, char** argv)
   auto run = [&](const std::string& image)
   {
     oap::HostMatrixPtr imatrix = getImageMatrix (dataPath + image);
-    auto output = ctx->network->run (imatrix.get(), Network::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+    auto output = ctx->network->run (imatrix.get(), ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
     oap::host::PrintMatrix ("output = ", output.get ());
   };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -42,6 +42,8 @@ class HostProcedures {
                  math::Matrix* matrix2);
 
   void transpose(math::Matrix* output, math::Matrix* matrix);
+
+  void tanh(math::Matrix* output, math::Matrix* matrix);
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 

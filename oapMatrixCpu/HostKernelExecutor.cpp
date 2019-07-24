@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2018 Marcin Matula
+ * Copyright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -22,13 +22,16 @@
 
 #include "CudaKernelsList.h"
 
+#include "Logger.h"
+
 #include <map>
 #include <functional>
 
 std::map<std::string, std::function<void(void**)>> g_kernelsList =
 {
   {"CUDAKernel_SumShared", HOSTKernel_SumSharedRaw},
-  {"CUDAKernel_CrossEntropy", HOSTKernel_CrossEntropyRaw}
+  {"CUDAKernel_CrossEntropy", HOSTKernel_CrossEntropyRaw},
+  {"CUDAKernel_Tanh", HOSTKernel_TanhRaw},
 };
 
 class HostKernelImpl : public HostKernel
@@ -68,6 +71,7 @@ bool HostKernelExecutor::run (const char* functionName)
 
   if (it == g_kernelsList.end ())
   {
+    debugAssertMsg (false, "Function name is not registerd in g_kernelsList");
     return false;
   }
 
