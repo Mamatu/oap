@@ -85,6 +85,19 @@ void checkWeights (const std::vector<Conversion>& conversions, const math::Matri
   }
 }
 
+void checkWeights (const std::vector<floatt>& conversions, const math::Matrix* weights, const std::vector<size_t>& idxsToCheck,
+                  CheckCallback&& callback = std::move(defaultCheck))
+{
+  for (size_t idx = 0; idx < idxsToCheck.size(); ++idx)
+  {
+    size_t trueIdx = idxsToCheck[idx];
+    floatt expected = conversions[trueIdx];
+    floatt actual = weights->reValues[trueIdx];
+    callback (expected, actual, trueIdx);
+    EXPECT_NEAR (expected, actual, 0.0001) << "Standard expect_near: " << idx;
+  }
+}
+
 template<typename Conversion, typename Callback = decltype(defaultCheck)>
 void checkWeights (const std::vector<Conversion>& conversions, const math::Matrix* weights,
                   CheckCallback&& callback = std::move(defaultCheck))
@@ -797,8 +810,8 @@ TEST_F(OapNeuralTests, ForwardPropagation_PyPlotCoords_Parallel)
   Layer* l3 = network->createLayer(1, Activation::TANH);
   network->setLearningRate (0.03);
 
-  using PConvert = std::pair<floatt, floatt>;
-  std::vector<PConvert> weights1to2Vec =
+  using Weights = std::pair<floatt, floatt>;
+  std::vector<Weights> weights1to2Vec =
   {
     {-0.03844587775473951, -0.03428101998933327},
     {-0.19482274545428657, -0.19317562257641502},
@@ -814,7 +827,7 @@ TEST_F(OapNeuralTests, ForwardPropagation_PyPlotCoords_Parallel)
     {0.,0.}
   };
 
-  std::vector<PConvert> weights2to3Vec =
+  std::vector<Weights> weights2to3Vec =
   {
     {-0.20444003164948682, -0.20193914343449443},
     {0.23061038559617397, 0.2391694840585953},
@@ -881,14 +894,23 @@ TEST_F(OapNeuralTests, ForwardPropagation_PyPlotCoords_Parallel)
   checkWeights (weights1to2Vec, weights1to2, idxToCheck1);
 }*/
 
-using PConvert = std::pair<floatt, floatt>;
-void testOneStep (Network* network,
-                  const std::vector<PConvert>& weights1to2Vec,
-                  const std::vector<PConvert>& weights2to3Vec,
-                  const std::vector<std::pair<std::pair<floatt, floatt>, floatt>>& points,
-                  oap::HostMatrixPtr hinputs,
-                  oap::HostMatrixPtr houtput)
+using Weights = std::vector<floatt>;
+using Point = std::pair<floatt, floatt>;
+using PointLabel = std::pair<Point, floatt>;
+using Points = std::vector<PointLabel>;
+using Batches = std::vector<Points>;
+
+
+void testSteps (Network* network,
+                const std::vector<Weights>& weights1to2Vec,
+                const std::vector<Weights>& weights2to3Vec,
+                const Batches& batches,
+                oap::HostMatrixPtr hinputs,
+                oap::HostMatrixPtr houtput)
 {
+  debugAssert (weights1to2Vec.size() == weights2to3Vec.size());
+  debugAssert (batches.size() + 1 == weights2to3Vec.size());
+
   Layer* l1 = network->createLayer(3, false, Activation::TANH);
   Layer* l2 = network->createLayer(3, true, Activation::TANH);
   Layer* l3 = network->createLayer(1, Activation::TANH);
@@ -898,128 +920,179 @@ void testOneStep (Network* network,
   std::vector<size_t> idxToCheck2 = {0, 1, 2, 3};
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
-  for (size_t idx = 0; idx < weights1to2Vec.size(); ++idx)
+  for (size_t idx = 0; idx < weights1to2Vec[0].size(); ++idx)
   {
-    weights1to2->reValues[idx] = weights1to2Vec[idx].first;
+    weights1to2->reValues[idx] = weights1to2Vec[0][idx];
   }
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
-  for (size_t idx = 0; idx < weights2to3Vec.size(); ++idx)
+  for (size_t idx = 0; idx < weights2to3Vec[0].size(); ++idx)
   {
-    weights2to3->reValues[idx] = weights2to3Vec[idx].first;
+    weights2to3->reValues[idx] = weights2to3Vec[0][idx];
   }
 
   l1->setHostWeights (weights1to2);
   l2->setHostWeights (weights2to3);
 
-  size_t idx = 0;
-  for (const auto& p : points)
+  for (size_t step = 0; step < batches.size(); ++step)
   {
-    hinputs->reValues[0] = p.first.first;
-    hinputs->reValues[1] = p.first.second;
-    hinputs->reValues[2] = 1;
+    for (const auto& p : batches[step])
+    {
+      hinputs->reValues[0] = p.first.first;
+      hinputs->reValues[1] = p.first.second;
+      hinputs->reValues[2] = 1;
 
-    houtput->reValues[0] = p.second;
+      houtput->reValues[0] = p.second;
 
-    network->setInputs (hinputs, ArgType::HOST);
-    network->setExpected (houtput, ArgType::HOST);
+      network->setInputs (hinputs, ArgType::HOST);
+      network->setExpected (houtput, ArgType::HOST);
 
-    network->forwardPropagation ();
-    network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
+      network->forwardPropagation ();
+      network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
+    }
+
+    network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
+    network->backwardPropagation ();
+
+    l1->getHostWeights (weights1to2);
+    checkWeights (weights1to2Vec[step + 1], weights1to2, idxToCheck1);
+  
+    l2->getHostWeights (weights2to3);
+    checkWeights (weights2to3Vec[step + 1], weights2to3, idxToCheck2);
   }
-
-  network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
-  network->backwardPropagation ();
-
-  l1->getHostWeights (weights1to2);
-  checkWeights (weights1to2Vec, weights1to2, idxToCheck1);
-
-  l2->getHostWeights (weights2to3);
-  checkWeights (weights2to3Vec, weights2to3, idxToCheck2);
 }
 
-void testOneStep (Network* network,
-                  const std::vector<PConvert>& weights1to2Vec,
-                  const std::vector<PConvert>& weights2to3Vec,
-                  const std::vector<std::pair<std::pair<floatt, floatt>, floatt>>& points)
+void testSteps (Network* network,
+                  const std::vector<Weights>& weights1to2Vec,
+                  const std::vector<Weights>& weights2to3Vec,
+                  const Batches& batches)
 {
   oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
   oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
-  testOneStep (network, weights1to2Vec, weights2to3Vec, points, hinputs, houtput);
+  testSteps (network, weights1to2Vec, weights2to3Vec, batches, hinputs, houtput);
 }
 
 TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_1)
 {
-  std::vector<PConvert> weights1to2Vec =
+  std::vector<Weights> weights1to2Vec =
   {
-    {0.2, 0.2015415656559217},
-    {0.2, 0.2019262554160332},
-    {0.1, 0.1038135365011816},
-    {0.2, 0.2015415656559217},
-    {0.2, 0.2019262554160332},
-    {0.1, 0.1038135365011816},
-    {0.2, 0.2015415656559217},
-    {0.2, 0.2019262554160332},
-    {0.1, 0.1038135365011816},
-    {0, 0},
-    {0, 0},
-    {0, 0},
+    {
+      0.2,
+      0.2,
+      0.1,
+      0.2,
+      0.2,
+      0.1,
+      0.2,
+      0.2,
+      0.1,
+      0, 
+      0, 
+      0, 
+    },
+    {
+      0.2015415656559217,
+      0.2019262554160332,
+      0.1038135365011816,
+      0.2015415656559217,
+      0.2019262554160332,
+      0.1038135365011816,
+      0.2015415656559217,
+      0.2019262554160332,
+      0.1038135365011816,
+    }
   };
 
-  std::vector<PConvert> weights2to3Vec =
+  std::vector<Weights> weights2to3Vec =
   {
-    {0.2, 0.20569433279687238},
-    {0.2, 0.20569433279687238},
-    {0.2, 0.20569433279687238},
-    {0.1, 0.12068242867556898},
+    {
+      0.2,
+      0.2,
+      0.2,
+      0.1,
+    },
+    {
+      0.20569433279687238,
+      0.20569433279687238,
+      0.20569433279687238,
+      0.12068242867556898,
+    }
   };
 
-  std::vector<std::pair<std::pair<floatt, floatt>, floatt>> points =
+  Batches points =
   {
-    {{0.44357233490399445, 0.22756905427903037}, 1},
-    {{0.3580909454680603, 0.8306780543693363}, 1},
+    {
+      {{0.44357233490399445, 0.22756905427903037}, 1},
+      {{0.3580909454680603, 0.8306780543693363}, 1},
+    }
   };
   
-  testOneStep (network, weights1to2Vec, weights2to3Vec, points);
+  testSteps (network, weights1to2Vec, weights2to3Vec, points);
 }
 
 TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
 {
-  std::vector<PConvert> weights1to2Vec =
+  std::vector<Weights> weights1to2Vec =
   {
-    {0.18889833379294582, 0.18747739212831752},
-    {0.18741691262115692, 0.18711107569519983},
-    {0.14100651782253998, 0.1397053002260854},
-    {0.18889833379294582, 0.18747739212831752},
-    {0.18741691262115692, 0.18711107569519983},
-    {0.14100651782253998, 0.1397053002260854},
-    {0.18889833379294582, 0.18747739212831752},
-    {0.18741691262115692, 0.18711107569519983},
-    {0.14100651782253998, 0.1397053002260854},
-    {0, 0},
-    {0, 0},
-    {0, 0},
+    {
+      0.18889833379294582,
+      0.18741691262115692,
+      0.14100651782253998,
+      0.18889833379294582,
+      0.18741691262115692,
+      0.14100651782253998,
+      0.18889833379294582,
+      0.18741691262115692,
+      0.14100651782253998,
+      0,
+      0,
+      0,
+    },
+    {
+      0.18747739212831752, 
+      0.18711107569519983, 
+      0.1397053002260854, 
+      0.18747739212831752, 
+      0.18711107569519983, 
+      0.1397053002260854, 
+      0.18747739212831752,
+      0.18711107569519983,
+      0.1397053002260854,
+      0,
+      0,
+      0,
+    }
   };
 
-  std::vector<PConvert> weights2to3Vec =
+  std::vector<Weights> weights2to3Vec =
   {
-    {0.1243037373648706, 0.11308197717424648},
-    {0.1243037373648706, 0.11308197717424648},
-    {0.1243037373648706, 0.11308197717424648},
-    {0.05120154361408274, 0.028814535268009908},
+    {
+      0.1243037373648706,
+      0.1243037373648706,
+      0.1243037373648706,
+      0.05120154361408274, 
+    },
+    {
+      0.11308197717424648, 
+      0.11308197717424648,
+      0.11308197717424648,
+      0.028814535268009908
+    }
   };
 
-  std::vector<std::pair<std::pair<floatt, floatt>, floatt>> points =
+  Batches points =
   {
-    {{1.1171665268436015, 1.6264896739229502}, 1},
-    {{1.9827643776881154, 3.1666823397044954}, -1},
-    {{-3.7939263802800536, 0.6280114688227496}, -1},
-    {{3.1655171307757155, 3.690154247154129}, -1},
-    {{4.3098981190509935, -1.8380685678345827}, -1},
+    {
+      {{1.1171665268436015, 1.6264896739229502}, 1},
+      {{1.9827643776881154, 3.1666823397044954}, -1},
+      {{-3.7939263802800536, 0.6280114688227496}, -1},
+      {{3.1655171307757155, 3.690154247154129}, -1},
+      {{4.3098981190509935, -1.8380685678345827}, -1},
+    }
   };
 
-  testOneStep (network, weights1to2Vec, weights2to3Vec, points);
+  testSteps (network, weights1to2Vec, weights2to3Vec, points);
 
   oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
   oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
@@ -1050,70 +1123,108 @@ TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_2)
 
 TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_3)
 {
-  std::vector<PConvert> weights1to2Vec =
+  std::vector<Weights> weights1to2Vec =
   {
-    {0.2, 0.19908199840345},
-    {0.2, 0.19356847603468466},
-    {0.1, 0.10580908512486277},
-    {0.2, 0.19908199840345},
-    {0.2, 0.19356847603468466},
-    {0.1, 0.10580908512486277},
-    {0.2, 0.19908199840345},
-    {0.2, 0.19356847603468466},
-    {0.1, 0.10580908512486277},
-    {0, 0},
-    {0, 0},
-    {0, 0},
+    {
+      0.2,
+      0.2,
+      0.1,
+      0.2,
+      0.2,
+      0.1,
+      0.2,
+      0.2,
+      0.1,
+      0,
+      0,
+      0,
+    },
+    {
+      0.19908199840345,
+      0.19356847603468466,
+      0.10580908512486277,
+      0.19908199840345,
+      0.19356847603468466,
+      0.10580908512486277,
+      0.19908199840345,
+      0.19356847603468466,
+      0.10580908512486277,   
+    }
   };
 
-  std::vector<PConvert> weights2to3Vec =
+  std::vector<Weights> weights2to3Vec =
   {
-    {0.2, 0.1954852905493779},
-    {0.2, 0.1954852905493779},
-    {0.2, 0.1954852905493779},
-    {0.1, 0.1297309930846901},
+    {
+      0.2,
+      0.2,
+      0.2,
+      0.1,
+    },
+    {
+      0.1954852905493779,
+      0.1954852905493779,
+      0.1954852905493779,
+      0.1297309930846901,
+    }
+
   };
 
-  std::vector<std::pair<std::pair<floatt, floatt>, floatt>> points =
+  Batches points =
   {
-    {{-0.15802860120278975, -1.1071492028561536}, 1},
+    {
+      {{-0.15802860120278975, -1.1071492028561536}, 1},
+    }
   };
 
-  testOneStep (network, weights1to2Vec, weights2to3Vec, points);
+  testSteps (network, weights1to2Vec, weights2to3Vec, points);
 }
 
 TEST_F(OapNeuralTests, BackwardPropagation_PyPlotCoords_4)
 {
-  std::vector<PConvert> weights1to2Vec =
+  Weights w1to2step0 = {0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0, 0, 0};
+  Weights w1to2step1 =
   {
-    {0.2, 0.20182628407433365},
-    {0.2, 0.20093695144385168},
-    {0.1, 0.10411721816404285},
-    {0.2, 0.20182628407433365},
-    {0.2, 0.20093695144385168},
-    {0.1, 0.10411721816404285},
-    {0.2, 0.20182628407433365},
-    {0.2, 0.20093695144385168},
-    {0.1, 0.10411721816404285},
-    {0, 0},
-    {0, 0},
-    {0, 0},
+    0.20182628407433365,
+    0.20093695144385168,
+    0.10411721816404285,
+    0.20182628407433365,
+    0.20093695144385168,
+    0.10411721816404285,
+    0.20182628407433365,
+    0.20093695144385168,
+    0.10411721816404285,
+    0,
+    0,
+    0,
   };
 
-  std::vector<PConvert> weights2to3Vec =
+  std::vector<Weights> weights1to2Vec =
   {
-    {0.2, 0.20500015007570618},
-    {0.2, 0.20500015007570618},
-    {0.2, 0.20500015007570618},
-    {0.1, 0.12173630913135866},
+    w1to2step0, w1to2step1
   };
 
-  std::vector<std::pair<std::pair<floatt, floatt>, floatt>> points =
+  Weights w2to3step0 = { 0.2, 0.2, 0.2, 0.1};
+  Weights w2to3step1 =
   {
-    {{0.44357233490399445, 0.22756905427903037}, 1},
+    0.20500015007570618,
+    0.20500015007570618,
+    0.20500015007570618,
+    0.12173630913135866
   };
 
-  testOneStep (network, weights1to2Vec, weights2to3Vec, points);
+  std::vector<Weights> weights2to3Vec =
+  {
+    w2to3step0, w2to3step1
+  };
+
+  Batches points =
+  {
+    {
+      {{0.44357233490399445, 0.22756905427903037}, 1},
+    }
+  };
+
+  testSteps (network, weights1to2Vec, weights2to3Vec, points);
 }
 
 TEST_F(OapNeuralTests, SimpleBackwardPropagation_1)
