@@ -163,6 +163,7 @@ protected:
   }
 private:
   std::vector<Layer*> m_layers;
+  std::vector<floatt> m_errorsVec;
 
   void destroyLayers();
 
