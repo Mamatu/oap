@@ -645,6 +645,36 @@ void CopyArrayToMatrix (math::Matrix* matrix, void* rebuffer, void* imbuffer);
 void CopyArrayToReMatrix (math::Matrix* matrix, void* buffer);
 void CopyArrayToImMatrix (math::Matrix* matrix, void* buffer);
 
+inline void SetReValueToMatrix (math::Matrix* matrix, floatt value, size_t idx = 0)
+{
+  matrix->reValues[idx] = value;
+}
+
+inline void SetReValuesToMatrix (math::Matrix* matrix, const std::vector<floatt>& vec)
+{
+  debugAssert (vec.size() <= matrix->columns * matrix->rows);
+  memcpy (matrix->reValues, vec.data(), sizeof(floatt) * vec.size());
+}
+
+inline void SetReValuesToMatrix (math::Matrix* matrix, floatt* array, size_t length)
+{
+  debugAssert (length <= matrix->columns * matrix->rows);
+  memcpy (matrix->reValues, array, sizeof(floatt) * length);
+}
+
+template<typename Tuple, size_t Tidx = 0>
+void SetReValuesToMatrix (math::Matrix* matrix, const std::vector<Tuple>& vecl)
+{
+  std::vector<floatt> vec;
+  vec.reserve (vecl.size());
+  for (auto it = vecl.begin(); it != vecl.end(); ++it)
+  {
+    vec.push_back (std::get<Tidx>(*it));
+  }
+
+  SetReValuesToMatrix (matrix, vec.data(), vec.size());
+}
+
 }
 }
 

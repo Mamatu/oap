@@ -27,7 +27,7 @@
 
 namespace oap
 {
-namespace BackwardPropagation_PyPlotCoords_2
+namespace Backpropagation_2
 {
 std::vector<std::pair<std::pair<floatt, floatt>, floatt>> trainPoints = 
 {
