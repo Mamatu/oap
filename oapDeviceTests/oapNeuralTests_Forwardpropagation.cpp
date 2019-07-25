@@ -45,7 +45,7 @@ class NetworkT : public Network
 };
 }
 
-class OapNeuralTests : public testing::Test
+class OapNeuralTests_Forwardpropagation : public testing::Test
 {
  public:
   CUresult status;
@@ -66,7 +66,7 @@ class OapNeuralTests : public testing::Test
   }
 };
 
-TEST_F(OapNeuralTests, ForwardPropagation)
+TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 {
   Layer* l1 = network->createLayer(3, false, Activation::TANH);
   Layer* l2 = network->createLayer(3, true, Activation::TANH);
@@ -141,7 +141,7 @@ TEST_F(OapNeuralTests, ForwardPropagation)
 #endif
 }
 
-TEST_F(OapNeuralTests, ForwardPropagation_PyPlotCoords_Parallel)
+TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parallel)
 {
   Layer* l1 = network->createLayer(3, false, Activation::TANH);
   Layer* l2 = network->createLayer(3, true, Activation::TANH);
