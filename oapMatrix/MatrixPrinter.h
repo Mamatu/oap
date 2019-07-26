@@ -28,6 +28,12 @@ namespace matrixUtils
 template <typename T>
 void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, const PrintArgs& args = PrintArgs())
 {
+#ifdef OAP_PRINT_FLOAT_PRECISION
+  const size_t floatPrecision = OAP_PRINT_FLOAT_PRECISION;
+#else
+  const size_t floatPrecision = 9;
+#endif
+
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
   const std::string sectionSeparator = args.section.separator;
@@ -46,6 +52,7 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
   }
 
   std::stringstream sstream;
+  sstream.precision (floatPrecision);
   sstream << args.pretext;
   sstream << "[";
 
