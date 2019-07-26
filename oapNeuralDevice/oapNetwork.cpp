@@ -343,7 +343,7 @@ void Network::updateWeights()
     m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
   }
 
-  resetForNextStep ();
+  postStep ();
 
   m_backwardCount = 0;
 }
@@ -512,24 +512,39 @@ void Network::printLayersWeights ()
   }
 }
 
-void Network::resetForNextStep(Layer* layer)
+void Network::postStep(Layer* layer)
 {
-  m_cuApi.setZeroMatrix (layer->m_errors);
-  m_cuApi.setZeroMatrix (layer->m_errorsAcc);
-  m_cuApi.setZeroMatrix (layer->m_errorsAux);
+  resetErrors (layer);
   m_cuApi.setZeroMatrix (layer->m_weights2);
 }
 
-void Network::resetForNextStep ()
+void Network::postStep ()
 {
   for (size_t idx = 0; idx < getLayersCount(); ++idx)
   {
-    resetForNextStep (m_layers[idx]);
+    postStep (m_layers[idx]);
   }
 
   m_errorsVec.clear();
 }
 
+void Network::resetErrors (Layer* layer)
+{
+  m_cuApi.setZeroMatrix (layer->m_errors);
+  m_cuApi.setZeroMatrix (layer->m_errorsAcc);
+  m_cuApi.setZeroMatrix (layer->m_errorsAux);
+}
+
+void Network::resetErrors ()
+{
+  for (size_t idx = 0; idx < getLayersCount(); ++idx)
+  {
+    resetErrors (m_layers[idx]);
+  }
+
+  m_errorsVec.clear();
+
+}
 
 bool Network::operator!= (const Network& network) const
 {
