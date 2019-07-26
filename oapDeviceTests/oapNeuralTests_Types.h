@@ -30,19 +30,23 @@ using Weights = std::vector<floatt>;
 using Point = std::pair<floatt, floatt>;
 using PointLabel = std::pair<Point, floatt>;
 using Points = std::vector<PointLabel>;
-using Batches = std::vector<Points>;
 
-using Step = std::tuple<Batches, Points, Points>;
+using Batch = Points;
+using Batches = std::vector<Batch>;
+
+using PointsLoss = std::pair<Points, floatt>;
+
+using Step = std::tuple<Batches, PointsLoss, PointsLoss>;
 using Steps = std::vector<Step>;
 
-inline Step createStep (const Batches& batches, const Points& points, const Points& points1)
+inline Step createStep (const Batches& batches, const Points& points, floatt error, const Points& points1, floatt error1)
 {
-  return std::make_tuple(batches, points, points1);
+  return std::make_tuple(batches, std::make_pair(points, error), std::make_pair(points1, error1));
 }
 
 inline Step createStep (const Batches& batches)
 {
-  return std::make_tuple(batches, Points(), Points());
+  return std::make_tuple(batches, std::make_pair(Points(), -1), std::make_pair(Points(), -1));
 }
 
 inline Batches getBatches (const Step& step)
