@@ -20,6 +20,8 @@
 #ifndef OAP_NEURAL_LAYER_H
 #define OAP_NEURAL_LAYER_H
 
+#define PRINT_CUMATRIX(m) logInfo ("%s %p %s", #m, m, oap::cuda::to_string(m).c_str());
+
 #include "ByteBuffer.h"
 
 #include "CuProceduresApi.h"

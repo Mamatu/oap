@@ -318,7 +318,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
       }
 
       floatt error = network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
-      network->resetErrors ();
+      network->resetForNextStep ();
       return error;
     };
 

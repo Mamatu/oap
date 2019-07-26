@@ -20,21 +20,12 @@
 #ifndef OAP_NEURAL_TESTS__DATA_1_H
 #define OAP_NEURAL_TESTS__DATA_1_H
 
-#include <vector>
-#include <utility>
-
-#include <Math.h>
+#include "oapNeuralTests_Types.h"
 
 namespace oap
 {
 namespace Backpropagation_Data_1
 {
-
-using Weights = std::vector<floatt>;
-using Point = std::pair<floatt, floatt>;
-using PointLabel = std::pair<Point, floatt>;
-using Points = std::vector<PointLabel>;
-using Batches = std::vector<Points>;
 
 namespace 
 {
