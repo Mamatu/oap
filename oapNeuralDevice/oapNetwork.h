@@ -109,8 +109,11 @@ public:
 
   void printLayersWeights ();
 
-  void resetForNextStep (Layer* layer);
-  void resetForNextStep ();
+  void postStep (Layer* layer);
+  void postStep ();
+
+  void resetErrors (Layer* layer);
+  void resetErrors ();
 
   template<typename Callback>
   void iterateLayers (Callback&& callback)
