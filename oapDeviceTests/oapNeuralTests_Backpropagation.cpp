@@ -39,9 +39,9 @@
 
 namespace
 {
-  floatt expected_precission = 0.0000000000001;
+  floatt expected_precision = 0.0000000000001;
 
-  auto defaultCheck = [](floatt expected, floatt actual, size_t idx) { EXPECT_NEAR (expected, actual, expected_precission) << "Idx: " << idx; };
+  auto defaultCheck = [](floatt expected, floatt actual, size_t idx) { EXPECT_NEAR (expected, actual, expected_precision) << "Idx: " << idx; };
   using CheckCallback = std::function<void(floatt, floatt, size_t)>;
 
   struct CheckWeightsInfo
@@ -69,7 +69,7 @@ namespace
       floatt expected = std::get<1>(conversions[trueIdx]);
       floatt actual = weights->reValues[trueIdx];
       callback (expected, actual, trueIdx);
-      EXPECT_NEAR (expected, actual, expected_precission) << "Standard expect_near: " << trueIdx << ", " << cwInfo.str();
+      EXPECT_NEAR (expected, actual, expected_precision) << "Standard expect_near: " << trueIdx << ", " << cwInfo.str();
     }
   }
 
@@ -83,7 +83,7 @@ namespace
       floatt expected = conversions[trueIdx];
       floatt actual = weights->reValues[trueIdx];
       callback (expected, actual, trueIdx);
-      EXPECT_NEAR (expected, actual, expected_precission) << "Standard expect_near: " << trueIdx << ", " << cwInfo.str();
+      EXPECT_NEAR (expected, actual, expected_precision) << "Standard expect_near: " << trueIdx << ", " << cwInfo.str();
     }
   }
 
@@ -132,6 +132,101 @@ class OapNeuralTests_Backpropagation : public testing::Test
     return network;
   }
 
+  void testError (Network* network, const Points& points, floatt expectedLoss,
+                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput)
+  {
+    for (const auto& p : points)
+    {
+      hinputs->reValues[0] = p.first.first;
+      hinputs->reValues[1] = p.first.second;
+
+      houtput->reValues[0] = p.second;
+
+      network->setInputs (hinputs, ArgType::HOST);
+      network->setExpected (houtput, ArgType::HOST);
+
+      network->forwardPropagation ();
+      network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
+    }
+
+    //EXPECT_NEAR (expectedLoss, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR), expected_precision);
+    //network->resetErrors ();
+  }
+
+  void testStep (Network* network,
+                 const Step& step, size_t stepIdx,
+                 size_t batchesRange[2],
+                 const std::vector<Weights>& weights1to2Vec,
+                 const std::vector<Weights>& weights2to3Vec,
+                 oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
+                 oap::HostMatrixPtr weights1to2, oap::HostMatrixPtr weights2to3)
+  {
+    const size_t beginBatchIdx = batchesRange[0];
+    const size_t endBatchIdx = batchesRange[1];
+
+    for (size_t batchIdx = beginBatchIdx; batchIdx < endBatchIdx; ++batchIdx)
+    {
+      size_t batchesCount = endBatchIdx - beginBatchIdx;
+      size_t weightsIdx = stepIdx * batchesCount + batchIdx;
+
+      Layer* l1 = network->getLayer(0);
+      Layer* l2 = network->getLayer(1);
+
+      std::vector<size_t> idxToCheck1 = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+      std::vector<size_t> idxToCheck2 = {0, 1, 2, 3};
+
+      const Batches& batches = std::get<0>(step);
+
+      for (const auto& p : batches[batchIdx])
+      {
+        l1->getHostWeights (weights1to2);
+        checkWeights (weights1to2Vec[weightsIdx], weights1to2, idxToCheck1, {0, stepIdx, __LINE__});
+
+        l2->getHostWeights (weights2to3);
+        checkWeights (weights2to3Vec[weightsIdx], weights2to3, idxToCheck2, {1, stepIdx, __LINE__});
+
+        hinputs->reValues[0] = p.first.first;
+        hinputs->reValues[1] = p.first.second;
+
+        houtput->reValues[0] = p.second;
+
+        network->setInputs (hinputs, ArgType::HOST);
+        network->setExpected (houtput, ArgType::HOST);
+
+        network->forwardPropagation ();
+        network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
+
+        l1->getHostWeights (weights1to2);
+        checkWeights (weights1to2Vec[weightsIdx], weights1to2, idxToCheck1, {0, stepIdx, __LINE__});
+
+        l2->getHostWeights (weights2to3);
+        checkWeights (weights2to3Vec[weightsIdx], weights2to3, idxToCheck2, {1, stepIdx, __LINE__});
+      }
+
+      network->backwardPropagation ();
+
+      l1->getHostWeights (weights1to2);
+      checkWeights (weights1to2Vec[weightsIdx + 1], weights1to2, idxToCheck1, {0, stepIdx, __LINE__});
+
+      l2->getHostWeights (weights2to3);
+      checkWeights (weights2to3Vec[weightsIdx + 1], weights2to3, idxToCheck2, {1, stepIdx, __LINE__});
+
+      network->postStep();
+    }
+
+    const auto& pl1 = std::get<1>(step);
+    if (!pl1.first.empty())
+    {
+      testError (network, pl1.first, pl1.second, hinputs, houtput);
+    }
+
+    const auto& pl2 = std::get<2>(step);
+    if (!pl2.first.empty())
+    {
+      testError (network, pl2.first, pl2.second, hinputs, houtput);
+    }
+  }
+
   void testSteps (Network* network,
                   const std::vector<Weights>& weights1to2Vec,
                   const std::vector<Weights>& weights2to3Vec,
@@ -170,62 +265,33 @@ class OapNeuralTests_Backpropagation : public testing::Test
                   ||
                  (stepsRange[1] - stepsRange[0] > 1 && beginBatchIdx == 0 && endBatchIdx == getBatchesCount(steps)));
 
+    size_t batchesCount = endBatchIdx - beginBatchIdx;
+    size_t initStepIdx = beginIdx;
+    size_t initWeightsIdx = initStepIdx * batchesCount + beginBatchIdx;
+
     oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
-    for (size_t idx = 0; idx < weights1to2Vec[beginIdx].size(); ++idx)
+    for (size_t idx = 0; idx < weights1to2Vec[initWeightsIdx].size(); ++idx)
     {
-      weights1to2->reValues[idx] = weights1to2Vec[beginIdx][idx];
+      weights1to2->reValues[idx] = weights1to2Vec[initWeightsIdx][idx];
     }
 
     oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
-    for (size_t idx = 0; idx < weights2to3Vec[beginIdx].size(); ++idx)
+    for (size_t idx = 0; idx < weights2to3Vec[initWeightsIdx].size(); ++idx)
     {
-      weights2to3->reValues[idx] = weights2to3Vec[beginIdx][idx];
+      weights2to3->reValues[idx] = weights2to3Vec[initWeightsIdx][idx];
     }
 
     l1->setHostWeights (weights1to2);
     l2->setHostWeights (weights2to3);
 
-    for (size_t step = beginIdx; step < endIdx; ++step)
+    for (size_t stepIdx = beginIdx; stepIdx < endIdx; ++stepIdx)
     {
-      const Batches& batches = std::get<0>(steps[step]);
+      const Step& step = steps[stepIdx];
 
-      for (size_t step = beginIdx; step < endIdx; ++step)
-      {
-        for (const auto& p : batches[step])
-        {
-          l1->getHostWeights (weights1to2);
-          checkWeights (weights1to2Vec[step], weights1to2, idxToCheck1, {0, step, __LINE__});
-
-          l2->getHostWeights (weights2to3);
-          checkWeights (weights2to3Vec[step], weights2to3, idxToCheck2, {1, step, __LINE__});
-
-          hinputs->reValues[0] = p.first.first;
-          hinputs->reValues[1] = p.first.second;
-
-          houtput->reValues[0] = p.second;
-
-          network->setInputs (hinputs, ArgType::HOST);
-          network->setExpected (houtput, ArgType::HOST);
-
-          network->forwardPropagation ();
-          network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
-
-          l1->getHostWeights (weights1to2);
-          checkWeights (weights1to2Vec[step], weights1to2, idxToCheck1, {0, step, __LINE__});
-
-          l2->getHostWeights (weights2to3);
-          checkWeights (weights2to3Vec[step], weights2to3, idxToCheck2, {1, step, __LINE__});
-        }
-
-        network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
-        network->backwardPropagation ();
-
-        l1->getHostWeights (weights1to2);
-        checkWeights (weights1to2Vec[step + 1], weights1to2, idxToCheck1, {0, step, __LINE__});
-
-        l2->getHostWeights (weights2to3);
-        checkWeights (weights2to3Vec[step + 1], weights2to3, idxToCheck2, {1, step, __LINE__});
-      }
+      testStep (network, step, stepIdx,
+                batchesRange,
+                weights1to2Vec, weights2to3Vec,
+                hinputs, houtput, weights1to2, weights2to3);
     }
   }
 
@@ -259,9 +325,10 @@ class OapNeuralTests_Backpropagation : public testing::Test
 
 TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_1_Test_1)
 {
+  using namespace oap::Backpropagation_Data_1;
   auto network = createNetwork();
-  Steps steps = {createStep (oap::Backpropagation_Data_1::g_batches)};
-  testSteps (network.get(), oap::Backpropagation_Data_1::g_weights1to2Vec, oap::Backpropagation_Data_1::g_weights2to3Vec, steps);
+  Steps steps = {createStep (g_batches, g_trainPoints, g_lossTrain, g_testPoints, g_lossTest)};
+  testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, steps);
 }
 
 TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_1_Test_2)
@@ -315,7 +382,7 @@ TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_2_Test_2)
         network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
       }
       EXPECT_NEAR (expected, network->calculateError(oap::ErrorType::MEAN_SQUARE_ERROR), 0.0000001);
-      network->resetForNextStep ();
+      network->postStep ();
     };
 
     checkErrors(0.4947014772704021, oap::Backpropagation_2::trainPoints);
