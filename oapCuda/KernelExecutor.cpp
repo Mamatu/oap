@@ -18,10 +18,10 @@
  */
 
 #include <limits.h>
-#include <linux/fs.h>
 #include <cstdlib>
 
 #include <math.h>
+#include <cstring>
 
 #include "Logger.h"
 #include "KernelExecutor.h"
@@ -42,23 +42,11 @@ namespace oap
 namespace cuda
 {
 
-void PrintDeviceInfo(CUdevice cudevice) {
-  CUdevprop cuDevprop;
-  printCuError(cuDeviceGetProperties(&cuDevprop, cudevice));
-  debug(
-      "Device properties: \n --Max grid size: %d, %d, %d.\n --Max threads dim: "
-      "%d, %d, %d",
-      cuDevprop.maxGridSize[0], cuDevprop.maxGridSize[1],
-      cuDevprop.maxGridSize[2], cuDevprop.maxThreadsDim[0],
-      cuDevprop.maxThreadsDim[1], cuDevprop.maxThreadsDim[2]);
-  debug(" --Max threads per block: %d", cuDevprop.maxThreadsPerBlock);
-  debug(" --Register per block: %d", cuDevprop.regsPerBlock);
-  debug(" --Shared memory per block in bytes: %d", cuDevprop.sharedMemPerBlock);
-}
-
-void Init() {
+void Init()
+{
   static bool wasInit = false;
-  if (wasInit == false) {
+  if (wasInit == false)
+  {
     wasInit = true;
     printCuError(cuInit(0));
   }
@@ -77,46 +65,74 @@ CuDeviceInfo::~CuDeviceInfo() { m_cuDevice = 0; }
 
 CUdevice CuDeviceInfo::getDevice() const { return m_cuDevice; }
 
-void CuDeviceInfo::getDeviceProperties(CUdevprop& cuDevprop) const {
-  printCuError(cuDeviceGetProperties(&cuDevprop, m_cuDevice));
+void CuDeviceInfo::getDeviceProperties (DeviceProperties& devProp)
+{
+  initDeviceProperties ();
+
+  std::memcpy (&devProp, &m_deviceProperties, sizeof (DeviceProperties));
 }
 
-uint CuDeviceInfo::getMaxThreadsX() const {
-  CUdevprop cuDevprop;
-  getDeviceProperties(cuDevprop);
-  return cuDevprop.maxThreadsDim[0];
+uint CuDeviceInfo::getMaxThreadsX() const
+{
+  debugAssert (m_initialized);
+  return m_deviceProperties.maxThreadsCount[0];
 }
 
-uint CuDeviceInfo::getMaxThreadsY() const {
-  CUdevprop cuDevprop;
-  getDeviceProperties(cuDevprop);
-  return cuDevprop.maxThreadsDim[1];
+uint CuDeviceInfo::getMaxThreadsY() const
+{
+  debugAssert (m_initialized);
+  return m_deviceProperties.maxThreadsCount[1];
 }
 
-uint CuDeviceInfo::getMaxBlocksX() const {
-  CUdevprop cuDevprop;
-  getDeviceProperties(cuDevprop);
-  return cuDevprop.maxGridSize[0];
+uint CuDeviceInfo::getMaxBlocksX() const
+{
+  debugAssert (m_initialized);
+  return m_deviceProperties.maxBlocksCount[0];
 }
 
-uint CuDeviceInfo::getMaxBlocksY() const {
-  CUdevprop cuDevprop;
-  getDeviceProperties(cuDevprop);
-  return cuDevprop.maxGridSize[1];
+uint CuDeviceInfo::getMaxBlocksY() const
+{
+  debugAssert (m_initialized);
+  return m_deviceProperties.maxBlocksCount[1];
 }
 
-uint CuDeviceInfo::getSharedMemorySize() const {
-  CUdevprop cuDevprop;
-  getDeviceProperties(cuDevprop);
-  return cuDevprop.sharedMemPerBlock;
+uint CuDeviceInfo::getSharedMemorySize() const
+{
+  debugAssert (m_initialized);
+  return m_deviceProperties.sharedMemPerBlock;
 }
 
-void CuDeviceInfo::setDevice(CUdevice cuDevice) {
+uint CuDeviceInfo::getMaxThreadsPerBlock() const
+{
+  debugAssert (m_initialized);
+  return m_deviceProperties.maxThreadsPerBlock;
+}
+
+void CuDeviceInfo::setDevice (CUdevice cuDevice)
+{
   this->m_cuDevice = cuDevice;
+  initDeviceProperties ();
 }
 
-void CuDeviceInfo::setDeviceInfo(const CuDevice& deviceInfo) {
+void CuDeviceInfo::setDeviceInfo (const CuDevice& deviceInfo)
+{
   setDevice(deviceInfo.getDevice());
+}
+
+void CuDeviceInfo::initDeviceProperties ()
+{
+  if (!m_initialized)
+  {
+    for (size_t idx = 0; idx < 9; ++idx)
+    {
+      int result;
+      printCuError (cuDeviceGetAttribute (&result, m_attributes[idx], m_cuDevice));
+      m_values[idx] = result;
+    }
+
+    std::memcpy (&m_deviceProperties, m_values, sizeof(m_values));
+    m_initialized = true;
+  }
 }
 
 int Context::FIRST = 0;
@@ -128,8 +144,8 @@ Context Context::m_Context;
 
 Context& Context::Instance() { return Context::m_Context; }
 
-void Context::create(int _deviceIndex) {
-
+void Context::create (int _deviceIndex)
+{
   Init();
 
   int count = -1;
@@ -156,17 +172,24 @@ void Context::create(int _deviceIndex) {
   debugAssertMsg(deviceIndex >= 0 && deviceIndex < count, "Index of device is out of scope!");
 
   CUdevice device = 0;
+
   printCuError(cuDeviceGet(&device, deviceIndex));
-  setDevice(device);
+  setDevice (device);
+
   CUcontext context;
   printCuError(cuCtxCreate(&context, CU_CTX_SCHED_AUTO, device));
+
   m_contexts.push(context);
 }
 
-void Context::destroy() {
-  if (!m_contexts.empty()) {
+void Context::destroy()
+{
+  if (!m_contexts.empty())
+  {
     CUcontext context = m_contexts.top();
+
     m_contexts.pop();
+
     printCuError(cuCtxDestroy(context));
   }
 }
@@ -176,25 +199,28 @@ Context::~Context() { destroy(); }
 void Kernel::setDimensionsDevice(math::Matrix* dmatrix) {
   uintt columns = CudaUtils::GetColumns(dmatrix);
   uintt rows = CudaUtils::GetRows(dmatrix);
-  setDimensions(columns, rows);
+  setDimensions (columns, rows);
 }
 
 Kernel::Kernel() : m_image(NULL), m_cuModule(NULL)
 {
 }
 
-void Kernel::unloadCuModule() {
-  if (m_cuModule != NULL) {
-    cuModuleUnload(m_cuModule);
-    m_cuModule = NULL;
+void Kernel::loadCuModule() {
+  //unloadCuModule();
+  if (NULL != m_image && NULL == m_cuModule)
+  {
+    debug("Load module from image = %p", m_image);
+    printCuError(cuModuleLoadData(&m_cuModule, m_image));
   }
 }
 
-void Kernel::loadCuModule() {
-  //unloadCuModule();
-  if (NULL != m_image && NULL == m_cuModule) {
-    debug("Load module from image = %p", m_image);
-    printCuError(cuModuleLoadData(&m_cuModule, m_image));
+void Kernel::unloadCuModule()
+{
+  if (m_cuModule != NULL)
+  {
+    cuModuleUnload(m_cuModule);
+    m_cuModule = NULL;
   }
 }
 
@@ -225,9 +251,7 @@ bool Kernel::run (const char* functionName)
     printCuErrorStatus(
         status, cuModuleGetFunction(&cuFunction, m_cuModule, functionName));
 
-    const uint* const threadsCount = getThreadsCount ();
-    const uint* const blocksCount = getBlocksCount ();
-
+    const ExecutionParams& ep = getExecutionParams ();
 #ifdef OAP_PRINT_KERNEL_INFO
     logInfo("Load kernel: %s", functionName);
     logInfo("Image: %p", m_image);
@@ -235,15 +259,15 @@ bool Kernel::run (const char* functionName)
     logInfo("Function handle: %p", cuFunction);
     PrintDeviceInfo(getDevice());
     logInfo(" Execution:");
-    logInfo(" --threads counts: %d, %d, %d", threadsCount[0], threadsCount[1], threadsCount[2]);
-    logInfo(" --blocks counts: %d, %d, %d", blocksCount[0], blocksCount[1], blocksCount[2]);
-    logInfo(" --shared memory in bytes: %d", getSharedMemory());
+    logInfo(" --threads counts: %d, %d, %d", ep.threadsCount[0], ep.threadsCount[1], ep.threadsCount[2]);
+    logInfo(" --blocks counts: %d, %d, %d", ep.blocksCount[0], ep.blocksCount[1], ep.blocksCount[2]);
+    logInfo(" --shared memory in bytes: %d", ep.sharedMemSize);
 #endif
     printCuErrorStatus(status,
         cuLaunchKernel(cuFunction,
-                       blocksCount[0], blocksCount[1], blocksCount[2],
-                       threadsCount[0], threadsCount[1], threadsCount[2],
-                       getSharedMemory(), NULL,
+                       ep.blocksCount[0], ep.blocksCount[1], ep.blocksCount[2],
+                       ep.threadsCount[0], ep.threadsCount[1], ep.threadsCount[2],
+                       ep.sharedMemSize, NULL,
                        this->getParams(), NULL));
   }
   else
@@ -414,9 +438,7 @@ bool Kernel::Execute(const char* functionName, void** params, oap::cuda::Kernel&
 
 uint Kernel::getMaxThreadsPerBlock() const
 {
-  CUdevprop cuDevprop;
-  getDeviceProperties(cuDevprop);
-  return cuDevprop.maxThreadsPerBlock;
+  return Context::Instance().getMaxThreadsPerBlock ();
 }
 
 }

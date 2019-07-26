@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_GENERIC_PROCEDURESAPI_H
-#define OAP_GENERIC_PROCEDURESAPI_H
+#ifndef OAP_GENERIC_PROCEDURES_API_H
+#define OAP_GENERIC_PROCEDURES_API_H
 
 #include <map>
 #include <sstream>
@@ -91,7 +91,7 @@ namespace generic
       std::pair<HBuffer&, DBuffer&> im;
   };
 
-  void prepareDims (oap::IKernelExecutor* kexec, uintt w, uintt h, uint blocks[2], uint threads[2])
+  inline void prepareDims (oap::IKernelExecutor* kexec, uintt w, uintt h, uint blocks[2], uint threads[2])
   {
     kexec->calculateThreadsBlocks (blocks, threads, w, h);
     kexec->setBlocksCount (blocks[0], blocks[1]);
@@ -108,7 +108,7 @@ namespace generic
       prepareDims (kexec, w, h, blocks, threads);
     }
 
-    kexec->setSharedMemory(sharedMemory);
+    kexec->setSharedMemory (sharedMemory);
 
     preExecCallback ();
 
@@ -118,6 +118,33 @@ namespace generic
     postExecCallback ();
 
     return status;
+  }
+
+  struct Args
+  {
+    bool retrieveDims = true;
+    uintt w;
+    uintt h;
+
+    bool prepareDims = true;
+    uint blocks[2];
+    uint threads[2];
+
+    uintt sharedMemorySize = 0;
+  };
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool executeKernel (const std::string& kernelName, math::Matrix* ref, void** params, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, PreExecCallback&& preExecCallback, Args args = Args())
+  {
+    if (args.retrieveDims)
+    {
+      auto minfo = bmApi.getMatrixInfo (ref);
+
+      args.w = minfo.columns ();
+      args.h = minfo.rows ();
+    }
+
+    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){});
   }
 
   template<typename GetMatrixInfo, typename PreExecCallback>
