@@ -1109,9 +1109,8 @@ const Points g_testPoints = {
 {{ -1.1100469464856617, 1.8154239049589613}, 1}, 
 };
 
-
-floatt lossTrain = 0.4947014772704021;
-floatt lossTest = 0.5021636175010554;
+floatt g_lossTrain = 0.4947014772704021;
+floatt g_lossTest = 0.5021636175010554;
 
 }
 }
