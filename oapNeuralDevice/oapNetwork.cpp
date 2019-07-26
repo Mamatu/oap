@@ -224,7 +224,7 @@ floatt Network::calculateError (oap::ErrorType errorType)
   };
 
   floatt error = std::accumulate(m_errorsVec.begin(), m_errorsVec.end(), 0.);
-  error = error / m_errorsVec.size();
+  error = error / static_cast<floatt>(m_errorsVec.size());
   return  error; //errorsFunctions [errorType]() / m_backwardCount;
 }
 
@@ -270,13 +270,12 @@ void Network::calculateErrors (oap::ErrorType errorType)
   {
     m_cuApi.substract (current->m_errors, current->m_inputs, m_expectedDeviceOutputs);
     oap::cuda::CopyDeviceMatrixToHostMatrix (current->m_errorsHost, current->m_errors);
-    floatt error;
+    floatt error = 0.;
     for (size_t idx = 0; idx < current->m_errorsHost->rows; ++idx)
     {
       error += current->m_errorsHost->reValues[idx];
     }
-    m_errorsVec.emplace_back(error * error * 0.5);
-    //m_cuApi.addSubstract (current->m_errorsAux, current->m_inputs, m_expectedDeviceOutputs);
+    m_errorsVec.emplace_back (error * error * 0.5);
     ++m_backwardCount;
   }
   {
@@ -284,24 +283,13 @@ void Network::calculateErrors (oap::ErrorType errorType)
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
 
-  auto normalizeErrors = [this](Layer* layer)
-  {
-    if (m_backwardCount > 1)
-    {
-      m_cuApi.multiplyReConstant (layer->m_errors, layer->m_errors, 1. / m_backwardCount);
-    } 
-  };
-
   auto calculateCurrentErrors = [this] (Layer* current)
   {
     derivativeFunc (current->m_sums, current->m_sums, current->getActivation ());
     m_cuApi.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
-    //m_cuApi.add (current->m_errorsAcc, current->m_errorsAcc, current->m_errors);
   };
 
-  //normalizeErrors (current);
   calculateCurrentErrors (current);
-  //m_cuApi.add (current->m_errorsAux, current->m_errorsAux, current->m_errors);
 
   do
   {
@@ -337,7 +325,6 @@ void Network::calculateErrors (oap::ErrorType errorType)
 
 void Network::backwardPropagation ()
 {
-
   updateWeights();
 }
 
@@ -351,16 +338,12 @@ void Network::updateWeights()
     current = next;
     next = m_layers[idx];
 
-    m_cuApi.transpose (current->m_tinputs, current->m_inputs);
-
-    m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
-
     floatt lr = m_learningRate / static_cast<floatt>(m_backwardCount);
     m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
     m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
   }
 
-  resetErrors ();
+  resetForNextStep ();
 
   m_backwardCount = 0;
 }
@@ -529,18 +512,19 @@ void Network::printLayersWeights ()
   }
 }
 
-void Network::resetErrors (Layer* layer)
+void Network::resetForNextStep(Layer* layer)
 {
   m_cuApi.setZeroMatrix (layer->m_errors);
   m_cuApi.setZeroMatrix (layer->m_errorsAcc);
   m_cuApi.setZeroMatrix (layer->m_errorsAux);
+  m_cuApi.setZeroMatrix (layer->m_weights2);
 }
 
-void Network::resetErrors ()
+void Network::resetForNextStep ()
 {
   for (size_t idx = 0; idx < getLayersCount(); ++idx)
   {
-    resetErrors (m_layers[idx]);
+    resetForNextStep (m_layers[idx]);
   }
 
   m_errorsVec.clear();
