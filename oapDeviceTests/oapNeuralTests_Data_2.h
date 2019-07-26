@@ -74,7 +74,7 @@ std::vector<Weights> g_weights2to3Vec =
   }
 };
 
-Batches g_points =
+Batches g_batch =
 {
   {
     {{0.44357233490399445, 0.22756905427903037}, 1},
@@ -135,7 +135,7 @@ std::vector<Weights> g_weights2to3Vec =
   }
 };
 
-Batches g_points =
+Batches g_batch =
 {
   {
     {{1.1171665268436015, 1.6264896739229502}, 1},
@@ -197,7 +197,7 @@ std::vector<Weights> g_weights2to3Vec =
 
 };
 
-Batches g_points =
+Batches g_batch =
 {
   {
     {{-0.15802860120278975, -1.1071492028561536}, 1},
@@ -249,7 +249,7 @@ std::vector<Weights> g_weights2to3Vec =
   w2to3step0, w2to3step1
 };
 
-Batches g_points =
+Batches g_batch =
 {
   {
     {{0.44357233490399445, 0.22756905427903037}, 1},

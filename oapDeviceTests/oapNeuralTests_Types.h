@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <utility>
+#include <tuple>
 
 #include "Math.h"
 
@@ -31,5 +32,47 @@ using PointLabel = std::pair<Point, floatt>;
 using Points = std::vector<PointLabel>;
 using Batches = std::vector<Points>;
 
+using Step = std::tuple<Batches, Points, Points>;
+using Steps = std::vector<Step>;
+
+inline Step createStep (const Batches& batches, const Points& points, const Points& points1)
+{
+  return std::make_tuple(batches, points, points1);
+}
+
+inline Step createStep (const Batches& batches)
+{
+  return std::make_tuple(batches, Points(), Points());
+}
+
+inline Batches getBatches (const Step& step)
+{
+  return std::get<0>(step);
+}
+
+inline const Points& getFront (const Batches& batches)
+{
+  return batches[0];
+}
+
+inline const Points& getFront (const Steps& steps)
+{
+  return getFront (std::get<0>(steps[0]));
+}
+
+inline size_t getBatchesCount (const Steps& steps)
+{
+  return std::get<0>(steps[0]).size();
+}
+
+inline size_t getFBSize (const Steps& steps)
+{
+  return getFront (steps).size();
+}
+
+inline const Points& getBatch (const Batches& batches, size_t idx)
+{
+  return batches[idx];
+}
 
 #endif
