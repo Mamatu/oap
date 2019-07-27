@@ -151,8 +151,8 @@ class OapNeuralTests_Backpropagation : public testing::Test
       network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
     }
 
-    //EXPECT_NEAR (expectedLoss, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR), expected_precision);
-    //network->resetErrors ();
+    EXPECT_NEAR (expectedLoss, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR), expected_precision);
+    network->resetErrors ();
   }
 
   void testStep (Network* network,
@@ -161,7 +161,8 @@ class OapNeuralTests_Backpropagation : public testing::Test
                  const WeightsLayers& weightsLayers,
                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
                  const std::vector<oap::HostMatrixPtr>& weightsMatrices,
-                 const std::vector<std::vector<size_t>>& idxToChecks)
+                 const std::vector<std::vector<size_t>>& idxToChecks,
+                 bool bcheckErrors = true)
   {
     const size_t beginBatchIdx = batchesRange[0];
     const size_t endBatchIdx = batchesRange[1];
@@ -181,9 +182,6 @@ class OapNeuralTests_Backpropagation : public testing::Test
     {
       size_t batchesCount = endBatchIdx - beginBatchIdx;
       size_t weightsIdx = stepIdx * batchesCount + batchIdx;
-
-      std::vector<size_t> idxToCheck1 = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-      std::vector<size_t> idxToCheck2 = {0, 1, 2, 3};
 
       const Batches& batches = std::get<0>(step);
 
@@ -212,16 +210,20 @@ class OapNeuralTests_Backpropagation : public testing::Test
       network->postStep();
     }
 
-    const auto& pl1 = std::get<1>(step);
-    if (!pl1.first.empty())
+    if (bcheckErrors && endBatchIdx == std::get<0>(step).size() - 1)
     {
-      testError (network, pl1.first, pl1.second, hinputs, houtput);
-    }
+      const auto& pl1 = std::get<1>(step);
+      const auto& pl2 = std::get<2>(step);
+      auto checkError = [this, network, hinputs, houtput](const PointsLoss& pl)
+      {
+        if (!pl.first.empty())
+        {
+          testError (network, pl.first, pl.second, hinputs, houtput);
+        }
+      };
 
-    const auto& pl2 = std::get<2>(step);
-    if (!pl2.first.empty())
-    {
-      testError (network, pl2.first, pl2.second, hinputs, houtput);
+      checkError (pl1);
+      checkError (pl2);
     }
   }
 
