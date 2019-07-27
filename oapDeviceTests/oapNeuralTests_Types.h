@@ -28,7 +28,7 @@
 
 using Weights = std::vector<floatt>;
 using WeightsInSteps = std::vector<Weights>;
-using WeightsLayer = std::vector<WeightsInSteps>;
+using WeightsLayers = std::vector<WeightsInSteps>;
 
 using Point = std::pair<floatt, floatt>;
 using PointLabel = std::pair<Point, floatt>;

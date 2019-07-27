@@ -127,9 +127,9 @@ class OapNeuralTests_Backpropagation : public testing::Test
   std::unique_ptr<Network> createNetwork()
   {
     std::unique_ptr<Network> network (new Network());
-    Layer* l1 = network->createLayer(2, true, Activation::TANH);
-    Layer* l2 = network->createLayer(3, true, Activation::TANH);
-    Layer* l3 = network->createLayer(1, Activation::TANH);
+    network->createLayer(2, true, Activation::TANH);
+    network->createLayer(3, true, Activation::TANH);
+    network->createLayer(1, Activation::TANH);
 
     return network;
   }
@@ -158,21 +158,29 @@ class OapNeuralTests_Backpropagation : public testing::Test
   void testStep (Network* network,
                  const Step& step, size_t stepIdx,
                  size_t batchesRange[2],
-                 const std::vector<Weights>& weights1to2Vec,
-                 const std::vector<Weights>& weights2to3Vec,
+                 const WeightsLayers& weightsLayers,
                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
-                 oap::HostMatrixPtr weights1to2, oap::HostMatrixPtr weights2to3)
+                 const std::vector<oap::HostMatrixPtr>& weightsMatrices,
+                 const std::vector<std::vector<size_t>>& idxToChecks)
   {
     const size_t beginBatchIdx = batchesRange[0];
     const size_t endBatchIdx = batchesRange[1];
+
+    auto checkWeightsLayer = [&network, &weightsLayers, &weightsMatrices, &idxToChecks](size_t weightsIdx, size_t stepIdx)
+    {
+      for (size_t lidx = 0; lidx < network->getLayersCount() - 1; ++lidx)
+      {
+        Layer* layer = network->getLayer(lidx);
+        auto wmatrix = weightsMatrices[lidx];
+        layer->getHostWeights (wmatrix);
+        checkWeights (weightsLayers[lidx][weightsIdx], wmatrix, idxToChecks[lidx], {lidx, stepIdx, __LINE__});
+      }
+    };
 
     for (size_t batchIdx = beginBatchIdx; batchIdx < endBatchIdx; ++batchIdx)
     {
       size_t batchesCount = endBatchIdx - beginBatchIdx;
       size_t weightsIdx = stepIdx * batchesCount + batchIdx;
-
-      Layer* l1 = network->getLayer(0);
-      Layer* l2 = network->getLayer(1);
 
       std::vector<size_t> idxToCheck1 = {0, 1, 2, 3, 4, 5, 6, 7, 8};
       std::vector<size_t> idxToCheck2 = {0, 1, 2, 3};
@@ -181,11 +189,7 @@ class OapNeuralTests_Backpropagation : public testing::Test
 
       for (const auto& p : batches[batchIdx])
       {
-        l1->getHostWeights (weights1to2);
-        checkWeights (weights1to2Vec[weightsIdx], weights1to2, idxToCheck1, {0, stepIdx, __LINE__});
-
-        l2->getHostWeights (weights2to3);
-        checkWeights (weights2to3Vec[weightsIdx], weights2to3, idxToCheck2, {1, stepIdx, __LINE__});
+        checkWeightsLayer (weightsIdx, stepIdx);
 
         hinputs->reValues[0] = p.first.first;
         hinputs->reValues[1] = p.first.second;
@@ -198,20 +202,12 @@ class OapNeuralTests_Backpropagation : public testing::Test
         network->forwardPropagation ();
         network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
 
-        l1->getHostWeights (weights1to2);
-        checkWeights (weights1to2Vec[weightsIdx], weights1to2, idxToCheck1, {0, stepIdx, __LINE__});
-
-        l2->getHostWeights (weights2to3);
-        checkWeights (weights2to3Vec[weightsIdx], weights2to3, idxToCheck2, {1, stepIdx, __LINE__});
+        checkWeightsLayer (weightsIdx, stepIdx);
       }
 
       network->backwardPropagation ();
 
-      l1->getHostWeights (weights1to2);
-      checkWeights (weights1to2Vec[weightsIdx + 1], weights1to2, idxToCheck1, {0, stepIdx, __LINE__});
-
-      l2->getHostWeights (weights2to3);
-      checkWeights (weights2to3Vec[weightsIdx + 1], weights2to3, idxToCheck2, {1, stepIdx, __LINE__});
+      checkWeightsLayer (weightsIdx + 1, stepIdx);
 
       network->postStep();
     }
@@ -230,31 +226,34 @@ class OapNeuralTests_Backpropagation : public testing::Test
   }
 
   void testSteps (Network* network,
-                  const WeightsInSteps& weights1to2Vec,
-                  const WeightsInSteps& weights2to3Vec,
+                  const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   size_t stepsRange[2],
                   size_t batchesRange[2],
                   oap::HostMatrixPtr hinputs,
-                  oap::HostMatrixPtr houtput)
+                  oap::HostMatrixPtr houtput,
+                  const std::vector<std::vector<size_t>>& idxToChecks)
   {
     debugAssert (!steps.empty());
-    debugAssert (weights1to2Vec.size() == weights2to3Vec.size());
-    
-    size_t batchesSum = 1;
-    for (Step step : steps)
+    debugAssert (!weightsLayers.empty());
+    debugAssert (weightsLayers.size() == network->getLayersCount() - 1);
+
     {
-      batchesSum += std::get<0>(step).size();
+      const auto& flayer = weightsLayers[0];
+      for (size_t idx = 1; idx < weightsLayers.size(); ++idx)
+      {
+        debugAssert (flayer.size() == weightsLayers[idx].size());
+      }
+
+      size_t batchesSum = 1;
+      for (Step step : steps)
+      {
+        batchesSum += std::get<0>(step).size();
+      }
+      debugAssert (batchesSum == flayer.size());
     }
-    debugAssert (batchesSum == weights2to3Vec.size());
 
     network->setLearningRate (0.03);
-
-    Layer* l1 = network->getLayer(0);
-    Layer* l2 = network->getLayer(1);
-
-    std::vector<size_t> idxToCheck1 = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-    std::vector<size_t> idxToCheck2 = {0, 1, 2, 3};
 
     const size_t beginIdx = stepsRange[0];
     const size_t endIdx = stepsRange[1];
@@ -274,20 +273,21 @@ class OapNeuralTests_Backpropagation : public testing::Test
     size_t initStepIdx = beginIdx;
     size_t initWeightsIdx = initStepIdx * batchesCount + beginBatchIdx;
 
-    oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
-    for (size_t idx = 0; idx < weights1to2Vec[initWeightsIdx].size(); ++idx)
-    {
-      weights1to2->reValues[idx] = weights1to2Vec[initWeightsIdx][idx];
-    }
+    std::vector<oap::HostMatrixPtr> weightsMatrices;
 
-    oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
-    for (size_t idx = 0; idx < weights2to3Vec[initWeightsIdx].size(); ++idx)
+    for (size_t lidx = 0; lidx < network->getLayersCount() - 1; ++lidx)
     {
-      weights2to3->reValues[idx] = weights2to3Vec[initWeightsIdx][idx];
-    }
+      Layer* layer = network->getLayer(lidx);
 
-    l1->setHostWeights (weights1to2);
-    l2->setHostWeights (weights2to3);
+      oap::HostMatrixPtr weightsMatrix = oap::host::NewMatrix (layer->getWeightsInfo());
+      for (size_t idx = 0; idx < weightsLayers[lidx][initWeightsIdx].size(); ++idx)
+      {
+        weightsMatrix->reValues[idx] = weightsLayers[lidx][initWeightsIdx][idx];
+      }
+
+      layer->setHostWeights (weightsMatrix);
+      weightsMatrices.push_back (weightsMatrix);
+    }
 
     for (size_t stepIdx = beginIdx; stepIdx < endIdx; ++stepIdx)
     {
@@ -295,23 +295,25 @@ class OapNeuralTests_Backpropagation : public testing::Test
 
       testStep (network, step, stepIdx,
                 batchesRange,
-                weights1to2Vec, weights2to3Vec,
-                hinputs, houtput, weights1to2, weights2to3);
+                weightsLayers,
+                hinputs, houtput,
+                weightsMatrices,
+                idxToChecks);
     }
   }
 
   void testSteps (Network* network,
-                    const std::vector<Weights>& weights1to2Vec,
-                    const std::vector<Weights>& weights2to3Vec,
-                    const Steps& steps)
+                  const WeightsLayers& weightsLayers,
+                  const Steps& steps,
+                  const std::vector<std::vector<size_t>>& idxToChecks)
   {
-    oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
-    oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+    oap::HostMatrixPtr hinputs = oap::host::NewMatrix (network->getInputInfo());
+    oap::HostMatrixPtr houtput = oap::host::NewMatrix (network->getOutputInfo());
 
     size_t range[2] = {0, 1};
     size_t brange[2] = {0, std::get<0>(steps[0]).size()};
 
-    testSteps (network, weights1to2Vec, weights2to3Vec, steps, range, brange, hinputs, houtput);
+    testSteps (network, weightsLayers, steps, range, brange, hinputs, houtput, idxToChecks);
   }
 
   void testSteps (Network* network,
@@ -324,7 +326,10 @@ class OapNeuralTests_Backpropagation : public testing::Test
     oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
     oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
-    testSteps (network, weights1to2Vec, weights2to3Vec, steps, range, brange, hinputs, houtput);
+    std::vector<std::vector<size_t>> idxsToCheck =
+    {{0, 1, 2, 3, 4, 5, 6, 7, 8}, {0, 1, 2, 3}};
+
+    testSteps (network, {weights1to2Vec, weights2to3Vec}, steps, range, brange, hinputs, houtput, idxsToCheck);
   }
 };
 
@@ -332,8 +337,13 @@ TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_1_Test_1)
 {
   using namespace oap::Backpropagation_Data_1;
   auto network = createNetwork();
+
   Steps steps = {createStep (g_batches, g_trainPoints, g_lossTrain, g_testPoints, g_lossTest)};
-  testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, steps);
+
+  std::vector<std::vector<size_t>> idxsToCheck =
+  {{0, 1, 2, 3, 4, 5, 6, 7, 8}, {0, 1, 2, 3}};
+
+  testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, idxsToCheck);
 }
 
 TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_1_Test_2)
@@ -354,7 +364,11 @@ TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_2_Test_1)
   {
     auto network = createNetwork ();
     Steps steps = {createStep (g_batch)};
-    testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, steps);
+
+    std::vector<std::vector<size_t>> idxsToCheck =
+    {{0, 1, 2, 3, 4, 5, 6, 7, 8}, {0, 1, 2, 3}};
+
+    testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, idxsToCheck);
   }
 }
 
@@ -365,7 +379,10 @@ TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_2_Test_2)
     auto network = createNetwork ();
     Steps steps = {createStep (g_batch)};
 
-    testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, steps);
+    std::vector<std::vector<size_t>> idxsToCheck =
+    {{0, 1, 2, 3, 4, 5, 6, 7, 8}, {0, 1, 2, 3}};
+
+    testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, idxsToCheck);
 
     oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
     oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
@@ -399,10 +416,13 @@ TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_2_Test_3)
 {
   using namespace oap::Backpropagation_Data_2::Test_3;
   {
+    std::vector<std::vector<size_t>> idxsToCheck =
+    {{0, 1, 2, 3, 4, 5, 6, 7, 8}, {0, 1, 2, 3}};
+
     auto network = createNetwork();
     Steps steps = {createStep (g_batch)};
 
-    testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, steps);
+    testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, idxsToCheck);
   }
 }
 
@@ -410,17 +430,25 @@ TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_2_Test_4)
 {
   using namespace oap::Backpropagation_Data_2::Test_3;
   {
+    std::vector<std::vector<size_t>> idxsToCheck =
+    {{0, 1, 2, 3, 4, 5, 6, 7, 8}, {0, 1, 2, 3}};
+
     auto network = createNetwork();
     Steps steps = {createStep (g_batch)};
-    testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, steps);
+
+    testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, idxsToCheck);
   }
 }
 
 TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_3_Test_1)
 {
   using namespace oap::Backpropagation_Data_3;
+
+  std::vector<std::vector<size_t>> idxsToCheck =
+  {{0, 1, 2, 3, 4, 5, 6, 7, 8}, {0, 1, 2, 3}};
+
   auto network = createNetwork();
-  testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, g_steps);
+  testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, idxsToCheck);
 }
 
 TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_3_Test_2)
@@ -438,8 +466,12 @@ TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_3_Test_2)
 TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_4_Test_1)
 {
   using namespace oap::Backpropagation_Data_4;
+
+  std::vector<std::vector<size_t>> idxsToCheck =
+  {{0, 1, 2, 3, 4, 5, 6, 7, 8}, {0, 1, 2, 3}};
+
   auto network = createNetwork();
-  testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, g_steps);
+  testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, idxsToCheck);
 }
 
 TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_4_Test_2)
