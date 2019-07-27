@@ -230,8 +230,8 @@ class OapNeuralTests_Backpropagation : public testing::Test
   }
 
   void testSteps (Network* network,
-                  const std::vector<Weights>& weights1to2Vec,
-                  const std::vector<Weights>& weights2to3Vec,
+                  const WeightsInSteps& weights1to2Vec,
+                  const WeightsInSteps& weights2to3Vec,
                   const Steps& steps,
                   size_t stepsRange[2],
                   size_t batchesRange[2],
