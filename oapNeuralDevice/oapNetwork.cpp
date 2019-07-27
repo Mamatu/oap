@@ -158,6 +158,18 @@ math::Matrix* Network::getHostOutputs () const
   return getOutputs (matrix, ArgType::HOST);
 }
 
+math::MatrixInfo Network::getOutputInfo () const
+{
+  Layer* llayer = m_layers.back();
+  return llayer->getOutputsInfo ();
+}
+
+math::MatrixInfo Network::getInputInfo () const
+{
+  Layer* flayer = m_layers.front();
+  return flayer->getOutputsInfo ();
+}
+
 math::Matrix* Network::getErrors (ArgType type) const
 {
   Layer* last = m_layers.back();

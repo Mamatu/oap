@@ -92,7 +92,8 @@ public:
     return m_activation;
   }
 
-  math::MatrixInfo getOutputsDim () const;
+  math::MatrixInfo getOutputsInfo () const;
+  math::MatrixInfo getInputsInfo () const;
   void getOutputs (math::Matrix* matrix, oap::Type type) const;
 
   void setHostInputs(const math::Matrix* hInputs);
@@ -107,10 +108,7 @@ public:
 
   void deallocate();
 
-  math::MatrixInfo getWeightsInfo () const
-  {
-    return oap::cuda::GetMatrixInfo (m_weights);
-  }
+  math::MatrixInfo getWeightsInfo () const;
 
   void setHostWeights (math::Matrix* weights);
 
