@@ -49,7 +49,7 @@ inline Step createStep (const Batches& batches)
   return std::make_tuple(batches, std::make_pair(Points(), -1), std::make_pair(Points(), -1));
 }
 
-inline Batches getBatches (const Step& step)
+inline const Batches& getBatches (const Step& step)
 {
   return std::get<0>(step);
 }

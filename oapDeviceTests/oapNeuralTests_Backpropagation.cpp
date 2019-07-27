@@ -36,6 +36,8 @@
 #include "oapNeuralTests_Data.h"
 #include "oapNeuralTests_Data_1.h"
 #include "oapNeuralTests_Data_2.h"
+#include "oapNeuralTests_Data_3.h"
+#include "oapNeuralTests_Data_4.h"
 
 namespace
 {
@@ -236,12 +238,15 @@ class OapNeuralTests_Backpropagation : public testing::Test
                   oap::HostMatrixPtr hinputs,
                   oap::HostMatrixPtr houtput)
   {
+    debugAssert (!steps.empty());
     debugAssert (weights1to2Vec.size() == weights2to3Vec.size());
+    
+    size_t batchesSum = 1;
     for (Step step : steps)
     {
-      debugAssert (std::get<0>(step).size() + 1 == weights2to3Vec.size());
+      batchesSum += std::get<0>(step).size();
     }
-    debugAssert (!steps.empty());
+    debugAssert (batchesSum == weights2to3Vec.size());
 
     network->setLearningRate (0.03);
 
@@ -408,6 +413,44 @@ TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_2_Test_4)
     auto network = createNetwork();
     Steps steps = {createStep (g_batch)};
     testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, steps);
+  }
+}
+
+TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_3_Test_1)
+{
+  using namespace oap::Backpropagation_Data_3;
+  auto network = createNetwork();
+  testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, g_steps);
+}
+
+TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_3_Test_2)
+{
+  using namespace oap::Backpropagation_Data_3;
+  for (size_t idx = 0; idx < oap::Backpropagation_Data_3::g_steps.size(); ++idx)
+  {
+    size_t stepsRange[2] = {0, 1};
+    size_t batchesRange[2] = {idx, idx + 1};
+    auto network = createNetwork();
+    testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, g_steps, stepsRange, batchesRange);
+  }
+}
+
+TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_4_Test_1)
+{
+  using namespace oap::Backpropagation_Data_4;
+  auto network = createNetwork();
+  testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, g_steps);
+}
+
+TEST_F(OapNeuralTests_Backpropagation, Backpropagation_Data_4_Test_2)
+{
+  using namespace oap::Backpropagation_Data_4;
+  for (size_t idx = 0; idx < oap::Backpropagation_Data_3::g_steps.size(); ++idx)
+  {
+    size_t stepsRange[2] = {0, 1};
+    size_t batchesRange[2] = {idx, idx + 1};
+    auto network = createNetwork();
+    testSteps (network.get(), g_weights1to2Vec, g_weights2to3Vec, g_steps, stepsRange, batchesRange);
   }
 }
 
