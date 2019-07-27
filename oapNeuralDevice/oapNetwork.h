@@ -59,6 +59,9 @@ public:
   math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType) const;
   math::Matrix* getHostOutputs () const;
 
+  math::MatrixInfo getOutputInfo () const;
+  math::MatrixInfo getInputInfo () const;
+
   void forwardPropagation ();
   void calculateErrors (oap::ErrorType errorType);
 

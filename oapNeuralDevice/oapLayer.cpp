@@ -42,7 +42,12 @@ Layer::~Layer()
   deallocate();
 }
 
-math::MatrixInfo Layer::getOutputsDim () const
+math::MatrixInfo Layer::getOutputsInfo () const
+{
+  return oap::cuda::GetMatrixInfo (m_inputs);
+}
+
+math::MatrixInfo Layer::getInputsInfo () const
 {
   return oap::cuda::GetMatrixInfo (m_inputs);
 }
@@ -90,6 +95,11 @@ void Layer::deallocate(math::Matrix** matrix)
     oap::cuda::DeleteDeviceMatrix (*matrix);
     matrix = nullptr;
   }
+}
+
+math::MatrixInfo Layer::getWeightsInfo () const
+{
+  return oap::cuda::GetMatrixInfo (m_weights);
 }
 
 void Layer::allocateNeurons(size_t neuronsCount)
