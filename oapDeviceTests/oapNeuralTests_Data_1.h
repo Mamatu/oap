@@ -27,6 +27,12 @@ namespace oap
 namespace Backpropagation_Data_1
 {
 
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
+
 namespace 
 {
 const std::vector<floatt> w1to2_0 = {0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1};

@@ -24,11 +24,19 @@
 #include <utility>
 
 #include <Math.h>
+#include "oapNeuralTests_Types.h"
 
 namespace oap
 {
 namespace Backpropagation_2
 {
+
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
+
 std::vector<std::pair<std::pair<floatt, floatt>, floatt>> trainPoints = 
 {
 {{ 0.44357233490399445, 0.22756905427903037}, 1},

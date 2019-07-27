@@ -42,6 +42,8 @@ using PointsLoss = std::pair<Points, floatt>;
 using Step = std::tuple<Batches, PointsLoss, PointsLoss>;
 using Steps = std::vector<Step>;
 
+using IdxsToCheck = std::vector<std::vector<size_t>>;
+
 inline Step createStep (const Batches& batches, const Points& points, floatt error, const Points& points1, floatt error1)
 {
   return std::make_tuple(batches, std::make_pair(points, error), std::make_pair(points1, error1));

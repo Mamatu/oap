@@ -29,6 +29,12 @@ namespace Backpropagation_Data_2
 namespace Test_1
 {
 
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
+
 std::vector<Weights> g_weights1to2Vec =
 {
   {
@@ -86,6 +92,12 @@ Batches g_batch =
 
 namespace Test_2
 {
+
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
 
 std::vector<Weights> g_weights1to2Vec =
 {
@@ -151,6 +163,12 @@ Batches g_batch =
 namespace Test_3
 {
 
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
+
 std::vector<Weights> g_weights1to2Vec =
 {
   {
@@ -208,6 +226,12 @@ Batches g_batch =
 
 namespace Test_4
 {
+
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
 
 namespace
 {
