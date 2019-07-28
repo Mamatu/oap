@@ -27,7 +27,7 @@ namespace oap
 namespace Backpropagation_Data_1
 {
 
-IdxsToCheck g_idxsToCheck =
+const IdxsToCheck g_idxsToCheck =
 {
   {0, 1, 2, 3, 4, 5, 6, 7, 8},
   {0, 1, 2, 3}
