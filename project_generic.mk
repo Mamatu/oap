@@ -9,6 +9,10 @@ ifndef OAP_GTEST_PATH
 $(error OAP_GTEST_PATH is not set (should be main directory of gtest set))
 endif
 
+ifndef OAP_BUILD_THREADS
+$(error OAP_BUILD_THREADS is not set (number of make processes used to build))
+endif
+
 $(shell test -d /tmp/Oap/tests_data || mkdir -p /tmp/Oap/tests_data)
 $(shell test -d /tmp/Oap/conversion_data || mkdir -p /tmp/Oap/conversion_data)
 $(shell test -d /tmp/Oap/host_tests || mkdir -p /tmp/Oap/host_tests)
