@@ -131,9 +131,6 @@ void Layer::allocateWeights(const Layer* nextLayer)
   m_vec = oap::cuda::NewDeviceReMatrix (getTotalNeuronsCount(), 1);
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_vec, c.get());
 
-
-  PRINT_CUMATRIX(m_vec);
-
   m_nextLayer = nextLayer;
 
   initRandomWeights (nextLayer);
@@ -159,10 +156,6 @@ void Layer::deallocate()
 void Layer::setHostWeights (math::Matrix* weights)
 {
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_weights, weights);
-
-  PRINT_CUMATRIX (m_weights);
-  PRINT_MATRIX (weights);
-  logInfo ("*******");
 }
 
 void Layer::getHostWeights (math::Matrix* output)

@@ -261,8 +261,6 @@ void Network::forwardPropagation ()
     }
 
     m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
-    PRINT_CUMATRIX(current->m_sums);
-    logInfo ("=====");
 
     activateFunc (current->m_inputs, current->m_sums, current->getActivation ());
   }
@@ -305,16 +303,10 @@ void Network::calculateErrors (oap::ErrorType errorType, bool onlyErrors)
 
   auto calculateCurrentErrors = [this] (Layer* current)
   {
-    logInfo ("===");
-    PRINT_CUMATRIX (current->m_sums);
     derivativeFunc (current->m_sums, current->m_sums, current->getActivation ());
-    PRINT_CUMATRIX (current->m_errors);
     m_cuApi.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
-    PRINT_CUMATRIX (current->m_errors);
-    PRINT_CUMATRIX (current->m_sums);
   };
 
-  PRINT_CUMATRIX (current->m_errors);
   calculateCurrentErrors (current);
 
   do
@@ -327,12 +319,6 @@ void Network::calculateErrors (oap::ErrorType errorType, bool onlyErrors)
 
     m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
     
-    
-    logInfo("***");
-    PRINT_CUMATRIX (current->m_errors);
-    PRINT_CUMATRIX (current->m_tweights);
-    PRINT_CUMATRIX (next->m_errors);
-    logInfo("***");
     calculateCurrentErrors (current);
   }
   while (idx > 1);
@@ -370,18 +356,15 @@ void Network::updateWeights()
     current = next;
     next = m_layers[idx];
 
-    //if (m_backwardCount > 1)
-    //{
     floatt lr = m_learningRate / static_cast<floatt>(m_backwardCount);
     m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
-    //}
+
     m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
-    PRINT_CUMATRIX (current->m_weights);
+
     if (next->m_biasCount == 1)
     {
       oap::cuda::SetReMatrix (current->m_weights, current->m_vec, 0, next->getTotalNeuronsCount() - 1);
     }
-    PRINT_CUMATRIX (current->m_weights);
   }
 
   postStep ();
@@ -557,7 +540,7 @@ void Network::postStep(Layer* layer)
 {
   resetErrors (layer);
   m_cuApi.setZeroMatrix (layer->m_weights2);
-  logInfo ("%s", __func__);
+  //logInfo ("%s", __func__);
 }
 
 void Network::postStep ()
