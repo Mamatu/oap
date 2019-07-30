@@ -17,14 +17,14 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TESTS__DATA_11_1_H
-#define OAP_NEURAL_TESTS__DATA_11_1_H
+#ifndef OAP_NEURAL_TESTS__DATA_2HL_1_1_Test_2_H
+#define OAP_NEURAL_TESTS__DATA_2HL_1_1_Test_2_H
 
 #include "oapNeuralTests_Types.h"
 
 namespace oap
 {
-namespace Backpropagation_Data_11
+namespace Backpropagation_Data_2HL_1_1
 {
 namespace Test_2
 {
