@@ -26,6 +26,7 @@ namespace oap
 {
 namespace Backpropagation_Data_3
 {
+const std::vector<size_t> g_networkInfo = {3};
 
 const IdxsToCheck g_idxsToCheck =
 {
