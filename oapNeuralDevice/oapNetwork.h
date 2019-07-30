@@ -63,7 +63,7 @@ public:
   math::MatrixInfo getInputInfo () const;
 
   void forwardPropagation ();
-  void calculateErrors (oap::ErrorType errorType);
+  void calculateErrors (oap::ErrorType errorType, bool onlyErrors = false);
 
   math::Matrix* getErrors (ArgType type) const;
 
@@ -117,6 +117,7 @@ public:
 
   void resetErrors (Layer* layer);
   void resetErrors ();
+  void resetErrorsVec ();
 
   template<typename Callback>
   void iterateLayers (Callback&& callback)

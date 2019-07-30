@@ -21,6 +21,7 @@
 #define OAP_NEURAL_LAYER_H
 
 #define PRINT_CUMATRIX(m) logInfo ("%s %p %s", #m, m, oap::cuda::to_string(m).c_str());
+#define PRINT_MATRIX(m) logInfo ("%s %p %s", #m, m, oap::host::to_string(m).c_str());
 
 #include "ByteBuffer.h"
 
@@ -62,9 +63,10 @@ private:
   math::Matrix* m_tweights = nullptr;
   math::Matrix* m_weights1 = nullptr;
   math::Matrix* m_weights2 = nullptr;
+  math::Matrix* m_vec = nullptr;
 
   size_t m_neuronsCount = 0;
-  size_t m_nextLayerNeuronsCount = 0;
+  const Layer* m_nextLayer = nullptr;
 
   size_t m_biasCount = 0;
 
@@ -123,9 +125,10 @@ public:
 
   void setDeviceWeights (math::Matrix* weights);
 
-  void initRandomWeights ();
+  void initRandomWeights (const Layer* nextLayer);
 
-  static std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix(size_t columns, size_t rows);
+  using RandCallback = std::function<floatt(size_t c, size_t r, floatt value)>;
+  static std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix(size_t columns, size_t rows, RandCallback&& randCallback = [](size_t c, size_t r, floatt value){ return value; });
 
   void save (utils::ByteBuffer& buffer) const;
   static Layer* load (const utils::ByteBuffer& buffer);
