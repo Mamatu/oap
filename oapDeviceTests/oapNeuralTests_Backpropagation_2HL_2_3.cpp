@@ -17,14 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string>
-#include <tuple>
-
 #include "oapNeuralTests_Api.h"
 
-#include "oapNeuralTests_Data_7.h"
+#include "oapNeuralTests_Data_2HL_2_3.h"
 
-class OapNeuralTests_Backpropagation_7 : public testing::Test
+
+class OapNeuralTests_Backpropagation_2HL_2_3 : public testing::Test
 {
  public:
 
@@ -39,10 +37,10 @@ class OapNeuralTests_Backpropagation_7 : public testing::Test
   }
 };
 
-TEST_F(OapNeuralTests_Backpropagation_7, Test_1)
+TEST_F(OapNeuralTests_Backpropagation_2HL_2_3, Test_1)
 {
-  using namespace oap::Backpropagation_Data_7;
+  using namespace oap::Backpropagation_Data_2HL_2_3::Test_1;
 
-  auto network = test_api::createNetwork ();
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck));
+  auto network = test_api::createNetwork (g_networkInfo);
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
 }
