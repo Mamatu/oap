@@ -19,9 +19,9 @@
 
 #include "oapNeuralTests_Api.h"
 
-#include "oapNeuralTests_Data_8.h"
+#include "oapNeuralTests_Data_2HL_1_3_Test_1.h"
 
-class OapNeuralTests_Backpropagation_8 : public testing::Test
+class OapNeuralTests_Backpropagation_2HL_1_3 : public testing::Test
 {
  public:
 
@@ -36,9 +36,9 @@ class OapNeuralTests_Backpropagation_8 : public testing::Test
   }
 };
 
-TEST_F(OapNeuralTests_Backpropagation_8, Test_1)
+TEST_F(OapNeuralTests_Backpropagation_2HL_1_3, Test_1)
 {
-  using namespace oap::Backpropagation_Data_8;
+  using namespace oap::Backpropagation_Data_2HL_1_3::Test_1;
 
   auto network = test_api::createNetwork (g_networkInfo);
   ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));

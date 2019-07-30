@@ -17,16 +17,17 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TESTS__DATA_9_H
-#define OAP_NEURAL_TESTS__DATA_9_H
+#ifndef OAP_NEURAL_TESTS__DATA_2HL_2_3_H
+#define OAP_NEURAL_TESTS__DATA_2HL_2_3_H
 
 #include "oapNeuralTests_Types.h"
 
 namespace oap
 {
-namespace Backpropagation_Data_9
+namespace Backpropagation_Data_2HL_2_3
 {
-
+namespace Test_1
+{
 const std::vector<size_t> g_networkInfo = {2, 3}; 
 
 const IdxsToCheck g_idxsToCheck =
@@ -3659,7 +3660,7 @@ w2to3_0_0, w2to3_0_1, w2to3_1_1, w2to3_2_1, w2to3_3_1, w2to3_4_1, w2to3_5_1, w2t
 
 const std::vector<Weights> g_weights3to4Vec = {
 w3to4_0_0, w3to4_0_1, w3to4_1_1, w3to4_2_1, w3to4_3_1, w3to4_4_1, w3to4_5_1, w3to4_6_1, w3to4_7_1, w3to4_8_1, w3to4_9_1, w3to4_10_1, w3to4_11_1, w3to4_12_1, w3to4_13_1, w3to4_14_1, w3to4_15_1, w3to4_16_1, w3to4_17_1, w3to4_18_1, w3to4_19_1, w3to4_20_1, w3to4_21_1, w3to4_22_1, w3to4_23_1, w3to4_24_1, w3to4_25_1, w3to4_26_1, w3to4_27_1, w3to4_28_1, w3to4_29_1, w3to4_30_1, w3to4_31_1, w3to4_32_1, w3to4_33_1, w3to4_34_1, w3to4_35_1, w3to4_36_1, w3to4_37_1, w3to4_38_1, w3to4_39_1, w3to4_40_1, w3to4_41_1, w3to4_42_1, w3to4_43_1, w3to4_44_1, w3to4_45_1, w3to4_46_1, w3to4_47_1, w3to4_48_1, w3to4_49_1, w3to4_50_1, w3to4_51_1, w3to4_52_1, w3to4_53_1, w3to4_54_1, w3to4_55_1, w3to4_56_1, w3to4_57_1, w3to4_58_1, w3to4_59_1, w3to4_60_1, w3to4_61_1, w3to4_62_1, w3to4_63_1, w3to4_64_1, w3to4_65_1, w3to4_66_1, w3to4_67_1, w3to4_68_1, w3to4_69_1, w3to4_0_2, w3to4_1_2, w3to4_2_2, w3to4_3_2, w3to4_4_2, w3to4_5_2, w3to4_6_2, w3to4_7_2, w3to4_8_2, w3to4_9_2, w3to4_10_2, w3to4_11_2, w3to4_12_2, w3to4_13_2, w3to4_14_2, w3to4_15_2, w3to4_16_2, w3to4_17_2, w3to4_18_2, w3to4_19_2, w3to4_20_2, w3to4_21_2, w3to4_22_2, w3to4_23_2, w3to4_24_2, w3to4_25_2, w3to4_26_2, w3to4_27_2, w3to4_28_2, w3to4_29_2, w3to4_30_2, w3to4_31_2, w3to4_32_2, w3to4_33_2, w3to4_34_2, w3to4_35_2, w3to4_36_2, w3to4_37_2, w3to4_38_2, w3to4_39_2, w3to4_40_2, w3to4_41_2, w3to4_42_2, w3to4_43_2, w3to4_44_2, w3to4_45_2, w3to4_46_2, w3to4_47_2, w3to4_48_2, w3to4_49_2, w3to4_50_2, w3to4_51_2, w3to4_52_2, w3to4_53_2, w3to4_54_2, w3to4_55_2, w3to4_56_2, w3to4_57_2, w3to4_58_2, w3to4_59_2, w3to4_60_2, w3to4_61_2, w3to4_62_2, w3to4_63_2, w3to4_64_2, w3to4_65_2, w3to4_66_2, w3to4_67_2, w3to4_68_2, w3to4_69_2, w3to4_0_3, w3to4_1_3, w3to4_2_3, w3to4_3_3, w3to4_4_3, w3to4_5_3, w3to4_6_3, w3to4_7_3, w3to4_8_3, w3to4_9_3, w3to4_10_3, w3to4_11_3, w3to4_12_3, w3to4_13_3, w3to4_14_3, w3to4_15_3, w3to4_16_3, w3to4_17_3, w3to4_18_3, w3to4_19_3, w3to4_20_3, w3to4_21_3, w3to4_22_3, w3to4_23_3, w3to4_24_3, w3to4_25_3, w3to4_26_3, w3to4_27_3, w3to4_28_3, w3to4_29_3, w3to4_30_3, w3to4_31_3, w3to4_32_3, w3to4_33_3, w3to4_34_3, w3to4_35_3, w3to4_36_3, w3to4_37_3, w3to4_38_3, w3to4_39_3, w3to4_40_3, w3to4_41_3, w3to4_42_3, w3to4_43_3, w3to4_44_3, w3to4_45_3, w3to4_46_3, w3to4_47_3, w3to4_48_3, w3to4_49_3, w3to4_50_3, w3to4_51_3, w3to4_52_3, w3to4_53_3, w3to4_54_3, w3to4_55_3, w3to4_56_3, w3to4_57_3, w3to4_58_3, w3to4_59_3, w3to4_60_3, w3to4_61_3, w3to4_62_3, w3to4_63_3, w3to4_64_3, w3to4_65_3, w3to4_66_3, w3to4_67_3, w3to4_68_3, w3to4_69_3, w3to4_0_4, w3to4_1_4, w3to4_2_4, w3to4_3_4, w3to4_4_4, w3to4_5_4, w3to4_6_4, w3to4_7_4, w3to4_8_4, w3to4_9_4, w3to4_10_4, w3to4_11_4, w3to4_12_4, w3to4_13_4, w3to4_14_4, w3to4_15_4, w3to4_16_4, w3to4_17_4, w3to4_18_4, w3to4_19_4, w3to4_20_4, w3to4_21_4, w3to4_22_4, w3to4_23_4, w3to4_24_4, w3to4_25_4, w3to4_26_4, w3to4_27_4, w3to4_28_4, w3to4_29_4, w3to4_30_4, w3to4_31_4, w3to4_32_4, w3to4_33_4, w3to4_34_4, w3to4_35_4, w3to4_36_4, w3to4_37_4, w3to4_38_4, w3to4_39_4, w3to4_40_4, w3to4_41_4, w3to4_42_4, w3to4_43_4, w3to4_44_4, w3to4_45_4, w3to4_46_4, w3to4_47_4, w3to4_48_4, w3to4_49_4, w3to4_50_4, w3to4_51_4, w3to4_52_4, w3to4_53_4, w3to4_54_4, w3to4_55_4, w3to4_56_4, w3to4_57_4, w3to4_58_4, w3to4_59_4, w3to4_60_4, w3to4_61_4, w3to4_62_4, w3to4_63_4, w3to4_64_4, w3to4_65_4, w3to4_66_4, w3to4_67_4, w3to4_68_4, w3to4_69_4};
-
+}
 }
 }
 #endif

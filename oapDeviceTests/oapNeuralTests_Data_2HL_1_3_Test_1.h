@@ -17,16 +17,17 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TESTS__DATA_8_H
-#define OAP_NEURAL_TESTS__DATA_8_H
+#ifndef OAP_NEURAL_TESTS__DATA_2HL_1_3_Test_1_H
+#define OAP_NEURAL_TESTS__DATA_2HL_1_3_Test_1_H
 
 #include "oapNeuralTests_Types.h"
 
 namespace oap
 {
-namespace Backpropagation_Data_8
+namespace Backpropagation_Data_2HL_1_3
 {
-
+namespace Test_1
+{
 const std::vector<size_t> g_networkInfo = {1, 3}; 
 
 const IdxsToCheck g_idxsToCheck =
@@ -2674,7 +2675,7 @@ w2to3_0_0, w2to3_0_1, w2to3_1_1, w2to3_2_1, w2to3_3_1, w2to3_4_1, w2to3_5_1, w2t
 
 const std::vector<Weights> g_weights3to4Vec = {
 w3to4_0_0, w3to4_0_1, w3to4_1_1, w3to4_2_1, w3to4_3_1, w3to4_4_1, w3to4_5_1, w3to4_6_1, w3to4_7_1, w3to4_8_1, w3to4_9_1, w3to4_10_1, w3to4_11_1, w3to4_12_1, w3to4_13_1, w3to4_14_1, w3to4_15_1, w3to4_16_1, w3to4_17_1, w3to4_18_1, w3to4_19_1, w3to4_20_1, w3to4_21_1, w3to4_22_1, w3to4_23_1, w3to4_24_1, w3to4_25_1, w3to4_26_1, w3to4_27_1, w3to4_28_1, w3to4_0_2, w3to4_1_2, w3to4_2_2, w3to4_3_2, w3to4_4_2, w3to4_5_2, w3to4_6_2, w3to4_7_2, w3to4_8_2, w3to4_9_2, w3to4_10_2, w3to4_11_2, w3to4_12_2, w3to4_13_2, w3to4_14_2, w3to4_15_2, w3to4_16_2, w3to4_17_2, w3to4_18_2, w3to4_19_2, w3to4_20_2, w3to4_21_2, w3to4_22_2, w3to4_23_2, w3to4_24_2, w3to4_25_2, w3to4_26_2, w3to4_27_2, w3to4_28_2, w3to4_0_3, w3to4_1_3, w3to4_2_3, w3to4_3_3, w3to4_4_3, w3to4_5_3, w3to4_6_3, w3to4_7_3, w3to4_8_3, w3to4_9_3, w3to4_10_3, w3to4_11_3, w3to4_12_3, w3to4_13_3, w3to4_14_3, w3to4_15_3, w3to4_16_3, w3to4_17_3, w3to4_18_3, w3to4_19_3, w3to4_20_3, w3to4_21_3, w3to4_22_3, w3to4_23_3, w3to4_24_3, w3to4_25_3, w3to4_26_3, w3to4_27_3, w3to4_28_3, w3to4_0_4, w3to4_1_4, w3to4_2_4, w3to4_3_4, w3to4_4_4, w3to4_5_4, w3to4_6_4, w3to4_7_4, w3to4_8_4, w3to4_9_4, w3to4_10_4, w3to4_11_4, w3to4_12_4, w3to4_13_4, w3to4_14_4, w3to4_15_4, w3to4_16_4, w3to4_17_4, w3to4_18_4, w3to4_19_4, w3to4_20_4, w3to4_21_4, w3to4_22_4, w3to4_23_4, w3to4_24_4, w3to4_25_4, w3to4_26_4, w3to4_27_4, w3to4_28_4};
-
+}
 }
 }
 #endif
