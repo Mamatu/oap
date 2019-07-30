@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TESTS__DATA_H
-#define OAP_NEURAL_TESTS__DATA_H
+#ifndef OAP_NEURAL_TESTS__DATA_2_1_H
+#define OAP_NEURAL_TESTS__DATA_2_1_H
 
 #include <vector>
 #include <utility>
