@@ -288,7 +288,7 @@ void Network::calculateErrors (oap::ErrorType errorType, bool onlyErrors)
     {
       error += current->m_errorsHost->reValues[idx];
     }
-    m_errorsVec.emplace_back (error * error * 0.5);
+    m_errorsVec.push_back (error * error * 0.5);
     ++m_backwardCount;
   }
   if (onlyErrors)
@@ -541,6 +541,7 @@ void Network::postStep(Layer* layer)
   resetErrors (layer);
   m_cuApi.setZeroMatrix (layer->m_weights2);
   //logInfo ("%s", __func__);
+  m_backwardCount = 0;
 }
 
 void Network::postStep ()
