@@ -38,7 +38,6 @@
 #include "oapNeuralTests_Data_2HL_1_1.h"
 #include "oapNeuralTests_Data_2HL_1_1_Test_2.h"
 #include "oapNeuralTests_Data_2HL_1_1_Test_3.h"
-#include "oapNeuralTests_Data_11_3.h"
 
 class OapNeuralTests_Backpropagation_2HL_1_1 : public testing::Test
 {
@@ -77,12 +76,4 @@ TEST_F(OapNeuralTests_Backpropagation_2HL_1_1, Test_3)
 
   auto network = test_api::createNetwork (g_networkInfo);
   ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
-}
-
-TEST_F(OapNeuralTests_Backpropagation_2HL_1_1, Test_4)
-{
-  using namespace oap::Backpropagation_Data_11::Test_4;
-
-  auto network = test_api::createNetwork (g_networkInfo);
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec, g_weights4to5Vec, g_weights5to6Vec, g_weights6to7Vec, g_weights7to8Vec}, g_steps, g_idxsToCheck));
 }
