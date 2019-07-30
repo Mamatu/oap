@@ -19,10 +19,10 @@
 
 #include "oapNeuralTests_Api.h"
 
-#include "oapNeuralTests_Data_2.h"
-#include "oapNeuralTests_Data_2_1.h"
+#include "oapNeuralTests_Data_Miscs.h"
+#include "oapNeuralTests_Data_Miscs_1.h"
 
-class OapNeuralTests_Backpropagation_2 : public testing::Test
+class OapNeuralTests_Backpropagation_Miscs : public testing::Test
 {
  public:
 
@@ -37,9 +37,9 @@ class OapNeuralTests_Backpropagation_2 : public testing::Test
   }
 };
 
-TEST_F(OapNeuralTests_Backpropagation_2, Test_1)
+TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_1)
 {
-  using namespace oap::Backpropagation_Data_2::Test_1;
+  using namespace oap::Backpropagation_Data_Miscs::Test_1;
   {
     auto network = test_api::createNetwork ();
     Steps steps = {createStep (g_batch)};
@@ -48,9 +48,9 @@ TEST_F(OapNeuralTests_Backpropagation_2, Test_1)
   }
 }
 
-TEST_F(OapNeuralTests_Backpropagation_2, Test_2)
+TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_2)
 {
-  using namespace oap::Backpropagation_Data_2::Test_2;
+  using namespace oap::Backpropagation_Data_Miscs::Test_2;
   {
     auto network = test_api::createNetwork ();
     Steps steps = {createStep (g_batch)};
@@ -80,14 +80,14 @@ TEST_F(OapNeuralTests_Backpropagation_2, Test_2)
       network->postStep ();
     };
 
-    checkErrors(0.4947014772704021, oap::Backpropagation_2::trainPoints);
-    checkErrors(0.5021636175010554, oap::Backpropagation_2::testPoints);
+    checkErrors(0.4947014772704021, trainPoints);
+    checkErrors(0.5021636175010554, testPoints);
   }
 }
 
-TEST_F(OapNeuralTests_Backpropagation_2, Test_3)
+TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_3)
 {
-  using namespace oap::Backpropagation_Data_2::Test_3;
+  using namespace oap::Backpropagation_Data_Miscs::Test_3;
   {
     auto network = test_api::createNetwork();
     Steps steps = {createStep (g_batch)};
@@ -96,9 +96,9 @@ TEST_F(OapNeuralTests_Backpropagation_2, Test_3)
   }
 }
 
-TEST_F(OapNeuralTests_Backpropagation_2, Test_4)
+TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_4)
 {
-  using namespace oap::Backpropagation_Data_2::Test_3;
+  using namespace oap::Backpropagation_Data_Miscs::Test_3;
   {
     auto network = test_api::createNetwork();
     Steps steps = {createStep (g_batch)};
