@@ -27,6 +27,7 @@ env:
     - OAP_PATH=$TRAVIS_BUILD_DIR
     - OAP_GMOCK_PATH=/usr/src/gmock
     - OAP_GTEST_PATH=/usr/src/gtest
+    - OAP_BUILD_THREADS=1
 
 # Build steps
 script:
