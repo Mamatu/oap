@@ -102,7 +102,7 @@ namespace test_api
                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
                  const std::vector<oap::HostMatrixPtr>& weightsMatrices,
                  const IdxsToCheck& idxToChecks,
-                 bool bcheckErrors);
+                 bool bcheckErrors = true);
 
   void testSteps (Network* network,
                   const WeightsLayers& weightsLayers,
@@ -110,15 +110,15 @@ namespace test_api
                   oap::HostMatrixPtr hinputs,
                   oap::HostMatrixPtr houtput,
                   const IdxsToCheck& idxToChecks,
-                  const std::pair<size_t,size_t>& _stepsRange,
-                  bool bcheckErrors);
+                  const std::pair<size_t,size_t>& _stepsRange = {0, 0},
+                  bool bcheckErrors = true);
 
   void testSteps (Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   const IdxsToCheck& idxToChecks,
-                  const std::pair<size_t, size_t>& sr,
-                  bool bcheckErrors);
+                  const std::pair<size_t, size_t>& sr = {0, 0},
+                  bool bcheckErrors = true);
 }
 
 #endif
