@@ -17,14 +17,14 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TESTS__DATA_13_H
-#define OAP_NEURAL_TESTS__DATA_13_H
+#ifndef OAP_NEURAL_TESTS__DATA_3HL_1_1_1_H
+#define OAP_NEURAL_TESTS__DATA_3HL_1_1_1_H
 
 #include "oapNeuralTests_Types.h"
 
 namespace oap
 {
-namespace Backpropagation_Data_13
+namespace Backpropagation_Data_3HL_1_1_1
 {
 
 const std::vector<size_t> g_networkInfo = {1, 1, 1}; 
