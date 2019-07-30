@@ -18,6 +18,7 @@
  */
 
 #include "oapLayer.h"
+#include "MatrixAPI.h"
 
 #include <list>
 
@@ -125,9 +126,17 @@ void Layer::allocateWeights(const Layer* nextLayer)
   m_weights2 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
   m_weightsDim = std::make_pair(getTotalNeuronsCount(), nextLayer->getTotalNeuronsCount());
 
-  m_nextLayerNeuronsCount = nextLayer->m_neuronsCount;
 
-  initRandomWeights ();
+  oap::HostMatrixPtr c = oap::host::NewReMatrix(getTotalNeuronsCount(), 1, 0.);
+  m_vec = oap::cuda::NewDeviceReMatrix (getTotalNeuronsCount(), 1);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (m_vec, c.get());
+
+
+  PRINT_CUMATRIX(m_vec);
+
+  m_nextLayer = nextLayer;
+
+  initRandomWeights (nextLayer);
 }
 
 void Layer::deallocate()
@@ -144,11 +153,16 @@ void Layer::deallocate()
   deallocate (&m_weights1);
   deallocate (&m_weights2);
   oap::host::DeleteMatrix (m_errorsHost);
+  deallocate (&m_vec);
 }
 
 void Layer::setHostWeights (math::Matrix* weights)
 {
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_weights, weights);
+
+  PRINT_CUMATRIX (m_weights);
+  PRINT_MATRIX (weights);
+  logInfo ("*******");
 }
 
 void Layer::getHostWeights (math::Matrix* output)
@@ -168,7 +182,7 @@ void Layer::printHostWeights (bool newLine)
   }
   else
   {
-    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (m_neuronsCount, m_nextLayerNeuronsCount);
+    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (getTotalNeuronsCount(), m_nextLayer->getTotalNeuronsCount());
     getHostWeights (matrix.get());
 
     oap::host::ToString (matrixStr, matrix.get());
@@ -182,7 +196,7 @@ void Layer::setDeviceWeights (math::Matrix* weights)
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_weights, weights);
 }
 
-std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> Layer::createRandomMatrix(size_t columns, size_t rows)
+std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> Layer::createRandomMatrix (size_t columns, size_t rows, RandCallback&& randCallback)
 {
   std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> randomMatrix(oap::host::NewReMatrix(columns, rows),
                   [](const math::Matrix* m){oap::host::DeleteMatrix(m);});
@@ -191,29 +205,39 @@ std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> Layer::c
   std::default_random_engine dre (rd());
   std::uniform_real_distribution<> dis(-0.5, 0.5);
 
-  for (size_t idx = 0; idx < columns * rows; ++idx)
+  for (size_t c = 0; c < columns; ++c)
   {
-    randomMatrix->reValues[idx] = dis(dre);
+    for (size_t r = 0; r < rows; ++r)
+    {
+      SetRe (randomMatrix.get(), c, r, randCallback(c, r, dis(dre)));
+    }
   }
 
   return std::move (randomMatrix);
 }
 
-void Layer::initRandomWeights ()
+void Layer::initRandomWeights (const Layer* nextLayer)
 {
   if (m_weights == nullptr)
   {
     throw std::runtime_error("m_weights == nullptr");
   }
 
-  auto randomMatrix = createRandomMatrix (m_weightsDim.first, m_weightsDim.second);
+  auto randomMatrix = createRandomMatrix (m_weightsDim.first, m_weightsDim.second, [this, &nextLayer](size_t c, size_t r, floatt v)
+  {
+    if (nextLayer->m_biasCount == 1 && m_weightsDim.second - 1 == r)
+    {
+      return 0.;
+    }
+    return v;
+  });
+
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_weights, randomMatrix.get());
 }
 
 void Layer::save (utils::ByteBuffer& buffer) const
 {
-  buffer.push_back (m_neuronsCount);
-  buffer.push_back (m_nextLayerNeuronsCount);
+  buffer.push_back (getTotalNeuronsCount());
 
   buffer.push_back (m_weightsDim.first);
   buffer.push_back (m_weightsDim.second);
@@ -236,7 +260,6 @@ Layer* Layer::load (const utils::ByteBuffer& buffer)
   Layer* layer = new Layer ();
 
   layer->m_neuronsCount = buffer.read <decltype (layer->m_neuronsCount)>();
-  layer->m_nextLayerNeuronsCount = buffer.read <decltype (layer->m_nextLayerNeuronsCount)>();
 
   layer->m_weightsDim.first = buffer.read <decltype (layer->m_weightsDim.first)>();
   layer->m_weightsDim.second = buffer.read <decltype (layer->m_weightsDim.second)>();
@@ -264,11 +287,6 @@ bool Layer::operator== (const Layer& layer) const
   }
 
   if (m_neuronsCount != layer.m_neuronsCount)
-  {
-    return false;
-  }
-
-  if (m_nextLayerNeuronsCount != layer.m_nextLayerNeuronsCount)
   {
     return false;
   }

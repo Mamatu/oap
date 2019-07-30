@@ -88,7 +88,7 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, ArgType argType, oap::Er
 
   auto llayer = m_layers.back();
 
-  math::Matrix* output = oap::host::NewMatrix (1, llayer->m_neuronsCount);
+  math::Matrix* output = oap::host::NewMatrix (1, llayer->getTotalNeuronsCount());
   oap::cuda::CopyDeviceMatrixToHostMatrix (output, llayer->m_inputs);
 
   return oap::HostMatrixUPtr (output);
@@ -257,15 +257,18 @@ void Network::forwardPropagation ()
 
     if (previous->m_biasCount == 1)
     {
-      oap::cuda::SetReValue (previous->m_inputs, 1, 1, previous->m_neuronsCount - 1);
+      oap::cuda::SetReValue (previous->m_inputs, 1, 0, previous->getTotalNeuronsCount() - 1);
     }
 
     m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
+    PRINT_CUMATRIX(current->m_sums);
+    logInfo ("=====");
+
     activateFunc (current->m_inputs, current->m_sums, current->getActivation ());
   }
 }
 
-void Network::calculateErrors (oap::ErrorType errorType)
+void Network::calculateErrors (oap::ErrorType errorType, bool onlyErrors)
 {
   debugAssert (m_expectedDeviceOutputs != nullptr);
 
@@ -280,8 +283,8 @@ void Network::calculateErrors (oap::ErrorType errorType)
   }
   else
   {
-    m_cuApi.substract (current->m_errors, current->m_inputs, m_expectedDeviceOutputs);
-    oap::cuda::CopyDeviceMatrixToHostMatrix (current->m_errorsHost, current->m_errors);
+    m_cuApi.substract (current->m_errorsAux, current->m_inputs, m_expectedDeviceOutputs);
+    oap::cuda::CopyDeviceMatrixToHostMatrix (current->m_errorsHost, current->m_errorsAux);
     floatt error = 0.;
     for (size_t idx = 0; idx < current->m_errorsHost->rows; ++idx)
     {
@@ -290,17 +293,28 @@ void Network::calculateErrors (oap::ErrorType errorType)
     m_errorsVec.emplace_back (error * error * 0.5);
     ++m_backwardCount;
   }
+  if (onlyErrors)
   {
-  size_t idx = m_layers.size () - 1;
+    return;
+  }
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix(current->m_errors, current->m_errorsAux);
+  {
+  int idx = m_layers.size () - 1;
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
 
   auto calculateCurrentErrors = [this] (Layer* current)
   {
+    logInfo ("===");
+    PRINT_CUMATRIX (current->m_sums);
     derivativeFunc (current->m_sums, current->m_sums, current->getActivation ());
+    PRINT_CUMATRIX (current->m_errors);
     m_cuApi.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
+    PRINT_CUMATRIX (current->m_errors);
+    PRINT_CUMATRIX (current->m_sums);
   };
 
+  PRINT_CUMATRIX (current->m_errors);
   calculateCurrentErrors (current);
 
   do
@@ -312,7 +326,13 @@ void Network::calculateErrors (oap::ErrorType errorType)
     m_cuApi.transpose (current->m_tweights, current->m_weights);
 
     m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
-
+    
+    
+    logInfo("***");
+    PRINT_CUMATRIX (current->m_errors);
+    PRINT_CUMATRIX (current->m_tweights);
+    PRINT_CUMATRIX (next->m_errors);
+    logInfo("***");
     calculateCurrentErrors (current);
   }
   while (idx > 1);
@@ -350,9 +370,18 @@ void Network::updateWeights()
     current = next;
     next = m_layers[idx];
 
+    //if (m_backwardCount > 1)
+    //{
     floatt lr = m_learningRate / static_cast<floatt>(m_backwardCount);
     m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
+    //}
     m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
+    PRINT_CUMATRIX (current->m_weights);
+    if (next->m_biasCount == 1)
+    {
+      oap::cuda::SetReMatrix (current->m_weights, current->m_vec, 0, next->getTotalNeuronsCount() - 1);
+    }
+    PRINT_CUMATRIX (current->m_weights);
   }
 
   postStep ();
@@ -528,6 +557,7 @@ void Network::postStep(Layer* layer)
 {
   resetErrors (layer);
   m_cuApi.setZeroMatrix (layer->m_weights2);
+  logInfo ("%s", __func__);
 }
 
 void Network::postStep ()
@@ -556,6 +586,11 @@ void Network::resetErrors ()
 
   m_errorsVec.clear();
 
+}
+
+void Network::resetErrorsVec ()
+{
+  m_errorsVec.clear();
 }
 
 bool Network::operator!= (const Network& network) const
