@@ -19,9 +19,9 @@
 
 #include "oapNeuralTests_Api.h"
 
-#include "oapNeuralTests_Data_1.h"
+#include "oapNeuralTests_Data_1HL_3.h"
 
-class OapNeuralTests_Backpropagation_1 : public testing::Test
+class OapNeuralTests_Backpropagation_1HL_3 : public testing::Test
 {
  public:
 
@@ -36,9 +36,9 @@ class OapNeuralTests_Backpropagation_1 : public testing::Test
   }
 };
 
-TEST_F(OapNeuralTests_Backpropagation_1, Test_1)
+TEST_F(OapNeuralTests_Backpropagation_1HL_3, Test_1)
 {
-  using namespace oap::Backpropagation_Data_1;
+  using namespace oap::Backpropagation_Data_1HL_3::Test_1;
   auto network = test_api::createNetwork(g_networkInfo);
 
   Steps steps = {createStep (g_batches, g_trainPoints, g_lossTrain, g_testPoints, g_lossTest)};

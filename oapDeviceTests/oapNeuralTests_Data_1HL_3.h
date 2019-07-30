@@ -24,7 +24,9 @@
 
 namespace oap
 {
-namespace Backpropagation_Data_1
+namespace Backpropagation_Data_1HL_3
+{
+namespace Test_1
 {
 
 const std::vector<size_t> g_networkInfo = {3};
@@ -1120,6 +1122,7 @@ const Points g_testPoints = {
 floatt g_lossTrain = 0.4947014772704021;
 floatt g_lossTest = 0.5021636175010554;
 
+}
 }
 }
 #endif
