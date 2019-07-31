@@ -47,6 +47,12 @@ enum class ArgType
   DEVICE_COPY,
 };
 
+enum class CalculationType
+{
+  HOST,
+  DEVICE
+};
+
 class Layer
 {
 private:
