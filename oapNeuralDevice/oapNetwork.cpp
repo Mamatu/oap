@@ -235,7 +235,7 @@ floatt Network::calculateError (oap::ErrorType errorType)
     {oap::ErrorType::CROSS_ENTROPY, std::bind (&Network::calculateCrossEntropy, this)}
   };
 
-  floatt error = std::accumulate(m_errorsVec.begin(), m_errorsVec.end(), 0.);
+  floatt error = std::accumulate (m_errorsVec.begin(), m_errorsVec.end(), 0.);
   error = error / static_cast<floatt>(m_errorsVec.size());
   return  error; //errorsFunctions [errorType]() / m_backwardCount;
 }
@@ -293,7 +293,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
     }
     else if (calcType == CalculationType::DEVICE)
     {
-      floatt imoutput;
+      floatt imoutput = 0.;
       m_cuApi.sum (error, imoutput, llayer->m_errorsAux);
     }
 
@@ -307,49 +307,9 @@ void Network::backPropagation ()
 
   oap::cuda::CopyDeviceMatrixToDeviceMatrix(current->m_errors, current->m_errorsAux);
 
-  {
-  int idx = m_layers.size () - 1;
-  Layer* next = nullptr;
-  Layer* current = m_layers[idx];
+  calcErrors ();
 
-  auto calculateCurrentErrors = [this] (Layer* current)
-  {
-    derivativeFunc (current->m_sums, current->m_sums, current->getActivation ());
-    m_cuApi.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
-  };
-
-  calculateCurrentErrors (current);
-
-  do
-  {
-    next = current;
-    --idx;
-    current = m_layers[idx];
-
-    m_cuApi.transpose (current->m_tweights, current->m_weights);
-
-    m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
-    
-    calculateCurrentErrors (current);
-  }
-  while (idx > 1);
-  }
-
-  {
-  Layer* current = nullptr;
-  Layer* next = m_layers[0];
-
-  for (size_t idx = 1; idx < m_layers.size(); ++idx)
-  {
-    current = next;
-    next = m_layers[idx];
-
-    m_cuApi.transpose (current->m_tinputs, current->m_inputs);
-
-    m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
-    m_cuApi.add (current->m_weights2, current->m_weights2, current->m_weights1);
-  }
-  }
+  calcNablaWeights ();
 }
 
 void Network::updateWeights()
@@ -583,4 +543,51 @@ void Network::resetErrorsVec ()
 bool Network::operator!= (const Network& network) const
 {
   return !(*this == network);
+}
+
+void Network::calcErrors ()
+{
+  int idx = m_layers.size () - 1;
+  Layer* next = nullptr;
+  Layer* current = m_layers[idx];
+
+  auto calculateCurrentErrors = [this] (Layer* current)
+  {
+    derivativeFunc (current->m_sums, current->m_sums, current->getActivation ());
+    m_cuApi.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
+  };
+
+  calculateCurrentErrors (current);
+
+  do
+  {
+    next = current;
+    --idx;
+    current = m_layers[idx];
+
+    m_cuApi.transpose (current->m_tweights, current->m_weights);
+
+    m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
+
+    calculateCurrentErrors (current);
+  }
+  while (idx > 1);
+
+}
+
+void Network::calcNablaWeights ()
+{
+  Layer* current = nullptr;
+  Layer* next = m_layers[0];
+
+  for (size_t idx = 1; idx < m_layers.size(); ++idx)
+  {
+    current = next;
+    next = m_layers[idx];
+
+    m_cuApi.transpose (current->m_tinputs, current->m_inputs);
+
+    m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
+    m_cuApi.add (current->m_weights2, current->m_weights2, current->m_weights1);
+  }
 }

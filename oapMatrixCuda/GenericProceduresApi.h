@@ -34,63 +34,6 @@ namespace oap
 {
 namespace generic
 {
-  template<typename GetColumns, typename GetRows>
-  class BasicMatrixDimApi
-  {
-    public:
-      BasicMatrixDimApi (GetColumns&& _getColumns, GetRows&& _getRows) : getColumns (std::move (_getColumns)), getRows (std::move (_getRows))
-      {}
-
-      GetColumns&& getColumns;
-      GetRows&& getRows;
-  };
-
-  template<typename GetMatrixInfo>
-  class BasicMatrixApi
-  {
-    public:
-      BasicMatrixApi (GetMatrixInfo&& _getMatrixInfo) : getMatrixInfo (std::move (_getMatrixInfo)) 
-      {}
-
-      GetMatrixInfo&& getMatrixInfo;
-  };
-
-  template<typename GetColumns, typename GetRows, typename GetMatrixInfo>
-  class MatrixApi : BasicMatrixDimApi<GetColumns, GetRows>
-  {
-    public:
-      MatrixApi (GetColumns&& _getColumns, GetRows&& _getRows, GetMatrixInfo&& _getMatrixInfo) :
-        BasicMatrixDimApi<GetColumns, GetRows>(_getColumns, _getRows), getMatrixInfo(std::move (_getMatrixInfo))
-      {}
-
-      GetMatrixInfo&& getMatrixInfo;
-  };
-
-  template<typename GetMatrixInfo, typename Copy>
-  class SumApi : public BasicMatrixApi<GetMatrixInfo>
-  {
-    public:
-      SumApi(GetMatrixInfo&& _getMatrixInfo, Copy&& _copy):
-             BasicMatrixApi<GetMatrixInfo>(_getMatrixInfo), copy (std::move(_copy))
-      {}
-
-      Copy&& copy;
-  };
-
-  template<typename HBuffer, typename DBuffer>
-  class SumBuffers
-  {
-    public:
-
-      SumBuffers (HBuffer& tbh1, DBuffer& tbd1, HBuffer& tbh2, DBuffer& tbd2):
-              re (std::pair<HBuffer&, DBuffer&>(tbh1, tbd1)),
-              im (std::pair<HBuffer&, DBuffer&>(tbh2, tbd2))
-      {}
-
-      std::pair<HBuffer&, DBuffer&> re;
-      std::pair<HBuffer&, DBuffer&> im;
-  };
-
   inline void prepareDims (oap::IKernelExecutor* kexec, uintt w, uintt h, uint blocks[2], uint threads[2])
   {
     kexec->calculateThreadsBlocks (blocks, threads, w, h);
@@ -133,43 +76,95 @@ namespace generic
     uintt sharedMemorySize = 0;
   };
 
-  template<typename GetMatrixInfo, typename PreExecCallback>
-  bool executeKernel (const std::string& kernelName, math::Matrix* ref, void** params, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, PreExecCallback&& preExecCallback, Args args = Args())
+  template<typename GetColumns, typename GetRows>
+  class BasicMatrixDimApi
   {
-    if (args.retrieveDims)
-    {
-      auto minfo = bmApi.getMatrixInfo (ref);
+    public:
+      BasicMatrixDimApi (GetColumns&& _getColumns, GetRows&& _getRows) : getColumns (std::move (_getColumns)), getRows (std::move (_getRows))
+      {}
 
-      args.w = minfo.columns ();
-      args.h = minfo.rows ();
-    }
+      GetColumns&& getColumns;
+      GetRows&& getRows;
+  };
 
-    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){});
-  }
-
-  template<typename GetMatrixInfo, typename PreExecCallback>
-  bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, const math::Matrix* arg, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, bool _prepareDims, PreExecCallback&& preExecCallback)
+  template<typename GetAddress>
+  class BasicAddressApi
   {
-    uint blocks[2];
-    uint threads[2];
+    public:
+      GetAddress&& getReAddress;
+      GetAddress&& getImAddress;
+  };
 
-    auto minfo = bmApi.getMatrixInfo (output);
+  template<typename GetMatrixInfo>
+  class BasicMatrixApi
+  {
+    public:
+      BasicMatrixApi (GetMatrixInfo&& _getMatrixInfo) : getMatrixInfo (std::move (_getMatrixInfo)) 
+      {}
 
-    const uintt w = minfo.columns ();
-    const uintt h = minfo.rows ();
+      GetMatrixInfo&& getMatrixInfo;
+  };
 
-    void* params[] = {&output, &arg};
+  template<typename GetColumns, typename GetRows, typename GetMatrixInfo>
+  class MatrixApi : BasicMatrixDimApi<GetColumns, GetRows>
+  {
+    public:
+      MatrixApi (GetColumns&& _getColumns, GetRows&& _getRows, GetMatrixInfo&& _getMatrixInfo) :
+        BasicMatrixDimApi<GetColumns, GetRows>(_getColumns, _getRows), getMatrixInfo(std::move (_getMatrixInfo))
+      {}
 
-    return execute (kexec, kernelName.c_str(), w, h, params, 0, _prepareDims, blocks, threads, preExecCallback, [](){});
-  }
+      GetMatrixInfo&& getMatrixInfo;
+  };
 
-  template<typename GetMatrixInfo, typename Copy, typename HBuffer, typename DBuffer>
-  bool sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix, oap::IKernelExecutor* kexec, SumApi<GetMatrixInfo, Copy>& sumApi, SumBuffers<HBuffer, DBuffer>& sumBuffers)
+  template<typename GetMatrixInfo, typename Copy, typename GetAddress>
+  class SumApi : public BasicMatrixApi<GetMatrixInfo>
+  {
+    public:
+      SumApi(GetMatrixInfo&& _getMatrixInfo, Copy&& _copy, GetAddress&& _getReAddress, GetAddress&& _getImAddress):
+             BasicMatrixApi<GetMatrixInfo>(_getMatrixInfo), copy (_copy),
+             getReAddress (_getReAddress), getImAddress (_getImAddress)
+      {}
+
+      Copy&& copy;
+      GetAddress&& getReAddress;
+      GetAddress&& getImAddress;
+  };
+
+  template<typename HBuffer, typename DBuffer>
+  class SumBuffers
+  {
+    public:
+
+      SumBuffers (HBuffer& tbh1, DBuffer& tbd1, HBuffer& tbh2, DBuffer& tbd2):
+              re (std::pair<HBuffer&, DBuffer&>(tbh1, tbd1)),
+              im (std::pair<HBuffer&, DBuffer&>(tbh2, tbd2))
+      {}
+
+      std::pair<HBuffer&, DBuffer&> re;
+      std::pair<HBuffer&, DBuffer&> im;
+  };
+
+  template<typename GetMatrixInfo, typename Copy, typename GetAddress, typename HBuffer, typename DBuffer>
+  bool sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix, oap::IKernelExecutor* kexec, SumApi<GetMatrixInfo, Copy, GetAddress>& sumApi, SumBuffers<HBuffer, DBuffer>& sumBuffers)
   {
     auto minfo = sumApi.getMatrixInfo (matrix);
 
     const uintt w = minfo.columns ();
     const uintt h = minfo.rows ();
+
+    if (w * h == 1)
+    {
+      if (minfo.isRe)
+      {
+        sumApi.copy (&reoutput, sumApi.getReAddress (matrix), sizeof(floatt));
+      }
+      if (minfo.isIm)
+      {
+        sumApi.copy (&imoutput, sumApi.getImAddress (matrix), sizeof(floatt));
+      }
+
+      return true;
+    }
 
     uint blocks[2];
     uint threads[2];
@@ -254,6 +249,36 @@ namespace generic
     void* params[] = {&output, &params0, &params1};
 
     return kexec->execute ("CUDAKernel_CrossEntropy", params);
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool executeKernel (const std::string& kernelName, math::Matrix* ref, void** params, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, PreExecCallback&& preExecCallback, Args args = Args())
+  {
+    if (args.retrieveDims)
+    {
+      auto minfo = bmApi.getMatrixInfo (ref);
+
+      args.w = minfo.columns ();
+      args.h = minfo.rows ();
+    }
+
+    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){});
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, const math::Matrix* arg, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, bool _prepareDims, PreExecCallback&& preExecCallback)
+  {
+    uint blocks[2];
+    uint threads[2];
+
+    auto minfo = bmApi.getMatrixInfo (output);
+
+    const uintt w = minfo.columns ();
+    const uintt h = minfo.rows ();
+
+    void* params[] = {&output, &arg};
+
+    return execute (kexec, kernelName.c_str(), w, h, params, 0, _prepareDims, blocks, threads, preExecCallback, [](){});
   }
 }
 }

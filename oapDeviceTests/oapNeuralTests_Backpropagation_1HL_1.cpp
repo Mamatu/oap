@@ -37,12 +37,24 @@ class OapNeuralTests_Backpropagation_1HL_1 : public testing::Test
   }
 };
 
-TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_1)
+TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_1_1)
 {
   using namespace oap::Backpropagation_Data_1HL_1::Test_1;
 
   auto network = test_api::createNetwork (g_networkInfo);
   ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck));
+}
+
+TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_1_2)
+{
+  using namespace oap::Backpropagation_Data_1HL_1::Test_1;
+
+  auto network = test_api::createNetwork (g_networkInfo);
+
+  test_api::ExtraParams ep;
+  ep.calcType = CalculationType::DEVICE;
+
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck, ep));
 }
 
 TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_2)
@@ -52,4 +64,3 @@ TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_2)
   auto network = test_api::createNetwork (g_networkInfo);
   ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck));
 }
-
