@@ -191,6 +191,16 @@ private:
     //std::cout << "[network] ";
     return std::cout;
   }
+
+  /**
+   * Calculates errors for every layer of weights (except of the first)
+   */
+  void calcErrors ();
+
+  /**
+   * Calculates gradients for weights
+   */
+  void calcNablaWeights ();
 };
 
 #endif

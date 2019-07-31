@@ -69,7 +69,7 @@ namespace test_api
   }
 
   void testError (Network* network, const Points& points, floatt expectedLoss,
-                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput)
+                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput, const ExtraParams& ep)
   {
     for (const auto& p : points)
     {
@@ -82,7 +82,7 @@ namespace test_api
       network->setExpected (houtput, ArgType::HOST);
 
       network->forwardPropagation ();
-      network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
+      network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, ep.calcType);
     }
 
     EXPECT_NEAR (expectedLoss, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR), expected_precision);
@@ -105,7 +105,7 @@ namespace test_api
                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
                  const std::vector<oap::HostMatrixPtr>& weightsMatrices,
                  const IdxsToCheck& idxToChecks,
-                 bool bcheckErrors)
+                 const ExtraParams& ep)
   {
     const Step& step = steps[stepIdx];
 
@@ -142,7 +142,7 @@ namespace test_api
         network->setExpected (houtput, ArgType::HOST);
 
         network->forwardPropagation ();
-        network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
+        network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, ep.calcType);
         network->backPropagation ();
 
         ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__));
@@ -155,20 +155,24 @@ namespace test_api
       network->postStep();
     }
 
-    if (bcheckErrors)
+    if (ep.enableLossTests)
     {
       const auto& pl1 = std::get<1>(step);
       const auto& pl2 = std::get<2>(step);
-      auto checkError = [network, hinputs, houtput](const PointsLoss& pl)
+      auto checkError = [network, hinputs, houtput, &ep](const PointsLoss& pl, const std::string& emptyMsg)
       {
         if (!pl.first.empty())
         {
-          testError (network, pl.first, pl.second, hinputs, houtput);
+          testError (network, pl.first, pl.second, hinputs, houtput, ep);
+        }
+        else
+        {
+          logInfo ("%s", emptyMsg.c_str());
         }
       };
 
-      checkError (pl1);
-      checkError (pl2);
+      checkError (pl1, "No train points for this data set");
+      checkError (pl2, "No test points for this data set");
     }
     network->postStep();
   }
@@ -179,11 +183,10 @@ namespace test_api
                   oap::HostMatrixPtr hinputs,
                   oap::HostMatrixPtr houtput,
                   const IdxsToCheck& idxToChecks,
-                  const std::pair<size_t,size_t>& _stepsRange,
-                  bool bcheckErrors)
+                  const ExtraParams& ep)
   {
 
-    std::pair<size_t,size_t> stepsRange = _stepsRange;
+    std::pair<size_t,size_t> stepsRange = ep.stepsRange;
     if (stepsRange.first == 0 && stepsRange.second == 0)
     {
       stepsRange.first = 0;
@@ -236,7 +239,7 @@ namespace test_api
        weightsLayers,
        hinputs, houtput,
        weightsMatrices,
-       idxToChecks, bcheckErrors));
+       idxToChecks, ep));
     }
   }
 
@@ -244,13 +247,12 @@ namespace test_api
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   const IdxsToCheck& idxToChecks,
-                  const std::pair<size_t, size_t>& sr,
-                  bool bcheckErrors)
+                  const ExtraParams& ep)
   {
     oap::HostMatrixPtr hinputs = oap::host::NewMatrix (network->getInputInfo());
     oap::HostMatrixPtr houtput = oap::host::NewMatrix (network->getOutputInfo());
 
     ASSERT_NO_FATAL_FAILURE(
-    testSteps (network, weightsLayers, steps, hinputs, houtput, idxToChecks, sr, bcheckErrors));
+    testSteps (network, weightsLayers, steps, hinputs, houtput, idxToChecks, ep));
   }
 }

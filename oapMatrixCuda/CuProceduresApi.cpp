@@ -319,8 +319,21 @@ void CuProceduresApi::sum (floatt& reoutput, floatt& imoutput, math::Matrix* mat
   using HBuffer = oap::TBuffer<floatt, oap::Type::HOST>;
   using DBuffer = oap::TBuffer<floatt, oap::Type::CUDA>;
 
-  generic::SumApi<decltype(oap::cuda::GetMatrixInfo), decltype(CudaUtils::CopyDeviceToHost)>
-  sumApi (oap::cuda::GetMatrixInfo, CudaUtils::CopyDeviceToHost);
+  using GetAddressType = std::function<floatt*(const math::Matrix*)>;
+  using GetAddressTypeRef = GetAddressType&;
+
+  GetAddressType getReValues = [](const math::Matrix* matrix) -> floatt*
+  {
+    return CudaUtils::GetReValues (matrix);
+  };
+
+  GetAddressType getImValues = [](const math::Matrix* matrix) -> floatt*
+  {
+    return CudaUtils::GetImValues (matrix);
+  };
+
+  generic::SumApi<decltype(oap::cuda::GetMatrixInfo), decltype(CudaUtils::CopyDeviceToHost), GetAddressTypeRef>
+  sumApi (oap::cuda::GetMatrixInfo, CudaUtils::CopyDeviceToHost, getReValues, getImValues);
 
   generic::SumBuffers<HBuffer, DBuffer>
   sumBuffers (m_hsumsReBuffer, m_dsumsReBuffer, m_hsumsImBuffer, m_dsumsImBuffer);

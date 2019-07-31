@@ -91,8 +91,16 @@ namespace test_api
 
   std::unique_ptr<Network> createNetwork (const std::vector<size_t>& hiddenLayers);
 
+  struct ExtraParams
+  {
+    CalculationType calcType = CalculationType::HOST;
+    bool enableLossTests = true;
+    std::pair<size_t,size_t> stepsRange = {0, 0};
+  };
+
   void testError (Network* network, const Points& points, floatt expectedLoss,
-                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput);
+                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
+                  const ExtraParams& extraParams = ExtraParams());
 
   size_t calculateWIdx (size_t initStepIdx, const Steps& steps);
 
@@ -102,7 +110,7 @@ namespace test_api
                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
                  const std::vector<oap::HostMatrixPtr>& weightsMatrices,
                  const IdxsToCheck& idxToChecks,
-                 bool bcheckErrors = true);
+                 const ExtraParams& extraParams = ExtraParams());
 
   void testSteps (Network* network,
                   const WeightsLayers& weightsLayers,
@@ -110,15 +118,13 @@ namespace test_api
                   oap::HostMatrixPtr hinputs,
                   oap::HostMatrixPtr houtput,
                   const IdxsToCheck& idxToChecks,
-                  const std::pair<size_t,size_t>& _stepsRange = {0, 0},
-                  bool bcheckErrors = true);
+                  const ExtraParams& extraParams = ExtraParams());
 
   void testSteps (Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   const IdxsToCheck& idxToChecks,
-                  const std::pair<size_t, size_t>& sr = {0, 0},
-                  bool bcheckErrors = true);
+                  const ExtraParams& extraParams = ExtraParams());
 }
 
 #endif

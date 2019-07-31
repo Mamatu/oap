@@ -38,6 +38,7 @@ const IdxsToCheck g_idxsToCheck =
 
 const std::vector<floatt> w1to2_0_0 = {0.4515517645990793, -0.37203806776911885, 0.1};
 const std::vector<floatt> w2to3_0_0 = {0.21589906327574548, 0.1};
+
 const std::vector<floatt> w1to2_0_1 = {0.44708385227927194, -0.3775892573054033, 0.09877732478298065};
 const std::vector<floatt> w2to3_0_1 = {0.21068109405678642, 0.08254664954740702};
 
