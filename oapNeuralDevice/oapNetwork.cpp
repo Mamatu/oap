@@ -196,10 +196,9 @@ math::Matrix* Network::getErrors (ArgType type) const
 
 floatt Network::calculateMSE ()
 {
-  floatt eValue = 0;
-  m_cuApi.magnitude2 (eValue, m_layers.back()->m_errorsAcc);
-  eValue = eValue / m_layers.back()->getNeuronsCount ();
-  return eValue;
+  floatt error = std::accumulate (m_errorsVec.begin(), m_errorsVec.end(), 0.);
+  error = error / static_cast<floatt>(m_errorsVec.size());
+  return error;
 }
 
 floatt Network::calculateRMSE ()
@@ -235,9 +234,7 @@ floatt Network::calculateError (oap::ErrorType errorType)
     {oap::ErrorType::CROSS_ENTROPY, std::bind (&Network::calculateCrossEntropy, this)}
   };
 
-  floatt error = std::accumulate (m_errorsVec.begin(), m_errorsVec.end(), 0.);
-  error = error / static_cast<floatt>(m_errorsVec.size());
-  return  error; //errorsFunctions [errorType]() / m_backwardCount;
+  return errorsFunctions [errorType]();
 }
 
 void Network::forwardPropagation ()

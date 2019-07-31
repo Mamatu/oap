@@ -242,7 +242,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
   network->accumulateErrors (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR, CalculationType::HOST);
   logInfo ("BP %f", network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
 
-  EXPECT_FLOAT_EQ (error * error * 0.5, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  EXPECT_FLOAT_EQ (sqrt(error * error * 0.5), network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
   network->backPropagation ();
   network->updateWeights ();
 
@@ -544,7 +544,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_7)
   network->accumulateErrors (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR, CalculationType::HOST);
   logInfo ("BP %f", network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
 
-  EXPECT_FLOAT_EQ (error * error * 0.5, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  EXPECT_FLOAT_EQ (sqrt (error * error * 0.5), network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
   network->backPropagation ();
   network->updateWeights ();
 
@@ -611,7 +611,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_8)
   network->accumulateErrors (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR, CalculationType::HOST);
   logInfo ("BP %f", network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
 
-  EXPECT_FLOAT_EQ (error * error * 0.5, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
+  EXPECT_FLOAT_EQ (sqrt (error * error * 0.5), network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
   network->backPropagation ();
   network->updateWeights ();
 
