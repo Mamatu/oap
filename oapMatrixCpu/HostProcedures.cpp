@@ -218,8 +218,21 @@ void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* para
   oap::host::HostBuffer<floatt> m_hsumsImBuffer;
   oap::host::HostBuffer<floatt> m_dsumsImBuffer;
 
-  oap::generic::SumApi<decltype(oap::host::GetMatrixInfo), decltype(memcpy)>
-  sumApi (oap::host::GetMatrixInfo, memcpy);
+  using GetAddressType = std::function<floatt*(const math::Matrix*)>;
+  using GetAddressTypeRef = GetAddressType&;
+
+  GetAddressType getReValues = [](const math::Matrix* matrix) -> floatt*
+  {
+    return matrix->reValues;
+  };
+
+  GetAddressType getImValues = [](const math::Matrix* matrix) -> floatt*
+  {
+    return matrix->imValues;
+  };
+
+  oap::generic::SumApi<decltype(oap::host::GetMatrixInfo), decltype(memcpy), GetAddressTypeRef>
+  sumApi (oap::host::GetMatrixInfo, memcpy, getReValues, getImValues);
 
   oap::generic::SumBuffers<oap::host::HostBuffer<floatt>, oap::host::HostBuffer<floatt>>
   sumBuffers (m_hsumsReBuffer, m_dsumsReBuffer, m_hsumsImBuffer, m_dsumsImBuffer);
