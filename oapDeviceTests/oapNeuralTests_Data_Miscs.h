@@ -17,17 +17,23 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TESTS__DATA_2_H
-#define OAP_NEURAL_TESTS__DATA_2_H
+#ifndef OAP_NEURAL_TESTS__DATA_MISCS_H
+#define OAP_NEURAL_TESTS__DATA_MISCS_H
 
 #include "oapNeuralTests_Types.h"
 
 namespace oap
 {
-namespace Backpropagation_Data_2
+namespace Backpropagation_Data_Miscs
 {
 namespace Test_1
 {
+
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
 
 std::vector<Weights> g_weights1to2Vec =
 {
@@ -74,7 +80,7 @@ std::vector<Weights> g_weights2to3Vec =
   }
 };
 
-Batches g_points =
+Batches g_batch =
 {
   {
     {{0.44357233490399445, 0.22756905427903037}, 1},
@@ -86,6 +92,12 @@ Batches g_points =
 
 namespace Test_2
 {
+
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
 
 std::vector<Weights> g_weights1to2Vec =
 {
@@ -135,7 +147,7 @@ std::vector<Weights> g_weights2to3Vec =
   }
 };
 
-Batches g_points =
+Batches g_batch =
 {
   {
     {{1.1171665268436015, 1.6264896739229502}, 1},
@@ -150,6 +162,12 @@ Batches g_points =
 
 namespace Test_3
 {
+
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
 
 std::vector<Weights> g_weights1to2Vec =
 {
@@ -197,7 +215,7 @@ std::vector<Weights> g_weights2to3Vec =
 
 };
 
-Batches g_points =
+Batches g_batch =
 {
   {
     {{-0.15802860120278975, -1.1071492028561536}, 1},
@@ -208,6 +226,12 @@ Batches g_points =
 
 namespace Test_4
 {
+
+IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
 
 namespace
 {
@@ -249,7 +273,7 @@ std::vector<Weights> g_weights2to3Vec =
   w2to3step0, w2to3step1
 };
 
-Batches g_points =
+Batches g_batch =
 {
   {
     {{0.44357233490399445, 0.22756905427903037}, 1},

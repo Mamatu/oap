@@ -17,18 +17,22 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TESTS__DATA_H
-#define OAP_NEURAL_TESTS__DATA_H
+#ifndef OAP_NEURAL_TESTS__DATA_MISCS_1_H
+#define OAP_NEURAL_TESTS__DATA_MISCS_1_H
 
 #include <vector>
 #include <utility>
 
 #include <Math.h>
+#include "oapNeuralTests_Types.h"
 
 namespace oap
 {
-namespace Backpropagation_2
+namespace Backpropagation_Data_Miscs
 {
+namespace Test_2
+{
+
 std::vector<std::pair<std::pair<floatt, floatt>, floatt>> trainPoints = 
 {
 {{ 0.44357233490399445, 0.22756905427903037}, 1},
@@ -537,6 +541,7 @@ std::vector<std::pair<std::pair<floatt, floatt>, floatt>> testPoints =
 {{ -1.1100469464856617, 1.8154239049589613}, 1}
 };
 
+}
 }
 }
 #endif

@@ -17,15 +17,25 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TESTS__DATA_1_H
-#define OAP_NEURAL_TESTS__DATA_1_H
+#ifndef OAP_NEURAL_TESTS__DATA_1HL_3_Test_1_H
+#define OAP_NEURAL_TESTS__DATA_1HL_3_Test_1_H
 
 #include "oapNeuralTests_Types.h"
 
 namespace oap
 {
-namespace Backpropagation_Data_1
+namespace Backpropagation_Data_1HL_3
 {
+namespace Test_1
+{
+
+const std::vector<size_t> g_networkInfo = {3};
+
+const IdxsToCheck g_idxsToCheck =
+{
+  {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  {0, 1, 2, 3}
+};
 
 namespace 
 {
@@ -1109,10 +1119,10 @@ const Points g_testPoints = {
 {{ -1.1100469464856617, 1.8154239049589613}, 1}, 
 };
 
+floatt g_lossTrain = 0.4947014772704021;
+floatt g_lossTest = 0.5021636175010554;
 
-floatt lossTrain = 0.4947014772704021;
-floatt lossTest = 0.5021636175010554;
-
+}
 }
 }
 #endif

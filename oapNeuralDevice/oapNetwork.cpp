@@ -88,7 +88,7 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, ArgType argType, oap::Er
 
   auto llayer = m_layers.back();
 
-  math::Matrix* output = oap::host::NewMatrix (1, llayer->m_neuronsCount);
+  math::Matrix* output = oap::host::NewMatrix (1, llayer->getTotalNeuronsCount());
   oap::cuda::CopyDeviceMatrixToHostMatrix (output, llayer->m_inputs);
 
   return oap::HostMatrixUPtr (output);
@@ -156,6 +156,18 @@ math::Matrix* Network::getHostOutputs () const
 
   math::Matrix* matrix = oap::host::NewMatrix (minfo);
   return getOutputs (matrix, ArgType::HOST);
+}
+
+math::MatrixInfo Network::getOutputInfo () const
+{
+  Layer* llayer = m_layers.back();
+  return llayer->getOutputsInfo ();
+}
+
+math::MatrixInfo Network::getInputInfo () const
+{
+  Layer* flayer = m_layers.front();
+  return flayer->getOutputsInfo ();
 }
 
 math::Matrix* Network::getErrors (ArgType type) const
@@ -245,15 +257,16 @@ void Network::forwardPropagation ()
 
     if (previous->m_biasCount == 1)
     {
-      oap::cuda::SetReValue (previous->m_inputs, 1, 1, previous->m_neuronsCount - 1);
+      oap::cuda::SetReValue (previous->m_inputs, 1, 0, previous->getTotalNeuronsCount() - 1);
     }
 
     m_cuApi.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
+
     activateFunc (current->m_inputs, current->m_sums, current->getActivation ());
   }
 }
 
-void Network::calculateErrors (oap::ErrorType errorType)
+void Network::calculateErrors (oap::ErrorType errorType, bool onlyErrors)
 {
   debugAssert (m_expectedDeviceOutputs != nullptr);
 
@@ -268,18 +281,23 @@ void Network::calculateErrors (oap::ErrorType errorType)
   }
   else
   {
-    m_cuApi.substract (current->m_errors, current->m_inputs, m_expectedDeviceOutputs);
-    oap::cuda::CopyDeviceMatrixToHostMatrix (current->m_errorsHost, current->m_errors);
+    m_cuApi.substract (current->m_errorsAux, current->m_inputs, m_expectedDeviceOutputs);
+    oap::cuda::CopyDeviceMatrixToHostMatrix (current->m_errorsHost, current->m_errorsAux);
     floatt error = 0.;
     for (size_t idx = 0; idx < current->m_errorsHost->rows; ++idx)
     {
       error += current->m_errorsHost->reValues[idx];
     }
-    m_errorsVec.emplace_back (error * error * 0.5);
+    m_errorsVec.push_back (error * error * 0.5);
     ++m_backwardCount;
   }
+  if (onlyErrors)
   {
-  size_t idx = m_layers.size () - 1;
+    return;
+  }
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix(current->m_errors, current->m_errorsAux);
+  {
+  int idx = m_layers.size () - 1;
   Layer* next = nullptr;
   Layer* current = m_layers[idx];
 
@@ -300,7 +318,7 @@ void Network::calculateErrors (oap::ErrorType errorType)
     m_cuApi.transpose (current->m_tweights, current->m_weights);
 
     m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
-
+    
     calculateCurrentErrors (current);
   }
   while (idx > 1);
@@ -340,10 +358,16 @@ void Network::updateWeights()
 
     floatt lr = m_learningRate / static_cast<floatt>(m_backwardCount);
     m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
+
     m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
+
+    if (next->m_biasCount == 1)
+    {
+      oap::cuda::SetReMatrix (current->m_weights, current->m_vec, 0, next->getTotalNeuronsCount() - 1);
+    }
   }
 
-  resetForNextStep ();
+  postStep ();
 
   m_backwardCount = 0;
 }
@@ -512,24 +536,46 @@ void Network::printLayersWeights ()
   }
 }
 
-void Network::resetForNextStep(Layer* layer)
+void Network::postStep(Layer* layer)
 {
-  m_cuApi.setZeroMatrix (layer->m_errors);
-  m_cuApi.setZeroMatrix (layer->m_errorsAcc);
-  m_cuApi.setZeroMatrix (layer->m_errorsAux);
+  resetErrors (layer);
   m_cuApi.setZeroMatrix (layer->m_weights2);
+  //logInfo ("%s", __func__);
+  m_backwardCount = 0;
 }
 
-void Network::resetForNextStep ()
+void Network::postStep ()
 {
   for (size_t idx = 0; idx < getLayersCount(); ++idx)
   {
-    resetForNextStep (m_layers[idx]);
+    postStep (m_layers[idx]);
   }
 
   m_errorsVec.clear();
 }
 
+void Network::resetErrors (Layer* layer)
+{
+  m_cuApi.setZeroMatrix (layer->m_errors);
+  m_cuApi.setZeroMatrix (layer->m_errorsAcc);
+  m_cuApi.setZeroMatrix (layer->m_errorsAux);
+}
+
+void Network::resetErrors ()
+{
+  for (size_t idx = 0; idx < getLayersCount(); ++idx)
+  {
+    resetErrors (m_layers[idx]);
+  }
+
+  m_errorsVec.clear();
+
+}
+
+void Network::resetErrorsVec ()
+{
+  m_errorsVec.clear();
+}
 
 bool Network::operator!= (const Network& network) const
 {

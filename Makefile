@@ -7,7 +7,7 @@ $(OAP_MODULES):
 	mkdir -p dist/$(MODE)/$(PLATFORM)/lib
 	mkdir -p dist/$(MODE)/$(PLATFORM)/cubin
 	mkdir -p dist/$(MODE)/$(PLATFORM)/bin
-	$(MAKE) -C $@
+	$(MAKE) -C $@ -j$(OAP_BUILD_THREADS)
 .PHONY: clean
 clean:
 	for dir in $(OAP_MODULES); do \

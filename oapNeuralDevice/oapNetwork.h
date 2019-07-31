@@ -59,8 +59,11 @@ public:
   math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType) const;
   math::Matrix* getHostOutputs () const;
 
+  math::MatrixInfo getOutputInfo () const;
+  math::MatrixInfo getInputInfo () const;
+
   void forwardPropagation ();
-  void calculateErrors (oap::ErrorType errorType);
+  void calculateErrors (oap::ErrorType errorType, bool onlyErrors = false);
 
   math::Matrix* getErrors (ArgType type) const;
 
@@ -109,8 +112,12 @@ public:
 
   void printLayersWeights ();
 
-  void resetForNextStep (Layer* layer);
-  void resetForNextStep ();
+  void postStep (Layer* layer);
+  void postStep ();
+
+  void resetErrors (Layer* layer);
+  void resetErrors ();
+  void resetErrorsVec ();
 
   template<typename Callback>
   void iterateLayers (Callback&& callback)

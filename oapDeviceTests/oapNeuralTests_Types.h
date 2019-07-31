@@ -22,14 +22,66 @@
 
 #include <vector>
 #include <utility>
+#include <tuple>
 
 #include "Math.h"
 
 using Weights = std::vector<floatt>;
+using WeightsInSteps = std::vector<Weights>;
+using WeightsLayers = std::vector<WeightsInSteps>;
+
 using Point = std::pair<floatt, floatt>;
 using PointLabel = std::pair<Point, floatt>;
 using Points = std::vector<PointLabel>;
-using Batches = std::vector<Points>;
 
+using Batch = Points;
+using Batches = std::vector<Batch>;
+
+using PointsLoss = std::pair<Points, floatt>;
+
+using Step = std::tuple<Batches, PointsLoss, PointsLoss>;
+using Steps = std::vector<Step>;
+
+using IdxsToCheck = std::vector<std::vector<size_t>>;
+
+inline Step createStep (const Batches& batches, const Points& points, floatt error, const Points& points1, floatt error1)
+{
+  return std::make_tuple(batches, std::make_pair(points, error), std::make_pair(points1, error1));
+}
+
+inline Step createStep (const Batches& batches)
+{
+  return std::make_tuple(batches, std::make_pair(Points(), -1), std::make_pair(Points(), -1));
+}
+
+inline const Batches& getBatches (const Step& step)
+{
+  return std::get<0>(step);
+}
+
+inline const Points& getFront (const Batches& batches)
+{
+  return batches[0];
+}
+
+inline const Points& getFront (const Steps& steps)
+{
+  return getFront (std::get<0>(steps[0]));
+}
+
+inline size_t getBatchesCount (const Steps& steps)
+{
+  return std::get<0>(steps[0]).size();
+}
+
+inline size_t getFBSize (const Steps& steps)
+{
+  return getFront (steps).size();
+}
+
+inline const Points& getBatch (const Batches& batches, size_t idx)
+{
+  return batches[idx];
+}
 
 #endif
