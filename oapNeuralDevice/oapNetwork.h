@@ -63,7 +63,7 @@ public:
   math::MatrixInfo getInputInfo () const;
 
   void forwardPropagation ();
-  void calculateErrors (oap::ErrorType errorType, bool onlyErrors = false);
+  void accumulateErrors (oap::ErrorType errorType, CalculationType calcType);
 
   math::Matrix* getErrors (ArgType type) const;
 
@@ -75,7 +75,7 @@ public:
 
   floatt calculateError (oap::ErrorType errorType);
 
-  void backwardPropagation ();
+  void backPropagation ();
 
   void updateWeights();
 
@@ -185,7 +185,6 @@ private:
 
   oap::DeviceMatrixPtr m_expectedDeviceOutputs = nullptr;
   IController* m_icontroller = nullptr;
-  size_t m_backwardCount = 0;
 
   std::ostream& log()
   {

@@ -266,36 +266,47 @@ void Network::forwardPropagation ()
   }
 }
 
-void Network::calculateErrors (oap::ErrorType errorType, bool onlyErrors)
+void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcType)
 {
   debugAssert (m_expectedDeviceOutputs != nullptr);
 
-  size_t idx = m_layers.size () - 1;
-  Layer* next = nullptr;
-  Layer* current = m_layers[idx];
+  Layer* llayer = m_layers.back();
 
   if (errorType == oap::ErrorType::CROSS_ENTROPY)
   {
-    m_cuApi.crossEntropy (current->m_errors, m_expectedDeviceOutputs, current->m_inputs);
-    m_backwardCount = 1;
+    m_cuApi.crossEntropy (llayer->m_errors, m_expectedDeviceOutputs, llayer->m_inputs);
   }
   else
   {
-    m_cuApi.substract (current->m_errorsAux, current->m_inputs, m_expectedDeviceOutputs);
-    oap::cuda::CopyDeviceMatrixToHostMatrix (current->m_errorsHost, current->m_errorsAux);
+    m_cuApi.substract (llayer->m_errorsAux, llayer->m_inputs, m_expectedDeviceOutputs);
+
     floatt error = 0.;
-    for (size_t idx = 0; idx < current->m_errorsHost->rows; ++idx)
+
+    if (calcType == CalculationType::HOST)
     {
-      error += current->m_errorsHost->reValues[idx];
+      oap::cuda::CopyDeviceMatrixToHostMatrix (llayer->m_errorsHost, llayer->m_errorsAux);
+
+      for (size_t idx = 0; idx < llayer->m_errorsHost->rows; ++idx)
+      {
+        error += llayer->m_errorsHost->reValues[idx];
+      }
     }
+    else if (calcType == CalculationType::DEVICE)
+    {
+      floatt imoutput;
+      m_cuApi.sum (error, imoutput, llayer->m_errorsAux);
+    }
+
     m_errorsVec.push_back (error * error * 0.5);
-    ++m_backwardCount;
   }
-  if (onlyErrors)
-  {
-    return;
-  }
+}
+
+void Network::backPropagation ()
+{
+  Layer* current = m_layers.back ();
+
   oap::cuda::CopyDeviceMatrixToDeviceMatrix(current->m_errors, current->m_errorsAux);
+
   {
   int idx = m_layers.size () - 1;
   Layer* next = nullptr;
@@ -341,11 +352,6 @@ void Network::calculateErrors (oap::ErrorType errorType, bool onlyErrors)
   }
 }
 
-void Network::backwardPropagation ()
-{
-  updateWeights();
-}
-
 void Network::updateWeights()
 {
   Layer* current = nullptr;
@@ -356,7 +362,7 @@ void Network::updateWeights()
     current = next;
     next = m_layers[idx];
 
-    floatt lr = m_learningRate / static_cast<floatt>(m_backwardCount);
+    floatt lr = m_learningRate / static_cast<floatt>(m_errorsVec.size());
     m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
 
     m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
@@ -368,8 +374,6 @@ void Network::updateWeights()
   }
 
   postStep ();
-
-  m_backwardCount = 0;
 }
 
 bool Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, ArgType argType, oap::ErrorType errorType)
@@ -380,13 +384,14 @@ bool Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, ArgTyp
   setInputs (inputs, argType);
 
   forwardPropagation ();
-  calculateErrors (errorType);
+  accumulateErrors (errorType, CalculationType::HOST);
+  backPropagation ();
   if(!shouldContinue (errorType))
   {
     return false;
   }
 
-  backwardPropagation ();
+  updateWeights ();
 
   ++m_step;
   return true;
@@ -540,8 +545,6 @@ void Network::postStep(Layer* layer)
 {
   resetErrors (layer);
   m_cuApi.setZeroMatrix (layer->m_weights2);
-  //logInfo ("%s", __func__);
-  m_backwardCount = 0;
 }
 
 void Network::postStep ()

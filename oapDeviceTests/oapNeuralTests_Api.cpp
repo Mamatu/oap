@@ -82,7 +82,7 @@ namespace test_api
       network->setExpected (houtput, ArgType::HOST);
 
       network->forwardPropagation ();
-      network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, true);
+      network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
     }
 
     EXPECT_NEAR (expectedLoss, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR), expected_precision);
@@ -142,12 +142,13 @@ namespace test_api
         network->setExpected (houtput, ArgType::HOST);
 
         network->forwardPropagation ();
-        network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
+        network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
+        network->backPropagation ();
 
         ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__));
       }
 
-      network->backwardPropagation ();
+      network->updateWeights ();
 
       ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx + 1, stepIdx, batchIdx, __LINE__));
 
