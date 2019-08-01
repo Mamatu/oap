@@ -150,7 +150,7 @@ class OapLogicalFunctionsTests : public testing::Test
 
 TEST_F(OapLogicalFunctionsTests, LogicalOr_Binary)
 {
-  Layer* l1 = network->createLayer(2);
+  LayerS* l1 = network->createLayer(2);
   network->createLayer(1);
 
   network->setLearningRate (0.01);
@@ -163,13 +163,13 @@ TEST_F(OapLogicalFunctionsTests, LogicalOr_Binary)
   for (size_t idx = 0; idx < m_learningSteps && controller->shouldContinue(); ++idx)
   {
     r.train(1, 1, 1);
-    l1->printHostWeights();
+    //l1->printHostWeights();
     r.train(1, 0, 1);
-    l1->printHostWeights();
+    //l1->printHostWeights();
     r.train(0, 1, 1);
-    l1->printHostWeights();
+    //l1->printHostWeights();
     r.train(0, 0, 0);
-    l1->printHostWeights();
+    //l1->printHostWeights();
   }
 
   EXPECT_EQ(1, r.run(1, 1));
@@ -182,7 +182,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(isbias ? 3 : 2);
+  LayerS* l1 = network->createLayer(isbias ? 3 : 2);
   network->createLayer(1);
 
   Runner r(isbias, this);
@@ -195,13 +195,13 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary)
   {
     floatt fvalue = static_cast<floatt>(1);
     r.train(fvalue, fvalue, 1);
-    l1->printHostWeights();
+    //l1->printHostWeights();
     r.train(fvalue, 0, 0);
-    l1->printHostWeights();
+    //l1->printHostWeights();
     r.train(0, fvalue, 0);
-    l1->printHostWeights();
+    //l1->printHostWeights();
     r.train(0, 0, 0);
-    l1->printHostWeights();
+    //l1->printHostWeights();
   }
 
   EXPECT_EQ(1, r.run(1, 1));
@@ -214,7 +214,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(isbias ? 3 : 2);
+  LayerS* l1 = network->createLayer(isbias ? 3 : 2);
   network->createLayer(1);
 
   Runner r(isbias, this, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
@@ -227,13 +227,13 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
   {
     floatt fvalue = static_cast<floatt>(1);
     r.train(fvalue, fvalue, 1);
-    l1->printHostWeights();
+    //l1->printHostWeights();
     r.train(fvalue, 0, 0);
-    l1->printHostWeights();
+    //l1->printHostWeights();
     r.train(0, fvalue, 0);
-    l1->printHostWeights();
+    //l1->printHostWeights();
     r.train(0, 0, 0);
-    l1->printHostWeights();
+    //l1->printHostWeights();
   }
 
   EXPECT_EQ(1, r.run(1, 1));
@@ -245,7 +245,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
 
 TEST_F(OapLogicalFunctionsTests, DISABLED_LogicalOr)
 {
-  Layer* l1 = network->createLayer(2);
+  LayerS* l1 = network->createLayer(2);
   network->createLayer(1);
 
   network->setLearningRate (0.1);
@@ -261,13 +261,13 @@ TEST_F(OapLogicalFunctionsTests, DISABLED_LogicalOr)
     {
       floatt fvalue = static_cast<floatt>(value);
       r.train(fvalue, fvalue, 1);
-      l1->printHostWeights();
+      //l1->printHostWeights();
       r.train(fvalue, 0, 1);
-      l1->printHostWeights();
+      //l1->printHostWeights();
       r.train(0, fvalue, 1);
-      l1->printHostWeights();
+      //l1->printHostWeights();
       r.train(0, 0, 0);
-      l1->printHostWeights();
+      //l1->printHostWeights();
     }
   }
 
@@ -285,9 +285,9 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(isbias ? 2 : 3);
-  Layer* l2 = network->createLayer(isbias ? 4*10 : 4*10+1);
-  Layer* l3 = network->createLayer(1);
+  LayerS* l1 = network->createLayer(isbias ? 2 : 3);
+  LayerS* l2 = network->createLayer(isbias ? 4*10 : 4*10+1);
+  LayerS* l3 = network->createLayer(1);
 
   Runner r(isbias, this, oap::ErrorType::MEAN_SQUARE_ERROR);
   network->setLearningRate (0.01);

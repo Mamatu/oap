@@ -68,9 +68,9 @@ class OapNeuralTests_Forwardpropagation : public testing::Test
 
 TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 {
-  Layer* l1 = network->createLayer(3, false, Activation::TANH);
-  Layer* l2 = network->createLayer(3, true, Activation::TANH);
-  Layer* l3 = network->createLayer(1, Activation::TANH);
+  LayerS* l1 = network->createLayer(3, false, Activation::TANH);
+  LayerS* l2 = network->createLayer(3, true, Activation::TANH);
+  LayerS* l3 = network->createLayer(1, Activation::TANH);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
   weights1to2->reValues[0] = -1;
@@ -94,8 +94,8 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
   weights2to3->reValues[2] = 4.7;
   weights2to3->reValues[3] = -7.08;
 
-  l1->setHostWeights (weights1to2);
-  l2->setHostWeights (weights2to3);
+  oap::generic::setHostWeights (*l1, weights1to2);
+  oap::generic::setHostWeights (*l2, weights2to3);
 
   oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
   oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
@@ -143,9 +143,9 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 
 TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parallel)
 {
-  Layer* l1 = network->createLayer(3, false, Activation::TANH);
-  Layer* l2 = network->createLayer(3, true, Activation::TANH);
-  Layer* l3 = network->createLayer(1, Activation::TANH);
+  LayerS* l1 = network->createLayer(3, false, Activation::TANH);
+  LayerS* l2 = network->createLayer(3, true, Activation::TANH);
+  LayerS* l3 = network->createLayer(1, Activation::TANH);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
   weights1to2->reValues[0] = -1;
@@ -169,8 +169,8 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parall
   weights2to3->reValues[2] = 4.7;
   weights2to3->reValues[3] = -7.08;
 
-  l1->setHostWeights (weights1to2);
-  l2->setHostWeights (weights2to3);
+  oap::generic::setHostWeights (*l1, weights1to2);
+  oap::generic::setHostWeights (*l2, weights2to3);
 
   oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
   oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);

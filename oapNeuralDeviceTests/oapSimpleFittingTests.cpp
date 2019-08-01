@@ -61,8 +61,8 @@ class OapSimpleFittingTests : public testing::Test
              const Function1D& function1d = sigmoid)
   {
     std::unique_ptr<Network> network (new Network());
-    Layer* l1 = network->createLayer(inputNeurons.first + (inputNeurons.second ? 1 : 0));
-    Layer* l2 = network->createLayer(1);
+    LayerS* l1 = network->createLayer(inputNeurons.first + (inputNeurons.second ? 1 : 0));
+    LayerS* l2 = network->createLayer(1);
 
     network->setLearningRate (learningRate);
 
