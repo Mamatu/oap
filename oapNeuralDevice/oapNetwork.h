@@ -25,7 +25,10 @@
 #include "oapLayer.h"
 #include "oapDeviceMatrixPtr.h"
 
-class Network
+#include "oapNetworkStructure.h"
+#include "oapGenericNetworkApi.h"
+
+class Network : private NetworkS
 {
 public: // types
 
@@ -112,10 +115,10 @@ public:
 
   void printLayersWeights ();
 
-  void postStep (Layer* layer);
+  void postStep (LayerS* layer);
   void postStep ();
 
-  void resetErrors (Layer* layer);
+  void resetErrors (LayerS* layer);
   void resetErrors ();
   void resetErrorsVec ();
 
@@ -170,7 +173,7 @@ protected:
   }
 private:
   std::vector<Layer*> m_layers;
-  std::vector<floatt> m_errorsVec;
+  std::vector<LayerS*> m_layerSs;
 
   void destroyLayers();
 
@@ -179,9 +182,6 @@ private:
   bool shouldContinue (oap::ErrorType errorType);
 
   oap::CuProceduresApi m_cuApi;
-
-  floatt m_learningRate = 0.1f;
-  size_t m_step = 1;
 
   oap::DeviceMatrixPtr m_expectedDeviceOutputs = nullptr;
   IController* m_icontroller = nullptr;

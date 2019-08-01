@@ -113,9 +113,9 @@ namespace test_api
     {
       for (size_t lidx = 0; lidx < network->getLayersCount() - 1; ++lidx)
       {
-        Layer* layer = network->getLayer(lidx);
+        LayerS* layer = network->getLayer(lidx);
         auto wmatrix = weightsMatrices[lidx];
-        layer->getHostWeights (wmatrix);
+        oap::generic::getHostWeights (wmatrix, *layer);
         ASSERT_NO_FATAL_FAILURE(checkWeights (weightsLayers[lidx][weightsIdx], wmatrix, idxToChecks[lidx], {lidx, stepIdx, batchIdx, line}));
       }
     };
@@ -220,15 +220,15 @@ namespace test_api
 
     for (size_t lidx = 0; lidx < network->getLayersCount() - 1; ++lidx)
     {
-      Layer* layer = network->getLayer(lidx);
+      LayerS* layer = network->getLayer(lidx);
 
-      oap::HostMatrixPtr weightsMatrix = oap::host::NewMatrix (layer->getWeightsInfo());
+      oap::HostMatrixPtr weightsMatrix = oap::host::NewMatrix (oap::generic::getWeightsInfo(*layer));
       for (size_t idx = 0; idx < weightsLayers[lidx][initWeightsIdx].size(); ++idx)
       {
         weightsMatrix->reValues[idx] = weightsLayers[lidx][initWeightsIdx][idx];
       }
 
-      layer->setHostWeights (weightsMatrix);
+      oap::generic::setHostWeights (*layer, weightsMatrix);
       weightsMatrices.push_back (weightsMatrix);
     }
 
