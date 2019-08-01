@@ -92,7 +92,7 @@ private:
 public:
   Layer(const Activation& activation = Activation::SIGMOID, bool addBias = false);
 
-  ~Layer();
+  virtual ~Layer();
 
   inline Activation getActivation () const
   {
