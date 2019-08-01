@@ -32,6 +32,8 @@
 
 #include "oapHostMatrixUtils.h"
 
+#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
+
 class SubstractionImpl : public HostKernel {
  public:
   SubstractionImpl(math::Matrix* output, math::Matrix* param1,
@@ -246,4 +248,3 @@ void HostProcedures::crossEntropy (math::Matrix* output, math::Matrix* params0, 
 
   oap::generic::crossEntropy (output, params0, params1, &m_kernel, bapi);
 }
-
