@@ -110,7 +110,6 @@ void Layer::allocateNeurons(size_t neuronsCount)
 
   m_inputs = oap::cuda::NewDeviceReMatrix (1, getTotalNeuronsCount());
   m_sums = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
-  m_tsums = oap::cuda::NewDeviceMatrix (getTotalNeuronsCount(), 1);
   m_errors = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
   m_errorsAcc = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
   m_errorsAux = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
@@ -141,7 +140,6 @@ void Layer::deallocate()
   deallocate (&m_inputs);
   deallocate (&m_tinputs);
   deallocate (&m_sums);
-  deallocate (&m_tsums);
   deallocate (&m_errors);
   deallocate (&m_errorsAcc);
   deallocate (&m_errorsAux);
@@ -238,7 +236,6 @@ void Layer::save (utils::ByteBuffer& buffer) const
   oap::cuda::SaveMatrix (m_inputs, buffer);;
   oap::cuda::SaveMatrix (m_tinputs, buffer);
   oap::cuda::SaveMatrix (m_sums, buffer);
-  oap::cuda::SaveMatrix (m_tsums, buffer);
   oap::cuda::SaveMatrix (m_errors, buffer);
   oap::cuda::SaveMatrix (m_errorsAcc, buffer);
   oap::cuda::SaveMatrix (m_errorsAux, buffer);
@@ -260,7 +257,6 @@ Layer* Layer::load (const utils::ByteBuffer& buffer)
   layer->m_inputs = oap::cuda::LoadMatrix (buffer);
   layer->m_tinputs = oap::cuda::LoadMatrix (buffer);
   layer->m_sums = oap::cuda::LoadMatrix (buffer);
-  layer->m_tsums = oap::cuda::LoadMatrix (buffer);
   layer->m_errors = oap::cuda::LoadMatrix (buffer);
   layer->m_errorsAcc = oap::cuda::LoadMatrix (buffer);
   layer->m_errorsAux = oap::cuda::LoadMatrix (buffer);
@@ -301,7 +297,6 @@ bool Layer::operator== (const Layer& layer) const
     {m_inputs, layer.m_inputs},
      {m_tinputs, layer.m_tinputs},
      {m_sums, layer.m_sums},
-     {m_tsums, layer.m_tsums},
      {m_errors , layer.m_errors },
      {m_errorsAcc , layer.m_errorsAcc },
      {m_errorsAux , layer.m_errorsAux },

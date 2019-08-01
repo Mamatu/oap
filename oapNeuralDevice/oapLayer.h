@@ -60,7 +60,6 @@ private:
   math::Matrix* m_inputs = nullptr;
   math::Matrix* m_tinputs = nullptr;
   math::Matrix* m_sums = nullptr;
-  math::Matrix* m_tsums = nullptr;
   math::Matrix* m_errors = nullptr;
   math::Matrix* m_errorsAcc = nullptr;
   math::Matrix* m_errorsAux = nullptr;
