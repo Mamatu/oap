@@ -46,7 +46,7 @@ __hostdevice__ void CUDA_PrintBuffer(floatt* buffer, uint length) {
 
 __hostdevice__ void CUDA_PrintBufferUintt(uintt* buffer, uint length) {
   for (uint fa = 0; fa < length; ++fa) {
-    printf("buffer[%u] = %llu \n", fa, buffer[fa]);
+    printf("buffer[%u] = %u \n", fa, buffer[fa]);
   }
 }
 
