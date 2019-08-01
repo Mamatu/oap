@@ -260,14 +260,9 @@ class CuProceduresApi
     m_isSetColumns = false;
   }
 private:
-  void check_dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
 
-  void check_tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
-
-  void check_hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
-
-  void check_hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
-private:
+  static uintt GetColumns(const math::Matrix* matrix);
+  static uintt GetRows(const math::Matrix* matrix);
 
   oap::TBuffer<floatt, oap::Type::CUDA> m_dcompareOutputBuffer;
   oap::TBuffer<floatt, oap::Type::CUDA> m_dcompareBuffer;
