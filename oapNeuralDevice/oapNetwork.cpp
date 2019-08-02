@@ -39,7 +39,7 @@ Layer* Network::createLayer (size_t neurons, bool addBias, const Activation& act
 {
   Layer* layer = new Layer(activation, addBias);
 
-  oap::generic::allocateNeurons (*layer, neurons, addBias ? 1 : 0);
+  layer->allocateNeurons (neurons);
   createLevel (layer);
 
   return layer;

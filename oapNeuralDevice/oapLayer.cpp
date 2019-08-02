@@ -22,6 +22,8 @@
 #include <list>
 #include "MatrixAPI.h"
 
+#include "oapAllocApi.h"
+
 Layer::Layer ()
 {}
 
@@ -70,12 +72,16 @@ void Layer::printHostWeights (bool newLine) const
 
 void Layer::allocateNeurons(size_t neuronsCount)
 {
-  oap::generic::allocateNeurons (*this, neuronsCount, m_biasCount);
+  oap::alloc::cuda::AllocNeuronsApi allocNeuronsApi;
+
+  oap::generic::allocateNeurons (*this, neuronsCount, m_biasCount, allocNeuronsApi);
 }
 
 void Layer::allocateWeights(const Layer* nextLayer)
 {
-  oap::generic::allocateWeights (*this, nextLayer);
+  oap::alloc::cuda::AllocWeightsApi allocWeightsApi;
+
+  oap::generic::allocateWeights (*this, nextLayer, allocWeightsApi);
   oap::generic::initRandomWeights (*this, nextLayer);
 }
 
