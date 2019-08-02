@@ -167,9 +167,9 @@ class CuProceduresApi
 
   void multiplySigmoidDerivative (math::Matrix* omatrix, math::Matrix* matrix);
 
-  // Identity function and derivatives
-  void identity (math::Matrix* output, math::Matrix* matrix);
-  void identityDerivative (math::Matrix* output, math::Matrix* matrix);
+  // Linear function and derivatives
+  void linear (math::Matrix* output, math::Matrix* matrix);
+  void linearDerivative (math::Matrix* output, math::Matrix* matrix);
 
   // Tanh/tanh function and derivatives
   void tanh (math::Matrix* output, const math::Matrix* matrix);

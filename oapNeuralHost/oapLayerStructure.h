@@ -55,18 +55,15 @@ struct LayerS
   LayerS ()
   {}
 
-  LayerS (Activation activation, bool isbias) : m_activation(activation), m_biasCount (isbias ? 1 : 0)
-  {}
-
   virtual ~LayerS ()
   {}
 
-  inline size_t getTotalNeuronsCount () const
+  size_t getTotalNeuronsCount () const
   {
     return m_neuronsCount + m_biasCount;
   }
 
-  inline size_t getNeuronsCount() const
+  size_t getNeuronsCount() const
   {
     return m_neuronsCount;
   }
@@ -85,11 +82,11 @@ struct LayerS
   math::Matrix* m_vec = nullptr;
 
   size_t m_neuronsCount = 0;
-  const LayerS* m_nextLayer = nullptr;
-
   size_t m_biasCount = 0;
 
   std::pair<size_t, size_t> m_weightsDim;
+
+  const LayerS* m_nextLayer = nullptr;
 
   Activation m_activation;
 };

@@ -26,7 +26,7 @@
 #include "oapDeviceMatrixPtr.h"
 
 #include "oapNetworkStructure.h"
-#include "oapGenericNetworkApi.h"
+#include "oapDeviceNeuralApi.h"
 
 class Network : private NetworkS
 {
@@ -163,6 +163,9 @@ private:
    * Calculates gradients for weights
    */
   void calcNablaWeights ();
+
+  template<typename LayerT, typename AllocNeuronsApi>
+  friend void allocateNeurons (LayerT& ls, size_t neuronsCount, size_t biasCount);
 };
 
 #endif

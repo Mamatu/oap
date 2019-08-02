@@ -548,12 +548,12 @@ void CuProceduresApi::multiplySigmoidDerivative(math::Matrix* omatrix, math::Mat
   m_cuStatus = execute("CUDAKernel_MultiplySigmoidDerivative", w, h, params, 0);
 }
 
-void CuProceduresApi::identity (math::Matrix* output, math::Matrix* matrix)
+void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix)
 {
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (output, matrix);
 }
 
-void CuProceduresApi::identityDerivative (math::Matrix* output, math::Matrix* matrix)
+void CuProceduresApi::linearDerivative (math::Matrix* output, math::Matrix* matrix)
 {
   oap::HostMatrixUPtr hmatrix (oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output), 1.f));
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);

@@ -24,12 +24,10 @@
 
 #include "CuProceduresApi.h"
 
-#include "oapHostMatrixUPtr.h"
 #include "oapDeviceMatrixUPtr.h"
 
-#include "oapLayerStructure.h"
-
-#include "oapGenericNetworkApi.h"
+#include "oapDeviceNeuralApi.h"
+#include "oapDeviceAllocApi.h"
 
 class Network;
 
@@ -42,10 +40,8 @@ private:
 
   friend class Network;
 
-  Layer ();
-
 public:
-  Layer(Activation activation, bool isBias);
+  Layer ();
 
   virtual ~Layer();
 
@@ -67,8 +63,10 @@ public:
   void setHostInputs (const math::Matrix* hInputs);
   void setDeviceInputs (const math::Matrix* dInputs);
 
+  template<typename AllocApi>
   void allocateNeurons(size_t neuronsCount);
 
+  template<typename AllocApi>
   void allocateWeights(const Layer* nextLayer);
 
   void deallocate();
@@ -96,6 +94,32 @@ public:
 
   template<typename Layers, typename Api, typename SetReValue>
   friend void oap::generic::forwardPropagation (const Layers&, Api&, SetReValue&&);
+
+  template<typename LayerT, typename AllocNeuronsApi>
+  friend LayerT* oap::generic::createLayer (size_t, bool, Activation);
+
+  template<typename LayerT, typename AllocNeuronsApi>
+  friend void oap::generic::allocateNeurons (LayerT&, size_t, size_t);
+
+  template<typename LayerT, typename AllocWeightsApi>
+  friend void oap::generic::allocateWeights (LayerT&, const LayerT*);
 };
+
+template<typename AllocApi>
+void Layer::allocateNeurons(size_t neuronsCount)
+{
+  AllocApi allocNeuronsApi;
+
+  oap::generic::allocateNeurons (*this, neuronsCount, m_biasCount, allocNeuronsApi);
+}
+
+template<typename AllocApi>
+void Layer::allocateWeights(const Layer* nextLayer)
+{
+  AllocApi allocWeightsApi;
+
+  oap::generic::allocateWeights (*this, nextLayer, allocWeightsApi);
+  oap::generic::initRandomWeights (*this, nextLayer);
+}
 
 #endif
