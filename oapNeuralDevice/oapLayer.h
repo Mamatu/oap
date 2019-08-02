@@ -37,12 +37,12 @@ private:
   friend class Network;
 
   static void deallocate(math::Matrix** matrix);
-  void checkHostInputs(const math::Matrix* hostInputs);
 
   friend class Network;
 
   LayerS* m_lsPtr;
   LayerS& m_ls;
+  Layer ();
 
 public:
   Layer(Activation activation, bool isBias);
@@ -58,6 +58,11 @@ public:
   math::MatrixInfo getInputsInfo () const;
 
   void getOutputs (math::Matrix* matrix, ArgType type) const;
+
+  inline void getHostWeights (math::Matrix* output)
+  {
+    oap::cuda::CopyDeviceMatrixToHostMatrix (output, m_ls.m_weights);
+  }
 
   void setHostInputs (const math::Matrix* hInputs);
   void setDeviceInputs (const math::Matrix* dInputs);

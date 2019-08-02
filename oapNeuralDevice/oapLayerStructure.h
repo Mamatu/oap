@@ -52,6 +52,9 @@ enum class CalculationType
 
 struct LayerS
 {
+  LayerS ()
+  {}
+
   LayerS (Activation activation, bool isbias) : m_activation(activation), m_biasCount (isbias ? 1 : 0)
   {}
 

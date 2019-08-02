@@ -131,7 +131,7 @@ class OapNeuralTests_TinyTests : public testing::Test
 
   void testForwardPropagation_2_to_1(floatt w_1, floatt w_2, floatt i_1, floatt i_2)
   {
-    LayerS* l1 = network->createLayer(2);
+    Layer* l1 = network->createLayer(2);
     network->createLayer(1);
 
     network->setLearningRate (1);
@@ -148,7 +148,7 @@ class OapNeuralTests_TinyTests : public testing::Test
     hinputs->reValues[0] = i_1;
     hinputs->reValues[1] = i_2;
 
-    oap::generic::setHostWeights (*l1, hw.get ());
+    l1->setHostWeights (hw.get ());
 
     auto output = network->run (hinputs, ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
 
@@ -159,8 +159,8 @@ class OapNeuralTests_TinyTests : public testing::Test
 
   void testBackPropagation_1_to_2(floatt w_1, floatt w_2, floatt i_1, floatt i_2, floatt e_1)
   {
-    LayerS* l1 = network->createLayer(2);
-    LayerS* l2 = network->createLayer(1);
+    Layer* l1 = network->createLayer(2);
+    Layer* l2 = network->createLayer(1);
 
     network->setLearningRate (1);
 
@@ -184,7 +184,7 @@ class OapNeuralTests_TinyTests : public testing::Test
 
     oap::cuda::CopyHostMatrixToDeviceMatrix (de1, e1);
 
-    oap::generic::setHostWeights (*l1, hw.get ());
+    l1->setHostWeights (hw.get ());
 
     network->setHostInput (io, 0);
     network->train (io, e1, ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
@@ -203,8 +203,8 @@ class OapNeuralTests_TinyTests : public testing::Test
     EXPECT_THAT(hw->reValues[0] - hw_1, testing::DoubleNear(c1, 0.0001));
     EXPECT_THAT(hw->reValues[1] - hw_2, testing::DoubleNear(c2, 0.0001));
 
-    oap::generic::printHostWeights (*l1, true);
-    oap::generic::printHostWeights (*l2, true);
+    l1->printHostWeights (true);
+    l2->printHostWeights (true);
   }
 };
 
@@ -252,9 +252,9 @@ TEST_F(OapNeuralTests_TinyTests, SaveLoadBufferTest)
 {
   bool isbias = true;
 
-  LayerS* l1 = network->createLayer(isbias ? 3 : 2);
-  LayerS* l2 = network->createLayer(6);
-  LayerS* l3 = network->createLayer(1);
+  Layer* l1 = network->createLayer(isbias ? 3 : 2);
+  Layer* l2 = network->createLayer(6);
+  Layer* l3 = network->createLayer(1);
 
   Runner r(isbias, this, 1);
   network->setLearningRate (0.001);
@@ -295,9 +295,9 @@ TEST_F(OapNeuralTests_TinyTests, SaveLoadFileTest)
 {
   bool isbias = true;
 
-  LayerS* l1 = network->createLayer(isbias ? 3 : 2);
-  LayerS* l2 = network->createLayer(6);
-  LayerS* l3 = network->createLayer(1);
+  Layer* l1 = network->createLayer(isbias ? 3 : 2);
+  Layer* l2 = network->createLayer(6);
+  Layer* l3 = network->createLayer(1);
 
   Runner r(isbias, this, 1);
   network->setLearningRate (0.001);

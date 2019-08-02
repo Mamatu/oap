@@ -24,7 +24,10 @@
 
 #include "oapGenericNetworkApi.h"
 
-Layer::Layer(Activation activation, bool isbias) :  m_lsPtr (new LayerS(activation, isbias)), m_ls(*m_lsPtr)
+Layer::Layer () : m_lsPtr (new LayerS()), m_ls(*m_lsPtr)
+{}
+
+Layer::Layer(Activation activation, bool isbias) : m_lsPtr (new LayerS(activation, isbias)), m_ls(*m_lsPtr)
 {}
 
 Layer::~Layer()
@@ -49,8 +52,6 @@ void Layer::getOutputs (math::Matrix* matrix, ArgType type) const
 
 void Layer::setHostInputs(const math::Matrix* hInputs)
 {
-  checkHostInputs (hInputs);
-
   oap::generic::setHostInputs (m_ls, hInputs);
 }
 
@@ -117,8 +118,7 @@ void Layer::save (utils::ByteBuffer& buffer) const
 
 Layer* Layer::load (const utils::ByteBuffer& buffer)
 {
-  /*LayerS* layerS = new LayerS ();
-  Layer* layer = new Layer (*layerS);
+  Layer* layer = new Layer ();
 
   layer->m_ls.m_neuronsCount = buffer.read <decltype (layer->m_ls.m_neuronsCount)>();
 
@@ -135,8 +135,8 @@ Layer* Layer::load (const utils::ByteBuffer& buffer)
   layer->m_ls.m_tweights = oap::cuda::LoadMatrix (buffer);
   layer->m_ls.m_weights1 = oap::cuda::LoadMatrix (buffer);
   layer->m_ls.m_weights2 = oap::cuda::LoadMatrix (buffer);
-*/
-  return nullptr;
+
+  return layer;
 }
 
 bool Layer::operator== (const Layer& layer) const
