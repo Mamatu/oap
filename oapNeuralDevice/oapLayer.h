@@ -29,9 +29,11 @@
 
 #include "oapLayerStructure.h"
 
+#include "oapGenericNetworkApi.h"
+
 class Network;
 
-class Layer
+class Layer : private LayerS
 {
 private:
   friend class Network;
@@ -40,8 +42,6 @@ private:
 
   friend class Network;
 
-  LayerS* m_lsPtr;
-  LayerS& m_ls;
   Layer ();
 
 public:
@@ -51,7 +51,7 @@ public:
 
   inline Activation getActivation () const
   {
-    return m_ls.m_activation;
+    return m_activation;
   }
 
   math::MatrixInfo getOutputsInfo () const;
@@ -61,7 +61,7 @@ public:
 
   inline void getHostWeights (math::Matrix* output)
   {
-    oap::cuda::CopyDeviceMatrixToHostMatrix (output, m_ls.m_weights);
+    oap::cuda::CopyDeviceMatrixToHostMatrix (output, m_weights);
   }
 
   void setHostInputs (const math::Matrix* hInputs);
@@ -79,7 +79,7 @@ public:
 
   size_t getNeuronsCount() const
   {
-    return m_ls.m_neuronsCount;
+    return m_neuronsCount;
   }
 
   void setHostWeights (math::Matrix* weights);
@@ -93,6 +93,9 @@ public:
 
   bool operator== (const Layer& layer) const;
   bool operator!= (const Layer& layer) const;
+
+  template<typename Layers, typename Api, typename SetReValue>
+  friend void oap::generic::forwardPropagation (const Layers&, Api&, SetReValue&&);
 };
 
 #endif
