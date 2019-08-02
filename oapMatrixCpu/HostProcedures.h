@@ -43,7 +43,13 @@ class HostProcedures {
 
   void transpose(math::Matrix* output, math::Matrix* matrix);
 
-  void tanh(math::Matrix* output, math::Matrix* matrix);
+  void tanh (math::Matrix* output, math::Matrix* matrix);
+
+  void sigmoid (math::Matrix* output, math::Matrix* matrix);
+
+  void linear (math::Matrix* output, math::Matrix* matrix);
+
+  void sin (math::Matrix* output, math::Matrix* matrix);
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 

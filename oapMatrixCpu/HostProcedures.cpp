@@ -213,6 +213,25 @@ void HostProcedures::tanh(math::Matrix* output, math::Matrix* matrix)
   oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, bapi, true, [](){});
 }
 
+void HostProcedures::sigmoid (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::executeKernel1Arg ("CUDAKernel_Sigmoid", output, matrix, &m_kernel, bapi, true, [](){});
+}
+
+void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::host::CopyHostMatrixToHostMatrix (output, matrix);
+}
+
+void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::executeKernel1Arg ("CUDAKernel_Sin", output, matrix, &m_kernel, bapi, true, [](){});
+}
+
 void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
 {
   oap::host::HostBuffer<floatt> m_hsumsReBuffer;

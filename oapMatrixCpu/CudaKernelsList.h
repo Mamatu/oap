@@ -64,6 +64,18 @@ void HOSTKernel_TanhRaw (void** params)
   HOSTKernel_Tanh (output, matrix);
 }
 
+void HOSTKernel_Sigmoid (math::Matrix* output, math::Matrix* param1)
+{
+  CUDA_sigmoid (output, param1);
+}
+
+void HOSTKernel_SigmoidRaw (void** params)
+{
+  math::Matrix* output = getParam<math::Matrix> (params[0]);
+  math::Matrix* matrix = getParam<math::Matrix> (params[1]);
+  HOSTKernel_Sigmoid (output, matrix);
+}
+
 void HOSTKernel_CrossEntropyRaw (void** params)
 {
   math::Matrix* output = getParam<math::Matrix> (params[0]);

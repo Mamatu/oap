@@ -37,9 +37,8 @@ Layer* Network::createLayer (size_t neurons, const Activation& activation)
 
 Layer* Network::createLayer (size_t neurons, bool addBias, const Activation& activation)
 {
-  Layer* layer = new Layer(activation, addBias);
+  Layer* layer = oap::generic::createLayer<Layer, oap::alloc::cuda::AllocNeuronsApi> (neurons, addBias, activation);
 
-  layer->allocateNeurons (neurons);
   createLevel (layer);
 
   return layer;
@@ -58,7 +57,7 @@ void Network::createLevel (Layer* layer)
 
   if (previous != nullptr)
   {
-    previous->allocateWeights (layer);
+    oap::generic::connectLayers<Layer, oap::alloc::cuda::AllocWeightsApi>(previous, layer);
   }
 }
 

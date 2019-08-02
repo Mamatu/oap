@@ -22,12 +22,7 @@
 #include <list>
 #include "MatrixAPI.h"
 
-#include "oapAllocApi.h"
-
 Layer::Layer ()
-{}
-
-Layer::Layer(Activation activation, bool isbias) : LayerS(activation, isbias)
 {}
 
 Layer::~Layer()
@@ -68,21 +63,6 @@ math::MatrixInfo Layer::getWeightsInfo () const
 void Layer::printHostWeights (bool newLine) const
 {
   oap::generic::printHostWeights (*this, newLine);
-}
-
-void Layer::allocateNeurons(size_t neuronsCount)
-{
-  oap::alloc::cuda::AllocNeuronsApi allocNeuronsApi;
-
-  oap::generic::allocateNeurons (*this, neuronsCount, m_biasCount, allocNeuronsApi);
-}
-
-void Layer::allocateWeights(const Layer* nextLayer)
-{
-  oap::alloc::cuda::AllocWeightsApi allocWeightsApi;
-
-  oap::generic::allocateWeights (*this, nextLayer, allocWeightsApi);
-  oap::generic::initRandomWeights (*this, nextLayer);
 }
 
 void Layer::deallocate()
