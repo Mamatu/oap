@@ -134,43 +134,6 @@ public:
 protected:
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
 
-  inline void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation)
-  {
-    switch (activation)
-    {
-      case Activation::SIGMOID:
-        m_cuApi.sigmoid (output, input);
-      break;
-      case Activation::LINEAR:
-        m_cuApi.identity (output, input);
-      break;
-      case Activation::TANH:
-        m_cuApi.tanh (output, input);
-      break;
-      case Activation::SIN:
-        m_cuApi.sin (output, input);
-      break;
-    };
-  }
-
-  inline void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation)
-  {
-    switch (activation)
-    {
-      case Activation::SIGMOID:
-        m_cuApi.sigmoidDerivative (output, input);
-      break;
-      case Activation::LINEAR:
-        m_cuApi.identityDerivative (output, input);
-      break;
-      case Activation::TANH:
-        m_cuApi.tanhDerivative (output, input);
-      break;
-      case Activation::SIN:
-        m_cuApi.sinDerivative (output, input);
-      break;
-    };
-  }
 private:
   std::vector<Layer*> m_layers;
   std::vector<LayerS*> m_layerSs;
