@@ -57,9 +57,16 @@ TEST_F(OapForwardPropagationTests, Test_1)
   oap::generic::connectLayers<LayerS, oap::alloc::host::AllocWeightsApi>(l1, l2);
   oap::generic::connectLayers<LayerS, oap::alloc::host::AllocWeightsApi>(l2, l3);
 
-  layersPtrs.push_back (std::shared_ptr<LayerS>(l1));
-  layersPtrs.push_back (std::shared_ptr<LayerS>(l2));
-  layersPtrs.push_back (std::shared_ptr<LayerS>(l3));
+
+  auto ldeleter = [](LayerS* layer)
+  {
+    oap::generic::deallocate<LayerS, oap::alloc::host::DeallocLayerApi> (*layer);
+    delete layer;
+  };
+
+  layersPtrs.push_back (std::shared_ptr<LayerS>(l1, ldeleter));
+  layersPtrs.push_back (std::shared_ptr<LayerS>(l2, ldeleter));
+  layersPtrs.push_back (std::shared_ptr<LayerS>(l3, ldeleter));
   
   layers.push_back (l1);
   layers.push_back (l2);

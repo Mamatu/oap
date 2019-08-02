@@ -32,31 +32,6 @@ namespace oap
 namespace generic
 {
 
-inline void deallocate (LayerS& ls)
-{
-  auto del = [](math::Matrix** matrix)
-  {
-    if (matrix != nullptr)
-    {
-      oap::cuda::DeleteDeviceMatrix (*matrix);
-      matrix = nullptr;
-    }
-  };
-
-  del (&ls.m_inputs);
-  del (&ls.m_tinputs);
-  del (&ls.m_sums);
-  del (&ls.m_errors);
-  del (&ls.m_errorsAcc);
-  del (&ls.m_errorsAux);
-  del (&ls.m_weights);
-  del (&ls.m_tweights);
-  del (&ls.m_weights1);
-  del (&ls.m_weights2);
-  del (&ls.m_vec);
-  oap::host::DeleteMatrix (ls.m_errorsHost);
-}
-
 namespace
 {
 inline void checkHostInputs(LayerS& ls, const math::Matrix* hostInputs)

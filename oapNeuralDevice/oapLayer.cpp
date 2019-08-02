@@ -67,7 +67,7 @@ void Layer::printHostWeights (bool newLine) const
 
 void Layer::deallocate()
 {
-  oap::generic::deallocate (*this);
+  oap::generic::deallocate<Layer, oap::alloc::cuda::DeallocLayerApi> (*this);
 }
 
 void Layer::setHostWeights (math::Matrix* weights)

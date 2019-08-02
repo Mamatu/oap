@@ -103,6 +103,9 @@ public:
 
   template<typename LayerT, typename AllocWeightsApi>
   friend void oap::generic::allocateWeights (LayerT&, const LayerT*);
+
+  template<typename LayerT, typename DeallocMatrixApi>
+  friend void oap::generic::deallocate (LayerT&);
 };
 
 template<typename AllocApi>

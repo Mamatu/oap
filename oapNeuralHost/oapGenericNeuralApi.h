@@ -147,6 +147,34 @@ void allocateWeights (LayerT& ls, const LayerT* nextLayer)
   ls.m_nextLayer = nextLayer;
 }
 
+template<typename LayerT, typename DeallocMatrixApi>
+void deallocate (LayerT& ls)
+{
+  DeallocMatrixApi dealloc;
+
+  auto del = [&dealloc](math::Matrix** matrix)
+  {
+    if (matrix != nullptr)
+    {
+      dealloc.deleteMatrix (*matrix);
+      matrix = nullptr;
+    }
+  };
+
+  del (&ls.m_inputs);
+  del (&ls.m_tinputs);
+  del (&ls.m_sums);
+  del (&ls.m_errors);
+  del (&ls.m_errorsAcc);
+  del (&ls.m_errorsAux);
+  del (&ls.m_weights);
+  del (&ls.m_tweights);
+  del (&ls.m_weights1);
+  del (&ls.m_weights2);
+  del (&ls.m_vec);
+  dealloc.deleteErrorsMatrix (ls.m_errorsHost);
+}
+
 template<typename LayerT, typename AllocNeuronsApi>
 LayerT* createLayer (size_t neurons, bool addBias, Activation activation)
 {
