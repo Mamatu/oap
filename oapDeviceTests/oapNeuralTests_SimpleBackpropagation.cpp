@@ -68,14 +68,14 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[1] = 1;
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
   inputs->reValues[0] = 1;
@@ -89,11 +89,11 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
 
   network->forwardPropagation ();
 
-  auto getLayerOutput = [](LayerS* layer)
+  auto getLayerOutput = [](Layer* layer)
   {
-    auto minfo = oap::generic::getOutputsInfo (*layer);
+    auto minfo = layer->getOutputsInfo ();
     oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
-    oap::generic::getOutputs (*layer, outputsL, oap::HOST);
+    layer->getOutputs (outputsL, ArgType::HOST);
     return outputsL;
   };
 
@@ -106,7 +106,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
   network->updateWeights ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
-  oap::generic::getHostWeights (bweights1to2, *l1);
+  l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
@@ -116,14 +116,14 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[1] = 1;
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
   inputs->reValues[0] = 1;
@@ -137,11 +137,11 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
 
   network->forwardPropagation ();
 
-  auto getLayerOutput = [](LayerS* layer)
+  auto getLayerOutput = [](Layer* layer)
   {
-    auto minfo = oap::generic::getOutputsInfo (*layer);
+    auto minfo = layer->getOutputsInfo ();
     oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
-    oap::generic::getOutputs (*layer, outputsL, oap::HOST);
+    layer->getOutputs (outputsL, ArgType::HOST);
     return outputsL;
   };
 
@@ -153,7 +153,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
   network->updateWeights ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
-  oap::generic::getHostWeights (bweights1to2, *l1);
+  l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
@@ -163,14 +163,14 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[1] = 1;
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
 
@@ -201,7 +201,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
   network->updateWeights ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
-  oap::generic::getHostWeights (bweights1to2, *l1);
+  l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (2) * input1, bweights1to2->reValues[0]);
   EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (2) * input2, bweights1to2->reValues[1]);
@@ -211,14 +211,14 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
   weights1to2->reValues[1] = 1;
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
 
@@ -247,7 +247,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
   network->updateWeights ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
-  oap::generic::getHostWeights (bweights1to2, *l1);
+  l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (3) * inputsVec[0], bweights1to2->reValues[0]);
   EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (3) * inputsVec[1], bweights1to2->reValues[1]);
@@ -257,21 +257,21 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(3);
-  LayerS* l3 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
   oap::host::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
 
   oap::host::SetReValuesToMatrix (weights2to3, {1,1,1});
 
-  oap::generic::setHostWeights (*l2, weights2to3);
+  l2->setHostWeights (weights2to3);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
 
@@ -299,7 +299,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5)
   network->updateWeights ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
-  oap::generic::getHostWeights (bweights1to2, *l1);
+  l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
@@ -315,21 +315,21 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_1)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(3);
-  LayerS* l3 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
   oap::host::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
 
   oap::host::SetReValuesToMatrix (weights2to3, {1,1,1});
 
-  oap::generic::setHostWeights (*l2, weights2to3);
+  l2->setHostWeights (weights2to3);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
 
@@ -361,7 +361,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_1)
   network->updateWeights ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
-  oap::generic::getHostWeights (bweights1to2, *l1);
+  l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
@@ -377,21 +377,21 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_2)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(3);
-  LayerS* l3 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
   oap::host::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
 
   oap::host::SetReValuesToMatrix (weights2to3, {1,1,1});
 
-  oap::generic::setHostWeights (*l2, weights2to3);
+  l2->setHostWeights (weights2to3);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
 
@@ -431,7 +431,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_2)
   network->updateWeights ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
-  oap::generic::getHostWeights (bweights1to2, *l1);
+  l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
   EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
@@ -447,21 +447,21 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_3)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(3);
-  LayerS* l3 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
   oap::host::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
 
   oap::host::SetReValuesToMatrix (weights2to3, {1,1,1});
 
-  oap::generic::setHostWeights (*l2, weights2to3);
+  l2->setHostWeights (weights2to3);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
 
@@ -507,21 +507,21 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_7)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(3);
-  LayerS* l3 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
   oap::host::SetReValuesToMatrix (weights1to2, {2, 1, 1, 1, 1, 1});
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
 
   oap::host::SetReValuesToMatrix(weights2to3, {1, 1, 1});
 
-  oap::generic::setHostWeights (*l2, weights2to3);
+  l2->setHostWeights (weights2to3);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
 
@@ -549,10 +549,10 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_7)
   network->updateWeights ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
-  oap::generic::getHostWeights (bweights1to2, *l1);
+  l1->getHostWeights (bweights1to2);
 
   oap::HostMatrixPtr bweights2to3 = oap::host::NewReMatrix (3, 1);
-  oap::generic::getHostWeights (bweights2to3, *l2);
+  l2->getHostWeights (bweights2to3);
 
   floatt limit = 0.00001;
 
@@ -574,21 +574,21 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_8)
 {
   using namespace oap::math;
 
-  LayerS* l1 = network->createLayer(2);
-  LayerS* l2 = network->createLayer(3);
-  LayerS* l3 = network->createLayer(1);
+  Layer* l1 = network->createLayer(2);
+  Layer* l2 = network->createLayer(3);
+  Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
   oap::host::SetReValuesToMatrix (weights1to2, {2, 1, 1, 1, 1, 1});
 
-  oap::generic::setHostWeights (*l1, weights1to2);
+  l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
 
   oap::host::SetReValuesToMatrix(weights2to3, {1, 1, 1});
 
-  oap::generic::setHostWeights (*l2, weights2to3);
+  l2->setHostWeights (weights2to3);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
 
@@ -616,10 +616,10 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_8)
   network->updateWeights ();
 
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
-  oap::generic::getHostWeights (bweights1to2, *l1);
+  l1->getHostWeights (bweights1to2);
 
   oap::HostMatrixPtr bweights2to3 = oap::host::NewReMatrix (3, 1);
-  oap::generic::getHostWeights (bweights2to3, *l2);
+  l2->getHostWeights (bweights2to3);
 
   floatt limit = 0.00001;
 

@@ -154,7 +154,7 @@ void runTraining (Context* ctx, floatt learningRate, int repeats)
       auto imatrix = ctx->matrices[idx];
       runTest (imatrix, idx);
     }
-    oap::generic::printHostWeights (*ctx->network->getLayer(0), true);
+    ctx->network->getLayer(0)->printHostWeights (true);
   }
 }
 

@@ -388,7 +388,7 @@ void Network::save (utils::ByteBuffer& buffer) const
 
   for (const auto& layer : m_layers)
   {
-    //layer->save (buffer);
+    layer->save (buffer);
   }
 }
 
