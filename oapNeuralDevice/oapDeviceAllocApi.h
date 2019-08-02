@@ -40,6 +40,7 @@ namespace
 
   using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(oap::cuda::NewDeviceReMatrix), decltype(oap::cuda::NewDeviceMatrixDeviceRef), decltype(NewReMatrix)>;
   using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(oap::cuda::NewDeviceReMatrix), decltype(oap::cuda::NewDeviceMatrixDeviceRef), decltype(NewReMatrix), decltype(oap::cuda::CopyHostMatrixToDeviceMatrix)>;
+  using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::cuda::DeleteDeviceMatrix), decltype(oap::host::DeleteMatrix)>;
 
 }
 
@@ -56,6 +57,14 @@ class AllocWeightsApi : public GenericAllocWeightsApi
   public:
     AllocWeightsApi () :
     GenericAllocWeightsApi (oap::cuda::NewDeviceReMatrix, oap::cuda::NewDeviceMatrixDeviceRef, NewReMatrix, oap::cuda::CopyHostMatrixToDeviceMatrix)
+    {}
+};
+
+class DeallocLayerApi : public GenericDeallocLayerApi
+{
+  public:
+    DeallocLayerApi ():
+    GenericDeallocLayerApi (oap::cuda::DeleteDeviceMatrix, oap::host::DeleteMatrix)
     {}
 };
 

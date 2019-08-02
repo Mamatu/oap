@@ -59,6 +59,18 @@ class AllocWeightsApi
     CopyHostMatrixToDeviceMatrix&& copyHostMatrixToDeviceMatrix;
 };
 
+template<typename DeleteMatrix, typename DeleteErrorsMatrix>
+class DeallocLayerApi
+{
+  public:
+    DeallocLayerApi (DeleteMatrix&& _deleteMatrix, DeleteErrorsMatrix&& _deleteErrorsMatrix):
+                     deleteMatrix (_deleteMatrix), deleteErrorsMatrix (_deleteErrorsMatrix)
+    {}
+
+    DeleteMatrix&& deleteMatrix;
+    DeleteErrorsMatrix&& deleteErrorsMatrix;
+};
+
 namespace host
 {
 namespace
@@ -75,6 +87,7 @@ namespace
 
   using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(NewReMatrix), decltype(NewMatrixRef), decltype(NewReMatrix)>;
   using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(NewReMatrix), decltype(NewMatrixRef), decltype(NewReMatrix), decltype(oap::host::CopyHostMatrixToHostMatrix)>;
+  using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::host::DeleteMatrix), decltype(oap::host::DeleteMatrix)>;
 
 }
 
@@ -91,6 +104,14 @@ class AllocWeightsApi : public GenericAllocWeightsApi
   public:
     AllocWeightsApi () :
     GenericAllocWeightsApi (NewReMatrix, NewMatrixRef, NewReMatrix, oap::host::CopyHostMatrixToHostMatrix)
+    {}
+};
+
+class DeallocLayerApi : public GenericDeallocLayerApi
+{
+  public:
+    DeallocLayerApi ():
+    GenericDeallocLayerApi (oap::host::DeleteMatrix, oap::host::DeleteMatrix)
     {}
 };
 
