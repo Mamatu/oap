@@ -189,7 +189,7 @@ inline void setDeviceInputs(LayerS& ls, const math::Matrix* dInputs)
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (ls.m_inputs, dInputs);
 }
 
-inline math::MatrixInfo getOutputsInfo (LayerS& ls)
+inline math::MatrixInfo getOutputsInfo (const LayerS& ls)
 {
   return oap::cuda::GetMatrixInfo (ls.m_inputs);
 }
@@ -199,7 +199,7 @@ inline math::MatrixInfo getInputsInfo (LayerS& ls)
   return oap::cuda::GetMatrixInfo (ls.m_inputs);
 }
 
-inline void getOutputs (LayerS& ls, math::Matrix* matrix, ArgType type)
+inline void getOutputs (const LayerS& ls, math::Matrix* matrix, ArgType type)
 {
   if (type == ArgType::HOST)
   {
@@ -221,12 +221,12 @@ inline void setDeviceWeights (LayerS& ls, math::Matrix* weights)
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (ls.m_weights, weights);
 }
 
-inline void getHostWeights (math::Matrix* output, LayerS& ls)
+inline void getHostWeights (math::Matrix* output, const LayerS& ls)
 {
   oap::cuda::CopyDeviceMatrixToHostMatrix (output, ls.m_weights);
 }
 
-inline void printHostWeights (LayerS& ls, bool newLine)
+inline void printHostWeights (const LayerS& ls, bool newLine)
 {
   std::stringstream sstream;
   sstream << "Layer (" << &ls << ") weights = ";
@@ -288,7 +288,7 @@ inline void initRandomWeights (LayerS& ls, const LayerS* nextLayer)
   oap::cuda::CopyHostMatrixToDeviceMatrix (ls.m_weights, randomMatrix.get());
 }
 
-inline math::MatrixInfo getWeightsInfo (LayerS& ls)
+inline math::MatrixInfo getWeightsInfo (const LayerS& ls)
 {
   return oap::cuda::GetMatrixInfo (ls.m_weights);
 }
