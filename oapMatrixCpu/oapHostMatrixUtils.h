@@ -55,7 +55,7 @@ math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
  * @param value
  * @return
  */
-math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value = 0);
+math::Matrix* NewMatrixRef(const math::Matrix* matrix, floatt value = 0);
 
 /**
  * @brief NewMatrix
@@ -119,6 +119,11 @@ inline void CopyBuffer(floatt* dst, floatt* src, uintt length)
  * @param src
  */
 void CopyMatrix(math::Matrix* dst, const math::Matrix* src);
+
+inline void CopyHostMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
+{
+  CopyMatrix (dst, src);
+}
 
 /**
  * Copy data to dst matrix which has one column and row less than

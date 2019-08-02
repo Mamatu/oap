@@ -121,7 +121,7 @@ bool HasValues(const math::Matrix& m1, const math::Matrix& m2,
 }
 
 bool IsIdentityMatrix(const math::Matrix& m1, math::Matrix** output) {
-  math::Matrix* matrix = oap::host::NewMatrix(&m1);
+  math::Matrix* matrix = oap::host::NewMatrixRef (&m1);
   oap::host::SetIdentity(matrix);
   bool isequal = IsEqual(m1, *matrix, output);
   oap::host::DeleteMatrix(matrix);
@@ -130,7 +130,7 @@ bool IsIdentityMatrix(const math::Matrix& m1, math::Matrix** output) {
 
 bool IsDiagonalMatrix(const math::Matrix& m1, floatt value,
                       math::Matrix** output) {
-  math::Matrix* matrix = oap::host::NewMatrix(&m1);
+  math::Matrix* matrix = oap::host::NewMatrixRef (&m1);
   oap::host::SetDiagonalMatrix(matrix, value);
   bool isequal = IsEqual(m1, *matrix, output);
   oap::host::DeleteMatrix(matrix);

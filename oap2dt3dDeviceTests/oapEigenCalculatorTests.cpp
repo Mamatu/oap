@@ -291,7 +291,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
       math::Matrix** deviceMatrices = deviceEVectors.get();
       math::Matrix** hostMatrices = hostEVectors.get();
-      math::Matrix* hostMatrix = oap::host::NewMatrix(hostEVectors.get()[0]);
+      math::Matrix* hostMatrix = oap::host::NewMatrixRef (hostEVectors.get()[0]);
       for (int fa = 0; fa < wantedEigensCount; ++fa) {
         oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
         

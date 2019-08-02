@@ -74,7 +74,7 @@ class OapSchurDecomposition : public testing::Test {
 
     math::Matrix* eq_hostMatrix = oap::host::NewMatrix(eq_matrixStr);
     math::Matrix* eq_initMatrix = oap::host::NewMatrix(matrixStr);
-    math::Matrix* hostMatrix = oap::host::NewMatrix(eq_hostMatrix);
+    math::Matrix* hostMatrix = oap::host::NewMatrixRef(eq_hostMatrix);
 
     math::Matrix* H = matrix;
     math::Matrix* Q = matrix1;
