@@ -85,7 +85,7 @@ namespace
 MatricesList gMatricesList ("HOST");
 }
 
-math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value)
+math::Matrix* NewMatrixRef (const math::Matrix* matrix, floatt value)
 {
   math::Matrix* output = nullptr;
   if (matrix->reValues != nullptr && matrix->imValues != nullptr)
@@ -467,7 +467,7 @@ void CopyIm(math::Matrix* dst, const math::Matrix* src)
 
 math::Matrix* NewMatrixCopy(const math::Matrix* matrix)
 {
-  math::Matrix* output = oap::host::NewMatrix(matrix);
+  math::Matrix* output = oap::host::NewMatrixRef (matrix);
   oap::host::CopyMatrix(output, matrix);
   return output;
 }
