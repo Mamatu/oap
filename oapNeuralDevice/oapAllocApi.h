@@ -57,6 +57,39 @@ class AllocWeightsApi : public GenericAllocWeightsApi
 };
 
 }
+
+namespace host
+{
+namespace
+{
+  inline math::Matrix* NewReMatrix (size_t columns, size_t rows)
+  {
+    return oap::host::NewReMatrix (columns, rows);
+  }
+
+  using GenericAllocNeuronsApi = oap::generic::AllocNeuronsApi<decltype(oap::host::NewReMatrix), decltype(oap::host::NewMatrixRef), decltype(NewReMatrix)>;
+  using GenericAllocWeightsApi = oap::generic::AllocWeightsApi<decltype(oap::host::NewReMatrix), decltype(oap::host::NewMatrixRef), decltype(NewReMatrix), decltype(oap::cuda::CopyHostMatrixToDeviceMatrix)>;
+
+}
+
+class AllocNeuronsApi : public GenericAllocNeuronsApi
+{
+  public:
+    AllocNeuronsApi () :
+    GenericAllocNeuronsApi (oap::host::NewReMatrix, oap::host::NewMatrixRef, oap::alloc::host::NewReMatrix)
+    {}
+};
+
+class AllocWeightsApi : public GenericAllocWeightsApi
+{
+  public:
+    AllocWeightsApi () :
+    GenericAllocWeightsApi (oap::host::NewReMatrix, oap::host::NewMatrixRef, oap::alloc::host::NewReMatrix, oap::host::CopyHostMatrixToHostMatrix)
+    {}
+};
+
+}
+
 }
 }
 
