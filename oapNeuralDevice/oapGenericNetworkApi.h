@@ -111,26 +111,31 @@ inline void allocateNeurons (LayerS& ls, size_t neuronsCount, size_t biasCount)
   logInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", &ls, neuronsCount + biasCount, neuronsCount, biasCount);
   ls.m_neuronsCount = neuronsCount;
 
-  ls.m_inputs = oap::cuda::NewDeviceReMatrix (1, ls.getTotalNeuronsCount());
+  const size_t unitsCount = ls.getTotalNeuronsCount ();
+
+  ls.m_inputs = oap::cuda::NewDeviceReMatrix (1, unitsCount);
   ls.m_sums = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_inputs);
   ls.m_errors = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_inputs);
   ls.m_errorsAcc = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_inputs);
   ls.m_errorsAux = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_inputs);
-  ls.m_errorsHost = oap::host::NewReMatrix (1, ls.getTotalNeuronsCount());
-  ls.m_tinputs = oap::cuda::NewDeviceReMatrix (ls.getTotalNeuronsCount(), 1); //todo: use transpose
+  ls.m_errorsHost = oap::host::NewReMatrix (1, unitsCount);
+  ls.m_tinputs = oap::cuda::NewDeviceReMatrix (unitsCount, 1); //todo: use transpose
 }
 
-inline void allocateWeights(LayerS& ls, const LayerS* nextLayer)
+inline void allocateWeights (LayerS& ls, const LayerS* nextLayer)
 {
-  ls.m_weights = oap::cuda::NewDeviceReMatrix (ls.getTotalNeuronsCount(), nextLayer->getTotalNeuronsCount());
-  ls.m_tweights = oap::cuda::NewDeviceReMatrix (nextLayer->getTotalNeuronsCount(), ls.getTotalNeuronsCount());
+  const size_t cUCount = ls.getTotalNeuronsCount ();
+  const size_t nUCount = nextLayer->getTotalNeuronsCount ();
+
+  ls.m_weights = oap::cuda::NewDeviceReMatrix (cUCount, nUCount);
+  ls.m_tweights = oap::cuda::NewDeviceReMatrix (nUCount, cUCount);
   ls.m_weights1 = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_weights);
   ls.m_weights2 = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_weights);
-  ls.m_weightsDim = std::make_pair (ls.getTotalNeuronsCount(), nextLayer->getTotalNeuronsCount());
+  ls.m_weightsDim = std::make_pair (cUCount, nUCount);
 
 
-  oap::HostMatrixUPtr c = oap::host::NewReMatrix (ls.getTotalNeuronsCount(), 1, 0.);
-  ls.m_vec = oap::cuda::NewDeviceReMatrix (ls.getTotalNeuronsCount(), 1);
+  oap::HostMatrixUPtr c = oap::host::NewReMatrix (cUCount, 1, 0.);
+  ls.m_vec = oap::cuda::NewDeviceReMatrix (cUCount, 1);
   oap::cuda::CopyHostMatrixToDeviceMatrix (ls.m_vec, c.get());
 
   ls.m_nextLayer = nextLayer;
