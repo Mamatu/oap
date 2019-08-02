@@ -81,7 +81,7 @@ void forwardPropagation (const Layers& layers, Api& api, SetReValue&& setReValue
 {
   if (layers.size() < 2)
   {
-    throw std::runtime_error ("m_layerSs.size() is lower than 2");
+    throw std::runtime_error ("layers.size() is lower than 2");
   }
 
   LayerS* previous = nullptr;
@@ -106,37 +106,70 @@ void forwardPropagation (const Layers& layers, Api& api, SetReValue&& setReValue
   }
 }
 
-inline void allocateNeurons (LayerS& ls, size_t neuronsCount, size_t biasCount)
+template<typename NewDeviceReMatrix, typename NewDeviceMatrixDeviceRef, typename NewReMatrix>
+class AllocNeuronsApi
+{
+  public:
+    AllocNeuronsApi (NewDeviceReMatrix&& _newDeviceReMatrix, NewDeviceMatrixDeviceRef&& _newDeviceMatrixDeviceRef, NewReMatrix&& _newReMatrix) :
+                     newDeviceReMatrix (_newDeviceReMatrix), newDeviceMatrixDeviceRef (_newDeviceMatrixDeviceRef), newReMatrix (_newReMatrix)
+    {}
+
+    NewDeviceReMatrix&& newDeviceReMatrix;
+    NewDeviceMatrixDeviceRef&& newDeviceMatrixDeviceRef;
+    NewReMatrix&& newReMatrix;
+};
+
+template<typename NewDeviceReMatrix, typename NewDeviceMatrixDeviceRef, typename NewReMatrix, typename CopyHostMatrixToDeviceMatrix>
+class AllocWeightsApi
+{
+  public:
+    AllocWeightsApi (NewDeviceReMatrix&& _newDeviceReMatrix, NewDeviceMatrixDeviceRef&& _newDeviceMatrixDeviceRef,
+                     NewReMatrix&& _newReMatrix, CopyHostMatrixToDeviceMatrix&& _copyHostMatrixToDeviceMatrix) :
+                     newDeviceReMatrix (_newDeviceReMatrix), newDeviceMatrixDeviceRef (_newDeviceMatrixDeviceRef),
+                     newReMatrix (_newReMatrix), copyHostMatrixToDeviceMatrix (_copyHostMatrixToDeviceMatrix)
+    {}
+
+    NewDeviceReMatrix&& newDeviceReMatrix;
+    NewDeviceMatrixDeviceRef&& newDeviceMatrixDeviceRef;
+    NewReMatrix&& newReMatrix;
+    CopyHostMatrixToDeviceMatrix&& copyHostMatrixToDeviceMatrix;
+};
+
+template<typename NewDeviceReMatrix, typename NewDeviceMatrixDeviceRef, typename NewReMatrix>
+inline void allocateNeurons (LayerS& ls, size_t neuronsCount, size_t biasCount,
+                             AllocNeuronsApi<NewDeviceReMatrix, NewDeviceMatrixDeviceRef, NewReMatrix>& alloc)
 {
   logInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", &ls, neuronsCount + biasCount, neuronsCount, biasCount);
   ls.m_neuronsCount = neuronsCount;
 
   const size_t unitsCount = ls.getTotalNeuronsCount ();
 
-  ls.m_inputs = oap::cuda::NewDeviceReMatrix (1, unitsCount);
-  ls.m_sums = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_inputs);
-  ls.m_errors = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_inputs);
-  ls.m_errorsAcc = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_inputs);
-  ls.m_errorsAux = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_inputs);
-  ls.m_errorsHost = oap::host::NewReMatrix (1, unitsCount);
-  ls.m_tinputs = oap::cuda::NewDeviceReMatrix (unitsCount, 1); //todo: use transpose
+  ls.m_inputs = alloc.newDeviceReMatrix (1, unitsCount);
+  ls.m_sums = alloc.newDeviceMatrixDeviceRef (ls.m_inputs);
+  ls.m_errors = alloc.newDeviceMatrixDeviceRef (ls.m_inputs);
+  ls.m_errorsAcc = alloc.newDeviceMatrixDeviceRef (ls.m_inputs);
+  ls.m_errorsAux = alloc.newDeviceMatrixDeviceRef (ls.m_inputs);
+  ls.m_errorsHost = alloc.newReMatrix (1, unitsCount);
+  ls.m_tinputs = alloc.newDeviceReMatrix (unitsCount, 1); //todo: use transpose
 }
 
-inline void allocateWeights (LayerS& ls, const LayerS* nextLayer)
+template<typename NewDeviceReMatrix, typename NewDeviceMatrixDeviceRef, typename NewReMatrix, typename CopyHostMatrixToDeviceMatrix>
+inline void allocateWeights (LayerS& ls, const LayerS* nextLayer,
+                             AllocWeightsApi<NewDeviceReMatrix, NewDeviceMatrixDeviceRef, NewReMatrix, CopyHostMatrixToDeviceMatrix>& alloc)
 {
   const size_t cUCount = ls.getTotalNeuronsCount ();
   const size_t nUCount = nextLayer->getTotalNeuronsCount ();
 
-  ls.m_weights = oap::cuda::NewDeviceReMatrix (cUCount, nUCount);
-  ls.m_tweights = oap::cuda::NewDeviceReMatrix (nUCount, cUCount);
-  ls.m_weights1 = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_weights);
-  ls.m_weights2 = oap::cuda::NewDeviceMatrixDeviceRef (ls.m_weights);
+  ls.m_weights = alloc.newDeviceReMatrix (cUCount, nUCount);
+  ls.m_tweights = alloc.newDeviceReMatrix (nUCount, cUCount);
+  ls.m_weights1 = alloc.newDeviceMatrixDeviceRef (ls.m_weights);
+  ls.m_weights2 = alloc.newDeviceMatrixDeviceRef (ls.m_weights);
   ls.m_weightsDim = std::make_pair (cUCount, nUCount);
 
 
-  oap::HostMatrixUPtr c = oap::host::NewReMatrix (cUCount, 1, 0.);
-  ls.m_vec = oap::cuda::NewDeviceReMatrix (cUCount, 1);
-  oap::cuda::CopyHostMatrixToDeviceMatrix (ls.m_vec, c.get());
+  oap::HostMatrixUPtr c = alloc.newReMatrix (cUCount, 1);
+  ls.m_vec = alloc.newDeviceReMatrix (cUCount, 1);
+  alloc.copyHostMatrixToDeviceMatrix (ls.m_vec, c.get());
 
   ls.m_nextLayer = nextLayer;
 }
