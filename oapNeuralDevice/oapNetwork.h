@@ -136,7 +136,6 @@ protected:
 
 private:
   std::vector<Layer*> m_layers;
-  std::vector<LayerS*> m_layerSs;
 
   void destroyLayers();
 
