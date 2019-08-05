@@ -30,6 +30,8 @@
 #include "MatrixEx.h"
 #include "IKernelExecutor.h"
 
+using HostMatrixDim = uintt[2];
+
 namespace oap
 {
 namespace generic

@@ -83,8 +83,10 @@ class CuProceduresApi
   void calculateQTHQ(math::Matrix* output, math::Matrix* H, math::Matrix* Q,
                      math::Matrix* aux);
 
-  inline void dotProductEx(math::Matrix* output, math::Matrix* params0,
-                           math::Matrix* params1, MatrixEx* matrixEx);
+  inline void dotProductEx(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, MatrixEx* matrixEx);
+
+  void dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+                          HostMatrixDim outputD, HostMatrixDim params0D, HostMatrixDim params1D);
 
   void dotProductEx(math::Matrix* output, math::Matrix* params0,
                     math::Matrix* params1, MatrixEx* matrixEx, uintt columns,
@@ -279,6 +281,18 @@ private:
   oap::TBuffer<floatt, oap::Type::CUDA> m_dsumsImBuffer;
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsReBuffer;
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsImBuffer;
+  MatrixEx* m_dMatrixEx = nullptr;
+
+  inline MatrixEx* createDeviceMatrixEx(const MatrixEx& host)
+  {
+    if (m_dMatrixEx == nullptr)
+    {
+      m_dMatrixEx = oap::cuda::NewDeviceMatrixExCopy (host);
+    }
+
+    CudaUtils::CopyHostToDevice (m_dMatrixEx, &host, sizeof(MatrixEx));
+    return m_dMatrixEx;
+  }
 
   oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> m_bapi;
   std::function<void()> m_preExecCallback;//(std::bind(&CuProceduresApi::resetFlags, this)

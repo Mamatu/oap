@@ -74,6 +74,7 @@ void CuProceduresApi::init() {
 CuProceduresApi::~CuProceduresApi() {
   CudaUtils::FreeDeviceObj(m_magnitudeOutput);
   CudaUtils::FreeDeviceObj(m_doutputIsTriangular);
+  oap::cuda::DeleteDeviceMatrixEx (m_dMatrixEx);
   m_kernel.unload();
 }
 
@@ -180,6 +181,28 @@ void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* params0,
   const char* kname = "CUDAKernel_DotProductEx";
 
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
+}
+
+void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+                      HostMatrixDim outputD, HostMatrixDim params0D, HostMatrixDim params1D)
+{
+
+  oap::generic::BasicMatrixDimApi<decltype(CuProceduresApi::GetColumns), decltype(CuProceduresApi::GetRows)> bmdApi (CuProceduresApi::GetColumns, CuProceduresApi::GetRows);
+  oap::generic::check_dotProduct (output, params0, params1, outputD, params0D, params1D, bmdApi);
+
+  const char* kname = "CUDAKernel_DotProductDim";
+
+  oap::generic::Args args;
+  args.retrieveDims = false;
+  args.w = outputD[0];
+  args.h = outputD[1];
+
+  args.prepareDims = true;
+
+  m_dMatrixEx = createDeviceMatrixEx ({args.w, args.h, 0, 0, 0, params0D[1]});
+  void* params[] = {&output, &params0, &params1, &m_dMatrixEx};
+
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback, args);
 }
 
 void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* params0,
