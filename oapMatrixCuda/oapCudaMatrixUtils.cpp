@@ -386,6 +386,11 @@ MatrixEx* NewDeviceMatrixEx()
   return CudaUtils::AllocDeviceObj<MatrixEx>(host);
 }
 
+MatrixEx* NewDeviceMatrixExCopy(const MatrixEx& hostMatrixEx)
+{
+  return CudaUtils::AllocDeviceObj<MatrixEx>(hostMatrixEx);
+}
+
 MatrixEx** NewDeviceMatrixEx(uintt count)
 {
   debugAssert(count != 0);
