@@ -30,3 +30,4 @@ $ make TARGET_ARCH=HOST
 #### MACROS ####
 
 OAP_TESTS_PLOT - plot data into python file in tests scope (can influence on time of tests execution)
+OAP_CU_DEVICE_INDEX - index of graphics card (unit) used for calculations
