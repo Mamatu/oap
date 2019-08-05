@@ -130,6 +130,7 @@ void SetMatrixEx(MatrixEx* deviceMatrixEx, const MatrixEx* hostMatrixEx);
 void GetMatrixEx(MatrixEx* hostMatrixEx, const MatrixEx* deviceMatrixEx);
 
 MatrixEx* NewDeviceMatrixEx();
+MatrixEx* NewDeviceMatrixExCopy(const MatrixEx& hostMatrixEx);
 
 void DeleteDeviceMatrixEx(MatrixEx* matrixEx);
 
