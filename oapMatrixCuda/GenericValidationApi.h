@@ -50,6 +50,45 @@ void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix
   debugAssertMsg(output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
 }
 
+template<typename MatrixDimApi, typename Dim>
+void check_Dim (const MatrixDimApi& mdApi, math::Matrix* matrix, const Dim& dim)
+{
+  const uintt columns = mdApi.getColumns (matrix);
+  const uintt rows = mdApi.getRows (matrix);
+
+  debugAssert (dim[0] <= columns);
+  debugAssert (dim[1] <= rows);
+}
+
+template<typename GetColumns, typename GetRows, typename Dim>
+void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+                       const Dim& outputEx, const Dim& params0Ex, const Dim& params1Ex,
+                       BasicMatrixDimApi<GetColumns, GetRows>& matrixDimApi)
+{
+  check_Dim (matrixDimApi, output, outputEx);
+  check_Dim (matrixDimApi, params0, params0Ex);
+  check_Dim (matrixDimApi, params1, params1Ex);
+
+  const uintt output_columns = outputEx[0];//matrixDimApi.getColumns(params0);
+  const uintt output_rows = outputEx[1]; //matrixDimApi.getRows(params0);
+
+  const uintt params0_columns = params0Ex[0];//matrixDimApi.getColumns(params0);
+  const uintt params0_rows = params0Ex[1]; //matrixDimApi.getRows(params0);
+
+  const uintt params1_columns = params1Ex[0];//matrixDimApi.getColumns(params1);
+  const uintt params1_rows = params1Ex[1];//matrixDimApi.getRows(params1);
+
+#ifdef CU_PROCEDURES_API_PRINT
+  oap::cuda::PrintMatrixInfo("params0 = ", params0);
+  oap::cuda::PrintMatrixInfo("params1 = ", params1);
+  oap::cuda::PrintMatrixInfo("ouput = ", output);
+#endif
+
+  debugAssertMsg(params0_columns == params1_rows, "params0_columns = %u params1_rows = %u", params0_columns, params1_rows);
+  debugAssertMsg(output_columns == params1_columns, "output_columns = %u params1_columns = %u", output_columns, params1_columns);
+  debugAssertMsg(output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
+}
+
 template<typename GetColumns, typename GetRows>
 void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixDimApi<GetColumns, GetRows>& matrixDimApi)
 {
