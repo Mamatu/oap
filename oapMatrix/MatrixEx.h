@@ -20,14 +20,15 @@
 #ifndef OAP_MATRIX_EX_H
 #define OAP_MATRIX_EX_H
 
-#include "Matrix.h"
+#include "Math.h"
 
 struct MatrixEx
 {
-  math::MatrixDim dims;
-
   uintt column;
+  uintt columns;
+
   uintt row;
+  uintt rows;
 
   /**
    * @brief boffset - extra offset to dotProduct operation
@@ -40,9 +41,9 @@ struct MatrixEx
   uintt eoffset;
 };
 
-#define erow(matrixex) matrixex.row + matrixex.dims.rows
+#define erow(matrixex) matrixex.row + matrixex.rows
 
-#define ecolumn(matrixex) matrixex.column + matrixex.dims.columns
+#define ecolumn(matrixex) matrixex.column + matrixex.columns
 
 namespace {
   bool adjust(uintt& v1, uintt& v2, uintt val) {
@@ -55,11 +56,11 @@ namespace {
 }
 
 inline bool adjustColumns(MatrixEx& matrixEx, uintt val) {
-  return ::adjust(matrixEx.column, matrixEx.dims.columns, val);
+  return ::adjust(matrixEx.column, matrixEx.columns, val);
 }
 
 inline bool adjustRows(MatrixEx& matrixEx, uintt val) {
-  return ::adjust(matrixEx.row, matrixEx.dims.rows, val);
+  return ::adjust(matrixEx.row, matrixEx.rows, val);
 }
 
 #endif /* MATRIXEX_H */
