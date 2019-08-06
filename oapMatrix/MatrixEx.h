@@ -24,7 +24,7 @@
 
 struct MatrixEx
 {
-  math::Matrix dims;
+  math::MatrixDim dims;
 
   uintt column;
   uintt row;
