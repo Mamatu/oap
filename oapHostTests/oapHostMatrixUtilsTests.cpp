@@ -101,15 +101,15 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
   if (status) {
     MatrixEx mex;
     mex.row = 0;
-    mex.dims.rows = 10;
+    mex.rows = 10;
  
     mex.column = 4;
-    mex.dims.columns = 6;
+    mex.columns = 6;
 
     math::Matrix* m2 = oap::host::ReadMatrix(testfilepath, mex);
 
-    EXPECT_EQ(m2->columns, mex.dims.columns);
-    EXPECT_EQ(m2->rows, mex.dims.rows);
+    EXPECT_EQ(m2->columns, mex.columns);
+    EXPECT_EQ(m2->rows, mex.rows);
 
     for (int fa = 0; fa < m2->columns; ++fa)
     {

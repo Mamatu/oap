@@ -366,7 +366,7 @@ void Copy(math::Matrix* dst, const math::Matrix* src, const MatrixEx& subMatrix,
           uintt column, uintt row)
 {
   uintt rows = dst->rows;
-  uintt columns2 = subMatrix.dims.columns;
+  uintt columns2 = subMatrix.columns;
   for (uintt fa = 0; fa < rows; fa++)
   {
     uintt fa1 = fa + subMatrix.row;
