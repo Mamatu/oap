@@ -33,12 +33,15 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_CrossEntropy", HOSTKernel_CrossEntropyRaw},
   {"CUDAKernel_Tanh", HOSTKernel_TanhRaw},
   {"CUDAKernel_Sigmoid", HOSTKernel_SigmoidRaw},
+  {"CUDAKernel_DotProductDim", HOSTKernel_DotProductDimRaw},
+  {"CUDAKernel_DotProduct", HOSTKernel_DotProductRaw},
 };
 
 class HostKernelImpl : public HostKernel
 {
     std::function<void(void**)> m_function;
     void** m_params;
+
   public:
     HostKernelImpl (const std::function<void(void**)>& function, void** params) : m_function (function), m_params (params)
     {}

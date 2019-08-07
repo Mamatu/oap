@@ -20,24 +20,27 @@
 #ifndef OAP_GENERIC_VALIDATION_API_H
 #define OAP_GENERIC_VALIDATION_API_H
 
-#include "GenericProceduresApi.h"
+#include "GenericCoreApi.h"
 
 namespace oap
 {
 namespace generic
 {
 
-template<typename GetColumns, typename GetRows>
-void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixDimApi<GetColumns, GetRows>& matrixDimApi)
+template<typename BasicMatrixApi>
+void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixApi& bmApi)
 {
   const uintt output_columns = columns;
   const uintt output_rows = rows;
 
-  const uintt params0_columns = matrixDimApi.getColumns(params0);
-  const uintt params0_rows = matrixDimApi.getRows(params0);
+  auto minfo0 = bmApi.getMatrixInfo (params0);
+  auto minfo1 = bmApi.getMatrixInfo (params1);
 
-  const uintt params1_columns = matrixDimApi.getColumns(params1);
-  const uintt params1_rows = matrixDimApi.getRows(params1);
+  const uintt params0_columns = minfo0.columns ();
+  const uintt params0_rows = minfo0.rows ();
+
+  const uintt params1_columns = minfo1.columns ();
+  const uintt params1_rows = minfo1.rows ();
 
 #ifdef CU_PROCEDURES_API_PRINT
   oap::cuda::PrintMatrixInfo("params0 = ", params0);
@@ -50,24 +53,25 @@ void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix
   debugAssertMsg(output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
 }
 
-template<typename MatrixDimApi, typename Dim>
-void check_Dim (const MatrixDimApi& mdApi, math::Matrix* matrix, const Dim& dim)
+template<typename MatrixInfoApi, typename Dim>
+void check_Dim (const MatrixInfoApi& miApi, math::Matrix* matrix, const Dim& dim)
 {
-  const uintt columns = mdApi.getColumns (matrix);
-  const uintt rows = mdApi.getRows (matrix);
+  auto minfo = miApi.getMatrixInfo (matrix);
+  const uintt columns = minfo.columns ();
+  const uintt rows = minfo.rows ();
 
   debugAssert (dim[0] <= columns);
   debugAssert (dim[1] <= rows);
 }
 
-template<typename GetColumns, typename GetRows, typename Dim>
+template<typename BasicMatrixApi>
 void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-                       const Dim& outputEx, const Dim& params0Ex, const Dim& params1Ex,
-                       BasicMatrixDimApi<GetColumns, GetRows>& matrixDimApi)
+                       uintt* outputEx, uintt* params0Ex, uintt* params1Ex,
+                       BasicMatrixApi& bmApi)
 {
-  check_Dim (matrixDimApi, output, outputEx);
-  check_Dim (matrixDimApi, params0, params0Ex);
-  check_Dim (matrixDimApi, params1, params1Ex);
+  check_Dim (bmApi, output, outputEx);
+  check_Dim (bmApi, params0, params0Ex);
+  check_Dim (bmApi, params1, params1Ex);
 
   const uintt output_columns = outputEx[0];//matrixDimApi.getColumns(params0);
   const uintt output_rows = outputEx[1]; //matrixDimApi.getRows(params0);

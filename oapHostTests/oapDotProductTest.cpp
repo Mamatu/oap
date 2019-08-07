@@ -3,6 +3,9 @@
 #include "HostKernel.h"
 #include "CuProcedures/CuDotProductProcedures.h"
 
+#include "oapHostMatrixPtr.h"
+#include "oapDotProductTests_Data_1.h"
+
 class OapDotProductTests : public testing::Test {
  public:
   OapDotProductTests() {}
@@ -51,4 +54,30 @@ TEST_F(OapDotProductTests, Test1) {
   oap::host::DeleteMatrix(houtput);
   oap::host::DeleteMatrix(hostM1);
   oap::host::DeleteMatrix(hostM2);
+}
+
+
+TEST_F(OapDotProductTests, Test_CustomDim_1)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(4, 2, 0);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(3, 4, 0);
+
+  using namespace oapDotProduct_Data::Test_1;
+
+  oap::HostMatrixPtr ehoutput = oap::host::NewReMatrix(3, 2);
+
+  oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
+  oap::host::CopyArrayToReMatrix (hostM2, t_reValues2);
+  oap::host::CopyArrayToReMatrix (ehoutput, t_outputValues);
+
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrix(3, 2);
+
+  uintt oDim[2] = {3, 2};
+  uintt p1Dim[2] = {4, 2};
+  uintt p2Dim[2] = {3, 4};
+  hostProcedures.dotProduct (houtput, hostM1, hostM2, oDim, p1Dim, p2Dim);
+
+  EXPECT_THAT(ehoutput.get(), MatrixIsEqual(houtput.get()));
 }

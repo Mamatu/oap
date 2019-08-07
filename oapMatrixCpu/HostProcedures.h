@@ -24,6 +24,9 @@
 #include "HostKernel.h"
 #include "HostKernelExecutor.h"
 
+#include "GenericProceduresApi.h"
+#include "oapHostMatrixUtils.h"
+
 class HostProcedures {
  public:
   HostProcedures(uint maxThreadsPerBlock = 1024);
@@ -40,6 +43,12 @@ class HostProcedures {
 
   void dotProduct(math::Matrix* output, math::Matrix* matrix1,
                  math::Matrix* matrix2);
+
+  void dotProduct(math::Matrix* output, math::Matrix* matrix1,
+                 math::Matrix* matrix2, size_t w, size_t h);
+
+  void dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                  uintt outputDim[2], uintt params0Dim[2], uintt params1Dim[2]);
 
   void transpose(math::Matrix* output, math::Matrix* matrix);
 
@@ -62,6 +71,14 @@ class HostProcedures {
   HostKernelExecutor m_kernel;
 
   void prepare(math::Matrix* matrix, HostKernel& hostKernel);
+  void prepare(size_t w, size_t h, HostKernel& hostKernel);
+
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> m_bmApi;
+
+  uintt* createKernelArray (uintt* hostArray, size_t length)
+  {
+    return hostArray;
+  }
 };
 
 #endif  // HOSTCOMPAREPROCEDURE_H

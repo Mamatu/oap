@@ -30,7 +30,8 @@
 #include "MatrixEx.h"
 #include "IKernelExecutor.h"
 
-using HostMatrixDim = uintt[2];
+#include "GenericCoreApi.h"
+#include "GenericValidationApi.h"
 
 namespace oap
 {
@@ -78,45 +79,35 @@ namespace generic
     uintt sharedMemorySize = 0;
   };
 
-  template<typename GetColumns, typename GetRows>
-  class BasicMatrixDimApi
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool executeKernel (const std::string& kernelName, math::Matrix* ref, void** params, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, PreExecCallback&& preExecCallback, Args args = Args())
   {
-    public:
-      BasicMatrixDimApi (GetColumns&& _getColumns, GetRows&& _getRows) : getColumns (std::move (_getColumns)), getRows (std::move (_getRows))
-      {}
+    if (args.retrieveDims)
+    {
+      auto minfo = bmApi.getMatrixInfo (ref);
 
-      GetColumns&& getColumns;
-      GetRows&& getRows;
-  };
+      args.w = minfo.columns ();
+      args.h = minfo.rows ();
+    }
 
-  template<typename GetAddress>
-  class BasicAddressApi
+    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){});
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, const math::Matrix* arg, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, bool _prepareDims, PreExecCallback&& preExecCallback)
   {
-    public:
-      GetAddress&& getReAddress;
-      GetAddress&& getImAddress;
-  };
+    uint blocks[2];
+    uint threads[2];
 
-  template<typename GetMatrixInfo>
-  class BasicMatrixApi
-  {
-    public:
-      BasicMatrixApi (GetMatrixInfo&& _getMatrixInfo) : getMatrixInfo (std::move (_getMatrixInfo)) 
-      {}
+    auto minfo = bmApi.getMatrixInfo (output);
 
-      GetMatrixInfo&& getMatrixInfo;
-  };
+    const uintt w = minfo.columns ();
+    const uintt h = minfo.rows ();
 
-  template<typename GetColumns, typename GetRows, typename GetMatrixInfo>
-  class MatrixApi : BasicMatrixDimApi<GetColumns, GetRows>
-  {
-    public:
-      MatrixApi (GetColumns&& _getColumns, GetRows&& _getRows, GetMatrixInfo&& _getMatrixInfo) :
-        BasicMatrixDimApi<GetColumns, GetRows>(_getColumns, _getRows), getMatrixInfo(std::move (_getMatrixInfo))
-      {}
+    void* params[] = {&output, &arg};
 
-      GetMatrixInfo&& getMatrixInfo;
-  };
+    return execute (kexec, kernelName.c_str(), w, h, params, 0, _prepareDims, blocks, threads, preExecCallback, [](){});
+  }
 
   template<typename GetMatrixInfo, typename Copy, typename GetAddress>
   class SumApi : public BasicMatrixApi<GetMatrixInfo>
@@ -253,34 +244,64 @@ namespace generic
     return kexec->execute ("CUDAKernel_CrossEntropy", params);
   }
 
-  template<typename GetMatrixInfo, typename PreExecCallback>
-  bool executeKernel (const std::string& kernelName, math::Matrix* ref, void** params, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, PreExecCallback&& preExecCallback, Args args = Args())
+  template<typename BasicMatrixApi, typename PreExecCallback>
+  bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                  uintt outputColumns, uintt outputRows,
+                  oap::IKernelExecutor* kexec, PreExecCallback&& preExecCallback,
+                  BasicMatrixApi& bmApi)
   {
-    if (args.retrieveDims)
-    {
-      auto minfo = bmApi.getMatrixInfo (ref);
+    oap::generic::check_dotProduct (output, matrix1, matrix2, outputColumns, outputRows, bmApi);
 
-      args.w = minfo.columns ();
-      args.h = minfo.rows ();
-    }
+    const char* kname = "CUDAKernel_DotProduct";
 
-    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){});
+    oap::generic::Args args;
+
+    args.retrieveDims = false;
+    args.w = outputColumns;
+    args.h = outputRows;
+
+    args.prepareDims = true;
+
+    void* params[] = {&output, &matrix1, &matrix2};
+
+    return oap::generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback, args);
   }
 
-  template<typename GetMatrixInfo, typename PreExecCallback>
-  bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, const math::Matrix* arg, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, bool _prepareDims, PreExecCallback&& preExecCallback)
+  template<typename BasicMatrixApi, typename PreExecCallback>
+  bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                  oap::IKernelExecutor* kexec, PreExecCallback&& preExecCallback,
+                  BasicMatrixApi& bmApi)
   {
-    uint blocks[2];
-    uint threads[2];
+    auto outputInfo = bmApi.getMatrixInfo (output);
+    uintt outputColumns = outputInfo.columns ();
+    uintt outputRows = outputInfo.rows ();
+  
+    return dotProduct (output, matrix1, matrix2, outputColumns, outputRows, kexec, preExecCallback, bmApi);
+  }
 
-    auto minfo = bmApi.getMatrixInfo (output);
+  template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
+  bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                  uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2],
+                  oap::IKernelExecutor* kexec, PreExecCallback&& preExecCallback,
+                  BasicMatrixApi& bmApi, CreateKernelArray&& createKernelArray)
+  {
+    oap::generic::check_dotProduct (output, matrix1, matrix2, outputD, matrix1D, matrix2D, bmApi);
 
-    const uintt w = minfo.columns ();
-    const uintt h = minfo.rows ();
+    const char* kname = "CUDAKernel_DotProductDim";
 
-    void* params[] = {&output, &arg};
+    oap::generic::Args args;
 
-    return execute (kexec, kernelName.c_str(), w, h, params, 0, _prepareDims, blocks, threads, preExecCallback, [](){});
+    args.retrieveDims = false;
+    args.w = outputD[0];
+    args.h = outputD[1];
+
+    args.prepareDims = true;
+
+    uintt hostEx[4] = {args.w, args.h, matrix1D[0], matrix2D[0]};
+    uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
+    void* params[] = {&output, &matrix1, &matrix2, &kernelArray};
+
+    return oap::generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback, args);
   }
 }
 }

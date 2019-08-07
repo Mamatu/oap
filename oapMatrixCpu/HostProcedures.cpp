@@ -18,19 +18,20 @@
  */
 
 #include "HostProcedures.h"
+
+#include <functional>
+
 #include "CuProcedures/CuCompareOptProcedures.h"
 #include "CuProcedures/CuSubstractionProcedures.h"
 #include "CuProcedures/CuDotProductProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
 
-#include "GenericProceduresApi.h"
+#include "GenericValidationApi.h"
 
 #include "ThreadsMapper.h"
 
 #include "HostBuffer.h"
 #include "HostKernel.h"
-
-#include "oapHostMatrixUtils.h"
 
 #define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
 
@@ -163,7 +164,18 @@ void HostProcedures::prepare(math::Matrix* matrix, HostKernel& hostKernel) {
   hostKernel.setDims(m_blocks, m_threads);
 }
 
-HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_threadsCount(4) {}
+void HostProcedures::prepare(size_t w, size_t h, HostKernel& hostKernel) {
+  const uint columns = w;
+  const uint rows = h;
+
+  utils::mapper::SetThreadsBlocks(m_blocks, m_threads, columns, rows,
+                                  m_threadsCount);
+
+  hostKernel.setDims(m_blocks, m_threads);
+}
+
+HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_threadsCount(4), m_bmApi (oap::host::GetMatrixInfo)
+{}
 
 HostProcedures::~HostProcedures() {}
 
@@ -193,11 +205,22 @@ void HostProcedures::substract(math::Matrix* output, math::Matrix* matrix1,
   substractionImpl.executeKernelAsync();
 }
 
-void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1,
-                                math::Matrix* matrix2) {
+void HostProcedures::dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+{
+  oap::generic::dotProduct (output, matrix1, matrix2, output->columns, output->rows, &m_kernel, [](){}, m_bmApi);
+}
+
+void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, size_t w, size_t h)
+{
   DotProductImpl dotProductImpl(output, matrix1, matrix2);
-  prepare(output, dotProductImpl);
+  prepare(w, h, dotProductImpl);
   dotProductImpl.executeKernelAsync();
+}
+
+void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                                uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
+{
+  oap::generic::dotProduct (output, matrix1, matrix2, outputD, matrix1D, matrix2D, &m_kernel, [](){}, m_bmApi, std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void HostProcedures::transpose(math::Matrix* output, math::Matrix* matrix) {
