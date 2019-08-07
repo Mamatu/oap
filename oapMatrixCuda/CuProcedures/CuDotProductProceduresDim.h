@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_CU_DOT_PRODUCT_PROCEDURES_NEW_H
-#define OAP_CU_DOT_PRODUCT_PROCEDURES_NEW_H
+#ifndef OAP_CU_DOT_PRODUCT_PROCEDURES_DIM_H
+#define OAP_CU_DOT_PRODUCT_PROCEDURES_DIM_H
 
 #define W_IDX 0
 #define H_IDX 1
