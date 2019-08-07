@@ -60,10 +60,9 @@ extern "C" __global__ void CUDAKernel_DotProductEx(math::Matrix* output,
 
 extern "C" __global__
 void CUDAKernel_DotProductDim(
-     math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-     MatrixEx* outputsEx)
+     math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
 {
-  CUDA_dotProductDim (output, params0, params1, *outputsEx);
+  CUDA_dotProductDim (output, params0, params1, ex);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductReOpt(math::Matrix* output,

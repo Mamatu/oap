@@ -85,6 +85,31 @@ void HOSTKernel_CrossEntropyRaw (void** params)
   HOSTKernel_CrossEntropy (output, param1, param2);
 }
 
+void HOSTKernel_DotProduct (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+{
+  CUDA_dotProduct (output, param1, param2);
+}
+
+void HOSTKernel_DotProductRaw (void** params)
+{
+  math::Matrix* output = getParam<math::Matrix> (params[0]);
+  math::Matrix* matrix1 = getParam<math::Matrix> (params[1]);
+  math::Matrix* matrix2 = getParam<math::Matrix> (params[2]);
+  HOSTKernel_DotProduct (output, matrix1, matrix2);
+}
+
+void HOSTKernel_DotProductDim (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, uintt* ex)
+{
+  CUDA_dotProductDim (output, param1, param2, ex);
+}
+
+void HOSTKernel_DotProductDimRaw (void** params)
+{
+  math::Matrix* output = getParam<math::Matrix> (params[0]);
+  math::Matrix* matrix1 = getParam<math::Matrix> (params[1]);
+  math::Matrix* matrix2 = getParam<math::Matrix> (params[2]);
+  uintt* ex = getParam<uintt> (params[3]);
+  HOSTKernel_DotProductDim (output, matrix1, matrix2, ex);
+}
+
 #endif
-
-

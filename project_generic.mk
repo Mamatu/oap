@@ -56,6 +56,7 @@ OAP_INCLUDES += oapNeuralRoutinesHost
 OAP_INCLUDES += oapNeuralRoutinesHostTest
 OAP_INCLUDES += oapNeuralRoutines
 OAP_INCLUDES += oapDeviceTestsData
+OAP_INCLUDES += oapTestsData
 
 TARGET_ARCH := DEVICE_HOST
 

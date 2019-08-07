@@ -19,18 +19,19 @@
 
 #include "CuProceduresApi.h"
 
+#include <functional>
 #include <iterator>
 #include <math.h>
 
 #include "Logger.h"
 #include "HostMatrixKernels.h"
+#include "oapHostMatrixUPtr.h"
+#include "oapHostMatrixPtr.h"
 
 #include "ThreadsMapper.h"
 #include "oapCudaMatrixUtils.h"
 
-#include "oapHostMatrixUPtr.h"
-
-#include "GenericValidationApi.h"
+#include "GenericProceduresApi.h"
 
 namespace oap
 {
@@ -58,7 +59,7 @@ bool CuProceduresApi::execute (const char* functionName, uintt w, uintt h, void*
 CuProceduresApi::CuProceduresApi()
     : m_cuStatus(CUDA_SUCCESS),
       m_compareOperationOutput(0),
-      m_bapi (oap::cuda::GetMatrixInfo),
+      m_bmApi (oap::cuda::GetMatrixInfo),
       m_preExecCallback (std::bind(&CuProceduresApi::resetFlags, this))
 {
   init();
@@ -75,6 +76,9 @@ CuProceduresApi::~CuProceduresApi() {
   CudaUtils::FreeDeviceObj(m_magnitudeOutput);
   CudaUtils::FreeDeviceObj(m_doutputIsTriangular);
   oap::cuda::DeleteDeviceMatrixEx (m_dMatrixEx);
+
+  deallocKernelArrays ();
+
   m_kernel.unload();
 }
 
@@ -87,11 +91,7 @@ void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, ma
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  oap::generic::BasicMatrixDimApi<decltype(CuProceduresApi::GetColumns), decltype(CuProceduresApi::GetRows)> bmdApi (CuProceduresApi::GetColumns, CuProceduresApi::GetRows);
-  oap::generic::check_dotProduct (output, params0, params1, columns, rows, bmdApi);
-
-  void* params[] = {&output, &params0, &params1};
-  m_cuStatus = execute("CUDAKernel_DotProduct", columns, rows, params, 0);
+  oap::generic::dotProduct (output, params0, params1, columns, rows, &m_kernel, m_preExecCallback, m_bmApi);
 }
 
 void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -103,13 +103,12 @@ void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0,
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  oap::generic::BasicMatrixDimApi<decltype(CuProceduresApi::GetColumns), decltype(CuProceduresApi::GetRows)> bmdApi (CuProceduresApi::GetColumns, CuProceduresApi::GetRows);
-  oap::generic::check_dotProduct (output, params0, params1, columns, rows, bmdApi);
+  oap::generic::check_dotProduct (output, params0, params1, columns, rows, m_bmApi);
 
   void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_AddDotProduct";
 
-  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
 void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -127,7 +126,7 @@ void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0,
   void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_TensorProduct";
 
-  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
 void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -145,7 +144,7 @@ void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params
   void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_HadamardProduct";
 
-  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
 void CuProceduresApi::hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -163,7 +162,7 @@ void CuProceduresApi::hadamardProductVec (math::Matrix* output, math::Matrix* pa
   void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_PHadamardProduct";
 
-  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
 void CuProceduresApi::calculateQTHQ(math::Matrix* output, math::Matrix* H,
@@ -180,29 +179,14 @@ void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* params0,
   void* params[] = {&output, &params0, &params1, &matrixEx};
   const char* kname = "CUDAKernel_DotProductEx";
 
-  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback);
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
-void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-                      HostMatrixDim outputD, HostMatrixDim params0D, HostMatrixDim params1D)
+void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                                 uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
 {
-
-  oap::generic::BasicMatrixDimApi<decltype(CuProceduresApi::GetColumns), decltype(CuProceduresApi::GetRows)> bmdApi (CuProceduresApi::GetColumns, CuProceduresApi::GetRows);
-  oap::generic::check_dotProduct (output, params0, params1, outputD, params0D, params1D, bmdApi);
-
-  const char* kname = "CUDAKernel_DotProductDim";
-
-  oap::generic::Args args;
-  args.retrieveDims = false;
-  args.w = outputD[0];
-  args.h = outputD[1];
-
-  args.prepareDims = true;
-
-  m_dMatrixEx = createDeviceMatrixEx ({args.w, args.h, 0, 0, 0, params0D[1]});
-  void* params[] = {&output, &params0, &params1, &m_dMatrixEx};
-
-  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bapi, m_preExecCallback, args);
+  oap::generic::dotProduct (output, matrix1, matrix2, outputD, matrix1D, matrix2D, &m_kernel, m_preExecCallback, m_bmApi,
+                            std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* params0,
@@ -578,13 +562,13 @@ void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix)
 
 void CuProceduresApi::linearDerivative (math::Matrix* output, math::Matrix* matrix)
 {
-  oap::HostMatrixUPtr hmatrix (oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output), 1.f));
+  oap::HostMatrixUPtr hmatrix = oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output), 1.f);
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
 }
 
 void CuProceduresApi::tanh (math::Matrix* output, const math::Matrix* matrix)
 {
-  m_cuStatus = oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, m_bapi, true,
+  m_cuStatus = oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, m_bmApi, true,
                m_preExecCallback);
 }
 
@@ -748,7 +732,7 @@ std::string CuProceduresApi::getMsgStatus() const { return m_kernel.getErrorMsg(
 
 void CuProceduresApi::crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  oap::generic::crossEntropy (output, params0, params1, &m_kernel, m_bapi);
+  oap::generic::crossEntropy (output, params0, params1, &m_kernel, m_bmApi);
 }
 
 uintt CuProceduresApi::GetColumns (const math::Matrix* matrix)
@@ -759,6 +743,15 @@ uintt CuProceduresApi::GetColumns (const math::Matrix* matrix)
 uintt CuProceduresApi::GetRows (const math::Matrix* matrix)
 {
   return CudaUtils::GetRows (matrix);
+}
+
+void CuProceduresApi::deallocKernelArrays ()
+{
+  for (auto it = m_kernelArrays.begin(); it != m_kernelArrays.end(); ++it)
+  {
+    CudaUtils::FreeDeviceMem (it->second);
+  }
+  m_kernelArrays.clear();
 }
 
 }

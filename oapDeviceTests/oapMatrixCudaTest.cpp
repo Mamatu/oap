@@ -25,7 +25,6 @@
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
-#include "matrix6.h"
 
 #include "oapHostMatrixPtr.h"
 #include "oapDeviceMatrixPtr.h"
@@ -584,24 +583,6 @@ TEST_F(OapMatrixCudaTests, MagnitudeRealMatrixBigDataTest2) {
 
   oap::cuda::DeleteDeviceMatrix(dmatrix);
   oap::host::DeleteMatrix(matrix);
-}
-
-TEST_F(OapMatrixCudaTests, DotProductBigDataTest) {
-  math::Matrix* Q = oap::host::NewMatrix(Qstr);
-  math::Matrix* QJ = oap::host::NewMatrix(QJstr);
-
-  math::Matrix* dQJ = oap::cuda::NewDeviceMatrixHostRef(QJ);
-  math::Matrix* dQ = oap::cuda::NewDeviceMatrixHostRef(Q);
-  math::Matrix* doutput = oap::cuda::NewDeviceMatrixHostRef(Q);
-
-  cuMatrix->dotProduct(doutput, dQ, dQJ);
-  cuMatrix->dotProduct(doutput, dQJ, dQ);
-
-  oap::cuda::DeleteDeviceMatrix(dQJ);
-  oap::cuda::DeleteDeviceMatrix(dQ);
-  oap::cuda::DeleteDeviceMatrix(doutput);
-  oap::host::DeleteMatrix(Q);
-  oap::host::DeleteMatrix(QJ);
 }
 
 TEST_F(OapMatrixCudaTests, SetVectorAndCopyTest) {

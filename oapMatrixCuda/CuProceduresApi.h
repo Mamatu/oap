@@ -35,7 +35,7 @@
 
 #include "RecToSquareApi.h"
 
-#include "GenericProceduresApi.h"
+#include "GenericCoreApi.h"
 
 #define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
 
@@ -85,8 +85,8 @@ class CuProceduresApi
 
   inline void dotProductEx(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, MatrixEx* matrixEx);
 
-  void dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-                          HostMatrixDim outputD, HostMatrixDim params0D, HostMatrixDim params1D);
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                   uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2]);
 
   void dotProductEx(math::Matrix* output, math::Matrix* params0,
                     math::Matrix* params1, MatrixEx* matrixEx, uintt columns,
@@ -257,6 +257,9 @@ class CuProceduresApi
                              uintt wthreads, uintt hthreads);
 
   floatt magnitude2Procedure_GetOutput(uint blocks[2], uintt outputSize) const;
+
+  void deallocKernelArrays ();
+
   inline void resetFlags() {
     m_isSetRows = false;
     m_isSetColumns = false;
@@ -281,9 +284,26 @@ private:
   oap::TBuffer<floatt, oap::Type::CUDA> m_dsumsImBuffer;
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsReBuffer;
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsImBuffer;
-  MatrixEx* m_dMatrixEx = nullptr;
 
-  inline MatrixEx* createDeviceMatrixEx(const MatrixEx& host)
+  MatrixEx* m_dMatrixEx = nullptr;
+  std::map<size_t, uint*> m_kernelArrays;
+
+  uintt* createKernelArray (uintt* hostArray, size_t length)
+  {
+    auto it = m_kernelArrays.find (length);
+    if (it == m_kernelArrays.end ())
+    {
+      uintt* kernelArray = static_cast<uintt*>(CudaUtils::AllocDeviceMem (length * sizeof(uintt)));
+      m_kernelArrays[length] = kernelArray;
+    }
+
+    uintt* array = m_kernelArrays [length];
+    CudaUtils::CopyHostToDevice (array, hostArray, length * sizeof(uintt));
+
+    return array;
+  }
+
+  MatrixEx* createDeviceMatrixEx(const MatrixEx& host)
   {
     if (m_dMatrixEx == nullptr)
     {
@@ -294,7 +314,7 @@ private:
     return m_dMatrixEx;
   }
 
-  oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> m_bapi;
+  oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> m_bmApi;
   std::function<void()> m_preExecCallback;//(std::bind(&CuProceduresApi::resetFlags, this)
 };
 
