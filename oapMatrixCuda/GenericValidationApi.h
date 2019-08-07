@@ -22,6 +22,8 @@
 
 #include "GenericCoreApi.h"
 
+#include "MatrixInfo.h"
+
 namespace oap
 {
 namespace generic
@@ -53,10 +55,9 @@ void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix
   debugAssertMsg(output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
 }
 
-template<typename MatrixInfoApi, typename Dim>
-void check_Dim (const MatrixInfoApi& miApi, math::Matrix* matrix, const Dim& dim)
+template<typename Dim>
+void check_Dim (const math::MatrixInfo& minfo, math::Matrix* matrix, const Dim& dim)
 {
-  auto minfo = miApi.getMatrixInfo (matrix);
   const uintt columns = minfo.columns ();
   const uintt rows = minfo.rows ();
 
@@ -64,14 +65,13 @@ void check_Dim (const MatrixInfoApi& miApi, math::Matrix* matrix, const Dim& dim
   debugAssert (dim[1] <= rows);
 }
 
-template<typename BasicMatrixApi>
-void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
                        uintt* outputEx, uintt* params0Ex, uintt* params1Ex,
-                       BasicMatrixApi& bmApi)
+                       const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
 {
-  check_Dim (bmApi, output, outputEx);
-  check_Dim (bmApi, params0, params0Ex);
-  check_Dim (bmApi, params1, params1Ex);
+  check_Dim (oinfo, output, outputEx);
+  check_Dim (minfo1, params0, params0Ex);
+  check_Dim (minfo2, params1, params1Ex);
 
   const uintt output_columns = outputEx[0];//matrixDimApi.getColumns(params0);
   const uintt output_rows = outputEx[1]; //matrixDimApi.getRows(params0);
