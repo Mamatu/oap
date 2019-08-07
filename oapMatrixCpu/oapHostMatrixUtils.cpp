@@ -1094,7 +1094,7 @@ math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
   return minfo;
 }
 
-void CopyArrayToMatrix (math::Matrix* matrix, void* rebuffer, void* imbuffer)
+void CopyArrayToMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer)
 {
   if (rebuffer != nullptr)
   {
@@ -1106,16 +1106,16 @@ void CopyArrayToMatrix (math::Matrix* matrix, void* rebuffer, void* imbuffer)
   }
 }
 
-void CopyArrayToReMatrix (math::Matrix* matrix, void* buffer)
+void CopyArrayToReMatrix (math::Matrix* matrix, floatt* buffer)
 {
-  debugAssert (matrix->reValues == nullptr);
-  memcpy (matrix->reValues, buffer, matrix->columns * matrix->rows);
+  debugAssert (matrix->reValues != nullptr);
+  memcpy (matrix->reValues, buffer, matrix->columns * matrix->rows * sizeof(floatt));
 }
 
-void CopyArrayToImMatrix (math::Matrix* matrix, void* buffer)
+void CopyArrayToImMatrix (math::Matrix* matrix, floatt* buffer)
 {
-  debugAssert (matrix->imValues == nullptr);
-  memcpy (matrix->reValues, buffer, matrix->columns * matrix->rows);
+  debugAssert (matrix->imValues != nullptr);
+  memcpy (matrix->imValues, buffer, matrix->columns * matrix->rows * sizeof(floatt));
 }
 
 }

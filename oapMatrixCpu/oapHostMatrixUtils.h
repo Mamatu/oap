@@ -125,6 +125,16 @@ inline void CopyHostMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* s
   CopyMatrix (dst, src);
 }
 
+inline uintt GetColumns (const math::Matrix* matrix)
+{
+  return matrix->columns;
+}
+
+inline uintt GetRows (const math::Matrix* matrix)
+{
+  return matrix->rows;
+}
+
 /**
  * Copy data to dst matrix which has one column and row less than
  * src matrix. Row and column which will be omitted are added as params..
@@ -646,9 +656,9 @@ void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
 math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
-void CopyArrayToMatrix (math::Matrix* matrix, void* rebuffer, void* imbuffer);
-void CopyArrayToReMatrix (math::Matrix* matrix, void* buffer);
-void CopyArrayToImMatrix (math::Matrix* matrix, void* buffer);
+void CopyArrayToMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer);
+void CopyArrayToReMatrix (math::Matrix* matrix, floatt* buffer);
+void CopyArrayToImMatrix (math::Matrix* matrix, floatt* buffer);
 
 inline void SetReValueToMatrix (math::Matrix* matrix, floatt value, size_t idx = 0)
 {
