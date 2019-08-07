@@ -22,9 +22,9 @@
 
 #define W_IDX 0
 #define H_IDX 1
-#define RCOLS1_IDX 2
 #define OFFSET_IDX 2
-#define RCOLS2_IDX 3
+#define RCOLS1_IDX 3
+#define RCOLS2_IDX 4
 
 #include "CuCore.h"
 #include "CuUtils.h"

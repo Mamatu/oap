@@ -30,7 +30,9 @@
 #include "oapDeviceMatrixPtr.h"
 
 #include "matrix6.h"
+
 #include "oapDotProductTests_Data_1.h"
+#include "oapDotProductTests_Data_2.h"
 
 class OapDotProductTests : public testing::Test {
  public:
@@ -167,4 +169,32 @@ TEST_F(OapDotProductTests, BigDataTest_1)
   oap::cuda::DeleteDeviceMatrix(doutput);
   oap::host::DeleteMatrix(Q);
   oap::host::DeleteMatrix(QJ);
+}
+
+TEST_F(OapDotProductTests, Test_CustomDim_3)
+{
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(5, 2, 0);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(4, 5, 0);
+
+  using namespace oapDotProduct_Data::Test_2;
+
+  oap::HostMatrixPtr ehoutput = oap::host::NewReMatrix(3, 2);
+
+  oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
+  oap::host::CopyArrayToReMatrix (hostM2, t_reValues2);
+  oap::host::CopyArrayToReMatrix (ehoutput, t_outputValues);
+
+  oap::DeviceMatrixPtr dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  oap::DeviceMatrixPtr dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+
+  oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceReMatrix(3, 2);
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrix(3, 2);
+
+  uintt oDim[2] = {3, 2};
+  uintt p1Dim[2] = {4, 2};
+  uintt p2Dim[2] = {3, 4};
+  cuMatrix->dotProduct (doutput, dM1, dM2, oDim, p1Dim, p2Dim);
+  oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
+
+  EXPECT_THAT(ehoutput.get(), MatrixIsEqual(houtput.get()));
 }

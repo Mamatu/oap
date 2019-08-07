@@ -285,7 +285,12 @@ namespace generic
                   oap::IKernelExecutor* kexec, PreExecCallback&& preExecCallback,
                   BasicMatrixApi& bmApi, CreateKernelArray&& createKernelArray)
   {
-    oap::generic::check_dotProduct (output, matrix1, matrix2, outputD, matrix1D, matrix2D, bmApi);
+    auto oinfo = bmApi.getMatrixInfo (output);
+    auto minfo1 = bmApi.getMatrixInfo (matrix1);
+    auto minfo2 = bmApi.getMatrixInfo (matrix2);
+
+    oap::generic::check_dotProduct (output, matrix1, matrix2, outputD, matrix1D, matrix2D,
+                                   oinfo, minfo1, minfo2);
 
     const char* kname = "CUDAKernel_DotProductDim";
 
@@ -297,7 +302,7 @@ namespace generic
 
     args.prepareDims = true;
 
-    uintt hostEx[4] = {args.w, args.h, matrix1D[0], matrix2D[0]};
+    uintt hostEx[5] = {args.w, args.h, matrix1D[0], minfo1.columns(), minfo2.columns()};
     uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
     void* params[] = {&output, &matrix1, &matrix2, &kernelArray};
 
