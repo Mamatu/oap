@@ -62,7 +62,7 @@ inline void setDeviceInputs(LayerS& ls, const math::Matrix* dInputs)
 
 inline math::MatrixInfo getOutputsInfo (const LayerS& ls)
 {
-  return oap::cuda::GetMatrixInfo (ls.m_inputs);
+  return oap::generic::getOutputsInfo (ls, oap::cuda::GetMatrixInfo);
 }
 
 inline math::MatrixInfo getInputsInfo (LayerS& ls)
@@ -74,17 +74,17 @@ inline void getOutputs (const LayerS& ls, math::Matrix* matrix, ArgType type)
 {
   if (type == ArgType::HOST)
   {
-    oap::cuda::CopyDeviceMatrixToHostMatrix (matrix, ls.m_inputs);
+    oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToHostMatrix);
   }
   else
   {
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix (matrix, ls.m_inputs);
+    oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
   }
 }
 
 inline void setHostWeights (LayerS& ls, math::Matrix* weights)
 {
-  oap::cuda::CopyHostMatrixToDeviceMatrix (ls.m_weights, weights);
+  oap::generic::setHostWeights (ls, weights, oap::cuda::CopyHostMatrixToDeviceMatrix);
 }
 
 inline void setDeviceWeights (LayerS& ls, math::Matrix* weights)

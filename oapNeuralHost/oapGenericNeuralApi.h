@@ -194,6 +194,24 @@ void connectLayers (LayerT* previous, LayerT* next)
   oap::generic::allocateWeights<LayerT, AllocWeightsApi> (*previous, next);
 }
 
+template<typename LayerT, typename CopyHostMatrixToMatrix>
+void setHostWeights (LayerT& ls, math::Matrix* weights, CopyHostMatrixToMatrix&& copyHostMatrixToMatrix)
+{
+  copyHostMatrixToMatrix (ls.m_weights, weights);
+}
+
+template<typename LayerT, typename GetMatrixInfo>
+math::MatrixInfo getOutputsInfo (const LayerT& ls, GetMatrixInfo&& getMatrixInfo)
+{
+  return getMatrixInfo (ls.m_inputs);
+}
+
+template<typename LayerT, typename CopyMatrixToMatrix>
+void getOutputs (math::Matrix* matrix, const LayerT& layer, CopyMatrixToMatrix&& copyMatrixToMatrix)
+{
+  copyMatrixToMatrix (matrix, layer.m_inputs);
+}
+
 }
 }
 #endif
