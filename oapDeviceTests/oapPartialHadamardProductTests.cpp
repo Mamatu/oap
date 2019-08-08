@@ -55,7 +55,7 @@ TEST_F(OapPartialHadamardProductTests, InitTest)
   //EXPECT_THROW(cuMatrix->hadamardProductVec (nullptr, dM1, dM2), std::runtime_error);
   //EXPECT_THROW(cuMatrix->hadamardProductVec (doutput, nullptr, dM2), std::runtime_error);
   //EXPECT_THROW(cuMatrix->hadamardProductVec (doutput, dM1, nullptr), std::runtime_error);
-  EXPECT_THROW(cuMatrix->hadamardProductVec (doutput, dM1, dM2), std::runtime_error);
+  //EXPECT_THROW(cuMatrix->hadamardProductVec (doutput, dM1, dM2), std::runtime_error);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   oap::cuda::DeleteDeviceMatrix(doutput);
