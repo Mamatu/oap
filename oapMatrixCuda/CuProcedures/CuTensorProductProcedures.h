@@ -30,10 +30,10 @@ cuda_tensorProductRe(math::Matrix* output, math::Matrix* params0, math::Matrix* 
   THREAD_INDICES_INIT();
 
   uintt params1_index_y = threadIndexY % params1->rows;
-  uintt params0_section_y = threadIndexY / params0->rows;
+  uintt params0_section_y = threadIndexY / params1->rows;
 
   uintt params1_index_x = threadIndexX % params1->columns;
-  uintt params0_section_x = threadIndexX / params0->columns;
+  uintt params0_section_x = threadIndexX / params1->columns;
 
   floatt v0 = params0->reValues[params0_section_x + params0->columns * params0_section_y];
   floatt v1 = params1->reValues[params1_index_x + params1->columns * params1_index_y];
