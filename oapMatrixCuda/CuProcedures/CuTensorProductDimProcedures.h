@@ -21,7 +21,6 @@
 #define CU_TENSOR_PRODUCT_DIM_PROCEDURES_H
 
 #include "CuCore.h"
-#include "CuUtils.h"
 #include "Matrix.h"
 
 __hostdevice__ void

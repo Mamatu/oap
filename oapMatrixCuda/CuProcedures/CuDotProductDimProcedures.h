@@ -27,7 +27,6 @@
 #define RCOLS2_IDX 4
 
 #include "CuCore.h"
-#include "CuUtils.h"
 #include "Matrix.h"
 
 __hostdevice__ void cuda_dotProductReDim(
