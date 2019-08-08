@@ -23,7 +23,6 @@
 #include "Matrix.h"
 
 #include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
 
 namespace oap
 {
