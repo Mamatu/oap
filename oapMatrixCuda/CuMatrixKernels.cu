@@ -381,6 +381,12 @@ CUDAKernel_TensorProduct(math::Matrix* output, math::Matrix* params0, math::Matr
 }
 
 extern "C" __global__ void
+CUDAKernel_TensorProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+{
+  CUDA_tensorProductDim (output, params0, params1, ex);
+}
+
+extern "C" __global__ void
 CUDAKernel_HadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
   CUDA_hadamardProduct (output, params0, params1);

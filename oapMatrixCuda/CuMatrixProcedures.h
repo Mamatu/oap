@@ -51,6 +51,7 @@
 #include "CuProcedures/CuMagnitudeOptProcedures2.h"
 #include "CuProcedures/CuTriangularH.h"
 #include "CuProcedures/CuTensorProductProcedures.h"
+#include "CuProcedures/CuTensorProductDimProcedures.h"
 #include "CuProcedures/CuSigmoidProcedures.h"
 #include "CuProcedures/CuTanhProcedures.h"
 #include "CuProcedures/CuSinProcedures.h"

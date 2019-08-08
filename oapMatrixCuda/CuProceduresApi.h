@@ -37,7 +37,7 @@
 
 #include "GenericCoreApi.h"
 
-#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
+#define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
 namespace oap
 {
@@ -57,6 +57,16 @@ class CuProceduresApi
   inline void addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   inline void tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+
+
+  void tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2]);
+
+  inline void tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
+  {
+
+    uintt dims[3][2] = {{outputD[0], outputD[1]}, {matrix1D[0], matrix1D[1]}, {matrix2D[0], matrix2D[1]}};
+    tensorProduct (output, params0, params1, dims);
+  }
 
   inline void hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 

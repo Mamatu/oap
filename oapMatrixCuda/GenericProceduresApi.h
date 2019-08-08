@@ -33,6 +33,8 @@
 #include "GenericCoreApi.h"
 #include "GenericValidationApi.h"
 
+#define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
+
 namespace oap
 {
 namespace generic
@@ -296,16 +298,46 @@ namespace generic
     oap::generic::Args args;
 
     args.retrieveDims = false;
-    args.w = outputD[0];
-    args.h = outputD[1];
+    args.w = dims[0][0];
+    args.h = dims[0][1];
 
     args.prepareDims = true;
 
-    uintt hostEx[5] = {args.w, args.h, matrix1D[0], minfo1.columns(), minfo2.columns()};
+    uintt hostEx[5] = {oinfo.columns(), args.h, dims[1][0], minfo1.columns(), minfo2.columns()};
     uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
     void* params[] = {&output, &matrix1, &matrix2, &kernelArray};
 
     return oap::generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback, args);
+  }
+
+  template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
+  bool tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2],
+                      oap::IKernelExecutor* kexec, PreExecCallback&& preExecCallback,
+                      BasicMatrixApi& bmApi, CreateKernelArray&& createKernelArray)
+  {
+    CHECK_MATRIX(output);
+    CHECK_MATRIX(params0);
+    CHECK_MATRIX(params1);
+
+    auto oinfo = bmApi.getMatrixInfo (output);
+    auto minfo0 = bmApi.getMatrixInfo (params0);
+    auto minfo1 = bmApi.getMatrixInfo (params1);
+
+    oap::generic::check_tensorProduct (output, params0, params1, dims, oinfo, minfo0, minfo1);
+
+    oap::generic::Args args;
+
+    args.retrieveDims = false;
+    args.w = dims[0][0];
+    args.h = dims[0][1];
+
+    uintt hostEx[] = {dims[0][0], dims[0][1], oinfo.columns(), dims[1][0], dims[1][1], dims[2][0], dims[2][1], minfo0.columns(), minfo1.columns()};
+    uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
+
+    void* params[] = {&output, &params0, &params1, &kernelArray};
+    const char* kname = "CUDAKernel_TensorProductDim";
+
+    return generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback, args);
   }
 }
 }
