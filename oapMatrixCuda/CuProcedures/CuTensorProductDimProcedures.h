@@ -36,13 +36,13 @@ cuda_tensorProductReDim (math::Matrix* output, math::Matrix* params0, math::Matr
   uintt p1rows = ex[5];
 
   uintt params1_index_y = threadIndexY % p1rows;
-  uintt params0_section_y = threadIndexY / p0rows;
+  uintt params0_section_y = threadIndexY / p1rows;
 
   uintt params1_index_x = threadIndexX % p1columns;
-  uintt params0_section_x = threadIndexX / p0columns;
+  uintt params0_section_x = threadIndexX / p1columns;
 
   floatt v0 = params0->reValues[params0_section_x + params0->columns * params0_section_y];
-  floatt v1 = params1->reValues[params1_index_x + params0->columns * params1_index_y];
+  floatt v1 = params1->reValues[params1_index_x + params1->columns * params1_index_y];
 
   const uintt outputIdx = threadIndexX + output->columns * threadIndexY;
   output->reValues[outputIdx] = v0 * v1;
