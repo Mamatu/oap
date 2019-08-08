@@ -217,10 +217,9 @@ void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, mat
   dotProductImpl.executeKernelAsync();
 }
 
-void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                                uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
+void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
 {
-  oap::generic::dotProduct (output, matrix1, matrix2, outputD, matrix1D, matrix2D, &m_kernel, [](){}, m_bmApi, std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+  oap::generic::dotProduct (output, matrix1, matrix2, dims, &m_kernel, [](){}, m_bmApi, std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void HostProcedures::transpose(math::Matrix* output, math::Matrix* matrix) {

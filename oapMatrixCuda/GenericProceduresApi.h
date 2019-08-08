@@ -280,8 +280,7 @@ namespace generic
   }
 
   template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
-  bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                  uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2],
+  bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2],
                   oap::IKernelExecutor* kexec, PreExecCallback&& preExecCallback,
                   BasicMatrixApi& bmApi, CreateKernelArray&& createKernelArray)
   {
@@ -289,7 +288,7 @@ namespace generic
     auto minfo1 = bmApi.getMatrixInfo (matrix1);
     auto minfo2 = bmApi.getMatrixInfo (matrix2);
 
-    oap::generic::check_dotProduct (output, matrix1, matrix2, outputD, matrix1D, matrix2D,
+    oap::generic::check_dotProduct (output, matrix1, matrix2, dims,
                                    oinfo, minfo1, minfo2);
 
     const char* kname = "CUDAKernel_DotProductDim";

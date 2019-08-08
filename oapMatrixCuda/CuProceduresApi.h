@@ -85,8 +85,16 @@ class CuProceduresApi
 
   inline void dotProductEx(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, MatrixEx* matrixEx);
 
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+
   void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                   uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2]);
+                   uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
+  {
+    uintt dims[3][2] = {{outputD[0], outputD[1]}, {matrix1D[0], matrix1D[1]}, {matrix2D[0], matrix2D[1]}};
+
+    dotProduct (output, matrix1, matrix2, dims);
+  }
+
 
   void dotProductEx(math::Matrix* output, math::Matrix* params0,
                     math::Matrix* params1, MatrixEx* matrixEx, uintt columns,
