@@ -47,8 +47,14 @@ class HostProcedures {
   void dotProduct(math::Matrix* output, math::Matrix* matrix1,
                  math::Matrix* matrix2, size_t w, size_t h);
 
+  void dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+
   void dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                  uintt outputDim[2], uintt params0Dim[2], uintt params1Dim[2]);
+                  uintt outputDim[2], uintt params0Dim[2], uintt params1Dim[2])
+  {
+    uintt dims[3][2] = {{outputDim[0], outputDim[1]}, {params0Dim[0], params0Dim[1]}, {params1Dim[0], params1Dim[1]}};
+    dotProduct (output, matrix1, matrix2, dims);
+  }
 
   void transpose(math::Matrix* output, math::Matrix* matrix);
 
