@@ -56,7 +56,7 @@ void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix
 }
 
 template<typename Dim>
-void check_Dim (const math::MatrixInfo& minfo, math::Matrix* matrix, const Dim& dim)
+void check_Size (const math::MatrixInfo& minfo, math::Matrix* matrix, const Dim& dim)
 {
   const uintt columns = minfo.columns ();
   const uintt rows = minfo.rows ();
@@ -65,22 +65,21 @@ void check_Dim (const math::MatrixInfo& minfo, math::Matrix* matrix, const Dim& 
   debugAssert (dim[1] <= rows);
 }
 
-inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-                       uintt* outputEx, uintt* params0Ex, uintt* params1Ex,
-                       const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
+inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2],
+                              const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
 {
-  check_Dim (oinfo, output, outputEx);
-  check_Dim (minfo1, params0, params0Ex);
-  check_Dim (minfo2, params1, params1Ex);
+  check_Size (oinfo, output, dims[0]);
+  check_Size (minfo1, params0, dims[1]);
+  check_Size (minfo2, params1, dims[2]);
 
-  const uintt output_columns = outputEx[0];//matrixDimApi.getColumns(params0);
-  const uintt output_rows = outputEx[1]; //matrixDimApi.getRows(params0);
+  const uintt output_columns = dims[0][0];//matrixDimApi.getColumns(params0);
+  const uintt output_rows = dims[0][1]; //matrixDimApi.getRows(params0);
 
-  const uintt params0_columns = params0Ex[0];//matrixDimApi.getColumns(params0);
-  const uintt params0_rows = params0Ex[1]; //matrixDimApi.getRows(params0);
+  const uintt params0_columns = dims[1][0];//matrixDimApi.getColumns(params0);
+  const uintt params0_rows = dims[1][1]; //matrixDimApi.getRows(params0);
 
-  const uintt params1_columns = params1Ex[0];//matrixDimApi.getColumns(params1);
-  const uintt params1_rows = params1Ex[1];//matrixDimApi.getRows(params1);
+  const uintt params1_columns = dims[2][0];//matrixDimApi.getColumns(params1);
+  const uintt params1_rows = dims[2][1];//matrixDimApi.getRows(params1);
 
 #ifdef CU_PROCEDURES_API_PRINT
   oap::cuda::PrintMatrixInfo("params0 = ", params0);
@@ -139,13 +138,8 @@ void check_hadamardProduct (math::Matrix* output, math::Matrix* params0, math::M
   oap::cuda::PrintMatrixInfo("ouput = ", output);
 #endif
 
-  std::stringstream stream1, stream2;
-
-  stream1 << __func__ << " output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
-  throwExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
-
-  stream2 << __func__ << " output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
-  throwExceptionMsg(output_columns == params0_columns && output_columns == params1_columns, stream2);
+  debugAssertMsg (output_rows == params0_rows && output_rows == params1_rows, "output_rows = %u params0_rows = %u params1_rows = %u", output_rows, params0_rows, params1_rows);
+  debugAssertMsg (output_columns == params0_columns && output_columns == params1_columns, "output_columns = %u params0_columns = %u params1_columns = %u", output_columns, params0_columns, params1_columns);
 }
 
 template<typename GetColumns, typename GetRows>
@@ -166,16 +160,9 @@ void check_hadamardProductVec (math::Matrix* output, math::Matrix* params0, math
   oap::cuda::PrintMatrixInfo("ouput = ", output);
 #endif
 
-  std::stringstream stream1, stream2, stream3;
-
-  stream1 << __func__ << " output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
-  throwExceptionMsg(output_rows == params0_rows && output_rows == params1_rows, stream1);
-
-  stream2 << __func__ << " params1_columns = " << params1_columns;
-  throwExceptionMsg(1 == params1_columns, stream1);
-
-  stream3 << __func__ <<  "output_columns = " << output_columns << ", params0_columns = " << params0_columns;
-  throwExceptionMsg(output_columns == params0_columns, stream2);
+  debugAssertMsg(output_rows == params0_rows && output_rows == params1_rows, "output_rows = %u params0_rows = %u params1_rows = %u", output_rows, params0_rows, params1_rows);
+  debugAssertMsg(1 == params1_columns, "params1_columns = %u", params1_columns);
+  debugAssertMsg(output_columns == params0_columns, "output_columns = %u params0_columns = %u", output_columns, params0_columns);
 }
 
 }
