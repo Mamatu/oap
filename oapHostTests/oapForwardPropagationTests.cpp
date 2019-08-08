@@ -23,8 +23,6 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "oapLayer.h"
-
 #include "oapGenericNeuralApi.h"
 #include "oapGenericAllocApi.h"
 
@@ -67,7 +65,7 @@ TEST_F(OapForwardPropagationTests, Test_1)
   layersPtrs.push_back (std::shared_ptr<LayerS>(l1, ldeleter));
   layersPtrs.push_back (std::shared_ptr<LayerS>(l2, ldeleter));
   layersPtrs.push_back (std::shared_ptr<LayerS>(l3, ldeleter));
-  
+
   layers.push_back (l1);
   layers.push_back (l2);
   layers.push_back (l3);
