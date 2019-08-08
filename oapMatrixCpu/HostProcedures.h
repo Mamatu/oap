@@ -69,6 +69,14 @@ class HostProcedures {
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 
   void crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+
+  void tensorProduct (math::Matrix* matrix, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2]);
+
+  inline void tensorProduct (math::Matrix* matrix, math::Matrix* params0, math::Matrix* params1, uintt dims1[2], uintt dims2[2], uintt dims3[2])
+  {
+    uintt dims[3][2] = {{dims1[0], dims1[1]}, {dims2[0], dims2[1]}, {dims3[0], dims3[1]}};
+    tensorProduct (matrix, params0, params1, dims);
+  }
  private:
   uint m_threads[2];
   uint m_blocks[2];

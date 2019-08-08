@@ -120,13 +120,18 @@ void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0,
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  oap::generic::BasicMatrixDimApi<decltype(CuProceduresApi::GetColumns), decltype(CuProceduresApi::GetRows)> bmdApi (CuProceduresApi::GetColumns, CuProceduresApi::GetRows);
-  oap::generic::check_tensorProduct (output, params0, params1, columns, rows, bmdApi);
+  oap::generic::check_tensorProduct (output, params0, params1, columns, rows, m_bmApi);
 
   void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_TensorProduct";
 
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
+void CuProceduresApi::tensorProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+{
+  oap::generic::tensorProduct (output, matrix1, matrix2, dims, &m_kernel, m_preExecCallback, m_bmApi,
+                            std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)

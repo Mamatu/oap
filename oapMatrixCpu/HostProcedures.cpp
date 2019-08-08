@@ -289,3 +289,10 @@ void HostProcedures::crossEntropy (math::Matrix* output, math::Matrix* params0, 
 
   oap::generic::crossEntropy (output, params0, params1, &m_kernel, bapi);
 }
+
+void HostProcedures::tensorProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+{
+  oap::generic::tensorProduct (output, matrix1, matrix2, dims, &m_kernel, [](){}, m_bmApi,
+                            std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+
+}

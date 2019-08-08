@@ -35,6 +35,7 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_Sigmoid", HOSTKernel_SigmoidRaw},
   {"CUDAKernel_DotProductDim", HOSTKernel_DotProductDimRaw},
   {"CUDAKernel_DotProduct", HOSTKernel_DotProductRaw},
+  {"CUDAKernel_TensorProductDim", HOSTKernel_TensorProductDimRaw},
 };
 
 class HostKernelImpl : public HostKernel

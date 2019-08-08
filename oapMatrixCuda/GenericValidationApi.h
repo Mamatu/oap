@@ -87,22 +87,25 @@ inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math:
   oap::cuda::PrintMatrixInfo("ouput = ", output);
 #endif
 
-  debugAssertMsg(params0_columns == params1_rows, "params0_columns = %u params1_rows = %u", params0_columns, params1_rows);
-  debugAssertMsg(output_columns == params1_columns, "output_columns = %u params1_columns = %u", output_columns, params1_columns);
-  debugAssertMsg(output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
+  debugAssertMsg (params0_columns == params1_rows, "params0_columns = %u params1_rows = %u", params0_columns, params1_rows);
+  debugAssertMsg (output_columns == params1_columns, "output_columns = %u params1_columns = %u", output_columns, params1_columns);
+  debugAssertMsg (output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
 }
 
-template<typename GetColumns, typename GetRows>
-void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixDimApi<GetColumns, GetRows>& matrixDimApi)
+template<typename GetMatrixInfo>
+void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixApi<GetMatrixInfo>& bmApi)
 {
   const uintt output_columns = columns;
   const uintt output_rows = rows;
 
-  const uintt params0_columns = matrixDimApi.getColumns(params0);
-  const uintt params0_rows = matrixDimApi.getRows(params0);
+  auto minfo0 = bmApi.getMatrixInfo (params0);
+  auto minfo1 = bmApi.getMatrixInfo (params1);
 
-  const uintt params1_columns = matrixDimApi.getColumns(params1);
-  const uintt params1_rows = matrixDimApi.getRows(params1);
+  const uintt params0_columns = minfo0.columns ();
+  const uintt params0_rows = minfo0.rows ();
+
+  const uintt params1_columns = minfo1.columns ();
+  const uintt params1_rows = minfo1.rows ();
 
 #ifdef CU_PROCEDURES_API_PRINT
   oap::cuda::PrintMatrixInfo("params0 = ", params0);
@@ -110,14 +113,34 @@ void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Mat
   oap::cuda::PrintMatrixInfo("ouput = ", output);
 #endif
 
-  std::stringstream stream1, stream2;
+  debugAssertMsg (output_rows == params0_rows * params1_rows, "output_rows = %u params0_rows = %u params1_rows %u", output_rows, params0_rows, params1_rows);
+  debugAssertMsg (output_columns == params0_columns * params1_columns, "output_columns = %u params0_columns = %u params1_columns = %u", output_columns, params0_columns, params1_columns);
+}
 
-  stream1 << __func__ << " output_rows = " << output_rows << ", params0_rows = " << params0_rows << ", params1_rows = " << params1_rows;
-  throwExceptionMsg(output_rows == params0_rows * params1_rows, stream1);
+inline void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2],
+                          const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo0, const math::MatrixInfo& minfo1)
+{
+  check_Size (oinfo, output, dims[0]);
+  check_Size (minfo0, params0, dims[1]);
+  check_Size (minfo1, params1, dims[2]);
 
-  stream2 << __func__ << " output_columns = " << output_columns << ", params0_columns = " << params0_columns << ", params1_columns = " << params1_columns;
-  throwExceptionMsg(output_columns == params0_columns * params1_columns, stream2);
+  const uintt output_columns = dims[0][0];
+  const uintt output_rows = dims[0][1];
 
+  const uintt params0_columns = dims[1][0];
+  const uintt params0_rows = dims[1][1];
+
+  const uintt params1_columns = dims[2][0];
+  const uintt params1_rows = dims[2][1];
+
+#ifdef CU_PROCEDURES_API_PRINT
+  oap::cuda::PrintMatrixInfo("params0 = ", params0);
+  oap::cuda::PrintMatrixInfo("params1 = ", params1);
+  oap::cuda::PrintMatrixInfo("ouput = ", output);
+#endif
+
+  debugAssertMsg (output_rows == params0_rows * params1_rows, "output_rows = %u params0_rows = %u params1_rows = %u", output_rows, params0_rows, params1_rows);
+  debugAssertMsg (output_columns == params0_columns * params1_columns, "output_columns = %u params0_columns = %u params1_columns = %u", output_columns, params0_columns, params1_columns);
 }
 
 template<typename GetColumns, typename GetRows>
