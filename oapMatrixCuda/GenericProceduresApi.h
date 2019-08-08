@@ -331,7 +331,7 @@ namespace generic
     args.w = dims[0][0];
     args.h = dims[0][1];
 
-    uintt hostEx[] = {dims[0][0], dims[0][1], oinfo.columns(), dims[1][0], dims[1][1], dims[2][0], dims[2][1], minfo0.columns(), minfo1.columns()};
+    uintt hostEx[] = {dims[0][0], dims[0][1], dims[1][0], dims[1][1], dims[2][0], dims[2][1]};
     uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
 
     void* params[] = {&output, &params0, &params1, &kernelArray};

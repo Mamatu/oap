@@ -30,16 +30,11 @@ cuda_tensorProductReDim (math::Matrix* output, math::Matrix* params0, math::Matr
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt realocolumns = ex[2];
+  uintt p0columns = ex[2];
+  uintt p0rows = ex[3];
 
-  uintt p0columns = ex[3];
-  uintt p0rows = ex[4];
-
-  uintt p1columns = ex[5];
-  uintt p1rows = ex[6];
-
-  uintt realp0columns = ex[7];
-  uintt realp1columns = ex[8];
+  uintt p1columns = ex[4];
+  uintt p1rows = ex[5];
 
   uintt params1_index_y = threadIndexY % p1rows;
   uintt params0_section_y = threadIndexY / p0rows;
@@ -47,10 +42,10 @@ cuda_tensorProductReDim (math::Matrix* output, math::Matrix* params0, math::Matr
   uintt params1_index_x = threadIndexX % p1columns;
   uintt params0_section_x = threadIndexX / p0columns;
 
-  floatt v0 = params0->reValues[params0_section_x + realp0columns * params0_section_y];
-  floatt v1 = params1->reValues[params1_index_x + realp1columns * params1_index_y];
+  floatt v0 = params0->reValues[params0_section_x + params0->columns * params0_section_y];
+  floatt v1 = params1->reValues[params1_index_x + params0->columns * params1_index_y];
 
-  const uintt outputIdx = threadIndexX + realocolumns * threadIndexY;
+  const uintt outputIdx = threadIndexX + output->columns * threadIndexY;
   output->reValues[outputIdx] = v0 * v1;
 }
 
