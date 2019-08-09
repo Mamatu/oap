@@ -93,8 +93,8 @@ public:
   bool operator== (const Layer& layer) const;
   bool operator!= (const Layer& layer) const;
 
-  template<typename Layers, typename Api, typename SetReValue>
-  friend void oap::generic::forwardPropagation (const Layers&, Api&, SetReValue&&);
+  template<typename Layers, typename Api>
+  friend void oap::generic::forwardPropagation (const Layers&, Api&);
 
   template<typename LayerT, typename AllocNeuronsApi>
   friend LayerT* oap::generic::createLayer (uintt, bool, Activation);
@@ -115,6 +115,9 @@ public:
   friend void oap::generic::updateWeights(const Layers&, Api&, PostCallback&&, floatt, uintt);
 
   friend void oap::generic::initRandomWeights (LayerS&, const LayerS*);
+
+  template<typename LayerT, typename SetReValue>
+  friend void oap::generic::initLayerBiases (LayerT&, SetReValue&&);
 };
 
 template<typename AllocApi>

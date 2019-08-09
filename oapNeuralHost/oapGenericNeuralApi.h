@@ -56,6 +56,26 @@ void activateFunc (math::Matrix* output, math::Matrix* input, Activation activat
 }
 
 template<typename Api>
+void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2])
+{
+  switch (activation)
+  {
+    case Activation::SIGMOID:
+      api.sigmoid (output, input, dims);
+    break;
+    case Activation::LINEAR:
+      api.linear (output, input, dims);
+    break;
+    case Activation::TANH:
+      api.tanh (output, input, dims);
+    break;
+    case Activation::SIN:
+      api.sin (output, input, dims);
+    break;
+  };
+}
+
+template<typename Api>
 void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api)
 {
   switch (activation)
@@ -75,8 +95,60 @@ void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activ
   };
 }
 
-template<typename Layers, typename Api, typename SetReValue>
-void forwardPropagation (const Layers& layers, Api& api, SetReValue&& setReValue)
+template<typename Api>
+void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2])
+{
+  switch (activation)
+  {
+    case Activation::SIGMOID:
+      api.sigmoidDerivative (output, input, dims);
+    break;
+    case Activation::LINEAR:
+      api.linearDerivative (output, input, dims);
+    break;
+    case Activation::TANH:
+      api.tanhDerivative (output, input, dims);
+    break;
+    case Activation::SIN:
+      api.sinDerivative (output, input, dims);
+    break;
+  };
+}
+
+template<typename LayerT, typename SetReValue>
+void initLayerBiases (LayerT& layer, SetReValue&& setReValue)
+{
+  debugAssert (layer.getTotalNeuronsCount() > 0);
+  if (layer.m_biasCount == 1)
+  {
+    setReValue (layer.m_inputs, 1.f, 0, layer.getTotalNeuronsCount() - 1);
+    //setReValue (layer.m_tinputs, 1.f, layer.getTotalNeuronsCount() - 1, 0);
+  }
+  else if (layer.m_biasCount > 1)
+  {
+    debugAssert ("Not supported yet" == nullptr);
+  }
+}
+
+template<typename Layers, typename SetReValue>
+void initNetworkBiases (const Layers& layers, SetReValue&& setReValue)
+{
+  for (uintt idx = 0; idx < layers.size(); ++idx)
+  {
+    initLayerBiases (*layers[idx], setReValue);
+  }
+}
+
+template<typename LayerT, typename CopyMatrixToMatrix, typename SetReValue>
+void setInputs(LayerT& ls, const math::Matrix* inputs, CopyMatrixToMatrix&& copyMatrixToMatrix, SetReValue&& setReValue)
+{
+  copyMatrixToMatrix (ls.m_inputs, inputs);
+
+  initLayerBiases (ls, setReValue);
+}
+
+template<typename Layers, typename Api>
+void forwardPropagation (const Layers& layers, Api& api)
 {
   if (layers.size() < 2)
   {
@@ -91,11 +163,6 @@ void forwardPropagation (const Layers& layers, Api& api, SetReValue&& setReValue
     previous = current;
     current = layers[idx];
 
-    if (previous->m_biasCount == 1)
-    {
-      setReValue (previous->m_inputs, 1.f, 0, previous->getTotalNeuronsCount() - 1);
-    }
-
     uintt dims[3][2] =
     {
       {1, current->getNeuronsCount()},
@@ -105,7 +172,7 @@ void forwardPropagation (const Layers& layers, Api& api, SetReValue&& setReValue
 
     api.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs, dims);
 
-    activateFunc (current->m_inputs, current->m_sums, current->m_activation, api);
+    activateFunc (current->m_inputs, current->m_sums, current->m_activation, api, dims[0]);
   }
 }
 
@@ -120,7 +187,8 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
 
     auto calculateCurrentErrors = [&current, &api] (LayerS* current)
     {
-      oap::generic::derivativeFunc (current->m_sums, current->m_sums, current->m_activation, api);
+      uintt dims[2] = {1, current->getNeuronsCount()};
+      oap::generic::derivativeFunc (current->m_sums, current->m_sums, current->m_activation, api, dims);
       api.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
     };
 

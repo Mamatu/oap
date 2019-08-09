@@ -106,9 +106,9 @@ TEST_F(OapHostTanhTests, TanhTest_4)
 
 TEST_F(OapHostTanhTests, TanhTest_5)
 {
-  for (size_t c = 10; c < 30; ++c)
+  for (size_t c = 10; c < 20; ++c)
   {
-    for (size_t r = 10; r < 30; ++r)
+    for (size_t r = 10; r < 20; ++r)
     {
       test (c, r);
     }

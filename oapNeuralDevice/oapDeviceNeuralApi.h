@@ -46,18 +46,23 @@ inline void checkHostInputs(LayerS& ls, const math::Matrix* hostInputs)
     throw std::runtime_error ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)");
   }
 }
+
+inline void _setReValue (math::Matrix* matrix, floatt v, uintt c, uintt r)
+{
+  oap::cuda::SetReValue(matrix, v, c, r);
+}
 }
 
 inline void setHostInputs(LayerS& ls, const math::Matrix* hInputs)
 {
   checkHostInputs (ls, hInputs);
 
-  oap::cuda::CopyHostMatrixToDeviceMatrix (ls.m_inputs, hInputs);
+  oap::generic::setInputs (ls, hInputs, oap::cuda::CopyHostMatrixToDeviceMatrix, _setReValue);
 }
 
 inline void setDeviceInputs(LayerS& ls, const math::Matrix* dInputs)
 {
-  oap::cuda::CopyDeviceMatrixToDeviceMatrix (ls.m_inputs, dInputs);
+  oap::generic::setInputs (ls, dInputs, oap::cuda::CopyDeviceMatrixToDeviceMatrix, _setReValue);
 }
 
 inline math::MatrixInfo getOutputsInfo (const LayerS& ls)

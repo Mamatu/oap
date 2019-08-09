@@ -77,7 +77,8 @@ std::vector<oap::HostMatrixPtr> runForwardPropagation (uintt n1, uintt n2, uintt
     l1->m_inputs->reValues[idx] = 1;
   }
 
-  oap::generic::forwardPropagation (layers, hostProcedures, oap::host::SetReValue);
+  oap::generic::initNetworkBiases (layers, oap::host::SetReValue);
+  oap::generic::forwardPropagation (layers, hostProcedures);
 
   auto getLayerOutput = [](LayerS* layer)
   {
