@@ -17,16 +17,18 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_MATRIXEX_H
-#define OAP_MATRIXEX_H
+#ifndef OAP_MATRIX_EX_H
+#define OAP_MATRIX_EX_H
 
 #include "Math.h"
 
-struct MatrixEx {
-  uintt beginColumn;
-  uintt columnsLength;
-  uintt beginRow;
-  uintt rowsLength;
+struct MatrixEx
+{
+  uintt column;
+  uintt columns;
+
+  uintt row;
+  uintt rows;
 
   /**
    * @brief boffset - extra offset to dotProduct operation
@@ -39,9 +41,9 @@ struct MatrixEx {
   uintt eoffset;
 };
 
-#define erow(matrixex) matrixex.beginRow + matrixex.rowsLength
+#define erow(matrixex) matrixex.row + matrixex.rows
 
-#define ecolumn(matrixex) matrixex.beginColumn + matrixex.columnsLength
+#define ecolumn(matrixex) matrixex.column + matrixex.columns
 
 namespace {
   bool adjust(uintt& v1, uintt& v2, uintt val) {
@@ -54,11 +56,11 @@ namespace {
 }
 
 inline bool adjustColumns(MatrixEx& matrixEx, uintt val) {
-  return ::adjust(matrixEx.beginColumn, matrixEx.columnsLength, val);
+  return ::adjust(matrixEx.column, matrixEx.columns, val);
 }
 
 inline bool adjustRows(MatrixEx& matrixEx, uintt val) {
-  return ::adjust(matrixEx.beginRow, matrixEx.rowsLength, val);
+  return ::adjust(matrixEx.row, matrixEx.rows, val);
 }
 
 #endif /* MATRIXEX_H */

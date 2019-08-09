@@ -85,7 +85,7 @@ namespace
 MatricesList gMatricesList ("HOST");
 }
 
-math::Matrix* NewMatrix(const math::Matrix* matrix, floatt value)
+math::Matrix* NewMatrixRef (const math::Matrix* matrix, floatt value)
 {
   math::Matrix* output = nullptr;
   if (matrix->reValues != nullptr && matrix->imValues != nullptr)
@@ -366,10 +366,10 @@ void Copy(math::Matrix* dst, const math::Matrix* src, const MatrixEx& subMatrix,
           uintt column, uintt row)
 {
   uintt rows = dst->rows;
-  uintt columns2 = subMatrix.columnsLength;
+  uintt columns2 = subMatrix.columns;
   for (uintt fa = 0; fa < rows; fa++)
   {
-    uintt fa1 = fa + subMatrix.beginRow;
+    uintt fa1 = fa + subMatrix.row;
     if (fa < row)
     {
       Copy(dst->reValues + fa * dst->columns,
@@ -467,7 +467,7 @@ void CopyIm(math::Matrix* dst, const math::Matrix* src)
 
 math::Matrix* NewMatrixCopy(const math::Matrix* matrix)
 {
-  math::Matrix* output = oap::host::NewMatrix(matrix);
+  math::Matrix* output = oap::host::NewMatrixRef (matrix);
   oap::host::CopyMatrix(output, matrix);
   return output;
 }
@@ -1094,7 +1094,7 @@ math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
   return minfo;
 }
 
-void CopyArrayToMatrix (math::Matrix* matrix, void* rebuffer, void* imbuffer)
+void CopyArrayToMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer)
 {
   if (rebuffer != nullptr)
   {
@@ -1106,16 +1106,16 @@ void CopyArrayToMatrix (math::Matrix* matrix, void* rebuffer, void* imbuffer)
   }
 }
 
-void CopyArrayToReMatrix (math::Matrix* matrix, void* buffer)
+void CopyArrayToReMatrix (math::Matrix* matrix, floatt* buffer)
 {
-  debugAssert (matrix->reValues == nullptr);
-  memcpy (matrix->reValues, buffer, matrix->columns * matrix->rows);
+  debugAssert (matrix->reValues != nullptr);
+  memcpy (matrix->reValues, buffer, matrix->columns * matrix->rows * sizeof(floatt));
 }
 
-void CopyArrayToImMatrix (math::Matrix* matrix, void* buffer)
+void CopyArrayToImMatrix (math::Matrix* matrix, floatt* buffer)
 {
-  debugAssert (matrix->imValues == nullptr);
-  memcpy (matrix->reValues, buffer, matrix->columns * matrix->rows);
+  debugAssert (matrix->imValues != nullptr);
+  memcpy (matrix->imValues, buffer, matrix->columns * matrix->rows * sizeof(floatt));
 }
 
 }

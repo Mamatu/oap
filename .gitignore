@@ -1,6 +1,7 @@
 *.a
 *.so
 *.o
+*.d
 oapCudaTests/dist/
 oapMatrixCuda/dist/
 oapShibataCuda/dist/
