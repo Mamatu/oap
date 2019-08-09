@@ -27,6 +27,8 @@
 #include "Matrix.h"
 #include "CudaUtils.h"
 
+#include "Logger.h"
+
 #include "IKernelExecutor.h"
 
 #define printCuError(cuResult)                                                 \

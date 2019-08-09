@@ -131,7 +131,7 @@ std::pair<T, uintt> getSmallest(T* buffer, size_t length) {
   return std::make_pair(min, index);
 }
 
-#ifndef CUDA
+#ifndef OAP_CUDA_BUILD
 
 inline std::string gridDimToStr(const dim3& dim3) {
   std::ostringstream s;
