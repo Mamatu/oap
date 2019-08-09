@@ -41,22 +41,9 @@ public:
     }
 };
 
-std::vector<oap::HostMatrixPtr> runForwardPropagation (uintt n1, uintt n2, uintt n3, oap::HostMatrixPtr weights1to2, oap::HostMatrixPtr weights2to3)
+std::vector<oap::HostMatrixPtr> runForwardPropagation (const std::vector<uintt> ns, const std::vector<oap::HostMatrixPtr> weights)
 {
   HostProcedures hostProcedures;
-
-  std::vector<LayerS*> layers;
-  std::vector<std::shared_ptr<LayerS>> layersPtrs;
-
-  LayerS* l1 = oap::generic::createLayer<LayerS, oap::alloc::host::AllocNeuronsApi> (n1, false, Activation::SIGMOID);
-  LayerS* l2 = oap::generic::createLayer<LayerS, oap::alloc::host::AllocNeuronsApi> (n2, false, Activation::SIGMOID);
-  LayerS* l3 = oap::generic::createLayer<LayerS, oap::alloc::host::AllocNeuronsApi> (n3, false, Activation::SIGMOID);
-
-  oap::generic::connectLayers<LayerS, oap::alloc::host::AllocWeightsApi>(l1, l2);
-  oap::generic::connectLayers<LayerS, oap::alloc::host::AllocWeightsApi>(l2, l3);
-
-  oap::generic::setHostWeights (*l1, weights1to2, oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
-  oap::generic::setHostWeights (*l2, weights2to3, oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
 
   auto ldeleter = [](LayerS* layer)
   {
@@ -64,17 +51,26 @@ std::vector<oap::HostMatrixPtr> runForwardPropagation (uintt n1, uintt n2, uintt
     delete layer;
   };
 
-  layersPtrs.push_back (std::shared_ptr<LayerS>(l1, ldeleter));
-  layersPtrs.push_back (std::shared_ptr<LayerS>(l2, ldeleter));
-  layersPtrs.push_back (std::shared_ptr<LayerS>(l3, ldeleter));
+  std::vector<LayerS*> layers;
+  std::vector<std::shared_ptr<LayerS>> layersPtrs;
 
-  layers.push_back (l1);
-  layers.push_back (l2);
-  layers.push_back (l3);
-
-  for (uintt idx = 0; idx < n1; ++idx)
+  for (size_t idx = 0; idx < ns.size(); ++idx)
   {
-    l1->m_inputs->reValues[idx] = 1;
+    LayerS* l1 = oap::generic::createLayer<LayerS, oap::alloc::host::AllocNeuronsApi> (ns[idx], false, Activation::SIGMOID);
+    layersPtrs.push_back (std::shared_ptr<LayerS>(l1, ldeleter));
+    layers.push_back (l1);
+  }
+
+  for (size_t idx = 0; idx < ns.size() - 1; ++idx)
+  {
+    oap::generic::connectLayers<LayerS, oap::alloc::host::AllocWeightsApi>(layers[idx], layers[idx + 1]);
+    oap::generic::setHostWeights (*layers[idx], weights[idx].get(), oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
+  }
+
+
+  for (uintt idx = 0; idx < ns[0]; ++idx)
+  {
+    layers.front()->m_inputs->reValues[idx] = 1;
   }
 
   oap::generic::initNetworkBiases (layers, oap::host::SetReValue);
@@ -88,12 +84,15 @@ std::vector<oap::HostMatrixPtr> runForwardPropagation (uintt n1, uintt n2, uintt
     return outputsL;
   };
 
-  auto outputsL2 = getLayerOutput(l2);
-  auto outputsL3 = getLayerOutput(l3);
+  std::vector<oap::HostMatrixPtr> outputs;
 
-  logInfo ("FP o2 %p %s", l2, oap::host::to_string(outputsL2).c_str());
+  for (size_t idx = 1; idx < layers.size(); ++idx)
+  {
+    auto outputsL = getLayerOutput(layers[idx]);
+    outputs.push_back(outputsL);
+  }
 
-  return {outputsL2, outputsL3};
+  return outputs;
 }
 
 TEST_F(OapForwardPropagationTests, Test_1)
@@ -118,7 +117,7 @@ TEST_F(OapForwardPropagationTests, Test_1)
   weights2to3->reValues[1] = 1;
   weights2to3->reValues[2] = 1;
 
-  auto outputs = runForwardPropagation (3, 3, 1, weights1to2, weights2to3);
+  auto outputs = runForwardPropagation ({3, 3, 1}, {weights1to2, weights2to3});
 
   auto outputsL2 = outputs[0];
   auto outputsL3 = outputs[1];
@@ -156,9 +155,29 @@ TEST_F(OapForwardPropagationTests, Test_2)
   inputs->reValues[1] = 1;
   inputs->reValues[2] = 1;
 
-  auto outputs = runForwardPropagation (3, 3, 1, weights1to2, weights2to3);
+  auto outputs = runForwardPropagation ({3, 3, 1}, {weights1to2, weights2to3});
 
   auto outputsL3 = outputs[outputs.size() - 1];
 
   EXPECT_DOUBLE_EQ (sigmoid (sigmoid(3) + sigmoid(3) + sigmoid(3)), outputsL3->reValues[0]);
 }
+
+TEST_F(OapForwardPropagationTests, Test_3)
+{
+  using namespace oap::math;
+
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
+  weights1to2->reValues[0] = 1;
+  weights1to2->reValues[1] = 1;
+
+  oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  inputs->reValues[0] = 1;
+  inputs->reValues[1] = 1;
+
+  auto outputs = runForwardPropagation ({2, 1}, {weights1to2});
+
+  auto outputsL = outputs[outputs.size() - 1];
+
+  EXPECT_DOUBLE_EQ (sigmoid (2), outputsL->reValues[0]);
+}
+

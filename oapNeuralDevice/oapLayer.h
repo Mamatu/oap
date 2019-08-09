@@ -118,6 +118,10 @@ public:
 
   template<typename LayerT, typename SetReValue>
   friend void oap::generic::initLayerBiases (LayerT&, SetReValue&&);
+
+  template<typename Layers, typename Api, typename CopyKernelMatrixToHostMatrix>
+  friend floatt oap::generic::accumulateErrors (const Layers&, Api&, math::Matrix*, oap::ErrorType, CalculationType,
+                                 CopyKernelMatrixToHostMatrix&&);
 };
 
 template<typename AllocApi>
