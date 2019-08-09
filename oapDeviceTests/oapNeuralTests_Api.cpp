@@ -223,10 +223,7 @@ namespace test_api
       Layer* layer = network->getLayer(lidx);
 
       oap::HostMatrixPtr weightsMatrix = oap::host::NewMatrix (layer->getWeightsInfo());
-      for (size_t idx = 0; idx < weightsLayers[lidx][initWeightsIdx].size(); ++idx)
-      {
-        weightsMatrix->reValues[idx] = weightsLayers[lidx][initWeightsIdx][idx];
-      }
+      oap::host::SetReValuesToMatrix (weightsMatrix, weightsLayers[lidx][initWeightsIdx]);
 
       layer->setHostWeights (weightsMatrix);
       weightsMatrices.push_back (weightsMatrix);
