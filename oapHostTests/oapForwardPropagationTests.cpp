@@ -55,8 +55,8 @@ std::vector<oap::HostMatrixPtr> runForwardPropagation (uintt n1, uintt n2, uintt
   oap::generic::connectLayers<LayerS, oap::alloc::host::AllocWeightsApi>(l1, l2);
   oap::generic::connectLayers<LayerS, oap::alloc::host::AllocWeightsApi>(l2, l3);
 
-  oap::generic::setHostWeights (*l1, weights1to2, oap::host::CopyHostMatrixToHostMatrix);
-  oap::generic::setHostWeights (*l2, weights2to3, oap::host::CopyHostMatrixToHostMatrix);
+  oap::generic::setHostWeights (*l1, weights1to2, oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
+  oap::generic::setHostWeights (*l2, weights2to3, oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
 
   auto ldeleter = [](LayerS* layer)
   {

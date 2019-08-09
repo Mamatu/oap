@@ -20,7 +20,9 @@
 #include "oapNetwork.h"
 #include "oapMatrixCudaCommon.h"
 
-using LC_t = size_t;
+#include "oapDeviceNeuralApi.h"
+
+using LC_t = uintt;
 
 Network::Network()
 {}
@@ -30,12 +32,12 @@ Network::~Network()
   destroyLayers();
 }
 
-Layer* Network::createLayer (size_t neurons, const Activation& activation)
+Layer* Network::createLayer (uintt neurons, const Activation& activation)
 {
   return createLayer (neurons, false, activation);
 }
 
-Layer* Network::createLayer (size_t neurons, bool addBias, const Activation& activation)
+Layer* Network::createLayer (uintt neurons, bool addBias, const Activation& activation)
 {
   Layer* layer = oap::generic::createLayer<Layer, oap::alloc::cuda::AllocNeuronsApi> (neurons, addBias, activation);
 
@@ -266,7 +268,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
     {
       oap::cuda::CopyDeviceMatrixToHostMatrix (llayer->m_errorsHost, llayer->m_errorsAux);
 
-      for (size_t idx = 0; idx < llayer->m_errorsHost->rows; ++idx)
+      for (uintt idx = 0; idx < llayer->m_errorsHost->rows; ++idx)
       {
         error += llayer->m_errorsHost->reValues[idx];
       }
@@ -283,37 +285,12 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
 
 void Network::backPropagation ()
 {
-  Layer* current = m_layers.back ();
-
-  oap::cuda::CopyDeviceMatrixToDeviceMatrix(current->m_errors, current->m_errorsAux);
-
-  calcErrors ();
-
-  calcNablaWeights ();
+  oap::generic::backPropagation (m_layers, m_cuApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
 }
 
 void Network::updateWeights()
 {
-  LayerS* current = nullptr;
-  Layer* next = m_layers[0];
-
-  for (size_t idx = 1; idx < m_layers.size(); ++idx)
-  {
-    current = next;
-    next = m_layers[idx];
-
-    floatt lr = m_learningRate / static_cast<floatt>(m_errorsVec.size());
-    m_cuApi.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
-
-    m_cuApi.substract (current->m_weights, current->m_weights, current->m_weights2);
-
-    if (next->m_biasCount == 1)
-    {
-      oap::cuda::SetReMatrix (current->m_weights, current->m_vec, 0, next->getTotalNeuronsCount() - 1);
-    }
-  }
-
-  postStep ();
+  oap::generic::updateWeights (m_layers, m_cuApi, std::bind<void(Network::*)()> (&Network::postStep, this), oap::cuda::SetReMatrix, m_learningRate, m_errorsVec.size());
 }
 
 bool Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, ArgType argType, oap::ErrorType errorType)
@@ -342,19 +319,19 @@ void Network::setController(Network::IController* icontroller)
   m_icontroller = icontroller;
 }
 
-void Network::setHostWeights (math::Matrix* weights, size_t layerIndex)
+void Network::setHostWeights (math::Matrix* weights, uintt layerIndex)
 {
   Layer* layer = m_layers[layerIndex];
   oap::generic::setHostWeights (*layer, weights);
 }
 
-void Network::getHostWeights (math::Matrix* weights, size_t layerIndex)
+void Network::getHostWeights (math::Matrix* weights, uintt layerIndex)
 {
   Layer* layer = getLayer (layerIndex);
   oap::cuda::CopyDeviceMatrixToHostMatrix (weights, layer->m_weights);
 }
 
-void Network::setDeviceWeights (math::Matrix* weights, size_t layerIndex)
+void Network::setDeviceWeights (math::Matrix* weights, uintt layerIndex)
 {
   Layer* layer = m_layers[layerIndex];
   oap::generic::setDeviceWeights (*layer, weights);
@@ -405,7 +382,7 @@ Network* Network::load (const utils::ByteBuffer& buffer)
   return network;
 }
 
-Layer* Network::getLayer(size_t layerIndex) const
+Layer* Network::getLayer(uintt layerIndex) const
 {
   if (layerIndex >= m_layers.size())
   {
@@ -425,7 +402,7 @@ void Network::destroyLayers()
   m_layers.clear();
 }
 
-void Network::setHostInputs (math::Matrix* inputs, size_t layerIndex)
+void Network::setHostInputs (math::Matrix* inputs, uintt layerIndex)
 {
   Layer* layer = getLayer(layerIndex);
   oap::cuda::CopyHostMatrixToDeviceMatrix (layer->m_inputs, inputs);
@@ -461,7 +438,7 @@ bool Network::operator== (const Network& network) const
     return false;
   }
 
-  for (size_t idx = 0; idx < getLayersCount (); ++idx)
+  for (uintt idx = 0; idx < getLayersCount (); ++idx)
   {
     Layer* layer = getLayer (idx);
     Layer* layer1 = network.getLayer (idx);
@@ -476,7 +453,7 @@ bool Network::operator== (const Network& network) const
 
 void Network::printLayersWeights ()
 {
-  for (size_t idx = 0; idx < getLayersCount(); ++idx)
+  for (uintt idx = 0; idx < getLayersCount(); ++idx)
   {
     getLayer(idx)->printHostWeights (true);
   }
@@ -490,7 +467,7 @@ void Network::postStep(LayerS* layer)
 
 void Network::postStep ()
 {
-  for (size_t idx = 0; idx < getLayersCount(); ++idx)
+  for (uintt idx = 0; idx < getLayersCount(); ++idx)
   {
     postStep (m_layers[idx]);
   }
@@ -507,7 +484,7 @@ void Network::resetErrors (LayerS* layer)
 
 void Network::resetErrors ()
 {
-  for (size_t idx = 0; idx < getLayersCount(); ++idx)
+  for (uintt idx = 0; idx < getLayersCount(); ++idx)
   {
     resetErrors (m_layers[idx]);
   }
@@ -524,51 +501,4 @@ void Network::resetErrorsVec ()
 bool Network::operator!= (const Network& network) const
 {
   return !(*this == network);
-}
-
-void Network::calcErrors ()
-{
-  int idx = m_layers.size () - 1;
-  LayerS* next = nullptr;
-  Layer* current = m_layers[idx];
-
-  auto calculateCurrentErrors = [this] (LayerS* current)
-  {
-    oap::generic::derivativeFunc (current->m_sums, current->m_sums, current->m_activation, m_cuApi);
-    m_cuApi.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
-  };
-
-  calculateCurrentErrors (current);
-
-  do
-  {
-    next = current;
-    --idx;
-    current = m_layers[idx];
-
-    m_cuApi.transpose (current->m_tweights, current->m_weights);
-
-    m_cuApi.dotProduct (current->m_errors, current->m_tweights, next->m_errors);
-
-    calculateCurrentErrors (current);
-  }
-  while (idx > 1);
-
-}
-
-void Network::calcNablaWeights ()
-{
-  Layer* current = nullptr;
-  Layer* next = m_layers[0];
-
-  for (size_t idx = 1; idx < m_layers.size(); ++idx)
-  {
-    current = next;
-    next = m_layers[idx];
-
-    m_cuApi.transpose (current->m_tinputs, current->m_inputs);
-
-    m_cuApi.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors);
-    m_cuApi.add (current->m_weights2, current->m_weights2, current->m_weights1);
-  }
 }

@@ -28,6 +28,7 @@
 
 #define PRINT_CUMATRIX(m) logInfo ("%s %p %s %s", #m, m, oap::cuda::to_string(m).c_str(), oap::cuda::GetMatrixInfo(m).toString().c_str());
 #define PRINT_MATRIX(m) logInfo ("%s %p %s %s", #m, m, oap::host::to_string(m).c_str(), oap::host::GetMatrixInfo(m).toString().c_str());
+#define PRINT_DIMS(m) logInfo ("%s dims = {{%u, %u}, {%u, %u}, {%u, %u}} ", #m, m[0][0], m[0][1], m[1][0], m[1][1], m[2][0], m[2][1]);
 
 enum class Activation
 {
@@ -58,14 +59,19 @@ struct LayerS
   virtual ~LayerS ()
   {}
 
-  size_t getTotalNeuronsCount () const
+  uintt getTotalNeuronsCount () const
   {
     return m_neuronsCount + m_biasCount;
   }
 
-  size_t getNeuronsCount() const
+  uintt getNeuronsCount() const
   {
     return m_neuronsCount;
+  }
+
+  uintt getBiasCount() const
+  {
+    return m_biasCount;
   }
 
   math::Matrix* m_inputs = nullptr;
@@ -81,10 +87,10 @@ struct LayerS
   math::Matrix* m_weights2 = nullptr;
   math::Matrix* m_vec = nullptr;
 
-  size_t m_neuronsCount = 0;
-  size_t m_biasCount = 0;
+  uintt m_neuronsCount = 0;
+  uintt m_biasCount = 0;
 
-  std::pair<size_t, size_t> m_weightsDim;
+  std::pair<uintt, uintt> m_weightsDim;
 
   const LayerS* m_nextLayer = nullptr;
 

@@ -86,7 +86,7 @@ void forwardPropagation (const Layers& layers, Api& api, SetReValue&& setReValue
   LayerS* previous = nullptr;
   LayerS* current = layers[0];
 
-  for (size_t idx = 1; idx < layers.size(); ++idx)
+  for (uintt idx = 1; idx < layers.size(); ++idx)
   {
     previous = current;
     current = layers[idx];
@@ -96,23 +96,124 @@ void forwardPropagation (const Layers& layers, Api& api, SetReValue&& setReValue
       setReValue (previous->m_inputs, 1.f, 0, previous->getTotalNeuronsCount() - 1);
     }
 
-    //PRINT_CUMATRIX(current->m_sums);
-    //PRINT_CUMATRIX(previous->m_weights);
-    //PRINT_CUMATRIX(previous->m_inputs);
-    api.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
+    uintt dims[3][2] =
+    {
+      {1, current->getNeuronsCount()},
+      {previous->getTotalNeuronsCount(), current->getNeuronsCount()},
+      {1, previous->getTotalNeuronsCount()}
+    };
+
+    api.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs, dims);
 
     activateFunc (current->m_inputs, current->m_sums, current->m_activation, api);
   }
 }
 
-template<typename LayerT, typename AllocNeuronsApi>
-void allocateNeurons (LayerT& ls, size_t neuronsCount, size_t biasCount)
+template<typename Layers, typename Api, typename CopyMatrixToMatrix>
+void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
-  logInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", &ls, neuronsCount + biasCount, neuronsCount, biasCount);
+  auto calcErrors = [&layers, &api]()
+  {
+    int idx = layers.size () - 1;
+    LayerS* next = nullptr;
+    LayerS* current = layers[idx];
+
+    auto calculateCurrentErrors = [&current, &api] (LayerS* current)
+    {
+      oap::generic::derivativeFunc (current->m_sums, current->m_sums, current->m_activation, api);
+      api.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
+    };
+
+    calculateCurrentErrors (current);
+
+    do
+    {
+      next = current;
+      --idx;
+      current = layers[idx];
+
+      api.transpose (current->m_tweights, current->m_weights);
+
+      uintt dims[3][2] =
+      {
+        {1, current->getTotalNeuronsCount()},
+        {next->getNeuronsCount(), current->getTotalNeuronsCount()},
+        {1, next->getNeuronsCount()}
+      };
+      api.dotProduct (current->m_errors, current->m_tweights, next->m_errors, dims);
+      calculateCurrentErrors (current);
+    }
+    while (idx > 1);
+
+  };
+
+  auto calcNablaWeights = [&layers, &api]()
+  {
+    LayerS* current = nullptr;
+    LayerS* next = layers[0];
+
+    for (uintt idx = 1; idx < layers.size(); ++idx)
+    {
+      current = next;
+      next = layers[idx];
+
+      api.transpose (current->m_tinputs, current->m_inputs);
+
+      {
+        uintt dims[3][2] =
+        {
+          {current->getTotalNeuronsCount(), next->getNeuronsCount()},
+          {current->getTotalNeuronsCount(), 1},
+          {1, next->getNeuronsCount()},
+        };
+        api.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors, dims);
+      }
+      api.add (current->m_weights2, current->m_weights2, current->m_weights1);
+    }
+  };
+
+  LayerS* current = layers.back ();
+
+  copyMatrixToMatrix (current->m_errors, current->m_errorsAux);
+
+  calcErrors ();
+
+  calcNablaWeights ();
+}
+
+template<typename Layers, typename Api, typename PostCallback, typename SetReMatrix>
+void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, SetReMatrix&& setReMatrix, floatt learningRate, uintt normalizationFactor)
+{
+  LayerS* current = nullptr;
+  LayerS* next = layers[0];
+
+  for (uintt idx = 1; idx < layers.size(); ++idx)
+  {
+    current = next;
+    next = layers[idx];
+
+    floatt lr = learningRate / static_cast<floatt>(normalizationFactor);
+    api.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
+
+    api.substract (current->m_weights, current->m_weights, current->m_weights2);
+
+    if (next->m_biasCount == 1)
+    {
+      setReMatrix (current->m_weights, current->m_vec, 0, next->getTotalNeuronsCount() - 1);
+    }
+  }
+
+  postCallback ();
+}
+
+template<typename LayerT, typename AllocNeuronsApi>
+void allocateNeurons (LayerT& ls, uintt neuronsCount, uintt biasCount)
+{
+  logInfo ("Layer %p allocates %u neurons (neurons : %u, bias : %u)", &ls, neuronsCount + biasCount, neuronsCount, biasCount);
   ls.m_neuronsCount = neuronsCount;
   ls.m_biasCount = biasCount;
 
-  const size_t unitsCount = ls.getTotalNeuronsCount ();
+  const uintt unitsCount = ls.getTotalNeuronsCount ();
 
   AllocNeuronsApi alloc;
 
@@ -128,8 +229,8 @@ void allocateNeurons (LayerT& ls, size_t neuronsCount, size_t biasCount)
 template<typename LayerT, typename AllocWeightsApi>
 void allocateWeights (LayerT& ls, const LayerT* nextLayer)
 {
-  const size_t cUCount = ls.getTotalNeuronsCount ();
-  const size_t nUCount = nextLayer->getTotalNeuronsCount ();
+  const uintt cUCount = ls.getTotalNeuronsCount ();
+  const uintt nUCount = nextLayer->getNeuronsCount ();
 
   AllocWeightsApi alloc;
 
@@ -176,10 +277,10 @@ void deallocate (LayerT& ls)
 }
 
 template<typename LayerT, typename AllocNeuronsApi>
-LayerT* createLayer (size_t neurons, bool addBias, Activation activation)
+LayerT* createLayer (uintt neurons, bool addBias, Activation activation)
 {
   LayerT* layer = new LayerT ();
-  size_t biasCount = addBias ? 1 : 0;
+  uintt biasCount = addBias ? 1 : 0;
 
   oap::generic::allocateNeurons<LayerT, AllocNeuronsApi> (*layer, neurons, biasCount);
 
@@ -194,9 +295,14 @@ void connectLayers (LayerT* previous, LayerT* next)
   oap::generic::allocateWeights<LayerT, AllocWeightsApi> (*previous, next);
 }
 
-template<typename LayerT, typename CopyHostMatrixToMatrix>
-void setHostWeights (LayerT& ls, math::Matrix* weights, CopyHostMatrixToMatrix&& copyHostMatrixToMatrix)
+template<typename LayerT, typename CopyHostMatrixToMatrix, typename GetMatrixInfo>
+void setHostWeights (LayerT& ls, math::Matrix* weights, CopyHostMatrixToMatrix&& copyHostMatrixToMatrix, GetMatrixInfo&& getLayerMatrixInfo, GetMatrixInfo&& getArgMatrixInfo)
 {
+  auto linfo = getLayerMatrixInfo (ls.m_weights);
+  auto ainfo = getArgMatrixInfo (weights);
+
+  debugAssert (linfo.columns() == ainfo.columns() && linfo.rows() == ainfo.rows());
+
   copyHostMatrixToMatrix (ls.m_weights, weights);
 }
 

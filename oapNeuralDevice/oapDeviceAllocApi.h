@@ -33,7 +33,7 @@ namespace cuda
 {
 namespace
 {
-  inline math::Matrix* NewReMatrix (size_t columns, size_t rows)
+  inline math::Matrix* NewReMatrix (uintt columns, uintt rows)
   {
     return oap::host::NewReMatrix (columns, rows);
   }

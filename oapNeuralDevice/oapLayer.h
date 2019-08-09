@@ -26,6 +26,7 @@
 
 #include "oapDeviceMatrixUPtr.h"
 
+#include "oapLayerStructure.h"
 #include "oapDeviceNeuralApi.h"
 #include "oapDeviceAllocApi.h"
 
@@ -64,7 +65,7 @@ public:
   void setDeviceInputs (const math::Matrix* dInputs);
 
   template<typename AllocApi>
-  void allocateNeurons(size_t neuronsCount);
+  void allocateNeurons(uintt neuronsCount);
 
   template<typename AllocApi>
   void allocateWeights(const Layer* nextLayer);
@@ -75,7 +76,7 @@ public:
 
   void printHostWeights (bool newLine) const;
 
-  size_t getNeuronsCount() const
+  uintt getNeuronsCount() const
   {
     return m_neuronsCount;
   }
@@ -96,20 +97,26 @@ public:
   friend void oap::generic::forwardPropagation (const Layers&, Api&, SetReValue&&);
 
   template<typename LayerT, typename AllocNeuronsApi>
-  friend LayerT* oap::generic::createLayer (size_t, bool, Activation);
+  friend LayerT* oap::generic::createLayer (uintt, bool, Activation);
 
   template<typename LayerT, typename AllocNeuronsApi>
-  friend void oap::generic::allocateNeurons (LayerT&, size_t, size_t);
+  friend void oap::generic::allocateNeurons (LayerT&, uintt, uintt);
 
   template<typename LayerT, typename AllocWeightsApi>
   friend void oap::generic::allocateWeights (LayerT&, const LayerT*);
 
   template<typename LayerT, typename DeallocMatrixApi>
   friend void oap::generic::deallocate (LayerT&);
+
+  template<typename Layers, typename Api, typename CopyMatrixToMatrix>
+  friend void oap::generic::backPropagation (const Layers&, Api&, CopyMatrixToMatrix&&);
+  
+  template<typename Layers, typename Api, typename PostCallback, typename SetReMatrix>
+  friend void oap::generic::updateWeights(const Layers&, Api&, PostCallback&&, SetReMatrix&&, floatt, uintt);
 };
 
 template<typename AllocApi>
-void Layer::allocateNeurons(size_t neuronsCount)
+void Layer::allocateNeurons(uintt neuronsCount)
 {
   AllocApi allocNeuronsApi;
 
