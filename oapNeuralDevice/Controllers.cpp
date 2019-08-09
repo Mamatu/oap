@@ -1,13 +1,13 @@
 #include "Controllers.h"
 
-SE_ID_Controller::SE_ID_Controller (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback) :
+SE_ID_Controller::SE_ID_Controller (floatt limit, uintt dataSetSize, const std::function<void(floatt, uintt, floatt)>& callback) :
   m_limit(limit), m_dataSetSize(dataSetSize), m_sqes(0), m_sc(true), m_callback(callback)
 {}
 
 SE_ID_Controller::~SE_ID_Controller()
 {}
 
-bool SE_ID_Controller::shouldCalculateError (size_t step)
+bool SE_ID_Controller::shouldCalculateError (uintt step)
 {
   m_step = step;
   return true;
@@ -36,14 +36,14 @@ bool SE_ID_Controller::shouldContinue()
   return m_sc;
 }
 
-SE_CD_Controller::SE_CD_Controller (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback) :
+SE_CD_Controller::SE_CD_Controller (floatt limit, uintt dataSetSize, const std::function<void(floatt, uintt, floatt)>& callback) :
   m_limit(limit), m_dataSetSize(dataSetSize), m_sqe(0), m_sc(true), m_callback(callback)
 {}
 
 SE_CD_Controller::~SE_CD_Controller()
 {}
 
-bool SE_CD_Controller::shouldCalculateError (size_t step)
+bool SE_CD_Controller::shouldCalculateError (uintt step)
 {
   m_step = step;
   return true;
@@ -75,13 +75,13 @@ bool SE_CD_Controller::shouldContinue()
   return m_sc;
 }
 
-DerivativeController::DerivativeController (size_t activationLimit): m_activationLimit(activationLimit)
+DerivativeController::DerivativeController (uintt activationLimit): m_activationLimit(activationLimit)
 {}
 
 DerivativeController::~DerivativeController()
 {}
 
-bool DerivativeController::shouldCalculateError (size_t step)
+bool DerivativeController::shouldCalculateError (uintt step)
 {
   return true;
 }
@@ -94,12 +94,12 @@ bool DerivativeController::shouldContinue()
   return true;
 }
 
-StepController::StepController (size_t sstep) : m_sstep (sstep)
+StepController::StepController (uintt sstep) : m_sstep (sstep)
 {}
 
 StepController::~StepController () {}
 
-bool StepController::shouldCalculateError (size_t step)
+bool StepController::shouldCalculateError (uintt step)
 {
   m_step = step;
   return false;

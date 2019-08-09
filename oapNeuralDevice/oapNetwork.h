@@ -26,7 +26,6 @@
 #include "oapDeviceMatrixPtr.h"
 
 #include "oapNetworkStructure.h"
-#include "oapDeviceNeuralApi.h"
 
 class Network : private NetworkS
 {
@@ -36,7 +35,7 @@ public: // types
   {
     public:
       virtual ~IController() {}
-      virtual bool shouldCalculateError(size_t step) = 0;
+      virtual bool shouldCalculateError(uintt step) = 0;
       virtual void setError (floatt value, oap::ErrorType type) = 0;
       virtual bool shouldContinue() = 0;
   };
@@ -51,8 +50,8 @@ public:
   Network& operator= (const Network&) = delete;
   Network& operator= (Network&&) = delete;
 
-  Layer* createLayer (size_t neurons, const Activation& activation = Activation::SIGMOID);
-  Layer* createLayer (size_t neurons, bool addBias, const Activation& activation = Activation::SIGMOID);
+  Layer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID);
+  Layer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID);
 
   oap::HostMatrixUPtr run (math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
 
@@ -90,11 +89,11 @@ public:
 
   void setController (IController* icontroller);
 
-  void setHostWeights (math::Matrix* weights, size_t layerIndex);
+  void setHostWeights (math::Matrix* weights, uintt layerIndex);
 
-  void getHostWeights (math::Matrix* weights, size_t layerIndex);
+  void getHostWeights (math::Matrix* weights, uintt layerIndex);
 
-  void setDeviceWeights (math::Matrix* weights, size_t layerIndex);
+  void setDeviceWeights (math::Matrix* weights, uintt layerIndex);
 
   void setLearningRate (floatt lr);
   floatt getLearningRate () const;
@@ -103,12 +102,12 @@ public:
 
   static Network* load (const utils::ByteBuffer& buffer);
 
-  size_t getLayersCount () const
+  uintt getLayersCount () const
   {
     return m_layers.size ();
   }
   
-  Layer* getLayer(size_t layerIndex) const;
+  Layer* getLayer(uintt layerIndex) const;
 
   bool operator== (const Network& network) const;
   bool operator!= (const Network& network) const;
@@ -132,7 +131,7 @@ public:
   }
 
 protected:
-  void setHostInputs (math::Matrix* inputs, size_t layerIndex);
+  void setHostInputs (math::Matrix* inputs, uintt layerIndex);
 
 private:
   std::vector<Layer*> m_layers;
@@ -154,18 +153,8 @@ private:
     return std::cout;
   }
 
-  /**
-   * Calculates errors for every layer of weights (except of the first)
-   */
-  void calcErrors ();
-
-  /**
-   * Calculates gradients for weights
-   */
-  void calcNablaWeights ();
-
   template<typename LayerT, typename AllocNeuronsApi>
-  friend void allocateNeurons (LayerT& ls, size_t neuronsCount, size_t biasCount);
+  friend void allocateNeurons (LayerT& ls, uintt neuronsCount, uintt biasCount);
 };
 
 #endif

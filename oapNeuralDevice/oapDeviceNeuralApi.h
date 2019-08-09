@@ -84,7 +84,7 @@ inline void getOutputs (const LayerS& ls, math::Matrix* matrix, ArgType type)
 
 inline void setHostWeights (LayerS& ls, math::Matrix* weights)
 {
-  oap::generic::setHostWeights (ls, weights, oap::cuda::CopyHostMatrixToDeviceMatrix);
+  oap::generic::setHostWeights (ls, weights, oap::cuda::CopyHostMatrixToDeviceMatrix, oap::cuda::GetMatrixInfo, oap::host::GetMatrixInfo);
 }
 
 inline void setDeviceWeights (LayerS& ls, math::Matrix* weights)
@@ -118,9 +118,9 @@ inline void printHostWeights (const LayerS& ls, bool newLine)
   logInfo ("%s %s", sstream.str().c_str(), matrixStr.c_str());
 }
 
-using RandCallback = std::function<floatt(size_t c, size_t r, floatt value)>;
+using RandCallback = std::function<floatt(uintt c, uintt r, floatt value)>;
 
-inline std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix (LayerS& ls, size_t columns, size_t rows, RandCallback&& randCallback)
+inline std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix (LayerS& ls, uintt columns, uintt rows, RandCallback&& randCallback)
 {
   std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> randomMatrix(oap::host::NewReMatrix(columns, rows),
                   [](const math::Matrix* m){oap::host::DeleteMatrix(m);});
@@ -129,9 +129,9 @@ inline std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> c
   std::default_random_engine dre (rd());
   std::uniform_real_distribution<> dis(-0.5, 0.5);
 
-  for (size_t c = 0; c < columns; ++c)
+  for (uintt c = 0; c < columns; ++c)
   {
-    for (size_t r = 0; r < rows; ++r)
+    for (uintt r = 0; r < rows; ++r)
     {
       SetRe (randomMatrix.get(), c, r, randCallback(c, r, dis(dre)));
     }
@@ -147,7 +147,7 @@ inline void initRandomWeights (LayerS& ls, const LayerS* nextLayer)
     throw std::runtime_error("m_weights == nullptr");
   }
 
-  auto randomMatrix = createRandomMatrix (ls, ls.m_weightsDim.first, ls. m_weightsDim.second, [&ls, &nextLayer](size_t c, size_t r, floatt v)
+  auto randomMatrix = createRandomMatrix (ls, ls.m_weightsDim.first, ls. m_weightsDim.second, [&ls, &nextLayer](uintt c, uintt r, floatt v)
   {
     if (nextLayer->m_biasCount == 1 && ls.m_weightsDim.second - 1 == r)
     {
