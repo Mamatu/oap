@@ -28,7 +28,7 @@
 
 #include "assert.h"
 
-#ifdef CUDA
+#ifdef OAP_CUDA_BUILD
 
 __hostdeviceinline__ void SetRe(math::Matrix* m, uintt c, uintt r, floatt v) {
   m->reValues[c + r * m->columns] = v;
