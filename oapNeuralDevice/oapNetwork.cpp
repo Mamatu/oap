@@ -45,9 +45,9 @@ Layer* Network::createLayer (uintt neurons, const Activation& activation)
   return createLayer (neurons, false, activation);
 }
 
-Layer* Network::createLayer (uintt neurons, bool addBias, const Activation& activation)
+Layer* Network::createLayer (uintt neurons, bool hasBias, const Activation& activation)
 {
-  Layer* layer = oap::generic::createLayer<Layer, oap::alloc::cuda::AllocNeuronsApi> (neurons, addBias, activation);
+  Layer* layer = oap::generic::createLayer<Layer, oap::alloc::cuda::AllocNeuronsApi> (neurons, hasBias, activation);
 
   createLevel (layer);
 
@@ -256,37 +256,8 @@ void Network::forwardPropagation ()
 
 void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcType)
 {
-  debugAssert (m_expectedDeviceOutputs != nullptr);
-
-  Layer* llayer = m_layers.back();
-
-  if (errorType == oap::ErrorType::CROSS_ENTROPY)
-  {
-    m_cuApi.crossEntropy (llayer->m_errorsAux, m_expectedDeviceOutputs, llayer->m_inputs);
-  }
-  else
-  {
-    m_cuApi.substract (llayer->m_errorsAux, llayer->m_inputs, m_expectedDeviceOutputs);
-
-    floatt error = 0.;
-
-    if (calcType == CalculationType::HOST)
-    {
-      oap::cuda::CopyDeviceMatrixToHostMatrix (llayer->m_errorsHost, llayer->m_errorsAux);
-
-      for (uintt idx = 0; idx < llayer->m_errorsHost->rows; ++idx)
-      {
-        error += llayer->m_errorsHost->reValues[idx];
-      }
-    }
-    else if (calcType == CalculationType::DEVICE)
-    {
-      floatt imoutput = 0.;
-      m_cuApi.sum (error, imoutput, llayer->m_errorsAux);
-    }
-
-    m_errorsVec.push_back (error * error * 0.5);
-  }
+    const floatt e = oap::generic::accumulateErrors (m_layers, m_cuApi, m_expectedDeviceOutputs, errorType, calcType, oap::cuda::CopyDeviceMatrixToHostMatrix);
+    m_errorsVec.push_back (e);
 }
 
 void Network::backPropagation ()

@@ -176,6 +176,45 @@ void forwardPropagation (const Layers& layers, Api& api)
   }
 }
 
+template<typename Layers, typename Api, typename CopyKernelMatrixToHostMatrix>
+floatt accumulateErrors (const Layers& layers, Api& api, math::Matrix* expectedDeviceOutputs, oap::ErrorType errorType, CalculationType calcType,
+                       CopyKernelMatrixToHostMatrix&& copyKernelMatrixToHostMatrix)
+{
+  debugAssert (expectedDeviceOutputs != nullptr);
+
+  LayerS* llayer = layers.back();
+
+  if (errorType == oap::ErrorType::CROSS_ENTROPY)
+  {
+    api.crossEntropy (llayer->m_errorsAux, expectedDeviceOutputs, llayer->m_inputs);
+  }
+  else
+  {
+    api.substract (llayer->m_errorsAux, llayer->m_inputs, expectedDeviceOutputs);
+
+    floatt error = 0.;
+
+    if (calcType == CalculationType::HOST)
+    {
+      copyKernelMatrixToHostMatrix (llayer->m_errorsHost, llayer->m_errorsAux);
+
+      for (uintt idx = 0; idx < llayer->m_errorsHost->rows; ++idx)
+      {
+        error += llayer->m_errorsHost->reValues[idx];
+      }
+    }
+    else if (calcType == CalculationType::DEVICE)
+    {
+      floatt imoutput = 0.;
+      api.sum (error, imoutput, llayer->m_errorsAux);
+    }
+
+    return (error * error * 0.5);
+  }
+
+  return 0;
+}
+
 template<typename Layers, typename Api, typename CopyMatrixToMatrix>
 void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
@@ -340,10 +379,10 @@ void deallocate (LayerT& ls)
 }
 
 template<typename LayerT, typename AllocNeuronsApi>
-LayerT* createLayer (uintt neurons, bool addBias, Activation activation)
+LayerT* createLayer (uintt neurons, bool hasBias, Activation activation)
 {
   LayerT* layer = new LayerT ();
-  uintt biasCount = addBias ? 1 : 0;
+  uintt biasCount = hasBias ? 1 : 0;
 
   oap::generic::allocateNeurons<LayerT, AllocNeuronsApi> (*layer, neurons, biasCount);
 

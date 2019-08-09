@@ -560,7 +560,7 @@ void CuProceduresApi::sigmoid (math::Matrix* output, math::Matrix* matrix, uintt
   const uintt h = CudaUtils::GetRows (output);
 
   uintt* karray = createKernelArray(dims, 2);
-  void* params[] = {&matrix, &matrix, &karray};
+  void* params[] = {&output, &matrix, &karray};
 
   m_cuStatus = execute("CUDAKernel_SigmoidDim", w, h, params, 0);
 }
