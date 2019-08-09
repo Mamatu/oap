@@ -112,19 +112,19 @@ CUdeviceptr GetRealRowsAddress(CUdeviceptr matrixptr) {
 }
 
 CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx) {
-  return reinterpret_cast<CUdeviceptr>(&matrixEx->beginColumn);
+  return reinterpret_cast<CUdeviceptr>(&matrixEx->column);
 }
 
 CUdeviceptr GetColumnsAddress(const MatrixEx* matrixEx) {
-  return reinterpret_cast<CUdeviceptr>(&matrixEx->columnsLength);
+  return reinterpret_cast<CUdeviceptr>(&matrixEx->columns);
 }
 
 CUdeviceptr GetBRowAddress(const MatrixEx* matrixEx) {
-  return reinterpret_cast<CUdeviceptr>(&matrixEx->beginRow);
+  return reinterpret_cast<CUdeviceptr>(&matrixEx->row);
 }
 
 CUdeviceptr GetRowsAddress(const MatrixEx* matrixEx) {
-  return reinterpret_cast<CUdeviceptr>(&matrixEx->rowsLength);
+  return reinterpret_cast<CUdeviceptr>(&matrixEx->rows);
 }
 
 floatt* GetReValues(CUdeviceptr matrix) {

@@ -35,9 +35,9 @@
 
 #include "RecToSquareApi.h"
 
-#include "GenericProceduresApi.h"
+#include "GenericCoreApi.h"
 
-#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
+#define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
 namespace oap
 {
@@ -57,6 +57,16 @@ class CuProceduresApi
   inline void addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   inline void tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+
+
+  void tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2]);
+
+  inline void tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
+  {
+
+    uintt dims[3][2] = {{outputD[0], outputD[1]}, {matrix1D[0], matrix1D[1]}, {matrix2D[0], matrix2D[1]}};
+    tensorProduct (output, params0, params1, dims);
+  }
 
   inline void hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
@@ -83,8 +93,18 @@ class CuProceduresApi
   void calculateQTHQ(math::Matrix* output, math::Matrix* H, math::Matrix* Q,
                      math::Matrix* aux);
 
-  inline void dotProductEx(math::Matrix* output, math::Matrix* params0,
-                           math::Matrix* params1, MatrixEx* matrixEx);
+  inline void dotProductEx(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, MatrixEx* matrixEx);
+
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                   uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
+  {
+    uintt dims[3][2] = {{outputD[0], outputD[1]}, {matrix1D[0], matrix1D[1]}, {matrix2D[0], matrix2D[1]}};
+
+    dotProduct (output, matrix1, matrix2, dims);
+  }
+
 
   void dotProductEx(math::Matrix* output, math::Matrix* params0,
                     math::Matrix* params1, MatrixEx* matrixEx, uintt columns,
@@ -167,9 +187,9 @@ class CuProceduresApi
 
   void multiplySigmoidDerivative (math::Matrix* omatrix, math::Matrix* matrix);
 
-  // Identity function and derivatives
-  void identity (math::Matrix* output, math::Matrix* matrix);
-  void identityDerivative (math::Matrix* output, math::Matrix* matrix);
+  // Linear function and derivatives
+  void linear (math::Matrix* output, math::Matrix* matrix);
+  void linearDerivative (math::Matrix* output, math::Matrix* matrix);
 
   // Tanh/tanh function and derivatives
   void tanh (math::Matrix* output, const math::Matrix* matrix);
@@ -255,19 +275,17 @@ class CuProceduresApi
                              uintt wthreads, uintt hthreads);
 
   floatt magnitude2Procedure_GetOutput(uint blocks[2], uintt outputSize) const;
+
+  void deallocKernelArrays ();
+
   inline void resetFlags() {
     m_isSetRows = false;
     m_isSetColumns = false;
   }
 private:
-  void check_dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
 
-  void check_tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
-
-  void check_hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
-
-  void check_hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows) const;
-private:
+  static uintt GetColumns(const math::Matrix* matrix);
+  static uintt GetRows(const math::Matrix* matrix);
 
   oap::TBuffer<floatt, oap::Type::CUDA> m_dcompareOutputBuffer;
   oap::TBuffer<floatt, oap::Type::CUDA> m_dcompareBuffer;
@@ -285,7 +303,36 @@ private:
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsReBuffer;
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsImBuffer;
 
-  oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> m_bapi;
+  MatrixEx* m_dMatrixEx = nullptr;
+  std::map<size_t, uint*> m_kernelArrays;
+
+  uintt* createKernelArray (uintt* hostArray, size_t length)
+  {
+    auto it = m_kernelArrays.find (length);
+    if (it == m_kernelArrays.end ())
+    {
+      uintt* kernelArray = static_cast<uintt*>(CudaUtils::AllocDeviceMem (length * sizeof(uintt)));
+      m_kernelArrays[length] = kernelArray;
+    }
+
+    uintt* array = m_kernelArrays [length];
+    CudaUtils::CopyHostToDevice (array, hostArray, length * sizeof(uintt));
+
+    return array;
+  }
+
+  MatrixEx* createDeviceMatrixEx(const MatrixEx& host)
+  {
+    if (m_dMatrixEx == nullptr)
+    {
+      m_dMatrixEx = oap::cuda::NewDeviceMatrixExCopy (host);
+    }
+
+    CudaUtils::CopyHostToDevice (m_dMatrixEx, &host, sizeof(MatrixEx));
+    return m_dMatrixEx;
+  }
+
+  oap::generic::BasicMatrixApi<decltype(oap::cuda::GetMatrixInfo)> m_bmApi;
   std::function<void()> m_preExecCallback;//(std::bind(&CuProceduresApi::resetFlags, this)
 };
 

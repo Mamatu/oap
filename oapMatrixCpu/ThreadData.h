@@ -78,19 +78,19 @@ public:
         calculateRanges(columns[0], rows[0], tm);
     }
 
-    void calculateRanges(uintt beginColumn, uintt beginRow,
+    void calculateRanges(uintt column, uintt row,
         uintt* bmap, uintt fa) {
         utils::mapper::ThreadsMap<uintt> tm;
         utils::mapper::getThreadsMap(tm, bmap, fa);
-        calculateRanges(beginRow, beginColumn, tm);
+        calculateRanges(row, column, tm);
     }
 
-    void calculateRanges(uintt beginColumn, uintt beginRow,
+    void calculateRanges(uintt column, uintt row,
         utils::mapper::ThreadsMap<uintt>& map) {
-        begins[0] = beginColumn + map.beginColumn;
-        begins[1] = beginRow + map.beginRow;
-        ends[0] = beginColumn + map.endColumn;
-        ends[1] = beginRow + map.endRow;
+        begins[0] = column + map.beginColumn;
+        begins[1] = row + map.beginRow;
+        ends[0] = column + map.endColumn;
+        ends[1] = row + map.endRow;
         offset = ends[0] - begins[0];
         assert(begins[0] < ends[0]);
         assert(begins[1] < ends[1]);

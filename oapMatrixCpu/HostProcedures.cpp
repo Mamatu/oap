@@ -18,19 +18,22 @@
  */
 
 #include "HostProcedures.h"
+
+#include <functional>
+
 #include "CuProcedures/CuCompareOptProcedures.h"
 #include "CuProcedures/CuSubstractionProcedures.h"
 #include "CuProcedures/CuDotProductProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
 
-#include "GenericProceduresApi.h"
+#include "GenericValidationApi.h"
 
 #include "ThreadsMapper.h"
 
 #include "HostBuffer.h"
 #include "HostKernel.h"
 
-#include "oapHostMatrixUtils.h"
+#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
 
 class SubstractionImpl : public HostKernel {
  public:
@@ -161,7 +164,18 @@ void HostProcedures::prepare(math::Matrix* matrix, HostKernel& hostKernel) {
   hostKernel.setDims(m_blocks, m_threads);
 }
 
-HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_threadsCount(4) {}
+void HostProcedures::prepare(size_t w, size_t h, HostKernel& hostKernel) {
+  const uint columns = w;
+  const uint rows = h;
+
+  utils::mapper::SetThreadsBlocks(m_blocks, m_threads, columns, rows,
+                                  m_threadsCount);
+
+  hostKernel.setDims(m_blocks, m_threads);
+}
+
+HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_threadsCount(4), m_bmApi (oap::host::GetMatrixInfo)
+{}
 
 HostProcedures::~HostProcedures() {}
 
@@ -191,11 +205,21 @@ void HostProcedures::substract(math::Matrix* output, math::Matrix* matrix1,
   substractionImpl.executeKernelAsync();
 }
 
-void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1,
-                                math::Matrix* matrix2) {
+void HostProcedures::dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+{
+  oap::generic::dotProduct (output, matrix1, matrix2, output->columns, output->rows, &m_kernel, [](){}, m_bmApi);
+}
+
+void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, size_t w, size_t h)
+{
   DotProductImpl dotProductImpl(output, matrix1, matrix2);
-  prepare(output, dotProductImpl);
+  prepare(w, h, dotProductImpl);
   dotProductImpl.executeKernelAsync();
+}
+
+void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+{
+  oap::generic::dotProduct (output, matrix1, matrix2, dims, &m_kernel, [](){}, m_bmApi, std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void HostProcedures::transpose(math::Matrix* output, math::Matrix* matrix) {
@@ -211,6 +235,25 @@ void HostProcedures::tanh(math::Matrix* output, math::Matrix* matrix)
   oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, bapi, true, [](){});
 }
 
+void HostProcedures::sigmoid (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::executeKernel1Arg ("CUDAKernel_Sigmoid", output, matrix, &m_kernel, bapi, true, [](){});
+}
+
+void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::host::CopyHostMatrixToHostMatrix (output, matrix);
+}
+
+void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::executeKernel1Arg ("CUDAKernel_Sin", output, matrix, &m_kernel, bapi, true, [](){});
+}
+
 void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
 {
   oap::host::HostBuffer<floatt> m_hsumsReBuffer;
@@ -218,8 +261,21 @@ void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* para
   oap::host::HostBuffer<floatt> m_hsumsImBuffer;
   oap::host::HostBuffer<floatt> m_dsumsImBuffer;
 
-  oap::generic::SumApi<decltype(oap::host::GetMatrixInfo), decltype(memcpy)>
-  sumApi (oap::host::GetMatrixInfo, memcpy);
+  using GetAddressType = std::function<floatt*(const math::Matrix*)>;
+  using GetAddressTypeRef = GetAddressType&;
+
+  GetAddressType getReValues = [](const math::Matrix* matrix) -> floatt*
+  {
+    return matrix->reValues;
+  };
+
+  GetAddressType getImValues = [](const math::Matrix* matrix) -> floatt*
+  {
+    return matrix->imValues;
+  };
+
+  oap::generic::SumApi<decltype(oap::host::GetMatrixInfo), decltype(memcpy), GetAddressTypeRef>
+  sumApi (oap::host::GetMatrixInfo, memcpy, getReValues, getImValues);
 
   oap::generic::SumBuffers<oap::host::HostBuffer<floatt>, oap::host::HostBuffer<floatt>>
   sumBuffers (m_hsumsReBuffer, m_dsumsReBuffer, m_hsumsImBuffer, m_dsumsImBuffer);
@@ -234,3 +290,9 @@ void HostProcedures::crossEntropy (math::Matrix* output, math::Matrix* params0, 
   oap::generic::crossEntropy (output, params0, params1, &m_kernel, bapi);
 }
 
+void HostProcedures::tensorProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+{
+  oap::generic::tensorProduct (output, matrix1, matrix2, dims, &m_kernel, [](){}, m_bmApi,
+                            std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+
+}

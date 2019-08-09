@@ -100,23 +100,23 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
 
   if (status) {
     MatrixEx mex;
-    mex.beginRow = 0;
-    mex.rowsLength = 10;
+    mex.row = 0;
+    mex.rows = 10;
  
-    mex.beginColumn = 4;
-    mex.columnsLength = 6;
+    mex.column = 4;
+    mex.columns = 6;
 
     math::Matrix* m2 = oap::host::ReadMatrix(testfilepath, mex);
 
-    EXPECT_EQ(m2->columns, mex.columnsLength);
-    EXPECT_EQ(m2->rows, mex.rowsLength);
+    EXPECT_EQ(m2->columns, mex.columns);
+    EXPECT_EQ(m2->rows, mex.rows);
 
     for (int fa = 0; fa < m2->columns; ++fa)
     {
       for (int fb = 0; fb < m2->rows; ++fb)
       {
         int idx = fa + m2->columns * fb;
-        int idx1 = (mex.beginColumn + fa) + m1->columns * (mex.beginRow + fb);
+        int idx1 = (mex.column + fa) + m1->columns * (mex.row + fb);
         EXPECT_EQ(m2->reValues[idx], m1->reValues[idx1]);
         EXPECT_EQ(m2->imValues[idx], m1->imValues[idx1]);
       }

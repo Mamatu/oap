@@ -55,6 +55,8 @@ OAP_INCLUDES += oapNeuralApps
 OAP_INCLUDES += oapNeuralRoutinesHost
 OAP_INCLUDES += oapNeuralRoutinesHostTest
 OAP_INCLUDES += oapNeuralRoutines
+OAP_INCLUDES += oapDeviceTestsData
+OAP_INCLUDES += oapTestsData
 
 TARGET_ARCH := DEVICE_HOST
 
@@ -81,7 +83,6 @@ OAP_MODULES += oapMath
 OAP_MODULES += oapMatrix
 OAP_MODULES += oapMatrixCpu
 OAP_MODULES += oapSmsDataTests
-OAP_MODULES += oapHostTests
 endif
 
 ifeq ($(COMPILE_DEVICE),1)
@@ -104,6 +105,7 @@ ifeq ($(COMPILE_HOST),1)
 OAP_MODULES += oapNeuralHost
 OAP_MODULES += oapNeuralRoutinesHost
 OAP_MODULES += oapNeuralRoutinesHostTests
+OAP_MODULES += oapHostTests
 endif
 
 ifeq ($(COMPILE_DEVICE),1)
