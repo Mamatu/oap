@@ -253,7 +253,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
   oap::pyplot::FileType fileType = oap::pyplot::FileType::OAP_PYTHON_FILE;
 
   oap::pyplot::plot2DAll ("/tmp/plot_coords.py", oap::pyplot::convert (coordinates), fileType);
-  //normalize (coordinates);
+  normalize (coordinates);
   oap::pyplot::plot2DAll ("/tmp/plot_normalize_coords.py", oap::pyplot::convert(coordinates), fileType);
 
   auto modifiedCoordinates = splitIntoTestAndTrainingSet (coordinates, trainingData, testData, 2.f / 3.f);
@@ -334,7 +334,6 @@ TEST_F(OapClassificationTests, CircleDataTest)
     {
       hinput->reValues[0] = x;
       hinput->reValues[1] = y;
-      hinput->reValues[2] = 1;
 
       network->setInputs (hinput, ArgType::HOST);
       network->setExpected (houtput, ArgType::HOST);
