@@ -181,25 +181,39 @@ class CuProceduresApi
 
   // Sigmoid function and derivatives
   void sigmoid (math::Matrix* matrix);
+  void sigmoid (math::Matrix* matrix, uintt dim[2]);
+
   void sigmoid (math::Matrix* output, math::Matrix* matrix);
+  void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
 
   void sigmoidDerivative (math::Matrix* omatrix, math::Matrix* imatrix);
+  void sigmoidDerivative (math::Matrix* omatrix, math::Matrix* imatrix, uintt dim[2]);
 
   void multiplySigmoidDerivative (math::Matrix* omatrix, math::Matrix* matrix);
+  void multiplySigmoidDerivative (math::Matrix* omatrix, math::Matrix* matrix, uintt dim[2]);
 
   // Linear function and derivatives
   void linear (math::Matrix* output, math::Matrix* matrix);
+  void linear (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
   void linearDerivative (math::Matrix* output, math::Matrix* matrix);
+  void linearDerivative (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
 
   // Tanh/tanh function and derivatives
   void tanh (math::Matrix* output, const math::Matrix* matrix);
+  void tanh (math::Matrix* output, const math::Matrix* matrix, uintt dim[2]);
   void tanhDerivative (math::Matrix* output, const math::Matrix* matrix);
+  void tanhDerivative (math::Matrix* output, const math::Matrix* matrix, uintt dim[2]);
 
   // Sin/sin function and derivatives
   void sin (math::Matrix* output, const math::Matrix* matrix);
+  void sin (math::Matrix* output, const math::Matrix* matrix, uintt dim[2]);
 
   void sinDerivative (math::Matrix* output, const math::Matrix* matrix);
+  void sinDerivative (math::Matrix* output, const math::Matrix* matrix, uintt dim[2]);
+
   void multiplySinDerivative (math::Matrix* output, math::Matrix* matrix);
+  void multiplySinDerivative (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+
   inline void cos (math::Matrix* output, const math::Matrix* matrix)
   {
     sinDerivative (output, matrix);

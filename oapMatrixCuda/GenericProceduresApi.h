@@ -111,6 +111,24 @@ namespace generic
     return execute (kexec, kernelName.c_str(), w, h, params, 0, _prepareDims, blocks, threads, preExecCallback, [](){});
   }
 
+  template<typename GetMatrixInfo, typename PreExecCallback, typename CreateKernelArray>
+  bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, const math::Matrix* arg, uintt dims[2],
+                          oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, bool _prepareDims, PreExecCallback&& preExecCallback, CreateKernelArray&& createKernelArray)
+  {
+    uint blocks[2];
+    uint threads[2];
+
+    auto minfo = bmApi.getMatrixInfo (output);
+
+    const uintt w = minfo.columns ();
+    const uintt h = minfo.rows ();
+
+    uintt* karray = createKernelArray(dims, 2);
+    void* params[] = {&output, &arg, &karray};
+
+    return execute (kexec, kernelName.c_str(), w, h, params, 0, _prepareDims, blocks, threads, preExecCallback, [](){});
+  }
+
   template<typename GetMatrixInfo, typename Copy, typename GetAddress>
   class SumApi : public BasicMatrixApi<GetMatrixInfo>
   {

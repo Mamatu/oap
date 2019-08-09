@@ -323,12 +323,32 @@ extern "C" __global__ void CUDAKernel_MultiplySigmoidDerivative (math::Matrix* o
   CUDA_multiplySigmoidDerivative (omatrix, matrix);
 }
 
+extern "C" __global__ void CUDAKernel_SigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_sigmoidDim (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_SigmoidDimDerivative (math::Matrix* matrix, uintt* ex) {
+  CUDA_sigmoidDimDerivative (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_MultiplySigmoidDimDerivative (math::Matrix* omatrix, math::Matrix* matrix, uintt* ex) {
+  CUDA_multiplySigmoidDimDerivative (omatrix, matrix, ex);
+}
+
 extern "C" __global__ void CUDAKernel_Tanh(math::Matrix* omatrix, math::Matrix* imatrix) {
   CUDA_tanh (omatrix, imatrix);
 }
 
 extern "C" __global__ void CUDAKernel_TanhDerivative (math::Matrix* matrix) {
   CUDA_tanhDerivative (matrix, matrix);
+}
+
+extern "C" __global__ void CUDAKernel_TanhDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_tanhDim (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_TanhDimDerivative (math::Matrix* matrix, uintt* ex) {
+  CUDA_tanhDimDerivative (matrix, matrix, ex);
 }
 
 extern "C" __global__ void CUDAKernel_Sin(math::Matrix* omatrix, math::Matrix* imatrix) {
@@ -341,6 +361,18 @@ extern "C" __global__ void CUDAKernel_MultiplySinDerivative (math::Matrix* matri
 
 extern "C" __global__ void CUDAKernel_SinDerivative (math::Matrix* matrix) {
   CUDA_sinDerivative (matrix, matrix);
+}
+
+extern "C" __global__ void CUDAKernel_SinDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_sinDim (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_MultiplySinDimDerivative (math::Matrix* matrix, uintt* ex) {
+  CUDA_multiplySinDimDerivative (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_SinDimDerivative (math::Matrix* matrix, uintt* ex) {
+  CUDA_sinDimDerivative (matrix, matrix, ex);
 }
 
 extern "C" __global__ void CUDAKernel_CrossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)

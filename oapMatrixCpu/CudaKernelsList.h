@@ -76,6 +76,34 @@ void HOSTKernel_SigmoidRaw (void** params)
   HOSTKernel_Sigmoid (output, matrix);
 }
 
+void HOSTKernel_TanhDim (math::Matrix* output, math::Matrix* param1, uintt* ex)
+{
+  CUDA_tanhDim (output, param1, ex);
+}
+
+void HOSTKernel_TanhDimRaw (void** params)
+{
+  math::Matrix* output = getParam<math::Matrix> (params[0]);
+  math::Matrix* matrix = getParam<math::Matrix> (params[1]);
+  uintt* ex = getParam<uintt> (params[2]);
+
+  HOSTKernel_TanhDim (output, matrix, ex);
+}
+
+void HOSTKernel_SigmoidDim (math::Matrix* output, math::Matrix* param1, uintt* ex)
+{
+  CUDA_sigmoidDim (output, param1, ex);
+}
+
+void HOSTKernel_SigmoidDimRaw (void** params)
+{
+  math::Matrix* output = getParam<math::Matrix> (params[0]);
+  math::Matrix* matrix = getParam<math::Matrix> (params[1]);
+  uintt* ex = getParam<uintt> (params[2]);
+
+  HOSTKernel_SigmoidDim (output, matrix, ex);
+}
+
 void HOSTKernel_CrossEntropyRaw (void** params)
 {
   math::Matrix* output = getParam<math::Matrix> (params[0]);

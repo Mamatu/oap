@@ -24,6 +24,14 @@
 
 using LC_t = uintt;
 
+namespace
+{
+inline void _setReValue (math::Matrix* matrix, floatt v, uintt c, uintt r)
+{
+  oap::cuda::SetReValue(matrix, v, c, r);
+}
+}
+
 Network::Network()
 {}
 
@@ -67,6 +75,8 @@ void Network::createLevel (Layer* layer)
 void Network::addLayer (Layer* layer)
 {
   m_layers.push_back (layer);
+
+  oap::generic::initLayerBiases (*layer, _setReValue);
 }
 
 oap::HostMatrixUPtr Network::run (math::Matrix* inputs, ArgType argType, oap::ErrorType errorType)
@@ -239,14 +249,9 @@ floatt Network::calculateError (oap::ErrorType errorType)
   return errorsFunctions [errorType]();
 }
 
-inline void _setReValue (math::Matrix* matrix, floatt v, uintt c, uintt r)
-{
-  oap::cuda::SetReValue(matrix, v, c, r);
-}
-
 void Network::forwardPropagation ()
 {
-  oap::generic::forwardPropagation (this->m_layers, m_cuApi, _setReValue);
+  oap::generic::forwardPropagation (this->m_layers, m_cuApi);
 }
 
 void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcType)

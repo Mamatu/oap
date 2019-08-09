@@ -31,11 +31,13 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
 {
   {"CUDAKernel_SumShared", HOSTKernel_SumSharedRaw},
   {"CUDAKernel_CrossEntropy", HOSTKernel_CrossEntropyRaw},
-  {"CUDAKernel_Tanh", HOSTKernel_TanhRaw},
-  {"CUDAKernel_Sigmoid", HOSTKernel_SigmoidRaw},
   {"CUDAKernel_DotProductDim", HOSTKernel_DotProductDimRaw},
   {"CUDAKernel_DotProduct", HOSTKernel_DotProductRaw},
   {"CUDAKernel_TensorProductDim", HOSTKernel_TensorProductDimRaw},
+  {"CUDAKernel_Tanh", HOSTKernel_TanhRaw},
+  {"CUDAKernel_Sigmoid", HOSTKernel_SigmoidRaw},
+  {"CUDAKernel_TanhDim", HOSTKernel_TanhDimRaw},
+  {"CUDAKernel_SigmoidDim", HOSTKernel_SigmoidDimRaw},
 };
 
 class HostKernelImpl : public HostKernel

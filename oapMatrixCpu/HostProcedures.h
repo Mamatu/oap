@@ -66,6 +66,14 @@ class HostProcedures {
 
   void sin (math::Matrix* output, math::Matrix* matrix);
 
+  void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+
+  void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+
+  void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+
+  void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 
   void crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);

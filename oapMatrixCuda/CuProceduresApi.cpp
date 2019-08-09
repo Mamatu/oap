@@ -25,6 +25,9 @@
 
 #include "Logger.h"
 #include "HostMatrixKernels.h"
+
+#include "oapDeviceMatrixUPtr.h"
+#include "oapDeviceMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"
 #include "oapHostMatrixPtr.h"
 
@@ -530,6 +533,17 @@ void CuProceduresApi::sigmoid (math::Matrix* matrix)
   m_cuStatus = execute("CUDAKernel_Sigmoid", w, h, params, 0);
 }
 
+void CuProceduresApi::sigmoid (math::Matrix* matrix, uintt dims[2])
+{
+  const uintt w = CudaUtils::GetColumns(matrix);
+  const uintt h = CudaUtils::GetRows(matrix);
+
+  uintt* karray = createKernelArray(dims, 2);
+  void* params[] = {&matrix, &matrix, &karray};
+
+  m_cuStatus = execute("CUDAKernel_SigmoidDim", w, h, params, 0);
+}
+
 void CuProceduresApi::sigmoid (math::Matrix* output, math::Matrix* matrix)
 {
   const uintt w = CudaUtils::GetColumns (output);
@@ -538,6 +552,17 @@ void CuProceduresApi::sigmoid (math::Matrix* output, math::Matrix* matrix)
   void* params[] = {&output, &matrix};
 
   m_cuStatus = execute("CUDAKernel_Sigmoid", w, h, params, 0);
+}
+
+void CuProceduresApi::sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  const uintt w = CudaUtils::GetColumns (output);
+  const uintt h = CudaUtils::GetRows (output);
+
+  uintt* karray = createKernelArray(dims, 2);
+  void* params[] = {&matrix, &matrix, &karray};
+
+  m_cuStatus = execute("CUDAKernel_SigmoidDim", w, h, params, 0);
 }
 
 void CuProceduresApi::sigmoidDerivative (math::Matrix* omatrix, math::Matrix* imatrix)
@@ -550,6 +575,17 @@ void CuProceduresApi::sigmoidDerivative (math::Matrix* omatrix, math::Matrix* im
   m_cuStatus = execute("CUDAKernel_SigmoidDerivative", w, h, params, 0);
 }
 
+void CuProceduresApi::sigmoidDerivative (math::Matrix* omatrix, math::Matrix* imatrix, uintt dims[2])
+{
+  const uintt w = CudaUtils::GetColumns(omatrix);
+  const uintt h = CudaUtils::GetRows(omatrix);
+
+  uintt* karray = createKernelArray(dims, 2);
+  void* params[] = {&omatrix, &imatrix, &karray};
+
+  m_cuStatus = execute("CUDAKernel_SigmoidDimDerivative", w, h, params, 0);
+}
+
 void CuProceduresApi::multiplySigmoidDerivative(math::Matrix* omatrix, math::Matrix* matrix)
 {
   const uintt w = CudaUtils::GetColumns(omatrix);
@@ -560,9 +596,31 @@ void CuProceduresApi::multiplySigmoidDerivative(math::Matrix* omatrix, math::Mat
   m_cuStatus = execute("CUDAKernel_MultiplySigmoidDerivative", w, h, params, 0);
 }
 
+void CuProceduresApi::multiplySigmoidDerivative(math::Matrix* omatrix, math::Matrix* matrix, uintt dims[2])
+{
+  const uintt w = CudaUtils::GetColumns(omatrix);
+  const uintt h = CudaUtils::GetRows(omatrix);
+
+  uintt* karray = createKernelArray(dims, 2);
+  void* params[] = {&matrix, &matrix, &karray};
+
+  m_cuStatus = execute("CUDAKernel_MultiplySigmoidDimDerivative", w, h, params, 0);
+}
+
 void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix)
 {
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (output, matrix);
+}
+
+void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  auto minfo = oap::cuda::GetMatrixInfo (output);
+  math::MatrixInfo minfo1 (minfo.isRe, minfo.isIm, dims[0], dims[1]);
+
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrix (minfo1, 1.f);
+
+  oap::cuda::CopyDeviceToDevice (dmatrix, matrix);
+  oap::cuda::SetMatrix (output, dmatrix, 0, 0);
 }
 
 void CuProceduresApi::linearDerivative (math::Matrix* output, math::Matrix* matrix)
@@ -571,10 +629,26 @@ void CuProceduresApi::linearDerivative (math::Matrix* output, math::Matrix* matr
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
 }
 
+void CuProceduresApi::linearDerivative (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  auto minfo = oap::cuda::GetMatrixInfo (output);
+  math::MatrixInfo minfo1 (minfo.isRe, minfo.isIm, dims[0], dims[1]);
+
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrix (minfo1, 1.f);
+
+  oap::cuda::SetMatrix (output, dmatrix, 0, 0);
+}
+
 void CuProceduresApi::tanh (math::Matrix* output, const math::Matrix* matrix)
 {
   m_cuStatus = oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, m_bmApi, true,
                m_preExecCallback);
+}
+
+void CuProceduresApi::tanh (math::Matrix* output, const math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::executeKernel1Arg ("CUDAKernel_TanhDim", output, matrix, dims, &m_kernel, m_bmApi, true,
+               m_preExecCallback, std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void CuProceduresApi::tanhDerivative (math::Matrix* output, const math::Matrix* matrix)
@@ -585,7 +659,17 @@ void CuProceduresApi::tanhDerivative (math::Matrix* output, const math::Matrix* 
   void* params[] = {&output, &matrix};
 
   m_cuStatus = execute("CUDAKernel_TanhDerivative", w, h, params, 0);
+}
 
+void CuProceduresApi::tanhDerivative (math::Matrix* output, const math::Matrix* matrix, uintt dims[2])
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  uintt* karray = createKernelArray(dims, 2);
+  void* params[] = {&output, &matrix, &karray};
+
+  m_cuStatus = execute("CUDAKernel_TanhDimDerivative", w, h, params, 0);
 }
 
 void CuProceduresApi::sin (math::Matrix* output, const math::Matrix* matrix)
@@ -598,6 +682,17 @@ void CuProceduresApi::sin (math::Matrix* output, const math::Matrix* matrix)
   m_cuStatus = execute("CUDAKernel_Sin", w, h, params, 0);
 }
 
+void CuProceduresApi::sin (math::Matrix* output, const math::Matrix* matrix, uintt dims[2])
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  uintt* karray = createKernelArray(dims, 2);
+  void* params[] = {&output, &matrix, &karray};
+
+  m_cuStatus = execute("CUDAKernel_SinDim", w, h, params, 0);
+}
+
 void CuProceduresApi::multiplySinDerivative (math::Matrix* output, math::Matrix* matrix)
 {
   const uintt w = CudaUtils::GetColumns(output);
@@ -608,6 +703,17 @@ void CuProceduresApi::multiplySinDerivative (math::Matrix* output, math::Matrix*
   m_cuStatus = execute("CUDAKernel_MultiplySinDerivative", w, h, params, 0);
 }
 
+void CuProceduresApi::multiplySinDerivative (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  uintt* karray = createKernelArray(dims, 2);
+  void* params[] = {&output, &matrix, &karray};
+
+  m_cuStatus = execute("CUDAKernel_MultiplySinDimDerivative", w, h, params, 0);
+}
+
 void CuProceduresApi::sinDerivative (math::Matrix* output, const math::Matrix* matrix)
 {
   const uintt w = CudaUtils::GetColumns(output);
@@ -616,6 +722,17 @@ void CuProceduresApi::sinDerivative (math::Matrix* output, const math::Matrix* m
   void* params[] = {&output, &matrix};
 
   m_cuStatus = execute("CUDAKernel_SinDerivative", w, h, params, 0);
+}
+
+void CuProceduresApi::sinDerivative (math::Matrix* output, const math::Matrix* matrix, uintt dims[2])
+{
+  const uintt w = CudaUtils::GetColumns(output);
+  const uintt h = CudaUtils::GetRows(output);
+
+  uintt* karray = createKernelArray(dims, 2);
+  void* params[] = {&output, &matrix, &karray};
+
+  m_cuStatus = execute("CUDAKernel_SinDimDerivative", w, h, params, 0);
 }
 
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,

@@ -254,6 +254,35 @@ void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix)
   oap::generic::executeKernel1Arg ("CUDAKernel_Sin", output, matrix, &m_kernel, bapi, true, [](){});
 }
 
+void HostProcedures::tanh(math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::executeKernel1Arg ("CUDAKernel_TanhDim", output, matrix, dims, &m_kernel, bapi, true, [](){},
+                                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+}
+
+void HostProcedures::sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::executeKernel1Arg ("CUDAKernel_SigmoidDim", output, matrix, dims, &m_kernel, bapi, true, [](){},
+                                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+}
+
+void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  debugAssert ("Not supported yet" == nullptr);
+}
+
+void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+
+  oap::generic::executeKernel1Arg ("CUDAKernel_SinDim", output, matrix, dims, &m_kernel, bapi, true, [](){},
+                                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+}
+
 void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
 {
   oap::host::HostBuffer<floatt> m_hsumsReBuffer;
