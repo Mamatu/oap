@@ -257,7 +257,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
 
   if (errorType == oap::ErrorType::CROSS_ENTROPY)
   {
-    m_cuApi.crossEntropy (llayer->m_errors, m_expectedDeviceOutputs, llayer->m_inputs);
+    m_cuApi.crossEntropy (llayer->m_errorsAux, m_expectedDeviceOutputs, llayer->m_inputs);
   }
   else
   {
