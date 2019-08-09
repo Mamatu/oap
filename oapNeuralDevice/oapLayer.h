@@ -111,8 +111,8 @@ public:
   template<typename Layers, typename Api, typename CopyMatrixToMatrix>
   friend void oap::generic::backPropagation (const Layers&, Api&, CopyMatrixToMatrix&&);
   
-  template<typename Layers, typename Api, typename PostCallback, typename SetReMatrix>
-  friend void oap::generic::updateWeights(const Layers&, Api&, PostCallback&&, SetReMatrix&&, floatt, uintt);
+  template<typename Layers, typename Api, typename PostCallback>
+  friend void oap::generic::updateWeights(const Layers&, Api&, PostCallback&&, floatt, uintt);
 };
 
 template<typename AllocApi>

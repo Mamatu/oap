@@ -181,8 +181,8 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
   calcNablaWeights ();
 }
 
-template<typename Layers, typename Api, typename PostCallback, typename SetReMatrix>
-void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, SetReMatrix&& setReMatrix, floatt learningRate, uintt normalizationFactor)
+template<typename Layers, typename Api, typename PostCallback>
+void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, floatt learningRate, uintt normalizationFactor)
 {
   LayerS* current = nullptr;
   LayerS* next = layers[0];
@@ -196,11 +196,6 @@ void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, 
     api.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
 
     api.substract (current->m_weights, current->m_weights, current->m_weights2);
-
-    if (next->m_biasCount == 1)
-    {
-      setReMatrix (current->m_weights, current->m_vec, 0, next->getTotalNeuronsCount() - 1);
-    }
   }
 
   postCallback ();
