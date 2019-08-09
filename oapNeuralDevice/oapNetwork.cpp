@@ -60,6 +60,7 @@ void Network::createLevel (Layer* layer)
   if (previous != nullptr)
   {
     oap::generic::connectLayers<Layer, oap::alloc::cuda::AllocWeightsApi>(previous, layer);
+    oap::generic::initRandomWeights (*previous, layer);
   }
 }
 

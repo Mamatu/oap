@@ -113,6 +113,8 @@ public:
   
   template<typename Layers, typename Api, typename PostCallback>
   friend void oap::generic::updateWeights(const Layers&, Api&, PostCallback&&, floatt, uintt);
+
+  friend void oap::generic::initRandomWeights (LayerS&, const LayerS*);
 };
 
 template<typename AllocApi>
