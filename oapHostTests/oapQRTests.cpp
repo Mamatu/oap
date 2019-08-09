@@ -63,12 +63,12 @@ class OapQRTests : public OapCudaStub {
 
     QRGRStub(math::Matrix* matrix, math::Matrix* eq_q, math::Matrix* eq_r)
         : QRStub(matrix, eq_q, eq_r) {
-      m_q = oap::host::NewMatrixRef(eq_q);
-      m_r = oap::host::NewMatrixRef(eq_r);
-      m_temp1 = oap::host::NewMatrixRef(matrix);
-      m_temp2 = oap::host::NewMatrixRef(matrix);
-      m_temp3 = oap::host::NewMatrixRef(matrix);
-      m_temp4 = oap::host::NewMatrixRef(matrix);
+      m_q = oap::host::NewMatrix(eq_q);
+      m_r = oap::host::NewMatrix(eq_r);
+      m_temp1 = oap::host::NewMatrix(matrix);
+      m_temp2 = oap::host::NewMatrix(matrix);
+      m_temp3 = oap::host::NewMatrix(matrix);
+      m_temp4 = oap::host::NewMatrix(matrix);
       calculateDims(m_matrix->columns, m_matrix->rows);
     }
 
@@ -109,7 +109,7 @@ class OapQRTests : public OapCudaStub {
 
   void ExpectThatQRIsA(QRStub* qrStub, math::Matrix* eq_matrix) {
     HostProcedures hostProcedures;
-    math::Matrix* matrix = oap::host::NewMatrixRef(qrStub->getQ());
+    math::Matrix* matrix = oap::host::NewMatrix(qrStub->getQ());
     hostProcedures.setThreadsCount(1024);
     hostProcedures.dotProduct(matrix, qrStub->getQ(), qrStub->getR());
     EXPECT_THAT(eq_matrix, MatrixIsEqual(matrix));
@@ -119,7 +119,7 @@ class OapQRTests : public OapCudaStub {
   void ExpectThatQIsUnitary(QRStub* qrStub) {
     HostProcedures hostProcedures;
     math::Matrix* QT = oap::host::NewMatrixCopy(qrStub->getQ());
-    math::Matrix* matrix = oap::host::NewMatrixRef(qrStub->getQ());
+    math::Matrix* matrix = oap::host::NewMatrix(qrStub->getQ());
     hostProcedures.setThreadsCount(1024);
     hostProcedures.transpose(QT, qrStub->getQ());
     hostProcedures.dotProduct(matrix, QT, qrStub->getQ());

@@ -96,7 +96,7 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_1)
 
   auto minfo = l3->getOutputsInfo ();
   oap::HostMatrixPtr outputsL3 = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
-  l3->getOutputs (outputsL3, ArgType::HOST);
+  l3->getOutputs (outputsL3, oap::HOST);
 
   EXPECT_DOUBLE_EQ (sigmoid (sigmoid(2) + sigmoid(2)), outputsL3->reValues[0]);
 }
@@ -141,7 +141,7 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_2)
 
   auto minfo = l3->getOutputsInfo ();
   oap::HostMatrixPtr outputsL3 = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
-  l3->getOutputs (outputsL3, ArgType::HOST);
+  l3->getOutputs (outputsL3, oap::HOST);
 
   EXPECT_DOUBLE_EQ (sigmoid (sigmoid(3) + sigmoid(3) + sigmoid(3)), outputsL3->reValues[0]);
 }
@@ -186,7 +186,7 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_3)
 
   auto minfo = l3->getOutputsInfo ();
   oap::HostMatrixPtr outputsL3 = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
-  l3->getOutputs (outputsL3, ArgType::HOST);
+  l3->getOutputs (outputsL3, oap::HOST);
 
   EXPECT_DOUBLE_EQ (sigmoid (sigmoid(4) + sigmoid(4) + sigmoid(4)), outputsL3->reValues[0]);
 }
@@ -233,7 +233,7 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_4)
   {
     auto minfo = layer->getOutputsInfo ();
     oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
-    layer->getOutputs (outputsL, ArgType::HOST);
+    layer->getOutputs (outputsL, oap::HOST);
     return outputsL;
   };
 

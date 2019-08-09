@@ -128,7 +128,7 @@ class Context : public CuDeviceInfo {
   static int FIRST;
   static int LAST;
 
-  void create(int deviceIndex = -1);
+  void create(int deviceIndex = Context::LAST);
   void destroy();
   static Context& Instance();
 

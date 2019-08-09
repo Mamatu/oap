@@ -43,14 +43,3 @@ TEST_F(OapNeuralTests_Backpropagation_4HL_3_2_5_4, Test_1)
   auto network = test_api::createNetwork (g_networkInfo);
   ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec, g_weights4to5Vec, g_weights5to6Vec}, g_steps, g_idxsToCheck));
 }
-
-TEST_F(OapNeuralTests_Backpropagation_4HL_3_2_5_4, Test_2)
-{
-  using namespace oap::Backpropagation_Data_4HL_3_2_5_4;
-
-  test_api::ExtraParams ep;
-  ep.calcType = CalculationType::DEVICE;
-
-  auto network = test_api::createNetwork (g_networkInfo);
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec, g_weights4to5Vec, g_weights5to6Vec}, g_steps, g_idxsToCheck, ep));
-}

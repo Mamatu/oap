@@ -58,13 +58,6 @@ extern "C" __global__ void CUDAKernel_DotProductEx(math::Matrix* output,
   CUDA_dotProductEx(output, params0, params1, *matrixEx);
 }
 
-extern "C" __global__
-void CUDAKernel_DotProductDim(
-     math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
-{
-  CUDA_dotProductDim (output, params0, params1, ex);
-}
-
 extern "C" __global__ void CUDAKernel_DotProductReOpt(math::Matrix* output,
                                                       math::Matrix* params0,
                                                       math::Matrix* params1) {
@@ -378,12 +371,6 @@ extern "C" __global__ void
 CUDAKernel_TensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
   CUDA_tensorProduct (output, params0, params1);
-}
-
-extern "C" __global__ void
-CUDAKernel_TensorProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
-{
-  CUDA_tensorProductDim (output, params0, params1, ex);
 }
 
 extern "C" __global__ void

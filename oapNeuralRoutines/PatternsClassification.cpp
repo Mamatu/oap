@@ -129,10 +129,9 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     network->setExpected (eoutput, ArgType::HOST);
     network->setInputs (input, ArgType::HOST);
     network->forwardPropagation ();
-    network->accumulateErrors (errorType, CalculationType::HOST);
-    network->backPropagation();
+    network->calculateErrors (errorType);
     floatt error = network->calculateError (errorType);
-    network->updateWeights ();
+    network->backwardPropagation ();
     logInfo ("error = %f", error);
   }
 

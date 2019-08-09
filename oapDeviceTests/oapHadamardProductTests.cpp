@@ -52,10 +52,10 @@ TEST_F(OapHadamardProductTests, InitTest)
   math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(16, 16);
   math::Matrix* houtput = oap::host::NewReMatrix(16, 16);
 
-  //EXPECT_THROW(cuMatrix->hadamardProduct (nullptr, dM1, dM2), std::runtime_error);
-  //EXPECT_THROW(cuMatrix->hadamardProduct (doutput, nullptr, dM2), std::runtime_error);
-  //EXPECT_THROW(cuMatrix->hadamardProduct (doutput, dM1, nullptr), std::runtime_error);
-  //EXPECT_THROW(cuMatrix->hadamardProduct (doutput, dM1, dM2), std::runtime_error);
+  EXPECT_THROW(cuMatrix->hadamardProduct (nullptr, dM1, dM2), std::runtime_error);
+  EXPECT_THROW(cuMatrix->hadamardProduct (doutput, nullptr, dM2), std::runtime_error);
+  EXPECT_THROW(cuMatrix->hadamardProduct (doutput, dM1, nullptr), std::runtime_error);
+  EXPECT_THROW(cuMatrix->hadamardProduct (doutput, dM1, dM2), std::runtime_error);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   oap::cuda::DeleteDeviceMatrix(doutput);

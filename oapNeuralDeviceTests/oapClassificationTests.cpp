@@ -298,7 +298,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
       network->setExpected (houtput, ArgType::HOST);
 
       network->forwardPropagation ();
-      network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
+      network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
     };
 
     auto calculateCoordsError = [&forwardPropagation, &network, &houtput](const Coordinates& coords, Coordinates* output = nullptr)
@@ -364,9 +364,8 @@ TEST_F(OapClassificationTests, CircleDataTest)
         for (size_t c = 0; c < batchSize; ++c)
         {
           forwardPropagation (trainingData[idx + c]);
-          network->backPropagation ();
         }
-        network->updateWeights ();
+        network->backwardPropagation ();
       }
       floatt dTestError = testError;
       floatt dTrainingError = trainingError;

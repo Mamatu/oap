@@ -74,9 +74,8 @@ TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_2)
         network->setExpected (houtput, ArgType::HOST);
 
         network->forwardPropagation ();
-        network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
+        network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
       }
-
       EXPECT_NEAR (expected, network->calculateError(oap::ErrorType::MEAN_SQUARE_ERROR), 0.0000001);
       network->postStep ();
     };

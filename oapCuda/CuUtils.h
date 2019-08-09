@@ -38,8 +38,6 @@
   ((blockIdx.x * blockDim.x + threadIdx.x) == 0 && \
    (blockIdx.y * blockDim.y + threadIdx.y) == 0)
 
-#define IS_THREAD(tx,ty) (blockIdx.x * blockDim.x + threadIdx.x) == tx && (blockIdx.y * blockDim.y + threadIdx.y) == ty
-
 __hostdevice__ void CUDA_PrintBuffer(floatt* buffer, uint length) {
   for (uint fa = 0; fa < length; ++fa) {
     printf("buffer[%u] = %f \n", fa, buffer[fa]);
@@ -48,7 +46,7 @@ __hostdevice__ void CUDA_PrintBuffer(floatt* buffer, uint length) {
 
 __hostdevice__ void CUDA_PrintBufferUintt(uintt* buffer, uint length) {
   for (uint fa = 0; fa < length; ++fa) {
-    printf("buffer[%u] = %u \n", fa, buffer[fa]);
+    printf("buffer[%u] = %llu \n", fa, buffer[fa]);
   }
 }
 
@@ -123,12 +121,13 @@ __hostdevice__ void CUDA_PrintInt(uint v) {
     }                                                          \
   }
 
-#define cuda_debug_thread(tx, ty, arg, ...)                                             \
-  {                                                                                     \
-    if (IS_THREAD(tx,ty)) {                                                             \
-      printf("%s %s %d Thread: %u %u: " arg "\n", __FUNCTION__, __FILE__, __LINE__, tx, \
-             ty, ##__VA_ARGS__);                                                        \
-    }                                                                                   \
+#define cuda_debug_thread(tx, ty, arg, ...)                                    \
+  {                                                                            \
+    if (IS_FIRST_THREAD) {                                                     \
+      printf("%s %s %d Thread: %u %u: ", __FUNCTION__, __FILE__, __LINE__, tx, \
+             ty);                                                              \
+      printf(arg, ##__VA_ARGS__);                                              \
+    }                                                                          \
   }
 
 #endif

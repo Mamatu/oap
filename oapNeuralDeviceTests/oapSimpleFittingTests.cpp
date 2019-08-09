@@ -132,14 +132,13 @@ class OapSimpleFittingTests : public testing::Test
         network->setInputs (inputs, ArgType::HOST);
 
         network->forwardPropagation();
-        network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
-        network->backPropagation ();
+        network->calculateErrors (oap::ErrorType::MEAN_SQUARE_ERROR);
         oap::HostMatrixUPtr houtputs = network->getHostOutputs ();
 
         errors[randomIdx] = network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
         ioData[randomIdx] = std::make_tuple (input, houtputs->reValues[0], eoutput);
 
-        network->updateWeights ();
+        network->backwardPropagation ();
       }
       floatt em = mean ();
 

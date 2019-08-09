@@ -151,7 +151,7 @@ void Context::create (int _deviceIndex)
   int count = -1;
 
   printCuError(cuDeviceGetCount(&count));
-  logDebug("Devices count: %d \n", count);
+  debug("Devices count: %d \n", count);
 
   debugAssertMsg (count > 0, "No device detected. Count is equal 0!")
 
@@ -160,17 +160,13 @@ void Context::create (int _deviceIndex)
   if (deviceIndex >= count)
   {
     deviceIndex = count - 1;
-    logDebug("The last device (%d) will be used.",deviceIndex);
+    debug("The last device will be used.");
   }
-  else if (deviceIndex < 0)
+
+  if (deviceIndex < 0)
   {
-#ifndef OAP_CU_DEVICE_INDEX
     deviceIndex = 0;
-    logDebug ("The first device will be used.");
-#else
-    deviceIndex = OAP_CU_DEVICE_INDEX;
-    logDebug ("The device with number %d will be used.", deviceIndex);
-#endif
+    debug("The first device will be used.");
   }
 
   debugAssertMsg(deviceIndex >= 0 && deviceIndex < count, "Index of device is out of scope!");

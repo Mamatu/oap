@@ -54,7 +54,7 @@ class OapQRTests : public testing::Test {
     math::Matrix* tdq = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(q);
     math::Matrix* doutput = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(q);
     math::Matrix* doutput1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(q);
-    math::Matrix* houtput = oap::host::NewMatrixRef (q);
+    math::Matrix* houtput = oap::host::NewMatrix(q);
 
     m_cuMatrix->transpose(tdq, dq);
     m_cuMatrix->dotProduct(doutput, tdq, dq);
@@ -71,11 +71,11 @@ class OapQRTests : public testing::Test {
   void executeTest(const std::string& qr1matrix, const std::string& qr1q,
                    const std::string& qr1r) {
     math::Matrix* matrix = oap::host::NewMatrix(qr1matrix);
-    math::Matrix* hmatrix = oap::host::NewMatrixRef (matrix);
-    math::Matrix* hmatrix1 = oap::host::NewMatrixRef (matrix);
+    math::Matrix* hmatrix = oap::host::NewMatrix(matrix);
+    math::Matrix* hmatrix1 = oap::host::NewMatrix(matrix);
 
-    math::Matrix* hrmatrix = oap::host::NewMatrixRef (matrix);
-    math::Matrix* hrmatrix1 = oap::host::NewMatrixRef (matrix);
+    math::Matrix* hrmatrix = oap::host::NewMatrix(matrix);
+    math::Matrix* hrmatrix1 = oap::host::NewMatrix(matrix);
 
     math::Matrix* temp1 = oap::cuda::NewDeviceMatrixHostRef(matrix);
     math::Matrix* temp2 = oap::cuda::NewDeviceMatrixHostRef(matrix);
@@ -85,11 +85,11 @@ class OapQRTests : public testing::Test {
     math::Matrix* drmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(matrix);
 
     math::Matrix* eq_q = oap::host::NewMatrix(qr1q);
-    math::Matrix* q = oap::host::NewMatrixRef (eq_q);
+    math::Matrix* q = oap::host::NewMatrix(eq_q);
     math::Matrix* dq = oap::cuda::NewDeviceMatrixHostRef(q);
 
     math::Matrix* eq_r = oap::host::NewMatrix(qr1r);
-    math::Matrix* r = oap::host::NewMatrixRef (eq_r);
+    math::Matrix* r = oap::host::NewMatrix(eq_r);
     math::Matrix* dr = oap::cuda::NewDeviceMatrixHostRef(r);
 
     m_cuMatrix->QRGR(dq, dr, dmatrix, temp1, temp2, temp3, temp4);

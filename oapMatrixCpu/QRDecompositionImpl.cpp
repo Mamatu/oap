@@ -95,10 +95,10 @@ oap::host::DeleteMatrix(m_GT);
         m_GT = NULL;
     }
     if (m_R1 == NULL) {
-        m_R1 = oap::host::NewMatrixRef (A);
-        m_Q1 = oap::host::NewMatrixRef (A);
-        m_G = oap::host::NewMatrixRef (A);
-        m_GT = oap::host::NewMatrixRef (A);
+        m_R1 = oap::host::NewMatrix(A);
+        m_Q1 = oap::host::NewMatrix(A);
+        m_G = oap::host::NewMatrix(A);
+        m_GT = oap::host::NewMatrix(A);
     }
 
     tR1 = m_R1;

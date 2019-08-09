@@ -25,10 +25,7 @@
 #include "oapLayer.h"
 #include "oapDeviceMatrixPtr.h"
 
-#include "oapNetworkStructure.h"
-#include "oapDeviceNeuralApi.h"
-
-class Network : private NetworkS
+class Network
 {
 public: // types
 
@@ -66,7 +63,7 @@ public:
   math::MatrixInfo getInputInfo () const;
 
   void forwardPropagation ();
-  void accumulateErrors (oap::ErrorType errorType, CalculationType calcType);
+  void calculateErrors (oap::ErrorType errorType, bool onlyErrors = false);
 
   math::Matrix* getErrors (ArgType type) const;
 
@@ -78,7 +75,7 @@ public:
 
   floatt calculateError (oap::ErrorType errorType);
 
-  void backPropagation ();
+  void backwardPropagation ();
 
   void updateWeights();
 
@@ -115,10 +112,10 @@ public:
 
   void printLayersWeights ();
 
-  void postStep (LayerS* layer);
+  void postStep (Layer* layer);
   void postStep ();
 
-  void resetErrors (LayerS* layer);
+  void resetErrors (Layer* layer);
   void resetErrors ();
   void resetErrorsVec ();
 
@@ -134,8 +131,46 @@ public:
 protected:
   void setHostInputs (math::Matrix* inputs, size_t layerIndex);
 
+  inline void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation)
+  {
+    switch (activation)
+    {
+      case Activation::SIGMOID:
+        m_cuApi.sigmoid (output, input);
+      break;
+      case Activation::LINEAR:
+        m_cuApi.identity (output, input);
+      break;
+      case Activation::TANH:
+        m_cuApi.tanh (output, input);
+      break;
+      case Activation::SIN:
+        m_cuApi.sin (output, input);
+      break;
+    };
+  }
+
+  inline void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation)
+  {
+    switch (activation)
+    {
+      case Activation::SIGMOID:
+        m_cuApi.sigmoidDerivative (output, input);
+      break;
+      case Activation::LINEAR:
+        m_cuApi.identityDerivative (output, input);
+      break;
+      case Activation::TANH:
+        m_cuApi.tanhDerivative (output, input);
+      break;
+      case Activation::SIN:
+        m_cuApi.sinDerivative (output, input);
+      break;
+    };
+  }
 private:
   std::vector<Layer*> m_layers;
+  std::vector<floatt> m_errorsVec;
 
   void destroyLayers();
 
@@ -145,27 +180,18 @@ private:
 
   oap::CuProceduresApi m_cuApi;
 
+  floatt m_learningRate = 0.1f;
+  size_t m_step = 1;
+
   oap::DeviceMatrixPtr m_expectedDeviceOutputs = nullptr;
   IController* m_icontroller = nullptr;
+  size_t m_backwardCount = 0;
 
   std::ostream& log()
   {
     //std::cout << "[network] ";
     return std::cout;
   }
-
-  /**
-   * Calculates errors for every layer of weights (except of the first)
-   */
-  void calcErrors ();
-
-  /**
-   * Calculates gradients for weights
-   */
-  void calcNablaWeights ();
-
-  template<typename LayerT, typename AllocNeuronsApi>
-  friend void allocateNeurons (LayerT& ls, size_t neuronsCount, size_t biasCount);
 };
 
 #endif

@@ -105,10 +105,10 @@ TEST_F(OapDeviceMatrixModuleTests, SetMatrixExTests) {
   auto testMatrixEx = [matrixExElements](MatrixEx** dMatrixExs, uintt index) {
     MatrixEx hostMatrixEx;
     oap::cuda::GetMatrixEx(&hostMatrixEx, dMatrixExs[index]);
-    EXPECT_EQ(index * matrixExElements, hostMatrixEx.column);
-    EXPECT_EQ(index * matrixExElements + 1, hostMatrixEx.columns);
-    EXPECT_EQ(index * matrixExElements + 2, hostMatrixEx.row);
-    EXPECT_EQ(index * matrixExElements + 3, hostMatrixEx.rows);
+    EXPECT_EQ(index * matrixExElements, hostMatrixEx.beginColumn);
+    EXPECT_EQ(index * matrixExElements + 1, hostMatrixEx.columnsLength);
+    EXPECT_EQ(index * matrixExElements + 2, hostMatrixEx.beginRow);
+    EXPECT_EQ(index * matrixExElements + 3, hostMatrixEx.rowsLength);
     EXPECT_EQ(index * matrixExElements + 4, hostMatrixEx.boffset);
     EXPECT_EQ(index * matrixExElements + 5, hostMatrixEx.eoffset);
   };

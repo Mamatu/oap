@@ -24,9 +24,6 @@
 #include "HostKernel.h"
 #include "HostKernelExecutor.h"
 
-#include "GenericProceduresApi.h"
-#include "oapHostMatrixUtils.h"
-
 class HostProcedures {
  public:
   HostProcedures(uint maxThreadsPerBlock = 1024);
@@ -44,39 +41,13 @@ class HostProcedures {
   void dotProduct(math::Matrix* output, math::Matrix* matrix1,
                  math::Matrix* matrix2);
 
-  void dotProduct(math::Matrix* output, math::Matrix* matrix1,
-                 math::Matrix* matrix2, size_t w, size_t h);
-
-  void dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
-
-  void dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                  uintt outputDim[2], uintt params0Dim[2], uintt params1Dim[2])
-  {
-    uintt dims[3][2] = {{outputDim[0], outputDim[1]}, {params0Dim[0], params0Dim[1]}, {params1Dim[0], params1Dim[1]}};
-    dotProduct (output, matrix1, matrix2, dims);
-  }
-
   void transpose(math::Matrix* output, math::Matrix* matrix);
 
-  void tanh (math::Matrix* output, math::Matrix* matrix);
-
-  void sigmoid (math::Matrix* output, math::Matrix* matrix);
-
-  void linear (math::Matrix* output, math::Matrix* matrix);
-
-  void sin (math::Matrix* output, math::Matrix* matrix);
+  void tanh(math::Matrix* output, math::Matrix* matrix);
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 
   void crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
-
-  void tensorProduct (math::Matrix* matrix, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2]);
-
-  inline void tensorProduct (math::Matrix* matrix, math::Matrix* params0, math::Matrix* params1, uintt dims1[2], uintt dims2[2], uintt dims3[2])
-  {
-    uintt dims[3][2] = {{dims1[0], dims1[1]}, {dims2[0], dims2[1]}, {dims3[0], dims3[1]}};
-    tensorProduct (matrix, params0, params1, dims);
-  }
  private:
   uint m_threads[2];
   uint m_blocks[2];
@@ -85,14 +56,6 @@ class HostProcedures {
   HostKernelExecutor m_kernel;
 
   void prepare(math::Matrix* matrix, HostKernel& hostKernel);
-  void prepare(size_t w, size_t h, HostKernel& hostKernel);
-
-  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> m_bmApi;
-
-  uintt* createKernelArray (uintt* hostArray, size_t length)
-  {
-    return hostArray;
-  }
 };
 
 #endif  // HOSTCOMPAREPROCEDURE_H

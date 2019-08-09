@@ -18,11 +18,24 @@
  */
 
 #include "oapLayer.h"
-
-#include <list>
 #include "MatrixAPI.h"
 
-Layer::Layer ()
+#include <list>
+
+void Layer::checkHostInputs(const math::Matrix* hostInputs)
+{
+  if (hostInputs->columns != 1)
+  {
+    throw std::runtime_error ("Columns of hostInputs matrix must be equal 1");
+  }
+
+  if (hostInputs->rows != getTotalNeuronsCount())
+  {
+    throw std::runtime_error ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)");
+  }
+}
+
+Layer::Layer(const Activation& activation, bool addBias) : m_activation(activation), m_biasCount (addBias ? 1 : 0)
 {}
 
 Layer::~Layer()
@@ -32,52 +45,187 @@ Layer::~Layer()
 
 math::MatrixInfo Layer::getOutputsInfo () const
 {
-  return oap::generic::getOutputsInfo (*this);
+  return oap::cuda::GetMatrixInfo (m_inputs);
 }
 
 math::MatrixInfo Layer::getInputsInfo () const
 {
-  return oap::generic::getOutputsInfo (*this);
+  return oap::cuda::GetMatrixInfo (m_inputs);
 }
 
-void Layer::getOutputs (math::Matrix* matrix, ArgType type) const
+void Layer::getOutputs (math::Matrix* matrix, oap::Type type) const
 {
-  oap::generic::getOutputs (*this, matrix, type);
+  if (type == oap::HOST)
+  {
+    oap::cuda::CopyDeviceMatrixToHostMatrix (matrix, this->m_inputs);
+  }
+  else
+  {
+    oap::cuda::CopyDeviceMatrixToDeviceMatrix (matrix, this->m_inputs);
+  }
 }
 
 void Layer::setHostInputs(const math::Matrix* hInputs)
 {
-  oap::generic::setHostInputs (*this, hInputs);
+  checkHostInputs (hInputs);
+
+  oap::cuda::CopyHostMatrixToDeviceMatrix (m_inputs, hInputs);
 }
 
 void Layer::setDeviceInputs(const math::Matrix* dInputs)
 {
-  oap::generic::setDeviceInputs (*this, dInputs);
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_inputs, dInputs);
+}
+
+math::Matrix* Layer::getHostOutputs(math::Matrix* hInputs)
+{
+  oap::cuda::CopyDeviceMatrixToHostMatrix (m_inputs, hInputs);
+  return hInputs;
+}
+
+math::Matrix* Layer::getDeviceOutputs(math::Matrix* dInputs)
+{
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_inputs, dInputs);
+  return dInputs;
+}
+
+void Layer::deallocate(math::Matrix** matrix)
+{
+  if (matrix != nullptr)
+  {
+    oap::cuda::DeleteDeviceMatrix (*matrix);
+    matrix = nullptr;
+  }
 }
 
 math::MatrixInfo Layer::getWeightsInfo () const
 {
-  return oap::generic::getWeightsInfo (*this);
+  return oap::cuda::GetMatrixInfo (m_weights);
 }
 
-void Layer::printHostWeights (bool newLine) const
+void Layer::allocateNeurons(size_t neuronsCount)
 {
-  oap::generic::printHostWeights (*this, newLine);
+  logInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", this, neuronsCount + m_biasCount, neuronsCount, m_biasCount);
+  m_neuronsCount = neuronsCount;
+
+  m_inputs = oap::cuda::NewDeviceReMatrix (1, getTotalNeuronsCount());
+  m_sums = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_tsums = oap::cuda::NewDeviceMatrix (getTotalNeuronsCount(), 1);
+  m_errors = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_errorsAcc = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_errorsAux = oap::cuda::NewDeviceMatrixDeviceRef (m_inputs);
+  m_errorsHost = oap::host::NewReMatrix (1, getTotalNeuronsCount());
+  m_tinputs = oap::cuda::NewDeviceReMatrix (getTotalNeuronsCount(), 1); //todo: use transpose
+}
+
+void Layer::allocateWeights(const Layer* nextLayer)
+{
+  m_weights = oap::cuda::NewDeviceReMatrix (getTotalNeuronsCount(), nextLayer->getTotalNeuronsCount());
+  m_tweights = oap::cuda::NewDeviceReMatrix (nextLayer->getTotalNeuronsCount(), getTotalNeuronsCount());
+  m_weights1 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
+  m_weights2 = oap::cuda::NewDeviceMatrixDeviceRef (m_weights);
+  m_weightsDim = std::make_pair(getTotalNeuronsCount(), nextLayer->getTotalNeuronsCount());
+
+
+  oap::HostMatrixPtr c = oap::host::NewReMatrix(getTotalNeuronsCount(), 1, 0.);
+  m_vec = oap::cuda::NewDeviceReMatrix (getTotalNeuronsCount(), 1);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (m_vec, c.get());
+
+  m_nextLayer = nextLayer;
+
+  initRandomWeights (nextLayer);
 }
 
 void Layer::deallocate()
 {
-  oap::generic::deallocate<Layer, oap::alloc::cuda::DeallocLayerApi> (*this);
+  deallocate (&m_inputs);
+  deallocate (&m_tinputs);
+  deallocate (&m_sums);
+  deallocate (&m_tsums);
+  deallocate (&m_errors);
+  deallocate (&m_errorsAcc);
+  deallocate (&m_errorsAux);
+  deallocate (&m_weights);
+  deallocate (&m_tweights);
+  deallocate (&m_weights1);
+  deallocate (&m_weights2);
+  oap::host::DeleteMatrix (m_errorsHost);
+  deallocate (&m_vec);
 }
 
 void Layer::setHostWeights (math::Matrix* weights)
 {
-  oap::generic::setHostWeights (*this, weights);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (m_weights, weights);
+}
+
+void Layer::getHostWeights (math::Matrix* output)
+{
+  oap::cuda::CopyDeviceMatrixToHostMatrix (output, m_weights);
+}
+
+void Layer::printHostWeights (bool newLine)
+{
+  std::stringstream sstream;
+  sstream << "Layer (" << this << ") weights = ";
+  std::string matrixStr;
+
+  if (m_weights == nullptr)
+  {
+    oap::host::ToString (matrixStr, nullptr);
+  }
+  else
+  {
+    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (getTotalNeuronsCount(), m_nextLayer->getTotalNeuronsCount());
+    getHostWeights (matrix.get());
+
+    oap::host::ToString (matrixStr, matrix.get());
+  }
+
+  logInfo ("%s %s", sstream.str().c_str(), matrixStr.c_str());
 }
 
 void Layer::setDeviceWeights (math::Matrix* weights)
 {
-  oap::generic::setDeviceWeights (*this, weights);
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_weights, weights);
+}
+
+std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> Layer::createRandomMatrix (size_t columns, size_t rows, RandCallback&& randCallback)
+{
+  std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> randomMatrix(oap::host::NewReMatrix(columns, rows),
+                  [](const math::Matrix* m){oap::host::DeleteMatrix(m);});
+
+  std::random_device rd;
+  std::default_random_engine dre (rd());
+  std::uniform_real_distribution<> dis(-0.5, 0.5);
+
+  for (size_t c = 0; c < columns; ++c)
+  {
+    for (size_t r = 0; r < rows; ++r)
+    {
+      SetRe (randomMatrix.get(), c, r, randCallback(c, r, dis(dre)));
+    }
+  }
+
+  return std::move (randomMatrix);
+}
+
+void Layer::initRandomWeights (const Layer* nextLayer)
+{
+  if (m_weights == nullptr)
+  {
+    throw std::runtime_error("m_weights == nullptr");
+  }
+
+  auto randomMatrix = createRandomMatrix (m_weightsDim.first, m_weightsDim.second, [this, &nextLayer](size_t c, size_t r, floatt v)
+  {
+    if (nextLayer->m_biasCount == 1 && m_weightsDim.second - 1 == r)
+    {
+      return 0.;
+    }
+    return v;
+  });
+
+  oap::cuda::CopyHostMatrixToDeviceMatrix (m_weights, randomMatrix.get());
 }
 
 void Layer::save (utils::ByteBuffer& buffer) const
@@ -90,6 +238,7 @@ void Layer::save (utils::ByteBuffer& buffer) const
   oap::cuda::SaveMatrix (m_inputs, buffer);;
   oap::cuda::SaveMatrix (m_tinputs, buffer);
   oap::cuda::SaveMatrix (m_sums, buffer);
+  oap::cuda::SaveMatrix (m_tsums, buffer);
   oap::cuda::SaveMatrix (m_errors, buffer);
   oap::cuda::SaveMatrix (m_errorsAcc, buffer);
   oap::cuda::SaveMatrix (m_errorsAux, buffer);
@@ -111,6 +260,7 @@ Layer* Layer::load (const utils::ByteBuffer& buffer)
   layer->m_inputs = oap::cuda::LoadMatrix (buffer);
   layer->m_tinputs = oap::cuda::LoadMatrix (buffer);
   layer->m_sums = oap::cuda::LoadMatrix (buffer);
+  layer->m_tsums = oap::cuda::LoadMatrix (buffer);
   layer->m_errors = oap::cuda::LoadMatrix (buffer);
   layer->m_errorsAcc = oap::cuda::LoadMatrix (buffer);
   layer->m_errorsAux = oap::cuda::LoadMatrix (buffer);
@@ -129,17 +279,17 @@ bool Layer::operator== (const Layer& layer) const
     return true;
   }
 
-  if (this->m_neuronsCount != layer.m_neuronsCount)
+  if (m_neuronsCount != layer.m_neuronsCount)
   {
     return false;
   }
 
-  if (this->m_weightsDim.first != layer.m_weightsDim.first)
+  if (m_weightsDim.first != layer.m_weightsDim.first)
   {
     return false;
   }
 
-  if (this->m_weightsDim.second != layer.m_weightsDim.second)
+  if (m_weightsDim.second != layer.m_weightsDim.second)
   {
     return false;
   }
@@ -149,15 +299,16 @@ bool Layer::operator== (const Layer& layer) const
   std::list<std::pair<math::Matrix*, math::Matrix*>> list =
   {
     {m_inputs, layer.m_inputs},
-    {m_tinputs, layer.m_tinputs},
-    {m_sums, layer.m_sums},
-    {m_errors , layer.m_errors },
-    {m_errorsAcc , layer.m_errorsAcc },
-    {m_errorsAux , layer.m_errorsAux },
-    {m_weights, layer.m_weights},
-    {m_tweights, layer.m_tweights},
-    {m_weights1, layer.m_weights1},
-    {m_weights2, layer.m_weights2}
+     {m_tinputs, layer.m_tinputs},
+     {m_sums, layer.m_sums},
+     {m_tsums, layer.m_tsums},
+     {m_errors , layer.m_errors },
+     {m_errorsAcc , layer.m_errorsAcc },
+     {m_errorsAux , layer.m_errorsAux },
+     {m_weights, layer.m_weights},
+     {m_tweights, layer.m_tweights},
+     {m_weights1, layer.m_weights1},
+     {m_weights2, layer.m_weights2}
   };
 
   for (auto& pair : list)

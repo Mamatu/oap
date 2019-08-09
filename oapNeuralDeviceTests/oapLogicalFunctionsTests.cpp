@@ -163,13 +163,13 @@ TEST_F(OapLogicalFunctionsTests, LogicalOr_Binary)
   for (size_t idx = 0; idx < m_learningSteps && controller->shouldContinue(); ++idx)
   {
     r.train(1, 1, 1);
-    //l1->printHostWeights();
+    l1->printHostWeights();
     r.train(1, 0, 1);
-    //l1->printHostWeights();
+    l1->printHostWeights();
     r.train(0, 1, 1);
-    //l1->printHostWeights();
+    l1->printHostWeights();
     r.train(0, 0, 0);
-    //l1->printHostWeights();
+    l1->printHostWeights();
   }
 
   EXPECT_EQ(1, r.run(1, 1));
@@ -195,13 +195,13 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary)
   {
     floatt fvalue = static_cast<floatt>(1);
     r.train(fvalue, fvalue, 1);
-    //l1->printHostWeights();
+    l1->printHostWeights();
     r.train(fvalue, 0, 0);
-    //l1->printHostWeights();
+    l1->printHostWeights();
     r.train(0, fvalue, 0);
-    //l1->printHostWeights();
+    l1->printHostWeights();
     r.train(0, 0, 0);
-    //l1->printHostWeights();
+    l1->printHostWeights();
   }
 
   EXPECT_EQ(1, r.run(1, 1));
@@ -227,13 +227,13 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
   {
     floatt fvalue = static_cast<floatt>(1);
     r.train(fvalue, fvalue, 1);
-    //l1->printHostWeights();
+    l1->printHostWeights();
     r.train(fvalue, 0, 0);
-    //l1->printHostWeights();
+    l1->printHostWeights();
     r.train(0, fvalue, 0);
-    //l1->printHostWeights();
+    l1->printHostWeights();
     r.train(0, 0, 0);
-    //l1->printHostWeights();
+    l1->printHostWeights();
   }
 
   EXPECT_EQ(1, r.run(1, 1));
@@ -261,13 +261,13 @@ TEST_F(OapLogicalFunctionsTests, DISABLED_LogicalOr)
     {
       floatt fvalue = static_cast<floatt>(value);
       r.train(fvalue, fvalue, 1);
-      //l1->printHostWeights();
+      l1->printHostWeights();
       r.train(fvalue, 0, 1);
-      //l1->printHostWeights();
+      l1->printHostWeights();
       r.train(0, fvalue, 1);
-      //l1->printHostWeights();
+      l1->printHostWeights();
       r.train(0, 0, 0);
-      //l1->printHostWeights();
+      l1->printHostWeights();
     }
   }
 
