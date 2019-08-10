@@ -321,7 +321,7 @@ namespace generic
 
     args.prepareDims = true;
 
-    uintt hostEx[5] = {oinfo.columns(), args.h, dims[1][0], minfo1.columns(), minfo2.columns()};
+    uintt hostEx[] = {oinfo.columns(), args.h, dims[1][0]};
     uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
     void* params[] = {&output, &matrix1, &matrix2, &kernelArray};
 
