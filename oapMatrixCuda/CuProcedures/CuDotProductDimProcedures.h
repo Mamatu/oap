@@ -25,106 +25,7 @@
 #define OFFSET_IDX 2
 
 #include "CuCore.h"
-#include "Matrix.h"
-
-__hostdevice__ void cuda_dotProductReDim(
-               math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
-{
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  const uintt offset = ex[OFFSET_IDX];
-
-  floatt temp = 0;
-
-  for (intt idx = 0; idx < offset; ++idx)
-  {
-    uintt idx0 = threadIndexY * params0->columns + idx;
-    uintt idx1 = idx * params1->columns + threadIndexX;
-    temp += params0->reValues[idx0] * params1->reValues[idx1];
-  }
-
-  output->reValues[threadIndexX + output->columns * threadIndexY] = temp;
-}
-
-__hostdevice__ void cuda_dotProductImDim(
-               math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
-{
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  const uintt offset = ex[OFFSET_IDX];
-
-  floatt temp = 0;
-
-  for (intt idx = 0; idx < offset; ++idx)
-  {
-    uintt idx0 = threadIndexY * params0->columns + idx;
-    uintt idx1 = idx * params1->columns + threadIndexX;
-    temp -= params0->imValues[idx0] * params1->imValues[idx1];
-  }
-
-  output->imValues[threadIndexX + output->columns * threadIndexY] = temp;
-}
-
-__hostdevice__ void cuda_dotProductRealDim(
-               math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
-{
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  const uintt offset = ex[OFFSET_IDX];
-
-  floatt retemp = 0;
-  floatt imtemp = 0;
-
-  for (intt idx = 0; idx < offset; ++idx)
-  {
-    uintt idx0 = threadIndexY * params0->columns + idx;
-    uintt idx1 = idx * params1->columns + threadIndexX;
-    floatt retemp1 = params0->imValues[idx0] * params1->imValues[idx1];
-    floatt retemp2 = -params0->imValues[idx0] * params1->imValues[idx1];
- 
-    floatt imtemp1 = params0->reValues[idx0] * params1->imValues[idx1];
-    floatt imtemp2 = -params0->imValues[idx0] * params1->reValues[idx1];
-  
-    retemp += retemp1 + retemp2;
-    imtemp += imtemp1 + imtemp2;
-  }
-
-  output->reValues[threadIndexX + output->columns * threadIndexY] = retemp;
-  output->imValues[threadIndexX + output->columns * threadIndexY] = imtemp;
-}
-
-__hostdevice__ void CUDA_dotProductReDim(
-               math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-               uintt* ex)
-{
-  HOST_INIT();
-
-  cuda_dotProductReDim (output, params0, params1, ex);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_dotProductImDim(
-               math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-               uintt* ex)
-{
-  HOST_INIT();
-
-  cuda_dotProductImDim (output, params0, params1, ex);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_dotProductRealDim(
-               math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-               uintt* ex)
-{
-  HOST_INIT();
-
-  cuda_dotProductRealDim (output, params0, params1, ex);
-  threads_sync();
-}
+#include "CuDotProductProcedures.h"
 
 __hostdevice__ void CUDA_dotProductDim(
                math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
@@ -143,20 +44,21 @@ __hostdevice__ void CUDA_dotProductDim(
 
   if (inRange)
   {
+    const uintt offset = ex[OFFSET_IDX];
+
     if (isre && isim)
     {
-      CUDA_dotProductRealDim (output, params0, params1, ex);
+      cuda_dotProductReal (output, params0, params1, offset);
     }
     else if (isre)
     {
-      CUDA_dotProductReDim (output, params0, params1, ex);
+      cuda_dotProductRe (output, params0, params1, offset);
     }
     else if (isim)
     {
-      CUDA_dotProductImDim (output, params0, params1, ex);
+      cuda_dotProductIm (output, params0, params1, offset);
     }
   }
-  threads_sync();
 }
 
 #endif /* OAP_CU_DOT_PRODUCT_PROCEDURES_NEW_H */
