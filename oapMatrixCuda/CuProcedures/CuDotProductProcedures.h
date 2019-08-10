@@ -17,10 +17,135 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUDOTPRODUCTPROCEDURES_H
-#define CUDOTPRODUCTPROCEDURES_H
+#ifndef OAP_CU_DOT_PRODUCT_PROCEDURES_H
+#define OAP_CU_DOT_PRODUCT_PROCEDURES_H
 
 #include "CuCore.h"
+#include "Matrix.h"
+#include "MatrixEx.h"
+
+__hostdevice__ void cuda_dotProductRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  floatt temp = 0;
+
+  for (intt idx = 0; idx < offset; ++idx)
+  {
+    uintt idx0 = threadIndexY * params0->columns + idx;
+    uintt idx1 = idx * params1->columns + threadIndexX;
+    temp += params0->reValues[idx0] * params1->reValues[idx1];
+  }
+
+  output->reValues[threadIndexX + output->columns * threadIndexY] = temp;
+}
+
+__hostdevice__ void cuda_dotProductIm (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  floatt temp = 0;
+
+  for (intt idx = 0; idx < offset; ++idx)
+  {
+    uintt idx0 = threadIndexY * params0->columns + idx;
+    uintt idx1 = idx * params1->columns + threadIndexX;
+    temp -= params0->imValues[idx0] * params1->imValues[idx1];
+  }
+
+  output->imValues[threadIndexX + output->columns * threadIndexY] = temp;
+}
+
+__hostdevice__ void cuda_dotProductReal (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  floatt retemp = 0;
+  floatt imtemp = 0;
+
+  for (intt idx = 0; idx < offset; ++idx)
+  {
+    uintt idx0 = threadIndexY * params0->columns + idx;
+    uintt idx1 = idx * params1->columns + threadIndexX;
+    floatt retemp1 = params0->imValues[idx0] * params1->imValues[idx1];
+    floatt retemp2 = -params0->imValues[idx0] * params1->imValues[idx1];
+ 
+    floatt imtemp1 = params0->reValues[idx0] * params1->imValues[idx1];
+    floatt imtemp2 = -params0->imValues[idx0] * params1->reValues[idx1];
+  
+    retemp += retemp1 + retemp2;
+    imtemp += imtemp1 + imtemp2;
+  }
+
+  output->reValues[threadIndexX + output->columns * threadIndexY] = retemp;
+  output->imValues[threadIndexX + output->columns * threadIndexY] = imtemp;
+}
+
+__hostdevice__ void CUDA_dotProductRe(math::Matrix* output,
+                                      math::Matrix* params0,
+                                      math::Matrix* params1) {
+  HOST_INIT();
+
+  uintt offset = params0->columns;
+
+  cuda_dotProductRe (output, params0, params1, offset);
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_dotProductIm(math::Matrix* output,
+                                      math::Matrix* params0,
+                                      math::Matrix* params1) {
+  HOST_INIT();
+
+  uintt offset = params0->columns;
+
+  cuda_dotProductIm (output, params0, params1, offset);
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_dotProductReal(math::Matrix* output,
+                                        math::Matrix* params0,
+                                        math::Matrix* params1) {
+  HOST_INIT();
+
+  uintt offset = params0->columns;
+
+  cuda_dotProductReal (output, params0, params1, offset);
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  bool isre = output->reValues != NULL;
+  bool isim = output->imValues != NULL;
+  bool inRange = threadIndexX < output->columns && threadIndexY < output->rows;
+  
+  if (inRange)
+  {
+
+    uintt offset = params0->columns;
+
+    if (isre && isim)
+    {
+      cuda_dotProductReal(output, params0, params1, offset);
+    }
+    else if (isre)
+    {
+      cuda_dotProductRe(output, params0, params1, offset);
+    }
+    else if (isim)
+    {
+      cuda_dotProductIm(output, params0, params1, offset);
+    }
+  }
+}
+
 
 __hostdevice__ void cuda_dotProductReEx(math::Matrix* output,
                                         math::Matrix* params0,
@@ -135,109 +260,4 @@ __hostdevice__ void CUDA_dotProductEx(math::Matrix* output,
   }
   threads_sync();
 }
-
-__hostdevice__ void cuda_dotProductRe(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  const uintt columns1 = params0->realColumns;
-  const uintt columns2 = params1->realColumns;
-  const uintt offset = columns1;
-  floatt retemp = 0;
-  for (intt fa1 = 0; fa1 < offset; fa1++) {
-    retemp += params0->reValues[fa1 + columns1 * threadIndexY] *
-              params1->reValues[fa1 * columns2 + threadIndexX];
-  }
-  output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-}
-
-__hostdevice__ void cuda_dotProductIm(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  const uintt columns1 = params0->realColumns;
-  const uintt columns2 = params1->realColumns;
-  const uintt offset = columns1;
-  floatt retemp = 0;
-  for (uintt fa1 = 0; fa1 < offset; ++fa1) {
-    retemp += -params0->imValues[fa1 + columns1 * threadIndexY] *
-              params1->imValues[fa1 * columns2 + threadIndexX];
-  }
-  output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-}
-
-__hostdevice__ void cuda_dotProductReal(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  const uintt columns1 = params0->realColumns;
-  const uintt columns2 = params1->realColumns;
-  const uintt outputColumns = output->realColumns;
-  const uintt offset = columns1;
-  floatt retemp = 0;
-  floatt imtemp = 0;
-  for (intt fa1 = 0; fa1 < offset; fa1++) {
-    retemp += params0->reValues[fa1 + columns1 * threadIndexY] *
-              params1->reValues[fa1 * columns2 + threadIndexX];
-    retemp -= params0->imValues[fa1 + columns1 * threadIndexY] *
-              params1->imValues[fa1 * columns2 + threadIndexX];
-    imtemp += params0->reValues[fa1 + columns1 * threadIndexY] *
-              params1->imValues[fa1 * columns2 + threadIndexX];
-    imtemp += params0->imValues[fa1 + columns1 * threadIndexY] *
-              params1->reValues[fa1 * columns2 + threadIndexX];
-  }
-  output->reValues[threadIndexX + outputColumns * threadIndexY] = retemp;
-  output->imValues[threadIndexX + outputColumns * threadIndexY] = imtemp;
-}
-
-__hostdevice__ void CUDA_dotProductRe(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
-  HOST_INIT();
-
-  cuda_dotProductRe(output, params0, params1);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_dotProductIm(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
-  HOST_INIT();
-
-  cuda_dotProductIm(output, params0, params1);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_dotProductReal(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1) {
-  HOST_INIT();
-
-  cuda_dotProductReal(output, params0, params1);
-  threads_sync();
-}
-__hostdevice__ void CUDA_dotProduct(math::Matrix* output, math::Matrix* params0,
-                                    math::Matrix* params1) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
-  bool isInRange =
-      threadIndexX < output->columns && threadIndexY < output->rows;
-  if (isre && isim && isInRange) {
-    CUDA_dotProductReal(output, params0, params1);
-  } else if (isre && isInRange) {
-    CUDA_dotProductRe(output, params0, params1);
-  } else if (isim && isInRange) {
-    CUDA_dotProductIm(output, params0, params1);
-  }
-}
-
-#endif /* CUMULTIPLICATIONPROCEDURES_H */
+#endif
