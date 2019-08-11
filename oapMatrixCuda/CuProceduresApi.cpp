@@ -190,10 +190,22 @@ void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* params0,
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
+void CuProceduresApi::dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+{
+  m_cuStatus = oap::generic::dotProductPeriodic (output, matrix1, matrix2, &m_kernel, m_preExecCallback, m_bmApi,
+                            std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+}
+
+void CuProceduresApi::dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+{
+  m_cuStatus = oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, &m_kernel, m_preExecCallback, m_bmApi,
+                            std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+}
+
 void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
                                  uintt dims[3][2])
 {
-  oap::generic::dotProduct (output, matrix1, matrix2, dims, &m_kernel, m_preExecCallback, m_bmApi,
+  m_cuStatus = oap::generic::dotProduct (output, matrix1, matrix2, dims, &m_kernel, m_preExecCallback, m_bmApi,
                             std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
 }
 

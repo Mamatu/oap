@@ -140,6 +140,33 @@ void HOSTKernel_DotProductDimRaw (void** params)
   HOSTKernel_DotProductDim (output, matrix1, matrix2, ex);
 }
 
+void HOSTKernel_DotProductPeriodic (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+{
+  CUDA_dotProductPeriodic (output, param1, param2);
+}
+
+void HOSTKernel_DotProductPeriodicRaw (void** params)
+{
+  math::Matrix* output = getParam<math::Matrix> (params[0]);
+  math::Matrix* matrix1 = getParam<math::Matrix> (params[1]);
+  math::Matrix* matrix2 = getParam<math::Matrix> (params[2]);
+  HOSTKernel_DotProductPeriodic (output, matrix1, matrix2);
+}
+
+void HOSTKernel_DotProductDimPeriodic (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, uintt* ex)
+{
+  CUDA_dotProductDimPeriodic (output, param1, param2, ex);
+}
+
+void HOSTKernel_DotProductDimPeriodicRaw (void** params)
+{
+  math::Matrix* output = getParam<math::Matrix> (params[0]);
+  math::Matrix* matrix1 = getParam<math::Matrix> (params[1]);
+  math::Matrix* matrix2 = getParam<math::Matrix> (params[2]);
+  uintt* ex = getParam<uintt> (params[3]);
+  HOSTKernel_DotProductDimPeriodic (output, matrix1, matrix2, ex);
+}
+
 void HOSTKernel_TensorProductDim (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, uintt* ex)
 {
   CUDA_tensorProductDim (output, param1, param2, ex);

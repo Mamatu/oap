@@ -32,6 +32,8 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_SumShared", HOSTKernel_SumSharedRaw},
   {"CUDAKernel_CrossEntropy", HOSTKernel_CrossEntropyRaw},
   {"CUDAKernel_DotProductDim", HOSTKernel_DotProductDimRaw},
+  {"CUDAKernel_DotProductPeriodic", HOSTKernel_DotProductPeriodicRaw},
+  {"CUDAKernel_DotProductDimPeriodic", HOSTKernel_DotProductDimPeriodicRaw},
   {"CUDAKernel_DotProduct", HOSTKernel_DotProductRaw},
   {"CUDAKernel_TensorProductDim", HOSTKernel_TensorProductDimRaw},
   {"CUDAKernel_Tanh", HOSTKernel_TanhRaw},

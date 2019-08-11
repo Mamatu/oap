@@ -210,6 +210,18 @@ void HostProcedures::dotProduct (math::Matrix* output, math::Matrix* matrix1, ma
   oap::generic::dotProduct (output, matrix1, matrix2, output->columns, output->rows, &m_kernel, [](){}, m_bmApi);
 }
 
+void HostProcedures::dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+{
+  oap::generic::dotProductPeriodic (output, matrix1, matrix2, &m_kernel, [](){}, m_bmApi,
+                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+}
+
+void HostProcedures::dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+{
+  oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, &m_kernel, [](){}, m_bmApi,
+                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+}
+
 void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, size_t w, size_t h)
 {
   DotProductImpl dotProductImpl(output, matrix1, matrix2);

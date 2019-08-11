@@ -24,7 +24,20 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void cuda_dotProductReUU (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY, uintt offset)
+__hostdeviceinline__ uintt cuda_getIdx0 (uintt idx, uintt indexY, math::Matrix* matrix)
+{
+  return indexY * matrix->columns + idx;
+}
+
+__hostdeviceinline__ uintt cuda_getIdx1 (uintt idx, uintt indexY, math::Matrix* matrix)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  return (indexY + idx) * matrix->columns + threadIndexX;;
+}
+
+__hostdevice__ void cuda_dotProductReUUU (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY1, uintt indexY2, uintt offset)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -33,15 +46,16 @@ __hostdevice__ void cuda_dotProductReUU (math::Matrix* output, math::Matrix* par
 
   for (intt idx = 0; idx < offset; ++idx)
   {
-    uintt idx0 = indexY * params0->columns + idx;
-    uintt idx1 = idx * params1->columns + threadIndexX;
+    uintt idx0 = cuda_getIdx0 (idx, indexY1, params0);
+    uintt idx1 = cuda_getIdx1 (idx, indexY2, params1);
     temp += params0->reValues[idx0] * params1->reValues[idx1];
   }
 
-  output->reValues[threadIndexX + output->columns * threadIndexY] = temp;
+  uintt oidx = threadIndexX + output->columns * threadIndexY;
+  output->reValues[oidx] = temp;
 }
 
-__hostdevice__ void cuda_dotProductImUU (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY, uintt offset)
+__hostdevice__ void cuda_dotProductImUUU (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY1, uintt indexY2, uintt offset)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -50,15 +64,16 @@ __hostdevice__ void cuda_dotProductImUU (math::Matrix* output, math::Matrix* par
 
   for (intt idx = 0; idx < offset; ++idx)
   {
-    uintt idx0 = indexY * params0->columns + idx;
-    uintt idx1 = idx * params1->columns + threadIndexX;
+    uintt idx0 = cuda_getIdx0 (idx, indexY1, params0);
+    uintt idx1 = cuda_getIdx1 (idx, indexY2, params1);
     temp -= params0->imValues[idx0] * params1->imValues[idx1];
   }
 
-  output->imValues[threadIndexX + output->columns * threadIndexY] = temp;
+  uintt oidx = threadIndexX + output->columns * threadIndexY;
+  output->imValues[oidx] = temp;
 }
 
-__hostdevice__ void cuda_dotProductRealUU (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY, uintt offset)
+__hostdevice__ void cuda_dotProductRealUUU (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY1, uintt indexY2, uintt offset)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -68,8 +83,8 @@ __hostdevice__ void cuda_dotProductRealUU (math::Matrix* output, math::Matrix* p
 
   for (intt idx = 0; idx < offset; ++idx)
   {
-    uintt idx0 = indexY * params0->columns + idx;
-    uintt idx1 = idx * params1->columns + threadIndexX;
+    uintt idx0 = cuda_getIdx0 (idx, indexY1, params0);
+    uintt idx1 = cuda_getIdx1 (idx, indexY2, params1);
     floatt retemp1 = params0->imValues[idx0] * params1->imValues[idx1];
     floatt retemp2 = -params0->imValues[idx0] * params1->imValues[idx1];
 
@@ -80,8 +95,9 @@ __hostdevice__ void cuda_dotProductRealUU (math::Matrix* output, math::Matrix* p
     imtemp += imtemp1 + imtemp2;
   }
 
-  output->reValues[threadIndexX + output->columns * threadIndexY] = retemp;
-  output->imValues[threadIndexX + output->columns * threadIndexY] = imtemp;
+  uintt oidx = threadIndexX + output->columns * threadIndexY;
+  output->reValues[oidx] = retemp;
+  output->imValues[oidx] = imtemp;
 }
 
 __hostdevice__ void cuda_dotProductRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset)
@@ -89,7 +105,7 @@ __hostdevice__ void cuda_dotProductRe (math::Matrix* output, math::Matrix* param
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  cuda_dotProductReUU (output, params0, params1, threadIndexY, offset);
+  cuda_dotProductReUUU (output, params0, params1, threadIndexY, 0, offset);
 }
 
 __hostdevice__ void cuda_dotProductIm (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset)
@@ -97,7 +113,7 @@ __hostdevice__ void cuda_dotProductIm (math::Matrix* output, math::Matrix* param
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  cuda_dotProductImUU (output, params0, params1, threadIndexY, offset);
+  cuda_dotProductImUUU (output, params0, params1, threadIndexY, 0, offset);
 }
 
 __hostdevice__ void cuda_dotProductReal (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset)
@@ -105,7 +121,7 @@ __hostdevice__ void cuda_dotProductReal (math::Matrix* output, math::Matrix* par
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  cuda_dotProductRealUU (output, params0, params1, threadIndexY, offset);
+  cuda_dotProductRealUUU (output, params0, params1, threadIndexY, 0, offset);
 }
 
 __hostdevice__ void CUDA_dotProductRe(math::Matrix* output,
@@ -141,7 +157,7 @@ __hostdevice__ void CUDA_dotProductReal(math::Matrix* output,
   threads_sync();
 }
 
-__hostdeviceinline__ void cuda_dotProductUUB (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY, uintt offset, bool inRange)
+__hostdeviceinline__ void cuda_dotProductUUUB (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY1, uintt indexY2, uintt offset, bool inRange)
 {
   HOST_INIT();
 
@@ -152,15 +168,15 @@ __hostdeviceinline__ void cuda_dotProductUUB (math::Matrix* output, math::Matrix
   {
     if (isre && isim)
     {
-      cuda_dotProductRealUU (output, params0, params1, indexY, offset);
+      cuda_dotProductRealUUU (output, params0, params1, indexY1, indexY2, offset);
     }
     else if (isre)
     {
-      cuda_dotProductReUU (output, params0, params1, indexY, offset);
+      cuda_dotProductReUUU (output, params0, params1, indexY1, indexY2, offset);
     }
     else if (isim)
     {
-      cuda_dotProductImUU (output, params0, params1, indexY, offset);
+      cuda_dotProductImUUU (output, params0, params1, indexY1, indexY2, offset);
     }
   }
 }
@@ -170,7 +186,7 @@ __hostdeviceinline__ void cuda_dotProduct (math::Matrix* output, math::Matrix* p
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  cuda_dotProductUUB (output, params0, params1, threadIndexY, offset, inRange);
+  cuda_dotProductUUUB (output, params0, params1, threadIndexY, 0, offset, inRange);
 }
 
 __hostdevice__ void CUDA_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
