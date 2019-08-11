@@ -85,7 +85,6 @@ struct LayerS
   math::Matrix* m_tweights = nullptr;
   math::Matrix* m_weights1 = nullptr;
   math::Matrix* m_weights2 = nullptr;
-  math::Matrix* m_vec = nullptr;
 
   uintt m_neuronsCount = 0;
   uintt m_biasCount = 0;

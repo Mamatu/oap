@@ -122,7 +122,6 @@ void initLayerBiases (LayerT& layer, SetReValue&& setReValue)
   if (layer.m_biasCount == 1)
   {
     setReValue (layer.m_inputs, 1.f, 0, layer.getTotalNeuronsCount() - 1);
-    //setReValue (layer.m_tinputs, 1.f, layer.getTotalNeuronsCount() - 1, 0);
   }
   else if (layer.m_biasCount > 1)
   {
@@ -342,11 +341,6 @@ void allocateWeights (LayerT& ls, const LayerT* nextLayer)
   ls.m_weights2 = alloc.newDeviceMatrixDeviceRef (ls.m_weights);
   ls.m_weightsDim = std::make_pair (cUCount, nUCount);
 
-
-  oap::HostMatrixUPtr c = alloc.newReMatrix (cUCount, 1);
-  ls.m_vec = alloc.newDeviceReMatrix (cUCount, 1);
-  alloc.copyHostMatrixToDeviceMatrix (ls.m_vec, c.get());
-
   ls.m_nextLayer = nextLayer;
 }
 
@@ -374,7 +368,6 @@ void deallocate (LayerT& ls)
   del (&ls.m_tweights);
   del (&ls.m_weights1);
   del (&ls.m_weights2);
-  del (&ls.m_vec);
   dealloc.deleteErrorsMatrix (ls.m_errorsHost);
 }
 
