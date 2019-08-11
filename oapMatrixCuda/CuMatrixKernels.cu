@@ -37,6 +37,12 @@ extern "C" __global__ void CUDAKernel_DotProduct(math::Matrix* output,
   CUDA_dotProduct(output, params0, params1);
 }
 
+extern "C" __global__ void
+CUDAKernel_DotProductPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  CUDA_dotProductPeriodic (output, params0, params1);
+}
+
 extern "C" __global__ void CUDAKernel_DotProductReExp(math::Matrix* output,
                                                       math::Matrix* params0,
                                                       math::Matrix* params1,
