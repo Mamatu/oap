@@ -38,6 +38,7 @@
 #include "CuProcedures/CuDotProductProcedures.h"
 #include "CuProcedures/CuDotProductDimProcedures.h"
 #include "CuProcedures/CuDotProductPeriodicProcedures.h"
+#include "CuProcedures/CuDotProductDimPeriodicProcedures.h"
 #include "CuProcedures/CuDotProductOptProcedures.h"
 #include "CuProcedures/CuMultiplicationProcedures.h"
 #include "CuProcedures/CuAdditionProcedures.h"

@@ -43,6 +43,12 @@ CUDAKernel_DotProductPeriodic (math::Matrix* output, math::Matrix* params0, math
   CUDA_dotProductPeriodic (output, params0, params1);
 }
 
+extern "C" __global__ void
+CUDAKernel_DotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+{
+  CUDA_dotProductDimPeriodic (output, params0, params1, ex);
+}
+
 extern "C" __global__ void CUDAKernel_DotProductReExp(math::Matrix* output,
                                                       math::Matrix* params0,
                                                       math::Matrix* params1,

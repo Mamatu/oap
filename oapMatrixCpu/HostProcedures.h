@@ -41,13 +41,15 @@ class HostProcedures {
   void substract(math::Matrix* output, math::Matrix* matrix1,
                  math::Matrix* matrix2);
 
-  void dotProduct(math::Matrix* output, math::Matrix* matrix1,
-                 math::Matrix* matrix2);
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
 
-  void dotProduct(math::Matrix* output, math::Matrix* matrix1,
-                 math::Matrix* matrix2, size_t w, size_t h);
+  void dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
 
-  void dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, size_t w, size_t h);
+
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
 
   void dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
                   uintt outputDim[2], uintt params0Dim[2], uintt params1Dim[2])

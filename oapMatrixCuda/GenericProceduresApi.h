@@ -321,8 +321,54 @@ namespace generic
 
     args.prepareDims = true;
 
-    uintt hostEx[] = {oinfo.columns(), args.h, dims[1][0]};
+    uintt hostEx[] = {args.w, args.h, dims[1][0]};
     uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
+    void* params[] = {&output, &matrix1, &matrix2, &kernelArray};
+
+    return oap::generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback, args);
+  }
+
+  template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
+  bool dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                          oap::IKernelExecutor* kexec, PreExecCallback&& preExecCallback,
+                          BasicMatrixApi& bmApi, CreateKernelArray&& createKernelArray)
+  {
+    auto oinfo = bmApi.getMatrixInfo (output);
+    auto minfo1 = bmApi.getMatrixInfo (matrix1);
+    auto minfo2 = bmApi.getMatrixInfo (matrix2);
+
+    oap::generic::check_dotProductPeriodic (output, matrix1, matrix2, oinfo, minfo1, minfo2);
+
+    void* params[] = {&output, &matrix1, &matrix2};
+    const char* kname = "CUDAKernel_DotProductPeriodic";
+
+    return oap::generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback);
+  }
+
+  template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
+  bool dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2],
+                          oap::IKernelExecutor* kexec, PreExecCallback&& preExecCallback,
+                          BasicMatrixApi& bmApi, CreateKernelArray&& createKernelArray)
+  {
+    auto oinfo = bmApi.getMatrixInfo (output);
+    auto minfo1 = bmApi.getMatrixInfo (matrix1);
+    auto minfo2 = bmApi.getMatrixInfo (matrix2);
+
+    oap::generic::check_dotProductDimPeriodic (output, matrix1, matrix2, dims, oinfo, minfo1, minfo2);
+
+    const char* kname = "CUDAKernel_DotProductDimPeriodic";
+
+    oap::generic::Args args;
+
+    args.retrieveDims = false;
+    args.w = dims[0][0];
+    args.h = oinfo.rows();
+
+    args.prepareDims = true;
+
+    uintt hostEx[] = {dims[0][0], dims[0][1], dims[1][0]};
+    uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
+
     void* params[] = {&output, &matrix1, &matrix2, &kernelArray};
 
     return oap::generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback, args);

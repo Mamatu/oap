@@ -95,6 +95,14 @@ class CuProceduresApi
 
   inline void dotProductEx(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, MatrixEx* matrixEx);
 
+  /**
+   * If output and matrix2 have more rows than columns of matrix1, then next following rows will be multiply as separated matrix.
+   * This process will be continue to end of output's rows.
+ */
+  void dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
+
+  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+
   void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
 
   void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,

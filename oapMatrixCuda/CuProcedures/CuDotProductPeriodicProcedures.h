@@ -33,9 +33,10 @@ __hostdevice__ void CUDA_dotProductPeriodic (math::Matrix* output, math::Matrix*
   bool inRange = threadIndexX < output->columns && threadIndexY < output->rows;
   
   uintt offset = params0->columns;
-  uintt index = threadIndexY % offset;
+  uintt indexY1 = (threadIndexY) % offset;
+  uintt indexY2 = (threadIndexY / offset) * offset;
 
-  cuda_dotProductUUB (output, params0, params1, index, offset, inRange);   
+  cuda_dotProductUUUB (output, params0, params1, indexY1, indexY2, offset, inRange);   
 }
 
 #endif
