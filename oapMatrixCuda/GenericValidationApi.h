@@ -29,6 +29,25 @@ namespace oap
 namespace generic
 {
 
+inline void check_isEqualDim (const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
+{
+  debugAssert (minfo1.columns() == minfo2.columns());
+  debugAssert (minfo1.rows() == minfo2.rows());
+  debugAssert (minfo1.isRe == minfo2.isRe);
+  debugAssert (minfo1.isIm == minfo2.isIm);
+}
+
+template<typename BasicMatrixApi>
+void check_isEqualDim (math::Matrix* m1, math::Matrix* m2, BasicMatrixApi& bmApi)
+{
+  if (m1 != m2)
+  {
+    auto minfo1 = bmApi.getMatrixInfo (m1);
+    auto minfo2 = bmApi.getMatrixInfo (m2);
+    check_isEqualDim (minfo1, minfo2);
+  }
+}
+
 template<typename BasicMatrixApi>
 void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixApi& bmApi)
 {

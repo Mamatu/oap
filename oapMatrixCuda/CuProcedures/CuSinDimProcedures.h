@@ -29,78 +29,67 @@ __hostdeviceinline__ void CUDA_sinDim (math::Matrix* omatrix, math::Matrix* imat
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isInRange)
   {
-    if (isre && isim)
-    {
-      CUDA_sinReal (omatrix, imatrix);
-    }
-    else if (isre)
-    {
-      CUDA_sinRe (omatrix, imatrix);
-    }
-    else if (isim)
-    {
-      CUDA_sinIm (omatrix, imatrix);
-    }
+    CUDA_sin (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_sinDimDerivative (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void CUDA_dsinDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isInRange)
   {
-    if (isre && isim)
-    {
-      CUDA_sinDerivativeReal (omatrix, imatrix);
-    }
-    else if (isre)
-    {
-      CUDA_sinDerivativeRe (omatrix, imatrix);
-    } 
-    else if (isim)
-    {
-      CUDA_sinDerivativeIm (omatrix, imatrix);
-    }
+    CUDA_dsin (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_multiplySinDimDerivative (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void CUDA_multiplyDSinDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isInRange)
   {
-    if (isre && isim) {
-      CUDA_multiplySinDerivativeReal (omatrix, imatrix);
-    }
-    else if (isre)
-    {
-      CUDA_multiplySinDerivativeRe (omatrix, imatrix);
-    }
-    else if (isim)
-    {
-      CUDA_multiplySinDerivativeIm (omatrix, imatrix);
-    }
+    CUDA_multiplyDSin (omatrix, imatrix);
+  }
+}
+
+__hostdeviceinline__ void CUDA_sinDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+{
+  bool isInRange = cuda_inRangePD(omatrix, ex);
+
+  if (isInRange)
+  {
+    CUDA_sin (omatrix, imatrix);
+  }
+}
+
+__hostdeviceinline__ void CUDA_dsinDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+{
+  bool isInRange = cuda_inRangePD(omatrix, ex);
+
+  if (isInRange)
+  {
+    CUDA_dsin (omatrix, imatrix);
+  }
+}
+
+__hostdeviceinline__ void CUDA_multiplyDSinDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+{
+  bool isInRange = cuda_inRangePD(omatrix, ex);
+
+  if (isInRange)
+  {
+    CUDA_multiplyDSin (omatrix, imatrix);
   }
 }
 

@@ -227,7 +227,7 @@ TEST_F(OapSinTests, SinDerivativeReTest)
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dinput, hinput);
 
-  m_cuApi->sinDerivative (doutput, dinput);
+  m_cuApi->dsin (doutput, dinput);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
 
@@ -259,7 +259,7 @@ TEST_F(OapSinTests, MultiplySinDerivativeReTest)
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dinput, hinput);
 
-  m_cuApi->multiplySinDerivative (doutput, dinput);
+  m_cuApi->multiplyDSin (doutput, dinput);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
 

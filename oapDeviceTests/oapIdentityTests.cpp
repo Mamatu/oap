@@ -231,7 +231,7 @@ TEST_F(OapIndentityTests, IndentityDerivativeReTest)
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dinput, hinput);
 
-  m_cuApi->linearDerivative (doutput, dinput);
+  m_cuApi->dlinear (doutput, dinput);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
 
@@ -263,7 +263,7 @@ TEST_F(OapIndentityTests, MultiplyIndentityDerivativeReTest)
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dinput, hinput);
 
-  m_cuApi->multiplyIndentityDerivative (doutput, dinput);
+  m_cuApi->dmultiplyIndentity (doutput, dinput);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
 

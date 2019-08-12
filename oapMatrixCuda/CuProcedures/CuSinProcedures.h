@@ -22,27 +22,28 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
+#include "CuFuncProcedures.h"
 
-__hostdeviceinline__ void sinReal (floatt* output, floatt value)
+__hostdeviceinline__ void cuda_sinFunc (floatt* output, floatt value)
 {
   (*output) =  sin (value);
 }
 
-__hostdeviceinline__ void sinDerivative (floatt* output, floatt value)
+__hostdeviceinline__ void cuda_cosFunc (floatt* output, floatt value)
 {
   (*output) =  cos (value);
 }
 
-__hostdeviceinline__ void multiplySinDerivative (floatt* output, floatt value)
+__hostdeviceinline__ void cuda_mCosFunc (floatt* output, floatt value)
 {
   (*output) =  (*output) * cos (value);
 }
 
-__hostdeviceinline__ void multiplySinComplexDerivative (floatt* reoutput, floatt* imoutput, floatt revalue, floatt imvalue)
+__hostdeviceinline__ void multiplyDSinComplex (floatt* reoutput, floatt* imoutput, floatt revalue, floatt imvalue)
 {
 }
 
-__hostdeviceinline__ void sinComplexDerivative (floatt* reoutput, floatt* imoutput, floatt revalue, floatt imvalue)
+__hostdeviceinline__ void dsinComplex (floatt* reoutput, floatt* imoutput, floatt revalue, floatt imvalue)
 {
 }
 
@@ -50,166 +51,19 @@ __hostdeviceinline__ void sinComplex (floatt* reoutput, floatt* imoutput, floatt
 {
 }
 
-__hostdeviceinline__ void CUDA_sinRe(math::Matrix* omatrix, math::Matrix* imatrix)
+__hostdeviceinline__ void CUDA_sin (math::Matrix* output, math::Matrix* matrix)
 {
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->reValues[index];
-  sinReal (output, imatrix->reValues[index]);
-
-  threads_sync();
+  CUDA_func (output, matrix, cuda_sinFunc);
 }
 
-__hostdeviceinline__ void CUDA_sinIm(math::Matrix* omatrix, math::Matrix* imatrix)
+__hostdeviceinline__ void CUDA_dsin(math::Matrix* output, math::Matrix* matrix)
 {
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->imValues[index];
-  sinReal (output, imatrix->imValues[index]);
-
-  threads_sync();
+  CUDA_func (output, matrix, cuda_cosFunc);
 }
 
-__hostdeviceinline__ void CUDA_sinReal(math::Matrix* omatrix, math::Matrix* imatrix)
+__hostdeviceinline__ void CUDA_multiplyDSin(math::Matrix* output, math::Matrix* matrix)
 {
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->imValues[index];
-  sinComplex (reoutput, imoutput, imatrix->reValues[index], imatrix->imValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_sin (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-  if (isre && isim) {
-    CUDA_sinReal (omatrix, imatrix);
-  } else if (isre) {
-    CUDA_sinRe (omatrix, imatrix);
-  } else if (isim) {
-    CUDA_sinIm (omatrix, imatrix);
-  }
-}
-
-__hostdeviceinline__ void CUDA_sinDerivativeRe (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->reValues[index];
-  sinDerivative (output, imatrix->reValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_sinDerivativeIm (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->imValues[index];
-  sinDerivative (output, imatrix->reValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_sinDerivativeReal (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->imValues[index];
-  sinComplexDerivative (reoutput, imoutput, imatrix->reValues[index], imatrix->imValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_sinDerivative(math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-  if (isre && isim) {
-    CUDA_sinDerivativeReal (omatrix, imatrix);
-  } else if (isre) {
-    CUDA_sinDerivativeRe (omatrix, imatrix);
-  } else if (isim) {
-    CUDA_sinDerivativeIm (omatrix, imatrix);
-  }
-}
-
-__hostdeviceinline__ void CUDA_multiplySinDerivativeRe (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->reValues[index];
-  multiplySinDerivative (output, imatrix->reValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_multiplySinDerivativeIm (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->reValues[index];
-  multiplySinDerivative (output, imatrix->reValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_multiplySinDerivativeReal(math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->reValues[index];
-  multiplySinComplexDerivative (reoutput, imoutput, imatrix->reValues[index], imatrix->imValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_multiplySinDerivative(math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-  if (isre && isim) {
-    CUDA_multiplySinDerivativeReal (omatrix, imatrix);
-  } else if (isre) {
-    CUDA_multiplySinDerivativeRe (omatrix, imatrix);
-  } else if (isim) {
-    CUDA_multiplySinDerivativeIm (omatrix, imatrix);
-  }
+  CUDA_func (output, matrix, cuda_mCosFunc);
 }
 
 #endif /* CU_SIN_PROCEDURES_H */

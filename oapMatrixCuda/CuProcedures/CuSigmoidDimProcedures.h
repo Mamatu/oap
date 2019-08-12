@@ -29,80 +29,68 @@ __hostdeviceinline__ void CUDA_sigmoidDim (math::Matrix* omatrix, math::Matrix* 
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isInRange)
   {
-    if (isre && isim)
-    {
-      CUDA_sigmoidReal (omatrix, imatrix);
-    }
-    else if (isre)
-    {
-      CUDA_sigmoidRe (omatrix, imatrix);
-    }
-    else if (isim)
-    {
-      CUDA_sigmoidIm (omatrix, imatrix);
-    }
+    CUDA_sigmoid (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_sigmoidDimDerivative (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void CUDA_dsigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isInRange)
   {
-    if (isre && isim)
-    {
-      CUDA_sigmoidDerivativeReal (omatrix, imatrix);
-    }
-    else if (isre)
-    {
-      CUDA_sigmoidDerivativeRe (omatrix, imatrix);
-    }
-    else if (isim)
-    {
-      CUDA_sigmoidDerivativeIm (omatrix, imatrix);
-    }
+    CUDA_dsigmoid (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_multiplySigmoidDimDerivative (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void CUDA_multiplyDSigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isInRange)
   {
-    if (isre && isim)
-    {
-      CUDA_multiplySigmoidDerivativeReal (omatrix, imatrix);
-    }
-    else if (isre)
-    {
-      CUDA_multiplySigmoidDerivativeRe (omatrix, imatrix);
-    }
-    else if (isim)
-    {
-      CUDA_multiplySigmoidDerivativeIm (omatrix, imatrix);
-    }
+    CUDA_multiplyDSigmoid (omatrix, imatrix);
   }
 }
 
-#endif /* CU_SIGMOID_DIM_PROCEDURES_H */
+__hostdeviceinline__ void CUDA_sigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+{
+  bool isInRange = cuda_inRangePD(omatrix, ex);
+
+  if (isInRange)
+  {
+    CUDA_sigmoid (omatrix, imatrix);
+  }
+}
+
+__hostdeviceinline__ void CUDA_dsigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+{
+  bool isInRange = cuda_inRangePD(omatrix, ex);
+
+  if (isInRange)
+  {
+    CUDA_dsigmoid (omatrix, imatrix);
+  }
+}
+
+__hostdeviceinline__ void CUDA_multiplyDSigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+{
+  bool isInRange = cuda_inRangePD(omatrix, ex);
+
+  if (isInRange)
+  {
+    CUDA_multiplyDSigmoid (omatrix, imatrix);
+  }
+}
+
+#endif
