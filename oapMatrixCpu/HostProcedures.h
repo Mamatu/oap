@@ -61,20 +61,19 @@ class HostProcedures {
   void transpose(math::Matrix* output, math::Matrix* matrix);
 
   void tanh (math::Matrix* output, math::Matrix* matrix);
-
   void sigmoid (math::Matrix* output, math::Matrix* matrix);
-
   void linear (math::Matrix* output, math::Matrix* matrix);
-
   void sin (math::Matrix* output, math::Matrix* matrix);
 
   void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-
   void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-
   void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-
   void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+
+  void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 
@@ -103,6 +102,10 @@ class HostProcedures {
   {
     return hostArray;
   }
+
+  void _funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void _funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  std::function<uintt*(uintt*, uintt)> m_createKernelArray;
 };
 
 #endif  // HOSTCOMPAREPROCEDURE_H

@@ -174,7 +174,8 @@ void HostProcedures::prepare(size_t w, size_t h, HostKernel& hostKernel) {
   hostKernel.setDims(m_blocks, m_threads);
 }
 
-HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_threadsCount(4), m_bmApi (oap::host::GetMatrixInfo)
+HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_threadsCount(4), m_bmApi (oap::host::GetMatrixInfo),
+m_createKernelArray(std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2))
 {}
 
 HostProcedures::~HostProcedures() {}
@@ -207,19 +208,19 @@ void HostProcedures::substract(math::Matrix* output, math::Matrix* matrix1,
 
 void HostProcedures::dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
 {
-  oap::generic::dotProduct (output, matrix1, matrix2, output->columns, output->rows, &m_kernel, [](){}, m_bmApi);
+  oap::generic::dotProduct (output, matrix1, matrix2, output->columns, output->rows, &m_kernel, m_bmApi, [](){});
 }
 
 void HostProcedures::dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
 {
-  oap::generic::dotProductPeriodic (output, matrix1, matrix2, &m_kernel, [](){}, m_bmApi,
-                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+  oap::generic::dotProductPeriodic (output, matrix1, matrix2, &m_kernel, m_bmApi, [](){},
+                  m_createKernelArray);
 }
 
 void HostProcedures::dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
 {
-  oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, &m_kernel, [](){}, m_bmApi,
-                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+  oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, &m_kernel, m_bmApi, [](){},
+                  m_createKernelArray);
 }
 
 void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, size_t w, size_t h)
@@ -231,7 +232,7 @@ void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, mat
 
 void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
 {
-  oap::generic::dotProduct (output, matrix1, matrix2, dims, &m_kernel, [](){}, m_bmApi, std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+  oap::generic::dotProduct (output, matrix1, matrix2, dims, &m_kernel, m_bmApi, [](){}, m_createKernelArray);
 }
 
 void HostProcedures::transpose(math::Matrix* output, math::Matrix* matrix) {
@@ -249,9 +250,7 @@ void HostProcedures::tanh(math::Matrix* output, math::Matrix* matrix)
 
 void HostProcedures::sigmoid (math::Matrix* output, math::Matrix* matrix)
 {
-  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
-
-  oap::generic::executeKernel1Arg ("CUDAKernel_Sigmoid", output, matrix, &m_kernel, bapi, true, [](){});
+  oap::generic::executeKernel1Arg ("CUDAKernel_Sigmoid", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
 void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix)
@@ -261,25 +260,23 @@ void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix)
 
 void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix)
 {
-  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+  oap::generic::executeKernel1Arg ("CUDAKernel_Sin", output, matrix, &m_kernel, m_bmApi, true, [](){});
+}
 
-  oap::generic::executeKernel1Arg ("CUDAKernel_Sin", output, matrix, &m_kernel, bapi, true, [](){});
+void HostProcedures::_funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  oap::generic::executeKernel1Arg (kname, output, matrix, dims, &m_kernel, m_bmApi, true, [](){},
+                                  m_createKernelArray);
 }
 
 void HostProcedures::tanh(math::Matrix* output, math::Matrix* matrix, uintt dims[2])
 {
-  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
-
-  oap::generic::executeKernel1Arg ("CUDAKernel_TanhDim", output, matrix, dims, &m_kernel, bapi, true, [](){},
-                                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+  _funcDim ("CUDAKernel_TanhDim", output, matrix, dims);
 }
 
 void HostProcedures::sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
 {
-  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
-
-  oap::generic::executeKernel1Arg ("CUDAKernel_SigmoidDim", output, matrix, dims, &m_kernel, bapi, true, [](){},
-                                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+  _funcDim ("CUDAKernel_SigmoidDim", output, matrix, dims);
 }
 
 void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
@@ -289,10 +286,34 @@ void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, uintt d
 
 void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
 {
-  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+  _funcDim ("CUDAKernel_SinDim", output, matrix, dims);
+}
 
-  oap::generic::executeKernel1Arg ("CUDAKernel_SinDim", output, matrix, dims, &m_kernel, bapi, true, [](){},
-                                  std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+void HostProcedures::_funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  oap::generic::funcDimPeriodic (kname, output, matrix, dims, &m_kernel, m_bmApi, [](){},
+                                  m_createKernelArray);
+}
+
+void HostProcedures::tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  _funcDimPeriodic ("CUDAKernel_TanhDimPeriodic", output, matrix, dims);
+}
+
+void HostProcedures::sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  _funcDimPeriodic ("CUDAKernel_SigmoidDimPeriodic", output, matrix, dims);
+}
+
+void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  debugAssert ("Not supported yet" == nullptr);
+  //_funcDimPeriodic ("CUDAKernel_LinearDimPeriodic", output, matrix, dims);
+}
+
+void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  _funcDimPeriodic ("CUDAKernel_SinDimPeriodic", output, matrix, dims);
 }
 
 void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
@@ -333,7 +354,5 @@ void HostProcedures::crossEntropy (math::Matrix* output, math::Matrix* params0, 
 
 void HostProcedures::tensorProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
 {
-  oap::generic::tensorProduct (output, matrix1, matrix2, dims, &m_kernel, [](){}, m_bmApi,
-                            std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
-
+  oap::generic::tensorProduct (output, matrix1, matrix2, dims, &m_kernel, m_bmApi, [](){}, m_createKernelArray);
 }

@@ -29,80 +29,68 @@ __hostdeviceinline__ void CUDA_tanhDim (math::Matrix* omatrix, math::Matrix* ima
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isInRange)
   {
-    if (isre && isim)
-    {
-      CUDA_tanhReal (omatrix, imatrix);
-    }
-    else if (isre)
-    {
-      CUDA_tanhRe (omatrix, imatrix);
-    }
-    else if (isim)
-    {
-      CUDA_tanhIm (omatrix, imatrix);
-    }
+    CUDA_tanh (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_tanhDimDerivative(math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void CUDA_dtanhDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isInRange)
   {
-    if (isre && isim)
-    {
-      CUDA_tanhDerivativeReal (omatrix, imatrix);
-    }
-    else if (isre)
-    {
-      CUDA_tanhDerivativeRe (omatrix, imatrix);
-    }
-    else if (isim)
-    {
-      CUDA_tanhDerivativeIm (omatrix, imatrix);
-    }
+    CUDA_dtanh (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_multiplyTanhDimDerivative(math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void CUDA_multiplyDTanhDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isInRange)
   {
-    if (isre && isim)
-    {
-      CUDA_multiplyTanhDerivativeReal (omatrix, imatrix);
-    }
-    else if (isre)
-    {
-      CUDA_multiplyTanhDerivativeRe (omatrix, imatrix);
-    }
-    else if (isim)
-    {
-      CUDA_multiplyTanhDerivativeIm (omatrix, imatrix);
-    }
+    CUDA_multiplyDTanh (omatrix, imatrix);
   }
 }
 
-#endif /* CU_TANH_DIM_PROCEDURES_H */
+__hostdeviceinline__ void CUDA_tanhDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+{
+  bool isInRange = cuda_inRangePD(omatrix, ex);
+
+  if (isInRange)
+  {
+    CUDA_tanh (omatrix, imatrix);
+  }
+}
+
+__hostdeviceinline__ void CUDA_dtanhDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+{
+  bool isInRange = cuda_inRangePD(omatrix, ex);
+
+  if (isInRange)
+  {
+    CUDA_dtanh (omatrix, imatrix);
+  }
+}
+
+__hostdeviceinline__ void CUDA_multiplyDTanhDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+{
+  bool isInRange = cuda_inRangePD(omatrix, ex);
+
+  if (isInRange)
+  {
+    CUDA_multiplyDTanh (omatrix, imatrix);
+  }
+}
+
+#endif

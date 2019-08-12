@@ -22,198 +22,40 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
+#include "CuFuncProcedures.h"
 
-__hostdeviceinline__ void tanhFunc (floatt* output, floatt value)
+__hostdeviceinline__ void cuda_tanhFunc (floatt* output, floatt value)
 {
   (*output) =  tanh (value);
 }
 
-__hostdeviceinline__ void tanhDerivative (floatt* output, floatt value)
+__hostdeviceinline__ void cuda_dtanhFunc (floatt* output, floatt value)
 {
   floatt th = 0;
-  tanhFunc(&th, value);
+  cuda_tanhFunc (&th, value);
   (*output) =  (1.f  - th * th);
 }
 
-__hostdeviceinline__ void multiplyTanhDerivative (floatt* output, floatt value)
+__hostdeviceinline__ void cuda_mDTanhFunc (floatt* output, floatt value)
 {
   floatt th = 0;
-  tanhFunc(&th, value);
+  cuda_tanhFunc (&th, value);
   (*output) =  (*output) * (1.f  - th * th);
 }
 
-__hostdeviceinline__ void multiplyTanhComplexDerivative (floatt* reoutput, floatt* imoutput, floatt revalue, floatt imvalue)
+__hostdeviceinline__ void CUDA_tanh (math::Matrix* output, math::Matrix* matrix)
 {
+  CUDA_func (output, matrix, cuda_tanhFunc);
 }
 
-__hostdeviceinline__ void tanhComplexDerivative (floatt* reoutput, floatt* imoutput, floatt revalue, floatt imvalue)
+__hostdeviceinline__ void CUDA_dtanh (math::Matrix* output, math::Matrix* matrix)
 {
+  CUDA_func (output, matrix, cuda_dtanhFunc);
 }
 
-__hostdeviceinline__ void tanhComplex (floatt* reoutput, floatt* imoutput, floatt revalue, floatt imvalue)
+__hostdeviceinline__ void CUDA_multiplyDTanh (math::Matrix* output, math::Matrix* matrix)
 {
+  CUDA_func (output, matrix, cuda_mDTanhFunc);
 }
 
-__hostdeviceinline__ void CUDA_tanhRe(math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->reValues[index];
-  tanhFunc (output, imatrix->reValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_tanhIm(math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->imValues[index];
-  tanhFunc (output, imatrix->imValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_tanhReal(math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->imValues[index];
-  tanhComplex (reoutput, imoutput, imatrix->reValues[index], imatrix->imValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_tanh (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-  if (isre && isim) {
-    CUDA_tanhReal (omatrix, imatrix);
-  } else if (isre) {
-    CUDA_tanhRe (omatrix, imatrix);
-  } else if (isim) {
-    CUDA_tanhIm (omatrix, imatrix);
-  }
-}
-
-__hostdeviceinline__ void CUDA_tanhDerivativeRe (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->reValues[index];
-  tanhDerivative (output, imatrix->reValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_tanhDerivativeIm (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->imValues[index];
-  tanhDerivative (output, imatrix->reValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_tanhDerivativeReal (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->imValues[index];
-  tanhComplexDerivative (reoutput, imoutput, imatrix->reValues[index], imatrix->imValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_tanhDerivative(math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-  if (isre && isim) {
-    CUDA_tanhDerivativeReal (omatrix, imatrix);
-  } else if (isre) {
-    CUDA_tanhDerivativeRe (omatrix, imatrix);
-  } else if (isim) {
-    CUDA_tanhDerivativeIm (omatrix, imatrix);
-  }
-}
-
-__hostdeviceinline__ void CUDA_multiplyTanhDerivativeRe (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->reValues[index];
-  multiplyTanhDerivative (output, imatrix->reValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_multiplyTanhDerivativeIm (math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* output = &omatrix->reValues[index];
-  multiplyTanhDerivative (output, imatrix->reValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_multiplyTanhDerivativeReal(math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-
-  uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-
-  floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->reValues[index];
-  multiplyTanhComplexDerivative (reoutput, imoutput, imatrix->reValues[index], imatrix->imValues[index]);
-
-  threads_sync();
-}
-
-__hostdeviceinline__ void CUDA_multiplyTanhDerivative(math::Matrix* omatrix, math::Matrix* imatrix)
-{
-  HOST_INIT();
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
-  if (isre && isim) {
-    CUDA_multiplyTanhDerivativeReal (omatrix, imatrix);
-  } else if (isre) {
-    CUDA_multiplyTanhDerivativeRe (omatrix, imatrix);
-  } else if (isim) {
-    CUDA_multiplyTanhDerivativeIm (omatrix, imatrix);
-  }
-}
-
-#endif /* CU_TANH_PROCEDURES_H */
+#endif

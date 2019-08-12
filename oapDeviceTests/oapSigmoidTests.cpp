@@ -238,7 +238,7 @@ TEST_F(OapSigmoidTests, SigmoidDerivativeReTest)
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dinput, hinput);
 
-  m_cuApi->sigmoidDerivative (doutput, dinput);
+  m_cuApi->dsigmoid (doutput, dinput);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
 
@@ -270,7 +270,7 @@ TEST_F(OapSigmoidTests, MultiplySigmoidDerivativeReTest)
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dinput, hinput);
 
-  m_cuApi->multiplySigmoidDerivative (doutput, dinput);
+  m_cuApi->multiplyDSigmoid (doutput, dinput);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
 

@@ -76,21 +76,41 @@ void activateFunc (math::Matrix* output, math::Matrix* input, Activation activat
 }
 
 template<typename Api>
+void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2][2])
+{
+  switch (activation)
+  {
+    case Activation::SIGMOID:
+      api.sigmoid (output, input, dims);
+    break;
+    case Activation::LINEAR:
+      api.linear (output, input, dims);
+    break;
+    case Activation::TANH:
+      api.tanh (output, input, dims);
+    break;
+    case Activation::SIN:
+      api.sin (output, input, dims);
+    break;
+  };
+}
+
+template<typename Api>
 void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api)
 {
   switch (activation)
   {
     case Activation::SIGMOID:
-      api.sigmoidDerivative (output, input);
+      api.dsigmoid (output, input);
     break;
     case Activation::LINEAR:
-      api.linearDerivative (output, input);
+      api.dlinear (output, input);
     break;
     case Activation::TANH:
-      api.tanhDerivative (output, input);
+      api.dtanh (output, input);
     break;
     case Activation::SIN:
-      api.sinDerivative (output, input);
+      api.dsin (output, input);
     break;
   };
 }
@@ -101,16 +121,36 @@ void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activ
   switch (activation)
   {
     case Activation::SIGMOID:
-      api.sigmoidDerivative (output, input, dims);
+      api.dsigmoid (output, input, dims);
     break;
     case Activation::LINEAR:
-      api.linearDerivative (output, input, dims);
+      api.dlinear (output, input, dims);
     break;
     case Activation::TANH:
-      api.tanhDerivative (output, input, dims);
+      api.dtanh (output, input, dims);
     break;
     case Activation::SIN:
-      api.sinDerivative (output, input, dims);
+      api.dsin (output, input, dims);
+    break;
+  };
+}
+
+template<typename Api>
+void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2][2])
+{
+  switch (activation)
+  {
+    case Activation::SIGMOID:
+      api.dsigmoid (output, input, dims);
+    break;
+    case Activation::LINEAR:
+      api.dlinear (output, input, dims);
+    break;
+    case Activation::TANH:
+      api.dtanh (output, input, dims);
+    break;
+    case Activation::SIN:
+      api.dsin (output, input, dims);
     break;
   };
 }
