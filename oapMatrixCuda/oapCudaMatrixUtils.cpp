@@ -222,8 +222,8 @@ void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src)
   uintt dcolumns = CudaUtils::GetColumns (src);
   uintt drows = CudaUtils::GetRows (src);
 
-  debugAssert(hcolumns == dcolumns);
-  debugAssert(hrows == drows);
+  debugAssertMsg (hcolumns == dcolumns, "hcolumns %u dcolumns %u", hcolumns, dcolumns);
+  debugAssertMsg (hrows == drows, "hrows %u drows %u", hrows, drows);
 
   copyDeviceMatrixToHostMatrix (dst, src, hcolumns, hrows);
 }
@@ -266,8 +266,8 @@ void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src)
   uintt dcolumns = CudaUtils::GetColumns (dst);
   uintt drows = CudaUtils::GetRows (dst);
 
-  debugAssert(hcolumns == dcolumns);
-  debugAssert(hrows == drows);
+  debugAssertMsg (hcolumns == dcolumns, "hcolumns %u dcolumns %u", hcolumns, dcolumns);
+  debugAssertMsg (hrows == drows, "hrows %u drows %u", hrows, drows);
 
   copyHostMatrixToDeviceMatrix (dst, src, hcolumns, hrows);
 }
@@ -312,8 +312,8 @@ void CopyDeviceMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src)
   uintt dcolumns2 = CudaUtils::GetColumns (dst);
   uintt drows2 = CudaUtils::GetRows (dst);
 
-  debugAssert(dcolumns1 == dcolumns2);
-  debugAssert(drows1 == drows2);
+  debugAssertMsg (dcolumns1 == dcolumns2, "dcolumns1 %u dcolumns2 %u", dcolumns1, dcolumns2);
+  debugAssertMsg (drows1 == drows2, "drows1 %u drows2 %u", drows1, drows2);
 
   copyDeviceMatrixToDeviceMatrix (dst, src, dcolumns1, drows1);
 }
