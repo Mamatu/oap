@@ -23,6 +23,8 @@
 #include "CuDotProductProcedures.h"
 #include "CuDotProductDimProcedures.h"
 
+#define PERIODIC_ROWS_IDX 3
+
 __hostdevice__ void CUDA_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
 {
   HOST_INIT();
@@ -32,9 +34,10 @@ __hostdevice__ void CUDA_dotProductDimPeriodic (math::Matrix* output, math::Matr
   const uintt rows = ex[H_IDX];
 
   uintt offset = ex[OFFSET_IDX];
+  uintt periodicRows = ex[PERIODIC_ROWS_IDX];
 
-  uintt indexY1 = (threadIndexY) % params0->rows;
-  uintt indexY2 = (threadIndexY / offset) * offset;
+  uintt indexY1 = (threadIndexY) % periodicRows;
+  uintt indexY2 = (threadIndexY / periodicRows) * offset;
 
   bool inRange = threadIndexX < columns && indexY1 < rows && threadIndexY < output->rows;
 

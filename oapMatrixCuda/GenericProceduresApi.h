@@ -358,15 +358,16 @@ namespace generic
   }
 
   template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
-  bool dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2],
-                          oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
-                          PreExecCallback&& preExecCallback, CreateKernelArray&& createKernelArray)
+  bool dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                              uintt dims[3][2], uintt periodicRows,
+                              oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
+                              PreExecCallback&& preExecCallback, CreateKernelArray&& createKernelArray)
   {
     auto oinfo = bmApi.getMatrixInfo (output);
     auto minfo1 = bmApi.getMatrixInfo (matrix1);
     auto minfo2 = bmApi.getMatrixInfo (matrix2);
 
-    oap::generic::check_dotProductDimPeriodic (output, matrix1, matrix2, dims, oinfo, minfo1, minfo2);
+    oap::generic::check_dotProductDimPeriodic (output, matrix1, matrix2, dims, periodicRows, oinfo, minfo1, minfo2);
 
     const char* kname = "CUDAKernel_DotProductDimPeriodic";
 
@@ -378,7 +379,7 @@ namespace generic
 
     args.prepareDims = true;
 
-    uintt hostEx[] = {dims[0][0], dims[0][1], dims[1][0]};
+    uintt hostEx[] = {dims[0][0], dims[0][1], dims[1][0], periodicRows};
     uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
 
     void* params[] = {&output, &matrix1, &matrix2, &kernelArray};

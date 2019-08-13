@@ -35,6 +35,7 @@
 #include "oapCudaMatrixUtils.h"
 
 #include "GenericProceduresApi.h"
+#include "Logger.h"
 
 namespace oap
 {
@@ -195,9 +196,9 @@ void CuProceduresApi::dotProductPeriodic (math::Matrix* output, math::Matrix* ma
   m_cuStatus = oap::generic::dotProductPeriodic (output, matrix1, matrix2, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
-void CuProceduresApi::dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+void CuProceduresApi::dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2], uintt periodicRows)
 {
-  m_cuStatus = oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+  m_cuStatus = oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, periodicRows, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
 void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
@@ -608,6 +609,11 @@ void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix, uintt 
   oap::cuda::SetMatrix (output, dmatrix, 0, 0);
 }
 
+void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  debugAssert ("Not implemented yet" == nullptr);
+}
+
 void CuProceduresApi::dlinear (math::Matrix* output, math::Matrix* matrix)
 {
   oap::HostMatrixUPtr hmatrix = oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output), 1.f);
@@ -622,6 +628,11 @@ void CuProceduresApi::dlinear (math::Matrix* output, math::Matrix* matrix, uintt
   oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrix (minfo1, 1.f);
 
   oap::cuda::SetMatrix (output, dmatrix, 0, 0);
+}
+
+void CuProceduresApi::dlinear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  debugAssert ("Not implemented yet" == nullptr);
 }
 
 void CuProceduresApi::tanh (math::Matrix* output, math::Matrix* matrix)

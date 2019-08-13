@@ -101,7 +101,13 @@ class CuProceduresApi
  */
   void dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
 
-  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2], uintt periodicRows);
+
+  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+  {
+    uintt periodicRows = oap::cuda::GetRows(matrix1);
+    dotProductDimPeriodic (output, matrix1, matrix2, dims, periodicRows);
+  }
 
   void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
 
@@ -207,9 +213,11 @@ class CuProceduresApi
   // Linear function and derivatives
   void linear (math::Matrix* output, math::Matrix* matrix);
   void linear (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void linear (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
 
   void dlinear (math::Matrix* output, math::Matrix* matrix);
   void dlinear (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void dlinear (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
 
   // Tanh/tanh function and derivatives
   void tanh (math::Matrix* output, math::Matrix* matrix);

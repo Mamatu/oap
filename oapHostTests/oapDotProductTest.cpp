@@ -8,6 +8,7 @@
 #include "oapDotProductTests_Data_1.h"
 #include "oapDotProductTests_Data_2.h"
 #include "oapDotProductTests_Data_3.h"
+#include "oapDotProductTests_Data_4.h"
 
 class OapDotProductTests : public testing::Test {
  public:
@@ -305,3 +306,27 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
     }
   }
 }
+
+TEST_F(OapDotProductTests, Test_DimPeriodic_3)
+{
+  using namespace oapDotProduct_Data::Test_4;
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrix(1, 536, 0);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(3, 3, 0);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(1, 402, 0);
+
+  uintt dims[3][2] =
+  {
+    {1, 3},
+    {3, 3},
+    {1, 3}
+  };
+
+  oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
+  oap::host::CopyArrayToReMatrix (hostM2, t_reValues2);
+
+  hostProcedures.dotProductDimPeriodic (houtput, hostM1, hostM2, dims, 4);
+  //PRINT_MATRIX(houtput.get());
+}
+
