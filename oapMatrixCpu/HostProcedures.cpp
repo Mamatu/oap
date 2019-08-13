@@ -217,9 +217,9 @@ void HostProcedures::dotProductPeriodic (math::Matrix* output, math::Matrix* mat
                   m_createKernelArray);
 }
 
-void HostProcedures::dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+void HostProcedures::dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2], uintt periodicRows)
 {
-  oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, &m_kernel, m_bmApi, [](){},
+  oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, periodicRows, &m_kernel, m_bmApi, [](){},
                   m_createKernelArray);
 }
 
