@@ -37,7 +37,7 @@ Network::Network()
 
 Network::~Network()
 {
-  destroyLayers();
+  destroyNetwork ();
 }
 
 Layer* Network::createLayer (uintt neurons, const Activation& activation)
@@ -67,7 +67,7 @@ void Network::createLevel (Layer* layer)
 
   if (previous != nullptr)
   {
-    oap::generic::connectLayers<Layer, oap::alloc::cuda::AllocWeightsApi>(previous, layer);
+    oap::generic::connectLayers<LayerS, oap::alloc::cuda::AllocWeightsApi>(previous, layer);
     oap::generic::initRandomWeights (*previous, layer);
   }
 }
@@ -83,18 +83,23 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, ArgType argType, oap::Er
 {
   Layer* layer = m_layers.front();
 
-  if (argType == ArgType::HOST)
+  switch (argType)
   {
-    oap::generic::setHostInputs (*layer, inputs);
-  }
-  else if (argType == ArgType::DEVICE_COPY)
-  {
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
-  }
-  else if (argType == ArgType::DEVICE)
-  {
-    debugAssert ("not implemented yet" == nullptr);
-  }
+    case ArgType::HOST:
+    {
+      oap::generic::setHostInputs (*layer, inputs);
+      break;
+    }
+    case ArgType::DEVICE_COPY:
+    {
+      oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer->m_inputs, inputs);
+      break;
+    }
+    case ArgType::DEVICE:
+    {
+      debugAssert ("not implemented yet" == nullptr);
+    }
+  };
 
   forwardPropagation ();
 
@@ -106,58 +111,121 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, ArgType argType, oap::Er
   return oap::HostMatrixUPtr (output);
 }
 
-void Network::setInputs (math::Matrix* inputs, ArgType argType)
+void Network::setInputs (math::Matrix* inputs, ArgType argType, FPHandler handler)
 {
   Layer* layer = m_layers.front();
 
-  if (argType == ArgType::HOST)
+  ILayerS_FP* ilayer = layer;
+
+  if (handler > 0)
   {
-    oap::generic::setHostInputs (*layer, inputs);
+    ilayer = layer->getLayerS_FP (handler);
   }
-  else if (argType == ArgType::DEVICE)
+
+  switch (argType)
   {
-    oap::generic::setDeviceInputs (*layer, inputs);
-  }
+    case ArgType::HOST:
+    {
+      oap::generic::setHostInputs (*ilayer, inputs);
+      break;
+    }
+    case ArgType::DEVICE:
+    {
+      oap::generic::setDeviceInputs (*ilayer, inputs);
+      break;
+    }
+    case ArgType::DEVICE_COPY:
+    {
+      debugAssert ("Not implemented" == nullptr);
+      break;
+    }
+  };
 }
 
-void Network::setExpected (math::Matrix* expected, ArgType argType)
+void Network::setExpected (math::Matrix* expected, ArgType argType, FPHandler handler)
 {
-  Layer* layer = m_layers.front();
+  switch (argType)
+  {
+    case ArgType::HOST:
+    {
+      m_expectedDeviceOutputs[handler] = oap::cuda::NewDeviceMatrixHostRef (expected);
+      oap::cuda::CopyHostMatrixToDeviceMatrix (m_expectedDeviceOutputs[handler], expected);
+      break;
+    }
+    case ArgType::DEVICE:
+    {
+      m_expectedDeviceOutputs[handler].reset (expected, false);
+      break;
+    }
+    case ArgType::DEVICE_COPY:
+    {
+      m_expectedDeviceOutputs[handler] = oap::cuda::NewDeviceMatrixDeviceRef (expected);
+      oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_expectedDeviceOutputs[handler], expected);
+      break;
+    }
+  };
+}
 
-  if (argType == ArgType::HOST)
+uintt Network::createFPSection (FPHandler samples)
+{
+  debugAssertMsg (!m_layers.empty(), "No layers to create fp sections.");
+
+  Layer* prevLayer = nullptr;
+
+  for (Layer* layer : m_layers)
   {
-    m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixHostRef (expected);
-    oap::cuda::CopyHostMatrixToDeviceMatrix (m_expectedDeviceOutputs, expected);
+    LayerS_FP* layerFP_S = new LayerS_FP (layer->m_neuronsCount, layer->m_biasCount, samples);
+
+    oap::generic::allocateFPSection<LayerS_FP, oap::alloc::cuda::AllocNeuronsApi> (*layerFP_S, samples);
+
+    layer->fpVec.push_back (layerFP_S);
+
+    oap::generic::initLayerBiases (*layerFP_S, _setReValue, samples);
+
+    debugAssert (prevLayer == nullptr || layer->fpVec.size() == prevLayer->fpVec.size());
+
+    prevLayer = layer;
   }
-  else if (argType == ArgType::DEVICE)
+
+  return m_layers.front()->fpVec.size();
+}
+
+void Network::destroyFPSection (FPHandler handler)
+{
+  for (Layer* layer : m_layers)
   {
-    m_expectedDeviceOutputs.reset (expected, false);
-  }
-  else if (argType == ArgType::DEVICE_COPY)
-  {
-    m_expectedDeviceOutputs = oap::cuda::NewDeviceMatrixDeviceRef (expected);
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_expectedDeviceOutputs, expected);
+    LayerS_FP* layerFP_S = layer->getLayerS_FP (handler);
+    destroyFPSection (layerFP_S);
   }
 }
 
-math::Matrix* Network::getOutputs (math::Matrix* outputs, ArgType argType) const
+math::Matrix* Network::getOutputs (math::Matrix* outputs, ArgType argType, FPHandler handler) const
 {
   Layer* llayer = m_layers.back();
-  if (argType == ArgType::HOST)
+
+  ILayerS_FP* ilayer = llayer;
+
+  if (handler > 0)
   {
-    oap::cuda::CopyDeviceMatrixToHostMatrix (outputs, llayer->m_inputs);
-    return outputs;
+    ilayer = llayer->getLayerS_FP (handler);
   }
-  else if (argType == ArgType::DEVICE_COPY)
+
+  math::Matrix* cmatrix = nullptr;
+
+  switch (argType)
   {
-    math::Matrix* cmatrix = oap::cuda::NewDeviceMatrixDeviceRef (llayer->m_inputs);
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix (cmatrix, llayer->m_inputs);
-    return cmatrix;
-  }
-  else if (argType == ArgType::DEVICE)
-  {
-    return llayer->m_inputs;
-  }
+    case ArgType::HOST:
+      oap::cuda::CopyDeviceMatrixToHostMatrix (outputs, ilayer->m_inputs);
+      return outputs;
+
+    case ArgType::DEVICE_COPY:
+      cmatrix = oap::cuda::NewDeviceMatrixDeviceRef (ilayer->m_inputs);
+      oap::cuda::CopyDeviceMatrixToDeviceMatrix (cmatrix, ilayer->m_inputs);
+      return cmatrix;
+
+    case ArgType::DEVICE:
+      return ilayer->m_inputs;
+  };
   return nullptr;
 }
 
@@ -186,22 +254,25 @@ math::Matrix* Network::getErrors (ArgType type) const
 {
   Layer* last = m_layers.back();
 
-  if (type == ArgType::DEVICE)
+  switch (type)
   {
-    return last->m_errors;
-  }
-  else if (type == ArgType::HOST)
-  {
-    math::Matrix* matrix = oap::host::NewReMatrix (1, last->getNeuronsCount());
-    oap::cuda::CopyDeviceMatrixToHostMatrix (matrix, last->m_errors);
-    return matrix;
-  }
-  else if (type == ArgType::DEVICE_COPY)
-  {
-    math::Matrix* matrix = oap::cuda::NewDeviceReMatrix (1, last->getNeuronsCount());
-    oap::cuda::CopyDeviceMatrixToDeviceMatrix (matrix, last->m_errors);
-    return matrix;
-  }
+    case ArgType::DEVICE:
+    {
+      return last->m_errors;
+    }
+    case ArgType::HOST:
+    {
+      math::Matrix* matrix = oap::host::NewReMatrix (1, last->getNeuronsCount());
+      oap::cuda::CopyDeviceMatrixToHostMatrix (matrix, last->m_errors);
+      return matrix;
+    }
+    case ArgType::DEVICE_COPY:
+    {
+      math::Matrix* matrix = oap::cuda::NewDeviceReMatrix (1, last->getNeuronsCount());
+      oap::cuda::CopyDeviceMatrixToDeviceMatrix (matrix, last->m_errors);
+      return matrix;
+    }
+  };
 
   return nullptr;
 }
@@ -231,7 +302,7 @@ floatt Network::calculateSumMean ()
 }
 
 floatt Network::calculateCrossEntropy ()
-{       
+{
   return (-calculateSum()) / m_layers.back()->getNeuronsCount ();
 }
 
@@ -249,15 +320,35 @@ floatt Network::calculateError (oap::ErrorType errorType)
   return errorsFunctions [errorType]();
 }
 
-void Network::forwardPropagation ()
+void Network::forwardPropagation (FPHandler handler)
 {
-  oap::generic::forwardPropagation (this->m_layers, m_cuApi);
+  if (handler == 0)
+  {
+    oap::generic::forwardPropagation (m_layers, m_cuApi);
+  }
+  else
+  {
+    oap::generic::forwardPropagationFP (m_layers, m_cuApi, handler);
+  }
 }
 
-void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcType)
+void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcType, FPHandler handler)
 {
-    const floatt e = oap::generic::accumulateErrors (m_layers, m_cuApi, m_expectedDeviceOutputs, errorType, calcType, oap::cuda::CopyDeviceMatrixToHostMatrix);
-    m_errorsVec.push_back (e);
+  ILayerS_FP* ilayer = m_layers.back();
+
+  if (handler > 0)
+  {
+    ilayer = m_layers.back()->getLayerS_FP (handler);
+  }
+
+  oap::HostMatrixPtr hmatrix = oap::host::NewReMatrix (1, ilayer->getRowsCount());
+  oap::generic::getErrors (hmatrix, *ilayer, m_cuApi, m_expectedDeviceOutputs[handler], errorType, oap::cuda::CopyDeviceMatrixToHostMatrix);
+
+  for (uintt idx = 0; idx < hmatrix->rows; ++idx)
+  {
+    floatt v = hmatrix->reValues [idx];
+    m_errorsVec.push_back (v * v * 0.5);
+  }
 }
 
 void Network::backPropagation ()
@@ -369,6 +460,12 @@ Layer* Network::getLayer(uintt layerIndex) const
   return m_layers[layerIndex];
 }
 
+void Network::destroyNetwork ()
+{
+  destroyFPSections();
+  destroyLayers();
+}
+
 void Network::destroyLayers()
 {
   for (auto it = m_layers.begin(); it != m_layers.end(); ++it)
@@ -377,6 +474,23 @@ void Network::destroyLayers()
   }
   m_layers.clear();
   m_layers.clear();
+}
+
+void Network::destroyFPSections()
+{
+  for (const auto& layer : m_layers)
+  {
+    for (const auto& layerFp : layer->fpVec)
+    {
+      destroyFPSection (layerFp);
+    }
+  }
+}
+
+void Network::destroyFPSection (LayerS_FP* layerS_FP)
+{
+  oap::generic::deallocateFPSection<LayerS_FP, oap::alloc::cuda::DeallocLayerApi>(*layerS_FP);
+  delete layerS_FP;
 }
 
 void Network::setHostInputs (math::Matrix* inputs, uintt layerIndex)

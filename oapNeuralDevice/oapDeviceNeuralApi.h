@@ -34,7 +34,7 @@ namespace generic
 
 namespace
 {
-inline void checkHostInputs(LayerS& ls, const math::Matrix* hostInputs)
+inline void checkHostInputs (ILayerS_FP& ls, const math::Matrix* hostInputs)
 {
   if (hostInputs->columns != 1)
   {
@@ -53,14 +53,14 @@ inline void _setReValue (math::Matrix* matrix, floatt v, uintt c, uintt r)
 }
 }
 
-inline void setHostInputs(LayerS& ls, const math::Matrix* hInputs)
+inline void setHostInputs (ILayerS_FP& ls, const math::Matrix* hInputs)
 {
   checkHostInputs (ls, hInputs);
 
   oap::generic::setInputs (ls, hInputs, oap::cuda::CopyHostMatrixToDeviceMatrix, _setReValue);
 }
 
-inline void setDeviceInputs(LayerS& ls, const math::Matrix* dInputs)
+inline void setDeviceInputs (ILayerS_FP& ls, const math::Matrix* dInputs)
 {
   oap::generic::setInputs (ls, dInputs, oap::cuda::CopyDeviceMatrixToDeviceMatrix, _setReValue);
 }
@@ -77,13 +77,14 @@ inline math::MatrixInfo getInputsInfo (LayerS& ls)
 
 inline void getOutputs (const LayerS& ls, math::Matrix* matrix, ArgType type)
 {
-  if (type == ArgType::HOST)
+  switch (type)
   {
-    oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToHostMatrix);
-  }
-  else
-  {
-    oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
+    case ArgType::HOST:
+      oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToHostMatrix);
+      break;
+    default:
+      oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
+      break;
   }
 }
 
