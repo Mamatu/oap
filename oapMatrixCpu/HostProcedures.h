@@ -41,13 +41,21 @@ class HostProcedures {
   void substract(math::Matrix* output, math::Matrix* matrix1,
                  math::Matrix* matrix2);
 
-  void dotProduct(math::Matrix* output, math::Matrix* matrix1,
-                 math::Matrix* matrix2);
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
 
-  void dotProduct(math::Matrix* output, math::Matrix* matrix1,
-                 math::Matrix* matrix2, size_t w, size_t h);
+  void dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
 
-  void dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2], uintt periodicRows);
+
+  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+  {
+    uintt periodicRows = oap::host::GetRows (matrix1);
+    dotProductDimPeriodic (output, matrix1, matrix2, dims, periodicRows);
+  }
+
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, size_t w, size_t h);
+
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
 
   void dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
                   uintt outputDim[2], uintt params0Dim[2], uintt params1Dim[2])
@@ -59,12 +67,19 @@ class HostProcedures {
   void transpose(math::Matrix* output, math::Matrix* matrix);
 
   void tanh (math::Matrix* output, math::Matrix* matrix);
-
   void sigmoid (math::Matrix* output, math::Matrix* matrix);
-
   void linear (math::Matrix* output, math::Matrix* matrix);
-
   void sin (math::Matrix* output, math::Matrix* matrix);
+
+  void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+
+  void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 
@@ -93,6 +108,10 @@ class HostProcedures {
   {
     return hostArray;
   }
+
+  void _funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void _funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  std::function<uintt*(uintt*, uintt)> m_createKernelArray;
 };
 
 #endif  // HOSTCOMPAREPROCEDURE_H

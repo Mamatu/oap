@@ -23,6 +23,7 @@
 
 #include "gtest/gtest.h"
 #include "CuProceduresApi.h"
+#include "oapCudaMatrixUtils.h"
 
 #include "PatternsClassification.h"
 #include "Controllers.h"
@@ -67,7 +68,7 @@ TEST_F(OapClassificationTests, DISABLE_LetterClassification)
     EXPECT_TRUE(isLoaded);
   };
 
-  pc.run (args); 
+  pc.run (args);
 }
 
 class Coordinate
@@ -197,6 +198,34 @@ TEST_F(OapClassificationTests, CircleDataTest)
 
   Coordinates trainingData, testData;
 
+  auto generateInputHostMatrix = [](const Coordinates& coords)
+  {
+    oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, coords.size() * 3);
+
+    for (size_t idx = 0; idx < coords.size(); ++idx)
+    {
+      const auto& coord = coords[idx];
+      hinput->reValues[0 + idx * 3] = coord.getX();
+      hinput->reValues[1 + idx * 3] = coord.getY();
+      hinput->reValues[2 + idx * 3] = 1;
+    }
+
+    return hinput;
+  };
+
+  auto generateExpectedHostMatrix = [](const Coordinates& coords)
+  {
+    oap::HostMatrixPtr hexpected = oap::host::NewReMatrix (1, coords.size());
+
+    for (size_t idx = 0; idx < coords.size(); ++idx)
+    {
+      const auto& coord = coords[idx];
+      hexpected->reValues[idx] = coord.getPreciseLabel();
+    }
+
+    return hexpected;
+  };
+
   auto getMinMax = [](const Coordinates& coordinates)
   {
     size_t minIdx = coordinates.size(), maxIdx = coordinates.size();
@@ -230,7 +259,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
   {
     debugAssert (rate > 0 && rate <= 1);
 
-    Coordinates modifiableCoordinates = coordinates; 
+    Coordinates modifiableCoordinates = coordinates;
 
     std::random_shuffle (modifiableCoordinates.begin(), modifiableCoordinates.end());
     size_t trainingSetLength = modifiableCoordinates.size() * rate;
@@ -246,7 +275,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
 
     logInfo ("training set: %lu", trainingSet.size());
     logInfo ("test set: %lu", testSet.size());
-  
+
     return modifiableCoordinates;
   };
 
@@ -260,7 +289,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
 
   oap::pyplot::plot2DAll ("/tmp/plot_test_data.py", oap::pyplot::convert(testData), fileType);
   oap::pyplot::plot2DAll ("/tmp/plot_training_data.py", oap::pyplot::convert(trainingData), fileType);
- 
+
   for (size_t idx = 0; idx < trainingData.size(); ++idx)
   {
     ASSERT_EQ (modifiedCoordinates[idx], trainingData[idx]);
@@ -276,6 +305,15 @@ TEST_F(OapClassificationTests, CircleDataTest)
   size_t batchSize = 7;
 
   {
+    oap::HostMatrixPtr testHInputs = generateInputHostMatrix (testData);
+    oap::HostMatrixPtr trainingHInputs = generateInputHostMatrix (trainingData);
+
+    oap::HostMatrixPtr testHOutputs = oap::host::NewReMatrix (1, testData.size());
+    oap::HostMatrixPtr trainingHOutputs = oap::host::NewReMatrix (1, trainingData.size());
+
+    oap::HostMatrixPtr testHExpected = generateExpectedHostMatrix (testData);
+    oap::HostMatrixPtr trainingHExpected = generateExpectedHostMatrix (trainingData);
+
     std::unique_ptr<Network> network (new Network());
 
     floatt initLR = 0.03;
@@ -284,6 +322,18 @@ TEST_F(OapClassificationTests, CircleDataTest)
     network->createLayer(2, true, Activation::TANH);
     network->createLayer(3, true, Activation::TANH);
     network->createLayer(1, Activation::TANH);
+
+    FPHandler testHandler = network->createFPSection (testData.size());
+    FPHandler trainingHandler = network->createFPSection (trainingData.size());
+
+    LayerS_FP* testLayerS_FP = network->getLayerS_FP (testHandler, 0);
+    oap::cuda::CopyHostMatrixToDeviceMatrix (testLayerS_FP->m_inputs, testHInputs);
+
+    LayerS_FP* trainingLayerS_FP = network->getLayerS_FP (trainingHandler, 0);
+    oap::cuda::CopyHostMatrixToDeviceMatrix (trainingLayerS_FP->m_inputs, trainingHInputs);
+
+    network->setExpected (testHExpected, ArgType::HOST, testHandler);
+    network->setExpected (trainingHExpected, ArgType::HOST, trainingHandler);
 
     oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
     oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
@@ -301,18 +351,24 @@ TEST_F(OapClassificationTests, CircleDataTest)
       network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
     };
 
-    auto calculateCoordsError = [&forwardPropagation, &network, &houtput](const Coordinates& coords, Coordinates* output = nullptr)
+    auto forwardPropagationFP = [&network] (FPHandler handler)
+    {
+      network->forwardPropagation (handler);
+      network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST, handler);
+    };
+
+    auto calculateCoordsError = [&forwardPropagationFP, &network](const Coordinates& coords, FPHandler handler, oap::HostMatrixPtr hostMatrix, Coordinates* output = nullptr)
     {
       std::vector<Coordinate> pcoords;
+      forwardPropagationFP (handler);
+      network->getOutputs (hostMatrix.get(), ArgType::HOST, handler);
 
-      for (const auto& coord : coords)
+      if (output != nullptr)
       {
-        forwardPropagation (coord);
-        if (output != nullptr)
+        for (size_t idx = 0; idx < coords.size(); ++idx)
         {
-          network->getOutputs (houtput.get(), ArgType::HOST);
-          Coordinate ncoord = coord;
-          ncoord.setLabel (houtput->reValues[0]);
+          Coordinate ncoord = coords[idx];
+          ncoord.setLabel (hostMatrix->reValues[idx]);
           output->push_back (ncoord);
         }
       }
@@ -322,10 +378,10 @@ TEST_F(OapClassificationTests, CircleDataTest)
       return error;
     };
 
-    auto calculateCoordsErrorPlot = [&calculateCoordsError, fileType](const Coordinates& coords, const std::string& path)
+    auto calculateCoordsErrorPlot = [&calculateCoordsError, fileType](const Coordinates& coords, FPHandler handler, oap::HostMatrixPtr hostMatrix, const std::string& path)
     {
       Coordinates pcoords;
-      floatt output = calculateCoordsError (coords, &pcoords);
+      floatt output = calculateCoordsError (coords, handler, hostMatrix, &pcoords);
       oap::pyplot::plot2DAll (path, oap::pyplot::convert (pcoords), fileType);
       return output;
     };
@@ -334,7 +390,6 @@ TEST_F(OapClassificationTests, CircleDataTest)
     {
       hinput->reValues[0] = x;
       hinput->reValues[1] = y;
-      hinput->reValues[2] = 1;
 
       network->setInputs (hinput, ArgType::HOST);
       network->setExpected (houtput, ArgType::HOST);
@@ -375,18 +430,18 @@ TEST_F(OapClassificationTests, CircleDataTest)
         {
           std::stringstream path;
           path << "/tmp/plot_estimated_test_" << terrorCount << ".py";
-          testError = calculateCoordsErrorPlot (testData, path.str());
+          testError = calculateCoordsErrorPlot (testData, testHandler, testHOutputs, path.str());
         }
         {
           std::stringstream path;
           path << "/tmp/plot_estimated_train_" << terrorCount << ".py";
-          trainingError = calculateCoordsErrorPlot (trainingData, path.str());
+          trainingError = calculateCoordsErrorPlot (trainingData, trainingHandler, trainingHOutputs, path.str());
         }
       }
       else
       {
-        testError = calculateCoordsError (testData);
-        trainingError = calculateCoordsError (trainingData);
+        testError = calculateCoordsError (testData, testHandler, testHOutputs);
+        trainingError = calculateCoordsError (trainingData, trainingHandler, trainingHOutputs);
       }
 
       dTestError -= testError;
@@ -402,7 +457,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
 
       testErrors.push_back (testError);
       trainingErrors.push_back (trainingError);
-      
+
       if (terrorCount % 10 == 0)
       {
         oap::pyplot::plotLinear ("/tmp/plot_errors.py", {trainingErrors, testErrors}, {"r-","b-"}, fileType);

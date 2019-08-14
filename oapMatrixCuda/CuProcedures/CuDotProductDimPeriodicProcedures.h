@@ -17,19 +17,15 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_CU_DOT_PRODUCT_DIM_PROCEDURES_H
-#define OAP_CU_DOT_PRODUCT_DIM_PROCEDURES_H
+#ifndef OAP_CU_DOT_PRODUCT_DIM_PERIODIC_PROCEDURES_H
+#define OAP_CU_DOT_PRODUCT_DIM_PERIODIC_PROCEDURES_H
 
-#define W_IDX 0
-#define H_IDX 1
-#define OFFSET_IDX 2
-
-#include "CuCore.h"
 #include "CuDotProductProcedures.h"
+#include "CuDotProductDimProcedures.h"
 
-__hostdevice__ void CUDA_dotProductDim(
-               math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-               uintt* ex)
+#define PERIODIC_ROWS_IDX 3
+
+__hostdevice__ void CUDA_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -37,11 +33,15 @@ __hostdevice__ void CUDA_dotProductDim(
   const uintt columns = ex[W_IDX];
   const uintt rows = ex[H_IDX];
 
-  bool inRange = threadIndexX < columns && threadIndexY < rows;
+  uintt offset = ex[OFFSET_IDX];
+  uintt periodicRows = ex[PERIODIC_ROWS_IDX];
 
-  const uintt offset = ex[OFFSET_IDX];
+  uintt indexY1 = (threadIndexY) % periodicRows;
+  uintt indexY2 = (threadIndexY / periodicRows) * offset;
 
-  cuda_dotProduct (output, params0, params1, offset, inRange);
+  bool inRange = threadIndexX < columns && indexY1 < rows && threadIndexY < output->rows;
+
+  cuda_dotProductUUUB (output, params0, params1, indexY1, indexY2, offset, inRange);   
 }
 
 #endif

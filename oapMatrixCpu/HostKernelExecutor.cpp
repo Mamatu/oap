@@ -29,13 +29,22 @@
 
 std::map<std::string, std::function<void(void**)>> g_kernelsList =
 {
-  {"CUDAKernel_SumShared", HOSTKernel_SumSharedRaw},
-  {"CUDAKernel_CrossEntropy", HOSTKernel_CrossEntropyRaw},
-  {"CUDAKernel_Tanh", HOSTKernel_TanhRaw},
-  {"CUDAKernel_Sigmoid", HOSTKernel_SigmoidRaw},
-  {"CUDAKernel_DotProductDim", HOSTKernel_DotProductDimRaw},
-  {"CUDAKernel_DotProduct", HOSTKernel_DotProductRaw},
-  {"CUDAKernel_TensorProductDim", HOSTKernel_TensorProductDimRaw},
+  {"CUDAKernel_SumShared", proxy_HOSTKernel_SumShared},
+  {"CUDAKernel_CrossEntropy", proxy_HOSTKernel_CrossEntropy},
+  {"CUDAKernel_DotProductDim", proxy_HOSTKernel_DotProductDim},
+  {"CUDAKernel_DotProductPeriodic", proxy_HOSTKernel_DotProductPeriodic},
+  {"CUDAKernel_DotProductDimPeriodic", proxy_HOSTKernel_DotProductDimPeriodic},
+  {"CUDAKernel_DotProduct", proxy_HOSTKernel_DotProduct},
+  {"CUDAKernel_TensorProductDim", proxy_HOSTKernel_TensorProductDim},
+  {"CUDAKernel_Tanh", proxy_HOSTKernel_Tanh},
+  {"CUDAKernel_Sigmoid", proxy_HOSTKernel_Sigmoid},
+  {"CUDAKernel_Sin", proxy_HOSTKernel_Sin},
+  {"CUDAKernel_TanhDim", proxy_HOSTKernel_TanhDim},
+  {"CUDAKernel_SigmoidDim", proxy_HOSTKernel_SigmoidDim},
+  {"CUDAKernel_SinDim", proxy_HOSTKernel_SinDim},
+  {"CUDAKernel_TanhDimPeriodic", proxy_HOSTKernel_TanhDimPeriodic},
+  {"CUDAKernel_SigmoidDimPeriodic", proxy_HOSTKernel_SigmoidDimPeriodic},
+  {"CUDAKernel_SinDimPeriodic", proxy_HOSTKernel_SinDimPeriodic},
 };
 
 class HostKernelImpl : public HostKernel

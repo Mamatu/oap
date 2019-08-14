@@ -28,7 +28,7 @@
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
 
-//#include "oapHostMatrixUtils.h"
+#define PRINT_CUMATRIX(m) logInfo ("%s %p %s %s", #m, m, oap::cuda::to_string(m).c_str(), oap::cuda::GetMatrixInfo(m).toString().c_str());
 
 namespace oap
 {

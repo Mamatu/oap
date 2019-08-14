@@ -29,6 +29,25 @@ namespace oap
 namespace generic
 {
 
+inline void check_isEqualDim (const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
+{
+  debugAssert (minfo1.columns() == minfo2.columns());
+  debugAssert (minfo1.rows() == minfo2.rows());
+  debugAssert (minfo1.isRe == minfo2.isRe);
+  debugAssert (minfo1.isIm == minfo2.isIm);
+}
+
+template<typename BasicMatrixApi>
+void check_isEqualDim (math::Matrix* m1, math::Matrix* m2, BasicMatrixApi& bmApi)
+{
+  if (m1 != m2)
+  {
+    auto minfo1 = bmApi.getMatrixInfo (m1);
+    auto minfo2 = bmApi.getMatrixInfo (m2);
+    check_isEqualDim (minfo1, minfo2);
+  }
+}
+
 template<typename BasicMatrixApi>
 void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixApi& bmApi)
 {
@@ -72,14 +91,14 @@ inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math:
   check_Size (minfo1, params0, dims[1]);
   check_Size (minfo2, params1, dims[2]);
 
-  const uintt output_columns = dims[0][0];//matrixDimApi.getColumns(params0);
-  const uintt output_rows = dims[0][1]; //matrixDimApi.getRows(params0);
+  const uintt output_columns = dims[0][0];
+  const uintt output_rows = dims[0][1];
 
-  const uintt params0_columns = dims[1][0];//matrixDimApi.getColumns(params0);
-  const uintt params0_rows = dims[1][1]; //matrixDimApi.getRows(params0);
+  const uintt params0_columns = dims[1][0];
+  const uintt params0_rows = dims[1][1];
 
-  const uintt params1_columns = dims[2][0];//matrixDimApi.getColumns(params1);
-  const uintt params1_rows = dims[2][1];//matrixDimApi.getRows(params1);
+  const uintt params1_columns = dims[2][0];
+  const uintt params1_rows = dims[2][1];
 
 #ifdef CU_PROCEDURES_API_PRINT
   oap::cuda::PrintMatrixInfo("params0 = ", params0);
@@ -90,6 +109,66 @@ inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math:
   debugAssertMsg (params0_columns == params1_rows, "params0_columns = %u params1_rows = %u", params0_columns, params1_rows);
   debugAssertMsg (output_columns == params1_columns, "output_columns = %u params1_columns = %u", output_columns, params1_columns);
   debugAssertMsg (output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
+}
+
+inline void check_dotProductPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+                                      const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
+{
+  const uintt output_columns = oinfo.columns();
+  const uintt output_rows = oinfo.rows();
+
+  const uintt params0_columns = minfo1.columns();
+  const uintt params0_rows = minfo1.rows();
+
+  const uintt params1_columns = minfo2.columns();
+  const uintt params1_rows = minfo2.rows();
+
+#ifdef CU_PROCEDURES_API_PRINT
+  oap::cuda::PrintMatrixInfo("params0 = ", params0);
+  oap::cuda::PrintMatrixInfo("params1 = ", params1);
+  oap::cuda::PrintMatrixInfo("ouput = ", output);
+#endif
+
+  debugAssertMsg (params1_rows % params0_columns == 0, "params0_columns = %u params1_rows = %u", params0_columns, params1_rows);
+  debugAssertMsg (output_columns == params1_columns, "output_columns = %u params1_columns = %u", output_columns, params1_columns);
+  debugAssertMsg (output_rows % params0_rows == 0, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
+}
+
+inline void check_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2], uintt periodicRows,
+                                      const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
+{
+  check_Size (oinfo, output, dims[0]);
+  check_Size (minfo1, params0, dims[1]);
+  check_Size (minfo2, params1, dims[2]);
+
+  const uintt d_output_columns = dims[0][0];
+  const uintt d_output_rows = dims[0][1];
+
+  const uintt d_params0_columns = dims[1][0];
+  const uintt d_params0_rows = dims[1][1];
+
+  const uintt d_params1_columns = dims[2][0];
+  const uintt d_params1_rows = dims[2][1];
+
+  const uintt output_columns = oinfo.columns();
+  const uintt output_rows = oinfo.rows();
+
+  const uintt params0_columns = minfo1.columns();
+  const uintt params0_rows = minfo1.rows();
+
+  const uintt params1_columns = minfo2.columns();
+  const uintt params1_rows = minfo2.rows();
+
+#ifdef CU_PROCEDURES_API_PRINT
+  oap::cuda::PrintMatrixInfo("params0 = ", params0);
+  oap::cuda::PrintMatrixInfo("params1 = ", params1);
+  oap::cuda::PrintMatrixInfo("ouput = ", output);
+#endif
+
+  debugAssertMsg (params1_rows % d_params0_columns == 0, "params0_columns = %u d_params1_rows = %u", params0_columns, d_params1_rows);
+  debugAssertMsg (d_output_columns == d_params1_columns, "d_output_columns = %u d_params1_columns = %u", d_output_columns, d_params1_columns);
+  debugAssertMsg (output_rows % periodicRows == 0, "output_rows = %u d_params0_rows = %u", output_rows, params0_rows);
+  debugAssertMsg (output_rows / periodicRows == params1_rows / d_params0_columns, "output_rows = %u d_params0_rows = %u params1_rows = %u d_params0_columns = %u", output_rows, d_params0_rows, params1_rows, d_params0_columns);
 }
 
 template<typename GetMatrixInfo>

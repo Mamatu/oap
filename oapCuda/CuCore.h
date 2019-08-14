@@ -20,7 +20,7 @@
 #ifndef OAP_CU_CORE_H
 #define OAP_CU_CORE_H
 
-#ifdef CUDA
+#ifdef OAP_CUDA_BUILD
 
 #include <cuda.h>
 #include "cuda_runtime.h"

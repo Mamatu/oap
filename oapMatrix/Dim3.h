@@ -20,7 +20,7 @@
 #ifndef DIM3_H
 #define DIM3_H
 
-#ifdef CUDA
+#ifdef OAP_CUDA_BUILD
 
 #include <cuda.h>
 

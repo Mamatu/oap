@@ -225,7 +225,7 @@ TEST_F(OapTanhTests, TanhDerivativeReTest)
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dinput, hinput);
 
-  m_cuApi->tanhDerivative (doutput, dinput);
+  m_cuApi->dtanh (doutput, dinput);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
 
@@ -257,7 +257,7 @@ TEST_F(OapTanhTests, MultiplyTanhDerivativeReTest)
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dinput, hinput);
 
-  m_cuApi->multiplyTanhDerivative (doutput, dinput);
+  m_cuApi->dmultiplyTanh (doutput, dinput);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);
 

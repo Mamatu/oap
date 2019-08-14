@@ -29,19 +29,19 @@
  */
 class SE_ID_Controller : public Network::IController
 {
-  size_t m_dataSetSize;
-  size_t m_step;
+  uintt m_dataSetSize;
+  uintt m_step;
   floatt m_limit;
 
   floatt m_sqes;
   bool m_sc;
 
-  std::function<void(floatt, size_t, floatt)> m_callback;
+  std::function<void(floatt, uintt, floatt)> m_callback;
   public:
-   SE_ID_Controller (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback = nullptr);
+   SE_ID_Controller (floatt limit, uintt dataSetSize, const std::function<void(floatt, uintt, floatt)>& callback = nullptr);
    virtual ~SE_ID_Controller();
 
-   virtual bool shouldCalculateError(size_t step) override;
+   virtual bool shouldCalculateError(uintt step) override;
 
    virtual void setError (floatt sqe, oap::ErrorType etype) override;
 
@@ -53,20 +53,20 @@ class SE_ID_Controller : public Network::IController
  */
 class SE_CD_Controller : public Network::IController
 {
-  size_t m_dataSetSize;
-  size_t m_step;
+  uintt m_dataSetSize;
+  uintt m_step;
   floatt m_limit;
 
   std::queue<floatt> m_sqes;
   floatt m_sqe;
   bool m_sc;
 
-  std::function<void(floatt, size_t, floatt)> m_callback;
+  std::function<void(floatt, uintt, floatt)> m_callback;
   public:
-   SE_CD_Controller (floatt limit, size_t dataSetSize, const std::function<void(floatt, size_t, floatt)>& callback = nullptr);
+   SE_CD_Controller (floatt limit, uintt dataSetSize, const std::function<void(floatt, uintt, floatt)>& callback = nullptr);
    virtual ~SE_CD_Controller();
 
-   virtual bool shouldCalculateError(size_t step) override;
+   virtual bool shouldCalculateError(uintt step) override;
 
    virtual void setError (floatt sqe, oap::ErrorType etype) override;
 
@@ -75,12 +75,12 @@ class SE_CD_Controller : public Network::IController
 
 class DerivativeController : public Network::IController
 {
-  size_t m_activationLimit;
+  uintt m_activationLimit;
   public:
-   DerivativeController (size_t activationLimit);
+   DerivativeController (uintt activationLimit);
    virtual ~DerivativeController();
 
-   virtual bool shouldCalculateError(size_t step) override;
+   virtual bool shouldCalculateError(uintt step) override;
 
    virtual void setError (floatt sqe, oap::ErrorType etype) override;
 
@@ -89,13 +89,13 @@ class DerivativeController : public Network::IController
 
 class StepController : public Network::IController
 {
-  size_t m_sstep;
-  size_t m_step = 0;
+  uintt m_sstep;
+  uintt m_step = 0;
   public:
-    StepController (size_t sstep);
+    StepController (uintt sstep);
     virtual ~StepController ();
 
-    virtual bool shouldCalculateError(size_t step) override;
+    virtual bool shouldCalculateError(uintt step) override;
 
    virtual void setError (floatt sqe, oap::ErrorType etype) override;
 

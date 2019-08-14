@@ -25,6 +25,9 @@
 
 #include "Logger.h"
 #include "HostMatrixKernels.h"
+
+#include "oapDeviceMatrixUPtr.h"
+#include "oapDeviceMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"
 #include "oapHostMatrixPtr.h"
 
@@ -32,6 +35,7 @@
 #include "oapCudaMatrixUtils.h"
 
 #include "GenericProceduresApi.h"
+#include "Logger.h"
 
 namespace oap
 {
@@ -60,7 +64,8 @@ CuProceduresApi::CuProceduresApi()
     : m_cuStatus(CUDA_SUCCESS),
       m_compareOperationOutput(0),
       m_bmApi (oap::cuda::GetMatrixInfo),
-      m_preExecCallback (std::bind(&CuProceduresApi::resetFlags, this))
+      m_preExecCallback (std::bind(&CuProceduresApi::resetFlags, this)),
+      m_createKernelArray (std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2))
 {
   init();
   m_magnitudeOutput = CudaUtils::AllocDeviceObj<floatt>(0);
@@ -91,7 +96,7 @@ void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, ma
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  oap::generic::dotProduct (output, params0, params1, columns, rows, &m_kernel, m_preExecCallback, m_bmApi);
+  oap::generic::dotProduct (output, params0, params1, columns, rows, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
 void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -130,8 +135,7 @@ void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0,
 
 void CuProceduresApi::tensorProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
 {
-  oap::generic::tensorProduct (output, matrix1, matrix2, dims, &m_kernel, m_preExecCallback, m_bmApi,
-                            std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+  oap::generic::tensorProduct (output, matrix1, matrix2, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
 void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -187,11 +191,20 @@ void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* params0,
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
+void CuProceduresApi::dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+{
+  m_cuStatus = oap::generic::dotProductPeriodic (output, matrix1, matrix2, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2], uintt periodicRows)
+{
+  m_cuStatus = oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, periodicRows, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
 void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
                                  uintt dims[3][2])
 {
-  oap::generic::dotProduct (output, matrix1, matrix2, dims, &m_kernel, m_preExecCallback, m_bmApi,
-                            std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2));
+  m_cuStatus = oap::generic::dotProduct (output, matrix1, matrix2, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
 void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* params0,
@@ -522,42 +535,62 @@ bool CuProceduresApi::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, 
 
 void CuProceduresApi::sigmoid (math::Matrix* matrix)
 {
-  const uintt w = CudaUtils::GetColumns(matrix);
-  const uintt h = CudaUtils::GetRows(matrix);
+  m_cuStatus = oap::generic::func ("CUDAKernel_Sigmoid", matrix, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
 
-  void* params[] = {&matrix, &matrix};
+void CuProceduresApi::sigmoid (math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_SigmoidDim", matrix, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
 
-  m_cuStatus = execute("CUDAKernel_Sigmoid", w, h, params, 0);
+void CuProceduresApi::sigmoid (math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_SigmoidDimPeriodic", matrix, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
 void CuProceduresApi::sigmoid (math::Matrix* output, math::Matrix* matrix)
 {
-  const uintt w = CudaUtils::GetColumns (output);
-  const uintt h = CudaUtils::GetRows (output);
-
-  void* params[] = {&output, &matrix};
-
-  m_cuStatus = execute("CUDAKernel_Sigmoid", w, h, params, 0);
+  m_cuStatus = oap::generic::func ("CUDAKernel_Sigmoid", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
-void CuProceduresApi::sigmoidDerivative (math::Matrix* omatrix, math::Matrix* imatrix)
+void CuProceduresApi::sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
 {
-  const uintt w = CudaUtils::GetColumns(omatrix);
-  const uintt h = CudaUtils::GetRows(omatrix);
-
-  void* params[] = {&omatrix, &imatrix};
-
-  m_cuStatus = execute("CUDAKernel_SigmoidDerivative", w, h, params, 0);
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_SigmoidDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
-void CuProceduresApi::multiplySigmoidDerivative(math::Matrix* omatrix, math::Matrix* matrix)
+void CuProceduresApi::sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
 {
-  const uintt w = CudaUtils::GetColumns(omatrix);
-  const uintt h = CudaUtils::GetRows(omatrix);
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_SigmoidDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
 
-  void* params[] = {&omatrix, &matrix};
+void CuProceduresApi::dsigmoid (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_DSigmoid", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
 
-  m_cuStatus = execute("CUDAKernel_MultiplySigmoidDerivative", w, h, params, 0);
+void CuProceduresApi::dsigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_DSigmoidDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::dsigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_DSigmoidDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::multiplyDSigmoid (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_MultiplyDSigmoid", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
+void CuProceduresApi::multiplyDSigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_MultiplyDSigmoidDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::multiplyDSigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_MultiplyDSigmoidDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
 void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix)
@@ -565,57 +598,116 @@ void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix)
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (output, matrix);
 }
 
-void CuProceduresApi::linearDerivative (math::Matrix* output, math::Matrix* matrix)
+void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  auto minfo = oap::cuda::GetMatrixInfo (output);
+  math::MatrixInfo minfo1 (minfo.isRe, minfo.isIm, dims[0], dims[1]);
+
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrix (minfo1, 1.f);
+
+  oap::cuda::CopyDeviceToDevice (dmatrix, matrix);
+  oap::cuda::SetMatrix (output, dmatrix, 0, 0);
+}
+
+void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  debugAssert ("Not implemented yet" == nullptr);
+}
+
+void CuProceduresApi::dlinear (math::Matrix* output, math::Matrix* matrix)
 {
   oap::HostMatrixUPtr hmatrix = oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output), 1.f);
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
 }
 
-void CuProceduresApi::tanh (math::Matrix* output, const math::Matrix* matrix)
+void CuProceduresApi::dlinear (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
 {
-  m_cuStatus = oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, m_bmApi, true,
-               m_preExecCallback);
+  auto minfo = oap::cuda::GetMatrixInfo (output);
+  math::MatrixInfo minfo1 (minfo.isRe, minfo.isIm, dims[0], dims[1]);
+
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrix (minfo1, 1.f);
+
+  oap::cuda::SetMatrix (output, dmatrix, 0, 0);
 }
 
-void CuProceduresApi::tanhDerivative (math::Matrix* output, const math::Matrix* matrix)
+void CuProceduresApi::dlinear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
 {
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
-
-  void* params[] = {&output, &matrix};
-
-  m_cuStatus = execute("CUDAKernel_TanhDerivative", w, h, params, 0);
-
+  debugAssert ("Not implemented yet" == nullptr);
 }
 
-void CuProceduresApi::sin (math::Matrix* output, const math::Matrix* matrix)
+void CuProceduresApi::tanh (math::Matrix* output, math::Matrix* matrix)
 {
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
-
-  void* params[] = {&output, &matrix};
-
-  m_cuStatus = execute("CUDAKernel_Sin", w, h, params, 0);
+  m_cuStatus = oap::generic::func ("CUDAKernel_Tanh", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
-void CuProceduresApi::multiplySinDerivative (math::Matrix* output, math::Matrix* matrix)
+void CuProceduresApi::tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
 {
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
-
-  void* params[] = {&output, &matrix};
-
-  m_cuStatus = execute("CUDAKernel_MultiplySinDerivative", w, h, params, 0);
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_TanhDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
-void CuProceduresApi::sinDerivative (math::Matrix* output, const math::Matrix* matrix)
+void CuProceduresApi::tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
 {
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_TanhDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
 
-  void* params[] = {&output, &matrix};
+void CuProceduresApi::dtanh (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_DTanh", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
 
-  m_cuStatus = execute("CUDAKernel_SinDerivative", w, h, params, 0);
+void CuProceduresApi::dtanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_DTanhDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::dtanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_DTanhDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::sin (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_Sin", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
+void CuProceduresApi::sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_SinDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_SinDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::multiplyDSin (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_MultiplyDSin", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
+void CuProceduresApi::multiplyDSin (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_MultiplyDSinDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::multiplyDSin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_MultiplyDSinDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::dsin (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_DSin", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
+void CuProceduresApi::dsin (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_DSinDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::dsin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_DSinDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,

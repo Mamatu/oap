@@ -32,7 +32,7 @@ struct NetworkS
   std::vector<floatt> m_errorsVec;
 
   floatt m_learningRate = 0.1f;
-  size_t m_step = 1;
+  uintt m_step = 1;
 };
 
 #endif

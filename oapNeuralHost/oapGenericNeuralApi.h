@@ -30,6 +30,10 @@
 #include "oapHostMatrixUtils.h"
 #include "oapHostMatrixUPtr.h"
 
+#ifdef OAP_CUDA_BUILD
+  #include "oapCudaMatrixUtils.h"
+#endif
+
 namespace oap
 {
 namespace generic
@@ -56,80 +60,363 @@ void activateFunc (math::Matrix* output, math::Matrix* input, Activation activat
 }
 
 template<typename Api>
+void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2])
+{
+  switch (activation)
+  {
+    case Activation::SIGMOID:
+      api.sigmoid (output, input, dims);
+    break;
+    case Activation::LINEAR:
+      api.linear (output, input, dims);
+    break;
+    case Activation::TANH:
+      api.tanh (output, input, dims);
+    break;
+    case Activation::SIN:
+      api.sin (output, input, dims);
+    break;
+  };
+}
+
+template<typename Api>
+void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2][2])
+{
+  switch (activation)
+  {
+    case Activation::SIGMOID:
+      api.sigmoid (output, input, dims);
+    break;
+    case Activation::LINEAR:
+      api.linear (output, input, dims);
+    break;
+    case Activation::TANH:
+      api.tanh (output, input, dims);
+    break;
+    case Activation::SIN:
+      api.sin (output, input, dims);
+    break;
+  };
+}
+
+template<typename Api>
 void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api)
 {
   switch (activation)
   {
     case Activation::SIGMOID:
-      api.sigmoidDerivative (output, input);
+      api.dsigmoid (output, input);
     break;
     case Activation::LINEAR:
-      api.linearDerivative (output, input);
+      api.dlinear (output, input);
     break;
     case Activation::TANH:
-      api.tanhDerivative (output, input);
+      api.dtanh (output, input);
     break;
     case Activation::SIN:
-      api.sinDerivative (output, input);
+      api.dsin (output, input);
     break;
   };
 }
 
-template<typename Layers, typename Api, typename SetReValue>
-void forwardPropagation (const Layers& layers, Api& api, SetReValue&& setReValue)
+template<typename Api>
+void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2])
 {
-  if (layers.size() < 2)
+  switch (activation)
   {
-    throw std::runtime_error ("layers.size() is lower than 2");
-  }
+    case Activation::SIGMOID:
+      api.dsigmoid (output, input, dims);
+    break;
+    case Activation::LINEAR:
+      api.dlinear (output, input, dims);
+    break;
+    case Activation::TANH:
+      api.dtanh (output, input, dims);
+    break;
+    case Activation::SIN:
+      api.dsin (output, input, dims);
+    break;
+  };
+}
 
+template<typename Api>
+void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2][2])
+{
+  switch (activation)
+  {
+    case Activation::SIGMOID:
+      api.dsigmoid (output, input, dims);
+    break;
+    case Activation::LINEAR:
+      api.dlinear (output, input, dims);
+    break;
+    case Activation::TANH:
+      api.dtanh (output, input, dims);
+    break;
+    case Activation::SIN:
+      api.dsin (output, input, dims);
+    break;
+  };
+}
+
+template<typename LayerT, typename SetReValue>
+void initLayerBiases (LayerT& layer, SetReValue&& setReValue, uintt samples = 1)
+{
+  if (layer.getBiasCount() == 1)
+  {
+    for (uintt idx = 0; idx <= samples * layer.getTotalNeuronsCount(); idx += layer.getTotalNeuronsCount())
+    {
+      setReValue (layer.m_inputs, 1.f, 0, idx - 1);
+    }
+  }
+  else if (layer.getBiasCount() > 1)
+  {
+    debugAssert ("Not supported yet" == nullptr);
+  }
+}
+
+template<typename Layers, typename SetReValue>
+void initNetworkBiases (const Layers& layers, SetReValue&& setReValue)
+{
+  for (uintt idx = 0; idx < layers.size(); ++idx)
+  {
+    initLayerBiases (*layers[idx], setReValue);
+  }
+}
+
+template<typename LayerT, typename CopyMatrixToMatrix, typename SetReValue>
+void setInputs(LayerT& ls, const math::Matrix* inputs, CopyMatrixToMatrix&& copyMatrixToMatrix, SetReValue&& setReValue)
+{
+  copyMatrixToMatrix (ls.m_inputs, inputs);
+
+  initLayerBiases (ls, setReValue);
+}
+
+template<typename Layers, typename Api>
+void forwardPropagation (const Layers& layers, Api& api)
+{
   LayerS* previous = nullptr;
   LayerS* current = layers[0];
 
-  for (size_t idx = 1; idx < layers.size(); ++idx)
+  for (uintt idx = 1; idx < layers.size(); ++idx)
   {
     previous = current;
     current = layers[idx];
 
-    if (previous->m_biasCount == 1)
+    uintt dims[3][2] =
     {
-      setReValue (previous->m_inputs, 1.f, 0, previous->getTotalNeuronsCount() - 1);
-    }
+      {1, current->getNeuronsCount()},
+      {previous->getTotalNeuronsCount(), current->getNeuronsCount()},
+      {1, previous->getTotalNeuronsCount()}
+    };
 
-    //PRINT_CUMATRIX(current->m_sums);
-    //PRINT_CUMATRIX(previous->m_weights);
-    //PRINT_CUMATRIX(previous->m_inputs);
-    api.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs);
+    api.dotProduct (current->m_sums, previous->m_weights, previous->m_inputs, dims);
 
-    activateFunc (current->m_inputs, current->m_sums, current->m_activation, api);
+    activateFunc (current->m_inputs, current->m_sums, current->m_activation, api, dims[0]);
   }
 }
 
-template<typename LayerT, typename AllocNeuronsApi>
-void allocateNeurons (LayerT& ls, size_t neuronsCount, size_t biasCount)
+template<typename Layers, typename Api>
+void forwardPropagationFP (const Layers& layers, Api& api, FPHandler handler)
 {
-  logInfo ("Layer %p allocates %lu neurons (neurons : %lu, bias : %lu)", &ls, neuronsCount + biasCount, neuronsCount, biasCount);
-  ls.m_neuronsCount = neuronsCount;
-  ls.m_biasCount = biasCount;
+  debugAssertMsg (handler > 0, "handler has invalid value (0)");
 
-  const size_t unitsCount = ls.getTotalNeuronsCount ();
+  LayerS* previous = nullptr;
+  LayerS* current = layers[0];
+
+  for (uintt idx = 1; idx < layers.size(); ++idx)
+  {
+    previous = current;
+    current = layers[idx];
+
+    LayerS_FP* currentFP = current->getLayerS_FP(handler);
+    LayerS_FP* previousFP = previous->getLayerS_FP(handler);
+
+    uintt dims[3][2] =
+    {
+      {1, current->getNeuronsCount()},
+      {previous->getTotalNeuronsCount(), current->getNeuronsCount()},
+      {1, previous->getTotalNeuronsCount()}
+    };
+
+    uintt periodicRows = current->getTotalNeuronsCount(); 
+
+    api.dotProductDimPeriodic (currentFP->m_sums, previous->m_weights, previousFP->m_inputs, dims, periodicRows);
+
+    uintt dims1[2][2] =
+    {
+      {1, current->getNeuronsCount()},
+      {1, current->getTotalNeuronsCount()}
+    };
+
+    activateFunc (currentFP->m_inputs, currentFP->m_sums, current->m_activation, api, dims1);
+  }
+}
+
+template<typename LayerT, typename Api, typename CopyKernelMatrixToHostMatrix>
+void getErrors (math::Matrix* errorsOutput, LayerT& ls, Api& api, math::Matrix* expectedDeviceOutputs,
+                oap::ErrorType errorType, CopyKernelMatrixToHostMatrix&& copyKernelMatrixToHostMatrix)
+{
+  debugAssert (expectedDeviceOutputs != nullptr);
+
+  if (errorType == oap::ErrorType::CROSS_ENTROPY)
+  {
+    api.crossEntropy (ls.m_errorsAux, expectedDeviceOutputs, ls.m_inputs);
+  }
+  else
+  {
+    api.substract (ls.m_errorsAux, ls.m_inputs, expectedDeviceOutputs);
+  }
+
+  copyKernelMatrixToHostMatrix (errorsOutput, ls.m_errorsAux);
+}
+
+template<typename Layers, typename Api, typename CopyMatrixToMatrix>
+void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyMatrixToMatrix)
+{
+  auto calcErrors = [&layers, &api]()
+  {
+    int idx = layers.size () - 1;
+    LayerS* next = nullptr;
+    LayerS* current = layers[idx];
+
+    auto calculateCurrentErrors = [&current, &api] (LayerS* current)
+    {
+      uintt dims[2] = {1, current->getNeuronsCount()};
+      oap::generic::derivativeFunc (current->m_sums, current->m_sums, current->m_activation, api, dims);
+      api.hadamardProductVec (current->m_errors, current->m_errors, current->m_sums);
+    };
+
+    calculateCurrentErrors (current);
+
+    do
+    {
+      next = current;
+      --idx;
+      current = layers[idx];
+
+      api.transpose (current->m_tweights, current->m_weights);
+
+      uintt dims[3][2] =
+      {
+        {1, current->getTotalNeuronsCount()},
+        {next->getNeuronsCount(), current->getTotalNeuronsCount()},
+        {1, next->getNeuronsCount()}
+      };
+      api.dotProduct (current->m_errors, current->m_tweights, next->m_errors, dims);
+      calculateCurrentErrors (current);
+    }
+    while (idx > 1);
+  };
+
+  auto calcNablaWeights = [&layers, &api]()
+  {
+    LayerS* current = nullptr;
+    LayerS* next = layers[0];
+
+    for (uintt idx = 1; idx < layers.size(); ++idx)
+    {
+      current = next;
+      next = layers[idx];
+
+      api.transpose (current->m_tinputs, current->m_inputs);
+
+      {
+        uintt dims[3][2] =
+        {
+          {current->getTotalNeuronsCount(), next->getNeuronsCount()},
+          {current->getTotalNeuronsCount(), 1},
+          {1, next->getNeuronsCount()},
+        };
+        api.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors, dims);
+      }
+      api.add (current->m_weights2, current->m_weights2, current->m_weights1);
+    }
+  };
+
+  LayerS* current = layers.back ();
+
+  copyMatrixToMatrix (current->m_errors, current->m_errorsAux);
+
+  calcErrors ();
+
+  calcNablaWeights ();
+}
+
+template<typename Layers, typename Api, typename PostCallback>
+void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, floatt learningRate, uintt normalizationFactor)
+{
+  LayerS* current = nullptr;
+  LayerS* next = layers[0];
+
+  for (uintt idx = 1; idx < layers.size(); ++idx)
+  {
+    current = next;
+    next = layers[idx];
+
+    floatt lr = learningRate / static_cast<floatt>(normalizationFactor);
+    api.multiplyReConstant (current->m_weights2, current->m_weights2, lr);
+
+    api.substract (current->m_weights, current->m_weights, current->m_weights2);
+  }
+
+  postCallback ();
+}
+
+template<typename FPS_T, typename AllocNeuronsApi>
+void allocateFPSection (FPS_T& ls, uintt samplesCount = 1)
+{
+  const uintt unitsCount = ls.getTotalNeuronsCount ();
 
   AllocNeuronsApi alloc;
 
-  ls.m_inputs = alloc.newDeviceReMatrix (1, unitsCount);
+  ls.m_inputs = alloc.newDeviceReMatrix (1, unitsCount * samplesCount);
   ls.m_sums = alloc.newDeviceMatrixDeviceRef (ls.m_inputs);
   ls.m_errors = alloc.newDeviceMatrixDeviceRef (ls.m_inputs);
-  ls.m_errorsAcc = alloc.newDeviceMatrixDeviceRef (ls.m_inputs);
   ls.m_errorsAux = alloc.newDeviceMatrixDeviceRef (ls.m_inputs);
-  ls.m_errorsHost = alloc.newReMatrix (1, unitsCount);
+}
+
+template<typename LayerT, typename DeallocMatrixApi>
+void deallocateFPSection (LayerT& ls)
+{
+  DeallocMatrixApi dealloc;
+
+  auto del = [&dealloc](math::Matrix** matrix)
+  {
+    if (matrix != nullptr)
+    {
+      dealloc.deleteMatrix (*matrix);
+      matrix = nullptr;
+    }
+  };
+
+  del (&ls.m_inputs);
+  del (&ls.m_sums);
+  del (&ls.m_errors);
+  del (&ls.m_errorsAux);
+}
+
+template<typename LayerT, typename AllocNeuronsApi>
+void allocateNeurons (LayerT& ls, uintt neuronsCount, uintt biasCount)
+{
+  logInfo ("Layer %p allocates %u neurons (neurons : %u, bias : %u)", &ls, neuronsCount + biasCount, neuronsCount, biasCount);
+  ls.m_neuronsCount = neuronsCount;
+  ls.m_biasCount = biasCount;
+
+  const uintt unitsCount = ls.getTotalNeuronsCount ();
+
+  AllocNeuronsApi alloc;
+
+  allocateFPSection<LayerT, AllocNeuronsApi> (ls, 1);
+
   ls.m_tinputs = alloc.newDeviceReMatrix (unitsCount, 1); //todo: use transpose
 }
 
 template<typename LayerT, typename AllocWeightsApi>
 void allocateWeights (LayerT& ls, const LayerT* nextLayer)
 {
-  const size_t cUCount = ls.getTotalNeuronsCount ();
-  const size_t nUCount = nextLayer->getTotalNeuronsCount ();
+  const uintt cUCount = ls.getTotalNeuronsCount ();
+  const uintt nUCount = nextLayer->getNeuronsCount ();
 
   AllocWeightsApi alloc;
 
@@ -138,11 +425,6 @@ void allocateWeights (LayerT& ls, const LayerT* nextLayer)
   ls.m_weights1 = alloc.newDeviceMatrixDeviceRef (ls.m_weights);
   ls.m_weights2 = alloc.newDeviceMatrixDeviceRef (ls.m_weights);
   ls.m_weightsDim = std::make_pair (cUCount, nUCount);
-
-
-  oap::HostMatrixUPtr c = alloc.newReMatrix (cUCount, 1);
-  ls.m_vec = alloc.newDeviceReMatrix (cUCount, 1);
-  alloc.copyHostMatrixToDeviceMatrix (ls.m_vec, c.get());
 
   ls.m_nextLayer = nextLayer;
 }
@@ -161,25 +443,20 @@ void deallocate (LayerT& ls)
     }
   };
 
-  del (&ls.m_inputs);
+  deallocateFPSection<LayerT, DeallocMatrixApi> (ls);
+
   del (&ls.m_tinputs);
-  del (&ls.m_sums);
-  del (&ls.m_errors);
-  del (&ls.m_errorsAcc);
-  del (&ls.m_errorsAux);
   del (&ls.m_weights);
   del (&ls.m_tweights);
   del (&ls.m_weights1);
   del (&ls.m_weights2);
-  del (&ls.m_vec);
-  dealloc.deleteErrorsMatrix (ls.m_errorsHost);
 }
 
 template<typename LayerT, typename AllocNeuronsApi>
-LayerT* createLayer (size_t neurons, bool addBias, Activation activation)
+LayerT* createLayer (uintt neurons, bool hasBias, Activation activation)
 {
   LayerT* layer = new LayerT ();
-  size_t biasCount = addBias ? 1 : 0;
+  uintt biasCount = hasBias ? 1 : 0;
 
   oap::generic::allocateNeurons<LayerT, AllocNeuronsApi> (*layer, neurons, biasCount);
 
@@ -194,9 +471,14 @@ void connectLayers (LayerT* previous, LayerT* next)
   oap::generic::allocateWeights<LayerT, AllocWeightsApi> (*previous, next);
 }
 
-template<typename LayerT, typename CopyHostMatrixToMatrix>
-void setHostWeights (LayerT& ls, math::Matrix* weights, CopyHostMatrixToMatrix&& copyHostMatrixToMatrix)
+template<typename LayerT, typename CopyHostMatrixToMatrix, typename GetMatrixInfo>
+void setHostWeights (LayerT& ls, math::Matrix* weights, CopyHostMatrixToMatrix&& copyHostMatrixToMatrix, GetMatrixInfo&& getLayerMatrixInfo, GetMatrixInfo&& getArgMatrixInfo)
 {
+  auto linfo = getLayerMatrixInfo (ls.m_weights);
+  auto ainfo = getArgMatrixInfo (weights);
+
+  debugAssert (linfo.columns() == ainfo.columns() && linfo.rows() == ainfo.rows());
+
   copyHostMatrixToMatrix (ls.m_weights, weights);
 }
 

@@ -21,7 +21,7 @@
 
 #include "Dim3.h"
 
-#ifndef CUDA
+#ifndef OAP_CUDA_BUILD
 
 void ResetCudaCtx() {
  // blockIdx.clear();

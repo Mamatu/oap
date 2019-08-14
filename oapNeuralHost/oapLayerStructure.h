@@ -22,12 +22,12 @@
 
 #include <cstdlib>
 #include <utility>
+#include <vector>
 
 #include "Matrix.h"
 #include "NeuralTypes.h"
 
-#define PRINT_CUMATRIX(m) logInfo ("%s %p %s %s", #m, m, oap::cuda::to_string(m).c_str(), oap::cuda::GetMatrixInfo(m).toString().c_str());
-#define PRINT_MATRIX(m) logInfo ("%s %p %s %s", #m, m, oap::host::to_string(m).c_str(), oap::host::GetMatrixInfo(m).toString().c_str());
+using FPHandler = uintt;
 
 enum class Activation
 {
@@ -50,45 +50,114 @@ enum class CalculationType
   DEVICE
 };
 
-struct LayerS
+enum class ModeType
 {
-  LayerS ()
+  NORMAL,
+  PARALLEL_FORWARD_PROPAGATION
+};
+
+class ILayerS_FP
+{
+public:
+  ILayerS_FP (uintt samplesCount) : m_samplesCount(samplesCount)
   {}
 
-  virtual ~LayerS ()
+  virtual ~ILayerS_FP ()
   {}
 
-  size_t getTotalNeuronsCount () const
+  uintt getRowsCount () const
   {
-    return m_neuronsCount + m_biasCount;
+    return getTotalNeuronsCount() * m_samplesCount;
   }
 
-  size_t getNeuronsCount() const
+  uintt getTotalNeuronsCount () const
   {
-    return m_neuronsCount;
+    return getNeuronsCount() + getBiasCount();
   }
+
+  virtual uintt getNeuronsCount() const = 0;
+
+  virtual uintt getBiasCount() const = 0;
 
   math::Matrix* m_inputs = nullptr;
-  math::Matrix* m_tinputs = nullptr;
   math::Matrix* m_sums = nullptr;
   math::Matrix* m_errors = nullptr;
   math::Matrix* m_errorsAcc = nullptr;
   math::Matrix* m_errorsAux = nullptr;
   math::Matrix* m_errorsHost = nullptr;
+
+  uintt m_samplesCount = 0;
+};
+
+class LayerS_FP : public ILayerS_FP
+{
+public:
+  LayerS_FP (uintt& neuronsCount, uintt& biasCount, uintt _samplesCount):
+            ILayerS_FP (_samplesCount), m_neuronsCount(neuronsCount), m_biasCount(biasCount)
+  {}
+
+  virtual ~LayerS_FP ()
+  {}
+
+  virtual uintt getNeuronsCount() const override
+  {
+    return m_neuronsCount;
+  }
+
+  virtual uintt getBiasCount() const override
+  {
+    return m_biasCount;
+  }
+
+  uintt& m_neuronsCount;
+  uintt& m_biasCount;
+};
+
+class LayerS : public ILayerS_FP
+{
+public:
+  LayerS () : ILayerS_FP (1)
+  {}
+
+  virtual ~LayerS ()
+  {}
+
+  virtual uintt getNeuronsCount() const override
+  {
+    return m_neuronsCount;
+  }
+
+  virtual uintt getBiasCount() const override
+  {
+    return m_biasCount;
+  }
+
+  math::Matrix* m_tinputs = nullptr;
   math::Matrix* m_weights = nullptr;
   math::Matrix* m_tweights = nullptr;
   math::Matrix* m_weights1 = nullptr;
   math::Matrix* m_weights2 = nullptr;
-  math::Matrix* m_vec = nullptr;
 
-  size_t m_neuronsCount = 0;
-  size_t m_biasCount = 0;
+  uintt m_neuronsCount = 0;
+  uintt m_biasCount = 0;
 
-  std::pair<size_t, size_t> m_weightsDim;
+  std::vector<LayerS_FP*> fpVec;
+
+  std::pair<uintt, uintt> m_weightsDim;
 
   const LayerS* m_nextLayer = nullptr;
 
   Activation m_activation;
+
+  LayerS_FP* getLayerS_FP (FPHandler handle) const
+  {
+    if (handle == 0)
+    {
+      return nullptr;
+    }
+
+    return fpVec[handle - 1];
+  }
 };
 
 #endif

@@ -34,7 +34,7 @@ namespace generic
 
 namespace
 {
-inline void checkHostInputs(LayerS& ls, const math::Matrix* hostInputs)
+inline void checkHostInputs (ILayerS_FP& ls, const math::Matrix* hostInputs)
 {
   if (hostInputs->columns != 1)
   {
@@ -46,18 +46,23 @@ inline void checkHostInputs(LayerS& ls, const math::Matrix* hostInputs)
     throw std::runtime_error ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)");
   }
 }
+
+inline void _setReValue (math::Matrix* matrix, floatt v, uintt c, uintt r)
+{
+  oap::cuda::SetReValue(matrix, v, c, r);
+}
 }
 
-inline void setHostInputs(LayerS& ls, const math::Matrix* hInputs)
+inline void setHostInputs (ILayerS_FP& ls, const math::Matrix* hInputs)
 {
   checkHostInputs (ls, hInputs);
 
-  oap::cuda::CopyHostMatrixToDeviceMatrix (ls.m_inputs, hInputs);
+  oap::generic::setInputs (ls, hInputs, oap::cuda::CopyHostMatrixToDeviceMatrix, _setReValue);
 }
 
-inline void setDeviceInputs(LayerS& ls, const math::Matrix* dInputs)
+inline void setDeviceInputs (ILayerS_FP& ls, const math::Matrix* dInputs)
 {
-  oap::cuda::CopyDeviceMatrixToDeviceMatrix (ls.m_inputs, dInputs);
+  oap::generic::setInputs (ls, dInputs, oap::cuda::CopyDeviceMatrixToDeviceMatrix, _setReValue);
 }
 
 inline math::MatrixInfo getOutputsInfo (const LayerS& ls)
@@ -72,19 +77,20 @@ inline math::MatrixInfo getInputsInfo (LayerS& ls)
 
 inline void getOutputs (const LayerS& ls, math::Matrix* matrix, ArgType type)
 {
-  if (type == ArgType::HOST)
+  switch (type)
   {
-    oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToHostMatrix);
-  }
-  else
-  {
-    oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
+    case ArgType::HOST:
+      oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToHostMatrix);
+      break;
+    default:
+      oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
+      break;
   }
 }
 
 inline void setHostWeights (LayerS& ls, math::Matrix* weights)
 {
-  oap::generic::setHostWeights (ls, weights, oap::cuda::CopyHostMatrixToDeviceMatrix);
+  oap::generic::setHostWeights (ls, weights, oap::cuda::CopyHostMatrixToDeviceMatrix, oap::cuda::GetMatrixInfo, oap::host::GetMatrixInfo);
 }
 
 inline void setDeviceWeights (LayerS& ls, math::Matrix* weights)
@@ -118,9 +124,9 @@ inline void printHostWeights (const LayerS& ls, bool newLine)
   logInfo ("%s %s", sstream.str().c_str(), matrixStr.c_str());
 }
 
-using RandCallback = std::function<floatt(size_t c, size_t r, floatt value)>;
+using RandCallback = std::function<floatt(uintt c, uintt r, floatt value)>;
 
-inline std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix (LayerS& ls, size_t columns, size_t rows, RandCallback&& randCallback)
+inline std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix (LayerS& ls, uintt columns, uintt rows, RandCallback&& randCallback)
 {
   std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> randomMatrix(oap::host::NewReMatrix(columns, rows),
                   [](const math::Matrix* m){oap::host::DeleteMatrix(m);});
@@ -129,9 +135,9 @@ inline std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> c
   std::default_random_engine dre (rd());
   std::uniform_real_distribution<> dis(-0.5, 0.5);
 
-  for (size_t c = 0; c < columns; ++c)
+  for (uintt c = 0; c < columns; ++c)
   {
-    for (size_t r = 0; r < rows; ++r)
+    for (uintt r = 0; r < rows; ++r)
     {
       SetRe (randomMatrix.get(), c, r, randCallback(c, r, dis(dre)));
     }
@@ -147,7 +153,7 @@ inline void initRandomWeights (LayerS& ls, const LayerS* nextLayer)
     throw std::runtime_error("m_weights == nullptr");
   }
 
-  auto randomMatrix = createRandomMatrix (ls, ls.m_weightsDim.first, ls. m_weightsDim.second, [&ls, &nextLayer](size_t c, size_t r, floatt v)
+  auto randomMatrix = createRandomMatrix (ls, ls.m_weightsDim.first, ls. m_weightsDim.second, [&ls, &nextLayer](uintt c, uintt r, floatt v)
   {
     if (nextLayer->m_biasCount == 1 && ls.m_weightsDim.second - 1 == r)
     {

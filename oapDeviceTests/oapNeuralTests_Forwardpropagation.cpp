@@ -68,25 +68,22 @@ class OapNeuralTests_Forwardpropagation : public testing::Test
 
 TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 {
-  Layer* l1 = network->createLayer(3, false, Activation::TANH);
+  Layer* l1 = network->createLayer(2, true, Activation::TANH);
   Layer* l2 = network->createLayer(3, true, Activation::TANH);
   Layer* l3 = network->createLayer(1, Activation::TANH);
 
-  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = -1;
   weights1to2->reValues[3] = 0.53;
   weights1to2->reValues[6] = 0.33;
-  weights1to2->reValues[9] = 0;
 
   weights1to2->reValues[1] = -0.1;
   weights1to2->reValues[4] = -0.81;
   weights1to2->reValues[7] = 0.92;
-  weights1to2->reValues[10] = 0;
 
   weights1to2->reValues[2] = 2.2;
   weights1to2->reValues[5] = 1.8;
   weights1to2->reValues[8] = 1.8;
-  weights1to2->reValues[11] = 0;
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
   weights2to3->reValues[0] = 4.7;
@@ -105,7 +102,6 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
   {
     hinputs->reValues[0] = x;
     hinputs->reValues[1] = y;
-    hinputs->reValues[2] = 1;
 
     network->setInputs (hinputs, ArgType::HOST);
 
@@ -143,25 +139,22 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 
 TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parallel)
 {
-  Layer* l1 = network->createLayer(3, false, Activation::TANH);
+  Layer* l1 = network->createLayer(2, true, Activation::TANH);
   Layer* l2 = network->createLayer(3, true, Activation::TANH);
   Layer* l3 = network->createLayer(1, Activation::TANH);
 
-  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 4);
+  oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = -1;
   weights1to2->reValues[3] = 0.53;
   weights1to2->reValues[6] = 0.33;
-  weights1to2->reValues[9] = 0;
 
   weights1to2->reValues[1] = -0.1;
   weights1to2->reValues[4] = -0.81;
   weights1to2->reValues[7] = 0.92;
-  weights1to2->reValues[10] = 0;
 
   weights1to2->reValues[2] = 2.2;
   weights1to2->reValues[5] = 1.8;
   weights1to2->reValues[8] = 1.8;
-  weights1to2->reValues[11] = 0;
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
   weights2to3->reValues[0] = 4.7;

@@ -34,12 +34,93 @@ T* getParam (void** params, size_t index)
   return getParam<T> (params[index]);
 }
 
+#define DEFINE_1M(arg_hostKernel, arg_cudaKernel)                 \
+void arg_hostKernel (math::Matrix* output)                        \
+{                                                                 \
+  arg_cudaKernel (output);                                        \
+}                                                                 \
+                                                                  \
+void proxy_##arg_hostKernel (void** params)                       \
+{                                                                 \
+  math::Matrix* output = getParam<math::Matrix> (params[0]);      \
+  arg_hostKernel (output);                                        \
+}
+
+#define DEFINE_1M_EX(arg_hostKernel, arg_cudaKernel)                          \
+void arg_hostKernel (math::Matrix* output, uintt* ex)                         \
+{                                                                             \
+  arg_cudaKernel (output, ex);                                                \
+}                                                                             \
+                                                                              \
+void proxy_##arg_hostKernel (void** params)                                   \
+{                                                                             \
+  math::Matrix* output = getParam<math::Matrix> (params[0]);                  \
+  uintt* ex = getParam<uintt> (params[1]);                                    \
+  arg_hostKernel (output, ex);                                                \
+}
+
+#define DEFINE_2M(arg_hostKernel, arg_cudaKernel)                 \
+void arg_hostKernel (math::Matrix* output, math::Matrix* param1)  \
+{                                                                 \
+  arg_cudaKernel (output, param1);                                \
+}                                                                 \
+                                                                  \
+void proxy_##arg_hostKernel (void** params)                       \
+{                                                                 \
+  math::Matrix* output = getParam<math::Matrix> (params[0]);      \
+  math::Matrix* matrix = getParam<math::Matrix> (params[1]);      \
+  arg_hostKernel (output, matrix);                                \
+}
+
+#define DEFINE_2M_EX(arg_hostKernel, arg_cudaKernel)                          \
+void arg_hostKernel (math::Matrix* output, math::Matrix* param1, uintt* ex)   \
+{                                                                             \
+  arg_cudaKernel (output, param1, ex);                                        \
+}                                                                             \
+                                                                              \
+void proxy_##arg_hostKernel (void** params)                                   \
+{                                                                             \
+  math::Matrix* output = getParam<math::Matrix> (params[0]);                  \
+  math::Matrix* matrix = getParam<math::Matrix> (params[1]);                  \
+  uintt* ex = getParam<uintt> (params[2]);                                    \
+  arg_hostKernel (output, matrix, ex);                                        \
+}
+
+#define DEFINE_3M(arg_hostKernel, arg_cudaKernel)                                       \
+void arg_hostKernel (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)  \
+{                                                                                       \
+  arg_cudaKernel (output, param1, param2);                                              \
+}                                                                                       \
+                                                                                        \
+void proxy_##arg_hostKernel (void** params)                                             \
+{                                                                                       \
+  math::Matrix* output = getParam<math::Matrix> (params[0]);                            \
+  math::Matrix* matrix = getParam<math::Matrix> (params[1]);                            \
+  math::Matrix* matrix1 = getParam<math::Matrix> (params[2]);                           \
+  arg_hostKernel (output, matrix, matrix1);                                             \
+}
+
+#define DEFINE_3M_EX(arg_hostKernel, arg_cudaKernel)                                                \
+void arg_hostKernel (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, uintt* ex)   \
+{                                                                                                   \
+  arg_cudaKernel (output, param1, param2, ex);                                                      \
+}                                                                                                   \
+                                                                                                    \
+void proxy_##arg_hostKernel (void** params)                                                         \
+{                                                                                                   \
+  math::Matrix* output = getParam<math::Matrix> (params[0]);                                        \
+  math::Matrix* matrix = getParam<math::Matrix> (params[1]);                                        \
+  math::Matrix* matrix1 = getParam<math::Matrix> (params[2]);                                       \
+  uintt* ex = getParam<uintt> (params[3]);                                                          \
+  arg_hostKernel (output, matrix, matrix1, ex);                                                     \
+}
+
 void HOSTKernel_SumShared (floatt* rebuffer, floatt* imbuffer, math::Matrix* matrix)
 {
   CUDA_sumShared (rebuffer, imbuffer, matrix);
 }
 
-void HOSTKernel_SumSharedRaw (void** params)
+void proxy_HOSTKernel_SumShared (void** params)
 {
   floatt* param1 = getParam<floatt> (params[0]);
   floatt* param2 = getParam<floatt> (params[1]);
@@ -47,83 +128,25 @@ void HOSTKernel_SumSharedRaw (void** params)
   HOSTKernel_SumShared (param1, param2, param3);
 }
 
-void HOSTKernel_CrossEntropy (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
-{
-  CUDA_crossEntropy (output, param1, param2);
-}
+DEFINE_3M(HOSTKernel_CrossEntropy, CUDA_crossEntropy)
+DEFINE_3M(HOSTKernel_DotProduct, CUDA_dotProduct)
 
-void HOSTKernel_Tanh (math::Matrix* output, math::Matrix* param1)
-{
-  CUDA_tanh (output, param1);
-}
+DEFINE_2M(HOSTKernel_Tanh, CUDA_tanh)
+DEFINE_2M(HOSTKernel_Sigmoid, CUDA_sigmoid)
+DEFINE_2M(HOSTKernel_Sin, CUDA_sin)
 
-void HOSTKernel_TanhRaw (void** params)
-{
-  math::Matrix* output = getParam<math::Matrix> (params[0]);
-  math::Matrix* matrix = getParam<math::Matrix> (params[1]);
-  HOSTKernel_Tanh (output, matrix);
-}
+DEFINE_2M_EX(HOSTKernel_TanhDim, CUDA_tanhDim)
+DEFINE_2M_EX(HOSTKernel_SigmoidDim, CUDA_sigmoidDim)
+DEFINE_2M_EX(HOSTKernel_SinDim, CUDA_sinDim)
 
-void HOSTKernel_Sigmoid (math::Matrix* output, math::Matrix* param1)
-{
-  CUDA_sigmoid (output, param1);
-}
+DEFINE_2M_EX(HOSTKernel_TanhDimPeriodic, CUDA_tanhDimPeriodic)
+DEFINE_2M_EX(HOSTKernel_SigmoidDimPeriodic, CUDA_sigmoidDimPeriodic)
+DEFINE_2M_EX(HOSTKernel_SinDimPeriodic, CUDA_sinDimPeriodic)
 
-void HOSTKernel_SigmoidRaw (void** params)
-{
-  math::Matrix* output = getParam<math::Matrix> (params[0]);
-  math::Matrix* matrix = getParam<math::Matrix> (params[1]);
-  HOSTKernel_Sigmoid (output, matrix);
-}
+DEFINE_3M_EX(HOSTKernel_DotProductDim, CUDA_dotProductDim)
+DEFINE_3M(HOSTKernel_DotProductPeriodic, CUDA_dotProductPeriodic)
+DEFINE_3M_EX(HOSTKernel_DotProductDimPeriodic, CUDA_dotProductDimPeriodic)
 
-void HOSTKernel_CrossEntropyRaw (void** params)
-{
-  math::Matrix* output = getParam<math::Matrix> (params[0]);
-  math::Matrix* param1 = getParam<math::Matrix> (params[1]);
-  math::Matrix* param2 = getParam<math::Matrix> (params[2]);
-
-  HOSTKernel_CrossEntropy (output, param1, param2);
-}
-
-void HOSTKernel_DotProduct (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
-{
-  CUDA_dotProduct (output, param1, param2);
-}
-
-void HOSTKernel_DotProductRaw (void** params)
-{
-  math::Matrix* output = getParam<math::Matrix> (params[0]);
-  math::Matrix* matrix1 = getParam<math::Matrix> (params[1]);
-  math::Matrix* matrix2 = getParam<math::Matrix> (params[2]);
-  HOSTKernel_DotProduct (output, matrix1, matrix2);
-}
-
-void HOSTKernel_DotProductDim (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, uintt* ex)
-{
-  CUDA_dotProductDim (output, param1, param2, ex);
-}
-
-void HOSTKernel_DotProductDimRaw (void** params)
-{
-  math::Matrix* output = getParam<math::Matrix> (params[0]);
-  math::Matrix* matrix1 = getParam<math::Matrix> (params[1]);
-  math::Matrix* matrix2 = getParam<math::Matrix> (params[2]);
-  uintt* ex = getParam<uintt> (params[3]);
-  HOSTKernel_DotProductDim (output, matrix1, matrix2, ex);
-}
-
-void HOSTKernel_TensorProductDim (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, uintt* ex)
-{
-  CUDA_tensorProductDim (output, param1, param2, ex);
-}
-
-void HOSTKernel_TensorProductDimRaw (void** params)
-{
-  math::Matrix* output = getParam<math::Matrix> (params[0]);
-  math::Matrix* matrix1 = getParam<math::Matrix> (params[1]);
-  math::Matrix* matrix2 = getParam<math::Matrix> (params[2]);
-  uintt* ex = getParam<uintt> (params[3]);
-  HOSTKernel_TensorProductDim (output, matrix1, matrix2, ex);
-}
+DEFINE_3M_EX(HOSTKernel_TensorProductDim, CUDA_tensorProductDim)
 
 #endif

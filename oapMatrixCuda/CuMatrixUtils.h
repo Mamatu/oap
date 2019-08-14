@@ -28,7 +28,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-#ifdef CUDA
+#ifdef OAP_CUDA_BUILD
 
 extern "C" __device__ void CUDA_PrintMatrix(math::Matrix* m) {
     for (uintt fb = 0; fb < m->rows; ++fb) {

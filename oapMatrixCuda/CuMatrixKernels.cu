@@ -37,6 +37,18 @@ extern "C" __global__ void CUDAKernel_DotProduct(math::Matrix* output,
   CUDA_dotProduct(output, params0, params1);
 }
 
+extern "C" __global__ void
+CUDAKernel_DotProductPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  CUDA_dotProductPeriodic (output, params0, params1);
+}
+
+extern "C" __global__ void
+CUDAKernel_DotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+{
+  CUDA_dotProductDimPeriodic (output, params0, params1, ex);
+}
+
 extern "C" __global__ void CUDAKernel_DotProductReExp(math::Matrix* output,
                                                       math::Matrix* params0,
                                                       math::Matrix* params1,
@@ -315,32 +327,96 @@ extern "C" __global__ void CUDAKernel_Sigmoid(math::Matrix* omatrix, math::Matri
   CUDA_sigmoid (omatrix, imatrix);
 }
 
-extern "C" __global__ void CUDAKernel_SigmoidDerivative (math::Matrix* matrix) {
-  CUDA_sigmoidDerivative (matrix, matrix);
+extern "C" __global__ void CUDAKernel_DSigmoid (math::Matrix* matrix) {
+  CUDA_dsigmoid (matrix, matrix);
 }
 
-extern "C" __global__ void CUDAKernel_MultiplySigmoidDerivative (math::Matrix* omatrix, math::Matrix* matrix) {
-  CUDA_multiplySigmoidDerivative (omatrix, matrix);
+extern "C" __global__ void CUDAKernel_MultiplyDSigmoid (math::Matrix* omatrix, math::Matrix* matrix) {
+  CUDA_multiplyDSigmoid (omatrix, matrix);
+}
+
+extern "C" __global__ void CUDAKernel_SigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_sigmoidDim (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DSigmoidDim (math::Matrix* matrix, uintt* ex) {
+  CUDA_dsigmoidDim (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_MultiplyDSigmoidDim (math::Matrix* omatrix, math::Matrix* matrix, uintt* ex) {
+  CUDA_multiplyDSigmoidDim (omatrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_SigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_sigmoidDimPeriodic (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DSigmoidDimPeriodic (math::Matrix* matrix, uintt* ex) {
+  CUDA_dsigmoidDimPeriodic (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_MultiplyDSigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* matrix, uintt* ex) {
+  CUDA_multiplyDSigmoidDimPeriodic (omatrix, matrix, ex);
 }
 
 extern "C" __global__ void CUDAKernel_Tanh(math::Matrix* omatrix, math::Matrix* imatrix) {
   CUDA_tanh (omatrix, imatrix);
 }
 
-extern "C" __global__ void CUDAKernel_TanhDerivative (math::Matrix* matrix) {
-  CUDA_tanhDerivative (matrix, matrix);
+extern "C" __global__ void CUDAKernel_DTanh (math::Matrix* matrix) {
+  CUDA_dtanh (matrix, matrix);
+}
+
+extern "C" __global__ void CUDAKernel_TanhDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_tanhDim (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DTanhDim (math::Matrix* matrix, uintt* ex) {
+  CUDA_dtanhDim (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_TanhDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_tanhDimPeriodic (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DTanhDimPeriodic (math::Matrix* matrix, uintt* ex) {
+  CUDA_dtanhDimPeriodic (matrix, matrix, ex);
 }
 
 extern "C" __global__ void CUDAKernel_Sin(math::Matrix* omatrix, math::Matrix* imatrix) {
   CUDA_sin (omatrix, imatrix);
 }
 
-extern "C" __global__ void CUDAKernel_MultiplySinDerivative (math::Matrix* matrix) {
-  CUDA_multiplySinDerivative (matrix, matrix);
+extern "C" __global__ void CUDAKernel_MultiplyDSin (math::Matrix* matrix) {
+  CUDA_multiplyDSin (matrix, matrix);
 }
 
-extern "C" __global__ void CUDAKernel_SinDerivative (math::Matrix* matrix) {
-  CUDA_sinDerivative (matrix, matrix);
+extern "C" __global__ void CUDAKernel_DSin (math::Matrix* matrix) {
+  CUDA_dsin (matrix, matrix);
+}
+
+extern "C" __global__ void CUDAKernel_SinDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_sinDim (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_MultiplyDSinDim (math::Matrix* matrix, uintt* ex) {
+  CUDA_multiplyDSinDim (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DSinDim (math::Matrix* matrix, uintt* ex) {
+  CUDA_dsinDim (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_SinDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_sinDimPeriodic (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_MultiplyDSinDimPeriodic (math::Matrix* matrix, uintt* ex) {
+  CUDA_multiplyDSinDimPeriodic (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DSinDimPeriodic (math::Matrix* matrix, uintt* ex) {
+  CUDA_dsinDimPeriodic (matrix, matrix, ex);
 }
 
 extern "C" __global__ void CUDAKernel_CrossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
