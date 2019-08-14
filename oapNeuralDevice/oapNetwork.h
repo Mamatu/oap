@@ -55,17 +55,20 @@ public:
 
   oap::HostMatrixUPtr run (math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
 
-  void setInputs (math::Matrix* inputs, ArgType argType);
-  void setExpected (math::Matrix* expected, ArgType argType);
+  void setInputs (math::Matrix* inputs, ArgType argType, FPHandler handler = 0);
+  void setExpected (math::Matrix* expected, ArgType argType, FPHandler handler = 0);
 
-  math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType) const;
+  FPHandler createFPSection (uintt samples);
+  void destroyFPSection (FPHandler handle);
+
+  math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType, FPHandler handler = 0) const;
   math::Matrix* getHostOutputs () const;
 
   math::MatrixInfo getOutputInfo () const;
   math::MatrixInfo getInputInfo () const;
 
-  void forwardPropagation ();
-  void accumulateErrors (oap::ErrorType errorType, CalculationType calcType);
+  void forwardPropagation (FPHandler handler = 0);
+  void accumulateErrors (oap::ErrorType errorType, CalculationType calcType, FPHandler handler = 0);
 
   math::Matrix* getErrors (ArgType type) const;
 
@@ -130,13 +133,21 @@ public:
     }
   }
 
+  LayerS_FP* getLayerS_FP (FPHandler handler, size_t idx) const
+  {
+    return m_layers[idx]->getLayerS_FP (handler);
+  }
+
 protected:
   void setHostInputs (math::Matrix* inputs, uintt layerIndex);
 
 private:
   std::vector<Layer*> m_layers;
 
+  void destroyNetwork();
   void destroyLayers();
+  void destroyFPSections();
+  void destroyFPSection (LayerS_FP*);
 
   inline void calculateError();
 
@@ -144,7 +155,7 @@ private:
 
   oap::CuProceduresApi m_cuApi;
 
-  oap::DeviceMatrixPtr m_expectedDeviceOutputs = nullptr;
+  std::map<FPHandler, oap::DeviceMatrixPtr> m_expectedDeviceOutputs;
   IController* m_icontroller = nullptr;
 
   std::ostream& log()
