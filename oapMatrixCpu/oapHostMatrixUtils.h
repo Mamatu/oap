@@ -128,6 +128,13 @@ inline void CopyHostMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* s
   CopyMatrix (dst, src);
 }
 
+void CopyMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
+
+inline void CopyHostMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  CopyMatrixDims (dst, src, dims);
+}
+
 inline uintt GetColumns (const math::Matrix* matrix)
 {
   return matrix->columns;
@@ -691,6 +698,140 @@ void SetReValuesToMatrix (math::Matrix* matrix, const std::vector<Tuple>& vecl)
   }
 
   SetReValuesToMatrix (matrix, vec.data(), vec.size());
+}
+
+inline void initDims (uintt dims[2][2][2], const math::MatrixInfo& dist, const math::MatrixInfo& src)
+{
+  dims[0][0][0] = 0;
+  dims[0][0][1] = dist.columns();
+
+  dims[0][1][0] = 0;
+  dims[0][1][1] = dist.rows();
+
+  dims[1][0][0] = 0;
+  dims[1][0][1] = src.columns();
+
+  dims[1][1][0] = 0;
+  dims[1][1][1] = src.rows();
+}
+
+inline void initDims (uintt dims[2][2][2], const math::MatrixInfo& minfo)
+{
+  initDims (dims, minfo, minfo);
+}
+
+inline void initDims (uintt dims[2][2][2], const math::Matrix* matrix)
+{
+  initDims (dims, oap::host::GetMatrixInfo (matrix));
+}
+
+inline uintt getColumnIdx (uintt dims[2][2])
+{
+  return dims[0][0];
+}
+
+inline uintt getRowIdx (uintt dims[2][2])
+{
+  return dims[1][0];
+}
+
+inline uintt getColumns (uintt dims[2][2])
+{
+  return dims[0][1];
+}
+
+inline uintt getRows (uintt dims[2][2])
+{
+  return dims[1][1];
+}
+
+template<typename MatrixApi>
+math::MatrixInfo check_CopyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, MatrixApi& dstApi, MatrixApi& srcApi)
+{
+  auto dstInfo = dstApi.getMatrixInfo (dst);
+  auto srcInfo = srcApi.getMatrixInfo (src);
+
+  debugAssert (dstInfo.columns() == srcInfo.columns());
+  debugAssert (dstInfo.rows() == srcInfo.rows());
+  debugAssert (dstInfo.isRe == srcInfo.isRe);
+  debugAssert (dstInfo.isIm == srcInfo.isIm);
+
+  return dstInfo;
+}
+
+template<typename MatrixApi>
+math::MatrixInfo check_CopyMatrixToMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2], MatrixApi& dstApi, MatrixApi& srcApi)
+{
+  auto dstInfo = dstApi.getMatrixInfo (dst);
+  auto srcInfo = srcApi.getMatrixInfo (src);
+
+  debugAssert (getRows (dims[0]) == getRows (dims[1]));
+  debugAssert (getColumns (dims[0]) == getColumns (dims[1]));
+  debugAssert (dstInfo.isRe == srcInfo.isRe);
+  debugAssert (dstInfo.isIm == srcInfo.isIm);
+
+  return dstInfo;
+}
+
+template<typename CopyBuffer, typename MatrixApi>
+void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, CopyBuffer&& copyBuffer, MatrixApi& dstApi, MatrixApi& srcApi)
+{
+  auto minfo = check_CopyMatrixToMatrix (dst, src, dstApi, srcApi);
+
+  uintt length = minfo.rows() * minfo.columns();
+
+  if (minfo.isRe)
+  {
+    floatt* reValues = dstApi.getValue (&dst->reValues);
+    floatt* reValues1 = srcApi.getValue (&src->reValues);
+
+    copyBuffer (reValues, reValues1, sizeof(floatt) * length);
+  }
+
+  if (minfo.isIm)
+  {
+    floatt* imValues = dstApi.getValue (&dst->imValues);
+    floatt* imValues1 = srcApi.getValue (&src->imValues);
+
+    copyBuffer (imValues, imValues1, sizeof(floatt) * length);
+  }
+}
+
+template<typename CopyBuffer, typename MatrixApi>
+void copyMatrixToMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2], CopyBuffer&& copyBuffer, MatrixApi& dstApi, MatrixApi& srcApi)
+{
+  auto minfo = check_CopyMatrixToMatrixDims (dst, src, dims, dstApi, srcApi);
+
+  uintt length = getColumns (dims[0]);
+
+  uintt dstOffset = getColumnIdx (dims[0]) + dst->columns * getRowIdx (dims[0]);
+  uintt srcOffset = getColumnIdx (dims[1]) + dst->columns * getRowIdx (dims[1]);
+
+  if (minfo.isRe)
+  {
+    floatt* reValues = dstApi.getValue (&dst->reValues);
+    floatt* reValues1 = srcApi.getValue (&src->reValues);
+
+    for (uintt row = 0; row < getRows (dims[0]); ++row)
+    {
+      floatt* reV = reValues + dstOffset + dst->columns * row;
+      floatt* reV1 = reValues + srcOffset + src->columns * row;
+      copyBuffer (reV, reV1, sizeof(floatt) * length);
+    }
+  }
+
+  if (minfo.isIm)
+  {
+    floatt* imValues = dstApi.getValue (&dst->imValues);
+    floatt* imValues1 = srcApi.getValue (&src->imValues);
+
+    for (uintt row = 0; row < getRows (dims[0]); ++row)
+    {
+      floatt* imV = imValues + dstOffset + dst->columns * row;
+      floatt* imV1 = imValues + srcOffset + src->columns * row;
+      copyBuffer (imV, imV1, sizeof(floatt) * length);
+    }
+  }
 }
 
 }
