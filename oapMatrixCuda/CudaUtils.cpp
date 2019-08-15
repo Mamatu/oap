@@ -41,6 +41,15 @@ void FreeDeviceMem(CUdeviceptr ptr) {
   }
 }
 
+floatt* GetValue (floatt* const* src)
+{
+  floatt* dst = nullptr;
+
+  cuMemcpyDtoH (&dst, reinterpret_cast<CUdeviceptr>(src), sizeof(floatt*));
+
+  return dst;
+}
+
 CUdeviceptr GetReValuesAddress(const math::Matrix* matrix) {
   return reinterpret_cast<CUdeviceptr>(&matrix->reValues);
 }
