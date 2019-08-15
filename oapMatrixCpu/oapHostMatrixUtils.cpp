@@ -35,6 +35,8 @@
 #include "MatrixPrinter.h"
 #include "ReferencesCounter.h"
 
+#include "GenericCoreApi.h"
+
 #include "MatricesList.h"
 
 #define ReIsNotNULL(m) m->reValues != nullptr
@@ -421,26 +423,24 @@ void Copy(math::Matrix* dst, const math::Matrix* src, uintt column, uintt row)
   }
 }
 
-void CopyMatrix(math::Matrix* dst, const math::Matrix* src)
+namespace
 {
-  const uintt length1 = dst->columns * dst->rows;
-  const uintt length2 = src->columns * src->rows;
-  if (length1 == length2)
+  floatt* getPtr(floatt* const* ptrPtr)
   {
-    if (ReIsNotNULL(dst) && ReIsNotNULL(src))
-    {
-      CopyBuffer(dst->reValues, src->reValues, length1);
-    }
-    if (ImIsNotNULL(dst) && ImIsNotNULL(src))
-    {
-      CopyBuffer(dst->imValues, src->imValues, length1);
-    }
+    return *ptrPtr;
   }
-  else if (length1 < length2 && dst->columns <= src->columns &&
-           dst->rows <= src->rows)
-  {
-    CopySubMatrix(dst, src, 0, 0);
-  }
+}
+
+void CopyMatrix (math::Matrix* dst, const math::Matrix* src)
+{
+  oap::generic::MatrixApi<decltype(oap::host::GetMatrixInfo), decltype(getPtr)> matrixApi (oap::host::GetMatrixInfo, getPtr);
+  copyMatrixToMatrix (dst, src, memcpy, matrixApi, matrixApi);
+}
+
+void CopyMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  oap::generic::MatrixApi<decltype(oap::host::GetMatrixInfo), decltype(getPtr)> matrixApi (oap::host::GetMatrixInfo, getPtr);
+  copyMatrixToMatrixDims (dst, src, dims, memcpy, matrixApi, matrixApi);
 }
 
 void CopyRe(math::Matrix* dst, const math::Matrix* src)

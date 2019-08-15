@@ -57,7 +57,10 @@ TEST_F(OapHostMatrixUtilsTests, SubCopy) {
   math::Matrix* m1 = oap::host::NewReMatrix(15, 15, 1);
   math::Matrix* m2 = oap::host::NewReMatrix(5, 6, 0);
 
-  oap::host::CopyMatrix(m2, m1);
+  uintt dims[2][2][2];
+  oap::host::initDims (dims, m2);
+
+  oap::host::CopyHostMatrixToHostMatrixDims (m2, m1, dims);
 
   EXPECT_THAT(m2, MatrixHasValues(1));
 
