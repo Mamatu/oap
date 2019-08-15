@@ -28,6 +28,7 @@
 #include "oapCudaMatrixUtils.h"
 
 #include "oapHostMatrixUPtr.h"
+#include "GenericCoreApi.h"
 
 #include "MatricesList.h"
 
@@ -197,35 +198,51 @@ bool IsCudaMatrix(const math::Matrix* devMatrix)
 	return gMatricesList.contains (devMatrix);
 }
 
-void copyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src, uintt columns, uintt rows)
+void copyDeviceMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src, bool check = true)
 {
-  uintt length = columns * rows;
-
-  floatt* srcRePtr = CudaUtils::GetReValues(src);
-  floatt* srcImPtr = CudaUtils::GetImValues(src);
-
-  if (srcRePtr != nullptr && dst->reValues != nullptr)
-  {
-    CudaUtils::CopyDeviceToHost (dst->reValues, srcRePtr, length * sizeof(floatt));
-  }
-  if (srcImPtr != nullptr && dst->imValues != nullptr)
-  {
-    CudaUtils::CopyDeviceToHost (dst->imValues, srcImPtr, length * sizeof(floatt));
-  }
+  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixApi dstApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  MatrixApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  oap::generic::copyMatrixToMatrix (dst, src, CudaUtils::CopyDeviceToHost, dstApi, srcApi, check);
 }
 
-void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src)
+void copyHostMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src, bool check = true)
 {
-  uintt hcolumns = dst->columns;
-  uintt hrows = dst->rows;
+  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  MatrixApi srcApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  oap::generic::copyMatrixToMatrix (dst, src, CudaUtils::CopyHostToDevice, dstApi, srcApi, check);
+}
 
-  uintt dcolumns = CudaUtils::GetColumns (src);
-  uintt drows = CudaUtils::GetRows (src);
+void copyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src, bool check = true)
+{
+  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  MatrixApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  oap::generic::copyMatrixToMatrix (dst, src, CudaUtils::CopyDeviceToDevice, dstApi, srcApi, check);
+}
 
-  debugAssertMsg (hcolumns == dcolumns, "hcolumns %u dcolumns %u", hcolumns, dcolumns);
-  debugAssertMsg (hrows == drows, "hrows %u drows %u", hrows, drows);
+void copyHostMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  MatrixApi srcApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  oap::generic::copyMatrixToMatrixDims (dst, src, dims, CudaUtils::CopyHostToDevice, dstApi, srcApi);
+}
 
-  copyDeviceMatrixToHostMatrix (dst, src, hcolumns, hrows);
+void CopyDeviceMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
+{
+  copyDeviceMatrixToHostMatrix (dst, src);
+}
+
+void CopyHostMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src)
+{
+  copyHostMatrixToDeviceMatrix (dst, src);
+}
+
+void CopyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src)
+{
+  copyDeviceMatrixToDeviceMatrix (dst, src);
 }
 
 void CopyDeviceToHost(math::Matrix* dst, const math::Matrix* src)
@@ -233,43 +250,12 @@ void CopyDeviceToHost(math::Matrix* dst, const math::Matrix* src)
   uintt hcolumns = dst->columns;
   uintt hrows = dst->rows;
 
-  uintt dcolumns = CudaUtils::GetColumns (src);
-  uintt drows = CudaUtils::GetRows (src);
+  uintt dcolumns = oap::cuda::GetColumns (src);
+  uintt drows = oap::cuda::GetRows (src);
 
   debugAssert(hrows * hcolumns == drows * dcolumns);
 
-  copyDeviceMatrixToHostMatrix (dst, src, hcolumns, hrows);
-}
-
-void copyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src, uintt columns, uintt rows)
-{
-  uintt length = columns * rows;
-
-  floatt* dstRePtr = CudaUtils::GetReValues(dst);
-  floatt* dstImPtr = CudaUtils::GetImValues(dst);
-
-  if (dstRePtr != nullptr && src->reValues != nullptr)
-  {
-    CudaUtils::CopyHostToDevice(dstRePtr, src->reValues, length * sizeof(floatt));
-  }
-  if (dstImPtr != nullptr && src->imValues != nullptr)
-  {
-    CudaUtils::CopyHostToDevice(dstImPtr, src->imValues, length * sizeof(floatt));
-  }
-}
-
-void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src)
-{
-  uintt hcolumns = src->columns;
-  uintt hrows = src->rows;
-
-  uintt dcolumns = CudaUtils::GetColumns (dst);
-  uintt drows = CudaUtils::GetRows (dst);
-
-  debugAssertMsg (hcolumns == dcolumns, "hcolumns %u dcolumns %u", hcolumns, dcolumns);
-  debugAssertMsg (hrows == drows, "hrows %u drows %u", hrows, drows);
-
-  copyHostMatrixToDeviceMatrix (dst, src, hcolumns, hrows);
+  copyDeviceMatrixToHostMatrix (dst, src, false);
 }
 
 void CopyHostToDevice(math::Matrix* dst, const math::Matrix* src)
@@ -277,58 +263,25 @@ void CopyHostToDevice(math::Matrix* dst, const math::Matrix* src)
   uintt hcolumns = src->columns;
   uintt hrows = src->rows;
 
-  uintt dcolumns = CudaUtils::GetColumns (dst);
-  uintt drows = CudaUtils::GetRows (dst);
+  uintt dcolumns = oap::cuda::GetColumns (dst);
+  uintt drows = oap::cuda::GetRows (dst);
 
   debugAssert(hrows * hcolumns == drows * dcolumns);
 
-  copyHostMatrixToDeviceMatrix (dst, src, hcolumns, hrows);
-}
-
-void copyDeviceMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src, uintt columns, uintt rows)
-{
-  uintt length = columns * rows;
-
-  floatt* dstRePtr = CudaUtils::GetReValues(dst);
-  floatt* dstImPtr = CudaUtils::GetImValues(dst);
-  floatt* srcRePtr = CudaUtils::GetReValues(src);
-  floatt* srcImPtr = CudaUtils::GetImValues(src);
-
-  if (srcRePtr != nullptr && dstRePtr != nullptr)
-  {
-    CudaUtils::CopyDeviceToDevice (dstRePtr, srcRePtr, length * sizeof(floatt));
-  }
-  if (srcImPtr != nullptr && dstImPtr != nullptr)
-  {
-    CudaUtils::CopyDeviceToDevice (dstImPtr, srcImPtr, length * sizeof(floatt));
-  }
-}
-
-void CopyDeviceMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src)
-{
-  uintt dcolumns1 = CudaUtils::GetColumns (src);
-  uintt drows1 = CudaUtils::GetRows (src);
-
-  uintt dcolumns2 = CudaUtils::GetColumns (dst);
-  uintt drows2 = CudaUtils::GetRows (dst);
-
-  debugAssertMsg (dcolumns1 == dcolumns2, "dcolumns1 %u dcolumns2 %u", dcolumns1, dcolumns2);
-  debugAssertMsg (drows1 == drows2, "drows1 %u drows2 %u", drows1, drows2);
-
-  copyDeviceMatrixToDeviceMatrix (dst, src, dcolumns1, drows1);
+  copyHostMatrixToDeviceMatrix (dst, src, false);
 }
 
 void CopyDeviceToDevice (math::Matrix* dst, const math::Matrix* src)
 {
-  uintt dcolumns1 = CudaUtils::GetColumns (src);
-  uintt drows1 = CudaUtils::GetRows (src);
+  uintt dcolumns1 = oap::cuda::GetColumns (src);
+  uintt drows1 = oap::cuda::GetRows (src);
 
-  uintt dcolumns2 = CudaUtils::GetColumns (dst);
-  uintt drows2 = CudaUtils::GetRows (dst);
+  uintt dcolumns2 = oap::cuda::GetColumns (dst);
+  uintt drows2 = oap::cuda::GetRows (dst);
 
   debugAssert(drows1 * dcolumns1 == drows2 * dcolumns2);
 
-  copyDeviceMatrixToDeviceMatrix (dst, src, dcolumns1, drows1);
+  copyDeviceMatrixToDeviceMatrix (dst, src, false);
 }
 
 void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row)

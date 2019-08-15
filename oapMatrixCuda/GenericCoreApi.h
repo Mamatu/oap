@@ -64,15 +64,16 @@ namespace generic
       GetMatrixInfo&& getMatrixInfo;
   };
 
-  template<typename GetColumns, typename GetRows, typename GetMatrixInfo>
-  class MatrixApi : BasicMatrixDimApi<GetColumns, GetRows>
+  template<typename GetMatrixInfo, typename GetValue>
+  class MatrixApi
   {
     public:
-      MatrixApi (GetColumns&& _getColumns, GetRows&& _getRows, GetMatrixInfo&& _getMatrixInfo) :
-        BasicMatrixDimApi<GetColumns, GetRows>(_getColumns, _getRows), getMatrixInfo(std::move (_getMatrixInfo))
+      MatrixApi (GetMatrixInfo&& _getMatrixInfo, GetValue&& _getValue) :
+        getMatrixInfo (std::forward<GetMatrixInfo&&> (_getMatrixInfo)), getValue (std::forward<GetValue&&> (_getValue))
       {}
 
       GetMatrixInfo&& getMatrixInfo;
+      GetValue&& getValue;
   };
 }
 }

@@ -57,6 +57,7 @@ CUdeviceptr GetImValuesAddress(const math::Matrix* matrix);
 CUdeviceptr GetColumnsAddress(const math::Matrix* matrix);
 CUdeviceptr GetRowsAddress(const math::Matrix* matrix);
 
+floatt* GetValue (floatt* const* ptr);
 floatt* GetReValues(const math::Matrix* matrix);
 floatt* GetImValues(const math::Matrix* matrix);
 uintt GetColumns(const math::Matrix* matrix);
