@@ -76,18 +76,18 @@ TEST_F(OapMatrixCudaTests, SetVectorTest) {
   };
 
   output = oap::host::NewReMatrixCopy(10, 10, hArray);
-  math::Matrix* V = oap::cuda::NewDeviceMatrix(output, 10, 10);
-  math::Matrix* v = oap::cuda::NewDeviceMatrix(output, 1, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(v, hVArray, NULL);
-  oap::cuda::CopyHostMatrixToDeviceMatrix(V, output);
+  math::Matrix* V = oap::cuda::NewDeviceMatrix (output, 10, 10);
+  math::Matrix* v = oap::cuda::NewDeviceMatrix (output, 1, 10);
+  oap::cuda::CopyHostArrayToDeviceMatrix (v, hVArray, NULL, sizeof(hVArray) / sizeof(floatt));
+  oap::cuda::CopyHostMatrixToDeviceMatrix (V, output);
 
-  cuMatrix->setVector(V, 0, v, 10);
+  cuMatrix->setVector (V, 0, v, 10);
   oap::cuda::CopyDeviceMatrixToHostMatrix(output, V);
 
   oap::cuda::DeleteDeviceMatrix(V);
   oap::cuda::DeleteDeviceMatrix(v);
 
-  eq_output = oap::host::NewReMatrixCopy(10, 10, hOutputArray);
+  eq_output = oap::host::NewReMatrixCopy (10, 10, hOutputArray);
 }
 
 TEST_F(OapMatrixCudaTests, SetVectorTest1) {
@@ -112,7 +112,7 @@ TEST_F(OapMatrixCudaTests, SetVectorTest1) {
   output = oap::host::NewReMatrixCopy(10, 10, hArray);
   math::Matrix* V = oap::cuda::NewDeviceMatrix(output, 10, 10);
   math::Matrix* v = oap::cuda::NewDeviceMatrix(output, 2, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(v, hVArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(v, hVArray, NULL, sizeof(hVArray) / sizeof(floatt));
   oap::cuda::CopyHostMatrixToDeviceMatrix(V, output);
 
   cuMatrix->setVector(V, 0, v, 10);
@@ -143,8 +143,8 @@ TEST_F(OapMatrixCudaTests, GetVectorTest) {
   output = oap::host::NewReMatrixCopy(1, 10, hArray);
   math::Matrix* V = oap::cuda::NewDeviceMatrix(output, 10, 10);
   math::Matrix* v = oap::cuda::NewDeviceMatrix(output, 1, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(v, hArray, NULL);
-  oap::cuda::CopyHostArraysToDeviceMatrix(V, hVArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(v, hArray, NULL, sizeof(hArray) / sizeof(floatt));
+  oap::cuda::CopyHostArrayToDeviceMatrix(V, hVArray, NULL, sizeof(hVArray) / sizeof(floatt));
 
   cuMatrix->getVector(v, 10, V, 0);
   oap::cuda::CopyDeviceMatrixToHostMatrix(output, v);
@@ -174,8 +174,8 @@ TEST_F(OapMatrixCudaTests, GetVectorTest1) {
   output = oap::host::NewReMatrixCopy(2, 10, hArray);
   math::Matrix* V = oap::cuda::NewDeviceMatrix(output, 10, 10);
   math::Matrix* v = oap::cuda::NewDeviceMatrix(output, 2, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(v, hArray, NULL);
-  oap::cuda::CopyHostArraysToDeviceMatrix(V, hVArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(v, hArray, NULL, sizeof(hArray) / sizeof(floatt));
+  oap::cuda::CopyHostArrayToDeviceMatrix(V, hVArray, NULL, sizeof(hVArray) / sizeof(floatt));
 
   cuMatrix->getVector(v, 10, V, 0);
   oap::cuda::CopyDeviceMatrixToHostMatrix(output, v);
@@ -203,7 +203,7 @@ TEST_F(OapMatrixCudaTests, SetIdentityReMatrixTest) {
 
   output = oap::host::NewReMatrixCopy(10, 10, hArray);
   math::Matrix* matrix = oap::cuda::NewDeviceMatrix(output, 10, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(matrix, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(matrix, hArray, NULL, sizeof (hArray) / sizeof (floatt));
   cuMatrix->setIdentity(matrix);
   oap::cuda::CopyDeviceMatrixToHostMatrix(output, matrix);
 
@@ -229,7 +229,7 @@ TEST_F(OapMatrixCudaTests, SetDiagonalReMatrixTest) {
 
   output = oap::host::NewReMatrixCopy(10, 10, hArray);
   math::Matrix* matrix = oap::cuda::NewDeviceMatrix(output, 10, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(matrix, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(matrix, hArray, NULL, sizeof (hArray) / sizeof (floatt));
   cuMatrix->setDiagonal(matrix, 2, 0);
   oap::cuda::CopyDeviceMatrixToHostMatrix(output, matrix);
 
@@ -257,7 +257,7 @@ TEST_F(OapMatrixCudaTests, MultiplyConstantReMatrixTest) {
   output = oap::host::NewReMatrixCopy(10, 10, hArray);
   oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceMatrix(output, 10, 10);
   oap::DeviceMatrixPtr dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
 
   cuMatrix->multiplyReConstant(doutput, dparam0, 5);
 
@@ -279,7 +279,7 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest1) {
   output = oap::host::NewReMatrixCopy(10, 4, hArray);
   oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceMatrix(output, 10, 4);
   oap::DeviceMatrixPtr dparam0 = oap::cuda::NewDeviceMatrix(output, 4, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
 
   MatrixEx* matrixEx = oap::cuda::NewDeviceMatrixEx();
   MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
@@ -310,7 +310,7 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest2) {
   output = oap::host::NewReMatrixCopy(10, 10, hArray);
   oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceMatrix(output, 10, 10);
   oap::DeviceMatrixPtr dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
 
   MatrixEx* matrixEx = oap::cuda::NewDeviceMatrixEx();
   MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
@@ -339,7 +339,7 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest3) {
   output = oap::host::NewReMatrixCopy(10, 4, hArray);
   oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceMatrix(output, 10, 4);
   oap::DeviceMatrixPtr dparam0 = oap::cuda::NewDeviceMatrix(output, 10, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof(hArray) / sizeof (floatt));
 
   MatrixEx* matrixEx = oap::cuda::NewDeviceMatrixEx();
   MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
@@ -384,7 +384,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest) {
 
   math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(1, 10, hArray, NULL);
   math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(true, false, 1, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
   floatt output;
   floatt doutput;
   floatt doutput1;
@@ -411,7 +411,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest1) {
 
   math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(1, 10, hArray, NULL);
   math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(true, false, 1, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
   floatt doutput;
   floatt doutput1;
   floatt doutput2;
@@ -438,7 +438,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest2) {
 
   math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(1, 10, hArray, NULL);
   math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(true, false, 1, 10);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
   floatt doutput;
   floatt doutput1;
   floatt doutput2;
@@ -468,7 +468,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixBigDataTest) {
 
   math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(1, length, hArray, NULL);
   math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(true, false, 1, length);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, NULL);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, length);
   floatt doutput;
   floatt doutput1;
   floatt doutput2;
@@ -501,7 +501,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeRealMatrixBigDataTest) {
 
   math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(1, length, hArray, hArray1);
   math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(true, true, 1, length);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, hArray1);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, hArray1, length);
   floatt doutput = 100;
   floatt doutput1 = 100;
   floatt doutput2 = 100;
@@ -534,7 +534,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeRealMatrixBigDataTest1) {
 
   math::Matrix* matrix = oap::host::NewMatrixCopy<floatt>(1, length, hArray, hArray1);
   math::Matrix* dparam0 = oap::cuda::NewDeviceMatrix(true, true, 1, length);
-  oap::cuda::CopyHostArraysToDeviceMatrix(dparam0, hArray, hArray1);
+  oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, hArray1, length);
   floatt doutput = 1;
   floatt doutput1 = 1;
   floatt doutput2 = 1;

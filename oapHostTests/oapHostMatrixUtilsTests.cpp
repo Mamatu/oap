@@ -94,7 +94,7 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_3)
   oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
   oap::HostMatrixPtr expected = oap::host::NewReMatrix(5, 6, 0);
 
-  std::vector<floatt> expectedValues = 
+  std::vector<floatt> expectedValues =
   {
     0,0,0,0,0,
     0,0,0,0,0,
@@ -128,7 +128,7 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_4)
   oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
   oap::HostMatrixPtr expected = oap::host::NewReMatrix(5, 6, 0);
 
-  std::vector<floatt> expectedValues = 
+  std::vector<floatt> expectedValues =
   {
     0,0,0,0,0,
     0,0,0,0,0,
@@ -193,7 +193,7 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
     MatrixEx mex;
     mex.row = 0;
     mex.rows = 10;
- 
+
     mex.column = 4;
     mex.columns = 6;
 
@@ -368,7 +368,7 @@ TEST_F(OapHostMatrixUtilsTests, GetSubMatrixTest)
     EXPECT_EQ(33, smatrix->reValues[3]);
     EXPECT_EQ(2, smatrix->columns);
     EXPECT_EQ(2, smatrix->rows);
-    
+
     math::MatrixInfo submatrixInfo = oap::host::GetMatrixInfo (submatrix);
 
     smatrix = oap::host::GetSubMatrix (matrix, 3, 3, smatrix);
