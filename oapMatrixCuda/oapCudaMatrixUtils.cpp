@@ -230,6 +230,22 @@ inline void copyHostMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Mat
   oap::generic::copyMatrixToMatrixDims (dst, src, dims, CudaUtils::CopyHostToDevice, dstApi, srcApi);
 }
 
+inline void copyDeviceMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixApi dstApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  MatrixApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  oap::generic::copyMatrixToMatrixDims (dst, src, dims, CudaUtils::CopyDeviceToHost, dstApi, srcApi);
+}
+
+inline void copyDeviceMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  MatrixApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  oap::generic::copyMatrixToMatrixDims (dst, src, dims, CudaUtils::CopyDeviceToDevice, dstApi, srcApi);
+}
+
 void CopyDeviceMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
 {
   copyDeviceMatrixToHostMatrix (dst, src);
@@ -243,6 +259,21 @@ void CopyHostMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src)
 void CopyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src)
 {
   copyDeviceMatrixToDeviceMatrix (dst, src);
+}
+
+void CopyDeviceMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  copyDeviceMatrixToHostMatrixDims (dst, src, dims);
+}
+
+void CopyHostMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  copyHostMatrixToDeviceMatrixDims (dst, src, dims);
+}
+
+void CopyDeviceMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  copyDeviceMatrixToDeviceMatrixDims (dst, src, dims);
 }
 
 void CopyDeviceToHost(math::Matrix* dst, const math::Matrix* src)
