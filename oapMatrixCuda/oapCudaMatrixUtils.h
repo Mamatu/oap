@@ -117,9 +117,11 @@ void SetReMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uint
 
 void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
-void CopyHostArraysToDeviceMatrix(math::Matrix* dst, const floatt* rearray,
-                                  const floatt* imarray);
 MatrixEx** NewDeviceMatrixEx(uintt count);
+
+void CopyHostArrayToDeviceMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer, size_t length);
+void CopyHostArrayToDeviceReMatrix (math::Matrix* matrix, floatt* buffer, size_t length);
+void CopyHostArrayToDeviceImMatrix (math::Matrix* matrix, floatt* buffer, size_t length);
 
 void DeleteDeviceMatrixEx(MatrixEx** matrixEx);
 

@@ -69,8 +69,8 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTest1) {
 
     math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, 10, 10);
     math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, 10, 10);
-    oap::cuda::CopyHostArraysToDeviceMatrix(matrix1, hArray, NULL);
-    oap::cuda::CopyHostArraysToDeviceMatrix(matrix2, hArray, NULL);
+    oap::cuda::CopyHostArrayToDeviceMatrix(matrix1, hArray, NULL, 100);
+    oap::cuda::CopyHostArrayToDeviceMatrix(matrix2, hArray, NULL, 100);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
     floatt outcomeVer1 = cuMatrix->getCompareOperationSum();
@@ -114,8 +114,8 @@ TEST_F(OapCompareCudaTests, CompareReMatrixTest1Fail) {
 
     math::Matrix* matrix1 = oap::cuda::NewDeviceMatrix(true, false, 10, 10);
     math::Matrix* matrix2 = oap::cuda::NewDeviceMatrix(true, false, 10, 10);
-    oap::cuda::CopyHostArraysToDeviceMatrix(matrix1, hArray1, NULL);
-    oap::cuda::CopyHostArraysToDeviceMatrix(matrix2, hArray2, NULL);
+    oap::cuda::CopyHostArrayToDeviceMatrix(matrix1, hArray1, NULL, 100);
+    oap::cuda::CopyHostArrayToDeviceMatrix(matrix2, hArray2, NULL, 100);
 
     bool resultVer1 = cuMatrix->compare(matrix1, matrix2);
     floatt outcomeVer1 = cuMatrix->getCompareOperationSum();
