@@ -68,7 +68,42 @@ void DeleteDeviceMatrix(const math::Matrix* deviceMatrix);
  * @param dst - host matrix
  * @param src - device matrix
  */
-void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src);
+void CopyDeviceMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src);
+
+/**
+ * @brief copies host matrix to device matrix - copy host to device - matrices must have the same columns and rows
+ * @param dst - host matrix
+ * @param src - device matrix
+ */
+void CopyHostMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src);
+
+/**
+ * @brief copies device matrix to device matrix - copy device to device - matrices must have the same columns and rows
+ * @param dst - host matrix
+ * @param src - device matrix
+ */
+void CopyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src);
+
+/**
+ * @brief Copies device to host with custom dimensions and range
+ * @param dst - host matrix
+ * @param src - device matrix
+ */
+void CopyDeviceMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
+
+/**
+ * @brief Copies host to device with custom dimensions and range
+ * @param dst - device matrix
+ * @param src - host matrix
+ */
+void CopyHostMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
+
+/**
+ * @brief Copies device to device with custom dimensions and range
+ * @param dst - device matrix
+ * @param src - device matrix
+ */
+void CopyDeviceMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
 
 /**
  * @brief copies davice matrix to host matrix - copy device to host - matrices must have the same product of columns and rows
@@ -79,26 +114,12 @@ void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src);
 void CopyDeviceToHost(math::Matrix* dst, const math::Matrix* src);
 
 /**
- * @brief copies host matrix to device matrix - copy host to device - matrices must have the same columns and rows
- * @param dst - host matrix
- * @param src - device matrix
- */
-void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
-
-/**
  * @brief copies host matrix to device matrix - copy device to host - matrices must have the same product of columns and rows
  *                                              (dst->columns * dst->rows == src->columns * src->rows)
  * @param dst - host matrix
  * @param src - device matrix
  */
 void CopyHostToDevice(math::Matrix* dst, const math::Matrix* src);
-
-/**
- * @brief copies device matrix to device matrix - copy device to device - matrices must have the same columns and rows
- * @param dst - host matrix
- * @param src - device matrix
- */
-void CopyDeviceMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
 
 /**
  * @brief copies device matri to device matrix - copy device to host - matrices must have the same product of columns and rows
@@ -108,9 +129,6 @@ void CopyDeviceMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
  */
 void CopyDeviceToDevice(math::Matrix* dst, const math::Matrix* src);
 
-/**
- *
- */
 void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
 void SetReMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
