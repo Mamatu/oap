@@ -40,10 +40,22 @@
 
 namespace test_api
 {
+  enum class TestMode
+  {
+    NONE,
+    NORMAL,
+    FP_HANDLER
+  };
+
   const floatt expected_precision = 0.0000000000001;
+
+  void convertBatchToBatchFPHandlers (Network* network, Steps& steps);
 
   auto defaultCheck = [](floatt expected, floatt actual, size_t idx) { EXPECT_NEAR (expected, actual, expected_precision) << "Idx: " << idx; };
   using CheckCallback = std::function<void(floatt, floatt, size_t)>;
+
+  FPHandler createBatchFPHandler (Network* network, const Batch& batch);
+  std::vector<FPHandler> createBatchFPHandlers (Network* network, const Batches& batches);
 
   struct CheckWeightsInfo
   {
@@ -104,7 +116,7 @@ namespace test_api
 
   size_t calculateWIdx (size_t initStepIdx, const Steps& steps);
 
-  void testStep (Network* network,
+  void testStep (TestMode& testMode, Network* network,
                  const Steps& steps, size_t stepIdx,
                  const WeightsLayers& weightsLayers,
                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
@@ -112,7 +124,7 @@ namespace test_api
                  const IdxsToCheck& idxToChecks,
                  const ExtraParams& extraParams = ExtraParams());
 
-  void testSteps (Network* network,
+  void testSteps (TestMode& testMode, Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   oap::HostMatrixPtr hinputs,
@@ -120,7 +132,7 @@ namespace test_api
                   const IdxsToCheck& idxToChecks,
                   const ExtraParams& extraParams = ExtraParams());
 
-  void testSteps (Network* network,
+  void testSteps (TestMode& testMode, Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   const IdxsToCheck& idxToChecks,
