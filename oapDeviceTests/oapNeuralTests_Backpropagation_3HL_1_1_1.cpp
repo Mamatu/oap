@@ -39,7 +39,24 @@ class OapNeuralTests_Backpropagation_3HL_1_1_1 : public testing::Test
 TEST_F(OapNeuralTests_Backpropagation_3HL_1_1_1, Test_1)
 {
   using namespace oap::Backpropagation_Data_3HL_1_1_1;
+  test_api::TestMode testMode = test_api::TestMode::NONE;
 
   auto network = test_api::createNetwork (g_networkInfo);
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec, g_weights4to5Vec}, g_steps, g_idxsToCheck));
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec, g_weights4to5Vec}, g_steps, g_idxsToCheck));
+  ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
+}
+
+TEST_F(OapNeuralTests_Backpropagation_3HL_1_1_1, Test_1_FP_MODE)
+{
+  using namespace oap::Backpropagation_Data_3HL_1_1_1;
+  test_api::TestMode testMode = test_api::TestMode::NONE;
+
+  auto network = test_api::createNetwork (g_networkInfo);
+
+  Steps steps = g_steps;
+
+  test_api::convertBatchToBatchFPHandlers (network.get(), steps);
+
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec, g_weights4to5Vec}, steps, g_idxsToCheck));
+  ASSERT_EQ (test_api::TestMode::FP_HANDLER, testMode);
 }

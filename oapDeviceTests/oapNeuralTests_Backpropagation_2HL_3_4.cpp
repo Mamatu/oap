@@ -43,9 +43,11 @@ TEST_F(OapNeuralTests_Backpropagation_2HL_3_4, Test_1)
   using namespace oap::Backpropagation_Data_2HL_3_4::Test_1;
 
   auto network = test_api::createNetwork (g_networkInfo);
+  test_api::TestMode testMode = test_api::TestMode::NONE;
 
   ASSERT_EQ (4, network->getLayersCount());
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
+  ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
 }
 
 TEST_F(OapNeuralTests_Backpropagation_2HL_3_4, Test_2)
@@ -53,19 +55,21 @@ TEST_F(OapNeuralTests_Backpropagation_2HL_3_4, Test_2)
   using namespace oap::Backpropagation_Data_2HL_3_4::Test_2;
 
   auto network = test_api::createNetwork (g_networkInfo);
+  test_api::TestMode testMode = test_api::TestMode::NONE;
 
   ASSERT_EQ (4, network->getLayersCount());
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
+  ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
 }
 
 TEST_F(OapNeuralTests_Backpropagation_2HL_3_4, Test_3)
 {
   using namespace oap::Backpropagation_Data_2HL_3_4::Test_3;
+  test_api::TestMode testMode = test_api::TestMode::NONE;
 
   auto network = test_api::createNetwork (g_networkInfo);
 
   ASSERT_EQ (4, network->getLayersCount());
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
+  ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
 }
-
-

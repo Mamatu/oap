@@ -39,7 +39,9 @@ class OapNeuralTests_Backpropagation_2HL_1_3 : public testing::Test
 TEST_F(OapNeuralTests_Backpropagation_2HL_1_3, Test_1)
 {
   using namespace oap::Backpropagation_Data_2HL_1_3::Test_1;
+  test_api::TestMode testMode = test_api::TestMode::NONE;
 
   auto network = test_api::createNetwork (g_networkInfo);
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec}, g_steps, g_idxsToCheck));
+  ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
 }

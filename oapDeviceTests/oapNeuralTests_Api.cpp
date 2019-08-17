@@ -21,6 +21,65 @@
 
 namespace test_api
 {
+  FPHandler createBatchFPHandler (Network* network, const Batch& batch)
+  {
+    FPHandler handler = network->createFPSection (batch.size());
+    LayerS_FP* flS = network->getLayerS_FP (handler, 0);
+    LayerS_FP* llS = network->getLayerS_FP (handler, network->getLayersCount() - 1);
+
+    oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, flS->getRowsCount ());
+    oap::HostMatrixPtr hexpected = oap::host::NewReMatrix (1, llS->getRowsCount ());
+
+    for (size_t idx = 0; idx < batch.size(); ++idx)
+    {
+      const PointLabel& pl = batch[idx];
+      SetRe (hinputs, 0, idx * 3 + 0, pl.first.first);
+      SetRe (hinputs, 0, idx * 3 + 1, pl.first.second);
+      SetRe (hinputs, 0, idx * 3 + 2, 1);
+      SetRe (hexpected, 0, idx, pl.second);
+    }
+
+    network->setInputs (hinputs, ArgType::HOST, handler);
+    network->setExpected (hexpected, ArgType::HOST, handler);
+    return handler;
+  }
+
+  std::vector<FPHandler> createBatchFPHandlers (Network* network, const Batches& batches)
+  {
+    std::vector<FPHandler> handlers;
+
+    for (const auto& batch : batches)
+    {
+      handlers.push_back (createBatchFPHandler (network, batch));
+    }
+
+    return handlers;
+  }
+
+  void convertBatchToBatchFPHandlers (Network* network, Step& step)
+  {
+    Batches& batches = std::get<0>(step);
+    BatchesFPHandlers& batchesFPHandlers = std::get<3>(step);
+
+    batchesFPHandlers = std::move (createBatchFPHandlers (network, batches));
+    batches.clear ();
+  }
+
+  void copySample (ILayerS_FP* dst, const ILayerS_FP* src, uintt sample)
+  {
+    debugAssert(sample < src->m_samplesCount);
+    debugAssert(dst->getNeuronsCount() == src->getNeuronsCount());
+    debugAssert(dst->getTotalNeuronsCount() == src->getTotalNeuronsCount());
+  }
+
+  void convertBatchToBatchFPHandlers (Network* network, Steps& steps)
+  {
+    for (Step& step : steps)
+    {
+      convertBatchToBatchFPHandlers (network, step);
+    }
+  }
+
   std::string CheckWeightsInfo::str() const
   {
     std::stringstream sstream;
@@ -94,12 +153,19 @@ namespace test_api
     size_t iwi = 0;
     for (size_t i = 0; i < initStepIdx; ++i)
     {
-      iwi += std::get<0>(steps[i]).size();
+      if (std::get<0>(steps[i]).empty() == false)
+      {
+        iwi += std::get<0>(steps[i]).size();
+      }
+      else if (std::get<3>(steps[i]).empty() == false)
+      {
+        iwi += std::get<3>(steps[i]).size();
+      }
     }
     return iwi;
   };
 
-  void testStep (Network* network,
+  void testStep (TestMode& testMode, Network* network,
                  const Steps& steps, size_t stepIdx,
                  const WeightsLayers& weightsLayers,
                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
@@ -120,39 +186,107 @@ namespace test_api
       }
     };
 
-    const Batches& batches = std::get<0>(step);
     size_t weightsIdx = calculateWIdx(stepIdx, steps);
+    const Batches& batches = std::get<0>(step);
 
     logInfo ("step %lu", stepIdx);
-    for (size_t batchIdx = 0; batchIdx < batches.size(); ++batchIdx)
+
+    auto batchesProcess = [&](const Batches& batches)
     {
-      size_t cweightsIdx = weightsIdx + batchIdx;
-      const Batch& batch = batches[batchIdx];
-
-      for (const auto& p : batch)
+      for (size_t batchIdx = 0; batchIdx < batches.size(); ++batchIdx)
       {
-        checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__);
+        size_t cweightsIdx = weightsIdx + batchIdx;
+        const Batch& batch = batches[batchIdx];
 
-        hinputs->reValues[0] = p.first.first;
-        hinputs->reValues[1] = p.first.second;
+        for (const auto& p : batch)
+        {
+          checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__);
 
-        houtput->reValues[0] = p.second;
+          hinputs->reValues[0] = p.first.first;
+          hinputs->reValues[1] = p.first.second;
 
-        network->setInputs (hinputs, ArgType::HOST);
-        network->setExpected (houtput, ArgType::HOST);
+          houtput->reValues[0] = p.second;
 
-        network->forwardPropagation ();
-        network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, ep.calcType);
-        network->backPropagation ();
+          network->setInputs (hinputs, ArgType::HOST);
+          network->setExpected (houtput, ArgType::HOST);
 
-        ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__));
+          network->forwardPropagation ();
+          network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, ep.calcType);
+          network->backPropagation ();
+
+          ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__));
+        }
+
+        network->updateWeights ();
+
+        ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx + 1, stepIdx, batchIdx, __LINE__));
+
+        network->postStep();
       }
+    };
 
-      network->updateWeights ();
+    auto batchesFPHandlersProcess = [&](const BatchesFPHandlers& handlers)
+    {
+      for (size_t batchIdx = 0; batchIdx < handlers.size(); ++batchIdx)
+      {
+        size_t cweightsIdx = weightsIdx + batchIdx;
+        FPHandler handler = handlers[batchIdx];
 
-      ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx + 1, stepIdx, batchIdx, __LINE__));
+        network->forwardPropagation (handler);
+        network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, ep.calcType, handler);
 
-      network->postStep();
+        uintt samplesCount = network->getLayerS_FP (handler, network->getLayersCount() - 1)->m_samplesCount;
+
+        for (size_t sampleIdx = 0; sampleIdx < samplesCount; ++sampleIdx)
+        {
+          for (size_t layerIdx = 0; layerIdx < network->getLayersCount(); ++layerIdx)
+          {
+            Layer* layer = network->getLayer (layerIdx);
+            const LayerS_FP* layerS = network->getLayerS_FP (handler, layerIdx);
+
+            auto copy = [sampleIdx](math::Matrix* dst, const math::Matrix* src)
+            {
+              uintt dims[2][2][2];
+              auto minfo = oap::cuda::GetMatrixInfo (dst);
+              oap::generic::initDims (dims, minfo);
+
+              oap::generic::setColumnIdx (0, dims[oap::generic::g_srcIdx]);
+              oap::generic::setRowIdx (sampleIdx * minfo.rows(), dims[oap::generic::g_srcIdx]);
+              oap::cuda::CopyDeviceMatrixToDeviceMatrixDims (dst, src, dims);
+            };
+
+            if (layerIdx == network->getLayersCount () - 1)
+            {
+              copy (layer->m_errorsAux, layerS->m_errorsAux);
+            }
+            copy (layer->m_sums, layerS->m_sums);
+            copy (layer->m_inputs, layerS->m_inputs);
+          }
+          network->backPropagation ();
+        }
+        network->updateWeights ();
+
+        ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx + 1, stepIdx, batchIdx, __LINE__));
+
+        network->postStep();
+      }
+    };
+
+    testMode = TestMode::NONE;
+
+    if (!batches.empty())
+    {
+      batchesProcess (batches);
+      testMode = TestMode::NORMAL;
+    }
+    else
+    {
+      const BatchesFPHandlers& batchesFPHandlers = std::get<3>(step);
+      if (!batchesFPHandlers.empty())
+      {
+        batchesFPHandlersProcess (batchesFPHandlers);
+        testMode = TestMode::FP_HANDLER;
+      }
     }
 
     if (ep.enableLossTests)
@@ -177,7 +311,7 @@ namespace test_api
     network->postStep();
   }
 
-  void testSteps (Network* network,
+  void testSteps (TestMode& testMode, Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   oap::HostMatrixPtr hinputs,
@@ -207,7 +341,18 @@ namespace test_api
       size_t batchesSum = 1;
       for (Step step : steps)
       {
-        batchesSum += std::get<0>(step).size();
+        if (!std::get<0>(step).empty())
+        {
+          batchesSum += std::get<0>(step).size();
+        }
+        else if (!std::get<3>(step).empty())
+        {
+          batchesSum += std::get<3>(step).size();
+        }
+        else
+        {
+          debugAssert ("Not supported" == nullptr);
+        }
       }
       debugAssert (batchesSum == flayer.size());
     }
@@ -231,16 +376,19 @@ namespace test_api
 
     for (size_t stepIdx = stepsRange.first; stepIdx < stepsRange.second; ++stepIdx)
     {
+       TestMode ctestMode = TestMode::NONE;
        ASSERT_NO_FATAL_FAILURE(
-       testStep (network, steps, stepIdx,
+       testStep (ctestMode, network, steps, stepIdx,
        weightsLayers,
        hinputs, houtput,
        weightsMatrices,
        idxToChecks, ep));
+       debugAssert (testMode == ctestMode || testMode == TestMode::NONE);
+       testMode = ctestMode;
     }
   }
 
-  void testSteps (Network* network,
+  void testSteps (TestMode& testMode, Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   const IdxsToCheck& idxToChecks,
@@ -250,6 +398,6 @@ namespace test_api
     oap::HostMatrixPtr houtput = oap::host::NewMatrix (network->getOutputInfo());
 
     ASSERT_NO_FATAL_FAILURE(
-    testSteps (network, weightsLayers, steps, hinputs, houtput, idxToChecks, ep));
+    testSteps (testMode, network, weightsLayers, steps, hinputs, houtput, idxToChecks, ep));
   }
 }
