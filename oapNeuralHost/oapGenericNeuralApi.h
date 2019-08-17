@@ -242,7 +242,6 @@ void forwardPropagationFP (const Layers& layers, Api& api, FPHandler handler)
     uintt periodicRows = current->getTotalNeuronsCount(); 
 
     api.dotProductDimPeriodic (currentFP->m_sums, previous->m_weights, previousFP->m_inputs, dims, periodicRows);
-
     uintt dims1[2][2] =
     {
       {1, current->getNeuronsCount()},
@@ -267,7 +266,6 @@ void getErrors (math::Matrix* errorsOutput, LayerT& ls, Api& api, math::Matrix* 
   {
     api.substract (ls.m_errorsAux, ls.m_inputs, expectedDeviceOutputs);
   }
-
   copyKernelMatrixToHostMatrix (errorsOutput, ls.m_errorsAux);
 }
 
@@ -280,7 +278,7 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
     LayerS* next = nullptr;
     LayerS* current = layers[idx];
 
-    auto calculateCurrentErrors = [&current, &api] (LayerS* current)
+    auto calculateCurrentErrors = [&api] (LayerS* current)
     {
       uintt dims[2] = {1, current->getNeuronsCount()};
       oap::generic::derivativeFunc (current->m_sums, current->m_sums, current->m_activation, api, dims);
@@ -303,6 +301,7 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
         {next->getNeuronsCount(), current->getTotalNeuronsCount()},
         {1, next->getNeuronsCount()}
       };
+
       api.dotProduct (current->m_errors, current->m_tweights, next->m_errors, dims);
       calculateCurrentErrors (current);
     }
@@ -330,6 +329,7 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
         };
         api.tensorProduct (current->m_weights1, current->m_tinputs, next->m_errors, dims);
       }
+
       api.add (current->m_weights2, current->m_weights2, current->m_weights1);
     }
   };
