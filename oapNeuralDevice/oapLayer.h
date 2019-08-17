@@ -32,7 +32,7 @@
 
 class Network;
 
-class Layer : private LayerS
+class Layer : public LayerS
 {
 
 public:
@@ -87,46 +87,7 @@ public:
   bool operator== (const Layer& layer) const;
   bool operator!= (const Layer& layer) const;
 
-  template<typename Layers, typename Api>
-  friend void oap::generic::forwardPropagation (const Layers&, Api&);
-
-  template<typename Layers, typename Api>
-  friend void oap::generic::forwardPropagationFP (const Layers&, Api&, FPHandler);
-
-  template<typename LayerT, typename AllocNeuronsApi>
-  friend LayerT* oap::generic::createLayer (uintt, bool, Activation);
-
-  template<typename LayerT, typename AllocNeuronsApi>
-  friend void oap::generic::allocateNeurons (LayerT&, uintt, uintt);
-
-  template<typename LayerT, typename AllocNeuronsApi>
-  friend void oap::generic::allocateFPSection (LayerT&, uintt);
-
-  template<typename LayerT, typename AllocWeightsApi>
-  friend void oap::generic::allocateWeights (LayerT&, const LayerT*);
-
-  template<typename LayerT, typename DeallocMatrixApi>
-  friend void oap::generic::deallocate (LayerT&);
-
-  template<typename LayerT, typename DeallocMatrixApi>
-  friend void oap::generic::deallocateFPSection (LayerT&);
-
-  template<typename Layers, typename Api, typename CopyMatrixToMatrix>
-  friend void oap::generic::backPropagation (const Layers&, Api&, CopyMatrixToMatrix&&);
-  
-  template<typename Layers, typename Api, typename PostCallback>
-  friend void oap::generic::updateWeights(const Layers&, Api&, PostCallback&&, floatt, uintt);
-
-  friend void oap::generic::initRandomWeights (LayerS&, const LayerS*);
-
-  template<typename LayerT, typename SetReValue>
-  friend void oap::generic::initLayerBiases (LayerT&, SetReValue&&, uintt);
-
-  template<typename LayerT, typename Api, typename CopyKernelMatrixToHostMatrix>
-  friend void getErrors (math::Matrix*, LayerT&, Api&, math::Matrix*,
-                       oap::ErrorType, CopyKernelMatrixToHostMatrix&&);
 private:
-
   static void deallocate(math::Matrix** matrix);
 
   friend class Network;
