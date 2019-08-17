@@ -794,11 +794,11 @@ inline math::MatrixInfo check_CopyMatrixToMatrixDims (const math::MatrixInfo& ds
   debugAssert (dstInfo.isRe == srcInfo.isRe);
   debugAssert (dstInfo.isIm == srcInfo.isIm);
 
-  debugAssert (getColumnIdx (dims[g_srcIdx]) + getColumns (dims[g_srcIdx]) < srcInfo.columns());
-  debugAssert (getRowIdx (dims[g_srcIdx]) + getRows (dims[g_srcIdx]) < srcInfo.rows());
+  debugAssert (getColumnIdx (dims[g_srcIdx]) + getColumns (dims[g_srcIdx]) <= srcInfo.columns());
+  debugAssert (getRowIdx (dims[g_srcIdx]) + getRows (dims[g_srcIdx]) <= srcInfo.rows());
 
-  debugAssert (getColumnIdx (dims[g_dstIdx]) + getColumns (dims[g_dstIdx]) < dstInfo.columns());
-  debugAssert (getRowIdx (dims[g_dstIdx]) + getRows (dims[g_dstIdx]) < dstInfo.rows());
+  debugAssert (getColumnIdx (dims[g_dstIdx]) + getColumns (dims[g_dstIdx]) <= dstInfo.columns());
+  debugAssert (getRowIdx (dims[g_dstIdx]) + getRows (dims[g_dstIdx]) <= dstInfo.rows());
 
   return dstInfo;
 }
