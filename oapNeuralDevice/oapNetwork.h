@@ -133,9 +133,9 @@ public:
     }
   }
 
-  LayerS_FP* getLayerS_FP (FPHandler handler, size_t idx) const
+  LayerS_FP* getLayerS_FP (FPHandler handler, size_t layerIdx) const
   {
-    return m_layers[idx]->getLayerS_FP (handler);
+    return m_layers[layerIdx]->getLayerS_FP (handler);
   }
 
 protected:
