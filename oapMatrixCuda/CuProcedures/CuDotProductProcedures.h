@@ -86,7 +86,7 @@ __hostdevice__ void cuda_dotProductRealUUU (math::Matrix* output, math::Matrix* 
     uintt idx0 = cuda_getIdx0 (idx, indexY1, params0);
     uintt idx1 = cuda_getIdx1 (idx, indexY2, params1);
 
-    floatt retemp1 = params0->imValues[idx0] * params1->imValues[idx1];
+    floatt retemp1 = params0->reValues[idx0] * params1->reValues[idx1];
     floatt retemp2 = -params0->imValues[idx0] * params1->imValues[idx1];
 
     floatt imtemp1 = params0->reValues[idx0] * params1->imValues[idx1];
