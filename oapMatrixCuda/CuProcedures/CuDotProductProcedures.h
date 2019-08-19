@@ -85,6 +85,7 @@ __hostdevice__ void cuda_dotProductRealUUU (math::Matrix* output, math::Matrix* 
   {
     uintt idx0 = cuda_getIdx0 (idx, indexY1, params0);
     uintt idx1 = cuda_getIdx1 (idx, indexY2, params1);
+
     floatt retemp1 = params0->imValues[idx0] * params1->imValues[idx1];
     floatt retemp2 = -params0->imValues[idx0] * params1->imValues[idx1];
 
@@ -124,9 +125,8 @@ __hostdevice__ void cuda_dotProductReal (math::Matrix* output, math::Matrix* par
   cuda_dotProductRealUUU (output, params0, params1, threadIndexY, 0, offset);
 }
 
-__hostdevice__ void CUDA_dotProductRe(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
+__hostdevice__ void CUDA_dotProductRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
   HOST_INIT();
 
   uintt offset = params0->columns;
@@ -135,9 +135,8 @@ __hostdevice__ void CUDA_dotProductRe(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_dotProductIm(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
+__hostdevice__ void CUDA_dotProductIm (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
   HOST_INIT();
 
   uintt offset = params0->columns;
@@ -146,9 +145,8 @@ __hostdevice__ void CUDA_dotProductIm(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_dotProductReal(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1) {
+__hostdevice__ void CUDA_dotProductReal (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
   HOST_INIT();
 
   uintt offset = params0->columns;
@@ -197,6 +195,7 @@ __hostdevice__ void CUDA_dotProduct (math::Matrix* output, math::Matrix* params0
   bool inRange = threadIndexX < output->columns && threadIndexY < output->rows;
 
   cuda_dotProduct (output, params0, params1, params0->columns, inRange);
+  threads_sync ();
 }
 
 
