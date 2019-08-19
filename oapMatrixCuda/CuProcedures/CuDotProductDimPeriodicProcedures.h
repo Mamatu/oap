@@ -25,7 +25,7 @@
 
 #define PERIODIC_ROWS_IDX 3
 
-__hostdevice__ void CUDA_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+__hostdevice__ void cuda_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -42,6 +42,12 @@ __hostdevice__ void CUDA_dotProductDimPeriodic (math::Matrix* output, math::Matr
   bool inRange = threadIndexX < columns && indexY1 < rows && threadIndexY < output->rows;
 
   cuda_dotProductUUUB (output, params0, params1, indexY1, indexY2, offset, inRange);   
+}
+
+__hostdevice__ void CUDA_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+{
+  cuda_dotProductDimPeriodic (output, params0, params1, ex);
+  threads_sync();
 }
 
 #endif

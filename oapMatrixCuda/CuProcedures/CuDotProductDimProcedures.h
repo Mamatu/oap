@@ -27,9 +27,7 @@
 #include "CuCore.h"
 #include "CuDotProductProcedures.h"
 
-__hostdevice__ void CUDA_dotProductDim(
-               math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-               uintt* ex)
+__hostdevice__ void cuda_dotProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -44,4 +42,9 @@ __hostdevice__ void CUDA_dotProductDim(
   cuda_dotProduct (output, params0, params1, offset, inRange);
 }
 
+__hostdevice__ void CUDA_dotProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+{
+  cuda_dotProductDim (output, params0, params1, ex);
+  threads_sync ();
+}
 #endif
