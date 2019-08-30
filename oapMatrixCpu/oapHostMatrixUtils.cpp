@@ -123,6 +123,27 @@ math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows, f
   return output;
 }
 
+math::Matrix* NewMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray)
+{
+  math::Matrix* matrix = NewMatrix (columns, rows);
+  oap::host::CopyArrayToMatrix (matrix, rearray, imarray);
+  return matrix;
+}
+
+math::Matrix* NewReMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray)
+{
+  math::Matrix* matrix = NewReMatrix (columns, rows);
+  oap::host::CopyArrayToReMatrix (matrix, rearray);
+  return matrix;
+}
+
+math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* imarray)
+{
+  math::Matrix* matrix = NewImMatrix (columns, rows);
+  oap::host::CopyArrayToImMatrix (matrix, imarray);
+  return matrix;
+}
+
 math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value)
 {
   return NewMatrix(matrixInfo.isRe, matrixInfo.isIm,
@@ -1086,7 +1107,7 @@ math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
   return minfo;
 }
 
-void CopyArrayToMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer)
+void CopyArrayToMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer)
 {
   if (rebuffer != nullptr)
   {
@@ -1098,13 +1119,13 @@ void CopyArrayToMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer
   }
 }
 
-void CopyArrayToReMatrix (math::Matrix* matrix, floatt* buffer)
+void CopyArrayToReMatrix (math::Matrix* matrix, const floatt* buffer)
 {
   debugAssert (matrix->reValues != nullptr);
   memcpy (matrix->reValues, buffer, matrix->columns * matrix->rows * sizeof(floatt));
 }
 
-void CopyArrayToImMatrix (math::Matrix* matrix, floatt* buffer)
+void CopyArrayToImMatrix (math::Matrix* matrix, const floatt* buffer)
 {
   debugAssert (matrix->imValues != nullptr);
   memcpy (matrix->imValues, buffer, matrix->columns * matrix->rows * sizeof(floatt));
