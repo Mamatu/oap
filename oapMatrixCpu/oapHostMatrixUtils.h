@@ -51,6 +51,10 @@ namespace host
  */
 math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
 
+math::Matrix* NewMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray);
+math::Matrix* NewReMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray);
+math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* imarray);
+
 /**
  * @brief NewMatrix - creates new matrix, which has the same size
  *                    and im and re part like passed matrix. Values
@@ -84,8 +88,12 @@ math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value = 0);
  * @param value
  * @return
  */
-math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows,
-                        floatt value = 0);
+math::Matrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows, floatt value = 0);
+
+inline math::Matrix* NewHostMatrix (bool isre, bool isim, uintt columns, uintt rows)
+{
+  return NewMatrix (isre, isim, columns, rows, 0);
+}
 
 /**
  * @brief NewReMatrix
@@ -667,9 +675,9 @@ void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
 math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
-void CopyArrayToMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer);
-void CopyArrayToReMatrix (math::Matrix* matrix, floatt* buffer);
-void CopyArrayToImMatrix (math::Matrix* matrix, floatt* buffer);
+void CopyArrayToMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer);
+void CopyArrayToReMatrix (math::Matrix* matrix, const floatt* buffer);
+void CopyArrayToImMatrix (math::Matrix* matrix, const floatt* buffer);
 
 inline void SetReValueToMatrix (math::Matrix* matrix, floatt value, size_t idx = 0)
 {
