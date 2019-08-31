@@ -134,11 +134,11 @@ void InfoCreator::printMean(std::string& output, const std::string& message,
   output += message + "(" + sstream1.str() + "," + sstream2.str() + ") ";
 }
 
-bool InfoCreator::isEqual() {
+bool InfoCreator::isEqual(floatt tolerance) {
   math::Matrix* output = getOutputMatrix();
   math::Matrix* expected = getExpectedMatrix();
   math::Matrix* diffMatrix = NULL;
-  bool result = compare(output, expected, &diffMatrix);
+  bool result = compare(output, expected, tolerance, &diffMatrix);
   if (result == false) {
     createInfo(m_info, m_infoType, diffMatrix);
     destroyMatrix(diffMatrix);
@@ -146,11 +146,11 @@ bool InfoCreator::isEqual() {
   return result;
 }
 
-bool InfoCreator::hasValues() {
+bool InfoCreator::hasValues(floatt tolerance) {
   math::Matrix* output = getOutputMatrix();
   math::Matrix* expected = getExpectedMatrix();
   math::Matrix* diffMatrix = NULL;
-  bool result = compareValues(output, expected, &diffMatrix);
+  bool result = compareValues(output, expected, tolerance, &diffMatrix);
   if (diffMatrix != NULL) {
     createInfo(m_info, m_infoType, diffMatrix);
     destroyMatrix(diffMatrix);

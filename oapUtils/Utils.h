@@ -49,11 +49,9 @@ bool AlmostEquals(floatt a, floatt b, floatt epsilon);
 
 void diff(math::Matrix* output, math::Matrix* m1, math::Matrix* m2);
 
-bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
-             math::Matrix** diff = NULL);
+bool IsEqual (const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff = NULL);
 
-bool HasValues(const math::Matrix& m1, const math::Matrix& m2,
-               math::Matrix** diff = NULL);
+bool HasValues (const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff = NULL);
 
 bool IsIdentityMatrix(const math::Matrix& m1, math::Matrix** output);
 

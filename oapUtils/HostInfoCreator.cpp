@@ -47,14 +47,15 @@ void HostInfoCreator::getMean(floatt& re, floatt& im,
 }
 
 bool HostInfoCreator::compare(math::Matrix* matrix1, math::Matrix* matrix2,
-                              math::Matrix** diffMatrix) const {
-  return utils::IsEqual(*matrix1, *matrix2, diffMatrix);
+                              floatt tolerance, math::Matrix** diffMatrix) const {
+  return utils::IsEqual(*matrix1, *matrix2, tolerance, diffMatrix);
 }
 
 bool HostInfoCreator::compareValues(math::Matrix* matrix1,
                                     math::Matrix* matrix2,
+                                    floatt tolerance,
                                     math::Matrix** diffMatrix) const {
-  return utils::HasValues(*matrix1, *matrix2, diffMatrix);
+  return utils::HasValues(*matrix1, *matrix2, tolerance, diffMatrix);
 }
 
 void HostInfoCreator::destroyMatrix(math::Matrix* diffMatrix) const {
