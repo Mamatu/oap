@@ -64,10 +64,10 @@ class InfoCreator {
   virtual void getMean(floatt& re, floatt& im, math::Matrix* matrix) const = 0;
 
   virtual bool compare(math::Matrix* matrix1, math::Matrix* matrix2,
-                       math::Matrix** diffMatrix) const = 0;
+                       floatt tolerance, math::Matrix** diffMatrix) const = 0;
 
   virtual bool compareValues(math::Matrix* matrix1, math::Matrix* matrix2,
-                             math::Matrix** diffMatrix) const = 0;
+                             floatt tolerance, math::Matrix** diffMatrix) const = 0;
 
   virtual void destroyMatrix(math::Matrix* diffMatrix) const = 0;
 
@@ -101,8 +101,8 @@ class InfoCreator {
   void printMean(std::string& output, const std::string& message,
                  math::Matrix* matrix) const;
 
-  bool isEqual();
-  bool hasValues();
+  bool isEqual(floatt tolerance);
+  bool hasValues(floatt tolerance);
 };
 
 #endif  // INFOCREATOR_H
