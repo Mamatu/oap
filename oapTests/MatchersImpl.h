@@ -61,63 +61,69 @@ class MatrixValuesAreEqualMatcher : public MatcherInterface<math::Matrix*> {
 };
 
 class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
-  math::Matrix* m_matrix;
-  InfoType m_infoType;
 
- public:
-  MatrixIsEqualMatcher(math::Matrix* matrix, const InfoType& infoType)
-      : m_matrix(matrix), m_infoType(infoType) {}
+  protected:
+    math::Matrix* m_matrix;
+    InfoType m_infoType;
 
-  virtual bool MatchAndExplain(math::Matrix* matrix,
-                               MatchResultListener* listener) const {
-    HostInfoCreator infoCreator;
-    infoCreator.setExpected(matrix);
-    infoCreator.setOutput(m_matrix);
-    infoCreator.setInfoType(m_infoType);
-    bool isEqual = infoCreator.isEqual();
-    std::string msg;
-    infoCreator.getInfo(msg);
-    (*listener) << msg;
-    return isEqual;
-  }
+  public:
+    MatrixIsEqualMatcher(math::Matrix* matrix, const InfoType& infoType)
+      : m_matrix(matrix), m_infoType(infoType)
+    {}
 
-  virtual void DescribeTo(::std::ostream* os) const {
-    *os << "Matrices are equal.";
-  }
+    virtual bool MatchAndExplain(math::Matrix* matrix, MatchResultListener* listener) const
+    {
+      HostInfoCreator infoCreator;
+      infoCreator.setExpected(matrix);
+      infoCreator.setOutput(m_matrix);
+      infoCreator.setInfoType(m_infoType);
+      bool isEqual = infoCreator.isEqual(m_infoType.getTolerance());
+      std::string msg;
+      infoCreator.getInfo(msg);
+      (*listener) << msg;
+      return isEqual;
+    }
 
-  virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "Matrices are not equal.";
-  }
+    virtual void DescribeTo(::std::ostream* os) const {
+      *os << "Matrices are equal.";
+    }
+
+    virtual void DescribeNegationTo(::std::ostream* os) const {
+      *os << "Matrices are not equal.";
+    }
 };
 
-class MatrixHasValuesMatcher : public MatcherInterface<math::Matrix*> {
-  math::Matrix* m_matrix;
-  InfoType m_infoType;
+class MatrixHasValuesMatcher : public MatcherInterface<math::Matrix*>
+{
+  protected:
+    math::Matrix* m_matrix;
+    InfoType m_infoType;
 
- public:
-  MatrixHasValuesMatcher(math::Matrix* matrix, const InfoType& infoType)
-      : m_matrix(matrix), m_infoType(infoType) {}
+  public:
+    MatrixHasValuesMatcher(math::Matrix* matrix, const InfoType& infoType)
+      : m_matrix(matrix), m_infoType(infoType)
+    {}
 
-  virtual bool MatchAndExplain(math::Matrix* matrix,
-                               MatchResultListener* listener) const {
-    HostInfoCreator infoCreator;
-    infoCreator.setExpected(matrix);
-    infoCreator.setOutput(m_matrix);
-    infoCreator.setInfoType(m_infoType);
-    bool hasTheSameValues = infoCreator.hasValues();
-    std::string msg;
-    infoCreator.getInfo(msg);
-    (*listener) << msg;
-    return hasTheSameValues;
-  }
+    virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const
+    {
+      HostInfoCreator infoCreator;
+      infoCreator.setExpected(matrix);
+      infoCreator.setOutput(m_matrix);
+      infoCreator.setInfoType(m_infoType);
+      bool hasTheSameValues = infoCreator.hasValues(m_infoType.getTolerance());
+      std::string msg;
+      infoCreator.getInfo(msg);
+      (*listener) << msg;
+      return hasTheSameValues;
+    }
 
-  virtual void DescribeTo(::std::ostream* os) const {
-    *os << "Matrix has equal values.";
-  }
+    virtual void DescribeTo(::std::ostream* os) const {
+      *os << "Matrix has equal values.";
+    }
 
-  virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "Matrix has not equal values.";
-  }
+    virtual void DescribeNegationTo(::std::ostream* os) const {
+      *os << "Matrix has not equal values.";
+    }
 };
 
 class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {

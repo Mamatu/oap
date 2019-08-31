@@ -26,22 +26,61 @@
 #include <limits>
 
 #include "Utils.h"
+
 #include "MatchersImpl.h"
+#include "CudaMatchersImpl.h"
+
 #include "InfoType.h"
 #include "oapHostMatrixUtils.h"
 
-inline Matcher<math::Matrix*> MatrixIsEqual(
-    math::Matrix* matrix, const InfoType& infoType = InfoType()) {
+namespace oap { namespace cuda {
+
+  inline Matcher<math::Matrix*> MatrixIsEqualHK (math::Matrix* matrix, const InfoType& infoType = InfoType())
+  {
+    return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherHK(matrix, infoType));
+  }
+
+  inline Matcher<math::Matrix*> MatrixIsEqualKH (math::Matrix* matrix, const InfoType& infoType = InfoType())
+  {
+    return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherHK(matrix, infoType));
+  }
+
+  inline Matcher<math::Matrix*> MatrixIsEqualKK (math::Matrix* matrix, const InfoType& infoType = InfoType())
+  {
+    return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherHK(matrix, infoType));
+  }
+
+  inline Matcher<math::Matrix*> MatrixHasValues (math::Matrix* matrix, const InfoType& infoType = InfoType())
+  {
+    return MakeMatcher(new oap::cuda::MatrixHasValuesMatcher(matrix, infoType));
+  }
+
+  inline Matcher<math::Matrix*> MatrixIsDiagonal(floatt value) {
+    return MakeMatcher(new oap::cuda::MatrixIsDiagonalMatcher(value));
+  }
+
+  inline Matcher<math::Matrix*> MatrixIsIdentity() {
+    return MakeMatcher(new oap::cuda::MatrixIsIdentityMatcher());
+  }
+
+  inline Matcher<math::Matrix*> MatrixHasValues(floatt value) {
+    return MakeMatcher(new oap::cuda::MatrixValuesAreEqualMatcher(value));
+  }
+
+}}
+
+inline Matcher<math::Matrix*> MatrixIsEqual(math::Matrix* matrix, const InfoType& infoType = InfoType())
+{
   return MakeMatcher(new MatrixIsEqualMatcher(matrix, infoType));
 }
 
-inline Matcher<math::Matrix*> MatrixHasValues(
-    math::Matrix* matrix, const InfoType& infoType = InfoType()) {
+inline Matcher<math::Matrix*> MatrixHasValues (math::Matrix* matrix, const InfoType& infoType = InfoType())
+{
   return MakeMatcher(new MatrixHasValuesMatcher(matrix, infoType));
 }
 
-inline Matcher<math::Matrix*> MatrixContainsDiagonalValues(
-    math::Matrix* matrix) {
+inline Matcher<math::Matrix*> MatrixContainsDiagonalValues (math::Matrix* matrix)
+{
   return MakeMatcher(new MatrixContainsDiagonalValuesMatcher(matrix));
 }
 
