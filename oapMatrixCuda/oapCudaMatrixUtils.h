@@ -55,6 +55,11 @@ math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns, uin
 
 math::Matrix* NewDeviceMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows);
 
+inline math::Matrix* NewKernelMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows)
+{
+  return NewDeviceMatrix (allocRe, allocIm, columns, rows);
+}
+
 math::Matrix* NewDeviceReMatrix(uintt columns, uintt rows);
 
 math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows);
