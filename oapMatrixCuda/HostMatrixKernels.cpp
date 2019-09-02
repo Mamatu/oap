@@ -106,13 +106,14 @@ bool HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
   uintt count = 0;
   uintt Acolumns = CudaUtils::GetColumns(A);
   uintt Arows = CudaUtils::GetRows(A);
+  const floatt limit = 0.0000000001;
 
   for (uintt fa = 0; fa < Acolumns; ++fa) {
     for (uintt fb = Arows - 1; fb > fa; --fb) {
 
       floatt v = CudaUtils::GetReValue(A, fa + fb * Acolumns);
 
-      if ((-0.0001 < v && v < 0.0001) == false) {
+      if ((-limit < v && v < limit) == false) {
         host_prepareGMatrix(R1, fa, fb, G, kernel);
         DEVICEKernel_DotProduct(R, G, R1, kernel);
 
@@ -129,7 +130,6 @@ bool HOSTKernel_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
       }
     }
   }
-
   if (count % 2 != 0) {
     oap::cuda::CopyDeviceMatrixToDeviceMatrix(rQ, Q1);
     oap::cuda::CopyDeviceMatrixToDeviceMatrix(rR, R1);
