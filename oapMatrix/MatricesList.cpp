@@ -51,12 +51,7 @@ math::MatrixInfo MatricesList::getMatrixInfo (const math::Matrix* matrix) const
   const auto& map = getAllocated();
   auto it = map.find (matrix);
 
-  if (it == map.end())
-  {
-    std::stringstream stream;
-    stream << "Matrix " << matrix << " does not exist or was not allocated in proper way.";
-    throw std::runtime_error (stream.str ());
-  }
+  debugAssertMsg (it != map.end(), "Matrix %p does not exist or was not allocated in proper way.", matrix);
 
   return it->second;
 }
