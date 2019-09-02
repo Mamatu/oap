@@ -44,28 +44,11 @@ namespace
 MatricesList gMatricesList ("CUDA");
 }
 
-math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix)
+math::Matrix* NewHostMatrixCopyOfDeviceMatrix (const math::Matrix* matrix)
 {
-  bool hasRe = CudaUtils::GetReValues (matrix) != nullptr;
-  bool hasIm = CudaUtils::GetImValues (matrix) != nullptr;
+  auto minfo = GetMatrixInfo (matrix);
 
-  uintt columns = CudaUtils::GetColumns(matrix);
-  uintt rows = CudaUtils::GetRows(matrix);
-
-  math::Matrix* hostMatrix = NULL;
-  if (hasRe && hasIm)
-  {
-    hostMatrix = oap::host::NewMatrix(columns, rows);
-  }
-  else if (hasRe)
-  {
-    hostMatrix = oap::host::NewReMatrix(columns, rows);
-  }
-  else if (hasIm)
-  {
-    hostMatrix = oap::host::NewImMatrix(columns, rows);
-  }
-
+  math::Matrix* hostMatrix = oap::host::NewMatrix (minfo);
   oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, matrix);
 
   return hostMatrix;
