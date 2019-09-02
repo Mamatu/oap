@@ -36,13 +36,11 @@ struct MatrixDim {
 /**
  * Columns orientation
  */
-struct Matrix {
+struct Matrix : public MatrixDim {
   uintt realColumns;
   uintt realRows;
   floatt* reValues;
   floatt* imValues;
-  uintt columns;
-  uintt rows;
 };
 }
 
