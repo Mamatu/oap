@@ -53,14 +53,13 @@ bool IsEqual (const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, 
 
 bool HasValues (const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff = NULL);
 
-bool IsIdentityMatrix(const math::Matrix& m1, math::Matrix** output);
+bool IsIdentityMatrix(const math::Matrix& m1, floatt tolerance, math::Matrix** diff);
 
-bool IsDiagonalMatrix(const math::Matrix& m1, floatt value,
-                      math::Matrix** output);
+bool IsDiagonalMatrix (const math::Matrix& m1, floatt value, floatt tolerance, math::Matrix** diff);
 
-bool IsIdentityMatrix(const math::Matrix& m1);
+bool IsIdentityMatrix (const math::Matrix& m1, floatt tolerance);
 
-bool IsDiagonalMatrix(const math::Matrix& m1, floatt value);
+bool IsDiagonalMatrix (const math::Matrix& m1, floatt value, floatt tolerance);
 
 bool isEqual(const MatrixEx& matrixEx, const uintt* buffer);
 

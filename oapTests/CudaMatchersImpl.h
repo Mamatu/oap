@@ -113,7 +113,7 @@ class MatrixHasValuesMatcher : public ::MatrixHasValuesMatcher
 class MatrixIsDiagonalMatcher : public ::MatrixIsDiagonalMatcher
 {
  public:
-  MatrixIsDiagonalMatcher(floatt value) : ::MatrixIsDiagonalMatcher (value) {}
+  MatrixIsDiagonalMatcher(floatt value, const InfoType& infoType = InfoType()) : ::MatrixIsDiagonalMatcher (value, infoType) {}
 
   virtual bool MatchAndExplain(math::Matrix* matrix, MatchResultListener* listener) const override
   {
