@@ -31,6 +31,12 @@ class EigenPair {
     const math::Matrix* m_matrix;
     uint m_index;
   public:
+
+    EigenPair (floatt revalue, const math::Matrix* matrix = nullptr, uint index = 0) :
+      m_evalue(revalue), m_matrix(matrix), m_index(index)
+    {
+    }
+
     EigenPair(const Complex& evalue, const math::Matrix* matrix, uint index = 0) :
       m_evalue(evalue), m_matrix(matrix), m_index(index)
     {}

@@ -70,14 +70,14 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       math::Matrix* dvalue = userDataObj->dvalue;
 
       for (size_t idx = 0; idx < hmatrix->rows; ++idx) {
-        oap::host::GetTransposeReVector(hvectorT, hmatrix, idx);
-        //oap::host::PrintMatrix("hvectorT = ", hvectorT);
-        oap::cuda::CopyHostMatrixToDeviceMatrix(dvectorT, hvectorT);
-        cuProceduresApi.dotProduct(dvalue, dvectorT, m_v);
-        oap::cuda::SetReMatrix(m_w, dvalue, 0, idx);
+        oap::host::GetTransposeReVector (hvectorT, hmatrix, idx);
+        oap::cuda::CopyHostMatrixToDeviceMatrix (dvectorT, hvectorT);
+        cuProceduresApi.dotProduct (dvalue, dvectorT, m_v);
+        PRINT_CUMATRIX(dvalue);
+        PRINT_CUMATRIX(dvectorT);
+        PRINT_CUMATRIX(m_v);
+        oap::cuda::SetReMatrix (m_w, dvalue, 0, idx);
       }
-      //oap::cuda::PrintMatrix("m_w =", m_w);
-      //oap::cuda::PrintMatrix("m_v =", m_v);
     }
 
     static bool check(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max, void* userData) {
@@ -253,18 +253,42 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 };
 
 TEST_F(OapArnoldiPackageMatricesTests, Sms1HeaderTest) {
-  runSmsDataTest(0, 5, 15, 0.02);
+  runSmsDataTest(Test_SmsData1, 5, 15, 0.02);
 }
 
 TEST_F(OapArnoldiPackageMatricesTests, Sms2HeaderTest) {
-  runSmsDataTest(1, 5, 20, 0.047);
+  runSmsDataTest(Test_SmsData2, 5, 20, 0.047);
 }
 
 TEST_F(OapArnoldiPackageMatricesTests, Sms3HeaderTest) {
-  runSmsDataTest(2, 5, 22, 0.1);
+  runSmsDataTest(Test_SmsData3, 5, 22, 0.1);
 }
 
 TEST_F(OapArnoldiPackageMatricesTests, Sms4HeaderTest) {
-  runSmsDataTest(3, 6, 14, 0.13);
+  runSmsDataTest(Test_SmsData4, 6, 14, 0.13);
+}
+
+TEST_F(OapArnoldiPackageMatricesTests, Sms1_Little_HeaderTest) {
+  runSmsDataTest(Test_SmsData1_Little, 4, 4, 0.);
+}
+
+TEST_F(OapArnoldiPackageMatricesTests, Sms2_Little_HeaderTest) {
+  runSmsDataTest(Test_SmsData2_Little, 3, 3, 0.);
+}
+
+TEST_F(OapArnoldiPackageMatricesTests, Sms3_Little_HeaderTest) {
+  runSmsDataTest(Test_SmsData3_Little, 4, 4, 0.);
+}
+
+TEST_F(OapArnoldiPackageMatricesTests, Sms_Identity_HeaderTest) {
+  runSmsDataTest(Test_SmsData_Identity, 3, 3, 0.);
+}
+
+TEST_F(OapArnoldiPackageMatricesTests, Sms_64_1_HeaderTest) {
+  runSmsDataTest(Test_SmsData_64_1, 3, 6, 0);
+}
+
+TEST_F(OapArnoldiPackageMatricesTests, Sms_64_2_HeaderTest) {
+  runSmsDataTest(Test_SmsData_64_2, 3, 6, 0);
 }
 
