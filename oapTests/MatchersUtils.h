@@ -84,12 +84,12 @@ inline Matcher<math::Matrix*> MatrixContainsDiagonalValues (math::Matrix* matrix
   return MakeMatcher(new MatrixContainsDiagonalValuesMatcher(matrix));
 }
 
-inline Matcher<math::Matrix*> MatrixIsDiagonal(floatt value) {
-  return MakeMatcher(new MatrixIsDiagonalMatcher(value));
+inline Matcher<math::Matrix*> MatrixIsDiagonal(floatt value, const InfoType& infoType = InfoType()) {
+  return MakeMatcher(new MatrixIsDiagonalMatcher(value, infoType));
 }
 
-inline Matcher<math::Matrix*> MatrixIsIdentity() {
-  return MakeMatcher(new MatrixIsIdentityMatcher());
+inline Matcher<math::Matrix*> MatrixIsIdentity(const InfoType& infoType = InfoType()) {
+  return MakeMatcher(new MatrixIsIdentityMatcher (infoType));
 }
 
 inline Matcher<math::Matrix*> MatrixHasValues(floatt value) {

@@ -128,15 +128,16 @@ class MatrixHasValuesMatcher : public MatcherInterface<math::Matrix*>
 
 class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {
   floatt m_value;
+  InfoType m_infoType;
 
  public:
-  MatrixIsDiagonalMatcher(floatt value) : m_value(value) {}
+  MatrixIsDiagonalMatcher (floatt value, const InfoType& infoType) : m_value(value), m_infoType(infoType) {}
 
   virtual bool MatchAndExplain(math::Matrix* matrix,
                                MatchResultListener* listener) const {
     math::Matrix* diffmatrix = NULL;
     std::string matrixStr;
-    bool isequal = utils::IsDiagonalMatrix((*matrix), m_value, &diffmatrix);
+    bool isequal = utils::IsDiagonalMatrix((*matrix), m_value, m_infoType.getTolerance(), &diffmatrix);
     matrixUtils::PrintMatrix(matrixStr, diffmatrix);
     if (!isequal) {
       (*listener) << "Diff is = " << matrixStr;
@@ -156,7 +157,7 @@ class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {
 
 class MatrixIsIdentityMatcher : public MatrixIsDiagonalMatcher {
  public:
-  MatrixIsIdentityMatcher() : MatrixIsDiagonalMatcher(1.f) {}
+  MatrixIsIdentityMatcher (const InfoType& infoType) : MatrixIsDiagonalMatcher(1.f, infoType) {}
 
   virtual void DescribeTo(::std::ostream* os) const {
     *os << "Matrix is identity.";
