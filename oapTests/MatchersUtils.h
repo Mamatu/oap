@@ -135,6 +135,17 @@ inline Matcher<std::string> StringIsEqual(const std::string& str2, const std::st
       new StringIsEqualMatcher(str2, path1, path2));
 }
 
+inline Matcher<math::Matrix*> MatrixIsUpperTriangular (const InfoType& infoType = InfoType())
+{
+  return MakeMatcher(new MatrixIsUpperTriangularMatcher (infoType));
+}
+
+template <typename CalcApi>
+Matcher<math::Matrix*> MatrixIsOrthogonal (CalcApi& calcApi, const InfoType& infoType = InfoType())
+{
+  return MakeMatcher(new MatrixIsOrthogonalMatcher<CalcApi> (calcApi, infoType));
+}
+
 MATCHER_P(MatrixValuesAreNotEqual, value, "") {
   return utils::areNotEqual(arg, value);
 }

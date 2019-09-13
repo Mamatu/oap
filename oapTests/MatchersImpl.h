@@ -27,6 +27,7 @@
 #include "HostInfoCreator.h"
 
 #include "oapHostMatrixUtils.h"
+#include "oapHostMatrixUPtr.h"
 
 #include "MatrixPrinter.h"
 #include "Utils.h"
@@ -133,13 +134,15 @@ class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {
  public:
   MatrixIsDiagonalMatcher (floatt value, const InfoType& infoType) : m_value(value), m_infoType(infoType) {}
 
-  virtual bool MatchAndExplain(math::Matrix* matrix,
-                               MatchResultListener* listener) const {
+  virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const {
     math::Matrix* diffmatrix = NULL;
-    std::string matrixStr;
     bool isequal = utils::IsDiagonalMatrix((*matrix), m_value, m_infoType.getTolerance(), &diffmatrix);
+
+    std::string matrixStr;
     matrixUtils::PrintMatrix(matrixStr, diffmatrix);
-    if (!isequal) {
+
+    if (!isequal)
+    {
       (*listener) << "Diff is = " << matrixStr;
     }
     oap::host::DeleteMatrix(diffmatrix);
@@ -358,6 +361,97 @@ class StringIsEqualMatcher
     *os << "Strings are not equal.";
   }
 
+};
+
+class MatrixIsUpperTriangularMatcher : public MatcherInterface<math::Matrix*> {
+
+  InfoType m_infoType;
+
+  public:
+    MatrixIsUpperTriangularMatcher(const InfoType& infoType = InfoType()) {}
+
+    virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const override
+    {
+      std::vector<std::tuple<uintt, uintt, floatt>> pairs;
+
+      for (uintt column = 0; column < matrix->columns; ++column)
+      {
+        for (uintt row = 0; row < matrix->rows; ++row)
+        {
+          floatt v = GetRe (matrix, column, row);
+          if (column < row)
+          {
+            bool inRange = -m_infoType.getTolerance() < v && v < m_infoType.getTolerance();
+            if (!inRange)
+            {
+              pairs.push_back (std::make_tuple(column, row, v));
+            }
+          }
+        }
+      }
+
+      if (!pairs.empty())
+      {
+        std::stringstream sstream;
+        for (const auto& p : pairs)
+        {
+          sstream << "(" << std::get<0>(p) << ", " << std::get<1>(p) << ", " << std::get<2>(p) << ")";
+        }
+        (*listener) << "Matrix in not upper trinagular. Invalid entries: " << sstream.str();
+      }
+
+      return pairs.empty();
+    }
+
+    virtual void DescribeTo(::std::ostream* os) const override
+    {
+      *os << "Matrix is upper triangular.";
+    }
+
+    virtual void DescribeNegationTo(::std::ostream* os) const override
+    {
+      *os << "Matrix is not upper triangular.";
+    }
+};
+
+template<typename CalcApi>
+class MatrixIsOrthogonalMatcher : public MatcherInterface<math::Matrix*>
+{
+
+  CalcApi& m_calcApi;
+  InfoType m_infoType;
+
+  public:
+    MatrixIsOrthogonalMatcher (CalcApi& calcApi, const InfoType& infoType = InfoType()) : m_calcApi (calcApi), m_infoType (infoType) {}
+
+    virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const override
+    {
+      oap::HostMatrixUPtr matrixT = oap::host::NewMatrixCopy (matrix);
+      oap::HostMatrixUPtr M = oap::host::NewMatrixRef (matrix);
+
+      m_calcApi.transpose (matrixT, matrix);
+      m_calcApi.dotProduct (M, matrixT, matrix);
+
+      math::Matrix* diffmatrix = NULL;
+      bool isDiag = utils::IsDiagonalMatrix(*M, 1.f, m_infoType.getTolerance(), &diffmatrix);
+      if (!isDiag)
+      {
+        return false;
+      }
+
+      m_calcApi.dotProduct (M, matrix, matrixT);
+      return utils::IsDiagonalMatrix (*M, 1.f, m_infoType.getTolerance(), &diffmatrix);
+    }
+
+    virtual void DescribeTo(::std::ostream* os) const override
+    {
+      *os << "Matrix is orthogonal.";
+    }
+
+    virtual void DescribeNegationTo(::std::ostream* os) const override
+    {
+      *os << "Matrix is not orthogonal.";
+    }
 };
 
 #endif /* MATCHERSIMPL_H */
