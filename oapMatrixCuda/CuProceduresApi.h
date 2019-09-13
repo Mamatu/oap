@@ -251,6 +251,8 @@ class CuProceduresApi
   void QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H, math::Matrix* R1,
             math::Matrix* Q1, math::Matrix* G, math::Matrix* GT);
 
+  void QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT);
+
   bool isUpperTriangular(math::Matrix* matrix);
 
   void calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math::Matrix* R,

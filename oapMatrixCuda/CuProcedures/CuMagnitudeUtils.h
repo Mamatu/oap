@@ -21,17 +21,19 @@
 #define CUMAGNITUDEUTILS_H
 
 #include "CuCore.h"
+#include "CuUtils.h"
 #include "Matrix.h"
 #include "CuUtilsCommon.h"
 
-__hostdevice__ void cuda_SumValues(floatt* buffer, uintt bufferIndex, uintt bufferLength, uintt xlength, uintt ylength)
+__hostdevice__ void cuda_SumValues(floatt* buffer, uintt bufferIndex, uintt bufferLength, uintt xlength, uintt ylength, uintt row = 0, uintt column = 0)
 {
   HOST_INIT();
-  if (bufferIndex < bufferLength / 2 && threadIdx.x < xlength &&
-      threadIdx.y < ylength)
+  const bool inScope = threadIdx.x < xlength + column && threadIdx.y < ylength + row && column <= threadIdx.x && row <= threadIdx.y;
+  if (bufferIndex < bufferLength / 2 && inScope)
   {
     int c = bufferLength & 1;
-    buffer[bufferIndex] += buffer[bufferIndex + bufferLength / 2];
+    uintt bufferIndex1 = bufferIndex + bufferLength / 2;
+    buffer[bufferIndex] += buffer[bufferIndex1];
     if (c == 1 && bufferIndex == bufferLength / 2 - 1)
     {
       buffer[bufferIndex] += buffer[bufferLength - 1];
@@ -199,6 +201,53 @@ __hostdevice__ void cuda_MagnitudeImVecOptEx(floatt* buffer, uintt bufferIndex,
     uintt index = GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
     buffer[bufferIndex] = m1->imValues[index] * m1->imValues[index];
   }
+}
+
+typedef floatt (*CalcElem_f)(const math::Matrix* matrix, uintt index);
+
+__hostdevice__ floatt cuda_CalcElemReal (const math::Matrix* matrix, uintt index)
+{
+  return matrix->reValues[index] * matrix->reValues[index] + matrix->imValues[index] * matrix->imValues[index];
+}
+
+__hostdevice__ floatt cuda_CalcElemRe (const math::Matrix* matrix, uintt index)
+{
+  return matrix->reValues[index] * matrix->reValues[index];
+}
+
+__hostdevice__ floatt cuda_CalcElemIm (const math::Matrix* matrix, uintt index)
+{
+  return matrix->imValues[index] * matrix->imValues[index];
+}
+
+__hostdevice__ void cuda_MagnitudeGenericOptEx (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row, uintt columns, uintt rows, CalcElem_f calcElm)
+{
+  HOST_INIT();
+
+  uintt matrixXIndex = GetMatrixXIndex (threadIdx, blockIdx, blockDim);
+  uintt matrixYIndex = GetMatrixYIndex (threadIdx, blockIdx, blockDim);
+
+  const bool inScope = matrixYIndex >= row && matrixYIndex < row + rows && matrixXIndex >= column && matrixXIndex < column + columns;
+  if (inScope)
+  {
+    uintt index = GetMatrixIndex (threadIdx, blockIdx, blockDim, m1->columns);
+    buffer[bufferIndex] = calcElm (m1, index);
+  }
+}
+
+__hostdevice__ void cuda_MagnitudeRealMatrixOptEx (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row, uintt columns, uintt rows)
+{
+  cuda_MagnitudeGenericOptEx (buffer, bufferIndex, m1, column, row, columns, rows, cuda_CalcElemReal);
+}
+
+__hostdevice__ void cuda_MagnitudeReMatrixOptEx (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row, uintt columns, uintt rows)
+{
+  cuda_MagnitudeGenericOptEx (buffer, bufferIndex, m1, column, row, columns, rows, cuda_CalcElemRe);
+}
+
+__hostdevice__ void cuda_MagnitudeImMatrixOptEx (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row, uintt columns, uintt rows)
+{
+  cuda_MagnitudeGenericOptEx (buffer, bufferIndex, m1, column, row, columns, rows, cuda_CalcElemIm);
 }
 
 #endif /* CUCOMMONUTILS_H */

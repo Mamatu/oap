@@ -45,6 +45,8 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_TanhDimPeriodic", proxy_HOSTKernel_TanhDimPeriodic},
   {"CUDAKernel_SigmoidDimPeriodic", proxy_HOSTKernel_SigmoidDimPeriodic},
   {"CUDAKernel_SinDimPeriodic", proxy_HOSTKernel_SinDimPeriodic},
+  {"CUDAKernel_QRHT", proxy_HOSTKernel_QRHT},
+  {"CUDAKernel_SetIdentity", proxy_HOSTKernel_SetIdentity},
 };
 
 class HostKernelImpl : public HostKernel

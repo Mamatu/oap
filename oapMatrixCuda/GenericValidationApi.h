@@ -48,14 +48,10 @@ void check_isEqualDim (math::Matrix* m1, math::Matrix* m2, BasicMatrixApi& bmApi
   }
 }
 
-template<typename BasicMatrixApi>
-void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixApi& bmApi)
+inline void check_dotProduct (const math::MatrixInfo& output, const math::MatrixInfo& minfo0, const math::MatrixInfo& minfo1)
 {
-  const uintt output_columns = columns;
-  const uintt output_rows = rows;
-
-  auto minfo0 = bmApi.getMatrixInfo (params0);
-  auto minfo1 = bmApi.getMatrixInfo (params1);
+  const uintt output_columns = output.columns ();
+  const uintt output_rows = output.rows ();
 
   const uintt params0_columns = minfo0.columns ();
   const uintt params0_rows = minfo0.rows ();
@@ -72,6 +68,16 @@ void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix
   debugAssertMsg(params0_columns == params1_rows, "params0_columns = %u params1_rows = %u", params0_columns, params1_rows);
   debugAssertMsg(output_columns == params1_columns, "output_columns = %u params1_columns = %u", output_columns, params1_columns);
   debugAssertMsg(output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
+}
+
+template<typename BasicMatrixApi>
+void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, BasicMatrixApi& bmApi)
+{
+  auto oinfo = bmApi.getMatrixInfo (output);
+  auto minfo0 = bmApi.getMatrixInfo (params0);
+  auto minfo1 = bmApi.getMatrixInfo (params1);
+
+  check_dotProduct (oinfo, minfo0, minfo1);
 }
 
 template<typename Dim>

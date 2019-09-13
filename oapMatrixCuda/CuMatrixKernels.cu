@@ -239,6 +239,11 @@ extern "C" __global__ void CUDAKernel_QRGR(
   CUDA_QRGR(output0, output1, params0, aux0, aux1, aux2, aux3);
 }
 
+extern "C" __global__ void CUDAKernel_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT)
+{
+  CudaKernel_QRHT (Q, R, A, V, VT, P, I, VVT);
+}
+
 extern "C" __global__ void CUDAKernel_SetVector(math::Matrix* output,
                                                 uintt index,
                                                 math::Matrix* params0,

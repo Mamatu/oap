@@ -92,6 +92,10 @@ class HostProcedures {
     uintt dims[3][2] = {{dims1[0], dims1[1]}, {dims2[0], dims2[1]}, {dims3[0], dims3[1]}};
     tensorProduct (matrix, params0, params1, dims);
   }
+
+  void QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT);
+  void setIdentity (math::Matrix* matrix);
+
  private:
   uint m_threads[2];
   uint m_blocks[2];
