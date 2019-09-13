@@ -108,7 +108,7 @@ void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0,
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  oap::generic::check_dotProduct (output, params0, params1, columns, rows, m_bmApi);
+  oap::generic::check_dotProduct (output, params0, params1, m_bmApi);
 
   void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_AddDotProduct";
@@ -419,11 +419,9 @@ void CuProceduresApi::setDiagonal(math::Matrix* matrix, floatt re, floatt im) {
   m_cuStatus = execute("CUDAKernel_SetDiagonal", w, h, params, 0);
 }
 
-void CuProceduresApi::setIdentity(math::Matrix* matrix) {
-  void* params[] = {&matrix};
-  const uintt w = CudaUtils::GetColumns(matrix);
-  const uintt h = CudaUtils::GetRows(matrix);
-  m_cuStatus = execute("CUDAKernel_SetIdentity", w, h, params, 0);
+void CuProceduresApi::setIdentity (math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
 void CuProceduresApi::setZeroMatrix(math::Matrix* matrix) {
@@ -438,11 +436,19 @@ void CuProceduresApi::QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
   uint maxThreads = m_kernel.getMaxThreadsPerBlock();
   const uintt w = CudaUtils::GetColumns(H);
   const uintt h = CudaUtils::GetRows(H);
-  if (maxThreads >= w * h) {
+  if (maxThreads >= w * h)
+  {
     m_cuStatus = execute("CUDAKernel_QRGR", w, h, params, 0);
-  } else {
+  }
+  else
+  {
     m_cuStatus = HOSTKernel_QRGR(Q, R, H, aux0, aux1, aux2, aux3, m_kernel);
   }
+}
+
+void CuProceduresApi::QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT)
+{
+  m_cuStatus = oap::generic::qrDecomposition_HT (Q, R, A, V, VT, P, I, VVT, &m_kernel, *this, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
 bool CuProceduresApi::isUpperTriangular(math::Matrix* matrix) {

@@ -356,3 +356,13 @@ void HostProcedures::tensorProduct (math::Matrix* output, math::Matrix* matrix1,
 {
   oap::generic::tensorProduct (output, matrix1, matrix2, dims, &m_kernel, m_bmApi, [](){}, m_createKernelArray);
 }
+
+void HostProcedures::QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT)
+{
+  oap::generic::qrDecomposition_HT (Q, R, A, V, VT, P, I, VVT, &m_kernel, *this, oap::host::GetMatrixInfo, [](){});
+}
+
+void HostProcedures::setIdentity (math::Matrix* matrix)
+{
+  oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
