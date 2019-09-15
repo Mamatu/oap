@@ -24,6 +24,42 @@
 #include "Matrix.h"
 #include "Logger.h"
 
+__hostdevice__ void CUDAKernel_setVector(math::Matrix* V, uintt column,
+                                   math::Matrix* v, uintt length) {
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  if (threadIndexY < length) {
+    uintt index1 = threadIndexY * V->columns + column + threadIndexX;
+    uintt index2 = threadIndexY * v->columns + threadIndexX;
+    if (V->reValues != NULL && v->reValues != NULL) {
+      V->reValues[index1] = v->reValues[index2];
+    }
+    if (V->imValues != NULL && v->imValues != NULL) {
+      V->imValues[index1] = v->imValues[index2];
+    }
+  }
+  threads_sync();
+}
+
+__hostdevice__ void CUDAKernel_getVector(math::Matrix* v, uintt length,
+                                   math::Matrix* V, uintt column) {
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  if (threadIndexY < length) {
+    uintt index1 = threadIndexY * V->columns + column + threadIndexX;
+    uintt index2 = threadIndexY * v->columns + threadIndexX;
+    if (V->reValues != NULL && v->reValues != NULL) {
+      v->reValues[index2] = V->reValues[index1];
+    }
+    if (V->imValues != NULL && v->imValues != NULL) {
+      v->imValues[index2] = V->imValues[index1];
+    }
+  }
+  threads_sync();
+}
+
 __hostdevice__ void CUDA_setVector(math::Matrix* V, uintt column,
                                    math::Matrix* v, uintt length)
 {

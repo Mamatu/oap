@@ -244,18 +244,14 @@ extern "C" __global__ void CUDAKernel_QRHT (math::Matrix* Q, math::Matrix* R, ma
   CudaKernel_QRHT (Q, R, A, V, VT, P, I, VVT);
 }
 
-extern "C" __global__ void CUDAKernel_SetVector(math::Matrix* output,
-                                                uintt index,
-                                                math::Matrix* params0,
-                                                uintt length) {
-  CUDA_setVector(output, index, params0, length);
+extern "C" __global__ void CUDAKernel_SetVector (math::Matrix* output, uintt index, math::Matrix* params0, uintt length)
+{
+  CUDAKernel_setVector(output, index, params0, length);
 }
 
-extern "C" __global__ void CUDAKernel_GetVector(math::Matrix* output,
-                                                uintt length,
-                                                math::Matrix* params0,
-                                                uintt index) {
-  CUDA_getVector(output, length, params0, index);
+extern "C" __global__ void CUDAKernel_GetVector (math::Matrix* output, uintt length, math::Matrix* params0, uintt index)
+{
+  CUDAKernel_getVector (output, length, params0, index);
 }
 
 extern "C" __global__ void CUDAKernel_SetIdentity(math::Matrix* matrix) {
