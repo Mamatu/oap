@@ -22,11 +22,12 @@
 
 #include <stdio.h>
 #include "Math.h"
+#include "Matrix.h"
 #include "CuCore.h"
 
 #ifndef DEBUG
 
-#define cuda_debug_buffer(s, buffer, len)
+#define cuda_debug_buffer(buffer, len)
 #define cuda_debug_matrix_ex(s, mo)
 #define cuda_debug(x, ...)
 #define cuda_debug_function()
@@ -40,10 +41,27 @@
 
 #define IS_THREAD(tx,ty) (blockIdx.x * blockDim.x + threadIdx.x) == tx && (blockIdx.y * blockDim.y + threadIdx.y) == ty
 
-__hostdevice__ void CUDA_PrintBuffer(floatt* buffer, uint length) {
+__hostdevice__ void CUDA_PrintBuffer(const char* s, floatt* buffer, uint length) {
+  printf("%s = {", s);
   for (uint fa = 0; fa < length; ++fa) {
-    printf("buffer[%u] = %f \n", fa, buffer[fa]);
+    printf("%f ", buffer[fa]);
   }
+  printf("}\n");
+}
+
+__hostdevice__ void CUDA_PrintMatrix (const char* str, math::Matrix* m)
+{
+  printf ("%s = [\n", str);
+  for (uintt fb = 0; fb < m->rows; ++fb)
+  {
+    printf("[");
+    for (uintt fa = 0; fa < m->columns; ++fa)
+    {
+      printf ("%f ", m->reValues[fb * m->columns + fa]);
+    }
+    printf("]\n");
+  }
+  printf ("]\n");
 }
 
 __hostdevice__ void CUDA_PrintBufferUintt(uintt* buffer, uint length) {
@@ -74,14 +92,23 @@ __hostdevice__ void CUDA_PrintInt(uint v) {
       printf("%s = \n", s);         \
       CUDA_PrintMatrixEx(mo);       \
     }                               \
+    threads_sync();                 \
   }
 
 #define cuda_debug_buffer(s, buffer, len) \
   {                                       \
     if (IS_FIRST_THREAD) {                \
-      printf("%s = \n", s);               \
-      CUDA_PrintBuffer(buffer, len);      \
+      CUDA_PrintBuffer(s, buffer, len);      \
     }                                     \
+    threads_sync();                 \
+  }
+
+#define cuda_debug_matrix(s, matrix) \
+  {                                       \
+    if (IS_FIRST_THREAD) {                \
+      CUDA_PrintMatrix(s, matrix);      \
+    }                                     \
+    threads_sync();                 \
   }
 
 #define cuda_debug_buffer_uint(s, buffer, len) \
