@@ -29,6 +29,7 @@
 #include "oapDeviceMatrixPtr.h"
 
 #include "MatchersUtils.h"
+#include "CudaMatchersUtils.h"
 
 #include "CuProceduresApi.h"
 
@@ -208,7 +209,6 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_2)
   oap::DeviceMatrixPtr aux2 = oap::cuda::NewDeviceReMatrix (3, 1);
   oap::DeviceMatrixPtr aux3 = oap::cuda::NewDeviceReMatrix (3, 3);
   oap::DeviceMatrixPtr aux4 = oap::cuda::NewDeviceReMatrix (3, 3);
-  oap::DeviceMatrixPtr aux5 = oap::cuda::NewDeviceReMatrix (3, 3);
 
   oap::HostMatrixPtr qexpected = oap::host::NewReMatrix (3, 3);
   oap::host::CopyArrayToReMatrix (qexpected, q_expected);
@@ -219,7 +219,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_2)
   oap::cuda::CopyHostArrayToDeviceReMatrix (H, values, length);
 
   oap::CuProceduresApi cuApi;
-  cuApi.QRHT (Q, R, H, aux1, aux2, aux3, aux4, aux5);
+  cuApi.QRHT (Q, R, H, aux1, aux2, aux3, aux4);
 
   EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (Q.get()));
   EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (R.get()));
@@ -261,7 +261,6 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
   oap::DeviceMatrixPtr aux2 = oap::cuda::NewDeviceReMatrix (2, 1);
   oap::DeviceMatrixPtr aux3 = oap::cuda::NewDeviceReMatrix (2, 2);
   oap::DeviceMatrixPtr aux4 = oap::cuda::NewDeviceReMatrix (2, 2);
-  oap::DeviceMatrixPtr aux5 = oap::cuda::NewDeviceReMatrix (2, 2);
 
   oap::HostMatrixPtr qexpected = oap::host::NewReMatrix (2, 2);
   oap::host::CopyArrayToReMatrix (qexpected, q_expected);
@@ -275,7 +274,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
   oap::cuda::CopyHostArrayToDeviceReMatrix (H, values, length);
 
   oap::CuProceduresApi cuApi;
-  cuApi.QRHT (Q, R, H, aux1, aux2, aux3, aux4, aux5);
+  cuApi.QRHT (Q, R, H, aux1, aux2, aux3, aux4);
   cuApi.dotProduct (H, R, Q);
 
   EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (Q.get(), 0.01));
