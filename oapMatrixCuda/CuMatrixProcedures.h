@@ -47,7 +47,7 @@
 #include "CuProcedures/CuConjugateTransposeProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
 #include "CuProcedures/CuIdentityProcedures.h"
-#include "CuProcedures/CuQRProcedures.h"
+#include "CuProcedures/CuQRProcedures_GR.h"
 #include "CuProcedures/CuQRProcedures_HT.h"
 #include "CuProcedures/CuIsUpperTriangularProcedures.h"
 #include "CuProcedures/CuMagnitudeOptProcedures.h"

@@ -25,7 +25,7 @@
 #include "CuCore.h"
 #include "Matrix.h"
 #include "CuProcedures/CuDotProductOptProcedures.h"
-#include "CuProcedures/CuQRProcedures.h"
+#include "CuProcedures/CuQRProcedures_GR.h"
 #include "CuProcedures/CuIsUpperTriangularProcedures.h"
 
 #define CUDA_HMtoUTMStep_STEPS 1000

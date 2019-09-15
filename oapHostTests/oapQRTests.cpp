@@ -25,7 +25,7 @@
 #include "MathOperationsCpu.h"
 #include "oapHostMatrixUtils.h"
 #include "HostProcedures.h"
-#include "CuProcedures/CuQRProcedures.h"
+#include "CuProcedures/CuQRProcedures_GR.h"
 #include "host_qrtest1.h"
 #include "host_qrtest2.h"
 #include "host_qrtest3.h"
