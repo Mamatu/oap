@@ -36,7 +36,6 @@
 #include "CuProcedures/CuCrossEntropyProcedures.h"
 #include "CuProcedures/CuInversionProcedures.h"
 #include "CuProcedures/CuDotProductProcedures.h"
-#include "CuProcedures/CuDotProductSharedProcedures.h"
 #include "CuProcedures/CuDotProductDimProcedures.h"
 #include "CuProcedures/CuDotProductPeriodicProcedures.h"
 #include "CuProcedures/CuDotProductDimPeriodicProcedures.h"
