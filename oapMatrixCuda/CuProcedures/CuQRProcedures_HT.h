@@ -21,6 +21,7 @@
 #define CUQRPROCEDURES_HT_H
 
 #include "CuCore.h"
+#include "CuUtils.h"
 #include "MatrixAPI.h"
 #include "CuCopyProcedures.h"
 #include "CuAdditionProcedures.h"
@@ -102,6 +103,8 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
     CUDA_dotProduct (VVT, V, VT);
 
     sum = CUDA_calcMagnitudeOptEx (V, buffer, 0, 0, 1, V->rows);
+    cuda_debug ("sum = %f", sum);
+    cuda_debug_matrix ("V = ", V);
 
     CUDA_multiplyConstantMatrix (VVT, VVT, 2. / sum, 0.);
     CUDA_IdentityMatrixSubstract (P, VVT);
