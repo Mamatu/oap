@@ -93,9 +93,8 @@ TEST_F(OapQRHTTests, Test_1)
   oap::HostMatrixPtr VT = oap::host::NewReMatrix (4, 1);
   oap::HostMatrixPtr VVT = oap::host::NewReMatrix (4, 4);
   oap::HostMatrixPtr P = oap::host::NewReMatrix (4, 4);
-  oap::HostMatrixPtr I = oap::host::NewReMatrix (4, 4);
 
-  hp.QRHT (Q, R, A, V, VT, P, I, VVT);
+  hp.QRHT (Q, R, A, V, VT, P, VVT);
 
   oap::HostMatrixPtr A2 = oap::host::NewReMatrix (4, 4);
   hp.dotProduct (A2, Q, R);
@@ -150,10 +149,9 @@ TEST_F(OapQRHTTests, Test_2)
   oap::HostMatrixPtr VT = oap::host::NewReMatrix (3, 1);
   oap::HostMatrixPtr VVT = oap::host::NewReMatrix (3, 3);
   oap::HostMatrixPtr P = oap::host::NewReMatrix (3, 3);
-  oap::HostMatrixPtr I = oap::host::NewReMatrix (3, 3);
 
   PRINT_MATRIX(A.get());
-  hp.QRHT (Q, R, A, V, VT, P, I, VVT);
+  hp.QRHT (Q, R, A, V, VT, P, VVT);
 
 #if 0 
   EXPECT_THAT (expectedR.get(), MatrixIsEqual (R.get())); 
