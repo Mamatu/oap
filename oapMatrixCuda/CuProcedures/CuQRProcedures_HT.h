@@ -32,6 +32,7 @@
 #include "CuMagnitudeOptProcedures.h"
 #include "CuMultiplicationProcedures.h"
 #include "CuVectorUtils.h"
+#include "CuIdentityMatrixOperations.h"
 #include "CuSubstractionProcedures.h"
 #include "CuSetMatrixProcedures.h"
 #include "CuSwitchPointer.h"
@@ -53,14 +54,18 @@ __hostdeviceinline__ floatt sign (floatt x)
   return x < 0 ? -1. : 1.;
 }
 
-__hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, floatt* buffer, math::Matrix* P, math::Matrix* I, math::Matrix* VVT)
+__hostdeviceinline__ floatt csign (floatt x)
+{
+  //return -1;
+  return sign (x);
+}
+
+__hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, floatt* buffer, math::Matrix* P, math::Matrix* VVT)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
   const uintt n = A->rows; 
-
-  CUDA_SetIdentityMatrix (I);
 
   for (uint k = 0; k < n; ++k)
   {
@@ -89,7 +94,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
       {
         SetRe (V, 0, rIdx, 0.f);
       }
-      SetRe (V, 0, rowIdx, GetRe(V, 0, rowIdx) + sign(GetRe(M, columnIdx, rowIdx)) * sqrtf(sum));
+      SetRe (V, 0, rowIdx, GetRe(V, 0, rowIdx) + csign(GetRe(M, columnIdx, rowIdx)) * sqrtf(sum));
     }
     threads_sync();
 
@@ -99,7 +104,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
     sum = CUDA_calcMagnitudeOptEx (V, buffer, 0, 0, 1, V->rows);
 
     CUDA_multiplyConstantMatrix (VVT, VVT, 2. / sum, 0.);
-    CUDA_substractMatrices (P, I, VVT);
+    CUDA_IdentityMatrixSubstract (P, VVT);
     
     CUDA_copyMatrix (VVT, M);
 
@@ -117,11 +122,11 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
   }
 }
 
-__hostdevice__ void CudaKernel_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT)
+__hostdevice__ void CudaKernel_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT)
 {
   floatt* sharedMemory = NULL;
   HOST_INIT_SHARED (floatt, sharedMemory);
-  CUDA_QRHT (Q, R, A, V, VT, sharedMemory, P, I, VVT);
+  CUDA_QRHT (Q, R, A, V, VT, sharedMemory, P, VVT);
 }
 
 #endif /* CUQRPROCEDURES_H */

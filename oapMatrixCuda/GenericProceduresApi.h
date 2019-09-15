@@ -452,11 +452,11 @@ namespace generic
   }
 
   template<typename Api, typename GetMatrixInfo, typename PreExecCallback>
-  bool qrDecomposition_HT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT,
+  bool qrDecomposition_HT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT,
                           oap::IKernelExecutor* kexec, Api& api, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
   {
     bool status = false;
-    void* params[] = {&Q, &R, &A, &V, &VT, &P, &I, &VVT};
+    void* params[] = {&Q, &R, &A, &V, &VT, &P, &VVT};
 
     uint maxThreads = kexec->getMaxThreadsPerBlock();
 

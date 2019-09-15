@@ -93,7 +93,7 @@ class HostProcedures {
     tensorProduct (matrix, params0, params1, dims);
   }
 
-  void QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT);
+  void QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT);
   void setIdentity (math::Matrix* matrix);
 
  private:

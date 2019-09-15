@@ -446,9 +446,9 @@ void CuProceduresApi::QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
   }
 }
 
-void CuProceduresApi::QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT)
+void CuProceduresApi::QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT)
 {
-  m_cuStatus = oap::generic::qrDecomposition_HT (Q, R, A, V, VT, P, I, VVT, &m_kernel, *this, oap::cuda::GetMatrixInfo, m_preExecCallback);
+  m_cuStatus = oap::generic::qrDecomposition_HT (Q, R, A, V, VT, P, VVT, &m_kernel, *this, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
 bool CuProceduresApi::isUpperTriangular(math::Matrix* matrix) {
