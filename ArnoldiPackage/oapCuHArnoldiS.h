@@ -103,6 +103,11 @@ class CuHArnoldiS
     math::Matrix* m_G;
     math::Matrix* m_EV;
 
+    math::Matrix* m_HT_V = NULL;
+    math::Matrix* m_HT_VT = NULL;
+    math::Matrix* m_HT_P = NULL;
+    math::Matrix* m_HT_VVT = NULL;
+
     math::Matrix* m_hostV;
 
     floatt m_previousFValue;

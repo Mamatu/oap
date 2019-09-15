@@ -160,12 +160,10 @@ bool CuHArnoldi::step ()
   traceFunction();
 
   status = executeArnoldiFactorization (m_startIndex, m_rho);
-  logInfo ("status = %d", status);
   m_unwanted.clear();
   m_wanted.clear();
 
   calculateTriangularHEigens(m_H, m_matrixInfo);
-  PRINT_CUMATRIX(m_H);
   sortPWorstEigens (m_wantedCount);
 
   uint m_unwantedCount = m_k - m_wantedCount; // m_unwanted - p, m_wanted - k
@@ -175,11 +173,9 @@ bool CuHArnoldi::step ()
   executefVHplusfq (m_wantedCount);
 
   calculateTriangularHEigens (m_H, m_matrixInfo);
-  PRINT_CUMATRIX(m_H);
   sortPWorstEigens (m_wantedCount);
 
   status = executeChecking (m_wanted.size());
-  logInfo ("status = %d", status);
 
   m_startIndex = m_wantedCount - 1;
 
@@ -308,10 +304,8 @@ void CuHArnoldi::calculateTriangularHInDeviceSteps()
 
 void CuHArnoldi::calculateTriangularH() {
   debugFunc();
-  PRINT_CUMATRIX(m_triangularH);
   HOSTKernel_CalcTriangularH(m_triangularH, m_Q, m_R1, m_Q1, m_QJ, m_Q2, m_R2,
                              m_G, m_GT, m_cuMatrix, 4000);
-  PRINT_CUMATRIX(m_triangularH);
 }
 
 void CuHArnoldi::calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo)
@@ -377,17 +371,11 @@ void CuHArnoldi::executeInit()
 {
   traceFunction();
   multiply(m_w, m_v, m_cuMatrix, CuHArnoldi::TYPE_WV);
-    PRINT_CUMATRIX(m_w);
-    PRINT_CUMATRIX(m_v);
-    logInfo ("After multiplication");
   m_cuMatrix.setVector(m_V, 0, m_v, m_vrows);
   m_cuMatrix.transpose(m_transposeV, m_V);
   m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
   m_cuMatrix.dotProduct(m_vh, m_V, m_h);
   m_cuMatrix.substract(m_f, m_w, m_vh);
-    PRINT_CUMATRIX(m_f);
-    PRINT_CUMATRIX(m_w);
-    PRINT_CUMATRIX(m_vh);
   m_cuMatrix.setVector(m_H, 0, m_h, 1);
 }
 
@@ -416,24 +404,16 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
     }
 
     m_FValue = B;
-  debugFunc();
-  PRINT_CUMATRIX(m_f);
-  logInfo ("m_fB = %f", B);
     if (fabs(B) < m_blimit) {
       return false;
     }
-  debugFunc();
 
     floatt rB = 1. / B;
     m_cuMatrix.multiplyReConstant(m_v, m_f, rB);
     m_cuMatrix.setVector(m_V, fa + 1, m_v, m_vrows);
     CudaUtils::SetZeroRow(m_H, fa + 1, true, true);
     CudaUtils::SetReValue(m_H, (fa) + m_Hcolumns * (fa + 1), B);
-    PRINT_CUMATRIX(m_H);
     multiply(m_w, m_v, m_cuMatrix, CuHArnoldi::TYPE_WV);
-    PRINT_CUMATRIX(m_w);
-    PRINT_CUMATRIX(m_v);
-    logInfo ("");
     m_cuMatrix.transpose(m_transposeV, m_V);
     m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
     m_cuMatrix.dotProduct(m_vh, m_V, m_h);
@@ -444,7 +424,6 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
     recalcMagnitude = mf < rho * mh;
     if (recalcMagnitude)
     {
-      logInfo ("recalcMagnitude");
       traceFunction();
       m_cuMatrix.dotProduct(m_s, m_transposeV, m_f);
       m_cuMatrix.dotProduct(m_vs, m_V, m_s);
@@ -518,18 +497,8 @@ floatt CuHArnoldi::checkEigenpairsInternally(const EigenPair& eigenPair, floatt 
   m_cuMatrix.getVector (m_v, m_vrows, m_EV, eigenPair.getIndex());
   //m_cuMatrix.getVector (m_v, m_vrows, m_V, eigenPair.getIndex());
   multiply (m_v1, m_v, m_cuMatrix, TYPE_EIGENVECTOR);  // m_cuMatrix.dotProduct(v1, H, v);
-    PRINT_CUMATRIX(m_v1);
-    logInfo ("Eigenvector: ");
-    PRINT_CUMATRIX(m_v);
-    logInfo ("");
   m_cuMatrix.multiplyReConstant(m_v2, m_v, value);
   bool compare = m_cuMatrix.compare(m_v1, m_v2, tolerance);
-  logInfo ("value = %f", value);
-  PRINT_CUMATRIX(m_V);
-  PRINT_CUMATRIX(m_v);
-  PRINT_CUMATRIX(m_v1);
-  PRINT_CUMATRIX(m_v2);
-  logInfo ("");
   return m_cuMatrix.getCompareOperationSum();
 }
 
@@ -635,6 +604,5 @@ floatt CuHArnoldi::testOutcome(size_t index)
 
   traceFunction();
   floatt outcome = checkEigenpairsInternally(m_wanted[index], 0);
-  logInfo ("outcome = %f", outcome);
   return outcome;
 }
