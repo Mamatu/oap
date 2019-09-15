@@ -75,6 +75,7 @@ template<typename Arnoldi, typename Api>
 void _qr (Arnoldi& ar, Api& api)
 {
   api.QRGR (ar.m_Q1, ar.m_R1, ar.m_I, ar.m_Q, ar.m_R2, ar.m_G, ar.m_GT);
+  //api.QRHT (ar.m_Q1, ar.m_R1, ar.m_I, ar.m_HT_V, ar.m_HT_VT, ar.m_HT_P, ar.m_HT_VVT);
 }
 
 }
@@ -125,7 +126,7 @@ math::Matrix* getR (Arnoldi& ar)
 template<typename Arnoldi, typename Api>
 void proc (Arnoldi& ar, Api& api)
 {
-  debugAssert (!ar.m_unwanted.empty());
+  //debugAssert (!ar.m_unwanted.empty());
 
   api.setIdentity (ar.m_QJ);
   api.setIdentity (ar.m_Q);
@@ -197,6 +198,11 @@ void allocStage3 (Arnoldi& ar, const math::MatrixInfo& matrixInfo, uint k, NewKe
   ar.m_QT1 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_QT2 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_q = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
+
+  ar.m_HT_V = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, 1, k);
+  ar.m_HT_VT = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, 1);
+  ar.m_HT_P = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, k);
+  ar.m_HT_VVT = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, k);
 }
 
 template<typename Arnoldi, typename DeleteKernelMatrix>
@@ -245,6 +251,11 @@ void deallocStage3(Arnoldi& ar, DeleteKernelMatrix&& deleteKernelMatrix)
   deleteKernelMatrix (ar.m_QT1);
   deleteKernelMatrix (ar.m_QT2);
   deleteKernelMatrix (ar.m_q);
+
+  deleteKernelMatrix (ar.m_HT_V);
+  deleteKernelMatrix (ar.m_HT_VT);
+  deleteKernelMatrix (ar.m_HT_P);
+  deleteKernelMatrix (ar.m_HT_VVT);
 }
 
 }}
