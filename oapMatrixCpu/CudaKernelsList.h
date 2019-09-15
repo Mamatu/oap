@@ -152,9 +152,9 @@ DEFINE_3M_EX(HOSTKernel_DotProductDimPeriodic, CUDA_dotProductDimPeriodic)
 
 DEFINE_3M_EX(HOSTKernel_TensorProductDim, CUDA_tensorProductDim)
 
-void HOSTKernel_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* I, math::Matrix* VVT)
+void HOSTKernel_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT)
 {
-  CudaKernel_QRHT(Q, R, A, V, VT, P, I, VVT);
+  CudaKernel_QRHT(Q, R, A, V, VT, P, VVT);
 }
 
 void proxy_HOSTKernel_QRHT (void** params)
@@ -166,10 +166,9 @@ void proxy_HOSTKernel_QRHT (void** params)
   math::Matrix* V = getParam<math::Matrix> (params[i++]);
   math::Matrix* VT = getParam<math::Matrix> (params[i++]);
   math::Matrix* P = getParam<math::Matrix> (params[i++]);
-  math::Matrix* I = getParam<math::Matrix> (params[i++]);
   math::Matrix* VVT = getParam<math::Matrix> (params[i++]);
 
-  HOSTKernel_QRHT (Q, R, A, V, VT, P, I, VVT);
+  HOSTKernel_QRHT (Q, R, A, V, VT, P, VVT);
 }
 
 #endif
