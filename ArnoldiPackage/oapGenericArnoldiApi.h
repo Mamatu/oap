@@ -25,6 +25,12 @@
 
 namespace oap { namespace generic {
 
+enum class QRType
+{
+  QRGR, // givens rotations
+  QRHT, // housholder reflection
+};
+
 namespace {
 inline void aux_swapPointers(math::Matrix** a, math::Matrix** b)
 {
@@ -67,17 +73,23 @@ void iram_fVplusfq(Arnoldi& ar, uintt k, Api& api, GetReValue&& getReValue, GetI
 
 namespace
 {
+
 /**
  * Inputs: ar.m_I ar.m_H
  * Outputs: ar.m_Q1, ar.m_R1, ar.m_H
  */
 template<typename Arnoldi, typename Api>
-void _qr (Arnoldi& ar, Api& api)
+void _qr (Arnoldi& ar, Api& api, QRType qrtype = QRType::QRGR)
 {
-  api.QRGR (ar.m_Q1, ar.m_R1, ar.m_I, ar.m_Q, ar.m_R2, ar.m_G, ar.m_GT);
-  //api.QRHT (ar.m_Q1, ar.m_R1, ar.m_I, ar.m_HT_V, ar.m_HT_VT, ar.m_HT_P, ar.m_HT_VVT);
+  if (qrtype == QRType::QRGR)
+  {
+    api.QRGR (ar.m_Q1, ar.m_R1, ar.m_I, ar.m_Q, ar.m_R2, ar.m_G, ar.m_GT);
+  }
+  else if (qrtype == QRType::QRHT)
+  {
+    api.QRHT (ar.m_Q1, ar.m_R1, ar.m_I, ar.m_HT_V, ar.m_HT_VT, ar.m_HT_P, ar.m_HT_VVT);
+  }
 }
-
 }
 
 /**
