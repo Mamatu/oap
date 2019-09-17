@@ -19,16 +19,8 @@ $(shell test -d /tmp/Oap/host_tests || mkdir -p /tmp/Oap/host_tests)
 $(shell test -d /tmp/Oap/host_tests/OapPngFileTests_PrintLetters || mkdir -p /tmp/Oap/host_tests/OapPngFileTests_PrintLetters)
 $(shell test -d /tmp/Oap/device_tests || mkdir -p /tmp/Oap/device_tests)
 
-ifeq ($(PROJECT), albert)
-include $(OAP_PATH)/project_albert.mk
-else ifeq ($(PROJECT), teslac2050)
-include $(OAP_PATH)/project_teslac2050.mk
-else ifeq ($(PROJECT), samsung)
-include $(OAP_PATH)/project_samsung.mk
-else ifeq ($(PROJECT), x86)
-include $(OAP_PATH)/project_x86.mk
-else ifeq ($(PROJECT), gpp44)
-include $(OAP_PATH)/project_gpp44.mk
+ifdef PROJECT
+include $(OAP_PATH)/${PROJECT}
 else
 include $(OAP_PATH)/project_x86.mk
 endif
