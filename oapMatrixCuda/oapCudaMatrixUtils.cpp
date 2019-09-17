@@ -183,49 +183,49 @@ bool IsCudaMatrix(const math::Matrix* devMatrix)
 
 inline void copyDeviceMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src, bool check = true)
 {
-  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
-  MatrixApi dstApi (oap::host::GetMatrixInfo, oap::host::GetValue);
-  MatrixApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  using MatrixMemoryApi = oap::generic::MatrixMemoryApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixMemoryApi dstApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  MatrixMemoryApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
   oap::generic::copyMatrixToMatrix (dst, src, CudaUtils::CopyDeviceToHost, dstApi, srcApi, check);
 }
 
 inline void copyHostMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src, bool check = true)
 {
-  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
-  MatrixApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
-  MatrixApi srcApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  using MatrixMemoryApi = oap::generic::MatrixMemoryApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixMemoryApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  MatrixMemoryApi srcApi (oap::host::GetMatrixInfo, oap::host::GetValue);
   oap::generic::copyMatrixToMatrix (dst, src, CudaUtils::CopyHostToDevice, dstApi, srcApi, check);
 }
 
 inline void copyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src, bool check = true)
 {
-  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
-  MatrixApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
-  MatrixApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  using MatrixMemoryApi = oap::generic::MatrixMemoryApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixMemoryApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  MatrixMemoryApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
   oap::generic::copyMatrixToMatrix (dst, src, CudaUtils::CopyDeviceToDevice, dstApi, srcApi, check);
 }
 
 inline void copyHostMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
 {
-  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
-  MatrixApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
-  MatrixApi srcApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  using MatrixMemoryApi = oap::generic::MatrixMemoryApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixMemoryApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  MatrixMemoryApi srcApi (oap::host::GetMatrixInfo, oap::host::GetValue);
   oap::generic::copyMatrixToMatrixDims (dst, src, dims, CudaUtils::CopyHostToDevice, dstApi, srcApi);
 }
 
 inline void copyDeviceMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
 {
-  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
-  MatrixApi dstApi (oap::host::GetMatrixInfo, oap::host::GetValue);
-  MatrixApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  using MatrixMemoryApi = oap::generic::MatrixMemoryApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixMemoryApi dstApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  MatrixMemoryApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
   oap::generic::copyMatrixToMatrixDims (dst, src, dims, CudaUtils::CopyDeviceToHost, dstApi, srcApi);
 }
 
 inline void copyDeviceMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
 {
-  using MatrixApi = oap::generic::MatrixApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
-  MatrixApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
-  MatrixApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  using MatrixMemoryApi = oap::generic::MatrixMemoryApi<math::MatrixInfo(const math::Matrix*), floatt*(floatt* const*)>;
+  MatrixMemoryApi dstApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
+  MatrixMemoryApi srcApi (oap::cuda::GetMatrixInfo, CudaUtils::GetValue);
   oap::generic::copyMatrixToMatrixDims (dst, src, dims, CudaUtils::CopyDeviceToDevice, dstApi, srcApi);
 }
 

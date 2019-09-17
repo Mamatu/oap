@@ -65,10 +65,10 @@ namespace generic
   };
 
   template<typename GetMatrixInfo, typename GetValue>
-  class MatrixApi
+  class MatrixMemoryApi
   {
     public:
-      MatrixApi (GetMatrixInfo&& _getMatrixInfo, GetValue&& _getValue) :
+      MatrixMemoryApi (GetMatrixInfo&& _getMatrixInfo, GetValue&& _getValue) :
         getMatrixInfo (std::forward<GetMatrixInfo&&> (_getMatrixInfo)), getValue (std::forward<GetValue&&> (_getValue))
       {}
 

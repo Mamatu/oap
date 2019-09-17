@@ -811,8 +811,8 @@ inline math::MatrixInfo check_CopyMatrixToMatrixDims (const math::MatrixInfo& ds
   return dstInfo;
 }
 
-template<typename CopyBuffer, typename MatrixApi>
-void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, CopyBuffer&& copyBuffer, MatrixApi& dstApi, MatrixApi& srcApi, bool check = true)
+template<typename CopyBuffer, typename MatrixMemoryApi>
+void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, CopyBuffer&& copyBuffer, MatrixMemoryApi& dstApi, MatrixMemoryApi& srcApi, bool check = true)
 {
   math::MatrixInfo minfo;
   math::MatrixInfo dstInfo = dstApi.getMatrixInfo (dst);

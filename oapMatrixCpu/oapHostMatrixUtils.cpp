@@ -446,14 +446,14 @@ void Copy(math::Matrix* dst, const math::Matrix* src, uintt column, uintt row)
 
 void CopyMatrix (math::Matrix* dst, const math::Matrix* src)
 {
-  oap::generic::MatrixApi<decltype(oap::host::GetMatrixInfo) ,decltype(oap::host::GetValue)> matrixApi (oap::host::GetMatrixInfo, oap::host::GetValue);
-  oap::generic::copyMatrixToMatrix (dst, src, memcpy, matrixApi, matrixApi);
+  oap::generic::MatrixMemoryApi<decltype(oap::host::GetMatrixInfo) ,decltype(oap::host::GetValue)> mmApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  oap::generic::copyMatrixToMatrix (dst, src, memcpy, mmApi, mmApi);
 }
 
 void CopyMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
 {
-  oap::generic::MatrixApi<decltype(oap::host::GetMatrixInfo) ,decltype(oap::host::GetValue)> matrixApi (oap::host::GetMatrixInfo, oap::host::GetValue);
-  oap::generic::copyMatrixToMatrixDims (dst, src, dims, memcpy, matrixApi, matrixApi);
+  oap::generic::MatrixMemoryApi<decltype(oap::host::GetMatrixInfo) ,decltype(oap::host::GetValue)> mmApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  oap::generic::copyMatrixToMatrixDims (dst, src, dims, memcpy, mmApi, mmApi);
 }
 
 void CopyRe(math::Matrix* dst, const math::Matrix* src)
