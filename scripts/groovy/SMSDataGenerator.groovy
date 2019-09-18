@@ -1,6 +1,6 @@
 /**
  *  SMSDataGenerator - generate matrix whose eigenspair
- *  are defined by used
+ *  are defined by user
  */
 
 package groovy
