@@ -93,7 +93,7 @@ class Section
 {
   public:
     std::string separator = "|\n";
-    size_t length = std::numeric_limits<size_t>::max();
+    size_t length = std::numeric_limits<size_t>::max(); ///< length of section, after that will be printed separator
 
     Section ();
 
@@ -114,6 +114,16 @@ class PrintArgs
     std::string postRe = " + ";
     std::string preIm = "i * ";
 
+    size_t floatPrecision = 9;
+
+    enum class FloatPrintMode
+    {
+      SCIENTIFIC_NOTATION,
+      FIXED
+    };
+
+    FloatPrintMode floatPrintMode = FloatPrintMode::FIXED;
+
     PrintArgs ();
 
     PrintArgs (const std::string& _pretext, const std::string& _posttext, floatt _zrr, bool _repeats, const std::string& _sectionSeparator, size_t _sectionLength);
@@ -129,6 +139,11 @@ class PrintArgs
     PrintArgs (const char* _pretext);
 
     void setReImSeparator (const std::string& _postRe, const std::string& _preIm);
+
+    inline void prepareSection (const math::Matrix* matrix)
+    {
+      section.length = matrix->columns;
+    }
 };
 
 template <typename T>
