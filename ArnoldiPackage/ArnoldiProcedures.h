@@ -33,6 +33,7 @@
 class CuHArnoldi : public oap::generic::CuHArnoldiS
 {
  public:  // methods
+
   CuHArnoldi();
 
   virtual ~CuHArnoldi();
@@ -40,6 +41,8 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   void setRho(floatt rho = 1. / 3.14);
 
   void setBLimit(floatt blimit);
+
+  void setQRType (oap::QRType qrtype = oap::QRType::QRGR);
 
   void setSortType(ArnUtils::SortType sortType);
 
@@ -95,6 +98,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   uint m_k;
   floatt m_rho;
   floatt m_blimit;
+  oap::QRType m_qrtype = oap::QRType::NONE;
 
   std::vector<EigenPair> m_wanted;
   std::vector<EigenPair> m_previousWanted;
@@ -107,15 +111,14 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   ArnUtils::TriangularHProcedureType m_triangularHProcedureType;
 
-  void* m_image;
-  oap::cuda::Kernel m_kernel;
-
   uint m_startIndex = 0;
   uint m_wantedCount = 0;
   bool m_beginInvoked = false;
   bool m_stepInvoked = false;
 
   floatt m_previousInternalSum;
+  math::MatrixInfo m_triangularHInfo;
+
  private:  // internal methods - inline
   inline void aux_swapPointers(math::Matrix** a, math::Matrix** b) {
     math::Matrix* temp = *b;
@@ -124,14 +127,19 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   }
 
   inline void setCalculateTriangularHPtr(uint k) {
-    if (m_triangularHProcedureType == ArnUtils::CALC_IN_HOST) {
-      m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularH;
-    } else {
-      if (k > 32) { debugAssert("Traingular H in device is not supported for k > 32"); }
-      if (m_triangularHProcedureType == ArnUtils::CALC_IN_DEVICE) {
+    if (m_triangularHProcedureType == ArnUtils::CALC_IN_HOST)
+    {
+      m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInHost;
+    }
+    else
+    {
+      if (k > 32)
+      {
+        debugAssert("Traingular H in device is not supported for k > 32");
+      }
+      if (m_triangularHProcedureType == ArnUtils::CALC_IN_DEVICE)
+      {
         m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDevice;
-      } else if (m_triangularHProcedureType == ArnUtils::CALC_IN_DEVICE_STEP) {
-        m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDeviceSteps;
       }
     }
   }
@@ -149,9 +157,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   void calculateTriangularHInDevice();
 
-  void calculateTriangularHInDeviceSteps();
-
-  void calculateTriangularH();
+  void calculateTriangularHInHost();
 
   void (CuHArnoldi::*m_calculateTriangularHPtr)();
 

@@ -175,6 +175,8 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
               oap::host::NewReMatrix(1, hmatrix->rows)
       };
 
+      m_arnoldiCuda->setQRType (oap::QRType::QRGR);
+
       m_arnoldiCuda->setOutputType(ArnUtils::HOST);
       m_arnoldiCuda->setCalcTraingularHType(ArnUtils::CALC_IN_HOST);
 

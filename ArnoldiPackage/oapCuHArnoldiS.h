@@ -25,12 +25,14 @@
 #include "Matrix.h"
 
 #include "ArnoldiUtils.h"
+#include "oapContext.h"
 
 namespace oap { namespace generic {
 
-class CuHArnoldiS
+class CuHArnoldiS : public oap::generic::Context
 {
   public:
+
     CuHArnoldiS ():
       m_w(NULL),
       m_f(NULL),
@@ -63,8 +65,8 @@ class CuHArnoldiS
       m_hostV(NULL),
       m_QJ(NULL),
       m_q(NULL),
-      m_GT(NULL),
-      m_G(NULL),
+      m_GR_GT(NULL),
+      m_GR_G(NULL),
       m_EV(NULL)
     {}
 
@@ -99,8 +101,8 @@ class CuHArnoldiS
     math::Matrix* m_QT2;
     math::Matrix* m_QJ;
     math::Matrix* m_q;
-    math::Matrix* m_GT;
-    math::Matrix* m_G;
+    math::Matrix* m_GR_GT;
+    math::Matrix* m_GR_G;
     math::Matrix* m_EV;
 
     math::Matrix* m_HT_V = NULL;

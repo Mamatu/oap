@@ -35,6 +35,7 @@
 #include "oapCudaMatrixUtils.h"
 
 #include "GenericProceduresApi.h"
+#include "CudaCoreApi.h"
 #include "Logger.h"
 
 namespace oap
@@ -442,7 +443,8 @@ void CuProceduresApi::QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
   }
   else
   {
-    m_cuStatus = HOSTKernel_QRGR(Q, R, H, aux0, aux1, aux2, aux3, m_kernel);
+    oap::cuda::CudaMatrixApi cuMatrixApi;
+    m_cuStatus = HOSTKernel_QRGR (Q, R, H, aux0, aux1, aux2, aux3, *this, cuMatrixApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
   }
 }
 
@@ -461,27 +463,23 @@ bool CuProceduresApi::isUpperTriangular(math::Matrix* matrix) {
   return result == 1;
 }
 
-void CuProceduresApi::calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-                                   math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
-                                   math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
-{
-  uint w = CudaUtils::GetColumns(H);
-  uint h = CudaUtils::GetRows(H);
-  calcTriangularHStep(H, Q, R,
-                      aux1, aux2, aux3,
-                      aux4, aux5, aux6,
-                      w, h);
-
-}
-
-void CuProceduresApi::calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-                                   math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
-                                   math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6,
-                                   uint columns, uint rows)
+void CuProceduresApi::calcTriangularH (math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+                                       math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+                                       math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
 {
   void* params[] = {&H, &Q, &R, &aux1, &aux2, &aux3, &aux4, &aux5, &aux6};
-  const uintt w = columns;
-  const uintt h = rows;
+  const uintt w = oap::cuda::GetColumns (H);
+  const uintt h = oap::cuda::GetRows (H);
+  m_cuStatus = execute("CUDAKernel_CalculateTriangularH", w, h, params, 0);
+}
+
+void CuProceduresApi::calcTriangularHStep (math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+                                           math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+                                           math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+{
+  void* params[] = {&H, &Q, &R, &aux1, &aux2, &aux3, &aux4, &aux5, &aux6};
+  const uintt w = oap::cuda::GetColumns (H);
+  const uintt h = oap::cuda::GetRows (H);
   m_cuStatus = execute("CUDAKernel_CalculateTriangularHStep", w, h, params, 0);
 }
 
