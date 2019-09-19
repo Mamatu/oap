@@ -169,6 +169,16 @@ void PrintMatrix(const std::string& text, const math::Matrix* matrix,
 
 void PrintMatrix(const math::Matrix* matrix);
 
+inline floatt* GetValue (floatt* const* src)
+{
+  return CudaUtils::GetValue (src);
+}
+
+inline void TransferToHost (void* dst, const void* src, uintt size)
+{
+  memcpy (dst, src, size);
+}
+
 void SetReValue(math::Matrix* matrix, floatt value, uintt column, uintt row);
 void SetReValue(math::Matrix* matrix, floatt value, uintt index);
 
