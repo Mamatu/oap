@@ -836,8 +836,8 @@ void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, CopyBuffer&
 
   auto copyValues = [&](floatt* const* ptr, floatt* const* ptr1)
   {
-    floatt* values = dstApi.getValue (ptr);
-    floatt* values1 = srcApi.getValue (ptr1);
+    floatt* values = dstApi.transferValueToHost (ptr);
+    floatt* values1 = srcApi.transferValueToHost (ptr1);
 
     copyBuffer (values, values1, sizeof(floatt) * length);
   };
@@ -869,8 +869,8 @@ void copyMatrixToMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt d
 
   auto copyValues = [&](floatt* const* ptr, floatt* const* ptr1)
   {
-    floatt* values = dstApi.getValue (ptr);
-    floatt* values1 = srcApi.getValue (ptr1);
+    floatt* values = dstApi.transferValueToHost (ptr);
+    floatt* values1 = srcApi.transferValueToHost (ptr1);
 
     for (uintt row = 0; row < getRows (dims[g_dstIdx]); ++row)
     {
