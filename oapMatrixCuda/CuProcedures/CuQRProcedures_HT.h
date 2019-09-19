@@ -57,7 +57,6 @@ __hostdeviceinline__ floatt sign (floatt x)
 
 __hostdeviceinline__ floatt csign (floatt x)
 {
-  //return -1;
   return sign (x);
 }
 
@@ -103,16 +102,15 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
     CUDA_dotProduct (VVT, V, VT);
 
     sum = CUDA_calcMagnitudeOptEx (V, buffer, 0, 0, 1, V->rows);
-    cuda_debug ("sum = %f", sum);
-    cuda_debug_matrix ("V = ", V);
+    if (sum != 0)
+    {
+      CUDA_multiplyConstantMatrix (VVT, VVT, 2. / sum, 0.);
+      CUDA_IdentityMatrixSubstract (P, VVT);
 
-    CUDA_multiplyConstantMatrix (VVT, VVT, 2. / sum, 0.);
-    CUDA_IdentityMatrixSubstract (P, VVT);
-    
-    CUDA_copyMatrix (VVT, M);
+      CUDA_copyMatrix (VVT, M);
 
-    CUDA_dotProduct (R, P, VVT);
-
+      CUDA_dotProduct (R, P, VVT);
+    }
     if (k == 0)
     {
       CUDA_copyMatrix (Q, P);
