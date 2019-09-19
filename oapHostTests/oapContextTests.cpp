@@ -20,7 +20,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "KernelExecutor.h"
 #include "oapContext.h"
 
 #include "oapHostMatrixUtils.h"
@@ -32,14 +31,10 @@ class OapContextTests : public testing::Test {
   virtual ~OapContextTests() {}
 
   virtual void SetUp()
-  {
-    oap::cuda::Context::Instance().create();
-  }
+  {}
 
   virtual void TearDown()
-  {
-    oap::cuda::Context::Instance().destroy();
-  }
+  {}
 };
 
 TEST_F(OapContextTests, ReturnUnusedMatrix_ApiTest_1)
