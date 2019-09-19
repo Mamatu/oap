@@ -73,9 +73,6 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         oap::host::GetTransposeReVector (hvectorT, hmatrix, idx);
         oap::cuda::CopyHostMatrixToDeviceMatrix (dvectorT, hvectorT);
         cuProceduresApi.dotProduct (dvalue, dvectorT, m_v);
-        PRINT_CUMATRIX(dvalue);
-        PRINT_CUMATRIX(dvectorT);
-        PRINT_CUMATRIX(m_v);
         oap::cuda::SetReMatrix (m_w, dvalue, 0, idx);
       }
     }
