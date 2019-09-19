@@ -295,15 +295,16 @@ bool CuHArnoldi::continueProcedure() {
 void CuHArnoldi::calculateTriangularHInDevice ()
 {
   debugFunc();
-  m_cuMatrix.calcTriangularH (m_triangularH, m_Q, m_R1, m_Q1, m_QJ, m_Q2, m_R2, m_GR_G, m_GR_GT);
+  oap::generic::iram_calcTriangularH_Generic::InOutArgs io = {m_triangularH, m_Q};
+  oap::generic::iram_calcTriangularH_Generic::InArgs iargs = {m_triangularHInfo, *this, "CUDA"};
+  oap::generic::iram_calcTriangularH_Generic::proc (io, iargs, m_cuMatrix);
 }
 
 void CuHArnoldi::calculateTriangularHInHost ()
 {
   debugFunc();
-  oap::generic::iram_calcTriangularH_Host::InOutArgs io = {m_triangularH, m_Q1};
+  oap::generic::iram_calcTriangularH_Host::InOutArgs io = {m_triangularH, m_Q};
   oap::generic::iram_calcTriangularH_Host::InArgs iargs = {m_triangularHInfo, *this, "CUDA", 4000, m_qrtype};
-
   oap::generic::iram_calcTriangularH_Host::proc (io, iargs, m_cuMatrix, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
 }
 
