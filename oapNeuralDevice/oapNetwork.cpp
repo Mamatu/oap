@@ -20,7 +20,7 @@
 #include "oapNetwork.h"
 #include "oapMatrixCudaCommon.h"
 
-#include "oapDeviceNeuralApi.h"
+#include <random>
 
 using LC_t = uintt;
 
