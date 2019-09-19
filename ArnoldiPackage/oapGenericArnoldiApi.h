@@ -258,6 +258,42 @@ void proc (InOutArgs& io, const InArgs& iargs, CalcApi& capi, CopyKernelMatrixTo
 
 }
 
+namespace iram_calcTriangularH_Generic
+{
+
+struct InOutArgs
+{
+  math::Matrix* H;
+  math::Matrix* Q;
+};
+
+struct InArgs
+{
+  math::MatrixInfo hinfo;
+  oap::generic::Context& context;
+  const std::string& memType;
+};
+
+template<typename CalcApi>
+void proc (InOutArgs& io, const InArgs& iargs, CalcApi& capi)
+{
+  auto getter = iargs.context.getter();
+
+  math::Matrix* aux_R = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::Matrix* aux_R1 = getter.useMatrix (iargs.hinfo, iargs.memType);
+
+  math::Matrix* aux_Q = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::Matrix* aux_Q1 = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::Matrix* aux_Q2 = getter.useMatrix (iargs.hinfo, iargs.memType);
+
+  math::Matrix* aux_G = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::Matrix* aux_GT = getter.useMatrix (iargs.hinfo, iargs.memType);
+
+  capi.calcTriangularH (io.H, io.Q, aux_R, aux_Q, aux_Q1, aux_Q2, aux_R1, aux_G, aux_GT);
+}
+
+}
+
 template<typename Arnoldi, typename NewKernelMatrix>
 void allocStage1 (Arnoldi& ar, const math::MatrixInfo& matrixInfo, NewKernelMatrix&& newKernelMatrix)
 {
