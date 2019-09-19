@@ -21,6 +21,7 @@
 #define OAP_DEVICE_NEURAL_API_H
 
 #include <stdexcept>
+#include <random>
 
 #include "oapGenericNeuralApi.h"
 #include "oapDeviceAllocApi.h"
