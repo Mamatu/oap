@@ -580,7 +580,11 @@ void ToString (std::string& str, const math::Matrix* matrix)
     str = "nullptr";
     return;
   }
-  matrixUtils::PrintMatrix(str, matrix, matrixUtils::PrintArgs());
+
+  matrixUtils::PrintArgs args;
+  args.prepareSection (matrix);
+
+  matrixUtils::PrintMatrix (str, matrix, args);
 }
 
 void GetReMatrixStr(std::string& text, const math::Matrix* matrix)
