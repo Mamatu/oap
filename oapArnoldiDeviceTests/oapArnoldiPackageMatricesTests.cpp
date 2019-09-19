@@ -223,6 +223,8 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       for (uint index = 0; index < wanted; ++index)
       {
         floatt outcome = m_arnoldiCuda->testOutcome(index);
+        logInfo ("Eigenpair = %f", revalues[index]);
+        PRINT_MATRIX (revectorsPtr[index]);
         EXPECT_LE (outcome, tolerance);
       }
     }
