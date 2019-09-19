@@ -21,6 +21,7 @@
 #define OAP_GENERIC_PROCEDURES_API_H
 
 #include <map>
+#include <functional>
 #include <sstream>
 
 #include "Buffer.h"
