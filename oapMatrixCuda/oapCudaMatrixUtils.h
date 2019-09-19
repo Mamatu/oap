@@ -45,6 +45,11 @@ math::Matrix* NewDeviceMatrix(const std::string& matrixStr);
 
 math::Matrix* NewDeviceMatrix(const math::MatrixInfo& minfo);
 
+inline math::Matrix* NewDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+{
+  return NewDeviceMatrix (minfo);
+}
+
 uintt GetColumns(const math::Matrix* dMatrix);
 
 uintt GetRows(const math::Matrix* dMatrix);

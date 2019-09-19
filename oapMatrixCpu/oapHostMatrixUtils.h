@@ -95,6 +95,11 @@ inline math::Matrix* NewHostMatrix (bool isre, bool isim, uintt columns, uintt r
   return NewMatrix (isre, isim, columns, rows, 0);
 }
 
+inline math::Matrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+{
+  return NewMatrix (minfo.isRe, minfo.isIm, minfo.columns(), minfo.rows(), 0);
+}
+
 /**
  * @brief NewReMatrix
  * @param columns
