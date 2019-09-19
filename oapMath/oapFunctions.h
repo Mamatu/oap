@@ -47,6 +47,11 @@ namespace oap { namespace math {
   {
     return ::tanh (x);
   }
+
+  inline floatt sin(floatt x)
+  {
+    return ::sin (x);
+  }
 }
 }
 
