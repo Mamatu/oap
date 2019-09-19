@@ -58,6 +58,7 @@ CUdeviceptr GetColumnsAddress(const math::Matrix* matrix);
 CUdeviceptr GetRowsAddress(const math::Matrix* matrix);
 
 floatt* GetValue (floatt* const* ptr);
+
 floatt* GetReValues(const math::Matrix* matrix);
 floatt* GetImValues(const math::Matrix* matrix);
 uintt GetColumns(const math::Matrix* matrix);
@@ -98,11 +99,11 @@ CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix);
 
 void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows);
 
-void SetReValue(math::Matrix* m, uintt index, floatt value);
-floatt GetReValue(math::Matrix* m, uintt index);
+void SetReValue (math::Matrix* m, uintt index, floatt value);
+floatt GetReValue (const math::Matrix* m, uintt index);
 
-void SetImValue(math::Matrix* m, uintt index, floatt value);
-floatt GetImValue(math::Matrix* m, uintt index);
+void SetImValue (math::Matrix* m, uintt index, floatt value);
+floatt GetImValue (const math::Matrix* m, uintt index);
 
 floatt GetReDiagonal(math::Matrix* m, uintt index);
 floatt GetImDiagonal(math::Matrix* m, uintt index);
