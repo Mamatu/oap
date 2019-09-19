@@ -17,8 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <math.h>
 #include <algorithm>
+#include <math.h>
+#include <random>
+
 #include "ArnoldiProcedures.h"
 #include "oapCudaMatrixUtils.h"
 #include "DeviceMatrixKernels.h"
@@ -37,7 +39,7 @@ CuHArnoldi::CuHArnoldi()
       m_checksCount(0),
       m_tolerance(0.001f),
       m_checksCounter(0),
-      m_triangularHProcedureType(ArnUtils::CALC_IN_HOST),
+      m_triangularHProcedureType (ArnUtils::CALC_IN_HOST),
       m_FValue(0),
       m_previousFValue(200000),
       m_outputType(ArnUtils::UNDEFINED),
@@ -47,8 +49,10 @@ CuHArnoldi::CuHArnoldi()
       m_previousInternalSum(100000)
 {
   traceFunction();
-  m_kernel.load(kernelsFiles);
   m_calculateTriangularHPtr = NULL;
+
+  registerMemType ("HOST", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix);
+  registerMemType ("CUDA", oap::cuda::NewDeviceMatrixFromMatrixInfo, oap::cuda::DeleteDeviceMatrix);
 }
 
 CuHArnoldi::~CuHArnoldi() {
@@ -56,11 +60,15 @@ CuHArnoldi::~CuHArnoldi() {
   dealloc1();
   dealloc2();
   dealloc3();
-  m_kernel.unload();
 }
 
 void CuHArnoldi::setRho(floatt rho) {
   m_rho = rho;
+}
+
+void CuHArnoldi::setQRType (oap::QRType qrtype)
+{
+  m_qrtype = qrtype;
 }
 
 void CuHArnoldi::setBLimit(floatt blimit) {
@@ -110,7 +118,7 @@ void CuHArnoldi::setCalcTraingularHType(ArnUtils::TriangularHProcedureType type)
 }
 
 
-void CuHArnoldi::execute(uint hdim, uint m_wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType)
+void CuHArnoldi::execute (uint hdim, uint m_wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType)
 {
   begin (hdim, m_wantedCount, matrixInfo, matrixType);
 
@@ -127,7 +135,8 @@ void CuHArnoldi::begin (uint hdim, uint wantedCount, const math::MatrixInfo& mat
 {
   traceFunction();
 
-  debugAssert(wantedCount != 0);
+  debugAssert (m_qrtype != oap::QRType::NONE);
+  debugAssert (wantedCount != 0);
   m_wantedCount = wantedCount;
 
   debugAssert(m_outputType != ArnUtils::UNDEFINED);
@@ -236,7 +245,6 @@ void CuHArnoldi::getEigenvector(math::Matrix* vector, uint index) {
   } else if (m_outputType == ArnUtils::DEVICE) {
     m_cuMatrix.getVector(vector, m_EV, index);
   }
-
 }
 
 void CuHArnoldi::initVvector() {
@@ -284,28 +292,19 @@ bool CuHArnoldi::continueProcedure() {
   return true;
 }
 
-void CuHArnoldi::calculateTriangularHInDevice()
+void CuHArnoldi::calculateTriangularHInDevice ()
 {
   debugFunc();
-  DEVICEKernel_CalcTriangularH(m_triangularH, m_Q, m_R1, m_Q1, m_QJ, m_Q2, m_R2,
-                               m_G, m_GT, m_Hcolumns, m_Hrows, m_kernel);
+  m_cuMatrix.calcTriangularH (m_triangularH, m_Q, m_R1, m_Q1, m_QJ, m_Q2, m_R2, m_GR_G, m_GR_GT);
 }
 
-void CuHArnoldi::calculateTriangularHInDeviceSteps()
+void CuHArnoldi::calculateTriangularHInHost ()
 {
   debugFunc();
-  bool isTriangular = m_cuMatrix.isUpperTriangular(m_triangularH);
-  for (uint fa = 0; fa < 4000 && isTriangular == false; ++fa) {
-    traceFunction();
-    m_cuMatrix.calcTriangularHStep(m_triangularH, m_Q, m_R1, m_Q1, m_QJ, m_Q2, m_R2,m_G, m_GT, m_Hcolumns, m_Hrows);
-    isTriangular = m_cuMatrix.isUpperTriangular(m_triangularH);
-  }
-}
+  oap::generic::iram_calcTriangularH_Host::InOutArgs io = {m_triangularH, m_Q1};
+  oap::generic::iram_calcTriangularH_Host::InArgs iargs = {m_triangularHInfo, *this, "CUDA", 4000, m_qrtype};
 
-void CuHArnoldi::calculateTriangularH() {
-  debugFunc();
-  HOSTKernel_CalcTriangularH(m_triangularH, m_Q, m_R1, m_Q1, m_QJ, m_Q2, m_R2,
-                             m_G, m_GT, m_cuMatrix, 4000);
+  oap::generic::iram_calcTriangularH_Host::proc (io, iargs, m_cuMatrix, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
 }
 
 void CuHArnoldi::calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo)
@@ -483,7 +482,7 @@ bool CuHArnoldi::executeChecking (uint k)
 void CuHArnoldi::executeShiftedQRIteration(uint p)
 {
   traceFunction();
-  oap::generic::iram_shiftedQRIteration::proc (*this, m_cuMatrix);
+  oap::generic::iram_shiftedQRIteration::proc (*this, m_cuMatrix, m_qrtype);
 
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_EV, m_V);
   m_cuMatrix.dotProduct(m_V, m_EV, m_Q);
@@ -549,6 +548,8 @@ void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uint k)
   }
   CudaUtils::SetZeroMatrix(m_v);
   CudaUtils::SetZeroMatrix(m_V);
+
+  m_triangularHInfo = oap::cuda::GetMatrixInfo (m_triangularH);
 }
 
 bool CuHArnoldi::shouldBeReallocated(const math::MatrixInfo& m1,
@@ -577,7 +578,7 @@ void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uint k)
 void CuHArnoldi::alloc3(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
-  oap::generic::allocStage3 (*this, matrixInfo, k, oap::cuda::NewKernelMatrix);
+  oap::generic::allocStage3 (*this, matrixInfo, k, oap::cuda::NewKernelMatrix, m_qrtype);
 }
 
 void CuHArnoldi::dealloc1()

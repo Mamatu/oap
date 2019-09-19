@@ -22,14 +22,18 @@
 
 #include "GenericCoreApi.h"
 #include "MatrixInfo.h"
+#include "oapContext.h"
 
-namespace oap { namespace generic {
+namespace oap {
 
 enum class QRType
 {
+  NONE = -1,
   QRGR, // givens rotations
   QRHT, // housholder reflection
 };
+
+namespace generic {
 
 namespace {
 inline void aux_swapPointers(math::Matrix** a, math::Matrix** b)
@@ -79,15 +83,37 @@ namespace
  * Outputs: ar.m_Q1, ar.m_R1, ar.m_H
  */
 template<typename Arnoldi, typename Api>
-void _qr (Arnoldi& ar, Api& api, QRType qrtype = QRType::QRGR)
+void _qr (math::Matrix* H, Arnoldi& ar, Api& api, QRType qrtype)
 {
   if (qrtype == QRType::QRGR)
   {
-    api.QRGR (ar.m_Q1, ar.m_R1, ar.m_I, ar.m_Q, ar.m_R2, ar.m_G, ar.m_GT);
+    api.QRGR (ar.m_Q1, ar.m_R1, H, ar.m_Q, ar.m_R2, ar.m_GR_G, ar.m_GR_GT);
   }
   else if (qrtype == QRType::QRHT)
   {
-    api.QRHT (ar.m_Q1, ar.m_R1, ar.m_I, ar.m_HT_V, ar.m_HT_VT, ar.m_HT_P, ar.m_HT_VVT);
+    api.QRHT (ar.m_Q1, ar.m_R1, H, ar.m_HT_V, ar.m_HT_VT, ar.m_HT_P, ar.m_HT_VVT);
+  }
+}
+
+template<typename Api>
+void _qr (math::Matrix* Q, math::Matrix* R, math::Matrix* H, const math::MatrixInfo& hinfo, oap::generic::Context& context, const std::string& memType, Api& api, QRType qrtype)
+{
+   auto getter = context.getter();
+  if (qrtype == QRType::QRGR)
+  {
+    math::Matrix* aux_Q = getter.useMatrix (hinfo, memType);
+    math::Matrix* aux_R = getter.useMatrix (hinfo, memType);
+    math::Matrix* aux_G = getter.useMatrix (hinfo, memType);
+    math::Matrix* aux_GT = getter.useMatrix (hinfo, memType);
+    api.QRGR (Q, R, H, aux_Q, aux_R, aux_G, aux_GT);
+  }
+  else if (qrtype == QRType::QRHT)
+  {
+    math::Matrix* aux_V = getter.useMatrix (hinfo.isRe, hinfo.isIm, 1, hinfo.rows(), memType);
+    math::Matrix* aux_VT = getter.useMatrix (hinfo.isRe, hinfo.isIm, hinfo.columns(), 1, memType);
+    math::Matrix* aux_P = getter.useMatrix (hinfo, memType);
+    math::Matrix* aux_VVT = getter.useMatrix (hinfo, memType);
+    api.QRHT (Q, R, H, aux_V, aux_VT, aux_P, aux_VVT);
   }
 }
 }
@@ -99,21 +125,16 @@ void _qr (Arnoldi& ar, Api& api, QRType qrtype = QRType::QRGR)
 template<typename Arnoldi, typename Api>
 void qrIteration (Arnoldi& ar, Api& api)
 {
-  math::Matrix* tempI = ar.m_I;
-  ar.m_I = ar.m_H;
-
-  _qr (ar, api);
-
-  ar.m_I = tempI;
+  _qr (ar.m_H, ar, api);
 }
 
 template<typename Arnoldi, typename Api>
-void shiftedQRIteration (Arnoldi& ar, Api& api, size_t idx)
+void shiftedQRIteration (Arnoldi& ar, Api& api, size_t idx, oap::QRType qrtype)
 {
   api.setDiagonal (ar.m_I, ar.m_unwanted[idx].re(), ar.m_unwanted[idx].im());
   api.substract (ar.m_I, ar.m_H, ar.m_I);
 
-  _qr (ar, api);
+  _qr (ar.m_I, ar, api, qrtype);
 }
 
 namespace iram_shiftedQRIteration
@@ -122,13 +143,13 @@ namespace iram_shiftedQRIteration
 template<typename Arnoldi>
 math::Matrix* getQ (Arnoldi& ar)
 {
-  return ar.m_Q1;  
+  return ar.m_Q1;
 }
 
 template<typename Arnoldi>
 math::Matrix* getR (Arnoldi& ar)
 {
-  return ar.m_R1;  
+  return ar.m_R1;
 }
 
 /**
@@ -136,7 +157,7 @@ math::Matrix* getR (Arnoldi& ar)
  * Outputs: ar.m_Q1, ar.m_R1, ar.m_H
  */
 template<typename Arnoldi, typename Api>
-void proc (Arnoldi& ar, Api& api)
+void proc (Arnoldi& ar, Api& api, oap::QRType qrtype)
 {
   //debugAssert (!ar.m_unwanted.empty());
 
@@ -145,7 +166,7 @@ void proc (Arnoldi& ar, Api& api)
 
   for (uint fa = 0; fa < ar.m_unwanted.size(); ++fa)
   {
-    oap::generic::shiftedQRIteration (ar, api, fa);
+    oap::generic::shiftedQRIteration (ar, api, fa, qrtype);
 
     api.conjugateTranspose (ar.m_QT, ar.m_Q1);
     api.dotProduct (ar.m_HO, ar.m_H, ar.m_Q1);
@@ -158,6 +179,81 @@ void proc (Arnoldi& ar, Api& api)
   {
     aux_swapPointers(&ar.m_Q, &ar.m_QJ);
   }
+}
+
+}
+
+template<typename Arnoldi, typename CalcApi, typename CopyKernelMatrixToKernelMatrix>
+void calcTriangularH (Arnoldi& ar, uintt count, CalcApi& capi, CopyKernelMatrixToKernelMatrix&& copyKernelMatrixToKernelMatrix, oap::QRType qrtype)
+{
+  bool status = false;
+  capi.setIdentity (ar.m_Q);
+  math::Matrix* QJ = ar.m_QJ;
+  math::Matrix* Q = ar.m_Q;
+
+  status = capi.isUpperTriangular (ar.m_triangularH);
+
+  for (uint idx = 0; idx < count && status == false; ++idx)
+  {
+    _qr (ar.m_triangularH, ar, capi, qrtype);
+
+    capi.dotProduct (ar.m_triangularH, ar.m_R1, Q);
+    capi.dotProduct (QJ, ar.m_Q1, Q);
+    aux_swapPointers (&QJ, &Q);
+    status = capi.isUpperTriangular (ar.m_triangularH);
+  }
+
+  aux_swapPointers (&QJ, &Q);
+
+  copyKernelMatrixToKernelMatrix (ar.m_Q1, QJ);
+}
+
+namespace iram_calcTriangularH_Host
+{
+
+struct InOutArgs
+{
+  math::Matrix* H;
+  math::Matrix* Q;
+};
+
+struct InArgs
+{
+  const math::MatrixInfo& thInfo;
+  oap::generic::Context& context;
+  const std::string& memType;
+  uintt count;
+  oap::QRType qrtype;
+};
+
+template<typename CalcApi, typename CopyKernelMatrixToKernelMatrix>
+void proc (InOutArgs& io, const InArgs& iargs, CalcApi& capi, CopyKernelMatrixToKernelMatrix&& copyKernelMatrixToKernelMatrix)
+{
+  bool status = false;
+  auto getter1 = iargs.context.getter ();
+
+  math::Matrix* aux_Q = getter1.useMatrix (iargs.thInfo, iargs.memType);
+  math::Matrix* aux_Q1 = getter1.useMatrix (iargs.thInfo, iargs.memType);
+
+  math::Matrix* aux_R = getter1.useMatrix (iargs.thInfo, iargs.memType);
+
+  capi.setIdentity (aux_Q);
+
+  status = capi.isUpperTriangular (io.H);
+
+  for (uint idx = 0; idx < iargs.count && status == false; ++idx)
+  {
+    _qr (io.Q, aux_R, io.H, iargs.thInfo, iargs.context, iargs.memType, capi, iargs.qrtype);
+
+    capi.dotProduct (io.H, aux_R, aux_Q);
+    capi.dotProduct (aux_Q1, io.Q, aux_Q);
+    aux_swapPointers (&aux_Q1, &aux_Q);
+    status = capi.isUpperTriangular (io.H);
+  }
+
+  aux_swapPointers (&aux_Q1, &aux_Q);
+
+  copyKernelMatrixToKernelMatrix (io.Q, aux_Q1);
 }
 
 }
@@ -189,32 +285,39 @@ void allocStage2 (Arnoldi& ar, const math::MatrixInfo& matrixInfo, uint k, NewKe
 }
 
 template<typename Arnoldi, typename NewKernelMatrix>
-void allocStage3 (Arnoldi& ar, const math::MatrixInfo& matrixInfo, uint k, NewKernelMatrix&& newKernelMatrix)
+void allocStage3 (Arnoldi& ar, const math::MatrixInfo& matrixInfo, uint k, NewKernelMatrix&& newKernelMatrix, oap::QRType qrtype)
 {
   traceFunction();
   ar.m_h = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
   ar.m_s = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
   ar.m_H = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  ar.m_G = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  ar.m_GT = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_HO = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_triangularH = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_Q1 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_Q2 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_QT = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_R1 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  ar.m_R2 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_QJ = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_I = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  ar.m_Q = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_QT1 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_QT2 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_q = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, k);
 
-  ar.m_HT_V = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, 1, k);
-  ar.m_HT_VT = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, 1);
-  ar.m_HT_P = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, k);
-  ar.m_HT_VVT = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, k);
+  ar.m_Q = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  ar.m_R2 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+
+  if (qrtype == oap::QRType::QRHT)
+  {
+    ar.m_HT_V = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, 1, k);
+    ar.m_HT_VT = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, 1);
+    ar.m_HT_P = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, k);
+    ar.m_HT_VVT = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, k);
+  }
+  else
+  {
+    ar.m_GR_G = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+    ar.m_GR_GT = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
+  }
 }
 
 template<typename Arnoldi, typename DeleteKernelMatrix>
@@ -248,21 +351,23 @@ void deallocStage3(Arnoldi& ar, DeleteKernelMatrix&& deleteKernelMatrix)
   deleteKernelMatrix (ar.m_h);
   deleteKernelMatrix (ar.m_s);
   deleteKernelMatrix (ar.m_H);
-  deleteKernelMatrix (ar.m_G);
-  deleteKernelMatrix (ar.m_GT);
   deleteKernelMatrix (ar.m_HO);
   deleteKernelMatrix (ar.m_triangularH);
   deleteKernelMatrix (ar.m_Q1);
   deleteKernelMatrix (ar.m_Q2);
   deleteKernelMatrix (ar.m_QT);
   deleteKernelMatrix (ar.m_R1);
-  deleteKernelMatrix (ar.m_R2);
   deleteKernelMatrix (ar.m_QJ);
   deleteKernelMatrix (ar.m_I);
-  deleteKernelMatrix (ar.m_Q);
   deleteKernelMatrix (ar.m_QT1);
   deleteKernelMatrix (ar.m_QT2);
   deleteKernelMatrix (ar.m_q);
+
+  deleteKernelMatrix (ar.m_Q);
+  deleteKernelMatrix (ar.m_R2);
+
+  deleteKernelMatrix (ar.m_GR_G);
+  deleteKernelMatrix (ar.m_GR_GT);
 
   deleteKernelMatrix (ar.m_HT_V);
   deleteKernelMatrix (ar.m_HT_VT);

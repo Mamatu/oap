@@ -129,14 +129,14 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
 
   oap::generic::allocStage1 (ca, matrixInfo, oap::cuda::NewKernelMatrix);
   oap::generic::allocStage2 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix, oap::host::NewHostMatrix);
-  oap::generic::allocStage3 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix);
+  oap::generic::allocStage3 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix, oap::QRType::QRGR);
 
   oap::cuda::CopyHostArrayToDeviceReMatrix (ca.m_H, h_expected_init, length);
   ca.m_unwanted.push_back (unwanted);
 
   oap::CuProceduresApi cuApi;
 
-  oap::generic::shiftedQRIteration (ca, cuApi, 0);
+  oap::generic::shiftedQRIteration (ca, cuApi, 0, oap::QRType::QRHT);
 
   {
     using namespace oap::generic::iram_shiftedQRIteration;

@@ -255,16 +255,13 @@ class CuProceduresApi
 
   bool isUpperTriangular(math::Matrix* matrix);
 
-  void calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-            math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
-            math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6);
+  void calcTriangularH (math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+                        math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+                        math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6);
 
-  void calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-            math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
-            math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6,
-            uint columns, uint rows);
-
-  
+  void calcTriangularHStep (math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+                            math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+                            math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6);
 
   std::string getMsgStatus() const;
 
