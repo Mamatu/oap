@@ -37,11 +37,27 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
 
   OccurencesList<T> valuesVec;
   uintt totalLength = 0;
+  size_t negativeCount = 0, positiveCount = 0, zerosCount = 0;
+
   for (uintt index = 0; index < count; ++index)
   {
     T* array = arrays[index];
     uintt length = lengths[index];
-    PrepareOccurencesList (valuesVec, array, length, args);
+    PrepareOccurencesList (valuesVec, array, length, args, [&negativeCount, &positiveCount, &zerosCount](floatt value)
+    {
+      if (value < 0.f)
+      {
+        ++negativeCount;
+      }
+      else if (value > 0.f)
+      {
+        ++positiveCount;
+      }
+      else if (value == 0)
+      {
+        ++zerosCount;
+      }
+    });
     totalLength += length;
   }
 
@@ -55,7 +71,7 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
     const floatt value = valuesVec[fa].second;
     std::string extra_str = "";
 
-    if (value >= 0)
+    if (value >= 0 && negativeCount > 0)
     {
       extra_str += " ";
     }
@@ -67,6 +83,10 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
     else if (args.floatPrintMode == PrintArgs::FloatPrintMode::FIXED)
     {
       sstream << std::fixed << extra_str << value;
+    }
+    else if (args.floatPrintMode == PrintArgs::FloatPrintMode::NORMAL)
+    {
+      sstream << extra_str << value;
     }
 
     const uintt count = valuesVec[fa].first;

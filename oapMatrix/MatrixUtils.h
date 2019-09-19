@@ -25,6 +25,7 @@
 #include <sstream>
 #include <limits>
 #include <utility>
+#include <functional>
 #include "Matrix.h"
 #include "MatrixAPI.h"
 
@@ -119,7 +120,8 @@ class PrintArgs
     enum class FloatPrintMode
     {
       SCIENTIFIC_NOTATION,
-      FIXED
+      FIXED,
+      NORMAL
     };
 
     FloatPrintMode floatPrintMode = FloatPrintMode::FIXED;
@@ -146,8 +148,10 @@ class PrintArgs
     }
 };
 
+using ValueCallback = std::function<void(floatt)>;
+
 template <typename T>
-void PrepareOccurencesList (OccurencesList<T>& occurencesList, T* array, uintt length, const PrintArgs& args = PrintArgs())
+void PrepareOccurencesList (OccurencesList<T>& occurencesList, T* array, uintt length, const PrintArgs& args = PrintArgs(), ValueCallback&& valueCallback = [](floatt){})
 {
   const T zrr = args.zrr;
   const bool repeats = args.repeats;
@@ -168,6 +172,8 @@ void PrepareOccurencesList (OccurencesList<T>& occurencesList, T* array, uintt l
     {
       occurencesList[occurencesList.size() - 1].first++;
     }
+
+    valueCallback (value);
   }
 }
 

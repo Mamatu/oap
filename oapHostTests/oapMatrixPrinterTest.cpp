@@ -42,7 +42,11 @@ TEST_F(OapMatrixPrinterTests, TestRe1x1WithZero)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(true, false, 1, 1);
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get());
+
+  matrixUtils::PrintArgs printArgs;
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0]"));
   printf("%s\n", str.c_str());
 }
@@ -51,7 +55,11 @@ TEST_F(OapMatrixPrinterTests, TestRe1x10WithZero)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(true, false, 1, 10);
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get());
+
+  matrixUtils::PrintArgs printArgs;
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0 <repeats 10 times>]"));
   printf("%s\n", str.c_str());
 }
@@ -60,7 +68,11 @@ TEST_F(OapMatrixPrinterTests, TestRe10x1WithZero)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(true, false, 10, 1);
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get());
+
+  matrixUtils::PrintArgs printArgs;
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0 <repeats 10 times>]"));
   printf("%s\n", str.c_str());
 }
@@ -69,7 +81,11 @@ TEST_F(OapMatrixPrinterTests, TestRe10x10WithZero)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(true, false, 10, 10);
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get());
+
+  matrixUtils::PrintArgs printArgs;
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0 <repeats 100 times>]"));
   printf("%s\n", str.c_str());
 }
@@ -78,7 +94,11 @@ TEST_F(OapMatrixPrinterTests, TestIm1x1WithZero)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(false, true, 1, 1);
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get());
+
+  matrixUtils::PrintArgs printArgs;
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0]"));
   printf("%s\n", str.c_str());
 }
@@ -87,7 +107,11 @@ TEST_F(OapMatrixPrinterTests, TestIm1x10WithZero)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(false, true, 1, 10);
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get());
+
+  matrixUtils::PrintArgs printArgs;
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0 <repeats 10 times>]"));
   printf("%s\n", str.c_str());
 }
@@ -96,7 +120,11 @@ TEST_F(OapMatrixPrinterTests, TestIm1x5WithZeroNoRepeats)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(false, true, 1, 5);
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, true));
+
+  matrixUtils::PrintArgs printArgs (0, true);
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0, 0, 0, 0, 0]"));
   printf("%s\n", str.c_str());
 }
@@ -105,7 +133,11 @@ TEST_F(OapMatrixPrinterTests, TestIm10x1WithZero)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(false, true, 10, 1);
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get());
+
+  matrixUtils::PrintArgs printArgs;
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0 <repeats 10 times>]"));
   printf("%s\n", str.c_str());
 }
@@ -114,7 +146,11 @@ TEST_F(OapMatrixPrinterTests, TestIm10x10WithZero)
 {
   oap::HostMatrixPtr matrix = oap::host::NewMatrix(false, true, 10, 10);
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get());
+
+  matrixUtils::PrintArgs printArgs;
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0 <repeats 100 times>]"));
   printf("%s\n", str.c_str());
 }
@@ -130,7 +166,11 @@ TEST_F(OapMatrixPrinterTests, Test5x1)
   }
 
   std::string str;
-  matrixUtils::PrintMatrix (str, matrix.get());
+
+  matrixUtils::PrintArgs printArgs;
+  printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+  matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
   EXPECT_THAT(str, ::testing::HasSubstr("[0, 1, 2, 3, 4]"));
   printf("%s\n", str.c_str());
 }
@@ -147,8 +187,11 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     }
 
     std::string str;
-    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "\n", matrix->columns));
-    EXPECT_THAT(str, ::testing::HasSubstr("[0, 1, 2, 3, 4\n5, 6, 7, 8, 9]"));
+    matrixUtils::PrintArgs printArgs (0, false, "\n", matrix->columns);
+    printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+    matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
+    EXPECT_THAT(str, ::testing::HasSubstr("[0, 1, 2, 3, 4\n 5, 6, 7, 8, 9]"));
     printf("%s\n", str.c_str());
   }
   {
@@ -161,8 +204,11 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     }
 
     std::string str;
-    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "|", matrix->columns));
-    EXPECT_THAT(str, ::testing::HasSubstr("[0, 1, 2, 3, 4|5, 6, 7, 8, 9]"));
+    matrixUtils::PrintArgs printArgs (0, false, "|", matrix->columns);
+    printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+ 
+    matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
+    EXPECT_THAT(str, ::testing::HasSubstr("[0, 1, 2, 3, 4| 5, 6, 7, 8, 9]"));
     printf("%s\n", str.c_str());
   }
   {
@@ -175,8 +221,11 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     }
 
     std::string str;
-    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs("matrix = ", "", 0, false, "|", matrix->columns));
-    EXPECT_EQ ("matrix = [0, 1, 2, 3, 4|5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]", str);
+    matrixUtils::PrintArgs printArgs ("matrix = ", "", 0, false, "|", matrix->columns);
+    printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+    matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
+    EXPECT_EQ ("matrix = [0, 1, 2, 3, 4| 5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4| 5, 6, 7, 8, 9]", str);
     printf("%s\n", str.c_str());
   }
   {
@@ -189,8 +238,11 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     }
 
     std::string str;
-    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs("matrix = {", "}", 0, false, "|", matrix->columns));
-    EXPECT_EQ ("matrix = {[0, 1, 2, 3, 4|5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]}", str);
+    matrixUtils::PrintArgs printArgs ("matrix = {", "}", 0, false, "|", matrix->columns);
+    printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+    matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
+    EXPECT_EQ ("matrix = {[0, 1, 2, 3, 4| 5, 6, 7, 8, 9] + i * [0, 1, 2, 3, 4| 5, 6, 7, 8, 9]}", str);
     printf("%s\n", str.c_str());
   }
   {
@@ -202,8 +254,11 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     }
 
     std::string str;
-    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "|", matrix->columns));
-    EXPECT_EQ("[0, 1, 2, 3, 4|5, 6, 7, 8, 9]", str);
+    matrixUtils::PrintArgs printArgs (0, false, "|", matrix->columns);
+    printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+    matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
+    EXPECT_EQ("[0, 1, 2, 3, 4| 5, 6, 7, 8, 9]", str);
     printf("%s\n", str.c_str());
   }
   {
@@ -215,8 +270,11 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     }
 
     std::string str;
-    matrixUtils::PrintMatrix (str, matrix.get(), matrixUtils::PrintArgs(0, false, "|", matrix->columns));
-    EXPECT_EQ("i * [0, 1, 2, 3, 4|5, 6, 7, 8, 9]", str);
+    matrixUtils::PrintArgs printArgs (0, false, "|", matrix->columns);
+    printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
+
+    matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
+    EXPECT_EQ("i * [0, 1, 2, 3, 4| 5, 6, 7, 8, 9]", str);
     printf("%s\n", str.c_str());
   }
 }
