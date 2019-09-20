@@ -22,7 +22,7 @@
 
 #include "GenericCoreApi.h"
 #include "MatrixInfo.h"
-#include "oapContext.h"
+#include "oapMatricesContext.h"
 
 #include "ArnoldiUtils.h"
 
@@ -98,7 +98,7 @@ void _qr (math::Matrix* H, Arnoldi& ar, Api& api, QRType qrtype)
 }
 
 template<typename Api>
-void _qr (math::Matrix* Q, math::Matrix* R, math::Matrix* H, const math::MatrixInfo& hinfo, oap::generic::Context& context, const std::string& memType, Api& api, QRType qrtype)
+void _qr (math::Matrix* Q, math::Matrix* R, math::Matrix* H, const math::MatrixInfo& hinfo, oap::generic::MatricesContext& context, const std::string& memType, Api& api, QRType qrtype)
 {
    auto getter = context.getter();
   if (qrtype == QRType::QRGR)
@@ -148,7 +148,7 @@ struct InArgs
 };
 
 template<typename Api>
-void shiftedQRIteration (InOutArgs& io, const InArgs& iargs, oap::generic::Context& cm, Api& api, size_t idx, oap::QRType qrtype)
+void shiftedQRIteration (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm, Api& api, size_t idx, oap::QRType qrtype)
 {
   auto getter = cm.getter ();
   math::Matrix* aux_HI = getter.useMatrix (iargs.hinfo, iargs.memType);
@@ -160,7 +160,7 @@ void shiftedQRIteration (InOutArgs& io, const InArgs& iargs, oap::generic::Conte
 }
 
 template<typename Api>
-void shiftedQRIterations (InOutArgs& io, const InArgs& iargs, oap::generic::Context& cm, Api& api, oap::QRType qrtype)
+void shiftedQRIterations (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm, Api& api, oap::QRType qrtype)
 {
   //debugAssert (!aux_unwanted.empty());
 
@@ -230,7 +230,7 @@ struct InOutArgs
 struct InArgs
 {
   const math::MatrixInfo& thInfo;
-  oap::generic::Context& context;
+  oap::generic::MatricesContext& context;
   const std::string& memType;
   uintt count;
   oap::QRType qrtype;
@@ -280,7 +280,7 @@ struct InOutArgs
 struct InArgs
 {
   math::MatrixInfo hinfo;
-  oap::generic::Context& context;
+  oap::generic::MatricesContext& context;
   const std::string& memType;
 };
 
