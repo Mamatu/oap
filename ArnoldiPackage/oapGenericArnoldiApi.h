@@ -24,6 +24,8 @@
 #include "MatrixInfo.h"
 #include "oapContext.h"
 
+#include "ArnoldiUtils.h"
+
 namespace oap {
 
 enum class QRType
@@ -128,56 +130,64 @@ void qrIteration (Arnoldi& ar, Api& api)
   _qr (ar.m_H, ar, api);
 }
 
-template<typename Arnoldi, typename Api>
-void shiftedQRIteration (Arnoldi& ar, Api& api, size_t idx, oap::QRType qrtype)
-{
-  api.setDiagonal (ar.m_I, ar.m_unwanted[idx].re(), ar.m_unwanted[idx].im());
-  api.substract (ar.m_I, ar.m_H, ar.m_I);
-
-  _qr (ar.m_I, ar, api, qrtype);
-}
-
 namespace iram_shiftedQRIteration
 {
 
-template<typename Arnoldi>
-math::Matrix* getQ (Arnoldi& ar)
+struct InOutArgs
 {
-  return ar.m_Q1;
+  math::Matrix* Q;
+  math::Matrix* R;
+  math::Matrix* H;
+};
+
+struct InArgs
+{
+  const std::vector<EigenPair>& unwanted;
+  const math::MatrixInfo hinfo;
+  const std::string memType;
+};
+
+template<typename Api>
+void shiftedQRIteration (InOutArgs& io, const InArgs& iargs, oap::generic::Context& cm, Api& api, size_t idx, oap::QRType qrtype)
+{
+  auto getter = cm.getter ();
+  math::Matrix* aux_HI = getter.useMatrix (iargs.hinfo, iargs.memType);
+
+  api.setDiagonal (aux_HI, iargs.unwanted[idx].re(), iargs.unwanted[idx].im());
+  api.substract (aux_HI, io.H, aux_HI);
+
+  _qr (io.Q, io.R, aux_HI, iargs.hinfo, cm, iargs.memType, api, qrtype);
 }
 
-template<typename Arnoldi>
-math::Matrix* getR (Arnoldi& ar)
+template<typename Api>
+void shiftedQRIterations (InOutArgs& io, const InArgs& iargs, oap::generic::Context& cm, Api& api, oap::QRType qrtype)
 {
-  return ar.m_R1;
-}
+  //debugAssert (!aux_unwanted.empty());
 
-/**
- * Inputs: ar.m_H
- * Outputs: ar.m_Q1, ar.m_R1, ar.m_H
- */
-template<typename Arnoldi, typename Api>
-void proc (Arnoldi& ar, Api& api, oap::QRType qrtype)
-{
-  //debugAssert (!ar.m_unwanted.empty());
+  auto getter = cm.getter ();
 
-  api.setIdentity (ar.m_QJ);
-  api.setIdentity (ar.m_Q);
+  math::Matrix* aux_Q1 = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::Matrix* aux_QJ = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::Matrix* aux_QT = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::Matrix* aux_HO = getter.useMatrix (iargs.hinfo, iargs.memType);
 
-  for (uint fa = 0; fa < ar.m_unwanted.size(); ++fa)
+  api.setIdentity (aux_QJ);
+  api.setIdentity (io.Q);
+
+  for (uint fa = 0; fa < iargs.unwanted.size(); ++fa)
   {
-    oap::generic::shiftedQRIteration (ar, api, fa, qrtype);
+    shiftedQRIteration (io, iargs, cm, api, fa, qrtype);
 
-    api.conjugateTranspose (ar.m_QT, ar.m_Q1);
-    api.dotProduct (ar.m_HO, ar.m_H, ar.m_Q1);
-    api.dotProduct (ar.m_H, ar.m_QT, ar.m_HO);
-    api.dotProduct (ar.m_Q, ar.m_QJ, ar.m_Q1);
-    aux_swapPointers (&ar.m_Q, &ar.m_QJ);
+    api.conjugateTranspose (aux_QT, aux_Q1);
+    api.dotProduct (aux_HO, io.H, aux_Q1);
+    api.dotProduct (io.H, aux_QT, aux_HO);
+    api.dotProduct (io.Q, aux_QJ, aux_Q1);
+    aux_swapPointers (&io.Q, &aux_QJ);
   }
 
-  if (ar.m_unwanted.size() % 2 != 0)
+  if (iargs.unwanted.size() % 2 != 0)
   {
-    aux_swapPointers(&ar.m_Q, &ar.m_QJ);
+    aux_swapPointers(&io.Q, &aux_QJ);
   }
 }
 

@@ -224,9 +224,6 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   template<typename Arnoldi, typename Api, typename GetReValue, typename GetImValue>
   friend void oap::generic::iram_fVplusfq(Arnoldi&, uintt, Api&, GetReValue&&, GetImValue&&);
 
-  template<typename Arnoldi, typename Api>
-  friend void oap::generic::iram_shiftedQRIteration::proc (Arnoldi&, Api&, uintt);
-
   template<typename Arnoldi, typename NewKernelMatrix>
   friend void oap::generic::allocStage1 (Arnoldi&, const math::MatrixInfo&, NewKernelMatrix&&);
 

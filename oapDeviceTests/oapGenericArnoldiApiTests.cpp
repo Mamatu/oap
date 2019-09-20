@@ -102,6 +102,8 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
     0.0000e+00, 0.0000e+00, -1.5744e-01, 3.0010e+00 - unwanted,
   };
 
+  oap::QRType qrtype = oap::QRType::QRGR;
+
   memcpy (h_expected_1_m_unwanted_p_unwanted, h_expected_1_m_unwanted, 16 * sizeof (floatt));
   h_expected_1_m_unwanted_p_unwanted[0] = h_expected_1_m_unwanted[0] + unwanted;
   h_expected_1_m_unwanted_p_unwanted[5] = h_expected_1_m_unwanted[5] + unwanted;
@@ -129,24 +131,31 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
 
   oap::generic::allocStage1 (ca, matrixInfo, oap::cuda::NewKernelMatrix);
   oap::generic::allocStage2 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix, oap::host::NewHostMatrix);
-  oap::generic::allocStage3 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix, oap::QRType::QRGR);
+  oap::generic::allocStage3 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix, qrtype);
 
   oap::cuda::CopyHostArrayToDeviceReMatrix (ca.m_H, h_expected_init, length);
   ca.m_unwanted.push_back (unwanted);
 
   oap::CuProceduresApi cuApi;
 
-  oap::generic::shiftedQRIteration (ca, cuApi, 0, oap::QRType::QRHT);
+  oap::generic::Context cm;
+  cm.registerMemType ("CUDA", oap::cuda::NewDeviceMatrixFromMatrixInfo, oap::cuda::DeleteDeviceMatrix);
+
+  math::MatrixInfo hinfo = oap::cuda::GetMatrixInfo (ca.m_H);
+
+  oap::generic::iram_shiftedQRIteration::InOutArgs ioargs = {ca.m_Q1, ca.m_R1, ca.m_H};
+  oap::generic::iram_shiftedQRIteration::InArgs iargs = {ca.m_unwanted, hinfo, "CUDA"};
+  oap::generic::iram_shiftedQRIteration::shiftedQRIteration (ioargs, iargs, cm, cuApi, 0, qrtype);
 
   {
     using namespace oap::generic::iram_shiftedQRIteration;
-    EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (getQ(ca)));
-    EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (getR(ca)));
+    EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (ioargs.Q));
+    EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (ioargs.R));
   }
 
   {
     using namespace oap::generic::iram_shiftedQRIteration;
-    cuApi.dotProduct (ca.m_H, getQ (ca), getR (ca));
+    cuApi.dotProduct (ca.m_H, ioargs.Q, ioargs.R);
 
     EXPECT_THAT (hexpectedInitMUnwanted.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
 
@@ -159,7 +168,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
 
   {
     using namespace oap::generic::iram_shiftedQRIteration;
-    cuApi.dotProduct (ca.m_H, getR (ca), getQ (ca));
+    cuApi.dotProduct (ca.m_H, ioargs.R, ioargs.Q);
   }
 
   EXPECT_THAT (hexpected1MUnwanted.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
