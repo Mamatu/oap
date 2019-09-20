@@ -138,7 +138,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
 
   oap::CuProceduresApi cuApi;
 
-  oap::generic::Context cm;
+  oap::generic::MatricesContext cm;
   cm.registerMemType ("CUDA", oap::cuda::NewDeviceMatrixFromMatrixInfo, oap::cuda::DeleteDeviceMatrix);
 
   math::MatrixInfo hinfo = oap::cuda::GetMatrixInfo (ca.m_H);

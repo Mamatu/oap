@@ -20,15 +20,15 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "oapContext.h"
+#include "oapMatricesContext.h"
 
 #include "oapHostMatrixUtils.h"
 
-class OapContextTests : public testing::Test {
+class OapMatricesContextTests : public testing::Test {
  public:
-  OapContextTests() {}
+  OapMatricesContextTests() {}
 
-  virtual ~OapContextTests() {}
+  virtual ~OapMatricesContextTests() {}
 
   virtual void SetUp()
   {}
@@ -37,9 +37,9 @@ class OapContextTests : public testing::Test {
   {}
 };
 
-TEST_F(OapContextTests, ReturnUnusedMatrix_ApiTest_1)
+TEST_F(OapMatricesContextTests, ReturnUnusedMatrix_ApiTest_1)
 {
-  oap::generic::Context context;
+  oap::generic::MatricesContext context;
 
   const char* HOST = "HOST";
 
@@ -55,9 +55,9 @@ TEST_F(OapContextTests, ReturnUnusedMatrix_ApiTest_1)
   EXPECT_EQ(m1, m2);
 }
 
-TEST_F(OapContextTests, ReturnUnusedMatrix_ApiTest_2)
+TEST_F(OapMatricesContextTests, ReturnUnusedMatrix_ApiTest_2)
 {
-  oap::generic::Context context;
+  oap::generic::MatricesContext context;
   context.registerMemType ("HOST", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix);
   context.registerMemType ("HOST_1", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix);
 
@@ -70,11 +70,11 @@ TEST_F(OapContextTests, ReturnUnusedMatrix_ApiTest_2)
   EXPECT_EQ(m1, m2);
 }
 
-TEST_F(OapContextTests, Clear_ApiTest)
+TEST_F(OapMatricesContextTests, Clear_ApiTest)
 {
   using namespace testing;
 
-  oap::generic::Context context;
+  oap::generic::MatricesContext context;
 
   const char* HOST = "HOST";
 
@@ -114,13 +114,13 @@ TEST_F(OapContextTests, Clear_ApiTest)
   math::Matrix* m3 = context.useMatrix (minfo, HOST);
 }
 
-TEST_F(OapContextTests, Reuse_ApiTest)
+TEST_F(OapMatricesContextTests, Reuse_ApiTest)
 {
   using namespace testing;
 
   math::MatrixInfo minfo (true, false, 10, 10);
 
-  oap::generic::Context context;
+  oap::generic::MatricesContext context;
 
   const char* HOST = "HOST";
 
@@ -153,13 +153,13 @@ TEST_F(OapContextTests, Reuse_ApiTest)
   EXPECT_EQ (m1, m2);
 }
 
-TEST_F(OapContextTests, GetterUse_ApiTest)
+TEST_F(OapMatricesContextTests, GetterUse_ApiTest)
 {
   using namespace testing;
 
   math::MatrixInfo minfo (true, false, 10, 10);
 
-  oap::generic::Context context;
+  oap::generic::MatricesContext context;
 
   const char* HOST = "HOST";
 
@@ -187,24 +187,24 @@ TEST_F(OapContextTests, GetterUse_ApiTest)
   math::Matrix* m1 = reinterpret_cast<math::Matrix*>(0x1);
   math::Matrix* m2 = reinterpret_cast<math::Matrix*>(0x2);
   {
-    oap::generic::Context::Getter getter = context.getter();
+    oap::generic::MatricesContext::Getter getter = context.getter();
     m1 = getter.useMatrix (minfo, HOST);
   }
   {
-    oap::generic::Context::Getter getter = context.getter();
+    oap::generic::MatricesContext::Getter getter = context.getter();
     m2 = getter.useMatrix (minfo, HOST);
   }
 
   EXPECT_EQ (m1, m2);
 }
 
-TEST_F(OapContextTests, GetterInMethod_ApiTest)
+TEST_F(OapMatricesContextTests, GetterInMethod_ApiTest)
 {
   using namespace testing;
 
   math::MatrixInfo minfo (true, false, 10, 10);
 
-  oap::generic::Context context;
+  oap::generic::MatricesContext context;
 
   const char* HOST = "HOST";
 
@@ -232,10 +232,10 @@ TEST_F(OapContextTests, GetterInMethod_ApiTest)
   math::Matrix* m1 = reinterpret_cast<math::Matrix*>(0x1);
   math::Matrix* m2 = reinterpret_cast<math::Matrix*>(0x2);
   {
-    oap::generic::Context::Getter getter = context.getter();
+    oap::generic::MatricesContext::Getter getter = context.getter();
     m1 = getter.useMatrix (minfo, HOST);
     {
-      oap::generic::Context::Getter getter = context.getter();
+      oap::generic::MatricesContext::Getter getter = context.getter();
       m2 = getter.useMatrix (minfo, HOST);
     }
     m2 = getter.useMatrix (minfo, HOST);

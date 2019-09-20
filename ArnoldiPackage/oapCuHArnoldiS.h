@@ -25,11 +25,11 @@
 #include "Matrix.h"
 
 #include "ArnoldiUtils.h"
-#include "oapContext.h"
+#include "oapMatricesContext.h"
 
 namespace oap { namespace generic {
 
-class CuHArnoldiS : public oap::generic::Context
+class CuHArnoldiS : public oap::generic::MatricesContext
 {
   public:
 

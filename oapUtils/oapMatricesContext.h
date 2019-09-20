@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_CONTEXT_H
-#define OAP_CONTEXT_H
+#ifndef OAP_MATRICES_CONTEXT_H
+#define OAP_MATRICES_CONTEXT_H
 
 #include "Logger.h"
 
@@ -32,7 +32,7 @@
 
 namespace oap { namespace generic {
 
-class Context
+class MatricesContext
 {
   private:
 
@@ -58,7 +58,7 @@ class Context
 
   public:
 
-    virtual ~Context ()
+    virtual ~MatricesContext ()
     {
       clear ();
     }
@@ -66,12 +66,12 @@ class Context
     class Getter final
     {
       private:
-        Context& m_context;
+        MatricesContext& m_context;
         std::set<math::Matrix*> m_matrices;
 
         Getter() = delete;
 
-        Getter (Context& context) : m_context (context)
+        Getter (MatricesContext& context) : m_context (context)
         {}
 
       public:
@@ -94,7 +94,7 @@ class Context
           m_matrices.clear();
         }
 
-        friend class Context;
+        friend class MatricesContext;
     };
 
     inline void registerMemType (const std::string& typeName, Allocator&& allocator, Deallocator&& deallocator)
