@@ -79,24 +79,6 @@ void iram_fVplusfq(Arnoldi& ar, uintt k, Api& api, GetReValue&& getReValue, GetI
 
 namespace
 {
-
-/**
- * Inputs: ar.m_I ar.m_H
- * Outputs: ar.m_Q1, ar.m_R1, ar.m_H
- */
-template<typename Arnoldi, typename Api>
-void _qr (math::Matrix* H, Arnoldi& ar, Api& api, QRType qrtype)
-{
-  if (qrtype == QRType::QRGR)
-  {
-    api.QRGR (ar.m_Q1, ar.m_R1, H, ar.m_Q, ar.m_R2, ar.m_GR_G, ar.m_GR_GT);
-  }
-  else if (qrtype == QRType::QRHT)
-  {
-    api.QRHT (ar.m_Q1, ar.m_R1, H, ar.m_HT_V, ar.m_HT_VT, ar.m_HT_P, ar.m_HT_VVT);
-  }
-}
-
 template<typename Api>
 void _qr (math::Matrix* Q, math::Matrix* R, math::Matrix* H, const math::MatrixInfo& hinfo, oap::generic::MatricesContext& context, const std::string& memType, Api& api, QRType qrtype)
 {
@@ -357,19 +339,6 @@ void allocStage3 (Arnoldi& ar, const math::MatrixInfo& matrixInfo, uint k, NewKe
 
   ar.m_Q = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
   ar.m_R2 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-
-  if (qrtype == oap::QRType::QRHT)
-  {
-    ar.m_HT_V = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, 1, k);
-    ar.m_HT_VT = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, 1);
-    ar.m_HT_P = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, k);
-    ar.m_HT_VVT = newKernelMatrix (matrixInfo.isRe, matrixInfo.isIm, k, k);
-  }
-  else
-  {
-    ar.m_GR_G = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-    ar.m_GR_GT = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, k, k);
-  }
 }
 
 template<typename Arnoldi, typename DeleteKernelMatrix>
@@ -417,14 +386,6 @@ void deallocStage3(Arnoldi& ar, DeleteKernelMatrix&& deleteKernelMatrix)
 
   deleteKernelMatrix (ar.m_Q);
   deleteKernelMatrix (ar.m_R2);
-
-  deleteKernelMatrix (ar.m_GR_G);
-  deleteKernelMatrix (ar.m_GR_GT);
-
-  deleteKernelMatrix (ar.m_HT_V);
-  deleteKernelMatrix (ar.m_HT_VT);
-  deleteKernelMatrix (ar.m_HT_P);
-  deleteKernelMatrix (ar.m_HT_VVT);
 }
 
 }}
