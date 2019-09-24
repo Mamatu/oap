@@ -65,8 +65,6 @@ class CuHArnoldiS : public oap::generic::MatricesContext
       m_hostV(NULL),
       m_QJ(NULL),
       m_q(NULL),
-      m_GR_GT(NULL),
-      m_GR_G(NULL),
       m_EV(NULL)
     {}
 
@@ -101,14 +99,7 @@ class CuHArnoldiS : public oap::generic::MatricesContext
     math::Matrix* m_QT2;
     math::Matrix* m_QJ;
     math::Matrix* m_q;
-    math::Matrix* m_GR_GT;
-    math::Matrix* m_GR_G;
     math::Matrix* m_EV;
-
-    math::Matrix* m_HT_V = NULL;
-    math::Matrix* m_HT_VT = NULL;
-    math::Matrix* m_HT_P = NULL;
-    math::Matrix* m_HT_VVT = NULL;
 
     math::Matrix* m_hostV;
 
