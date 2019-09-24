@@ -484,13 +484,12 @@ void CuHArnoldi::executeShiftedQRIteration(uint p)
 {
   traceFunction();
 
-  oap::generic::iram_shiftedQRIteration::InOutArgs io = {m_Q, m_R1, m_H};
+  oap::generic::iram_shiftedQRIteration::InOutArgs io = {m_Q, m_H};
   oap::generic::iram_shiftedQRIteration::InArgs iargs = {m_unwanted, m_triangularHInfo, "CUDA"};
-  oap::generic::iram_shiftedQRIteration::shiftedQRIterations (io, iargs, *this, m_cuMatrix, m_qrtype);
+  oap::generic::iram_shiftedQRIteration::proc (io, iargs, m_cuMatrix, *this, m_qrtype);
 
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_EV, m_V);
   m_cuMatrix.dotProduct(m_V, m_EV, m_Q);
-  oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_EV, m_V);
 }
 
 floatt CuHArnoldi::checkEigenpairsInternally(const EigenPair& eigenPair, floatt tolerance)
