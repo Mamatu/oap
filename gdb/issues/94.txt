@@ -1,0 +1,23 @@
+set breakpoint pending on
+set height 0
+break CuDotProductProcedures.h : dp_calcReValue if threadIdx.x == 2 && threadIdx.y == 1
+command 1
+p threadIdx
+p "idx1"
+p idx1
+p m1->reValues[idx1]
+p "idx2"
+p idx2
+p m2->reValues[idx2]
+cont
+end
+
+break CuDotProductProcedures.h : cuAux_calcIdx if threadIdx.x == 2 && threadIdx.y == 1
+command 2
+p "oidx"
+p ex.column
+p ex.row
+p matrix->columns
+p ex.column + matrix->columns * ex.row
+cont
+end
