@@ -48,7 +48,7 @@ __hostdevice__ void dp_calcRealValue (floatt* re, floatt* im, const math::Matrix
   *im += m1->reValues[idx1] * m2->imValues[idx2] + m2->reValues[idx1] * m1->imValues[idx2];
 }
 
-__hostdeviceinline__ void calcIdxs (uintt idx[2], uintt midx, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])
+__hostdeviceinline__ void cuAux_calcIdxs (uintt idx[2], uintt midx, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -63,7 +63,7 @@ __hostdeviceinline__ void calcIdxs (uintt idx[2], uintt midx, const math::Matrix
   idx[1] = idx1;
 }
 
-__hostdeviceinline__ uintt calcIdx (const math::Matrix* matrix, const MatrixEx& ex)
+__hostdeviceinline__ uintt cuAux_calcIdx (const math::Matrix* matrix, const MatrixEx& ex)
 {
   return ex.column + matrix->columns * ex.row;
 }
@@ -78,12 +78,12 @@ __hostdevice__ void cuda_dotProductGenericEx (floatt* re, floatt* im, math::Matr
   for (uintt midx = 0; midx < offset; ++midx)
   {
     uintt idx[2];
-    calcIdxs (idx, midx, params0, params1, exs);
+    cuAux_calcIdxs (idx, midx, params0, params1, exs);
 
     calcValue_f (re, im, params0, idx[0], params1, idx[1]);
   }
 
-  uintt oidx = calcIdx (output, exs[0]);
+  uintt oidx = cuAux_calcIdx (output, exs[0]);
   if (re)
   {
     output->reValues[oidx] = *re;
@@ -104,12 +104,12 @@ __hostdevice__ void cuda_addDotProductGenericEx (floatt* re, floatt* im, math::M
   for (uintt midx = 0; midx < offset; ++midx)
   {
     uintt idx[2];
-    calcIdxs (idx, midx, params0, params1, exs);
+    cuAux_calcIdxs (idx, midx, params0, params1, exs);
 
     calcValue_f (re, im, params0, idx[0], params1, idx[1]);
   }
 
-  uintt oidx = calcIdx (output, exs[0]);
+  uintt oidx = cuAux_calcIdx (output, exs[0]);
   if (re)
   {
     output->reValues[oidx] += *re;
