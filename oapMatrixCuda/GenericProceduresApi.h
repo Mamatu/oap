@@ -313,10 +313,11 @@ namespace generic
 
   template<typename BasicMatrixApi, typename PreExecCallback>
   bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                  uintt outputColumns, uintt outputRows,
                   oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
                   PreExecCallback&& preExecCallback)
   {
+    auto oinfo = bmApi.getMatrixInfo (output);
+
     oap::generic::check_dotProduct (output, matrix1, matrix2, bmApi);
 
     const char* kname = "CUDAKernel_DotProduct";
@@ -324,8 +325,8 @@ namespace generic
     oap::generic::Args args;
 
     args.retrieveDims = false;
-    args.w = outputColumns;
-    args.h = outputRows;
+    args.w = oinfo.columns();
+    args.h = oinfo.rows();
 
     args.prepareDims = true;
 
@@ -335,15 +336,45 @@ namespace generic
   }
 
   template<typename BasicMatrixApi, typename PreExecCallback>
-  bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                  oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
-                  PreExecCallback&& preExecCallback)
+  bool dotProductShared (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                         oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi, PreExecCallback&& preExecCallback)
   {
-    auto outputInfo = bmApi.getMatrixInfo (output);
-    uintt outputColumns = outputInfo.columns ();
-    uintt outputRows = outputInfo.rows ();
-  
-    return dotProduct (output, matrix1, matrix2, outputColumns, outputRows, kexec, preExecCallback, bmApi);
+    auto oinfo = bmApi.getMatrixInfo (output);
+    auto minfo0 = bmApi.getMatrixInfo (matrix1);
+    auto minfo1 = bmApi.getMatrixInfo (matrix2);
+ 
+    oap::generic::check_dotProduct (oinfo, minfo0, minfo1);
+
+    const char* kname = "CUDAKernel_DotProductShared";
+
+    oap::generic::Args args;
+
+    args.retrieveDims = false;
+    args.w = oinfo.columns ();
+    args.h = oinfo.rows ();
+
+    args.prepareDims = true;
+    args.smCallback = [&oinfo](uint blocks[2], uint threads[2])
+    {
+      uintt threadsPerBlock = threads[0] * threads[1];
+      uintt sharedMemorySize = 0;
+      if (oinfo.isRe)
+      {
+        sharedMemorySize = 2 * threadsPerBlock;
+      }
+
+      if (oinfo.isIm)
+      {
+        sharedMemorySize += 2 * threadsPerBlock;
+      }
+
+      sharedMemorySize *= sizeof(floatt);
+      return sharedMemorySize;
+    };
+
+    void* params[] = {&output, &matrix1, &matrix2};
+
+    return oap::generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback, args);
   }
 
   template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
@@ -498,7 +529,7 @@ namespace generic
     math::MatrixInfo minfo2 = bmApi.getMatrixInfo (matrix);
 
     check_isEqualDim (minfo1, minfo2);
- 
+
     oap::generic::Args args;
 
     args.retrieveDims = false;

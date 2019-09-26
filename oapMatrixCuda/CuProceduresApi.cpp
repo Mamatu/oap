@@ -88,7 +88,7 @@ CuProceduresApi::~CuProceduresApi() {
   m_kernel.unload();
 }
 
-void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
 #ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
@@ -97,7 +97,23 @@ void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, ma
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  oap::generic::dotProduct (output, params0, params1, columns, rows, &m_kernel, m_bmApi, m_preExecCallback);
+#ifndef OAP_DOT_PRODUCT_SHARED_DEFAULT
+  oap::generic::dotProduct (output, params0, params1, &m_kernel, m_bmApi, m_preExecCallback);
+#else
+  oap::generic::dotProductShared (output, params0, params1, &m_kernel, m_bmApi, m_preExecCallback);
+#endif
+}
+
+void CuProceduresApi::dotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+#ifdef CU_PROCEDURES_API_PRINT
+  debug(__func__);
+#endif
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+
+  oap::generic::dotProductShared (output, params0, params1, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
 void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)

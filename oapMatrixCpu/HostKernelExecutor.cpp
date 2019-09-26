@@ -35,6 +35,7 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_DotProductPeriodic", proxy_HOSTKernel_DotProductPeriodic},
   {"CUDAKernel_DotProductDimPeriodic", proxy_HOSTKernel_DotProductDimPeriodic},
   {"CUDAKernel_DotProduct", proxy_HOSTKernel_DotProduct},
+  {"CUDAKernel_DotProductShared", proxy_HOSTKernel_DotProductShared},
   {"CUDAKernel_TensorProductDim", proxy_HOSTKernel_TensorProductDim},
   {"CUDAKernel_Tanh", proxy_HOSTKernel_Tanh},
   {"CUDAKernel_Sigmoid", proxy_HOSTKernel_Sigmoid},
@@ -74,6 +75,11 @@ HostKernelExecutor::~HostKernelExecutor()
 std::string HostKernelExecutor::getErrorMsg () const
 {
   return "";
+}
+
+void HostKernelExecutor::setMaxThreadsPerBlock (uintt threadsPerBlock)
+{
+  m_maxThreadsPerBlock = threadsPerBlock;
 }
 
 uint HostKernelExecutor::getMaxThreadsPerBlock() const

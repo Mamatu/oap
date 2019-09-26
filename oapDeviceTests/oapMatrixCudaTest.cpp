@@ -92,21 +92,34 @@ TEST_F(OapMatrixCudaTests, SetVectorTest) {
 
 TEST_F(OapMatrixCudaTests, SetVectorTest1) {
   floatt hArray[] = {
-      5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   };
 
   floatt hOutputArray[] = {
-      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
   };
 
   floatt hVArray[] = {
-      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   };
 
   output = oap::host::NewReMatrixCopy(10, 10, hArray);
@@ -282,7 +295,7 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest1) {
   oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
 
   MatrixEx* matrixEx = oap::cuda::NewDeviceMatrixEx();
-  MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
+  MatrixEx hMatrixEx = {0, 10, 0, 2};
   oap::cuda::SetMatrixEx(matrixEx, &hMatrixEx);
 
   cuMatrix->transposeEx(doutput, dparam0, matrixEx);
@@ -313,7 +326,7 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest2) {
   oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
 
   MatrixEx* matrixEx = oap::cuda::NewDeviceMatrixEx();
-  MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
+  MatrixEx hMatrixEx = {0, 10, 0, 2};
   oap::cuda::SetMatrixEx(matrixEx, &hMatrixEx);
 
   cuMatrix->transposeEx(doutput, dparam0, matrixEx);
@@ -342,7 +355,7 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest3) {
   oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof(hArray) / sizeof (floatt));
 
   MatrixEx* matrixEx = oap::cuda::NewDeviceMatrixEx();
-  MatrixEx hMatrixEx = {0, 10, 0, 2, 0, 0};
+  MatrixEx hMatrixEx = {0, 10, 0, 2};
   oap::cuda::SetMatrixEx(matrixEx, &hMatrixEx);
 
   cuMatrix->transposeEx(doutput, dparam0, matrixEx);
@@ -354,8 +367,8 @@ TEST_F(OapMatrixCudaTests, TransponseReMatrixExTest3) {
 
 TEST_F(OapMatrixCudaTests, MatrixExTest) {
   MatrixEx** dMatrixExs = oap::cuda::NewDeviceMatrixEx(5);
-  uintt buffer[] = {0, 10, 0, 1, 0,  0,  0,  1, 0,  15, 0, 20, 0, 0, 0,
-                    0, 0,  0, 0, 25, 30, 35, 0, 40, 0,  1, 0,  2, 3, 5};
+  uintt buffer[] = {0, 10, 0, 1,  0,  1, 0,  15, 0, 0, 0,
+                    0, 0, 25, 30, 35, 0,  1, 0,  2};
   oap::cuda::SetMatrixEx(dMatrixExs, buffer, 5);
   MatrixEx matrixEx;
 
@@ -363,16 +376,16 @@ TEST_F(OapMatrixCudaTests, MatrixExTest) {
   EXPECT_THAT(matrixEx, MatrixExIsEqual(buffer));
 
   CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[1], sizeof(MatrixEx));
-  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[6]));
+  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[4]));
 
   CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[2], sizeof(MatrixEx));
-  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[12]));
+  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[8]));
 
   CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[3], sizeof(MatrixEx));
-  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[18]));
+  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[12]));
 
   CudaUtils::CopyDeviceToHost(&matrixEx, dMatrixExs[4], sizeof(MatrixEx));
-  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[24]));
+  EXPECT_THAT(matrixEx, MatrixExIsEqual(&buffer[16]));
 }
 
 TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest) {

@@ -4,6 +4,7 @@
 #include "CuProcedures/CuDotProductProcedures.h"
 
 #include "oapHostMatrixPtr.h"
+#include "oapHostMatrixUPtr.h"
 
 #include "oapDotProductTests_Data_1.h"
 #include "oapDotProductTests_Data_2.h"
@@ -21,37 +22,17 @@ class OapDotProductTests : public testing::Test {
   virtual void TearDown() {}
 };
 
-class DotProductKernel : public HostKernel {
- public:
-  DotProductKernel(math::Matrix* dst, math::Matrix* p1, math::Matrix* p2) {
-    setMatrices(dst, p1, p2);
-  }
 
-  void setMatrices(math::Matrix* dst, math::Matrix* p1, math::Matrix* p2) {
-    m_dst = dst;
-    m_p1 = p1;
-    m_p2 = p2;
+TEST_F(OapDotProductTests, Test1)
+{
+  HostProcedures hostProcedures;
 
-    setDims(dim3(1, 1), dim3(m_dst->columns, m_dst->rows));
-  }
-
-  math::Matrix* m_dst;
-  math::Matrix* m_p1;
-  math::Matrix* m_p2;
-  virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
-    CUDA_dotProductRe(m_dst, m_p1, m_p2);
-  }
-};
-
-TEST_F(OapDotProductTests, Test1) {
   math::Matrix* hostM1 = oap::host::NewReMatrix(1, 10, 2);
   math::Matrix* hostM2 = oap::host::NewReMatrix(10, 1, 2);
 
   math::Matrix* houtput = oap::host::NewReMatrix(10, 10);
 
-  DotProductKernel dotPrdocutKernel(houtput, hostM1, hostM2);
-
-  dotPrdocutKernel.executeKernelAsync();
+  hostProcedures.dotProduct (houtput, hostM1, hostM2);
 
   EXPECT_THAT(houtput, MatrixHasValues(4));
 
@@ -60,6 +41,172 @@ TEST_F(OapDotProductTests, Test1) {
   oap::host::DeleteMatrix(hostM2);
 }
 
+TEST_F(OapDotProductTests, Shared_Test1)
+{
+  HostProcedures hostProcedures;
+
+  math::Matrix* hostM1 = oap::host::NewReMatrix(1, 4, 2);
+  math::Matrix* hostM2 = oap::host::NewReMatrix(4, 1, 2);
+
+  math::Matrix* houtput = oap::host::NewReMatrix(4, 4);
+
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput, MatrixHasValues(4));
+
+  oap::host::DeleteMatrix(houtput);
+  oap::host::DeleteMatrix(hostM1);
+  oap::host::DeleteMatrix(hostM2);
+}
+
+TEST_F(OapDotProductTests, Shared_Test2)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(4, 1, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(1, 4, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(1, 1);
+
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(4 * 4));
+}
+
+TEST_F(OapDotProductTests, Shared_Test3)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(1, 4, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(4, 1, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(4, 4);
+
+  hostProcedures.setMaxThreadsPerBlock (9);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(4));
+}
+
+TEST_F(OapDotProductTests, Shared_Test4)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(4, 1, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(1, 4, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(1, 1);
+
+  hostProcedures.setMaxThreadsPerBlock (9);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(16));
+}
+
+TEST_F(OapDotProductTests, Shared_Test5)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(4, 4, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(4, 4, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(4, 4);
+
+  hostProcedures.setMaxThreadsPerBlock (9);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(16));
+}
+
+TEST_F(OapDotProductTests, Shared_Test6)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(1, 4, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(4, 1, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(4, 4);
+
+  hostProcedures.setMaxThreadsPerBlock (4);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(4));
+}
+
+TEST_F(OapDotProductTests, Shared_Test7)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(4, 1, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(1, 4, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(1, 1);
+
+  hostProcedures.setMaxThreadsPerBlock (4);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(16));
+}
+
+TEST_F(OapDotProductTests, Shared_Test8)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(4, 4, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(4, 4, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(4, 4);
+
+  hostProcedures.setMaxThreadsPerBlock (4);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(16));
+}
+
+TEST_F(OapDotProductTests, Shared_Test9)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(1, 4, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(4, 1, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(4, 4);
+
+  hostProcedures.setMaxThreadsPerBlock (1);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(4));
+}
+
+TEST_F(OapDotProductTests, Shared_Test10)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(4, 1, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(1, 4, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(1, 1);
+
+  hostProcedures.setMaxThreadsPerBlock (1);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(16));
+}
+
+TEST_F(OapDotProductTests, Shared_Test11)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(4, 4, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(4, 4, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(4, 4);
+
+  hostProcedures.setMaxThreadsPerBlock (1);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(16));
+}
 
 TEST_F(OapDotProductTests, Test_CustomDim_1)
 {

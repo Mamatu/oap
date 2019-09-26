@@ -22,12 +22,15 @@
 #include "MatchersUtils.h"
 #include "CuProceduresApi.h"
 #include "MathOperationsCpu.h"
+
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
+
 #include "KernelExecutor.h"
 
 #include "oapHostMatrixPtr.h"
 #include "oapDeviceMatrixPtr.h"
+#include "oapDeviceMatrixUPtr.h"
 
 #include "matrix6.h"
 
@@ -71,6 +74,51 @@ TEST_F(OapDotProductTests, Test_1)
   oap::host::DeleteMatrix(houtput);
   oap::host::DeleteMatrix(hostM1);
   oap::host::DeleteMatrix(hostM2);
+}
+
+void testShared (const std::string& testName, std::pair<uintt, uintt>&& dims1, std::pair<uintt, uintt>&& dims2, floatt value1, floatt value2, oap::CuProceduresApi* cuApi)
+{
+  logInfo ("%s", testName.c_str());
+  debugAssert (dims1.first == dims2.second);
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix (dims1.first, dims1.second, value1);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix (dims2.first, dims2.second, value2);
+
+  oap::DeviceMatrixUPtr dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostM1);
+  oap::DeviceMatrixUPtr dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostM2);
+
+  oap::DeviceMatrixUPtr doutput = oap::cuda::NewDeviceReMatrix (dims1.second, dims2.first);
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix (dims1.second, dims2.first);
+
+  cuApi->dotProductShared (doutput, dM1, dM2);
+  oap::cuda::CopyDeviceMatrixToHostMatrix (houtput.get (), doutput.get ());
+
+  EXPECT_THAT (houtput.get (), MatrixHasValues (value1 * value2 * dims1.first));
+}
+
+TEST_F(OapDotProductTests, SharedTest_10x10)
+{
+  testShared ("10x10 = 1x10 * 10x1", {1, 10}, {10, 1}, 2., 2., cuMatrix);
+}
+
+TEST_F(OapDotProductTests, SharedTest_32x32)
+{
+  testShared ("32x32 = 1x32 * 32x1", {1, 32}, {32, 1}, 4., 2., cuMatrix);
+}
+
+TEST_F(OapDotProductTests, SharedTest_33x32)
+{
+  testShared ("33x32 = 1x33 * 33x1", {1, 33}, {33, 1}, 5., 3., cuMatrix);
+}
+
+TEST_F(OapDotProductTests, SharedTest_33x33)
+{
+  testShared ("33x33 = 1x33 * 33x1", {1, 33}, {33, 1}, 2., 3., cuMatrix);
+}
+
+TEST_F(OapDotProductTests, SharedTest_64x64)
+{
+  testShared ("64x64 = 1x64 * 64x1", {1, 64}, {64, 1}, 2., 3., cuMatrix);
 }
 
 TEST_F(OapDotProductTests, Test_CustomDim_1)
