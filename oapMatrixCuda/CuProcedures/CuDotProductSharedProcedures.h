@@ -111,7 +111,7 @@ __hostdevice__ void CUDA_dotProductShared (math::Matrix* output, math::Matrix* p
     uintt matrixIdxY = h * idx + threadIdx.y;
 
     MatrixEx cexs[3];
-    mex_init_3 (cexs, output, params0, params1);
+    cuAux_initMatrixExs (cexs, output, params0, params1);
     cont = cuda_createExsForCopy (cexs, idx, params0, params1);
 
     MatrixOffset matrixOffset0 = CUDA_createMatrixCopy (sharedMemory, params0, cexs[1]);
@@ -123,7 +123,7 @@ __hostdevice__ void CUDA_dotProductShared (math::Matrix* output, math::Matrix* p
     if (inRange)
     {
       MatrixEx exs[3];
-      mex_init_3 (exs, output, params0, params1);
+      cuAux_initMatrixExs (exs, output, params0, params1);
       cuda_createExsForDotProduct (exs, matrixIdxX, matrixIdxY, idx, output, params0, params1);
 
       if (isre && isim)

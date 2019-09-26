@@ -22,7 +22,7 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
-#include "MatrixEx.h"
+#include "CuMatrixExUtils.h"
 
 __hostdevice__ void CUDA_copyReMatrix (math::Matrix* dst, const math::Matrix* src)
 {
@@ -144,7 +144,7 @@ __hostdevice__ void cuda_copyGenericMatrixEx (math::Matrix* dst, floatt* dstValu
 __hostdevice__ void CUDA_copyReMatrixEx (math::Matrix* dst, const math::Matrix* src, const MatrixEx& srcEx)
 {
   MatrixEx dstEx;
-  mex_init (dstEx, dst);
+  cuAux_initMatrixEx (dstEx, dst);
 
   cuda_copyGenericMatrixEx (dst, dst->reValues, dstEx, src, src->reValues, srcEx);
 
@@ -154,7 +154,7 @@ __hostdevice__ void CUDA_copyReMatrixEx (math::Matrix* dst, const math::Matrix* 
 __hostdevice__ void CUDA_copyImMatrixEx (math::Matrix* dst, const math::Matrix* src, const MatrixEx& srcEx)
 {
   MatrixEx dstEx;
-  mex_init (dstEx, dst);
+  cuAux_initMatrixEx (dstEx, dst);
 
   cuda_copyGenericMatrixEx (dst, dst->imValues, dstEx, src, src->imValues, srcEx);
 

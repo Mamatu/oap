@@ -164,7 +164,7 @@ __hostdevice__ void cuda_dotProductRe (math::Matrix* output, const math::Matrix*
   THREAD_INDICES_INIT();
 
   MatrixEx exs[3];
-  mex_init_3 (exs, output, params0, params1);
+  cuAux_initMatrixExs (exs, output, params0, params1);
 
   exs[1].columns = offset;
   exs[2].rows = offset;
@@ -178,7 +178,7 @@ __hostdevice__ void cuda_dotProductIm (math::Matrix* output, const math::Matrix*
   THREAD_INDICES_INIT();
 
   MatrixEx exs[3];
-  mex_init_3 (exs, output, params0, params1);
+  cuAux_initMatrixExs (exs, output, params0, params1);
 
   exs[1].columns = offset;
   exs[2].rows = offset;
@@ -192,7 +192,7 @@ __hostdevice__ void cuda_dotProductReal (math::Matrix* output, const math::Matri
   THREAD_INDICES_INIT();
 
   MatrixEx exs[3];
-  mex_init_3 (exs, output, params0, params1);
+  cuAux_initMatrixExs (exs, output, params0, params1);
 
   exs[1].columns = offset;
   exs[2].rows = offset;
@@ -239,7 +239,7 @@ __hostdeviceinline__ void cuda_dotProductUserT (math::Matrix* output, const math
   bool isim = output->imValues != NULL;
 
   MatrixEx exs[3];
-  mex_init_3 (exs, output, params0, params1);
+  cuAux_initMatrixExs (exs, output, params0, params1);
 
   //exs[0].rows = output->rows;
   //exs[0].columns = offset;
