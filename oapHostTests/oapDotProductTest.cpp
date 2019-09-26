@@ -41,7 +41,7 @@ TEST_F(OapDotProductTests, Test1)
   oap::host::DeleteMatrix(hostM2);
 }
 
-TEST_F(OapDotProductTests, Shared_Test1)
+TEST_F(OapDotProductTests, Shared_Test_1)
 {
   HostProcedures hostProcedures;
 
@@ -59,7 +59,7 @@ TEST_F(OapDotProductTests, Shared_Test1)
   oap::host::DeleteMatrix(hostM2);
 }
 
-TEST_F(OapDotProductTests, Shared_Test2)
+TEST_F(OapDotProductTests, Shared_Test_2)
 {
   HostProcedures hostProcedures;
 
@@ -73,7 +73,7 @@ TEST_F(OapDotProductTests, Shared_Test2)
   EXPECT_THAT(houtput.get(), MatrixHasValues(4 * 4));
 }
 
-TEST_F(OapDotProductTests, Shared_Test3)
+TEST_F(OapDotProductTests, Shared_Test_3)
 {
   HostProcedures hostProcedures;
 
@@ -88,7 +88,7 @@ TEST_F(OapDotProductTests, Shared_Test3)
   EXPECT_THAT(houtput.get(), MatrixHasValues(4));
 }
 
-TEST_F(OapDotProductTests, Shared_Test4)
+TEST_F(OapDotProductTests, Shared_Test_4)
 {
   HostProcedures hostProcedures;
 
@@ -103,7 +103,7 @@ TEST_F(OapDotProductTests, Shared_Test4)
   EXPECT_THAT(houtput.get(), MatrixHasValues(16));
 }
 
-TEST_F(OapDotProductTests, Shared_Test5)
+TEST_F(OapDotProductTests, Shared_Test_5)
 {
   HostProcedures hostProcedures;
 
@@ -118,7 +118,7 @@ TEST_F(OapDotProductTests, Shared_Test5)
   EXPECT_THAT(houtput.get(), MatrixHasValues(16));
 }
 
-TEST_F(OapDotProductTests, Shared_Test6)
+TEST_F(OapDotProductTests, Shared_Test_6)
 {
   HostProcedures hostProcedures;
 
@@ -133,7 +133,7 @@ TEST_F(OapDotProductTests, Shared_Test6)
   EXPECT_THAT(houtput.get(), MatrixHasValues(4));
 }
 
-TEST_F(OapDotProductTests, Shared_Test7)
+TEST_F(OapDotProductTests, Shared_Test_7)
 {
   HostProcedures hostProcedures;
 
@@ -148,7 +148,7 @@ TEST_F(OapDotProductTests, Shared_Test7)
   EXPECT_THAT(houtput.get(), MatrixHasValues(16));
 }
 
-TEST_F(OapDotProductTests, Shared_Test8)
+TEST_F(OapDotProductTests, Shared_Test_8)
 {
   HostProcedures hostProcedures;
 
@@ -163,7 +163,22 @@ TEST_F(OapDotProductTests, Shared_Test8)
   EXPECT_THAT(houtput.get(), MatrixHasValues(16));
 }
 
-TEST_F(OapDotProductTests, Shared_Test9)
+TEST_F(OapDotProductTests, Shared_Test_9)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(4, 4, 2);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(4, 4, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(4, 4);
+
+  hostProcedures.setMaxThreadsPerBlock (9);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(16));
+}
+
+TEST_F(OapDotProductTests, Shared_Test_10)
 {
   HostProcedures hostProcedures;
 
@@ -178,7 +193,7 @@ TEST_F(OapDotProductTests, Shared_Test9)
   EXPECT_THAT(houtput.get(), MatrixHasValues(4));
 }
 
-TEST_F(OapDotProductTests, Shared_Test10)
+TEST_F(OapDotProductTests, Shared_Test_11)
 {
   HostProcedures hostProcedures;
 
@@ -193,7 +208,7 @@ TEST_F(OapDotProductTests, Shared_Test10)
   EXPECT_THAT(houtput.get(), MatrixHasValues(16));
 }
 
-TEST_F(OapDotProductTests, Shared_Test11)
+TEST_F(OapDotProductTests, Shared_Test_12)
 {
   HostProcedures hostProcedures;
 
