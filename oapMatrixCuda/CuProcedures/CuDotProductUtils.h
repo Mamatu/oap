@@ -23,6 +23,7 @@
 #include "CuCore.h"
 #include "CuUtils.h"
 #include "Matrix.h"
+#include "CuMatrixExUtils.h"
 
 __hostdeviceinline__ uintt cuda_calcStrideIdx (uintt indexX, uintt indexY, uintt stride)
 {
