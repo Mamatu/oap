@@ -44,7 +44,7 @@ __hostdevice__ void cuda_dotProductDimPeriodic (math::Matrix* output, math::Matr
   uintt t0[2] = {0, indexY1};
   uintt t1[2] = {threadIndexX, indexY2};
 
-  cuda_dotProductUserT (output, params0, params1, t0, t1, offset, inRange);
+  cuda_dotProductUserThreads (output, params0, params1, t0, t1, offset, inRange);
 }
 
 /**

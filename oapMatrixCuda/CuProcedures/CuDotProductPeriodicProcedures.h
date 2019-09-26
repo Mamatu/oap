@@ -79,7 +79,7 @@ __hostdevice__ void CUDA_dotProductPeriodic (math::Matrix* output, math::Matrix*
   uintt t0[2] = {0, indexY1};
   uintt t1[2] = {threadIndexX, (threadIndexY / offset) * offset};
 
-  cuda_dotProductUserT (output, params0, params1, t0, t1, offset, inRange);
+  cuda_dotProductUserThreads (output, params0, params1, t0, t1, offset, inRange);
 }
 
 #endif
