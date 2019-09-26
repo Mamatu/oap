@@ -39,6 +39,9 @@ __hostdevice__ void cuda_dotProductDim (math::Matrix* output, math::Matrix* para
 
   const uintt offset = ex[OFFSET_IDX];
 
+  MatrixEx exs[3];
+  mex_init_3 (exs, output, params0, params1);
+
   cuda_dotProduct (output, params0, params1, offset, inRange);
 }
 

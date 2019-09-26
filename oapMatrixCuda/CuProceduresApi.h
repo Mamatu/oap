@@ -53,7 +53,6 @@ class CuProceduresApi
   CuProceduresApi& operator=(const CuProceduresApi&) = delete;
   CuProceduresApi& operator=(CuProceduresApi&&) = delete;
 
-  inline void dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
   inline void addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   inline void tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
@@ -84,7 +83,10 @@ class CuProceduresApi
    */
   inline void hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
-  void dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
+  void dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+
+  void dotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+
   void addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
@@ -98,9 +100,51 @@ class CuProceduresApi
   /**
    * If output and matrix2 have more rows than columns of matrix1, then next following rows will be multiply as separated matrix.
    * This process will be continue to end of output's rows.
- */
+   *
+   * If C = A * B and rows of A are lower than rows of C and
+   * columns of A are lower than rows of B fo example:
+   *
+   *              B00 B01 B02
+   *              B10 B11 B12
+   *              B20 B21 B22
+   *              B30 B31 B32
+   *              B40 B41 B42
+   *              B50 B51 B52
+   *
+   * A00 A01 A02  C00 C01 C02
+   * A10 A11 A12  C10 C11 C12
+   * A20 A21 A22  C20 C21 C22
+   *              C30 C31 C32
+   *              C40 C41 C42
+   *              C50 C51 C52
+   *
+   * then behaviour of this procedure is
+   *
+   *              B00 B01 B02
+   *              B10 B11 B12
+   *              B20 B21 B22
+   *              B30 B31 B32
+   *              B40 B41 B42
+   *              B50 B51 B52
+   *
+   * A00 A01 A02  C00 C01 C02
+   * A10 A11 A12  C10 C11 C12
+   * A20 A21 A22  C20 C21 C22
+   * A00 A01 A02  C30 C31 C32
+   * A10 A11 A12  C40 C41 C42
+   * A20 A21 A22  C50 C51 C52
+   *
+   * so for example
+   *
+   * C10 = A10 * B00 + A11 * B10 + A12 * B30
+   * C40 = A10 * B30 + A11 * B40 + A12 * B50
+   *
+   */
   void dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
 
+  /**
+  * The same like in dotProductPeriodic but dimensions by matrices are defined by user.
+  */
   void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2], uintt periodicRows);
 
   void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
@@ -118,7 +162,6 @@ class CuProceduresApi
 
     dotProduct (output, matrix1, matrix2, dims);
   }
-
 
   void dotProductEx(math::Matrix* output, math::Matrix* params0,
                     math::Matrix* params1, MatrixEx* matrixEx, uintt columns,
@@ -376,22 +419,6 @@ private:
   std::function<void()> m_preExecCallback;//(std::bind(&CuProceduresApi::resetFlags, this)
   std::function<uintt*(uintt*, uintt)> m_createKernelArray;
 };
-
-inline void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
-{
-#ifdef CU_PROCEDURES_API_PRINT
-  debug(__func__);
-#endif
-#ifdef DEBUG
-  CHECK_MATRIX(output);
-  CHECK_MATRIX(params0);
-  CHECK_MATRIX(params1);
-#endif
-  const uintt output_columns = CudaUtils::GetColumns(output);
-  const uintt output_rows = CudaUtils::GetRows(output);
-
-  dotProduct(output, params0, params1, output_columns, output_rows);
-}
 
 inline void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {

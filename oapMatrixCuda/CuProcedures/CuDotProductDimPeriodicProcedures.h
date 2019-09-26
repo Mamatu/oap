@@ -41,9 +41,15 @@ __hostdevice__ void cuda_dotProductDimPeriodic (math::Matrix* output, math::Matr
 
   bool inRange = threadIndexX < columns && indexY1 < rows && threadIndexY < output->rows;
 
-  cuda_dotProductUUUB (output, params0, params1, indexY1, indexY2, offset, inRange);   
+  uintt t0[2] = {0, indexY1};
+  uintt t1[2] = {threadIndexX, indexY2};
+
+  cuda_dotProductUserT (output, params0, params1, t0, t1, offset, inRange);
 }
 
+/**
+ * The same like in CUDA_dotProductPeriodic but dimensions by matrices are defined by user.
+ */
 __hostdevice__ void CUDA_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
 {
   cuda_dotProductDimPeriodic (output, params0, params1, ex);

@@ -132,7 +132,7 @@ DEFINE_1M(HOSTKernel_SetIdentity, CUDA_setIdentityMatrix)
 
 DEFINE_3M(HOSTKernel_CrossEntropy, CUDA_crossEntropy)
 DEFINE_3M(HOSTKernel_DotProduct, CUDA_dotProduct)
-//DEFINE_3M(HOSTKernel_DotProductShared, CUDAKernel_dotProductShared)
+DEFINE_3M(HOSTKernel_DotProductShared, CUDAKernel_dotProductShared)
 
 DEFINE_2M(HOSTKernel_Tanh, CUDA_tanh)
 DEFINE_2M(HOSTKernel_Sigmoid, CUDA_sigmoid)

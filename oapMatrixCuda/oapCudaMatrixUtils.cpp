@@ -337,7 +337,7 @@ void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt 
 
 MatrixEx* NewDeviceMatrixEx()
 {
-  MatrixEx host = {0, 0, 0, 0, 0, 0};
+  MatrixEx host = {0, 0, 0, 0};
   return CudaUtils::AllocDeviceObj<MatrixEx>(host);
 }
 

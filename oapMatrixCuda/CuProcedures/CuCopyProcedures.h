@@ -17,12 +17,15 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUCOPYPROCEDURES_H
-#define CUCOPYPROCEDURES_H
+#ifndef OAP_CU_COPY_PROCEDURES_H
+#define OAP_CU_COPY_PROCEDURES_H
 
 #include "CuCore.h"
+#include "Matrix.h"
+#include "MatrixEx.h"
 
-__hostdevice__ void CUDA_copyReMatrix(math::Matrix* dst, math::Matrix* src) {
+__hostdevice__ void CUDA_copyReMatrix (math::Matrix* dst, const math::Matrix* src)
+{
   HOST_INIT();
   uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
   uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
@@ -30,7 +33,8 @@ __hostdevice__ void CUDA_copyReMatrix(math::Matrix* dst, math::Matrix* src) {
   threads_sync();
 }
 
-__hostdevice__ void CUDA_copyImMatrix(math::Matrix* dst, math::Matrix* src) {
+__hostdevice__ void CUDA_copyImMatrix (math::Matrix* dst, const math::Matrix* src)
+{
   HOST_INIT();
   uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
   uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
@@ -38,30 +42,36 @@ __hostdevice__ void CUDA_copyImMatrix(math::Matrix* dst, math::Matrix* src) {
   threads_sync();
 }
 
-__hostdevice__ void CUDA_copyMatrix(math::Matrix* dst, math::Matrix* src) {
+__hostdevice__ void CUDA_copyMatrix (math::Matrix* dst, const math::Matrix* src)
+{
   HOST_INIT();
-  if (dst->reValues != NULL) {
+  if (dst->reValues != NULL)
+  {
     CUDA_copyReMatrix(dst, src);
   }
-  if (dst->imValues != NULL) {
+  if (dst->imValues != NULL)
+  {
     CUDA_copyImMatrix(dst, src);
   }
 }
 
-__hostdevice__ void CUDA_copyReMatrixExclude(math::Matrix* dst,
-                                             math::Matrix* src, uintt column,
-                                             uintt row) {
+__hostdevice__ void CUDA_copyReMatrixExclude (math::Matrix* dst, const math::Matrix* src, uintt column, uintt row)
+{
   HOST_INIT();
   uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
   uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
-  if (tx != column || ty != row) {
+  if (tx != column || ty != row)
+  {
     uintt tx1 = tx, ty1 = ty;
     floatt v = src->reValues[tx + src->columns * ty];
-    if (tx != 0 && ty != 0) {
-      if (tx > column) {
+    if (tx != 0 && ty != 0)
+    {
+      if (tx > column)
+      {
         tx1 = tx - 1;
       }
-      if (ty > row) {
+      if (ty > row)
+      {
         ty1 = ty - 1;
       }
       dst->reValues[tx1 + dst->columns * ty1] = v;
@@ -70,9 +80,8 @@ __hostdevice__ void CUDA_copyReMatrixExclude(math::Matrix* dst,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_copyImMatrixExclude(math::Matrix* dst,
-                                             math::Matrix* src, uintt column,
-                                             uintt row) {
+__hostdevice__ void CUDA_copyImMatrixExclude (math::Matrix* dst, const math::Matrix* src, uintt column, uintt row)
+{
   HOST_INIT();
 
   uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -80,11 +89,14 @@ __hostdevice__ void CUDA_copyImMatrixExclude(math::Matrix* dst,
   if (tx != column || ty != row) {
     uintt tx1 = tx, ty1 = ty;
     floatt v = src->imValues[tx + src->columns * ty];
-    if (tx != 0 && ty != 0) {
-      if (tx > column) {
+    if (tx != 0 && ty != 0)
+    {
+      if (tx > column)
+      {
         tx1 = tx - 1;
       }
-      if (ty > row) {
+      if (ty > row)
+      {
         ty1 = ty - 1;
       }
       dst->reValues[tx1 + dst->columns * ty1] = v;
@@ -93,14 +105,72 @@ __hostdevice__ void CUDA_copyImMatrixExclude(math::Matrix* dst,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_copyMatrixExclude(math::Matrix* dst, math::Matrix* src,
-                                           uintt column, uintt row) {
+__hostdevice__ void CUDA_copyMatrixExclude (math::Matrix* dst, const math::Matrix* src, uintt column, uintt row)
+{
   HOST_INIT();
-  if (dst->reValues != NULL) {
+  if (dst->reValues != NULL)
+  {
     CUDA_copyReMatrixExclude(dst, src, column, row);
   }
-  if (dst->imValues != NULL) {
+  if (dst->imValues != NULL)
+  {
     CUDA_copyImMatrixExclude(dst, src, column, row);
+  }
+}
+
+__hostdevice__ void cuda_copyGenericMatrixEx (math::Matrix* dst, floatt* dstValues, const MatrixEx& dstEx, const math::Matrix* src, floatt* srcValues, const MatrixEx& srcEx)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  assert (dstEx.columns == srcEx.columns);
+  assert (dstEx.rows == srcEx.rows);
+
+  if (threadIndexX < dstEx.columns && threadIndexY < dstEx.rows)
+  //if (srcEx.column < dstEx.columns && srcEx.row < dstEx.rows)
+  {
+    const uintt srcIdx = (srcEx.column + threadIndexX) + srcEx.columns * (srcEx.row + threadIndexY);
+
+    debugAssert (srcIdx < src->columns * src->rows);
+    floatt v = srcValues[srcIdx];
+
+    const uintt dstIdx = (dstEx.column + threadIndexX) + dstEx.columns * (dstEx.row + threadIndexY);
+
+    debugAssert (dstIdx < dst->columns * dst->rows);
+    dstValues[dstIdx] = v;
+  }
+}
+
+__hostdevice__ void CUDA_copyReMatrixEx (math::Matrix* dst, const math::Matrix* src, const MatrixEx& srcEx)
+{
+  MatrixEx dstEx;
+  mex_init (dstEx, dst);
+
+  cuda_copyGenericMatrixEx (dst, dst->reValues, dstEx, src, src->reValues, srcEx);
+
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_copyImMatrixEx (math::Matrix* dst, const math::Matrix* src, const MatrixEx& srcEx)
+{
+  MatrixEx dstEx;
+  mex_init (dstEx, dst);
+
+  cuda_copyGenericMatrixEx (dst, dst->imValues, dstEx, src, src->imValues, srcEx);
+
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_copyMatrixEx (math::Matrix* dst, const math::Matrix* src, const MatrixEx& srcEx)
+{
+  HOST_INIT();
+  if (dst->reValues != NULL)
+  {
+    CUDA_copyReMatrixEx (dst, src, srcEx);
+  }
+  if (dst->imValues != NULL)
+  {
+    CUDA_copyImMatrixEx (dst, src, srcEx);
   }
 }
 
