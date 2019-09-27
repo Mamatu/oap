@@ -94,6 +94,9 @@ class ThreadIdx {
   static utils::sync::Mutex m_barriersMutex;
 
  public:
+  ThreadIdx () : m_threadIdx (0, 0, 0), m_blockIdx (0, 0, 0), m_blockDim (0, 0, 1), m_gridDim (0, 0, 1)
+  {}
+
   typedef std::map<pthread_t, ThreadIdx> ThreadIdxs;
   static ThreadIdxs m_threadIdxs;
 
