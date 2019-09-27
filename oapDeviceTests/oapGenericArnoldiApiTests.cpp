@@ -26,6 +26,7 @@
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 
+#include "oapHostMatrixPtr.h"
 #include "oapDeviceMatrixPtr.h"
 
 #include "MatchersUtils.h"
@@ -50,7 +51,6 @@ class OapGenericArnoldiApiTests : public testing::Test {
 
 TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
 {
- /* 
   floatt h_expected_init[] =
   {
     -4.4529e-01, -1.8641e+00, -2.8109e+00, 7.2941e+00,
@@ -144,18 +144,18 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
 
   math::MatrixInfo hinfo = oap::cuda::GetMatrixInfo (ca.m_H);
 
-  oap::generic::iram_shiftedQRIteration::InOutArgs ioargs = {ca.m_Q1, ca.m_R1, ca.m_H};
-  oap::generic::iram_shiftedQRIteration::InArgs iargs = {ca.m_unwanted, hinfo, "CUDA"};
-  oap::generic::iram_shiftedQRIteration::shiftedQRIteration (ioargs, iargs, cm, cuApi, 0, qrtype);
+  oap::generic::iram_singleShiftedQRIteration::InOutArgs ioargs = {ca.m_Q1, ca.m_R1, ca.m_H};
+  oap::generic::iram_singleShiftedQRIteration::InArgs iargs = {ca.m_unwanted, hinfo, "CUDA"};
+  oap::generic::iram_singleShiftedQRIteration::proc (ioargs, iargs, cm, cuApi, 0, qrtype);
 
   {
-    using namespace oap::generic::iram_shiftedQRIteration;
-    EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (ioargs.Q));
-    EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (ioargs.R));
+    using namespace oap::generic::iram_singleShiftedQRIteration;
+    //EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (ioargs.Q));
+    //EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (ioargs.R));
   }
 
   {
-    using namespace oap::generic::iram_shiftedQRIteration;
+    using namespace oap::generic::iram_singleShiftedQRIteration;
     cuApi.dotProduct (ca.m_H, ioargs.Q, ioargs.R);
 
     EXPECT_THAT (hexpectedInitMUnwanted.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
@@ -168,24 +168,24 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
   }
 
   {
-    using namespace oap::generic::iram_shiftedQRIteration;
+    using namespace oap::generic::iram_singleShiftedQRIteration;
     cuApi.dotProduct (ca.m_H, ioargs.R, ioargs.Q);
   }
 
-  EXPECT_THAT (hexpected1MUnwanted.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
+  //EXPECT_THAT (hexpected1MUnwanted.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
 
   cuApi.setDiagonal (ca.m_I, unwanted, 0);
   cuApi.add (ca.m_H, ca.m_H, ca.m_I);
 
 
-  EXPECT_THAT (hexpected1.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
-  EXPECT_THAT (hexpected1MUnwantedPUnwanted.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
-  EXPECT_THAT (hexpected1MUnwantedPUnwanted.get(), MatrixIsEqual (hexpected1.get(), 0.01));
+  //EXPECT_THAT (hexpected1.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
+  //EXPECT_THAT (hexpected1MUnwantedPUnwanted.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
+  //EXPECT_THAT (hexpected1MUnwantedPUnwanted.get(), MatrixIsEqual (hexpected1.get(), 0.01));
 
   oap::generic::deallocStage1 (ca, oap::cuda::DeleteDeviceMatrix);
   oap::generic::deallocStage2 (ca, oap::cuda::DeleteDeviceMatrix, oap::host::DeleteMatrix);
   oap::generic::deallocStage3 (ca, oap::cuda::DeleteDeviceMatrix);
-*/}
+}
 
 TEST_F(OapGenericArnoldiApiTests, QR_Test_2)
 { 
@@ -213,6 +213,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_2)
   uint length = sizeof(values) / sizeof(values[0]);
 
   oap::DeviceMatrixPtr H = oap::cuda::NewDeviceReMatrix (3, 3);
+  oap::DeviceMatrixPtr H1 = oap::cuda::NewDeviceReMatrix (3, 3);
   oap::DeviceMatrixPtr R = oap::cuda::NewDeviceReMatrix (3, 3);
   oap::DeviceMatrixPtr Q = oap::cuda::NewDeviceReMatrix (3, 3);
   oap::DeviceMatrixPtr aux1 = oap::cuda::NewDeviceReMatrix (1, 3);
@@ -230,9 +231,11 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_2)
 
   oap::CuProceduresApi cuApi;
   cuApi.QRHT (Q, R, H, aux1, aux2, aux3, aux4);
+  cuApi.dotProduct (H1, Q, R);
 
-  EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (Q.get()));
-  EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (R.get()));
+  //EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (Q.get()));
+  //EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (R.get()));
+  EXPECT_THAT (H1.get(), oap::cuda::MatrixIsEqualKK (H.get(), 0.01));
 }
 
 TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
@@ -265,6 +268,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
   uint length = sizeof(values) / sizeof(values[0]);
 
   oap::DeviceMatrixPtr H = oap::cuda::NewDeviceReMatrix (2, 2);
+  oap::DeviceMatrixPtr H1 = oap::cuda::NewDeviceReMatrix (2, 2);
   oap::DeviceMatrixPtr R = oap::cuda::NewDeviceReMatrix (2, 2);
   oap::DeviceMatrixPtr Q = oap::cuda::NewDeviceReMatrix (2, 2);
   oap::DeviceMatrixPtr aux1 = oap::cuda::NewDeviceReMatrix (1, 2);
@@ -285,9 +289,11 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
 
   oap::CuProceduresApi cuApi;
   cuApi.QRHT (Q, R, H, aux1, aux2, aux3, aux4);
-  cuApi.dotProduct (H, R, Q);
+  //EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (Q.get(), 0.01));
+  //EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (R.get(), 0.01));
+  cuApi.dotProduct (H1, R, Q);
+  EXPECT_THAT (hexpected.get(), oap::cuda::MatrixIsEqualHK (H1.get(), 0.01));
 
-  EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (Q.get(), 0.01));
-  EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (R.get(), 0.01));
-  EXPECT_THAT (hexpected.get(), oap::cuda::MatrixIsEqualHK (H.get(), 0.01));
+  cuApi.dotProduct (H1, Q, R);
+  EXPECT_THAT (H.get(), oap::cuda::MatrixIsEqualKK (H1.get(), 0.01));
 }

@@ -21,7 +21,7 @@
 #define CU_CREATE_PROCEDURES_H
 
 #include "CuCore.h"
-#include "CuUtilsCommon.h"
+#include "CuMatrixIndexUtilsCommon.h"
 #include "CuCopyProcedures.h"
 
 #include "Matrix.h"

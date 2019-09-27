@@ -21,7 +21,7 @@
 #define CU_COMPARE_UTILS_H
 
 #include "CuCompareUtilsCommon.h"
-#include "CuUtilsCommon.h"
+#include "CuMatrixIndexUtilsCommon.h"
 
 #define GetMatrixColumn(threadIdx, blockIdx, blockDim) \
   (blockIdx.x * blockDim.x + threadIdx.x)

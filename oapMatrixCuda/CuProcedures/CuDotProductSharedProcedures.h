@@ -61,12 +61,12 @@ __hostdeviceinline__ void cuda_createExsForDotProduct (MatrixEx exs[3], uintt ma
 
   exs[1].column = 0;
   exs[1].row = threadIdx.y;
-  cuda_calc (exs[1].columns, w, params0->columns, idx);//w < params0->columns ? w : params0->columns;
-  cuda_calc (exs[1].rows, h, params0->rows, blockIdx.y);//h < params0->rows ? h : params0->rows;
+  cuda_calc (exs[1].columns, w, params0->columns, idx);
+  cuda_calc (exs[1].rows, h, params0->rows, blockIdx.y);
 
   exs[2].column = threadIdx.x;
   exs[2].row = 0;
-  cuda_calc (exs[2].columns, w, params1->columns, blockIdx.x);//w < params1->columns ? w : params1->columns;
+  cuda_calc (exs[2].columns, w, params1->columns, blockIdx.x);
   cuda_calc (exs[2].rows, h, params1->rows, idx);
 }
 
@@ -100,6 +100,7 @@ __hostdevice__ void CUDA_dotProductShared (math::Matrix* output, math::Matrix* p
   bool inRange = threadIndexX < output->columns && threadIndexY < output->rows;
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
+
 
   const uintt w = blockDim.x;
   const uintt h = blockDim.y;

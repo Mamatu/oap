@@ -23,7 +23,7 @@
 #include "CuCore.h"
 #include "CuUtils.h"
 #include "Matrix.h"
-#include "CuUtilsCommon.h"
+#include "CuMatrixIndexUtilsCommon.h"
 
 __hostdevice__ void cuda_SumValues(floatt* buffer, uintt bufferIndex, uintt bufferLength, uintt xlength, uintt ylength, uintt row = 0, uintt column = 0)
 {
