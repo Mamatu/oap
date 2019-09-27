@@ -112,7 +112,37 @@ void qrIteration (Arnoldi& ar, Api& api)
   _qr (ar.m_H, ar, api);
 }
 
-namespace iram_shiftedQRIteration
+namespace iram_singleShiftedQRIteration
+{
+
+struct InOutArgs
+{
+  math::Matrix* Q;
+  math::Matrix* R;
+  math::Matrix* H;
+};
+
+struct InArgs
+{
+  const std::vector<EigenPair>& unwanted;
+  const math::MatrixInfo hinfo;
+  const std::string memType;
+};
+
+template<typename Api>
+void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm, Api& api, size_t idx, oap::QRType qrtype)
+{
+  auto getter = cm.getter ();
+  math::Matrix* aux_HI = getter.useMatrix (iargs.hinfo, iargs.memType);
+
+  api.setDiagonal (aux_HI, iargs.unwanted[idx].re(), iargs.unwanted[idx].im());
+  api.substract (aux_HI, io.H, aux_HI);
+
+  _qr (io.Q, io.R, aux_HI, iargs.hinfo, cm, iargs.memType, api, qrtype);
+}
+}
+
+namespace iram_shiftedQRIterations
 {
 
 struct InOutArgs
@@ -128,24 +158,8 @@ struct InArgs
   const std::string memType;
 };
 
-namespace
-{
 template<typename Api>
-void _shiftedQRIteration (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm, Api& api, size_t idx, oap::QRType qrtype)
-{
-  auto getter = cm.getter ();
-  math::Matrix* aux_HI = getter.useMatrix (iargs.hinfo, iargs.memType);
-  math::Matrix* aux_R = getter.useMatrix (iargs.hinfo, iargs.memType);
-
-  api.setDiagonal (aux_HI, iargs.unwanted[idx].re(), iargs.unwanted[idx].im());
-  api.substract (aux_HI, io.H, aux_HI);
-
-  _qr (io.Q, aux_R, aux_HI, iargs.hinfo, cm, iargs.memType, api, qrtype);
-}
-}
-
-template<typename Api>
-void proc (InOutArgs& io, const InArgs& iargs, Api& api, oap::generic::MatricesContext& cm, oap::QRType qrtype)
+void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm, Api& api, oap::QRType qrtype)
 {
   //debugAssert (!ar.m_unwanted.empty());
   auto getter = cm.getter ();
@@ -154,17 +168,21 @@ void proc (InOutArgs& io, const InArgs& iargs, Api& api, oap::generic::MatricesC
   math::Matrix* aux_QT = getter.useMatrix (iargs.hinfo, iargs.memType);
   math::Matrix* aux_HO = getter.useMatrix (iargs.hinfo, iargs.memType);
   math::Matrix* aux_Q1 = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::Matrix* aux_R = getter.useMatrix (iargs.hinfo, iargs.memType);
 
   api.setIdentity (aux_QJ);
   api.setIdentity (io.Q);
 
-  InOutArgs io1;
+  oap::generic::iram_singleShiftedQRIteration::InOutArgs io1;
   io1.Q = aux_Q1;
+  io1.R = aux_R;
   io1.H = io.H;
+
+  oap::generic::iram_singleShiftedQRIteration::InArgs iargs1 = {iargs.unwanted, iargs.hinfo, iargs.memType};
 
   for (uint fa = 0; fa < iargs.unwanted.size(); ++fa)
   {
-    _shiftedQRIteration (io1, iargs, cm, api, fa, qrtype);
+    oap::generic::iram_singleShiftedQRIteration::proc (io1, iargs1, cm, api, fa, qrtype);
 
     api.conjugateTranspose (aux_QT, aux_Q1);
     api.dotProduct (aux_HO, io.H, aux_Q1);
@@ -178,7 +196,6 @@ void proc (InOutArgs& io, const InArgs& iargs, Api& api, oap::generic::MatricesC
     aux_swapPointers (&io.Q, &aux_QJ);
   }
 }
-
 }
 
 template<typename Arnoldi, typename CalcApi, typename CopyKernelMatrixToKernelMatrix>

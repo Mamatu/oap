@@ -21,6 +21,7 @@
 #define OAP_CU_COPY_PROCEDURES_H
 
 #include "CuCore.h"
+#include "CuUtils.h"
 #include "Matrix.h"
 #include "CuMatrixExUtils.h"
 
@@ -121,20 +122,22 @@ __hostdevice__ void CUDA_copyMatrixExclude (math::Matrix* dst, const math::Matri
 __hostdevice__ void cuda_copyGenericMatrixEx (math::Matrix* dst, floatt* dstValues, const MatrixEx& dstEx, const math::Matrix* src, floatt* srcValues, const MatrixEx& srcEx)
 {
   HOST_INIT();
-  THREAD_INDICES_INIT();
+  THREAD_INDICES_INIT ();
 
-  assert (dstEx.columns == srcEx.columns);
-  assert (dstEx.rows == srcEx.rows);
+  debugAssert (dstEx.columns == srcEx.columns);
+  debugAssert (dstEx.rows == srcEx.rows);
 
-  if (threadIndexX < dstEx.columns && threadIndexY < dstEx.rows)
-  //if (srcEx.column < dstEx.columns && srcEx.row < dstEx.rows)
+  const uintt tx = threadIdx.x;
+  const uintt ty = threadIdx.y;
+
+  if (tx < srcEx.columns && ty < srcEx.rows)
   {
-    const uintt srcIdx = (srcEx.column + threadIndexX) + srcEx.columns * (srcEx.row + threadIndexY);
+    const uintt srcIdx = GetThreadIndexFromMatrixEx (srcEx);
 
     debugAssert (srcIdx < src->columns * src->rows);
     floatt v = srcValues[srcIdx];
 
-    const uintt dstIdx = (dstEx.column + threadIndexX) + dstEx.columns * (dstEx.row + threadIndexY);
+    const uintt dstIdx = GetThreadIndexFromMatrixEx (dstEx);
 
     debugAssert (dstIdx < dst->columns * dst->rows);
     dstValues[dstIdx] = v;

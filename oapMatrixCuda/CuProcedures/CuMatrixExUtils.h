@@ -23,6 +23,7 @@
 #include "CuCore.h"
 #include "Matrix.h"
 #include "MatrixEx.h"
+#include "CuMatrixIndexUtilsCommon.h"
 
 __hostdeviceinline__ void cuAux_initMatrixEx (MatrixEx& ex, const math::Matrix* matrix)
 {

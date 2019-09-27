@@ -33,7 +33,6 @@ typedef void (*CalcValue_f)(floatt* re, floatt* im, const math::Matrix* m1, uint
 
 __hostdevice__ void dp_calcReValue (floatt* re, floatt*, const math::Matrix* m1, uintt idx1, const math::Matrix* m2, uintt idx2)
 {
-  HOST_INIT();
   *re += m1->reValues[idx1] * m2->reValues[idx2];
 }
 

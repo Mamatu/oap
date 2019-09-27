@@ -223,6 +223,21 @@ TEST_F(OapDotProductTests, Shared_Test_12)
   EXPECT_THAT(houtput.get(), MatrixHasValues(16));
 }
 
+TEST_F(OapDotProductTests, Shared_Test_13)
+{
+  HostProcedures hostProcedures;
+
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix(1, 64, 3);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix(64, 1, 2);
+
+  oap::HostMatrixUPtr houtput = oap::host::NewReMatrix(64, 64);
+
+  hostProcedures.setMaxThreadsPerBlock (1024);
+  hostProcedures.dotProductShared (houtput, hostM1, hostM2);
+
+  EXPECT_THAT(houtput.get(), MatrixHasValues(3 * 2));
+}
+
 TEST_F(OapDotProductTests, Test_CustomDim_1)
 {
   HostProcedures hostProcedures;
