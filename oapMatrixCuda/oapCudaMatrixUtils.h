@@ -28,7 +28,7 @@
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
 
-#define PRINT_CUMATRIX(m) logInfo ("%s %p %s %s", #m, m, oap::cuda::to_string(m).c_str(), oap::cuda::GetMatrixInfo(m).toString().c_str());
+#define PRINT_CUMATRIX(m) logInfo ("%s %p\n%s %s", #m, m, oap::cuda::to_string(m).c_str(), oap::cuda::GetMatrixInfo(m).toString().c_str());
 
 namespace oap
 {
@@ -45,6 +45,11 @@ math::Matrix* NewDeviceMatrix(const std::string& matrixStr);
 
 math::Matrix* NewDeviceMatrix(const math::MatrixInfo& minfo);
 
+inline math::Matrix* NewDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+{
+  return NewDeviceMatrix (minfo);
+}
+
 uintt GetColumns(const math::Matrix* dMatrix);
 
 uintt GetRows(const math::Matrix* dMatrix);
@@ -54,6 +59,11 @@ math::Matrix* NewDeviceMatrixCopyOfHostMatrix(const math::Matrix* hostMatrix);
 math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns, uintt rows);
 
 math::Matrix* NewDeviceMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows);
+
+inline math::Matrix* NewKernelMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows)
+{
+  return NewDeviceMatrix (allocRe, allocIm, columns, rows);
+}
 
 math::Matrix* NewDeviceReMatrix(uintt columns, uintt rows);
 
@@ -68,7 +78,42 @@ void DeleteDeviceMatrix(const math::Matrix* deviceMatrix);
  * @param dst - host matrix
  * @param src - device matrix
  */
-void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src);
+void CopyDeviceMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src);
+
+/**
+ * @brief copies host matrix to device matrix - copy host to device - matrices must have the same columns and rows
+ * @param dst - host matrix
+ * @param src - device matrix
+ */
+void CopyHostMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src);
+
+/**
+ * @brief copies device matrix to device matrix - copy device to device - matrices must have the same columns and rows
+ * @param dst - host matrix
+ * @param src - device matrix
+ */
+void CopyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src);
+
+/**
+ * @brief Copies device to host with custom dimensions and range
+ * @param dst - host matrix
+ * @param src - device matrix
+ */
+void CopyDeviceMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
+
+/**
+ * @brief Copies host to device with custom dimensions and range
+ * @param dst - device matrix
+ * @param src - host matrix
+ */
+void CopyHostMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
+
+/**
+ * @brief Copies device to device with custom dimensions and range
+ * @param dst - device matrix
+ * @param src - device matrix
+ */
+void CopyDeviceMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
 
 /**
  * @brief copies davice matrix to host matrix - copy device to host - matrices must have the same product of columns and rows
@@ -79,26 +124,12 @@ void CopyDeviceMatrixToHostMatrix(math::Matrix* dst, const math::Matrix* src);
 void CopyDeviceToHost(math::Matrix* dst, const math::Matrix* src);
 
 /**
- * @brief copies host matrix to device matrix - copy host to device - matrices must have the same columns and rows
- * @param dst - host matrix
- * @param src - device matrix
- */
-void CopyHostMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
-
-/**
  * @brief copies host matrix to device matrix - copy device to host - matrices must have the same product of columns and rows
  *                                              (dst->columns * dst->rows == src->columns * src->rows)
  * @param dst - host matrix
  * @param src - device matrix
  */
 void CopyHostToDevice(math::Matrix* dst, const math::Matrix* src);
-
-/**
- * @brief copies device matrix to device matrix - copy device to device - matrices must have the same columns and rows
- * @param dst - host matrix
- * @param src - device matrix
- */
-void CopyDeviceMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
 
 /**
  * @brief copies device matri to device matrix - copy device to host - matrices must have the same product of columns and rows
@@ -108,18 +139,17 @@ void CopyDeviceMatrixToDeviceMatrix(math::Matrix* dst, const math::Matrix* src);
  */
 void CopyDeviceToDevice(math::Matrix* dst, const math::Matrix* src);
 
-/**
- *
- */
 void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
 void SetReMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
 void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
-void CopyHostArraysToDeviceMatrix(math::Matrix* dst, const floatt* rearray,
-                                  const floatt* imarray);
 MatrixEx** NewDeviceMatrixEx(uintt count);
+
+void CopyHostArrayToDeviceMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer, size_t length);
+void CopyHostArrayToDeviceReMatrix (math::Matrix* matrix, floatt* buffer, size_t length);
+void CopyHostArrayToDeviceImMatrix (math::Matrix* matrix, floatt* buffer, size_t length);
 
 void DeleteDeviceMatrixEx(MatrixEx** matrixEx);
 
@@ -138,6 +168,16 @@ void PrintMatrix(const std::string& text, const math::Matrix* matrix,
                  floatt zeroLimit = 0);
 
 void PrintMatrix(const math::Matrix* matrix);
+
+inline floatt* GetValue (floatt* const* src)
+{
+  return CudaUtils::GetValue (src);
+}
+
+inline void TransferToHost (void* dst, const void* src, uintt size)
+{
+  memcpy (dst, src, size);
+}
 
 void SetReValue(math::Matrix* matrix, floatt value, uintt column, uintt row);
 void SetReValue(math::Matrix* matrix, floatt value, uintt index);

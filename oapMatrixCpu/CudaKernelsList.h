@@ -128,8 +128,11 @@ void proxy_HOSTKernel_SumShared (void** params)
   HOSTKernel_SumShared (param1, param2, param3);
 }
 
+DEFINE_1M(HOSTKernel_SetIdentity, CUDA_setIdentityMatrix)
+
 DEFINE_3M(HOSTKernel_CrossEntropy, CUDA_crossEntropy)
 DEFINE_3M(HOSTKernel_DotProduct, CUDA_dotProduct)
+DEFINE_3M(HOSTKernel_DotProductShared, CUDAKernel_dotProductShared)
 
 DEFINE_2M(HOSTKernel_Tanh, CUDA_tanh)
 DEFINE_2M(HOSTKernel_Sigmoid, CUDA_sigmoid)
@@ -148,5 +151,24 @@ DEFINE_3M(HOSTKernel_DotProductPeriodic, CUDA_dotProductPeriodic)
 DEFINE_3M_EX(HOSTKernel_DotProductDimPeriodic, CUDA_dotProductDimPeriodic)
 
 DEFINE_3M_EX(HOSTKernel_TensorProductDim, CUDA_tensorProductDim)
+
+void HOSTKernel_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT)
+{
+  CudaKernel_QRHT(Q, R, A, V, VT, P, VVT);
+}
+
+void proxy_HOSTKernel_QRHT (void** params)
+{
+  size_t i = 0;
+  math::Matrix* Q = getParam<math::Matrix> (params[i++]);
+  math::Matrix* R = getParam<math::Matrix> (params[i++]);
+  math::Matrix* A = getParam<math::Matrix> (params[i++]);
+  math::Matrix* V = getParam<math::Matrix> (params[i++]);
+  math::Matrix* VT = getParam<math::Matrix> (params[i++]);
+  math::Matrix* P = getParam<math::Matrix> (params[i++]);
+  math::Matrix* VVT = getParam<math::Matrix> (params[i++]);
+
+  HOSTKernel_QRHT (Q, R, A, V, VT, P, VVT);
+}
 
 #endif

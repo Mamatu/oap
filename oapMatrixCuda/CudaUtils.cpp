@@ -41,6 +41,15 @@ void FreeDeviceMem(CUdeviceptr ptr) {
   }
 }
 
+floatt* GetValue (floatt* const* src)
+{
+  floatt* dst = nullptr;
+
+  cuMemcpyDtoH (&dst, reinterpret_cast<CUdeviceptr>(src), sizeof(floatt*));
+
+  return dst;
+}
+
 CUdeviceptr GetReValuesAddress(const math::Matrix* matrix) {
   return reinterpret_cast<CUdeviceptr>(&matrix->reValues);
 }
@@ -288,7 +297,7 @@ void SetReValue(math::Matrix* m, uintt index, floatt value) {
                sizeof(floatt));
 }
 
-floatt GetReValue(math::Matrix* m, uintt index) {
+floatt GetReValue(const math::Matrix* m, uintt index) {
   floatt* array = GetReValues(m);
   floatt value = 0;
   cuMemcpyDtoH(&value, reinterpret_cast<CUdeviceptr>(&array[index]),
@@ -302,7 +311,7 @@ void SetImValue(math::Matrix* m, uintt index, floatt value) {
                sizeof(floatt));
 }
 
-floatt GetImValue(math::Matrix* m, uintt index) {
+floatt GetImValue(const math::Matrix* m, uintt index) {
   floatt* array = GetImValues(m);
   floatt value = 0;
   cuMemcpyDtoH(&value, reinterpret_cast<CUdeviceptr>(&array[index]),

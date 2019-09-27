@@ -25,11 +25,15 @@
 #include "KernelExecutor.h"
 #include "CuProceduresApi.h"
 
-#include "ArnoldiUtils.h"
 #include "MatrixInfo.h"
 
-class CuHArnoldi {
+#include "oapGenericArnoldiApi.h"
+#include "oapCuHArnoldiS.h"
+
+class CuHArnoldi : public oap::generic::CuHArnoldiS
+{
  public:  // methods
+
   CuHArnoldi();
 
   virtual ~CuHArnoldi();
@@ -37,6 +41,8 @@ class CuHArnoldi {
   void setRho(floatt rho = 1. / 3.14);
 
   void setBLimit(floatt blimit);
+
+  void setQRType (oap::QRType qrtype = oap::QRType::QRGR);
 
   void setSortType(ArnUtils::SortType sortType);
 
@@ -77,41 +83,6 @@ class CuHArnoldi {
 
  protected:  // data, matrices
   oap::CuProceduresApi m_cuMatrix;
-  math::Matrix* m_w;
-  math::Matrix* m_f;
-  math::Matrix* m_f1;
-  math::Matrix* m_vh;
-  math::Matrix* m_h;
-  math::Matrix* m_s;
-  math::Matrix* m_vs;
-  math::Matrix* m_V;
-  math::Matrix* m_transposeV;
-  math::Matrix* m_V1;
-  math::Matrix* m_V2;
-  math::Matrix* m_H;
-  math::Matrix* m_HC;
-  math::Matrix* m_triangularH;
-  math::Matrix* m_H2;
-  math::Matrix* m_I;
-  math::Matrix* m_v;
-  math::Matrix* m_v1;
-  math::Matrix* m_v2;
-  math::Matrix* m_QT;
-  math::Matrix* m_Q1;
-  math::Matrix* m_Q2;
-  math::Matrix* m_R1;
-  math::Matrix* m_R2;
-  math::Matrix* m_HO;
-  math::Matrix* m_Q;
-  math::Matrix* m_QT1;
-  math::Matrix* m_QT2;
-  math::Matrix* m_QJ;
-  math::Matrix* m_q;
-  math::Matrix* m_GT;
-  math::Matrix* m_G;
-  math::Matrix* m_EV;
-
-  math::Matrix* m_hostV;
 
   floatt m_previousFValue;
   floatt m_FValue;
@@ -127,10 +98,10 @@ class CuHArnoldi {
   uint m_k;
   floatt m_rho;
   floatt m_blimit;
+  oap::QRType m_qrtype = oap::QRType::NONE;
 
   std::vector<EigenPair> m_wanted;
   std::vector<EigenPair> m_previousWanted;
-  std::vector<EigenPair> m_unwanted;
 
   ArnUtils::SortType m_sortObject;
   ArnUtils::CheckType m_checkType;
@@ -140,28 +111,14 @@ class CuHArnoldi {
 
   ArnUtils::TriangularHProcedureType m_triangularHProcedureType;
 
-  void* m_image;
-  oap::cuda::Kernel m_kernel;
-
-  uint m_transposeVcolumns;
-  uint m_hrows;
-  uint m_scolumns;
-  uint m_vscolumns;
-  uint m_vsrows;
-  uint m_vrows;
-  uint m_qrows;
-  uint m_Hcolumns;
-  uint m_Hrows;
-  uint m_triangularHcolumns;
-  uint m_Qrows;
-  uint m_Qcolumns;
-
   uint m_startIndex = 0;
   uint m_wantedCount = 0;
   bool m_beginInvoked = false;
   bool m_stepInvoked = false;
 
   floatt m_previousInternalSum;
+  math::MatrixInfo m_triangularHInfo;
+
  private:  // internal methods - inline
   inline void aux_swapPointers(math::Matrix** a, math::Matrix** b) {
     math::Matrix* temp = *b;
@@ -170,14 +127,19 @@ class CuHArnoldi {
   }
 
   inline void setCalculateTriangularHPtr(uint k) {
-    if (m_triangularHProcedureType == ArnUtils::CALC_IN_HOST) {
-      m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularH;
-    } else {
-      if (k > 32) { debugAssert("Traingular H in device is not supported for k > 32"); }
-      if (m_triangularHProcedureType == ArnUtils::CALC_IN_DEVICE) {
+    if (m_triangularHProcedureType == ArnUtils::CALC_IN_HOST)
+    {
+      m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInHost;
+    }
+    else
+    {
+      if (k > 32)
+      {
+        debugAssert("Traingular H in device is not supported for k > 32");
+      }
+      if (m_triangularHProcedureType == ArnUtils::CALC_IN_DEVICE)
+      {
         m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDevice;
-      } else if (m_triangularHProcedureType == ArnUtils::CALC_IN_DEVICE_STEP) {
-        m_calculateTriangularHPtr = &CuHArnoldi::calculateTriangularHInDeviceSteps;
       }
     }
   }
@@ -189,14 +151,13 @@ class CuHArnoldi {
 
  private:  // internal methods
   void initVvector();
+  void initVvector_rand();
 
   bool continueProcedure();
 
   void calculateTriangularHInDevice();
 
-  void calculateTriangularHInDeviceSteps();
-
-  void calculateTriangularH();
+  void calculateTriangularHInHost();
 
   void (CuHArnoldi::*m_calculateTriangularHPtr)();
 
@@ -219,7 +180,7 @@ class CuHArnoldi {
    */
   bool executeArnoldiFactorization(uint startIndex, floatt rho);
 
-  void executefVHplusfq(uint k);
+  bool executefVHplusfq(uint k);
 
   bool executeChecking(uint k);
 
@@ -259,6 +220,27 @@ class CuHArnoldi {
    * @param index - index of eigenpars
    */
   floatt testOutcome (size_t index);
+
+  template<typename Arnoldi, typename Api, typename GetReValue, typename GetImValue>
+  friend void oap::generic::iram_fVplusfq(Arnoldi&, uintt, Api&, GetReValue&&, GetImValue&&);
+
+  template<typename Arnoldi, typename NewKernelMatrix>
+  friend void oap::generic::allocStage1 (Arnoldi&, const math::MatrixInfo&, NewKernelMatrix&&);
+
+  template<typename Arnoldi, typename NewKernelMatrix, typename NewHostMatrix>
+  friend void oap::generic::allocStage2 (Arnoldi&, const math::MatrixInfo&, uint, NewKernelMatrix&&, NewHostMatrix&&);
+
+  template<typename Arnoldi, typename NewKernelMatrix>
+  friend void oap::generic::allocStage3 (Arnoldi&, const math::MatrixInfo&, uint, NewKernelMatrix&&);
+
+  template<typename Arnoldi, typename DeleteKernelMatrix>
+  friend void oap::generic::deallocStage1 (Arnoldi&, DeleteKernelMatrix&&);
+
+  template<typename Arnoldi, typename DeleteKernelMatrix, typename DeleteHostMatrix>
+  friend void oap::generic::deallocStage2 (Arnoldi&, DeleteKernelMatrix&&, DeleteHostMatrix&&);
+
+  template<typename Arnoldi, typename DeleteKernelMatrix>
+  friend void oap::generic::deallocStage3 (Arnoldi&, DeleteKernelMatrix&&);
 };
 
 #endif /* CUPROCEDURES_H */

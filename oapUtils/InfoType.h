@@ -17,13 +17,16 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef OAP_INFOTYPE
 #define OAP_INFOTYPE
 
 #include "MatrixUtils.h"
 #include <limits>
+
+namespace
+{
+  const floatt g_tolerance = 0.0001f;
+}
 
 class InfoType : public matrixUtils::Range {
  public:
@@ -34,23 +37,25 @@ class InfoType : public matrixUtils::Range {
 
  private:
   int m_type;
+  floatt m_tolerance = g_tolerance;
 
  public:
   inline InfoType(uintt bcolumn, uintt columns, uintt brow, uintt rows,
-                  int type)
-      : matrixUtils::Range(bcolumn, columns, brow, rows), m_type(type) {}
+                  int type, floatt tolerance = g_tolerance)
+      : matrixUtils::Range(bcolumn, columns, brow, rows), m_type(type), m_tolerance (tolerance) {}
 
-  inline InfoType()
+  inline InfoType(floatt tolerance = g_tolerance)
       : matrixUtils::Range(0, std::numeric_limits<uintt>::max(), 0,
                            std::numeric_limits<uintt>::max()),
-        m_type(ELEMENTS) {}
+        m_type(ELEMENTS), m_tolerance (tolerance) {}
 
-  inline InfoType(int type)
+  inline InfoType(int type, floatt tolerance = g_tolerance)
       : matrixUtils::Range(0, std::numeric_limits<uintt>::max(), 0,
                            std::numeric_limits<uintt>::max()),
-        m_type(type) {}
+        m_type(type), m_tolerance (tolerance) {}
 
   inline int getInfo() const { return m_type; }
+  inline floatt getTolerance() const { return m_tolerance; }
 };
 
 #endif  // INFOTYPE

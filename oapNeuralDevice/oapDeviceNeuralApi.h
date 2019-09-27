@@ -21,6 +21,7 @@
 #define OAP_DEVICE_NEURAL_API_H
 
 #include <stdexcept>
+#include <random>
 
 #include "oapGenericNeuralApi.h"
 #include "oapDeviceAllocApi.h"
@@ -38,12 +39,12 @@ inline void checkHostInputs (ILayerS_FP& ls, const math::Matrix* hostInputs)
 {
   if (hostInputs->columns != 1)
   {
-    throw std::runtime_error ("Columns of hostInputs matrix must be equal 1");
+    debugAssert ("Columns of hostInputs matrix must be equal 1" == nullptr);
   }
 
-  if (hostInputs->rows != ls.getTotalNeuronsCount())
+  if (hostInputs->rows != ls.getRowsCount())
   {
-    throw std::runtime_error ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)");
+    debugAssert ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)" == nullptr);
   }
 }
 

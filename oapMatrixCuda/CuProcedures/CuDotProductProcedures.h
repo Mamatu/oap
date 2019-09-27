@@ -23,110 +23,209 @@
 #include "CuCore.h"
 #include "Matrix.h"
 #include "MatrixEx.h"
+#include "CuDotProductUtils.h"
 
-__hostdeviceinline__ uintt cuda_getIdx0 (uintt idx, uintt indexY, math::Matrix* matrix)
+#include "oapAssertion.h"
+
+#define calc_offset (exs) exs[1]->columns
+
+typedef void (*CalcValue_f)(floatt* re, floatt* im, const math::Matrix* m1, uintt idx1, const math::Matrix* m2, uintt idx2);
+
+__hostdevice__ void dp_calcReValue (floatt* re, floatt*, const math::Matrix* m1, uintt idx1, const math::Matrix* m2, uintt idx2)
 {
-  return indexY * matrix->columns + idx;
+  *re += m1->reValues[idx1] * m2->reValues[idx2];
 }
 
-__hostdeviceinline__ uintt cuda_getIdx1 (uintt idx, uintt indexY, math::Matrix* matrix)
+__hostdevice__ void dp_calcImValue (floatt*, floatt* im, const math::Matrix* m1, uintt idx1, const math::Matrix* m2, uintt idx2)
+{
+  *im -= m1->imValues[idx1] * m2->imValues[idx2];
+}
+
+__hostdevice__ void dp_calcRealValue (floatt* re, floatt* im, const math::Matrix* m1, uintt idx1, const math::Matrix* m2, uintt idx2)
+{
+  *re += m1->reValues[idx1] * m2->reValues[idx2] - m1->imValues[idx1] * m2->imValues[idx2];
+  *im += m1->reValues[idx1] * m2->imValues[idx2] + m2->reValues[idx1] * m1->imValues[idx2];
+}
+
+__hostdeviceinline__ void cuAux_calcIdxs (uintt idx[2], uintt midx, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  return (indexY + idx) * matrix->columns + threadIndexX;;
+  uintt idx0 = (exs[1].column + midx) + exs[1].columns * exs[1].row;
+  uintt idx1 = exs[2].column + exs[2].columns * (exs[2].row + midx);
+
+  debugAssert (idx0 < params0->columns * params0->rows);
+  debugAssert (idx1 < params1->columns * params1->rows);
+
+  idx[0] = idx0;
+  idx[1] = idx1;
 }
 
-__hostdevice__ void cuda_dotProductReUUU (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY1, uintt indexY2, uintt offset)
+__hostdeviceinline__ uintt cuAux_calcIdx (const math::Matrix* matrix, const MatrixEx& ex)
+{
+  return ex.column + ex.columns * ex.row;
+}
+
+__hostdevice__ void cuda_dotProductGenericExOffset (floatt* re, floatt* im, math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3], uintt _offset, CalcValue_f calcValue_f)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  floatt temp = 0;
+  const uintt offset = _offset;
 
-  for (intt idx = 0; idx < offset; ++idx)
+  for (uintt midx = 0; midx < offset; ++midx)
   {
-    uintt idx0 = cuda_getIdx0 (idx, indexY1, params0);
-    uintt idx1 = cuda_getIdx1 (idx, indexY2, params1);
-    temp += params0->reValues[idx0] * params1->reValues[idx1];
+    uintt idx[2];
+    cuAux_calcIdxs (idx, midx, params0, params1, exs);
+
+    calcValue_f (re, im, params0, idx[0], params1, idx[1]);
   }
 
-  uintt oidx = threadIndexX + output->columns * threadIndexY;
-  output->reValues[oidx] = temp;
+  uintt oidx = cuAux_calcIdx (output, exs[0]);
+  if (re)
+  {
+    output->reValues[oidx] = *re;
+  }
+  if (im)
+  {
+    output->imValues[oidx] = *im;
+  }
 }
 
-__hostdevice__ void cuda_dotProductImUUU (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY1, uintt indexY2, uintt offset)
+__hostdevice__ void cuda_dotProductGenericEx (floatt* re, floatt* im, math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3], CalcValue_f calcValue_f)
+{
+  cuda_dotProductGenericExOffset (re, im, output, params0, params1, exs, exs[1].columns, calcValue_f);
+}
+
+__hostdevice__ void cuda_addDotProductGenericExOffset (floatt* re, floatt* im, math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3], uintt _offset, CalcValue_f calcValue_f)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  floatt temp = 0;
+  const uintt offset = _offset;
 
-  for (intt idx = 0; idx < offset; ++idx)
+  for (uintt midx = 0; midx < offset; ++midx)
   {
-    uintt idx0 = cuda_getIdx0 (idx, indexY1, params0);
-    uintt idx1 = cuda_getIdx1 (idx, indexY2, params1);
-    temp -= params0->imValues[idx0] * params1->imValues[idx1];
+    uintt idx[2];
+    cuAux_calcIdxs (idx, midx, params0, params1, exs);
+
+    calcValue_f (re, im, params0, idx[0], params1, idx[1]);
   }
 
-  uintt oidx = threadIndexX + output->columns * threadIndexY;
-  output->imValues[oidx] = temp;
+  uintt oidx = cuAux_calcIdx (output, exs[0]);
+  if (re)
+  {
+    output->reValues[oidx] += *re;
+  }
+  if (im)
+  {
+    output->imValues[oidx] += *im;
+  }
 }
 
-__hostdevice__ void cuda_dotProductRealUUU (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY1, uintt indexY2, uintt offset)
+__hostdevice__ void cuda_addDotProductGenericEx (floatt* re, floatt* im, math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3], CalcValue_f calcValue_f)
 {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
+  cuda_addDotProductGenericExOffset (re, im, output, params0, params1, exs, exs[1].columns, calcValue_f);
+}
 
+__hostdevice__ void cuda_dotProductReExOffset (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3], uintt offset)
+{
+  floatt retemp = 0;
+  cuda_dotProductGenericExOffset (&retemp, NULL, output, params0, params1, exs, offset, dp_calcReValue);
+}
+
+__hostdevice__ void cuda_dotProductImExOffset (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3], uintt offset)
+{
+  floatt imtemp = 0;
+  cuda_dotProductGenericExOffset (NULL, &imtemp, output, params0, params1, exs, offset, dp_calcImValue);
+}
+
+__hostdevice__ void cuda_dotProductRealExOffset (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3], uintt offset)
+{
   floatt retemp = 0;
   floatt imtemp = 0;
-
-  for (intt idx = 0; idx < offset; ++idx)
-  {
-    uintt idx0 = cuda_getIdx0 (idx, indexY1, params0);
-    uintt idx1 = cuda_getIdx1 (idx, indexY2, params1);
-    floatt retemp1 = params0->imValues[idx0] * params1->imValues[idx1];
-    floatt retemp2 = -params0->imValues[idx0] * params1->imValues[idx1];
-
-    floatt imtemp1 = params0->reValues[idx0] * params1->imValues[idx1];
-    floatt imtemp2 = -params0->imValues[idx0] * params1->reValues[idx1];
-
-    retemp += retemp1 + retemp2;
-    imtemp += imtemp1 + imtemp2;
-  }
-
-  uintt oidx = threadIndexX + output->columns * threadIndexY;
-  output->reValues[oidx] = retemp;
-  output->imValues[oidx] = imtemp;
+  cuda_dotProductGenericExOffset (&retemp, &imtemp, output, params0, params1, exs, offset, dp_calcRealValue);
 }
 
-__hostdevice__ void cuda_dotProductRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset)
+__hostdevice__ void cuda_dotProductReEx (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])
+{
+  cuda_dotProductReExOffset (output, params0, params1, exs, params0->columns);
+}
+
+__hostdevice__ void cuda_dotProductImEx (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])
+{
+  cuda_dotProductImExOffset (output, params0, params1, exs, params0->columns);
+}
+
+__hostdevice__ void cuda_dotProductRealEx (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])
+{
+  cuda_dotProductRealExOffset (output, params0, params1, exs, params0->columns);
+}
+
+__hostdevice__ void cuda_addDotProductReEx (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])
+{
+  floatt retemp = 0;
+  cuda_addDotProductGenericEx (&retemp, NULL, output, params0, params1, exs, dp_calcReValue);
+}
+
+__hostdevice__ void cuda_addDotProductImEx (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])
+{
+  floatt imtemp = 0;
+  cuda_addDotProductGenericEx (NULL, &imtemp, output, params0, params1, exs, dp_calcImValue);
+}
+
+__hostdevice__ void cuda_addDotProductRealEx (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])
+{
+  floatt retemp = 0;
+  floatt imtemp = 0;
+  cuda_addDotProductGenericEx (&retemp, &imtemp, output, params0, params1, exs, dp_calcRealValue);
+}
+
+__hostdevice__ void cuda_dotProductRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, uintt offset)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  cuda_dotProductReUUU (output, params0, params1, threadIndexY, 0, offset);
+  MatrixEx exs[3];
+  cuAux_initMatrixExs (exs, output, params0, params1);
+
+  exs[1].columns = offset;
+  exs[2].rows = offset;
+
+  cuda_dotProductReEx (output, params0, params1, exs);
 }
 
-__hostdevice__ void cuda_dotProductIm (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset)
+__hostdevice__ void cuda_dotProductIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, uintt offset)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  cuda_dotProductImUUU (output, params0, params1, threadIndexY, 0, offset);
+  MatrixEx exs[3];
+  cuAux_initMatrixExs (exs, output, params0, params1);
+
+  exs[1].columns = offset;
+  exs[2].rows = offset;
+
+  cuda_dotProductImEx (output, params0, params1, exs);
 }
 
-__hostdevice__ void cuda_dotProductReal (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset)
+__hostdevice__ void cuda_dotProductReal (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, uintt offset)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  cuda_dotProductRealUUU (output, params0, params1, threadIndexY, 0, offset);
+  MatrixEx exs[3];
+  cuAux_initMatrixExs (exs, output, params0, params1);
+
+  exs[1].columns = offset;
+  exs[2].rows = offset;
+
+  cuda_dotProductRealEx (output, params0, params1, exs);
 }
 
-__hostdevice__ void CUDA_dotProductRe(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
+__hostdevice__ void CUDA_dotProductRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
 
   uintt offset = params0->columns;
@@ -135,9 +234,8 @@ __hostdevice__ void CUDA_dotProductRe(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_dotProductIm(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
+__hostdevice__ void CUDA_dotProductIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
 
   uintt offset = params0->columns;
@@ -146,9 +244,8 @@ __hostdevice__ void CUDA_dotProductIm(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_dotProductReal(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1) {
+__hostdevice__ void CUDA_dotProductReal (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
 
   uintt offset = params0->columns;
@@ -157,9 +254,10 @@ __hostdevice__ void CUDA_dotProductReal(math::Matrix* output,
   threads_sync();
 }
 
-__hostdeviceinline__ void cuda_dotProductUUUB (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt indexY1, uintt indexY2, uintt offset, bool inRange)
+__hostdeviceinline__ void cuda_dotProductExOffset (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, MatrixEx exs[3], uintt offset, bool inRange)
 {
   HOST_INIT();
+  THREAD_INDICES_INIT();
 
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
@@ -168,28 +266,72 @@ __hostdeviceinline__ void cuda_dotProductUUUB (math::Matrix* output, math::Matri
   {
     if (isre && isim)
     {
-      cuda_dotProductRealUUU (output, params0, params1, indexY1, indexY2, offset);
+      cuda_dotProductRealExOffset (output, params0, params1, exs, offset);
     }
     else if (isre)
     {
-      cuda_dotProductReUUU (output, params0, params1, indexY1, indexY2, offset);
+      cuda_dotProductReExOffset (output, params0, params1, exs, offset);
     }
     else if (isim)
     {
-      cuda_dotProductImUUU (output, params0, params1, indexY1, indexY2, offset);
+      cuda_dotProductImExOffset (output, params0, params1, exs, offset);
     }
   }
 }
 
-__hostdeviceinline__ void cuda_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt offset, bool inRange)
+__hostdeviceinline__ void cuda_dotProductUserThreads (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, uintt t0[2], uintt t1[2], uintt offset, bool inRange)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  cuda_dotProductUUUB (output, params0, params1, threadIndexY, 0, offset, inRange);
+  bool isre = output->reValues != NULL;
+  bool isim = output->imValues != NULL;
+
+  MatrixEx exs[3];
+  cuAux_initMatrixExs (exs, output, params0, params1);
+  //exs[0].rows = output->rows;
+  //exs[0].columns = offset;
+
+  exs[1].columns = offset;
+  exs[2].rows = offset;
+
+  exs[0].row = threadIndexY;
+  exs[1].row = t0[1];
+  exs[2].row = t1[1];
+
+  exs[0].column = threadIndexX;
+  exs[1].column = t0[0];
+  exs[2].column = t1[0];
+
+  if (inRange)
+  {
+    if (isre && isim)
+    {
+      cuda_dotProductRealEx (output, params0, params1, exs);
+    }
+    else if (isre)
+    {
+      cuda_dotProductReEx (output, params0, params1, exs);
+    }
+    else if (isim)
+    {
+      cuda_dotProductImEx (output, params0, params1, exs);
+    }
+  }
 }
 
-__hostdevice__ void CUDA_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdeviceinline__ void cuda_dotProduct (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1, uintt offset, bool inRange)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  uintt t0[2] = {0, threadIndexY};
+  uintt t1[2] = {threadIndexX, 0};
+
+  cuda_dotProductUserThreads (output, params0, params1, t0, t1, offset, inRange);
+}
+
+__hostdevice__ void CUDA_dotProduct (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -197,120 +339,7 @@ __hostdevice__ void CUDA_dotProduct (math::Matrix* output, math::Matrix* params0
   bool inRange = threadIndexX < output->columns && threadIndexY < output->rows;
 
   cuda_dotProduct (output, params0, params1, params0->columns, inRange);
+  threads_sync ();
 }
 
-
-__hostdevice__ void cuda_dotProductReEx(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1,
-                                        const MatrixEx& matrixEx) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  const uintt columns1 = params0->realColumns;
-  const uintt columns2 = params1->realColumns;
-  floatt retemp = 0;
-  for (intt fa1 = matrixEx.boffset; fa1 < matrixEx.eoffset; fa1++) {
-    retemp += params0->reValues[fa1 + columns1 * threadIndexY] *
-              params1->reValues[fa1 * columns2 + threadIndexX];
-  }
-  output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-  threads_sync();
-}
-
-__hostdevice__ void cuda_dotProductImEx(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1,
-                                        const MatrixEx& matrixEx) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  const uintt columns1 = params0->realColumns;
-  const uintt columns2 = params1->realColumns;
-  floatt retemp = 0;
-  for (intt fa1 = matrixEx.boffset; fa1 < matrixEx.eoffset; fa1++) {
-    retemp += -params0->imValues[fa1 + columns1 * threadIndexY] *
-              params1->imValues[fa1 * columns2 + threadIndexX];
-  }
-  output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
-}
-
-__hostdevice__ void cuda_dotProductRealEx(math::Matrix* output,
-                                          math::Matrix* params0,
-                                          math::Matrix* params1,
-                                          const MatrixEx& matrixEx) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  const uintt columns1 = params0->realColumns;
-  const uintt columns2 = params1->realColumns;
-  const uintt outputColumns = output->realColumns;
-
-  floatt retemp = 0;
-  floatt imtemp = 0;
-  for (intt fa1 = matrixEx.boffset; fa1 < matrixEx.eoffset; fa1++) {
-    retemp += params0->reValues[fa1 + columns1 * threadIndexY] *
-              params1->reValues[fa1 * columns2 + threadIndexX];
-    retemp -= params0->imValues[fa1 + columns1 * threadIndexY] *
-              params1->imValues[fa1 * columns2 + threadIndexX];
-    imtemp += params0->reValues[fa1 + columns1 * threadIndexY] *
-              params1->imValues[fa1 * columns2 + threadIndexX];
-    imtemp += params0->imValues[fa1 + columns1 * threadIndexY] *
-              params1->reValues[fa1 * columns2 + threadIndexX];
-  }
-  output->reValues[threadIndexX + outputColumns * threadIndexY] = retemp;
-  output->imValues[threadIndexX + outputColumns * threadIndexY] = imtemp;
-}
-
-__hostdevice__ void CUDA_dotProductReEx(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1,
-                                        const MatrixEx& matrixEx) {
-  HOST_INIT();
-
-  cuda_dotProductReEx(output, params0, params1, matrixEx);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_dotProductImEx(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1,
-                                        const MatrixEx& matrixEx) {
-  HOST_INIT();
-
-  cuda_dotProductImEx(output, params0, params1, matrixEx);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_dotProductRealEx(math::Matrix* output,
-                                          math::Matrix* params0,
-                                          math::Matrix* params1,
-                                          const MatrixEx& matrixEx) {
-  HOST_INIT();
-
-  cuda_dotProductRealEx(output, params0, params1, matrixEx);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_dotProductEx(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1,
-                                      const MatrixEx& matrixEx) {
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
-  bool isInRange =
-      threadIndexX < output->columns && threadIndexY < output->rows;
-
-  if (isre && isim && isInRange) {
-    cuda_dotProductRealEx(output, params0, params1, matrixEx);
-  } else if (isre && isInRange) {
-    cuda_dotProductReEx(output, params0, params1, matrixEx);
-  } else if (isim && isInRange) {
-    cuda_dotProductImEx(output, params0, params1, matrixEx);
-  }
-  threads_sync();
-}
 #endif

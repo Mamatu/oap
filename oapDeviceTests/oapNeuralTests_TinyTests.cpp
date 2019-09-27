@@ -129,7 +129,7 @@ class OapNeuralTests_TinyTests : public testing::Test
     return 0;
   }
 
-  void testForwardPropagation_2_to_1(floatt w_1, floatt w_2, floatt i_1, floatt i_2)
+  void testForwardPropagation_2_to_1 (floatt w_1, floatt w_2, floatt i_1, floatt i_2)
   {
     Layer* l1 = network->createLayer(2);
     network->createLayer(1);

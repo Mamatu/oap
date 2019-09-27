@@ -42,7 +42,11 @@ TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_1_1)
   using namespace oap::Backpropagation_Data_1HL_1::Test_1;
 
   auto network = test_api::createNetwork (g_networkInfo);
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck));
+  test_api::TestMode testMode = test_api::TestMode::NONE;
+
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck));
+
+  ASSERT_EQ(test_api::TestMode::NORMAL, testMode);
 }
 
 TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_1_2)
@@ -53,8 +57,27 @@ TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_1_2)
 
   test_api::ExtraParams ep;
   ep.calcType = CalculationType::DEVICE;
+  test_api::TestMode testMode = test_api::TestMode::NONE;
 
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck, ep));
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck, ep));
+
+  ASSERT_EQ(test_api::TestMode::NORMAL, testMode);
+}
+
+TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_1_3_FP_MODE)
+{
+  using namespace oap::Backpropagation_Data_1HL_1::Test_1;
+
+  auto network = test_api::createNetwork (g_networkInfo);
+
+  Steps steps = g_steps;
+
+  test_api::convertBatchToBatchFPHandlers (network.get(), steps);
+  test_api::TestMode testMode = test_api::TestMode::NONE;
+
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
+
+  ASSERT_EQ(test_api::TestMode::FP_HANDLER, testMode);
 }
 
 TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_2)
@@ -62,5 +85,9 @@ TEST_F(OapNeuralTests_Backpropagation_1HL_1, Test_2)
   using namespace oap::Backpropagation_Data_1HL_1::Test_2;
 
   auto network = test_api::createNetwork (g_networkInfo);
-  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck));
+  test_api::TestMode testMode = test_api::TestMode::NONE;
+
+  ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec}, g_steps, g_idxsToCheck));
+
+  ASSERT_EQ(test_api::TestMode::NORMAL, testMode);
 }

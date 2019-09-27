@@ -35,6 +35,7 @@
 #include "oapCudaMatrixUtils.h"
 
 #include "GenericProceduresApi.h"
+#include "CudaCoreApi.h"
 #include "Logger.h"
 
 namespace oap
@@ -87,7 +88,7 @@ CuProceduresApi::~CuProceduresApi() {
   m_kernel.unload();
 }
 
-void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
 #ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
@@ -96,7 +97,23 @@ void CuProceduresApi::dotProduct(math::Matrix* output, math::Matrix* params0, ma
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  oap::generic::dotProduct (output, params0, params1, columns, rows, &m_kernel, m_bmApi, m_preExecCallback);
+#ifndef OAP_DOT_PRODUCT_SHARED_DEFAULT
+  oap::generic::dotProduct (output, params0, params1, &m_kernel, m_bmApi, m_preExecCallback);
+#else
+  oap::generic::dotProductShared (output, params0, params1, &m_kernel, m_bmApi, m_preExecCallback);
+#endif
+}
+
+void CuProceduresApi::dotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+#ifdef CU_PROCEDURES_API_PRINT
+  debug(__func__);
+#endif
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+
+  oap::generic::dotProductShared (output, params0, params1, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
 void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
@@ -108,7 +125,7 @@ void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0,
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 
-  oap::generic::check_dotProduct (output, params0, params1, columns, rows, m_bmApi);
+  oap::generic::check_dotProduct (output, params0, params1, m_bmApi);
 
   void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_AddDotProduct";
@@ -419,11 +436,9 @@ void CuProceduresApi::setDiagonal(math::Matrix* matrix, floatt re, floatt im) {
   m_cuStatus = execute("CUDAKernel_SetDiagonal", w, h, params, 0);
 }
 
-void CuProceduresApi::setIdentity(math::Matrix* matrix) {
-  void* params[] = {&matrix};
-  const uintt w = CudaUtils::GetColumns(matrix);
-  const uintt h = CudaUtils::GetRows(matrix);
-  m_cuStatus = execute("CUDAKernel_SetIdentity", w, h, params, 0);
+void CuProceduresApi::setIdentity (math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
 void CuProceduresApi::setZeroMatrix(math::Matrix* matrix) {
@@ -438,11 +453,20 @@ void CuProceduresApi::QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
   uint maxThreads = m_kernel.getMaxThreadsPerBlock();
   const uintt w = CudaUtils::GetColumns(H);
   const uintt h = CudaUtils::GetRows(H);
-  if (maxThreads >= w * h) {
+  if (maxThreads >= w * h)
+  {
     m_cuStatus = execute("CUDAKernel_QRGR", w, h, params, 0);
-  } else {
-    m_cuStatus = HOSTKernel_QRGR(Q, R, H, aux0, aux1, aux2, aux3, m_kernel);
   }
+  else
+  {
+    oap::cuda::CudaMatrixApi cuMatrixApi;
+    m_cuStatus = HOSTKernel_QRGR (Q, R, H, aux0, aux1, aux2, aux3, *this, cuMatrixApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
+  }
+}
+
+void CuProceduresApi::QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT)
+{
+  m_cuStatus = oap::generic::qrDecomposition_HT (Q, R, A, V, VT, P, VVT, &m_kernel, *this, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
 bool CuProceduresApi::isUpperTriangular(math::Matrix* matrix) {
@@ -455,27 +479,23 @@ bool CuProceduresApi::isUpperTriangular(math::Matrix* matrix) {
   return result == 1;
 }
 
-void CuProceduresApi::calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-                                   math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
-                                   math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
-{
-  uint w = CudaUtils::GetColumns(H);
-  uint h = CudaUtils::GetRows(H);
-  calcTriangularHStep(H, Q, R,
-                      aux1, aux2, aux3,
-                      aux4, aux5, aux6,
-                      w, h);
-
-}
-
-void CuProceduresApi::calcTriangularHStep(math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-                                   math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
-                                   math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6,
-                                   uint columns, uint rows)
+void CuProceduresApi::calcTriangularH (math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+                                       math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+                                       math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
 {
   void* params[] = {&H, &Q, &R, &aux1, &aux2, &aux3, &aux4, &aux5, &aux6};
-  const uintt w = columns;
-  const uintt h = rows;
+  const uintt w = oap::cuda::GetColumns (H);
+  const uintt h = oap::cuda::GetRows (H);
+  m_cuStatus = execute("CUDAKernel_CalculateTriangularH", w, h, params, 0);
+}
+
+void CuProceduresApi::calcTriangularHStep (math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+                                           math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+                                           math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+{
+  void* params[] = {&H, &Q, &R, &aux1, &aux2, &aux3, &aux4, &aux5, &aux6};
+  const uintt w = oap::cuda::GetColumns (H);
+  const uintt h = oap::cuda::GetRows (H);
   m_cuStatus = execute("CUDAKernel_CalculateTriangularHStep", w, h, params, 0);
 }
 

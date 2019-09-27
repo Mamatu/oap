@@ -17,20 +17,18 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-#ifndef CUTRIANGULARH
-#define CUTRIANGULARH
+#ifndef OAP_CU_CALC_TRIANGULAR_MATRIX_H
+#define OAP_CU_CALC_TRIANGULAR_MATRIX_H
 
 #include "CuCore.h"
 #include "Matrix.h"
-#include "CuProcedures/CuDotProductOptProcedures.h"
-#include "CuProcedures/CuQRProcedures.h"
+#include "CuProcedures/CuQRProcedures_GR.h"
+#include "CuProcedures/CuQRProcedures_HT.h"
 #include "CuProcedures/CuIsUpperTriangularProcedures.h"
 
-#define CUDA_HMtoUTMStep_STEPS 1000
+#define CUDA_calcUTMatrix_STEPS 1000
 
-__hostdevice__ void CUDA_HMtoUTM(
+__hostdevice__ void CUDA_calcUTMatrix_GR(
     math::Matrix* H, math::Matrix* Q, math::Matrix* R,
     math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
     math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
@@ -41,25 +39,79 @@ __hostdevice__ void CUDA_HMtoUTM(
   CUDA_SetIdentityMatrix(aux1);
   status = CUDA_isUpperTriangular(H);
   uint fa = 0;
-  for (; fa < CUDA_HMtoUTMStep_STEPS && status == false; ++fa) {
+
+  for (; fa < CUDA_calcUTMatrix_STEPS && status == false; ++fa)
+  {
     CUDA_QRGR(Q, R, H, aux3, aux4, aux5, aux6);
     CUDA_dotProduct(H, R, Q);
     CUDA_dotProduct(aux2, Q, aux1);
     CUDA_switchPointer(&aux2, &aux1);
     status = CUDA_isUpperTriangular(H);
   }
-  // TODO: optymalization
-  if (fa % 2 == 0) {
+  if (fa % 2 != 0)
+  {
+    CUDA_copyMatrix (Q, aux1);
+  }
+  else
+  {
+    CUDA_copyMatrix (Q, aux2);
+  }
+}
+
+__hostdevice__ void CUDA_calcUTMatrixStep_GR(
+    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
+    math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+{
+  HOST_INIT();
+
+  CUDA_SetIdentityMatrix(aux1);
+  bool status = CUDA_isUpperTriangular(H);
+
+  if (status == false)
+  {
+    CUDA_QRGR(Q, R, H, aux3, aux4, aux5, aux6);
+    CUDA_dotProduct(H, R, Q);
+    CUDA_dotProduct(aux2, Q, aux1);
+  }
+
+  CUDA_copyMatrix(Q, aux2);
+}
+
+__hostdevice__ void CUDAKernel_calcUTMatrix_HR(
+    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
+    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* V,
+    math::Matrix* VT, math::Matrix* P, math::Matrix* VVT, floatt* sharedBuffer)
+{
+  HOST_INIT();
+
+  bool status = false;
+  CUDA_SetIdentityMatrix(aux1);
+  status = CUDA_isUpperTriangular(H);
+  uint fa = 0;
+
+  for (; fa < CUDA_calcUTMatrix_STEPS && status == false; ++fa)
+  {
+    CUDA_QRHT (Q, R, H, V, VT, sharedBuffer, P, VVT);
+    CUDA_dotProduct(H, R, Q);
+    CUDA_dotProduct(aux2, Q, aux1);
+    CUDA_switchPointer(&aux2, &aux1);
+    status = CUDA_isUpperTriangular(H);
+  }
+  if (fa % 2 != 0)
+  {
     CUDA_copyMatrix(Q, aux1);
-  } else {
+  }
+  else
+  {
     CUDA_copyMatrix(Q, aux2);
   }
 }
 
-__hostdevice__ void CUDA_HMtoUTMStep(
+__hostdevice__ void CUDA_calcUTMatrixStep_HR(
     math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
-    math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* V,
+    math::Matrix* VT, math::Matrix* P, math::Matrix* VVT, floatt* sharedBuffer)
 {
   HOST_INIT();
 
@@ -67,17 +119,21 @@ __hostdevice__ void CUDA_HMtoUTMStep(
   CUDA_SetIdentityMatrix(aux1);
   uint fa = 0;
   status = CUDA_isUpperTriangular(H);
-  for (; fa < CUDA_HMtoUTMStep_STEPS && status == false; ++fa) {
-    CUDA_QRGR(Q, R, H, aux3, aux4, aux5, aux6);
+
+  for (; fa < CUDA_calcUTMatrix_STEPS && status == false; ++fa)
+  {
+    CUDA_QRHT (Q, R, H, V, VT, sharedBuffer, P, VVT);
     CUDA_dotProduct(H, R, Q);
     CUDA_dotProduct(aux2, Q, aux1);
     CUDA_switchPointer(&aux2, &aux1);
     status = CUDA_isUpperTriangular(H);
   }
-  // TODO: optymalization
-  if (fa % 2 == 0) {
+  if (fa % 2 == 0)
+  {
     CUDA_copyMatrix(Q, aux1);
-  } else {
+  }
+  else
+  {
     CUDA_copyMatrix(Q, aux2);
   }
 }

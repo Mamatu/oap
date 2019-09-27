@@ -33,8 +33,9 @@
 #include <string>
 #include <cstring>
 
-#define PRINT_MATRIX(m) logInfo ("%s %p %s %s", #m, m, oap::host::to_string(m).c_str(), oap::host::GetMatrixInfo(m).toString().c_str());
-#define PRINT_DIMS(m) logInfo ("%s dims = {{%u, %u}, {%u, %u}, {%u, %u}} ", #m, m[0][0], m[0][1], m[1][0], m[1][1], m[2][0], m[2][1]);
+#define PRINT_MATRIX(m) logInfo ("%s %p\n%s %s", #m, m, oap::host::to_string(m).c_str(), oap::host::GetMatrixInfo(m).toString().c_str());
+#define PRINT_DIMS_3_2(m) logInfo ("%s dims = {{%u, %u}, {%u, %u}, {%u, %u}} ", #m, m[0][0], m[0][1], m[1][0], m[1][1], m[2][0], m[2][1]);
+#define PRINT_DIMS_2_2_2(m) logInfo ("%s dims = {{{%u, %u}, {%u, %u}}, {{%u, %u}, {%u, %u}}} ", #m, m[0][0][0], m[0][0][1], m[0][1][0], m[0][1][1], m[1][0][0], m[1][0][1], m[1][1][0], m[1][1][1]);
 
 namespace oap
 {
@@ -49,6 +50,10 @@ namespace host
  * @return
  */
 math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
+
+math::Matrix* NewMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray);
+math::Matrix* NewReMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray);
+math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* imarray);
 
 /**
  * @brief NewMatrix - creates new matrix, which has the same size
@@ -83,8 +88,17 @@ math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value = 0);
  * @param value
  * @return
  */
-math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows,
-                        floatt value = 0);
+math::Matrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows, floatt value = 0);
+
+inline math::Matrix* NewHostMatrix (bool isre, bool isim, uintt columns, uintt rows)
+{
+  return NewMatrix (isre, isim, columns, rows, 0);
+}
+
+inline math::Matrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+{
+  return NewMatrix (minfo.isRe, minfo.isIm, minfo.columns(), minfo.rows(), 0);
+}
 
 /**
  * @brief NewReMatrix
@@ -126,6 +140,13 @@ void CopyMatrix(math::Matrix* dst, const math::Matrix* src);
 inline void CopyHostMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
 {
   CopyMatrix (dst, src);
+}
+
+void CopyMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
+
+inline void CopyHostMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  CopyMatrixDims (dst, src, dims);
 }
 
 inline uintt GetColumns (const math::Matrix* matrix)
@@ -659,9 +680,9 @@ void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
 math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
-void CopyArrayToMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer);
-void CopyArrayToReMatrix (math::Matrix* matrix, floatt* buffer);
-void CopyArrayToImMatrix (math::Matrix* matrix, floatt* buffer);
+void CopyArrayToMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer);
+void CopyArrayToReMatrix (math::Matrix* matrix, const floatt* buffer);
+void CopyArrayToImMatrix (math::Matrix* matrix, const floatt* buffer);
 
 inline void SetReValueToMatrix (math::Matrix* matrix, floatt value, size_t idx = 0)
 {
@@ -691,6 +712,183 @@ void SetReValuesToMatrix (math::Matrix* matrix, const std::vector<Tuple>& vecl)
   }
 
   SetReValuesToMatrix (matrix, vec.data(), vec.size());
+}
+
+inline floatt* GetValue(floatt* const* ptr)
+{
+  return *ptr;
+}
+
+}
+namespace generic
+{
+inline void initDims (uintt dims[2][2][2], const math::MatrixInfo& dist, const math::MatrixInfo& src)
+{
+  dims[0][0][0] = 0;
+  dims[0][0][1] = dist.columns();
+
+  dims[0][1][0] = 0;
+  dims[0][1][1] = dist.rows();
+
+  dims[1][0][0] = 0;
+  dims[1][0][1] = src.columns();
+
+  dims[1][1][0] = 0;
+  dims[1][1][1] = src.rows();
+}
+
+inline void initDims (uintt dims[2][2][2], const math::MatrixInfo& minfo)
+{
+  initDims (dims, minfo, minfo);
+}
+
+inline void initDims (uintt dims[2][2][2], const math::Matrix* matrix)
+{
+  initDims (dims, oap::host::GetMatrixInfo (matrix));
+}
+
+const uintt g_srcIdx = 1;
+const uintt g_dstIdx = 0;
+
+inline void setColumnIdx (uintt v, uintt dims[2][2])
+{
+  dims[0][0] = v;
+}
+
+inline void setRowIdx (uintt v, uintt dims[2][2])
+{
+  dims[1][0] = v;
+}
+
+inline void setColumns (uintt v, uintt dims[2][2])
+{
+  dims[0][1] = v;
+}
+
+inline void setRows (uintt v, uintt dims[2][2])
+{
+  dims[1][1] = v;
+}
+
+inline uintt getColumnIdx (uintt dims[2][2])
+{
+  return dims[0][0];
+}
+
+inline uintt getRowIdx (uintt dims[2][2])
+{
+  return dims[1][0];
+}
+
+inline uintt getColumns (uintt dims[2][2])
+{
+  return dims[0][1];
+}
+
+inline uintt getRows (uintt dims[2][2])
+{
+  return dims[1][1];
+}
+
+inline math::MatrixInfo check_CopyMatrixToMatrix (const math::MatrixInfo& dstInfo, const math::MatrixInfo& srcInfo)
+{
+  debugAssert (dstInfo.columns() == srcInfo.columns());
+  debugAssert (dstInfo.rows() == srcInfo.rows());
+  debugAssert (dstInfo.isRe == srcInfo.isRe);
+  debugAssert (dstInfo.isIm == srcInfo.isIm);
+
+  return dstInfo;
+}
+
+inline math::MatrixInfo check_CopyMatrixToMatrixDims (const math::MatrixInfo& dstInfo, const math::MatrixInfo& srcInfo, uintt dims[2][2][2])
+{
+  debugAssert (getRows (dims[g_srcIdx]) == getRows (dims[g_dstIdx]));
+  debugAssert (getColumns (dims[g_srcIdx]) == getColumns (dims[g_dstIdx]));
+  debugAssert (dstInfo.isRe == srcInfo.isRe);
+  debugAssert (dstInfo.isIm == srcInfo.isIm);
+
+  debugAssert (getColumnIdx (dims[g_srcIdx]) + getColumns (dims[g_srcIdx]) <= srcInfo.columns());
+  debugAssert (getRowIdx (dims[g_srcIdx]) + getRows (dims[g_srcIdx]) <= srcInfo.rows());
+
+  debugAssert (getColumnIdx (dims[g_dstIdx]) + getColumns (dims[g_dstIdx]) <= dstInfo.columns());
+  debugAssert (getRowIdx (dims[g_dstIdx]) + getRows (dims[g_dstIdx]) <= dstInfo.rows());
+
+  return dstInfo;
+}
+
+template<typename CopyBuffer, typename MatrixMemoryApi>
+void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, CopyBuffer&& copyBuffer, MatrixMemoryApi& dstApi, MatrixMemoryApi& srcApi, bool check = true)
+{
+  math::MatrixInfo minfo;
+  math::MatrixInfo dstInfo = dstApi.getMatrixInfo (dst);
+
+  if (check)
+  {
+    math::MatrixInfo srcInfo = srcApi.getMatrixInfo (src);
+    minfo = check_CopyMatrixToMatrix (dstInfo, srcInfo);
+  }
+  else
+  {
+    minfo = dstInfo;
+  }
+
+  uintt length = minfo.rows() * minfo.columns();
+
+  auto copyValues = [&](floatt* const* ptr, floatt* const* ptr1)
+  {
+    floatt* values = dstApi.transferValueToHost (ptr);
+    floatt* values1 = srcApi.transferValueToHost (ptr1);
+
+    copyBuffer (values, values1, sizeof(floatt) * length);
+  };
+
+  if (minfo.isRe)
+  {
+    copyValues (&dst->reValues, &src->reValues);
+  }
+
+  if (minfo.isIm)
+  {
+    copyValues (&dst->imValues, &src->imValues);
+  }
+}
+
+template<typename CopyBuffer, typename MatrixApi>
+void copyMatrixToMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2], CopyBuffer&& copyBuffer, MatrixApi& dstApi, MatrixApi& srcApi)
+{
+  math::MatrixInfo minfo;
+  auto dstInfo = dstApi.getMatrixInfo (dst);
+  auto srcInfo = srcApi.getMatrixInfo (src);
+
+  minfo = check_CopyMatrixToMatrixDims (dstInfo, srcInfo, dims);
+
+  uintt length = getColumns (dims[g_dstIdx]);
+
+  uintt dstOffset = getColumnIdx (dims[g_dstIdx]) + dstInfo.columns() * getRowIdx (dims[g_dstIdx]);
+  uintt srcOffset = getColumnIdx (dims[g_srcIdx]) + srcInfo.columns() * getRowIdx (dims[g_srcIdx]);
+
+  auto copyValues = [&](floatt* const* ptr, floatt* const* ptr1)
+  {
+    floatt* values = dstApi.transferValueToHost (ptr);
+    floatt* values1 = srcApi.transferValueToHost (ptr1);
+
+    for (uintt row = 0; row < getRows (dims[g_dstIdx]); ++row)
+    {
+      floatt* V = values + dstOffset + dstInfo.columns() * row;
+      floatt* V1 = values1 + srcOffset + srcInfo.columns() * row;
+      copyBuffer (V, V1, sizeof(floatt) * length);
+    }
+  };
+
+  if (minfo.isRe)
+  {
+    copyValues (&dst->reValues, &src->reValues);
+  }
+
+  if (minfo.isIm)
+  {
+    copyValues (&dst->imValues, &src->imValues);
+  }
 }
 
 }

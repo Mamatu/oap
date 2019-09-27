@@ -37,6 +37,11 @@ extern "C" __global__ void CUDAKernel_DotProduct(math::Matrix* output,
   CUDA_dotProduct(output, params0, params1);
 }
 
+extern "C" __global__ void CUDAKernel_DotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  CUDAKernel_dotProductShared (output, params0, params1);
+}
+
 extern "C" __global__ void
 CUDAKernel_DotProductPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
@@ -49,77 +54,11 @@ CUDAKernel_DotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, m
   CUDA_dotProductDimPeriodic (output, params0, params1, ex);
 }
 
-extern "C" __global__ void CUDAKernel_DotProductReExp(math::Matrix* output,
-                                                      math::Matrix* params0,
-                                                      math::Matrix* params1,
-                                                      MatrixEx* matrixEx) {
-  CUDA_dotProductReEx(output, params0, params1, *matrixEx);
-}
-
-extern "C" __global__ void CUDAKernel_DotProductImExp(math::Matrix* output,
-                                                      math::Matrix* params0,
-                                                      math::Matrix* params1,
-                                                      MatrixEx* matrixEx) {
-  CUDA_dotProductImEx(output, params0, params1, *matrixEx);
-}
-
-extern "C" __global__ void CUDAKernel_DotProductEx(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   math::Matrix* params1,
-                                                   MatrixEx* matrixEx) {
-  CUDA_dotProductEx(output, params0, params1, *matrixEx);
-}
-
 extern "C" __global__
 void CUDAKernel_DotProductDim(
      math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
 {
   CUDA_dotProductDim (output, params0, params1, ex);
-}
-
-extern "C" __global__ void CUDAKernel_DotProductReOpt(math::Matrix* output,
-                                                      math::Matrix* params0,
-                                                      math::Matrix* params1) {
-  extern __shared__ floatt bufferFloat[];
-  CUDA_dotProductReOpt(output, params0, params1, bufferFloat);
-}
-
-extern "C" __global__ void CUDAKernel_DotProductImOpt(math::Matrix* output,
-                                                      math::Matrix* params0,
-                                                      math::Matrix* params1) {
-  extern __shared__ floatt bufferFloat[];
-  CUDA_dotProductImOpt(output, params0, params1, bufferFloat);
-}
-
-extern "C" __global__ void CUDAKernel_DotProductOpt(math::Matrix* output,
-                                                    math::Matrix* params0,
-                                                    math::Matrix* params1) {
-  extern __shared__ floatt bufferFloat[];
-  CUDA_dotProductOpt(output, params0, params1, bufferFloat);
-}
-
-extern "C" __global__ void CUDAKernel_DotProductReExpOpt(math::Matrix* output,
-                                                         math::Matrix* params0,
-                                                         math::Matrix* params1,
-                                                         MatrixEx* matrixEx) {
-  extern __shared__ floatt bufferFloat[];
-  CUDA_dotProductReExOpt(output, params0, params1, *matrixEx, bufferFloat);
-}
-
-extern "C" __global__ void CUDAKernel_DotProductImExpOpt(math::Matrix* output,
-                                                         math::Matrix* params0,
-                                                         math::Matrix* params1,
-                                                         MatrixEx* matrixEx) {
-  extern __shared__ floatt bufferFloat[];
-  CUDA_dotProductImExOpt(output, params0, params1, *matrixEx, bufferFloat);
-}
-
-extern "C" __global__ void CUDAKernel_DotProductExOpt(math::Matrix* output,
-                                                      math::Matrix* params0,
-                                                      math::Matrix* params1,
-                                                      MatrixEx* matrixEx) {
-  extern __shared__ floatt bufferFloat[];
-  CUDA_dotProductExOpt(output, params0, params1, *matrixEx, bufferFloat);
 }
 
 extern "C" __global__ void CUDAKernel_AddRe(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
@@ -239,18 +178,19 @@ extern "C" __global__ void CUDAKernel_QRGR(
   CUDA_QRGR(output0, output1, params0, aux0, aux1, aux2, aux3);
 }
 
-extern "C" __global__ void CUDAKernel_SetVector(math::Matrix* output,
-                                                uintt index,
-                                                math::Matrix* params0,
-                                                uintt length) {
-  CUDA_setVector(output, index, params0, length);
+extern "C" __global__ void CUDAKernel_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT)
+{
+  CudaKernel_QRHT (Q, R, A, V, VT, P, VVT);
 }
 
-extern "C" __global__ void CUDAKernel_GetVector(math::Matrix* output,
-                                                uintt length,
-                                                math::Matrix* params0,
-                                                uintt index) {
-  CUDA_getVector(output, length, params0, index);
+extern "C" __global__ void CUDAKernel_SetVector (math::Matrix* output, uintt index, math::Matrix* params0, uintt length)
+{
+  CUDAKernel_setVector(output, index, params0, length);
+}
+
+extern "C" __global__ void CUDAKernel_GetVector (math::Matrix* output, uintt length, math::Matrix* params0, uintt index)
+{
+  CUDAKernel_getVector (output, length, params0, index);
 }
 
 extern "C" __global__ void CUDAKernel_SetIdentity(math::Matrix* matrix) {
@@ -439,7 +379,7 @@ extern "C" __global__ void CUDAKernel_CalculateTriangularH(
     math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
     math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
 {
-  CUDA_HMtoUTM(H, Q, R, aux1, aux2, aux3, aux4, aux5, aux6);
+  CUDA_calcUTMatrix_GR (H, Q, R, aux1, aux2, aux3, aux4, aux5, aux6);
 }
 
 extern "C" __global__ void CUDAKernel_CalculateTriangularHStep(
@@ -447,7 +387,7 @@ extern "C" __global__ void CUDAKernel_CalculateTriangularHStep(
     math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
     math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
 {
-  CUDA_HMtoUTMStep(H, Q, R, aux1, aux2, aux3, aux4, aux5, aux6);
+  CUDA_calcUTMatrixStep_GR (H, Q, R, aux1, aux2, aux3, aux4, aux5, aux6);
 }
 
 extern "C" __global__ void

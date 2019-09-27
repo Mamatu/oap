@@ -43,8 +43,10 @@ TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_1)
   {
     auto network = test_api::createNetwork ();
     Steps steps = {createStep (g_batch)};
+    test_api::TestMode testMode = test_api::TestMode::NONE;
 
-    ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
+    ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
+    ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
   }
 }
 
@@ -54,8 +56,11 @@ TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_2)
   {
     auto network = test_api::createNetwork ();
     Steps steps = {createStep (g_batch)};
+    test_api::TestMode testMode = test_api::TestMode::NONE;
 
-    ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
+    ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
+
+    ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
 
     oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
     oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
@@ -92,8 +97,10 @@ TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_3)
   {
     auto network = test_api::createNetwork();
     Steps steps = {createStep (g_batch)};
+    test_api::TestMode testMode = test_api::TestMode::NONE;
 
-    ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
+    ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
+    ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
   }
 }
 
@@ -103,7 +110,9 @@ TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_4)
   {
     auto network = test_api::createNetwork();
     Steps steps = {createStep (g_batch)};
+    test_api::TestMode testMode = test_api::TestMode::NONE;
 
-    ASSERT_NO_FATAL_FAILURE(test_api::testSteps (network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
+    ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
+    ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
   }
 }

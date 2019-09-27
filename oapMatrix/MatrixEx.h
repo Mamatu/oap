@@ -21,6 +21,7 @@
 #define OAP_MATRIX_EX_H
 
 #include "Math.h"
+#include "Matrix.h"
 
 struct MatrixEx
 {
@@ -29,21 +30,11 @@ struct MatrixEx
 
   uintt row;
   uintt rows;
-
-  /**
-   * @brief boffset - extra offset to dotProduct operation
-   */
-  uintt boffset;
-
-  /**
-   * @brief boffset - extra offset to dotProduct operation
-   */
-  uintt eoffset;
 };
 
-#define erow(matrixex) matrixex.row + matrixex.rows
+#define mex_erow(matrixex) matrixex.row + matrixex.rows
 
-#define ecolumn(matrixex) matrixex.column + matrixex.columns
+#define mex_ecolumn(matrixex) matrixex.column + matrixex.columns
 
 namespace {
   bool adjust(uintt& v1, uintt& v2, uintt val) {

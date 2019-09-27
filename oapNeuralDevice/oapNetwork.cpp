@@ -20,7 +20,7 @@
 #include "oapNetwork.h"
 #include "oapMatrixCudaCommon.h"
 
-#include "oapDeviceNeuralApi.h"
+#include <random>
 
 using LC_t = uintt;
 
@@ -105,7 +105,7 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, ArgType argType, oap::Er
 
   auto llayer = m_layers.back();
 
-  math::Matrix* output = oap::host::NewMatrix (1, llayer->getTotalNeuronsCount());
+  math::Matrix* output = oap::host::NewReMatrix (1, llayer->getTotalNeuronsCount());
   oap::cuda::CopyDeviceMatrixToHostMatrix (output, llayer->m_inputs);
 
   return oap::HostMatrixUPtr (output);

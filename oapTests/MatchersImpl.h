@@ -27,6 +27,7 @@
 #include "HostInfoCreator.h"
 
 #include "oapHostMatrixUtils.h"
+#include "oapHostMatrixUPtr.h"
 
 #include "MatrixPrinter.h"
 #include "Utils.h"
@@ -61,78 +62,87 @@ class MatrixValuesAreEqualMatcher : public MatcherInterface<math::Matrix*> {
 };
 
 class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
-  math::Matrix* m_matrix;
-  InfoType m_infoType;
 
- public:
-  MatrixIsEqualMatcher(math::Matrix* matrix, const InfoType& infoType)
-      : m_matrix(matrix), m_infoType(infoType) {}
+  protected:
+    math::Matrix* m_matrix;
+    InfoType m_infoType;
 
-  virtual bool MatchAndExplain(math::Matrix* matrix,
-                               MatchResultListener* listener) const {
-    HostInfoCreator infoCreator;
-    infoCreator.setExpected(matrix);
-    infoCreator.setOutput(m_matrix);
-    infoCreator.setInfoType(m_infoType);
-    bool isEqual = infoCreator.isEqual();
-    std::string msg;
-    infoCreator.getInfo(msg);
-    (*listener) << msg;
-    return isEqual;
-  }
+  public:
+    MatrixIsEqualMatcher(math::Matrix* matrix, const InfoType& infoType)
+      : m_matrix(matrix), m_infoType(infoType)
+    {}
 
-  virtual void DescribeTo(::std::ostream* os) const {
-    *os << "Matrices are equal.";
-  }
+    virtual bool MatchAndExplain(math::Matrix* matrix, MatchResultListener* listener) const
+    {
+      HostInfoCreator infoCreator;
+      infoCreator.setExpected(matrix);
+      infoCreator.setOutput(m_matrix);
+      infoCreator.setInfoType(m_infoType);
+      bool isEqual = infoCreator.isEqual(m_infoType.getTolerance());
+      std::string msg;
+      infoCreator.getInfo(msg);
+      (*listener) << msg;
+      return isEqual;
+    }
 
-  virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "Matrices are not equal.";
-  }
+    virtual void DescribeTo(::std::ostream* os) const {
+      *os << "Matrices are equal.";
+    }
+
+    virtual void DescribeNegationTo(::std::ostream* os) const {
+      *os << "Matrices are not equal.";
+    }
 };
 
-class MatrixHasValuesMatcher : public MatcherInterface<math::Matrix*> {
-  math::Matrix* m_matrix;
-  InfoType m_infoType;
+class MatrixHasValuesMatcher : public MatcherInterface<math::Matrix*>
+{
+  protected:
+    math::Matrix* m_matrix;
+    InfoType m_infoType;
 
- public:
-  MatrixHasValuesMatcher(math::Matrix* matrix, const InfoType& infoType)
-      : m_matrix(matrix), m_infoType(infoType) {}
+  public:
+    MatrixHasValuesMatcher(math::Matrix* matrix, const InfoType& infoType)
+      : m_matrix(matrix), m_infoType(infoType)
+    {}
 
-  virtual bool MatchAndExplain(math::Matrix* matrix,
-                               MatchResultListener* listener) const {
-    HostInfoCreator infoCreator;
-    infoCreator.setExpected(matrix);
-    infoCreator.setOutput(m_matrix);
-    infoCreator.setInfoType(m_infoType);
-    bool hasTheSameValues = infoCreator.hasValues();
-    std::string msg;
-    infoCreator.getInfo(msg);
-    (*listener) << msg;
-    return hasTheSameValues;
-  }
+    virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const
+    {
+      HostInfoCreator infoCreator;
+      infoCreator.setExpected(matrix);
+      infoCreator.setOutput(m_matrix);
+      infoCreator.setInfoType(m_infoType);
+      bool hasTheSameValues = infoCreator.hasValues(m_infoType.getTolerance());
+      std::string msg;
+      infoCreator.getInfo(msg);
+      (*listener) << msg;
+      return hasTheSameValues;
+    }
 
-  virtual void DescribeTo(::std::ostream* os) const {
-    *os << "Matrix has equal values.";
-  }
+    virtual void DescribeTo(::std::ostream* os) const {
+      *os << "Matrix has equal values.";
+    }
 
-  virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "Matrix has not equal values.";
-  }
+    virtual void DescribeNegationTo(::std::ostream* os) const {
+      *os << "Matrix has not equal values.";
+    }
 };
 
 class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {
   floatt m_value;
+  InfoType m_infoType;
 
  public:
-  MatrixIsDiagonalMatcher(floatt value) : m_value(value) {}
+  MatrixIsDiagonalMatcher (floatt value, const InfoType& infoType) : m_value(value), m_infoType(infoType) {}
 
-  virtual bool MatchAndExplain(math::Matrix* matrix,
-                               MatchResultListener* listener) const {
+  virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const {
     math::Matrix* diffmatrix = NULL;
+    bool isequal = utils::IsDiagonalMatrix((*matrix), m_value, m_infoType.getTolerance(), &diffmatrix);
+
     std::string matrixStr;
-    bool isequal = utils::IsDiagonalMatrix((*matrix), m_value, &diffmatrix);
     matrixUtils::PrintMatrix(matrixStr, diffmatrix);
-    if (!isequal) {
+
+    if (!isequal)
+    {
       (*listener) << "Diff is = " << matrixStr;
     }
     oap::host::DeleteMatrix(diffmatrix);
@@ -150,7 +160,7 @@ class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {
 
 class MatrixIsIdentityMatcher : public MatrixIsDiagonalMatcher {
  public:
-  MatrixIsIdentityMatcher() : MatrixIsDiagonalMatcher(1.f) {}
+  MatrixIsIdentityMatcher (const InfoType& infoType) : MatrixIsDiagonalMatcher(1.f, infoType) {}
 
   virtual void DescribeTo(::std::ostream* os) const {
     *os << "Matrix is identity.";
@@ -351,6 +361,97 @@ class StringIsEqualMatcher
     *os << "Strings are not equal.";
   }
 
+};
+
+class MatrixIsUpperTriangularMatcher : public MatcherInterface<math::Matrix*> {
+
+  InfoType m_infoType;
+
+  public:
+    MatrixIsUpperTriangularMatcher(const InfoType& infoType = InfoType()) {}
+
+    virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const override
+    {
+      std::vector<std::tuple<uintt, uintt, floatt>> pairs;
+
+      for (uintt column = 0; column < matrix->columns; ++column)
+      {
+        for (uintt row = 0; row < matrix->rows; ++row)
+        {
+          floatt v = GetRe (matrix, column, row);
+          if (column < row)
+          {
+            bool inRange = -m_infoType.getTolerance() < v && v < m_infoType.getTolerance();
+            if (!inRange)
+            {
+              pairs.push_back (std::make_tuple(column, row, v));
+            }
+          }
+        }
+      }
+
+      if (!pairs.empty())
+      {
+        std::stringstream sstream;
+        for (const auto& p : pairs)
+        {
+          sstream << "(" << std::get<0>(p) << ", " << std::get<1>(p) << ", " << std::get<2>(p) << ")";
+        }
+        (*listener) << "Matrix in not upper trinagular. Invalid entries: " << sstream.str();
+      }
+
+      return pairs.empty();
+    }
+
+    virtual void DescribeTo(::std::ostream* os) const override
+    {
+      *os << "Matrix is upper triangular.";
+    }
+
+    virtual void DescribeNegationTo(::std::ostream* os) const override
+    {
+      *os << "Matrix is not upper triangular.";
+    }
+};
+
+template<typename CalcApi>
+class MatrixIsOrthogonalMatcher : public MatcherInterface<math::Matrix*>
+{
+
+  CalcApi& m_calcApi;
+  InfoType m_infoType;
+
+  public:
+    MatrixIsOrthogonalMatcher (CalcApi& calcApi, const InfoType& infoType = InfoType()) : m_calcApi (calcApi), m_infoType (infoType) {}
+
+    virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const override
+    {
+      oap::HostMatrixUPtr matrixT = oap::host::NewMatrixCopy (matrix);
+      oap::HostMatrixUPtr M = oap::host::NewMatrixRef (matrix);
+
+      m_calcApi.transpose (matrixT, matrix);
+      m_calcApi.dotProduct (M, matrixT, matrix);
+
+      math::Matrix* diffmatrix = NULL;
+      bool isDiag = utils::IsDiagonalMatrix(*M, 1.f, m_infoType.getTolerance(), &diffmatrix);
+      if (!isDiag)
+      {
+        return false;
+      }
+
+      m_calcApi.dotProduct (M, matrix, matrixT);
+      return utils::IsDiagonalMatrix (*M, 1.f, m_infoType.getTolerance(), &diffmatrix);
+    }
+
+    virtual void DescribeTo(::std::ostream* os) const override
+    {
+      *os << "Matrix is orthogonal.";
+    }
+
+    virtual void DescribeNegationTo(::std::ostream* os) const override
+    {
+      *os << "Matrix is not orthogonal.";
+    }
 };
 
 #endif /* MATCHERSIMPL_H */

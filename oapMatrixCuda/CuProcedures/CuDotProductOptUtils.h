@@ -17,13 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef CUDOTPRODUCTOPTUTILS
 #define CUDOTPRODUCTOPTUTILS
 
 #include "CuCore.h"
 #include "Matrix.h"
+
 
 __hostdeviceinline__ void setSharedMatrixReal(
     floatt* buffer1Re, floatt* buffer1Im, floatt* buffer2Re, floatt* buffer2Im,

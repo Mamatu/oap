@@ -21,6 +21,7 @@
 #include "Exceptions.h"
 #include "Logger.h"
 
+#include <functional>
 #include <map>
 
 namespace oap

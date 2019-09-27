@@ -111,23 +111,30 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
   uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
   math::Matrix* rQ = Q;
   math::Matrix* rR = R;
+
   CUDA_copyMatrix(R1, A);
+
   uintt count = 0;
-  for (uintt fa = 0; fa < A->columns; ++fa) {
-    for (uintt fb = A->rows - 1; fb > fa; --fb) {
+
+  const floatt tolerance = 0.00001;
+
+  for (uintt fa = 0; fa < A->columns; ++fa)
+  {
+    for (uintt fb = A->rows - 1; fb > fa; --fb)
+    {
       floatt v = GetRe(A, fa, fb);
-      if ((-0.0001 < v && v < 0.0001) == false) {
+      if ((-tolerance < v && v < tolerance) == false)
+      {
         CUDA_prepareGMatrix(R1, fa, fb, G, tx, ty);
         CUDA_dotProduct(R, G, R1);
-        Push(R);
-        if (count == 0) {
+        if (count == 0)
+        {
           CUDA_transposeMatrix(Q, G);
-          Push(Q);
-        } else {
+        }
+        else
+        {
           CUDA_transposeMatrix(GT, G);
-          Push(GT);
           CUDA_dotProduct(Q, Q1, GT);
-          Push(Q);
         }
         ++count;
         CUDA_switchPointer(&R1, &R);
@@ -135,11 +142,10 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
       }
     }
   }
-  if (count & 1 == 1) {
+  if (Q1 == rQ)
+  {
     CUDA_copyMatrix(rQ, Q1);
-    Push(rQ);
     CUDA_copyMatrix(rR, R1);
-    Push(rR);
   }
 }
 

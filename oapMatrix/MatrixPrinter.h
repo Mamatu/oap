@@ -28,12 +28,6 @@ namespace matrixUtils
 template <typename T>
 void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, const PrintArgs& args = PrintArgs())
 {
-#ifdef OAP_PRINT_FLOAT_PRECISION
-  const size_t floatPrecision = OAP_PRINT_FLOAT_PRECISION;
-#else
-  const size_t floatPrecision = 9;
-#endif
-
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;
   const std::string sectionSeparator = args.section.separator;
@@ -43,23 +37,60 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
 
   OccurencesList<T> valuesVec;
   uintt totalLength = 0;
+  size_t negativeCount = 0, positiveCount = 0, zerosCount = 0;
+
   for (uintt index = 0; index < count; ++index)
   {
     T* array = arrays[index];
     uintt length = lengths[index];
-    PrepareOccurencesList (valuesVec, array, length, args);
+    PrepareOccurencesList (valuesVec, array, length, args, [&negativeCount, &positiveCount, &zerosCount](floatt value)
+    {
+      if (value < 0.f)
+      {
+        ++negativeCount;
+      }
+      else if (value > 0.f)
+      {
+        ++positiveCount;
+      }
+      else if (value == 0)
+      {
+        ++zerosCount;
+      }
+    });
     totalLength += length;
   }
 
   std::stringstream sstream;
-  sstream.precision (floatPrecision);
+  sstream.precision (args.floatPrecision);
   sstream << args.pretext;
   sstream << "[";
 
   for (uintt fa = 0, fa1 = 0; fa < valuesVec.size(); ++fa)
   {
-    sstream << valuesVec[fa].second;
+    const floatt value = valuesVec[fa].second;
+    std::string extra_str = "";
+
+    if (value >= 0 && negativeCount > 0)
+    {
+      extra_str += " ";
+    }
+
+    if (args.floatPrintMode == PrintArgs::FloatPrintMode::SCIENTIFIC_NOTATION)
+    {
+      sstream << std::scientific << extra_str << value;
+    }
+    else if (args.floatPrintMode == PrintArgs::FloatPrintMode::FIXED)
+    {
+      sstream << std::fixed << extra_str << value;
+    }
+    else if (args.floatPrintMode == PrintArgs::FloatPrintMode::NORMAL)
+    {
+      sstream << extra_str << value;
+    }
+
     const uintt count = valuesVec[fa].first;
+
     if (count > 1)
     {
       sstream << " <repeats " << count << " times>";
@@ -75,7 +106,7 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
       }
       if (endLine)
       {
-        sstream << sectionSeparator;
+        sstream << sectionSeparator << " ";
       }
     }
   }

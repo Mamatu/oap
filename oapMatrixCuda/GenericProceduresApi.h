@@ -21,6 +21,7 @@
 #define OAP_GENERIC_PROCEDURES_API_H
 
 #include <map>
+#include <functional>
 #include <sstream>
 
 #include "Buffer.h"
@@ -33,12 +34,30 @@
 #include "GenericCoreApi.h"
 #include "GenericValidationApi.h"
 
+#include "oapHostMatrixUtils.h"
+
 #define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
 namespace oap
 {
 namespace generic
 {
+  using SharedMemoryCallback = std::function<uintt(uint blocks[2], uint threads[2])>;
+
+  struct Args
+  {
+    bool retrieveDims = true;
+    uintt w;
+    uintt h;
+
+    bool prepareDims = true;
+    uint blocks[2];
+    uint threads[2];
+
+    uintt sharedMemorySize = 0;
+    SharedMemoryCallback smCallback = nullptr;
+  };
+
   inline void prepareDims (oap::IKernelExecutor* kexec, uintt w, uintt h, uint blocks[2], uint threads[2])
   {
     kexec->calculateThreadsBlocks (blocks, threads, w, h);
@@ -48,12 +67,16 @@ namespace generic
 
   template<typename PreExecCallback, typename PostExecCallback>
   bool execute (oap::IKernelExecutor* kexec, const char* functionName, uintt w, uintt h, void** params, uintt sharedMemory, bool _prepareDims,
-               uint blocks[2], uint threads[2],
-               PreExecCallback&& preExecCallback, PostExecCallback&& postExecCallback)
+               uint blocks[2], uint threads[2], PreExecCallback&& preExecCallback, PostExecCallback&& postExecCallback, const SharedMemoryCallback& smCallback = nullptr)
   {
     if (_prepareDims)
     {
       prepareDims (kexec, w, h, blocks, threads);
+    }
+
+    if (smCallback)
+    {
+      sharedMemory = smCallback (blocks, threads);
     }
 
     kexec->setSharedMemory (sharedMemory);
@@ -68,18 +91,6 @@ namespace generic
     return status;
   }
 
-  struct Args
-  {
-    bool retrieveDims = true;
-    uintt w;
-    uintt h;
-
-    bool prepareDims = true;
-    uint blocks[2];
-    uint threads[2];
-
-    uintt sharedMemorySize = 0;
-  };
 
   template<typename GetMatrixInfo, typename PreExecCallback>
   bool executeKernel (const std::string& kernelName, const math::MatrixInfo& ref, void** params, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, PreExecCallback&& preExecCallback, Args args = Args())
@@ -90,7 +101,31 @@ namespace generic
       args.h = ref.rows ();
     }
 
-    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){});
+    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){}, args.smCallback);
+  }
+
+  using DefaultExecCallbackType = std::function<void()>;
+
+  template<typename GetMatrixInfo, typename PreExecCallback = DefaultExecCallbackType, typename PostExecCallback = DefaultExecCallbackType>
+  bool executeKernel (const std::string& kernelName, const math::MatrixInfo& ref, void** params, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo,
+                      Args args = Args(), PreExecCallback&& preExecCallback = [](){}, PostExecCallback&& postExecCallback = [](){})
+  {
+    if (args.retrieveDims)
+    {
+      args.w = ref.columns ();
+      args.h = ref.rows ();
+    }
+
+    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, postExecCallback, args.smCallback);
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback = DefaultExecCallbackType, typename PostExecCallback = DefaultExecCallbackType>
+  bool executeKernel (const std::string& kernelName, const math::Matrix* refMatrix, void** params, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo,
+                      Args args = Args(), PreExecCallback&& preExecCallback = [](){}, PostExecCallback&& postExecCallback = [](){})
+  {
+    auto ref = getMatrixInfo (refMatrix);
+
+    return executeKernel (kernelName, ref, params, kexec, getMatrixInfo, args, preExecCallback, postExecCallback);
   }
 
   template<typename GetMatrixInfo, typename PreExecCallback>
@@ -104,7 +139,7 @@ namespace generic
       args.h = minfo.rows ();
     }
 
-    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){});
+    return execute (kexec, kernelName.c_str(), args.w, args.h, params, args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){}, args.smCallback);
   }
 
   template<typename GetMatrixInfo, typename PreExecCallback>
@@ -278,19 +313,20 @@ namespace generic
 
   template<typename BasicMatrixApi, typename PreExecCallback>
   bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                  uintt outputColumns, uintt outputRows,
                   oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
                   PreExecCallback&& preExecCallback)
   {
-    oap::generic::check_dotProduct (output, matrix1, matrix2, outputColumns, outputRows, bmApi);
+    auto oinfo = bmApi.getMatrixInfo (output);
+
+    oap::generic::check_dotProduct (output, matrix1, matrix2, bmApi);
 
     const char* kname = "CUDAKernel_DotProduct";
 
     oap::generic::Args args;
 
     args.retrieveDims = false;
-    args.w = outputColumns;
-    args.h = outputRows;
+    args.w = oinfo.columns();
+    args.h = oinfo.rows();
 
     args.prepareDims = true;
 
@@ -300,15 +336,45 @@ namespace generic
   }
 
   template<typename BasicMatrixApi, typename PreExecCallback>
-  bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                  oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
-                  PreExecCallback&& preExecCallback)
+  bool dotProductShared (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
+                         oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi, PreExecCallback&& preExecCallback)
   {
-    auto outputInfo = bmApi.getMatrixInfo (output);
-    uintt outputColumns = outputInfo.columns ();
-    uintt outputRows = outputInfo.rows ();
-  
-    return dotProduct (output, matrix1, matrix2, outputColumns, outputRows, kexec, preExecCallback, bmApi);
+    auto oinfo = bmApi.getMatrixInfo (output);
+    auto minfo0 = bmApi.getMatrixInfo (matrix1);
+    auto minfo1 = bmApi.getMatrixInfo (matrix2);
+ 
+    oap::generic::check_dotProduct (oinfo, minfo0, minfo1);
+
+    const char* kname = "CUDAKernel_DotProductShared";
+
+    oap::generic::Args args;
+
+    args.retrieveDims = false;
+    args.w = oinfo.columns ();
+    args.h = oinfo.rows ();
+
+    args.prepareDims = true;
+    args.smCallback = [&oinfo](uint blocks[2], uint threads[2])
+    {
+      uintt threadsPerBlock = threads[0] * threads[1];
+      uintt sharedMemorySize = 0;
+      if (oinfo.isRe)
+      {
+        sharedMemorySize = 2 * threadsPerBlock;
+      }
+
+      if (oinfo.isIm)
+      {
+        sharedMemorySize += 2 * threadsPerBlock;
+      }
+
+      sharedMemorySize *= sizeof(floatt);
+      return sharedMemorySize;
+    };
+
+    void* params[] = {&output, &matrix1, &matrix2};
+
+    return oap::generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback, args);
   }
 
   template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
@@ -417,6 +483,44 @@ namespace generic
     return generic::executeKernel (kname, output, params, kexec, bmApi, preExecCallback, args);
   }
 
+  template<typename Api, typename GetMatrixInfo, typename PreExecCallback>
+  bool qrDecomposition_HT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT,
+                          oap::IKernelExecutor* kexec, Api& api, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+  {
+    bool status = false;
+    void* params[] = {&Q, &R, &A, &V, &VT, &P, &VVT};
+
+    uint maxThreads = kexec->getMaxThreadsPerBlock();
+
+    auto minfo = getMatrixInfo (A);
+    const uintt w = minfo.columns();
+    const uintt h = minfo.rows();
+
+    const char* kname = "CUDAKernel_QRHT";
+    oap::generic::Args args;
+
+    args.retrieveDims = false;
+    args.w = w;
+    args.h = h;
+
+    args.smCallback = [](uint blocks[2], uint threads[2])
+    {
+      return sizeof(floatt) * threads[0] * threads[1];
+    };
+
+    if (maxThreads >= w * h)
+    {
+      status = generic::executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback);
+    }
+    else
+    {
+      debugAssert ("not implemented yet" == nullptr);
+      //m_cuStatus = HOSTKernel_QRGR(Q, R, H, aux0, aux1, aux2, aux3, m_kernel);
+    }
+
+    return status;
+  }
+
   template<typename BasicMatrixApi, typename PreExecCallback>
   bool func (const std::string& kname, math::Matrix* output, math::Matrix* matrix,
                 oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi, PreExecCallback&& preExecCallback)
@@ -425,7 +529,7 @@ namespace generic
     math::MatrixInfo minfo2 = bmApi.getMatrixInfo (matrix);
 
     check_isEqualDim (minfo1, minfo2);
- 
+
     oap::generic::Args args;
 
     args.retrieveDims = false;
@@ -483,6 +587,23 @@ namespace generic
     void* params[] = {&output, &matrix, &kernelArray};
 
     return oap::generic::executeKernel (kname, minfo1, params, kexec, bmApi, preExecCallback, args);
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool setIdentityMatrix (math::Matrix* matrix, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+  {
+    void* params[] = {&matrix};
+    oap::generic::Args args;
+
+    auto minfo = getMatrixInfo (matrix);
+
+    const char* kname = "CUDAKernel_SetIdentity";
+
+    args.retrieveDims = false;
+    args.w = minfo.columns();
+    args.h = minfo.rows();
+
+    return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
   }
 }
 }

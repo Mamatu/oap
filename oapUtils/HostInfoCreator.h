@@ -35,10 +35,10 @@ class HostInfoCreator : public InfoCreator {
   virtual void getMean(floatt& re, floatt& im, math::Matrix* matrix) const;
 
   virtual bool compare(math::Matrix* matrix1, math::Matrix* matrix2,
-                       math::Matrix** diffMatrix) const;
+                       floatt tolerance, math::Matrix** diffMatrix) const;
 
   virtual bool compareValues(math::Matrix* matrix1, math::Matrix* matrix2,
-                             math::Matrix** diffMatrix) const;
+                             floatt tolerance, math::Matrix** diffMatrix) const;
 
   virtual void destroyMatrix(math::Matrix* diffMatrix) const;
 

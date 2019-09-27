@@ -154,12 +154,12 @@ class TransposeImpl : public HostKernel {
   math::Matrix* m_param;
 };
 
-void HostProcedures::prepare(math::Matrix* matrix, HostKernel& hostKernel) {
+void HostProcedures::prepare (math::Matrix* matrix, HostKernel& hostKernel)
+{
   const uint columns = matrix->columns;
   const uint rows = matrix->rows;
 
-  utils::mapper::SetThreadsBlocks(m_blocks, m_threads, columns, rows,
-                                  m_threadsCount);
+  utils::mapper::SetThreadsBlocks (m_blocks, m_threads, columns, rows, m_maxThreadsPerBlock);
 
   hostKernel.setDims(m_blocks, m_threads);
 }
@@ -168,20 +168,20 @@ void HostProcedures::prepare(size_t w, size_t h, HostKernel& hostKernel) {
   const uint columns = w;
   const uint rows = h;
 
-  utils::mapper::SetThreadsBlocks(m_blocks, m_threads, columns, rows,
-                                  m_threadsCount);
+  utils::mapper::SetThreadsBlocks(m_blocks, m_threads, columns, rows, m_maxThreadsPerBlock);
 
   hostKernel.setDims(m_blocks, m_threads);
 }
 
-HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_threadsCount(4), m_bmApi (oap::host::GetMatrixInfo),
+HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_bmApi (oap::host::GetMatrixInfo),
 m_createKernelArray(std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2))
 {}
 
 HostProcedures::~HostProcedures() {}
 
-void HostProcedures::setThreadsCount(uintt threadsCount) {
-  m_threadsCount = threadsCount;
+void HostProcedures::setMaxThreadsPerBlock (uintt threadsPerBlock)
+{
+  m_kernel.setMaxThreadsPerBlock (threadsPerBlock);
 }
 
 bool HostProcedures::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
@@ -208,7 +208,12 @@ void HostProcedures::substract(math::Matrix* output, math::Matrix* matrix1,
 
 void HostProcedures::dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
 {
-  oap::generic::dotProduct (output, matrix1, matrix2, output->columns, output->rows, &m_kernel, m_bmApi, [](){});
+  oap::generic::dotProduct (output, matrix1, matrix2, &m_kernel, m_bmApi, [](){});
+}
+
+void HostProcedures::dotProductShared (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+{
+  oap::generic::dotProductShared (output, matrix1, matrix2, &m_kernel, m_bmApi, [](){});
 }
 
 void HostProcedures::dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
@@ -221,13 +226,6 @@ void HostProcedures::dotProductDimPeriodic (math::Matrix* output, math::Matrix* 
 {
   oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dims, periodicRows, &m_kernel, m_bmApi, [](){},
                   m_createKernelArray);
-}
-
-void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, size_t w, size_t h)
-{
-  DotProductImpl dotProductImpl(output, matrix1, matrix2);
-  prepare(w, h, dotProductImpl);
-  dotProductImpl.executeKernelAsync();
 }
 
 void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
@@ -355,4 +353,14 @@ void HostProcedures::crossEntropy (math::Matrix* output, math::Matrix* params0, 
 void HostProcedures::tensorProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
 {
   oap::generic::tensorProduct (output, matrix1, matrix2, dims, &m_kernel, m_bmApi, [](){}, m_createKernelArray);
+}
+
+void HostProcedures::QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT)
+{
+  oap::generic::qrDecomposition_HT (Q, R, A, V, VT, P, VVT, &m_kernel, *this, oap::host::GetMatrixInfo, [](){});
+}
+
+void HostProcedures::setIdentity (math::Matrix* matrix)
+{
+  oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }

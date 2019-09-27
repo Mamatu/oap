@@ -261,7 +261,6 @@ bool Kernel::run (const char* functionName)
     logInfo("Image: %p", m_image);
     logInfo("Module handle: %p", m_cuModule);
     logInfo("Function handle: %p", cuFunction);
-    PrintDeviceInfo(getDevice());
     logInfo(" Execution:");
     logInfo(" --threads counts: %d, %d, %d", ep.threadsCount[0], ep.threadsCount[1], ep.threadsCount[2]);
     logInfo(" --blocks counts: %d, %d, %d", ep.blocksCount[0], ep.blocksCount[1], ep.blocksCount[2]);

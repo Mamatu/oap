@@ -67,16 +67,14 @@ void diff(math::Matrix* output, math::Matrix* m1, math::Matrix* m2) {
   }
 }
 
-bool IsEqual(const math::Matrix& m1, const math::Matrix& m2,
-             math::Matrix** diff) {
+bool IsEqual(const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff) {
   if (m1.columns != m2.columns || m1.rows != m2.rows) {
     return false;
   }
-  return HasValues(m1, m2, diff);
+  return HasValues(m1, m2, tolerance, diff);
 }
 
-bool HasValues(const math::Matrix& m1, const math::Matrix& m2,
-               math::Matrix** diff) {
+bool HasValues(const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff) {
   if (diff != NULL) {
     (*diff) = NULL;
   }
@@ -91,7 +89,7 @@ bool HasValues(const math::Matrix& m1, const math::Matrix& m2,
         floatt re1 = (m1.reValues[index]);
         floatt re2 = (m2.reValues[index]);
 
-        if (!AlmostEquals(re1, re2, 0.0001)) {
+        if (!AlmostEquals(re1, re2, tolerance)) {
           status = false;
           if (diff != NULL) {
             if (*diff == NULL) {
@@ -105,7 +103,7 @@ bool HasValues(const math::Matrix& m1, const math::Matrix& m2,
         floatt im1 = (m1.imValues[index]);
         floatt im2 = (m2.imValues[index]);
 
-        if (!AlmostEquals(im1, im2, 0.001)) {
+        if (!AlmostEquals(im1, im2, tolerance)) {
           status = false;
           if (diff != NULL) {
             if (*diff == NULL) {
@@ -120,29 +118,32 @@ bool HasValues(const math::Matrix& m1, const math::Matrix& m2,
   return status;
 }
 
-bool IsIdentityMatrix(const math::Matrix& m1, math::Matrix** output) {
+bool IsIdentityMatrix(const math::Matrix& m1, floatt tolerance, math::Matrix** diff)
+{
   math::Matrix* matrix = oap::host::NewMatrixRef (&m1);
   oap::host::SetIdentity(matrix);
-  bool isequal = IsEqual(m1, *matrix, output);
+  bool isequal = IsEqual(m1, *matrix, tolerance, diff);
   oap::host::DeleteMatrix(matrix);
   return isequal;
 }
 
-bool IsDiagonalMatrix(const math::Matrix& m1, floatt value,
-                      math::Matrix** output) {
+bool IsDiagonalMatrix(const math::Matrix& m1, floatt value, floatt tolerance, math::Matrix** diff)
+{
   math::Matrix* matrix = oap::host::NewMatrixRef (&m1);
   oap::host::SetDiagonalMatrix(matrix, value);
-  bool isequal = IsEqual(m1, *matrix, output);
+  bool isequal = IsEqual(m1, *matrix, tolerance, diff);
   oap::host::DeleteMatrix(matrix);
   return isequal;
 }
 
-bool IsIdentityMatrix(const math::Matrix& m1) {
-  return IsIdentityMatrix(m1, NULL);
+bool IsIdentityMatrix (const math::Matrix& m1, floatt tolerance)
+{
+  return IsIdentityMatrix (m1, tolerance, NULL);
 }
 
-bool IsDiagonalMatrix(const math::Matrix& m1, floatt value) {
-  return IsDiagonalMatrix(m1, value, NULL);
+bool IsDiagonalMatrix (const math::Matrix& m1, floatt value, floatt tolerance)
+{
+  return IsDiagonalMatrix (m1, value, tolerance, NULL);
 }
 
 bool isEqual(const MatrixEx& matrixEx, const uintt* buffer) {

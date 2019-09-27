@@ -35,6 +35,8 @@
 #include "MatrixPrinter.h"
 #include "ReferencesCounter.h"
 
+#include "GenericCoreApi.h"
+
 #include "MatricesList.h"
 
 #define ReIsNotNULL(m) m->reValues != nullptr
@@ -119,6 +121,27 @@ math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows, f
     output = NewImMatrix(columns, rows, value);
   }
   return output;
+}
+
+math::Matrix* NewMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray)
+{
+  math::Matrix* matrix = NewMatrix (columns, rows);
+  oap::host::CopyArrayToMatrix (matrix, rearray, imarray);
+  return matrix;
+}
+
+math::Matrix* NewReMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray)
+{
+  math::Matrix* matrix = NewReMatrix (columns, rows);
+  oap::host::CopyArrayToReMatrix (matrix, rearray);
+  return matrix;
+}
+
+math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* imarray)
+{
+  math::Matrix* matrix = NewImMatrix (columns, rows);
+  oap::host::CopyArrayToImMatrix (matrix, imarray);
+  return matrix;
 }
 
 math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value)
@@ -421,26 +444,16 @@ void Copy(math::Matrix* dst, const math::Matrix* src, uintt column, uintt row)
   }
 }
 
-void CopyMatrix(math::Matrix* dst, const math::Matrix* src)
+void CopyMatrix (math::Matrix* dst, const math::Matrix* src)
 {
-  const uintt length1 = dst->columns * dst->rows;
-  const uintt length2 = src->columns * src->rows;
-  if (length1 == length2)
-  {
-    if (ReIsNotNULL(dst) && ReIsNotNULL(src))
-    {
-      CopyBuffer(dst->reValues, src->reValues, length1);
-    }
-    if (ImIsNotNULL(dst) && ImIsNotNULL(src))
-    {
-      CopyBuffer(dst->imValues, src->imValues, length1);
-    }
-  }
-  else if (length1 < length2 && dst->columns <= src->columns &&
-           dst->rows <= src->rows)
-  {
-    CopySubMatrix(dst, src, 0, 0);
-  }
+  oap::generic::MatrixMemoryApi<decltype(oap::host::GetMatrixInfo) ,decltype(oap::host::GetValue)> mmApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  oap::generic::copyMatrixToMatrix (dst, src, memcpy, mmApi, mmApi);
+}
+
+void CopyMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+{
+  oap::generic::MatrixMemoryApi<decltype(oap::host::GetMatrixInfo) ,decltype(oap::host::GetValue)> mmApi (oap::host::GetMatrixInfo, oap::host::GetValue);
+  oap::generic::copyMatrixToMatrixDims (dst, src, dims, memcpy, mmApi, mmApi);
 }
 
 void CopyRe(math::Matrix* dst, const math::Matrix* src)
@@ -567,7 +580,11 @@ void ToString (std::string& str, const math::Matrix* matrix)
     str = "nullptr";
     return;
   }
-  matrixUtils::PrintMatrix(str, matrix, matrixUtils::PrintArgs());
+
+  matrixUtils::PrintArgs args;
+  args.prepareSection (matrix);
+
+  matrixUtils::PrintMatrix (str, matrix, args);
 }
 
 void GetReMatrixStr(std::string& text, const math::Matrix* matrix)
@@ -1094,7 +1111,7 @@ math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
   return minfo;
 }
 
-void CopyArrayToMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer)
+void CopyArrayToMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer)
 {
   if (rebuffer != nullptr)
   {
@@ -1106,13 +1123,13 @@ void CopyArrayToMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer
   }
 }
 
-void CopyArrayToReMatrix (math::Matrix* matrix, floatt* buffer)
+void CopyArrayToReMatrix (math::Matrix* matrix, const floatt* buffer)
 {
   debugAssert (matrix->reValues != nullptr);
   memcpy (matrix->reValues, buffer, matrix->columns * matrix->rows * sizeof(floatt));
 }
 
-void CopyArrayToImMatrix (math::Matrix* matrix, floatt* buffer)
+void CopyArrayToImMatrix (math::Matrix* matrix, const floatt* buffer)
 {
   debugAssert (matrix->imValues != nullptr);
   memcpy (matrix->imValues, buffer, matrix->columns * matrix->rows * sizeof(floatt));

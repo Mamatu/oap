@@ -29,6 +29,8 @@
 #include <sstream>
 #include <iostream>
 
+#include "oapAssertion.h"
+
 #define STREAM stdout
 
 #include <stdio.h>
@@ -86,8 +88,6 @@
 #define debug(x, ...) logDebug(x, ##__VA_ARGS__);
 #define debugInfo(x, ...) logInfo(x, ##__VA_ARGS__);
 #define debugError(x, ...) logError(x, ##__VA_ARGS__);
-
-#define debugAssert(x) assert(x);
 
 #define debugAssertMsg(x, msg, ...) if (!(x)) { logError ("ASSERTION\n"); logError(msg, ##__VA_ARGS__); debugAssert(x); }
 #define debugExceptionMsg(x, msg, ...) if (!(x)) { logError ("ASSERTION\n"); logError(msg, ##__VA_ARGS__); debugAssert(x); }

@@ -33,6 +33,8 @@ class HostKernelExecutor : public oap::IKernelExecutor
 
     virtual std::string getErrorMsg () const override;
 
+    void setMaxThreadsPerBlock (uintt threadsPerBlock);
+
     virtual uint getMaxThreadsPerBlock() const override;
     
   protected:

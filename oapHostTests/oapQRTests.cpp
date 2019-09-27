@@ -25,7 +25,7 @@
 #include "MathOperationsCpu.h"
 #include "oapHostMatrixUtils.h"
 #include "HostProcedures.h"
-#include "CuProcedures/CuQRProcedures.h"
+#include "CuProcedures/CuQRProcedures_GR.h"
 #include "host_qrtest1.h"
 #include "host_qrtest2.h"
 #include "host_qrtest3.h"
@@ -110,7 +110,7 @@ class OapQRTests : public OapCudaStub {
   void ExpectThatQRIsA(QRStub* qrStub, math::Matrix* eq_matrix) {
     HostProcedures hostProcedures;
     math::Matrix* matrix = oap::host::NewMatrixRef(qrStub->getQ());
-    hostProcedures.setThreadsCount(1024);
+    hostProcedures.setMaxThreadsPerBlock (1024);
     hostProcedures.dotProduct(matrix, qrStub->getQ(), qrStub->getR());
     EXPECT_THAT(eq_matrix, MatrixIsEqual(matrix));
     oap::host::DeleteMatrix(matrix);
@@ -120,7 +120,7 @@ class OapQRTests : public OapCudaStub {
     HostProcedures hostProcedures;
     math::Matrix* QT = oap::host::NewMatrixCopy(qrStub->getQ());
     math::Matrix* matrix = oap::host::NewMatrixRef(qrStub->getQ());
-    hostProcedures.setThreadsCount(1024);
+    hostProcedures.setMaxThreadsPerBlock (1024);
     hostProcedures.transpose(QT, qrStub->getQ());
     hostProcedures.dotProduct(matrix, QT, qrStub->getQ());
     EXPECT_THAT(matrix, MatrixIsIdentity());

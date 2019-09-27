@@ -27,6 +27,7 @@
 
 #include "Math.h"
 #include "Matrix.h"
+#include "MatrixInfo.h"
 #include "MatrixEx.h"
 #include "IKernelExecutor.h"
 
@@ -64,15 +65,79 @@ namespace generic
       GetMatrixInfo&& getMatrixInfo;
   };
 
-  template<typename GetColumns, typename GetRows, typename GetMatrixInfo>
-  class MatrixApi : BasicMatrixDimApi<GetColumns, GetRows>
+  template<typename GetMatrixInfo, typename TransferValueToHost>
+  class MatrixMemoryApi
   {
     public:
-      MatrixApi (GetColumns&& _getColumns, GetRows&& _getRows, GetMatrixInfo&& _getMatrixInfo) :
-        BasicMatrixDimApi<GetColumns, GetRows>(_getColumns, _getRows), getMatrixInfo(std::move (_getMatrixInfo))
+      MatrixMemoryApi (GetMatrixInfo&& _getMatrixInfo, TransferValueToHost&& _transferValueToHost) :
+        getMatrixInfo (std::forward<GetMatrixInfo&&> (_getMatrixInfo)), transferValueToHost (_transferValueToHost)
       {}
 
       GetMatrixInfo&& getMatrixInfo;
+      TransferValueToHost&& transferValueToHost;
+  };
+
+  template<typename GetMatrixInfo, typename GetValueIdx, typename SetValueIdx>
+  class MatrixApi
+  {
+    private:
+      math::MatrixInfo m_minfo;
+      math::Matrix* m_matrix = nullptr;
+
+      inline void updateMatrixInfo (math::MatrixInfo* mminfo, math::Matrix** mmatrix, math::Matrix* matrix)
+      {
+        if (*mmatrix != matrix)
+        {
+          *mminfo = getMatrixInfo (matrix);
+          m_matrix = matrix;
+        }
+      }
+
+    public:
+      MatrixApi (GetMatrixInfo&& _getMatrixInfo, GetValueIdx&& _getReValueIdx, SetValueIdx&& _setReValueIdx, GetValueIdx&& _getImValueIdx, SetValueIdx&& _setImValueIdx) :
+        getMatrixInfo (std::forward<GetMatrixInfo&&>(_getMatrixInfo)),
+        getReValueIdx (std::forward<GetValueIdx&&>(_getReValueIdx)),
+        setReValueIdx (std::forward<SetValueIdx&&>(_setReValueIdx)),
+        getImValueIdx (std::forward<GetValueIdx&&>(_getImValueIdx)),
+        setImValueIdx (std::forward<SetValueIdx&&>(_setImValueIdx))
+      {}
+
+      GetMatrixInfo&& getMatrixInfo;
+
+
+      GetValueIdx&& getReValueIdx;
+      SetValueIdx&& setReValueIdx;
+
+      GetValueIdx&& getImValueIdx;
+      SetValueIdx&& setImValueIdx;
+
+      inline floatt getReValue (math::Matrix* matrix, uintt column, uintt row)
+      {
+        updateMatrixInfo (&m_minfo, &m_matrix, matrix);
+        debugAssert (m_minfo.isRe);
+        return getReValueIdx (matrix, column + row * m_minfo.columns ());
+      }
+
+      inline floatt getImValue (math::Matrix* matrix, uintt column, uintt row)
+      {
+        updateMatrixInfo (&m_minfo, &m_matrix, matrix);
+        debugAssert (m_minfo.isIm);
+        return getImValueIdx (matrix, column + row * m_minfo.columns ());
+      }
+
+      inline void setReValue (math::Matrix* matrix, uintt column, uintt row, floatt value)
+      {
+        updateMatrixInfo (&m_minfo, &m_matrix, matrix);
+        debugAssert (m_minfo.isRe);
+        setReValueIdx (matrix, column + row * m_minfo.columns (), value);
+      }
+
+      inline void setImValue (math::Matrix* matrix, uintt column, uintt row, floatt value)
+      {
+        updateMatrixInfo (&m_minfo, &m_matrix, matrix);
+        debugAssert (m_minfo.isIm);
+        setImValueIdx (matrix, column + row * m_minfo.columns (), value);
+      }
   };
 }
 }

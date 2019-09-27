@@ -25,6 +25,7 @@
 #include <tuple>
 
 #include "Math.h"
+#include "oapLayerStructure.h"
 
 using Weights = std::vector<floatt>;
 using WeightsInSteps = std::vector<Weights>;
@@ -36,22 +37,23 @@ using Points = std::vector<PointLabel>;
 
 using Batch = Points;
 using Batches = std::vector<Batch>;
+using BatchesFPHandlers = std::vector<FPHandler>;
 
 using PointsLoss = std::pair<Points, floatt>;
 
-using Step = std::tuple<Batches, PointsLoss, PointsLoss>;
+using Step = std::tuple<Batches, PointsLoss, PointsLoss, BatchesFPHandlers>;
 using Steps = std::vector<Step>;
 
 using IdxsToCheck = std::vector<std::vector<size_t>>;
 
 inline Step createStep (const Batches& batches, const Points& points, floatt error, const Points& points1, floatt error1)
 {
-  return std::make_tuple(batches, std::make_pair(points, error), std::make_pair(points1, error1));
+  return std::make_tuple(batches, std::make_pair(points, error), std::make_pair(points1, error1), BatchesFPHandlers());
 }
 
 inline Step createStep (const Batches& batches)
 {
-  return std::make_tuple(batches, std::make_pair(Points(), -1), std::make_pair(Points(), -1));
+  return std::make_tuple(batches, std::make_pair(Points(), -1), std::make_pair(Points(), -1), BatchesFPHandlers());
 }
 
 inline const Batches& getBatches (const Step& step)
