@@ -36,17 +36,17 @@ namespace oap { namespace cuda {
 
   inline Matcher<math::Matrix*> MatrixIsEqualHK (math::Matrix* matrix, const InfoType& infoType = InfoType())
   {
-    return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherHK(matrix, infoType));
+    return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherHK (matrix, infoType));
   }
 
   inline Matcher<math::Matrix*> MatrixIsEqualKH (math::Matrix* matrix, const InfoType& infoType = InfoType())
   {
-    return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherHK(matrix, infoType));
+    return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherKH (matrix, infoType));
   }
 
   inline Matcher<math::Matrix*> MatrixIsEqualKK (math::Matrix* matrix, const InfoType& infoType = InfoType())
   {
-    return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherHK(matrix, infoType));
+    return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherKK (matrix, infoType));
   }
 
   inline Matcher<math::Matrix*> MatrixHasValues (math::Matrix* matrix, const InfoType& infoType = InfoType())
