@@ -22,7 +22,7 @@ $(shell test -d /tmp/Oap/device_tests || mkdir -p /tmp/Oap/device_tests)
 ifdef PROJECT
 include $(OAP_PATH)/${PROJECT}
 else
-include $(OAP_PATH)/project_x86.mk
+include $(OAP_PATH)/project_linux_default.mk
 endif
 
 TYPES := OAP_CONFIG_NI_EF
