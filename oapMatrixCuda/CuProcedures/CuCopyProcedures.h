@@ -132,12 +132,12 @@ __hostdevice__ void cuda_copyGenericMatrixEx (math::Matrix* dst, floatt* dstValu
 
   if (tx < srcEx.columns && ty < srcEx.rows)
   {
-    const uintt srcIdx = GetThreadIndexFromMatrixEx (srcEx);
+    const uintt srcIdx = aux_GetThreadIndexFromMatrixEx (srcEx);
 
     debugAssert (srcIdx < src->columns * src->rows);
     floatt v = srcValues[srcIdx];
 
-    const uintt dstIdx = GetThreadIndexFromMatrixEx (dstEx);
+    const uintt dstIdx = aux_GetThreadIndexFromMatrixEx (dstEx);
 
     debugAssert (dstIdx < dst->columns * dst->rows);
     dstValues[dstIdx] = v;

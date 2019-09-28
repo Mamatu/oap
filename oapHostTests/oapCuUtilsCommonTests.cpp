@@ -38,10 +38,10 @@ class OapCuUtilsCommonTests : public testing::Test {
 TEST_F(OapCuUtilsCommonTests, GetLengthTests)
 {
   {
-    EXPECT_EQ(32, GetLength (0, 32, 40));
+    EXPECT_EQ(32, aux_GetLength (0, 32, 40));
   }
   {
-    EXPECT_EQ(8, GetLength (1, 32, 40));
+    EXPECT_EQ(8, aux_GetLength (1, 32, 40));
   }
 }
 

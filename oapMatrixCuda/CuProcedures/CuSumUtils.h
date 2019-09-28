@@ -56,11 +56,11 @@ __hostdevice__ void cuda_SumReal(floatt* buffers[2], uintt bufferIndex, math::Ma
 {
   HOST_INIT();
   const bool inScope =
-    GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-    GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+    aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
+    aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
   if (inScope)
   {
-    uintt index = GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
+    uintt index = aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     buffers[0][bufferIndex] = m1->reValues[index];
     buffers[1][bufferIndex] = m1->imValues[index];
   }
@@ -69,12 +69,12 @@ __hostdevice__ void cuda_SumReal(floatt* buffers[2], uintt bufferIndex, math::Ma
 __hostdevice__ void cuda_SumRe(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1)
 {
   HOST_INIT();
-  const bool inYScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows;
-  const bool inXScope = GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+  const bool inYScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows;
+  const bool inXScope = aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
   const bool inScope = inYScope && inXScope;
   if (inScope)
   {
-    const uintt index = GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
+    const uintt index = aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     buffers[0][bufferIndex] = m1->reValues[index];
   }
 }
@@ -82,11 +82,11 @@ __hostdevice__ void cuda_SumRe(floatt* buffers[2], uintt bufferIndex, math::Matr
 __hostdevice__ void cuda_SumIm(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1)
 {
   HOST_INIT();
-  const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-                       GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+  const bool inScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
+                       aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
   if (inScope)
   {
-    uintt index = GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
+    uintt index = aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     buffers[1][bufferIndex] = m1->imValues[index];
   }
 }

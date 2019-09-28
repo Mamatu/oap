@@ -22,15 +22,15 @@
 
 #include "CuCompareUtilsCommon.h"
 
-#define ver2_GetMatrixXIndex(threadIdx, blockIdx, blockDim) \
+#define ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) \
   ((blockIdx.x * blockDim.x + threadIdx.x) * 2)
 
-#define ver2_GetMatrixYIndex(threadIdx, blockIdx, blockDim) \
+#define ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) \
   (blockIdx.y * blockDim.y + threadIdx.y)
 
-#define ver2_GetMatrixIndex(threadIdx, blockIdx, blockDim, offset) \
-  (ver2_GetMatrixYIndex(threadIdx, blockIdx, blockDim) * offset +  \
-   ver2_GetMatrixXIndex(threadIdx, blockIdx, blockDim))
+#define ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, offset) \
+  (ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) * offset +  \
+   ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim))
 
 #define ver2_GetLength(blockIdx, blockDim, limit)     \
   blockDim - ((blockIdx + 1) * blockDim > limit       \
@@ -58,13 +58,13 @@ __hostdevice__ void cuda_CompareRealOptVer2(floatt* buffer, math::Matrix* m1,
   HOST_INIT();
 
   const bool inScope =
-      ver2_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-      ver2_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns &&
+      ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
+      ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns &&
       threadIdx.x < xlength;
 
   if (inScope) {
     uintt index =
-        ver2_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
+        ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     bool isOdd = (m1->columns & 1) && (xlength & 1);
     buffer[sharedIndex] = cuda_getRealDist(m1, m2, index);
     buffer[sharedIndex] += cuda_getRealDist(m1, m2, index + 1);
@@ -80,13 +80,13 @@ __hostdevice__ void cuda_CompareReOptVer2(floatt* buffer, math::Matrix* m1,
   HOST_INIT();
 
   const bool inScope =
-      ver2_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-      ver2_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns &&
+      ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
+      ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns &&
       threadIdx.x < xlength;
 
   if (inScope) {
     uintt index =
-        ver2_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
+        ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     bool isOdd = (m1->columns & 1) && (xlength & 1);
     buffer[sharedIndex] = cuda_getReDist(m1, m2, index);
     buffer[sharedIndex] += cuda_getReDist(m1, m2, index + 1);
@@ -102,13 +102,13 @@ __hostdevice__ void cuda_CompareImOptVer2(floatt* buffer, math::Matrix* m1,
   HOST_INIT();
 
   const bool inScope =
-      ver2_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-      ver2_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns &&
+      ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
+      ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns &&
       threadIdx.x < xlength;
 
   if (inScope) {
     uintt index =
-        ver2_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
+        ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
     bool isOdd = (m1->columns & 1) && (xlength & 1);
     buffer[sharedIndex] = cuda_getImDist(m1, m2, index);
     buffer[sharedIndex] += cuda_getImDist(m1, m2, index + 1);

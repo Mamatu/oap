@@ -31,8 +31,8 @@
 __hostdevice__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeRealOptVer2(buffer, sharedIndex, matrix1, xlength);
@@ -53,8 +53,8 @@ __hostdevice__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::Matrix* m
 __hostdevice__ void CUDA_magnitudeOptReMatrixVer2(floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeReOptVer2(buffer, sharedIndex, matrix1, xlength);
@@ -76,8 +76,8 @@ __hostdevice__ void CUDA_magnitudeOptReMatrixVer2(floatt* sum, math::Matrix* mat
 __hostdevice__ void CUDA_magnitudeOptImMatrixVer2(floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns / 2);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeImOptVer2(buffer, sharedIndex, matrix1, xlength);
