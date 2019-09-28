@@ -33,8 +33,8 @@ __hostdevice__ void CUDA_sumReal (floatt* sumBuffers[2], math::Matrix* matrix1, 
 {
   HOST_INIT();
 
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
 
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
@@ -59,8 +59,8 @@ __hostdevice__ void CUDA_sumRe (floatt* sumBuffers[2], math::Matrix* matrix1, fl
 {
   HOST_INIT();
 
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
 
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
@@ -86,8 +86,8 @@ __hostdevice__ void CUDA_sumIm (floatt* sumBuffers[2], math::Matrix* matrix1, fl
 {
   HOST_INIT();
 
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
 
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;

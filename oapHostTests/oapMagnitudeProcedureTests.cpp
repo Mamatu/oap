@@ -139,7 +139,7 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
 
   void execute(const dim3& threadIdx, const dim3& blockIdx) {
     if (NULL != m_matrix) {
-      uintt xlength = GetLength(blockIdx.x, blockDim.x,
+      uintt xlength = aux_GetLength(blockIdx.x, blockDim.x,
                                 m_matrix->columns / m_algoInfo.getFactor());
       uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
       switch (m_algoInfo.getVersion()) {

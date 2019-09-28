@@ -30,8 +30,8 @@
 __hostdevice__ void CUDA_magnitudeOptRealMatrix (floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeRealOpt(buffer, sharedIndex, matrix1);
@@ -52,8 +52,8 @@ __hostdevice__ void CUDA_magnitudeOptRealMatrix (floatt* sum, math::Matrix* matr
 __hostdevice__ void CUDA_magnitudeOptReMatrix (floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeReOpt(buffer, sharedIndex, matrix1);
@@ -74,8 +74,8 @@ __hostdevice__ void CUDA_magnitudeOptReMatrix (floatt* sum, math::Matrix* matrix
 __hostdevice__ void CUDA_magnitudeOptImMatrix (floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeImOpt(buffer, sharedIndex, matrix1);
@@ -119,8 +119,8 @@ __hostdevice__ floatt CUDA_calcMagnitudeOptEx (math::Matrix* matrix1, floatt* bu
   bool isre = matrix1->reValues != NULL;
   bool isim = matrix1->imValues != NULL;
 
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, rows);
 
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x - (row * xlength + column);

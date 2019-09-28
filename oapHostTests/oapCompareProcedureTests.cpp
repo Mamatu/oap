@@ -61,8 +61,8 @@ class OapCompareTests : public OapCudaStub {
       return columns * rows;
     }
 
-    uint xlength = GetLength(blockIdx.x, blockDim.x, columns / factor);
-    uint ylength = GetLength(blockIdx.y, blockDim.y, rows);
+    uint xlength = aux_GetLength(blockIdx.x, blockDim.x, columns / factor);
+    uint ylength = aux_GetLength(blockIdx.y, blockDim.y, rows);
 
     uint rest = 0;
 
@@ -115,7 +115,7 @@ class CompareStubImpl : public HostKernel {
 
   void execute(const dim3& threadIdx, const dim3& blockIdx) {
     if (NULL != m_matrix) {
-      uintt xlength = GetLength(blockIdx.x, blockDim.x,
+      uintt xlength = aux_GetLength(blockIdx.x, blockDim.x,
                                 m_matrix->columns / m_algoVersion.getFactor());
       uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
       if (m_algoVersion.getVersion() == AlgoVersion::VERSION_1) {
