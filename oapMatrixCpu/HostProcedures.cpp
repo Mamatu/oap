@@ -173,7 +173,7 @@ void HostProcedures::prepare(size_t w, size_t h, HostKernel& hostKernel) {
   hostKernel.setDims(m_blocks, m_threads);
 }
 
-HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_bmApi (oap::host::GetMatrixInfo),
+HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_maxThreadsPerBlock (maxThreadsPerBlock), m_bmApi (oap::host::GetMatrixInfo),
 m_createKernelArray(std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2))
 {}
 
@@ -182,6 +182,7 @@ HostProcedures::~HostProcedures() {}
 void HostProcedures::setMaxThreadsPerBlock (uintt threadsPerBlock)
 {
   m_kernel.setMaxThreadsPerBlock (threadsPerBlock);
+  m_maxThreadsPerBlock = threadsPerBlock;
 }
 
 bool HostProcedures::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
