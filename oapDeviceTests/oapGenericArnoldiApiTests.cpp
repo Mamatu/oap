@@ -47,6 +47,7 @@ class OapGenericArnoldiApiTests : public testing::Test {
   {
     oap::cuda::Context::Instance().destroy();
   }
+
 };
 
 TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
@@ -177,10 +178,19 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
   cuApi.setDiagonal (ca.m_I, unwanted, 0);
   cuApi.add (ca.m_H, ca.m_H, ca.m_I);
 
-
   //EXPECT_THAT (hexpected1.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
   //EXPECT_THAT (hexpected1MUnwantedPUnwanted.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
   //EXPECT_THAT (hexpected1MUnwantedPUnwanted.get(), MatrixIsEqual (hexpected1.get(), 0.01));
+
+  oap::HostMatrixPtr hostR = oap::host::NewReMatrix (4, 4);
+  oap::HostMatrixPtr hostQ = oap::host::NewReMatrix (4, 4);
+
+  oap::cuda::CopyDeviceMatrixToHostMatrix (hostQ.get(), ca.m_Q1);
+  oap::cuda::CopyDeviceMatrixToHostMatrix (hostR.get(), ca.m_R1);
+
+  HostProcedures hp;
+  EXPECT_THAT (hostQ.get(), MatrixIsOrthogonal (hp));
+  EXPECT_THAT (hostR.get(), MatrixIsUpperTriangular ());
 
   oap::generic::deallocStage1 (ca, oap::cuda::DeleteDeviceMatrix);
   oap::generic::deallocStage2 (ca, oap::cuda::DeleteDeviceMatrix, oap::host::DeleteMatrix);
@@ -236,6 +246,18 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_2)
   //EXPECT_THAT (qexpected.get(), oap::cuda::MatrixIsEqualHK (Q.get()));
   //EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (R.get()));
   EXPECT_THAT (H1.get(), oap::cuda::MatrixIsEqualKK (H.get(), 0.01));
+
+  oap::HostMatrixPtr hostR = oap::host::NewReMatrix (3, 3);
+  oap::HostMatrixPtr hostQ = oap::host::NewReMatrix (3, 3);
+
+  oap::cuda::CopyDeviceMatrixToHostMatrix (hostQ.get(), Q.get());
+  oap::cuda::CopyDeviceMatrixToHostMatrix (hostR.get(), R.get());
+
+  PRINT_MATRIX(hostQ.get());
+  PRINT_MATRIX(hostR.get());
+  HostProcedures hp;
+  EXPECT_THAT (hostQ.get(), MatrixIsOrthogonal (hp));
+  EXPECT_THAT (hostR.get(), MatrixIsUpperTriangular ());
 }
 
 TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
@@ -267,6 +289,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
 
   uint length = sizeof(values) / sizeof(values[0]);
 
+
   oap::DeviceMatrixPtr H = oap::cuda::NewDeviceReMatrix (2, 2);
   oap::DeviceMatrixPtr H1 = oap::cuda::NewDeviceReMatrix (2, 2);
   oap::DeviceMatrixPtr R = oap::cuda::NewDeviceReMatrix (2, 2);
@@ -296,4 +319,14 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
 
   cuApi.dotProduct (H1, Q, R);
   EXPECT_THAT (H.get(), oap::cuda::MatrixIsEqualKK (H1.get(), 0.01));
+
+  oap::HostMatrixPtr hostR = oap::host::NewReMatrix (2, 2);
+  oap::HostMatrixPtr hostQ = oap::host::NewReMatrix (2, 2);
+
+  oap::cuda::CopyDeviceMatrixToHostMatrix (hostQ.get(), Q.get());
+  oap::cuda::CopyDeviceMatrixToHostMatrix (hostR.get(), R.get());
+
+  HostProcedures hp;
+  EXPECT_THAT (hostQ.get(), MatrixIsOrthogonal (hp));
+  EXPECT_THAT (hostR.get(), MatrixIsUpperTriangular ());
 }
