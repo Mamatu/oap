@@ -73,9 +73,9 @@ class ArnoldiOperations {
 
   static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v,
                            oap::CuProceduresApi& cuProceduresApi,
-                           void* userData, CuHArnoldi::MultiplicationType mt)
+                           void* userData, oap::VecMultiplicationType mt)
   {
-    if (mt == CuHArnoldi::TYPE_WV) {
+    if (mt == oap::VecMultiplicationType::TYPE_WV) {
       ArnoldiOperations* ao = static_cast<ArnoldiOperations*>(userData);
       oap::DeviceDataLoader* dataLoader = ao->m_dataLoader;
 

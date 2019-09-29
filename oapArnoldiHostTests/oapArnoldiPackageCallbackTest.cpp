@@ -25,34 +25,18 @@
 #include "gtest/gtest.h"
 #include "MatchersUtils.h"
 #include "Config.h"
-#include "KernelExecutor.h"
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
-#include "MathOperationsCpu.h"
-#include "matrix1.h"
-#include "matrix2.h"
-#include "matrix3.h"
-#include "matrix4.h"
-#include "matrix5.h"
 
-#include "ArnoldiProceduresImpl.h"
+#include "oapHostMatrixUtils.h"
+#include "HostProcedures.h"
+
+#include "oapGenericArnoldiApi.h"
+#include "oapCuHArnoldiS.h"
 
 class OapArnoldiPackageCallbackTests : public testing::Test {
   public:
-    CuHArnoldiCallback* arnoldiCuda;
 
-    virtual void SetUp() {
-      oap::cuda::Context::Instance().create();
-
-      arnoldiCuda = new CuHArnoldiCallback();
-      arnoldiCuda->setOutputType(ArnUtils::HOST);
-      arnoldiCuda->setQRType(oap::QRType::QRGR);
-    }
-
-    virtual void TearDown() {
-      delete arnoldiCuda;
-      oap::cuda::Context::Instance().destroy();
-    }
+    virtual void SetUp() {}
+    virtual void TearDown() {}
 
     class Data {
       int m_counter;
@@ -191,108 +175,47 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
       fclose(f);
     }
 
-    void executeArnoldiTest(floatt value, const std::string& path,
-                            uintt hdim = 32, bool enableValidateOfV = true,
-                            floatt tolerance = 0.01) {
+    void executeArnoldiTest (floatt value, const std::string& path,
+                             uintt hdim = 32, bool enableValidateOfV = true,
+                             floatt tolerance = 0.01)
+    {
       OapArnoldiPackageCallbackTests::Data data(path);
 
-      typedef std::pair<OapArnoldiPackageCallbackTests::Data*, bool> UserPair;
+      using UserPair = std::pair<OapArnoldiPackageCallbackTests::Data*, bool>;
 
       UserPair userPair = std::make_pair(&data, enableValidateOfV);
 
-      class MultiplyFunc {
-       public:
-        static void multiply (math::Matrix* w, math::Matrix* v, oap::CuProceduresApi& cuProceduresApi,
-                              void* userData, oap::VecMultiplicationType mt)
-        {
-          if (mt == oap::VecMultiplicationType::TYPE_WV) {
-            UserPair* userPair = static_cast<UserPair*>(userData);
-            Data* data = userPair->first;
-            data->load();
-            oap::cuda::CopyDeviceMatrixToHostMatrix(data->hostV, v);
-            if (userPair->second) {
-              ASSERT_THAT(data->hostV,
-                          MatrixIsEqual(
-                              data->refV,
-                              InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
-            }
-            oap::cuda::CopyHostMatrixToDeviceMatrix(w, data->refW);
+      auto multiply = [&userPair] (math::Matrix* w, math::Matrix* v, HostProcedures& cuProceduresApi, oap::VecMultiplicationType mt)
+      {
+        if (mt == oap::VecMultiplicationType::TYPE_WV) {
+          Data* data = userPair.first;
+          data->load();
+          oap::host::CopyHostMatrixToHostMatrix(data->hostV, v);
+          if (userPair.second) {
+            ASSERT_THAT(data->hostV,
+                        MatrixIsEqual(
+                            data->refV,
+                            InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
           }
+          oap::host::CopyHostMatrixToHostMatrix(w, data->refW);
         }
       };
-      floatt revalues[2] = {0, 0};
-      floatt imvalues[2] = {0, 0};
 
-      uintt wanted = 1;
+      oap::generic::CuHArnoldiS ca;
+      HostProcedures hp;
+      math::MatrixInfo matrixInfo (true, true, data.getElementsCount(), data.getElementsCount());
 
-      arnoldiCuda->setCallback(MultiplyFunc::multiply, &userPair);
-      arnoldiCuda->setBLimit(0.01);
-      arnoldiCuda->setRho(1. / 3.14159265359);
-      arnoldiCuda->setSortType(ArnUtils::SortSmallestReValues);
-      arnoldiCuda->setCheckType(ArnUtils::CHECK_FIRST_STOP);
-      arnoldiCuda->setOutputsEigenvalues(revalues, imvalues);
-      math::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
-                                      data.getElementsCount());
+      oap::generic::allocStage1 (ca, matrixInfo, oap::host::NewHostMatrix);
+      oap::generic::allocStage2 (ca, matrixInfo, 32, oap::host::NewHostMatrix, oap::host::NewHostMatrix);
+      oap::generic::allocStage3 (ca, matrixInfo, 32, oap::host::NewHostMatrix, oap::QRType::QRGR);
 
-      logInfoLongTest();
+      oap::generic::iram_executeInit (ca, hp, multiply);
 
-      arnoldiCuda->execute(hdim, wanted, matrixInfo);
-      EXPECT_THAT(revalues[0], ::testing::DoubleNear(value, tolerance));
-      // EXPECT_DOUBLE_EQ(value, );
-      EXPECT_DOUBLE_EQ(revalues[1], 0);
-      EXPECT_DOUBLE_EQ(imvalues[0], 0);
-      EXPECT_DOUBLE_EQ(imvalues[1], 0);
-    }
-
-    void triangularityTest(const std::string& matrixStr) {
-      math::Matrix* matrix = oap::host::NewMatrix(matrixStr);
-      triangularityTest(matrix);
-      oap::host::DeleteMatrix(matrix);
-    }
-
-    void triangularityTest(const math::Matrix* matrix) {
-      floatt limit = 0.001;
-      for (int fa = 0; fa < matrix->columns - 1; ++fa) {
-        floatt value = matrix->reValues[(fa + 1) * matrix->columns + fa];
-        bool islower = value < limit;
-        bool isgreater = -limit < value;
-        EXPECT_TRUE(islower) << value << " is greater than " << limit
-                             << " index= " << fa << ", " << fa + 1;
-        EXPECT_TRUE(isgreater) << value << " is lower than " << -limit
-                               << " index= " << fa << ", " << fa + 1;
-      }
+      oap::generic::deallocStage1 (ca, oap::host::DeleteMatrix);
+      oap::generic::deallocStage2 (ca, oap::host::DeleteMatrix, oap::host::DeleteMatrix);
+      oap::generic::deallocStage3 (ca, oap::host::DeleteMatrix);
     }
 };
-
-TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
-  OapArnoldiPackageCallbackTests::Data data("data/data1");
-  data.load();
-
-  bool isre = data.refW->reValues != NULL;
-  bool isim = data.refW->imValues != NULL;
-
-  uintt columns = data.refW->columns;
-  uintt rows = data.refW->rows;
-
-  math::Matrix* dmatrix = oap::cuda::NewDeviceMatrix(isre, isim, columns, rows);
-
-  oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, data.refW);
-
-  oap::CuProceduresApi cuProceduresApi;
-
-  floatt output = -1;
-  floatt doutput = -1;
-  cuProceduresApi.magnitude(doutput, dmatrix);
-
-  math::MathOperationsCpu mocpu;
-  mocpu.magnitude(&output, data.refW);
-
-  EXPECT_DOUBLE_EQ(3.25, output);
-  EXPECT_DOUBLE_EQ(3.25, doutput);
-  EXPECT_DOUBLE_EQ(output, doutput);
-
-  oap::cuda::DeleteDeviceMatrix(dmatrix);
-}
 
 TEST_F(OapArnoldiPackageCallbackTests, TestData1) {
   executeArnoldiTest(-3.25, "data/data1");

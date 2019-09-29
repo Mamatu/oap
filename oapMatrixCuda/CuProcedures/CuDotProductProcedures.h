@@ -44,7 +44,7 @@ __hostdevice__ void dp_calcImValue (floatt*, floatt* im, const math::Matrix* m1,
 __hostdevice__ void dp_calcRealValue (floatt* re, floatt* im, const math::Matrix* m1, uintt idx1, const math::Matrix* m2, uintt idx2)
 {
   *re += m1->reValues[idx1] * m2->reValues[idx2] - m1->imValues[idx1] * m2->imValues[idx2];
-  *im += m1->reValues[idx1] * m2->imValues[idx2] + m2->reValues[idx1] * m1->imValues[idx2];
+  *im += m1->reValues[idx1] * m2->imValues[idx2] + m1->imValues[idx1] * m2->reValues[idx2];
 }
 
 __hostdeviceinline__ void cuAux_calcIdxs (uintt idx[2], uintt midx, const math::Matrix* params0, const math::Matrix* params1, const MatrixEx exs[3])

@@ -365,3 +365,18 @@ void HostProcedures::setIdentity (math::Matrix* matrix)
 {
   oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
+
+void HostProcedures::setVector (math::Matrix* V, uintt column, math::Matrix* v, uintt length)
+{
+  oap::generic::setVector (V, column, v, length, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
+
+void HostProcedures::getVector (math::Matrix* vector, uintt length, math::Matrix* matrix, uintt column)
+{
+  oap::generic::getVector (vector, length, matrix, column, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
+
+void HostProcedures::getVector (math::Matrix* vector, math::Matrix* matrix, uintt column)
+{
+  oap::generic::getVector (vector, matrix, column, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}

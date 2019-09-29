@@ -114,9 +114,6 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
 
   uint length = sizeof(h_expected_init) / sizeof(h_expected_init[0]);
 
-  oap::generic::CuHArnoldiS ca;
-
-  math::MatrixInfo matrixInfo (true, false, 4, 4);
 
   oap::HostMatrixPtr hexpectedInit = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_init);
   oap::HostMatrixPtr hexpectedInitMUnwanted = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_init_m_unwanted);
@@ -130,6 +127,10 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
   oap::HostMatrixPtr qexpected = oap::host::NewReMatrixCopyOfArray (4, 4, q_expected);
 
   oap::HostMatrixPtr rexpected = oap::host::NewReMatrixCopyOfArray (4, 4, r_expected);
+
+  oap::generic::CuHArnoldiS ca;
+
+  math::MatrixInfo matrixInfo (true, false, 4, 4);
 
   oap::generic::allocStage1 (ca, matrixInfo, oap::cuda::NewKernelMatrix);
   oap::generic::allocStage2 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix, oap::host::NewHostMatrix);

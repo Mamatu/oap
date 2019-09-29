@@ -39,11 +39,13 @@ script:
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapSmsDataTests --gtest_shuffle
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oap2dt3dTests --gtest_shuffle
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapNeuralRoutinesHostTests --gtest_shuffle
+     && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapArnoldiHostTests --gtest_shuffle
      && make TARGET_ARCH=HOST MODE=Release
      && ${OAP_PATH}/dist/Release/x86/bin/oapHostTests --gtest_shuffle
      && ${OAP_PATH}/dist/Release/x86/bin/oapSmsDataTests --gtest_shuffle
      && ${OAP_PATH}/dist/Release/x86/bin/oap2dt3dTests --gtest_shuffle
      && ${OAP_PATH}/dist/Release/x86/bin/oapNeuralRoutinesHostTests --gtest_shuffle
+     && ${OAP_PATH}/dist/Release/x86/bin/oapArnoldiHostTests --gtest_shuffle
   
 # Notify after build
 notifications:

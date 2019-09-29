@@ -605,6 +605,58 @@ namespace generic
 
     return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
   }
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool setVector (math::Matrix* V, uintt column, math::Matrix* v, uintt length, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+  {
+    auto minfo = getMatrixInfo (v);
+
+    oap::generic::Args args;
+
+    args.retrieveDims = false;
+    args.w = minfo.columns();
+    args.h = minfo.rows();
+
+    void* params[] = {&V, &column, &v, &length};
+    const char* kname = "CUDAKernel_SetVector";
+
+    return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool getVector (math::Matrix* vector, uintt length, math::Matrix* matrix, uintt column, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+  {
+    auto minfo = getMatrixInfo (vector);
+
+    oap::generic::Args args;
+
+    args.retrieveDims = false;
+    args.w = minfo.columns();
+    args.h = minfo.rows();
+
+    void* params[] = {&vector, &length, &matrix, &column};
+    const char* kname = "CUDAKernel_GetVector";
+
+    return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool getVector(math::Matrix* vector, math::Matrix* matrix, uintt column, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+  {
+    auto minfo = getMatrixInfo (vector);
+
+    oap::generic::Args args;
+
+    args.retrieveDims = false;
+    args.w = minfo.columns();
+    args.h = minfo.rows();
+    uintt length = args.w * args.h;
+
+    void* params[] = {&vector, &length, &matrix, &column};
+    const char* kname = "CUDAKernel_GetVector";
+
+    return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
+  }
 }
 }
 

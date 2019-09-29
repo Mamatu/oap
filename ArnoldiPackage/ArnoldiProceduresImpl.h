@@ -32,9 +32,7 @@ class CuHArnoldiDefault : public CuHArnoldi {
   void setMatrix(math::Matrix* A) { m_A = A; }
 
  protected:
-  virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
-                        oap::CuProceduresApi& cuProceduresApi,
-                        CuHArnoldi::MultiplicationType mt);
+  virtual void multiply (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, oap::VecMultiplicationType);
 
   virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max) {
     return true;
@@ -50,8 +48,7 @@ class CuHArnoldiCallbackBase : public CuHArnoldi
     CuHArnoldiCallbackBase();
     virtual ~CuHArnoldiCallbackBase();
 
-    typedef void (*MultiplyFunc)(math::Matrix* m_w, math::Matrix* m_v,  oap::CuProceduresApi& cuProceduresApi,
-                                 void* userData, CuHArnoldi::MultiplicationType mt);
+    typedef void (*MultiplyFunc) (math::Matrix* m_w, math::Matrix* m_v,  oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
 
     typedef bool (*CheckFunc) (floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max, void* userData);
 
@@ -59,9 +56,7 @@ class CuHArnoldiCallbackBase : public CuHArnoldi
     void setCheckCallback(CheckFunc multiplyFunc, void* userData);
 
   protected:
-    virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
-                          oap::CuProceduresApi& cuProceduresApi,
-                          CuHArnoldi::MultiplicationType mt);
+    virtual void multiply (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, oap::VecMultiplicationType mt);
 
     virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max);
 

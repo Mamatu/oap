@@ -48,6 +48,8 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_SinDimPeriodic", proxy_HOSTKernel_SinDimPeriodic},
   {"CUDAKernel_QRHT", proxy_HOSTKernel_QRHT},
   {"CUDAKernel_SetIdentity", proxy_HOSTKernel_SetIdentity},
+  {"CUDAKernel_SetVector", proxy_HOSTKernel_setVector},
+  {"CUDAKernel_GetVector", proxy_HOSTKernel_getVector}
 };
 
 class HostKernelImpl : public HostKernel

@@ -35,6 +35,12 @@ enum class QRType
   QRHT, // housholder reflection
 };
 
+enum class VecMultiplicationType
+{
+  TYPE_EIGENVECTOR,
+  TYPE_WV
+};
+
 namespace generic {
 
 namespace {
@@ -44,6 +50,18 @@ inline void aux_swapPointers(math::Matrix** a, math::Matrix** b)
   *b = *a;
   *a = temp;
 }
+}
+
+template<typename Arnoldi, typename Api, typename VecMultiplication>
+void iram_executeInit (Arnoldi& ar, Api& api, VecMultiplication&& multiply)
+{
+  multiply (ar.m_w, ar.m_v, api, VecMultiplicationType::TYPE_WV);
+  api.setVector (ar.m_V, 0, ar.m_v, ar.m_vrows);
+  api.transpose (ar.m_transposeV, ar.m_V);
+  api.dotProduct (ar.m_h, ar.m_transposeV, ar.m_w);
+  api.dotProduct (ar.m_vh, ar.m_V, ar.m_h);
+  api.substract (ar.m_f, ar.m_w, ar.m_vh);
+  api.setVector (ar.m_H, 0, ar.m_h, 1);
 }
 
 template<typename Arnoldi, typename Api, typename GetReValue, typename GetImValue>
