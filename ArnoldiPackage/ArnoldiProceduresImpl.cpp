@@ -25,11 +25,11 @@ CuHArnoldiCallbackBase::~CuHArnoldiCallbackBase() {}
 
 void CuHArnoldiDefault::multiply(math::Matrix* w, math::Matrix* v,
                                  oap::CuProceduresApi& cuProceduresApi,
-                                 CuHArnoldi::MultiplicationType mt) {
+                                 oap::VecMultiplicationType mt) {
   cuProceduresApi.dotProduct(w, m_A, v);
 }
 
-void CuHArnoldiCallbackBase::multiply(math::Matrix* w, math::Matrix* v, oap::CuProceduresApi& cuProceduresApi, CuHArnoldi::MultiplicationType mt)
+void CuHArnoldiCallbackBase::multiply(math::Matrix* w, math::Matrix* v, oap::CuProceduresApi& cuProceduresApi, oap::VecMultiplicationType mt)
 {
   m_multiplyFunc(w, v, cuProceduresApi, m_userData, mt);
 }

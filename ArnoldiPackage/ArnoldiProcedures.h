@@ -69,13 +69,8 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   void execute (uint k, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType = ArnUtils::DEVICE);
 
- public:  // types
-  enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
-
  protected:  // methods - multiplication to implement
-  virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
-                        oap::CuProceduresApi& cuProceduresApi,
-                        MultiplicationType mt) = 0;
+  virtual void multiply(math::Matrix*, math::Matrix*, oap::CuProceduresApi&, oap::VecMultiplicationType) = 0;
 
  protected:  // methods - to drive algorithm
   virtual bool checkEigenspair(floatt revalue, floatt imevalue, math::Matrix* vector,

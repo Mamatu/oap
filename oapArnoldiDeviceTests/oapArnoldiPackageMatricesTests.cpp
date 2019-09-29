@@ -58,9 +58,9 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       oap::cuda::Context::Instance().destroy();
     }
 
-    static void multiply(math::Matrix* m_w, math::Matrix* m_v,
-        oap::CuProceduresApi& cuProceduresApi,
-        void* userData, CuHArnoldi::MultiplicationType mt)
+    static void multiply (math::Matrix* m_w, math::Matrix* m_v,
+                          oap::CuProceduresApi& cuProceduresApi,
+                          void* userData, oap::VecMultiplicationType mt)
     {
       UserData* userDataObj = static_cast<UserData*>(userData);
 

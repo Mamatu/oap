@@ -324,29 +324,19 @@ void CuProceduresApi::add(math::Matrix* output, math::Matrix* params0,
   m_cuStatus = execute("CUDAKernel_Add", columns, rows, params, 0);
 }
 
-void CuProceduresApi::setVector(math::Matrix* V, uintt column, math::Matrix* v,
-                         uintt length) {
-  const uintt w = CudaUtils::GetColumns(v);
-  const uintt h = CudaUtils::GetRows(v);
-  void* params[] = {&V, &column, &v, &length};
-  m_cuStatus = execute("CUDAKernel_SetVector", w, h, params, 0);
+void CuProceduresApi::setVector (math::Matrix* V, uintt column, math::Matrix* v, uintt length)
+{
+  m_cuStatus = oap::generic::setVector (V, column, v, length, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
-void CuProceduresApi::getVector(math::Matrix* vector, uintt length,
-                         math::Matrix* matrix, uintt column) {
-  const uintt w = CudaUtils::GetColumns(vector);
-  const uintt h = CudaUtils::GetRows(vector);
-  void* params[] = {&vector, &length, &matrix, &column};
-  m_cuStatus = execute("CUDAKernel_GetVector", w, h, params, 0);
+void CuProceduresApi::getVector (math::Matrix* vector, uintt length, math::Matrix* matrix, uintt column)
+{
+  m_cuStatus = oap::generic::getVector (vector, length, matrix, column, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
-void CuProceduresApi::getVector(math::Matrix* vector, math::Matrix* matrix,
-                         uintt column) {
-  const uintt w = CudaUtils::GetColumns(vector);
-  const uintt h = CudaUtils::GetRows(vector);
-  uintt length = w * h;
-  void* params[] = {&vector, &length, &matrix, &column};
-  m_cuStatus = execute("CUDAKernel_GetVector", w, h, params, 0);
+void CuProceduresApi::getVector (math::Matrix* vector, math::Matrix* matrix, uintt column)
+{
+  m_cuStatus = oap::generic::getVector (vector, matrix, column, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
 void CuProceduresApi::magnitude(floatt& output, math::Matrix* param0) {

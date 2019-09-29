@@ -39,11 +39,11 @@ struct UserData
   oap::RecToSquareApi* rtsApi;
 };
 
-void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt)
 {
   debugFunc ();
 
-  if (mt == CuHArnoldi::TYPE_WV)
+  if (mt == oap::VecMultiplicationType::TYPE_WV)
   {
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
@@ -56,11 +56,11 @@ void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_
   }
 }
 
-void MainAPExecutor::multiplySubMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+void MainAPExecutor::multiplySubMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt)
 {
   debugFunc ();
 
-  if (mt == CuHArnoldi::TYPE_WV)
+  if (mt == oap::VecMultiplicationType::TYPE_WV)
   {
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;
@@ -99,11 +99,11 @@ void MainAPExecutor::multiplySubMatrixCallback (math::Matrix* m_w, math::Matrix*
   }
 }
 
-void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt)
+void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt)
 {
   debugFunc ();
 
-  if (mt == CuHArnoldi::TYPE_WV)
+  if (mt == oap::VecMultiplicationType::TYPE_WV)
   {
     UserData* udObj = static_cast<UserData*>(userData);
     auto dataLoader = udObj->dataLoader;

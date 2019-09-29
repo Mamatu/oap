@@ -24,8 +24,9 @@
 #include "Matrix.h"
 #include "Logger.h"
 
-__hostdevice__ void CUDAKernel_setVector(math::Matrix* V, uintt column,
-                                   math::Matrix* v, uintt length) {
+__hostdevice__ void CUDAKernel_setVector (math::Matrix* V, uintt column,
+                                          math::Matrix* v, uintt length)
+{
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -45,8 +46,9 @@ __hostdevice__ void CUDAKernel_setVector(math::Matrix* V, uintt column,
   threads_sync();
 }
 
-__hostdevice__ void CUDAKernel_getVector(math::Matrix* v, uintt length,
-                                   math::Matrix* V, uintt column) {
+__hostdevice__ void CUDAKernel_getVector (math::Matrix* v, uintt length,
+                                          math::Matrix* V, uintt column)
+{
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -66,8 +68,8 @@ __hostdevice__ void CUDAKernel_getVector(math::Matrix* v, uintt length,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_setVector(math::Matrix* V, uintt column,
-                                   math::Matrix* v, uintt length)
+__hostdevice__ void CUDA_setVector (math::Matrix* V, uintt column,
+                                    math::Matrix* v, uintt length)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -88,8 +90,8 @@ __hostdevice__ void CUDA_setVector(math::Matrix* V, uintt column,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_getVector(math::Matrix* v, uintt length,
-                                   math::Matrix* V, uintt column)
+__hostdevice__ void CUDA_getVector (math::Matrix* v, uintt length,
+                                    math::Matrix* V, uintt column)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
