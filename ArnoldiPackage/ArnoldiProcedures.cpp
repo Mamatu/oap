@@ -72,6 +72,11 @@ void CuHArnoldi::setQRType (oap::QRType qrtype)
   m_qrtype = qrtype;
 }
 
+void CuHArnoldi::setVecInitType (oap::InitVVectorType initVVectorType)
+{
+  m_initVVectorType = initVVectorType;
+}
+
 void CuHArnoldi::setBLimit(floatt blimit) {
   traceFunction();
   m_blimit = blimit;
@@ -152,7 +157,17 @@ void CuHArnoldi::begin (uint hdim, uint wantedCount, const math::MatrixInfo& mat
 
   m_matrixInfo = matrixInfo;
 
-  initVvector_rand();
+  switch (m_initVVectorType)
+  {
+    case oap::InitVVectorType::FIRST_VALUE_IS_ONE:
+      initVvector_fvis1();
+    break;
+    case oap::InitVVectorType::RANDOM:
+      initVvector_rand();
+    break;
+    default:
+      debugAssert ("not supported option" == nullptr);
+  };
 
   traceFunction();
 
@@ -248,7 +263,7 @@ void CuHArnoldi::getEigenvector(math::Matrix* vector, uint index) {
   }
 }
 
-void CuHArnoldi::initVvector() {
+void CuHArnoldi::initVvector_fvis1() {
   traceFunction();
 
   CudaUtils::SetReValue(m_v, 0, 1.f);

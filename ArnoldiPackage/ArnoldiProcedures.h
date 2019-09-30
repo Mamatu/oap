@@ -43,6 +43,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   void setBLimit(floatt blimit);
 
   void setQRType (oap::QRType qrtype = oap::QRType::QRGR);
+  void setVecInitType (oap::InitVVectorType initVVectorType);
 
   void setSortType(ArnUtils::SortType sortType);
 
@@ -94,6 +95,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   floatt m_rho;
   floatt m_blimit;
   oap::QRType m_qrtype = oap::QRType::NONE;
+  oap::InitVVectorType m_initVVectorType = oap::InitVVectorType::RANDOM;
 
   std::vector<EigenPair> m_wanted;
   std::vector<EigenPair> m_previousWanted;
@@ -145,7 +147,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   void getEigenvector(math::Matrix* vector, uint index);
 
  private:  // internal methods
-  void initVvector();
+  void initVvector_fvis1();
   void initVvector_rand();
 
   bool continueProcedure();

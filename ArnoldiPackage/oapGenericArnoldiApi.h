@@ -41,6 +41,12 @@ enum class VecMultiplicationType
   TYPE_WV
 };
 
+enum class InitVVectorType
+{
+  RANDOM,
+  FIRST_VALUE_IS_ONE
+};
+
 namespace generic {
 
 namespace {
