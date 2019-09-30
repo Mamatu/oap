@@ -47,6 +47,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
       arnoldiCuda = new CuHArnoldiCallback();
       arnoldiCuda->setOutputType(ArnUtils::HOST);
       arnoldiCuda->setQRType(oap::QRType::QRGR);
+      arnoldiCuda->setVecInitType(oap::InitVVectorType::FIRST_VALUE_IS_ONE);
     }
 
     virtual void TearDown() {
