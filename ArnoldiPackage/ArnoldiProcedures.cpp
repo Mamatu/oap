@@ -320,7 +320,7 @@ void CuHArnoldi::calculateTriangularHInHost ()
 {
   debugFunc();
   oap::generic::iram_calcTriangularH_Host::InOutArgs io = {m_triangularH, m_Q};
-  oap::generic::iram_calcTriangularH_Host::InArgs iargs = {m_triangularHInfo, *this, "CUDA", 4000, m_qrtype};
+  oap::generic::iram_calcTriangularH_Host::InArgs iargs = {m_triangularHInfo, *this, "CUDA", 400, m_qrtype};
   oap::generic::iram_calcTriangularH_Host::proc (io, iargs, m_cuMatrix, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
 }
 
