@@ -284,7 +284,7 @@ void proc (InOutArgs& io, const InArgs& iargs, CalcApi& capi, CopyKernelMatrixTo
   {
     _qr (io.Q, aux_R, io.H, iargs.thInfo, iargs.context, iargs.memType, capi, iargs.qrtype);
 
-    capi.dotProduct (io.H, aux_R, aux_Q);
+    capi.dotProduct (io.H, aux_R, io.Q);
     capi.dotProduct (aux_Q1, io.Q, aux_Q);
     aux_swapPointers (&aux_Q1, &aux_Q);
     status = capi.isUpperTriangular (io.H);
