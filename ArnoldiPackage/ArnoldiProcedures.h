@@ -78,7 +78,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
                                uint index, uint max) = 0;
 
  protected:  // data, matrices
-  oap::CuProceduresApi m_cuMatrix;
+  oap::CuProceduresApi m_cuApi;
 
   floatt m_previousFValue;
   floatt m_FValue;
@@ -187,7 +187,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   inline void calculateQSwapQAuxPointers()
   {
-    m_cuMatrix.dotProduct(m_QT1, m_QT2, m_Q);
+    m_cuApi.dotProduct(m_QT1, m_QT2, m_Q);
     swapQAuxPointers();
   }
 
