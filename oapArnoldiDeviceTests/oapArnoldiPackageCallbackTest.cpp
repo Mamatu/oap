@@ -45,9 +45,9 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
       oap::cuda::Context::Instance().create();
 
       arnoldiCuda = new CuHArnoldiCallback();
-      arnoldiCuda->setOutputType(ArnUtils::HOST);
-      arnoldiCuda->setQRType(oap::QRType::QRGR);
-      arnoldiCuda->setVecInitType(oap::InitVVectorType::FIRST_VALUE_IS_ONE);
+      arnoldiCuda->setOutputType (ArnUtils::HOST);
+      arnoldiCuda->setQRType (oap::QRType::QRGR);
+      arnoldiCuda->setVecInitType (oap::InitVVectorType::FIRST_VALUE_IS_ONE);
     }
 
     virtual void TearDown() {
@@ -303,7 +303,7 @@ TEST_F(OapArnoldiPackageCallbackTests, TestData2Dim32x32) {
   executeArnoldiTest(-4.257104, "data/data2", 32);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, DISABLED_TestData2Dim64x64) {
+TEST_F(OapArnoldiPackageCallbackTests, TestData2Dim64x64) {
   executeArnoldiTest(-4.257104, "data/data2", 64, false);
 }
 
