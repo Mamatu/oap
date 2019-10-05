@@ -22,15 +22,20 @@
 #define OAP_HOST_MATRIX_KERNELS_H
 
 #include "Matrix.h"
+#include "Logger.h"
 
 #include <utility>
 #include <math.h>
+#include "CudaUtils.h"
 
-inline void aux_switchPointer(math::Matrix** a, math::Matrix** b)
+namespace
+{
+inline void aux_swapPointers (math::Matrix** a, math::Matrix** b)
 {
   math::Matrix* temp = *b;
   *b = *a;
   *a = temp;
+}
 }
 
 template<typename CalcApi, typename MatrixApi>
@@ -125,25 +130,30 @@ bool HOSTKernel_QRGR (math::Matrix* Q, math::Matrix* R, math::Matrix* A,
 
   const floatt limit = 0.0000000001;
 
-  for (uintt fa = 0; fa < Acolumns; ++fa) {
-    for (uintt fb = Arows - 1; fb > fa; --fb) {
+  for (uintt fa = 0; fa < Acolumns; ++fa)
+  {
+    for (uintt fb = Arows - 1; fb > fa; --fb)
+    {
+      floatt v =  mapi.getReValueIdx (A, fa + fb * Acolumns);
 
-      floatt v = mapi.getReValue (A, fa, fb);
-
-      if ((-limit < v && v < limit) == false) {
+      if ((-limit < v && v < limit) == false)
+      {
         host_prepareGMatrix(R1, fa, fb, G, capi, mapi);
         capi.dotProduct (R, G, R1);
 
-        if (count == 0) {
+        if (count == 0)
+        {
           capi.transpose(Q, G);
-        } else {
+        }
+        else
+        {
           capi.transpose(GT, G);
           capi.dotProduct(Q, Q1, GT);
         }
 
         ++count;
-        aux_switchPointer(&R1, &R);
-        aux_switchPointer(&Q1, &Q);
+        aux_swapPointers(&R1, &R);
+        aux_swapPointers(&Q1, &Q);
       }
     }
   }
