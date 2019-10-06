@@ -246,8 +246,8 @@ void CuProceduresApi::dotProductExOpt(math::Matrix* output, math::Matrix* params
   bool isIm = CudaUtils::GetImValues(output) != NULL;
   const uintt ocolumns = CudaUtils::GetColumns(matrixEx);
   const uintt orows = CudaUtils::GetRows(matrixEx);
-  const uintt p1rows = CudaUtils::GetRows(params0);
-  const uintt p2columns = CudaUtils::GetColumns(params1);
+  const uintt p1rows = oap::cuda::GetRows(params0);
+  const uintt p2columns = oap::cuda::GetColumns(params1);
   uintt size = (ocolumns * p1rows + orows * p2columns) * sizeof(floatt);
   if (isRe && isIm) {
     size = size * 2;
@@ -403,14 +403,14 @@ void CuProceduresApi::magnitude2(floatt& output, math::Matrix* param0) {
 }
 
 void CuProceduresApi::magnitude2Opt(floatt& output, math::Matrix* params0) {
-  const uintt w = CudaUtils::GetColumns(params0);
-  const uintt h = CudaUtils::GetRows(params0);
+  const uintt w = oap::cuda::GetColumns(params0);
+  const uintt h = oap::cuda::GetRows(params0);
   output = magnitude2Procedure("CUDAKernel_MagnitudeOpt", params0, w, h);
 }
 
 void CuProceduresApi::magnitude2OptVer2(floatt& output, math::Matrix* params0) {
-  const uintt w = CudaUtils::GetColumns(params0);
-  const uintt h = CudaUtils::GetRows(params0);
+  const uintt w = oap::cuda::GetColumns(params0);
+  const uintt h = oap::cuda::GetRows(params0);
   if (w > 1) {
     output =
         magnitude2Procedure("CUDAKernel_MagnitudeOptVer2", params0, w / 2, h);
@@ -420,8 +420,8 @@ void CuProceduresApi::magnitude2OptVer2(floatt& output, math::Matrix* params0) {
 }
 
 void CuProceduresApi::setDiagonal(math::Matrix* matrix, floatt re, floatt im) {
-  const uintt w = CudaUtils::GetColumns(matrix);
-  const uintt h = CudaUtils::GetRows(matrix);
+  const uintt w = oap::cuda::GetColumns(matrix);
+  const uintt h = oap::cuda::GetRows(matrix);
   void* params[] = {&matrix, &re, &im};
   m_cuStatus = execute("CUDAKernel_SetDiagonal", w, h, params, 0);
 }
@@ -441,8 +441,8 @@ void CuProceduresApi::QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* H,
                     math::Matrix* aux3) {
   void* params[] = {&Q, &R, &H, &aux0, &aux1, &aux2, &aux3};
   uint maxThreads = m_kernel.getMaxThreadsPerBlock();
-  const uintt w = CudaUtils::GetColumns(H);
-  const uintt h = CudaUtils::GetRows(H);
+  const uintt w = oap::cuda::GetColumns(H);
+  const uintt h = oap::cuda::GetRows(H);
   if (maxThreads >= w * h)
   {
     m_cuStatus = execute("CUDAKernel_QRGR", w, h, params, 0);
@@ -462,8 +462,8 @@ void CuProceduresApi::QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, m
 bool CuProceduresApi::isUpperTriangular(math::Matrix* matrix) {
   int result = -10;
   void* params[] = {&m_doutputIsTriangular, &matrix};
-  const uintt w = CudaUtils::GetColumns(matrix);
-  const uintt h = CudaUtils::GetRows(matrix);
+  const uintt w = oap::cuda::GetColumns(matrix);
+  const uintt h = oap::cuda::GetRows(matrix);
   m_cuStatus = execute("CUDAKernel_IsUpperTriangular", w, h, params, 0);
   CudaUtils::CopyDeviceToHost(&result, m_doutputIsTriangular, sizeof(int));
   return result == 1;
@@ -492,8 +492,8 @@ void CuProceduresApi::calcTriangularHStep (math::Matrix* H, math::Matrix* Q, mat
 void CuProceduresApi::multiplyReConstant(math::Matrix* output, math::Matrix* params0, floatt re)
 {
   void* params[] = {&output, &params0, &re};
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
+  const uintt w = oap::cuda::GetColumns(output);
+  const uintt h = oap::cuda::GetRows(output);
   m_cuStatus = execute("CUDAKernel_MultiplyConstantRe", w, h, params, 0);
 }
 
@@ -501,8 +501,8 @@ void CuProceduresApi::multiplyConstant(math::Matrix* output, math::Matrix* param
                                              floatt re, floatt im)
 {
   void* params[] = {&output, &params0, &re, &im};
-  const uintt w = CudaUtils::GetColumns(output);
-  const uintt h = CudaUtils::GetRows(output);
+  const uintt w = oap::cuda::GetColumns(output);
+  const uintt h = oap::cuda::GetRows(output);
   m_cuStatus = execute("CUDAKernel_MultiplyConstant", w, h, params, 0);
 }
 
@@ -521,8 +521,8 @@ bool CuProceduresApi::compare (math::Matrix* matrix1, math::Matrix* matrix2, flo
     return false;
   }
 
-  const uintt w = CudaUtils::GetColumns(matrix1);
-  const uintt h = CudaUtils::GetRows(matrix1);
+  const uintt w = oap::cuda::GetColumns(matrix1);
+  const uintt h = oap::cuda::GetRows(matrix1);
 
   floatt o = compareProcedure("CUDAKernel_CompareOpt", matrix1, matrix2, w, h, w,
                           h);
@@ -535,8 +535,8 @@ bool CuProceduresApi::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, 
     return true;
   }
 
-  const uintt w = CudaUtils::GetColumns(matrix1);
-  const uintt h = CudaUtils::GetRows(matrix1);
+  const uintt w = oap::cuda::GetColumns(matrix1);
+  const uintt h = oap::cuda::GetRows(matrix1);
 
   floatt o = compareProcedure("CUDAKernel_CompareOptVer2", matrix1, matrix2, w, h,
                           w / 2, h);
@@ -808,8 +808,8 @@ void CuProceduresApi::qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* 
                            math::Matrix* vvt) {
   uint blocks[2];
   uint threads[2];
-  const uintt w = CudaUtils::GetColumns(A);
-  const uintt h = CudaUtils::GetRows(A);
+  const uintt w = oap::cuda::GetColumns(A);
+  const uintt h = oap::cuda::GetRows(A);
 
   m_kernel.calculateThreadsBlocks(blocks, threads, w, h);
   m_kernel.setBlocksCount(blocks[0], blocks[1]);
@@ -844,12 +844,12 @@ void CuProceduresApi::crossEntropy(math::Matrix* output, math::Matrix* params0, 
 
 uintt CuProceduresApi::GetColumns (const math::Matrix* matrix)
 {
-  return CudaUtils::GetColumns (matrix);
+  return oap::cuda::GetColumns (matrix);
 }
 
 uintt CuProceduresApi::GetRows (const math::Matrix* matrix)
 {
-  return CudaUtils::GetRows (matrix);
+  return oap::cuda::GetRows (matrix);
 }
 
 void CuProceduresApi::deallocKernelArrays ()
