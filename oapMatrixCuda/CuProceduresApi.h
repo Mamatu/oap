@@ -496,31 +496,31 @@ inline void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* pa
 
 inline void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* params0,
                                     math::Matrix* params1) {
-  const uintt ocolumns = CudaUtils::GetColumns(output);
-  const uintt orows = CudaUtils::GetRows(output);
-  const uintt p1rows = CudaUtils::GetRows(params0);
-  const uintt p2columns = CudaUtils::GetColumns(params1);
+  const uintt ocolumns = oap::cuda::GetColumns(output);
+  const uintt orows = oap::cuda::GetRows(output);
+  const uintt p1rows = oap::cuda::GetRows(params0);
+  const uintt p2columns = oap::cuda::GetColumns(params1);
   dotProductOpt(output, params0, params1, ocolumns, orows, p1rows, p2columns);
 }
 
 inline void CuProceduresApi::substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  const uintt columns = CudaUtils::GetColumns(output);
-  const uintt rows = CudaUtils::GetRows(output);
+  const uintt columns = oap::cuda::GetColumns(output);
+  const uintt rows = oap::cuda::GetRows(output);
   substract(output, params0, params1, columns, rows);
 }
 
 inline void CuProceduresApi::addSubstract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  const uintt columns = CudaUtils::GetColumns(output);
-  const uintt rows = CudaUtils::GetRows(output);
+  const uintt columns = oap::cuda::GetColumns(output);
+  const uintt rows = oap::cuda::GetRows(output);
   addSubstract(output, params0, params1, columns, rows);
 }
 
 inline void CuProceduresApi::add(math::Matrix* output, math::Matrix* params0,
                           math::Matrix* params1) {
-  const uintt columns = CudaUtils::GetColumns(output);
-  const uintt rows = CudaUtils::GetRows(output);
+  const uintt columns = oap::cuda::GetColumns(output);
+  const uintt rows = oap::cuda::GetRows(output);
   add(output, params0, params1, columns, rows);
 }
 
