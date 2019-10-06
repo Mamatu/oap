@@ -34,3 +34,4 @@ OAP_CU_DEVICE_INDEX - index of graphics card (unit) used for calculations
 OAP_CUDA_BUILD - information that current compilation unit is cuda compilation
 OAP_CONFIG_NI_EF - in this case uintt is unsigned int and floatt is double
 OAP_CONFIG_NI_NF - in this case uintt is unsigned long long int and floatt is double
+OAP_PERFORMANCE_CLOCK_ENABLE - enable macros in oapClock.h for measurment of elipsed time
