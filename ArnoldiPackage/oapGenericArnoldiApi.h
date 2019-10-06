@@ -194,8 +194,8 @@ void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm
   math::Matrix* aux_Q1 = getter.useMatrix (iargs.hinfo, iargs.memType);
   math::Matrix* aux_R = getter.useMatrix (iargs.hinfo, iargs.memType);
 
+  api.setIdentity (aux_Q1);
   api.setIdentity (aux_QJ);
-  api.setIdentity (io.Q);
 
   oap::generic::iram_singleShiftedQRIteration::InOutArgs io1;
   io1.Q = aux_Q1;
