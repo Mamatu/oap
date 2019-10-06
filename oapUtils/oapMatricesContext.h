@@ -29,7 +29,6 @@
 #include <map>
 #include <set>
 
-
 namespace oap { namespace generic {
 
 class MatricesContext
@@ -58,6 +57,12 @@ class MatricesContext
 
   public:
 
+    MatricesContext (const MatricesContext&) = delete;
+    MatricesContext (MatricesContext&&) = delete;
+    MatricesContext& operator= (const MatricesContext&) = delete;
+    MatricesContext& operator= (MatricesContext&&) = delete;
+
+    MatricesContext () {};
     virtual ~MatricesContext ()
     {
       clear ();
@@ -67,7 +72,7 @@ class MatricesContext
     {
       private:
         MatricesContext& m_context;
-        std::set<math::Matrix*> m_matrices;
+        std::set<math::Matrix*> m_matricesSet;
 
         Getter() = delete;
 
@@ -79,7 +84,10 @@ class MatricesContext
         inline math::Matrix* useMatrix (const math::MatrixInfo& minfo, const std::string& memTypeName)
         {
           math::Matrix* matrix = m_context.useMatrix (minfo, memTypeName);
-          m_matrices.insert (matrix);
+
+          const auto& pair = m_matricesSet.insert (matrix);
+          debugAssert (pair.second);
+
           return  matrix;
         }
 
@@ -90,8 +98,8 @@ class MatricesContext
 
         ~Getter ()
         {
-          m_context.unuseMatrices (m_matrices);
-          m_matrices.clear();
+          m_context.unuseMatrices (m_matricesSet);
+          m_matricesSet.clear();
         }
 
         friend class MatricesContext;
@@ -122,6 +130,7 @@ class MatricesContext
         {
           matrix = entry.matrix;
           entry.isUsed = true;
+          break;
         }
       }
 
@@ -161,6 +170,26 @@ class MatricesContext
           kv.second.isUsed = false;
         }
       }
+    }
+
+    enum UsedT
+    {
+      TRUE,
+      FALSE,
+      NONE
+    };
+
+    inline UsedT isUsed (const math::Matrix* matrix) const
+    {
+      for (auto& kv : m_matrices)
+      {
+        if (kv.second.matrix == matrix)
+        {
+          return kv.second.isUsed ? TRUE : FALSE;
+        }
+      }
+      debugAssertMsg (false, "Matrix is not registed in this MatrixPool: %p", matrix);
+      return NONE;
     }
 
     inline void clear ()
