@@ -21,6 +21,8 @@
 #define OAP_CLOCK_H
 
 #include <chrono>
+#include <type_traits>
+
 #include "Logger.h"
 
 namespace oap
@@ -29,8 +31,12 @@ namespace oap
 namespace clock
 {
 
-using TimePoints = std::chrono::time_point<std::chrono::steady_clock>;
-using TimeUnit = std::chrono::milliseconds;
+//using std_clock = std::chrono::steady_clock;
+//using TimePoints = std::chrono::time_point<std_clock>;
+//using TimeUnit = std::chrono::milliseconds;
+using std_clock = std::chrono::high_resolution_clock;
+using TimePoints = std::chrono::time_point<std_clock>;
+using TimeUnit = std::chrono::microseconds;
 
 struct CodeInfo
 {
@@ -39,48 +45,15 @@ struct CodeInfo
   int line = -1;
 };
 
-inline CodeInfo createCodeInfo (const char* function = nullptr, const char* file = nullptr, int line = -1)
-{
-  CodeInfo ci;
-  ci.function = function;
-  ci.file = file;
-  ci.line = line;
-  return ci;
-}
+CodeInfo createCodeInfo (const char* function = nullptr, const char* file = nullptr, int line = -1);
 
-inline bool isValid (const CodeInfo& ci)
-{
-  return ci.function != nullptr && ci.file != nullptr && ci.line > 0;
-}
+void print (TimeUnit duration, const CodeInfo& ci);
 
-inline void print (TimeUnit duration, const CodeInfo& ci)
-{
-  if (isValid (ci))
-  {
-    logInfo ("%s %s %d Duration = %lu ms", ci.function, ci.file, ci.line, duration.count());
-  }
-  else
-  {
-    logInfo ("Duration = %lu ms", duration.count());
-  }
-}
+TimePoints start ();
 
-inline TimePoints start ()
-{
-  return std::chrono::steady_clock::now();
-}
+TimeUnit end (TimePoints start_time);
 
-inline TimeUnit end (TimePoints start_time)
-{
-  return std::chrono::duration_cast<TimeUnit> (std::chrono::steady_clock::now() - start_time);
-}
-
-inline void end_print (TimePoints start_time, const char* file, const char* function, int line)
-{
-  auto duration = end (start_time);
-  CodeInfo ci = createCodeInfo (file, function, line);
-  print (duration, ci);
-}
+void end_print (TimePoints start_time, const char* file, const char* function, int line);
 
 class Clock final
 {
@@ -88,30 +61,21 @@ class Clock final
     CodeInfo m_ci;
 
   public:
-    inline Clock () : m_startTime (oap::clock::start())
-    {}
+    Clock ();
+    Clock (CodeInfo ci);
 
-    inline Clock (CodeInfo ci) : m_startTime (oap::clock::start())
-    {
-      m_ci = ci;
-    }
-
-    inline ~Clock ()
-    {
-      TimeUnit duration = oap::clock::end (m_startTime);
-      print (duration, m_ci);
-    }
+    ~Clock ();
 };
 
 }
 }
 #ifdef OAP_PERFORMANCE_CLOCK_ENABLE
 
-#define OAP_CLOCK_INIT() oap::clock::CodeInfo oap_clock_ci = oap::clock::createCodeInfo(__FUNCTION__,__FILE__,__LINE__); oap::clock::Clock oap_clock_clock (oap_clock_ci);
+#define OAP_CLOCK_INIT() oap::clock::CodeInfo oap_clock_ci = oap::clock::createCodeInfo(__func__,__FILE__,__LINE__); oap::clock::Clock oap_clock_clock (oap_clock_ci);
 
-#define OAP_CLOCK_START(val) auto val = oap::clock::start ();
+#define OAP_CLOCK_START(handler) auto handler = oap::clock::start ();
 
-#define OAP_CLOCK_END(start) oap::clock::end_print (start, __func__, __FILE__, __LINE__);
+#define OAP_CLOCK_END(handler) oap::clock::end_print (handler, __func__, __FILE__, __LINE__);
 
 #else
 
