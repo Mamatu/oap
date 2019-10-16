@@ -32,7 +32,7 @@ env:
 # Build steps
 script:
   - >
-     cd scripts && bash download_module_data.sh oapNeural && cd ..
+     cd scripts && bash download_module_data.sh oapNeural && bash download_module_data.sh oapDeviceTests && cd ..
      && make clean && make MODE=DebugSanitizer clean && make MODE=Release clean
      && make TARGET_ARCH=HOST MODE=DebugSanitizer
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapHostTests --gtest_shuffle
