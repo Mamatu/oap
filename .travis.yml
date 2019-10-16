@@ -32,20 +32,18 @@ env:
 # Build steps
 script:
   - >
-     cd scripts && bash download_module_data.sh oapNeural && bash download_module_data.sh oapDeviceTests && cd ..
+     cd scripts && bash download_module_data.sh oapNeural && cd ..
      && make clean && make MODE=DebugSanitizer clean && make MODE=Release clean
      && make TARGET_ARCH=HOST MODE=DebugSanitizer
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapHostTests --gtest_shuffle
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapSmsDataTests --gtest_shuffle
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oap2dt3dTests --gtest_shuffle
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapNeuralRoutinesHostTests --gtest_shuffle
-     && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapArnoldiHostTests --gtest_shuffle
      && make TARGET_ARCH=HOST MODE=Release
      && ${OAP_PATH}/dist/Release/x86/bin/oapHostTests --gtest_shuffle
      && ${OAP_PATH}/dist/Release/x86/bin/oapSmsDataTests --gtest_shuffle
      && ${OAP_PATH}/dist/Release/x86/bin/oap2dt3dTests --gtest_shuffle
      && ${OAP_PATH}/dist/Release/x86/bin/oapNeuralRoutinesHostTests --gtest_shuffle
-     && ${OAP_PATH}/dist/Release/x86/bin/oapArnoldiHostTests --gtest_shuffle
   
 # Notify after build
 notifications:
