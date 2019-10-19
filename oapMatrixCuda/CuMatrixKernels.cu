@@ -34,7 +34,7 @@ extern "C" __global__ void CUDAKernel_DotProductIm(math::Matrix* output,
 extern "C" __global__ void CUDAKernel_DotProduct(math::Matrix* output,
                                                  math::Matrix* params0,
                                                  math::Matrix* params1) {
-  CUDA_dotProduct(output, params0, params1);
+  cuda_dotProduct(output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
