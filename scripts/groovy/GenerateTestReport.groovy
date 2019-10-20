@@ -151,7 +151,7 @@ def getExtraArgs(def args)
     println (value)
     if (!value.contains("="))
     {
-      throw new Exception ("Argument must have \"=\" to seprate key and value")
+      throw new Exception ("Argument must have \"=\" to seprate key and value: ${value}")
     }
     value.splitEachLine ("=") {tokens ->
       if (tokens.size() != 2)
