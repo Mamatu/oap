@@ -86,6 +86,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
       arnoldiCuda->setSortType(ArnUtils::SortSmallestReValues);
       arnoldiCuda->setCheckType(ArnUtils::CHECK_FIRST_STOP);
       arnoldiCuda->setOutputsEigenvalues(revalues, imvalues);
+      arnoldiCuda->setVecInitType (oap::InitVVectorType::FIRST_VALUE_IS_ONE);
       math::MatrixInfo matrixInfo(true, true, data.getElementsCount(),
                                       data.getElementsCount());
 
