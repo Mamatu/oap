@@ -22,19 +22,19 @@ extern "C" __global__ void CUDAKernel_AddDotProduct(math::Matrix* output,
 extern "C" __global__ void CUDAKernel_DotProductRe(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
-  CUDA_dotProductRe(output, params0, params1);
+  CUDA_specific_dotProductRe (output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductIm(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
-  CUDA_dotProductIm(output, params0, params1);
+  CUDA_specific_dotProductIm(output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_DotProduct(math::Matrix* output,
                                                  math::Matrix* params0,
                                                  math::Matrix* params1) {
-  cuda_dotProduct(output, params0, params1);
+  CUDA_specific_dotProduct (output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_DotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)

@@ -20,7 +20,7 @@
 #ifndef OAP_CU_DOT_PRODUCT_DIM_PERIODIC_PROCEDURES_H
 #define OAP_CU_DOT_PRODUCT_DIM_PERIODIC_PROCEDURES_H
 
-#include "CuDotProductProcedures.h"
+#include "CuDotProductGenericProcedures.h"
 #include "CuDotProductDimProcedures.h"
 
 #define PERIODIC_ROWS_IDX 3
@@ -44,7 +44,7 @@ __hostdevice__ void cuda_dotProductDimPeriodic (math::Matrix* output, math::Matr
   uintt t0[2] = {0, indexY1};
   uintt t1[2] = {threadIndexX, indexY2};
 
-  cuda_dotProductUserThreads (output, params0, params1, t0, t1, offset, inRange);
+  cuda_generic_dotProductUserThreads (output, params0, params1, t0, t1, offset, inRange);
 }
 
 /**
