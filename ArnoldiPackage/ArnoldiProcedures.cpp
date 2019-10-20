@@ -18,6 +18,7 @@
  */
 
 #include <algorithm>
+#include <functional>
 #include <math.h>
 #include <random>
 
@@ -69,6 +70,11 @@ void CuHArnoldi::setRho(floatt rho) {
 void CuHArnoldi::setQRType (oap::QRType qrtype)
 {
   m_qrtype = qrtype;
+}
+
+void CuHArnoldi::setVecInitType (oap::InitVVectorType initVVectorType)
+{
+  m_initVVectorType = initVVectorType;
 }
 
 void CuHArnoldi::setBLimit(floatt blimit) {
@@ -147,11 +153,21 @@ void CuHArnoldi::begin (uint hdim, uint wantedCount, const math::MatrixInfo& mat
 
   alloc(matrixInfo, hdim);
 
-  m_cuMatrix.setIdentity (m_QT2);
+  m_cuApi.setIdentity (m_QT2);
 
   m_matrixInfo = matrixInfo;
 
-  initVvector_rand();
+  switch (m_initVVectorType)
+  {
+    case oap::InitVVectorType::FIRST_VALUE_IS_ONE:
+      initVvector_fvis1();
+    break;
+    case oap::InitVVectorType::RANDOM:
+      initVvector_rand();
+    break;
+    default:
+      debugAssert ("not supported option" == nullptr);
+  };
 
   traceFunction();
 
@@ -175,6 +191,9 @@ bool CuHArnoldi::step ()
   calculateTriangularHEigens(m_H, m_matrixInfo);
   sortPWorstEigens (m_wantedCount);
 
+  m_cuApi.setIdentity(m_QJ);
+  m_cuApi.setIdentity(m_Q);
+
   uint m_unwantedCount = m_k - m_wantedCount; // m_unwanted - p, m_wanted - k
 
   executeShiftedQRIteration (m_unwantedCount);
@@ -184,7 +203,7 @@ bool CuHArnoldi::step ()
   calculateTriangularHEigens (m_H, m_matrixInfo);
   sortPWorstEigens (m_wantedCount);
 
-  status = executeChecking (m_wanted.size());
+  status = executeChecking (m_wantedCount);
 
   m_startIndex = m_wantedCount - 1;
 
@@ -216,44 +235,53 @@ void CuHArnoldi::extractOutput(math::Matrix* EV)
   for (uint fa = 0; fa < m_wanted.size(); fa++)
   {
     traceFunction();
-    if (NULL != m_reoevalues) {
+    if (NULL != m_reoevalues)
+    {
       traceFunction();
       m_reoevalues[fa] = m_wanted[fa].re();
     }
 
-    if (NULL != m_imoevalues) {
+    if (NULL != m_imoevalues)
+    {
       traceFunction();
       m_imoevalues[fa] = m_wanted[fa].im();
     }
 
-    if (m_oevectors != NULL && m_oevectors[fa] != NULL) {
+    if (m_oevectors != NULL && m_oevectors[fa] != NULL)
+    {
       traceFunction();
       getEigenvector(m_oevectors[fa], m_wanted[fa]);
     }
   }
 }
 
-void CuHArnoldi::getEigenvector(math::Matrix* vector, const EigenPair& eigenPair) {
+void CuHArnoldi::getEigenvector(math::Matrix* vector, const EigenPair& eigenPair)
+{
   getEigenvector(vector, eigenPair.getIndex());
 }
 
-void CuHArnoldi::getEigenvector(math::Matrix* vector, uint index) {
+void CuHArnoldi::getEigenvector(math::Matrix* vector, uint index)
+{
   traceFunction();
 
-  if (m_outputType == ArnUtils::HOST) {
+  if (m_outputType == ArnUtils::HOST)
+  {
     oap::host::GetVector(vector, m_hostV, index);
-  } else if (m_outputType == ArnUtils::DEVICE) {
-    m_cuMatrix.getVector(vector, m_EV, index);
+  }
+  else if (m_outputType == ArnUtils::DEVICE)
+  {
+    m_cuApi.getVector(vector, m_EV, index);
   }
 }
 
-void CuHArnoldi::initVvector() {
+void CuHArnoldi::initVvector_fvis1()
+{
   traceFunction();
 
   CudaUtils::SetReValue(m_v, 0, 1.f);
 
   auto vinfo = oap::cuda::GetMatrixInfo (m_v);
-  m_cuMatrix.setVector (m_V, 0, m_v, vinfo.rows());
+  m_cuApi.setVector (m_V, 0, m_v, vinfo.rows());
 }
 
 void CuHArnoldi::initVvector_rand()
@@ -285,7 +313,7 @@ void CuHArnoldi::initVvector_rand()
   oap::host::SetReValuesToMatrix (matrixPtr, values);
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_v, matrixPtr);
 
-  m_cuMatrix.setVector (m_V, 0, m_v, vinfo.rows());
+  m_cuApi.setVector (m_V, 0, m_v, vinfo.rows());
 }
 
 bool CuHArnoldi::continueProcedure() {
@@ -294,27 +322,27 @@ bool CuHArnoldi::continueProcedure() {
 
 void CuHArnoldi::calculateTriangularHInDevice ()
 {
-  debugFunc();
+  traceFunction();
   oap::generic::iram_calcTriangularH_Generic::InOutArgs io = {m_triangularH, m_Q};
   oap::generic::iram_calcTriangularH_Generic::InArgs iargs = {m_triangularHInfo, *this, "CUDA"};
-  oap::generic::iram_calcTriangularH_Generic::proc (io, iargs, m_cuMatrix);
+  oap::generic::iram_calcTriangularH_Generic::proc (io, iargs, m_cuApi);
 }
 
 void CuHArnoldi::calculateTriangularHInHost ()
 {
-  debugFunc();
+  traceFunction();
   oap::generic::iram_calcTriangularH_Host::InOutArgs io = {m_triangularH, m_Q};
-  oap::generic::iram_calcTriangularH_Host::InArgs iargs = {m_triangularHInfo, *this, "CUDA", 4000, m_qrtype};
-  oap::generic::iram_calcTriangularH_Host::proc (io, iargs, m_cuMatrix, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
+  oap::generic::iram_calcTriangularH_Host::InArgs iargs = {m_triangularHInfo, *this, "CUDA", 400, m_qrtype};
+  oap::generic::iram_calcTriangularH_Host::proc (io, iargs, m_cuApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
 }
 
 void CuHArnoldi::calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo)
 {
   traceFunction();
   oap::cuda::CopyDeviceMatrixToDeviceMatrix(m_triangularH, normalH);
-  m_cuMatrix.setIdentity(m_Q);
-  m_cuMatrix.setIdentity(m_QJ);
-  m_cuMatrix.setIdentity(m_I);
+  m_cuApi.setIdentity(m_Q);
+  m_cuApi.setIdentity(m_QJ);
+  m_cuApi.setIdentity(m_I);
   (this->*m_calculateTriangularHPtr)();
 }
 
@@ -370,13 +398,8 @@ void CuHArnoldi::getWanted(const std::vector<EigenPair>& values, std::vector<Eig
 void CuHArnoldi::executeInit()
 {
   traceFunction();
-  multiply(m_w, m_v, m_cuMatrix, CuHArnoldi::TYPE_WV);
-  m_cuMatrix.setVector(m_V, 0, m_v, m_vrows);
-  m_cuMatrix.transpose(m_transposeV, m_V);
-  m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
-  m_cuMatrix.dotProduct(m_vh, m_V, m_h);
-  m_cuMatrix.substract(m_f, m_w, m_vh);
-  m_cuMatrix.setVector(m_H, 0, m_h, 1);
+  using namespace std::placeholders;
+  oap::generic::iram_executeInit (*this, m_cuApi, std::bind (&CuHArnoldi::multiply, this, _1, _2, _3, _4));
 }
 
 bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
@@ -387,16 +410,14 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
   floatt B = 0;
 
   bool recalcMagnitude = true;
-  debugFunc();
+  traceFunction();
   for (uint fa = startIndex; fa < m_k - 1; ++fa)
   {
     traceFunction();
 
-  debugFunc();
     if (recalcMagnitude)
     {
-      m_cuMatrix.magnitude(B, m_f);
-      recalcMagnitude = false;
+      m_cuApi.magnitude(B, m_f);
     }
     else
     {
@@ -404,34 +425,35 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
     }
 
     m_FValue = B;
-    if (fabs(B) < m_blimit) {
+    if (fabs(B) < m_blimit)
+    {
       return false;
     }
 
     floatt rB = 1. / B;
-    m_cuMatrix.multiplyReConstant(m_v, m_f, rB);
-    m_cuMatrix.setVector(m_V, fa + 1, m_v, m_vrows);
+    m_cuApi.multiplyReConstant(m_v, m_f, rB);
+    m_cuApi.setVector(m_V, fa + 1, m_v, m_vrows);
     CudaUtils::SetZeroRow(m_H, fa + 1, true, true);
     CudaUtils::SetReValue(m_H, (fa) + m_Hcolumns * (fa + 1), B);
-    multiply(m_w, m_v, m_cuMatrix, CuHArnoldi::TYPE_WV);
-    m_cuMatrix.transpose(m_transposeV, m_V);
-    m_cuMatrix.dotProduct(m_h, m_transposeV, m_w);
-    m_cuMatrix.dotProduct(m_vh, m_V, m_h);
-    m_cuMatrix.substract(m_f, m_w, m_vh);
-    m_cuMatrix.magnitude(mf, m_f);
-    m_cuMatrix.magnitude(mh, m_h);
+    multiply(m_w, m_v, m_cuApi, oap::VecMultiplicationType::TYPE_WV);
+    m_cuApi.transpose(m_transposeV, m_V);
+    m_cuApi.dotProduct(m_h, m_transposeV, m_w);
+    m_cuApi.dotProduct(m_vh, m_V, m_h);
+    m_cuApi.substract(m_f, m_w, m_vh);
+    m_cuApi.magnitude(mf, m_f);
+    m_cuApi.magnitude(mh, m_h);
 
     recalcMagnitude = mf < rho * mh;
     if (recalcMagnitude)
     {
       traceFunction();
-      m_cuMatrix.dotProduct(m_s, m_transposeV, m_f);
-      m_cuMatrix.dotProduct(m_vs, m_V, m_s);
-      m_cuMatrix.substract(m_f, m_f, m_vs);
-      m_cuMatrix.add(m_h, m_h, m_s);
+      m_cuApi.dotProduct(m_s, m_transposeV, m_f);
+      m_cuApi.dotProduct(m_vs, m_V, m_s);
+      m_cuApi.substract(m_f, m_f, m_vs);
+      m_cuApi.add(m_h, m_h, m_s);
     }
 
-    m_cuMatrix.setVector(m_H, fa + 1, m_h, fa + 2);
+    m_cuApi.setVector(m_H, fa + 1, m_h, fa + 2);
   }
   return true;
 }
@@ -439,7 +461,7 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
 bool CuHArnoldi::executefVHplusfq (uint k)
 {
   traceFunction();
-  oap::generic::iram_fVplusfq (*this, k, m_cuMatrix, CudaUtils::GetReValue, CudaUtils::GetImValue);
+  oap::generic::iram_fVplusfq (*this, k, m_cuApi, CudaUtils::GetReValue, CudaUtils::GetImValue);
   return true;
 }
 
@@ -451,6 +473,8 @@ bool CuHArnoldi::executeChecking (uint k)
 
   if (m_checkType == ArnUtils::CHECK_INTERNAL)
   {
+    debug("f = %f previous = %f", m_FValue, m_previousFValue);
+
     bool shouldContinue = m_FValue < m_previousFValue;
     if (shouldContinue == true)
     {
@@ -486,22 +510,26 @@ void CuHArnoldi::executeShiftedQRIteration(uint p)
 
   oap::generic::iram_shiftedQRIterations::InOutArgs io = {m_Q, m_H};
   oap::generic::iram_shiftedQRIterations::InArgs iargs = {m_unwanted, m_triangularHInfo, "CUDA"};
-  oap::generic::iram_shiftedQRIterations::proc (io, iargs, *this, m_cuMatrix, m_qrtype);
+  oap::generic::iram_shiftedQRIterations::proc (io, iargs, *this, m_cuApi, m_qrtype);
 
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_EV, m_V);
-  m_cuMatrix.dotProduct(m_V, m_EV, m_Q);
+  m_cuApi.dotProduct(m_V, m_EV, m_Q);
 }
 
 floatt CuHArnoldi::checkEigenpairsInternally(const EigenPair& eigenPair, floatt tolerance)
 {
   traceFunction();
   floatt value = eigenPair.re();
-  m_cuMatrix.getVector (m_v, m_vrows, m_EV, eigenPair.getIndex());
-  //m_cuMatrix.getVector (m_v, m_vrows, m_V, eigenPair.getIndex());
-  multiply (m_v1, m_v, m_cuMatrix, TYPE_EIGENVECTOR);  // m_cuMatrix.dotProduct(v1, H, v);
-  m_cuMatrix.multiplyReConstant(m_v2, m_v, value);
-  bool compare = m_cuMatrix.compare(m_v1, m_v2, tolerance);
-  return m_cuMatrix.getCompareOperationSum();
+
+  m_cuApi.getVector (m_v, m_vrows, m_EV, eigenPair.getIndex());
+  multiply (m_v1, m_v, m_cuApi, oap::VecMultiplicationType::TYPE_EIGENVECTOR);  // m_cuApi.dotProduct(v1, H, v);
+
+  m_cuApi.multiplyReConstant(m_v2, m_v, value);
+  bool compare = m_cuApi.compare(m_v1, m_v2, tolerance);
+
+  logInfo("Eigenvalue %f %f", value, m_cuApi.getCompareOperationSum());
+
+  return m_cuApi.getCompareOperationSum();
 }
 
 void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uint k)

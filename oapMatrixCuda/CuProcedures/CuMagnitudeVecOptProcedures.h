@@ -31,8 +31,8 @@ __hostdevice__ void CUDA_magnitudeOptRealVec(floatt* sum, math::Matrix* matrix1,
     uintt column, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeRealVecOpt(buffer, sharedIndex, matrix1, column);
@@ -55,8 +55,8 @@ __hostdevice__ void CUDA_magnitudeOptReVec(floatt* sum, math::Matrix* matrix1,
     uintt column, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeReVecOpt(buffer, sharedIndex, matrix1, column);
@@ -79,8 +79,8 @@ __hostdevice__ void CUDA_magnitudeOptImVec(floatt* sum, math::Matrix* matrix1,
     uintt column, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeImVecOpt(buffer, sharedIndex, matrix1, column);
@@ -127,8 +127,8 @@ __hostdevice__ void CUDA_magnitudeOptRealVecEx(floatt* sum,
     uintt row2, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeRealVecOptEx(buffer, sharedIndex, matrix1, column, row1, row2);
@@ -152,8 +152,8 @@ __hostdevice__ void CUDA_magnitudeOptReVecEx(floatt* sum, math::Matrix* matrix1,
     uintt row2, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeReVecOptEx(buffer, sharedIndex, matrix1, column, row1, row2);
@@ -177,8 +177,8 @@ __hostdevice__ void CUDA_magnitudeOptImVecEx(floatt* sum, math::Matrix* matrix1,
     uintt row2, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeImVecOptEx(buffer, sharedIndex, matrix1, column, row1, row2);

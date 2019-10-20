@@ -43,6 +43,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   void setBLimit(floatt blimit);
 
   void setQRType (oap::QRType qrtype = oap::QRType::QRGR);
+  void setVecInitType (oap::InitVVectorType initVVectorType);
 
   void setSortType(ArnUtils::SortType sortType);
 
@@ -69,20 +70,15 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   void execute (uint k, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType = ArnUtils::DEVICE);
 
- public:  // types
-  enum MultiplicationType { TYPE_EIGENVECTOR, TYPE_WV };
-
  protected:  // methods - multiplication to implement
-  virtual void multiply(math::Matrix* m_w, math::Matrix* m_v,
-                        oap::CuProceduresApi& cuProceduresApi,
-                        MultiplicationType mt) = 0;
+  virtual void multiply(math::Matrix*, math::Matrix*, oap::CuProceduresApi&, oap::VecMultiplicationType) = 0;
 
  protected:  // methods - to drive algorithm
   virtual bool checkEigenspair(floatt revalue, floatt imevalue, math::Matrix* vector,
                                uint index, uint max) = 0;
 
  protected:  // data, matrices
-  oap::CuProceduresApi m_cuMatrix;
+  oap::CuProceduresApi m_cuApi;
 
   floatt m_previousFValue;
   floatt m_FValue;
@@ -99,6 +95,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   floatt m_rho;
   floatt m_blimit;
   oap::QRType m_qrtype = oap::QRType::NONE;
+  oap::InitVVectorType m_initVVectorType = oap::InitVVectorType::RANDOM;
 
   std::vector<EigenPair> m_wanted;
   std::vector<EigenPair> m_previousWanted;
@@ -150,7 +147,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   void getEigenvector(math::Matrix* vector, uint index);
 
  private:  // internal methods
-  void initVvector();
+  void initVvector_fvis1();
   void initVvector_rand();
 
   bool continueProcedure();
@@ -190,7 +187,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   inline void calculateQSwapQAuxPointers()
   {
-    m_cuMatrix.dotProduct(m_QT1, m_QT2, m_Q);
+    m_cuApi.dotProduct(m_QT1, m_QT2, m_Q);
     swapQAuxPointers();
   }
 

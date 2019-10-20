@@ -32,8 +32,8 @@ __hostdevice__ void CUDA_compareOptRealMatrix(floatt* sum, math::Matrix* matrix1
                                               math::Matrix* matrix2,
                                               floatt* buffer) {
   HOST_INIT();
-  uint xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uint ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uint xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uint ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uint sharedLength = xlength * ylength;
   uint sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_CompareRealOpt(buffer, matrix1, matrix2, sharedIndex, xlength);
@@ -52,8 +52,8 @@ __hostdevice__ void CUDA_compareOptReMatrix(floatt* sum, math::Matrix* matrix1,
                                             math::Matrix* matrix2,
                                             floatt* buffer) {
   HOST_INIT();
-  uint xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uint ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uint xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uint ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uint sharedLength = xlength * ylength;
   uint sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_CompareReOpt(buffer, matrix1, matrix2, sharedIndex, xlength);
@@ -73,8 +73,8 @@ __hostdevice__ void CUDA_compareOptImMatrix(floatt* sum, math::Matrix* matrix1,
                                             math::Matrix* matrix2,
                                             floatt* buffer) {
   HOST_INIT();
-  uint xlength = GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uint ylength = GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uint xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
+  uint ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
   uint sharedLength = xlength * ylength;
   uint sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_CompareImOpt(buffer, matrix1, matrix2, sharedIndex, xlength);

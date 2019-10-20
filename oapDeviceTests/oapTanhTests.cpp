@@ -91,11 +91,11 @@ class OapTanhTests : public testing::Test
     {
       if(getReValue)
       {
-        EXPECT_DOUBLE_EQ(tanh(idx + 1), getReValue(houtput, idx));
+        EXPECT_FLOAT_EQ(tanh(idx + 1), getReValue(houtput, idx));
       }
       if(getImValue)
       {
-        EXPECT_DOUBLE_EQ(tanh(idx + 1), getImValue(houtput, idx));
+        EXPECT_FLOAT_EQ(tanh(idx + 1), getImValue(houtput, idx));
       }
     }
   }
@@ -231,7 +231,7 @@ TEST_F(OapTanhTests, TanhDerivativeReTest)
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
-    EXPECT_DOUBLE_EQ(tanhDerivative (idx + 1, idx + 1), houtput->reValues[idx]);
+    EXPECT_FLOAT_EQ(tanhDerivative (idx + 1, idx + 1), houtput->reValues[idx]);
   }
 }
 #if 0
@@ -263,7 +263,7 @@ TEST_F(OapTanhTests, MultiplyTanhDerivativeReTest)
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
-    EXPECT_DOUBLE_EQ(multiplyTanhDerivative (idx + 1, idx + 1), houtput->reValues[idx]);
+    EXPECT_FLOAT_EQ(multiplyTanhDerivative (idx + 1, idx + 1), houtput->reValues[idx]);
   }
 }
 #endif

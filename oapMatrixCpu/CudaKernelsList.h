@@ -131,7 +131,7 @@ void proxy_HOSTKernel_SumShared (void** params)
 DEFINE_1M(HOSTKernel_SetIdentity, CUDA_setIdentityMatrix)
 
 DEFINE_3M(HOSTKernel_CrossEntropy, CUDA_crossEntropy)
-DEFINE_3M(HOSTKernel_DotProduct, CUDA_dotProduct)
+DEFINE_3M(HOSTKernel_specific_DotProduct, CUDA_specific_dotProduct)
 DEFINE_3M(HOSTKernel_DotProductShared, CUDAKernel_dotProductShared)
 
 DEFINE_2M(HOSTKernel_Tanh, CUDA_tanh)
@@ -169,6 +169,38 @@ void proxy_HOSTKernel_QRHT (void** params)
   math::Matrix* VVT = getParam<math::Matrix> (params[i++]);
 
   HOSTKernel_QRHT (Q, R, A, V, VT, P, VVT);
+}
+
+void HOSTKernel_setVector (math::Matrix* V, uintt column,
+                           math::Matrix* v, uintt length)
+{
+  CUDAKernel_setVector (V, column, v, length);
+}
+
+void proxy_HOSTKernel_setVector (void** params)
+{
+  math::Matrix* V = getParam<math::Matrix> (params[0]);
+  uintt column = *static_cast<uintt*> (params[1]);
+  math::Matrix* v = getParam<math::Matrix> (params[2]);
+  uintt length = *static_cast<uintt*> (params[3]);
+
+  HOSTKernel_setVector (V, column, v, length);
+}
+
+void HOSTKernel_getVector (math::Matrix* v, uintt length,
+                                 math::Matrix* V, uintt column)
+{
+  CUDAKernel_getVector (v, length, V, column);
+}
+
+void proxy_HOSTKernel_getVector (void** params)
+{
+  math::Matrix* v = getParam<math::Matrix> (params[0]);
+  uintt length = *static_cast<uintt*> (params[1]);
+  math::Matrix* V = getParam<math::Matrix> (params[2]);
+  uintt column = *static_cast<uintt*> (params[3]);
+
+  HOSTKernel_getVector (v, length, V, column);
 }
 
 #endif

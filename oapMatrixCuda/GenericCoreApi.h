@@ -22,6 +22,7 @@
 
 #include <map>
 #include <sstream>
+#include <type_traits>
 
 #include "Buffer.h"
 
@@ -77,6 +78,9 @@ namespace generic
       TransferValueToHost&& transferValueToHost;
   };
 
+  template<typename T>
+  using funcstore = typename std::conditional<std::is_function<T>::value, T&&, T>::type;
+
   template<typename GetMatrixInfo, typename GetValueIdx, typename SetValueIdx>
   class MatrixApi
   {
@@ -84,16 +88,25 @@ namespace generic
       math::MatrixInfo m_minfo;
       math::Matrix* m_matrix = nullptr;
 
-      inline void updateMatrixInfo (math::MatrixInfo* mminfo, math::Matrix** mmatrix, math::Matrix* matrix)
+      inline void updateMatrixInfo (math::Matrix* matrix)
       {
-        if (*mmatrix != matrix)
+        if (m_matrix != matrix)
         {
-          *mminfo = getMatrixInfo (matrix);
+          m_minfo = getMatrixInfo (matrix);
           m_matrix = matrix;
         }
       }
 
     public:
+
+      funcstore<GetMatrixInfo> getMatrixInfo;
+
+      funcstore<GetValueIdx> getReValueIdx;
+      funcstore<SetValueIdx> setReValueIdx;
+
+      funcstore<GetValueIdx> getImValueIdx;
+      funcstore<SetValueIdx> setImValueIdx;
+
       MatrixApi (GetMatrixInfo&& _getMatrixInfo, GetValueIdx&& _getReValueIdx, SetValueIdx&& _setReValueIdx, GetValueIdx&& _getImValueIdx, SetValueIdx&& _setImValueIdx) :
         getMatrixInfo (std::forward<GetMatrixInfo&&>(_getMatrixInfo)),
         getReValueIdx (std::forward<GetValueIdx&&>(_getReValueIdx)),
@@ -102,39 +115,30 @@ namespace generic
         setImValueIdx (std::forward<SetValueIdx&&>(_setImValueIdx))
       {}
 
-      GetMatrixInfo&& getMatrixInfo;
-
-
-      GetValueIdx&& getReValueIdx;
-      SetValueIdx&& setReValueIdx;
-
-      GetValueIdx&& getImValueIdx;
-      SetValueIdx&& setImValueIdx;
-
       inline floatt getReValue (math::Matrix* matrix, uintt column, uintt row)
       {
-        updateMatrixInfo (&m_minfo, &m_matrix, matrix);
+        updateMatrixInfo (matrix);
         debugAssert (m_minfo.isRe);
         return getReValueIdx (matrix, column + row * m_minfo.columns ());
       }
 
       inline floatt getImValue (math::Matrix* matrix, uintt column, uintt row)
       {
-        updateMatrixInfo (&m_minfo, &m_matrix, matrix);
+        updateMatrixInfo (matrix);
         debugAssert (m_minfo.isIm);
         return getImValueIdx (matrix, column + row * m_minfo.columns ());
       }
 
       inline void setReValue (math::Matrix* matrix, uintt column, uintt row, floatt value)
       {
-        updateMatrixInfo (&m_minfo, &m_matrix, matrix);
+        updateMatrixInfo (matrix);
         debugAssert (m_minfo.isRe);
         setReValueIdx (matrix, column + row * m_minfo.columns (), value);
       }
 
       inline void setImValue (math::Matrix* matrix, uintt column, uintt row, floatt value)
       {
-        updateMatrixInfo (&m_minfo, &m_matrix, matrix);
+        updateMatrixInfo (matrix);
         debugAssert (m_minfo.isIm);
         setImValueIdx (matrix, column + row * m_minfo.columns (), value);
       }

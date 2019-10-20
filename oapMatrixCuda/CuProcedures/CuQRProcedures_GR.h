@@ -27,7 +27,7 @@
 #include "MatrixAPI.h"
 #include "CuCopyProcedures.h"
 #include "CuTransposeProcedures.h"
-#include "CuDotProductProcedures.h"
+#include "CuDotProductSpecificProcedures.h"
 #include "CuIdentityProcedures.h"
 #include "CuMagnitudeUtils.h"
 #include "CuMagnitudeVecOptProcedures.h"
@@ -126,7 +126,7 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
       if ((-tolerance < v && v < tolerance) == false)
       {
         CUDA_prepareGMatrix(R1, fa, fb, G, tx, ty);
-        CUDA_dotProduct(R, G, R1);
+        CUDA_specific_dotProduct (R, G, R1);
         if (count == 0)
         {
           CUDA_transposeMatrix(Q, G);
@@ -134,7 +134,7 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
         else
         {
           CUDA_transposeMatrix(GT, G);
-          CUDA_dotProduct(Q, Q1, GT);
+          CUDA_specific_dotProduct (Q, Q1, GT);
         }
         ++count;
         CUDA_switchPointer(&R1, &R);

@@ -31,9 +31,9 @@ class MainAPExecutor final
     class EigenCalculator;
     MainAPExecutor(CuHArnoldiCallback* cuhArnolldi, bool deallocateArnoldi);
 
-    static void multiplyMatrixCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt);
-    static void multiplySubMatrixCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt);
-    static void multiplyVecsCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, CuHArnoldi::MultiplicationType mt);
+    static void multiplyMatrixCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
+    static void multiplySubMatrixCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
+    static void multiplyVecsCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
 
     static bool sizeCondition (const math::MatrixInfo& info)
     {

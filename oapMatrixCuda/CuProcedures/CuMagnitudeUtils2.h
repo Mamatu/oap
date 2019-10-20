@@ -44,13 +44,13 @@ __hostdevice__ void cuda_MagnitudeRealOptVer2(floatt* buffer, uintt bufferIndex,
 {
   HOST_INIT();
 
-  const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
-                       && GetMatrixXIndex2(threadIdx, blockIdx, blockDim) < m1->columns
+  const bool inScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
+                       && aux_GetMatrixXIndex2(threadIdx, blockIdx, blockDim) < m1->columns
                        && threadIdx.x < xlength;
 
   if (inScope)
   {
-    uintt index = GetMatrixIndex2(threadIdx, blockIdx, blockDim, m1->columns);
+    uintt index = aux_GetMatrixIndex2(threadIdx, blockIdx, blockDim, m1->columns);
     bool isOdd = (m1->columns & 1) && (xlength & 1);
     buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index]
                           + m1->imValues[index] * m1->imValues[index]
@@ -69,13 +69,13 @@ __hostdevice__ void cuda_MagnitudeReOptVer2(floatt* buffer, uintt bufferIndex,
 {
   HOST_INIT();
 
-  const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
-                       && GetMatrixXIndex2(threadIdx, blockIdx, blockDim) < m1->columns
+  const bool inScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
+                       && aux_GetMatrixXIndex2(threadIdx, blockIdx, blockDim) < m1->columns
                        && threadIdx.x < xlength;
 
   if (inScope)
   {
-    uintt index = GetMatrixIndex2(threadIdx, blockIdx, blockDim, m1->columns);
+    uintt index = aux_GetMatrixIndex2(threadIdx, blockIdx, blockDim, m1->columns);
     bool isOdd = (m1->columns & 1) && (xlength & 1);
     buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index]
                           + m1->reValues[index + 1] * m1->reValues[index + 1];
@@ -91,13 +91,13 @@ __hostdevice__ void cuda_MagnitudeImOptVer2(floatt* buffer, uintt bufferIndex,
 {
   HOST_INIT();
 
-  const bool inScope = GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
-                       && GetMatrixXIndex2(threadIdx, blockIdx, blockDim) < m1->columns
+  const bool inScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows
+                       && aux_GetMatrixXIndex2(threadIdx, blockIdx, blockDim) < m1->columns
                        && threadIdx.x < xlength;
 
   if (inScope)
   {
-    uintt index = GetMatrixIndex2(threadIdx, blockIdx, blockDim, m1->columns);
+    uintt index = aux_GetMatrixIndex2(threadIdx, blockIdx, blockDim, m1->columns);
     bool isOdd = (m1->columns & 1) && (xlength & 1);
     buffer[bufferIndex] = m1->imValues[index] * m1->imValues[index]
                           + m1->imValues[index + 1] * m1->imValues[index + 1];

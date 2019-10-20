@@ -23,7 +23,7 @@
 
 #include "CuProcedures/CuCompareOptProcedures.h"
 #include "CuProcedures/CuSubstractionProcedures.h"
-#include "CuProcedures/CuDotProductProcedures.h"
+#include "CuProcedures/CuDotProductSpecificProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
 
 #include "GenericValidationApi.h"
@@ -67,7 +67,7 @@ class DotProductImpl : public HostKernel {
 
  protected:
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
-    CUDA_dotProduct(m_output, m_param1, m_param2);
+    CUDA_specific_dotProduct(m_output, m_param1, m_param2);
   }
 
   virtual void onChange(HostKernel::ContextChange contextChnage,
@@ -173,7 +173,7 @@ void HostProcedures::prepare(size_t w, size_t h, HostKernel& hostKernel) {
   hostKernel.setDims(m_blocks, m_threads);
 }
 
-HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_bmApi (oap::host::GetMatrixInfo),
+HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_maxThreadsPerBlock (maxThreadsPerBlock), m_bmApi (oap::host::GetMatrixInfo),
 m_createKernelArray(std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2))
 {}
 
@@ -182,6 +182,7 @@ HostProcedures::~HostProcedures() {}
 void HostProcedures::setMaxThreadsPerBlock (uintt threadsPerBlock)
 {
   m_kernel.setMaxThreadsPerBlock (threadsPerBlock);
+  m_maxThreadsPerBlock = threadsPerBlock;
 }
 
 bool HostProcedures::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
@@ -363,4 +364,19 @@ void HostProcedures::QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, ma
 void HostProcedures::setIdentity (math::Matrix* matrix)
 {
   oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
+
+void HostProcedures::setVector (math::Matrix* V, uintt column, math::Matrix* v, uintt length)
+{
+  oap::generic::setVector (V, column, v, length, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
+
+void HostProcedures::getVector (math::Matrix* vector, uintt length, math::Matrix* matrix, uintt column)
+{
+  oap::generic::getVector (vector, length, matrix, column, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
+
+void HostProcedures::getVector (math::Matrix* vector, math::Matrix* matrix, uintt column)
+{
+  oap::generic::getVector (vector, matrix, column, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }

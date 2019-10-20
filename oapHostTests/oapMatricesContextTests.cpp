@@ -243,3 +243,62 @@ TEST_F(OapMatricesContextTests, GetterInMethod_ApiTest)
 
   EXPECT_NE (m1, m2);
 }
+
+TEST_F(OapMatricesContextTests, GeneralTest_1)
+{
+  using namespace testing;
+
+  math::MatrixInfo minfo (true, false, 10, 10);
+
+  oap::generic::MatricesContext context;
+
+  context.registerMemType ("CUDA", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix);
+
+  auto func = [&context, &minfo](math::Matrix** m1)
+  {
+    auto getter = context.getter();
+    math::Matrix* matrix = getter.useMatrix (minfo, "CUDA");
+    *m1 = matrix;
+  };
+
+  math::Matrix* m01;
+  math::Matrix* m11;
+
+  func (&m01);
+  func (&m11);
+  
+  EXPECT_EQ (m01, m11);
+}
+
+TEST_F(OapMatricesContextTests, GeneralTest_2)
+{
+  using namespace testing;
+
+  math::MatrixInfo minfo (true, false, 10, 10);
+
+  oap::generic::MatricesContext context;
+
+  context.registerMemType ("CUDA", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix);
+
+  auto func = [&context, &minfo](math::Matrix** m1, math::Matrix** m2)
+  {
+    auto getter = context.getter();
+    math::Matrix* matrix = getter.useMatrix (minfo, "CUDA");
+    math::Matrix* matrix1 = getter.useMatrix (minfo, "CUDA");
+    *m1 = matrix;
+    *m2 = matrix1;
+  };
+
+  math::Matrix* m1[2];
+  math::Matrix* m2[2];
+
+  func (&m1[0], &m2[0]);
+  EXPECT_TRUE (context.isUsed (m1[0]) == oap::generic::MatricesContext::FALSE);
+  EXPECT_TRUE (context.isUsed (m2[0]) == oap::generic::MatricesContext::FALSE);
+
+  func (&m1[1], &m2[1]);
+  EXPECT_TRUE (context.isUsed (m1[1]) == oap::generic::MatricesContext::FALSE);
+  EXPECT_TRUE (context.isUsed (m2[1]) == oap::generic::MatricesContext::FALSE);
+  
+  EXPECT_TRUE ((m1[0] == m1[1] && m2[0] == m2[1]) || (m1[0] == m2[1] && m1[1] == m2[0])) << "m1[0] = " << m1[0] << " m1[1] = " << m1[1] << " m2[0] " << m2[0] << "m2[1] " << m2[1];
+}

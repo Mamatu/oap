@@ -34,7 +34,7 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_DotProductDim", proxy_HOSTKernel_DotProductDim},
   {"CUDAKernel_DotProductPeriodic", proxy_HOSTKernel_DotProductPeriodic},
   {"CUDAKernel_DotProductDimPeriodic", proxy_HOSTKernel_DotProductDimPeriodic},
-  {"CUDAKernel_DotProduct", proxy_HOSTKernel_DotProduct},
+  {"CUDAKernel_DotProduct", proxy_HOSTKernel_specific_DotProduct},
   {"CUDAKernel_DotProductShared", proxy_HOSTKernel_DotProductShared},
   {"CUDAKernel_TensorProductDim", proxy_HOSTKernel_TensorProductDim},
   {"CUDAKernel_Tanh", proxy_HOSTKernel_Tanh},
@@ -48,6 +48,8 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_SinDimPeriodic", proxy_HOSTKernel_SinDimPeriodic},
   {"CUDAKernel_QRHT", proxy_HOSTKernel_QRHT},
   {"CUDAKernel_SetIdentity", proxy_HOSTKernel_SetIdentity},
+  {"CUDAKernel_SetVector", proxy_HOSTKernel_setVector},
+  {"CUDAKernel_GetVector", proxy_HOSTKernel_getVector}
 };
 
 class HostKernelImpl : public HostKernel

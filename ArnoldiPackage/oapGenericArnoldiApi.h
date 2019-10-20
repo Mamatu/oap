@@ -35,6 +35,18 @@ enum class QRType
   QRHT, // housholder reflection
 };
 
+enum class VecMultiplicationType
+{
+  TYPE_EIGENVECTOR,
+  TYPE_WV
+};
+
+enum class InitVVectorType
+{
+  RANDOM,
+  FIRST_VALUE_IS_ONE
+};
+
 namespace generic {
 
 namespace {
@@ -44,6 +56,18 @@ inline void aux_swapPointers(math::Matrix** a, math::Matrix** b)
   *b = *a;
   *a = temp;
 }
+}
+
+template<typename Arnoldi, typename Api, typename VecMultiplication>
+void iram_executeInit (Arnoldi& ar, Api& api, VecMultiplication&& multiply)
+{
+  multiply (ar.m_w, ar.m_v, api, VecMultiplicationType::TYPE_WV);
+  api.setVector (ar.m_V, 0, ar.m_v, ar.m_vrows);
+  api.transpose (ar.m_transposeV, ar.m_V);
+  api.dotProduct (ar.m_h, ar.m_transposeV, ar.m_w);
+  api.dotProduct (ar.m_vh, ar.m_V, ar.m_h);
+  api.substract (ar.m_f, ar.m_w, ar.m_vh);
+  api.setVector (ar.m_H, 0, ar.m_h, 1);
 }
 
 template<typename Arnoldi, typename Api, typename GetReValue, typename GetImValue>
@@ -170,8 +194,8 @@ void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm
   math::Matrix* aux_Q1 = getter.useMatrix (iargs.hinfo, iargs.memType);
   math::Matrix* aux_R = getter.useMatrix (iargs.hinfo, iargs.memType);
 
+  api.setIdentity (aux_Q1);
   api.setIdentity (aux_QJ);
-  api.setIdentity (io.Q);
 
   oap::generic::iram_singleShiftedQRIteration::InOutArgs io1;
   io1.Q = aux_Q1;
@@ -260,7 +284,7 @@ void proc (InOutArgs& io, const InArgs& iargs, CalcApi& capi, CopyKernelMatrixTo
   {
     _qr (io.Q, aux_R, io.H, iargs.thInfo, iargs.context, iargs.memType, capi, iargs.qrtype);
 
-    capi.dotProduct (io.H, aux_R, aux_Q);
+    capi.dotProduct (io.H, aux_R, io.Q);
     capi.dotProduct (aux_Q1, io.Q, aux_Q);
     aux_swapPointers (&aux_Q1, &aux_Q);
     status = capi.isUpperTriangular (io.H);

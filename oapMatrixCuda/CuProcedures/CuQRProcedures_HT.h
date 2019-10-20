@@ -26,7 +26,7 @@
 #include "CuCopyProcedures.h"
 #include "CuAdditionProcedures.h"
 #include "CuTransposeProcedures.h"
-#include "CuDotProductProcedures.h"
+#include "CuDotProductSpecificProcedures.h"
 #include "CuSubstractionProcedures.h"
 #include "CuIdentityProcedures.h"
 #include "CuMagnitudeUtils.h"
@@ -99,7 +99,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
     threads_sync();
 
     CUDA_transposeMatrix (VT, V);
-    CUDA_dotProduct (VVT, V, VT);
+    CUDA_specific_dotProduct (VVT, V, VT);
 
     sum = CUDA_calcMagnitudeOptEx (V, buffer, 0, 0, 1, V->rows);
     if (sum != 0)
@@ -109,7 +109,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
 
       CUDA_copyMatrix (VVT, M);
 
-      CUDA_dotProduct (R, P, VVT);
+      CUDA_specific_dotProduct (R, P, VVT);
     }
     if (k == 0)
     {
@@ -118,7 +118,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
     else
     {
       CUDA_copyMatrix (VVT, Q);
-      CUDA_dotProduct (Q, VVT, P);
+      CUDA_specific_dotProduct (Q, VVT, P);
     }
   }
 }

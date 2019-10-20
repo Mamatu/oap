@@ -22,7 +22,7 @@ $(shell test -d /tmp/Oap/device_tests || mkdir -p /tmp/Oap/device_tests)
 ifdef PROJECT
 include $(OAP_PATH)/${PROJECT}
 else
-include $(OAP_PATH)/project_x86.mk
+include $(OAP_PATH)/project_linux_default.mk
 endif
 
 TYPES := OAP_CONFIG_NI_EF
@@ -49,6 +49,7 @@ OAP_INCLUDES += oapNeuralRoutinesHostTest
 OAP_INCLUDES += oapNeuralRoutines
 OAP_INCLUDES += oapDeviceTestsData
 OAP_INCLUDES += oapTestsData
+OAP_INCLUDES += oapArnoldiHostTests
 
 TARGET_ARCH := DEVICE_HOST
 
@@ -98,6 +99,7 @@ OAP_MODULES += oapNeuralHost
 OAP_MODULES += oapNeuralRoutinesHost
 OAP_MODULES += oapNeuralRoutinesHostTests
 OAP_MODULES += oapHostTests
+OAP_MODULES += oapArnoldiHostTests
 endif
 
 ifeq ($(COMPILE_DEVICE),1)

@@ -95,6 +95,12 @@ class HostProcedures {
   void QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT);
   void setIdentity (math::Matrix* matrix);
 
+  void setVector (math::Matrix* V, uintt column, math::Matrix* v, uintt length);
+
+  void getVector (math::Matrix* vector, uintt length, math::Matrix* matrix, uintt column);
+
+  void getVector (math::Matrix* vector, math::Matrix* matrix, uintt column);
+
  private:
   uint m_threads[2];
   uint m_blocks[2];
