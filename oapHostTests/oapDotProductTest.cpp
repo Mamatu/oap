@@ -1,7 +1,6 @@
 #include "oapHostMatrixUtils.h"
 #include "MatchersUtils.h"
 #include "HostKernel.h"
-#include "CuProcedures/CuDotProductProcedures.h"
 
 #include "oapHostMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"

@@ -23,7 +23,7 @@
 
 #include "CuProcedures/CuCompareOptProcedures.h"
 #include "CuProcedures/CuSubstractionProcedures.h"
-#include "CuProcedures/CuDotProductProcedures.h"
+#include "CuProcedures/CuDotProductSpecificProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
 
 #include "GenericValidationApi.h"
@@ -67,7 +67,7 @@ class DotProductImpl : public HostKernel {
 
  protected:
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
-    CUDA_dotProduct(m_output, m_param1, m_param2);
+    CUDA_specific_dotProduct(m_output, m_param1, m_param2);
   }
 
   virtual void onChange(HostKernel::ContextChange contextChnage,

@@ -25,7 +25,7 @@
 #define OFFSET_IDX 2
 
 #include "CuCore.h"
-#include "CuDotProductProcedures.h"
+#include "CuDotProductGenericProcedures.h"
 
 __hostdevice__ void cuda_dotProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
 {
@@ -44,7 +44,7 @@ __hostdevice__ void cuda_dotProductDim (math::Matrix* output, math::Matrix* para
   exs[1].column = 0;
   exs[2].row = 0;
 
-  cuda_dotProductExOffset (output, params0, params1, exs, offset, inRange);
+  cuda_generic_dotProductExOffset (output, params0, params1, exs, offset, inRange);
 }
 
 __hostdevice__ void CUDA_dotProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)

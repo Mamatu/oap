@@ -25,7 +25,7 @@
 #include "MatrixEx.h"
 
 #include "CuCreateProcedures.h"
-#include "CuDotProductProcedures.h"
+#include "CuDotProductGenericProcedures.h"
 
 __hostdeviceinline__ bool cuda_calc (uintt& output, uintt blockLength, uintt length, uintt idx)
 {
@@ -131,33 +131,33 @@ __hostdevice__ void CUDA_dotProductShared (math::Matrix* output, math::Matrix* p
       {
         if (idx == 0)
         {
-          cuda_dotProductRealEx (output, &sharedParams0, &sharedParams1, exs);
+          cuda_generic_dotProductRealEx (output, &sharedParams0, &sharedParams1, exs);
         }
         else
         {
-          cuda_addDotProductRealEx (output, &sharedParams0, &sharedParams1, exs);
+          cuda_generic_addDotProductRealEx (output, &sharedParams0, &sharedParams1, exs);
         }
       }
       else if (isre)
       {
         if (idx == 0)
         {
-          cuda_dotProductReEx (output, &sharedParams0, &sharedParams1, exs);
+          cuda_generic_dotProductReEx (output, &sharedParams0, &sharedParams1, exs);
         }
         else
         {
-          cuda_addDotProductReEx (output, &sharedParams0, &sharedParams1, exs);
+          cuda_generic_addDotProductReEx (output, &sharedParams0, &sharedParams1, exs);
         }
       }
       else if (isim)
       {
         if (idx == 0)
         {
-          cuda_dotProductImEx (output, &sharedParams0, &sharedParams1, exs);
+          cuda_generic_dotProductImEx (output, &sharedParams0, &sharedParams1, exs);
         }
         else
         {
-          cuda_addDotProductImEx (output, &sharedParams0, &sharedParams1, exs);
+          cuda_generic_addDotProductImEx (output, &sharedParams0, &sharedParams1, exs);
         }
       }
     }

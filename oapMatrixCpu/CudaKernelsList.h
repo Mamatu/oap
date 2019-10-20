@@ -131,7 +131,7 @@ void proxy_HOSTKernel_SumShared (void** params)
 DEFINE_1M(HOSTKernel_SetIdentity, CUDA_setIdentityMatrix)
 
 DEFINE_3M(HOSTKernel_CrossEntropy, CUDA_crossEntropy)
-DEFINE_3M(HOSTKernel_DotProduct, CUDA_dotProduct)
+DEFINE_3M(HOSTKernel_specific_DotProduct, CUDA_specific_dotProduct)
 DEFINE_3M(HOSTKernel_DotProductShared, CUDAKernel_dotProductShared)
 
 DEFINE_2M(HOSTKernel_Tanh, CUDA_tanh)

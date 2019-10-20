@@ -43,8 +43,8 @@ __hostdevice__ void CUDA_calcUTMatrix_GR(
   for (; fa < CUDA_calcUTMatrix_STEPS && status == false; ++fa)
   {
     CUDA_QRGR(Q, R, H, aux3, aux4, aux5, aux6);
-    CUDA_dotProduct(H, R, Q);
-    CUDA_dotProduct(aux2, Q, aux1);
+    CUDA_specific_dotProduct(H, R, Q);
+    CUDA_specific_dotProduct(aux2, Q, aux1);
     CUDA_switchPointer(&aux2, &aux1);
     status = CUDA_isUpperTriangular(H);
   }
@@ -71,8 +71,8 @@ __hostdevice__ void CUDA_calcUTMatrixStep_GR(
   if (status == false)
   {
     CUDA_QRGR(Q, R, H, aux3, aux4, aux5, aux6);
-    CUDA_dotProduct(H, R, Q);
-    CUDA_dotProduct(aux2, Q, aux1);
+    CUDA_specific_dotProduct(H, R, Q);
+    CUDA_specific_dotProduct(aux2, Q, aux1);
   }
 
   CUDA_copyMatrix(Q, aux2);
@@ -93,8 +93,8 @@ __hostdevice__ void CUDAKernel_calcUTMatrix_HR(
   for (; fa < CUDA_calcUTMatrix_STEPS && status == false; ++fa)
   {
     CUDA_QRHT (Q, R, H, V, VT, sharedBuffer, P, VVT);
-    CUDA_dotProduct(H, R, Q);
-    CUDA_dotProduct(aux2, Q, aux1);
+    CUDA_specific_dotProduct(H, R, Q);
+    CUDA_specific_dotProduct(aux2, Q, aux1);
     CUDA_switchPointer(&aux2, &aux1);
     status = CUDA_isUpperTriangular(H);
   }
@@ -123,8 +123,8 @@ __hostdevice__ void CUDA_calcUTMatrixStep_HR(
   for (; fa < CUDA_calcUTMatrix_STEPS && status == false; ++fa)
   {
     CUDA_QRHT (Q, R, H, V, VT, sharedBuffer, P, VVT);
-    CUDA_dotProduct(H, R, Q);
-    CUDA_dotProduct(aux2, Q, aux1);
+    CUDA_specific_dotProduct(H, R, Q);
+    CUDA_specific_dotProduct(aux2, Q, aux1);
     CUDA_switchPointer(&aux2, &aux1);
     status = CUDA_isUpperTriangular(H);
   }
