@@ -175,7 +175,6 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
               oap::host::NewReMatrix(1, hmatrix->rows)
       };
 
-      m_arnoldiCuda->setQRType (oap::QRType::QRGR);
 
       m_arnoldiCuda->setOutputType(ArnUtils::HOST);
       m_arnoldiCuda->setCalcTraingularHType(ArnUtils::CALC_IN_HOST);
@@ -253,43 +252,14 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     }
 };
 
-TEST_F(OapArnoldiPackageMatricesTests, Sms1HeaderTest) {
-  runSmsDataTest(Test_SmsData1, 5, 15, 0.02);
+TEST_F(OapArnoldiPackageMatricesTests, Sms1HeaderTest)
+{
+  m_arnoldiCuda->setQRType (oap::QRType::QRGR);
+  runSmsDataTest(Test_SmsData1, 2, 4, 0.02);
 }
 
-TEST_F(OapArnoldiPackageMatricesTests, Sms2HeaderTest) {
-  runSmsDataTest(Test_SmsData2, 5, 20, 0.047);
+TEST_F(OapArnoldiPackageMatricesTests, Sms2HeaderTest)
+{
+  m_arnoldiCuda->setQRType (oap::QRType::QRGR);
+  runSmsDataTest(Test_SmsData2, 4, 4, 0.047);
 }
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms3HeaderTest) {
-  runSmsDataTest(Test_SmsData3, 5, 22, 0.1);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms4HeaderTest) {
-  runSmsDataTest(Test_SmsData4, 6, 14, 0.13);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms1_Little_HeaderTest) {
-  runSmsDataTest(Test_SmsData1_Little, 4, 4, 0.);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms2_Little_HeaderTest) {
-  runSmsDataTest(Test_SmsData2_Little, 3, 3, 0.);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms3_Little_HeaderTest) {
-  runSmsDataTest(Test_SmsData3_Little, 4, 4, 0.);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms_Identity_HeaderTest) {
-  runSmsDataTest(Test_SmsData_Identity, 3, 3, 0.);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms_64_1_HeaderTest) {
-  runSmsDataTest(Test_SmsData_64_1, 3, 6, 0);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms_64_2_HeaderTest) {
-  runSmsDataTest(Test_SmsData_64_2, 3, 6, 0);
-}
-
