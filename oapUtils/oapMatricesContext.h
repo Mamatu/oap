@@ -116,6 +116,12 @@ class MatricesContext
       return Getter (*this);
     }
 
+    inline math::Matrix* useMatrix (bool isRe, bool isIm, uintt columns, uintt rows, const std::string& memTypeName)
+    {
+      math::MatrixInfo minfo (isRe, isIm, columns, rows);
+      return useMatrix (minfo, memTypeName);
+    }
+
     inline math::Matrix* useMatrix (const math::MatrixInfo& minfo, const std::string& memTypeName)
     {
       math::Matrix* matrix = nullptr;
