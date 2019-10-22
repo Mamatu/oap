@@ -255,11 +255,11 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 TEST_F(OapArnoldiPackageMatricesTests, Sms1HeaderTest)
 {
   m_arnoldiCuda->setQRType (oap::QRType::QRGR);
-  runSmsDataTest(Test_SmsData1, 2, 4, 0.02);
+  runSmsDataTest(Test_SmsData1, 2, 6, 0.02);
 }
 
 TEST_F(OapArnoldiPackageMatricesTests, Sms2HeaderTest)
 {
   m_arnoldiCuda->setQRType (oap::QRType::QRGR);
-  runSmsDataTest(Test_SmsData2, 4, 4, 0.047);
+  runSmsDataTest(Test_SmsData2, 3, 6, 0.047);
 }
