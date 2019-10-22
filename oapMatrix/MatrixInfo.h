@@ -36,9 +36,9 @@ class MatrixInfo
 
   void deinitialize ();
 
-  bool operator==(const MatrixInfo& mInfo) const;
-
-  bool operator!=(const MatrixInfo& minfo) const;
+  bool operator== (const MatrixInfo& mInfo) const;
+  bool operator!= (const MatrixInfo& mInfo) const;
+  bool operator< (const MatrixInfo& mInfo) const;
 
   operator bool() const;
 
