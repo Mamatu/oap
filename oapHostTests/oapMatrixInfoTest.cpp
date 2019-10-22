@@ -102,3 +102,44 @@ TEST_F(OapMatrixInfoTests, LargeSizeTests)
 
 }
 
+TEST_F(OapMatrixInfoTests, CompareTest_1)
+{
+  math::MatrixInfo minfo (true, true, 1, 8);
+  math::MatrixInfo minfo1 (true, true, 1, 8);
+
+  EXPECT_FALSE(minfo < minfo1);
+  EXPECT_FALSE(minfo > minfo1);
+}
+
+TEST_F(OapMatrixInfoTests, CompareTest_2)
+{
+  math::MatrixInfo minfo (true, true, 1, 2);
+  math::MatrixInfo minfo1 (true, true, 1, 8);
+
+  EXPECT_TRUE (minfo < minfo1 || minfo1 < minfo);
+}
+
+TEST_F(OapMatrixInfoTests, CompareTest_3)
+{
+  math::MatrixInfo minfo (true, true, 2, 8);
+  math::MatrixInfo minfo1 (true, true, 1, 8);
+
+  EXPECT_TRUE (minfo < minfo1 || minfo1 < minfo);
+}
+
+TEST_F(OapMatrixInfoTests, CompareTest_4)
+{
+  math::MatrixInfo minfo (true, false, 1, 8);
+  math::MatrixInfo minfo1 (true, true, 1, 8);
+
+  EXPECT_TRUE (minfo < minfo1 || minfo1 < minfo);
+}
+
+TEST_F(OapMatrixInfoTests, CompareTest_5)
+{
+  math::MatrixInfo minfo (false, true, 1, 8);
+  math::MatrixInfo minfo1 (true, true, 1, 8);
+
+  EXPECT_TRUE (minfo < minfo1 || minfo1 < minfo);
+}
+
