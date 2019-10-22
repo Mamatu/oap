@@ -33,6 +33,7 @@
 
 #include "oapGenericArnoldiApi.h"
 #include "oapCuHArnoldiS.h"
+#include "oapAssertion.h"
 
 namespace oap
 {
@@ -51,7 +52,7 @@ class ACTestData
  public:
   static int loadBlocksCount(FILE* f)
   {
-    assert (f != nullptr);
+    logAssertMsg (f != nullptr, "%s", "Files witd data do not exist. Please check if data are available in oapDeviceTests/data");
   
     int counter = 0;
     fseek(f, 2 * sizeof(int), SEEK_SET);
@@ -61,7 +62,7 @@ class ACTestData
   
   static int loadSize(FILE* f)
   {
-    assert (f != nullptr);
+    logAssertMsg (f != nullptr, "%s", "Files witd data do not exist. Please check if data are available in oapDeviceTests/data");
 
     int size = 0;
     fseek(f, 0, SEEK_SET);
@@ -71,7 +72,7 @@ class ACTestData
   
   static int loadElementsCount(FILE* f)
   {
-    assert (f != nullptr);
+    logAssertMsg (f != nullptr, "%s", "Files witd data do not exist. Please check if data are available in oapDeviceTests/data");
 
     int count = 0;
     fseek(f, sizeof(int), SEEK_SET);
@@ -82,7 +83,7 @@ class ACTestData
   template <typename T>
   static void copySafely(floatt* block, int size, int elementsCount, FILE* f)
   {
-    assert (f != nullptr);
+    logAssertMsg (f != nullptr, "%s", "Files witd data do not exist. Please check if data are available in oapDeviceTests/data");
 
     T* tmpBuffer = new T[elementsCount];
     fread(tmpBuffer, elementsCount * size, 1, f);
@@ -94,7 +95,7 @@ class ACTestData
   
   static void readBlock(floatt* block, int size, int elementsCount, FILE* f)
   {
-    assert (f != nullptr);
+    logAssertMsg (f != nullptr, "%s", "Files witd data do not exist. Please check if data are available in oapDeviceTests/data");
 
     if (sizeof(floatt) == size)
     {
@@ -114,7 +115,7 @@ class ACTestData
   
   static void loadBlock(FILE* f, floatt* block, int index)
   {
-    assert (f != nullptr);
+    logAssertMsg (f != nullptr, "%s", "Files witd data do not exist. Please check if data are available in oapDeviceTests/data");
 
     int blocksCount = loadBlocksCount(f);
     int elementsCount = loadElementsCount(f);
@@ -127,7 +128,7 @@ class ACTestData
   static void loadBlock(const std::string& path, floatt* block, int index)
   {
     FILE* f = fopen(path.c_str(), "rb");
-    assert (f != nullptr);
+    logAssertMsg (f != nullptr, "%s", "Files witd data do not exist. Please check if data are available in oapDeviceTests/data");
 
     loadBlock(f, block, index);
     fclose(f);
@@ -142,7 +143,7 @@ class ACTestData
     m_wimdir = absdir + "/wim.tdata";
 
     FILE* file = fopen(m_vredir.c_str(), "rb");
-    assert (file != nullptr);
+    logAssertMsg (file != nullptr, "%s", "Files witd data do not exist. Please check if data are available in oapDeviceTests/data");
 
     m_blocksCount = loadBlocksCount(file);
     m_elementsCount = loadElementsCount(file);
