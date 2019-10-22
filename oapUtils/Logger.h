@@ -23,7 +23,6 @@
 #define	LOGGER_H
 
 #include <string.h>
-#include <assert.h>
 #include <typeinfo>
 #include <stdexcept>
 #include <sstream>
