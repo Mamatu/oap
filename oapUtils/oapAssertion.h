@@ -30,4 +30,7 @@
 #define debugAssert(x)
 #endif
 
+#define logAssert(x) assert(x);
+#define logAssertMsg(x, msg, ...) if (!(x)) { fprintf(stderr, msg, ##__VA_ARGS__); abort(); }
+
 #endif
