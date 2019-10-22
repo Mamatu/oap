@@ -26,7 +26,7 @@
 #include "CuProcedures/CuQRProcedures_HT.h"
 #include "CuProcedures/CuIsUpperTriangularProcedures.h"
 
-#define CUDA_calcUTMatrix_STEPS 1000
+#define CUDA_calcUTMatrix_STEPS 10000
 
 __hostdevice__ void CUDA_calcUTMatrix_GR(
     math::Matrix* H, math::Matrix* Q, math::Matrix* R,
