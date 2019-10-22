@@ -30,15 +30,17 @@
 
 const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
 
+const floatt g_tolerance = 0.00001f;
+
 CuHArnoldi::CuHArnoldi()
     : m_wasAllocated(false),
       m_k(0),
       m_rho(1. / 3.14),
-      m_blimit(MATH_VALUE_LIMIT),
+      m_blimit(g_tolerance),
       m_sortObject(ArnUtils::SortSmallestValues),
       m_checkType(ArnUtils::CHECK_INTERNAL),
       m_checksCount(0),
-      m_tolerance(0.001f),
+      m_tolerance(g_tolerance),
       m_checksCounter(0),
       m_triangularHProcedureType (ArnUtils::CALC_IN_HOST),
       m_FValue(0),
