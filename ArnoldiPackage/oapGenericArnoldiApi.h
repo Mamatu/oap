@@ -339,8 +339,6 @@ void allocStage1 (Arnoldi& ar, const math::MatrixInfo& matrixInfo, NewKernelMatr
   ar.m_vrows = matrixInfo.m_matrixDim.rows;
   ar.m_w = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, matrixInfo.m_matrixDim.rows);
   ar.m_v = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, matrixInfo.m_matrixDim.rows);
-  ar.m_v1 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, matrixInfo.m_matrixDim.rows);
-  ar.m_v2 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, matrixInfo.m_matrixDim.rows);
   ar.m_f = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, matrixInfo.m_matrixDim.rows);
   ar.m_f1 = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, matrixInfo.m_matrixDim.rows);
   ar.m_vh = newKernelMatrix(matrixInfo.isRe, matrixInfo.isIm, 1, matrixInfo.m_matrixDim.rows);
@@ -387,8 +385,6 @@ void deallocStage1 (Arnoldi& ar, DeleteKernelMatrix&& deleteKernelMatrix)
 {
   deleteKernelMatrix (ar.m_w);
   deleteKernelMatrix (ar.m_v);
-  deleteKernelMatrix (ar.m_v1);
-  deleteKernelMatrix (ar.m_v2);
   deleteKernelMatrix (ar.m_f);
   deleteKernelMatrix (ar.m_f1);
   deleteKernelMatrix (ar.m_vh);

@@ -38,7 +38,7 @@
 #include "oapDeviceMatrixPtr.h"
 #include "oapHostMatrixPtr.h"
 
-#include "SmsDataCollector.h"
+#include "CMatrixDataCollector.h"
 #include "InfoType.h"
 
 using GetValue = std::function<floatt(size_t xy)>;
@@ -158,7 +158,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       oap::HostMatrixPtr tmpVector;
     };
 
-    void runMatrixTest(oap::HostMatrixPtr hmatrix, oap::HostMatrixPtr eigenvectors, const std::vector<EigenPair>& eigenPairs, uint hdim, floatt tolerance)
+    void runMatrixTest(oap::HostMatrixPtr hmatrix, const std::vector<EigenPair>& eigenPairs, uint hdim, floatt tolerance)
     {
       logInfoLongTest();
 
@@ -171,11 +171,9 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
       CheckUserData checkUserData = {
               &eigenPairs,
-              eigenvectors,
               oap::host::NewReMatrix(1, hmatrix->rows)
       };
 
-      m_arnoldiCuda->setQRType (oap::QRType::QRGR);
 
       m_arnoldiCuda->setOutputType(ArnUtils::HOST);
       m_arnoldiCuda->setCalcTraingularHType(ArnUtils::CALC_IN_HOST);
@@ -214,14 +212,6 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         expectedValues.push_back(eigenPairs[idx].re());
       }
 
-      oap::HostMatrixPtr expected = oap::host::NewReMatrix(1, eigenvectors->rows);
-      auto compareEigenVector = [&revectorsPtr, expected](math::Matrix* expecteds, uint index)
-      {
-        math::Matrix* actual = revectorsPtr[index];
-        oap::host::GetVector(expected.get(), expecteds, index);;
-        EXPECT_THAT(expected.get(), MatrixIsEqual(actual, InfoType::MEAN));
-      };
-
       for (uint index = 0; index < wanted; ++index)
       {
         floatt outcome = m_arnoldiCuda->testOutcome(index);
@@ -232,15 +222,13 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     }
 
     void runSmsDataTest(uint index, uint wanted, uint hdim = 32, floatt tolerance = 0) {
-      uint columns = smsdata_columns[index];
-      uint rows = smsdata_rows[index];
+      uint columns = data_columns[index];
+      uint rows = data_rows[index];
 
-      double* smsmatrix = smsdata_matrices[index];
-      double* eigenvalues = smsdata_eigenvalues[index];
-      double* eigenvectors = smsdata_eigenvectors[index];
+      double* smsmatrix = data_matrices[index];
+      double* eigenvalues = data_eigenvalues[index];
 
       oap::HostMatrixPtr hmatrix = oap::host::NewMatrixCopy<double>(columns, rows, smsmatrix, NULL);
-      oap::HostMatrixPtr evmatrix = oap::host::NewMatrixCopy<double>(columns, rows, eigenvectors, NULL);
 
       std::vector<double> ev(eigenvalues, eigenvalues + columns);
       std::vector<EigenPair> eigenPairs;
@@ -249,47 +237,30 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         eigenPairs.push_back(EigenPair(ev[columnIdx], columnIdx));
       }
 
-      runMatrixTest(hmatrix, evmatrix, getEigenvalues(eigenPairs, wanted), hdim, tolerance);
+      runMatrixTest(hmatrix, getEigenvalues(eigenPairs, wanted), hdim, tolerance);
     }
 };
 
-TEST_F(OapArnoldiPackageMatricesTests, Sms1HeaderTest) {
-  runSmsDataTest(Test_SmsData1, 5, 15, 0.02);
+TEST_F(OapArnoldiPackageMatricesTests, Test_1)
+{
+  m_arnoldiCuda->setQRType (oap::QRType::QRGR);
+  runSmsDataTest(Test_CMatrixData1, 2, 6, 0.02);
 }
 
-TEST_F(OapArnoldiPackageMatricesTests, Sms2HeaderTest) {
-  runSmsDataTest(Test_SmsData2, 5, 20, 0.047);
+TEST_F(OapArnoldiPackageMatricesTests, Test_2)
+{
+  m_arnoldiCuda->setQRType (oap::QRType::QRGR);
+  runSmsDataTest(Test_CMatrixData2, 3, 6, 0.047);
 }
 
-TEST_F(OapArnoldiPackageMatricesTests, Sms3HeaderTest) {
-  runSmsDataTest(Test_SmsData3, 5, 22, 0.1);
+TEST_F(OapArnoldiPackageMatricesTests, Test_3)
+{
+  m_arnoldiCuda->setQRType (oap::QRType::QRGR);
+  runSmsDataTest(Test_CMatrixData3, 6, 12, 0.047);
 }
 
-TEST_F(OapArnoldiPackageMatricesTests, Sms4HeaderTest) {
-  runSmsDataTest(Test_SmsData4, 6, 14, 0.13);
+TEST_F(OapArnoldiPackageMatricesTests, Test_4)
+{
+  m_arnoldiCuda->setQRType (oap::QRType::QRGR);
+  runSmsDataTest(Test_CMatrixData4, 6, 12, 0.047);
 }
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms1_Little_HeaderTest) {
-  runSmsDataTest(Test_SmsData1_Little, 4, 4, 0.);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms2_Little_HeaderTest) {
-  runSmsDataTest(Test_SmsData2_Little, 3, 3, 0.);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms3_Little_HeaderTest) {
-  runSmsDataTest(Test_SmsData3_Little, 4, 4, 0.);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms_Identity_HeaderTest) {
-  runSmsDataTest(Test_SmsData_Identity, 3, 3, 0.);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms_64_1_HeaderTest) {
-  runSmsDataTest(Test_SmsData_64_1, 3, 6, 0);
-}
-
-TEST_F(OapArnoldiPackageMatricesTests, Sms_64_2_HeaderTest) {
-  runSmsDataTest(Test_SmsData_64_2, 3, 6, 0);
-}
-

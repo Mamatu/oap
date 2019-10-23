@@ -47,9 +47,30 @@ bool MatrixInfo::operator==(const MatrixInfo& mInfo) const
          m_matrixDim.columns == mInfo.m_matrixDim.columns && m_matrixDim.rows == mInfo.m_matrixDim.rows;
 }
 
-bool MatrixInfo::operator!=(const MatrixInfo& minfo) const
+bool MatrixInfo::operator!=(const MatrixInfo& mInfo) const
 {
-  return !(*this == minfo);
+  return !(*this == mInfo);
+}
+
+bool MatrixInfo::operator< (const MatrixInfo& minfo) const
+{
+  if (this->isRe < minfo.isRe)
+  {
+    return true;
+  }
+  if (this->isIm < minfo.isIm)
+  {
+    return true;
+  }
+  if (this->columns() < minfo.columns())
+  {
+    return true;
+  }
+  if (this->rows() < minfo.rows())
+  {
+    return true;
+  }
+  return false;
 }
 
 MatrixInfo::operator bool() const

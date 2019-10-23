@@ -30,15 +30,17 @@
 
 const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
 
+const floatt g_tolerance = 0.00001f;
+
 CuHArnoldi::CuHArnoldi()
     : m_wasAllocated(false),
       m_k(0),
       m_rho(1. / 3.14),
-      m_blimit(MATH_VALUE_LIMIT),
+      m_blimit(g_tolerance),
       m_sortObject(ArnUtils::SortSmallestValues),
       m_checkType(ArnUtils::CHECK_INTERNAL),
       m_checksCount(0),
-      m_tolerance(0.001f),
+      m_tolerance(g_tolerance),
       m_checksCounter(0),
       m_triangularHProcedureType (ArnUtils::CALC_IN_HOST),
       m_FValue(0),
@@ -332,7 +334,7 @@ void CuHArnoldi::calculateTriangularHInHost ()
 {
   traceFunction();
   oap::generic::iram_calcTriangularH_Host::InOutArgs io = {m_triangularH, m_Q};
-  oap::generic::iram_calcTriangularH_Host::InArgs iargs = {m_triangularHInfo, *this, "CUDA", 400, m_qrtype};
+  oap::generic::iram_calcTriangularH_Host::InArgs iargs = {m_triangularHInfo, *this, "CUDA", 600, m_qrtype};
   oap::generic::iram_calcTriangularH_Host::proc (io, iargs, m_cuApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
 }
 
@@ -516,20 +518,27 @@ void CuHArnoldi::executeShiftedQRIteration(uint p)
   m_cuApi.dotProduct(m_V, m_EV, m_Q);
 }
 
-floatt CuHArnoldi::checkEigenpairsInternally(const EigenPair& eigenPair, floatt tolerance)
+floatt CuHArnoldi::checkEigenpairsInternally (const EigenPair& eigenPair, floatt tolerance)
 {
   traceFunction();
   floatt value = eigenPair.re();
 
+  math::Matrix* aux_v1 = useMatrix (m_matrixInfo.isRe, m_matrixInfo.isIm, 1, m_matrixInfo.rows(), "CUDA");
+  math::Matrix* aux_v2 = useMatrix (m_matrixInfo.isRe, m_matrixInfo.isIm, 1, m_matrixInfo.rows(), "CUDA");
+
   m_cuApi.getVector (m_v, m_vrows, m_EV, eigenPair.getIndex());
-  multiply (m_v1, m_v, m_cuApi, oap::VecMultiplicationType::TYPE_EIGENVECTOR);  // m_cuApi.dotProduct(v1, H, v);
+  multiply (aux_v1, m_v, m_cuApi, oap::VecMultiplicationType::TYPE_EIGENVECTOR);  // m_cuApi.dotProduct(v1, H, v);
 
-  m_cuApi.multiplyReConstant(m_v2, m_v, value);
-  bool compare = m_cuApi.compare(m_v1, m_v2, tolerance);
+  m_cuApi.multiplyReConstant (aux_v2, m_v, value);
 
-  logInfo("Eigenvalue %f %f", value, m_cuApi.getCompareOperationSum());
+  m_cuApi.substract (m_v, aux_v2, aux_v1);
 
-  return m_cuApi.getCompareOperationSum();
+  floatt outcome = -1;
+  m_cuApi.magnitude (outcome, m_v);
+
+  logInfo("Eigenvalue %f %f", value, outcome);
+
+  return outcome;
 }
 
 void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uint k)
