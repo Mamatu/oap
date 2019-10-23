@@ -1,5 +1,5 @@
 include ../project_generic.mk
-TARGET := oapSmsDataTests
+TARGET := oapCMatrixDataTests
 INCLUDE_PATHS :=
 EXTRA_LIBS :=
 EXTRA_CXXOPTIONS := -std=c++11
