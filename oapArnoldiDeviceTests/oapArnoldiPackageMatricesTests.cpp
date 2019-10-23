@@ -241,20 +241,26 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     }
 };
 
-TEST_F(OapArnoldiPackageMatricesTests, Sms1HeaderTest)
+TEST_F(OapArnoldiPackageMatricesTests, Test_1)
 {
   m_arnoldiCuda->setQRType (oap::QRType::QRGR);
   runSmsDataTest(Test_CMatrixData1, 2, 6, 0.02);
 }
 
-TEST_F(OapArnoldiPackageMatricesTests, Sms2HeaderTest)
+TEST_F(OapArnoldiPackageMatricesTests, Test_2)
 {
   m_arnoldiCuda->setQRType (oap::QRType::QRGR);
   runSmsDataTest(Test_CMatrixData2, 3, 6, 0.047);
 }
 
-TEST_F(OapArnoldiPackageMatricesTests, Sms3HeaderTest)
+TEST_F(OapArnoldiPackageMatricesTests, Test_3)
 {
   m_arnoldiCuda->setQRType (oap::QRType::QRGR);
   runSmsDataTest(Test_CMatrixData3, 6, 12, 0.047);
+}
+
+TEST_F(OapArnoldiPackageMatricesTests, Test_4)
+{
+  m_arnoldiCuda->setQRType (oap::QRType::QRGR);
+  runSmsDataTest(Test_CMatrixData4, 6, 12, 0.047);
 }
