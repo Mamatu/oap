@@ -26,6 +26,7 @@
 #include "Matrix.h"
 #include "MatrixInfo.h"
 #include "MatrixEx.h"
+#include "MatrixPrinter.h"
 
 namespace CudaUtils
 {
@@ -118,6 +119,7 @@ void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit = 0,
 void PrintMatrix(const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 
 void PrintMatrix(const std::string& output, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
+
 }
 
 template <typename T>

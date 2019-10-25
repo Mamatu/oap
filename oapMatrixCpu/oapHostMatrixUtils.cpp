@@ -32,7 +32,6 @@
 #include "oapHostMatrixUPtr.h"
 
 #include "MatrixParser.h"
-#include "MatrixPrinter.h"
 #include "ReferencesCounter.h"
 
 #include "GenericCoreApi.h"
@@ -336,17 +335,17 @@ void SetImValue(const math::Matrix* matrix, uintt column, uintt row,
   }
 }
 
-std::string GetMatrixStr(const math::Matrix* matrix)
+std::string GetMatrixStr (const math::Matrix* matrix)
 {
   std::string output;
-  matrixUtils::PrintMatrix (output, matrix, matrixUtils::PrintArgs());
+  oap::generic::printMatrix (output, matrix, matrixUtils::PrintArgs(), oap::host::GetMatrixInfo);
   return output;
 }
 
 void PrintMatrix(FILE* stream, const matrixUtils::PrintArgs& args, const math::Matrix* matrix)
 {
   std::string output;
-  matrixUtils::PrintMatrix (output, matrix, args);
+  oap::generic::printMatrix (output, matrix, matrixUtils::PrintArgs(), oap::host::GetMatrixInfo);
   fprintf(stream, "%s", output.c_str());
 }
 
@@ -584,7 +583,7 @@ void ToString (std::string& str, const math::Matrix* matrix)
   matrixUtils::PrintArgs args;
   args.prepareSection (matrix);
 
-  matrixUtils::PrintMatrix (str, matrix, args);
+  oap::generic::printMatrix (str, matrix, args, oap::host::GetMatrixInfo);
 }
 
 void GetReMatrixStr(std::string& text, const math::Matrix* matrix)
