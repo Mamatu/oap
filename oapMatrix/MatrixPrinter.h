@@ -25,6 +25,21 @@
 namespace matrixUtils
 {
 
+namespace
+{
+inline void printIndex (std::stringstream& sstream, size_t idx, size_t count)
+{
+  if (count == 1)
+  {
+    sstream << " (" << idx << ")";
+  }
+  else
+  {
+    sstream << " (" << idx << "-" << (idx + count) << ")";
+  }
+}
+}
+
 template <typename T>
 void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, const PrintArgs& args = PrintArgs())
 {
@@ -95,6 +110,12 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
     {
       sstream << " <repeats " << count << " times>";
     }
+
+    if (args.printIndex)
+    {
+      printIndex (sstream, fa, count);
+    }
+
     fa1 += count;
     bool lastPosition = (fa1 == totalLength);
     if (!lastPosition)

@@ -27,6 +27,7 @@
 #include "MatrixInfo.h"
 #include "MatrixEx.h"
 #include "MatrixUtils.h"
+#include "MatrixPrinter.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -889,6 +890,49 @@ void copyMatrixToMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt d
   {
     copyValues (&dst->imValues, &src->imValues);
   }
+}
+
+namespace
+{
+inline void printCustomMatrix (std::string& output, const math::Matrix* matrix, const matrixUtils::PrintArgs& args, const math::MatrixInfo& minfo)
+{
+  uintt columns = minfo.columns ();
+  uintt rows = minfo.rows ();
+
+  bool isre = minfo.isRe;
+  bool isim = minfo.isIm;
+
+  matrixUtils::PrintArgs printArgs (args);
+
+  if ((columns > 1 && rows == 1) || (columns == 1 && rows > 1) || (columns * rows > 10 && args.section.separator.find ("\n") == std::string::npos))
+  {
+    printArgs.printIndex = true;
+  }
+
+  matrixUtils::PrintMatrix (output, matrix, printArgs);
+}
+}
+
+template<typename GetMatrixInfo>
+void printMatrix (std::string& output, const math::Matrix* matrix, const matrixUtils::PrintArgs& args, GetMatrixInfo&& getMatrixInfo)
+{
+  math::MatrixInfo minfo = getMatrixInfo(matrix);
+
+  oap::generic::printCustomMatrix (output, matrix, args, minfo);
+}
+
+template<typename GetMatrixInfo, typename NewMatrix, typename DeleteMatrix, typename CopyMatrixToMatrix>
+void printMatrix (std::string& output, const math::Matrix* matrix, const matrixUtils::PrintArgs& args,
+                  GetMatrixInfo&& getMatrixInfo, NewMatrix&& newMatrix, DeleteMatrix&& deleteMatrix, CopyMatrixToMatrix&& copyMatrixToMatrix)
+{
+  math::MatrixInfo minfo = getMatrixInfo(matrix);
+
+  math::Matrix* hmatrix = newMatrix (minfo);
+  copyMatrixToMatrix (hmatrix, matrix);
+
+  oap::generic::printCustomMatrix (output, hmatrix, args, minfo);
+
+  deleteMatrix (hmatrix);
 }
 
 }

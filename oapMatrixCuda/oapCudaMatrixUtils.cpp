@@ -31,6 +31,7 @@
 #include "GenericCoreApi.h"
 
 #include "MatricesList.h"
+#include "MatrixUtils.h"
 
 #include "KernelExecutor.h"
 
