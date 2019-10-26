@@ -183,7 +183,9 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   void executeShiftedQRIteration(uint p);
 
-  floatt checkEigenpairsInternally(const EigenPair& eigenPair, floatt tolerance);
+  floatt checkEigenpairsInternally (const EigenPair& eigenPair, floatt tolerance);
+  floatt calcDiffMagnitude (const EigenPair& eigenPair, floatt tolerance);
+  floatt calcDiffMean (const EigenPair& eigenPair, floatt tolerance);
 
   inline void calculateQSwapQAuxPointers()
   {
