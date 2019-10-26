@@ -226,19 +226,21 @@ math::Matrix* NewMatrix(const std::string& text)
   uintt columns = 0;
   uintt rows = 0;
 
-  bool iscolumns = false;
-  bool isrows = false;
+  bool iscolumns = parser.getColumns (columns);
+  bool isrows = parser.getRows (rows);
 
-  if (parser.getColumns(columns) == true)
+  std::pair<floatt*, size_t> pairRe = std::make_pair (nullptr, 0);
+  std::pair<floatt*, size_t> pairIm = std::make_pair (nullptr, 0);
+
+  if (matrixUtils::HasArray (text, 1))
   {
-    iscolumns = true;
+    pairRe = matrixUtils::CreateArray (text, 1);
   }
-  if (parser.getRows(rows) == true)
+
+  if (matrixUtils::HasArray (text, 2))
   {
-    isrows = true;
+    pairIm = matrixUtils::CreateArray (text, 2);
   }
-  std::pair<floatt*, size_t> pairRe = matrixUtils::CreateArray(text, 1);
-  std::pair<floatt*, size_t> pairIm = matrixUtils::CreateArray(text, 2);
 
   debugAssert(pairRe.first == nullptr || pairIm.first == nullptr ||
               pairRe.second == pairIm.second);
@@ -246,7 +248,7 @@ math::Matrix* NewMatrix(const std::string& text)
   floatt* revalues = pairRe.first;
   floatt* imvalues = pairIm.first;
 
-  if ( (iscolumns && isrows) == false)
+  if (!(iscolumns && isrows))
   {
     size_t sq = sqrt(pairRe.second);
     columns = sq;

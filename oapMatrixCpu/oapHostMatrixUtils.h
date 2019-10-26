@@ -904,7 +904,7 @@ inline void printCustomMatrix (std::string& output, const math::Matrix* matrix, 
 
   matrixUtils::PrintArgs printArgs (args);
 
-  if ((columns > 1 && rows == 1) || (columns == 1 && rows > 1) || (columns * rows > 10 && args.section.separator.find ("\n") == std::string::npos))
+  if ((columns > 10 && rows == 1) || (columns == 1 && rows > 10) || (columns * rows > 10 && args.section.separator.find ("\n") == std::string::npos))
   {
     printArgs.printIndex = true;
   }
