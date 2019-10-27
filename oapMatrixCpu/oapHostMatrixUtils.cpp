@@ -232,17 +232,17 @@ math::Matrix* NewMatrix(const std::string& text)
   std::pair<floatt*, size_t> pairRe = std::make_pair (nullptr, 0);
   std::pair<floatt*, size_t> pairIm = std::make_pair (nullptr, 0);
 
-  try {
-  if (matrixUtils::HasArray (text, 1))
+  try
   {
-    pairRe = matrixUtils::CreateArray (text, 1);
-  }
+    if (matrixUtils::HasArray (text, 1))
+    {
+      pairRe = matrixUtils::CreateArray (text, 1);
+    }
 
-  if (matrixUtils::HasArray (text, 2))
-  {
-    pairIm = matrixUtils::CreateArray (text, 2);
-  }
-
+    if (matrixUtils::HasArray (text, 2))
+    {
+      pairIm = matrixUtils::CreateArray (text, 2);
+    }
   }
   catch (const matrixUtils::Parser::ParsingException& pe)
   {
