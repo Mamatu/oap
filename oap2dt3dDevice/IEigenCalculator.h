@@ -22,20 +22,20 @@
 
 #include <vector>
 
-#include "DeviceDataLoader.h"
+#include "DeviceImagesLoader.h"
 #include "ArnoldiProceduresImpl.h"
 
 namespace oap {
 
-using DataLoaders = std::vector<DataLoader*>;
+using ImagesLoaders = std::vector<ImagesLoader*>;
 
 class IEigenCalculator {
  public:
   IEigenCalculator(CuHArnoldiCallback* cuHArnoldi);
   virtual ~IEigenCalculator() = 0;
 
-  void loadData (const DataLoader::Info& dataInfo);
-  void setDataLoader (DeviceDataLoader* dataLoader);
+  void loadData (const ImagesLoader::Info& dataInfo);
+  void setImagesLoader (DeviceImagesLoader* dataLoader);
 
   void calculate();
 
@@ -53,16 +53,16 @@ class IEigenCalculator {
 
   void setEigenvectorsOutput(math::Matrix**, ArnUtils::Type);
 
-  oap::DeviceDataLoader* getDataLoader() const;
+  oap::DeviceImagesLoader* getImagesLoader() const;
 
  private:
   void checkIfInitialized() const;
   void checkIfOutputInitialized() const;
-  void checkIfDataLoaderInitialized() const;
+  void checkIfImagesLoaderInitialized() const;
 
   bool isInitialized() const;
   bool isOutputInitialized() const;
-  bool isDataLoaderInitialized() const;
+  bool isImagesLoaderInitialized() const;
 
   void checkOutOfRange(size_t v, size_t max) const;
 
@@ -72,14 +72,14 @@ class IEigenCalculator {
   void createArnoldiModule();
   void destroyArnoldiModule();
 
-  void destroyDataLoader();
+  void destroyImagesLoader();
 
   size_t m_eigensCount;
   size_t m_wantedEigensCount;
 
   ArnUtils::Type m_eigenvectorsType;
-  DeviceDataLoader* m_dataLoader;
-  bool m_bDestroyDataLoader;
+  DeviceImagesLoader* m_dataLoader;
+  bool m_bDestroyImagesLoader;
   CuHArnoldiCallback* m_cuHArnoldi;
 
   floatt* m_revalues;

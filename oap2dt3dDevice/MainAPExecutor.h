@@ -3,7 +3,7 @@
 
 #include "ArnoldiUtils.h"
 #include "IEigenCalculator.h"
-#include "DeviceDataLoader.h"
+#include "DeviceImagesLoader.h"
 
 #include "oapDeviceMatrixPtr.h"
 
@@ -64,9 +64,9 @@ class MainAPExecutor final
           IEigenCalculator::setEigenvectorsOutput (eigenvecs, type);
         }
 
-        oap::DeviceDataLoader* getDataLoader() const
+        oap::DeviceImagesLoader* getImagesLoader() const
         {
-          return IEigenCalculator::getDataLoader ();
+          return IEigenCalculator::getImagesLoader ();
         }
     };
 };
