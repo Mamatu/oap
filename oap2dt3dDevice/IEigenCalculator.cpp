@@ -23,7 +23,7 @@
 #include "ArnoldiProceduresImpl.h"
 
 #include "PngFile.h"
-#include "DeviceDataLoader.h"
+#include "DeviceImagesLoader.h"
 
 namespace oap {
 
@@ -31,7 +31,7 @@ IEigenCalculator::IEigenCalculator(CuHArnoldiCallback* cuHArnoldi)
     : m_eigensCount(0),
       m_eigenvectorsType(ArnUtils::UNDEFINED),
       m_dataLoader(nullptr),
-      m_bDestroyDataLoader(false),
+      m_bDestroyImagesLoader(false),
       m_cuHArnoldi(cuHArnoldi),
       m_revalues(nullptr),
       m_eigenvectors(nullptr) {}
@@ -39,18 +39,18 @@ IEigenCalculator::IEigenCalculator(CuHArnoldiCallback* cuHArnoldi)
 IEigenCalculator::~IEigenCalculator()
 {}
 
-void IEigenCalculator::loadData (const DataLoader::Info& dataInfo)
+void IEigenCalculator::loadData (const ImagesLoader::Info& dataInfo)
 {
-  destroyDataLoader();
-  m_dataLoader = DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader> (dataInfo);
-  m_bDestroyDataLoader = true;
+  destroyImagesLoader();
+  m_dataLoader = ImagesLoader::createImagesLoader<oap::PngFile, oap::DeviceImagesLoader> (dataInfo);
+  m_bDestroyImagesLoader = true;
 }
 
-void IEigenCalculator::setDataLoader (DeviceDataLoader* dataLoader)
+void IEigenCalculator::setImagesLoader (DeviceImagesLoader* dataLoader)
 {
-  destroyDataLoader();
+  destroyImagesLoader();
   m_dataLoader = dataLoader;
-  m_bDestroyDataLoader = false;
+  m_bDestroyImagesLoader = false;
 }
 
 void IEigenCalculator::calculate() {
@@ -78,7 +78,7 @@ void IEigenCalculator::setEigenvaluesOutput(floatt* revalues) {
   m_revalues = revalues;
 }
 
-oap::DeviceDataLoader* IEigenCalculator::getDataLoader() const
+oap::DeviceImagesLoader* IEigenCalculator::getImagesLoader() const
 {
   return m_dataLoader;
 }
@@ -93,7 +93,7 @@ ArnUtils::Type IEigenCalculator::getEigenvectorsType() const {
 }
 
 math::MatrixInfo IEigenCalculator::getMatrixInfo() const {
-  checkIfDataLoaderInitialized();
+  checkIfImagesLoaderInitialized();
   return m_dataLoader->getMatrixInfo();
 }
 
@@ -119,22 +119,22 @@ void IEigenCalculator::checkIfOutputInitialized() const {
   }
 }
 
-void IEigenCalculator::checkIfDataLoaderInitialized() const {
-  if (!isDataLoaderInitialized()) {
+void IEigenCalculator::checkIfImagesLoaderInitialized() const {
+  if (!isImagesLoaderInitialized()) {
     throw oap::exceptions::NotInitialzed();
   }
 }
 
 bool IEigenCalculator::isInitialized() const {
   return m_eigensCount > 0 && m_eigenvectorsType != ArnUtils::UNDEFINED &&
-         isOutputInitialized() && isDataLoaderInitialized();
+         isOutputInitialized() && isImagesLoaderInitialized();
 }
 
 bool IEigenCalculator::isOutputInitialized() const {
   return m_eigenvectors != NULL && m_revalues != NULL;
 }
 
-bool IEigenCalculator::isDataLoaderInitialized() const {
+bool IEigenCalculator::isImagesLoaderInitialized() const {
   return m_dataLoader != NULL;
 }
 
@@ -144,9 +144,9 @@ void IEigenCalculator::checkOutOfRange(size_t v, size_t max) const {
   }
 }
 
-void IEigenCalculator::destroyDataLoader()
+void IEigenCalculator::destroyImagesLoader()
 {
-  if (m_bDestroyDataLoader)
+  if (m_bDestroyImagesLoader)
   {
     delete m_dataLoader;
   }

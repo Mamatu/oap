@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string>
 
-#include "DataLoader.h"
+#include "ImagesLoader.h"
 #include "PngFile.h"
 
 #include "MainAPExecutor.h"
@@ -36,7 +36,7 @@ int main()
   size_t wantedCount = 100;
 
   mainExecutor->setEigensCount (100, wantedCount);
-  mainExecutor->loadData (oap::DataLoader::Info ("oap2dt3d/data/images_monkey_125", "image_", 125, true));
+  mainExecutor->loadData (oap::ImagesLoader::Info ("oap2dt3d/data/images_monkey_125", "image_", 125, true));
 
   std::shared_ptr<oap::Outcome> outcome = mainExecutor.run ();
 

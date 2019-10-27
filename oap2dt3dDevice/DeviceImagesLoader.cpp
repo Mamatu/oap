@@ -17,33 +17,33 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DeviceDataLoader.h"
+#include "DeviceImagesLoader.h"
 
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 
 namespace oap {
-DeviceDataLoader::DeviceDataLoader(const Images& images, bool dealocateImages,
+DeviceImagesLoader::DeviceImagesLoader(const Images& images, bool dealocateImages,
                                    bool frugalMode)
-    : DataLoader(images, dealocateImages, frugalMode) {}
+    : ImagesLoader(images, dealocateImages, frugalMode) {}
 
-DeviceDataLoader::~DeviceDataLoader() {}
+DeviceImagesLoader::~DeviceImagesLoader() {}
 
-math::Matrix* DeviceDataLoader::createDeviceMatrix() {
+math::Matrix* DeviceImagesLoader::createDeviceMatrix() {
   math::Matrix* host = createMatrix();
   math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
 
-math::Matrix* DeviceDataLoader::createDeviceRowVector(size_t index) {
+math::Matrix* DeviceImagesLoader::createDeviceRowVector(size_t index) {
   math::Matrix* host = createRowVector(index);
   math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
 
-math::Matrix* DeviceDataLoader::getDeviceRowVector(size_t index, math::Matrix* dmatrix)
+math::Matrix* DeviceImagesLoader::getDeviceRowVector(size_t index, math::Matrix* dmatrix)
 {
   math::Matrix* host = createRowVector(index);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, host);
@@ -51,14 +51,14 @@ math::Matrix* DeviceDataLoader::getDeviceRowVector(size_t index, math::Matrix* d
   return dmatrix;
 }
 
-math::Matrix* DeviceDataLoader::createDeviceColumnVector(size_t index) {
+math::Matrix* DeviceImagesLoader::createDeviceColumnVector(size_t index) {
   math::Matrix* host = createColumnVector(index);
   math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
 
-math::Matrix* DeviceDataLoader::getDeviceColumnVector(size_t index, math::Matrix* dmatrix)
+math::Matrix* DeviceImagesLoader::getDeviceColumnVector(size_t index, math::Matrix* dmatrix)
 {
   math::Matrix* host = createColumnVector(index);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, host);
@@ -66,7 +66,7 @@ math::Matrix* DeviceDataLoader::getDeviceColumnVector(size_t index, math::Matrix
   return dmatrix;
 }
 
-math::Matrix* DeviceDataLoader::createDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
+math::Matrix* DeviceImagesLoader::createDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
 {
   math::Matrix* host = createSubMatrix (cindex, rindex, columns, rows);
   math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
@@ -74,7 +74,7 @@ math::Matrix* DeviceDataLoader::createDeviceSubMatrix(uintt cindex, uintt rindex
   return device;
 }
 
-math::Matrix* DeviceDataLoader::getDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows, math::Matrix* dmatrix)
+math::Matrix* DeviceImagesLoader::getDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows, math::Matrix* dmatrix)
 {
   uintt columns1 = oap::cuda::GetColumns (dmatrix);
   uintt rows1 = oap::cuda::GetRows (dmatrix);

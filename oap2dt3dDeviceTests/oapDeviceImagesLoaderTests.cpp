@@ -20,7 +20,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "DeviceDataLoader.h"
+#include "DeviceImagesLoader.h"
 #include "KernelExecutor.h"
 #include "oapCudaMatrixUtils.h"
 #include "oapDeviceMatrixUPtr.h"
@@ -32,7 +32,7 @@
 
 using namespace ::testing;
 
-class OapDeviceDataLoaderTests : public testing::Test
+class OapDeviceImagesLoaderTests : public testing::Test
 {
  public:
   virtual void SetUp() { oap::cuda::Context::Instance().create(); }
@@ -40,11 +40,11 @@ class OapDeviceDataLoaderTests : public testing::Test
   virtual void TearDown() { oap::cuda::Context::Instance().destroy(); }
 };
 
-TEST_F(OapDeviceDataLoaderTests, LoadImagesAllocDeallocTest)
+TEST_F(OapDeviceImagesLoaderTests, LoadImagesAllocDeallocTest)
 {
-  oap::DataLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
-  oap::DeviceDataLoader* ddl = oap::DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info);
-  oap::DataLoader* dl = oap::DataLoader::createDataLoader<oap::PngFile, oap::DataLoader>(info);
+  oap::ImagesLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
+  oap::DeviceImagesLoader* ddl = oap::ImagesLoader::createImagesLoader<oap::PngFile, oap::DeviceImagesLoader>(info);
+  oap::ImagesLoader* dl = oap::ImagesLoader::createImagesLoader<oap::PngFile, oap::ImagesLoader>(info);
 
   math::Matrix* matrix = ddl->createRowVector(0);
   math::Matrix* dmatrix = ddl->createDeviceRowVector(0);
@@ -62,10 +62,10 @@ TEST_F(OapDeviceDataLoaderTests, LoadImagesAllocDeallocTest)
   oap::cuda::DeleteDeviceMatrix(dmatrix);
 }
 
-TEST_F(OapDeviceDataLoaderTests, SquareMatrixAllocationTest)
+TEST_F(OapDeviceImagesLoaderTests, SquareMatrixAllocationTest)
 {
-  oap::DataLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
-  oap::DeviceDataLoader* ddl = oap::DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info);
+  oap::ImagesLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
+  oap::DeviceImagesLoader* ddl = oap::ImagesLoader::createImagesLoader<oap::PngFile, oap::DeviceImagesLoader>(info);
   oap::RecToSquareApi smatrix (ddl->createMatrix(), true);
 
   math::MatrixInfo minfo = smatrix.getMatrixInfo ();
@@ -110,10 +110,10 @@ TEST_F(OapDeviceDataLoaderTests, SquareMatrixAllocationTest)
 */
 }
 
-TEST_F(OapDeviceDataLoaderTests, DISABLED_SquareMatrixSubMatrix)
+TEST_F(OapDeviceImagesLoaderTests, DISABLED_SquareMatrixSubMatrix)
 {
-  oap::DataLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
-  oap::DeviceDataLoader* ddl = oap::DataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info);
+  oap::ImagesLoader::Info info("oap2dt3d/data/images_monkey_125", "image_", 125, true);
+  oap::DeviceImagesLoader* ddl = oap::ImagesLoader::createImagesLoader<oap::PngFile, oap::DeviceImagesLoader>(info);
   oap::RecToSquareApi smatrix (ddl->createMatrix (), true);
 
   math::MatrixInfo minfo = smatrix.getMatrixInfo ();
