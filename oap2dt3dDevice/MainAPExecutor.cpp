@@ -1,7 +1,7 @@
 #include "MainAPExecutor.h"
 
 #include "IEigenCalculator.h"
-#include "DeviceDataLoader.h"
+#include "DeviceImagesLoader.h"
 
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
@@ -35,7 +35,7 @@ void MainAPExecutor::destroy()
 struct UserData
 {
   oap::DeviceMatrixPtr value;
-  DeviceDataLoader* dataLoader;
+  DeviceImagesLoader* dataLoader;
   oap::RecToSquareApi* rtsApi;
 };
 
@@ -128,10 +128,10 @@ void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v,
 
 std::shared_ptr<Outcome> MainAPExecutor::run(ArnUtils::Type type)
 {
-  oap::RecToSquareApi rtsApi (m_eigenCalc->getDataLoader()->createMatrix (), true);
+  oap::RecToSquareApi rtsApi (m_eigenCalc->getImagesLoader()->createMatrix (), true);
 
-  auto dataLoader = m_eigenCalc->getDataLoader ();
-  UserData userData = {nullptr, m_eigenCalc->getDataLoader(), &rtsApi};
+  auto dataLoader = m_eigenCalc->getImagesLoader ();
+  UserData userData = {nullptr, m_eigenCalc->getImagesLoader(), &rtsApi};
 
   auto minfo = rtsApi.getMatrixInfo ();
   if (sizeCondition (minfo))
