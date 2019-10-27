@@ -40,12 +40,10 @@ struct OptSize
 };
 
 template <typename T2DArray, typename T>
-OptSize GetOptWidth(T2DArray bitmap2d, size_t width, size_t height,
-                    size_t colorsCount);
+OptSize GetOptWidth (T2DArray bitmap2d, size_t width, size_t height, size_t colorsCount);
 
 template <typename T2DArray, typename T>
-OptSize GetOptHeight(T2DArray bitmap2d, size_t width, size_t height,
-                     size_t colorsCount);
+OptSize GetOptHeight (T2DArray bitmap2d, size_t width, size_t height, size_t colorsCount);
 };
 
 #include "GraphicsUtilsImpl.h"

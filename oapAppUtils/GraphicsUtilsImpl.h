@@ -26,7 +26,7 @@
 #include <stdio.h>
 
 #include <memory>
-
+#include "GraphicUtils.h"
 
 namespace oap
 {
@@ -48,8 +48,7 @@ size_t getEndRow(T2DArray bitmap2d, size_t width, size_t height,
                  size_t colorsCount);
 
 template <typename T2DArray, typename T>
-OptSize GetOptWidth(T2DArray bitmap2d, size_t width, size_t height,
-                    size_t colorsCount)
+OptSize GetOptWidth(T2DArray bitmap2d, size_t width, size_t height, size_t colorsCount)
 {
   size_t beginC = getBeginColumn<T2DArray, T>(bitmap2d, width, height, colorsCount);
   size_t endC = width;
