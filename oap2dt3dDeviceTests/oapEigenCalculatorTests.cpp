@@ -21,7 +21,7 @@
 #include "gmock/gmock.h"
 #include "PngFile.h"
 #include "IEigenCalculator.h"
-#include "DeviceDataLoader.h"
+#include "DeviceImagesLoader.h"
 #include "Exceptions.h"
 #include "MatchersUtils.h"
 
@@ -52,19 +52,19 @@ class EigenCalculator : public oap::IEigenCalculator
       oap::IEigenCalculator::setEigenvectorsOutput (eigenvecs, type);
     }
 
-    oap::DeviceDataLoader* getDataLoader() const
+    oap::DeviceImagesLoader* getImagesLoader() const
     {
-      return oap::IEigenCalculator::getDataLoader ();
+      return oap::IEigenCalculator::getImagesLoader ();
     }
 };
 
 class ArnoldiOperations {
  public:
-  oap::DeviceDataLoader* m_dataLoader;
+  oap::DeviceImagesLoader* m_dataLoader;
   math::Matrix* value;
   oap::CuProceduresApi cuProceduresApi;
 
-  ArnoldiOperations(oap::DeviceDataLoader* dataLoader)
+  ArnoldiOperations(oap::DeviceImagesLoader* dataLoader)
       : m_dataLoader(dataLoader) {
     value = oap::cuda::NewDeviceReMatrix(1, 1);
   }
@@ -77,7 +77,7 @@ class ArnoldiOperations {
   {
     if (mt == oap::VecMultiplicationType::TYPE_WV) {
       ArnoldiOperations* ao = static_cast<ArnoldiOperations*>(userData);
-      oap::DeviceDataLoader* dataLoader = ao->m_dataLoader;
+      oap::DeviceImagesLoader* dataLoader = ao->m_dataLoader;
 
       math::MatrixInfo matrixInfo = dataLoader->getMatrixInfo();
 
@@ -216,11 +216,11 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
     return output;
   }
 
-  static MatricesUPtr launchTest(ArnUtils::Type eigensType, const oap::DataLoader::Info& info,
+  static MatricesUPtr launchTest(ArnUtils::Type eigensType, const oap::ImagesLoader::Info& info,
                                  int wantedEigensCount, int maxIterationCounter = 5)
   {
-    std::unique_ptr<oap::DeviceDataLoader> dataLoader(
-        oap::DeviceDataLoader::createDataLoader<oap::PngFile, oap::DeviceDataLoader>(info));
+    std::unique_ptr<oap::DeviceImagesLoader> dataLoader(
+        oap::DeviceImagesLoader::createImagesLoader<oap::PngFile, oap::DeviceImagesLoader>(info));
 
     ArnoldiOperations ao(dataLoader.get());
     TestCuHArnoldiCallback cuharnoldi(&ao, maxIterationCounter);
@@ -230,7 +230,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
     EigenCalculator eigenCalculator(&cuharnoldi);
 
-    eigenCalculator.setDataLoader (dataLoader.get());
+    eigenCalculator.setImagesLoader (dataLoader.get());
 
     eigenCalculator.setEigensCount(wantedEigensCount, wantedEigensCount);
 
@@ -270,7 +270,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
     return std::move(evectorsUPtr);
   }
 
-  static void launchDataTest(const oap::DataLoader::Info& info, const std::string& testFilename,
+  static void launchDataTest(const oap::ImagesLoader::Info& info, const std::string& testFilename,
                              int wantedEigensCount = 5, int maxIterationCount = 1)
   {
     logInfoLongTest();
@@ -318,11 +318,11 @@ TEST_F(OapEigenCalculatorTests, NotInitializedTest) {
 }
 
 TEST_F(OapEigenCalculatorTests, DISABLED_CalculateDeviceOutput) {
-  oap::DataLoader::Info info("oap2dt3d/data/images_monkey", "image", 1000, true);
+  oap::ImagesLoader::Info info("oap2dt3d/data/images_monkey", "image", 1000, true);
   TestCuHArnoldiCallback::launchDataTest(info, "CalculateDeviceOutput");
 }
 
 TEST_F(OapEigenCalculatorTests, DISABLED_CalculateDeviceOutput1) {
-  oap::DataLoader::Info info("oap2dt3d/data/images_monkey_1", "image_", 64, true);
+  oap::ImagesLoader::Info info("oap2dt3d/data/images_monkey_1", "image_", 64, true);
   TestCuHArnoldiCallback::launchDataTest(info, "CalculateDeviceOutput1", 10, 10);
 }

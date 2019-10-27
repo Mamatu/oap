@@ -18,7 +18,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "DataLoader.h"
+#include "ImagesLoader.h"
 #include "oapHostMatrixUtils.h"
 #include "PngFile.h"
 
@@ -28,10 +28,10 @@
 
 using namespace ::testing;
 
-class OapDataLoaderTests : public testing::Test
+class OapImagesLoaderTests : public testing::Test
 {
  public:
-  OapDataLoaderTests()
+  OapImagesLoaderTests()
   {
     m_data_path = utils::Config::getPathInOap("oapAppUtilsFuncTests/data/");
     m_images_path = m_data_path + "images/";
@@ -88,7 +88,7 @@ class OapDataLoaderTests : public testing::Test
       images.push_back(file);
     }
 
-    oap::DataLoader dataLoader(images, true, frugalMode);
+    oap::ImagesLoader dataLoader(images, true, frugalMode);
 
     math::MatrixInfo matrixInfo = dataLoader.getMatrixInfo();
     math::Matrix* matrix = dataLoader.createMatrix();
@@ -100,22 +100,22 @@ class OapDataLoaderTests : public testing::Test
   }
 };
 
-TEST_F(OapDataLoaderTests, LoadGreenScreen)
+TEST_F(OapImagesLoaderTests, LoadGreenScreen)
 {
   executeColorTest("green.png", 65280);
 }
 
-TEST_F(OapDataLoaderTests, LoadRedScreen)
+TEST_F(OapImagesLoaderTests, LoadRedScreen)
 {
   executeColorTest("red.png", 16711680);
 }
 
-TEST_F(OapDataLoaderTests, LoadBlueScreen)
+TEST_F(OapImagesLoaderTests, LoadBlueScreen)
 {
   executeColorTest("blue.png", 255);
 }
 
-TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode)
+TEST_F(OapImagesLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode)
 {
   math::Matrix* matrix = createMatrix("green.png", 900, false);
 
@@ -126,7 +126,7 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode)
   oap::host::DeleteMatrix(matrix);
 }
 
-TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenFrugalMode)
+TEST_F(OapImagesLoaderTests, CreateMatrixFromGreenScreenFrugalMode)
 {
   math::Matrix* matrix = createMatrix("green.png", 900, true);
 
@@ -137,22 +137,22 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenFrugalMode)
   oap::host::DeleteMatrix(matrix);
 }
 
-TEST_F(OapDataLoaderTests, CreateMatrixFromMonkeyScreen)
+TEST_F(OapImagesLoaderTests, CreateMatrixFromMonkeyScreen)
 {
   math::Matrix* matrix = createMatrix("monkey.png", 1000);
   oap::host::DeleteMatrix(matrix);
 }
 
-TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix)
+TEST_F(OapImagesLoaderTests, LoadMonkeyImagesAndCreateMatrix)
 {
-  oap::DataLoader* dataloader = NULL;
+  oap::ImagesLoader* dataloader = NULL;
   math::Matrix* matrix = NULL;
   logInfoLongTest();
 
   EXPECT_NO_THROW(
   try
   {
-    dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
+    dataloader = oap::ImagesLoader::createImagesLoader<oap::PngFile>(
         "oap2dt3d/data/images_monkey", "image", 1000, true);
     matrix = dataloader->createMatrix();
   }
@@ -168,13 +168,13 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix)
   delete dataloader;
 }
 
-TEST_F(OapDataLoaderTests, LoadBlueRecTest)
+TEST_F(OapImagesLoaderTests, LoadBlueRecTest)
 {
-  oap::DataLoader* dataloader = NULL;
+  oap::ImagesLoader* dataloader = NULL;
   EXPECT_NO_THROW(
   try
   {
-    dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
+    dataloader = oap::ImagesLoader::createImagesLoader<oap::PngFile>(
         "oapAppUtilsFuncTests/data/images/bluerecs", "bluerec", 3);
     delete dataloader;
   }
@@ -186,16 +186,16 @@ TEST_F(OapDataLoaderTests, LoadBlueRecTest)
   });
 }
 
-TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix)
+TEST_F(OapImagesLoaderTests, LoadMonkeyImagesCreateMatrix)
 {
-  oap::DataLoader* dataloader = NULL;
+  oap::ImagesLoader* dataloader = NULL;
   math::Matrix* matrix = NULL;
   logInfoLongTest();
 
   EXPECT_NO_THROW(
   try
   {
-    dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
+    dataloader = oap::ImagesLoader::createImagesLoader<oap::PngFile>(
         "oap2dt3d/data/images_monkey", "image", 1000, true);
     matrix = dataloader->createMatrix();
   }
@@ -214,28 +214,28 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix)
 namespace LoadMonkeyImageTest
 {
 
-class DataLoaderTest : public oap::DataLoader
+class ImagesLoaderTest : public oap::ImagesLoader
 {
  public:
-  DataLoaderTest (const oap::Images& images, bool dealocateImages = false, bool frugalMode = true)
-      : oap::DataLoader(images, dealocateImages, frugalMode) {}
+  ImagesLoaderTest (const oap::Images& images, bool dealocateImages = false, bool frugalMode = true)
+      : oap::ImagesLoader(images, dealocateImages, frugalMode) {}
 
-  size_t getImagesCount() const { return oap::DataLoader::getImagesCount(); }
+  size_t getImagesCount() const { return oap::ImagesLoader::getImagesCount(); }
 
   oap::Image* getImage(size_t index) const
   {
-    return oap::DataLoader::getImage(index);
+    return oap::ImagesLoader::getImage(index);
   }
 
   static void run(size_t imagesCount)
   {
-    DataLoaderTest* dataloader = NULL;
+    ImagesLoaderTest* dataloader = NULL;
     logInfoLongTest();
 
     try
     {
       dataloader =
-          oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderTest>(
+          oap::ImagesLoader::createImagesLoader<oap::PngFile, ImagesLoaderTest>(
               "oap2dt3d/data/images_monkey", "image", imagesCount, true);
 
       math::MatrixInfo matrixInfo = dataloader->getMatrixInfo();
@@ -255,7 +255,7 @@ class DataLoaderTest : public oap::DataLoader
   }
 
  private:
-  static void testColumnsIdentity (oap::DataLoader* dataloader, size_t imagesCount)
+  static void testColumnsIdentity (oap::ImagesLoader* dataloader, size_t imagesCount)
   {
     std::vector<math::Matrix*> columnVecs;
     std::vector<math::Matrix*> rowVecs;
@@ -290,7 +290,7 @@ class DataLoaderTest : public oap::DataLoader
     deleteMatrices(rowVecs);
   }
 
-  static void testImagesIdentity (LoadMonkeyImageTest::DataLoaderTest* dataloader)
+  static void testImagesIdentity (LoadMonkeyImageTest::ImagesLoaderTest* dataloader)
   {
     for (int fa = 0; fa < dataloader->getImagesCount() - 1; ++fa)
     {
@@ -327,17 +327,17 @@ class DataLoaderTest : public oap::DataLoader
 };
 }
 
-TEST_F(OapDataLoaderTests, Load1000MonkeyImagesCreateRowVectors)
+TEST_F(OapImagesLoaderTests, Load1000MonkeyImagesCreateRowVectors)
 {
-  EXPECT_NO_THROW(LoadMonkeyImageTest::DataLoaderTest::run(1000));
+  EXPECT_NO_THROW(LoadMonkeyImageTest::ImagesLoaderTest::run(1000));
 }
 
-TEST_F(OapDataLoaderTests, Load2MonkeyImagesCreateRowVectors)
+TEST_F(OapImagesLoaderTests, Load2MonkeyImagesCreateRowVectors)
 {
-  EXPECT_NO_THROW(LoadMonkeyImageTest::DataLoaderTest::run(2));
+  EXPECT_NO_THROW(LoadMonkeyImageTest::ImagesLoaderTest::run(2));
 }
 
-TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest)
+TEST_F(OapImagesLoaderTests, ImagesLoaderSaveTruncatedImagesTest)
 {
   math::Matrix* matrix = NULL;
   logInfoLongTest();
@@ -346,25 +346,25 @@ TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest)
 
   debug("Images will be saved in %s", dir.c_str());
 
-  class DataLoaderImpl : public oap::DataLoader
+  class ImagesLoaderImpl : public oap::ImagesLoader
   {
     public:
-      DataLoaderImpl (const oap::Images& images, bool dealocateImages = false, bool frugalMode = true)
-        : oap::DataLoader(images, dealocateImages, frugalMode) {}
+      ImagesLoaderImpl (const oap::Images& images, bool dealocateImages = false, bool frugalMode = true)
+        : oap::ImagesLoader(images, dealocateImages, frugalMode) {}
 
-    size_t getImagesCount() const { return oap::DataLoader::getImagesCount(); }
+    size_t getImagesCount() const { return oap::ImagesLoader::getImagesCount(); }
 
     oap::Image* getImage(size_t index) const
     {
-      return oap::DataLoader::getImage(index);
+      return oap::ImagesLoader::getImage(index);
     }
   };
 
-  DataLoaderImpl* dataloader = NULL;
+  ImagesLoaderImpl* dataloader = NULL;
 
   try
   {
-    dataloader = oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderImpl> ("oap2dt3d/data/images_monkey", "image", 1000, true);
+    dataloader = oap::ImagesLoader::createImagesLoader<oap::PngFile, ImagesLoaderImpl> ("oap2dt3d/data/images_monkey", "image", 1000, true);
 
     for (size_t fa = 0; fa < dataloader->getImagesCount(); ++fa)
     {
