@@ -232,6 +232,7 @@ math::Matrix* NewMatrix(const std::string& text)
   std::pair<floatt*, size_t> pairRe = std::make_pair (nullptr, 0);
   std::pair<floatt*, size_t> pairIm = std::make_pair (nullptr, 0);
 
+  try {
   if (matrixUtils::HasArray (text, 1))
   {
     pairRe = matrixUtils::CreateArray (text, 1);
@@ -242,8 +243,17 @@ math::Matrix* NewMatrix(const std::string& text)
     pairIm = matrixUtils::CreateArray (text, 2);
   }
 
-  debugAssert(pairRe.first == nullptr || pairIm.first == nullptr ||
+  }
+  catch (const matrixUtils::Parser::ParsingException& pe)
+  {
+    logError ("%s", pe.what ());
+    abort ();
+  }
+
+  logAssert(pairRe.first == nullptr || pairIm.first == nullptr ||
               pairRe.second == pairIm.second);
+
+  logAssert(!(pairRe.first == nullptr && pairIm.first == nullptr));
 
   floatt* revalues = pairRe.first;
   floatt* imvalues = pairIm.first;

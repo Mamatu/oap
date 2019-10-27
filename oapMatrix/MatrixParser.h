@@ -63,7 +63,7 @@ class Parser
   bool getColumns(uintt& columns) const;
   bool getRows(uintt& rows) const;
 
-  bool parseArray(unsigned int which);
+  void parseArray(unsigned int which);
 
   floatt getValue(uintt index) const;
 
@@ -86,7 +86,7 @@ class Parser
 };
 
   bool HasArray (const std::string& text, unsigned int which);
-  std::pair<floatt*, size_t> CreateArray(const std::string& text, unsigned int which);
+  std::pair<floatt*, size_t> CreateArray (const std::string& text, unsigned int which);
 }
 
 #endif
