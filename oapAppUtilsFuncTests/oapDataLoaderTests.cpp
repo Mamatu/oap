@@ -28,10 +28,12 @@
 
 using namespace ::testing;
 
-class OapDataLoaderTests : public testing::Test {
+class OapDataLoaderTests : public testing::Test
+{
  public:
-  OapDataLoaderTests() {
-    m_data_path = utils::Config::getPathInOap("oap2dt3dFuncTests/data/");
+  OapDataLoaderTests()
+  {
+    m_data_path = utils::Config::getPathInOap("oapAppUtilsFuncTests/data/");
     m_images_path = m_data_path + "images/";
   }
 
@@ -42,13 +44,16 @@ class OapDataLoaderTests : public testing::Test {
   std::string m_data_path;
   std::string m_images_path;
 
-  std::string getImagePath(const std::string& filename) {
+  std::string getImagePath(const std::string& filename)
+  {
     return m_images_path + filename;
   }
 
-  void executeColorTest(const std::string& file, oap::pixel_t expected) {
+  void executeColorTest (const std::string& file, oap::pixel_t expected)
+  {
     oap::PngFile pngFile(getImagePath(file));
-    EXPECT_NO_THROW({
+    EXPECT_NO_THROW(
+    {
       pngFile.open();
       pngFile.loadBitmap();
       pngFile.close();
@@ -56,8 +61,11 @@ class OapDataLoaderTests : public testing::Test {
       const size_t height = pngFile.getHeight().optSize;
       oap::pixel_t* pixels = new oap::pixel_t[width * height];
       pngFile.getPixelsVector(pixels);
-      for (size_t fa = 0; fa < width; ++fa) {
-        for (size_t fb = 0; fb < height; ++fb) {
+
+      for (size_t fa = 0; fa < width; ++fa)
+      {
+        for (size_t fb = 0; fb < height; ++fb)
+        {
           oap::pixel_t pixel = pngFile.getPixel(fa, fb);
           EXPECT_EQ(pixel, expected);
           const oap::pixel_t pixel1 = pixels[fa * height + fb];
@@ -69,13 +77,13 @@ class OapDataLoaderTests : public testing::Test {
     });
   }
 
-  math::Matrix* createMatrix(const std::string& imageName, size_t count,
-                             bool frugalMode = true) {
+  math::Matrix* createMatrix (const std::string& imageName, size_t count, bool frugalMode = true) {
     oap::Images images;
 
     logInfoLongTest();
 
-    for (size_t fa = 0; fa < count; ++fa) {
+    for (size_t fa = 0; fa < count; ++fa)
+    {
       oap::PngFile* file = new oap::PngFile(getImagePath(imageName));
       images.push_back(file);
     }
@@ -92,19 +100,23 @@ class OapDataLoaderTests : public testing::Test {
   }
 };
 
-TEST_F(OapDataLoaderTests, LoadGreenScreen) {
+TEST_F(OapDataLoaderTests, LoadGreenScreen)
+{
   executeColorTest("green.png", 65280);
 }
 
-TEST_F(OapDataLoaderTests, LoadRedScreen) {
+TEST_F(OapDataLoaderTests, LoadRedScreen)
+{
   executeColorTest("red.png", 16711680);
 }
 
-TEST_F(OapDataLoaderTests, LoadBlueScreen) {
+TEST_F(OapDataLoaderTests, LoadBlueScreen)
+{
   executeColorTest("blue.png", 255);
 }
 
-TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode) {
+TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode)
+{
   math::Matrix* matrix = createMatrix("green.png", 900, false);
 
   floatt expected = oap::Image::convertRgbToFloatt(0, 255, 0);
@@ -114,7 +126,8 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode) {
   oap::host::DeleteMatrix(matrix);
 }
 
-TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenFrugalMode) {
+TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenFrugalMode)
+{
   math::Matrix* matrix = createMatrix("green.png", 900, true);
 
   floatt expected = oap::Image::convertRgbToFloatt(0, 255, 0);
@@ -124,21 +137,27 @@ TEST_F(OapDataLoaderTests, CreateMatrixFromGreenScreenFrugalMode) {
   oap::host::DeleteMatrix(matrix);
 }
 
-TEST_F(OapDataLoaderTests, CreateMatrixFromMonkeyScreen) {
+TEST_F(OapDataLoaderTests, CreateMatrixFromMonkeyScreen)
+{
   math::Matrix* matrix = createMatrix("monkey.png", 1000);
   oap::host::DeleteMatrix(matrix);
 }
 
-TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix) {
+TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix)
+{
   oap::DataLoader* dataloader = NULL;
   math::Matrix* matrix = NULL;
   logInfoLongTest();
 
-  EXPECT_NO_THROW(try {
+  EXPECT_NO_THROW(
+  try
+  {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
         "oap2dt3d/data/images_monkey", "image", 1000, true);
     matrix = dataloader->createMatrix();
-  } catch (const std::exception& ex) {
+  }
+  catch (const std::exception& ex)
+  {
     delete dataloader;
     debugException(ex);
     throw;
@@ -149,29 +168,39 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesAndCreateMatrix) {
   delete dataloader;
 }
 
-TEST_F(OapDataLoaderTests, LoadBlueRecTest) {
+TEST_F(OapDataLoaderTests, LoadBlueRecTest)
+{
   oap::DataLoader* dataloader = NULL;
-  EXPECT_NO_THROW(try {
+  EXPECT_NO_THROW(
+  try
+  {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
-        "oap2dt3dFuncTests/data/images/bluerecs", "bluerec", 3);
+        "oapAppUtilsFuncTests/data/images/bluerecs", "bluerec", 3);
     delete dataloader;
-  } catch (const std::exception& ex) {
+  }
+  catch (const std::exception& ex)
+  {
     delete dataloader;
     debugException(ex);
     throw;
   });
 }
 
-TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix) {
+TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix)
+{
   oap::DataLoader* dataloader = NULL;
   math::Matrix* matrix = NULL;
   logInfoLongTest();
 
-  EXPECT_NO_THROW(try {
+  EXPECT_NO_THROW(
+  try
+  {
     dataloader = oap::DataLoader::createDataLoader<oap::PngFile>(
         "oap2dt3d/data/images_monkey", "image", 1000, true);
     matrix = dataloader->createMatrix();
-  } catch (const std::exception& ex) {
+  }
+  catch (const std::exception& ex)
+  {
     delete dataloader;
     debugException(ex);
     throw;
@@ -182,25 +211,29 @@ TEST_F(OapDataLoaderTests, LoadMonkeyImagesCreateMatrix) {
   delete dataloader;
 }
 
-namespace LoadMonkeyImageTest {
+namespace LoadMonkeyImageTest
+{
 
-class DataLoaderTest : public oap::DataLoader {
+class DataLoaderTest : public oap::DataLoader
+{
  public:
-  DataLoaderTest(const oap::Images& images, bool dealocateImages = false,
-                 bool frugalMode = true)
+  DataLoaderTest (const oap::Images& images, bool dealocateImages = false, bool frugalMode = true)
       : oap::DataLoader(images, dealocateImages, frugalMode) {}
 
   size_t getImagesCount() const { return oap::DataLoader::getImagesCount(); }
 
-  oap::Image* getImage(size_t index) const {
+  oap::Image* getImage(size_t index) const
+  {
     return oap::DataLoader::getImage(index);
   }
 
-  static void run(size_t imagesCount) {
+  static void run(size_t imagesCount)
+  {
     DataLoaderTest* dataloader = NULL;
     logInfoLongTest();
 
-    try {
+    try
+    {
       dataloader =
           oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderTest>(
               "oap2dt3d/data/images_monkey", "image", imagesCount, true);
@@ -210,7 +243,9 @@ class DataLoaderTest : public oap::DataLoader {
       testColumnsIdentity(dataloader, imagesCount);
       testImagesIdentity(dataloader);
 
-    } catch (const std::exception& ex) {
+    }
+    catch (const std::exception& ex)
+    {
       delete dataloader;
       debugException(ex);
       throw;
@@ -220,28 +255,33 @@ class DataLoaderTest : public oap::DataLoader {
   }
 
  private:
-  static void testColumnsIdentity(oap::DataLoader* dataloader,
-                                  size_t imagesCount) {
+  static void testColumnsIdentity (oap::DataLoader* dataloader, size_t imagesCount)
+  {
     std::vector<math::Matrix*> columnVecs;
     std::vector<math::Matrix*> rowVecs;
 
-    for (int fa = 0; fa < imagesCount; ++fa) {
+    for (int fa = 0; fa < imagesCount; ++fa)
+    {
       columnVecs.push_back(dataloader->createColumnVector(fa));
       rowVecs.push_back(dataloader->createRowVector(fa));
     }
 
-    for (int fa = 0; fa < imagesCount - 1; ++fa) {
+    for (int fa = 0; fa < imagesCount - 1; ++fa)
+    {
       EXPECT_THAT(columnVecs[fa], Not(MatrixIsEqual(columnVecs[fa + 1])))
           << "Actual: Columns vectors are equal: " << fa << ", " << fa + 1
           << " Matrix =" << oap::host::GetMatrixStr(columnVecs[fa]);
     }
 
-    for (int fa = 0; fa < imagesCount; ++fa) {
+    for (int fa = 0; fa < imagesCount; ++fa)
+    {
       EXPECT_EQ(GetRe(columnVecs[fa], 0, fa), GetRe(rowVecs[fa], fa, 0));
     }
 
-    auto deleteMatrices = [](std::vector<math::Matrix*>& vec) {
-      for (int fa = 0; fa < vec.size(); ++fa) {
+    auto deleteMatrices = [](std::vector<math::Matrix*>& vec)
+    {
+      for (int fa = 0; fa < vec.size(); ++fa)
+      {
         oap::host::DeleteMatrix(vec[fa]);
       }
     };
@@ -250,29 +290,30 @@ class DataLoaderTest : public oap::DataLoader {
     deleteMatrices(rowVecs);
   }
 
-  static void testImagesIdentity(
-      LoadMonkeyImageTest::DataLoaderTest* dataloader) {
-    for (int fa = 0; fa < dataloader->getImagesCount() - 1; ++fa) {
+  static void testImagesIdentity (LoadMonkeyImageTest::DataLoaderTest* dataloader)
+  {
+    for (int fa = 0; fa < dataloader->getImagesCount() - 1; ++fa)
+    {
       oap::Image* image = dataloader->getImage(fa);
       oap::Image* image1 = dataloader->getImage(fa + 1);
 
-      auto loadPixelsToVector =
-          [](oap::Image* image, std::vector<oap::pixel_t>& pixelsVec) {
-            std::unique_ptr<oap::pixel_t[]> pixels(
-                new oap::pixel_t[image->getLength()]);
-            bool status = image->getPixelsVector(pixels.get());
-            if (status == false) {
-              image->open();
-              image->loadBitmap();
-              image->close();
-              image->getPixelsVector(pixels.get());
-            }
-            pixelsVec.insert(pixelsVec.end(), pixels.get(),
-                             pixels.get() + image->getLength());
-            if (status == false) {
-              image->freeBitmap();
-            }
-          };
+      auto loadPixelsToVector = [](oap::Image* image, std::vector<oap::pixel_t>& pixelsVec)
+      {
+        std::unique_ptr<oap::pixel_t[]> pixels (new oap::pixel_t[image->getLength()]);
+        bool status = image->getPixelsVector(pixels.get());
+        if (status == false)
+        {
+          image->open();
+          image->loadBitmap();
+          image->close();
+          image->getPixelsVector(pixels.get());
+        }
+        pixelsVec.insert (pixelsVec.end(), pixels.get(), pixels.get() + image->getLength());
+        if (status == false)
+        {
+          image->freeBitmap();
+        }
+      };
 
       std::vector<oap::pixel_t> pixels;
       std::vector<oap::pixel_t> pixels1;
@@ -286,15 +327,18 @@ class DataLoaderTest : public oap::DataLoader {
 };
 }
 
-TEST_F(OapDataLoaderTests, Load1000MonkeyImagesCreateRowVectors) {
+TEST_F(OapDataLoaderTests, Load1000MonkeyImagesCreateRowVectors)
+{
   EXPECT_NO_THROW(LoadMonkeyImageTest::DataLoaderTest::run(1000));
 }
 
-TEST_F(OapDataLoaderTests, Load2MonkeyImagesCreateRowVectors) {
+TEST_F(OapDataLoaderTests, Load2MonkeyImagesCreateRowVectors)
+{
   EXPECT_NO_THROW(LoadMonkeyImageTest::DataLoaderTest::run(2));
 }
 
-TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest) {
+TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest)
+{
   math::Matrix* matrix = NULL;
   logInfoLongTest();
 
@@ -302,27 +346,28 @@ TEST_F(OapDataLoaderTests, DataLoaderSaveTruncatedImagesTest) {
 
   debug("Images will be saved in %s", dir.c_str());
 
-  class DataLoaderImpl : public oap::DataLoader {
-   public:
-    DataLoaderImpl(const oap::Images& images, bool dealocateImages = false,
-                   bool frugalMode = true)
+  class DataLoaderImpl : public oap::DataLoader
+  {
+    public:
+      DataLoaderImpl (const oap::Images& images, bool dealocateImages = false, bool frugalMode = true)
         : oap::DataLoader(images, dealocateImages, frugalMode) {}
 
     size_t getImagesCount() const { return oap::DataLoader::getImagesCount(); }
 
-    oap::Image* getImage(size_t index) const {
+    oap::Image* getImage(size_t index) const
+    {
       return oap::DataLoader::getImage(index);
     }
   };
 
   DataLoaderImpl* dataloader = NULL;
 
-  try {
-    dataloader =
-        oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderImpl>(
-            "oap2dt3d/data/images_monkey", "image", 1000, true);
+  try
+  {
+    dataloader = oap::DataLoader::createDataLoader<oap::PngFile, DataLoaderImpl> ("oap2dt3d/data/images_monkey", "image", 1000, true);
 
-    for (size_t fa = 0; fa < dataloader->getImagesCount(); ++fa) {
+    for (size_t fa = 0; fa < dataloader->getImagesCount(); ++fa)
+    {
       oap::Image* image = dataloader->getImage(fa);
       oap::PngFile* pngFile = dynamic_cast<oap::PngFile*>(image);
       EXPECT_TRUE(pngFile->save("truncated_", dir))
