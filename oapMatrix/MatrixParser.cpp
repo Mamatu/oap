@@ -227,31 +227,14 @@ void Parser::parseFloatsElement (std::vector<floatt>& array, const std::string& 
   }
 }
 
-bool Parser::parseArray (unsigned int which)
+void Parser::parseArray (unsigned int which)
 {
   std::string arrayStr;
-  try
-  {
-    getArrayStr (arrayStr, which);
-  }
-  catch (const Parser::ParsingException& pe)
-  {
-    logError ("%s", pe.what ());
-    return false;
-  }
+  getArrayStr (arrayStr, which);
 
   m_array.clear();
 
-  try
-  {
-    getArray (m_array, arrayStr);
-  }
-  catch (const Parser::ParsingException& pe)
-  {
-    logError ("%s", pe.what ());
-    return false;
-  }
-  return true;
+  getArray (m_array, arrayStr);
 }
 
 floatt Parser::getValue(uintt index) const
@@ -274,18 +257,13 @@ bool HasArray (const std::string& text, unsigned int which)
 std::pair<floatt*, size_t> CreateArray (const std::string& text, unsigned int which)
 {
   Parser parser (text);
-  try
-  {
-    parser.parseArray(which);
-  }
-  catch (const Parser::ParsingException& pe)
-  {
-    logError ("%s", pe.what());
-    return std::make_pair<floatt*, size_t>(nullptr, 0);
-  }
+  parser.parseArray(which);
+
   size_t length = parser.getLength();
+
   floatt* array = new floatt[length];
   memcpy(array, parser.getData(), length * sizeof(floatt));
+
   return std::make_pair/*<floatt*, size_t>*/(array, length);
 }
 
