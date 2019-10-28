@@ -19,12 +19,31 @@
 
 #include "BitmapUtils.h"
 
+#include <algorithm>
+
 namespace oap
 {
 namespace
 {
   using BCP = Bitmap_ConnectedPixels;
+
+  inline int x (const BCP::Coord& coord)
+  {
+    return coord.first;
+  }
+
+  inline int y (const BCP::Coord& coord)
+  {
+    return coord.second;
+  }
 }
+
+Bitmap_ConnectedPixels::Bitmap_ConnectedPixels (size_t width, size_t height) :
+  m_width (width), m_height (height)
+{}
+
+Bitmap_ConnectedPixels::~Bitmap_ConnectedPixels()
+{}
 
 BCP::CoordsSectionSet Bitmap_ConnectedPixels::getCoordsSectionSet () const
 {
@@ -40,65 +59,105 @@ BCP::CoordsSectionVec Bitmap_ConnectedPixels::getCoordsSectionVec () const
 BCP::Coord Bitmap_ConnectedPixels::getRoot (const Coord& coord) const
 {
   auto it = m_cr.find (coord);
-  if (it != m_cr.end () && it->first != it->second)
+  if (it != m_cr.end ())
   {
-    return getRoot (it->second);
+    if (it->first != it->second)
+    {
+      return getRoot (it->second);
+    }
+    else
+    {
+      return it->second;
+    }
   }
-  return it->second;
+  return coord;
 }
 
-void Bitmap_ConnectedPixels::connect (const Coord& pcoord, const BCP::Coord& ncoord)
+void Bitmap_ConnectedPixels::connect (const Coord& coord1, const Coord& coord2)
 {
-  Coord root = getRoot (pcoord);
-  Coord nroot = getRoot (ncoord);
-  m_cr [nroot] = root;
+  Coord root1 = getRoot (coord1);
+  Coord root2 = getRoot (coord2);
+  m_cr [root1] = root2;
 
+  registerIntoGroup (root1, {root1, coord1});
+  registerIntoGroup (root2, {root2, coord2});
+
+  removeWithTransfer (root2, root1);
+}
+
+void Bitmap_ConnectedPixels::registerIntoGroup (const Coord& root, std::initializer_list<Coord> coords)
+{
   auto it = m_css.find (root);
   if (it == m_css.end ())
   {
-    int minx = std::min (pcoord.x, ncoord.x);
-    int miny = std::min (pcoord.y, ncoord.y);
-    int maxx = std::max (pcoord.x, ncoord.x);
-    int maxy = std::max (pcoord.y, ncoord.y);
-    m_css[root] = { Coords (), {Coord (minx, miny), Coord (maxx, maxy)}};
+    int minx = std::min (coords, [](const Coord& c1, const Coord& c2) { return x (c1) < x (c2); }).first;
+    int miny = std::min (coords, [](const Coord& c1, const Coord& c2) { return y (c1) < y (c2); }).second;
+    int maxx = std::max (coords, [](const Coord& c1, const Coord& c2) { return x (c1) > x (c2); }).first;
+    int maxy = std::max (coords, [](const Coord& c1, const Coord& c2) { return y (c1) > y (c2); }).second;
 
-    m_css[root].coords.insert (pcoord);
-    m_css[root].coords.insert (ncoord);
-    m_css[root].coords.insert (root);
-    m_css[root].coords.insert (nroot);
+    m_css[root] = { Coords (coords), {Coord (minx, miny), Coord (maxx, maxy)}};
   }
   else
   {
-    auto& pair = m_css[root];
-    pair.coords.insert (pcoord);
-    pair.coords.insert (ncoord);
-    pair.coords.insert (root);
-    pair.coords.insert (nroot);
-  
-    auto& minx = pair.section.min.x;
-    auto& miny = pair.section.min.y;
+    auto& pair = *it;
 
-    auto& maxx = pair.section.max.x;
-    auto& maxy = pair.section.max.y;
+    auto& minx = pair.second.section.min.first;
+    auto& miny = pair.second.section.min.second;
 
-    if (minx > ncoord.x) { minx = ncoord.x; }
-    if (miny > ncoord.y) { miny = ncoord.y; }
-    if (maxx < ncoord.x) { minx = ncoord.x; }
-    if (maxy < ncoord.y) { miny = ncoord.y; }
+    auto& maxx = pair.second.section.max.first;
+    auto& maxy = pair.second.section.max.second;
+
+    for (auto it = coords.begin(); it != coords.end(); ++it)
+    {
+      pair.second.coords.insert (*it);
+
+      if (minx > it->first) { minx = it->first; }
+      if (miny > it->second) { miny = it->second; }
+      if (maxx < it->first) { maxx = it->first; }
+      if (maxy < it->second) { maxy = it->second; }
+    }
   }
 }
 
 bool Bitmap_ConnectedPixels::connectToPixel (size_t x, size_t y, size_t nx, size_t ny)
 {
   Coord pcoord (nx, ny);
+  Coord ncoord (x, y);
 
   auto it = m_cr.find (pcoord);
   if (it != m_cr.end())
   {
-    connect (pcoord, Coord (x, y));
+    connect (pcoord, ncoord);
     return true;
   }
   return false;
+}
+
+void Bitmap_ConnectedPixels::removeWithTransfer (const Coord& dst, const Coord& toRemove)
+{
+  if (dst == toRemove)
+  {
+    return;
+  }
+
+  CoordsSectionSet::iterator ito = m_css.find (dst);
+  logAssert (ito != m_css.end());
+
+  CoordsSectionSet::iterator ifrom = m_css.find (toRemove);
+  if (ifrom != m_css.end())
+  {
+    Coords::iterator biter = ifrom->second.coords.begin();
+    Coords::iterator eiter = ifrom->second.coords.end();
+  
+    ito->second.section.min.first = std::min (ito->second.section.min.first, ifrom->second.section.min.first);
+    ito->second.section.min.second = std::min (ito->second.section.min.second, ifrom->second.section.min.second);
+
+    ito->second.section.max.first = std::max (ito->second.section.max.first, ifrom->second.section.max.first);
+    ito->second.section.max.second = std::max (ito->second.section.max.second, ifrom->second.section.max.second);
+
+    std::copy (biter, eiter, std::inserter (ito->second.coords, ito->second.coords.end ()));
+    m_css.erase (ifrom);
+  }
 }
 
 bool Bitmap_ConnectedPixels::checkTop (size_t x, size_t y)

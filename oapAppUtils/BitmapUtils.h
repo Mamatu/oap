@@ -28,13 +28,16 @@
 #include <vector>
 #include <map>
 
+#include "Logger.h"
+
 namespace oap
 {
 
-class Bitmap_ConnectedPixels final
+class Bitmap_ConnectedPixels
 {
   public:
-    struct Coord
+    using Coord = std::pair<int, int>;
+    /*struct Coord
     {
       int x;
       int y;
@@ -44,6 +47,32 @@ class Bitmap_ConnectedPixels final
 
       Coord () : x(0), y(0)
       {}
+
+      Coord (const Coord& coord) : x (coord.x), y (coord.y)
+      {}
+
+      Coord (Coord&& coord) : x (std::move (coord.x)), y (std::move (coord.y))
+      {}
+
+      Coord& operator=(const Coord& coord)
+      {
+        if (this != &coord)
+        {
+          x = coord.x;
+          y = coord.y;
+        }
+        return *this;
+      }
+
+      Coord& operator=(Coord&& coord)
+      {
+        if (this != &coord)
+        {
+          x = std::move (coord.x);
+          y = std::move (coord.y);
+        }
+        return *this;
+      }
 
       bool operator< (const Coord& coord) const
       {
@@ -71,7 +100,7 @@ class Bitmap_ConnectedPixels final
       {
         return !((*this) == coord);
       }
-    };
+    };*/
 
     using Coords = std::set<Coord>;
     using CoordsMap = std::map<Coord, Coords>;
@@ -92,8 +121,8 @@ class Bitmap_ConnectedPixels final
     using CoordsSectionSet = std::map<Coord, CoordsSection>;
     using CoordsSectionVec = std::vector<std::pair<Coord, CoordsSection>>;
 
-    inline Bitmap_ConnectedPixels (size_t width, size_t height) : m_width (width), m_height (height)
-    {}
+    Bitmap_ConnectedPixels (size_t width, size_t height);
+    virtual ~Bitmap_ConnectedPixels();
 
     /**
      * \brief set which contains coords group and their dimension in image
@@ -112,7 +141,7 @@ class Bitmap_ConnectedPixels final
     template <typename T2DArray, typename T>
     static Bitmap_ConnectedPixels process (T2DArray bitmap2d, size_t width, size_t height, T bgPixel);
 
-  private:
+  protected:
     CoordsMap m_groups;
     ChildRoot m_cr;
     CoordsSectionSet m_css;
@@ -120,8 +149,13 @@ class Bitmap_ConnectedPixels final
     size_t m_width = 0, m_height = 0;
 
     Coord getRoot (const Coord& coord) const;
+
     void connect (const Coord& pcoord, const Coord& ncoord);
     bool connectToPixel (size_t x, size_t y, size_t nx, size_t ny);
+
+    void registerIntoGroup (const Coord& coord, std::initializer_list<Coord> coords);
+
+    void removeWithTransfer (const Coord& dst, const Coord& toRemove);
 
     bool checkTop (size_t x, size_t y);
     bool checkTopLeft (size_t x, size_t y);
@@ -144,19 +178,19 @@ Bitmap_ConnectedPixels Bitmap_ConnectedPixels::process (T2DArray bitmap2d, size_
   {
     for (size_t x = 0; x < width; ++x)
     {
-      if (bitmap2d[x][y] != bgPixel)
+      if (bitmap2d[y][x] != bgPixel)
       {
         Coord coord (x, y);
-        bitmap_cp.m_cr[coord] = coord;
+        bitmap_cp.connect (coord, coord);
 
         bitmap_cp.checkLeft (x, y);
         bitmap_cp.checkTopLeft (x, y);
         bitmap_cp.checkTop (x, y);
         bitmap_cp.checkTopRight (x, y);
-        //bitmap_cp.checkRight (x, y);
-        //bitmap_cp.checkBottomLeft (x, y);
-        //bitmap_cp.checkBottom (x, y);
-        //bitmap_cp.checkBottomRight (x, y);
+        bitmap_cp.checkRight (x, y);
+        bitmap_cp.checkBottomLeft (x, y);
+        bitmap_cp.checkBottom (x, y);
+        bitmap_cp.checkBottomRight (x, y);
       }
     }
   }
