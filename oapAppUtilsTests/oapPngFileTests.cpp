@@ -61,6 +61,21 @@ class OapPngFileTests : public testing::Test {
     MOCK_CONST_METHOD0(getSufix, std::string());
   };
 
+  void saveImage (oap::PngFile* pngFile, const std::string& tmp, const std::string& fileName)
+  {
+    std::stringstream sstream;
+    sstream << tmp;
+    if (fileName.empty ())
+    {
+      sstream << pngFile->getFileName ();
+    }
+    else
+    {
+      sstream << fileName << ".png";
+    }
+    pngFile->save (sstream.str ());
+  }
+
   template<typename Callback, typename CallbackNL>
   void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, Callback&& callback, CallbackNL&& cnl)
   {
@@ -80,21 +95,6 @@ class OapPngFileTests : public testing::Test {
   void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height)
   {
     iterateBitmap (pixels, width, height, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
-  }
-
-  void saveImage (oap::PngFile* pngFile, const std::string& tmp, const std::string& fileName)
-  {
-    std::stringstream sstream;
-    sstream << tmp;
-    if (fileName.empty ())
-    {
-      sstream << pngFile->getFileName ();
-    }
-    else
-    {
-      sstream << fileName << ".png";
-    }
-    pngFile->save (sstream.str ());
   }
 
   void print (char letter, bool truncate, const std::vector<int>& pattern = {}, const std::string& fileName = "")

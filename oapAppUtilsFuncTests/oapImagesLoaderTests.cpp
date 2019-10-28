@@ -327,9 +327,9 @@ class ImagesLoaderTest : public oap::ImagesLoader
 };
 }
 
-TEST_F(OapImagesLoaderTests, Load1000MonkeyImagesCreateRowVectors)
+TEST_F(OapImagesLoaderTests, Load10MonkeyImagesCreateRowVectors)
 {
-  EXPECT_NO_THROW(LoadMonkeyImageTest::ImagesLoaderTest::run(1000));
+  EXPECT_NO_THROW(LoadMonkeyImageTest::ImagesLoaderTest::run(10));
 }
 
 TEST_F(OapImagesLoaderTests, Load2MonkeyImagesCreateRowVectors)
