@@ -5,6 +5,7 @@
 #include "CMatrixData2.h"
 #include "CMatrixData3.h"
 #include "CMatrixData4.h"
+#include "CMatrixData5.h"
 
 enum CMatrixTest
 {
@@ -12,6 +13,7 @@ enum CMatrixTest
   Test_CMatrixData2,
   Test_CMatrixData3,
   Test_CMatrixData4,
+  Test_CMatrixData5,
 };
 
 int const data_columns[] =
@@ -20,6 +22,7 @@ int const data_columns[] =
   CMatrixData2::columns,
   CMatrixData3::columns,
   CMatrixData4::columns,
+  CMatrixData5::columns,
 };
 
 int const data_rows[] =
@@ -28,6 +31,7 @@ int const data_rows[] =
   CMatrixData2::rows,
   CMatrixData3::rows,
   CMatrixData4::rows,
+  CMatrixData5::rows,
 };
 
 double* const data_matrices[] =
@@ -36,6 +40,7 @@ double* const data_matrices[] =
   CMatrixData2::matrix,
   CMatrixData3::matrix,
   CMatrixData4::matrix,
+  CMatrixData5::matrix,
 };
 
 double* const data_eigenvalues[] =
@@ -44,6 +49,7 @@ double* const data_eigenvalues[] =
   CMatrixData2::eigenvalues,
   CMatrixData3::eigenvalues,
   CMatrixData4::eigenvalues,
+  CMatrixData5::eigenvalues,
 };
 
 #endif
