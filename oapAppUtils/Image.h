@@ -21,6 +21,7 @@
 #define IMAGE_H
 
 #include <string>
+#include <vector>
 
 #include "Math.h"
 #include "GraphicUtils.h"
@@ -49,6 +50,61 @@ class Image
     void loadBitmap();
 
     void freeBitmap();
+
+    /**
+     * Open, load bitmap and close
+     */
+    inline void olc ()
+    {
+      open ();
+      loadBitmap ();
+      close ();
+    }
+
+    inline std::vector<floatt> getStlFloatVector ()
+    {
+      oap::OptSize size = getOutputHeight().optSize * getOutputWidth().optSize;
+      std::vector<floatt> vec (size.optSize, 0);
+      getFloattVector (vec.data());
+      return vec;
+    }
+
+    template<typename Callback, typename CallbackNL>
+    static void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, Callback&& callback, CallbackNL&& cnl)
+    {
+      for (size_t y = height.begin; y < height.optSize; ++y)
+      {
+        for (size_t x = width.begin; x < width.optSize; ++x)
+        {
+          floatt value = pixels[x + width.optSize * y];
+          int pvalue = value > 0.5 ? 1 : 0;
+          callback (pvalue, x, y);
+        }
+        cnl ();
+      }
+      cnl ();
+    }
+
+    static void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height)
+    {
+      iterateBitmap (pixels, width, height, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
+    }
+
+    inline void print (oap::OptSize&& width, oap::OptSize&& height)
+    {
+      std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[width.optSize * height.optSize]);
+      getFloattVector (pixels.get ());
+
+      printBitmap (pixels.get (), width, height);
+    }
+
+    inline void print ()
+    {
+      oap::OptSize&& width = getOutputWidth ();
+      oap::OptSize&& height = getOutputHeight ();
+
+      print (std::move (width), std::move (height));
+    }
 
     /**
     * \brief Gets width of load image.
