@@ -65,8 +65,8 @@ CuProceduresApi::CuProceduresApi()
     : m_cuStatus(CUDA_SUCCESS),
       m_compareOperationOutput(0),
       m_bmApi (oap::cuda::GetMatrixInfo),
-      m_preExecCallback (std::bind(&CuProceduresApi::resetFlags, this)),
-      m_createKernelArray (std::bind(&CuProceduresApi::createKernelArray, this, std::placeholders::_1, std::placeholders::_2))
+      m_preExecCallback ([this](){ this->resetFlags ();}),
+      m_createKernelArray ([this](uintt* hostArray, size_t length) { return this->createKernelArray (hostArray, length); })
 {
   init();
   m_magnitudeOutput = CudaUtils::AllocDeviceObj<floatt>(0);
