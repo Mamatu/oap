@@ -1,5 +1,4 @@
-
-def iterateMatrix (def columns, def rows, def callback) {
+def createMatrix (def columns, def rows, def callback) {
   def matrix = []
   for (def y = 0; y < rows; ++y) {
     matrix << []
@@ -10,20 +9,40 @@ def iterateMatrix (def columns, def rows, def callback) {
   return matrix
 }
 
-def diagonalMatrix (def columns, def rows, def callback) {
-  return iterateMatrix (columns, rows) { x, y ->
-    if (x == y) {
-      return callback(x)
+
+
+def createDiagonalMatrix (def columns, def rows, def callback) {
+  return createMatrix (columns, rows) { x, y ->
+    if (x == y)
+    {
+      return callback (x)
     }
-    else {
+    else
+    {
       return 0
     }
   }
 }
 
-def vectorT (def columns, callback)
+def createUpperTriangularMatrix (def columns, def rows, def callback) {
+  Random rnd = new Random ()
+
+  return createMatrix (columns, rows) { x, y ->
+    if (x == y)
+    {
+      return callback (x)
+    }
+    else if (x > y)
+    {
+      return Float.valueOf(rnd.nextInt (10 )) / 10;
+    }
+    return 0
+  }
+}
+
+def vectorT (def columns, def callback)
 {
-  return iterateMatrix (columns, 1) { x, y ->
+  return createMatrix (columns, 1) { x, y ->
     return callback (x)
   }
 }
@@ -102,7 +121,7 @@ def createTail ()
   return tail.join("\n")
 }
 
-def createDiagonalTest (def testNumber, def dims, def callback)
+def createTest (def testNumber, def dims, def matrixCreatorFunc, def callback)
 {
   def columns = dims
   def rows = dims
@@ -110,7 +129,7 @@ def createDiagonalTest (def testNumber, def dims, def callback)
   def head = createHeader (testNumber);
   def tail = createTail ();
 
-  def m = diagonalMatrix (columns, rows, callback)
+  def m = matrixCreatorFunc (columns, rows, callback)
   def v = vectorT (columns, callback)
   
   def body = createBody (columns, rows, m, v)
@@ -118,6 +137,16 @@ def createDiagonalTest (def testNumber, def dims, def callback)
   def fileTxt = "${head}${body}${tail}"
   
   saveToFile ("/tmp/CMatrixData${testNumber}.h", fileTxt)
+}
+
+def createDiagonalTest (def testNumber, def dims, def callback)
+{
+  return createTest (testNumber, dims, this.&createDiagonalMatrix, callback)
+}
+
+def createUpperTriangularTest (def testNumber, def dims, def callback)
+{
+  return createTest (testNumber, dims, this.&createUpperTriangularMatrix, callback)
 }
 
 def createCMatrixTest3 ()
@@ -130,9 +159,15 @@ def createCMatrixTest4 ()
   createDiagonalTest (4, 100) {x -> x % 12 == 0 ? x : 0}
 }
 
+def createCMatrixTest5 ()
+{
+  createUpperTriangularTest (5, 100) { x -> return (x + 3) * 2; }
+}
+
 try {
   createCMatrixTest3 ();
   createCMatrixTest4 ();
+  createCMatrixTest5 ();
 } catch (Exception e) {
   e.printStackTrace()
 }
