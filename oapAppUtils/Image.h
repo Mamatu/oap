@@ -56,21 +56,9 @@ class Image
     /**
      * Open, load bitmap and close
      */
-    inline void olc ()
-    {
-      open ();
-      loadBitmap ();
-      close ();
-    }
+    void olc ();
 
-    inline std::vector<floatt> getStlFloatVector ()
-    {
-      oap::OptSize size = getOutputHeight().optSize * getOutputWidth().optSize;
-      std::vector<floatt> vec;
-      vec.reserve (size.optSize);
-      getFloattVector (vec.data());
-      return vec;
-    }
+    std::vector<floatt> getStlFloatVector ();
 
   private:
     template<typename Callback, typename CallbackNL>
@@ -91,28 +79,18 @@ class Image
       cnl ();
     }
 
-    inline void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, size_t stride)
-    {
-      iterateBitmap (pixels, width, height, stride, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
-    }
+    void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, size_t stride);
 
   public:
-    inline void print (const oap::OptSize& width, const oap::OptSize& height)
-    {
-      size_t rwidth = getOutputWidth().optSize;
-      std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[rwidth * getOutputHeight().optSize]);
-      getFloattVector (pixels.get ());
+    /**
+     * \brief Prints subimage in boundaries determined by width and height as array of 0 and 1 digit (gray scale)
+     */
+    void print (const oap::OptSize& width, const oap::OptSize& height);
 
-      printBitmap (pixels.get (), width, height, rwidth);
-    }
-
-    inline void print ()
-    {
-      oap::OptSize&& width = getOutputWidth ();
-      oap::OptSize&& height = getOutputHeight ();
-
-      print (std::move (width), std::move (height));
-    }
+    /**
+     * \brief Prints output image as array of 0 and 1 digit (gray scale)
+     */
+    void print ();
 
     /**
     * \brief Gets width of load image.
