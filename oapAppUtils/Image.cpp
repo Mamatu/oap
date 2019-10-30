@@ -64,6 +64,44 @@ void Image::freeBitmap()
   }
 }
 
+void Image::olc ()
+{
+  open ();
+  loadBitmap ();
+  close ();
+}
+
+std::vector<floatt> Image::getStlFloatVector ()
+{
+  oap::OptSize size = getOutputHeight().optSize * getOutputWidth().optSize;
+  std::vector<floatt> vec;
+  vec.reserve (size.optSize);
+  getFloattVector (vec.data());
+  return vec;
+}
+
+void Image::printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, size_t stride)
+{
+  iterateBitmap (pixels, width, height, stride, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
+}
+
+void Image::print (const oap::OptSize& width, const oap::OptSize& height)
+{
+  size_t rwidth = getOutputWidth().optSize;
+  std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[rwidth * getOutputHeight().optSize]);
+  getFloattVector (pixels.get ());
+
+  printBitmap (pixels.get (), width, height, rwidth);
+}
+
+void Image::print ()
+{
+  oap::OptSize&& width = getOutputWidth ();
+  oap::OptSize&& height = getOutputHeight ();
+
+  print (std::move (width), std::move (height));
+}
+
 void Image::open()
 {
   if (isOpened())
