@@ -26,6 +26,8 @@
 #include "Math.h"
 #include "GraphicUtils.h"
 
+#include "Logger.h"
+
 namespace oap
 {
 
@@ -64,19 +66,23 @@ class Image
     inline std::vector<floatt> getStlFloatVector ()
     {
       oap::OptSize size = getOutputHeight().optSize * getOutputWidth().optSize;
-      std::vector<floatt> vec (size.optSize, 0);
+      std::vector<floatt> vec;
+      vec.reserve (size.optSize);
       getFloattVector (vec.data());
       return vec;
     }
 
+  private:
     template<typename Callback, typename CallbackNL>
-    static void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, Callback&& callback, CallbackNL&& cnl)
+    void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, size_t stride, Callback&& callback, CallbackNL&& cnl)
     {
-      for (size_t y = height.begin; y < height.optSize; ++y)
+      for (size_t y = 0; y < height.optSize; ++y)
       {
-        for (size_t x = width.begin; x < width.optSize; ++x)
+        for (size_t x = 0; x < width.optSize; ++x)
         {
-          floatt value = pixels[x + width.optSize * y];
+          size_t idx = x + width.begin + stride * (y + height.begin);
+          debugAssert (idx < getOutputWidth().optSize * getOutputHeight().optSize);
+          floatt value = pixels[idx];
           int pvalue = value > 0.5 ? 1 : 0;
           callback (pvalue, x, y);
         }
@@ -85,17 +91,19 @@ class Image
       cnl ();
     }
 
-    static void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height)
+    inline void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, size_t stride)
     {
-      iterateBitmap (pixels, width, height, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
+      iterateBitmap (pixels, width, height, stride, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
     }
 
-    inline void print (oap::OptSize&& width, oap::OptSize&& height)
+  public:
+    inline void print (const oap::OptSize& width, const oap::OptSize& height)
     {
-      std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[width.optSize * height.optSize]);
+      size_t rwidth = getOutputWidth().optSize;
+      std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[rwidth * getOutputHeight().optSize]);
       getFloattVector (pixels.get ());
 
-      printBitmap (pixels.get (), width, height);
+      printBitmap (pixels.get (), width, height, rwidth);
     }
 
     inline void print ()
@@ -150,8 +158,14 @@ class Image
 
     size_t getLength() const;
 
+    /**
+     *  \brief Returns pixel vector of size equals to size of truncated Image (getOutputWidth() * getOutputHeight())
+     */
     bool getPixelsVector(pixel_t* pixels) const;
 
+    /**
+     *  \brief Returns floatts vector of size equals to size of truncated Image (getOutputWidth() * getOutputHeight())
+     */
     void getFloattVector(floatt* vector) const;
 
     void close();
