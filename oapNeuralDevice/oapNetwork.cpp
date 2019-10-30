@@ -310,11 +310,11 @@ floatt Network::calculateError (oap::ErrorType errorType)
 {
   std::map<oap::ErrorType, std::function<floatt()>> errorsFunctions =
   {
-    {oap::ErrorType::MEAN_SQUARE_ERROR, std::bind (&Network::calculateMSE, this)},
-    {oap::ErrorType::ROOT_MEAN_SQUARE_ERROR, std::bind (&Network::calculateRMSE, this)},
-    {oap::ErrorType::SUM, std::bind (&Network::calculateSum, this)},
-    {oap::ErrorType::MEAN_OF_SUM, std::bind (&Network::calculateSumMean, this)},
-    {oap::ErrorType::CROSS_ENTROPY, std::bind (&Network::calculateCrossEntropy, this)}
+    {oap::ErrorType::MEAN_SQUARE_ERROR, [this](){ return this->calculateMSE(); }},
+    {oap::ErrorType::ROOT_MEAN_SQUARE_ERROR, [this](){ return this->calculateRMSE(); }},
+    {oap::ErrorType::SUM,  [this](){ return this->calculateSum(); }},
+    {oap::ErrorType::MEAN_OF_SUM, [this](){ return this->calculateSumMean(); }},
+    {oap::ErrorType::CROSS_ENTROPY, [this](){ return this->calculateCrossEntropy(); }}
   };
 
   return errorsFunctions [errorType]();
