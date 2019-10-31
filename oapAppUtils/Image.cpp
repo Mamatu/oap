@@ -172,10 +172,14 @@ bool Image::getPixelsVector(pixel_t* pixels) const
 void Image::getFloattVector(floatt* vector) const
 {
   const size_t length = getLength();
+
   std::unique_ptr<pixel_t[]> pixelsUPtr(new pixel_t[length]);
+
   pixel_t* pixels = pixelsUPtr.get();
   pixel_t max = Image::getPixelMax();
+
   this->getPixelsVector(pixels);
+
   for (size_t fa = 0; fa < length; ++fa)
   {
     vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
