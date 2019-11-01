@@ -241,5 +241,11 @@ bool ConnectedPixels::checkBottomRight (size_t x, size_t y)
 
   return connectToPixel (x, y, x + 1, y + 1);
 }
+
+void printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride)
+{
+  iterateBitmap (pixels, width, height, stride, [](floatt pixel, size_t x, size_t y){ printf ("%d", pixel < 0.5 ? 0 : 1); }, [](){ printf("\n"); });
+}
+
 }
 }

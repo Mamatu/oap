@@ -28,6 +28,8 @@
 #include <vector>
 #include <map>
 
+#include "ImageSection.h"
+#include "Math.h"
 #include "Logger.h"
 
 namespace oap
@@ -178,6 +180,24 @@ ConnectedPixels ConnectedPixels::process2DArray (T2DArray bitmap2D, size_t width
   return ConnectedPixels::processGenericArray (bitmap2D, width, height, bgPixel,
          [](T2DArray bitmap2D, size_t x, size_t y) { return bitmap2D[y][x];});
 }
+
+template<typename Callback, typename CallbackNL>
+void iterateBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride, Callback&& callback, CallbackNL&& cnl)
+{
+  for (size_t y = 0; y < height.getl(); ++y)
+  {
+    for (size_t x = 0; x < width.getl(); ++x)
+    {
+      size_t idx = x + width.getp() + stride * (y + height.getp());
+      floatt value = pixels[idx];
+      callback (value, x, y);
+    }
+    cnl ();
+  }
+  cnl ();
+}
+
+void printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride);
 
 }
 }

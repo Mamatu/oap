@@ -60,27 +60,6 @@ class Image
 
     std::vector<floatt> getStlFloatVector ();
 
-  private:
-    template<typename Callback, typename CallbackNL>
-    void iterateBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride, Callback&& callback, CallbackNL&& cnl)
-    {
-      for (size_t y = 0; y < height.getl(); ++y)
-      {
-        for (size_t x = 0; x < width.getl(); ++x)
-        {
-          size_t idx = x + width.getp() + stride * (y + height.getp());
-          debugAssert (idx < getOutputWidth().getl() * getOutputHeight().getl());
-          floatt value = pixels[idx];
-          callback (value, x, y);
-        }
-        cnl ();
-      }
-      cnl ();
-    }
-
-    void printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride);
-
-  public:
     /**
      * \brief Prints subimage in boundaries determined by width and height as array of 0 and 1 digit (gray scale)
      */
