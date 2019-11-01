@@ -18,9 +18,11 @@
  */
 
 #include "Image.h"
-#include "Exceptions.h"
 
 #include <memory>
+
+#include "BitmapUtils.h"
+#include "Exceptions.h"
 
 namespace oap
 {
@@ -83,11 +85,6 @@ std::vector<floatt> Image::getStlFloatVector ()
   return vec;
 }
 
-void Image::printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride)
-{
-  iterateBitmap (pixels, width, height, stride, [](floatt pixel, size_t x, size_t y){ printf ("%d", pixel < 0.5 ? 0 : 1); }, [](){ printf("\n"); });
-}
-
 void Image::print (const oap::ImageSection& width, const oap::ImageSection& height)
 {
   size_t rwidth = getOutputWidth().getl();
@@ -95,7 +92,7 @@ void Image::print (const oap::ImageSection& width, const oap::ImageSection& heig
   std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[rwidth * getOutputHeight().getl()]);
   getFloattVector (pixels.get ());
 
-  printBitmap (pixels.get (), width, height, rwidth);
+  oap::bitmap::printBitmap (pixels.get (), width, height, rwidth);
 }
 
 void Image::print ()
