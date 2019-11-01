@@ -242,9 +242,17 @@ TEST_F(OapPngFileTests, LoadMnistExamples)
   oap::PngFile pngFile (path, false);
 
   pngFile.olc ();
-  std::vector<floatt> vec = pngFile.getStlFloatVector ();
-  EXPECT_EQ (594, pngFile.getOutputWidth().optSize);
-  EXPECT_EQ (361, pngFile.getOutputHeight().optSize);
 
-  pngFile.print (oap::OptSize(55 - 25, 25), oap::OptSize(40 - 10, 10));
+  std::vector<floatt> vec = pngFile.getStlFloatVector ();
+
+  size_t expectedWidth = 557;
+  size_t expectedHeight = 326;
+
+  EXPECT_EQ (expectedWidth, pngFile.getOutputWidth().optSize);
+  EXPECT_EQ (expectedHeight, pngFile.getOutputHeight().optSize);
+
+  oap::bitmap::ConnectedPixels cp = oap::bitmap::ConnectedPixels::process1DArray (vec, expectedWidth, expectedHeight, 1);
+  oap::bitmap::CoordsSectionVec csVec = cp.getCoordsSectionVec ();
+
+  //pngFile.print (oap::OptSize(55 - 25, 25), oap::OptSize(40 - 10, 10));
 }
