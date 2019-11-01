@@ -73,21 +73,25 @@ void Image::olc ()
 
 std::vector<floatt> Image::getStlFloatVector ()
 {
-  oap::OptSize size = getOutputHeight().optSize * getOutputWidth().optSize;
+  size_t size = getOutputHeight().optSize * getOutputWidth().optSize;
+
   std::vector<floatt> vec;
-  vec.reserve (size.optSize);
-  getFloattVector (vec.data());
+  vec.resize (size);
+
+  getFloattVector (vec);
+
   return vec;
 }
 
 void Image::printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, size_t stride)
 {
-  iterateBitmap (pixels, width, height, stride, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
+  iterateBitmap (pixels, width, height, stride, [](floatt pixel, size_t x, size_t y){ printf ("%d", pixel < 0.5 ? 0 : 1); }, [](){ printf("\n"); });
 }
 
 void Image::print (const oap::OptSize& width, const oap::OptSize& height)
 {
   size_t rwidth = getOutputWidth().optSize;
+
   std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[rwidth * getOutputHeight().optSize]);
   getFloattVector (pixels.get ());
 
@@ -167,23 +171,6 @@ bool Image::getPixelsVector(pixel_t* pixels) const
     return true;
   }
   return false;
-}
-
-void Image::getFloattVector(floatt* vector) const
-{
-  const size_t length = getLength();
-
-  std::unique_ptr<pixel_t[]> pixelsUPtr(new pixel_t[length]);
-
-  pixel_t* pixels = pixelsUPtr.get();
-  pixel_t max = Image::getPixelMax();
-
-  this->getPixelsVector(pixels);
-
-  for (size_t fa = 0; fa < length; ++fa)
-  {
-    vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
-  }
 }
 
 void Image::close()

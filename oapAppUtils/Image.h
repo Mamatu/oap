@@ -71,8 +71,7 @@ class Image
           size_t idx = x + width.begin + stride * (y + height.begin);
           debugAssert (idx < getOutputWidth().optSize * getOutputHeight().optSize);
           floatt value = pixels[idx];
-          int pvalue = value > 0.5 ? 1 : 0;
-          callback (pvalue, x, y);
+          callback (value, x, y);
         }
         cnl ();
       }
@@ -144,7 +143,23 @@ class Image
     /**
      *  \brief Returns floatts vector of size equals to size of truncated Image (getOutputWidth() * getOutputHeight())
      */
-    void getFloattVector(floatt* vector) const;
+    template<typename Vec>
+    void getFloattVector(Vec&& vector) const
+    {
+      const size_t length = getLength();
+
+      std::unique_ptr<pixel_t[]> pixelsUPtr(new pixel_t[length]);
+
+      pixel_t* pixels = pixelsUPtr.get();
+      pixel_t max = Image::getPixelMax();
+
+      this->getPixelsVector(pixels);
+
+      for (size_t fa = 0; fa < length; ++fa)
+      {
+        vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
+      }
+    }
 
     void close();
 
