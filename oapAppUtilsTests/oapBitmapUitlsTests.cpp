@@ -22,24 +22,24 @@
 #include "BitmapUtils.h"
 
 using namespace ::testing;
+using namespace oap::bitmap;
 
-using BCP = oap::bitmap::ConnectedPixels;
 class OapBitmapUtilsTests : public testing::Test {
  public:
   virtual void SetUp() {}
 
   virtual void TearDown() {}
 
-  bool find (size_t x, size_t y, const BCP::CoordsSection& coordsSec)
+  bool find (size_t x, size_t y, const CoordsSection& coordsSec)
   {
-    auto it = coordsSec.coords.find(BCP::Coord (x, y));
+    auto it = coordsSec.coords.find(Coord (x, y));
     return it != coordsSec.coords.end ();
   }
   
   template<size_t N>
-  bool find (int array[][N], size_t x, size_t y, const BCP::CoordsSection& coordsSec)
+  bool find (int array[][N], size_t x, size_t y, const CoordsSection& coordsSec)
   {
-    auto it = coordsSec.coords.find(BCP::Coord (x, y));
+    auto it = coordsSec.coords.find(Coord (x, y));
     if (array[y][x] == 1)
     {
       return (it != coordsSec.coords.end ());
@@ -60,7 +60,7 @@ class OapBitmapUtilsTests : public testing::Test {
   }
 
   template<size_t N, typename Callback>
-  void checkArray (int array[][N], size_t width, size_t height, const BCP::CoordsSection& coordsSec, Callback&& callback)
+  void checkArray (int array[][N], size_t width, size_t height, const CoordsSection& coordsSec, Callback&& callback)
   {
     enumerateArray (array, width, height, [this, &array, &coordsSec, &callback](size_t x, size_t y) { bool o = find (array, x, y, coordsSec); callback (o, x, y); });
   }
@@ -82,7 +82,7 @@ TEST_F(OapBitmapUtilsTests, TestConnection_1)
 
   Test_Bitmap_ConnectedPixels b_cp (10, 10);
 
-  oap::bitmap::ConnectedPixels::Coord coord (2, 2);
+  Coord coord (2, 2);
   b_cp.connect (coord, coord);
 
   const auto& vec = b_cp.getCoordsSectionVec ();
@@ -107,13 +107,13 @@ TEST_F(OapBitmapUtilsTests, TestConnection_2)
 
   Test_Bitmap_ConnectedPixels b_cp (10, 10);
 
-  oap::bitmap::ConnectedPixels::Coord coord1 (2, 2);
-  oap::bitmap::ConnectedPixels::Coord coord2 (2, 3);
+  Coord coord1 (2, 2);
+  Coord coord2 (2, 3);
   b_cp.connect (coord1, coord2);
-  oap::bitmap::ConnectedPixels::Coord coord3 (3, 2);
+  Coord coord3 (3, 2);
   b_cp.connect (coord1, coord3);
 
-  oap::bitmap::ConnectedPixels::Coord coord4 (3, 3);
+  Coord coord4 (3, 3);
   b_cp.connect (coord4, coord4);
 
   const auto& vec = b_cp.getCoordsSectionVec ();
@@ -139,18 +139,18 @@ TEST_F(OapBitmapUtilsTests, TestConnection_3)
 
   Test_Bitmap_ConnectedPixels b_cp (10, 10);
 
-  oap::bitmap::ConnectedPixels::Coord coord1 (2, 2);
-  oap::bitmap::ConnectedPixels::Coord coord2 (2, 3);
+  Coord coord1 (2, 2);
+  Coord coord2 (2, 3);
   b_cp.connect (coord1, coord2);
-  oap::bitmap::ConnectedPixels::Coord coord3 (3, 2);
+  Coord coord3 (3, 2);
   b_cp.connect (coord1, coord3);
 
-  oap::bitmap::ConnectedPixels::Coord coord4 (3, 3);
-  oap::bitmap::ConnectedPixels::Coord coord5 (3, 5);
+  Coord coord4 (3, 3);
+  Coord coord5 (3, 5);
   b_cp.connect (coord4, coord4);
   b_cp.connect (coord4, coord5);
 
-  oap::bitmap::ConnectedPixels::Coord coord6 (6, 6);
+  Coord coord6 (6, 6);
   b_cp.connect (coord6, coord6);
 
   const auto& vec = b_cp.getCoordsSectionVec ();
@@ -174,7 +174,7 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_1)
   };
 
   oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
-  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
+  std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
 
@@ -222,7 +222,7 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_2)
 
 
   oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
-  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
+  std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
 
   EXPECT_EQ (1, vec.size());
@@ -253,10 +253,8 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_3)
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   };
 
-  using BCP = oap::bitmap::ConnectedPixels;
-
   oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
-  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
+  std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
 
   EXPECT_EQ (1, vec.size());
@@ -287,10 +285,8 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_4)
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   };
 
-  using BCP = oap::bitmap::ConnectedPixels;
-
   oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
-  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
+  std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
   EXPECT_EQ (6, vec[0].second.coords.size());
@@ -336,10 +332,8 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_5)
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   };
 
-  using BCP = oap::bitmap::ConnectedPixels;
-
   oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
-  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
+  std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (3, vec.size());
 
@@ -396,10 +390,8 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_6)
     {1, 1, 1, 1, 1, 1, 0, 1, 1, 1},
   };
 
-  using BCP = oap::bitmap::ConnectedPixels;
-
   oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
-  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
+  std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
 
@@ -434,10 +426,8 @@ TEST_F(OapBitmapUtilsTests, Test_1DArray_6)
     1, 1, 1, 1, 1, 1, 0, 1, 1, 1,
   };
 
-  using BCP = oap::bitmap::ConnectedPixels;
-
   oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process1DArray (array, dim, dim, 0);
-  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
+  std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
 

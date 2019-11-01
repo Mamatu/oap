@@ -35,28 +35,30 @@ namespace oap
 namespace bitmap
 {
 
+using Coord = std::pair<int, int>;
+using Coords = std::set<Coord>;
+using CoordsMap = std::map<Coord, Coords>;
+using ChildRoot = std::map<Coord, Coord>;
+
+struct MinMax
+{
+  Coord min;
+  Coord max;
+};
+
+struct CoordsSection
+{
+  Coords coords;
+  MinMax section;
+};
+
+using CoordsSectionSet = std::map<Coord, CoordsSection>;
+using CoordsSectionVec = std::vector<std::pair<Coord, CoordsSection>>;
+
 class ConnectedPixels
 {
   public:
-    using Coord = std::pair<int, int>;
-    using Coords = std::set<Coord>;
-    using CoordsMap = std::map<Coord, Coords>;
-    using ChildRoot = std::map<Coord, Coord>;
 
-    struct MinMax
-    {
-      Coord min;
-      Coord max;
-    };
-
-    struct CoordsSection
-    {
-      Coords coords;
-      MinMax section;
-    };
-
-    using CoordsSectionSet = std::map<Coord, CoordsSection>;
-    using CoordsSectionVec = std::vector<std::pair<Coord, CoordsSection>>;
 
     ConnectedPixels (size_t width, size_t height);
     virtual ~ConnectedPixels();

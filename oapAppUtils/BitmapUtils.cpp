@@ -27,14 +27,12 @@ namespace bitmap
 {
 namespace
 {
-  using BCP = ConnectedPixels;
-
-  inline int x (const BCP::Coord& coord)
+  inline int x (const Coord& coord)
   {
     return coord.first;
   }
 
-  inline int y (const BCP::Coord& coord)
+  inline int y (const Coord& coord)
   {
     return coord.second;
   }
@@ -47,18 +45,18 @@ ConnectedPixels::ConnectedPixels (size_t width, size_t height) :
 ConnectedPixels::~ConnectedPixels()
 {}
 
-BCP::CoordsSectionSet ConnectedPixels::getCoordsSectionSet () const
+CoordsSectionSet ConnectedPixels::getCoordsSectionSet () const
 {
   return m_css;
 }
 
-BCP::CoordsSectionVec ConnectedPixels::getCoordsSectionVec () const
+CoordsSectionVec ConnectedPixels::getCoordsSectionVec () const
 {
-  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec (m_css.begin(), m_css.end());
+  std::vector<std::pair<Coord, CoordsSection>> vec (m_css.begin(), m_css.end());
   return vec;
 }
 
-BCP::Coord ConnectedPixels::getRoot (const Coord& coord) const
+Coord ConnectedPixels::getRoot (const Coord& coord) const
 {
   auto it = m_cr.find (coord);
   if (it != m_cr.end ())
