@@ -23,7 +23,7 @@
 
 using namespace ::testing;
 
-using BCP = oap::Bitmap_ConnectedPixels;
+using BCP = oap::bitmap::ConnectedPixels;
 class OapBitmapUtilsTests : public testing::Test {
  public:
   virtual void SetUp() {}
@@ -68,21 +68,21 @@ class OapBitmapUtilsTests : public testing::Test {
 
 TEST_F(OapBitmapUtilsTests, TestConnection_1)
 {
-  class Test_Bitmap_ConnectedPixels : public oap::Bitmap_ConnectedPixels
+  class Test_Bitmap_ConnectedPixels : public oap::bitmap::ConnectedPixels
   {
     public:
-      Test_Bitmap_ConnectedPixels (size_t width, size_t height) : oap::Bitmap_ConnectedPixels (width, height)
+      Test_Bitmap_ConnectedPixels (size_t width, size_t height) : oap::bitmap::ConnectedPixels (width, height)
       {}
 
       void connect (const Coord& pcoord, const Coord& ncoord)
       {
-        oap::Bitmap_ConnectedPixels::connect (pcoord, ncoord);
+        oap::bitmap::ConnectedPixels::connect (pcoord, ncoord);
       }
   };
 
   Test_Bitmap_ConnectedPixels b_cp (10, 10);
 
-  oap::Bitmap_ConnectedPixels::Coord coord (2, 2);
+  oap::bitmap::ConnectedPixels::Coord coord (2, 2);
   b_cp.connect (coord, coord);
 
   const auto& vec = b_cp.getCoordsSectionVec ();
@@ -93,27 +93,27 @@ TEST_F(OapBitmapUtilsTests, TestConnection_1)
 
 TEST_F(OapBitmapUtilsTests, TestConnection_2)
 {
-  class Test_Bitmap_ConnectedPixels : public oap::Bitmap_ConnectedPixels
+  class Test_Bitmap_ConnectedPixels : public oap::bitmap::ConnectedPixels
   {
     public:
-      Test_Bitmap_ConnectedPixels (size_t width, size_t height) : oap::Bitmap_ConnectedPixels (width, height)
+      Test_Bitmap_ConnectedPixels (size_t width, size_t height) : oap::bitmap::ConnectedPixels (width, height)
       {}
 
       void connect (const Coord& pcoord, const Coord& ncoord)
       {
-        oap::Bitmap_ConnectedPixels::connect (pcoord, ncoord);
+        oap::bitmap::ConnectedPixels::connect (pcoord, ncoord);
       }
   };
 
   Test_Bitmap_ConnectedPixels b_cp (10, 10);
 
-  oap::Bitmap_ConnectedPixels::Coord coord1 (2, 2);
-  oap::Bitmap_ConnectedPixels::Coord coord2 (2, 3);
+  oap::bitmap::ConnectedPixels::Coord coord1 (2, 2);
+  oap::bitmap::ConnectedPixels::Coord coord2 (2, 3);
   b_cp.connect (coord1, coord2);
-  oap::Bitmap_ConnectedPixels::Coord coord3 (3, 2);
+  oap::bitmap::ConnectedPixels::Coord coord3 (3, 2);
   b_cp.connect (coord1, coord3);
 
-  oap::Bitmap_ConnectedPixels::Coord coord4 (3, 3);
+  oap::bitmap::ConnectedPixels::Coord coord4 (3, 3);
   b_cp.connect (coord4, coord4);
 
   const auto& vec = b_cp.getCoordsSectionVec ();
@@ -125,32 +125,32 @@ TEST_F(OapBitmapUtilsTests, TestConnection_2)
 
 TEST_F(OapBitmapUtilsTests, TestConnection_3)
 {
-  class Test_Bitmap_ConnectedPixels : public oap::Bitmap_ConnectedPixels
+  class Test_Bitmap_ConnectedPixels : public oap::bitmap::ConnectedPixels
   {
     public:
-      Test_Bitmap_ConnectedPixels (size_t width, size_t height) : oap::Bitmap_ConnectedPixels (width, height)
+      Test_Bitmap_ConnectedPixels (size_t width, size_t height) : oap::bitmap::ConnectedPixels (width, height)
       {}
 
       void connect (const Coord& pcoord, const Coord& ncoord)
       {
-        oap::Bitmap_ConnectedPixels::connect (pcoord, ncoord);
+        oap::bitmap::ConnectedPixels::connect (pcoord, ncoord);
       }
   };
 
   Test_Bitmap_ConnectedPixels b_cp (10, 10);
 
-  oap::Bitmap_ConnectedPixels::Coord coord1 (2, 2);
-  oap::Bitmap_ConnectedPixels::Coord coord2 (2, 3);
+  oap::bitmap::ConnectedPixels::Coord coord1 (2, 2);
+  oap::bitmap::ConnectedPixels::Coord coord2 (2, 3);
   b_cp.connect (coord1, coord2);
-  oap::Bitmap_ConnectedPixels::Coord coord3 (3, 2);
+  oap::bitmap::ConnectedPixels::Coord coord3 (3, 2);
   b_cp.connect (coord1, coord3);
 
-  oap::Bitmap_ConnectedPixels::Coord coord4 (3, 3);
-  oap::Bitmap_ConnectedPixels::Coord coord5 (3, 5);
+  oap::bitmap::ConnectedPixels::Coord coord4 (3, 3);
+  oap::bitmap::ConnectedPixels::Coord coord5 (3, 5);
   b_cp.connect (coord4, coord4);
   b_cp.connect (coord4, coord5);
 
-  oap::Bitmap_ConnectedPixels::Coord coord6 (6, 6);
+  oap::bitmap::ConnectedPixels::Coord coord6 (6, 6);
   b_cp.connect (coord6, coord6);
 
   const auto& vec = b_cp.getCoordsSectionVec ();
@@ -173,7 +173,7 @@ TEST_F(OapBitmapUtilsTests, Test_1)
     {0, 0, 0, 0},
   };
 
-  oap::Bitmap_ConnectedPixels b_cp = oap::Bitmap_ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
@@ -221,7 +221,7 @@ TEST_F(OapBitmapUtilsTests, Test_2)
   };
 
 
-  oap::Bitmap_ConnectedPixels b_cp = oap::Bitmap_ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
 
@@ -253,9 +253,9 @@ TEST_F(OapBitmapUtilsTests, Test_3)
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   };
 
-  using BCP = oap::Bitmap_ConnectedPixels;
+  using BCP = oap::bitmap::ConnectedPixels;
 
-  oap::Bitmap_ConnectedPixels b_cp = oap::Bitmap_ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
 
@@ -287,9 +287,9 @@ TEST_F(OapBitmapUtilsTests, Test_4)
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   };
 
-  using BCP = oap::Bitmap_ConnectedPixels;
+  using BCP = oap::bitmap::ConnectedPixels;
 
-  oap::Bitmap_ConnectedPixels b_cp = oap::Bitmap_ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
@@ -336,9 +336,9 @@ TEST_F(OapBitmapUtilsTests, Test_5)
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   };
 
-  using BCP = oap::Bitmap_ConnectedPixels;
+  using BCP = oap::bitmap::ConnectedPixels;
 
-  oap::Bitmap_ConnectedPixels b_cp = oap::Bitmap_ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (3, vec.size());
@@ -396,9 +396,9 @@ TEST_F(OapBitmapUtilsTests, Test_6)
     {1, 1, 1, 1, 1, 1, 0, 1, 1, 1},
   };
 
-  using BCP = oap::Bitmap_ConnectedPixels;
+  using BCP = oap::bitmap::ConnectedPixels;
 
-  oap::Bitmap_ConnectedPixels b_cp = oap::Bitmap_ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
