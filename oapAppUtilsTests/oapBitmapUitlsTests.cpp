@@ -294,7 +294,16 @@ TEST_F(OapBitmapUtilsTests, Test_4)
 
   ASSERT_EQ (2, vec.size());
   EXPECT_EQ (6, vec[0].second.coords.size());
+  EXPECT_EQ (1, vec[0].second.section.min.first);
+  EXPECT_EQ (2, vec[0].second.section.min.second);
+  EXPECT_EQ (2, vec[0].second.section.max.first);
+  EXPECT_EQ (5, vec[0].second.section.max.second);
+
   EXPECT_EQ (10, vec[1].second.coords.size());
+  EXPECT_EQ (4, vec[1].second.section.min.first);
+  EXPECT_EQ (2, vec[1].second.section.min.second);
+  EXPECT_EQ (6, vec[1].second.section.max.first);
+  EXPECT_EQ (5, vec[1].second.section.max.second);
 
   enumerateArray (array, dim, dim, [this, &array, &vec](size_t x, size_t y)
   {
@@ -367,4 +376,42 @@ TEST_F(OapBitmapUtilsTests, Test_5)
       EXPECT_TRUE (find (array, x, y, vec[2].second)) << "x: " << x << " y: " << y;
     }
   });
+}
+
+TEST_F(OapBitmapUtilsTests, Test_6)
+{
+  const size_t dim = 10;
+
+  int array[dim][dim] =
+  {
+    {1, 1, 1, 1, 1, 1, 0, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 1, 1},
+  };
+
+  using BCP = oap::Bitmap_ConnectedPixels;
+
+  oap::Bitmap_ConnectedPixels b_cp = oap::Bitmap_ConnectedPixels::process (array, dim, dim, 0);
+  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
+
+  ASSERT_EQ (2, vec.size());
+
+  EXPECT_EQ (24, vec[0].second.coords.size());
+  EXPECT_EQ (0, vec[0].second.section.min.first);
+  EXPECT_EQ (0, vec[0].second.section.min.second);
+  EXPECT_EQ (5, vec[0].second.section.max.first);
+  EXPECT_EQ (9, vec[0].second.section.max.second);
+
+  EXPECT_EQ (27, vec[1].second.coords.size());
+  EXPECT_EQ (2, vec[1].second.section.min.first);
+  EXPECT_EQ (0, vec[1].second.section.min.second);
+  EXPECT_EQ (9, vec[1].second.section.max.first);
+  EXPECT_EQ (9, vec[1].second.section.max.second);
 }
