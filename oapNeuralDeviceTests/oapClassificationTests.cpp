@@ -61,10 +61,10 @@ TEST_F(OapClassificationTests, DISABLE_LetterClassification)
     EXPECT_GE(0.5, outputs[0]);
   };
 
-  args.m_onOpenFile = [](const oap::OptSize& width, const oap::OptSize& height, bool isLoaded)
+  args.m_onOpenFile = [](const oap::ImageSection& width, const oap::ImageSection& height, bool isLoaded)
   {
-    EXPECT_EQ(20, width.optSize);
-    EXPECT_EQ(20, height.optSize);
+    EXPECT_EQ(20, width.getl());
+    EXPECT_EQ(20, height.getl());
     EXPECT_TRUE(isLoaded);
   };
 

@@ -141,8 +141,8 @@ size_t ImagesLoader::getImagesCount() const { return m_images.size(); }
 
 oap::Image* ImagesLoader::getImage(size_t index) const { return m_images[index]; }
 
-void ImagesLoader::loadColumnVector(math::Matrix* matrix, size_t column,
-                                  floatt* vec, size_t imageIndex) {
+void ImagesLoader::loadColumnVector(math::Matrix* matrix, size_t column, floatt* vec, size_t imageIndex)
+{
   const size_t refLength = m_images[0]->getLength();
 
   Image* it = m_images[imageIndex];
@@ -165,40 +165,39 @@ void ImagesLoader::loadColumnVector(math::Matrix* matrix, size_t column,
 }
 
 void ImagesLoader::load() {
-  oap::OptSize optWidth;
-  oap::OptSize optHeight;
+  oap::ImageSection optWidth;
+  oap::ImageSection optHeight;
   executeLoadProcess(optWidth, optHeight, 0, m_images.size());
 }
 
-void ImagesLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
-                                    const oap::OptSize& optHeightRef,
-                                    size_t begin, size_t end) {
-  oap::OptSize refOptWidth = optWidthRef;
-  oap::OptSize refOptHeight = optHeightRef;
+void ImagesLoader::executeLoadProcess (const oap::ImageSection& optWidthRef, const oap::ImageSection& optHeightRef, size_t begin, size_t end)
+{
+  oap::ImageSection refOptWidth = optWidthRef;
+  oap::ImageSection refOptHeight = optHeightRef;
 
-  std::function<void(Image*, const oap::OptSize&)> setWidthFunc =
+  std::function<void(Image*, const oap::ImageSection&)> setWidthFunc =
       &Image::forceOutputWidth;
 
-  std::function<void(Image*, const oap::OptSize&)> setHeightFunc =
+  std::function<void(Image*, const oap::ImageSection&)> setHeightFunc =
       &Image::forceOutputHeight;
 
   bool needreload = false;
   bool previousneedreload = false;
 
   auto verifyReloadConds = [&needreload, &previousneedreload](
-      std::function<void(Image*, const oap::OptSize&)>& setter,
-      oap::Image* image, oap::OptSize& refOptSize, oap::OptSize& imageOptSize) {
+      std::function<void(Image*, const oap::ImageSection&)>& setter,
+      oap::Image* image, oap::ImageSection& refOptSize, oap::ImageSection& imageOptSize) {
 
-    if (refOptSize.optSize == 0)
+    if (refOptSize.getl() == 0)
     {
       refOptSize = imageOptSize;
     }
-    else if (imageOptSize.optSize < refOptSize.optSize)
+    else if (imageOptSize.getl() < refOptSize.getl())
     {
       setter(image, refOptSize);
       needreload = true;
     }
-    else if (imageOptSize.optSize > refOptSize.optSize)
+    else if (imageOptSize.getl() > refOptSize.getl())
     {
       previousneedreload = true;
       refOptSize = imageOptSize;
@@ -210,9 +209,9 @@ void ImagesLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
 
     loadImage(image);
 
-    oap::OptSize imageOptWidth = image->getOutputWidth();
+    oap::ImageSection imageOptWidth = image->getOutputWidth();
 
-    oap::OptSize imageOptHeight = image->getOutputHeight();
+    oap::ImageSection imageOptHeight = image->getOutputHeight();
 
     needreload = false;
     previousneedreload = false;
@@ -248,7 +247,7 @@ void ImagesLoader::freeBitmaps(size_t begin, size_t end) {
   }
 }
 
-void ImagesLoader::forceOutputSizes (const oap::OptSize& width, const oap::OptSize& height, size_t begin, size_t end)
+void ImagesLoader::forceOutputSizes (const oap::ImageSection& width, const oap::ImageSection& height, size_t begin, size_t end)
 {
   for (size_t fa = begin; fa < end; ++fa)
   {

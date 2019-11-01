@@ -48,7 +48,7 @@ size_t getEndRow(T2DArray bitmap2d, size_t width, size_t height,
                  size_t colorsCount);
 
 template <typename T2DArray, typename T>
-OptSize GetOptWidth(T2DArray bitmap2d, size_t width, size_t height, size_t colorsCount)
+ImageSection GetOptWidth(T2DArray bitmap2d, size_t width, size_t height, size_t colorsCount)
 {
   size_t beginC = getBeginColumn<T2DArray, T>(bitmap2d, width, height, colorsCount);
   size_t endC = width;
@@ -66,13 +66,13 @@ OptSize GetOptWidth(T2DArray bitmap2d, size_t width, size_t height, size_t color
     beginC = 0;
   }
 
-  OptSize optSize(optWidth, beginC);
+  ImageSection optSize(optWidth, beginC);
 
   return optSize;
 }
 
 template <typename T2DArray, typename T>
-OptSize GetOptHeight(T2DArray bitmap2d, size_t width, size_t height,
+ImageSection GetOptHeight(T2DArray bitmap2d, size_t width, size_t height,
                      size_t colorsCount)
 {
   size_t beginR = getBeginRow<T2DArray, T>(bitmap2d, width, height, colorsCount);
@@ -92,7 +92,7 @@ OptSize GetOptHeight(T2DArray bitmap2d, size_t width, size_t height,
     beginR = 0;
   }
 
-  OptSize optSize(optHeight, beginR);
+  ImageSection optSize(optHeight, beginR);
 
   return optSize;
 }

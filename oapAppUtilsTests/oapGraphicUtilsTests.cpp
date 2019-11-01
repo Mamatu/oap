@@ -94,11 +94,11 @@ TEST_F(OapGraphicUtilsTests, OptWidthTest) {
 
   print(bitmap);
 
-  oap::OptSize optWidth = oap::GetOptWidth<char**, char>(
+  oap::ImageSection optWidth = oap::GetOptWidth<char**, char>(
       bitmap.array, bitmap.width, bitmap.height, bitmap.colorsCount);
 
-  EXPECT_EQ(4, optWidth.optSize);
-  EXPECT_EQ(2, optWidth.begin);
+  EXPECT_EQ(4, optWidth.getl());
+  EXPECT_EQ(2, optWidth.getp());
 
   dealloc(bitmap);
 }
@@ -114,11 +114,11 @@ TEST_F(OapGraphicUtilsTests, OptHeightTest) {
 
   print(bitmap);
 
-  oap::OptSize optHeight = oap::GetOptHeight<char**, char>(
+  oap::ImageSection optHeight = oap::GetOptHeight<char**, char>(
       bitmap.array, bitmap.width, bitmap.height, bitmap.colorsCount);
 
-  EXPECT_EQ(4, optHeight.optSize);
-  EXPECT_EQ(3, optHeight.begin);
+  EXPECT_EQ(4, optHeight.getl());
+  EXPECT_EQ(3, optHeight.getp());
 
   dealloc(bitmap);
 }

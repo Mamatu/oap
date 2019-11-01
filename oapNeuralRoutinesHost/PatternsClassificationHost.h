@@ -46,7 +46,7 @@ namespace oap
       
         OutputCallback m_onOutput1;
         OutputCallback m_onOutput2;
-        std::function<void(const oap::OptSize&, const oap::OptSize&, bool)> m_onOpenFile;
+        std::function<void(const oap::ImageSection&, const oap::ImageSection&, bool)> m_onOpenFile;
       };
 
       PatternsClassificationParser ();

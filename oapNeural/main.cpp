@@ -62,8 +62,8 @@ oap::HostMatrixPtr getImageMatrix (const std::string& imagePath)
   png.open();
   png.loadBitmap();
 
-  size_t width = png.getOutputWidth().optSize;
-  size_t height = png.getOutputHeight().optSize;
+  size_t width = png.getOutputWidth().getl();
+  size_t height = png.getOutputHeight().getl();
 
   oap::HostMatrixUPtr imageMatrix = oap::host::NewReMatrix (width, height);
   //math::Matrix* imageMatrix = oap::host::NewReMatrix (width, height);

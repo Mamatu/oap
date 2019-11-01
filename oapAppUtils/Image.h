@@ -62,14 +62,14 @@ class Image
 
   private:
     template<typename Callback, typename CallbackNL>
-    void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, size_t stride, Callback&& callback, CallbackNL&& cnl)
+    void iterateBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride, Callback&& callback, CallbackNL&& cnl)
     {
-      for (size_t y = 0; y < height.optSize; ++y)
+      for (size_t y = 0; y < height.getl(); ++y)
       {
-        for (size_t x = 0; x < width.optSize; ++x)
+        for (size_t x = 0; x < width.getl(); ++x)
         {
-          size_t idx = x + width.begin + stride * (y + height.begin);
-          debugAssert (idx < getOutputWidth().optSize * getOutputHeight().optSize);
+          size_t idx = x + width.getp() + stride * (y + height.getp());
+          debugAssert (idx < getOutputWidth().getl() * getOutputHeight().getl());
           floatt value = pixels[idx];
           callback (value, x, y);
         }
@@ -78,13 +78,13 @@ class Image
       cnl ();
     }
 
-    void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, size_t stride);
+    void printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride);
 
   public:
     /**
      * \brief Prints subimage in boundaries determined by width and height as array of 0 and 1 digit (gray scale)
      */
-    void print (const oap::OptSize& width, const oap::OptSize& height);
+    void print (const oap::ImageSection& width, const oap::ImageSection& height);
 
     /**
      * \brief Prints output image as array of 0 and 1 digit (gray scale)
@@ -94,12 +94,12 @@ class Image
     /**
     * \brief Gets width of load image.
     */
-    virtual oap::OptSize getWidth() const = 0;
+    virtual oap::ImageSection getWidth() const = 0;
 
     /**
     * \brief Gets height of load image.
     */
-    virtual oap::OptSize getHeight() const = 0;
+    virtual oap::ImageSection getHeight() const = 0;
 
     /**
     * \brief Forces width of output.
@@ -107,7 +107,7 @@ class Image
     *  If it is not set, output width (see getOutputWidth) should be
     *  equal to image width (see getWidth()).
     */
-    virtual void forceOutputWidth(const oap::OptSize& optWidth) = 0;
+    virtual void forceOutputWidth(const oap::ImageSection& optWidth) = 0;
 
     /**
     * \brief Forces height of output.
@@ -115,21 +115,21 @@ class Image
     *  If it is not set, output height (see getOutputHeight) should be
     *  equal to image height (see getHeight()).
     */
-    virtual void forceOutputHeight(const oap::OptSize& optHeight) = 0;
+    virtual void forceOutputHeight(const oap::ImageSection& optHeight) = 0;
 
     /**
     * \brief Get width of output.
     *
     *  It may vary from getWidth due to truncate redundant elements of image.
     */
-    virtual oap::OptSize getOutputWidth() const = 0;
+    virtual oap::ImageSection getOutputWidth() const = 0;
 
     /**
     * \brief Get height of output.
     *
     *  It may vary from getHeight due to truncate redundant elements of image.
     */
-    virtual oap::OptSize getOutputHeight() const = 0;
+    virtual oap::ImageSection getOutputHeight() const = 0;
 
     pixel_t getPixel(unsigned int x, unsigned int y) const;
 

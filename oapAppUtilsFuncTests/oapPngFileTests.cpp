@@ -97,8 +97,8 @@ class BitmapsConversionTest : public oap::PngFile
     }
 
     png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d,
-                                   const oap::OptSize& optWidth,
-                                   oap::OptSize& optHeight)
+                                   const oap::ImageSection& optWidth,
+                                   oap::ImageSection& optHeight)
     {
       return oap::PngFile::createBitmap1dFrom2d(bitmap2d, optWidth, optHeight,
              m_colorsCountTest);
@@ -120,8 +120,8 @@ class BitmapsConversionTest : public oap::PngFile
     {
       BitmapsConversionTest pngFile(width, height, coloursCount);
 
-      oap::OptSize optWidth(width);
-      oap::OptSize optHeight(height);
+      oap::ImageSection optWidth(width);
+      oap::ImageSection optHeight(height);
 
       png_byte* buffer1 = pngFile.createBitmap1dFrom2d(pngFile.m_bitmap2dTest,
                           optWidth, optHeight);
@@ -248,11 +248,11 @@ TEST_F(OapPngFileTests, LoadMnistExamples)
   size_t expectedWidth = 557;
   size_t expectedHeight = 326;
 
-  EXPECT_EQ (expectedWidth, pngFile.getOutputWidth().optSize);
-  EXPECT_EQ (expectedHeight, pngFile.getOutputHeight().optSize);
+  EXPECT_EQ (expectedWidth, pngFile.getOutputWidth().getl());
+  EXPECT_EQ (expectedHeight, pngFile.getOutputHeight().getl());
 
   oap::bitmap::ConnectedPixels cp = oap::bitmap::ConnectedPixels::process1DArray (vec, expectedWidth, expectedHeight, 1);
   oap::bitmap::CoordsSectionVec csVec = cp.getCoordsSectionVec ();
 
-  //pngFile.print (oap::OptSize(55 - 25, 25), oap::OptSize(40 - 10, 10));
+  //pngFile.print (oap::ImageSection(55 - 25, 25), oap::ImageSection(40 - 10, 10));
 }
