@@ -124,10 +124,12 @@ ConnectedPixels ConnectedPixels::process (T2DArray bitmap2d, size_t width, size_
         bitmap_cp.checkTopLeft (x, y);
         bitmap_cp.checkTop (x, y);
         bitmap_cp.checkTopRight (x, y);
+#if 0
         bitmap_cp.checkRight (x, y);
         bitmap_cp.checkBottomLeft (x, y);
         bitmap_cp.checkBottom (x, y);
         bitmap_cp.checkBottomRight (x, y);
+#endif
       }
     }
   }
