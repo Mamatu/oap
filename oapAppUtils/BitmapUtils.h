@@ -32,76 +32,13 @@
 
 namespace oap
 {
+namespace bitmap
+{
 
-class Bitmap_ConnectedPixels
+class ConnectedPixels
 {
   public:
     using Coord = std::pair<int, int>;
-    /*struct Coord
-    {
-      int x;
-      int y;
-
-      Coord (int _x, int _y) : x (_x), y (_y)
-      {}
-
-      Coord () : x(0), y(0)
-      {}
-
-      Coord (const Coord& coord) : x (coord.x), y (coord.y)
-      {}
-
-      Coord (Coord&& coord) : x (std::move (coord.x)), y (std::move (coord.y))
-      {}
-
-      Coord& operator=(const Coord& coord)
-      {
-        if (this != &coord)
-        {
-          x = coord.x;
-          y = coord.y;
-        }
-        return *this;
-      }
-
-      Coord& operator=(Coord&& coord)
-      {
-        if (this != &coord)
-        {
-          x = std::move (coord.x);
-          y = std::move (coord.y);
-        }
-        return *this;
-      }
-
-      bool operator< (const Coord& coord) const
-      {
-        if (y < coord.y)
-        {
-          return true;
-        }
-        else if (y > coord.y)
-        {
-          return false;
-        }
-        else if (x < coord.x)
-        {
-          return true;
-        }
-        return false;
-      }
-
-      bool operator== (const Coord& coord) const
-      {
-        return x == coord.x && y == coord.y;
-      }
-
-      bool operator!= (const Coord& coord) const
-      {
-        return !((*this) == coord);
-      }
-    };*/
-
     using Coords = std::set<Coord>;
     using CoordsMap = std::map<Coord, Coords>;
     using ChildRoot = std::map<Coord, Coord>;
@@ -121,8 +58,8 @@ class Bitmap_ConnectedPixels
     using CoordsSectionSet = std::map<Coord, CoordsSection>;
     using CoordsSectionVec = std::vector<std::pair<Coord, CoordsSection>>;
 
-    Bitmap_ConnectedPixels (size_t width, size_t height);
-    virtual ~Bitmap_ConnectedPixels();
+    ConnectedPixels (size_t width, size_t height);
+    virtual ~ConnectedPixels();
 
     /**
      * \brief set which contains coords group and their dimension in image
@@ -139,7 +76,7 @@ class Bitmap_ConnectedPixels
      *  \params bgPixel - pixel which determines background
      */
     template <typename T2DArray, typename T>
-    static Bitmap_ConnectedPixels process (T2DArray bitmap2d, size_t width, size_t height, T bgPixel);
+    static ConnectedPixels process (T2DArray bitmap2d, size_t width, size_t height, T bgPixel);
 
   protected:
     CoordsMap m_groups;
@@ -170,9 +107,9 @@ class Bitmap_ConnectedPixels
 };
 
 template <typename T2DArray, typename T>
-Bitmap_ConnectedPixels Bitmap_ConnectedPixels::process (T2DArray bitmap2d, size_t width, size_t height, T bgPixel)
+ConnectedPixels ConnectedPixels::process (T2DArray bitmap2d, size_t width, size_t height, T bgPixel)
 {
-  Bitmap_ConnectedPixels bitmap_cp (width, height);
+  ConnectedPixels bitmap_cp (width, height);
 
   for (size_t y = 0; y < height; ++y)
   {
@@ -197,7 +134,7 @@ Bitmap_ConnectedPixels Bitmap_ConnectedPixels::process (T2DArray bitmap2d, size_
 
   return bitmap_cp;
 }
-
-};
+}
+}
 
 #endif
