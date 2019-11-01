@@ -16,13 +16,13 @@ namespace oap
 {
 
 template<typename Callback, typename CallbackNL>
-void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, Callback&& callback, CallbackNL&& cnl)
+void iterateBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, Callback&& callback, CallbackNL&& cnl)
 {
-  for (size_t y = 0; y < height.optSize; ++y)
+  for (size_t y = 0; y < height.getl(); ++y)
   {
-    for (size_t x = 0; x < width.optSize; ++x)
+    for (size_t x = 0; x < width.getl(); ++x)
     {
-      floatt value = pixels[x + width.optSize * y];
+      floatt value = pixels[x + width.getl() * y];
       int pvalue = value > 0.5 ? 1 : 0;
       callback (pvalue, x, y);
     }
@@ -31,7 +31,7 @@ void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSiz
   cnl ();
 }
 
-void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height)
+void printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height)
 {
   iterateBitmap (pixels, width, height, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
 }
@@ -54,7 +54,7 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     return 1;
   }
 
-  auto load = [&args] (const std::string& path) -> std::tuple<std::unique_ptr<floatt[]>, oap::OptSize, oap::OptSize>
+  auto load = [&args] (const std::string& path) -> std::tuple<std::unique_ptr<floatt[]>, oap::ImageSection, oap::ImageSection>
   {
     oap::PngFile png (path, false);
     png.loadBitmap ();
@@ -106,8 +106,8 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   auto upatternA = std::move (std::get<0>(patternA));
   auto upatternB = std::move (std::get<0>(patternB));
 
-  printBitmap (upatternA.get(), std::get<1>(patternA).optSize, std::get<2>(patternA).optSize);
-  printBitmap (upatternB.get(), std::get<1>(patternB).optSize, std::get<2>(patternB).optSize);
+  printBitmap (upatternA.get(), std::get<1>(patternA).getl(), std::get<2>(patternA).getl());
+  printBitmap (upatternB.get(), std::get<1>(patternB).getl(), std::get<2>(patternB).getl());
 
   std::random_device rd;
   std::default_random_engine dre (rd());

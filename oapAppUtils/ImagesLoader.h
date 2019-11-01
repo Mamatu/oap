@@ -170,13 +170,10 @@ class ImagesLoader {
                         size_t imageIndex);
 
   void load();
-  void executeLoadProcess(const oap::OptSize& optWidthRef,
-                          const oap::OptSize& optHeightRef, size_t begin,
-                          size_t end);
+  void executeLoadProcess (const oap::ImageSection& optWidthRef, const oap::ImageSection& optHeightRef, size_t begin, size_t end);
   void loadImage(oap::Image* iamge) const;
   void freeBitmaps(size_t begin, size_t end);
-  void forceOutputSizes(const oap::OptSize& width, const oap::OptSize& height,
-                        size_t begin, size_t end);
+  void forceOutputSizes(const oap::ImageSection& width, const oap::ImageSection& height, size_t begin, size_t end);
 
   void cleanImageStuff();
 

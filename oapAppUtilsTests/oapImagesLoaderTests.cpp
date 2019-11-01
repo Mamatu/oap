@@ -198,7 +198,7 @@ TEST_F(OapImagesLoaderTests, CreateImagesVectorTest) {
 
 class HaveSizesMatcher : public MatcherInterface<const oap::Images&> {
  public:
-  HaveSizesMatcher(const oap::OptSize& optWidth, const oap::OptSize& optHeight)
+  HaveSizesMatcher(const oap::ImageSection& optWidth, const oap::ImageSection& optHeight)
       : m_optWidth(optWidth), m_optHeight(optHeight) {}
 
   virtual bool MatchAndExplain(const oap::Images& images,
@@ -208,18 +208,17 @@ class HaveSizesMatcher : public MatcherInterface<const oap::Images&> {
 
     *listener << "{";
 
-    for (oap::Images::const_iterator it = images.begin(); it != images.end();
-         ++it) {
-      if ((*it)->getOutputWidth().optSize != m_optWidth.optSize) {
+    for (oap::Images::const_iterator it = images.begin(); it != images.end(); ++it) {
+      if ((*it)->getOutputWidth().getl() != m_optWidth.getl()) {
         hasWidth = false;
       }
 
-      if ((*it)->getOutputHeight().optSize != m_optWidth.optSize) {
+      if ((*it)->getOutputHeight().getl() != m_optWidth.getl()) {
         hasHeight = false;
       }
 
-      *listener << "{" << (*it)->getOutputWidth().optSize << ", "
-                << (*it)->getOutputHeight().optSize << "}";
+      *listener << "{" << (*it)->getOutputWidth().getl() << ", "
+                << (*it)->getOutputHeight().getl() << "}";
     }
 
     *listener << "}";
@@ -228,21 +227,21 @@ class HaveSizesMatcher : public MatcherInterface<const oap::Images&> {
   }
 
   virtual void DescribeTo(::std::ostream* os) const {
-    *os << "have sizes: " << m_optWidth.optSize << " " << m_optHeight.optSize;
+    *os << "have sizes: " << m_optWidth.getl() << " " << m_optHeight.getl();
   }
 
   virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "have not sizes: " << m_optWidth.optSize << " "
-        << m_optHeight.optSize;
+    *os << "have not sizes: " << m_optWidth.getl() << " "
+        << m_optHeight.getl();
   }
 
  private:
-  oap::OptSize m_optWidth;
-  oap::OptSize m_optHeight;
+  oap::ImageSection m_optWidth;
+  oap::ImageSection m_optHeight;
 };
 
-inline Matcher<const oap::Images&> HaveSizes(const oap::OptSize& optWidth,
-                                             const oap::OptSize& optHeight) {
+inline Matcher<const oap::Images&> HaveSizes(const oap::ImageSection& optWidth,
+                                             const oap::ImageSection& optHeight) {
   return MakeMatcher(new HaveSizesMatcher(optWidth, optHeight));
 }
 

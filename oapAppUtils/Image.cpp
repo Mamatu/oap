@@ -73,7 +73,7 @@ void Image::olc ()
 
 std::vector<floatt> Image::getStlFloatVector ()
 {
-  size_t size = getOutputHeight().optSize * getOutputWidth().optSize;
+  size_t size = getOutputHeight().getl() * getOutputWidth().getl();
 
   std::vector<floatt> vec;
   vec.resize (size);
@@ -83,16 +83,16 @@ std::vector<floatt> Image::getStlFloatVector ()
   return vec;
 }
 
-void Image::printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, size_t stride)
+void Image::printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride)
 {
   iterateBitmap (pixels, width, height, stride, [](floatt pixel, size_t x, size_t y){ printf ("%d", pixel < 0.5 ? 0 : 1); }, [](){ printf("\n"); });
 }
 
-void Image::print (const oap::OptSize& width, const oap::OptSize& height)
+void Image::print (const oap::ImageSection& width, const oap::ImageSection& height)
 {
-  size_t rwidth = getOutputWidth().optSize;
+  size_t rwidth = getOutputWidth().getl();
 
-  std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[rwidth * getOutputHeight().optSize]);
+  std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[rwidth * getOutputHeight().getl()]);
   getFloattVector (pixels.get ());
 
   printBitmap (pixels.get (), width, height, rwidth);
@@ -100,8 +100,8 @@ void Image::print (const oap::OptSize& width, const oap::OptSize& height)
 
 void Image::print ()
 {
-  oap::OptSize&& width = getOutputWidth ();
-  oap::OptSize&& height = getOutputHeight ();
+  oap::ImageSection&& width = getOutputWidth ();
+  oap::ImageSection&& height = getOutputHeight ();
 
   print (std::move (width), std::move (height));
 }
@@ -145,8 +145,8 @@ bool Image::isLoaded() const
 
 pixel_t Image::getPixel(unsigned int x, unsigned int y) const
 {
-  unsigned int height = getHeight().optSize;
-  unsigned int width = getWidth().optSize;
+  unsigned int height = getHeight().getl();
+  unsigned int width = getWidth().getl();
   if (x >= width)
   {
     throw exceptions::OutOfRange(x, width);
@@ -160,7 +160,7 @@ pixel_t Image::getPixel(unsigned int x, unsigned int y) const
 
 size_t Image::getLength() const
 {
-  return getOutputWidth().optSize * getOutputHeight().optSize;
+  return getOutputWidth().getl() * getOutputHeight().getl();
 }
 
 bool Image::getPixelsVector(pixel_t* pixels) const

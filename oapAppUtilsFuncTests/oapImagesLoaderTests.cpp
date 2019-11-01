@@ -57,8 +57,8 @@ class OapImagesLoaderTests : public testing::Test
       pngFile.open();
       pngFile.loadBitmap();
       pngFile.close();
-      const size_t width = pngFile.getWidth().optSize;
-      const size_t height = pngFile.getHeight().optSize;
+      const size_t width = pngFile.getWidth().getl();
+      const size_t height = pngFile.getHeight().getl();
       oap::pixel_t* pixels = new oap::pixel_t[width * height];
       pngFile.getPixelsVector(pixels);
 

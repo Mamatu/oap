@@ -45,17 +45,17 @@ class ImageMock : public oap::Image {
 
   MOCK_METHOD0(closeProtected, void());
 
-  MOCK_CONST_METHOD0(getWidth, oap::OptSize());
+  MOCK_CONST_METHOD0(getWidth, oap::ImageSection());
 
-  MOCK_CONST_METHOD0(getHeight, oap::OptSize());
+  MOCK_CONST_METHOD0(getHeight, oap::ImageSection());
 
-  MOCK_METHOD1(forceOutputWidth, void(const oap::OptSize& optWidth));
+  MOCK_METHOD1(forceOutputWidth, void(const oap::ImageSection& optWidth));
 
-  MOCK_METHOD1(forceOutputHeight, void(const oap::OptSize& optHeight));
+  MOCK_METHOD1(forceOutputHeight, void(const oap::ImageSection& optHeight));
 
-  MOCK_CONST_METHOD0(getOutputWidth, oap::OptSize());
+  MOCK_CONST_METHOD0(getOutputWidth, oap::ImageSection());
 
-  MOCK_CONST_METHOD0(getOutputHeight, oap::OptSize());
+  MOCK_CONST_METHOD0(getOutputHeight, oap::ImageSection());
 
   MOCK_CONST_METHOD0(getSufix, std::string());
 

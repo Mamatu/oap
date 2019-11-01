@@ -72,26 +72,26 @@ class PngFileMock : public oap::PngFile {
 
   MOCK_METHOD0(closeProtected, void());
 
-  virtual oap::OptSize getWidth() const override { return m_width; }
+  virtual oap::ImageSection getWidth() const override { return m_width; }
 
-  virtual oap::OptSize getHeight() const override { return m_height; }
+  virtual oap::ImageSection getHeight() const override { return m_height; }
 
-  virtual void forceOutputWidth(const oap::OptSize& optSize) override {
+  virtual void forceOutputWidth(const oap::ImageSection& optSize) override {
     m_optWidth = optSize;
   }
 
-  virtual void forceOutputHeight(const oap::OptSize& optSize) override {
+  virtual void forceOutputHeight(const oap::ImageSection& optSize) override {
     m_optHeight = optSize;
   }
 
-  virtual oap::OptSize getOutputWidth() const override { return m_optWidth; }
+  virtual oap::ImageSection getOutputWidth() const override { return m_optWidth; }
 
-  virtual oap::OptSize getOutputHeight() const override { return m_optHeight; }
+  virtual oap::ImageSection getOutputHeight() const override { return m_optHeight; }
 
   virtual void getPixelsVectorProtected(oap::pixel_t* vector) const override {
     ASSERT_NE(m_counter, m_vectorsCount);
 
-    size_t length = m_optWidth.optSize * m_optHeight.optSize;
+    size_t length = m_optWidth.getl() * m_optHeight.getl();
 
     memcpy(vector, &m_matrix[m_counter * length],
            sizeof(oap::pixel_t) * length);
@@ -106,10 +106,10 @@ class PngFileMock : public oap::PngFile {
   mutable size_t m_counter;
   size_t m_vectorsCount;
   size_t m_vectorLength;
-  oap::OptSize m_width;
-  oap::OptSize m_height;
-  oap::OptSize m_optWidth;
-  oap::OptSize m_optHeight;
+  oap::ImageSection m_width;
+  oap::ImageSection m_height;
+  oap::ImageSection m_optWidth;
+  oap::ImageSection m_optHeight;
 };
 
 using NicePngFileMock = NiceMock<PngFileMock>;
