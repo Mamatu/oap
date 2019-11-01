@@ -71,12 +71,25 @@ class ConnectedPixels
      */
     CoordsSectionVec getCoordsSectionVec () const;
 
+    template <typename Callback>
+    static ConnectedPixels processGeneric (Callback&& callback, size_t width, size_t height);
+
+    template <typename TArray, typename T, typename Callback>
+    static ConnectedPixels processGenericArray (TArray array, size_t width, size_t height, T bgPixel, Callback&& getPixel);
+
     /**
-     *  \brief Returns groups of connected pixels which are separated by backgroud pixels
-     *  \params bgPixel - pixel which determines background
+     *  \brief returns groups of connected pixels which are separated by backgroud pixels in 1D bitmap
+     *  \params bgpixel - pixel which determines background
+     */
+    template <typename T1DArray, typename T>
+    static ConnectedPixels process1DArray (T1DArray bitmap1D, size_t width, size_t height, T bgPixel);
+
+    /**
+     *  \brief returns groups of connected pixels which are separated by backgroud pixels in 2D bitmap
+     *  \params bgpixel - pixel which determines background
      */
     template <typename T2DArray, typename T>
-    static ConnectedPixels process (T2DArray bitmap2d, size_t width, size_t height, T bgPixel);
+    static ConnectedPixels process2DArray (T2DArray bitmap2d, size_t width, size_t height, T bgPixel);
 
   protected:
     CoordsMap m_groups;
@@ -106,8 +119,8 @@ class ConnectedPixels
     bool checkBottomRight (size_t x, size_t y);
 };
 
-template <typename T2DArray, typename T>
-ConnectedPixels ConnectedPixels::process (T2DArray bitmap2d, size_t width, size_t height, T bgPixel)
+template <typename Callback>
+ConnectedPixels ConnectedPixels::processGeneric (Callback&& callback, size_t width, size_t height)
 {
   ConnectedPixels bitmap_cp (width, height);
 
@@ -115,7 +128,22 @@ ConnectedPixels ConnectedPixels::process (T2DArray bitmap2d, size_t width, size_
   {
     for (size_t x = 0; x < width; ++x)
     {
-      if (bitmap2d[y][x] != bgPixel)
+      callback (bitmap_cp, x, y);
+    }
+  }
+
+  return bitmap_cp;
+}
+
+template <typename TArray, typename T, typename Callback>
+ConnectedPixels ConnectedPixels::processGenericArray (TArray array, size_t width, size_t height, T bgPixel, Callback&& getPixel)
+{
+  ConnectedPixels bitmap_cp (width, height);
+
+  return ConnectedPixels::processGeneric (
+    [&array, width, height, &bgPixel, &getPixel] (ConnectedPixels& bitmap_cp, size_t x, size_t y)
+    {
+      if (getPixel (array, x, y) != bgPixel)
       {
         Coord coord (x, y);
         bitmap_cp.connect (coord, coord);
@@ -131,11 +159,24 @@ ConnectedPixels ConnectedPixels::process (T2DArray bitmap2d, size_t width, size_
         bitmap_cp.checkBottomRight (x, y);
 #endif
       }
-    }
-  }
-
-  return bitmap_cp;
+    },
+  width, height);
 }
+
+template <typename T1DArray, typename T>
+ConnectedPixels ConnectedPixels::process1DArray (T1DArray bitmap1D, size_t width, size_t height, T bgPixel)
+{
+  return ConnectedPixels::processGenericArray (bitmap1D, width, height, bgPixel,
+         [&width](T1DArray bitmap1D, size_t x, size_t y) { return bitmap1D[x + width * y];});
+}
+
+template <typename T2DArray, typename T>
+ConnectedPixels ConnectedPixels::process2DArray (T2DArray bitmap2D, size_t width, size_t height, T bgPixel)
+{
+  return ConnectedPixels::processGenericArray (bitmap2D, width, height, bgPixel,
+         [](T2DArray bitmap2D, size_t x, size_t y) { return bitmap2D[y][x];});
+}
+
 }
 }
 

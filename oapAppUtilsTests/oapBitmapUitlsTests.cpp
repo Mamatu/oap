@@ -161,7 +161,7 @@ TEST_F(OapBitmapUtilsTests, TestConnection_3)
   ASSERT_EQ (1, vec[2].second.coords.size());
 }
 
-TEST_F(OapBitmapUtilsTests, Test_1)
+TEST_F(OapBitmapUtilsTests, Test_2DArray_1)
 {
   const size_t dim = 4;
 
@@ -173,7 +173,7 @@ TEST_F(OapBitmapUtilsTests, Test_1)
     {0, 0, 0, 0},
   };
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
@@ -208,7 +208,7 @@ TEST_F(OapBitmapUtilsTests, Test_1)
   });
 }
 
-TEST_F(OapBitmapUtilsTests, Test_2)
+TEST_F(OapBitmapUtilsTests, Test_2DArray_2)
 {
   const size_t dim = 4;
 
@@ -221,7 +221,7 @@ TEST_F(OapBitmapUtilsTests, Test_2)
   };
 
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
 
@@ -235,7 +235,7 @@ TEST_F(OapBitmapUtilsTests, Test_2)
   checkArray (array, dim, dim, vec[0].second, [](bool b, size_t x, size_t y) { EXPECT_TRUE (b) << "x: " << x << " y: " << y; });
 }
 
-TEST_F(OapBitmapUtilsTests, Test_3)
+TEST_F(OapBitmapUtilsTests, Test_2DArray_3)
 {
   const size_t dim = 10;
 
@@ -255,7 +255,7 @@ TEST_F(OapBitmapUtilsTests, Test_3)
 
   using BCP = oap::bitmap::ConnectedPixels;
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
 
@@ -269,7 +269,7 @@ TEST_F(OapBitmapUtilsTests, Test_3)
   checkArray (array, dim, dim, vec[0].second, [](bool b, size_t x, size_t y) { EXPECT_TRUE (b) << "x: " << x << " y: " << y; });
 }
 
-TEST_F(OapBitmapUtilsTests, Test_4)
+TEST_F(OapBitmapUtilsTests, Test_2DArray_4)
 {
   const size_t dim = 10;
 
@@ -289,7 +289,7 @@ TEST_F(OapBitmapUtilsTests, Test_4)
 
   using BCP = oap::bitmap::ConnectedPixels;
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
@@ -318,7 +318,7 @@ TEST_F(OapBitmapUtilsTests, Test_4)
   });
 }
 
-TEST_F(OapBitmapUtilsTests, Test_5)
+TEST_F(OapBitmapUtilsTests, Test_2DArray_5)
 {
   const size_t dim = 10;
 
@@ -338,7 +338,7 @@ TEST_F(OapBitmapUtilsTests, Test_5)
 
   using BCP = oap::bitmap::ConnectedPixels;
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (3, vec.size());
@@ -378,7 +378,7 @@ TEST_F(OapBitmapUtilsTests, Test_5)
   });
 }
 
-TEST_F(OapBitmapUtilsTests, Test_6)
+TEST_F(OapBitmapUtilsTests, Test_2DArray_6)
 {
   const size_t dim = 10;
 
@@ -398,7 +398,45 @@ TEST_F(OapBitmapUtilsTests, Test_6)
 
   using BCP = oap::bitmap::ConnectedPixels;
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process (array, dim, dim, 0);
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
+  std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
+
+  ASSERT_EQ (2, vec.size());
+
+  EXPECT_EQ (24, vec[0].second.coords.size());
+  EXPECT_EQ (0, vec[0].second.section.min.first);
+  EXPECT_EQ (0, vec[0].second.section.min.second);
+  EXPECT_EQ (5, vec[0].second.section.max.first);
+  EXPECT_EQ (9, vec[0].second.section.max.second);
+
+  EXPECT_EQ (27, vec[1].second.coords.size());
+  EXPECT_EQ (2, vec[1].second.section.min.first);
+  EXPECT_EQ (0, vec[1].second.section.min.second);
+  EXPECT_EQ (9, vec[1].second.section.max.first);
+  EXPECT_EQ (9, vec[1].second.section.max.second);
+}
+
+TEST_F(OapBitmapUtilsTests, Test_1DArray_6)
+{
+  const size_t dim = 10;
+
+  int array[dim * dim] =
+  {
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 1, 1, 1, 1, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 1,
+  };
+
+  using BCP = oap::bitmap::ConnectedPixels;
+
+  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process1DArray (array, dim, dim, 0);
   std::vector<std::pair<BCP::Coord, BCP::CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());

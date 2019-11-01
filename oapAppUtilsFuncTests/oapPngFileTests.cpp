@@ -24,6 +24,7 @@
 #include "Logger.h"
 #include "Exceptions.h"
 #include "PngFile.h"
+#include "BitmapUtils.h"
 
 using namespace ::testing;
 
