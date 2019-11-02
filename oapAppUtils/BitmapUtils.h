@@ -36,22 +36,20 @@ namespace oap
 {
 namespace bitmap
 {
+inline int pixelFloattToInt (floatt pixel)
+{
+  return pixel < 0.5 ? 0 : 1;
+}
 
-using Coord = std::pair<int, int>;
+using Coord = std::pair<size_t, size_t>;
 using Coords = std::set<Coord>;
 using CoordsMap = std::map<Coord, Coords>;
 using ChildRoot = std::map<Coord, Coord>;
 
-struct MinMax
-{
-  Coord min;
-  Coord max;
-};
-
 struct CoordsSection
 {
   Coords coords;
-  MinMax section;
+  oap::ImageRegion section;
 };
 
 using CoordsSectionSet = std::map<Coord, CoordsSection>;
@@ -60,7 +58,6 @@ using CoordsSectionVec = std::vector<std::pair<Coord, CoordsSection>>;
 class ConnectedPixels
 {
   public:
-
 
     ConnectedPixels (size_t width, size_t height);
     virtual ~ConnectedPixels();
@@ -74,6 +71,11 @@ class ConnectedPixels
      * \brief vector which contains coords group and their dimension in image
      */
     CoordsSectionVec getCoordsSectionVec () const;
+
+    oap::RegionSize getOverlapingPaternSize () const
+    {
+      return m_overlapingSize;
+    }
 
     template <typename Callback>
     static ConnectedPixels processGeneric (Callback&& callback, size_t width, size_t height);
@@ -101,6 +103,13 @@ class ConnectedPixels
     CoordsSectionSet m_css;
 
     size_t m_width = 0, m_height = 0;
+
+    /**
+     * \brief Size of minimal region which can overlaping any pattern found in image.
+     */
+    oap::RegionSize m_overlapingSize;
+
+    size_t m_adjustedWidth = 0, m_adjustedHeight = 0;
 
     Coord getRoot (const Coord& coord) const;
 
@@ -181,8 +190,8 @@ ConnectedPixels ConnectedPixels::process2DArray (T2DArray bitmap2D, size_t width
          [](T2DArray bitmap2D, size_t x, size_t y) { return bitmap2D[y][x];});
 }
 
-template<typename Callback, typename CallbackNL>
-void iterateBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride, Callback&& callback, CallbackNL&& cnl)
+template<typename Bitmap, typename Callback, typename CallbackNL>
+void iterateBitmap (Bitmap pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride, Callback&& callback, CallbackNL&& cnl)
 {
   for (size_t y = 0; y < height.getl(); ++y)
   {
@@ -197,7 +206,169 @@ void iterateBitmap (floatt* pixels, const oap::ImageSection& width, const oap::I
   cnl ();
 }
 
-void printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride);
+template<typename Bitmap>
+void printBitmapRegion (Bitmap pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride)
+{
+  iterateBitmap (pixels, width, height, stride, [](floatt pixel, size_t x, size_t y){ printf ("%d", pixelFloattToInt (pixel)); }, [](){ printf("\n"); });
+}
+
+template<typename Bitmap>
+void printBitmap (Bitmap pixels, size_t width, size_t height)
+{
+  iterateBitmap (pixels, width, height, width, [](floatt pixel, size_t x, size_t y){ printf ("%d", pixelFloattToInt (pixel)); }, [](){ printf("\n"); });
+}
+
+template<typename Bitmap, typename Callback>
+void printBitmap (Bitmap pixels, size_t width, size_t height, Callback&& callback)
+{
+  iterateBitmap (pixels, width, height, width, [&callback](floatt pixel, size_t x, size_t y){ callback (pixel, x, y); printf ("%d", pixelFloattToInt (pixel)); }, [](){ printf("\n"); });
+}
+
+template<typename Bitmap1D, typename T>
+void getBitmapFromSection (Bitmap1D& output, const RegionSize& outputSize, const Bitmap1D& bitmap1D, size_t width, size_t height, const CoordsSection& coordsSection, T bgPixel)
+{
+  const oap::ImageRegion& region = coordsSection.section;
+
+  const size_t subwidth = outputSize.width;
+
+  std::fill (std::begin (output), std::end (output), bgPixel);
+
+  for (const auto& coord : coordsSection.coords)
+  {
+    T pixel = bitmap1D[coord.first + width * coord.second];
+
+    debugAssert (coord.first >= coordsSection.section.x.getp1 ());
+    debugAssert (coord.second >= coordsSection.section.y.getp1 ());
+
+    size_t nx = coord.first - coordsSection.section.x.getp1 ();
+    size_t ny = coord.second - coordsSection.section.y.getp1 ();
+
+    output[nx + subwidth * ny] = pixel;
+  }
+}
+
+inline bool mergeIf (CoordsSection& dst, const CoordsSection& src, size_t gap)
+{
+  if (dst.section.extendIf (src.section, gap))
+  {
+    std::copy (src.coords.begin(), src.coords.end(), std::inserter (dst.coords, dst.coords.end()));
+    return true;
+  }
+  return false;
+}
+
+template<typename Container, typename Getter>
+void mergeIf (Container& container, size_t gap, Getter&& getter)
+{
+  for (auto it = container.begin(); it != container.end(); ++it)
+  {
+    for (auto it1 = container.begin(); it1 != container.end();)
+    {
+      if (it1 != it)
+      {
+        CoordsSection&& cs = getter (it);
+        CoordsSection&& cs1 = getter (it1);
+
+        if (mergeIf (cs, cs1, gap))
+        {
+          it1 = container.erase (it1);
+        }
+        else
+        {
+          ++it1;
+        }
+      }
+      else
+      {
+        ++it1;
+      }
+    }
+  }
+}
+
+template<typename Container, typename Getter, typename CondCallback>
+void removeIf (Container& container, Getter&& get, CondCallback&& condition)
+{
+  for (auto it = container.begin(); it != container.end();)
+  {
+    CoordsSection&& cs = get (it);
+    if (condition (cs))
+    {
+      it = container.erase (it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+}
+
+template<typename Container, typename Bitmap1D, typename Getter, typename CoordsCond, typename PixelCond>
+void removeCoordsIf (Container& container, Getter&& get, const Bitmap1D& bitmap1D, size_t width, size_t height, CoordsCond&& ccond, PixelCond&& pcond)
+{
+  removeIf (container, get, [&bitmap1D, &width, &height, &ccond, &pcond](const CoordsSection& cs)
+  {
+    if (ccond(cs))
+    {
+      return true;
+    }
+
+    for (auto it = cs.coords.begin (); it != cs.coords.end (); ++it)
+    {
+      if (!pcond (bitmap1D[it->first + width * it->second]))
+      {
+        return false;
+      }
+    }
+    return true;
+  });
+}
+
+template<typename Container, typename Bitmap1D, typename T, typename Getter>
+void removeIfPixelsAreLower (Container& container, Getter&& get, const Bitmap1D& bitmap1D, size_t width, size_t height, T limit)
+{
+  removeCoordsIf (container, get, bitmap1D, width, height, [](const CoordsSection& cs) { return cs.coords.empty (); }, [&limit](T pixel) { return pixel < limit; });
+}
+
+template<typename Bitmap1D, typename T>
+void removeIfPixelsAreLower (CoordsSectionSet& set, const Bitmap1D& bitmap1D, size_t width, size_t height, T limit)
+{
+  removeIfPixelsAreLower<CoordsSectionSet, Bitmap1D, T> (set, [](CoordsSectionSet::iterator it) { return it->second; }, bitmap1D, width, height, limit);
+}
+
+template<typename Bitmap1D, typename T>
+void removeIfPixelsAreLower (CoordsSectionVec& vec, const Bitmap1D& bitmap1D, size_t width, size_t height, T limit)
+{
+  removeIfPixelsAreLower<CoordsSectionVec, Bitmap1D, T>(vec, [](CoordsSectionVec::iterator it) { return it->second; }, bitmap1D, width, height, limit);
+}
+
+template<typename Container, typename Bitmap1D, typename T, typename Getter>
+void removeIfPixelsAreHigher (Container& container, Getter&& get, const Bitmap1D& bitmap1D, size_t width, size_t height, T limit)
+{
+  removeCoordsIf (container, get, bitmap1D, width, height, [](const CoordsSection& cs) { return cs.coords.empty (); }, [&limit](T pixel) { return pixel > limit; });
+}
+
+template<typename Bitmap1D, typename T>
+void removeIfPixelsAreHigher (CoordsSectionSet& set, const Bitmap1D& bitmap1D, size_t width, size_t height, T limit)
+{
+  removeIfPixelsAreHigher<CoordsSectionSet, Bitmap1D, T> (set, [](CoordsSectionSet::iterator it) { return it->second; }, bitmap1D, width, height, limit);
+}
+
+template<typename Bitmap1D, typename T>
+void removeIfPixelsAreHigher (CoordsSectionVec& vec, const Bitmap1D& bitmap1D, size_t width, size_t height, T limit)
+{
+  removeIfPixelsAreHigher<CoordsSectionVec, Bitmap1D, T> (vec, [](CoordsSectionVec::iterator it) { return it->second; }, bitmap1D, width, height, limit);
+}
+
+inline void mergeIf (CoordsSectionSet& set, size_t gap)
+{
+  mergeIf (set, gap, [](CoordsSectionSet::iterator it) { return it->second; });
+}
+
+inline void mergeIf (CoordsSectionVec& vec, size_t gap)
+{
+  mergeIf (vec, gap, [](CoordsSectionVec::iterator it) { return it->second; });
+}
 
 }
 }

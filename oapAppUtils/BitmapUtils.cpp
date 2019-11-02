@@ -95,17 +95,19 @@ void ConnectedPixels::registerIntoGroup (const Coord& root, std::initializer_lis
     int maxx = std::max (coords, [](const Coord& c1, const Coord& c2) { return x (c1) > x (c2); }).first;
     int maxy = std::max (coords, [](const Coord& c1, const Coord& c2) { return y (c1) > y (c2); }).second;
 
-    m_css[root] = { Coords (coords), {Coord (minx, miny), Coord (maxx, maxy)}};
+    ImageRegion ir = ImageRegion::create (minx, maxx, miny, maxy);
+    m_css[root] = { Coords (coords), ir};
+    m_overlapingSize.replaceIfGreater (ir.x, ir.y);
   }
   else
   {
     auto& pair = *it;
 
-    auto& minx = pair.second.section.min.first;
-    auto& miny = pair.second.section.min.second;
+    auto minx = pair.second.section.x.getp1();
+    auto miny = pair.second.section.y.getp1();
 
-    auto& maxx = pair.second.section.max.first;
-    auto& maxy = pair.second.section.max.second;
+    auto maxx = pair.second.section.x.getp2();
+    auto maxy = pair.second.section.y.getp2();
 
     for (auto it = coords.begin(); it != coords.end(); ++it)
     {
@@ -116,6 +118,10 @@ void ConnectedPixels::registerIntoGroup (const Coord& root, std::initializer_lis
       if (maxx < it->first) { maxx = it->first; }
       if (maxy < it->second) { maxy = it->second; }
     }
+
+    pair.second.section.x.cpp (minx, maxx);
+    pair.second.section.y.cpp (miny, maxy);
+    m_overlapingSize.replaceIfGreater (pair.second.section.x.getl (), pair.second.section.y.getl ());
   }
 }
 
@@ -149,11 +155,16 @@ void ConnectedPixels::removeWithTransfer (const Coord& dst, const Coord& toRemov
     Coords::iterator biter = ifrom->second.coords.begin();
     Coords::iterator eiter = ifrom->second.coords.end();
   
-    ito->second.section.min.first = std::min (ito->second.section.min.first, ifrom->second.section.min.first);
-    ito->second.section.min.second = std::min (ito->second.section.min.second, ifrom->second.section.min.second);
+    size_t minx = std::min (ito->second.section.x.getp1(), ifrom->second.section.x.getp1());
+    size_t miny = std::min (ito->second.section.y.getp1(), ifrom->second.section.y.getp1());
 
-    ito->second.section.max.first = std::max (ito->second.section.max.first, ifrom->second.section.max.first);
-    ito->second.section.max.second = std::max (ito->second.section.max.second, ifrom->second.section.max.second);
+    size_t maxx = std::max (ito->second.section.x.getp2(), ifrom->second.section.x.getp2());
+    size_t maxy = std::max (ito->second.section.y.getp2(), ifrom->second.section.y.getp2());
+
+    ito->second.section.x.setpp (minx, maxx);
+    ito->second.section.y.setpp (miny, maxy);
+
+    m_overlapingSize.replaceIfGreater (ito->second.section.x, ito->second.section.y);
 
     std::copy (biter, eiter, std::inserter (ito->second.coords, ito->second.coords.end ()));
     m_css.erase (ifrom);
@@ -240,11 +251,6 @@ bool ConnectedPixels::checkBottomRight (size_t x, size_t y)
   }
 
   return connectToPixel (x, y, x + 1, y + 1);
-}
-
-void printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride)
-{
-  iterateBitmap (pixels, width, height, stride, [](floatt pixel, size_t x, size_t y){ printf ("%d", pixel < 0.5 ? 0 : 1); }, [](){ printf("\n"); });
 }
 
 }

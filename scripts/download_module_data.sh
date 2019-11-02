@@ -4,7 +4,7 @@ DIR=../$1/data
 
 URL=https://sourceforge.net/projects/openap/files/oap_test_data
 
-DATE=06_02_2019
+DATE=03_11_2019
 if [ "$1" == "oapNeural" ]; then
   DATE=29_10_2019
 fi

@@ -92,7 +92,7 @@ void Image::print (const oap::ImageSection& width, const oap::ImageSection& heig
   std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[rwidth * getOutputHeight().getl()]);
   getFloattVector (pixels.get ());
 
-  oap::bitmap::printBitmap (pixels.get (), width, height, rwidth);
+  oap::bitmap::printBitmapRegion (pixels.get (), width, height, rwidth);
 }
 
 void Image::print ()
