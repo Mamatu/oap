@@ -179,16 +179,16 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_1)
   ASSERT_EQ (2, vec.size());
 
   ASSERT_EQ (1, vec[0].second.coords.size());
-  EXPECT_EQ (1, vec[0].second.section.min.first);
-  EXPECT_EQ (1, vec[0].second.section.min.second);
-  EXPECT_EQ (1, vec[0].second.section.max.first);
-  EXPECT_EQ (1, vec[0].second.section.max.second);
+  EXPECT_EQ (1, vec[0].second.section.x.getp1());
+  EXPECT_EQ (1, vec[0].second.section.y.getp1());
+  EXPECT_EQ (1, vec[0].second.section.x.getp2());
+  EXPECT_EQ (1, vec[0].second.section.y.getp2());
 
   ASSERT_EQ (1, vec[1].second.coords.size());
-  EXPECT_EQ (3, vec[1].second.section.min.first);
-  EXPECT_EQ (2, vec[1].second.section.min.second);
-  EXPECT_EQ (3, vec[1].second.section.max.first);
-  EXPECT_EQ (2, vec[1].second.section.max.second);
+  EXPECT_EQ (3, vec[1].second.section.x.getp1());
+  EXPECT_EQ (2, vec[1].second.section.y.getp1());
+  EXPECT_EQ (3, vec[1].second.section.x.getp2());
+  EXPECT_EQ (2, vec[1].second.section.y.getp2());
 
   enumerateArray (array, dim, dim, [this, &array, &vec](size_t x, size_t y)
   {
@@ -227,10 +227,10 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_2)
 
   EXPECT_EQ (1, vec.size());
   ASSERT_EQ (4, vec[0].second.coords.size());
-  EXPECT_EQ (1, vec[0].second.section.min.first);
-  EXPECT_EQ (1, vec[0].second.section.min.second);
-  EXPECT_EQ (2, vec[0].second.section.max.first);
-  EXPECT_EQ (2, vec[0].second.section.max.second);
+  EXPECT_EQ (1, vec[0].second.section.x.getp1());
+  EXPECT_EQ (1, vec[0].second.section.y.getp1());
+  EXPECT_EQ (2, vec[0].second.section.x.getp2());
+  EXPECT_EQ (2, vec[0].second.section.y.getp2());
 
   checkArray (array, dim, dim, vec[0].second, [](bool b, size_t x, size_t y) { EXPECT_TRUE (b) << "x: " << x << " y: " << y; });
 }
@@ -259,10 +259,10 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_3)
 
   EXPECT_EQ (1, vec.size());
   ASSERT_EQ (13, vec[0].second.coords.size());
-  EXPECT_EQ (3, vec[0].second.section.min.first);
-  EXPECT_EQ (2, vec[0].second.section.min.second);
-  EXPECT_EQ (5, vec[0].second.section.max.first);
-  EXPECT_EQ (7, vec[0].second.section.max.second);
+  EXPECT_EQ (3, vec[0].second.section.x.getp1());
+  EXPECT_EQ (2, vec[0].second.section.y.getp1());
+  EXPECT_EQ (5, vec[0].second.section.x.getp2());
+  EXPECT_EQ (7, vec[0].second.section.y.getp2());
 
   checkArray (array, dim, dim, vec[0].second, [](bool b, size_t x, size_t y) { EXPECT_TRUE (b) << "x: " << x << " y: " << y; });
 }
@@ -290,16 +290,16 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_4)
 
   ASSERT_EQ (2, vec.size());
   EXPECT_EQ (6, vec[0].second.coords.size());
-  EXPECT_EQ (1, vec[0].second.section.min.first);
-  EXPECT_EQ (2, vec[0].second.section.min.second);
-  EXPECT_EQ (2, vec[0].second.section.max.first);
-  EXPECT_EQ (5, vec[0].second.section.max.second);
+  EXPECT_EQ (1, vec[0].second.section.x.getp1());
+  EXPECT_EQ (2, vec[0].second.section.y.getp1());
+  EXPECT_EQ (2, vec[0].second.section.x.getp2());
+  EXPECT_EQ (5, vec[0].second.section.y.getp2());
 
   EXPECT_EQ (10, vec[1].second.coords.size());
-  EXPECT_EQ (4, vec[1].second.section.min.first);
-  EXPECT_EQ (2, vec[1].second.section.min.second);
-  EXPECT_EQ (6, vec[1].second.section.max.first);
-  EXPECT_EQ (5, vec[1].second.section.max.second);
+  EXPECT_EQ (4, vec[1].second.section.x.getp1());
+  EXPECT_EQ (2, vec[1].second.section.y.getp1());
+  EXPECT_EQ (6, vec[1].second.section.x.getp2());
+  EXPECT_EQ (5, vec[1].second.section.y.getp2());
 
   enumerateArray (array, dim, dim, [this, &array, &vec](size_t x, size_t y)
   {
@@ -338,22 +338,22 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_5)
   ASSERT_EQ (3, vec.size());
 
   EXPECT_EQ (13, vec[0].second.coords.size());
-  EXPECT_EQ (0, vec[0].second.section.min.first);
-  EXPECT_EQ (1, vec[0].second.section.min.second);
-  EXPECT_EQ (2, vec[0].second.section.max.first);
-  EXPECT_EQ (7, vec[0].second.section.max.second);
+  EXPECT_EQ (0, vec[0].second.section.x.getp1());
+  EXPECT_EQ (1, vec[0].second.section.y.getp1());
+  EXPECT_EQ (2, vec[0].second.section.x.getp2());
+  EXPECT_EQ (7, vec[0].second.section.y.getp2());
 
   EXPECT_EQ (9, vec[1].second.coords.size());
-  EXPECT_EQ (4, vec[1].second.section.min.first);
-  EXPECT_EQ (1, vec[1].second.section.min.second);
-  EXPECT_EQ (6, vec[1].second.section.max.first);
-  EXPECT_EQ (7, vec[1].second.section.max.second);
+  EXPECT_EQ (4, vec[1].second.section.x.getp1());
+  EXPECT_EQ (1, vec[1].second.section.y.getp1());
+  EXPECT_EQ (6, vec[1].second.section.x.getp2());
+  EXPECT_EQ (7, vec[1].second.section.y.getp2());
 
   EXPECT_EQ (9, vec[2].second.coords.size());
-  EXPECT_EQ (7, vec[2].second.section.min.first);
-  EXPECT_EQ (1, vec[2].second.section.min.second);
-  EXPECT_EQ (9, vec[2].second.section.max.first);
-  EXPECT_EQ (7, vec[2].second.section.max.second);
+  EXPECT_EQ (7, vec[2].second.section.x.getp1());
+  EXPECT_EQ (1, vec[2].second.section.y.getp1());
+  EXPECT_EQ (9, vec[2].second.section.x.getp2());
+  EXPECT_EQ (7, vec[2].second.section.y.getp2());
 
   enumerateArray (array, dim, dim, [this, &array, &vec](size_t x, size_t y)
   {
@@ -396,16 +396,16 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_6)
   ASSERT_EQ (2, vec.size());
 
   EXPECT_EQ (24, vec[0].second.coords.size());
-  EXPECT_EQ (0, vec[0].second.section.min.first);
-  EXPECT_EQ (0, vec[0].second.section.min.second);
-  EXPECT_EQ (5, vec[0].second.section.max.first);
-  EXPECT_EQ (9, vec[0].second.section.max.second);
+  EXPECT_EQ (0, vec[0].second.section.x.getp1());
+  EXPECT_EQ (0, vec[0].second.section.y.getp1());
+  EXPECT_EQ (5, vec[0].second.section.x.getp2());
+  EXPECT_EQ (9, vec[0].second.section.y.getp2());
 
   EXPECT_EQ (27, vec[1].second.coords.size());
-  EXPECT_EQ (2, vec[1].second.section.min.first);
-  EXPECT_EQ (0, vec[1].second.section.min.second);
-  EXPECT_EQ (9, vec[1].second.section.max.first);
-  EXPECT_EQ (9, vec[1].second.section.max.second);
+  EXPECT_EQ (2, vec[1].second.section.x.getp1());
+  EXPECT_EQ (0, vec[1].second.section.y.getp1());
+  EXPECT_EQ (9, vec[1].second.section.x.getp2());
+  EXPECT_EQ (9, vec[1].second.section.y.getp2());
 }
 
 TEST_F(OapBitmapUtilsTests, Test_1DArray_6)
@@ -432,14 +432,14 @@ TEST_F(OapBitmapUtilsTests, Test_1DArray_6)
   ASSERT_EQ (2, vec.size());
 
   EXPECT_EQ (24, vec[0].second.coords.size());
-  EXPECT_EQ (0, vec[0].second.section.min.first);
-  EXPECT_EQ (0, vec[0].second.section.min.second);
-  EXPECT_EQ (5, vec[0].second.section.max.first);
-  EXPECT_EQ (9, vec[0].second.section.max.second);
+  EXPECT_EQ (0, vec[0].second.section.x.getp1());
+  EXPECT_EQ (0, vec[0].second.section.y.getp1());
+  EXPECT_EQ (5, vec[0].second.section.x.getp2());
+  EXPECT_EQ (9, vec[0].second.section.y.getp2());
 
   EXPECT_EQ (27, vec[1].second.coords.size());
-  EXPECT_EQ (2, vec[1].second.section.min.first);
-  EXPECT_EQ (0, vec[1].second.section.min.second);
-  EXPECT_EQ (9, vec[1].second.section.max.first);
-  EXPECT_EQ (9, vec[1].second.section.max.second);
+  EXPECT_EQ (2, vec[1].second.section.x.getp1());
+  EXPECT_EQ (0, vec[1].second.section.y.getp1());
+  EXPECT_EQ (9, vec[1].second.section.x.getp2());
+  EXPECT_EQ (9, vec[1].second.section.y.getp2());
 }
