@@ -320,13 +320,22 @@ TEST_F(OapPngFileTests, LoadRow0)
   EXPECT_EQ (16, csVec.size());
 
   size_t idx = 0, idx1 = 0;
+
+  auto checkPattern = [this, &rs, &idx, &idx1](floatt pixel, size_t x, size_t y)
+  {
+    EXPECT_EQ (Load0RowTest::patterns[idx][idx1][x + rs.width * y], oap::bitmap::pixelFloattToInt (pixel)) << "x: " << x << " y: " << y;
+  };
+
   for (const auto& pair : csVec)
   {
     oap::bitmap::getBitmapFromSection (regionBitmap, rs, vec, pngFile.getOutputWidth().getl(), pngFile.getOutputHeight().getl(), pair.second, 1.f);
-    oap::bitmap::printBitmap (regionBitmap, rs.width, rs.height, [this, &rs, &idx, &idx1](floatt pixel, size_t x, size_t y)
-    {
-      EXPECT_EQ (Load0RowTest::patterns[idx][idx1][x + rs.width * y], oap::bitmap::pixelFloattToInt (pixel));
-    });
+
+#ifdef OAP_PNG_TEST_PRINT_PATTERNS
+    oap::bitmap::printBitmap (regionBitmap, rs.width, rs.height, checkPattern);
+#else
+    oap::bitmap::iterateBitmap (regionBitmap, rs.width, rs.height, checkPattern);
+#endif
+
     this->increase (idx, idx1, 16);
   }
 }
@@ -369,13 +378,20 @@ TEST_F(OapPngFileTests, LoadMnistExamples)
   EXPECT_EQ (160, csVec.size());
 
   size_t idx = 0, idx1 = 0;
+
+  auto checkPattern = [this, &rs, &idx, &idx1](floatt pixel, size_t x, size_t y)
+  {
+    EXPECT_EQ (LoadMnistExamplesTest::patterns[idx][idx1][x + rs.width * y], oap::bitmap::pixelFloattToInt (pixel)) << "x: " << x << " y: " << y;
+  };
+
   for (const auto& pair : csVec)
   {
     oap::bitmap::getBitmapFromSection (regionBitmap, rs, vec, pngFile.getOutputWidth().getl(), pngFile.getOutputHeight().getl(), pair.second, 1.f);
-    oap::bitmap::printBitmap (regionBitmap, rs.width, rs.height, [this, &rs, &idx, &idx1](floatt pixel, size_t x, size_t y)
-    {
-      EXPECT_EQ (LoadMnistExamplesTest::patterns[idx][idx1][x + rs.width * y], oap::bitmap::pixelFloattToInt (pixel));
-    });
+#ifdef OAP_PNG_TEST_PRINT_PATTERNS
+    oap::bitmap::printBitmap (regionBitmap, rs.width, rs.height, checkPattern);
+#else
+    oap::bitmap::iterateBitmap (regionBitmap, rs.width, rs.height, checkPattern);
+#endif
     this->increase (idx, idx1, 16);
   }
   //pngFile.print (oap::ImageSection(55 - 25, 25), oap::ImageSection(40 - 10, 10));
