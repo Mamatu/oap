@@ -288,44 +288,6 @@ TEST_F(OapPngFileTests, LoadDigit0)
   }
 }
 
-TEST_F(OapPngFileTests, LoadDigit0_Remove_Test)
-{
-  std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
-  path = path + "digit_0.png";
-  oap::PngFile pngFile (path, false);
-
-  pngFile.olc ();
-
-  std::vector<floatt> vec = pngFile.getStlFloatVector ();
-
-  size_t width = pngFile.getOutputWidth ().getl ();
-  size_t height = pngFile.getOutputHeight ().getl ();
-
-  oap::bitmap::ConnectedPixels cp = oap::bitmap::ConnectedPixels::process1DArray (vec, width, height, 1);
-  oap::bitmap::CoordsSectionVec csVec = cp.getCoordsSectionVec ();
-
-  using Coord = oap::bitmap::Coord;
-  using CoordsSection = oap::bitmap::CoordsSection;
-
-  std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
-  {
-    return pair1.second.section.lessByPosition (pair2.second.section);
-  });
-
-  oap::RegionSize rs = cp.getOverlapingPaternSize ();
-
-  std::vector<floatt> regionBitmap;
-  regionBitmap.resize (rs.getSize ());
-
-  EXPECT_EQ (1, csVec.size());
-
-  for (const auto& pair : csVec)
-  {
-    oap::bitmap::getBitmapFromSection (regionBitmap, rs, vec, pngFile.getOutputWidth().getl(), pngFile.getOutputHeight().getl(), pair.second, 1.f);
-    oap::bitmap::printBitmap (regionBitmap, rs.width, rs.height);
-  }
-}
-
 TEST_F(OapPngFileTests, LoadRow0)
 {
   std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
