@@ -22,9 +22,9 @@
 
 #include <cstddef>
 #include <cmath>
-#include <stdio.h>
 #include <utility>
 #include <set>
+#include <stdio.h>
 #include <vector>
 #include <map>
 
@@ -190,8 +190,13 @@ ConnectedPixels ConnectedPixels::process2DArray (T2DArray bitmap2D, size_t width
          [](T2DArray bitmap2D, size_t x, size_t y) { return bitmap2D[y][x];});
 }
 
-template<typename Bitmap, typename Callback, typename CallbackNL>
-void iterateBitmap (Bitmap pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride, Callback&& callback, CallbackNL&& cnl)
+namespace
+{
+auto defaultCallbackNL = [](){};
+}
+
+template<typename Bitmap, typename Callback, typename CallbackNL = decltype (defaultCallbackNL)>
+void iterateBitmap (Bitmap pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride, Callback&& callback, CallbackNL&& cnl = std::forward<CallbackNL>(defaultCallbackNL))
 {
   for (size_t y = 0; y < height.getl(); ++y)
   {
@@ -204,6 +209,12 @@ void iterateBitmap (Bitmap pixels, const oap::ImageSection& width, const oap::Im
     cnl ();
   }
   cnl ();
+}
+
+template<typename Bitmap, typename Callback, typename CallbackNL = decltype (defaultCallbackNL)>
+void iterateBitmap (Bitmap pixels, const oap::ImageSection& width, const oap::ImageSection& height, Callback&& callback, CallbackNL&& cnl = std::forward<CallbackNL>(defaultCallbackNL))
+{
+  iterateBitmap (pixels, width, height, width.getl (), callback, cnl);
 }
 
 template<typename Bitmap>
