@@ -326,8 +326,6 @@ TEST_F(OapPngFileTests, LoadMnistExamples)
 
   pngFile.olc ();
 
-  std::vector<floatt> vec = pngFile.getStlFloatVector ();
-
   size_t expectedWidth = 557;
   size_t expectedHeight = 326;
 
