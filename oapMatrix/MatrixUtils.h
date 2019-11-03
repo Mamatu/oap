@@ -115,6 +115,8 @@ class PrintArgs
     std::string postRe = " + ";
     std::string preIm = "i * ";
 
+    bool printIndex = false;
+
     size_t floatPrecision = 9;
 
     enum class FloatPrintMode

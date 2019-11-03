@@ -541,6 +541,16 @@ floatt CuHArnoldi::checkEigenpairsInternally (const EigenPair& eigenPair, floatt
   return outcome;
 }
 
+floatt CuHArnoldi::calcDiffMagnitude (const EigenPair& eigenPair, floatt tolerance)
+{
+  return checkEigenpairsInternally (eigenPair, tolerance);
+}
+
+floatt CuHArnoldi::calcDiffMean (const EigenPair& eigenPair, floatt tolerance)
+{
+  return calcDiffMagnitude (eigenPair, tolerance) / m_matrixInfo.rows();
+}
+
 void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
@@ -644,6 +654,6 @@ floatt CuHArnoldi::testOutcome(size_t index)
   debugAssertMsg (index < m_wanted.size(), "Invalid index.");
 
   traceFunction();
-  floatt outcome = checkEigenpairsInternally(m_wanted[index], 0);
+  floatt outcome = calcDiffMean (m_wanted[index], 0);
   return outcome;
 }

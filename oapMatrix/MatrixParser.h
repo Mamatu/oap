@@ -33,19 +33,19 @@ class Parser
 
  protected:
   bool getValue(uintt& value, const std::string& id) const;
-  bool getArrayStr(std::string& array, unsigned int which) const;
-  bool getArray(std::vector<floatt>& array, const std::string& arrayStr) const;
+  void getArrayStr(std::string& array, unsigned int which) const;
+  void getArray(std::vector<floatt>& array, const std::string& arrayStr) const;
 
-  bool parseElement(std::vector<floatt>& array,
+  void parseElement(std::vector<floatt>& array,
                     const std::string& elementStr) const;
 
-  bool isOneElement(const std::string& elementStr) const;
-  bool parseFloatElement(std::vector<floatt>& array,
+  void isOneElement(const std::string& elementStr) const;
+  void parseFloatElement(std::vector<floatt>& array,
                          const std::string& elementStr) const;
-  bool parseFloatsElement(std::vector<floatt>& array,
+  void parseFloatsElement(std::vector<floatt>& array,
                           const std::string& elementStr) const;
 
-  bool satof(floatt& output, const std::string& str) const;
+  void satof(floatt& output, const std::string& str) const;
 
  public:
   Parser();
@@ -57,20 +57,36 @@ class Parser
   Parser& operator=(const Parser&) = delete;
   Parser& operator=(Parser&&) = delete;
 
+  bool hasArray (unsigned int which);
   void setText(const std::string& text);
 
   bool getColumns(uintt& columns) const;
   bool getRows(uintt& rows) const;
 
-  bool parseArray(unsigned int which);
+  void parseArray(unsigned int which);
 
   floatt getValue(uintt index) const;
 
   size_t getLength() const;
   const floatt* getData() const;
+
+  class ParsingException : public std::exception
+  {
+      std::string exception;
+
+      void merge (const std::string& _msg, const std::string& _code);
+
+    public:
+      ParsingException (const std::string& _msg, const std::string& _code);
+
+      virtual ~ParsingException ();
+
+      virtual const char* what () const throw() override;
+  };
 };
 
-std::pair<floatt*, size_t> CreateArray(const std::string& text, unsigned int which);
+  bool HasArray (const std::string& text, unsigned int which);
+  std::pair<floatt*, size_t> CreateArray (const std::string& text, unsigned int which);
 }
 
 #endif

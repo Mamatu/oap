@@ -90,8 +90,8 @@ endif
 
 ifeq ($(COMPILE_HOST),1)
 OAP_MODULES += oapAppUtils
-OAP_MODULES += oap2dt3dTests
-OAP_MODULES += oap2dt3dFuncTests
+OAP_MODULES += oapAppUtilsTests
+OAP_MODULES += oapAppUtilsFuncTests
 endif
 
 ifeq ($(COMPILE_HOST),1)

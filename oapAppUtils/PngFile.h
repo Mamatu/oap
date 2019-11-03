@@ -36,17 +36,17 @@ class PngFile : public Image
 
     virtual bool read(void* buffer, size_t repeat, size_t size) override;
 
-    virtual oap::OptSize getWidth() const override;
+    virtual oap::ImageSection getWidth() const override;
 
-    virtual oap::OptSize getHeight() const override;
+    virtual oap::ImageSection getHeight() const override;
 
-    virtual void forceOutputWidth(const oap::OptSize& optWidth) override;
+    virtual void forceOutputWidth(const oap::ImageSection& optWidth) override;
 
-    virtual void forceOutputHeight(const oap::OptSize& optHeight) override;
+    virtual void forceOutputHeight(const oap::ImageSection& optHeight) override;
 
-    virtual oap::OptSize getOutputWidth() const override;
+    virtual oap::ImageSection getOutputWidth() const override;
 
-    virtual oap::OptSize getOutputHeight() const override;
+    virtual oap::ImageSection getOutputHeight() const override;
 
     virtual std::string getSufix() const override;
 
@@ -76,15 +76,15 @@ class PngFile : public Image
     virtual void onSave(const std::string& path) override;
     virtual bool saveProtected(const std::string& path) override;
 
-    png_bytep* copyBitmap(const OptSize& width, const OptSize& height);
+    png_bytep* copyBitmap(const ImageSection& width, const ImageSection& height);
 
     png_bytep* createBitmap2D(size_t width, size_t height,
                               size_t colorsCount) const;
 
     void destroyBitmap2d(png_bytep* bitmap2d, size_t height) const;
 
-    png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d, const OptSize& optWidth,
-                                   const OptSize& optHeight, size_t colorsCount);
+    png_byte* createBitmap1dFrom2d(png_bytep* bitmap2d, const ImageSection& optWidth,
+                                   const ImageSection& optHeight, size_t colorsCount);
 
     oap::pixel_t* createPixelsVectorFrom1d(png_byte* bitmap1d,
                                            size_t width, size_t height,
@@ -108,8 +108,8 @@ class PngFile : public Image
 
     void destroyPixels();
 
-    oap::OptSize m_optWidth;
-    oap::OptSize m_optHeight;
+    oap::ImageSection m_optWidth;
+    oap::ImageSection m_optHeight;
 
     FILE* m_fp;
     png_structp m_png_ptr;

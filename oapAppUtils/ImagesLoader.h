@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATALOADER_H
-#define DATALOADER_H
+#ifndef OAP_IMAGES_LOADER_H
+#define OAP_IMAGES_LOADER_H
 
 #include <string>
 #include <vector>
@@ -34,10 +34,9 @@ namespace oap {
 
 typedef std::vector<oap::Image*> Images;
 
-class DataLoader {
+class ImagesLoader {
  public:
-  DataLoader(const Images& images, bool dealocateImages = false,
-             bool lazyMode = true);
+  ImagesLoader (const Images& images, bool dealocateImages = false, bool lazyMode = true);
 
   class Info {
 
@@ -58,11 +57,11 @@ class DataLoader {
         return !m_dirPath.empty() && !m_nameBase.empty() && m_loadFilesCount > 0;
       }
 
-      friend class DataLoader;
+      friend class ImagesLoader;
   };
 
   /**
-   * @brief Creates specified DataLoader instance and loads
+   * @brief Creates specified ImagesLoader instance and loads
    *        images from specified path. Images in dir should have
    *        name contained nameBase_N.type, where nameBase is some
    *        string of chars, N - is number (without padding),
@@ -79,7 +78,7 @@ class DataLoader {
    *        image_99.png
    *
    * @param T               derived class of Image class
-   * @param DL              derived class of or DataLoader class
+   * @param DL              derived class of or ImagesLoader class
    * @param dirPath         path to directory with images
    * @param nameBase        core of file name
    * @param loadFilesCount  count of images to load
@@ -88,8 +87,8 @@ class DataLoader {
    *                        will be loaded one time and kept in memory
    *
    */
-  template <typename T, typename DL = oap::DataLoader>
-  static DL* createDataLoader(const std::string& dirPath, const std::string& nameBase,
+  template <typename T, typename DL = oap::ImagesLoader>
+  static DL* createImagesLoader(const std::string& dirPath, const std::string& nameBase,
                               size_t loadFilesCount, bool lazyMode = true)
   {
     const std::string& imageBasePath = constructAbsPath(dirPath);
@@ -100,19 +99,19 @@ class DataLoader {
   }
 
   /**
-   * @brief Creates DataLoader from information from Info instance.
+   * @brief Creates ImagesLoader from information from Info instance.
    */
-  template <typename T, typename DL = oap::DataLoader>
-  static DL* createDataLoader(const oap::DataLoader::Info& info)
+  template <typename T, typename DL = oap::ImagesLoader>
+  static DL* createImagesLoader(const oap::ImagesLoader::Info& info)
   {
-    return createDataLoader<T, DL>(info.m_dirPath, info.m_nameBase,
+    return createImagesLoader<T, DL>(info.m_dirPath, info.m_nameBase,
                             info.m_loadFilesCount, info.m_lazyMode);
   }
 
-  virtual ~DataLoader();
+  virtual ~ImagesLoader();
 
   /**
-   * @brief Creates matrix from sets of pngDataLoader
+   * @brief Creates matrix from sets of pngImagesLoader
    * @return matrix in host space
    */
   math::Matrix* createMatrix();
@@ -126,22 +125,19 @@ class DataLoader {
   math::Matrix* createRowVector(size_t index);
 
   /**
-   * @brief Gets Matrxinfo from set of pngDataLoader
+   * @brief Gets Matrxinfo from set of pngImagesLoader
    * @return
    */
   math::MatrixInfo getMatrixInfo() const;
 
  protected:
-  static std::string constructAbsPath(const std::string& basePath);
+  static std::string constructAbsPath (const std::string& basePath);
 
-  static std::string constructImagePath(const std::string& absPath,
-                                        const std::string& nameBase,
-                                        size_t index);
+  static std::string constructImagePath (const std::string& absPath, const std::string& nameBase, size_t index);
 
   template <typename T>
-  static oap::Images createImagesVector(const std::string& imageAbsPath,
-                                        const std::string& nameBase,
-                                        size_t loadFilesCount) {
+  static oap::Images createImagesVector (const std::string& imageAbsPath, const std::string& nameBase, size_t loadFilesCount)
+  {
     oap::Images images;
 
     for (size_t fa = 0; fa < loadFilesCount; ++fa) {
@@ -174,13 +170,10 @@ class DataLoader {
                         size_t imageIndex);
 
   void load();
-  void executeLoadProcess(const oap::OptSize& optWidthRef,
-                          const oap::OptSize& optHeightRef, size_t begin,
-                          size_t end);
+  void executeLoadProcess (const oap::ImageSection& optWidthRef, const oap::ImageSection& optHeightRef, size_t begin, size_t end);
   void loadImage(oap::Image* iamge) const;
   void freeBitmaps(size_t begin, size_t end);
-  void forceOutputSizes(const oap::OptSize& width, const oap::OptSize& height,
-                        size_t begin, size_t end);
+  void forceOutputSizes(const oap::ImageSection& width, const oap::ImageSection& height, size_t begin, size_t end);
 
   void cleanImageStuff();
 

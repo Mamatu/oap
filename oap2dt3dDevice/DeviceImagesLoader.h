@@ -20,19 +20,19 @@
 #ifndef DEVICEDATALOADER_H
 #define DEVICEDATALOADER_H
 
-#include "DataLoader.h"
+#include "ImagesLoader.h"
 
 namespace oap {
 
-class DeviceDataLoader : public DataLoader {
+class DeviceImagesLoader : public ImagesLoader {
  public:
-  DeviceDataLoader(const Images& images, bool dealocateImages = false,
+  DeviceImagesLoader(const Images& images, bool dealocateImages = false,
                    bool frugalMode = true);
 
-  virtual ~DeviceDataLoader();
+  virtual ~DeviceImagesLoader();
 
   /**
-   * @brief Creates device matrix from set of pngDataLoader
+   * @brief Creates device matrix from set of pngImagesLoader
    * @return matrix in device space
    */
   math::Matrix* createDeviceMatrix();

@@ -52,35 +52,14 @@ class OapPngFileTests : public testing::Test {
 
     MOCK_METHOD0(closeProtected, void());
 
-    MOCK_CONST_METHOD0(getWidth, oap::OptSize());
+    MOCK_CONST_METHOD0(getWidth, oap::ImageSection());
 
-    MOCK_CONST_METHOD0(getHeight, oap::OptSize());
+    MOCK_CONST_METHOD0(getHeight, oap::ImageSection());
 
     MOCK_CONST_METHOD1(getPixelsVector, void(oap::pixel_t*));
 
     MOCK_CONST_METHOD0(getSufix, std::string());
   };
-
-  template<typename Callback, typename CallbackNL>
-  void iterateBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height, Callback&& callback, CallbackNL&& cnl)
-  {
-    for (size_t y = 0; y < height.optSize; ++y)
-    {
-      for (size_t x = 0; x < width.optSize; ++x)
-      {
-        floatt value = pixels[x + width.optSize * y];
-        int pvalue = value > 0.5 ? 1 : 0;
-        callback (pvalue, x, y);
-      }
-      cnl ();
-    }
-    cnl ();
-  }
-
-  void printBitmap (floatt* pixels, const oap::OptSize& width, const oap::OptSize& height)
-  {
-    iterateBitmap (pixels, width, height, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
-  }
 
   void saveImage (oap::PngFile* pngFile, const std::string& tmp, const std::string& fileName)
   {
@@ -97,6 +76,27 @@ class OapPngFileTests : public testing::Test {
     pngFile->save (sstream.str ());
   }
 
+  template<typename Callback, typename CallbackNL>
+  void iterateBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height, Callback&& callback, CallbackNL&& cnl)
+  {
+    for (size_t y = 0; y < height.getl(); ++y)
+    {
+      for (size_t x = 0; x < width.getl(); ++x)
+      {
+        floatt value = pixels[x + width.getl() * y];
+        int pvalue = value > 0.5 ? 1 : 0;
+        callback (pvalue, x, y);
+      }
+      cnl ();
+    }
+    cnl ();
+  }
+
+  void printBitmap (floatt* pixels, const oap::ImageSection& width, const oap::ImageSection& height)
+  {
+    iterateBitmap (pixels, width, height, [](int pixel, size_t x, size_t y){ printf ("%d", pixel); }, [](){ printf("\n"); });
+  }
+
   void print (char letter, bool truncate, const std::vector<int>& pattern = {}, const std::string& fileName = "")
   {
     std::stringstream sstream;
@@ -109,16 +109,16 @@ class OapPngFileTests : public testing::Test {
 
     png.getFloattVector (pixels.get ());
 
-    EXPECT_EQ(20, png.getWidth().optSize + png.getWidth().begin);
-    EXPECT_EQ(20, png.getHeight().optSize + png.getHeight().begin);
-    EXPECT_GE(20, png.getOutputWidth().optSize + png.getOutputWidth().begin);
-    EXPECT_GE(20, png.getOutputHeight().optSize + png.getOutputHeight().begin);
-    EXPECT_EQ(png.getOutputWidth().optSize * png.getOutputHeight().optSize, png.getLength ());
+    EXPECT_EQ(20, png.getWidth().getl() + png.getWidth().getp());
+    EXPECT_EQ(20, png.getHeight().getl() + png.getHeight().getp());
+    EXPECT_GE(20, png.getOutputWidth().getl() + png.getOutputWidth().getp());
+    EXPECT_GE(20, png.getOutputHeight().getl() + png.getOutputHeight().getp());
+    EXPECT_EQ(png.getOutputWidth().getl() * png.getOutputHeight().getl(), png.getLength ());
 
-    const oap::OptSize& height = png.getOutputHeight ();
-    const oap::OptSize& width = png.getOutputWidth ();
+    const oap::ImageSection& height = png.getOutputHeight ();
+    const oap::ImageSection& width = png.getOutputWidth ();
 
-    debugInfo ("%lu %lu %lu %lu \n", height.begin, height.optSize, width.begin, width.optSize);
+    debugInfo ("%lu %lu %lu %lu \n", height.getp(), height.getl(), width.getp(), width.getl());
 
     printBitmap (pixels.get (), width, height);
     if (pattern.empty() == false)

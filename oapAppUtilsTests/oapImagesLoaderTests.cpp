@@ -18,7 +18,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "DataLoader.h"
+#include "ImagesLoader.h"
 #include "Matrix.h"
 #include "oapHostMatrixUtils.h"
 #include "MatrixAPI.h"
@@ -28,33 +28,33 @@
 
 using namespace ::testing;
 
-class OapDataLoaderTests : public testing::Test {
+class OapImagesLoaderTests : public testing::Test {
  public:
   virtual void SetUp() {}
 
   virtual void TearDown() {}
 
- public:  // DataLoaderProxy type
-  class DataLoaderProxy : public oap::DataLoader {
+ public:  // ImagesLoaderProxy type
+  class ImagesLoaderProxy : public oap::ImagesLoader {
    public:
     static oap::Images m_emptyImages;
-    DataLoaderProxy() : DataLoader(m_emptyImages) {}
+    ImagesLoaderProxy() : ImagesLoader(m_emptyImages) {}
 
     static std::string constructAbsPath(const std::string& basePath) {
-      return oap::DataLoader::constructAbsPath(basePath);
+      return oap::ImagesLoader::constructAbsPath(basePath);
     }
 
     static std::string constructImagePath(const std::string& absPath,
                                           const std::string& nameBase,
                                           size_t index) {
-      return oap::DataLoader::constructImagePath(absPath, nameBase, index);
+      return oap::ImagesLoader::constructImagePath(absPath, nameBase, index);
     }
   };
 };
 
-oap::Images OapDataLoaderTests::DataLoaderProxy::m_emptyImages;
+oap::Images OapImagesLoaderTests::ImagesLoaderProxy::m_emptyImages;
 
-TEST_F(OapDataLoaderTests, LoadFail) {
+TEST_F(OapImagesLoaderTests, LoadFail) {
   NiceImageMock imageMock;
 
   EXPECT_CALL(imageMock, openProtected(_)).Times(1).WillOnce(Return(false));
@@ -62,11 +62,11 @@ TEST_F(OapDataLoaderTests, LoadFail) {
   oap::Images images;
   images.push_back(&imageMock);
 
-  EXPECT_THROW(oap::DataLoader pngDataLoader(images),
+  EXPECT_THROW(oap::ImagesLoader pngImagesLoader(images),
                oap::exceptions::FileNotExist);
 }
 
-TEST_F(OapDataLoaderTests, FailVerification) {
+TEST_F(OapImagesLoaderTests, FailVerification) {
   NiceImageMock imageMock;
 
   EXPECT_CALL(imageMock, openProtected(_)).Times(1).WillOnce(Return(true));
@@ -76,11 +76,11 @@ TEST_F(OapDataLoaderTests, FailVerification) {
   oap::Images images;
   images.push_back(&imageMock);
 
-  EXPECT_THROW(oap::DataLoader dataLoader(images),
+  EXPECT_THROW(oap::ImagesLoader dataLoader(images),
                oap::exceptions::NotCorrectFormat);
 }
 
-TEST_F(OapDataLoaderTests, Load) {
+TEST_F(OapImagesLoaderTests, Load) {
   NiceImageMock imageMock;
 
   EXPECT_CALL(imageMock, openProtected(_)).Times(1).WillOnce(Return(true));
@@ -104,10 +104,10 @@ TEST_F(OapDataLoaderTests, Load) {
   oap::Images images;
   images.push_back(&imageMock);
 
-  EXPECT_NO_THROW(oap::DataLoader dataLoader(images));
+  EXPECT_NO_THROW(oap::ImagesLoader dataLoader(images));
 }
 
-TEST_F(OapDataLoaderTests, Matrix4x4FromImage) {
+TEST_F(OapImagesLoaderTests, Matrix4x4FromImage) {
   const oap::pixel_t pv = oap::Image::getPixelMax();
   oap::pixel_t pixels[16] = {pv, pv, pv, pv, pv, pv, pv, pv,
                              pv, pv, pv, pv, pv, pv, pv, pv};
@@ -118,7 +118,7 @@ TEST_F(OapDataLoaderTests, Matrix4x4FromImage) {
     images.push_back(new NicePngFileMock(pixels, 4, 2, 2));
     images.push_back(new NicePngFileMock(pixels, 4, 2, 2));
 
-    oap::DataLoader dataLoader(images, true);
+    oap::ImagesLoader dataLoader(images, true);
 
     math::Matrix* matrix = dataLoader.createMatrix();
 
@@ -137,26 +137,26 @@ TEST_F(OapDataLoaderTests, Matrix4x4FromImage) {
   }
 }
 
-TEST_F(OapDataLoaderTests, ContructAbsPathTest) {
-  DataLoaderProxy dataLoaderProxy;
+TEST_F(OapImagesLoaderTests, ContructAbsPathTest) {
+  ImagesLoaderProxy dataLoaderProxy;
 }
 
-TEST_F(OapDataLoaderTests, ContructImagePathTest) {
+TEST_F(OapImagesLoaderTests, ContructImagePathTest) {
   EXPECT_EQ("abs/image0",
-            DataLoaderProxy::constructImagePath("abs/", "image", 0));
+            ImagesLoaderProxy::constructImagePath("abs/", "image", 0));
   EXPECT_EQ("abs/image1",
-            DataLoaderProxy::constructImagePath("abs/", "image", 1));
+            ImagesLoaderProxy::constructImagePath("abs/", "image", 1));
   EXPECT_EQ("abs/image2",
-            DataLoaderProxy::constructImagePath("abs/", "image", 2));
+            ImagesLoaderProxy::constructImagePath("abs/", "image", 2));
   EXPECT_EQ("abs/image3",
-            DataLoaderProxy::constructImagePath("abs/", "image", 3));
+            ImagesLoaderProxy::constructImagePath("abs/", "image", 3));
   EXPECT_EQ("abs/image4",
-            DataLoaderProxy::constructImagePath("abs/", "image", 4));
+            ImagesLoaderProxy::constructImagePath("abs/", "image", 4));
   EXPECT_EQ("abs/image5",
-            DataLoaderProxy::constructImagePath("abs/", "image", 5));
+            ImagesLoaderProxy::constructImagePath("abs/", "image", 5));
 }
 
-TEST_F(OapDataLoaderTests, CreateImagesVectorTest) {
+TEST_F(OapImagesLoaderTests, CreateImagesVectorTest) {
   class ImageProxy : public ImageMock {
    public:
     ImageProxy(const std::string& path) : ImageMock(path), m_path(path) {}
@@ -169,12 +169,12 @@ TEST_F(OapDataLoaderTests, CreateImagesVectorTest) {
     std::string m_path;
   };
 
-  class DataLoaderProxy : public oap::DataLoader {
+  class ImagesLoaderProxy : public oap::ImagesLoader {
    public:
     static oap::Images createImagesVector(const std::string& imageAbsPath,
                                           const std::string& nameBase,
                                           size_t loadCount) {
-      return oap::DataLoader::createImagesVector<ImageProxy>(
+      return oap::ImagesLoader::createImagesVector<ImageProxy>(
           imageAbsPath, nameBase, loadCount);
     }
   };
@@ -182,7 +182,7 @@ TEST_F(OapDataLoaderTests, CreateImagesVectorTest) {
   size_t count = 1000;
 
   oap::Images images =
-      DataLoaderProxy::createImagesVector("dir1/dir2/", "image_", count);
+      ImagesLoaderProxy::createImagesVector("dir1/dir2/", "image_", count);
 
   for (size_t fa = 0; fa < images.size(); ++fa) {
     oap::Image* image = images[fa];
@@ -198,7 +198,7 @@ TEST_F(OapDataLoaderTests, CreateImagesVectorTest) {
 
 class HaveSizesMatcher : public MatcherInterface<const oap::Images&> {
  public:
-  HaveSizesMatcher(const oap::OptSize& optWidth, const oap::OptSize& optHeight)
+  HaveSizesMatcher(const oap::ImageSection& optWidth, const oap::ImageSection& optHeight)
       : m_optWidth(optWidth), m_optHeight(optHeight) {}
 
   virtual bool MatchAndExplain(const oap::Images& images,
@@ -208,18 +208,17 @@ class HaveSizesMatcher : public MatcherInterface<const oap::Images&> {
 
     *listener << "{";
 
-    for (oap::Images::const_iterator it = images.begin(); it != images.end();
-         ++it) {
-      if ((*it)->getOutputWidth().optSize != m_optWidth.optSize) {
+    for (oap::Images::const_iterator it = images.begin(); it != images.end(); ++it) {
+      if ((*it)->getOutputWidth().getl() != m_optWidth.getl()) {
         hasWidth = false;
       }
 
-      if ((*it)->getOutputHeight().optSize != m_optWidth.optSize) {
+      if ((*it)->getOutputHeight().getl() != m_optWidth.getl()) {
         hasHeight = false;
       }
 
-      *listener << "{" << (*it)->getOutputWidth().optSize << ", "
-                << (*it)->getOutputHeight().optSize << "}";
+      *listener << "{" << (*it)->getOutputWidth().getl() << ", "
+                << (*it)->getOutputHeight().getl() << "}";
     }
 
     *listener << "}";
@@ -228,25 +227,25 @@ class HaveSizesMatcher : public MatcherInterface<const oap::Images&> {
   }
 
   virtual void DescribeTo(::std::ostream* os) const {
-    *os << "have sizes: " << m_optWidth.optSize << " " << m_optHeight.optSize;
+    *os << "have sizes: " << m_optWidth.getl() << " " << m_optHeight.getl();
   }
 
   virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "have not sizes: " << m_optWidth.optSize << " "
-        << m_optHeight.optSize;
+    *os << "have not sizes: " << m_optWidth.getl() << " "
+        << m_optHeight.getl();
   }
 
  private:
-  oap::OptSize m_optWidth;
-  oap::OptSize m_optHeight;
+  oap::ImageSection m_optWidth;
+  oap::ImageSection m_optHeight;
 };
 
-inline Matcher<const oap::Images&> HaveSizes(const oap::OptSize& optWidth,
-                                             const oap::OptSize& optHeight) {
+inline Matcher<const oap::Images&> HaveSizes(const oap::ImageSection& optWidth,
+                                             const oap::ImageSection& optHeight) {
   return MakeMatcher(new HaveSizesMatcher(optWidth, optHeight));
 }
 
-TEST_F(OapDataLoaderTests, LoadProcessTest) {
+TEST_F(OapImagesLoaderTests, LoadProcessTest) {
   NicePngFileMock pfm1(10, 10);
   NicePngFileMock pfm2(20, 20);
   NicePngFileMock pfm3(30, 30);
@@ -256,12 +255,12 @@ TEST_F(OapDataLoaderTests, LoadProcessTest) {
   EXPECT_CALL(pfm3, loadBitmapProtected()).Times(1);
 
   oap::Images images = {&pfm1, &pfm2, &pfm3};
-  oap::DataLoader dataLoader(images);
+  oap::ImagesLoader dataLoader(images);
 
   EXPECT_THAT(images, HaveSizes(30, 30));
 }
 
-TEST_F(OapDataLoaderTests, LoadProcessTest1) {
+TEST_F(OapImagesLoaderTests, LoadProcessTest1) {
   NicePngFileMock pfm1(10, 10);
   NicePngFileMock pfm2(20, 20);
   NicePngFileMock pfm3(30, 30);
@@ -277,12 +276,12 @@ TEST_F(OapDataLoaderTests, LoadProcessTest1) {
   EXPECT_CALL(pfm6, loadBitmapProtected()).Times(1);
 
   oap::Images images = {&pfm1, &pfm2, &pfm3, &pfm4, &pfm5, &pfm6};
-  oap::DataLoader dataLoader(images);
+  oap::ImagesLoader dataLoader(images);
 
   EXPECT_THAT(images, HaveSizes(50, 50));
 }
 
-TEST_F(OapDataLoaderTests, LoadProcessTest2) {
+TEST_F(OapImagesLoaderTests, LoadProcessTest2) {
   NicePngFileMock pfm1(10, 10);
   NicePngFileMock pfm2(20, 20);
   NicePngFileMock pfm3(30, 30);
@@ -298,12 +297,12 @@ TEST_F(OapDataLoaderTests, LoadProcessTest2) {
   EXPECT_CALL(pfm6, loadBitmapProtected()).Times(2);
 
   oap::Images images = {&pfm1, &pfm2, &pfm3, &pfm4, &pfm5, &pfm6};
-  oap::DataLoader dataLoader(images);
+  oap::ImagesLoader dataLoader(images);
 
   EXPECT_THAT(images, HaveSizes(50, 50));
 }
 
-TEST_F(OapDataLoaderTests, LoadProcessTest3) {
+TEST_F(OapImagesLoaderTests, LoadProcessTest3) {
   oap::Images images;
   for (size_t fa = 0; fa < 100; ++fa) {
     images.push_back(new NicePngFileMock(fa, fa));
@@ -313,12 +312,12 @@ TEST_F(OapDataLoaderTests, LoadProcessTest3) {
     images.push_back(new NicePngFileMock(fa, fa));
   }
 
-  oap::DataLoader dataLoader(images, true);
+  oap::ImagesLoader dataLoader(images, true);
 
   EXPECT_THAT(images, HaveSizes(102, 102));
 }
 
-TEST_F(OapDataLoaderTests, LoadProcessTest4) {
+TEST_F(OapImagesLoaderTests, LoadProcessTest4) {
   oap::Images images;
   for (size_t fa = 0; fa < 100; ++fa) {
     images.push_back(new NicePngFileMock(fa, fa));
@@ -327,7 +326,7 @@ TEST_F(OapDataLoaderTests, LoadProcessTest4) {
     images.push_back(new NicePngFileMock(fa, fa));
   }
 
-  oap::DataLoader dataLoader(images, true);
+  oap::ImagesLoader dataLoader(images, true);
 
   EXPECT_THAT(images, HaveSizes(99, 99));
 }

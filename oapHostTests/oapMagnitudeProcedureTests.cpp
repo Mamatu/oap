@@ -390,7 +390,7 @@ TEST_F(OapMagnitudeTests, MagnitudeParsingBigData) {
 TEST_F(OapMagnitudeTests, MagnitudeParsing1) {
   std::string text =
       "(columns=1, rows=32) [0, -0.25 <repeats 2 times>, 0, -0.25, 0 "
-      "<repeats 3 times>, -0.25, 0 <repeats 7 times>, -0.25, 0 <repeats 15 "
+      "<repeats 3 times>, -0.25, 0 <repeats 7 times>, -0.25, 0 <repeats 15>]"
       "(length=32) [0 <repeats "
       "32 times>] (length=16384)";
 

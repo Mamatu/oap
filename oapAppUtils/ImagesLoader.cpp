@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DataLoader.h"
+#include "ImagesLoader.h"
 #include "Exceptions.h"
 #include "PngFile.h"
 #include "Config.h"
@@ -30,22 +30,25 @@
 
 namespace oap {
 
-DataLoader::DataLoader(const Images& images, bool dealocateImages,
+ImagesLoader::ImagesLoader(const Images& images, bool dealocateImages,
                        bool lazyMode)
     : m_images(images),
       m_deallocateImages(dealocateImages),
       m_lazyMode(lazyMode),
-      m_matrixFileDir("/tmp/Oap/conversion_data") {
+      m_matrixFileDir("/tmp/Oap/conversion_data")
+{
   load();
 }
 
-DataLoader::~DataLoader() { cleanImageStuff(); }
+ImagesLoader::~ImagesLoader() { cleanImageStuff(); }
 
-math::Matrix* DataLoader::createMatrix() {
+math::Matrix* ImagesLoader::createMatrix()
+{
   return createMatrix(0, m_images.size());
 }
 
-math::Matrix* DataLoader::createMatrix(uintt index, uintt length) {
+math::Matrix* ImagesLoader::createMatrix(uintt index, uintt length)
+{
   const size_t refLength = m_images[0]->getLength();
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
@@ -65,13 +68,13 @@ math::Matrix* DataLoader::createMatrix(uintt index, uintt length) {
   return hostMatrix;
 }
 
-math::Matrix* DataLoader::createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
+math::Matrix* ImagesLoader::createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
 {
   math::Matrix* matrix = createMatrix();
   return oap::host::NewSubMatrix(matrix, cindex, rindex, columns, rows);
 }
 
-math::Matrix* DataLoader::createColumnVector(size_t index) {
+math::Matrix* ImagesLoader::createColumnVector(size_t index) {
   const size_t refLength = m_images[0]->getLength();
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
@@ -89,7 +92,7 @@ math::Matrix* DataLoader::createColumnVector(size_t index) {
   return hostMatrix;
 }
 
-math::Matrix* DataLoader::createRowVector(size_t index) {
+math::Matrix* ImagesLoader::createRowVector(size_t index) {
   createDataMatrixFiles();
 
   math::Matrix* matrix = oap::host::ReadRowVector(m_file, index);
@@ -99,14 +102,14 @@ math::Matrix* DataLoader::createRowVector(size_t index) {
   return matrix;
 }
 
-math::MatrixInfo DataLoader::getMatrixInfo() const {
+math::MatrixInfo ImagesLoader::getMatrixInfo() const {
   const uintt width = m_images.size();
   const uintt height = m_images[0]->getLength();
 
   return math::MatrixInfo(true, false, width, height);
 }
 
-std::string DataLoader::constructAbsPath(const std::string& dirPath) {
+std::string ImagesLoader::constructAbsPath(const std::string& dirPath) {
   std::string path;
 
   if (dirPath[0] != '/') {
@@ -122,7 +125,7 @@ std::string DataLoader::constructAbsPath(const std::string& dirPath) {
   return path;
 }
 
-std::string DataLoader::constructImagePath(const std::string& absPath,
+std::string ImagesLoader::constructImagePath(const std::string& absPath,
                                            const std::string& nameBase,
                                            size_t index)
 {
@@ -134,12 +137,12 @@ std::string DataLoader::constructImagePath(const std::string& absPath,
   return imagePath;
 }
 
-size_t DataLoader::getImagesCount() const { return m_images.size(); }
+size_t ImagesLoader::getImagesCount() const { return m_images.size(); }
 
-oap::Image* DataLoader::getImage(size_t index) const { return m_images[index]; }
+oap::Image* ImagesLoader::getImage(size_t index) const { return m_images[index]; }
 
-void DataLoader::loadColumnVector(math::Matrix* matrix, size_t column,
-                                  floatt* vec, size_t imageIndex) {
+void ImagesLoader::loadColumnVector(math::Matrix* matrix, size_t column, floatt* vec, size_t imageIndex)
+{
   const size_t refLength = m_images[0]->getLength();
 
   Image* it = m_images[imageIndex];
@@ -161,36 +164,41 @@ void DataLoader::loadColumnVector(math::Matrix* matrix, size_t column,
   oap::host::SetReVector(matrix, column, vec, refLength);
 }
 
-void DataLoader::load() {
-  oap::OptSize optWidth;
-  oap::OptSize optHeight;
+void ImagesLoader::load() {
+  oap::ImageSection optWidth;
+  oap::ImageSection optHeight;
   executeLoadProcess(optWidth, optHeight, 0, m_images.size());
 }
 
-void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
-                                    const oap::OptSize& optHeightRef,
-                                    size_t begin, size_t end) {
-  oap::OptSize refOptWidth = optWidthRef;
-  oap::OptSize refOptHeight = optHeightRef;
+void ImagesLoader::executeLoadProcess (const oap::ImageSection& optWidthRef, const oap::ImageSection& optHeightRef, size_t begin, size_t end)
+{
+  oap::ImageSection refOptWidth = optWidthRef;
+  oap::ImageSection refOptHeight = optHeightRef;
 
-  std::function<void(Image*, const oap::OptSize&)> setWidthFunc =
+  std::function<void(Image*, const oap::ImageSection&)> setWidthFunc =
       &Image::forceOutputWidth;
 
-  std::function<void(Image*, const oap::OptSize&)> setHeightFunc =
+  std::function<void(Image*, const oap::ImageSection&)> setHeightFunc =
       &Image::forceOutputHeight;
 
   bool needreload = false;
   bool previousneedreload = false;
 
   auto verifyReloadConds = [&needreload, &previousneedreload](
-      std::function<void(Image*, const oap::OptSize&)>& setter,
-      oap::Image* image, oap::OptSize& refOptSize, oap::OptSize& imageOptSize) {
-    if (refOptSize.optSize == 0) {
+      std::function<void(Image*, const oap::ImageSection&)>& setter,
+      oap::Image* image, oap::ImageSection& refOptSize, oap::ImageSection& imageOptSize) {
+
+    if (refOptSize.getl() == 0)
+    {
       refOptSize = imageOptSize;
-    } else if (imageOptSize.optSize < refOptSize.optSize) {
+    }
+    else if (imageOptSize.getl() < refOptSize.getl())
+    {
       setter(image, refOptSize);
       needreload = true;
-    } else if (imageOptSize.optSize > refOptSize.optSize) {
+    }
+    else if (imageOptSize.getl() > refOptSize.getl())
+    {
       previousneedreload = true;
       refOptSize = imageOptSize;
     }
@@ -201,9 +209,9 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
 
     loadImage(image);
 
-    oap::OptSize imageOptWidth = image->getOutputWidth();
+    oap::ImageSection imageOptWidth = image->getOutputWidth();
 
-    oap::OptSize imageOptHeight = image->getOutputHeight();
+    oap::ImageSection imageOptHeight = image->getOutputHeight();
 
     needreload = false;
     previousneedreload = false;
@@ -227,28 +235,28 @@ void DataLoader::executeLoadProcess(const oap::OptSize& optWidthRef,
   }
 }
 
-void DataLoader::loadImage(oap::Image* image) const {
+void ImagesLoader::loadImage(oap::Image* image) const {
   image->open();
   image->loadBitmap();
   image->close();
 }
 
-void DataLoader::freeBitmaps(size_t begin, size_t end) {
+void ImagesLoader::freeBitmaps(size_t begin, size_t end) {
   for (size_t fa = begin; fa < end; ++fa) {
     m_images[fa]->freeBitmap();
   }
 }
 
-void DataLoader::forceOutputSizes(const oap::OptSize& width,
-                                  const oap::OptSize& height, size_t begin,
-                                  size_t end) {
-  for (size_t fa = begin; fa < end; ++fa) {
+void ImagesLoader::forceOutputSizes (const oap::ImageSection& width, const oap::ImageSection& height, size_t begin, size_t end)
+{
+  for (size_t fa = begin; fa < end; ++fa)
+  {
     m_images[fa]->forceOutputWidth(width);
     m_images[fa]->forceOutputHeight(height);
   }
 }
 
-void DataLoader::cleanImageStuff() {
+void ImagesLoader::cleanImageStuff() {
   for (oap::Image* image : m_images) {
     if (image != NULL) {
       image->freeBitmap();
@@ -260,7 +268,7 @@ void DataLoader::cleanImageStuff() {
   m_images.clear();
 }
 
-void DataLoader::createDataMatrixFiles() {
+void ImagesLoader::createDataMatrixFiles() {
   if (m_file.length() == 0) {
     math::Matrix* matrix = createMatrix();
 

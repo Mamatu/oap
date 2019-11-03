@@ -18,9 +18,11 @@
  */
 
 #include "Image.h"
-#include "Exceptions.h"
 
 #include <memory>
+
+#include "BitmapUtils.h"
+#include "Exceptions.h"
 
 namespace oap
 {
@@ -64,6 +66,43 @@ void Image::freeBitmap()
   }
 }
 
+void Image::olc ()
+{
+  open ();
+  loadBitmap ();
+  close ();
+}
+
+std::vector<floatt> Image::getStlFloatVector ()
+{
+  size_t size = getOutputHeight().getl() * getOutputWidth().getl();
+
+  std::vector<floatt> vec;
+  vec.resize (size);
+
+  getFloattVector (vec);
+
+  return vec;
+}
+
+void Image::print (const oap::ImageSection& width, const oap::ImageSection& height)
+{
+  size_t rwidth = getOutputWidth().getl();
+
+  std::unique_ptr<floatt[]> pixels = std::unique_ptr<floatt[]>(new floatt[rwidth * getOutputHeight().getl()]);
+  getFloattVector (pixels.get ());
+
+  oap::bitmap::printBitmapRegion (pixels.get (), width, height, rwidth);
+}
+
+void Image::print ()
+{
+  oap::ImageSection&& width = getOutputWidth ();
+  oap::ImageSection&& height = getOutputHeight ();
+
+  print (std::move (width), std::move (height));
+}
+
 void Image::open()
 {
   if (isOpened())
@@ -103,8 +142,8 @@ bool Image::isLoaded() const
 
 pixel_t Image::getPixel(unsigned int x, unsigned int y) const
 {
-  unsigned int height = getHeight().optSize;
-  unsigned int width = getWidth().optSize;
+  unsigned int height = getHeight().getl();
+  unsigned int width = getWidth().getl();
   if (x >= width)
   {
     throw exceptions::OutOfRange(x, width);
@@ -118,7 +157,7 @@ pixel_t Image::getPixel(unsigned int x, unsigned int y) const
 
 size_t Image::getLength() const
 {
-  return getOutputWidth().optSize * getOutputHeight().optSize;
+  return getOutputWidth().getl() * getOutputHeight().getl();
 }
 
 bool Image::getPixelsVector(pixel_t* pixels) const
@@ -129,19 +168,6 @@ bool Image::getPixelsVector(pixel_t* pixels) const
     return true;
   }
   return false;
-}
-
-void Image::getFloattVector(floatt* vector) const
-{
-  const size_t length = getLength();
-  std::unique_ptr<pixel_t[]> pixelsUPtr(new pixel_t[length]);
-  pixel_t* pixels = pixelsUPtr.get();
-  pixel_t max = Image::getPixelMax();
-  this->getPixelsVector(pixels);
-  for (size_t fa = 0; fa < length; ++fa)
-  {
-    vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
-  }
 }
 
 void Image::close()

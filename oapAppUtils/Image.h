@@ -21,9 +21,12 @@
 #define IMAGE_H
 
 #include <string>
+#include <vector>
 
 #include "Math.h"
 #include "GraphicUtils.h"
+
+#include "Logger.h"
 
 namespace oap
 {
@@ -51,14 +54,31 @@ class Image
     void freeBitmap();
 
     /**
+     * Open, load bitmap and close
+     */
+    void olc ();
+
+    std::vector<floatt> getStlFloatVector ();
+
+    /**
+     * \brief Prints subimage in boundaries determined by width and height as array of 0 and 1 digit (gray scale)
+     */
+    void print (const oap::ImageSection& width, const oap::ImageSection& height);
+
+    /**
+     * \brief Prints output image as array of 0 and 1 digit (gray scale)
+     */
+    void print ();
+
+    /**
     * \brief Gets width of load image.
     */
-    virtual oap::OptSize getWidth() const = 0;
+    virtual oap::ImageSection getWidth() const = 0;
 
     /**
     * \brief Gets height of load image.
     */
-    virtual oap::OptSize getHeight() const = 0;
+    virtual oap::ImageSection getHeight() const = 0;
 
     /**
     * \brief Forces width of output.
@@ -66,7 +86,7 @@ class Image
     *  If it is not set, output width (see getOutputWidth) should be
     *  equal to image width (see getWidth()).
     */
-    virtual void forceOutputWidth(const oap::OptSize& optWidth) = 0;
+    virtual void forceOutputWidth(const oap::ImageSection& optWidth) = 0;
 
     /**
     * \brief Forces height of output.
@@ -74,29 +94,51 @@ class Image
     *  If it is not set, output height (see getOutputHeight) should be
     *  equal to image height (see getHeight()).
     */
-    virtual void forceOutputHeight(const oap::OptSize& optHeight) = 0;
+    virtual void forceOutputHeight(const oap::ImageSection& optHeight) = 0;
 
     /**
     * \brief Get width of output.
     *
     *  It may vary from getWidth due to truncate redundant elements of image.
     */
-    virtual oap::OptSize getOutputWidth() const = 0;
+    virtual oap::ImageSection getOutputWidth() const = 0;
 
     /**
     * \brief Get height of output.
     *
     *  It may vary from getHeight due to truncate redundant elements of image.
     */
-    virtual oap::OptSize getOutputHeight() const = 0;
+    virtual oap::ImageSection getOutputHeight() const = 0;
 
     pixel_t getPixel(unsigned int x, unsigned int y) const;
 
     size_t getLength() const;
 
+    /**
+     *  \brief Returns pixel vector of size equals to size of truncated Image (getOutputWidth() * getOutputHeight())
+     */
     bool getPixelsVector(pixel_t* pixels) const;
 
-    void getFloattVector(floatt* vector) const;
+    /**
+     *  \brief Returns floatts vector of size equals to size of truncated Image (getOutputWidth() * getOutputHeight())
+     */
+    template<typename Vec>
+    void getFloattVector(Vec&& vector) const
+    {
+      const size_t length = getLength();
+
+      std::unique_ptr<pixel_t[]> pixelsUPtr(new pixel_t[length]);
+
+      pixel_t* pixels = pixelsUPtr.get();
+      pixel_t max = Image::getPixelMax();
+
+      this->getPixelsVector(pixels);
+
+      for (size_t fa = 0; fa < length; ++fa)
+      {
+        vector[fa] = oap::Image::convertPixelToFloatt(pixels[fa]);
+      }
+    }
 
     void close();
 

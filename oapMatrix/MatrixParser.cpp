@@ -22,20 +22,26 @@ void Parser::setText(const std::string& text)
 bool Parser::getColumns(uintt& columns) const
 {
   uintt value = 0;
-  bool status = getValue(value, ID_COLUMNS);
-  columns = value;
-  return status;
+  if (getValue(value, ID_COLUMNS))
+  {
+    columns = value;
+    return true;
+  }
+  return false;
 }
 
 bool Parser::getRows(uintt& rows) const
 {
   uintt value = 0;
-  bool status = getValue(value, ID_ROWS);
-  rows = value;
-  return status;
+  if (getValue(value, ID_ROWS))
+  {
+    rows = value;
+    return true;
+  }
+  return false;
 }
 
-bool Parser::getValue(uintt& value, const std::string& id) const
+bool Parser::getValue (uintt& value, const std::string& id) const
 {
   size_t pos = m_text.find(id, 0);
   if (pos == std::string::npos)
@@ -52,11 +58,11 @@ bool Parser::getValue(uintt& value, const std::string& id) const
   return true;
 }
 
-bool Parser::satof(floatt& output, const std::string& str) const
+void Parser::satof(floatt& output, const std::string& str) const
 {
   if (str.find_first_not_of(".-0123456789e") != std::string::npos)
   {
-    return false;
+    throw Parser::ParsingException ("Value contains invalid char", str);
   }
   floatt value = 1;
   int index = 0;
@@ -67,126 +73,174 @@ bool Parser::satof(floatt& output, const std::string& str) const
   }
   const char* cs = str.c_str();
   output = value * atof(cs + index);
-  return true;
 }
 
-bool Parser::getArrayStr(std::string& array, unsigned int which) const
+inline std::pair<std::string::size_type, std::string::size_type> getBracketsPos (const std::string& text, unsigned int which)
 {
-  debugAssert(which > 0);
-  size_t pos = 0;
-  pos = m_text.find("[", pos);
-  for (int fa = 0; fa < which - 1; ++fa)
+  size_t pos = 0, pos1 = 0;
+  for (int fa = 0; fa < which; ++fa)
   {
-    pos = m_text.find("[", pos + 1);
+    pos = text.find("[", pos1);
+    pos1 = text.find("]", pos);
   }
-  if (pos == std::string::npos)
-  {
-    return false;
-  }
-  size_t pos1 = m_text.find("]", pos);
-  if (pos1 == std::string::npos)
-  {
-    return false;
-  }
-  ++pos;
-  array = m_text.substr(pos, pos1 - pos);
-  return true;
+
+  return std::make_pair (pos, pos1);
 }
 
-bool Parser::getArray(std::vector<floatt>& array,
-                      const std::string& arrayStr) const
-                      {
+bool Parser::hasArray (unsigned int which)
+{
+  auto pair = getBracketsPos (m_text, which);
+  return pair.first != std::string::npos;
+}
+
+void Parser::getArrayStr (std::string& array, unsigned int which) const
+{
+  debugAssert (which > 0);
+
+  auto pair = getBracketsPos (m_text, which);
+
+  if (pair.first == std::string::npos)
+  {
+    throw Parser::ParsingException ("Cannot find \"[\"", m_text);
+  }
+
+  if (pair.second == std::string::npos)
+  {
+    throw Parser::ParsingException ("Cannot find \"]\"", m_text);
+  }
+
+  array = m_text.substr (pair.first + 1, pair.second - pair.first - 1);
+}
+
+void Parser::getArray (std::vector<floatt>& array, const std::string& arrayStr) const
+{
   size_t pos = 0;
   size_t pos1 = std::string::npos;
   do
   {
     pos1 = arrayStr.find_first_of(",|", pos);
     std::string elementStr = arrayStr.substr(pos, pos1 - pos);
-    std::string::iterator it = std::remove_if(
-        elementStr.begin(), elementStr.end(), (int (*)(int))std::isspace);
+    std::string::iterator it = std::remove_if (elementStr.begin(), elementStr.end(), (int (*)(int))std::isspace);
     elementStr.erase(it, elementStr.end());
-    if (parseElement(array, elementStr) == false)
-    {
-      return false;
-    }
+
+    parseElement (array, elementStr);
+
     pos = pos1 + 1;
   } while (pos1 != std::string::npos);
-  return true;
 }
 
-bool Parser::parseElement(std::vector<floatt>& array,
-                          const std::string& elementStr) const
-                          {
-  if (isOneElement(elementStr))
-  {
-    return parseFloatElement(array, elementStr);
-  } else
-  {
-    return parseFloatsElement(array, elementStr);
-  }
-}
-
-bool Parser::isOneElement(const std::string& elementStr) const
+void Parser::parseElement (std::vector<floatt>& array, const std::string& elementStr) const
 {
-  return elementStr.find("<") == std::string::npos &&
-         elementStr.find(">") == std::string::npos;
+  parseFloatsElement (array, elementStr);
 }
 
-bool Parser::parseFloatElement(std::vector<floatt>& array,
-                               const std::string& elementStr) const
-                               {
-  floatt v = 0;
-  bool status = satof(v, elementStr.c_str());
-  if (status)
-  {
-    array.push_back(v);
-  }
-  return status;
-}
-
-bool Parser::parseFloatsElement(std::vector<floatt>& array,
-                                const std::string& elementStr) const
-                                {
-  size_t pos = elementStr.find("<");
-  size_t pos1 = elementStr.find(">");
-  if (pos1 != elementStr.size() - 1)
+bool checkClosedSection (std::string::size_type left, std::string::size_type right)
+{
+  if ((left == std::string::npos) ^ (right == std::string::npos))
   {
     return false;
   }
-  std::string partStr = elementStr.substr(pos, pos1 - pos);
-  size_t posDigit1 = partStr.find_first_of(".-0123456789");
-  size_t posDigit2 = partStr.find_first_not_of(".-0123456789", posDigit1);
-  int count = atoi(partStr.substr(posDigit1, posDigit2 - posDigit1).c_str());
-  std::string sub = elementStr.substr(0, pos);
-  floatt value;
-  bool status = satof(value, sub.c_str());
-  if (status)
+  
+  if (right <= left && left != std::string::npos && right != std::string::npos)
   {
-    for (int fa = 0; fa < count; ++fa)
+    return false;
+  }
+
+  return true;
+}
+
+int getCount (const std::string& elementStr, std::string::size_type lb, std::string::size_type rb)
+{
+  int count = 1;
+
+  if (lb != std::string::npos)
+  {
+    std::string partStr = elementStr.substr (lb, rb - lb);
+    std::string::size_type posDigit1 = partStr.find_first_of (".-0123456789");
+    std::string::size_type posDigit2 = partStr.find_first_not_of (".-0123456789", posDigit1);
+    count = atoi (partStr.substr (posDigit1, posDigit2 - posDigit1).c_str());
+  }
+
+  return count;
+}
+
+using PosSec = std::pair<std::string::size_type, std::string::size_type>;
+std::string getValueStr (const std::string& elementStr, std::vector<PosSec>&& sections)
+{
+  std::string str = elementStr;
+
+  for (auto it = sections.begin(); it != sections.end(); ++it)
+  {
+    auto pair = *it;
+
+    if (pair.first != std::string::npos)
     {
-      array.push_back(value);
+      std::string::size_type len = pair.second - pair.first + 1;
+      if (pair.first + len <= str.length())
+      {
+        str.erase (pair.first, len);
+      }
+      else
+      {
+        throw Parser::ParsingException ("Cannot remove section limited by brackets", elementStr);
+      }
     }
   }
-  return status;
+
+  return str;
 }
 
-bool Parser::parseArray(unsigned int which)
+void Parser::parseFloatsElement (std::vector<floatt>& array, const std::string& elementStr) const
+{
+  std::string::size_type posLB = elementStr.find ("<");
+  std::string::size_type posRB = elementStr.find (">");
+
+  if (!checkClosedSection (posLB, posRB))
+  {
+    throw Parser::ParsingException ("Bad use of \"<\" \">\" brackets", elementStr);
+  }
+
+  size_t posLP = elementStr.find ("(");
+  size_t posRP = elementStr.find (")");
+
+  if (!checkClosedSection (posLP, posRP))
+  {
+    throw Parser::ParsingException ("Bad use of \"(\" \")\" parentheses", elementStr);
+  }
+
+  int count = getCount (elementStr, posLB, posRB);
+
+  std::string valueStr = getValueStr (elementStr, {std::make_pair (posLB, posRB), std::make_pair (posLP, posRP)});
+
+  if (posLB != std::string::npos && posLB != valueStr.size())
+  {
+    throw Parser::ParsingException ("Value is splitted by \"<\" \">\" \"(\" or \")\"", elementStr);
+  }
+
+  floatt value;
+
+  satof (value, valueStr.c_str());
+
+  for (int fa = 0; fa < count; ++fa)
+  {
+    array.push_back (value);
+  }
+}
+
+void Parser::parseArray (unsigned int which)
 {
   std::string arrayStr;
-  if (getArrayStr(arrayStr, which) == false)
-  {
-    return false;
-  }
+  getArrayStr (arrayStr, which);
+
   m_array.clear();
-  if (getArray(m_array, arrayStr) == false)
-  {
-    return false;
-  }
-  return true;
+
+  getArray (m_array, arrayStr);
 }
 
 floatt Parser::getValue(uintt index) const
-{ return m_array.at(index); }
+{
+  return m_array.at(index);
+}
 
 size_t Parser::getLength() const
 { return m_array.size(); }
@@ -194,17 +248,43 @@ size_t Parser::getLength() const
 const floatt* Parser::getData() const
 { return m_array.data(); }
 
-std::pair<floatt*, size_t> CreateArray(const std::string& text, unsigned int which)
+bool HasArray (const std::string& text, unsigned int which)
 {
-  Parser parser(text);
-  if (parser.parseArray(which) == false)
-  {
-    return std::make_pair<floatt*, size_t>(NULL, 0);
-  }
+  Parser parser (text);
+  return parser.hasArray (which);
+}
+
+std::pair<floatt*, size_t> CreateArray (const std::string& text, unsigned int which)
+{
+  Parser parser (text);
+  parser.parseArray(which);
+
   size_t length = parser.getLength();
+
   floatt* array = new floatt[length];
   memcpy(array, parser.getData(), length * sizeof(floatt));
+
   return std::make_pair/*<floatt*, size_t>*/(array, length);
 }
 
+void Parser::ParsingException::merge (const std::string& _msg, const std::string& _code)
+{
+  exception += _msg;
+  exception += ": \"";
+  exception += _code;
+  exception += "\"";
+}
+
+Parser::ParsingException::ParsingException (const std::string& _msg, const std::string& _code)
+{
+  merge (_msg, _code);
+}
+
+Parser::ParsingException::~ParsingException ()
+{}
+
+const char* Parser::ParsingException::what () const throw()
+{
+  return exception.c_str();
+}
 }

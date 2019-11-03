@@ -36,12 +36,17 @@ script:
      && make clean && make MODE=DebugSanitizer clean && make MODE=Release clean
      && make TARGET_ARCH=HOST MODE=DebugSanitizer
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapHostTests --gtest_shuffle
-     && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oap2dt3dTests --gtest_shuffle
+     && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapAppUtilsTests --gtest_shuffle
      && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapNeuralRoutinesHostTests --gtest_shuffle
+     && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadDigit0"
+     && ${OAP_PATH}/dist/DebugSanitizer/x86/bin/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadRow0"
      && make TARGET_ARCH=HOST MODE=Release
      && ${OAP_PATH}/dist/Release/x86/bin/oapHostTests --gtest_shuffle
-     && ${OAP_PATH}/dist/Release/x86/bin/oap2dt3dTests --gtest_shuffle
+     && ${OAP_PATH}/dist/Release/x86/bin/oapAppUtilsTests --gtest_shuffle
      && ${OAP_PATH}/dist/Release/x86/bin/oapNeuralRoutinesHostTests --gtest_shuffle
+     && ${OAP_PATH}/dist/Release/x86/bin/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadDigit0"
+     && ${OAP_PATH}/dist/Release/x86/bin/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadRow0"
+     && ${OAP_PATH}/dist/Release/x86/bin/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadMnistExamples"
   
 # Notify after build
 notifications:

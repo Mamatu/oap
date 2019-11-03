@@ -24,28 +24,16 @@
 #include <stdio.h>
 #include <utility>
 
+#include "ImageSection.h"
+
 namespace oap
 {
 
-struct OptSize
-{
-  OptSize() : optSize(0), begin(0) {}
-
-  OptSize(size_t _optSize) : optSize(_optSize), begin(0) {}
-
-  OptSize(size_t _optSize, size_t _begin) : optSize(_optSize), begin(_begin) {}
-
-  size_t optSize;
-  size_t begin;
-};
+template <typename T2DArray, typename T>
+ImageSection GetOptWidth (T2DArray bitmap2d, size_t width, size_t height, size_t colorsCount);
 
 template <typename T2DArray, typename T>
-OptSize GetOptWidth(T2DArray bitmap2d, size_t width, size_t height,
-                    size_t colorsCount);
-
-template <typename T2DArray, typename T>
-OptSize GetOptHeight(T2DArray bitmap2d, size_t width, size_t height,
-                     size_t colorsCount);
+ImageSection GetOptHeight (T2DArray bitmap2d, size_t width, size_t height, size_t colorsCount);
 };
 
 #include "GraphicsUtilsImpl.h"

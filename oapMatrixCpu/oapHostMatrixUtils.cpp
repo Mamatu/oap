@@ -32,7 +32,6 @@
 #include "oapHostMatrixUPtr.h"
 
 #include "MatrixParser.h"
-#include "MatrixPrinter.h"
 #include "ReferencesCounter.h"
 
 #include "GenericCoreApi.h"
@@ -227,27 +226,39 @@ math::Matrix* NewMatrix(const std::string& text)
   uintt columns = 0;
   uintt rows = 0;
 
-  bool iscolumns = false;
-  bool isrows = false;
+  bool iscolumns = parser.getColumns (columns);
+  bool isrows = parser.getRows (rows);
 
-  if (parser.getColumns(columns) == true)
-  {
-    iscolumns = true;
-  }
-  if (parser.getRows(rows) == true)
-  {
-    isrows = true;
-  }
-  std::pair<floatt*, size_t> pairRe = matrixUtils::CreateArray(text, 1);
-  std::pair<floatt*, size_t> pairIm = matrixUtils::CreateArray(text, 2);
+  std::pair<floatt*, size_t> pairRe = std::make_pair (nullptr, 0);
+  std::pair<floatt*, size_t> pairIm = std::make_pair (nullptr, 0);
 
-  debugAssert(pairRe.first == nullptr || pairIm.first == nullptr ||
+  try
+  {
+    if (matrixUtils::HasArray (text, 1))
+    {
+      pairRe = matrixUtils::CreateArray (text, 1);
+    }
+
+    if (matrixUtils::HasArray (text, 2))
+    {
+      pairIm = matrixUtils::CreateArray (text, 2);
+    }
+  }
+  catch (const matrixUtils::Parser::ParsingException& pe)
+  {
+    logError ("%s", pe.what ());
+    abort ();
+  }
+
+  logAssert(pairRe.first == nullptr || pairIm.first == nullptr ||
               pairRe.second == pairIm.second);
+
+  logAssert(!(pairRe.first == nullptr && pairIm.first == nullptr));
 
   floatt* revalues = pairRe.first;
   floatt* imvalues = pairIm.first;
 
-  if ( (iscolumns && isrows) == false)
+  if (!(iscolumns && isrows))
   {
     size_t sq = sqrt(pairRe.second);
     columns = sq;
@@ -336,17 +347,17 @@ void SetImValue(const math::Matrix* matrix, uintt column, uintt row,
   }
 }
 
-std::string GetMatrixStr(const math::Matrix* matrix)
+std::string GetMatrixStr (const math::Matrix* matrix)
 {
   std::string output;
-  matrixUtils::PrintMatrix (output, matrix, matrixUtils::PrintArgs());
+  oap::generic::printMatrix (output, matrix, matrixUtils::PrintArgs(), oap::host::GetMatrixInfo);
   return output;
 }
 
 void PrintMatrix(FILE* stream, const matrixUtils::PrintArgs& args, const math::Matrix* matrix)
 {
   std::string output;
-  matrixUtils::PrintMatrix (output, matrix, args);
+  oap::generic::printMatrix (output, matrix, matrixUtils::PrintArgs(), oap::host::GetMatrixInfo);
   fprintf(stream, "%s", output.c_str());
 }
 
@@ -584,7 +595,7 @@ void ToString (std::string& str, const math::Matrix* matrix)
   matrixUtils::PrintArgs args;
   args.prepareSection (matrix);
 
-  matrixUtils::PrintMatrix (str, matrix, args);
+  oap::generic::printMatrix (str, matrix, args, oap::host::GetMatrixInfo);
 }
 
 void GetReMatrixStr(std::string& text, const math::Matrix* matrix)
