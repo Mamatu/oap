@@ -24,6 +24,8 @@
 #include <vector>
 
 #include "Math.h"
+
+#include "BitmapUtils.h"
 #include "GraphicUtils.h"
 
 #include "Logger.h"
@@ -58,7 +60,7 @@ class Image
      */
     void olc ();
 
-    std::vector<floatt> getStlFloatVector ();
+    std::vector<floatt> getStlFloatVector () const;
 
     /**
      * \brief Prints subimage in boundaries determined by width and height as array of 0 and 1 digit (gray scale)
@@ -140,6 +142,18 @@ class Image
       }
     }
 
+    using Pattern = std::vector<floatt>;
+    using Patterns = std::vector<Pattern>;
+
+    template<typename T, typename Callback>
+    void iteratePatterns (T bgPixel, Callback&& callback) const;
+
+    template<typename T>
+    void getPatterns (Patterns& patterns, T bgPixel) const;
+
+    template<typename T>
+    Patterns getPatterns (T bgPixel) const;
+
     void close();
 
     static pixel_t convertRgbToPixel(unsigned char r, unsigned char g,
@@ -189,6 +203,50 @@ class Image
 
     bool m_loadedBitmap;
 };
+
+template<typename T, typename Callback>
+void Image::iteratePatterns (T bgPixel, Callback&& callback) const
+{
+  size_t width = getOutputWidth ().getl ();
+  size_t height = getOutputHeight ().getl ();
+
+  std::vector<floatt> vec = getStlFloatVector ();
+
+  oap::bitmap::PatternsSeeker ps = oap::bitmap::PatternsSeeker::process1DArray (vec, width, height, 1);
+  oap::bitmap::CoordsSectionVec csVec = ps.getCoordsSectionVec ();
+
+  using Coord = oap::bitmap::Coord;
+  using CoordsSection = oap::bitmap::CoordsSection;
+
+  std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
+  {
+    return pair1.second.section.lessByPosition (pair2.second.section);
+  });
+
+  oap::RegionSize rs = ps.getOverlapingPaternSize ();
+
+  for (const auto& pair : csVec)
+  {
+    Pattern patternBitmap;
+    patternBitmap.resize (rs.getSize ());
+    oap::bitmap::getBitmapFromSection (patternBitmap, rs, vec, width, height, pair.second, 1.f);
+    callback (std::move (patternBitmap), rs);
+  }
+}
+
+template<typename T>
+void Image::getPatterns (Patterns& patterns, T bgPixel) const
+{
+  iteratePatterns (bgPixel, [&patterns](Image::Pattern&& pattern, const oap::RegionSize&) { patterns.push_back (pattern); });
+}
+
+template<typename T>
+Image::Patterns Image::getPatterns (T bgPixel) const
+{
+  Patterns patterns;
+  getPatterns (patterns);
+  return patterns;
+}
 }
 
 #endif  // IFILE_H

@@ -68,19 +68,19 @@ class OapBitmapUtilsTests : public testing::Test {
 
 TEST_F(OapBitmapUtilsTests, TestConnection_1)
 {
-  class Test_Bitmap_ConnectedPixels : public oap::bitmap::ConnectedPixels
+  class Test_Bitmap_PatternsSeeker : public oap::bitmap::PatternsSeeker
   {
     public:
-      Test_Bitmap_ConnectedPixels (size_t width, size_t height) : oap::bitmap::ConnectedPixels (width, height)
+      Test_Bitmap_PatternsSeeker (size_t width, size_t height) : oap::bitmap::PatternsSeeker (width, height)
       {}
 
       void connect (const Coord& pcoord, const Coord& ncoord)
       {
-        oap::bitmap::ConnectedPixels::connect (pcoord, ncoord);
+        oap::bitmap::PatternsSeeker::connect (pcoord, ncoord);
       }
   };
 
-  Test_Bitmap_ConnectedPixels b_cp (10, 10);
+  Test_Bitmap_PatternsSeeker b_cp (10, 10);
 
   Coord coord (2, 2);
   b_cp.connect (coord, coord);
@@ -93,19 +93,19 @@ TEST_F(OapBitmapUtilsTests, TestConnection_1)
 
 TEST_F(OapBitmapUtilsTests, TestConnection_2)
 {
-  class Test_Bitmap_ConnectedPixels : public oap::bitmap::ConnectedPixels
+  class Test_Bitmap_PatternsSeeker : public oap::bitmap::PatternsSeeker
   {
     public:
-      Test_Bitmap_ConnectedPixels (size_t width, size_t height) : oap::bitmap::ConnectedPixels (width, height)
+      Test_Bitmap_PatternsSeeker (size_t width, size_t height) : oap::bitmap::PatternsSeeker (width, height)
       {}
 
       void connect (const Coord& pcoord, const Coord& ncoord)
       {
-        oap::bitmap::ConnectedPixels::connect (pcoord, ncoord);
+        oap::bitmap::PatternsSeeker::connect (pcoord, ncoord);
       }
   };
 
-  Test_Bitmap_ConnectedPixels b_cp (10, 10);
+  Test_Bitmap_PatternsSeeker b_cp (10, 10);
 
   Coord coord1 (2, 2);
   Coord coord2 (2, 3);
@@ -125,19 +125,19 @@ TEST_F(OapBitmapUtilsTests, TestConnection_2)
 
 TEST_F(OapBitmapUtilsTests, TestConnection_3)
 {
-  class Test_Bitmap_ConnectedPixels : public oap::bitmap::ConnectedPixels
+  class Test_Bitmap_PatternsSeeker : public oap::bitmap::PatternsSeeker
   {
     public:
-      Test_Bitmap_ConnectedPixels (size_t width, size_t height) : oap::bitmap::ConnectedPixels (width, height)
+      Test_Bitmap_PatternsSeeker (size_t width, size_t height) : oap::bitmap::PatternsSeeker (width, height)
       {}
 
       void connect (const Coord& pcoord, const Coord& ncoord)
       {
-        oap::bitmap::ConnectedPixels::connect (pcoord, ncoord);
+        oap::bitmap::PatternsSeeker::connect (pcoord, ncoord);
       }
   };
 
-  Test_Bitmap_ConnectedPixels b_cp (10, 10);
+  Test_Bitmap_PatternsSeeker b_cp (10, 10);
 
   Coord coord1 (2, 2);
   Coord coord2 (2, 3);
@@ -173,7 +173,7 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_1)
     {0, 0, 0, 0},
   };
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
+  oap::bitmap::PatternsSeeker b_cp = oap::bitmap::PatternsSeeker::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
@@ -221,7 +221,7 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_2)
   };
 
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
+  oap::bitmap::PatternsSeeker b_cp = oap::bitmap::PatternsSeeker::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
 
@@ -253,7 +253,7 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_3)
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   };
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
+  oap::bitmap::PatternsSeeker b_cp = oap::bitmap::PatternsSeeker::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
 
@@ -285,7 +285,7 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_4)
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   };
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
+  oap::bitmap::PatternsSeeker b_cp = oap::bitmap::PatternsSeeker::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
@@ -332,7 +332,7 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_5)
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   };
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
+  oap::bitmap::PatternsSeeker b_cp = oap::bitmap::PatternsSeeker::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (3, vec.size());
@@ -390,7 +390,7 @@ TEST_F(OapBitmapUtilsTests, Test_2DArray_6)
     {1, 1, 1, 1, 1, 1, 0, 1, 1, 1},
   };
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process2DArray (array, dim, dim, 0);
+  oap::bitmap::PatternsSeeker b_cp = oap::bitmap::PatternsSeeker::process2DArray (array, dim, dim, 0);
   std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
@@ -426,7 +426,7 @@ TEST_F(OapBitmapUtilsTests, Test_1DArray_6)
     1, 1, 1, 1, 1, 1, 0, 1, 1, 1,
   };
 
-  oap::bitmap::ConnectedPixels b_cp = oap::bitmap::ConnectedPixels::process1DArray (array, dim, dim, 0);
+  oap::bitmap::PatternsSeeker b_cp = oap::bitmap::PatternsSeeker::process1DArray (array, dim, dim, 0);
   std::vector<std::pair<Coord, CoordsSection>> vec = b_cp.getCoordsSectionVec ();
 
   ASSERT_EQ (2, vec.size());
