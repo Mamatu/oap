@@ -21,7 +21,6 @@
 
 #include <memory>
 
-#include "BitmapUtils.h"
 #include "Exceptions.h"
 
 namespace oap
@@ -73,7 +72,7 @@ void Image::olc ()
   close ();
 }
 
-std::vector<floatt> Image::getStlFloatVector ()
+std::vector<floatt> Image::getStlFloatVector () const
 {
   size_t size = getOutputHeight().getl() * getOutputWidth().getl();
 

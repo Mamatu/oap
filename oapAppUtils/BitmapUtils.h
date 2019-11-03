@@ -55,12 +55,12 @@ struct CoordsSection
 using CoordsSectionSet = std::map<Coord, CoordsSection>;
 using CoordsSectionVec = std::vector<std::pair<Coord, CoordsSection>>;
 
-class ConnectedPixels
+class PatternsSeeker
 {
   public:
 
-    ConnectedPixels (size_t width, size_t height);
-    virtual ~ConnectedPixels();
+    PatternsSeeker (size_t width, size_t height);
+    virtual ~PatternsSeeker();
 
     /**
      * \brief set which contains coords group and their dimension in image
@@ -78,24 +78,24 @@ class ConnectedPixels
     }
 
     template <typename Callback>
-    static ConnectedPixels processGeneric (Callback&& callback, size_t width, size_t height);
+    static PatternsSeeker processGeneric (Callback&& callback, size_t width, size_t height);
 
     template <typename TArray, typename T, typename Callback>
-    static ConnectedPixels processGenericArray (TArray array, size_t width, size_t height, T bgPixel, Callback&& getPixel);
+    static PatternsSeeker processGenericArray (TArray array, size_t width, size_t height, T bgPixel, Callback&& getPixel);
 
     /**
      *  \brief returns groups of connected pixels which are separated by backgroud pixels in 1D bitmap
      *  \params bgpixel - pixel which determines background
      */
     template <typename T1DArray, typename T>
-    static ConnectedPixels process1DArray (T1DArray bitmap1D, size_t width, size_t height, T bgPixel);
+    static PatternsSeeker process1DArray (T1DArray bitmap1D, size_t width, size_t height, T bgPixel);
 
     /**
      *  \brief returns groups of connected pixels which are separated by backgroud pixels in 2D bitmap
      *  \params bgpixel - pixel which determines background
      */
     template <typename T2DArray, typename T>
-    static ConnectedPixels process2DArray (T2DArray bitmap2d, size_t width, size_t height, T bgPixel);
+    static PatternsSeeker process2DArray (T2DArray bitmap2d, size_t width, size_t height, T bgPixel);
 
   protected:
     CoordsMap m_groups;
@@ -133,9 +133,9 @@ class ConnectedPixels
 };
 
 template <typename Callback>
-ConnectedPixels ConnectedPixels::processGeneric (Callback&& callback, size_t width, size_t height)
+PatternsSeeker PatternsSeeker::processGeneric (Callback&& callback, size_t width, size_t height)
 {
-  ConnectedPixels bitmap_cp (width, height);
+  PatternsSeeker bitmap_cp (width, height);
 
   for (size_t y = 0; y < height; ++y)
   {
@@ -149,12 +149,12 @@ ConnectedPixels ConnectedPixels::processGeneric (Callback&& callback, size_t wid
 }
 
 template <typename TArray, typename T, typename Callback>
-ConnectedPixels ConnectedPixels::processGenericArray (TArray array, size_t width, size_t height, T bgPixel, Callback&& getPixel)
+PatternsSeeker PatternsSeeker::processGenericArray (TArray array, size_t width, size_t height, T bgPixel, Callback&& getPixel)
 {
-  ConnectedPixels bitmap_cp (width, height);
+  PatternsSeeker bitmap_cp (width, height);
 
-  return ConnectedPixels::processGeneric (
-    [&array, width, height, &bgPixel, &getPixel] (ConnectedPixels& bitmap_cp, size_t x, size_t y)
+  return PatternsSeeker::processGeneric (
+    [&array, width, height, &bgPixel, &getPixel] (PatternsSeeker& bitmap_cp, size_t x, size_t y)
     {
       if (getPixel (array, x, y) != bgPixel)
       {
@@ -177,16 +177,16 @@ ConnectedPixels ConnectedPixels::processGenericArray (TArray array, size_t width
 }
 
 template <typename T1DArray, typename T>
-ConnectedPixels ConnectedPixels::process1DArray (T1DArray bitmap1D, size_t width, size_t height, T bgPixel)
+PatternsSeeker PatternsSeeker::process1DArray (T1DArray bitmap1D, size_t width, size_t height, T bgPixel)
 {
-  return ConnectedPixels::processGenericArray (bitmap1D, width, height, bgPixel,
+  return PatternsSeeker::processGenericArray (bitmap1D, width, height, bgPixel,
          [&width](T1DArray bitmap1D, size_t x, size_t y) { return bitmap1D[x + width * y];});
 }
 
 template <typename T2DArray, typename T>
-ConnectedPixels ConnectedPixels::process2DArray (T2DArray bitmap2D, size_t width, size_t height, T bgPixel)
+PatternsSeeker PatternsSeeker::process2DArray (T2DArray bitmap2D, size_t width, size_t height, T bgPixel)
 {
-  return ConnectedPixels::processGenericArray (bitmap2D, width, height, bgPixel,
+  return PatternsSeeker::processGenericArray (bitmap2D, width, height, bgPixel,
          [](T2DArray bitmap2D, size_t x, size_t y) { return bitmap2D[y][x];});
 }
 
@@ -204,7 +204,7 @@ void iterateBitmap (Bitmap pixels, const oap::ImageSection& width, const oap::Im
     {
       size_t idx = x + width.getp() + stride * (y + height.getp());
       floatt value = pixels[idx];
-      callback (value, x, y);
+      callback (value, x, y, stride);
     }
     cnl ();
   }
@@ -220,19 +220,19 @@ void iterateBitmap (Bitmap pixels, const oap::ImageSection& width, const oap::Im
 template<typename Bitmap>
 void printBitmapRegion (Bitmap pixels, const oap::ImageSection& width, const oap::ImageSection& height, size_t stride)
 {
-  iterateBitmap (pixels, width, height, stride, [](floatt pixel, size_t x, size_t y){ printf ("%d", pixelFloattToInt (pixel)); }, [](){ printf("\n"); });
+  iterateBitmap (pixels, width, height, stride, [](floatt pixel, size_t x, size_t y, size_t width){ printf ("%d", pixelFloattToInt (pixel)); }, [](){ printf("\n"); });
 }
 
 template<typename Bitmap>
 void printBitmap (Bitmap pixels, size_t width, size_t height)
 {
-  iterateBitmap (pixels, width, height, width, [](floatt pixel, size_t x, size_t y){ printf ("%d", pixelFloattToInt (pixel)); }, [](){ printf("\n"); });
+  iterateBitmap (pixels, width, height, width, [](floatt pixel, size_t x, size_t y, size_t width){ printf ("%d", pixelFloattToInt (pixel)); }, [](){ printf("\n"); });
 }
 
 template<typename Bitmap, typename Callback>
 void printBitmap (Bitmap pixels, size_t width, size_t height, Callback&& callback)
 {
-  iterateBitmap (pixels, width, height, width, [&callback](floatt pixel, size_t x, size_t y){ callback (pixel, x, y); printf ("%d", pixelFloattToInt (pixel)); }, [](){ printf("\n"); });
+  iterateBitmap (pixels, width, height, width, [&callback](floatt pixel, size_t x, size_t y, size_t width){ callback (pixel, x, y); printf ("%d", pixelFloattToInt (pixel)); }, [](){ printf("\n"); });
 }
 
 template<typename Bitmap1D, typename T>
