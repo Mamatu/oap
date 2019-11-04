@@ -142,7 +142,26 @@ class Image
       }
     }
 
-    using Pattern = std::vector<floatt>;
+    using PatternBitmap = std::vector<floatt>;
+
+    /**
+     *  \brief This struct is passed to callback from iteratePatterns method
+     */
+    struct Pattern
+    {
+      PatternBitmap patternBitmap;
+
+      /**
+       *  \brief Size of region which can overlaping any patterns found in image (the best fit)
+       */
+      oap::RegionSize overlapingRegion;
+
+      /**
+       *  \brief Region which descibes pattern (its size and location)
+       */
+      oap::ImageRegion imageRegion;
+    };
+
     using Patterns = std::vector<Pattern>;
 
     template<typename T, typename Callback>
@@ -227,17 +246,19 @@ void Image::iteratePatterns (T bgPixel, Callback&& callback) const
 
   for (const auto& pair : csVec)
   {
-    Pattern patternBitmap;
+    PatternBitmap patternBitmap;
     patternBitmap.resize (rs.getSize ());
     oap::bitmap::getBitmapFromSection (patternBitmap, rs, vec, width, height, pair.second, 1.f);
-    callback (std::move (patternBitmap), rs);
+
+    Pattern pattern = {std::move (patternBitmap), rs, pair.second.section};
+    callback (std::move (pattern));
   }
 }
 
 template<typename T>
 void Image::getPatterns (Patterns& patterns, T bgPixel) const
 {
-  iteratePatterns (bgPixel, [&patterns](Image::Pattern&& pattern, const oap::RegionSize&) { patterns.push_back (pattern); });
+  iteratePatterns (bgPixel, [&patterns](Pattern&& pattern) { patterns.push_back (pattern); });
 }
 
 template<typename T>
