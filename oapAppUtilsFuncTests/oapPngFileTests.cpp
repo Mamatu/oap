@@ -304,12 +304,13 @@ TEST_F(OapPngFileTests, LoadRow0)
     EXPECT_EQ (LoadMnistExamplesTest::patterns[idx][idx1][x + width * y], oap::bitmap::pixelFloattToInt (pixel)) << "x: " << x << " y: " << y;
   };
 
-  pngFile.iteratePatterns (1.f, [this, &idx, &idx1, &total, &checkPattern](oap::Image::Pattern&& pattern, const oap::RegionSize& rs)
+  pngFile.iteratePatterns (1.f, [this, &idx, &idx1, &total, &checkPattern](oap::Image::Pattern&& pattern)
   {
+    oap::RegionSize rs = pattern.overlapingRegion;
 #ifdef OAP_PNG_TEST_PRINT_PATTERNS
-    oap::bitmap::printBitmap (pattern, rs.width, rs.height, checkPattern);
+    oap::bitmap::printBitmap (pattern.patternBitmap, rs.width, rs.height, checkPattern);
 #else
-    oap::bitmap::iterateBitmap (pattern, rs.width, rs.height, checkPattern);
+    oap::bitmap::iterateBitmap (pattern.patternBitmap, rs.width, rs.height, checkPattern);
 #endif
 
     this->increase (idx, idx1, 16, total);
@@ -339,12 +340,13 @@ TEST_F(OapPngFileTests, LoadMnistExamples)
     EXPECT_EQ (LoadMnistExamplesTest::patterns[idx][idx1][x + width * y], oap::bitmap::pixelFloattToInt (pixel)) << "x: " << x << " y: " << y;
   };
 
-  pngFile.iteratePatterns (1.f, [this, &idx, &idx1, &total, &checkPattern](oap::Image::Pattern&& pattern, const oap::RegionSize& rs)
+  pngFile.iteratePatterns (1.f, [this, &idx, &idx1, &total, &checkPattern](oap::Image::Pattern&& pattern)
   {
+    oap::RegionSize rs = pattern.overlapingRegion;
 #ifdef OAP_PNG_TEST_PRINT_PATTERNS
-    oap::bitmap::printBitmap (pattern, rs.width, rs.height, checkPattern);
+    oap::bitmap::printBitmap (pattern.patternBitmap, rs.width, rs.height, checkPattern);
 #else
-    oap::bitmap::iterateBitmap (pattern, rs.width, rs.height, checkPattern);
+    oap::bitmap::iterateBitmap (pattern.patternBitmap, rs.width, rs.height, checkPattern);
 #endif
 
     this->increase (idx, idx1, 16, total);
