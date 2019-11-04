@@ -304,6 +304,23 @@ TEST_F(OapPngFileTests, LoadRow0)
     EXPECT_EQ (LoadMnistExamplesTest::patterns[idx][idx1][x + width * y], oap::bitmap::pixelFloattToInt (pixel)) << "x: " << x << " y: " << y;
   };
 
+  auto filter = [](oap::bitmap::CoordsSectionVec& csVec, const std::vector<floatt>& bitmap, const oap::Image* image)
+  {
+    using Coord = oap::bitmap::Coord;
+    using CoordsSection = oap::bitmap::CoordsSection;
+
+    size_t width = image->getOutputWidth().getl();
+    size_t height = image->getOutputHeight().getl();
+
+    oap::bitmap::mergeIf (csVec, 5);
+    oap::bitmap::removeIfPixelsAreHigher (csVec, bitmap, width, height, 0.5f);
+
+    std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
+    {
+      return pair1.second.section.lessByPosition (pair2.second.section);
+    });
+  };
+
   pngFile.iteratePatterns (1.f, [this, &idx, &idx1, &total, &checkPattern](oap::Image::Pattern&& pattern)
   {
     oap::RegionSize rs = pattern.overlapingRegion;
@@ -314,7 +331,7 @@ TEST_F(OapPngFileTests, LoadRow0)
 #endif
 
     this->increase (idx, idx1, 16, total);
-  });
+  }, filter);
 
   EXPECT_EQ (16, total);
 }
@@ -340,6 +357,18 @@ TEST_F(OapPngFileTests, LoadMnistExamples)
     EXPECT_EQ (LoadMnistExamplesTest::patterns[idx][idx1][x + width * y], oap::bitmap::pixelFloattToInt (pixel)) << "x: " << x << " y: " << y;
   };
 
+  auto filter = [expectedWidth, expectedHeight](oap::bitmap::CoordsSectionVec& csVec, const std::vector<floatt>& bitmap, const oap::Image*)
+  {
+    using Coord = oap::bitmap::Coord;
+    using CoordsSection = oap::bitmap::CoordsSection;
+    oap::bitmap::mergeIf (csVec, 5);
+    oap::bitmap::removeIfPixelsAreHigher (csVec, bitmap, expectedWidth, expectedHeight, 0.5f);
+    std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
+    {
+      return pair1.second.section.lessByPosition (pair2.second.section);
+    });
+  };
+
   pngFile.iteratePatterns (1.f, [this, &idx, &idx1, &total, &checkPattern](oap::Image::Pattern&& pattern)
   {
     oap::RegionSize rs = pattern.overlapingRegion;
@@ -350,7 +379,7 @@ TEST_F(OapPngFileTests, LoadMnistExamples)
 #endif
 
     this->increase (idx, idx1, 16, total);
-  });
+  }, filter);
 
   EXPECT_EQ (160, total);
 }
