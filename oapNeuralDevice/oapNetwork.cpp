@@ -79,7 +79,7 @@ void Network::addLayer (Layer* layer)
   oap::generic::initLayerBiases (*layer, _setReValue);
 }
 
-oap::HostMatrixUPtr Network::run (math::Matrix* inputs, ArgType argType, oap::ErrorType errorType)
+oap::HostMatrixUPtr Network::run (const math::Matrix* inputs, ArgType argType, oap::ErrorType errorType)
 {
   Layer* layer = m_layers.front();
 
@@ -111,7 +111,7 @@ oap::HostMatrixUPtr Network::run (math::Matrix* inputs, ArgType argType, oap::Er
   return oap::HostMatrixUPtr (output);
 }
 
-void Network::setInputs (math::Matrix* inputs, ArgType argType, FPHandler handler)
+void Network::setInputs (const math::Matrix* inputs, ArgType argType, FPHandler handler)
 {
   Layer* layer = m_layers.front();
 
