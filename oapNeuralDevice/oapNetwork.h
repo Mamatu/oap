@@ -53,9 +53,9 @@ public:
   Layer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID);
   Layer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID);
 
-  oap::HostMatrixUPtr run (math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
+  oap::HostMatrixUPtr run (const math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
 
-  void setInputs (math::Matrix* inputs, ArgType argType, FPHandler handler = 0);
+  void setInputs (const math::Matrix* inputs, ArgType argType, FPHandler handler = 0);
   void setExpected (math::Matrix* expected, ArgType argType, FPHandler handler = 0);
 
   FPHandler createFPSection (uintt samples);
