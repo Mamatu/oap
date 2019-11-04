@@ -20,6 +20,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -32,6 +33,14 @@
 
 namespace oap
 {
+
+class Image;
+
+namespace
+{
+  auto defaultFilter = [](oap::bitmap::CoordsSectionVec&, const std::vector<floatt>&, const oap::Image*){};
+  using DefaultFilter = decltype (defaultFilter);
+}
 
 typedef unsigned int pixel_t;
 
@@ -164,14 +173,14 @@ class Image
 
     using Patterns = std::vector<Pattern>;
 
-    template<typename T, typename Callback>
-    void iteratePatterns (T bgPixel, Callback&& callback) const;
+    template<typename T, typename Callback, typename Filter = DefaultFilter>
+    void iteratePatterns (T bgPixel, Callback&& callback, Filter&& filter = std::forward<DefaultFilter>(defaultFilter)) const;
 
-    template<typename T>
-    void getPatterns (Patterns& patterns, T bgPixel) const;
+    template<typename T, typename Filter = DefaultFilter>
+    void getPatterns (Patterns& patterns, T bgPixel, Filter&& filter = std::forward<DefaultFilter>(defaultFilter)) const;
 
-    template<typename T>
-    Patterns getPatterns (T bgPixel) const;
+    template<typename T, typename Filter = DefaultFilter>
+    Patterns getPatterns (T bgPixel, Filter&& filter = std::forward<DefaultFilter>(defaultFilter)) const;
 
     void close();
 
@@ -223,8 +232,8 @@ class Image
     bool m_loadedBitmap;
 };
 
-template<typename T, typename Callback>
-void Image::iteratePatterns (T bgPixel, Callback&& callback) const
+template<typename T, typename Callback, typename Filter>
+void Image::iteratePatterns (T bgPixel, Callback&& callback, Filter&& filter) const
 {
   size_t width = getOutputWidth ().getl ();
   size_t height = getOutputHeight ().getl ();
@@ -237,12 +246,10 @@ void Image::iteratePatterns (T bgPixel, Callback&& callback) const
   using Coord = oap::bitmap::Coord;
   using CoordsSection = oap::bitmap::CoordsSection;
 
-  std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
-  {
-    return pair1.second.section.lessByPosition (pair2.second.section);
-  });
-
   oap::RegionSize rs = ps.getOverlapingPaternSize ();
+
+  const oap::Image* image = this;
+  filter (csVec, vec, image);
 
   for (const auto& pair : csVec)
   {
@@ -255,17 +262,17 @@ void Image::iteratePatterns (T bgPixel, Callback&& callback) const
   }
 }
 
-template<typename T>
-void Image::getPatterns (Patterns& patterns, T bgPixel) const
+template<typename T, typename Filter>
+void Image::getPatterns (Patterns& patterns, T bgPixel, Filter&& filter) const
 {
-  iteratePatterns (bgPixel, [&patterns](Pattern&& pattern) { patterns.push_back (pattern); });
+  iteratePatterns (bgPixel, [&patterns](Pattern&& pattern) { patterns.push_back (pattern); }, filter);
 }
 
-template<typename T>
-Image::Patterns Image::getPatterns (T bgPixel) const
+template<typename T, typename Filter>
+Image::Patterns Image::getPatterns (T bgPixel, Filter&& filter) const
 {
   Patterns patterns;
-  getPatterns (patterns);
+  getPatterns (patterns, filter);
   return patterns;
 }
 }
