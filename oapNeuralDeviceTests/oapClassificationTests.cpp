@@ -29,47 +29,19 @@
 #include "Controllers.h"
 
 #include "PyPlot.h"
+#include "Config.h"
+
+#include "oapNeuralUtils.h"
 
 class OapClassificationTests : public testing::Test
 {
  public:
   CUresult status;
 
-  virtual void SetUp()
-  {
-  }
+  virtual void SetUp() {}
 
-  virtual void TearDown()
-  {
-  }
+  virtual void TearDown() {}
 };
-
-TEST_F(OapClassificationTests, DISABLE_LetterClassification)
-{
-  oap::PatternsClassificationParser::Args args;
-  oap::PatternsClassification pc;
-
-  args.m_onOutput1 = [](const std::vector<floatt>& outputs)
-  {
-    EXPECT_EQ(1, outputs.size());
-    EXPECT_LE(0.5, outputs[0]);
-  };
-
-  args.m_onOutput2 = [](const std::vector<floatt>& outputs)
-  {
-    EXPECT_EQ(1, outputs.size());
-    EXPECT_GE(0.5, outputs[0]);
-  };
-
-  args.m_onOpenFile = [](const oap::ImageSection& width, const oap::ImageSection& height, bool isLoaded)
-  {
-    EXPECT_EQ(20, width.getl());
-    EXPECT_EQ(20, height.getl());
-    EXPECT_TRUE(isLoaded);
-  };
-
-  pc.run (args);
-}
 
 class Coordinate
 {
@@ -255,37 +227,13 @@ TEST_F(OapClassificationTests, CircleDataTest)
     }
   };
 
-  auto splitIntoTestAndTrainingSet =[](const Coordinates& coordinates, Coordinates& trainingSet, Coordinates& testSet, floatt rate)
-  {
-    debugAssert (rate > 0 && rate <= 1);
-
-    Coordinates modifiableCoordinates = coordinates;
-
-    std::random_shuffle (modifiableCoordinates.begin(), modifiableCoordinates.end());
-    size_t trainingSetLength = modifiableCoordinates.size() * rate;
-
-    trainingSet.resize (trainingSetLength);
-    testSet.resize (modifiableCoordinates.size() - trainingSetLength);
-
-    auto copyIt = modifiableCoordinates.begin();
-    std::advance (copyIt, trainingSet.size());
-
-    std::copy(modifiableCoordinates.begin(), copyIt, trainingSet.begin());
-    std::copy(copyIt, modifiableCoordinates.end(), testSet.begin());
-
-    logInfo ("training set: %lu", trainingSet.size());
-    logInfo ("test set: %lu", testSet.size());
-
-    return modifiableCoordinates;
-  };
-
   oap::pyplot::FileType fileType = oap::pyplot::FileType::OAP_PYTHON_FILE;
 
   oap::pyplot::plot2DAll ("/tmp/plot_coords.py", oap::pyplot::convert (coordinates), fileType);
   //normalize (coordinates);
   oap::pyplot::plot2DAll ("/tmp/plot_normalize_coords.py", oap::pyplot::convert(coordinates), fileType);
 
-  auto modifiedCoordinates = splitIntoTestAndTrainingSet (coordinates, trainingData, testData, 2.f / 3.f);
+  auto modifiedCoordinates = oap::nutils::splitIntoTestAndTrainingSet (coordinates, trainingData, testData, 2.f / 3.f);
 
   oap::pyplot::plot2DAll ("/tmp/plot_test_data.py", oap::pyplot::convert(testData), fileType);
   oap::pyplot::plot2DAll ("/tmp/plot_training_data.py", oap::pyplot::convert(trainingData), fileType);
@@ -472,4 +420,141 @@ TEST_F(OapClassificationTests, CircleDataTest)
   }
 
   oap::cuda::Context::Instance().destroy();
+}
+
+TEST_F(OapClassificationTests, OCR)
+{
+  std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
+  path = path + "MnistExamples.png";
+  oap::PngFile pngFile (path, false);
+
+  pngFile.olc ();
+
+  oap::Image::Patterns&& patterns = pngFile.getPatterns (1.f);
+
+  auto bIt = patterns.begin();
+  oap::RegionSize rs = bIt->overlapingRegion;
+
+  std::sort (patterns.begin(), patterns.end(), [](const oap::Image::Pattern& pattern1, const oap::Image::Pattern& pattern2)
+  {
+    return pattern1.imageRegion.lessByPosition (pattern2.imageRegion);
+  });
+
+  ASSERT_EQ(160, patterns.size());
+
+  using DataEntry = std::pair<int, oap::Image::Pattern>;
+  using Data = std::vector<DataEntry>;
+
+  Data data;
+  for (size_t digit = 0; digit < 10; ++digit)
+  {
+    for (size_t pIdx = 0; pIdx < 16; ++pIdx)
+    {
+      data.push_back (std::make_pair (digit, patterns[digit * 16 + pIdx]));
+    }
+  }
+
+  Data trainingData;
+  Data testData;
+
+  oap::nutils::splitIntoTestAndTrainingSet (data, trainingData, testData, 2.f / 3.f);
+
+  math::Matrix* houtput = oap::host::NewReMatrix (1, 10, 0);
+  math::Matrix* cinput = oap::cuda::NewDeviceReMatrix (rs.width, rs.height);
+  size_t batchSize = 5;
+  {
+    std::unique_ptr<Network> network (new Network());
+
+    auto forwardPropagation = [&houtput, &cinput, &network, &rs] (const DataEntry& entry)
+    {
+      oap::cuda::CopyHostArrayToDeviceReMatrix (cinput, entry.second.patternBitmap.data(), rs.getSize ());
+      memset (houtput->reValues, 0, 10 * sizeof(floatt));
+      houtput->reValues[entry.first] = 1;
+
+      network->setInputs (cinput, ArgType::DEVICE);
+      network->setExpected (houtput, ArgType::HOST);
+
+      network->forwardPropagation ();
+      network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
+    };
+
+    auto forwardPropagationFP = [&network] (FPHandler handler)
+    {
+      network->forwardPropagation (handler);
+      network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST, handler);
+    };
+
+    floatt initLR = 0.03;
+    network->setLearningRate (initLR);
+
+    network->createLayer(rs.getSize (), true, Activation::TANH);
+    network->createLayer(rs.getSize() * 3, true, Activation::TANH);
+    network->createLayer(10, Activation::TANH);
+
+    FPHandler testHandler = network->createFPSection (testData.size());
+    FPHandler trainingHandler = network->createFPSection (trainingData.size());
+
+    auto generateInputHostMatrix = [](const Coordinates& coords)
+    {
+      oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, coords.size() * 3);
+
+      for (size_t idx = 0; idx < coords.size(); ++idx)
+      {
+        const auto& coord = coords[idx];
+        hinput->reValues[0 + idx * 3] = coord.getX();
+        hinput->reValues[1 + idx * 3] = coord.getY();
+        hinput->reValues[2 + idx * 3] = 1;
+      }
+      return hinput;
+    };
+
+//    LayerS_FP* testLayerS_FP = network->getLayerS_FP (testHandler, 0);
+//    oap::cuda::CopyHostMatrixToDeviceMatrix (testLayerS_FP->m_inputs, testHInputs);
+
+//    LayerS_FP* trainingLayerS_FP = network->getLayerS_FP (trainingHandler, 0);
+//    oap::cuda::CopyHostMatrixToDeviceMatrix (trainingLayerS_FP->m_inputs, trainingHInputs);
+
+    floatt testError = std::numeric_limits<floatt>::max();
+    floatt trainingError = std::numeric_limits<floatt>::max();
+    size_t terrorCount = 0;
+
+    auto calculateCoordsError = [&forwardPropagationFP, &network](const Coordinates& coords, FPHandler handler, oap::HostMatrixPtr hostMatrix, Coordinates* output = nullptr)
+    {
+      std::vector<Coordinate> pcoords;
+      forwardPropagationFP (handler);
+      network->getOutputs (hostMatrix.get(), ArgType::HOST, handler);
+
+      if (output != nullptr)
+      {
+        for (size_t idx = 0; idx < coords.size(); ++idx)
+        {
+          Coordinate ncoord = coords[idx];
+          ncoord.setLabel (hostMatrix->reValues[idx]);
+          output->push_back (ncoord);
+        }
+      }
+
+      floatt error = network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
+      network->postStep ();
+      return error;
+    };
+
+    do
+    {
+      for(size_t idx = 0; idx < trainingData.size(); idx += batchSize)
+      {
+        for (size_t c = 0; c < batchSize; ++c)
+        {
+          forwardPropagation (trainingData[idx + c]);
+          network->backPropagation ();
+        }
+        network->updateWeights ();
+      }
+      floatt dTestError = testError;
+      floatt dTrainingError = trainingError;
+      //testError = calculateCoordsError (testData, testHandler, testHOutputs);
+      //trainingError = calculateCoordsError (trainingData, trainingHandler, trainingHOutputs);
+    }
+    while (testError > 0.005 && terrorCount < 10000);
+  }
 }
