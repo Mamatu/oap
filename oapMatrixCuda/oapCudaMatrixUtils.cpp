@@ -342,7 +342,7 @@ MatrixEx* NewDeviceMatrixEx()
   return CudaUtils::AllocDeviceObj<MatrixEx>(host);
 }
 
-void CopyHostArrayToDeviceMatrix (math::Matrix* matrix, floatt* rebuffer, floatt* imbuffer, size_t length)
+void CopyHostArrayToDeviceMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length)
 {
   const auto& minfo = oap::cuda::GetMatrixInfo (matrix);
 
@@ -357,7 +357,7 @@ void CopyHostArrayToDeviceMatrix (math::Matrix* matrix, floatt* rebuffer, floatt
   }
 }
 
-void CopyHostArrayToDeviceReMatrix (math::Matrix* matrix, floatt* buffer, size_t length)
+void CopyHostArrayToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, size_t length)
 {
   const auto& minfo = oap::cuda::GetMatrixInfo (matrix);
   size_t mlength = minfo.columns() * minfo.rows();
@@ -371,7 +371,7 @@ void CopyHostArrayToDeviceReMatrix (math::Matrix* matrix, floatt* buffer, size_t
   CudaUtils::CopyHostToDevice (values, buffer, length * sizeof(floatt));
 }
 
-void CopyHostArrayToDeviceImMatrix (math::Matrix* matrix, floatt* buffer, size_t length)
+void CopyHostArrayToDeviceImMatrix (math::Matrix* matrix, const floatt* buffer, size_t length)
 {
   const auto& minfo = oap::cuda::GetMatrixInfo (matrix);
   size_t mlength = minfo.columns() * minfo.rows();
