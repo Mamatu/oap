@@ -366,7 +366,7 @@ void GetMatrixStr(std::string& output, math::Matrix* matrix, floatt zeroLimit, b
   args.section.separator = sectionSeparator;
 
   oap::generic::printMatrix (output, matrix, args,
-               oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix, oap::cuda::CopyHostMatrixToDeviceMatrix);
+               oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
 }
 
 void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
@@ -380,7 +380,7 @@ void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit, boo
   std::string output;
 
   oap::generic::printMatrix (output, matrix, args,
-               oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix, oap::cuda::CopyHostMatrixToDeviceMatrix);
+               oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
   fprintf(stream, "%s CUDA \n", output.c_str());
 }
 
@@ -400,7 +400,7 @@ void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zer
   std::string output;
 
   oap::generic::printMatrix (output, matrix, args,
-               oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix, oap::cuda::CopyHostMatrixToDeviceMatrix);
+               oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
   printf("%s %s CUDA \n", text.c_str(), output.c_str());
 }
 }
