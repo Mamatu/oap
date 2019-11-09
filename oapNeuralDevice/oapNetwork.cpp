@@ -473,7 +473,6 @@ void Network::destroyLayers()
     delete *it;
   }
   m_layers.clear();
-  m_layers.clear();
 }
 
 void Network::destroyFPSections()
