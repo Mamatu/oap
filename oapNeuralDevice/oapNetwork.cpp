@@ -358,7 +358,7 @@ void Network::backPropagation ()
 
 void Network::updateWeights()
 {
-  oap::generic::updateWeights (m_layers, m_cuApi, std::bind<void(Network::*)()> (&Network::postStep, this), m_learningRate, m_errorsVec.size());
+  oap::generic::updateWeights (m_layers, m_cuApi, [this]() { this->postStep(); }, m_learningRate, m_errorsVec.size());
 }
 
 bool Network::train (math::Matrix* inputs, math::Matrix* expectedOutputs, ArgType argType, oap::ErrorType errorType)
