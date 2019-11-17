@@ -54,6 +54,17 @@ uintt GetColumns(const math::Matrix* dMatrix);
 
 uintt GetRows(const math::Matrix* dMatrix);
 
+
+struct ValuesPtr
+{
+  floatt* reValues = nullptr;
+  floatt* imValues = nullptr;
+};
+
+ValuesPtr GetValuesPtr (const math::Matrix* dMatrix);
+floatt* GetReValuesPtr (const math::Matrix* dMatrix);
+floatt* GetImValuesPtr (const math::Matrix* dMatrix);
+
 math::Matrix* NewDeviceMatrixCopyOfHostMatrix(const math::Matrix* hostMatrix);
 
 math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns, uintt rows);
@@ -150,6 +161,10 @@ MatrixEx** NewDeviceMatrixEx(uintt count);
 void CopyHostArrayToDeviceMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
 void CopyHostArrayToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
 void CopyHostArrayToDeviceImMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
+
+void CopyHostArrayToDeviceMatrixBuffer (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
+void CopyHostArrayToDeviceReMatrixBuffer (math::Matrix* matrix, const floatt* buffer, size_t length);
+void CopyHostArrayToDeviceImMatrixBuffer (math::Matrix* matrix, const floatt* buffer, size_t length);
 
 void DeleteDeviceMatrixEx(MatrixEx** matrixEx);
 
