@@ -88,12 +88,17 @@ uintt GetRows(CUdeviceptr matrix);
 uintt GetColumns(const MatrixEx* matrix);
 uintt GetRows(const MatrixEx* matrix);
 
-CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
-                        floatt revalue = 0, floatt imvalue = 0);
-CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
-                          uintt rows, floatt value);
-CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
-                          uintt rows, floatt value);
+struct CuDevicePtrs
+{
+  CUdeviceptr matrixPtr;
+  CUdeviceptr reValuesPtr;
+  CUdeviceptr imValuesPtr;
+};
+
+CUdeviceptr AllocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows, floatt revalue = 0, floatt imvalue = 0, CuDevicePtrs* cuDevicePtrs = nullptr);
+CUdeviceptr AllocReMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value);
+CUdeviceptr AllocImMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value);
+
 CUdeviceptr SetReMatrixToNull(CUdeviceptr devicePtrMatrix);
 
 CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix);

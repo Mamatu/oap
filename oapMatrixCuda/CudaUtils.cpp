@@ -171,8 +171,8 @@ uintt GetRows(const MatrixEx* matrixEx) {
   return rows;
 }
 
-CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
-                        floatt revalue, floatt imvalue) {
+CUdeviceptr AllocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows, floatt revalue, floatt imvalue, CuDevicePtrs* cuDevicePtrs)
+{
   CUdeviceptr matrix = 0;
   AllocDeviceMem(&matrix, sizeof(math::Matrix));
 
@@ -189,6 +189,13 @@ CUdeviceptr AllocMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows,
     matrixIm = AllocImMatrix(matrix, columns, rows, imvalue);
   } else {
     matrixIm = SetImMatrixToNull(matrix);
+  }
+
+  if (cuDevicePtrs)
+  {
+    cuDevicePtrs->matrixPtr = matrix;
+    cuDevicePtrs->reValuesPtr = matrixRe;
+    cuDevicePtrs->imValuesPtr = matrixIm;
   }
 
   SetVariables(matrix, columns, rows);
