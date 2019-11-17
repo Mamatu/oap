@@ -284,6 +284,24 @@ class CuProceduresApi
   void multiplyDSin (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
   void multiplyDSin (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
 
+  // Relu/relu function and derivatives
+  void relu (math::Matrix* output, math::Matrix* matrix);
+  void relu (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void relu (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  void drelu (math::Matrix* output, math::Matrix* matrix);
+  void drelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void drelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  // Softplus/softplus function and derivatives
+  void softplus (math::Matrix* output, math::Matrix* matrix);
+  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  void dsoftplus (math::Matrix* output, math::Matrix* matrix);
+  void dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
   inline void cos (math::Matrix* output, math::Matrix* matrix)
   {
     dsin (output, matrix);

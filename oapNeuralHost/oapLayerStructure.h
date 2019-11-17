@@ -31,10 +31,13 @@ using FPHandler = uintt;
 
 enum class Activation
 {
+  NONE,
   LINEAR,
   SIGMOID,
   TANH,
-  SIN
+  SIN,
+  RELU,
+  SOFTPLUS
 };
 
 enum class ArgType

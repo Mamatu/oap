@@ -720,6 +720,66 @@ void CuProceduresApi::dsin (math::Matrix* output, math::Matrix* matrix, uintt di
   m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_DSinDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
+void CuProceduresApi::relu (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_Relu", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
+void CuProceduresApi::relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_ReluDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_ReluDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::drelu (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_DRelu", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
+void CuProceduresApi::drelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_DReluDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::drelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_DReluDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::softplus (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_Softplus", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
+void CuProceduresApi::softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_SoftplusDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_SoftplusDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::dsoftplus (math::Matrix* output, math::Matrix* matrix)
+{
+  m_cuStatus = oap::generic::func ("CUDAKernel_DSoftplus", output, matrix, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
+void CuProceduresApi::dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  m_cuStatus = oap::generic::funcDim ("CUDAKernel_DSoftplusDim", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+void CuProceduresApi::dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_DSoftplusDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
                                 math::Matrix* matrix2, uintt w, uintt h,
                                 uintt wthreads, uintt hthreads) {

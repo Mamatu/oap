@@ -69,16 +69,22 @@ class HostProcedures {
   void sigmoid (math::Matrix* output, math::Matrix* matrix);
   void linear (math::Matrix* output, math::Matrix* matrix);
   void sin (math::Matrix* output, math::Matrix* matrix);
+  void relu (math::Matrix* output, math::Matrix* matrix);
+  void softplus (math::Matrix* output, math::Matrix* matrix);
 
   void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
   void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
   void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
   void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
 
   void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
   void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
   void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
   void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 

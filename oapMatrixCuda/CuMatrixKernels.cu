@@ -359,6 +359,56 @@ extern "C" __global__ void CUDAKernel_DSinDimPeriodic (math::Matrix* matrix, uin
   CUDA_dsinDimPeriodic (matrix, matrix, ex);
 }
 
+// Relu
+extern "C" __global__ void CUDAKernel_Relu (math::Matrix* omatrix, math::Matrix* imatrix) {
+  CUDA_relu (omatrix, imatrix);
+}
+
+extern "C" __global__ void CUDAKernel_DRelu (math::Matrix* matrix) {
+  CUDA_drelu (matrix, matrix);
+}
+
+extern "C" __global__ void CUDAKernel_ReluDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_reluDim (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DReluDim (math::Matrix* matrix, uintt* ex) {
+  CUDA_dreluDim (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_ReluDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_reluDimPeriodic (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DReluDimPeriodic (math::Matrix* matrix, uintt* ex) {
+  CUDA_dreluDimPeriodic (matrix, matrix, ex);
+}
+
+// Softplus
+extern "C" __global__ void CUDAKernel_Softplus (math::Matrix* omatrix, math::Matrix* imatrix) {
+  CUDA_softplus (omatrix, imatrix);
+}
+
+extern "C" __global__ void CUDAKernel_DSoftplus (math::Matrix* matrix) {
+  CUDA_dsoftplus (matrix, matrix);
+}
+
+extern "C" __global__ void CUDAKernel_SoftplusDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_softplusDim (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DSoftplusDim (math::Matrix* matrix, uintt* ex) {
+  CUDA_dsoftplusDim (matrix, matrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_SoftplusDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex) {
+  CUDA_softplusDimPeriodic (omatrix, imatrix, ex);
+}
+
+extern "C" __global__ void CUDAKernel_DSoftplusDimPeriodic (math::Matrix* matrix, uintt* ex) {
+  CUDA_dsoftplusDimPeriodic (matrix, matrix, ex);
+}
+
 extern "C" __global__ void CUDAKernel_CrossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
   CUDA_crossEntropy (output, params0, params1);
