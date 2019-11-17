@@ -262,6 +262,16 @@ void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix)
   oap::generic::executeKernel1Arg ("CUDAKernel_Sin", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
+void HostProcedures::relu (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_Relu", output, matrix, &m_kernel, m_bmApi, true, [](){});
+}
+
+void HostProcedures::softplus (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_Softplus", output, matrix, &m_kernel, m_bmApi, true, [](){});
+}
+
 void HostProcedures::_funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2])
 {
   oap::generic::executeKernel1Arg (kname, output, matrix, dims, &m_kernel, m_bmApi, true, [](){},
@@ -286,6 +296,16 @@ void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, uintt d
 void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
 {
   _funcDim ("CUDAKernel_SinDim", output, matrix, dims);
+}
+
+void HostProcedures::relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  _funcDim ("CUDAKernel_ReluDim", output, matrix, dims);
+}
+
+void HostProcedures::softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  _funcDim ("CUDAKernel_SoftplusDim", output, matrix, dims);
 }
 
 void HostProcedures::_funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
@@ -313,6 +333,16 @@ void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, uintt d
 void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
 {
   _funcDimPeriodic ("CUDAKernel_SinDimPeriodic", output, matrix, dims);
+}
+
+void HostProcedures::relu(math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  _funcDimPeriodic ("CUDAKernel_ReluDimPeriodic", output, matrix, dims);
+}
+
+void HostProcedures::softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  _funcDimPeriodic ("CUDAKernel_SoftplusDimPeriodic", output, matrix, dims);
 }
 
 void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
