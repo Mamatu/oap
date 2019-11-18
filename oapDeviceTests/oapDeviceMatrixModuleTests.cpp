@@ -167,3 +167,81 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
   oap::host::DeleteMatrix(m1);
   oap::cuda::DeleteDeviceMatrix(d1);
 }
+
+TEST_F(OapDeviceMatrixModuleTests, GetValuesPtrTest_1)
+{
+  math::Matrix* matrix = oap::cuda::NewDeviceReMatrix (1, 2);
+
+  oap::cuda::ValuesPtr valuesPtr = oap::cuda::GetValuesPtr (matrix);
+
+  floatt* revaluesPtr = CudaUtils::GetReValues (matrix);
+  floatt* imvaluesPtr = CudaUtils::GetImValues (matrix);
+
+  EXPECT_EQ(revaluesPtr, valuesPtr.reValues);
+  EXPECT_EQ(imvaluesPtr, valuesPtr.imValues);
+  EXPECT_EQ(revaluesPtr, oap::cuda::GetReValuesPtr (matrix));
+  EXPECT_EQ(imvaluesPtr, oap::cuda::GetImValuesPtr (matrix));
+  EXPECT_NE(nullptr, valuesPtr.reValues);
+  EXPECT_EQ(nullptr, valuesPtr.imValues);
+
+  oap::cuda::DeleteDeviceMatrix (matrix);
+
+  valuesPtr = oap::cuda::GetValuesPtr (matrix);
+
+  EXPECT_EQ(nullptr, valuesPtr.reValues);
+  EXPECT_EQ(nullptr, valuesPtr.imValues);
+  EXPECT_EQ(nullptr, oap::cuda::GetReValuesPtr (matrix));
+  EXPECT_EQ(nullptr, oap::cuda::GetImValuesPtr (matrix));
+}
+
+TEST_F(OapDeviceMatrixModuleTests, GetValuesPtrTest_2)
+{
+  math::Matrix* matrix = oap::cuda::NewDeviceMatrix (1, 2);
+
+  oap::cuda::ValuesPtr valuesPtr = oap::cuda::GetValuesPtr (matrix);
+
+  floatt* revaluesPtr = CudaUtils::GetReValues (matrix);
+  floatt* imvaluesPtr = CudaUtils::GetImValues (matrix);
+
+  EXPECT_EQ(revaluesPtr, valuesPtr.reValues);
+  EXPECT_EQ(imvaluesPtr, valuesPtr.imValues);
+  EXPECT_EQ(revaluesPtr, oap::cuda::GetReValuesPtr (matrix));
+  EXPECT_EQ(imvaluesPtr, oap::cuda::GetImValuesPtr (matrix));
+  EXPECT_NE(nullptr, valuesPtr.reValues);
+  EXPECT_NE(nullptr, valuesPtr.imValues);
+
+  oap::cuda::DeleteDeviceMatrix (matrix);
+
+  valuesPtr = oap::cuda::GetValuesPtr (matrix);
+
+  EXPECT_EQ(nullptr, valuesPtr.reValues);
+  EXPECT_EQ(nullptr, valuesPtr.imValues);
+  EXPECT_EQ(nullptr, oap::cuda::GetReValuesPtr (matrix));
+  EXPECT_EQ(nullptr, oap::cuda::GetImValuesPtr (matrix));
+}
+
+TEST_F(OapDeviceMatrixModuleTests, GetValuesPtrTest_3)
+{
+  math::Matrix* matrix = oap::cuda::NewDeviceImMatrix (1, 2);
+
+  oap::cuda::ValuesPtr valuesPtr = oap::cuda::GetValuesPtr (matrix);
+
+  floatt* revaluesPtr = CudaUtils::GetReValues (matrix);
+  floatt* imvaluesPtr = CudaUtils::GetImValues (matrix);
+
+  EXPECT_EQ(revaluesPtr, valuesPtr.reValues);
+  EXPECT_EQ(imvaluesPtr, valuesPtr.imValues);
+  EXPECT_EQ(revaluesPtr, oap::cuda::GetReValuesPtr (matrix));
+  EXPECT_EQ(imvaluesPtr, oap::cuda::GetImValuesPtr (matrix));
+  EXPECT_EQ(nullptr, valuesPtr.reValues);
+  EXPECT_NE(nullptr, valuesPtr.imValues);
+
+  oap::cuda::DeleteDeviceMatrix (matrix);
+
+  valuesPtr = oap::cuda::GetValuesPtr (matrix);
+
+  EXPECT_EQ(nullptr, valuesPtr.reValues);
+  EXPECT_EQ(nullptr, valuesPtr.imValues);
+  EXPECT_EQ(nullptr, oap::cuda::GetReValuesPtr (matrix));
+  EXPECT_EQ(nullptr, oap::cuda::GetImValuesPtr (matrix));
+}

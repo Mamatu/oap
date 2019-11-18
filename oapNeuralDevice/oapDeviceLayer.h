@@ -17,19 +17,14 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TYPES_H
-#define OAP_NEURAL_TYPES_H
+#ifndef OAP_NEURAL_DEVICE_LAYER_H
+#define OAP_NEURAL_DEVICE_LAYER_H
 
-namespace oap
-{
-  enum class ErrorType
-  {
-    MEAN_SQUARE_ERROR,
-    ROOT_MEAN_SQUARE_ERROR,
-    SUM,
-    MEAN_OF_SUM,
-    CROSS_ENTROPY
-  };
-}
+#include "oapLayer.h"
+#include "oapDeviceNeuralApi.h"
+#include "oapDeviceLayerApi.h"
+#include "oapCudaMatrixUtils.h"
+
+using DeviceLayer = Layer<DeviceLayerApi>;
 
 #endif

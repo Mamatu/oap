@@ -68,8 +68,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
@@ -89,7 +89,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
 
   network->forwardPropagation ();
 
-  auto getLayerOutput = [](Layer* layer)
+  auto getLayerOutput = [](DeviceLayer* layer)
   {
     auto minfo = layer->getOutputsInfo ();
     oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
@@ -116,8 +116,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
@@ -137,7 +137,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
 
   network->forwardPropagation ();
 
-  auto getLayerOutput = [](Layer* layer)
+  auto getLayerOutput = [](DeviceLayer* layer)
   {
     auto minfo = layer->getOutputsInfo ();
     oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
@@ -163,8 +163,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
@@ -211,8 +211,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
   weights1to2->reValues[0] = 1;
@@ -257,9 +257,9 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(3);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(3);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
@@ -315,9 +315,9 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_1)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(3);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(3);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
@@ -377,9 +377,9 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_2)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(3);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(3);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
@@ -447,9 +447,9 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_3)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(3);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(3);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
@@ -507,9 +507,9 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_7)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(3);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(3);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 
@@ -574,9 +574,9 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_8)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(3);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(3);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
 

@@ -68,9 +68,9 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_1)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(2);
-  Layer* l2 = network->createLayer(2);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(2);
+  DeviceLayer* l2 = network->createLayer(2);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 2);
   weights1to2->reValues[0] = 1;
@@ -105,9 +105,9 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_2)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(3);
-  Layer* l2 = network->createLayer(3);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(3);
+  DeviceLayer* l2 = network->createLayer(3);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = 1;
@@ -150,9 +150,9 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_3)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(3);
-  Layer* l2 = network->createLayer(3);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(3);
+  DeviceLayer* l2 = network->createLayer(3);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = 2;
@@ -195,9 +195,9 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_4)
 {
   using namespace oap::math;
 
-  Layer* l1 = network->createLayer(3);
-  Layer* l2 = network->createLayer(3);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(3);
+  DeviceLayer* l2 = network->createLayer(3);
+  DeviceLayer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = 4;
@@ -229,7 +229,7 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_4)
 
   network->forwardPropagation ();
 
-  auto getLayerOutput = [](Layer* layer)
+  auto getLayerOutput = [](DeviceLayer* layer)
   {
     auto minfo = layer->getOutputsInfo ();
     oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
