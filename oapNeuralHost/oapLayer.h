@@ -20,10 +20,7 @@
 #ifndef OAP_NEURAL_LAYER_H
 #define OAP_NEURAL_LAYER_H
 
-#include "CuProceduresApi.h"
-
 #include "ByteBuffer.h"
-#include "oapDeviceMatrixUPtr.h"
 
 #include "oapLayerStructure.h"
 #include "oapGenericNeuralApi.h"
@@ -76,12 +73,6 @@ public:
   void setDeviceWeights (math::Matrix* weights);
 
   void initRandomWeights (const Layer* nextLayer);
-/*
-  void save (utils::ByteBuffer& buffer) const;
-  static Layer* load (const utils::ByteBuffer& buffer);
-*/
-  //bool operator== (const Layer& layer) const;
-  //bool operator!= (const Layer& layer) const;
 
 private:
   static void deallocate(math::Matrix** matrix);
@@ -96,8 +87,6 @@ private:
   Layer* m_nextLayer = nullptr;
 
   LayerApi m_layerApi;
-
- // friend class Network;
 };
 
 #include "oapLayer_impl.hpp"
