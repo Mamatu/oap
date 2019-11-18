@@ -21,6 +21,7 @@
 #define OAP_NEURAL_NETWORK_H
 
 #include "oapDeviceLayer.h"
+#include "CuProceduresApi.h"
 #include "oapDeviceMatrixPtr.h"
 
 #include "oapNetworkStructure.h"
