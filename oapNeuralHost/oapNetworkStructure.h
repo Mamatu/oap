@@ -20,19 +20,51 @@
 #ifndef OAP_NEURAL_NETWORK_STRUCTURE_H
 #define OAP_NEURAL_NETWORK_STRUCTURE_H
 
+#include <map>
 #include <vector>
 
 #include "oapLayerStructure.h"
 
-struct NetworkS
+template <typename T>
+class NetworkS
 {
-  virtual ~NetworkS()
-  {}
+  public:
+    virtual ~NetworkS()
+    {}
 
-  std::vector<floatt> m_errorsVec;
+    void setExpected (math::Matrix* expected, ArgType argType, FPHandler handler = 0);
+    math::Matrix* getExpected (FPHandler handler = 0) const;
 
-  floatt m_learningRate = 0.1f;
-  uintt m_step = 1;
+  protected:
+    std::vector<floatt> m_errorsVec;
+
+    floatt m_learningRate = 0.1f;
+    uintt m_step = 1;
+
+    using ExpectedOutputs = std::map<FPHandler, T>;
+    ExpectedOutputs m_expectedOutputs;
+
+    virtual void setExpectedProtected (typename ExpectedOutputs::mapped_type& holder, math::Matrix* expected, ArgType argType) = 0;
+    virtual math::Matrix* convertExpectedProtected (T t) const = 0;
 };
+
+template<typename T>
+void NetworkS<T>::setExpected (math::Matrix* expected, ArgType argType, FPHandler handler)
+{
+  typename ExpectedOutputs::mapped_type& holder = m_expectedOutputs[handler];
+  
+  setExpectedProtected (holder, expected, argType);
+}
+
+template<typename T>
+math::Matrix* NetworkS<T>::getExpected (FPHandler handler) const
+{
+  auto it = m_expectedOutputs.find (handler);
+  if (it == m_expectedOutputs.end ())
+  {
+    return nullptr;
+  }
+  return convertExpectedProtected (it->second);
+}
 
 #endif

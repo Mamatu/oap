@@ -23,11 +23,13 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+
 #include "oapGenericNeuralApi.h"
 #include "oapGenericAllocApi.h"
 
 #include "HostProcedures.h"
 #include "oapHostMatrixPtr.h"
+#include "oapLayer.h"
 
 #include "oapFunctions.h"
 
@@ -41,42 +43,69 @@ public:
     }
 };
 
+namespace
+{
+  class MockLayerApi
+  {
+    public:
+      void deallocate(Layer<MockLayerApi>* layer)
+      {}
+  };
+
+  class MockLayer : public Layer<MockLayerApi>
+  {
+    public:
+      MockLayer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation) :
+        Layer<MockLayerApi>(neuronsCount, biasesCount, samplesCount, activation)
+      {
+        setFPMatrices (new FPMatrices());
+        setBPMatrices (new BPMatrices());
+      }
+
+      virtual ~MockLayer ()
+      {
+        delete getFPMatrices ();
+        delete getBPMatrices ();
+      }
+  };
+}
+
 std::vector<oap::HostMatrixPtr> runForwardPropagation (const std::vector<uintt> ns, const std::vector<oap::HostMatrixPtr> weights)
 {
   HostProcedures hostProcedures;
 
-  auto ldeleter = [](LayerS* layer)
+  auto ldeleter = [](MockLayer* layer)
   {
-    oap::generic::deallocate<LayerS, oap::alloc::host::DeallocLayerApi> (*layer);
+    oap::generic::deallocate<MockLayer, oap::alloc::host::DeallocLayerApi> (*layer);
     delete layer;
   };
 
-  std::vector<LayerS*> layers;
-  std::vector<std::shared_ptr<LayerS>> layersPtrs;
+  std::vector<MockLayer*> layers;
+  std::vector<std::shared_ptr<MockLayer>> layersPtrs;
 
   for (size_t idx = 0; idx < ns.size(); ++idx)
   {
-    LayerS* l1 = oap::generic::createLayer<LayerS, oap::alloc::host::AllocNeuronsApi> (ns[idx], false, Activation::SIGMOID);
-    layersPtrs.push_back (std::shared_ptr<LayerS>(l1, ldeleter));
+    MockLayer* l1 = oap::generic::createLayer<MockLayer, oap::alloc::host::AllocNeuronsApi> (ns[idx], false, 1, Activation::SIGMOID);
+    layersPtrs.push_back (std::shared_ptr<MockLayer>(l1, ldeleter));
     layers.push_back (l1);
   }
 
   for (size_t idx = 0; idx < ns.size() - 1; ++idx)
   {
-    oap::generic::connectLayers<LayerS, oap::alloc::host::AllocWeightsApi>(layers[idx], layers[idx + 1]);
+    oap::generic::connectLayers<MockLayer, oap::alloc::host::AllocWeightsApi>(layers[idx], layers[idx + 1]);
     oap::generic::setHostWeights (*layers[idx], weights[idx].get(), oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
   }
 
 
   for (uintt idx = 0; idx < ns[0]; ++idx)
   {
-    layers.front()->m_inputs->reValues[idx] = 1;
+    layers.front()->getFPMatrices()->m_inputs->reValues[idx] = 1;
   }
 
   oap::generic::initNetworkBiases (layers, oap::host::SetReValue);
-  oap::generic::forwardPropagation (layers, hostProcedures);
+  oap::generic::forwardPropagation_oneSample<MockLayer> (layers, hostProcedures);
 
-  auto getLayerOutput = [](LayerS* layer)
+  auto getLayerOutput = [](MockLayer* layer)
   {
     auto minfo = oap::generic::getOutputsInfo (*layer, oap::host::GetMatrixInfo);
     oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);

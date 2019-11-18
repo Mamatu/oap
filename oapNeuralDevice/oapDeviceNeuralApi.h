@@ -30,104 +30,88 @@
 
 namespace oap
 {
-namespace generic
+namespace device
 {
 
 namespace
 {
-inline void checkHostInputs (ILayerS_FP& ls, const math::Matrix* hostInputs)
+
+template<typename LayerT>
+void checkHostInputs (LayerT& layer, const math::Matrix* hostInputs)
 {
   if (hostInputs->columns != 1)
   {
     debugAssert ("Columns of hostInputs matrix must be equal 1" == nullptr);
   }
 
-  if (hostInputs->rows != ls.getRowsCount())
+  if (hostInputs->rows != layer.getRowsCount())
   {
     debugAssert ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)" == nullptr);
   }
 }
 
-inline void _setReValue (math::Matrix* matrix, floatt v, uintt c, uintt r)
+void _setReValue (math::Matrix* matrix, floatt v, uintt c, uintt r)
 {
   oap::cuda::SetReValue(matrix, v, c, r);
 }
 }
 
-inline void setHostInputs (ILayerS_FP& ls, const math::Matrix* hInputs)
+template<typename LayerT>
+void setHostInputs (LayerT& layer, const math::Matrix* hInputs)
 {
-  checkHostInputs (ls, hInputs);
+  checkHostInputs (layer, hInputs);
 
-  oap::generic::setInputs (ls, hInputs, oap::cuda::CopyHostMatrixToDeviceMatrix, _setReValue);
+  oap::generic::setInputs (layer, hInputs, oap::cuda::CopyHostMatrixToDeviceMatrix, _setReValue);
 }
 
-inline void setDeviceInputs (ILayerS_FP& ls, const math::Matrix* dInputs)
+template<typename LayerT>
+void setDeviceInputs (LayerT& layer, const math::Matrix* dInputs)
 {
-  oap::generic::setInputs (ls, dInputs, oap::cuda::CopyDeviceMatrixToDeviceMatrix, _setReValue);
+  oap::generic::setInputs (layer, dInputs, oap::cuda::CopyDeviceMatrixToDeviceMatrix, _setReValue);
 }
 
-inline math::MatrixInfo getOutputsInfo (const LayerS& ls)
+template<typename LayerT>
+math::MatrixInfo getOutputsInfo (const LayerT& layer)
 {
-  return oap::generic::getOutputsInfo (ls, oap::cuda::GetMatrixInfo);
+  return oap::generic::getOutputsInfo (layer, oap::cuda::GetMatrixInfo);
 }
 
-inline math::MatrixInfo getInputsInfo (LayerS& ls)
+template<typename LayerT>
+math::MatrixInfo getInputsInfo (LayerT& layer)
 {
-  return oap::cuda::GetMatrixInfo (ls.m_inputs);
+  return oap::cuda::GetMatrixInfo (layer.getFPMatrices()->m_inputs);
 }
 
-inline void getOutputs (const LayerS& ls, math::Matrix* matrix, ArgType type)
+template<typename LayerT>
+void getOutputs (const LayerT& layer, math::Matrix* matrix, ArgType type)
 {
   switch (type)
   {
     case ArgType::HOST:
-      oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToHostMatrix);
+      oap::generic::getOutputs (matrix, layer, oap::cuda::CopyDeviceMatrixToHostMatrix);
       break;
     default:
-      oap::generic::getOutputs (matrix, ls, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
+      oap::generic::getOutputs (matrix, layer, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
       break;
   }
 }
 
-inline void setHostWeights (LayerS& ls, math::Matrix* weights)
+template<typename LayerT>
+void setHostWeights (LayerT& layer, math::Matrix* weights)
 {
-  oap::generic::setHostWeights (ls, weights, oap::cuda::CopyHostMatrixToDeviceMatrix, oap::cuda::GetMatrixInfo, oap::host::GetMatrixInfo);
+  oap::generic::setHostWeights (layer, weights, oap::cuda::CopyHostMatrixToDeviceMatrix, oap::cuda::GetMatrixInfo, oap::host::GetMatrixInfo);
 }
 
-inline void setDeviceWeights (LayerS& ls, math::Matrix* weights)
+template<typename LayerT>
+void setDeviceWeights (LayerT& layer, math::Matrix* weights)
 {
-  oap::cuda::CopyDeviceMatrixToDeviceMatrix (ls.m_weights, weights);
-}
-
-inline void getHostWeights (math::Matrix* output, const LayerS& ls)
-{
-  oap::cuda::CopyDeviceMatrixToHostMatrix (output, ls.m_weights);
-}
-
-inline void printHostWeights (const LayerS& ls, bool newLine)
-{
-  std::stringstream sstream;
-  sstream << "Layer (" << &ls << ") weights = ";
-  std::string matrixStr;
-
-  if (ls.m_weights == nullptr)
-  {
-    oap::host::ToString (matrixStr, nullptr);
-  }
-  else
-  {
-    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (ls.getTotalNeuronsCount(), ls.m_nextLayer->getTotalNeuronsCount());
-    oap::generic::getHostWeights (matrix.get(), ls);
-
-    oap::host::ToString (matrixStr, matrix.get());
-  }
-
-  logInfo ("%s %s", sstream.str().c_str(), matrixStr.c_str());
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer.getBPMatrices()->m_weights, weights);
 }
 
 using RandCallback = std::function<floatt(uintt c, uintt r, floatt value)>;
 
-inline std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix (LayerS& ls, uintt columns, uintt rows, RandCallback&& randCallback)
+template<typename LayerT>
+std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix (LayerT& layer, uintt columns, uintt rows, RandCallback&& randCallback)
 {
   std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> randomMatrix(oap::host::NewReMatrix(columns, rows),
                   [](const math::Matrix* m){oap::host::DeleteMatrix(m);});
@@ -147,28 +131,31 @@ inline std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> c
   return std::move (randomMatrix);
 }
 
-inline void initRandomWeights (LayerS& ls, const LayerS* nextLayer)
+template<typename LayerT, typename GetMatrixInfo>
+void initRandomWeights (LayerT& layer, const LayerT* nextLayer, GetMatrixInfo&& getMatrixInfo)
 {
-  if (ls.m_weights == nullptr)
-  {
-    throw std::runtime_error("m_weights == nullptr");
-  }
+  math::Matrix* weights = layer.getBPMatrices()->m_weights;
 
-  auto randomMatrix = createRandomMatrix (ls, ls.m_weightsDim.first, ls. m_weightsDim.second, [&ls, &nextLayer](uintt c, uintt r, floatt v)
+  debugAssert(weights != nullptr);
+
+  auto winfo = getMatrixInfo (layer.getBPMatrices()->m_weights);
+
+  auto randomMatrix = createRandomMatrix (layer, winfo.columns(), winfo.rows(), [&layer, &nextLayer, &winfo](uintt c, uintt r, floatt v)
   {
-    if (nextLayer->m_biasCount == 1 && ls.m_weightsDim.second - 1 == r)
+    if (nextLayer->getBiasesCount() == 1 && winfo.rows() - 1 == r)
     {
       return 0.;
     }
     return v;
   });
 
-  oap::cuda::CopyHostMatrixToDeviceMatrix (ls.m_weights, randomMatrix.get());
+  oap::cuda::CopyHostMatrixToDeviceMatrix (weights, randomMatrix.get());
 }
 
-inline math::MatrixInfo getWeightsInfo (const LayerS& ls)
+template<typename LayerT>
+math::MatrixInfo getWeightsInfo (const LayerT& layer)
 {
-  return oap::cuda::GetMatrixInfo (ls.m_weights);
+  return oap::cuda::GetMatrixInfo (layer.getBPMatrices()->m_weights);
 }
 
 }

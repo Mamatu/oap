@@ -22,7 +22,7 @@
 
 #include "ArgsParser.h"
 #include "GraphicUtils.h"
-#include "NeuralTypes.h"
+#include "oapLayerStructure.h"
 #include "Math.h"
 
 namespace oap

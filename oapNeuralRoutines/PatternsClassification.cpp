@@ -88,7 +88,7 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   {
     utils::ByteBuffer buffer;
     buffer.fread (args.loadingPath);
-    network = Network::load (buffer);
+    //network = Network::load (buffer);
   }
 
   for (int layerSize : args.networkLayers)
@@ -164,7 +164,7 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     if (!args.savingPath.empty ())
     {
       utils::ByteBuffer buffer;
-      network->save (buffer);
+      //network->save (buffer);
       buffer.fwrite (args.savingPath);
     }
   }
