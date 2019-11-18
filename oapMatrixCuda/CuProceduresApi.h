@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_CUPROCEDURESAPI_H
-#define OAP_CUPROCEDURESAPI_H
+#ifndef OAP_CU_PROCEDURES_API_H
+#define OAP_CU_PROCEDURES_API_H
 
 #include <map>
 #include <sstream>
