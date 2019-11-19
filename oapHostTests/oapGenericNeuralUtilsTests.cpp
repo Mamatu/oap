@@ -40,26 +40,20 @@ public:
   class MockLayerApi
   {
     public:
-      void deallocate(Layer<MockLayerApi>* layer)
-      {}
-  };
-
-  class MockLayer : public Layer<MockLayerApi>
-  {
-    public:
-      MockLayer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation) :
-        Layer<MockLayerApi>(neuronsCount, biasesCount, samplesCount, activation)
+      void allocate (Layer<MockLayerApi>* layer)
       {
-        setFPMatrices (new FPMatrices());
-        setBPMatrices (new BPMatrices());
+        layer->setFPMatrices (new FPMatrices());
+        layer->setBPMatrices (new BPMatrices());
       }
 
-      virtual ~MockLayer ()
+      void deallocate (Layer<MockLayerApi>* layer)
       {
-        delete getFPMatrices ();
-        delete getBPMatrices ();
+        delete layer->getFPMatrices ();
+        delete layer->getBPMatrices ();
       }
   };
+
+  using MockLayer = Layer<MockLayerApi>;
 };
 
 TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_1)

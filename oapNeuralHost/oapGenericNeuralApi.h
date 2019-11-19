@@ -522,12 +522,20 @@ void deallocateBPMatrices (BPMatrices& bp)
 template<typename DeallocMatrixApi, typename LayerT>
 void deallocateFPMatricesInLayer (LayerT& layer)
 {
+  if (layer.getFPMatrices() == nullptr)
+  {
+    return;
+  }
   deallocateFPMatrices<DeallocMatrixApi> (*layer.getFPMatrices());
 }
 
 template<typename DeallocMatrixApi, typename LayerT>
 void deallocateBPMatricesInLayer (LayerT& layer)
 {
+  if (layer.getBPMatrices() == nullptr)
+  {
+    return;
+  }
   deallocateBPMatrices<DeallocMatrixApi> (*layer.getBPMatrices());
 }
 
@@ -553,20 +561,30 @@ void deallocate (LayerT& layer)
   deallocateBPMatricesInLayer<DeallocMatrixApi> (layer);
 }
 
-template<typename LayerT, typename AllocNeuronsApi>
-LayerT* createLayer (uintt neurons, bool hasBias, uintt samplesCount, Activation activation, bool bAllocateFPMatrices = true)
+template<typename AllocNeuronsApi, typename LayerT>
+void createFPMatrices (LayerT& layer)
+{
+  FPMatrices* fpMatrices = new FPMatrices();
+
+  layer.setFPMatrices (fpMatrices);
+  allocateFPMatrices<AllocNeuronsApi> (*layer.getFPMatrices(), layer, layer.getSamplesCount());
+}
+
+template<typename AllocNeuronsApi, typename LayerT>
+void createBPMatrices (LayerT& layer, LayerT& nextLayer)
+{
+  BPMatrices* bpMatrices = new BPMatrices();
+
+  layer.setBPMatrices (bpMatrices);
+  allocateBPMatrices<AllocNeuronsApi> (*layer.getBPMatrices(), layer, nextLayer);
+}
+
+template<typename LayerT>
+LayerT* createLayer (uintt neurons, bool hasBias, uintt samplesCount, Activation activation)
 {
   LayerT* layer = new LayerT (neurons, hasBias ? 1 : 0, samplesCount, activation);
 
   logInfo ("Layer %p allocates %u neurons (neurons : %u, bias : %u)", layer, layer->getTotalNeuronsCount(), layer->getNeuronsCount(), layer->getBiasesCount());
-
-  if (bAllocateFPMatrices)
-  {
-    FPMatrices* fpMatrices = new FPMatrices();
-
-    layer->setFPMatrices (fpMatrices);
-    allocateFPMatrices<AllocNeuronsApi> (*layer->getFPMatrices(), *layer, samplesCount);
-  }
 
   return layer;
 }
@@ -575,7 +593,7 @@ template<typename LayerT, typename AllocWeightsApi>
 void connectLayers (LayerT* previous, LayerT* next)
 {
   previous->setNextLayer (next);
-  oap::generic::allocateBPMatrices<AllocWeightsApi> (*previous->getBPMatrices(), *previous, *next);
+  oap::generic::createBPMatrices<AllocWeightsApi> (*previous, *next);
 }
 
 template<typename LayerT, typename CopyHostMatrixToMatrix, typename GetMatrixInfo>

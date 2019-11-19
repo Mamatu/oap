@@ -48,26 +48,18 @@ namespace
   class MockLayerApi
   {
     public:
-      void deallocate(Layer<MockLayerApi>* layer)
-      {}
-  };
-
-  class MockLayer : public Layer<MockLayerApi>
-  {
-    public:
-      MockLayer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation) :
-        Layer<MockLayerApi>(neuronsCount, biasesCount, samplesCount, activation)
+      void allocate (Layer<MockLayerApi>* layer)
       {
-        setFPMatrices (new FPMatrices());
-        setBPMatrices (new BPMatrices());
       }
 
-      virtual ~MockLayer ()
+      void deallocate (Layer<MockLayerApi>* layer)
       {
-        delete getFPMatrices ();
-        delete getBPMatrices ();
+        delete layer->getFPMatrices();
+        delete layer->getBPMatrices();
       }
   };
+
+  using MockLayer = Layer<MockLayerApi>;
 }
 
 std::vector<oap::HostMatrixPtr> runForwardPropagation (const std::vector<uintt> ns, const std::vector<oap::HostMatrixPtr> weights)
@@ -85,7 +77,8 @@ std::vector<oap::HostMatrixPtr> runForwardPropagation (const std::vector<uintt> 
 
   for (size_t idx = 0; idx < ns.size(); ++idx)
   {
-    MockLayer* l1 = oap::generic::createLayer<MockLayer, oap::alloc::host::AllocNeuronsApi> (ns[idx], false, 1, Activation::SIGMOID);
+    MockLayer* l1 = oap::generic::createLayer<MockLayer> (ns[idx], false, 1, Activation::SIGMOID);
+    oap::generic::createFPMatrices<oap::alloc::host::AllocNeuronsApi>(*l1);
     layersPtrs.push_back (std::shared_ptr<MockLayer>(l1, ldeleter));
     layers.push_back (l1);
   }
@@ -95,7 +88,6 @@ std::vector<oap::HostMatrixPtr> runForwardPropagation (const std::vector<uintt> 
     oap::generic::connectLayers<MockLayer, oap::alloc::host::AllocWeightsApi>(layers[idx], layers[idx + 1]);
     oap::generic::setHostWeights (*layers[idx], weights[idx].get(), oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
   }
-
 
   for (uintt idx = 0; idx < ns[0]; ++idx)
   {

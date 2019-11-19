@@ -20,6 +20,8 @@
 #include <gtest/gtest.h>
 #include <iterator>
 
+#include "oapDeviceMatrixUPtr.h"
+
 #include "oapNeuralUtils.h"
 #include "oapLayer.h"
 
@@ -43,25 +45,19 @@ namespace
   class MockLayerApi
   {
     public:
-      void deallocate(Layer<MockLayerApi>* layer)
-      {}
-  };
 
-  class MockLayer : public Layer<MockLayerApi>
-  {
-      FPMatrices* _fpMatrices;
-    public:
-      MockLayer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation):
-        Layer<MockLayerApi>(neuronsCount, biasesCount, samplesCount, activation), _fpMatrices(new FPMatrices())
+      void allocate (Layer<MockLayerApi>* layer)
       {
-        setFPMatrices(_fpMatrices);
+        layer->setFPMatrices(new FPMatrices ());
       }
 
-      virtual ~MockLayer()
+      void deallocate (Layer<MockLayerApi>* layer)
       {
-        delete _fpMatrices;
+        delete layer->getFPMatrices ();
       }
   };
+
+  using MockLayer = Layer<MockLayerApi>;
 }
 
 TEST_F(OapNeuralUtilsTests, CopyIntoTest_1)

@@ -28,7 +28,9 @@
 template<typename LayerApi>
 Layer<LayerApi>::Layer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation) :
   m_neuronsCount (neuronsCount), m_biasesCount (biasesCount), m_samplesCount(samplesCount), m_activation (activation)
-{}
+{
+  m_layerApi.allocate (this);
+}
 
 template<typename LayerApi>
 Layer<LayerApi>::~Layer()
