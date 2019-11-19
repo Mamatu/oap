@@ -29,12 +29,12 @@
 class Network;
 
 template<typename LayerApi>
-class Layer
+class Layer final
 {
 public:
   Layer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation);
 
-  virtual ~Layer();
+  ~Layer();
 
   uintt getTotalNeuronsCount() const;
   uintt getNeuronsCount() const;
@@ -89,6 +89,6 @@ private:
   LayerApi m_layerApi;
 };
 
-#include "oapLayer_impl.hpp"
+#include "oapLayer_impl.h"
 
 #endif

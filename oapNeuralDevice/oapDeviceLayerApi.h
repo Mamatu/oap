@@ -52,6 +52,7 @@ class DeviceLayerApi
 
   inline void printHostWeights (const Layer<DeviceLayerApi>* layer, bool newLine) const;
 
+  inline void allocate(Layer<DeviceLayerApi>* layer);
   inline void deallocate(Layer<DeviceLayerApi>* layer);
 
   inline void setHostWeights (Layer<DeviceLayerApi>* layer, math::Matrix* weights);
@@ -100,6 +101,9 @@ inline void DeviceLayerApi::printHostWeights (const Layer<DeviceLayerApi>* layer
 {
   oap::generic::printHostWeights (*layer, newLine, oap::cuda::CopyDeviceMatrixToHostMatrix);
 }
+
+inline void DeviceLayerApi::allocate(Layer<DeviceLayerApi>* layer)
+{}
 
 inline void DeviceLayerApi::deallocate(Layer<DeviceLayerApi>* layer)
 {

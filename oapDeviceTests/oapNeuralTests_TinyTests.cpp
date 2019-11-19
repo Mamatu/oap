@@ -25,6 +25,7 @@
 #include "MathOperationsCpu.h"
 
 #include "oapCudaMatrixUtils.h"
+#include "oapDeviceMatrixUPtr.h"
 #include "oapHostMatrixUtils.h"
 #include "oapNetwork.h"
 #include "oapFunctions.h"
