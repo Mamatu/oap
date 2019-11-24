@@ -59,6 +59,9 @@ void activateFunc (math::Matrix* output, math::Matrix* input, Activation activat
     case Activation::RELU:
       api.relu (output, input);
     break;
+    case Activation::PRELU:
+      api.prelu (output, input);
+    break;
     case Activation::SOFTPLUS:
       api.softplus (output, input);
     break;
@@ -86,6 +89,9 @@ void activateFunc (math::Matrix* output, math::Matrix* input, Activation activat
     break;
     case Activation::RELU:
       api.relu (output, input, dims);
+    break;
+    case Activation::PRELU:
+      api.prelu (output, input, dims);
     break;
     case Activation::SOFTPLUS:
       api.softplus (output, input, dims);
@@ -115,6 +121,9 @@ void activateFunc (math::Matrix* output, math::Matrix* input, Activation activat
     case Activation::RELU:
       api.relu (output, input, dims);
     break;
+    case Activation::PRELU:
+      api.prelu (output, input, dims);
+    break;
     case Activation::SOFTPLUS:
       api.softplus (output, input, dims);
     break;
@@ -142,6 +151,9 @@ void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activ
     break;
     case Activation::RELU:
       api.drelu (output, input);
+    break;
+    case Activation::PRELU:
+      api.prelu (output, input);
     break;
     case Activation::SOFTPLUS:
       api.dsoftplus (output, input);
@@ -171,6 +183,9 @@ void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activ
     case Activation::RELU:
       api.drelu (output, input, dims);
     break;
+    case Activation::PRELU:
+      api.prelu (output, input, dims);
+    break;
     case Activation::SOFTPLUS:
       api.dsoftplus (output, input, dims);
     break;
@@ -198,6 +213,9 @@ void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activ
     break;
     case Activation::RELU:
       api.drelu (output, input, dims);
+    break;
+    case Activation::PRELU:
+      api.prelu (output, input, dims);
     break;
     case Activation::SOFTPLUS:
       api.dsoftplus (output, input, dims);
@@ -267,7 +285,7 @@ void printHostWeights (const LayerT& layer, bool newLine, CopyKernelMatrixToMatr
     oap::host::ToString (matrixStr, matrix.get());
   }
 
-  logInfo ("%s %s", sstream.str().c_str(), matrixStr.c_str());
+  debugInfo ("%s %s", sstream.str().c_str(), matrixStr.c_str());
 }
 
 template<typename LayerT, typename Layers, typename Api>
@@ -465,58 +483,68 @@ void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, 
   postCallback ();
 }
 
-template<typename AllocNeuronsApi, typename Matrices, typename LayerT>
-void allocateFPMatrices (Matrices& matrices, const LayerT& layerRef, uintt samplesCount = 1)
+template<typename AllocNeuronsApi, typename LayerT>
+void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCount = 1)
 {
+  debugInfo ("%s %p", __func__, &fp);
+
   const uintt unitsCount = layerRef.getTotalNeuronsCount ();
 
   AllocNeuronsApi alloc;
 
-  matrices.m_inputs = alloc.newDeviceReMatrix (1, unitsCount * samplesCount);
-  matrices.m_sums = alloc.newDeviceMatrixDeviceRef (matrices.m_inputs);
-  matrices.m_errors = alloc.newDeviceMatrixDeviceRef (matrices.m_inputs);
-  matrices.m_errorsAux = alloc.newDeviceMatrixDeviceRef (matrices.m_inputs);
+  fp.m_matricesInfo = math::MatrixInfo (true, false, 1, unitsCount * samplesCount);
+
+  fp.m_inputs = alloc.newDeviceMatrixFromMatrixInfo (fp.m_matricesInfo);
+  fp.m_sums = alloc.newDeviceMatrixDeviceRef (fp.m_inputs);
+
+  fp.m_errors = alloc.newDeviceMatrixDeviceRef (fp.m_inputs);
+  fp.m_errorsAux = alloc.newDeviceMatrixDeviceRef (fp.m_inputs);
 }
 
 template<typename DeallocMatrixApi>
 void deallocateFPMatrices (FPMatrices& fp)
 {
+  debugInfo ("%s %p", __func__, &fp);
   DeallocMatrixApi dealloc;
 
-  auto del = [&dealloc](math::Matrix** matrix)
+  auto delk = [&dealloc](math::Matrix** matrix)
   {
     if (matrix != nullptr)
     {
-      dealloc.deleteMatrix (*matrix);
+      dealloc.deleteKernelMatrix (*matrix);
       matrix = nullptr;
     }
   };
 
-  del (&fp.m_inputs);
-  del (&fp.m_sums);
-  del (&fp.m_errors);
-  del (&fp.m_errorsAux);
+  delk (&fp.m_inputs);
+  delk (&fp.m_sums);
+  delk (&fp.m_errors);
+  delk (&fp.m_errorsAcc);
+  delk (&fp.m_errorsAux);
+
+  dealloc.deleteHostMatrix (fp.m_errorsHost);
 }
 
 template<typename DeallocMatrixApi>
 void deallocateBPMatrices (BPMatrices& bp)
 {
+  debugInfo ("%s %p", __func__, &bp);
   DeallocMatrixApi dealloc;
 
-  auto del = [&dealloc](math::Matrix** matrix)
+  auto delk = [&dealloc](math::Matrix** matrix)
   {
     if (matrix != nullptr)
     {
-      dealloc.deleteMatrix (*matrix);
+      dealloc.deleteKernelMatrix (*matrix);
       matrix = nullptr;
     }
   };
 
-  del (&bp.m_tinputs);
-  del (&bp.m_weights);
-  del (&bp.m_tweights);
-  del (&bp.m_weights1);
-  del (&bp.m_weights2);
+  delk (&bp.m_tinputs);
+  delk (&bp.m_weights);
+  delk (&bp.m_tweights);
+  delk (&bp.m_weights1);
+  delk (&bp.m_weights2);
 }
 
 template<typename DeallocMatrixApi, typename LayerT>
@@ -539,19 +567,26 @@ void deallocateBPMatricesInLayer (LayerT& layer)
   deallocateBPMatrices<DeallocMatrixApi> (*layer.getBPMatrices());
 }
 
-template<typename AllocApi, typename Matrices, typename LayerT>
-void allocateBPMatrices (Matrices& matrices, LayerT& layer, const LayerT& nextLayer)
+template<typename AllocApi, typename LayerT>
+void allocateBPMatrices (BPMatrices& bp, LayerT& layer, const LayerT& nextLayer)
 {
+  debugInfo ("%s %p", __func__, &bp);
   const uintt cUCount = layer.getTotalNeuronsCount ();
   const uintt nUCount = nextLayer.getNeuronsCount ();
 
   AllocApi alloc;
 
-  matrices.m_tinputs = alloc.newDeviceReMatrix (cUCount, 1); //todo: use transpose
-  matrices.m_weights = alloc.newDeviceReMatrix (cUCount, nUCount);
-  matrices.m_tweights = alloc.newDeviceReMatrix (nUCount, cUCount);
-  matrices.m_weights1 = alloc.newDeviceMatrixDeviceRef (matrices.m_weights);
-  matrices.m_weights2 = alloc.newDeviceMatrixDeviceRef (matrices.m_weights);
+  math::MatrixInfo tinputsInfo (true, false, cUCount, 1);
+
+  bp.m_tinputs = alloc.newDeviceMatrixFromMatrixInfo (tinputsInfo); //todo: use transpose
+
+  math::MatrixInfo weightsInfo (true, false, cUCount, nUCount);
+  bp.m_weights = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo);
+  bp.m_weights1 = alloc.newDeviceMatrixDeviceRef (bp.m_weights);
+  bp.m_weights2 = alloc.newDeviceMatrixDeviceRef (bp.m_weights);
+
+  math::MatrixInfo tweightsInfo (true, false, nUCount, cUCount);
+  bp.m_tweights = alloc.newDeviceMatrixFromMatrixInfo (tweightsInfo);
 }
 
 template<typename LayerT, typename DeallocMatrixApi>
@@ -584,7 +619,7 @@ LayerT* createLayer (uintt neurons, bool hasBias, uintt samplesCount, Activation
 {
   LayerT* layer = new LayerT (neurons, hasBias ? 1 : 0, samplesCount, activation);
 
-  logInfo ("Layer %p allocates %u neurons (neurons : %u, bias : %u)", layer, layer->getTotalNeuronsCount(), layer->getNeuronsCount(), layer->getBiasesCount());
+  debugInfo ("Layer %p allocates %u neurons (neurons : %u, bias : %u)", layer, layer->getTotalNeuronsCount(), layer->getNeuronsCount(), layer->getBiasesCount());
 
   return layer;
 }

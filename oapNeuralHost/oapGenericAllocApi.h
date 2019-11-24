@@ -28,64 +28,67 @@ namespace oap
 {
 namespace alloc
 {
+namespace
+{
+  inline math::Matrix* _newHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+  {
+    return oap::host::NewHostMatrixFromMatrixInfo (minfo);
+  }
 
-template<typename NewDeviceReMatrix, typename NewDeviceMatrixDeviceRef, typename NewReMatrix>
+  inline math::Matrix* _newMatrixRef (const math::Matrix* matrix)
+  {
+    return oap::host::NewMatrixRef (matrix);
+  }
+}
+
+template<typename NewDeviceMatrixFromMatrixInfo, typename NewDeviceMatrixDeviceRef, typename NewHostMatrixFromMatrixInfo>
 class AllocNeuronsApi
 {
   public:
-    AllocNeuronsApi (NewDeviceReMatrix&& _newDeviceReMatrix, NewDeviceMatrixDeviceRef&& _newDeviceMatrixDeviceRef, NewReMatrix&& _newReMatrix) :
-                     newDeviceReMatrix (_newDeviceReMatrix), newDeviceMatrixDeviceRef (_newDeviceMatrixDeviceRef), newReMatrix (_newReMatrix)
+    AllocNeuronsApi (NewDeviceMatrixFromMatrixInfo&& _newDeviceMatrixFromMatrixInfo, NewDeviceMatrixDeviceRef&& _newDeviceMatrixDeviceRef, NewHostMatrixFromMatrixInfo&& _newHostMatrixFromMatrixInfo) :
+                     newDeviceMatrixFromMatrixInfo (_newDeviceMatrixFromMatrixInfo), newDeviceMatrixDeviceRef (_newDeviceMatrixDeviceRef), newHostMatrixFromMatrixInfo (_newHostMatrixFromMatrixInfo)
     {}
 
-    NewDeviceReMatrix&& newDeviceReMatrix;
+    NewDeviceMatrixFromMatrixInfo&& newDeviceMatrixFromMatrixInfo;
     NewDeviceMatrixDeviceRef&& newDeviceMatrixDeviceRef;
-    NewReMatrix&& newReMatrix;
+    NewHostMatrixFromMatrixInfo&& newHostMatrixFromMatrixInfo;
 };
 
-template<typename NewDeviceReMatrix, typename NewDeviceMatrixDeviceRef, typename NewReMatrix, typename CopyHostMatrixToDeviceMatrix>
+template<typename NewDeviceMatrixFromMatrixInfo, typename NewDeviceMatrixDeviceRef, typename NewHostMatrixFromMatrixInfo, typename CopyHostMatrixToDeviceMatrix>
 class AllocWeightsApi
 {
   public:
-    AllocWeightsApi (NewDeviceReMatrix&& _newDeviceReMatrix, NewDeviceMatrixDeviceRef&& _newDeviceMatrixDeviceRef,
-                     NewReMatrix&& _newReMatrix, CopyHostMatrixToDeviceMatrix&& _copyHostMatrixToDeviceMatrix) :
-                     newDeviceReMatrix (_newDeviceReMatrix), newDeviceMatrixDeviceRef (_newDeviceMatrixDeviceRef),
-                     newReMatrix (_newReMatrix), copyHostMatrixToDeviceMatrix (_copyHostMatrixToDeviceMatrix)
+    AllocWeightsApi (NewDeviceMatrixFromMatrixInfo&& _newDeviceMatrixFromMatrixInfo, NewDeviceMatrixDeviceRef&& _newDeviceMatrixDeviceRef,
+                     NewHostMatrixFromMatrixInfo&& _newHostMatrixFromMatrixInfo, CopyHostMatrixToDeviceMatrix&& _copyHostMatrixToDeviceMatrix) :
+                     newDeviceMatrixFromMatrixInfo (_newDeviceMatrixFromMatrixInfo), newDeviceMatrixDeviceRef (_newDeviceMatrixDeviceRef),
+                     newHostMatrixFromMatrixInfo (_newHostMatrixFromMatrixInfo), copyHostMatrixToDeviceMatrix (_copyHostMatrixToDeviceMatrix)
     {}
 
-    NewDeviceReMatrix&& newDeviceReMatrix;
+    NewDeviceMatrixFromMatrixInfo&& newDeviceMatrixFromMatrixInfo;
     NewDeviceMatrixDeviceRef&& newDeviceMatrixDeviceRef;
-    NewReMatrix&& newReMatrix;
+    NewHostMatrixFromMatrixInfo&& newHostMatrixFromMatrixInfo;
     CopyHostMatrixToDeviceMatrix&& copyHostMatrixToDeviceMatrix;
 };
 
-template<typename DeleteMatrix, typename DeleteErrorsMatrix>
+template<typename DeleteKernelMatrix, typename DeleteHostMatrix>
 class DeallocLayerApi
 {
   public:
-    DeallocLayerApi (DeleteMatrix&& _deleteMatrix, DeleteErrorsMatrix&& _deleteErrorsMatrix):
-                     deleteMatrix (_deleteMatrix), deleteErrorsMatrix (_deleteErrorsMatrix)
+    DeallocLayerApi (DeleteKernelMatrix&& _deleteKernelMatrix, DeleteHostMatrix&& _deleteHostMatrix):
+                     deleteKernelMatrix (_deleteKernelMatrix), deleteHostMatrix (_deleteHostMatrix)
     {}
 
-    DeleteMatrix&& deleteMatrix;
-    DeleteErrorsMatrix&& deleteErrorsMatrix;
+    DeleteKernelMatrix&& deleteKernelMatrix;
+    DeleteHostMatrix&& deleteHostMatrix;
 };
 
 namespace host
 {
 namespace
 {
-  inline math::Matrix* NewReMatrix (uintt columns, uintt rows)
-  {
-    return oap::host::NewReMatrix (columns, rows);
-  }
 
-  inline math::Matrix* NewMatrixRef (const math::Matrix* matrix)
-  {
-    return oap::host::NewMatrixRef (matrix);
-  }
-
-  using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(NewReMatrix), decltype(NewMatrixRef), decltype(NewReMatrix)>;
-  using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(NewReMatrix), decltype(NewMatrixRef), decltype(NewReMatrix), decltype(oap::host::CopyHostMatrixToHostMatrix)>;
+  using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(_newHostMatrixFromMatrixInfo), decltype(_newMatrixRef), decltype(_newHostMatrixFromMatrixInfo)>;
+  using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(_newHostMatrixFromMatrixInfo), decltype(_newMatrixRef), decltype(_newHostMatrixFromMatrixInfo), decltype(oap::host::CopyHostMatrixToHostMatrix)>;
   using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::host::DeleteMatrix), decltype(oap::host::DeleteMatrix)>;
 
 }
@@ -94,7 +97,7 @@ class AllocNeuronsApi : public GenericAllocNeuronsApi
 {
   public:
     AllocNeuronsApi () :
-    GenericAllocNeuronsApi (NewReMatrix, NewMatrixRef, NewReMatrix)
+    GenericAllocNeuronsApi (_newHostMatrixFromMatrixInfo, _newMatrixRef, _newHostMatrixFromMatrixInfo)
     {}
 };
 
@@ -102,7 +105,7 @@ class AllocWeightsApi : public GenericAllocWeightsApi
 {
   public:
     AllocWeightsApi () :
-    GenericAllocWeightsApi (NewReMatrix, NewMatrixRef, NewReMatrix, oap::host::CopyHostMatrixToHostMatrix)
+    GenericAllocWeightsApi (_newHostMatrixFromMatrixInfo, _newMatrixRef, _newHostMatrixFromMatrixInfo, oap::host::CopyHostMatrixToHostMatrix)
     {}
 };
 
