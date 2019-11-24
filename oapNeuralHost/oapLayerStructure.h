@@ -25,7 +25,9 @@
 #include <utility>
 #include <vector>
 
+#include "Logger.h"
 #include "Matrix.h"
+#include "MatrixInfo.h"
 
 using FPHandler = uintt;
 
@@ -37,6 +39,7 @@ enum class Activation
   TANH,
   SIN,
   RELU,
+  PRELU,
   SOFTPLUS
 };
 
@@ -76,12 +79,23 @@ enum class ErrorType
  */
 struct FPMatrices
 {
+  FPMatrices ()
+  {
+    debugInfo ("%p", this);
+  }
+
+  ~FPMatrices ()
+  {
+    debugInfo ("%p", this);
+  }
+
   math::Matrix* m_inputs = nullptr;
   math::Matrix* m_sums = nullptr;
   math::Matrix* m_errors = nullptr;
   math::Matrix* m_errorsAcc = nullptr;
   math::Matrix* m_errorsAux = nullptr;
   math::Matrix* m_errorsHost = nullptr;
+  math::MatrixInfo m_matricesInfo;
 };
 
 /**
@@ -89,6 +103,16 @@ struct FPMatrices
  */
 struct BPMatrices
 {
+  BPMatrices ()
+  {
+    debugInfo ("%p", this);
+  }
+
+  ~BPMatrices ()
+  {
+    debugInfo ("%p", this);
+  }
+
   math::Matrix* m_tinputs = nullptr;
   math::Matrix* m_weights = nullptr;
   math::Matrix* m_tweights = nullptr;
