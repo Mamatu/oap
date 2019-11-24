@@ -65,6 +65,86 @@ Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSe
   return modifiableData;
 }
 
+template<typename Array, typename CalcApi>
+floatt mean (Array&& array, CalcApi&& capi)
+{
+  floatt sum = 0;
+  capi.sum (sum, array);
+  return sum / array.size();
+}
+
+template<typename Array, typename CalcApi>
+floatt sd (Array&& array, CalcApi&& capi)
+{
+  floatt mean = mean (array, capi);
+  floatt sd = 0;
+  capi.substractValue (sd, sd, mean);
+  capi.hadamardProcuct ();
+}
+
+template<typename Array>
+floatt mean (Array&& array)
+{
+  floatt sum = 0;
+  for (floatt v : array)
+  {
+    sum += v;
+  }
+  return sum / array.size();
+}
+
+template<typename Array>
+floatt std (Array&& array, floatt mean)
+{
+  floatt sd = 0;
+  for (floatt v : array)
+  {
+    floatt r = v - mean;
+    sd += r * r;
+  }
+  sd = sqrt (sd / (array.size() - 1));
+  return sd;
+}
+
+template<typename Array>
+floatt std (Array&& array)
+{
+  floatt mean = mean (array);
+  return std (array, mean);
+}
+
+template<typename Container>
+void scale (Container&& container)
+{
+  floatt mn = mean (container);
+  floatt sd = std (container, mn);
+  for (floatt& v : container)
+  {
+    v = (v - mn) / sd;
+  }
+}
+
+template<typename T>
+void scale (T* container, size_t length)
+{
+  floatt mn = mean (container);
+  floatt sd = std (container, mn);
+  for (size_t idx = 0; idx < length; ++idx)
+  {
+    floatt v = container [idx];
+    v = (v - mn) / sd;
+    container [idx] = v;
+  }
+}
+
+template<typename Container>
+Container scale (const Container& container)
+{
+  Container ncontainer = container;
+  scale (std::move (ncontainer));
+  return ncontainer;
+}
+
 template<typename Container>
 Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSet, const Container& data, floatt rate)
 {
