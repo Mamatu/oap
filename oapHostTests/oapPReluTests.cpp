@@ -18,7 +18,6 @@
  */
 
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
 
 #include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
