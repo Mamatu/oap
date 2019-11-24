@@ -85,7 +85,7 @@
 #define debugFuncEnd() logDebug("%s" , "-");
 
 #define debug(x, ...) logDebug(x, ##__VA_ARGS__);
-#define debugInfo(x, ...) logInfo(x, ##__VA_ARGS__);
+#define debugInfo(x, ...) logDebug(x, ##__VA_ARGS__);
 #define debugError(x, ...) logError(x, ##__VA_ARGS__);
 
 #define debugAssertMsg(x, msg, ...) if (!(x)) { logError ("ASSERTION\n"); logError(msg, ##__VA_ARGS__); debugAssert(x); }
