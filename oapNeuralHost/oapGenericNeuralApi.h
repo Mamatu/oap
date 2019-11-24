@@ -486,7 +486,7 @@ void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, 
 template<typename AllocNeuronsApi, typename LayerT>
 void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCount = 1)
 {
-  debugInfo ("%s %p", __func__, &fp);
+  logTrace ("%s %p", __func__, &fp);
 
   const uintt unitsCount = layerRef.getTotalNeuronsCount ();
 
@@ -499,12 +499,17 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
 
   fp.m_errors = alloc.newDeviceMatrixDeviceRef (fp.m_inputs);
   fp.m_errorsAux = alloc.newDeviceMatrixDeviceRef (fp.m_inputs);
+
+  logTrace ("fp.m_inputs = %p", fp.m_inputs);
+  logTrace ("fp.m_sums = %p", fp.m_sums);
+  logTrace ("fp.m_errors = %p", fp.m_errors);
+  logTrace ("fp.m_errorsAux = %p", fp.m_errorsAux);
 }
 
 template<typename DeallocMatrixApi>
 void deallocateFPMatrices (FPMatrices& fp)
 {
-  debugInfo ("%s %p", __func__, &fp);
+  logTrace ("%s %p", __func__, &fp);
   DeallocMatrixApi dealloc;
 
   auto delk = [&dealloc](math::Matrix** matrix)
@@ -528,7 +533,7 @@ void deallocateFPMatrices (FPMatrices& fp)
 template<typename DeallocMatrixApi>
 void deallocateBPMatrices (BPMatrices& bp)
 {
-  debugInfo ("%s %p", __func__, &bp);
+  logTrace ("%s %p", __func__, &bp);
   DeallocMatrixApi dealloc;
 
   auto delk = [&dealloc](math::Matrix** matrix)
@@ -570,14 +575,13 @@ void deallocateBPMatricesInLayer (LayerT& layer)
 template<typename AllocApi, typename LayerT>
 void allocateBPMatrices (BPMatrices& bp, LayerT& layer, const LayerT& nextLayer)
 {
-  debugInfo ("%s %p", __func__, &bp);
+  logTrace ("%s %p", __func__, &bp);
   const uintt cUCount = layer.getTotalNeuronsCount ();
   const uintt nUCount = nextLayer.getNeuronsCount ();
 
   AllocApi alloc;
 
   math::MatrixInfo tinputsInfo (true, false, cUCount, 1);
-
   bp.m_tinputs = alloc.newDeviceMatrixFromMatrixInfo (tinputsInfo); //todo: use transpose
 
   math::MatrixInfo weightsInfo (true, false, cUCount, nUCount);
@@ -587,6 +591,12 @@ void allocateBPMatrices (BPMatrices& bp, LayerT& layer, const LayerT& nextLayer)
 
   math::MatrixInfo tweightsInfo (true, false, nUCount, cUCount);
   bp.m_tweights = alloc.newDeviceMatrixFromMatrixInfo (tweightsInfo);
+
+  logTrace ("bp.m_tinputs = %p", bp.m_tinputs);
+  logTrace ("bp.m_weights = %p", bp.m_weights);
+  logTrace ("bp.m_weights1 = %p", bp.m_weights1);
+  logTrace ("bp.m_weights2 = %p", bp.m_weights2);
+  logTrace ("bp.m_tweights = %p", bp.m_tweights);
 }
 
 template<typename LayerT, typename DeallocMatrixApi>

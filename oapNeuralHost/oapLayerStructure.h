@@ -77,16 +77,16 @@ enum class ErrorType
 /**
  *  Matrices required by forward propagation process
  */
-struct FPMatrices
+struct FPMatrices final
 {
   FPMatrices ()
   {
-    debugInfo ("%p", this);
+    logTrace ("%p", this);
   }
 
   ~FPMatrices ()
   {
-    debugInfo ("%p", this);
+    logTrace ("%p", this);
   }
 
   math::Matrix* m_inputs = nullptr;
@@ -101,16 +101,16 @@ struct FPMatrices
 /**
  *  Matrices required by back propagation process
  */
-struct BPMatrices
+struct BPMatrices final
 {
   BPMatrices ()
   {
-    debugInfo ("%p", this);
+    logTrace ("%p", this);
   }
 
   ~BPMatrices ()
   {
-    debugInfo ("%p", this);
+    logTrace ("%p", this);
   }
 
   math::Matrix* m_tinputs = nullptr;
