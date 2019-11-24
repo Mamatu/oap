@@ -136,25 +136,50 @@ class RandomGenerator final
 {
   public:
 
-    using Callback = std::function<floatt(uintt, uintt, floatt)>;
+    using ValueCallback = std::function<floatt(uintt, uintt, floatt)>;
+    using MatrixCallback = std::function<void(math::Matrix*)>;
 
-    RandomGenerator (floatt min, floatt max, Callback&& callback) :
-      m_min(min), m_max(max), m_rd(), m_dre (m_rd()), m_dis (m_min, m_max), m_callback (std::move (callback))
+    RandomGenerator (floatt min, floatt max) :
+      m_min(min), m_max(max), m_rd(), m_dre (m_rd()), m_dis (m_min, m_max)
     {}
 
-    RandomGenerator (floatt min, floatt max, const Callback& callback) :
-      m_min(min), m_max(max), m_rd(), m_dre (m_rd()), m_dis (m_min, m_max), m_callback (callback)
-    {}
+    void setValueCallback (ValueCallback&& vc)
+    {
+      m_valueCallback = std::move (vc);
+    }
+
+    void setValueCallback (const ValueCallback& vc)
+    {
+      m_valueCallback = vc;
+    }
+
+    void setMatrixCallback (MatrixCallback&& mc)
+    {
+      m_matrixCallback = std::move (mc);
+    }
+
+    void setMatrixCallback (const MatrixCallback& mc)
+    {
+      m_matrixCallback = mc;
+    }
 
     floatt operator()(uintt column, uintt row)
     {
       floatt v = m_dis(m_dre);
 
-      if (m_callback)
+      if (m_valueCallback)
       {
-        return m_callback (column, row, v);
+        return m_valueCallback (column, row, v);
       }
       return v;
+    }
+
+    void operator()(math::Matrix* matrix)
+    {
+      if (m_matrixCallback)
+      {
+        m_matrixCallback (matrix);
+      }
     }
 
   private:
@@ -162,7 +187,8 @@ class RandomGenerator final
     std::random_device m_rd;
     std::default_random_engine m_dre;
     std::uniform_real_distribution<floatt> m_dis;
-    Callback m_callback;
+    ValueCallback m_valueCallback;
+    MatrixCallback m_matrixCallback;
 };
 }
 
@@ -199,6 +225,8 @@ oap::HostMatrixUPtr createRandomMatrix (LayerT& layer, const math::MatrixInfo& m
       SetRe (randomMatrix.get(), c, r, rg(c, r));
     }
   }
+
+  rg (randomMatrix.get());
 
   return std::move (randomMatrix);
 }
