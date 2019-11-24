@@ -33,22 +33,33 @@ namespace cuda
 {
 namespace
 {
-  inline math::Matrix* NewReMatrix (uintt columns, uintt rows)
+  inline math::Matrix* _newHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
   {
-    return oap::host::NewReMatrix (columns, rows);
+    return oap::host::NewHostMatrixFromMatrixInfo (minfo);
   }
 
-  using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(oap::cuda::NewDeviceReMatrix), decltype(oap::cuda::NewDeviceMatrixDeviceRef), decltype(NewReMatrix)>;
-  using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(oap::cuda::NewDeviceReMatrix), decltype(oap::cuda::NewDeviceMatrixDeviceRef), decltype(NewReMatrix), decltype(oap::cuda::CopyHostMatrixToDeviceMatrix)>;
-  using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::cuda::DeleteDeviceMatrix), decltype(oap::host::DeleteMatrix)>;
+  inline math::Matrix* _newDeviceMatrixDeviceRef (const math::Matrix* matrix)
+  {
+    return oap::cuda::NewDeviceMatrixDeviceRef (matrix);
+  }
 
+  inline math::Matrix* _newDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+  {
+    return oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
+  }
+
+  using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(_newDeviceMatrixFromMatrixInfo), decltype(_newDeviceMatrixDeviceRef), decltype(_newHostMatrixFromMatrixInfo)>;
+
+  using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(_newDeviceMatrixFromMatrixInfo), decltype(_newDeviceMatrixDeviceRef), decltype(_newHostMatrixFromMatrixInfo), decltype(oap::cuda::CopyHostMatrixToDeviceMatrix)>;
+
+  using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::cuda::DeleteDeviceMatrix), decltype(oap::host::DeleteMatrix)>;
 }
 
 class AllocNeuronsApi : public GenericAllocNeuronsApi
 {
   public:
     AllocNeuronsApi () :
-    GenericAllocNeuronsApi (oap::cuda::NewDeviceReMatrix, oap::cuda::NewDeviceMatrixDeviceRef, oap::alloc::cuda::NewReMatrix)
+    GenericAllocNeuronsApi (_newDeviceMatrixFromMatrixInfo, _newDeviceMatrixDeviceRef, _newHostMatrixFromMatrixInfo)
     {}
 };
 
@@ -56,7 +67,7 @@ class AllocWeightsApi : public GenericAllocWeightsApi
 {
   public:
     AllocWeightsApi () :
-    GenericAllocWeightsApi (oap::cuda::NewDeviceReMatrix, oap::cuda::NewDeviceMatrixDeviceRef, NewReMatrix, oap::cuda::CopyHostMatrixToDeviceMatrix)
+    GenericAllocWeightsApi (_newDeviceMatrixFromMatrixInfo, _newDeviceMatrixDeviceRef, _newHostMatrixFromMatrixInfo, oap::cuda::CopyHostMatrixToDeviceMatrix)
     {}
 };
 

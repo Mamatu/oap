@@ -108,54 +108,112 @@ void setDeviceWeights (LayerT& layer, math::Matrix* weights)
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer.getBPMatrices()->m_weights, weights);
 }
 
-using RandCallback = std::function<floatt(uintt c, uintt r, floatt value)>;
+namespace
+{
+template<typename LayerT>
+class BiasesFilter final
+{
+  public:
+    BiasesFilter (const math::MatrixInfo& layerWeightsInfo, const LayerT& nextLayerT) :
+      m_winfo (layerWeightsInfo), m_nextLayerT (nextLayerT)
+    {}
+
+    floatt operator()(uintt c, uintt r, floatt v) const
+    {
+      if (m_nextLayerT.getBiasesCount() == 1 && m_winfo.rows() - 1 == r)
+      {
+        return 0.;
+      }
+      return v;
+    }
+
+  private:
+    math::MatrixInfo m_winfo;
+    const LayerT& m_nextLayerT;
+};
+
+class RandomGenerator final
+{
+  public:
+
+    using Callback = std::function<floatt(uintt, uintt, floatt)>;
+
+    RandomGenerator (floatt min, floatt max, Callback&& callback) :
+      m_min(min), m_max(max), m_rd(), m_dre (m_rd()), m_dis (m_min, m_max), m_callback (std::move (callback))
+    {}
+
+    RandomGenerator (floatt min, floatt max, const Callback& callback) :
+      m_min(min), m_max(max), m_rd(), m_dre (m_rd()), m_dis (m_min, m_max), m_callback (callback)
+    {}
+
+    floatt operator()(uintt column, uintt row)
+    {
+      floatt v = m_dis(m_dre);
+
+      if (m_callback)
+      {
+        return m_callback (column, row, v);
+      }
+      return v;
+    }
+
+  private:
+    floatt m_min, m_max;
+    std::random_device m_rd;
+    std::default_random_engine m_dre;
+    std::uniform_real_distribution<floatt> m_dis;
+    Callback m_callback;
+};
+}
 
 template<typename LayerT>
-std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> createRandomMatrix (LayerT& layer, uintt columns, uintt rows, RandCallback&& randCallback)
+math::Matrix* getWeights (const LayerT& layer)
 {
-  std::unique_ptr<math::Matrix, std::function<void(const math::Matrix*)>> randomMatrix(oap::host::NewReMatrix(columns, rows),
-                  [](const math::Matrix* m){oap::host::DeleteMatrix(m);});
+  debugAssert (layer.getBPMatrices()->m_weights != nullptr);
+  return layer.getBPMatrices()->m_weights;
+}
 
-  std::random_device rd;
-  std::default_random_engine dre (rd());
-  std::uniform_real_distribution<> dis(-0.5, 0.5);
+template<typename LayerT, typename GetMatrixInfo>
+math::MatrixInfo getWeightsInfo (const LayerT& layer, GetMatrixInfo&& getMatrixInfo)
+{
+  math::Matrix* weights = getWeights (layer);
+  return getMatrixInfo (weights);
+}
 
-  for (uintt c = 0; c < columns; ++c)
+template<typename LayerT>
+void setWeights (const LayerT& layer, const math::Matrix* hmatrix)
+{
+  math::Matrix* weights = getWeights (layer);
+  oap::cuda::CopyHostMatrixToDeviceMatrix (weights, hmatrix);
+}
+
+template<typename LayerT, typename RandomGenerator>
+oap::HostMatrixUPtr createRandomMatrix (LayerT& layer, const math::MatrixInfo& minfo, RandomGenerator&& rg)
+{
+  oap::HostMatrixUPtr randomMatrix = oap::host::NewReMatrix (minfo.columns(), minfo.rows());
+
+  for (uintt c = 0; c < minfo.columns(); ++c)
   {
-    for (uintt r = 0; r < rows; ++r)
+    for (uintt r = 0; r < minfo.rows(); ++r)
     {
-      SetRe (randomMatrix.get(), c, r, randCallback(c, r, dis(dre)));
+      SetRe (randomMatrix.get(), c, r, rg(c, r));
     }
   }
 
   return std::move (randomMatrix);
 }
 
-template<typename LayerT, typename GetMatrixInfo>
-void initRandomWeights (LayerT& layer, const LayerT* nextLayer, GetMatrixInfo&& getMatrixInfo)
+template<typename LayerT, typename GetMatrixInfo, typename Range = std::pair<floatt, floatt>>
+void initRandomWeights (LayerT& layer, const LayerT& nextLayer, GetMatrixInfo&& getMatrixInfo, Range&& range = std::pair<floatt, floatt>(-0.5, 0.5))
 {
-  math::Matrix* weights = layer.getBPMatrices()->m_weights;
+  math::MatrixInfo winfo = getWeightsInfo (layer, getMatrixInfo);
 
-  debugAssert(weights != nullptr);
+  BiasesFilter<LayerT> bfilter (winfo, nextLayer);
+  RandomGenerator rg (range.first, range.second, bfilter);
 
-  auto winfo = getMatrixInfo (layer.getBPMatrices()->m_weights);
+  auto randomMatrix = createRandomMatrix (layer, winfo, rg);
 
-  auto randomMatrix = createRandomMatrix (layer, winfo.columns(), winfo.rows(), [&layer, &nextLayer, &winfo](uintt c, uintt r, floatt v)
-  {
-    if (nextLayer->getBiasesCount() == 1 && winfo.rows() - 1 == r)
-    {
-      return 0.;
-    }
-    return v;
-  });
-
-  oap::cuda::CopyHostMatrixToDeviceMatrix (weights, randomMatrix.get());
-}
-
-template<typename LayerT>
-math::MatrixInfo getWeightsInfo (const LayerT& layer)
-{
-  return oap::cuda::GetMatrixInfo (layer.getBPMatrices()->m_weights);
+  setWeights (layer, randomMatrix.get ());
 }
 
 }

@@ -22,8 +22,6 @@
 #include "oapDeviceAllocApi.h"
 #include "oapDeviceNeuralApi.h"
 
-#include <random>
-
 using LC_t = uintt;
 
 namespace
@@ -75,13 +73,12 @@ void Network::createLevel (DeviceLayer* layer)
 
   if (previous != nullptr)
   {
-    BPMatrices* bpMatrices = new BPMatrices ();
-    previous->setBPMatrices (bpMatrices);
-
-    m_bpMatricesVec.push_back (bpMatrices);
-
     oap::generic::connectLayers<DeviceLayer, oap::alloc::cuda::AllocWeightsApi>(previous, layer);
-    oap::device::initRandomWeights (*previous, layer, oap::cuda::GetMatrixInfo);
+
+    m_bpMatricesVec.push_back (previous->getBPMatrices());
+
+    std::pair<floatt, floatt> range = std::make_pair (-0.5, 0.5);
+    oap::device::initRandomWeights (*previous, *layer, oap::cuda::GetMatrixInfo, range);
   }
 }
 
@@ -112,7 +109,7 @@ FPHandler Network::createFPLayer (uintt samples)
 
     m_fpMatricesVec.push_back (fpMatrices);
 
-    DeviceLayer* layer_fp = new DeviceLayer (layer->getNeuronsCount(), layer->getTotalNeuronsCount() - layer->getNeuronsCount(), samples, layer->getActivation());
+    DeviceLayer* layer_fp = new DeviceLayer (layer->getNeuronsCount(), layer->getBiasesCount(), samples, layer->getActivation());
     layer_fp->setFPMatrices (fpMatrices);
     layer_fp->setBPMatrices (layer->getBPMatrices ());
 
@@ -302,7 +299,8 @@ floatt Network::calculateError (oap::ErrorType errorType)
 
 void Network::forwardPropagation (FPHandler handler)
 {
-  if (handler == 0)
+  //if (handler == 0)
+  if (m_layers[handler][0]->getSamplesCount() == 1)
   {
     oap::generic::forwardPropagation_oneSample<DeviceLayer> (m_layers[handler], m_cuApi);
   }
@@ -333,7 +331,8 @@ void Network::backPropagation (FPHandler handler)
 
 void Network::updateWeights(FPHandler handler)
 {
-  if (handler == 0)
+  //if (handler == 0)
+  if (m_layers[handler][0]->getSamplesCount() == 1)
   {
     oap::generic::updateWeights<DeviceLayer> (m_layers[handler], m_cuApi, [this]() { this->postStep(); }, m_learningRate, m_errorsVec.size());
   }
