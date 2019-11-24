@@ -210,6 +210,7 @@ class CuProceduresApi
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix);
   void sum (floatt& reoutput, math::Matrix* matrix);
+  void sum (floatt& reoutput, floatt* values, size_t count);
   //void sumShared (floatt& output, math::Matrix* params0);
 
   void magnitudeOpt(floatt& output, math::Matrix* params0);
@@ -292,6 +293,15 @@ class CuProceduresApi
   void drelu (math::Matrix* output, math::Matrix* matrix);
   void drelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
   void drelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  // PRelu/prelu function and derivatives where paramters is 0.01
+  void prelu (math::Matrix* output, math::Matrix* matrix);
+  void prelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void prelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  void dprelu (math::Matrix* output, math::Matrix* matrix);
+  void dprelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void dprelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
 
   // Softplus/softplus function and derivatives
   void softplus (math::Matrix* output, math::Matrix* matrix);

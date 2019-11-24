@@ -43,19 +43,19 @@ __hostdeviceinline__ void cuda_mDSigmoidFunc (floatt* output, floatt value)
   (*output) =  (*output) * sv * (1.f  - sv);
 }
 
-__hostdeviceinline__ void CUDA_sigmoid (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_sigmoid (math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_sigmoidFunc);
+  cuda_func (output, matrix, cuda_sigmoidFunc);
 }
 
-__hostdeviceinline__ void CUDA_dsigmoid (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_dsigmoid (math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_dsigmoidFunc);
+  cuda_func (output, matrix, cuda_dsigmoidFunc);
 }
 
-__hostdeviceinline__ void CUDA_multiplyDSigmoid (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_multiplyDSigmoid (math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_mDSigmoidFunc);
+  cuda_func (output, matrix, cuda_mDSigmoidFunc);
 }
 
 #endif

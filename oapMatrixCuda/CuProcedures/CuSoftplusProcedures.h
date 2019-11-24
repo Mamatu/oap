@@ -34,14 +34,14 @@ __hostdeviceinline__ void cuda_dsoftplusFunc (floatt* output, floatt value)
   (*output) =  1. / (1. + expf (-value));
 }
 
-__hostdeviceinline__ void CUDA_softplus (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_softplus (math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_softplusFunc);
+  cuda_func (output, matrix, cuda_softplusFunc);
 }
 
-__hostdeviceinline__ void CUDA_dsoftplus(math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_dsoftplus(math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_dsoftplusFunc);
+  cuda_func (output, matrix, cuda_dsoftplusFunc);
 }
 
 #endif /* CU_SOFTPLUS_PROCEDURES_H */

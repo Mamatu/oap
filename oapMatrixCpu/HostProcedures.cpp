@@ -262,6 +262,11 @@ void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix)
   oap::generic::executeKernel1Arg ("CUDAKernel_Sin", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
+void HostProcedures::prelu (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_PRelu", output, matrix, &m_kernel, m_bmApi, true, [](){});
+}
+
 void HostProcedures::relu (math::Matrix* output, math::Matrix* matrix)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_Relu", output, matrix, &m_kernel, m_bmApi, true, [](){});
@@ -270,6 +275,36 @@ void HostProcedures::relu (math::Matrix* output, math::Matrix* matrix)
 void HostProcedures::softplus (math::Matrix* output, math::Matrix* matrix)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_Softplus", output, matrix, &m_kernel, m_bmApi, true, [](){});
+}
+
+void HostProcedures::dprelu (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_DPRelu", output, matrix, &m_kernel, m_bmApi, true, [](){});
+}
+
+void HostProcedures::drelu (math::Matrix* output, math::Matrix* matrix)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_DRelu", output, matrix, &m_kernel, m_bmApi, true, [](){});
+}
+
+void HostProcedures::dprelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  _funcDim ("CUDAKernel_DPReluDim", output, matrix, dims);
+}
+
+void HostProcedures::drelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  _funcDim ("CUDAKernel_DReluDim", output, matrix, dims);
+}
+
+void HostProcedures::dprelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  _funcDimPeriodic ("CUDAKernel_DPReluDimPeriodic", output, matrix, dims);
+}
+
+void HostProcedures::drelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  _funcDimPeriodic ("CUDAKernel_DReluDimPeriodic", output, matrix, dims);
 }
 
 void HostProcedures::_funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2])
@@ -296,6 +331,11 @@ void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, uintt d
 void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
 {
   _funcDim ("CUDAKernel_SinDim", output, matrix, dims);
+}
+
+void HostProcedures::prelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
+{
+  _funcDim ("CUDAKernel_PReluDim", output, matrix, dims);
 }
 
 void HostProcedures::relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2])
@@ -333,6 +373,11 @@ void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, uintt d
 void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
 {
   _funcDimPeriodic ("CUDAKernel_SinDimPeriodic", output, matrix, dims);
+}
+
+void HostProcedures::prelu(math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
+{
+  _funcDimPeriodic ("CUDAKernel_PReluDimPeriodic", output, matrix, dims);
 }
 
 void HostProcedures::relu(math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
