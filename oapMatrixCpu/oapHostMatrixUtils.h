@@ -725,6 +725,12 @@ inline floatt* GetValue(floatt* const* ptr)
   return *ptr;
 }
 
+void CopyHostArrayToHostMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
+
+void CopyHostArrayToHostReMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
+
+void CopyHostArrayToHostImMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
+
 }
 namespace generic
 {

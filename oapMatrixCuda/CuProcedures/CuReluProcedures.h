@@ -22,26 +22,19 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
-#include "CuFuncProcedures.h"
+#include "CuPReluProcedures.h"
 
-__hostdeviceinline__ void cuda_reluFunc (floatt* output, floatt value)
+
+__hostdeviceinline__ void cuda_relu (math::Matrix* output, math::Matrix* matrix)
 {
-  (*output) =  value > 0. ? value : 0.;
+  floatt alpha = 0.;
+  cuda_func_userData (output, matrix, cuda_preluFunc, &alpha);
 }
 
-__hostdeviceinline__ void cuda_dreluFunc (floatt* output, floatt value)
+__hostdeviceinline__ void cuda_drelu(math::Matrix* output, math::Matrix* matrix)
 {
-  (*output) =  value > 0. ? 1. : 0.;
+  floatt alpha = 0.;
+  cuda_func_userData (output, matrix, cuda_dpreluFunc, &alpha);
 }
 
-__hostdeviceinline__ void CUDA_relu (math::Matrix* output, math::Matrix* matrix)
-{
-  CUDA_func (output, matrix, cuda_reluFunc);
-}
-
-__hostdeviceinline__ void CUDA_drelu(math::Matrix* output, math::Matrix* matrix)
-{
-  CUDA_func (output, matrix, cuda_dreluFunc);
-}
-
-#endif /* CU_RELU_PROCEDURES_H */
+#endif /* CU_PRELU_PROCEDURES_H */

@@ -58,13 +58,18 @@
 #include "CuProcedures/CuSigmoidDimProcedures.h"
 #include "CuProcedures/CuTanhDimProcedures.h"
 #include "CuProcedures/CuSinDimProcedures.h"
-#include "CuProcedures/CuReluDimProcedures.h"
 #include "CuProcedures/CuSoftplusDimProcedures.h"
 #include "CuProcedures/CuSumProcedures.h"
 #include "CuProcedures/CuSetMatrixProcedures.h"
 #include "CuProcedures/CuHadamardProductProcedures.h"
 #include "CuProcedures/CuPartialHadamardProductProcedures.h"
 #include "CuProcedures/CuVectorUtils.h"
+
+#include "CuProcedures/CuPReluDimProcedures.h"
+#include "CuProcedures/CuPReluProcedures.h"
+
+#include "CuProcedures/CuReluDimProcedures.h"
+#include "CuProcedures/CuReluProcedures.h"
 
 
 #endif /* DEVICE_H */

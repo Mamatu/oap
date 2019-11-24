@@ -24,7 +24,7 @@
 #include "Matrix.h"
 #include "CuSoftplusProcedures.h"
 
-__hostdeviceinline__ void CUDA_softplusDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_softplusDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -33,11 +33,11 @@ __hostdeviceinline__ void CUDA_softplusDim (math::Matrix* omatrix, math::Matrix*
 
   if (isInRange)
   {
-    CUDA_softplus (omatrix, imatrix);
+    cuda_softplus (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_dsoftplusDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_dsoftplusDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -46,27 +46,27 @@ __hostdeviceinline__ void CUDA_dsoftplusDim (math::Matrix* omatrix, math::Matrix
 
   if (isInRange)
   {
-    CUDA_dsoftplus (omatrix, imatrix);
+    cuda_dsoftplus (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_softplusDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_softplusDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   bool isInRange = cuda_inRangePD(omatrix, ex);
 
   if (isInRange)
   {
-    CUDA_softplus (omatrix, imatrix);
+    cuda_softplus (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_dsoftplusDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_dsoftplusDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   bool isInRange = cuda_inRangePD(omatrix, ex);
 
   if (isInRange)
   {
-    CUDA_dsoftplus (omatrix, imatrix);
+    cuda_dsoftplus (omatrix, imatrix);
   }
 }
 

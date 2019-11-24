@@ -24,7 +24,7 @@
 #include "Matrix.h"
 #include "CuSigmoidProcedures.h"
 
-__hostdeviceinline__ void CUDA_sigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_sigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -33,11 +33,11 @@ __hostdeviceinline__ void CUDA_sigmoidDim (math::Matrix* omatrix, math::Matrix* 
 
   if (isInRange)
   {
-    CUDA_sigmoid (omatrix, imatrix);
+    cuda_sigmoid (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_dsigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_dsigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -46,11 +46,11 @@ __hostdeviceinline__ void CUDA_dsigmoidDim (math::Matrix* omatrix, math::Matrix*
 
   if (isInRange)
   {
-    CUDA_dsigmoid (omatrix, imatrix);
+    cuda_dsigmoid (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_multiplyDSigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_multiplyDSigmoidDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -59,37 +59,37 @@ __hostdeviceinline__ void CUDA_multiplyDSigmoidDim (math::Matrix* omatrix, math:
 
   if (isInRange)
   {
-    CUDA_multiplyDSigmoid (omatrix, imatrix);
+    cuda_multiplyDSigmoid (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_sigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_sigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   bool isInRange = cuda_inRangePD(omatrix, ex);
 
   if (isInRange)
   {
-    CUDA_sigmoid (omatrix, imatrix);
+    cuda_sigmoid (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_dsigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_dsigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   bool isInRange = cuda_inRangePD(omatrix, ex);
 
   if (isInRange)
   {
-    CUDA_dsigmoid (omatrix, imatrix);
+    cuda_dsigmoid (omatrix, imatrix);
   }
 }
 
-__hostdeviceinline__ void CUDA_multiplyDSigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_multiplyDSigmoidDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   bool isInRange = cuda_inRangePD(omatrix, ex);
 
   if (isInRange)
   {
-    CUDA_multiplyDSigmoid (omatrix, imatrix);
+    cuda_multiplyDSigmoid (omatrix, imatrix);
   }
 }
 

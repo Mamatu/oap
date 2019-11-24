@@ -21,11 +21,13 @@
 #define CU_FUNC_PROCEDURES_H
 
 #include "CuCore.h"
+#include "CuUtils.h"
 #include "Matrix.h"
 
 typedef void(*func_t)(floatt*, floatt);
+typedef void(*func_ud_t)(floatt*, floatt, void*);
 
-__hostdeviceinline__ void CUDA_funcRe (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
+__hostdeviceinline__ void cuda_funcRe (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -37,23 +39,25 @@ __hostdeviceinline__ void CUDA_funcRe (math::Matrix* omatrix, math::Matrix* imat
   func (output, imatrix->reValues[index]);
 }
 
-__hostdeviceinline__ void CUDA_funcIm (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
+__hostdeviceinline__ void cuda_funcIm (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
 {
   HOST_INIT();
+  THREAD_INDICES_INIT();
 
   uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
+  uintt index = threadIndexX + offset * threadIndexY;
 
   floatt* output = &omatrix->imValues[index];
   func (output, imatrix->imValues[index]);
 }
 
-__hostdeviceinline__ void CUDA_funcReal (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
+__hostdeviceinline__ void cuda_funcReal (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
 {
   HOST_INIT();
+  THREAD_INDICES_INIT();
 
   uintt offset = omatrix->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
+  uintt index = threadIndexX + offset * threadIndexY;
 
   floatt* reoutput = &omatrix->reValues[index];
   floatt* imoutput = &omatrix->imValues[index];
@@ -61,7 +65,46 @@ __hostdeviceinline__ void CUDA_funcReal (math::Matrix* omatrix, math::Matrix* im
   func (imoutput, imatrix->imValues[index]);
 }
 
-__hostdeviceinline__ void CUDA_func (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
+__hostdeviceinline__ void cuda_funcRe_userData (math::Matrix* omatrix, math::Matrix* imatrix, func_ud_t func, void* ud)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  uintt offset = omatrix->columns;
+  uintt index = threadIndexX + offset * threadIndexY;
+
+  floatt* output = &omatrix->reValues[index];
+  func (output, imatrix->reValues[index], ud);
+  //cuda_debug ("output = %f ");
+}
+
+__hostdeviceinline__ void cuda_funcIm_userData (math::Matrix* omatrix, math::Matrix* imatrix, func_ud_t func, void* ud)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  uintt offset = omatrix->columns;
+  uintt index = threadIndexX + offset * threadIndexY;
+
+  floatt* output = &omatrix->imValues[index];
+  func (output, imatrix->imValues[index], ud);
+}
+
+__hostdeviceinline__ void cuda_funcReal_userData (math::Matrix* omatrix, math::Matrix* imatrix, func_ud_t func, void* ud)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  uintt offset = omatrix->columns;
+  uintt index = threadIndexX + offset * threadIndexY;
+
+  floatt* reoutput = &omatrix->reValues[index];
+  floatt* imoutput = &omatrix->imValues[index];
+  func (reoutput, imatrix->reValues[index], ud);
+  func (imoutput, imatrix->imValues[index], ud);
+}
+
+__hostdeviceinline__ void cuda_func (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
 {
   HOST_INIT();
 
@@ -70,15 +113,36 @@ __hostdeviceinline__ void CUDA_func (math::Matrix* omatrix, math::Matrix* imatri
 
   if (isre && isim)
   {
-    CUDA_funcReal (omatrix, imatrix, func);
+    cuda_funcReal (omatrix, imatrix, func);
   }
   else if (isre)
   {
-    CUDA_funcRe (omatrix, imatrix, func);
+    cuda_funcRe (omatrix, imatrix, func);
   }
   else if (isim)
   {
-    CUDA_funcIm (omatrix, imatrix, func);
+    cuda_funcIm (omatrix, imatrix, func);
+  }
+}
+
+__hostdeviceinline__ void cuda_func_userData (math::Matrix* omatrix, math::Matrix* imatrix, func_ud_t func, void* ud)
+{
+  HOST_INIT();
+
+  bool isre = omatrix->reValues != NULL;
+  bool isim = omatrix->imValues != NULL;
+
+  if (isre && isim)
+  {
+    cuda_funcReal_userData (omatrix, imatrix, func, ud);
+  }
+  else if (isre)
+  {
+    cuda_funcRe_userData (omatrix, imatrix, func, ud);
+  }
+  else if (isim)
+  {
+    cuda_funcIm_userData (omatrix, imatrix, func, ud);
   }
 }
 

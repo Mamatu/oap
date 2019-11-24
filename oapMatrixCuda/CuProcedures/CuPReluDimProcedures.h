@@ -17,20 +17,20 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CU_RELU_DIM_PROCEDURES_H
-#define CU_RELU_DIM_PROCEDURES_H
+#ifndef CU_PRELU_DIM_PROCEDURES_H
+#define CU_PRELU_DIM_PROCEDURES_H
 
 #include "CuCore.h"
 #include "Matrix.h"
 #include "CuPReluProcedures.h"
 
-__hostdeviceinline__ void cuda_reluDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_preluDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
-  floatt alpha = 0.;
+  floatt alpha = 0.01;
 
   if (isInRange)
   {
@@ -38,13 +38,13 @@ __hostdeviceinline__ void cuda_reluDim (math::Matrix* omatrix, math::Matrix* ima
   }
 }
 
-__hostdeviceinline__ void cuda_dreluDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_dpreluDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
-  floatt alpha = 0.;
+  floatt alpha = 0.01;
 
   if (isInRange)
   {
@@ -52,10 +52,10 @@ __hostdeviceinline__ void cuda_dreluDim (math::Matrix* omatrix, math::Matrix* im
   }
 }
 
-__hostdeviceinline__ void cuda_reluDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_preluDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   bool isInRange = cuda_inRangePD(omatrix, ex);
-  floatt alpha = 0.;
+  floatt alpha = 0.01;
 
   if (isInRange)
   {
@@ -63,10 +63,10 @@ __hostdeviceinline__ void cuda_reluDimPeriodic (math::Matrix* omatrix, math::Mat
   }
 }
 
-__hostdeviceinline__ void cuda_dreluDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_dpreluDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
 {
   bool isInRange = cuda_inRangePD(omatrix, ex);
-  floatt alpha = 0.;
+  floatt alpha = 0.01;
 
   if (isInRange)
   {
