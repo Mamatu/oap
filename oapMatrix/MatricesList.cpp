@@ -43,7 +43,7 @@ void MatricesList::add (math::Matrix* matrix, const math::MatrixInfo& minfo)
   }
 
   auto size = minfo.getSize ();
-  //debugInfo ("Allocate in %s: matrix = %p %s", m_id.c_str(), matrix, minfo.toString().c_str());
+  logTrace ("Registered in %s scope: matrix = %p %s", m_id.c_str(), matrix, minfo.toString().c_str());
 }
 
 math::MatrixInfo MatricesList::getMatrixInfo (const math::Matrix* matrix) const
@@ -75,6 +75,7 @@ math::MatrixInfo MatricesList::remove (const math::Matrix* matrix)
     minfo = it->second;
 
     m_matrixInfos.erase(it);
+    logTrace ("Unregistered in %s scope: matrix = %p %s", m_id.c_str(), matrix, minfo.toString().c_str());
   }
   else
   {
