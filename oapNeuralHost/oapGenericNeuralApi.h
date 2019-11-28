@@ -486,7 +486,7 @@ void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, 
 template<typename AllocNeuronsApi, typename LayerT>
 void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCount = 1)
 {
-  logTrace ("%s %p", __func__, &fp);
+  logTraceS ("%s %p", __func__, &fp);
 
   const uintt unitsCount = layerRef.getTotalNeuronsCount ();
 
@@ -504,6 +504,7 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
   logTrace ("fp.m_sums = %p", fp.m_sums);
   logTrace ("fp.m_errors = %p", fp.m_errors);
   logTrace ("fp.m_errorsAux = %p", fp.m_errorsAux);
+  logTraceE ("%s %p", __func__, &fp);
 }
 
 template<typename DeallocMatrixApi>
@@ -533,7 +534,7 @@ void deallocateFPMatrices (FPMatrices& fp)
 template<typename DeallocMatrixApi>
 void deallocateBPMatrices (BPMatrices& bp)
 {
-  logTrace ("%s %p", __func__, &bp);
+  logTraceS ("%s %p", __func__, &bp);
   DeallocMatrixApi dealloc;
 
   auto delk = [&dealloc](math::Matrix** matrix)
@@ -550,6 +551,7 @@ void deallocateBPMatrices (BPMatrices& bp)
   delk (&bp.m_tweights);
   delk (&bp.m_weights1);
   delk (&bp.m_weights2);
+  logTraceE ("%s %p", __func__, &bp);
 }
 
 template<typename DeallocMatrixApi, typename LayerT>
@@ -575,7 +577,7 @@ void deallocateBPMatricesInLayer (LayerT& layer)
 template<typename AllocApi, typename LayerT>
 void allocateBPMatrices (BPMatrices& bp, LayerT& layer, const LayerT& nextLayer)
 {
-  logTrace ("%s %p", __func__, &bp);
+  logTraceS ("%s %p", __func__, &bp);
   const uintt cUCount = layer.getTotalNeuronsCount ();
   const uintt nUCount = nextLayer.getNeuronsCount ();
 
@@ -597,6 +599,7 @@ void allocateBPMatrices (BPMatrices& bp, LayerT& layer, const LayerT& nextLayer)
   logTrace ("bp.m_weights1 = %p", bp.m_weights1);
   logTrace ("bp.m_weights2 = %p", bp.m_weights2);
   logTrace ("bp.m_tweights = %p", bp.m_tweights);
+  logTraceE ("%s %p", __func__, &bp);
 }
 
 template<typename LayerT, typename DeallocMatrixApi>
