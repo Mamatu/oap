@@ -101,6 +101,7 @@ math::Matrix* allocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows
   CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, columns, rows, 0, 0, &devicePtrs);
   math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
 
+  logTrace ("Matrix allocation: %p", mptr);
   gMatricesList.add (mptr, matrixInfo);
 
   auto& refValuesPtr = gMatricesPtrsList[mptr];
@@ -158,6 +159,7 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix)
     CudaUtils::FreeDeviceMem(matrixPtr);
     CudaUtils::FreeDeviceMem(rePtr);
     CudaUtils::FreeDeviceMem(imPtr);
+    logTrace ("Matrix deallocation: %p", matrixPtr);
 
     if (minfo.isInitialized ())
     {
