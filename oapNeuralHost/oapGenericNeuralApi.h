@@ -314,7 +314,7 @@ void forwardPropagation_oneSample (const Layers& layers, Api& api)
 
     api.dotProduct (current_fp.m_sums, previous_bp.m_weights, previous_fp.m_inputs, dims);
 
-    activateFunc (current_fp.m_inputs, current_fp.m_sums, current->getActivation(), api, dims[0]);
+    activateFunc (current_fp.m_inputs, current_fp.m_sums, previous->getActivation(), api, dims[0]);
   }
 }
 
@@ -352,7 +352,7 @@ void forwardPropagation_multiSamples (const Layers& layers, Api& api)
       {1, current->getTotalNeuronsCount()}
     };
 
-    activateFunc (current_fp.m_inputs, current_fp.m_sums, current->getActivation(), api, dims1);
+    activateFunc (current_fp.m_inputs, current_fp.m_sums, previous->getActivation(), api, dims1);
   }
 }
 
@@ -381,23 +381,25 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
     int idx = layers.size () - 1;
     LayerT* next = nullptr;
     LayerT* current = layers[idx];
+    LayerT* previous = layers[idx - 1];
 
-    auto calculateCurrentErrors = [&api] (LayerT* current)
+    auto calculateCurrentErrors = [&api] (LayerT* current, LayerT* previous)
     {
       FPMatrices& current_fp = *current->getFPMatrices ();
 
       uintt dims[2] = {1, current->getNeuronsCount()};
-      oap::generic::derivativeFunc (current_fp.m_sums, current_fp.m_sums, current->getActivation(), api, dims);
+      oap::generic::derivativeFunc (current_fp.m_sums, current_fp.m_sums, previous->getActivation(), api, dims);
       api.hadamardProductVec (current_fp.m_errors, current_fp.m_errors, current_fp.m_sums);
     };
 
-    calculateCurrentErrors (current);
+    calculateCurrentErrors (current, previous);
 
-    do
+    while (idx > 1)
     {
       next = current;
       --idx;
       current = layers[idx];
+      previous = layers[idx - 1];
 
       BPMatrices& current_bp = *current->getBPMatrices ();
  
@@ -414,9 +416,8 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
       };
 
       api.dotProduct (current_fp.m_errors, current_bp.m_tweights, next_fp.m_errors, dims);
-      calculateCurrentErrors (current);
+      calculateCurrentErrors (current, previous);
     }
-    while (idx > 1);
   };
 
   auto calcNablaWeights = [&layers, &api]()
