@@ -205,7 +205,7 @@ namespace generic
   };
 
   template<typename GetMatrixInfo, typename Copy, typename GetAddress, typename HBuffer, typename DBuffer>
-  bool sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix, oap::IKernelExecutor* kexec, SumApi<GetMatrixInfo, Copy, GetAddress>& sumApi, SumBuffers<HBuffer, DBuffer>& sumBuffers)
+  bool sum (floatt& reoutput, floatt& imoutput, const math::Matrix* matrix, oap::IKernelExecutor* kexec, SumApi<GetMatrixInfo, Copy, GetAddress>& sumApi, SumBuffers<HBuffer, DBuffer>& sumBuffers)
   {
     auto minfo = sumApi.getMatrixInfo (matrix);
 
