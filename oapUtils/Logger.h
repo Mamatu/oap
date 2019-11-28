@@ -34,6 +34,8 @@
 
 #include <stdio.h>
 
+#define OPEN_MARK "+ "
+#define CLOSE_MARK "- "
 #define LOG_ARGS() __FILE__, __FUNCTION__, __LINE__
 
 #define NO_LOG          0x00
@@ -73,9 +75,34 @@
 #endif
 
 #if LOG_LEVEL >= TRACE_LEVEL
+
+#define logTraceS(x, ...) logIntoStdout (OPEN_MARK LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__);
+#define logTraceE(x, ...) logIntoStdout (CLOSE_MARK LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__);
+
+class LogTraceE final
+{
+    const char* m_func;
+    const char* m_file;
+    int m_line;
+  public:
+    LogTraceE (const char* func, const char* file, int line) :
+      m_func(func), m_file(file), m_line(line)
+    {
+    }
+
+    ~LogTraceE ()
+    {
+      logTraceE("%s %s %d", m_func, m_file, m_line);
+    }
+};
+
 #define logTrace(x, ...) logIntoStdout (LOCATION_FORMAT x ENDL, LOG_ARGS(), ##__VA_ARGS__);
+#define LOG_TRACE(x, ...) logTraceS (x, ##__VA_ARGS__); LogTraceE logTraceObj (__FUNCTION__,__FILE__,__LINE__);
 #else
 #define logTrace(x, ...)
+#define logTraceS(x, ...)
+#define logTraceE(x, ...)
+#define LOG_TRACE(x, ...)
 #endif
 
 #define debugFunc() logDebug("");
@@ -97,5 +124,6 @@ inline void throwExceptionMsg(bool x, const std::string& str) { if (!(x)) { std:
 inline void throwExceptionMsg(bool x, const std::stringstream& stream) { throwExceptionMsg(x, stream.str()); }
 
 #define debugException(ex) logDebug("Exception: %s %s", typeid(ex).name(), ex.what())
+
 
 #endif	/* TYPES_H */
