@@ -108,14 +108,30 @@ void setDeviceWeights (LayerT& layer, math::Matrix* weights)
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer.getBPMatrices()->m_weights, weights);
 }
 
-namespace
+ template<typename LayerT>
+math::Matrix* getWeights (const LayerT& layer)
 {
+  debugAssert (layer.getBPMatrices()->m_weights != nullptr);
+  return layer.getBPMatrices()->m_weights;
+}
+
+template<typename LayerT, typename GetMatrixInfo>
+math::MatrixInfo getWeightsInfo (const LayerT& layer, GetMatrixInfo&& getMatrixInfo)
+{
+  math::Matrix* weights = getWeights (layer);
+  return getMatrixInfo (weights);
+}
+
 template<typename LayerT>
 class BiasesFilter final
 {
   public:
     BiasesFilter (const math::MatrixInfo& layerWeightsInfo, const LayerT& nextLayerT) :
       m_winfo (layerWeightsInfo), m_nextLayerT (nextLayerT)
+    {}
+
+    BiasesFilter (const LayerT& layer, const LayerT& nextLayerT) :
+      m_winfo (oap::device::getWeightsInfo(layer, oap::cuda::GetMatrixInfo)), m_nextLayerT (nextLayerT)
     {}
 
     floatt operator()(uintt c, uintt r, floatt v) const
@@ -137,7 +153,7 @@ class RandomGenerator final
   public:
 
     using ValueCallback = std::function<floatt(uintt, uintt, floatt)>;
-    using MatrixCallback = std::function<void(math::Matrix*)>;
+    using MatrixCallback = std::function<void(math::Matrix*, ArgType)>;
 
     RandomGenerator (floatt min, floatt max) :
       m_min(min), m_max(max), m_rd(), m_dre (m_rd()), m_dis (m_min, m_max)
@@ -174,11 +190,11 @@ class RandomGenerator final
       return v;
     }
 
-    void operator()(math::Matrix* matrix)
+    void operator()(math::Matrix* matrix, ArgType argType)
     {
       if (m_matrixCallback)
       {
-        m_matrixCallback (matrix);
+        m_matrixCallback (matrix, argType);
       }
     }
 
@@ -190,21 +206,6 @@ class RandomGenerator final
     ValueCallback m_valueCallback;
     MatrixCallback m_matrixCallback;
 };
-}
-
-template<typename LayerT>
-math::Matrix* getWeights (const LayerT& layer)
-{
-  debugAssert (layer.getBPMatrices()->m_weights != nullptr);
-  return layer.getBPMatrices()->m_weights;
-}
-
-template<typename LayerT, typename GetMatrixInfo>
-math::MatrixInfo getWeightsInfo (const LayerT& layer, GetMatrixInfo&& getMatrixInfo)
-{
-  math::Matrix* weights = getWeights (layer);
-  return getMatrixInfo (weights);
-}
 
 template<typename LayerT>
 void setWeights (const LayerT& layer, const math::Matrix* hmatrix)
@@ -226,22 +227,45 @@ oap::HostMatrixUPtr createRandomMatrix (LayerT& layer, const math::MatrixInfo& m
     }
   }
 
-  rg (randomMatrix.get());
+  rg (randomMatrix.get(), ArgType::HOST);
 
   return std::move (randomMatrix);
 }
 
-template<typename LayerT, typename GetMatrixInfo, typename Range = std::pair<floatt, floatt>>
-void initRandomWeights (LayerT& layer, const LayerT& nextLayer, GetMatrixInfo&& getMatrixInfo, Range&& range = std::pair<floatt, floatt>(-0.5, 0.5))
+template<typename LayerT, typename GetMatrixInfo, typename RandomGenerator>
+void initRandomWeights (LayerT& layer, const LayerT& nextLayer, GetMatrixInfo&& getMatrixInfo, RandomGenerator&& rg)
 {
   math::MatrixInfo winfo = getWeightsInfo (layer, getMatrixInfo);
-
-  BiasesFilter<LayerT> bfilter (winfo, nextLayer);
-  RandomGenerator rg (range.first, range.second, bfilter);
 
   auto randomMatrix = createRandomMatrix (layer, winfo, rg);
 
   setWeights (layer, randomMatrix.get ());
+}
+
+template<typename LayerT, typename GetMatrixInfo, typename Range = std::pair<floatt, floatt>>
+void initRandomWeightsByRange (LayerT& layer, const LayerT& nextLayer, GetMatrixInfo&& getMatrixInfo, Range&& range = std::pair<floatt, floatt>(-0.5, 0.5))
+{
+  math::MatrixInfo winfo = getWeightsInfo (layer, getMatrixInfo);
+
+  RandomGenerator rg (range.first, range.second);
+  rg.setValueCallback (oap::device::BiasesFilter<LayerT> (winfo, nextLayer));
+
+  auto randomMatrix = createRandomMatrix (layer, winfo, rg);
+
+  setWeights (layer, randomMatrix.get ());
+  rg (getWeights (layer), ArgType::DEVICE);
+}
+
+template<typename NetworkT, typename Callback>
+void iterateNetwork (NetworkT& network, Callback&& callback)
+{
+  for (size_t idx = 0; idx < network.getLayersCount() - 2; ++idx)
+  {
+    auto* clayer = network.getLayer (idx);
+    auto* nlayer = network.getLayer (idx + 1);
+
+    callback (*clayer, *nlayer);
+  }
 }
 
 }

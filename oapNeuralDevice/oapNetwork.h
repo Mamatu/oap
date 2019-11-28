@@ -41,7 +41,7 @@ public: // types
 
 public:
 
-  Network();
+  Network(oap::CuProceduresApi* calcApi = nullptr);
   virtual ~Network();
 
   Network (const Network&) = delete;
@@ -49,10 +49,10 @@ public:
   Network& operator= (const Network&) = delete;
   Network& operator= (Network&&) = delete;
 
-  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID);
-  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID);
+  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, bool binitWeights = true);
+  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, bool binitWeights = true);
 
-  void createLevel (DeviceLayer* layer);
+  void createLevel (DeviceLayer* layer, bool binitWeights = true);
 
   void addLayer (DeviceLayer* layer);
 
@@ -158,7 +158,8 @@ private:
 
   bool shouldContinue (oap::ErrorType errorType);
 
-  oap::CuProceduresApi m_cuApi;
+  oap::CuProceduresApi* m_cuApi;
+  bool m_releaseCuApi;
   IController* m_icontroller = nullptr;
 
   std::ostream& log()
