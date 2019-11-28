@@ -61,19 +61,34 @@ void CUDAKernel_DotProductDim(
   CUDA_dotProductDim (output, params0, params1, ex);
 }
 
-extern "C" __global__ void CUDAKernel_AddRe(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+extern "C" __global__ void CUDAKernel_AddReMatrices (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  CUDA_addReMatrices(output, params0, params1);
+  CUDA_addReMatrices (output, params0, params1);
 }
 
-extern "C" __global__ void CUDAKernel_AddIm(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+extern "C" __global__ void CUDAKernel_AddImMatrices (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  CUDA_addImMatrices(output, params0, params1);
+  CUDA_addImMatrices (output, params0, params1);
 }
 
-extern "C" __global__ void CUDAKernel_Add(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+extern "C" __global__ void CUDAKernel_AddMatrices (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  CUDA_addMatrix(output, params0, params1);
+  CUDA_addMatrices (output, params0, params1);
+}
+
+extern "C" __global__ void CUDAKernel_AddReMatrixValue (math::Matrix* output, math::Matrix* params0, floatt params1)
+{
+  CUDA_addReMatrixValue (output, params0, params1);
+}
+
+extern "C" __global__ void CUDAKernel_AddImMatrixValue (math::Matrix* output, math::Matrix* params0, floatt params1)
+{
+  CUDA_addImMatrixValue (output, params0, params1);
+}
+
+extern "C" __global__ void CUDAKernel_AddMatrixValue (math::Matrix* output, math::Matrix* params0, floatt params1)
+{
+  CUDA_addMatrixValue (output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_SubstractRe(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)

@@ -192,11 +192,10 @@ class CuProceduresApi
   void substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void addSubstract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
 
-  inline void add(math::Matrix* output, math::Matrix* params0,
-                  math::Matrix* params1);
+  inline void add (math::Matrix* output, math::Matrix* params0,math::Matrix* params1);
 
-  void add(math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-           uintt columns, uintt rows);
+  void add (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
+  void add (math::Matrix* output, const math::Matrix* params0, floatt value);
 
   void setVector(math::Matrix* output, uintt column, math::Matrix* params0,
                  uintt length);
@@ -208,9 +207,9 @@ class CuProceduresApi
 
   void magnitude (floatt& output, math::Matrix* params0);
 
-  void sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix);
-  void sum (floatt& reoutput, math::Matrix* matrix);
-  void sum (floatt& reoutput, floatt* values, size_t count);
+  void sum (floatt& reoutput, floatt& imoutput, const math::Matrix* matrix);
+  void sum (floatt& reoutput, const math::Matrix* matrix);
+  void sum (floatt& reoutput, const floatt* values, size_t count);
   //void sumShared (floatt& output, math::Matrix* params0);
 
   void magnitudeOpt(floatt& output, math::Matrix* params0);
@@ -311,6 +310,26 @@ class CuProceduresApi
   void dsoftplus (math::Matrix* output, math::Matrix* matrix);
   void dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
   void dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  /**
+   * \brief mean of values in matrix
+   */
+  floatt mean (const math::Matrix* matrix);
+
+  /**
+   * \brief standard deviation of values in matrix
+   */
+  floatt stddv (const math::Matrix* matrix, floatt mean);
+
+  /**
+   * \brief standard deviation of values in matrix
+   */
+  floatt stddv (const math::Matrix* matrix);
+
+  /**
+   * \brief Scale matrix in the way: (x - mean) / standard_deviation
+   */
+  void scale (math::Matrix* matrix);
 
   inline void cos (math::Matrix* output, math::Matrix* matrix)
   {
@@ -545,8 +564,8 @@ inline void CuProceduresApi::addSubstract(math::Matrix* output, math::Matrix* pa
   addSubstract(output, params0, params1, columns, rows);
 }
 
-inline void CuProceduresApi::add(math::Matrix* output, math::Matrix* params0,
-                          math::Matrix* params1) {
+inline void CuProceduresApi::add (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
   const uintt columns = oap::cuda::GetColumns(output);
   const uintt rows = oap::cuda::GetRows(output);
   add(output, params0, params1, columns, rows);

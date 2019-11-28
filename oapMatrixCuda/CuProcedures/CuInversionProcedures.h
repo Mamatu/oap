@@ -48,7 +48,7 @@ __hostdevice__ void CUDA_invertMatrix (math::Matrix* AI, math::Matrix* A, math::
     {
       CUDA_switchPointer(&aux1, &aux2);
     }
-    CUDA_addMatrix(AI, AI, aux1);
+    CUDA_addMatrices (AI, AI, aux1);
   }
 }
 

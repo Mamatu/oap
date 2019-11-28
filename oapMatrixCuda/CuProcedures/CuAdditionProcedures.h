@@ -17,79 +17,69 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-#ifndef CUADDITIONPROCEDURES_H
-#define CUADDITIONPROCEDURES_H
+#ifndef OAP_CU_ADDITION_PROCEDURES_H
+#define OAP_CU_ADDITION_PROCEDURES_H
 
 #include "CuCore.h"
+#include "Matrix.h"
 
-__hostdeviceinline__ void cuda_addReMatrices(math::Matrix* output,
-                                             math::Matrix* params0,
-                                             math::Matrix* params1) {
+__hostdeviceinline__ void cuda_addReMatrices(math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
+  THREAD_INDICES_INIT ();
 
-  uintt offset = output->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
+  uintt stride = output->columns;
+  uintt index = threadIndexX + stride * threadIndexY;
   output->reValues[index] = params0->reValues[index] + params1->reValues[index];
 }
 
-__hostdeviceinline__ void cuda_addImMatrices(math::Matrix* output,
-                                             math::Matrix* params0,
-                                             math::Matrix* params1) {
+__hostdeviceinline__ void cuda_addImMatrices(math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
-  uintt offset = output->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
+  THREAD_INDICES_INIT ();
+
+  uintt stride = output->columns;
+  uintt index = threadIndexX + stride * threadIndexY;
   output->imValues[index] = params0->imValues[index] + params1->imValues[index];
 }
 
-__hostdeviceinline__ void cuda_addRealMatrices(math::Matrix* output,
-                                               math::Matrix* params0,
-                                               math::Matrix* params1) {
+__hostdeviceinline__ void cuda_addRealMatrices(math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
-  uintt offset = output->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
+  THREAD_INDICES_INIT ();
+
+  uintt stride = output->columns;
+  uintt index = threadIndexX + stride * threadIndexY;
   output->reValues[index] = params0->reValues[index] + params1->reValues[index];
   output->imValues[index] = params0->imValues[index] + params1->imValues[index];
 }
 
-__hostdeviceinline__ void CUDA_addReMatrices(math::Matrix* output,
-                                             math::Matrix* params0,
-                                             math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_addReMatrices(math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
-
-  uintt offset = output->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-  output->reValues[index] = params0->reValues[index] + params1->reValues[index];
+  cuda_addReMatrices (output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_addImMatrices(math::Matrix* output,
-                                             math::Matrix* params0,
-                                             math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_addImMatrices(math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
-  uintt offset = output->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-  output->imValues[index] = params0->imValues[index] + params1->imValues[index];
+  cuda_addImMatrices (output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_addRealMatrices(math::Matrix* output,
-                                               math::Matrix* params0,
-                                               math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_addRealMatrices(math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
-  uintt offset = output->columns;
-  uintt index = threadIdx.x + offset * threadIdx.y;
-  output->reValues[index] = params0->reValues[index] + params1->reValues[index];
-  output->imValues[index] = params0->imValues[index] + params1->imValues[index];
+  cuda_addRealMatrices (output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_addMatrix(math::Matrix* output,
-                                         math::Matrix* params0,
-                                         math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_addMatrices(math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+{
   HOST_INIT();
   THREAD_INDICES_INIT();
+
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
   const bool inScope = threadIndexX < output->columns && threadIndexY < output->rows;
@@ -101,6 +91,79 @@ __hostdeviceinline__ void CUDA_addMatrix(math::Matrix* output,
       cuda_addReMatrices(output, params0, params1);
     } else if (isim) {
       cuda_addImMatrices(output, params0, params1);
+    }
+  }
+  threads_sync ();
+}
+
+__hostdeviceinline__ void cuda_addReMatrixValue (math::Matrix* output, const math::Matrix* params0, floatt params1)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT ();
+
+  uintt stride = output->columns;
+  uintt index = threadIndexX + stride * threadIndexY;
+  output->reValues[index] = params0->reValues[index] + params1;
+}
+
+__hostdeviceinline__ void cuda_addImMatrixValue (math::Matrix* output, const math::Matrix* params0, floatt params1)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT ();
+
+  uintt stride = output->columns;
+  uintt index = threadIndexX + stride * threadIndexY;
+  output->imValues[index] = params0->imValues[index] + params1;
+}
+
+__hostdeviceinline__ void cuda_addRealMatrixValue (math::Matrix* output, const math::Matrix* params0, floatt params1)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT ();
+
+  uintt stride = output->columns;
+  uintt index = threadIndexX + stride * threadIndexY;
+  output->reValues[index] = params0->reValues[index] + params1;
+  output->imValues[index] = params0->imValues[index] + params1;
+}
+
+__hostdeviceinline__ void CUDA_addReMatrixValue (math::Matrix* output, const math::Matrix* params0, floatt params1)
+{
+  HOST_INIT();
+  cuda_addReMatrixValue (output, params0, params1);
+  threads_sync();
+}
+
+__hostdeviceinline__ void CUDA_addImMatrixValue (math::Matrix* output, const math::Matrix* params0, floatt params1)
+{
+  HOST_INIT();
+  cuda_addImMatrixValue (output, params0, params1);
+  threads_sync();
+}
+
+__hostdeviceinline__ void CUDA_addRealMatrixValue (math::Matrix* output, const math::Matrix* params0, floatt params1)
+{
+  HOST_INIT();
+  cuda_addRealMatrixValue (output, params0, params1);
+  threads_sync();
+}
+
+__hostdeviceinline__ void CUDA_addMatrixValue (math::Matrix* output, const math::Matrix* params0, floatt params1)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  bool isre = output->reValues != NULL;
+  bool isim = output->imValues != NULL;
+  const bool inScope = threadIndexX < output->columns && threadIndexY < output->rows;
+  if (inScope)
+  {
+    if (isre && isim) {
+      cuda_addRealMatrixValue(output, params0, params1);
+    } else if (isre) {
+      cuda_addReMatrixValue(output, params0, params1);
+    } else if (isim) {
+      cuda_addImMatrixValue(output, params0, params1);
     }
   }
   threads_sync ();

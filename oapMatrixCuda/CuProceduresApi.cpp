@@ -318,10 +318,17 @@ void CuProceduresApi::addSubstract(math::Matrix* output, math::Matrix* params0, 
   m_cuStatus = execute("CUDAKernel_AddSubstract", columns, rows, params, 0);
 }
 
-void CuProceduresApi::add(math::Matrix* output, math::Matrix* params0,
-                   math::Matrix* params1, uintt columns, uintt rows) {
+void CuProceduresApi::add (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+{
   void* params[] = {&output, &params0, &params1};
-  m_cuStatus = execute("CUDAKernel_Add", columns, rows, params, 0);
+  m_cuStatus = execute ("CUDAKernel_AddMatrices", columns, rows, params, 0);
+}
+
+void CuProceduresApi::add (math::Matrix* output, const math::Matrix* params0, floatt value)
+{
+  auto minfo = oap::cuda::GetMatrixInfo (output);
+  void* params[] = {&output, &params0, &value};
+  m_cuStatus = execute ("CUDAKernel_AddMatrixValue", minfo.columns(), minfo.rows(), params, 0);
 }
 
 void CuProceduresApi::setVector (math::Matrix* V, uintt column, math::Matrix* v, uintt length)
@@ -355,7 +362,7 @@ void CuProceduresApi::sum (floatt& output, math::Matrix* matrix)
   output = execute ("CUDAKernel_Sum", w, h, params, 0, false);
 }
 */
-void CuProceduresApi::sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix)
+void CuProceduresApi::sum (floatt& reoutput, floatt& imoutput, const math::Matrix* matrix)
 {
   using HBuffer = oap::TBuffer<floatt, oap::Type::HOST>;
   using DBuffer = oap::TBuffer<floatt, oap::Type::CUDA>;
@@ -382,16 +389,16 @@ void CuProceduresApi::sum (floatt& reoutput, floatt& imoutput, math::Matrix* mat
   generic::sum (reoutput, imoutput, matrix, &m_kernel, sumApi, sumBuffers);
 }
 
-void CuProceduresApi::sum (floatt& reoutput, math::Matrix* matrix)
+void CuProceduresApi::sum (floatt& reoutput, const math::Matrix* matrix)
 {
   floatt imoutput;
   sum (reoutput, imoutput, matrix);
 }
 
-void CuProceduresApi::sum (floatt& reoutput, floatt* values, size_t count)
+void CuProceduresApi::sum (floatt& reoutput, const floatt* values, size_t count)
 {
   math::Matrix matrix;
-  matrix.reValues = values;
+  matrix.reValues = const_cast<floatt*>(values);
   matrix.columns = count;
   matrix.rows = 1;
   sum (reoutput, &matrix);
@@ -818,6 +825,44 @@ void CuProceduresApi::dsoftplus (math::Matrix* output, math::Matrix* matrix, uin
 void CuProceduresApi::dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2])
 {
   m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_DSoftplusDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
+}
+
+floatt CuProceduresApi::mean (const math::Matrix* matrix)
+{
+  auto minfo = oap::cuda::GetMatrixInfo (matrix);
+  floatt sumF = 0;
+  floatt im = 0;
+  this->sum (sumF, im, matrix);
+  return sumF / (minfo.columns () + minfo.rows ());
+}
+
+floatt CuProceduresApi::stddv (const math::Matrix* matrix, floatt mean)
+{
+  floatt sd = 0;
+
+  auto minfo = oap::cuda::GetMatrixInfo (matrix);
+
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
+  oap::cuda::CopyDeviceMatrixToDeviceMatrix (dmatrix, matrix);
+
+  this->add (dmatrix.get (), dmatrix.get (), -mean);
+  this->magnitude (sd, dmatrix.get ());
+  sd = sd / ((minfo.columns() * minfo.rows()) - 1);
+  return sd;
+}
+
+floatt CuProceduresApi::stddv (const math::Matrix* matrix)
+{
+  floatt mn = mean (matrix);
+  return stddv (matrix, mn);
+}
+
+void CuProceduresApi::scale (math::Matrix* matrix)
+{
+  floatt mn = this->mean (matrix);
+  floatt sd = this->stddv (matrix, mn);
+  this->add (matrix, matrix, -mn);
+  this->multiplyConstant (matrix, matrix, 1. / sd, 0);
 }
 
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
