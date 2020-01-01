@@ -63,7 +63,9 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_ReluDim", proxy_HOSTKernel_ReluDim},
   {"CUDAKernel_DReluDim", proxy_HOSTKernel_DReluDim},
   {"CUDAKernel_ReluDimPeriodic", proxy_HOSTKernel_ReluDimPeriodic},
-  {"CUDAKernel_DReluDimPeriodic", proxy_HOSTKernel_DReluDimPeriodic}
+  {"CUDAKernel_DReluDimPeriodic", proxy_HOSTKernel_DReluDimPeriodic},
+
+  {"CUDAKernel_Convolve", proxy_HOSTKernel_Convolve}
 };
 
 class HostKernelImpl : public HostKernel

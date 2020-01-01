@@ -71,5 +71,7 @@
 #include "CuProcedures/CuReluDimProcedures.h"
 #include "CuProcedures/CuReluProcedures.h"
 
+#include "CuProcedures/CuPoolingProcedures.h"
+#include "CuProcedures/CuConvolutionProcedures.h"
 
 #endif /* DEVICE_H */

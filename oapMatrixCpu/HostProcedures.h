@@ -117,6 +117,8 @@ class HostProcedures {
 
   void getVector (math::Matrix* vector, math::Matrix* matrix, uintt column);
 
+  void convolve (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel);
+
  private:
   uint m_threads[2];
   uint m_blocks[2];

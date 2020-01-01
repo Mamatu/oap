@@ -504,3 +504,16 @@ CUDAKernel_PHadamardProduct(math::Matrix* output, math::Matrix* params0, math::M
   CUDA_phadamardProduct (output, params0, params1);
 }
 
+extern "C" __global__ void
+CUDAKernel_Convolve (math::Matrix* output, math::Matrix* matrix, math::Matrix* kernel)
+{
+  CudaKernel_convolve (output, matrix, kernel);
+}
+
+extern "C" __global__ void
+CUDAKernel_Pool (math::Matrix* output, math::Matrix* matrix, math::Matrix* kernel)
+{
+  extern __shared__ floatt cache[];
+  CUDA_pool (output, matrix, kernel, cache);
+}
+

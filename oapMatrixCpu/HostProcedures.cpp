@@ -455,3 +455,8 @@ void HostProcedures::getVector (math::Matrix* vector, math::Matrix* matrix, uint
 {
   oap::generic::getVector (vector, matrix, column, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
+
+void HostProcedures::convolve (math::Matrix* output, const math::Matrix* param, const math::Matrix* kernel)
+{
+  oap::generic::convolve (output, param, kernel, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
