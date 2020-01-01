@@ -35,6 +35,7 @@
 #include "GenericValidationApi.h"
 
 #include "oapHostMatrixUtils.h"
+#include "CuProcedures/CuConvolutionMacros.h"
 
 #define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
@@ -42,7 +43,8 @@ namespace oap
 {
 namespace generic
 {
-  using SharedMemoryCallback = std::function<uintt(uint blocks[2], uint threads[2])>;
+
+  using SharedMemoryCallback = std::function<uintt(uintt blocks[2], uintt threads[2])>;
 
   struct Args
   {
@@ -55,6 +57,14 @@ namespace generic
     uint threads[2];
 
     uintt sharedMemorySize = 0;
+
+    /**
+     * \brief Shared memory callback which is invoke to define size of shared memory block (in bytes). 1st argument is blocks dims ([0] - x [1] - y), 2st argument of callback is threads dims ([0] - x [1] - y)
+     *
+     * The first argument of callback is blocks dims (as 2d array [0] - x [1] - y)
+     * The second argument of callback is threads dims (as 2d array [0] - x [1] - y)
+     * Type is @SharedMemoryCallback
+     */
     SharedMemoryCallback smCallback = nullptr;
   };
 
@@ -654,6 +664,48 @@ namespace generic
 
     void* params[] = {&vector, &length, &matrix, &column};
     const char* kname = "CUDAKernel_GetVector";
+
+    return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
+  }
+
+  namespace aux
+  {
+    inline uintt convolve_cache_calculateWidth (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
+    {
+      return CONVOLVE_CALCULATE_CACHE_COLUMNS(matrixInfo, kernelInfo, .columns(), .rows());
+    }
+
+    inline uintt convolve_cache_calculateHeight (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
+    {
+      return CONVOLVE_CALCULATE_CACHE_ROWS(matrixInfo, kernelInfo, .rows());
+    }
+
+    inline uintt convolve_output_calculateWidth (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
+    {
+      return CONVOLVE_CALCULATE_OUTPUT_DIM(matrixInfo, kernelInfo, .columns());
+    }
+
+    inline uintt convolve_output_calculateHeight (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
+    {
+      return CONVOLVE_CALCULATE_OUTPUT_DIM(matrixInfo, kernelInfo, .rows());
+    }
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback>
+  bool convolve (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+  {
+    void* params[] = {&output, &matrix, &kernel};
+    const char* kname = "CUDAKernel_Convolve";
+
+    auto minfo = getMatrixInfo (matrix);
+    auto kinfo = getMatrixInfo (kernel);
+
+    oap::generic::Args args;
+    args.retrieveDims = false;
+    args.prepareDims = true;
+    args.w = aux::convolve_cache_calculateWidth (minfo, kinfo);
+    args.h = aux::convolve_cache_calculateHeight (minfo, kinfo);
+    args.sharedMemorySize = args.w * args.h * sizeof(floatt);
 
     return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
   }

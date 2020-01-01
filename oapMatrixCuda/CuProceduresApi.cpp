@@ -827,6 +827,35 @@ void CuProceduresApi::dsoftplus (math::Matrix* output, math::Matrix* matrix, uin
   m_cuStatus = oap::generic::funcDimPeriodic ("CUDAKernel_DSoftplusDimPeriodic", output, matrix, dims, &m_kernel, m_bmApi, m_preExecCallback, m_createKernelArray);
 }
 
+void CuProceduresApi::convolve (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel)
+{
+#ifdef CU_PROCEDURES_API_PRINT
+  debug(__func__);
+#endif
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(matrix);
+  CHECK_MATRIX(kernel);
+
+  oap::generic::convolve (output, matrix, kernel, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback);
+}
+
+void CuProceduresApi::pool (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel)
+{
+#ifdef CU_PROCEDURES_API_PRINT
+  debug(__func__);
+#endif
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(matrix);
+  CHECK_MATRIX(kernel);
+
+  //oap::generic::check_dotProduct (output, params0, params1, m_bmApi);
+
+  void* params[] = {&output, &matrix, &kernel};
+  const char* kname = "CUDAKernel_Pool";
+
+  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
+}
+
 floatt CuProceduresApi::mean (const math::Matrix* matrix)
 {
   auto minfo = oap::cuda::GetMatrixInfo (matrix);

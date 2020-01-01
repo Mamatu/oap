@@ -312,6 +312,16 @@ class CuProceduresApi
   void dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
 
   /**
+   * \brief Convolution operation
+   */
+  void convolve (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel);
+
+  /**
+   * \brief Pooling operation
+   */
+  void pool (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel);
+
+  /**
    * \brief mean of values in matrix
    */
   floatt mean (const math::Matrix* matrix);
