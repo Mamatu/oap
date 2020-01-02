@@ -22,13 +22,10 @@
 #include "MatchersUtils.h"
 #include "HostProcedures.h"
 #include "MathOperationsCpu.h"
+#include "GenericProceduresApi.h"
 
 #include "oapHostMatrixUtils.h"
-
-#include "KernelExecutor.h"
-
 #include "oapHostMatrixPtr.h"
-#include "GenericProceduresApi.h"
 
 
 class OapConvolutionTests : public testing::Test {
