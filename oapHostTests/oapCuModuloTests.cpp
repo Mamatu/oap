@@ -17,21 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string>
 #include "gtest/gtest.h"
-
 #include "CuProcedures/CuMathUtils.h"
-
-#include "MatchersUtils.h"
-#include "HostProcedures.h"
-#include "MathOperationsCpu.h"
-
-#include "oapHostMatrixUtils.h"
-
-#include "KernelExecutor.h"
-
-#include "oapHostMatrixPtr.h"
-
 
 class OapCuModuloTests : public testing::Test {
  public:
