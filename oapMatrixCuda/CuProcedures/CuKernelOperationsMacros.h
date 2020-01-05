@@ -82,8 +82,8 @@
   uintt cacheW = KEROPER_##type##_CALCULATE_CACHE_COLUMNS (params, kernel, columns, rows);        \
   uintt cacheH = KEROPER_##type##_CALCULATE_CACHE_ROWS (params, kernel, rows);                    \
   uintt kidx = KEROPER_CALCULATE_KERNEL_IDX(kernel, columns, rows);                               \
-  uintt px = KEROPER_##type##_CALCULATE_PARAM_IDX_X(kernel, columns, rows);                                \
-  uintt py = KEROPER_##type##_CALCULATE_PARAM_IDX_Y(kernel, columns, rows);                                \
+  uintt px = KEROPER_##type##_CALCULATE_PARAM_IDX_X(kernel, columns, rows);                       \
+  uintt py = KEROPER_##type##_CALCULATE_PARAM_IDX_Y(kernel, columns, rows);                       \
   const uintt cacheIdx = KEROPER_##type##_CALCULATE_CACHE_IDX (params, kernel, columns, rows);    \
   cache[cacheIdx] = cache_set_code;
   //cache[cacheIdx] = GetRe (params0, px, py) * GetReIndex (kernel, kidx);
