@@ -35,7 +35,7 @@
 #include "GenericValidationApi.h"
 
 #include "oapHostMatrixUtils.h"
-#include "CuProcedures/CuConvolutionMacros.h"
+#include "CuProcedures/CuKernelOperationsMacros.h"
 
 #define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
@@ -672,22 +672,32 @@ namespace generic
   {
     inline uintt convolve_cache_calculateWidth (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
     {
-      return CONVOLVE_CALCULATE_CACHE_COLUMNS(matrixInfo, kernelInfo, .columns(), .rows());
+      return KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS(matrixInfo, kernelInfo, .columns(), .rows());
     }
 
     inline uintt convolve_cache_calculateHeight (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
     {
-      return CONVOLVE_CALCULATE_CACHE_ROWS(matrixInfo, kernelInfo, .rows());
+      return KEROPER_CONVOLUTION_CALCULATE_CACHE_ROWS(matrixInfo, kernelInfo, .rows());
     }
 
     inline uintt convolve_output_calculateWidth (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
     {
-      return CONVOLVE_CALCULATE_OUTPUT_DIM(matrixInfo, kernelInfo, .columns());
+      return KEROPER_CALCULATE_OUTPUT_DIM(matrixInfo, kernelInfo, .columns());
     }
 
     inline uintt convolve_output_calculateHeight (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
     {
-      return CONVOLVE_CALCULATE_OUTPUT_DIM(matrixInfo, kernelInfo, .rows());
+      return KEROPER_CALCULATE_OUTPUT_DIM(matrixInfo, kernelInfo, .rows());
+    }
+
+    inline uintt pooling_cache_calculateWidth (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
+    {
+      return KEROPER_POOLING_CALCULATE_CACHE_COLUMNS(matrixInfo, kernelInfo, .columns(), .rows());
+    }
+
+    inline uintt pooling_cache_calculateHeight (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
+    {
+      return KEROPER_POOLING_CALCULATE_CACHE_ROWS(matrixInfo, kernelInfo, .rows());
     }
   }
 
@@ -705,6 +715,30 @@ namespace generic
     args.prepareDims = true;
     args.w = aux::convolve_cache_calculateWidth (minfo, kinfo);
     args.h = aux::convolve_cache_calculateHeight (minfo, kinfo);
+    args.sharedMemorySize = args.w * args.h * sizeof(floatt);
+
+    return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
+  }
+
+  template<typename GetMatrixInfo, typename PreExecCallback, typename CreateKernelArray>
+  bool poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback,
+                    CreateKernelArray&& createKernelArray)
+  {
+
+    uintt dims[2] = {kernel.columns, kernel.rows};
+    uintt* kdims = createKernelArray(dims, 2);
+
+    void* params[] = {&output, &matrix, &kdims};
+    const char* kname = "CUDAKernel_PoolAverage";
+
+    auto minfo = getMatrixInfo (matrix);
+    math::MatrixInfo kinfo (minfo.isRe, minfo.isIm, kernel.columns, kernel.rows);
+
+    oap::generic::Args args;
+    args.retrieveDims = false;
+    args.prepareDims = true;
+    args.w = aux::pooling_cache_calculateWidth (minfo, kinfo);
+    args.h = aux::pooling_cache_calculateHeight (minfo, kinfo);
     args.sharedMemorySize = args.w * args.h * sizeof(floatt);
 
     return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});

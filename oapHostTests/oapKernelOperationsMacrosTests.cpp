@@ -18,12 +18,12 @@
  */
 
 #include "gtest/gtest.h"
-#include "CuProcedures/CuConvolutionMacros.h"
+#include "CuProcedures/CuKernelOperationsMacros.h"
 #include "MatrixInfo.h"
 #include "GenericProceduresApi.h"
 #include "oapHostMatrixUPtr.h"
 
-class OapConvolutionMacrosTests : public testing::Test {
+class OapKernelOperationsMacrosTests : public testing::Test {
  public:
 
   virtual void SetUp()
@@ -35,7 +35,7 @@ class OapConvolutionMacrosTests : public testing::Test {
   }
 };
 
-TEST_F(OapConvolutionMacrosTests, CalcSharedMemoryTests)
+TEST_F(OapKernelOperationsMacrosTests, CalcSharedMemoryTests)
 {
   {
     math::MatrixInfo matrixInfo (true, false, 2, 2);
@@ -69,7 +69,7 @@ TEST_F(OapConvolutionMacrosTests, CalcSharedMemoryTests)
   }
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcOutputDimTests)
+TEST_F(OapKernelOperationsMacrosTests, CalcOutputDimTests)
 {
   {
     math::MatrixInfo matrixInfo (true, false, 2, 2);
@@ -103,7 +103,25 @@ TEST_F(OapConvolutionMacrosTests, CalcOutputDimTests)
   }
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcParamIdxTest_1)
+TEST_F(OapKernelOperationsMacrosTests, CalcOutputIdxTests)
+{
+  {
+    math::MatrixInfo matrixInfo (true, false, 4, 4);
+    math::MatrixInfo kernelInfo (true, false, 2, 2);
+
+    uintt columns = oap::generic::aux::convolve_cache_calculateWidth (matrixInfo, kernelInfo);
+    uintt rows = oap::generic::aux::convolve_cache_calculateHeight (matrixInfo, kernelInfo);
+
+    for (uintt threadIndexY = 0; threadIndexY < rows; ++threadIndexY)
+    {
+      for (uintt threadIndexX = 0; threadIndexX < columns; ++threadIndexX)
+      {
+      }
+    }
+  }
+}
+
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcParamIdxTest_1)
 {
   /*
    *  |M1 M2 M3|
@@ -131,13 +149,13 @@ TEST_F(OapConvolutionMacrosTests, CalcParamIdxTest_1)
     {
       size_t threadIndexX = idxX;
       size_t threadIndexY = idxY;
-      EXPECT_LT(CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()), matrixInfo.columns()) << "(" << threadIndexX << ", " << threadIndexY << ")";
-      EXPECT_LT(CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()), matrixInfo.rows()) << "(" << threadIndexX << ", " << threadIndexY << ")";
+      EXPECT_LT(KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()), matrixInfo.columns()) << "(" << threadIndexX << ", " << threadIndexY << ")";
+      EXPECT_LT(KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()), matrixInfo.rows()) << "(" << threadIndexX << ", " << threadIndexY << ")";
     }
   }
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcParamIdxTest_2)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcParamIdxTest_2)
 {
   math::MatrixInfo matrixInfo (true, false, 5, 5);
   math::MatrixInfo kernelInfo (true, false, 3, 3);
@@ -153,13 +171,13 @@ TEST_F(OapConvolutionMacrosTests, CalcParamIdxTest_2)
     {
       size_t threadIndexX = idxX;
       size_t threadIndexY = idxY;
-      EXPECT_LT(CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()), matrixInfo.columns()) << "(" << threadIndexX << ", " << threadIndexY << ")";
-      EXPECT_LT(CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()), matrixInfo.rows()) << "(" << threadIndexX << ", " << threadIndexY << ")";
+      EXPECT_LT(KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()), matrixInfo.columns()) << "(" << threadIndexX << ", " << threadIndexY << ")";
+      EXPECT_LT(KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()), matrixInfo.rows()) << "(" << threadIndexX << ", " << threadIndexY << ")";
     }
   }
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcParamIdxTest_3)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcParamIdxTest_3)
 {
   math::MatrixInfo matrixInfo (true, false, 4, 4);
   math::MatrixInfo kernelInfo (true, false, 2, 2);
@@ -169,36 +187,36 @@ TEST_F(OapConvolutionMacrosTests, CalcParamIdxTest_3)
 
   size_t threadIndexX = 0;
   size_t threadIndexY = 0;
-  EXPECT_EQ(0, CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
-  EXPECT_EQ(0, CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(0, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(0, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
 
   threadIndexX = 1;
   threadIndexY = 0;
-  EXPECT_EQ(1, CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
-  EXPECT_EQ(0, CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(1, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(0, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
 
   threadIndexX = 2;
   threadIndexY = 0;
-  EXPECT_EQ(0, CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
-  EXPECT_EQ(1, CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(0, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(1, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
 
   threadIndexX = 3;
   threadIndexY = 0;
-  EXPECT_EQ(1, CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
-  EXPECT_EQ(1, CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(1, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(1, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
 
   threadIndexX = 4;
   threadIndexY = 0;
-  EXPECT_EQ(1, CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
-  EXPECT_EQ(0, CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(1, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(0, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
 
   threadIndexX = 0;
   threadIndexY = 1;
-  EXPECT_EQ(0, CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
-  EXPECT_EQ(1, CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(0, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(1, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcParamIdxTest_4)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcParamIdxTest_4)
 {
   math::MatrixInfo matrixInfo (true, false, 5, 5);
   math::MatrixInfo kernelInfo (true, false, 2, 2);
@@ -208,16 +226,45 @@ TEST_F(OapConvolutionMacrosTests, CalcParamIdxTest_4)
 
   size_t threadIndexX = 0;
   size_t threadIndexY = 0;
-  EXPECT_EQ(0, CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
-  EXPECT_EQ(0, CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(0, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(0, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
 
   threadIndexX = 1;
   threadIndexY = 1;
-  EXPECT_EQ(1, CONVOLVE_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
-  EXPECT_EQ(1, CONVOLVE_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(1, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(1, KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_1)
+TEST_F(OapKernelOperationsMacrosTests, PoolingCalcParamIdxTest_1)
+{
+  math::MatrixInfo matrixInfo (true, false, 4, 4);
+  math::MatrixInfo kernelInfo (true, false, 2, 2);
+
+  size_t width = 8;
+  size_t height = 2;
+  EXPECT_EQ(width, oap::generic::aux::pooling_cache_calculateWidth (matrixInfo, kernelInfo));
+  EXPECT_EQ(height, oap::generic::aux::pooling_cache_calculateHeight (matrixInfo, kernelInfo));
+
+  for (size_t idxX = 0; idxX < width; ++idxX)
+  {
+    for (size_t idxY = 0; idxY < height; ++idxY)
+    {
+      size_t threadIndexX = idxX;
+      size_t threadIndexY = idxY;
+      EXPECT_LT(KEROPER_POOLING_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()), matrixInfo.columns()) << "(" << threadIndexX << ", " << threadIndexY << ")";
+      EXPECT_LT(KEROPER_POOLING_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()), matrixInfo.rows()) << "(" << threadIndexX << ", " << threadIndexY << ")";
+    }
+  }
+
+  {
+    size_t threadIndexX = 7;
+    size_t threadIndexY = 1;
+    EXPECT_EQ(3, KEROPER_POOLING_CALCULATE_PARAM_IDX_X (kernelInfo, .columns(), .rows()));
+    EXPECT_EQ(3, KEROPER_POOLING_CALCULATE_PARAM_IDX_Y (kernelInfo, .columns(), .rows()));
+  }
+}
+
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcCacheIdxTests_1)
 {
   // M1 M2 M3 M4
   // K1 K2
@@ -229,10 +276,10 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_1)
   uintt threadIndexX = 0;
   uintt threadIndexY = 0;
  
-  EXPECT_EQ(0, CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(0, KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_2)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcCacheIdxTests_2)
 {
   math::MatrixInfo matrixInfo (true, false, 4, 4);
   math::MatrixInfo kernelInfo (true, false, 2, 2);
@@ -240,10 +287,10 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_2)
   uintt threadIndexX = 1;
   uintt threadIndexY = 0;
  
-  EXPECT_EQ(1, CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(1, KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_3)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcCacheIdxTests_3)
 {
   math::MatrixInfo matrixInfo (true, false, 4, 4);
   math::MatrixInfo kernelInfo (true, false, 2, 2);
@@ -251,10 +298,10 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_3)
   uintt threadIndexX = 0;
   uintt threadIndexY = 1;
  
-  EXPECT_EQ(12, CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(12, KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_4)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcCacheIdxTests_4)
 {
   math::MatrixInfo matrixInfo (true, false, 4, 4);
   math::MatrixInfo kernelInfo (true, false, 2, 2);
@@ -262,10 +309,10 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_4)
   uintt threadIndexX = 1;
   uintt threadIndexY = 1;
  
-  EXPECT_EQ(13, CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(13, KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_5)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcCacheIdxTests_5)
 {
   math::MatrixInfo matrixInfo (true, false, 4, 4);
   math::MatrixInfo kernelInfo (true, false, 2, 2);
@@ -273,10 +320,10 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_5)
   uintt threadIndexX = 2;
   uintt threadIndexY = 0;
  
-  EXPECT_EQ(2, CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(2, KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_6)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcCacheIdxTests_6)
 {
   math::MatrixInfo matrixInfo (true, false, 4, 4);
   math::MatrixInfo kernelInfo (true, false, 2, 2);
@@ -284,10 +331,10 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_6)
   uintt threadIndexX = 2;
   uintt threadIndexY = 1;
  
-  EXPECT_EQ(14, CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(14, KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_7)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcCacheIdxTests_7)
 {
   math::MatrixInfo matrixInfo (true, false, 3, 3);
   math::MatrixInfo kernelInfo (true, false, 2, 2);
@@ -321,7 +368,7 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_7)
     uintt threadIndexX = 0;
     uintt threadIndexY = 1;
  
-    cacheIdx0 = CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows());
+    cacheIdx0 = KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows());
 
     EXPECT_EQ (8, cacheIdx0);
   }
@@ -329,7 +376,7 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_7)
     uintt threadIndexX = 2;
     uintt threadIndexY = 0;
  
-    cacheIdx1 = CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows());
+    cacheIdx1 = KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows());
 
     EXPECT_EQ (2, cacheIdx1);
   }
@@ -337,7 +384,7 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_7)
     uintt threadIndexX = 0;
     uintt threadIndexY = 2;
  
-    cacheIdx2 = CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows());
+    cacheIdx2 = KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows());
 
     EXPECT_EQ (16, cacheIdx2);
   }
@@ -347,7 +394,7 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_7)
   EXPECT_NE (cacheIdx1, cacheIdx2);
 }
 
-TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_8)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCalcCacheIdxTests_8)
 {
   math::MatrixInfo matrixInfo (true, false, 2, 2);
   math::MatrixInfo kernelInfo (true, false, 2, 2);
@@ -355,10 +402,10 @@ TEST_F(OapConvolutionMacrosTests, CalcCacheIdxTests_8)
   uintt threadIndexX = 2;
   uintt threadIndexY = 0;
  
-  EXPECT_EQ(2, CONVOLVE_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
+  EXPECT_EQ(2, KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX (matrixInfo, kernelInfo, .columns(), .rows()));
 }
 
-TEST_F(OapConvolutionMacrosTests, CreateCacheTest)
+TEST_F(OapKernelOperationsMacrosTests, ConvolutionCreateCacheTest)
 {
   floatt paramArray[] =
   {
@@ -396,7 +443,7 @@ TEST_F(OapConvolutionMacrosTests, CreateCacheTest)
   {
     for (uintt threadIndexX = 0; threadIndexX < width; ++threadIndexX)
     {
-      CONVOLVE_CREATE_CACHE (outcome, param, kernel, cache.data());
+      KEROPER_CACHE_CODE (CONVOLUTION, param, kernel, cache.data(), ->columns, ->rows, GetRe (param, px, py) * GetReIndex (kernel, kidx););
     }
   }
 

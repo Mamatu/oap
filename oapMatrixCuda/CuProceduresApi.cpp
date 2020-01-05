@@ -836,24 +836,19 @@ void CuProceduresApi::convolve (math::Matrix* output, const math::Matrix* matrix
   CHECK_MATRIX(matrix);
   CHECK_MATRIX(kernel);
 
-  oap::generic::convolve (output, matrix, kernel, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback);
+  m_cuStatus = oap::generic::convolve (output, matrix, kernel, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
-void CuProceduresApi::pool (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel)
+void CuProceduresApi::poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel)
 {
 #ifdef CU_PROCEDURES_API_PRINT
   debug(__func__);
 #endif
   CHECK_MATRIX(output);
   CHECK_MATRIX(matrix);
-  CHECK_MATRIX(kernel);
-
-  //oap::generic::check_dotProduct (output, params0, params1, m_bmApi);
-
-  void* params[] = {&output, &matrix, &kernel};
-  const char* kname = "CUDAKernel_Pool";
-
-  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
+  logAssert (kernel.columns != 0 && kernel.rows != 0);
+  
+  m_cuStatus = oap::generic::poolAverage (output, matrix, kernel, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback, m_createKernelArray);
 }
 
 floatt CuProceduresApi::mean (const math::Matrix* matrix)

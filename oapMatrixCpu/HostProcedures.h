@@ -118,6 +118,7 @@ class HostProcedures {
   void getVector (math::Matrix* vector, math::Matrix* matrix, uintt column);
 
   void convolve (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel);
+  void poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel);
 
  private:
   uint m_threads[2];

@@ -460,3 +460,8 @@ void HostProcedures::convolve (math::Matrix* output, const math::Matrix* param, 
 {
   oap::generic::convolve (output, param, kernel, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
+
+void HostProcedures::poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel)
+{
+  oap::generic::poolAverage (output, matrix, kernel, &m_kernel, oap::host::GetMatrixInfo, [](){}, m_createKernelArray);
+}

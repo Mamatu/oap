@@ -20,7 +20,7 @@
 #ifndef OAP_CU_PROCEDURES_API_H
 #define OAP_CU_PROCEDURES_API_H
 
-#include <map>
+#include <unordered_map>
 #include <sstream>
 
 #include "CudaBuffer.h"
@@ -319,7 +319,7 @@ class CuProceduresApi
   /**
    * \brief Pooling operation
    */
-  void pool (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel);
+  void poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel);
 
   /**
    * \brief mean of values in matrix
@@ -444,7 +444,7 @@ private:
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsImBuffer;
 
   MatrixEx* m_dMatrixEx = nullptr;
-  std::map<size_t, uint*> m_kernelArrays;
+  std::unordered_map<size_t, uint*> m_kernelArrays;
 
   uintt* createKernelArray (uintt* hostArray, size_t length)
   {

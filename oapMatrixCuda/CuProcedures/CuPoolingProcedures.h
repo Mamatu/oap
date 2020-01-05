@@ -22,69 +22,112 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
+#include "MatrixAPI.h"
 
-__hostdevice__ void cuda_poolRe (math::Matrix* output, math::Matrix* params0, math::Matrix* kernel, floatt* cache)
+#include "CuSumUtils.h"
+#include "CuKernelOperationsMacros.h"
+
+namespace
+{
+struct PoolDims
+{
+  uintt columns;
+  uintt rows;
+};
+}
+
+__hostdevice__ void cuda_poolAverageRe (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
+  PoolDims outputDims = {output->columns, output->rows};
+  PoolDims paramDims = {matrix->columns, matrix->rows};
+  PoolDims kernelDims = {kernel_dims[0], kernel_dims[1]};
+
+  KEROPER_CACHE_CODE(POOLING, paramDims, kernelDims, cache, .columns, .rows, GetRe (matrix, px, py);)
+  threads_sync();
+
+  CUDA_SumValuesInScope (cache, cacheIdx, cacheW * cacheH, kernelDims.rows * kernelDims.columns, blockDim.x, blockDim.y);
+
+  if (KEROPER_IS_OUTPUT_IDX (kernelDims, .columns, .rows))
+  {
+    const uintt ox = KEROPER_CALCULATE_OUTPUT_IDX_X(kernelDims, .columns, .rows);
+    const uintt oy = threadIndexY;
+
+    floatt cached = cache[cacheIdx];
+    floatt value = GetRe (output, ox, oy);
+    SetRe (output, ox, oy, value + (cached / static_cast<floatt>(kernelDims.rows * kernelDims.columns)));
+  }
 }
 
-__hostdevice__ void cuda_poolIm (math::Matrix* output, math::Matrix* params0, math::Matrix* kernel, floatt* cache)
+__hostdevice__ void cuda_poolAverageIm (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
-__hostdevice__ void cuda_poolReal(math::Matrix* output, math::Matrix* params0, math::Matrix* kernel, floatt* cache)
+
+__hostdevice__ void cuda_poolAverageReal (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
-__hostdevice__ void CUDA_poolRe(math::Matrix* output, math::Matrix* params0, math::Matrix* kernel, floatt* cache)
+__hostdevice__ void CUDA_poolAverageRe (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
 
-  cuda_poolRe(output, params0, kernel, cache);
+  cuda_poolAverageRe (output, matrix, kernel_dims, cache);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_poolIm(math::Matrix* output, math::Matrix* params0, math::Matrix* kernel, floatt* cache)
+__hostdevice__ void CUDA_poolAverageIm (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
 
-  cuda_poolIm(output, params0, kernel, cache);
+  cuda_poolAverageIm (output, matrix, kernel_dims, cache);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_poolReal(math::Matrix* output, math::Matrix* params0, math::Matrix* kernel, floatt* cache)
+__hostdevice__ void CUDA_poolAverageReal (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
 
-  cuda_poolReal(output, params0, kernel, cache);
+  cuda_poolAverageReal (output, matrix, kernel_dims, cache);
   threads_sync();
 }
-__hostdevice__ void CUDA_pool (math::Matrix* output, math::Matrix* params0, math::Matrix* kernel, floatt* cache)
+
+__hostdevice__ void CUDA_poolAverage (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
+
+  PoolDims paramDims = {matrix->columns, matrix->rows};
+  PoolDims kernelDims = {kernel_dims[0], kernel_dims[1]};
 
   bool isre = output->reValues != NULL;
   bool isim = output->imValues != NULL;
-  bool isInRange =
-    threadIndexX < output->columns && threadIndexY < output->rows;
+  bool isInRange = threadIndexX < KEROPER_POOLING_CALCULATE_CACHE_COLUMNS (paramDims, kernelDims, .columns, .rows) && threadIndexY < KEROPER_POOLING_CALCULATE_CACHE_ROWS (paramDims, kernelDims, .rows);
   if (isre && isim && isInRange)
   {
-    CUDA_poolReal(output, params0, kernel, cache);
+    CUDA_poolAverageReal (output, matrix, kernel_dims, cache);
   }
   else if (isre && isInRange)
   {
-    CUDA_poolRe(output, params0, kernel, cache);
+    CUDA_poolAverageRe (output, matrix, kernel_dims, cache);
   }
   else if (isim && isInRange)
   {
-    CUDA_poolIm(output, params0, kernel, cache);
+    CUDA_poolAverageIm (output, matrix, kernel_dims, cache);
   }
+}
+
+__hostdevice__ void CudaKernel_poolAverage (math::Matrix* output, const math::Matrix* matrix, uintt* ex)
+{
+  uintt kernel_dims[2] = {ex[0], ex[1]};
+  floatt* cache = NULL;
+  HOST_INIT_SHARED (floatt, cache);
+  CUDA_poolAverage (output, matrix, kernel_dims, cache);
 }
 
 #endif
