@@ -48,8 +48,9 @@ __hostdeviceinline__ void cuda_SumValuesInBuffer (floatt* buffer, uintt bufferIn
 /**
  * \brief Step of Calculations sum of values pairs in all subscopes of buffer.
  * \param bufferIndex - index of buffer for performed thread
- * \param scopeLength - length of scope
+ * \param initScopeLength - length of scope (in init state)
  * \param bufferLength - length of buffer
+ * \param actualScopeLength - length of scope in every step
  *
  * Sums pair of values in scope and save a outcome in the first half of scope.
  * For example
