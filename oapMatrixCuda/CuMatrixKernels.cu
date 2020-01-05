@@ -511,9 +511,9 @@ CUDAKernel_Convolve (math::Matrix* output, math::Matrix* matrix, math::Matrix* k
 }
 
 extern "C" __global__ void
-CUDAKernel_Pool (math::Matrix* output, math::Matrix* matrix, math::Matrix* kernel)
+CUDAKernel_PoolAverage (math::Matrix* output, math::Matrix* matrix, uintt* ex)
 {
   extern __shared__ floatt cache[];
-  CUDA_pool (output, matrix, kernel, cache);
+  CUDA_poolAverage (output, matrix, ex, cache);
 }
 

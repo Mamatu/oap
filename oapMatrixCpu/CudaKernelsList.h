@@ -134,6 +134,7 @@ DEFINE_3M(HOSTKernel_CrossEntropy, CUDA_crossEntropy)
 DEFINE_3M(HOSTKernel_specific_DotProduct, CUDA_specific_dotProduct)
 DEFINE_3M(HOSTKernel_DotProductShared, CUDAKernel_dotProductShared)
 DEFINE_3M(HOSTKernel_Convolve, CudaKernel_convolve)
+DEFINE_2M_EX(HOSTKernel_PoolAverage, CudaKernel_poolAverage)
 
 DEFINE_2M(HOSTKernel_Tanh, cuda_tanh)
 DEFINE_2M(HOSTKernel_Sigmoid, cuda_sigmoid)

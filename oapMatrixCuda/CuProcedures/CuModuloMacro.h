@@ -20,6 +20,6 @@
 #ifndef CU_MODULO_MACRO_H
 #define CU_MODULO_MACRO_H
 
-#define CU_MODULO(M, N) M - (M / N) * N
+#define CU_MODULO(M, N) ((M) - ((M) / (N)) * (N))
 
 #endif
