@@ -48,7 +48,7 @@ __hostdevice__ void cuda_poolAverageRe (math::Matrix* output, const math::Matrix
   KEROPER_CACHE_CODE(POOLING, paramDims, kernelDims, cache, .columns, .rows, GetRe (matrix, px, py);)
   threads_sync();
 
-  CUDA_SumValuesInScope (cache, cacheIdx, cacheW * cacheH, kernelDims.rows * kernelDims.columns, blockDim.x, blockDim.y);
+  CUDA_SumValuesInScope (cache, cacheIdx, cacheW * cacheH, kernelDims.rows * kernelDims.columns);
 
   if (KEROPER_IS_OUTPUT_IDX (kernelDims, .columns, .rows))
   {

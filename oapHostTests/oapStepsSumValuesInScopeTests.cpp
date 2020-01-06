@@ -45,10 +45,10 @@ TEST_F(OapStepsSumValuesInScopeTests, SumTest_1)
 {
   std::vector<floatt> buffer = {1, 2, 3, 4};
 
-  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 0, 4, 2, 32, 32, 2));
+  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 0, 4, 2, 2));
   EXPECT_EQ (std::vector<floatt>({3, 2, 3, 4}), buffer);
 
-  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 2, 4, 2, 32, 32, 2));
+  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 2, 4, 2, 2));
   EXPECT_EQ (std::vector<floatt>({3, 2, 7, 4}), buffer);
 }
 
@@ -56,10 +56,10 @@ TEST_F(OapStepsSumValuesInScopeTests, SumTest_2)
 {
   std::vector<floatt> buffer = {1, 2, 3, 4, 5, 6};
 
-  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 0, 4, 3, 32, 32, 3));
+  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 0, 4, 3, 3));
   EXPECT_EQ (std::vector<floatt>({6, 2, 3, 4, 5, 6}), buffer);
 
-  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 3, 4, 3, 32, 32, 3));
+  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 3, 4, 3, 3));
   EXPECT_EQ (std::vector<floatt>({6, 2, 3, 15, 5, 6}), buffer);
 }
 
@@ -67,16 +67,16 @@ TEST_F(OapStepsSumValuesInScopeTests, SumTest_3)
 {
   std::vector<floatt> buffer = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 0, 10, 5, 32, 32, 5));
+  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 0, 10, 5, 5));
   EXPECT_EQ (std::vector<floatt>({4, 2, 3, 4, 5, 6, 7, 8, 9, 10}), buffer);
 
-  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 5, 10, 5, 32, 32, 5));
+  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 5, 10, 5, 5));
   EXPECT_EQ (std::vector<floatt>({4, 2, 3, 4, 5, 14, 7, 8, 9, 10}), buffer);
 
-  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 1, 10, 5, 32, 32, 5));
+  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 1, 10, 5, 5));
   EXPECT_EQ (std::vector<floatt>({4, 11, 3, 4, 5, 14, 7, 8, 9, 10}), buffer);
 
-  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 6, 10, 5, 32, 32, 5));
+  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 6, 10, 5, 5));
   EXPECT_EQ (std::vector<floatt>({4, 11, 3, 4, 5, 14, 26, 8, 9, 10}), buffer);
 }
 
@@ -84,19 +84,19 @@ TEST_F(OapStepsSumValuesInScopeTests, SumTest_4)
 {
   std::vector<floatt> buffer = {1, 0, 0, 1};
 
-  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 0, 4, 4, 2, 2, 4));
+  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 0, 4, 4, 4));
   EXPECT_EQ (std::vector<floatt>({1, 0, 0, 1}), buffer);
 
-  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 1, 4, 4, 2, 2, 4));
+  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 1, 4, 4, 4));
   EXPECT_EQ (std::vector<floatt>({1, 1, 0, 1}), buffer);
 
-  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 2, 4, 4, 2, 2, 4));
+  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 2, 4, 4, 4));
   EXPECT_EQ (std::vector<floatt>({1, 1, 0, 1}), buffer);
 
-  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 3, 4, 4, 2, 2, 4));
+  EXPECT_EQ (2, cuda_step_SumValuesInScope (buffer.data(), 3, 4, 4, 4));
   EXPECT_EQ (std::vector<floatt>({1, 1, 0, 1}), buffer);
 
-  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 0, 4, 4, 2, 2, 2));
+  EXPECT_EQ (1, cuda_step_SumValuesInScope (buffer.data(), 0, 4, 4, 2));
   EXPECT_EQ (std::vector<floatt>({2, 1, 0, 1}), buffer);
 }
 
@@ -108,15 +108,15 @@ TEST_F(OapStepsSumValuesInScopeTests, SumTest_5)
     1, 0, 0, 0, 1, 0, 0, 0, 1,
   };
 
-  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 18, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 18, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 18, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 18, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 18, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 18, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 18, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 18, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 18, 9, 9, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 18, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 18, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 18, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 18, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 18, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 18, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 18, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 18, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 18, 9, 9);
 
   {
     std::vector<floatt> expected =
@@ -127,15 +127,15 @@ TEST_F(OapStepsSumValuesInScopeTests, SumTest_5)
     EXPECT_EQ(expected, buffer);
   }
 
-  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 18, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 18, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 18, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 18, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 18, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 18, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 18, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 18, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 18, 9, 9, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 18, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 18, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 18, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 18, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 18, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 18, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 18, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 18, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 18, 9, 9 / 2);
 
   {
     std::vector<floatt> expected =
@@ -146,15 +146,15 @@ TEST_F(OapStepsSumValuesInScopeTests, SumTest_5)
     EXPECT_EQ(expected, buffer);
   }
 
-  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 18, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 18, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 18, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 18, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 18, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 18, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 18, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 18, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 18, 9, 9, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 18, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 18, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 18, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 18, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 18, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 18, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 18, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 18, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 18, 9, 9 / 4);
 
   {
     std::vector<floatt> expected =
@@ -165,15 +165,15 @@ TEST_F(OapStepsSumValuesInScopeTests, SumTest_5)
     EXPECT_EQ(expected, buffer);
   }
 
-  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 18, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 18, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 18, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 18, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 18, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 18, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 18, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 18, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 18, 9, 9, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 18, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 18, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 18, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 18, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 18, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 18, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 18, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 18, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 18, 9, 9 / 8);
 
   {
     std::vector<floatt> expected =
@@ -202,47 +202,47 @@ TEST_F(OapStepsSumValuesInScopeTests, SumTest_6)
     1, 0, 1, 0, 1, 0, 1, 0, 0
   };
 
-  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 81, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 81, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 81, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 81, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 81, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 81, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 81, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 81, 9, 9, 9, 9);
-  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 81, 9, 9, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 81, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 81, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 81, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 81, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 81, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 81, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 81, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 81, 9, 9);
+  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 81, 9, 9);
 
   EXPECT_EQ (4, 9 / 2);
 
-  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 81, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 81, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 81, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 81, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 81, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 81, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 81, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 81, 9, 9, 9, 9 / 2);
-  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 81, 9, 9, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 81, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 81, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 81, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 81, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 81, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 81, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 81, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 81, 9, 9 / 2);
+  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 81, 9, 9 / 2);
 
-  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 81, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 81, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 81, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 81, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 81, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 81, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 81, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 81, 9, 9, 9, 9 / 4);
-  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 81, 9, 9, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 81, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 81, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 81, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 81, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 81, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 81, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 81, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 81, 9, 9 / 4);
+  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 81, 9, 9 / 4);
 
-  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 81, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 81, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 81, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 81, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 81, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 81, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 81, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 81, 9, 9, 9, 9 / 8);
-  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 81, 9, 9, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 0 + 9, 81, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 1 + 9, 81, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 2 + 9, 81, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 3 + 9, 81, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 4 + 9, 81, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 5 + 9, 81, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 6 + 9, 81, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 7 + 9, 81, 9, 9 / 8);
+  cuda_step_SumValuesInScope (buffer.data(), 8 + 9, 81, 9, 9 / 8);
 
   EXPECT_EQ(3, buffer[9]);
 }
