@@ -51,19 +51,19 @@ __hostdeviceinline__ void sinComplex (floatt* reoutput, floatt* imoutput, floatt
 {
 }
 
-__hostdeviceinline__ void CUDA_sin (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_sin (math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_sinFunc);
+  cuda_func (output, matrix, cuda_sinFunc);
 }
 
-__hostdeviceinline__ void CUDA_dsin(math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_dsin(math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_cosFunc);
+  cuda_func (output, matrix, cuda_cosFunc);
 }
 
-__hostdeviceinline__ void CUDA_multiplyDSin(math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_multiplyDSin(math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_mCosFunc);
+  cuda_func (output, matrix, cuda_mCosFunc);
 }
 
 #endif /* CU_SIN_PROCEDURES_H */

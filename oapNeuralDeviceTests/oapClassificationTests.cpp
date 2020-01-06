@@ -29,47 +29,31 @@
 #include "Controllers.h"
 
 #include "PyPlot.h"
+#include "Config.h"
+
+#include "oapNeuralUtils.h"
 
 class OapClassificationTests : public testing::Test
 {
  public:
   CUresult status;
 
-  virtual void SetUp()
-  {
-  }
+  virtual void SetUp() {}
 
-  virtual void TearDown()
+  virtual void TearDown() {}
+
+  template<typename T, typename Data>
+  std::vector<T> convertToVec (const Data& data)
   {
-  }
+    std::vector<T> entries;
+    for (const auto& d : data)
+    {
+      entries.emplace_back (d);
+    }
+    return entries;
+  };
+
 };
-
-TEST_F(OapClassificationTests, DISABLE_LetterClassification)
-{
-  oap::PatternsClassificationParser::Args args;
-  oap::PatternsClassification pc;
-
-  args.m_onOutput1 = [](const std::vector<floatt>& outputs)
-  {
-    EXPECT_EQ(1, outputs.size());
-    EXPECT_LE(0.5, outputs[0]);
-  };
-
-  args.m_onOutput2 = [](const std::vector<floatt>& outputs)
-  {
-    EXPECT_EQ(1, outputs.size());
-    EXPECT_GE(0.5, outputs[0]);
-  };
-
-  args.m_onOpenFile = [](const oap::ImageSection& width, const oap::ImageSection& height, bool isLoaded)
-  {
-    EXPECT_EQ(20, width.getl());
-    EXPECT_EQ(20, height.getl());
-    EXPECT_TRUE(isLoaded);
-  };
-
-  pc.run (args);
-}
 
 class Coordinate
 {
@@ -186,7 +170,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
     {
       floatt r = r_dis (dre);
       floatt q = q_dis (dre);
-      coordinates.emplace_back (Coordinate(q, r, label));
+      coordinates.emplace_back (q, r, label);
     }
 
     return coordinates;
@@ -255,37 +239,13 @@ TEST_F(OapClassificationTests, CircleDataTest)
     }
   };
 
-  auto splitIntoTestAndTrainingSet =[](const Coordinates& coordinates, Coordinates& trainingSet, Coordinates& testSet, floatt rate)
-  {
-    debugAssert (rate > 0 && rate <= 1);
-
-    Coordinates modifiableCoordinates = coordinates;
-
-    std::random_shuffle (modifiableCoordinates.begin(), modifiableCoordinates.end());
-    size_t trainingSetLength = modifiableCoordinates.size() * rate;
-
-    trainingSet.resize (trainingSetLength);
-    testSet.resize (modifiableCoordinates.size() - trainingSetLength);
-
-    auto copyIt = modifiableCoordinates.begin();
-    std::advance (copyIt, trainingSet.size());
-
-    std::copy(modifiableCoordinates.begin(), copyIt, trainingSet.begin());
-    std::copy(copyIt, modifiableCoordinates.end(), testSet.begin());
-
-    logInfo ("training set: %lu", trainingSet.size());
-    logInfo ("test set: %lu", testSet.size());
-
-    return modifiableCoordinates;
-  };
-
   oap::pyplot::FileType fileType = oap::pyplot::FileType::OAP_PYTHON_FILE;
 
   oap::pyplot::plot2DAll ("/tmp/plot_coords.py", oap::pyplot::convert (coordinates), fileType);
   //normalize (coordinates);
   oap::pyplot::plot2DAll ("/tmp/plot_normalize_coords.py", oap::pyplot::convert(coordinates), fileType);
 
-  auto modifiedCoordinates = splitIntoTestAndTrainingSet (coordinates, trainingData, testData, 2.f / 3.f);
+  auto modifiedCoordinates = oap::nutils::splitIntoTestAndTrainingSet (trainingData, testData, coordinates, 2.f / 3.f);
 
   oap::pyplot::plot2DAll ("/tmp/plot_test_data.py", oap::pyplot::convert(testData), fileType);
   oap::pyplot::plot2DAll ("/tmp/plot_training_data.py", oap::pyplot::convert(trainingData), fileType);
@@ -323,14 +283,14 @@ TEST_F(OapClassificationTests, CircleDataTest)
     network->createLayer(3, true, Activation::TANH);
     network->createLayer(1, Activation::TANH);
 
-    FPHandler testHandler = network->createFPSection (testData.size());
-    FPHandler trainingHandler = network->createFPSection (trainingData.size());
+    FPHandler testHandler = network->createFPLayer (testData.size());
+    FPHandler trainingHandler = network->createFPLayer (trainingData.size());
 
-    LayerS_FP* testLayerS_FP = network->getLayerS_FP (testHandler, 0);
-    oap::cuda::CopyHostMatrixToDeviceMatrix (testLayerS_FP->m_inputs, testHInputs);
+    DeviceLayer* testLayer = network->getLayer (0, testHandler);
+    oap::cuda::CopyHostMatrixToDeviceMatrix (testLayer->getFPMatrices()->m_inputs, testHInputs);
 
-    LayerS_FP* trainingLayerS_FP = network->getLayerS_FP (trainingHandler, 0);
-    oap::cuda::CopyHostMatrixToDeviceMatrix (trainingLayerS_FP->m_inputs, trainingHInputs);
+    DeviceLayer* trainingLayer = network->getLayer (0, trainingHandler);
+    oap::cuda::CopyHostMatrixToDeviceMatrix (trainingLayer->getFPMatrices()->m_inputs, trainingHInputs);
 
     network->setExpected (testHExpected, ArgType::HOST, testHandler);
     network->setExpected (trainingHExpected, ArgType::HOST, trainingHandler);
@@ -361,10 +321,10 @@ TEST_F(OapClassificationTests, CircleDataTest)
     {
       std::vector<Coordinate> pcoords;
       forwardPropagationFP (handler);
-      network->getOutputs (hostMatrix.get(), ArgType::HOST, handler);
 
       if (output != nullptr)
       {
+        network->getOutputs (hostMatrix.get(), ArgType::HOST, handler);
         for (size_t idx = 0; idx < coords.size(); ++idx)
         {
           Coordinate ncoord = coords[idx];
@@ -469,6 +429,254 @@ TEST_F(OapClassificationTests, CircleDataTest)
     EXPECT_GE (1000, terrorCount);
 
     oap::pyplot::plotCoords2D ("/tmp/plot_plane_xy.py", std::make_tuple(-5, 5, 0.1), std::make_tuple(-5, 5, 0.1), getLabel, {"r*", "b*"});
+  }
+
+  oap::cuda::Context::Instance().destroy();
+}
+
+TEST_F(OapClassificationTests, OCR)
+{
+  oap::cuda::Context::Instance().create();
+  std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
+  path = path + "MnistExamples.png";
+  oap::PngFile pngFile (path, false);
+
+  pngFile.olc ();
+
+  auto filter = [](oap::bitmap::CoordsSectionVec& csVec, const std::vector<floatt>& bitmap, const oap::Image* image)
+  {
+    using Coord = oap::bitmap::Coord;
+    using CoordsSection = oap::bitmap::CoordsSection;
+
+    size_t width = image->getOutputWidth().getl();
+    size_t height = image->getOutputHeight().getl();
+
+    oap::bitmap::mergeIf (csVec, 5);
+    oap::bitmap::removeIfPixelsAreHigher (csVec, bitmap, width, height, 0.5f);
+    std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
+    {
+      return pair1.second.section.lessByPosition (pair2.second.section);
+    });
+  };
+
+  oap::Image::Patterns patterns;
+  pngFile.getPatterns (patterns, 1.f, filter);
+
+  auto bIt = patterns.begin();
+  oap::RegionSize rs = bIt->overlapingRegion;
+
+  ASSERT_EQ(160, patterns.size());
+
+  struct DataEntry
+  {
+    int digit;
+    oap::Image::Pattern* pattern;
+    FPHandler handler;
+    oap::DeviceMatrixPtr expectedVector;
+  };
+
+  struct ExpectedVectorEntry
+  {
+    const floatt* m_reValues;
+    size_t m_size;
+
+    ExpectedVectorEntry (const DataEntry& dataEntry) : m_reValues(oap::cuda::GetReValuesPtr (dataEntry.expectedVector.get())), m_size(10)
+    {}
+
+    const floatt* data() const
+    {
+      return m_reValues;
+    }
+
+    size_t size() const
+    {
+      return m_size;
+    }
+  };
+
+  struct PatternBitmapEntry
+  {
+    const floatt* m_patternBitmap;
+    size_t m_size;
+
+    PatternBitmapEntry (const DataEntry& dataEntry) : m_patternBitmap (dataEntry.pattern->patternBitmap.data()), m_size(dataEntry.pattern->patternBitmap.size())
+    {}
+
+    const floatt* data() const
+    {
+      return m_patternBitmap;
+    }
+
+    size_t size() const
+    {
+      return m_size;
+    }
+  };
+
+  using Data = std::vector<DataEntry>;
+
+  Data data;
+  for (size_t digit = 0; digit < 10; ++digit)
+  {
+    for (size_t pIdx = 0; pIdx < 16; ++pIdx)
+    {
+      DataEntry dataEntry = {static_cast<int>(digit), &patterns[digit * 16 + pIdx], 0, nullptr};
+      data.push_back (dataEntry);
+    }
+  }
+
+  Data trainingData;
+  Data testData;
+
+  oap::nutils::splitIntoTestAndTrainingSet (trainingData, testData, data, 120, 40);
+
+  auto convert = [](const std::vector<floatt>& pixels)
+  {
+    std::vector<floatt> converted;
+    for (floatt v : pixels)
+    {
+      converted.push_back (1. - v);
+    }
+    return converted;
+  };
+
+  size_t batchSize = 5;
+  {
+    std::unique_ptr<Network> network (new Network());
+
+    auto allocateFPSections = [&network, &rs, &convert](Data& data)
+    {
+      for (auto it = data.begin (); it != data.end(); ++it)
+      {
+        FPHandler handler = network->createFPLayer (1);
+        DeviceLayer* layer = network->getLayer (0, handler);
+
+        const std::vector<floatt>& converted = convert (it->pattern->patternBitmap);
+
+        oap::cuda::CopyHostArrayToDeviceReMatrixBuffer (layer->getFPMatrices()->m_inputs, converted.data (), rs.getSize ());
+
+        it->handler = handler;
+        it->expectedVector = oap::cuda::NewDeviceReMatrix (1, 10);
+
+        oap::cuda::SetReValue (it->expectedVector, 1.f, 0, it->digit);
+
+        printf ("digit = %d\n", it->digit);
+        oap::bitmap::printBitmap (converted, it->pattern->overlapingRegion.width, it->pattern->overlapingRegion.height);
+        network->setExpected (it->expectedVector, ArgType::DEVICE, handler);
+      }
+    };
+
+    auto forwardPropagationFP = [&network] (FPHandler handler)
+    {
+      network->forwardPropagation (handler);
+      network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST, handler);
+    };
+
+    floatt initLR = 0.5;
+    network->setLearningRate (initLR);
+
+    auto* layer = network->createLayer(rs.getSize (), true, Activation::TANH);
+    network->createLayer(rs.getSize() * 3, true, Activation::TANH);
+    network->createLayer(10, Activation::TANH);
+
+    allocateFPSections (testData);
+    allocateFPSections (trainingData);
+
+    const auto& trainingData_eo = convertToVec<ExpectedVectorEntry>(trainingData);
+    const auto& trainingData_pb = convertToVec<PatternBitmapEntry>(trainingData);
+
+    const auto& testData_eo = convertToVec<ExpectedVectorEntry>(testData);
+    const auto& testData_pb = convertToVec<PatternBitmapEntry>(testData);
+
+    FPHandler testHandler = network->createFPLayer (testData.size());
+    FPHandler trainingHandler = network->createFPLayer (trainingData.size());
+
+    oap::nutils::copyToInputs<DeviceLayer> (network.get(), testHandler, testData_pb, ArgType::HOST);
+    oap::nutils::copyToInputs<DeviceLayer> (network.get(), trainingHandler, trainingData_pb, ArgType::HOST);
+
+    oap::nutils::createDeviceExpectedOutput (network.get(), testHandler, testData_eo, ArgType::DEVICE);
+    oap::nutils::createDeviceExpectedOutput (network.get(), trainingHandler, trainingData_eo, ArgType::DEVICE);
+
+    floatt testError = std::numeric_limits<floatt>::max();
+    floatt trainingError = std::numeric_limits<floatt>::max();
+
+    size_t terrorCount = 0;
+
+    floatt dTestError = testError;
+    floatt dTrainingError = trainingError;
+
+    do
+    {
+      for(size_t idx = 0; idx < trainingData.size(); idx += batchSize)
+      {
+        for (size_t c = 0; c < batchSize; ++c)
+        {
+          FPHandler handler = trainingData[idx + c].handler;
+          forwardPropagationFP (handler);
+          network->backPropagation (handler);
+        }
+        network->updateWeights ();
+      }
+
+      forwardPropagationFP (trainingHandler);
+      trainingError = network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
+      network->postStep ();
+
+      forwardPropagationFP (testHandler);
+      testError = network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
+      network->postStep ();
+
+      dTestError -= testError;
+      dTrainingError -= trainingError;
+
+      logInfo ("count = %lu, training_error = %f (%f) test_error = %f (%f)", terrorCount, trainingError, dTrainingError, testError, dTestError);
+
+      dTestError = testError;
+      dTrainingError = trainingError;
+
+      ++terrorCount;
+    }
+    while (testError > 0.06715 && terrorCount < 3000);
+
+    auto verify = [&network, &convert](const std::string& ocr_png_image, int digit)
+    {
+      std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
+      path = path + ocr_png_image;
+
+      oap::PngFile pngFile (path, false);
+      pngFile.olc();
+
+      const std::vector<floatt>& bitmap = pngFile.getStlFloatVector ();
+      const std::vector<floatt>& converted = convert (bitmap);
+
+      DeviceLayer* inputLayer = network->getLayer (0);
+      oap::cuda::CopyHostArrayToDeviceReMatrix(inputLayer->getFPMatrices()->m_inputs, converted.data(), converted.size());
+
+      network->forwardPropagation ();
+
+      DeviceLayer* outputLayer = network->getLayer (network->getLayersCount() - 1);
+      oap::HostMatrixPtr hmatrix = oap::host::NewReMatrix (1, 10);
+      oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix.get(), outputLayer->getFPMatrices()->m_inputs);
+
+      std::vector<floatt> outputs;
+      for (size_t idx = 0; idx < 10; ++idx)
+      {
+        outputs.push_back (hmatrix->reValues[idx]);
+      }
+      outputs = convert (outputs);
+      logInfo ("digit %d outputs = %f %f %f %f %f %f %f %f %f %f", digit, outputs[0], outputs[1], outputs[2], outputs[3], outputs[4], outputs[5], outputs[6], outputs[7], outputs[8], outputs[9]);
+    };
+
+    verify ("digit_0_ocr.png", 0);
+    verify ("digit_1_ocr.png", 1);
+    verify ("digit_2_ocr.png", 2);
+    verify ("digit_3_ocr.png", 3);
+    verify ("digit_4_ocr.png", 4);
+    verify ("digit_5_ocr.png", 5);
+    verify ("digit_6_ocr.png", 6);
+    verify ("digit_7_ocr.png", 7);
+    verify ("digit_8_ocr.png", 8);
+    verify ("digit_9_ocr.png", 9);
   }
 
   oap::cuda::Context::Instance().destroy();

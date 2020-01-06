@@ -17,19 +17,9 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_TYPES_H
-#define OAP_NEURAL_TYPES_H
+#ifndef CU_MODULO_MACRO_H
+#define CU_MODULO_MACRO_H
 
-namespace oap
-{
-  enum class ErrorType
-  {
-    MEAN_SQUARE_ERROR,
-    ROOT_MEAN_SQUARE_ERROR,
-    SUM,
-    MEAN_OF_SUM,
-    CROSS_ENTROPY
-  };
-}
+#define CU_MODULO(M, N) ((M) - ((M) / (N)) * (N))
 
 #endif

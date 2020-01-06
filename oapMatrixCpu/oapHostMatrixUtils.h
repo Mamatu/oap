@@ -96,6 +96,11 @@ inline math::Matrix* NewHostMatrix (bool isre, bool isim, uintt columns, uintt r
   return NewMatrix (isre, isim, columns, rows, 0);
 }
 
+inline math::Matrix* NewHostReMatrix (uintt columns, uintt rows)
+{
+  return NewMatrix (true, false, columns, rows, 0);
+}
+
 inline math::Matrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
 {
   return NewMatrix (minfo.isRe, minfo.isIm, minfo.columns(), minfo.rows(), 0);
@@ -719,6 +724,12 @@ inline floatt* GetValue(floatt* const* ptr)
 {
   return *ptr;
 }
+
+void CopyHostArrayToHostMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
+
+void CopyHostArrayToHostReMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
+
+void CopyHostArrayToHostImMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
 
 }
 namespace generic

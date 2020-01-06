@@ -43,19 +43,19 @@ __hostdeviceinline__ void cuda_mDTanhFunc (floatt* output, floatt value)
   (*output) =  (*output) * (1.f  - th * th);
 }
 
-__hostdeviceinline__ void CUDA_tanh (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_tanh (math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_tanhFunc);
+  cuda_func (output, matrix, cuda_tanhFunc);
 }
 
-__hostdeviceinline__ void CUDA_dtanh (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_dtanh (math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_dtanhFunc);
+  cuda_func (output, matrix, cuda_dtanhFunc);
 }
 
-__hostdeviceinline__ void CUDA_multiplyDTanh (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_multiplyDTanh (math::Matrix* output, math::Matrix* matrix)
 {
-  CUDA_func (output, matrix, cuda_mDTanhFunc);
+  cuda_func (output, matrix, cuda_mDTanhFunc);
 }
 
 #endif

@@ -23,9 +23,9 @@ namespace test_api
 {
   FPHandler createBatchFPHandler (Network* network, const Batch& batch)
   {
-    FPHandler handler = network->createFPSection (batch.size());
-    LayerS_FP* flS = network->getLayerS_FP (handler, 0);
-    LayerS_FP* llS = network->getLayerS_FP (handler, network->getLayersCount() - 1);
+    FPHandler handler = network->createFPLayer (batch.size());
+    DeviceLayer* flS = network->getLayer (0, handler);
+    DeviceLayer* llS = network->getLayer (network->getLayersCount() - 1, handler);
 
     oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, flS->getRowsCount ());
     oap::HostMatrixPtr hexpected = oap::host::NewReMatrix (1, llS->getRowsCount ());
@@ -65,9 +65,9 @@ namespace test_api
     batches.clear ();
   }
 
-  void copySample (ILayerS_FP* dst, const ILayerS_FP* src, uintt sample)
+  void copySample (DeviceLayer* dst, const DeviceLayer* src, uintt sample)
   {
-    debugAssert(sample < src->m_samplesCount);
+    debugAssert(sample < src->getSamplesCount ());
     debugAssert(dst->getNeuronsCount() == src->getNeuronsCount());
     debugAssert(dst->getTotalNeuronsCount() == src->getTotalNeuronsCount());
   }
@@ -179,7 +179,7 @@ namespace test_api
     {
       for (size_t lidx = 0; lidx < network->getLayersCount() - 1; ++lidx)
       {
-        Layer* layer = network->getLayer(lidx);
+        DeviceLayer* layer = network->getLayer(lidx);
         auto wmatrix = weightsMatrices[lidx];
         layer->getHostWeights (wmatrix);
         ASSERT_NO_FATAL_FAILURE(checkWeights (weightsLayers[lidx][weightsIdx], wmatrix, idxToChecks[lidx], {lidx, stepIdx, batchIdx, line}));
@@ -235,14 +235,14 @@ namespace test_api
         network->forwardPropagation (handler);
         network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, ep.calcType, handler);
 
-        uintt samplesCount = network->getLayerS_FP (handler, network->getLayersCount() - 1)->m_samplesCount;
+        uintt samplesCount = network->getLayer (network->getLayersCount() - 1, handler)->getSamplesCount ();
 
         for (size_t sampleIdx = 0; sampleIdx < samplesCount; ++sampleIdx)
         {
           for (size_t layerIdx = 0; layerIdx < network->getLayersCount(); ++layerIdx)
           {
-            Layer* layer = network->getLayer (layerIdx);
-            const LayerS_FP* layerS = network->getLayerS_FP (handler, layerIdx);
+            DeviceLayer* layer = network->getLayer (layerIdx);
+            const DeviceLayer* layerS = network->getLayer (layerIdx, handler);
 
             auto copy = [sampleIdx](math::Matrix* dst, const math::Matrix* src)
             {
@@ -257,10 +257,10 @@ namespace test_api
 
             if (layerIdx == network->getLayersCount () - 1)
             {
-              copy (layer->m_errorsAux, layerS->m_errorsAux);
+              copy (layer->getFPMatrices()->m_errorsAux, layerS->getFPMatrices()->m_errorsAux);
             }
-            copy (layer->m_sums, layerS->m_sums);
-            copy (layer->m_inputs, layerS->m_inputs);
+            copy (layer->getFPMatrices()->m_sums, layerS->getFPMatrices()->m_sums);
+            copy (layer->getFPMatrices()->m_inputs, layerS->getFPMatrices()->m_inputs);
           }
           network->backPropagation ();
         }
@@ -365,7 +365,7 @@ namespace test_api
 
     for (size_t lidx = 0; lidx < network->getLayersCount() - 1; ++lidx)
     {
-      Layer* layer = network->getLayer(lidx);
+      DeviceLayer* layer = network->getLayer(lidx);
 
       oap::HostMatrixPtr weightsMatrix = oap::host::NewMatrix (layer->getWeightsInfo());
       oap::host::SetReValuesToMatrix (weightsMatrix, weightsLayers[lidx][initWeightsIdx]);

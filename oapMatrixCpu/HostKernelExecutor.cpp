@@ -49,7 +49,24 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_QRHT", proxy_HOSTKernel_QRHT},
   {"CUDAKernel_SetIdentity", proxy_HOSTKernel_SetIdentity},
   {"CUDAKernel_SetVector", proxy_HOSTKernel_setVector},
-  {"CUDAKernel_GetVector", proxy_HOSTKernel_getVector}
+  {"CUDAKernel_GetVector", proxy_HOSTKernel_getVector},
+
+  {"CUDAKernel_PRelu", proxy_HOSTKernel_PRelu},
+  {"CUDAKernel_DPRelu", proxy_HOSTKernel_DPRelu},
+  {"CUDAKernel_PReluDim", proxy_HOSTKernel_PReluDim},
+  {"CUDAKernel_DPReluDim", proxy_HOSTKernel_DPReluDim},
+  {"CUDAKernel_PReluDimPeriodic", proxy_HOSTKernel_PReluDimPeriodic},
+  {"CUDAKernel_DPReluDimPeriodic", proxy_HOSTKernel_DPReluDimPeriodic},
+
+  {"CUDAKernel_Relu", proxy_HOSTKernel_Relu},
+  {"CUDAKernel_DRelu", proxy_HOSTKernel_DRelu},
+  {"CUDAKernel_ReluDim", proxy_HOSTKernel_ReluDim},
+  {"CUDAKernel_DReluDim", proxy_HOSTKernel_DReluDim},
+  {"CUDAKernel_ReluDimPeriodic", proxy_HOSTKernel_ReluDimPeriodic},
+  {"CUDAKernel_DReluDimPeriodic", proxy_HOSTKernel_DReluDimPeriodic},
+
+  {"CUDAKernel_Convolve", proxy_HOSTKernel_Convolve},
+  {"CUDAKernel_PoolAverage", proxy_HOSTKernel_PoolAverage}
 };
 
 class HostKernelImpl : public HostKernel

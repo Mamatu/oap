@@ -81,9 +81,11 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
   sstream << args.pretext;
   sstream << "[";
 
-  for (uintt fa = 0, fa1 = 0; fa < valuesVec.size(); ++fa)
+  // vecIdx - index in valuesVec
+  // elementIdx - index of element in matrix
+  for (uintt vecIdx = 0, elementIdx = 0; vecIdx < valuesVec.size(); ++vecIdx)
   {
-    const floatt value = valuesVec[fa].second;
+    const floatt value = valuesVec[vecIdx].second;
     std::string extra_str = "";
 
     if (value >= 0 && negativeCount > 0)
@@ -104,7 +106,7 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
       sstream << extra_str << value;
     }
 
-    const uintt count = valuesVec[fa].first;
+    const uintt count = valuesVec[vecIdx].first;
 
     if (count > 1)
     {
@@ -113,14 +115,15 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
 
     if (args.printIndex)
     {
-      printIndex (sstream, fa, count);
+      printIndex (sstream, elementIdx, count);
     }
 
-    fa1 += count;
-    bool lastPosition = (fa1 == totalLength);
+    elementIdx += count;
+
+    bool lastPosition = (elementIdx == totalLength);
     if (!lastPosition)
     {
-      bool endLine = (fa1 % sectionLength) == 0;
+      bool endLine = (elementIdx % sectionLength) == 0;
       if (!endLine)
       {
         sstream << ", ";

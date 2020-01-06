@@ -69,16 +69,32 @@ class HostProcedures {
   void sigmoid (math::Matrix* output, math::Matrix* matrix);
   void linear (math::Matrix* output, math::Matrix* matrix);
   void sin (math::Matrix* output, math::Matrix* matrix);
+  void prelu (math::Matrix* output, math::Matrix* matrix);
+  void relu (math::Matrix* output, math::Matrix* matrix);
+  void softplus (math::Matrix* output, math::Matrix* matrix);
 
   void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
   void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
   void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
   void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void prelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
 
   void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
   void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
   void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
   void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void prelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+
+  void dprelu (math::Matrix* output, math::Matrix* matrix);
+  void drelu (math::Matrix* output, math::Matrix* matrix);
+  void dprelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void drelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void dprelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void drelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 
@@ -100,6 +116,9 @@ class HostProcedures {
   void getVector (math::Matrix* vector, uintt length, math::Matrix* matrix, uintt column);
 
   void getVector (math::Matrix* vector, math::Matrix* matrix, uintt column);
+
+  void convolve (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel);
+  void poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel);
 
  private:
   uint m_threads[2];

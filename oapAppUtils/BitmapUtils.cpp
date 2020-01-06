@@ -38,25 +38,25 @@ namespace
   }
 }
 
-ConnectedPixels::ConnectedPixels (size_t width, size_t height) :
+PatternsSeeker::PatternsSeeker (size_t width, size_t height) :
   m_width (width), m_height (height)
 {}
 
-ConnectedPixels::~ConnectedPixels()
+PatternsSeeker::~PatternsSeeker()
 {}
 
-CoordsSectionSet ConnectedPixels::getCoordsSectionSet () const
+CoordsSectionSet PatternsSeeker::getCoordsSectionSet () const
 {
   return m_css;
 }
 
-CoordsSectionVec ConnectedPixels::getCoordsSectionVec () const
+CoordsSectionVec PatternsSeeker::getCoordsSectionVec () const
 {
   std::vector<std::pair<Coord, CoordsSection>> vec (m_css.begin(), m_css.end());
   return vec;
 }
 
-Coord ConnectedPixels::getRoot (const Coord& coord) const
+Coord PatternsSeeker::getRoot (const Coord& coord) const
 {
   auto it = m_cr.find (coord);
   if (it != m_cr.end ())
@@ -73,7 +73,7 @@ Coord ConnectedPixels::getRoot (const Coord& coord) const
   return coord;
 }
 
-void ConnectedPixels::connect (const Coord& coord1, const Coord& coord2)
+void PatternsSeeker::connect (const Coord& coord1, const Coord& coord2)
 {
   Coord root1 = getRoot (coord1);
   Coord root2 = getRoot (coord2);
@@ -85,7 +85,7 @@ void ConnectedPixels::connect (const Coord& coord1, const Coord& coord2)
   removeWithTransfer (root2, root1);
 }
 
-void ConnectedPixels::registerIntoGroup (const Coord& root, std::initializer_list<Coord> coords)
+void PatternsSeeker::registerIntoGroup (const Coord& root, std::initializer_list<Coord> coords)
 {
   auto it = m_css.find (root);
   if (it == m_css.end ())
@@ -125,7 +125,7 @@ void ConnectedPixels::registerIntoGroup (const Coord& root, std::initializer_lis
   }
 }
 
-bool ConnectedPixels::connectToPixel (size_t x, size_t y, size_t nx, size_t ny)
+bool PatternsSeeker::connectToPixel (size_t x, size_t y, size_t nx, size_t ny)
 {
   Coord pcoord (nx, ny);
   Coord ncoord (x, y);
@@ -139,7 +139,7 @@ bool ConnectedPixels::connectToPixel (size_t x, size_t y, size_t nx, size_t ny)
   return false;
 }
 
-void ConnectedPixels::removeWithTransfer (const Coord& dst, const Coord& toRemove)
+void PatternsSeeker::removeWithTransfer (const Coord& dst, const Coord& toRemove)
 {
   if (dst == toRemove)
   {
@@ -171,7 +171,7 @@ void ConnectedPixels::removeWithTransfer (const Coord& dst, const Coord& toRemov
   }
 }
 
-bool ConnectedPixels::checkTop (size_t x, size_t y)
+bool PatternsSeeker::checkTop (size_t x, size_t y)
 {
   if (y == 0)
   {
@@ -181,7 +181,7 @@ bool ConnectedPixels::checkTop (size_t x, size_t y)
   return connectToPixel (x, y, x, y - 1);
 }
 
-bool ConnectedPixels::checkTopLeft (size_t x, size_t y)
+bool PatternsSeeker::checkTopLeft (size_t x, size_t y)
 {
   if (x == 0 || y == 0)
   {
@@ -192,7 +192,7 @@ bool ConnectedPixels::checkTopLeft (size_t x, size_t y)
 }
 
 
-bool ConnectedPixels::checkTopRight (size_t x, size_t y)
+bool PatternsSeeker::checkTopRight (size_t x, size_t y)
 {
   if (y == 0 || x >= m_width)
   {
@@ -202,7 +202,7 @@ bool ConnectedPixels::checkTopRight (size_t x, size_t y)
   return connectToPixel (x, y, x + 1, y - 1);
 }
 
-bool ConnectedPixels::checkLeft (size_t x, size_t y)
+bool PatternsSeeker::checkLeft (size_t x, size_t y)
 {
   if (x == 0)
   {
@@ -212,7 +212,7 @@ bool ConnectedPixels::checkLeft (size_t x, size_t y)
   return connectToPixel (x, y, x - 1, y);
 }
 
-bool ConnectedPixels::checkRight (size_t x, size_t y)
+bool PatternsSeeker::checkRight (size_t x, size_t y)
 {
   if (x >= m_width)
   {
@@ -222,7 +222,7 @@ bool ConnectedPixels::checkRight (size_t x, size_t y)
   return connectToPixel (x, y, x + 1, y);
 }
 
-bool ConnectedPixels::checkBottom (size_t x, size_t y)
+bool PatternsSeeker::checkBottom (size_t x, size_t y)
 {
   if (y >= m_height)
   {
@@ -232,7 +232,7 @@ bool ConnectedPixels::checkBottom (size_t x, size_t y)
   return connectToPixel (x, y, x, y + 1);
 }
 
-bool ConnectedPixels::checkBottomLeft (size_t x, size_t y)
+bool PatternsSeeker::checkBottomLeft (size_t x, size_t y)
 {
   if (x == 0 || y >= m_height)
   {
@@ -243,7 +243,7 @@ bool ConnectedPixels::checkBottomLeft (size_t x, size_t y)
 }
 
 
-bool ConnectedPixels::checkBottomRight (size_t x, size_t y)
+bool PatternsSeeker::checkBottomRight (size_t x, size_t y)
 {
   if (y >= m_height || x >= m_width)
   {

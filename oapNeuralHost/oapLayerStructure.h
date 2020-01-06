@@ -21,20 +21,26 @@
 #define OAP_NEURAL_LAYER_STRUCTURE_H
 
 #include <cstdlib>
+#include <memory>
 #include <utility>
 #include <vector>
 
+#include "Logger.h"
 #include "Matrix.h"
-#include "NeuralTypes.h"
+#include "MatrixInfo.h"
 
 using FPHandler = uintt;
 
 enum class Activation
 {
+  NONE,
   LINEAR,
   SIGMOID,
   TANH,
-  SIN
+  SIN,
+  RELU,
+  PRELU,
+  SOFTPLUS
 };
 
 enum class ArgType
@@ -56,28 +62,32 @@ enum class ModeType
   PARALLEL_FORWARD_PROPAGATION
 };
 
-class ILayerS_FP
+namespace oap
 {
-public:
-  ILayerS_FP (uintt samplesCount) : m_samplesCount(samplesCount)
-  {}
+enum class ErrorType
+{
+  MEAN_SQUARE_ERROR,
+  ROOT_MEAN_SQUARE_ERROR,
+  SUM,
+  MEAN_OF_SUM,
+  CROSS_ENTROPY
+};
+}
 
-  virtual ~ILayerS_FP ()
-  {}
-
-  uintt getRowsCount () const
+/**
+ *  Matrices required by forward propagation process
+ */
+struct FPMatrices final
+{
+  FPMatrices ()
   {
-    return getTotalNeuronsCount() * m_samplesCount;
+    logTrace ("%p", this);
   }
 
-  uintt getTotalNeuronsCount () const
+  ~FPMatrices ()
   {
-    return getNeuronsCount() + getBiasCount();
+    logTrace ("%p", this);
   }
-
-  virtual uintt getNeuronsCount() const = 0;
-
-  virtual uintt getBiasCount() const = 0;
 
   math::Matrix* m_inputs = nullptr;
   math::Matrix* m_sums = nullptr;
@@ -85,51 +95,22 @@ public:
   math::Matrix* m_errorsAcc = nullptr;
   math::Matrix* m_errorsAux = nullptr;
   math::Matrix* m_errorsHost = nullptr;
-
-  uintt m_samplesCount = 0;
+  math::MatrixInfo m_matricesInfo;
 };
 
-class LayerS_FP : public ILayerS_FP
+/**
+ *  Matrices required by back propagation process
+ */
+struct BPMatrices final
 {
-public:
-  LayerS_FP (uintt& neuronsCount, uintt& biasCount, uintt _samplesCount):
-            ILayerS_FP (_samplesCount), m_neuronsCount(neuronsCount), m_biasCount(biasCount)
-  {}
-
-  virtual ~LayerS_FP ()
-  {}
-
-  virtual uintt getNeuronsCount() const override
+  BPMatrices ()
   {
-    return m_neuronsCount;
+    logTrace ("%p", this);
   }
 
-  virtual uintt getBiasCount() const override
+  ~BPMatrices ()
   {
-    return m_biasCount;
-  }
-
-  uintt& m_neuronsCount;
-  uintt& m_biasCount;
-};
-
-class LayerS : public ILayerS_FP
-{
-public:
-  LayerS () : ILayerS_FP (1)
-  {}
-
-  virtual ~LayerS ()
-  {}
-
-  virtual uintt getNeuronsCount() const override
-  {
-    return m_neuronsCount;
-  }
-
-  virtual uintt getBiasCount() const override
-  {
-    return m_biasCount;
+    logTrace ("%p", this);
   }
 
   math::Matrix* m_tinputs = nullptr;
@@ -137,27 +118,6 @@ public:
   math::Matrix* m_tweights = nullptr;
   math::Matrix* m_weights1 = nullptr;
   math::Matrix* m_weights2 = nullptr;
-
-  uintt m_neuronsCount = 0;
-  uintt m_biasCount = 0;
-
-  std::vector<LayerS_FP*> fpVec;
-
-  std::pair<uintt, uintt> m_weightsDim;
-
-  const LayerS* m_nextLayer = nullptr;
-
-  Activation m_activation;
-
-  LayerS_FP* getLayerS_FP (FPHandler handle) const
-  {
-    if (handle == 0)
-    {
-      return nullptr;
-    }
-
-    return fpVec[handle - 1];
-  }
 };
 
 #endif

@@ -1146,5 +1146,23 @@ void CopyArrayToImMatrix (math::Matrix* matrix, const floatt* buffer)
   memcpy (matrix->imValues, buffer, matrix->columns * matrix->rows * sizeof(floatt));
 }
 
+void CopyHostArrayToHostMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length)
+{
+  debugAssert (matrix->columns * matrix->rows == length);
+  CopyArrayToMatrix (matrix, rebuffer, imbuffer);
+}
+
+void CopyHostArrayToHostReMatrix (math::Matrix* matrix, const floatt* buffer, size_t length)
+{
+  debugAssert (matrix->columns * matrix->rows == length);
+  CopyArrayToReMatrix (matrix, buffer);
+}
+
+void CopyHostArrayToHostImMatrix (math::Matrix* matrix, const floatt* buffer, size_t length)
+{
+  debugAssert (matrix->columns * matrix->rows == length);
+  CopyArrayToImMatrix (matrix, buffer);
+}
+
 }
 }

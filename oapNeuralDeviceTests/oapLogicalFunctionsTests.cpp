@@ -150,7 +150,7 @@ class OapLogicalFunctionsTests : public testing::Test
 
 TEST_F(OapLogicalFunctionsTests, LogicalOr_Binary)
 {
-  Layer* l1 = network->createLayer(2);
+  DeviceLayer* l1 = network->createLayer(2);
   network->createLayer(1);
 
   network->setLearningRate (0.01);
@@ -182,7 +182,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(isbias ? 3 : 2);
+  DeviceLayer* l1 = network->createLayer(isbias ? 3 : 2);
   network->createLayer(1);
 
   Runner r(isbias, this);
@@ -214,7 +214,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(isbias ? 3 : 2);
+  DeviceLayer* l1 = network->createLayer(isbias ? 3 : 2);
   network->createLayer(1);
 
   Runner r(isbias, this, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
@@ -245,7 +245,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
 
 TEST_F(OapLogicalFunctionsTests, DISABLED_LogicalOr)
 {
-  Layer* l1 = network->createLayer(2);
+  DeviceLayer* l1 = network->createLayer(2);
   network->createLayer(1);
 
   network->setLearningRate (0.1);
@@ -285,9 +285,9 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd)
 {
   bool isbias = true;
 
-  Layer* l1 = network->createLayer(isbias ? 2 : 3);
-  Layer* l2 = network->createLayer(isbias ? 4*10 : 4*10+1);
-  Layer* l3 = network->createLayer(1);
+  DeviceLayer* l1 = network->createLayer(isbias ? 2 : 3);
+  DeviceLayer* l2 = network->createLayer(isbias ? 4*10 : 4*10+1);
+  DeviceLayer* l3 = network->createLayer(1);
 
   Runner r(isbias, this, oap::ErrorType::MEAN_SQUARE_ERROR);
   network->setLearningRate (0.01);

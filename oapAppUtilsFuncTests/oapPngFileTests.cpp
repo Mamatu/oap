@@ -51,7 +51,7 @@ class OapPngFileTests : public testing::Test
       return m_images_path + filename;
     }
 
-    void increase (size_t& idx, size_t& idx1, size_t limit1)
+    void increase (size_t& idx, size_t& idx1, size_t limit1, size_t& total)
     {
       ++idx1;
       if (idx1 == limit1)
@@ -59,6 +59,7 @@ class OapPngFileTests : public testing::Test
         ++idx;
         idx1 = 0;
       }
+      ++total;
     }
 };
 
@@ -260,7 +261,7 @@ TEST_F(OapPngFileTests, LoadDigit0)
   size_t width = pngFile.getOutputWidth ().getl ();
   size_t height = pngFile.getOutputHeight ().getl ();
 
-  oap::bitmap::ConnectedPixels cp = oap::bitmap::ConnectedPixels::process1DArray (vec, width, height, 1);
+  oap::bitmap::PatternsSeeker cp = oap::bitmap::PatternsSeeker::process1DArray (vec, width, height, 1);
   oap::bitmap::CoordsSectionVec csVec = cp.getCoordsSectionVec ();
 
   using Coord = oap::bitmap::Coord;
@@ -296,39 +297,43 @@ TEST_F(OapPngFileTests, LoadRow0)
 
   pngFile.olc ();
 
-  std::vector<floatt> vec = pngFile.getStlFloatVector ();
+  size_t idx = 0, idx1 = 0, total = 0;
 
-  size_t width = pngFile.getOutputWidth ().getl ();
-  size_t height = pngFile.getOutputHeight ().getl ();
-
-  oap::bitmap::ConnectedPixels cp = oap::bitmap::ConnectedPixels::process1DArray (vec, width, height, 1);
-  oap::bitmap::CoordsSectionVec csVec = cp.getCoordsSectionVec ();
-
-  using Coord = oap::bitmap::Coord;
-  using CoordsSection = oap::bitmap::CoordsSection;
-
-  std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
+  auto checkPattern = [this, &idx, &idx1](floatt pixel, size_t x, size_t y, size_t width)
   {
-    return pair1.second.section.lessByPosition (pair2.second.section);
-  });
+    EXPECT_EQ (LoadMnistExamplesTest::patterns[idx][idx1][x + width * y], oap::bitmap::pixelFloattToInt (pixel)) << "x: " << x << " y: " << y;
+  };
 
-  oap::RegionSize rs = cp.getOverlapingPaternSize ();
-
-  std::vector<floatt> regionBitmap;
-  regionBitmap.resize (rs.getSize ());
-
-  EXPECT_EQ (16, csVec.size());
-
-  size_t idx = 0, idx1 = 0;
-  for (const auto& pair : csVec)
+  auto filter = [](oap::bitmap::CoordsSectionVec& csVec, const std::vector<floatt>& bitmap, const oap::Image* image)
   {
-    oap::bitmap::getBitmapFromSection (regionBitmap, rs, vec, pngFile.getOutputWidth().getl(), pngFile.getOutputHeight().getl(), pair.second, 1.f);
-    oap::bitmap::printBitmap (regionBitmap, rs.width, rs.height, [this, &rs, &idx, &idx1](floatt pixel, size_t x, size_t y)
+    using Coord = oap::bitmap::Coord;
+    using CoordsSection = oap::bitmap::CoordsSection;
+
+    size_t width = image->getOutputWidth().getl();
+    size_t height = image->getOutputHeight().getl();
+
+    oap::bitmap::mergeIf (csVec, 5);
+    oap::bitmap::removeIfPixelsAreHigher (csVec, bitmap, width, height, 0.5f);
+
+    std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
     {
-      EXPECT_EQ (Load0RowTest::patterns[idx][idx1][x + rs.width * y], oap::bitmap::pixelFloattToInt (pixel));
+      return pair1.second.section.lessByPosition (pair2.second.section);
     });
-    this->increase (idx, idx1, 16);
-  }
+  };
+
+  pngFile.iteratePatterns (1.f, [this, &idx, &idx1, &total, &checkPattern](oap::Image::Pattern&& pattern)
+  {
+    oap::RegionSize rs = pattern.overlapingRegion;
+#ifdef OAP_PNG_TEST_PRINT_PATTERNS
+    oap::bitmap::printBitmap (pattern.patternBitmap, rs.width, rs.height, checkPattern);
+#else
+    oap::bitmap::iterateBitmap (pattern.patternBitmap, rs.width, rs.height, checkPattern);
+#endif
+
+    this->increase (idx, idx1, 16, total);
+  }, filter);
+
+  EXPECT_EQ (16, total);
 }
 
 TEST_F(OapPngFileTests, LoadMnistExamples)
@@ -339,44 +344,42 @@ TEST_F(OapPngFileTests, LoadMnistExamples)
 
   pngFile.olc ();
 
-  std::vector<floatt> vec = pngFile.getStlFloatVector ();
-
   size_t expectedWidth = 557;
   size_t expectedHeight = 326;
 
   EXPECT_EQ (expectedWidth, pngFile.getOutputWidth().getl());
   EXPECT_EQ (expectedHeight, pngFile.getOutputHeight().getl());
 
-  oap::bitmap::ConnectedPixels cp = oap::bitmap::ConnectedPixels::process1DArray (vec, expectedWidth, expectedHeight, 1);
-  oap::bitmap::CoordsSectionVec csVec = cp.getCoordsSectionVec ();
+  size_t idx = 0, idx1 = 0, total = 0;
 
-  using Coord = oap::bitmap::Coord;
-  using CoordsSection = oap::bitmap::CoordsSection;
-
-  oap::bitmap::mergeIf (csVec, 5);
-  oap::bitmap::removeIfPixelsAreHigher (csVec, vec, expectedWidth, expectedHeight, 0.5f);
-
-  std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
+  auto checkPattern = [this, &idx, &idx1](floatt pixel, size_t x, size_t y, size_t width)
   {
-    return pair1.second.section.lessByPosition (pair2.second.section);
-  });
+    EXPECT_EQ (LoadMnistExamplesTest::patterns[idx][idx1][x + width * y], oap::bitmap::pixelFloattToInt (pixel)) << "x: " << x << " y: " << y;
+  };
 
-  oap::RegionSize rs = cp.getOverlapingPaternSize ();
-
-  std::vector<floatt> regionBitmap;
-  regionBitmap.resize (rs.getSize ());
-
-  EXPECT_EQ (160, csVec.size());
-
-  size_t idx = 0, idx1 = 0;
-  for (const auto& pair : csVec)
+  auto filter = [expectedWidth, expectedHeight](oap::bitmap::CoordsSectionVec& csVec, const std::vector<floatt>& bitmap, const oap::Image*)
   {
-    oap::bitmap::getBitmapFromSection (regionBitmap, rs, vec, pngFile.getOutputWidth().getl(), pngFile.getOutputHeight().getl(), pair.second, 1.f);
-    oap::bitmap::printBitmap (regionBitmap, rs.width, rs.height, [this, &rs, &idx, &idx1](floatt pixel, size_t x, size_t y)
+    using Coord = oap::bitmap::Coord;
+    using CoordsSection = oap::bitmap::CoordsSection;
+    oap::bitmap::mergeIf (csVec, 5);
+    oap::bitmap::removeIfPixelsAreHigher (csVec, bitmap, expectedWidth, expectedHeight, 0.5f);
+    std::sort (csVec.begin (), csVec.end (), [](const std::pair<Coord, CoordsSection>& pair1, const std::pair<Coord, CoordsSection>& pair2)
     {
-      EXPECT_EQ (LoadMnistExamplesTest::patterns[idx][idx1][x + rs.width * y], oap::bitmap::pixelFloattToInt (pixel));
+      return pair1.second.section.lessByPosition (pair2.second.section);
     });
-    this->increase (idx, idx1, 16);
-  }
-  //pngFile.print (oap::ImageSection(55 - 25, 25), oap::ImageSection(40 - 10, 10));
+  };
+
+  pngFile.iteratePatterns (1.f, [this, &idx, &idx1, &total, &checkPattern](oap::Image::Pattern&& pattern)
+  {
+    oap::RegionSize rs = pattern.overlapingRegion;
+#ifdef OAP_PNG_TEST_PRINT_PATTERNS
+    oap::bitmap::printBitmap (pattern.patternBitmap, rs.width, rs.height, checkPattern);
+#else
+    oap::bitmap::iterateBitmap (pattern.patternBitmap, rs.width, rs.height, checkPattern);
+#endif
+
+    this->increase (idx, idx1, 16, total);
+  }, filter);
+
+  EXPECT_EQ (160, total);
 }

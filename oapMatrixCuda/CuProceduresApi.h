@@ -17,10 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_CUPROCEDURESAPI_H
-#define OAP_CUPROCEDURESAPI_H
+#ifndef OAP_CU_PROCEDURES_API_H
+#define OAP_CU_PROCEDURES_API_H
 
-#include <map>
+#include <unordered_map>
 #include <sstream>
 
 #include "CudaBuffer.h"
@@ -192,11 +192,10 @@ class CuProceduresApi
   void substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void addSubstract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
 
-  inline void add(math::Matrix* output, math::Matrix* params0,
-                  math::Matrix* params1);
+  inline void add (math::Matrix* output, math::Matrix* params0,math::Matrix* params1);
 
-  void add(math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
-           uintt columns, uintt rows);
+  void add (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
+  void add (math::Matrix* output, const math::Matrix* params0, floatt value);
 
   void setVector(math::Matrix* output, uintt column, math::Matrix* params0,
                  uintt length);
@@ -208,8 +207,9 @@ class CuProceduresApi
 
   void magnitude (floatt& output, math::Matrix* params0);
 
-  void sum (floatt& reoutput, floatt& imoutput, math::Matrix* matrix);
-  void sum (floatt& reoutput, math::Matrix* matrix);
+  void sum (floatt& reoutput, floatt& imoutput, const math::Matrix* matrix);
+  void sum (floatt& reoutput, const math::Matrix* matrix);
+  void sum (floatt& reoutput, const floatt* values, size_t count);
   //void sumShared (floatt& output, math::Matrix* params0);
 
   void magnitudeOpt(floatt& output, math::Matrix* params0);
@@ -283,6 +283,63 @@ class CuProceduresApi
   void multiplyDSin (math::Matrix* output, math::Matrix* matrix);
   void multiplyDSin (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
   void multiplyDSin (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  // Relu/relu function and derivatives
+  void relu (math::Matrix* output, math::Matrix* matrix);
+  void relu (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void relu (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  void drelu (math::Matrix* output, math::Matrix* matrix);
+  void drelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void drelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  // PRelu/prelu function and derivatives where paramters is 0.01
+  void prelu (math::Matrix* output, math::Matrix* matrix);
+  void prelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void prelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  void dprelu (math::Matrix* output, math::Matrix* matrix);
+  void dprelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void dprelu (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  // Softplus/softplus function and derivatives
+  void softplus (math::Matrix* output, math::Matrix* matrix);
+  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  void dsoftplus (math::Matrix* output, math::Matrix* matrix);
+  void dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2]);
+  void dsoftplus (math::Matrix* output, math::Matrix* matrix, uintt dim[2][2]);
+
+  /**
+   * \brief Convolution operation
+   */
+  void convolve (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel);
+
+  /**
+   * \brief Pooling operation
+   */
+  void poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel);
+
+  /**
+   * \brief mean of values in matrix
+   */
+  floatt mean (const math::Matrix* matrix);
+
+  /**
+   * \brief standard deviation of values in matrix
+   */
+  floatt stddv (const math::Matrix* matrix, floatt mean);
+
+  /**
+   * \brief standard deviation of values in matrix
+   */
+  floatt stddv (const math::Matrix* matrix);
+
+  /**
+   * \brief Scale matrix in the way: (x - mean) / standard_deviation
+   */
+  void scale (math::Matrix* matrix);
 
   inline void cos (math::Matrix* output, math::Matrix* matrix)
   {
@@ -387,7 +444,7 @@ private:
   oap::TBuffer<floatt, oap::Type::HOST> m_hsumsImBuffer;
 
   MatrixEx* m_dMatrixEx = nullptr;
-  std::map<size_t, uint*> m_kernelArrays;
+  std::unordered_map<size_t, uint*> m_kernelArrays;
 
   uintt* createKernelArray (uintt* hostArray, size_t length)
   {
@@ -517,8 +574,8 @@ inline void CuProceduresApi::addSubstract(math::Matrix* output, math::Matrix* pa
   addSubstract(output, params0, params1, columns, rows);
 }
 
-inline void CuProceduresApi::add(math::Matrix* output, math::Matrix* params0,
-                          math::Matrix* params1) {
+inline void CuProceduresApi::add (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
   const uintt columns = oap::cuda::GetColumns(output);
   const uintt rows = oap::cuda::GetRows(output);
   add(output, params0, params1, columns, rows);

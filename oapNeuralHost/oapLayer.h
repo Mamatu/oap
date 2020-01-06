@@ -22,47 +22,46 @@
 
 #include "ByteBuffer.h"
 
-#include "CuProceduresApi.h"
-
-#include "oapDeviceMatrixUPtr.h"
-
 #include "oapLayerStructure.h"
-#include "oapDeviceNeuralApi.h"
-#include "oapDeviceAllocApi.h"
+#include "oapGenericNeuralApi.h"
+#include "oapGenericAllocApi.h"
 
 class Network;
 
-class Layer : public LayerS
+template<typename LayerApi>
+class Layer final
 {
-
 public:
-  Layer ();
+  Layer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation);
 
-  virtual ~Layer();
+  ~Layer();
 
-  inline Activation getActivation () const
-  {
-    return m_activation;
-  }
+  uintt getTotalNeuronsCount() const;
+  uintt getNeuronsCount() const;
+  uintt getBiasesCount() const;
+  uintt getSamplesCount() const;
+  uintt getRowsCount() const;
+
+  BPMatrices* getBPMatrices () const;
+  FPMatrices* getFPMatrices () const;
+
+  void setBPMatrices (BPMatrices* bpMatrices);
+  void setFPMatrices (FPMatrices* fpMatrices);
+
+  void setNextLayer (Layer* nextLayer);
+  Layer* getNextLayer () const;
+
+  Activation getActivation () const;
 
   math::MatrixInfo getOutputsInfo () const;
   math::MatrixInfo getInputsInfo () const;
 
   void getOutputs (math::Matrix* matrix, ArgType type) const;
 
-  inline void getHostWeights (math::Matrix* output)
-  {
-    oap::cuda::CopyDeviceMatrixToHostMatrix (output, m_weights);
-  }
+  void getHostWeights (math::Matrix* output);
 
   void setHostInputs (const math::Matrix* hInputs);
   void setDeviceInputs (const math::Matrix* dInputs);
-
-  template<typename AllocApi>
-  void allocateNeurons(uintt neuronsCount);
-
-  template<typename AllocApi>
-  void allocateWeights(const Layer* nextLayer);
 
   void deallocate();
 
@@ -70,44 +69,26 @@ public:
 
   void printHostWeights (bool newLine) const;
 
-  uintt getNeuronsCount() const
-  {
-    return m_neuronsCount;
-  }
-
   void setHostWeights (math::Matrix* weights);
-
   void setDeviceWeights (math::Matrix* weights);
 
   void initRandomWeights (const Layer* nextLayer);
 
-  void save (utils::ByteBuffer& buffer) const;
-  static Layer* load (const utils::ByteBuffer& buffer);
-
-  bool operator== (const Layer& layer) const;
-  bool operator!= (const Layer& layer) const;
-
 private:
   static void deallocate(math::Matrix** matrix);
 
-  friend class Network;
+  Activation m_activation;
+  uintt m_neuronsCount;
+  uintt m_biasesCount;
+  uintt m_samplesCount;
+
+  FPMatrices* m_fpMatrices = nullptr;
+  BPMatrices* m_bpMatrices = nullptr;
+  Layer* m_nextLayer = nullptr;
+
+  LayerApi m_layerApi;
 };
 
-template<typename AllocApi>
-void Layer::allocateNeurons(uintt neuronsCount)
-{
-  AllocApi allocNeuronsApi;
-
-  oap::generic::allocateNeurons (*this, neuronsCount, m_biasCount, allocNeuronsApi);
-}
-
-template<typename AllocApi>
-void Layer::allocateWeights(const Layer* nextLayer)
-{
-  AllocApi allocWeightsApi;
-
-  oap::generic::allocateWeights (*this, nextLayer, allocWeightsApi);
-  oap::generic::initRandomWeights (*this, nextLayer);
-}
+#include "oapLayer_impl.h"
 
 #endif

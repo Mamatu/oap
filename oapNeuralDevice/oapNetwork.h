@@ -20,14 +20,13 @@
 #ifndef OAP_NEURAL_NETWORK_H
 #define OAP_NEURAL_NETWORK_H
 
-#include "NeuralTypes.h"
-
-#include "oapLayer.h"
+#include "oapDeviceLayer.h"
+#include "CuProceduresApi.h"
 #include "oapDeviceMatrixPtr.h"
 
 #include "oapNetworkStructure.h"
 
-class Network : private NetworkS
+class Network : public NetworkS<oap::DeviceMatrixPtr>
 {
 public: // types
 
@@ -42,7 +41,7 @@ public: // types
 
 public:
 
-  Network();
+  Network(oap::CuProceduresApi* calcApi = nullptr);
   virtual ~Network();
 
   Network (const Network&) = delete;
@@ -50,15 +49,19 @@ public:
   Network& operator= (const Network&) = delete;
   Network& operator= (Network&&) = delete;
 
-  Layer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID);
-  Layer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID);
+  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, bool binitWeights = true);
+  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, bool binitWeights = true);
 
-  oap::HostMatrixUPtr run (math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
+  void createLevel (DeviceLayer* layer, bool binitWeights = true);
 
-  void setInputs (math::Matrix* inputs, ArgType argType, FPHandler handler = 0);
-  void setExpected (math::Matrix* expected, ArgType argType, FPHandler handler = 0);
+  void addLayer (DeviceLayer* layer);
 
-  FPHandler createFPSection (uintt samples);
+  FPHandler createFPLayer (uintt samples);
+
+  oap::HostMatrixUPtr run (const math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
+
+  void setInputs (const math::Matrix* inputs, ArgType argType, FPHandler handler = 0);
+
   void destroyFPSection (FPHandler handle);
 
   math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType, FPHandler handler = 0) const;
@@ -80,15 +83,12 @@ public:
 
   floatt calculateError (oap::ErrorType errorType);
 
-  void backPropagation ();
+  void backPropagation (FPHandler handler = 0);
 
-  void updateWeights();
+  void updateWeights (FPHandler handler = 0);
 
   bool train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, ArgType argType, oap::ErrorType errorType);
 
-  void createLevel (Layer* layer);
-
-  void addLayer (Layer* layer);
 
   void setController (IController* icontroller);
 
@@ -101,26 +101,26 @@ public:
   void setLearningRate (floatt lr);
   floatt getLearningRate () const;
 
-  void save (utils::ByteBuffer& buffer) const;
+  //void save (utils::ByteBuffer& buffer) const;
 
-  static Network* load (const utils::ByteBuffer& buffer);
+  //static Network* load (const utils::ByteBuffer& buffer);
 
   uintt getLayersCount () const
   {
-    return m_layers.size ();
+    return m_layers[0].size ();
   }
   
-  Layer* getLayer(uintt layerIndex) const;
+  DeviceLayer* getLayer(uintt layerIndex, FPHandler handler = 0) const;
 
   bool operator== (const Network& network) const;
   bool operator!= (const Network& network) const;
 
-  void printLayersWeights ();
+  void printLayersWeights () const;
 
-  void postStep (LayerS* layer);
+  void postStep (DeviceLayer* layer);
   void postStep ();
 
-  void resetErrors (LayerS* layer);
+  void resetErrors (DeviceLayer* layer);
   void resetErrors ();
   void resetErrorsVec ();
 
@@ -133,29 +133,33 @@ public:
     }
   }
 
-  LayerS_FP* getLayerS_FP (FPHandler handler, size_t layerIdx) const
-  {
-    return m_layers[layerIdx]->getLayerS_FP (handler);
-  }
-
 protected:
   void setHostInputs (math::Matrix* inputs, uintt layerIndex);
+  virtual void setExpectedProtected (typename ExpectedOutputs::mapped_type& holder, math::Matrix* expected, ArgType argType) override;
+  virtual math::Matrix* convertExpectedProtected (oap::DeviceMatrixPtr t) const override;
 
 private:
-  std::vector<Layer*> m_layers;
+
+  using Layers = std::vector<DeviceLayer*>;
+  using LayersVec = std::vector<Layers>;
+
+  LayersVec m_layers;
+
+  std::vector<FPMatrices*> m_fpMatricesVec;
+  std::vector<BPMatrices*> m_bpMatricesVec;
+
+  void deallocateFPMatrices();
+  void deallocateBPMatrices();
 
   void destroyNetwork();
   void destroyLayers();
-  void destroyFPSections();
-  void destroyFPSection (LayerS_FP*);
 
   inline void calculateError();
 
   bool shouldContinue (oap::ErrorType errorType);
 
-  oap::CuProceduresApi m_cuApi;
-
-  std::map<FPHandler, oap::DeviceMatrixPtr> m_expectedDeviceOutputs;
+  oap::CuProceduresApi* m_cuApi;
+  bool m_releaseCuApi;
   IController* m_icontroller = nullptr;
 
   std::ostream& log()

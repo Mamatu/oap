@@ -35,3 +35,4 @@ OAP_CUDA_BUILD - information that current compilation unit is cuda compilation
 OAP_CONFIG_NI_EF - in this case uintt is unsigned int and floatt is double
 OAP_CONFIG_NI_NF - in this case uintt is unsigned long long int and floatt is double
 OAP_PERFORMANCE_CLOCK_ENABLE - enable macros in oapClock.h for measurment of elipsed time
+OAP_PNG_TEST_PRINT_PATTERNS - print patterns in tetss OapPngFileTests.LoadMnistExamples and OapPngFileTests.LoadRow0

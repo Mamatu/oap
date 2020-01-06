@@ -20,16 +20,27 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <functional>
 #include <string>
 #include <vector>
 
 #include "Math.h"
+
+#include "BitmapUtils.h"
 #include "GraphicUtils.h"
 
 #include "Logger.h"
 
 namespace oap
 {
+
+class Image;
+
+namespace
+{
+  auto defaultFilter = [](oap::bitmap::CoordsSectionVec&, const std::vector<floatt>&, const oap::Image*){};
+  using DefaultFilter = decltype (defaultFilter);
+}
 
 typedef unsigned int pixel_t;
 
@@ -58,7 +69,7 @@ class Image
      */
     void olc ();
 
-    std::vector<floatt> getStlFloatVector ();
+    std::vector<floatt> getStlFloatVector () const;
 
     /**
      * \brief Prints subimage in boundaries determined by width and height as array of 0 and 1 digit (gray scale)
@@ -140,6 +151,37 @@ class Image
       }
     }
 
+    using PatternBitmap = std::vector<floatt>;
+
+    /**
+     *  \brief This struct is passed to callback from iteratePatterns method
+     */
+    struct Pattern
+    {
+      PatternBitmap patternBitmap;
+
+      /**
+       *  \brief Size of region which can overlaping any patterns found in image (the best fit)
+       */
+      oap::RegionSize overlapingRegion;
+
+      /**
+       *  \brief Region which descibes pattern (its size and location)
+       */
+      oap::ImageRegion imageRegion;
+    };
+
+    using Patterns = std::vector<Pattern>;
+
+    template<typename T, typename Callback, typename Filter = DefaultFilter>
+    void iteratePatterns (T bgPixel, Callback&& callback, Filter&& filter = std::forward<DefaultFilter>(defaultFilter)) const;
+
+    template<typename T, typename Filter = DefaultFilter>
+    void getPatterns (Patterns& patterns, T bgPixel, Filter&& filter = std::forward<DefaultFilter>(defaultFilter)) const;
+
+    template<typename T, typename Filter = DefaultFilter>
+    Patterns getPatterns (T bgPixel, Filter&& filter = std::forward<DefaultFilter>(defaultFilter)) const;
+
     void close();
 
     static pixel_t convertRgbToPixel(unsigned char r, unsigned char g,
@@ -189,6 +231,50 @@ class Image
 
     bool m_loadedBitmap;
 };
+
+template<typename T, typename Callback, typename Filter>
+void Image::iteratePatterns (T bgPixel, Callback&& callback, Filter&& filter) const
+{
+  size_t width = getOutputWidth ().getl ();
+  size_t height = getOutputHeight ().getl ();
+
+  std::vector<floatt> vec = getStlFloatVector ();
+
+  oap::bitmap::PatternsSeeker ps = oap::bitmap::PatternsSeeker::process1DArray (vec, width, height, 1);
+  oap::bitmap::CoordsSectionVec csVec = ps.getCoordsSectionVec ();
+
+  using Coord = oap::bitmap::Coord;
+  using CoordsSection = oap::bitmap::CoordsSection;
+
+  oap::RegionSize rs = ps.getOverlapingPaternSize ();
+
+  const oap::Image* image = this;
+  filter (csVec, vec, image);
+
+  for (const auto& pair : csVec)
+  {
+    PatternBitmap patternBitmap;
+    patternBitmap.resize (rs.getSize ());
+    oap::bitmap::getBitmapFromSection (patternBitmap, rs, vec, width, height, pair.second, 1.f);
+
+    Pattern pattern = {std::move (patternBitmap), rs, pair.second.section};
+    callback (std::move (pattern));
+  }
+}
+
+template<typename T, typename Filter>
+void Image::getPatterns (Patterns& patterns, T bgPixel, Filter&& filter) const
+{
+  iteratePatterns (bgPixel, [&patterns](Pattern&& pattern) { patterns.push_back (pattern); }, filter);
+}
+
+template<typename T, typename Filter>
+Image::Patterns Image::getPatterns (T bgPixel, Filter&& filter) const
+{
+  Patterns patterns;
+  getPatterns (patterns, filter);
+  return patterns;
+}
 }
 
 #endif  // IFILE_H

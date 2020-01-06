@@ -68,9 +68,9 @@ class OapNeuralTests_Forwardpropagation : public testing::Test
 
 TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 {
-  Layer* l1 = network->createLayer(2, true, Activation::TANH);
-  Layer* l2 = network->createLayer(3, true, Activation::TANH);
-  Layer* l3 = network->createLayer(1, Activation::TANH);
+  DeviceLayer* l1 = network->createLayer(2, true, Activation::TANH);
+  DeviceLayer* l2 = network->createLayer(3, true, Activation::TANH);
+  DeviceLayer* l3 = network->createLayer(1, Activation::TANH);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = -1;
@@ -139,9 +139,9 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 
 TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parallel)
 {
-  Layer* l1 = network->createLayer(2, true, Activation::TANH);
-  Layer* l2 = network->createLayer(3, true, Activation::TANH);
-  Layer* l3 = network->createLayer(1, Activation::TANH);
+  DeviceLayer* l1 = network->createLayer(2, true, Activation::TANH);
+  DeviceLayer* l2 = network->createLayer(3, true, Activation::TANH);
+  DeviceLayer* l3 = network->createLayer(1, Activation::TANH);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   weights1to2->reValues[0] = -1;
