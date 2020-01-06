@@ -51,7 +51,7 @@ __hostdevice__ void cuda_convolveRe (math::Matrix* output, const math::Matrix* p
   KEROPER_CACHE_CODE(CONVOLUTION, params0, kernel, cache, ->columns, ->rows, GetRe (params0, px, py) * GetReIndex (kernel, kidx);)
   threads_sync();
 
-  CUDA_SumValuesInScope (cache, cacheIdx, cacheW * cacheH, kernel->rows * kernel->columns, blockDim.x, blockDim.y);
+  CUDA_SumValuesInScope (cache, cacheIdx, cacheW * cacheH, kernel->rows * kernel->columns);
 
   if (KEROPER_IS_OUTPUT_IDX (kernel, ->columns, ->rows))
   {

@@ -67,14 +67,12 @@ __hostdeviceinline__ void cuda_SumValuesInBuffer (floatt* buffer, uintt bufferIn
  *
  * \return new scope length
  */
-__hostdeviceinline__ uintt cuda_step_SumValuesInScope (floatt* buffer, uintt bufferIndex, uintt bufferLength, uintt initScopeLength, uintt xlimit, uintt ylimit, uintt actualScopeLength)
+__hostdeviceinline__ uintt cuda_step_SumValuesInScope (floatt* buffer, uintt bufferIndex, uintt bufferLength, uintt initScopeLength, uintt actualScopeLength)
 {
-  HOST_INIT();
-
   uintt threadIdxInScope = cu_modulo (bufferIndex, initScopeLength);
   uintt halfScope = actualScopeLength / 2;
 
-  if (threadIdxInScope < halfScope && threadIdx.x < xlimit && threadIdx.y < ylimit)
+  if (threadIdxInScope < halfScope)
   {
     bool isOdd = ((actualScopeLength & 1) == 1);
 
@@ -91,12 +89,31 @@ __hostdeviceinline__ uintt cuda_step_SumValuesInScope (floatt* buffer, uintt buf
 /**
  * \brief Calculates sum of values in all subscopes of buffer. It uses \see cuda_step_SumValuesInScope
  */
-__hostdeviceinline__ void CUDA_SumValuesInScope (floatt* buffer, uintt bufferIndex, uintt bufferLength, uintt scopeLength, uintt xlimit, uintt ylimit)
+__hostdeviceinline__ void CUDA_SumValuesInScopeWithBoundaries (floatt* buffer, uintt bufferIndex, uintt bufferLength, uintt scopeLength, uintt threadIdxXLimit, uintt threadIdxYLimit)
 {
+  HOST_INIT();
   uintt actualScopeLength = scopeLength;
+
   do
   {
-    actualScopeLength = cuda_step_SumValuesInScope (buffer, bufferIndex, bufferLength, scopeLength, xlimit, ylimit, actualScopeLength);
+    if (threadIdx.x < threadIdxXLimit && threadIdx.y < threadIdxYLimit)
+    {
+      actualScopeLength = cuda_step_SumValuesInScope (buffer, bufferIndex, bufferLength, scopeLength, actualScopeLength);
+    }
+    threads_sync();
+  } while (actualScopeLength >= 1);
+}
+
+/**
+ * \brief Calculates sum of values in all subscopes of buffer. It uses \see cuda_step_SumValuesInScope
+ */
+__hostdeviceinline__ void CUDA_SumValuesInScope (floatt* buffer, uintt bufferIndex, uintt bufferLength, uintt scopeLength)
+{
+  uintt actualScopeLength = scopeLength;
+
+  do
+  {
+    actualScopeLength = cuda_step_SumValuesInScope (buffer, bufferIndex, bufferLength, scopeLength, actualScopeLength);
     threads_sync();
   } while (actualScopeLength >= 1);
 }
