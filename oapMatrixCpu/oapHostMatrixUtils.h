@@ -50,11 +50,13 @@ namespace host
  * @param value
  * @return
  */
-math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
+math::Matrix* NewMatrix (uintt columns, uintt rows);
 
 math::Matrix* NewMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray);
 math::Matrix* NewReMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray);
 math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* imarray);
+
+math::Matrix* NewShareMatrix (uintt columns, uintt rows, math::Matrix* src);
 
 /**
  * @brief NewMatrix - creates new matrix, which has the same size
@@ -64,7 +66,7 @@ math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* i
  * @param value
  * @return
  */
-math::Matrix* NewMatrixRef(const math::Matrix* matrix, floatt value = 0);
+math::Matrix* NewMatrixRef(const math::Matrix* matrix);
 
 /**
  * @brief NewMatrix
@@ -74,11 +76,10 @@ math::Matrix* NewMatrixRef(const math::Matrix* matrix, floatt value = 0);
  * @param value
  * @return
  */
-math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows,
-                        floatt value = 0);
+math::Matrix* NewMatrix (const math::Matrix* matrix, uintt columns, uintt rows);
 
 
-math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value = 0);
+math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo);
 
 /**
  * @brief NewMatrix
@@ -89,21 +90,23 @@ math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value = 0);
  * @param value
  * @return
  */
-math::Matrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows, floatt value = 0);
+math::Matrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows);
+
+math::Matrix* NewMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt value);
 
 inline math::Matrix* NewHostMatrix (bool isre, bool isim, uintt columns, uintt rows)
 {
-  return NewMatrix (isre, isim, columns, rows, 0);
+  return NewMatrix (isre, isim, columns, rows);
 }
 
 inline math::Matrix* NewHostReMatrix (uintt columns, uintt rows)
 {
-  return NewMatrix (true, false, columns, rows, 0);
+  return NewMatrix (true, false, columns, rows);
 }
 
 inline math::Matrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
 {
-  return NewMatrix (minfo.isRe, minfo.isIm, minfo.columns(), minfo.rows(), 0);
+  return NewMatrix (minfo.isRe, minfo.isIm, minfo.columns(), minfo.rows());
 }
 
 /**
@@ -113,7 +116,7 @@ inline math::Matrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
  * @param value
  * @return
  */
-math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value = 0);
+math::Matrix* NewReMatrix(uintt columns, uintt rows);
 
 /**
  * @brief NewImMatrix
@@ -122,13 +125,20 @@ math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value = 0);
  * @param value
  * @return
  */
-math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value = 0);
+math::Matrix* NewImMatrix(uintt columns, uintt rows);
 
 /**
  * @brief NewMatrix
  * @param text
  * @return
  */
+
+math::Matrix* NewMatrixWithValue (const math::MatrixInfo& minfo, floatt value);
+
+math::Matrix* NewMatrixWithValue (uintt columns, uintt rows, floatt value);
+math::Matrix* NewReMatrixWithValue (uintt columns, uintt rows, floatt value);
+math::Matrix* NewImMatrixWithValue (uintt columns, uintt rows, floatt value);
+
 math::Matrix* NewMatrix(const std::string& text);
 
 inline void CopyBuffer(floatt* dst, floatt* src, uintt length)
@@ -734,6 +744,7 @@ void CopyHostArrayToHostImMatrix (math::Matrix* matrix, const floatt* buffer, si
 }
 namespace generic
 {
+
 inline void initDims (uintt dims[2][2][2], const math::MatrixInfo& dist, const math::MatrixInfo& src)
 {
   dims[0][0][0] = 0;
@@ -754,9 +765,10 @@ inline void initDims (uintt dims[2][2][2], const math::MatrixInfo& minfo)
   initDims (dims, minfo, minfo);
 }
 
-inline void initDims (uintt dims[2][2][2], const math::Matrix* matrix)
+template<typename GetMatrixInfo>
+void initDims (uintt dims[2][2][2], const math::Matrix* matrix, GetMatrixInfo&& getMatrixInfo)
 {
-  initDims (dims, oap::host::GetMatrixInfo (matrix));
+  initDims (dims, getMatrixInfo (matrix));
 }
 
 const uintt g_srcIdx = 1;
@@ -927,7 +939,7 @@ inline void printCustomMatrix (std::string& output, const math::Matrix* matrix, 
 template<typename GetMatrixInfo>
 void printMatrix (std::string& output, const math::Matrix* matrix, const matrixUtils::PrintArgs& args, GetMatrixInfo&& getMatrixInfo)
 {
-  math::MatrixInfo minfo = getMatrixInfo(matrix);
+  math::MatrixInfo minfo = getMatrixInfo (matrix);
 
   oap::generic::printCustomMatrix (output, matrix, args, minfo);
 }
@@ -946,7 +958,37 @@ void printMatrix (std::string& output, const math::Matrix* matrix, const matrixU
   deleteMatrix (hmatrix);
 }
 
+/**
+ * \brief Create new matrix which shares reValues and imValues memory with src matrix.
+ *
+ * \param GetMatrixInfo - callback which returns MatrixInfo structure from giver matrix \code math::MatrixInfo GetMatrixInfo(math::Matrix*) \endcode
+ * \param AllocMatrix - callback which allocates Matrix structure \code math::Matrix* AllocMatrix(bool isRe, bool isIm, floatt* reValues, floatt* imValues) \endcode
+ * \param GetValueFromAddress - callback to retrive value from specific address \code floatt* GetValueFromAddress(floatt** address) \endcode
+ */
+template<typename GetMatrixInfo, typename AllocMatrix, typename GetValueFromAddress>
+math::Matrix* newShareMatrix (uintt columns, uintt rows, math::Matrix* src, GetMatrixInfo&& getMatrixInfo, AllocMatrix&& allocMatrix, GetValueFromAddress&& gvfa)
+{
+//\param ReuseMatrix - callback which indicates memory to reuse \code floatt* ReuseMatrix(floatt* memory) \endcode
+  logAssert (src != nullptr);
+
+  auto srcInfo = getMatrixInfo (src);
+
+  logAssert (columns * rows == srcInfo.columns() * srcInfo.rows());
+
+  bool isre = srcInfo.isRe;
+  bool isim = srcInfo.isIm;
+
+  return allocMatrix (columns, rows, isre ? gvfa (&src->reValues) : nullptr, isim ? gvfa (&src->imValues) : nullptr);
 }
+
+template<typename GetMatrixInfo, typename AllocMatrix>
+math::Matrix* newShareMatrix_HostMemory (uintt columns, uintt rows, math::Matrix* src, GetMatrixInfo&& getMatrixInfo, AllocMatrix&& allocMatrix)
+{
+  return newShareMatrix (columns, rows, src, getMatrixInfo, allocMatrix, [](floatt** address){ return *address; });
+}
+
+}
+
 }
 
 #endif /* OAP_HOST_MATRIX_UTILS_H */

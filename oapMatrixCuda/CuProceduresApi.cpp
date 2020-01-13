@@ -643,7 +643,7 @@ void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix, uintt 
 
 void CuProceduresApi::dlinear (math::Matrix* output, math::Matrix* matrix)
 {
-  oap::HostMatrixUPtr hmatrix = oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output), 1.f);
+  oap::HostMatrixUPtr hmatrix = oap::host::NewMatrixWithValue (oap::cuda::GetMatrixInfo(output), 1.f);
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
 }
 

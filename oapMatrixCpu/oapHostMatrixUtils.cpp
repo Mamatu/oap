@@ -37,6 +37,7 @@
 #include "GenericCoreApi.h"
 
 #include "MatricesList.h"
+#include "oapMemory.h"
 
 #define ReIsNotNULL(m) m->reValues != nullptr
 #define ImIsNotNULL(m) m->imValues != nullptr
@@ -63,7 +64,7 @@ std::ostream& operator<<(std::ostream& output, const math::Matrix*& matrix)
 
 inline void fillWithValue (floatt* values, floatt value, uintt length)
 {
-  math::Memset(values, value, length);
+  math::Memset (values, value, length);
 }
 
 inline void fillRePart(math::Matrix* output, floatt value)
@@ -84,40 +85,102 @@ namespace host
 namespace
 {
 MatricesList gMatricesList ("HOST");
+
+floatt* allocateMem (size_t length)
+{
+  return new floatt[length];
 }
 
-math::Matrix* NewMatrixRef (const math::Matrix* matrix, floatt value)
+void deallocateMem (floatt* memory)
+{
+  delete[] memory;
+}
+
+oap::MemoryManagement<floatt*, decltype(allocateMem), decltype(deallocateMem), nullptr> gMemoryMng (allocateMem, deallocateMem);
+
+math::Matrix* allocMatrix_ReuseMemory (uintt columns, uintt rows, floatt* rebuffer, floatt* imbuffer)
+{
+  math::Matrix* output = NEW_MATRIX();
+  uintt length = columns * rows;
+
+  output->realColumns = columns;
+  output->columns = columns;
+  output->realRows = rows;
+  output->rows = rows;
+
+  output->reValues = gMemoryMng.reuse (rebuffer);
+  output->imValues = gMemoryMng.reuse (imbuffer);
+
+  gMatricesList.add (output, CreateMatrixInfo (output));
+
+  return output;
+}
+
+math::Matrix* allocMatrix_AllocMemory (bool isre, bool isim, uintt columns, uintt rows, floatt revalue = 0., floatt imvalue = 0.)
+{
+  math::Matrix* output = NEW_MATRIX();
+  uintt length = columns * rows;
+
+  output->realColumns = columns;
+  output->columns = columns;
+  output->realRows = rows;
+  output->rows = rows;
+
+  output->reValues = nullptr;
+  output->imValues = nullptr;
+
+  if (isre)
+  {
+    output->reValues = gMemoryMng.allocate (length);
+    fillRePart (output, revalue);
+  }
+
+  if (isim)
+  {
+    output->imValues = gMemoryMng.allocate (length);
+    fillImPart (output, imvalue);
+  }
+
+  gMatricesList.add (output, CreateMatrixInfo (output));
+
+
+  return output;
+}
+
+}
+
+math::Matrix* NewMatrixRef (const math::Matrix* matrix)
 {
   math::Matrix* output = nullptr;
   if (matrix->reValues != nullptr && matrix->imValues != nullptr)
   {
-    output = NewMatrix(matrix->columns, matrix->rows, value);
+    output = NewMatrix(matrix->columns, matrix->rows);
   }
   else if (matrix->reValues != nullptr)
   {
-    output = NewReMatrix(matrix->columns, matrix->rows, value);
+    output = NewReMatrix(matrix->columns, matrix->rows);
   }
   else if (matrix->imValues != nullptr)
   {
-    output = NewImMatrix(matrix->columns, matrix->rows, value);
+    output = NewImMatrix(matrix->columns, matrix->rows);
   }
   return output;
 }
 
-math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows, floatt value)
+math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows)
 {
   math::Matrix* output = nullptr;
   if (matrix->reValues != nullptr && matrix->imValues != nullptr)
   {
-    output = NewMatrix(columns, rows, value);
+    output = NewMatrix(columns, rows);
   }
   else if (matrix->reValues != nullptr)
   {
-    output = NewReMatrix(columns, rows, value);
+    output = NewReMatrix(columns, rows);
   }
   else if (matrix->imValues != nullptr)
   {
-    output = NewImMatrix(columns, rows, value);
+    output = NewImMatrix(columns, rows);
   }
   return output;
 }
@@ -143,83 +206,86 @@ math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* i
   return matrix;
 }
 
-math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value)
+math::Matrix* NewShareMatrix (uintt columns, uintt rows, math::Matrix* src)
 {
-  return NewMatrix(matrixInfo.isRe, matrixInfo.isIm,
-                   matrixInfo.m_matrixDim.columns, matrixInfo.m_matrixDim.rows,
-                   value);
+  return oap::generic::newShareMatrix_HostMemory (columns, rows, src, oap::host::GetMatrixInfo, allocMatrix_ReuseMemory);
 }
 
-math::Matrix* NewMatrix(bool isre, bool isim, uintt columns, uintt rows,
-                        floatt value)
+math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo)
+{
+  return NewMatrix(matrixInfo.isRe, matrixInfo.isIm, matrixInfo.m_matrixDim.columns, matrixInfo.m_matrixDim.rows);
+}
+
+math::Matrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows)
 {
   if (isre && isim)
   {
-    return oap::host::NewMatrix(columns, rows, value);
+    return oap::host::NewMatrix(columns, rows);
   }
   else if (isre)
   {
-    return oap::host::NewReMatrix(columns, rows, value);
+    return oap::host::NewReMatrix(columns, rows);
   }
   else if (isim)
   {
-    return oap::host::NewImMatrix(columns, rows, value);
+    return oap::host::NewImMatrix(columns, rows);
   }
   return nullptr;
 }
 
-math::Matrix* allocMatrix (bool isRe, bool isIm, uintt columns, uintt rows, floatt value, floatt* rebuffer = nullptr, floatt* imbuffer = nullptr)
+math::Matrix* NewMatrixWithValue (const math::MatrixInfo& minfo, floatt value)
 {
-  math::Matrix* output = NEW_MATRIX();
-  uintt length = columns * rows;
+  return oap::host::NewMatrixWithValue (minfo.isRe, minfo.isIm, minfo.columns (), minfo.rows (), value);
+}
 
-  output->realColumns = columns;
-  output->columns = columns;
-  output->realRows = rows;
-  output->rows = rows;
-
-  auto set = [length, value] (floatt** output, bool is, floatt* buffer)
+math::Matrix* NewMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt value)
+{
+  if (isre && isim)
   {
-    floatt* tmp = nullptr;
-    if (is)
-    {
-      if (buffer)
-      {
-        tmp = buffer;
-      }
-      else
-      {
-        tmp = new floatt [length];
-        fillWithValue (tmp, value, length);
-      }
-    }
-    *output = tmp;
-  };
-
-  set (&(output->reValues), isRe, rebuffer);
-  set (&(output->imValues), isIm, imbuffer);
-
-  gMatricesList.add (output, CreateMatrixInfo (output));
-
-  return output;
+    return oap::host::NewMatrixWithValue (columns, rows, value);
+  }
+  else if (isre)
+  {
+    return oap::host::NewReMatrixWithValue (columns, rows, value);
+  }
+  else if (isim)
+  {
+    return oap::host::NewImMatrixWithValue (columns, rows, value);
+  }
+  return nullptr;
 }
 
-math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value)
+math::Matrix* NewMatrix (uintt columns, uintt rows)
 {
-  return allocMatrix (true, true, columns, rows, value);
+  return allocMatrix_AllocMemory (true, true, columns, rows);
 }
 
-math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value)
+math::Matrix* NewReMatrix (uintt columns, uintt rows)
 {
-  return allocMatrix (true, false, columns, rows, value);
+  return allocMatrix_AllocMemory (true, false, columns, rows);
 }
 
-math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value)
+math::Matrix* NewImMatrix (uintt columns, uintt rows)
 {
-  return allocMatrix (false, true, columns, rows, value);
+  return allocMatrix_AllocMemory (false, true, columns, rows);
 }
 
-math::Matrix* NewMatrix(const std::string& text)
+math::Matrix* NewMatrixWithValue (uintt columns, uintt rows, floatt value)
+{
+  return allocMatrix_AllocMemory (true, true, columns, rows, value, value);
+}
+
+math::Matrix* NewReMatrixWithValue (uintt columns, uintt rows, floatt value)
+{
+  return allocMatrix_AllocMemory (true, false, columns, rows, value, value);
+}
+
+math::Matrix* NewImMatrixWithValue (uintt columns, uintt rows, floatt value)
+{
+  return allocMatrix_AllocMemory (false, true, columns, rows, value, value);
+}
+
+math::Matrix* NewMatrix (const std::string& text)
 {
   matrixUtils::Parser parser(text);
 
@@ -234,14 +300,19 @@ math::Matrix* NewMatrix(const std::string& text)
 
   try
   {
+    auto allocMem = [](size_t length)
+    {
+      return gMemoryMng.allocate (length);
+    };
+
     if (matrixUtils::HasArray (text, 1))
     {
-      pairRe = matrixUtils::CreateArray (text, 1);
+      pairRe = matrixUtils::CreateArray (text, 1, allocMem);
     }
 
     if (matrixUtils::HasArray (text, 2))
     {
-      pairIm = matrixUtils::CreateArray (text, 2);
+      pairIm = matrixUtils::CreateArray (text, 2, allocMem);
     }
   }
   catch (const matrixUtils::Parser::ParsingException& pe)
@@ -282,7 +353,7 @@ math::Matrix* NewMatrix(const std::string& text)
     return nullptr;
   }
 
-  return allocMatrix (revalues != nullptr, imvalues != nullptr, columns, rows, 0, revalues, imvalues);
+  return allocMatrix_ReuseMemory (columns, rows, revalues, imvalues);
 }
 
 void DeleteMatrix(const math::Matrix* matrix)
@@ -294,20 +365,23 @@ void DeleteMatrix(const math::Matrix* matrix)
 
   auto minfo = gMatricesList.remove (matrix);
 
+  bool reValuesDeallocated = false;
+  bool imValuesDeallocated = false;
+
   if (matrix->reValues != nullptr)
   {
-    delete[] matrix->reValues;
+    reValuesDeallocated = gMemoryMng.deallocate (matrix->reValues);
   }
   if (matrix->imValues != nullptr)
   {
-    delete[] matrix->imValues;
+    imValuesDeallocated = gMemoryMng.deallocate (matrix->imValues);
   }
 
   DELETE_MATRIX(matrix);
 
   if (minfo.isInitialized ())
   {
-    logTrace ("Deallocate: host matrix = %p %s", matrix, minfo.toString().c_str());
+    logTrace ("Deallocate: host matrix = %p %s. Memory deallocated: re %d im %d", matrix, minfo.toString().c_str(), reValuesDeallocated, imValuesDeallocated);
   }
 }
 

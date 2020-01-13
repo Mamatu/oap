@@ -153,7 +153,7 @@ TEST_F(OapMatrixParserTests, Test5) {
   EXPECT_DOUBLE_EQ(double(-0.25), m_parser->getValue(4));
   EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(5));
 
-  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
+  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArrayDefaultAlloc (text, 1);
   EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[2]);
   EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[4]);
   EXPECT_DOUBLE_EQ(double(0), arrayLength.first[5]);
@@ -188,7 +188,7 @@ TEST_F(OapMatrixParserTests, Test5withSeparator) {
   EXPECT_DOUBLE_EQ(double(-0.25), m_parser->getValue(4));
   EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(5));
 
-  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
+  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArrayDefaultAlloc (text, 1);
   EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[2]);
   EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[4]);
   EXPECT_DOUBLE_EQ(double(0), arrayLength.first[5]);
@@ -306,7 +306,7 @@ TEST_F(OapMatrixParserTests, LargeMatrixQHost4Test) {
 
   m_parser->setText(text);
   EXPECT_NO_THROW(m_parser->parseArray(1));
-  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
+  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArrayDefaultAlloc (text, 1);
   EXPECT_DOUBLE_EQ(double(-1), arrayLength.first[arrayLength.second - 1]);
   delete[] arrayLength.first;
 }
@@ -316,7 +316,7 @@ TEST_F(OapMatrixParserTests, LargeMatrixQHost5Test) {
 
   m_parser->setText(text);
   EXPECT_NO_THROW(m_parser->parseArray(1));
-  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
+  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArrayDefaultAlloc (text, 1);
   EXPECT_DOUBLE_EQ(double(-1), arrayLength.first[arrayLength.second - 1]);
   delete[] arrayLength.first;
 }

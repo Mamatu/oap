@@ -44,6 +44,43 @@ namespace
 {
 MatricesList gMatricesList ("CUDA");
 std::map<const math::Matrix*, ValuesPtr> gMatricesPtrsList;
+
+void registerMatrix (math::Matrix* matrix, const CudaUtils::CuDevicePtrs& devicePtrs, const math::MatrixInfo& matrixInfo)
+{
+  logTrace ("Allocated: %s", matrixInfo.toString().c_str());
+
+  logTrace ("Matrix allocation: %p", mptr);
+  gMatricesList.add (matrix, matrixInfo);
+
+  auto& refValuesPtr = gMatricesPtrsList[matrix];
+
+  refValuesPtr.reValues = reinterpret_cast<floatt*>(devicePtrs.reValuesPtr);
+  refValuesPtr.imValues = reinterpret_cast<floatt*>(devicePtrs.imValuesPtr);
+}
+
+math::Matrix* allocMatrix_AllocMemory (bool allocRe, bool allocIm, uintt columns, uintt rows)
+{
+  CudaUtils::CuDevicePtrs devicePtrs;
+
+  CUdeviceptr ptr = CudaUtils::AllocMatrix_AllocMemory (allocRe, allocIm, columns, rows, 0., 0., &devicePtrs);
+  math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
+
+  registerMatrix (mptr, devicePtrs, math::MatrixInfo(allocRe, allocIm, columns, rows));
+
+  return mptr;
+}
+
+math::Matrix* allocMatrix_ReuseMemory (uintt columns, uintt rows, floatt* revalues, floatt* imvalues)
+{
+  CudaUtils::CuDevicePtrs devicePtrs;
+
+  CUdeviceptr ptr = CudaUtils::AllocMatrix_ReuseMemory (columns, rows, revalues, imvalues, &devicePtrs);
+  math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
+
+  registerMatrix (mptr, devicePtrs, math::MatrixInfo (revalues != nullptr, imvalues != nullptr, columns, rows));
+
+  return mptr;
+}
 }
 
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix (const math::Matrix* matrix)
@@ -63,11 +100,8 @@ math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix)
 
 math::Matrix* NewDeviceMatrixDeviceRef(const math::Matrix* deviceMatrix)
 {
-  uintt columns = CudaUtils::GetColumns(deviceMatrix);
-  uintt rows = CudaUtils::GetRows(deviceMatrix);
-  bool hasRe = CudaUtils::GetReValues(deviceMatrix) != NULL;
-  bool hasIm = CudaUtils::GetImValues(deviceMatrix) != NULL;
-  return NewDeviceMatrix (hasRe, hasIm, columns, rows);
+  auto minfo = oap::cuda::GetMatrixInfo (deviceMatrix);
+  return NewDeviceMatrix (minfo.isRe, minfo.isIm, minfo.columns (), minfo.rows ());
 }
 
 math::Matrix* NewDeviceMatrix(const std::string& matrixStr)
@@ -76,6 +110,11 @@ math::Matrix* NewDeviceMatrix(const std::string& matrixStr)
   math::Matrix* device = NewDeviceMatrixCopyOfHostMatrix (host);
   oap::host::DeleteMatrix(host);
   return device;
+}
+
+math::Matrix* NewShareDeviceMatrix(uintt columns, uintt rows, math::Matrix* src)
+{
+  return oap::generic::newShareMatrix (columns, rows, src, oap::cuda::GetMatrixInfo, allocMatrix_ReuseMemory, CudaUtils::GetValue);
 }
 
 math::Matrix* NewDeviceMatrix(const math::MatrixInfo& minfo)
@@ -90,40 +129,17 @@ math::Matrix* NewDeviceMatrixCopyOfHostMatrix(const math::Matrix* hostMatrix)
   return dmatrix;
 }
 
-math::Matrix* allocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows, floatt revalue = 0.f, floatt imvalue = 0.f)
-{
-
-  math::MatrixInfo matrixInfo = math::MatrixInfo (allocRe, allocIm, columns, rows);
-  logTrace ("Try to allocate: %s", matrixInfo.toString().c_str());
-
-  CudaUtils::CuDevicePtrs devicePtrs;
-
-  CUdeviceptr ptr = CudaUtils::AllocMatrix(allocRe, allocIm, columns, rows, 0, 0, &devicePtrs);
-  math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
-
-  logTrace ("Matrix allocation: %p", mptr);
-  gMatricesList.add (mptr, matrixInfo);
-
-  auto& refValuesPtr = gMatricesPtrsList[mptr];
-
-  refValuesPtr.reValues = reinterpret_cast<floatt*>(devicePtrs.reValuesPtr);
-  refValuesPtr.imValues = reinterpret_cast<floatt*>(devicePtrs.imValuesPtr);
-
-  return mptr;
-}
-
-math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns,
-                              uintt rows)
+math::Matrix* NewDeviceMatrix (const math::Matrix* hostMatrix, uintt columns, uintt rows)
 {
   bool allocRe = hostMatrix->reValues != NULL;
   bool allocIm = hostMatrix->imValues != NULL;
-  return allocMatrix(allocRe, allocIm, columns, rows);
+  return allocMatrix_AllocMemory (allocRe, allocIm, columns, rows);
 }
 
 math::Matrix* NewDeviceMatrix(bool isRe, bool isIm, uintt columns, uintt rows)
 {
   debugAssert(isRe != false || isIm != false);
-  return allocMatrix(isRe, isIm, columns, rows);
+  return allocMatrix_AllocMemory (isRe, isIm, columns, rows);
 }
 
 math::Matrix* NewDeviceReMatrix(uintt columns, uintt rows)
@@ -136,11 +152,9 @@ math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows)
   return NewDeviceMatrix(false, true, columns, rows);
 }
 
-math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue,
-                              floatt imvalue)
+math::Matrix* NewDeviceMatrix (uintt columns, uintt rows)
 {
-  math::Matrix* dmatrix =
-    allocMatrix(true, true, columns, rows, revalue, imvalue);
+  math::Matrix* dmatrix = allocMatrix_AllocMemory (true, true, columns, rows);
   return dmatrix;
 }
 

@@ -95,12 +95,13 @@ struct CuDevicePtrs
   CUdeviceptr imValuesPtr;
 };
 
-CUdeviceptr AllocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows, floatt revalue = 0, floatt imvalue = 0, CuDevicePtrs* cuDevicePtrs = nullptr);
+CUdeviceptr AllocMatrix_AllocMemory (bool allocRe, bool allocIm, uintt columns, uintt rows, floatt revalue = 0, floatt imvalue = 0, CuDevicePtrs* cuDevicePtrs = nullptr);
 CUdeviceptr AllocReMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value);
 CUdeviceptr AllocImMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value);
 
-CUdeviceptr SetReMatrixToNull(CUdeviceptr devicePtrMatrix);
+CUdeviceptr AllocMatrix_ReuseMemory (uintt columns, uintt rows, floatt* revalues, floatt* imvalues, CuDevicePtrs* cuDevicePtrs = nullptr);
 
+CUdeviceptr SetReMatrixToNull(CUdeviceptr devicePtrMatrix);
 CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix);
 
 void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows);

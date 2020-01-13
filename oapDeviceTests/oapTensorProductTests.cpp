@@ -44,8 +44,8 @@ class OapTensorProductTests : public testing::Test {
 
 TEST_F(OapTensorProductTests, InitTest)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrix(4, 4, 1);
-  math::Matrix* hostM2 = oap::host::NewReMatrix(4, 4, 1);
+  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 1);
+  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 1);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
@@ -67,8 +67,8 @@ TEST_F(OapTensorProductTests, InitTest)
 
 TEST_F(OapTensorProductTests, Test1)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrix(4, 4, 1);
-  math::Matrix* hostM2 = oap::host::NewReMatrix(4, 4, 1);
+  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 1);
+  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 1);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
@@ -90,8 +90,8 @@ TEST_F(OapTensorProductTests, Test1)
 
 TEST_F(OapTensorProductTests, Test2)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrix(4, 4, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrix(4, 4, 3);
+  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 2);
+  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 3);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
@@ -118,8 +118,8 @@ TEST_F(OapTensorProductTests, Test3)
   uintt r2 = 7;
   uintt c2 = 6;
 
-  math::Matrix* hostM1 = oap::host::NewReMatrix(c1, r1, 1);
-  math::Matrix* hostM2 = oap::host::NewReMatrix(c2, r2, 1);
+  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (c1, r1, 1);
+  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (c2, r2, 1);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
@@ -146,8 +146,8 @@ TEST_F(OapTensorProductTests, Test4)
   uintt r2 = 7;
   uintt c2 = 6;
 
-  math::Matrix* hostM1 = oap::host::NewReMatrix(c1, r1, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrix(c2, r2, 3);
+  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (c1, r1, 2);
+  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (c2, r2, 3);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);

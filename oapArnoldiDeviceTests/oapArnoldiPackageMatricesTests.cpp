@@ -95,7 +95,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
     oap::HostMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
     {
-        oap::HostMatrixPtr hmatrix = oap::host::NewMatrix(size, size, 0);
+        oap::HostMatrixPtr hmatrix = oap::host::NewMatrixWithValue (size, size, 0);
 
         for (size_t xy = 0; xy < size; ++xy) {
           hmatrix->reValues[GetIndex(hmatrix, xy, xy)] = getValue(xy);

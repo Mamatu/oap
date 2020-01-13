@@ -53,8 +53,8 @@ class TransposeKernel : public HostKernel {
 };
 
 TEST_F(OapTransposeTests, TransposeVectorTest) {
-  math::Matrix* matrix = oap::host::NewReMatrix(1, 1000, 2);
-  math::Matrix* matrixT = oap::host::NewReMatrix(1000, 1, 0);
+  math::Matrix* matrix = oap::host::NewReMatrixWithValue (1, 1000, 2);
+  math::Matrix* matrixT = oap::host::NewReMatrixWithValue (1000, 1, 0);
 
   TransposeKernel transposeKernel(matrixT, matrix);
 
@@ -67,8 +67,8 @@ TEST_F(OapTransposeTests, TransposeVectorTest) {
 }
 
 TEST_F(OapTransposeTests, TransposeConjVectorTest) {
-  math::Matrix* matrix = oap::host::NewReMatrix(1000, 1, 2);
-  math::Matrix* matrixT = oap::host::NewReMatrix(1, 1000, 0);
+  math::Matrix* matrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
+  math::Matrix* matrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
 
   TransposeKernel transposeKernel(matrixT, matrix);
 
@@ -82,8 +82,8 @@ TEST_F(OapTransposeTests, TransposeConjVectorTest) {
 
 TEST_F(OapTransposeTests, TransposeVectorTest1) {
   uint length = 1000;
-  math::Matrix* matrix = oap::host::NewReMatrix(1, length, 1);
-  math::Matrix* matrixT = oap::host::NewReMatrix(length, 1, 5);
+  math::Matrix* matrix = oap::host::NewReMatrixWithValue (1, length, 1);
+  math::Matrix* matrixT = oap::host::NewReMatrixWithValue (length, 1, 5);
 
   for (int fa = 0; fa < length; ++fa) {
     SetRe(matrix, 0, fa, fa);
@@ -103,8 +103,8 @@ TEST_F(OapTransposeTests, TransposeVectorTest1) {
 
 TEST_F(OapTransposeTests, TransposeConjVectorTest1) {
   uint length = 1000;
-  math::Matrix* matrix = oap::host::NewReMatrix(length, 1, 2);
-  math::Matrix* matrixT = oap::host::NewReMatrix(1, length, 5);
+  math::Matrix* matrix = oap::host::NewReMatrixWithValue (length, 1, 2);
+  math::Matrix* matrixT = oap::host::NewReMatrixWithValue (1, length, 5);
 
   for (int fa = 0; fa < length; ++fa) {
     SetRe(matrix, fa, 0, fa);

@@ -30,6 +30,7 @@ TYPES := OAP_CONFIG_NI_EF
 OAP_INCLUDES := oapUtils
 OAP_INCLUDES += oapMath
 OAP_INCLUDES += oapCuda
+OAP_INCLUDES += oapMemory
 OAP_INCLUDES += oapMatrix
 OAP_INCLUDES += oapMatrixCpu
 OAP_INCLUDES += oapMatrixCuda
@@ -73,6 +74,7 @@ endif
 ifeq ($(COMPILE_HOST),1)
 OAP_MODULES := oapUtils
 OAP_MODULES += oapMath
+OAP_MODULES += oapMemory
 OAP_MODULES += oapMatrix
 OAP_MODULES += oapMatrixCpu
 OAP_MODULES += oapCMatrixDataTests

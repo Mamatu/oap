@@ -17,32 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_MATRIX_H
-#define OAP_MATRIX_H
+#ifndef OAP_TYPE_TRAITS_H
+#define OAP_TYPE_TRAITS_H
 
-#include "Math.h"
+#include <type_traits>
 
-//#define DEBUG
+template<typename T>
+using funcstore = typename std::conditional<std::is_function<T>::value, T&&, T>::type;
 
-namespace math
-{
-
-struct MatrixDim
-{
-  uintt columns;
-  uintt rows;
-};
-
-/**
- * Columns orientation
- */
-struct Matrix : public MatrixDim
-{
-  uintt realColumns;
-  uintt realRows;
-  floatt* reValues;
-  floatt* imValues;
-};
-
-}
 #endif
