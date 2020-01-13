@@ -554,8 +554,7 @@ bool CuProceduresApi::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, 
   const uintt w = oap::cuda::GetColumns(matrix1);
   const uintt h = oap::cuda::GetRows(matrix1);
 
-  floatt o = compareProcedure("CUDAKernel_CompareOptVer2", matrix1, matrix2, w, h,
-                          w / 2, h);
+  floatt o = compareProcedure("CUDAKernel_CompareOptVer2", matrix1, matrix2, w, h, w / 2, h);
   return (-tolerance <= o && o <= tolerance);
 }
 
