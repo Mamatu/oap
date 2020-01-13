@@ -34,10 +34,10 @@ class OapDeviceMatrixModuleTests : public testing::Test {
   void setSubMatrixTest(uintt columns, uintt rows, float value,
                         uintt subcolumns, uint subrows, floatt subvalue,
                         uintt column, uintt row) {
-    math::Matrix* hmatrix = oap::host::NewMatrix(true, true, columns, rows, value);
+    math::Matrix* hmatrix = oap::host::NewMatrixWithValue (true, true, columns, rows, value);
     math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hmatrix);
 
-    math::Matrix* hsubmatrix = oap::host::NewMatrix(true, true, subcolumns, subrows, subvalue);
+    math::Matrix* hsubmatrix = oap::host::NewMatrixWithValue (true, true, subcolumns, subrows, subvalue);
     math::Matrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hsubmatrix);
 
     oap::cuda::SetMatrix(dmatrix, dsubmatrix, column, row);
@@ -132,7 +132,7 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
 
   std::string path = "/tmp/Oap/device_tests/test_file";
 
-  math::Matrix* m1 = oap::host::NewMatrix(true, true, columns, rows, 0);
+  math::Matrix* m1 = oap::host::NewMatrixWithValue (true, true, columns, rows, 0);
 
   for (int fa = 0; fa < columns * rows; ++fa) {
     m1->reValues[fa] = fa;

@@ -97,7 +97,7 @@ class CompareStubImpl : public HostKernel {
 
   CompareStubImpl(uint columns, uint rows, AlgoVersion::Type algoVersion)
       : m_algoVersion(algoVersion) {
-    m_matrix = oap::host::NewReMatrix(columns, rows, 0);
+    m_matrix = oap::host::NewReMatrixWithValue (columns, rows, 0);
     calculateDims(columns / m_algoVersion.getFactor(), rows);
     m_bufferLength = blockDim.x * blockDim.y;
     m_sumsLength = gridDim.x * gridDim.y;

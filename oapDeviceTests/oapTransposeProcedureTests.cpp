@@ -7,26 +7,30 @@
 #include "KernelExecutor.h"
 #include "CuProceduresApi.h"
 
-class OapTransposeTests : public testing::Test {
- public:
-  oap::CuProceduresApi* m_cuMatrix;
-  CUresult status;
+class OapTransposeTests : public testing::Test
+{
+  public:
+    oap::CuProceduresApi* m_cuMatrix;
+    CUresult status;
 
-  virtual void SetUp() {
-    status = CUDA_SUCCESS;
-    oap::cuda::Context::Instance().create();
-    m_cuMatrix = new oap::CuProceduresApi();
-  }
+    virtual void SetUp()
+    {
+      status = CUDA_SUCCESS;
+      oap::cuda::Context::Instance().create();
+      m_cuMatrix = new oap::CuProceduresApi();
+    }
 
-  virtual void TearDown() {
-    delete m_cuMatrix;
-    oap::cuda::Context::Instance().destroy();
-  }
+    virtual void TearDown()
+    {
+      delete m_cuMatrix;
+      oap::cuda::Context::Instance().destroy();
+    }
 };
 
-TEST_F(OapTransposeTests, DeviceNoTransposeTest) {
-  math::Matrix* hostMatrix = oap::host::NewReMatrix(1000, 1, 2);
-  math::Matrix* hostMatrixT = oap::host::NewReMatrix(1, 1000, 0);
+TEST_F(OapTransposeTests, DeviceNoTransposeTest)
+{
+  math::Matrix* hostMatrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
+  math::Matrix* hostMatrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
 
   math::Matrix* dMatrix = oap::cuda::NewDeviceReMatrix(1000, 1);
   math::Matrix* dMatrixT = oap::cuda::NewDeviceReMatrix(1, 1000);
@@ -45,9 +49,10 @@ TEST_F(OapTransposeTests, DeviceNoTransposeTest) {
   oap::cuda::DeleteDeviceMatrix(dMatrixT);
 }
 
-TEST_F(OapTransposeTests, DeviceTransposeTest) {
-  math::Matrix* hostMatrix = oap::host::NewReMatrix(1000, 1, 2);
-  math::Matrix* hostMatrixT = oap::host::NewReMatrix(1, 1000, 0);
+TEST_F(OapTransposeTests, DeviceTransposeTest)
+{
+  math::Matrix* hostMatrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
+  math::Matrix* hostMatrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
 
   math::Matrix* dMatrix = oap::cuda::NewDeviceReMatrix(1000, 1);
   math::Matrix* dMatrixT = oap::cuda::NewDeviceReMatrix(1, 1000);

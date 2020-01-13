@@ -65,23 +65,6 @@ Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSe
   return modifiableData;
 }
 
-template<typename Array, typename CalcApi>
-floatt mean (Array&& array, CalcApi&& capi)
-{
-  floatt sum = 0;
-  capi.sum (sum, array);
-  return sum / array.size();
-}
-
-template<typename Array, typename CalcApi>
-floatt sd (Array&& array, CalcApi&& capi)
-{
-  floatt mean = mean (array, capi);
-  floatt sd = 0;
-  capi.substractValue (sd, sd, mean);
-  capi.hadamardProcuct ();
-}
-
 template<typename Array>
 floatt mean (Array&& array)
 {

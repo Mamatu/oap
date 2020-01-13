@@ -55,8 +55,8 @@ class OapDotProductTests : public testing::Test {
 
 TEST_F(OapDotProductTests, Test_1)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrix(1, 10, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrix(10, 1, 2);
+  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (1, 10, 2);
+  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (10, 1, 2);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
@@ -81,8 +81,8 @@ void testShared (const std::string& testName, std::pair<uintt, uintt>&& dims1, s
   logInfo ("%s", testName.c_str());
   debugAssert (dims1.first == dims2.second);
 
-  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrix (dims1.first, dims1.second, value1);
-  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrix (dims2.first, dims2.second, value2);
+  oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue  (dims1.first, dims1.second, value1);
+  oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue  (dims2.first, dims2.second, value2);
 
   oap::DeviceMatrixUPtr dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostM1);
   oap::DeviceMatrixUPtr dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostM2);
@@ -123,8 +123,8 @@ TEST_F(OapDotProductTests, SharedTest_64x64)
 
 TEST_F(OapDotProductTests, Test_CustomDim_1)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrix(1, 10, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrix(10, 1, 2);
+  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (1, 10, 2);
+  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (10, 1, 2);
 
   math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
@@ -149,8 +149,8 @@ TEST_F(OapDotProductTests, Test_CustomDim_1)
 
 TEST_F(OapDotProductTests, Test_2)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(4, 2, 0);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(3, 4, 0);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (4, 2, 0);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (3, 4, 0);
 
   using namespace oapDotProduct_Data::Test_1;
 
@@ -174,8 +174,8 @@ TEST_F(OapDotProductTests, Test_2)
 
 TEST_F(OapDotProductTests, Test_CustomDim_2)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(4, 2, 0);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(3, 4, 0);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (4, 2, 0);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (3, 4, 0);
 
   using namespace oapDotProduct_Data::Test_1;
 
@@ -221,8 +221,8 @@ TEST_F(OapDotProductTests, BigDataTest_1)
 
 TEST_F(OapDotProductTests, Test_CustomDim_3)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(5, 2, 0);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(4, 5, 0);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 2, 0);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (4, 5, 0);
 
   using namespace oapDotProduct_Data::Test_2;
 
@@ -249,10 +249,10 @@ TEST_F(OapDotProductTests, Test_CustomDim_3)
 
 TEST_F(OapDotProductTests, Test_CustomDim_4)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(10, 10, 1);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(3, 10, 1);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (10, 10, 1);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (3, 10, 1);
 
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix(3, 10, 1);
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (3, 10, 1);
 
   oap::DeviceMatrixPtr dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   oap::DeviceMatrixPtr dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
@@ -275,8 +275,8 @@ TEST_F(OapDotProductTests, Test_CustomDim_4)
 
 TEST_F(OapDotProductTests, Test_Periodic_1)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(3, 3, 1);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(1, 12, 1);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (3, 3, 1);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 12, 1);
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrix(1, 12);
 
@@ -292,8 +292,8 @@ TEST_F(OapDotProductTests, Test_Periodic_1)
 
 TEST_F(OapDotProductTests, Test_Periodic_2)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(5, 5, 1);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(1, 2000, 1);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 5, 1);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 2000, 1);
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrix(1, 2000);
 
@@ -309,8 +309,8 @@ TEST_F(OapDotProductTests, Test_Periodic_2)
 
 TEST_F(OapDotProductTests, Test_Periodic_3)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(5, 5, 1);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(1, 2000, 1);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 5, 1);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 2000, 1);
 
   for (uintt idx = 0; idx < 2000; ++idx)
   {
@@ -341,8 +341,8 @@ TEST_F(OapDotProductTests, Test_Periodic_3)
 
 TEST_F(OapDotProductTests, Test_Periodic_4)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(5, 5, 1);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(1, 10, 1);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 5, 1);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 10, 1);
 
   for (uintt idx = 0; idx < 10; ++idx)
   {
@@ -373,10 +373,10 @@ TEST_F(OapDotProductTests, Test_Periodic_4)
 
 TEST_F(OapDotProductTests, Test_DimPeriodic_1)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(10, 10, 1);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(3, 1000, 1);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (10, 10, 1);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (3, 1000, 1);
 
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix(3, 1000, 1);
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (3, 1000, 1);
 
   uintt dims[3][2] =
   {
@@ -402,8 +402,8 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_1)
 
 TEST_F(OapDotProductTests, Test_DimPeriodic_2)
 {
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(5, 5, 1);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(1, 2000, 1);
+  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 5, 1);
+  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 2000, 1);
 
   hostM1->reValues[24] = 2;
   hostM1->reValues[23] = 2;
@@ -411,7 +411,7 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
   hostM1->reValues[21] = 2;
   hostM1->reValues[20] = 2;
 
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix(1, 2000, 1);
+  oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (1, 2000, 1);
 
   oap::DeviceMatrixPtr dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   oap::DeviceMatrixPtr dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);

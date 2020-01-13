@@ -96,8 +96,8 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     network->createLayer (layerSize);
   }
 
-  oap::HostMatrixPtr input = oap::host::NewReMatrix (1, args.networkLayers.front(), 0);
-  oap::HostMatrixPtr eoutput = oap::host::NewReMatrix (1, args.networkLayers.back(), 0);
+  oap::HostMatrixPtr input = oap::host::NewReMatrixWithValue (1, args.networkLayers.front(), 0);
+  oap::HostMatrixPtr eoutput = oap::host::NewReMatrixWithValue (1, args.networkLayers.back(), 0);
 
   network->setLearningRate (0.001);
 

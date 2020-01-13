@@ -35,7 +35,9 @@ namespace oap
 namespace cuda
 {
 
-math::Matrix* NewDeviceMatrix(uintt columns, uintt rows, floatt revalue = 0.f, floatt imvalue = 0.f);
+math::Matrix* NewDeviceMatrix(uintt columns, uintt rows);
+
+math::Matrix* NewShareDeviceMatrix(uintt columns, uintt rows, math::Matrix* src);
 
 math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix);
 

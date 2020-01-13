@@ -1,5 +1,5 @@
-#ifndef MATRIXINFO_H
-#define MATRIXINFO_H
+#ifndef OAP_MATRIX_INFO_H
+#define OAP_MATRIX_INFO_H
 
 #include "Matrix.h"
 #include <sstream>

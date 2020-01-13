@@ -20,7 +20,7 @@ class OapHostMatrixUtilsTests : public testing::Test {
   static const std::string testfilepath;
 
   static math::Matrix* createMatrix(uintt columns, uintt rows, GetValue getValue) {
-    math::Matrix* m1 = oap::host::NewMatrix(true, true, columns, rows, 0);
+    math::Matrix* m1 = oap::host::NewMatrixWithValue (true, true, columns, rows, 0);
 
     for (int idx1 = 0; idx1 < columns; ++idx1) {
       for (int idx2 = 0; idx2 < rows; ++idx2) {
@@ -39,8 +39,8 @@ const std::string OapHostMatrixUtilsTests::testfilepath = "/tmp/Oap/host_tests/t
 TEST_F(OapHostMatrixUtilsTests, Copy) {
   const uintt columns = 11;
   const uintt rows = 15;
-  math::Matrix* m1 = oap::host::NewReMatrix(columns, rows, 1);
-  math::Matrix* m2 = oap::host::NewReMatrix(columns, rows, 0);
+  math::Matrix* m1 = oap::host::NewReMatrixWithValue (columns, rows, 1);
+  math::Matrix* m2 = oap::host::NewReMatrixWithValue (columns, rows, 0);
 
   oap::host::CopyMatrix(m2, m1);
 
@@ -55,11 +55,11 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_1)
   const uintt columns = 11;
   const uintt rows = 15;
 
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrix(15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
+  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   uintt dims[2][2][2];
-  oap::generic::initDims (dims, m2);
+  oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
 
   oap::host::CopyHostMatrixToHostMatrixDims (m2, m1, dims);
 
@@ -71,11 +71,11 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_2)
   const uintt columns = 11;
   const uintt rows = 15;
 
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrix(15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
+  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   uintt dims[2][2][2];
-  oap::generic::initDims (dims, m2);
+  oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
 
   oap::generic::setRows (1, dims[oap::generic::g_dstIdx]);
   oap::generic::setColumns (1, dims[oap::generic::g_dstIdx]);
@@ -90,9 +90,9 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_2)
 
 TEST_F(OapHostMatrixUtilsTests, SubCopyTest_3)
 {
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrix(15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
-  oap::HostMatrixPtr expected = oap::host::NewReMatrix(5, 6, 0);
+  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostMatrixPtr expected = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   std::vector<floatt> expectedValues =
   {
@@ -106,7 +106,7 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_3)
   oap::host::SetReValuesToMatrix(expected, expectedValues);
 
   uintt dims[2][2][2];
-  oap::generic::initDims (dims, m2);
+  oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
 
   oap::generic::setColumns (3, dims[oap::generic::g_dstIdx]);
   oap::generic::setRows (4, dims[oap::generic::g_dstIdx]);
@@ -124,9 +124,9 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_3)
 
 TEST_F(OapHostMatrixUtilsTests, SubCopyTest_4)
 {
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrix(15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
-  oap::HostMatrixPtr expected = oap::host::NewReMatrix(5, 6, 0);
+  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostMatrixPtr expected = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   std::vector<floatt> expectedValues =
   {
@@ -140,7 +140,7 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_4)
   oap::host::SetReValuesToMatrix(expected, expectedValues);
 
   uintt dims[2][2][2];
-  oap::generic::initDims (dims, m2);
+  oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
 
   oap::generic::setColumns (2, dims[oap::generic::g_dstIdx]);
   oap::generic::setRows (3, dims[oap::generic::g_dstIdx]);

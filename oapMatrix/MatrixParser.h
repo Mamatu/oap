@@ -86,7 +86,29 @@ class Parser
 };
 
   bool HasArray (const std::string& text, unsigned int which);
-  std::pair<floatt*, size_t> CreateArray (const std::string& text, unsigned int which);
+
+  template<typename AllocMem>
+  std::pair<floatt*, size_t> CreateArray (const std::string& text, unsigned int which, AllocMem&& alloc)
+  {
+    Parser parser (text);
+    parser.parseArray(which);
+  
+    size_t length = parser.getLength();
+  
+    floatt* array = alloc (length);
+    memcpy(array, parser.getData(), length * sizeof(floatt));
+  
+    return std::make_pair/*<floatt*, size_t>*/(array, length);
+  }
+
+  inline std::pair<floatt*, size_t> CreateArrayDefaultAlloc (const std::string& text, unsigned int which)
+  {
+    auto memAlloc = [](size_t length)
+    {
+      return new floatt[length];
+    }; 
+    return CreateArray (text, which, memAlloc);
+  }
 }
 
 #endif

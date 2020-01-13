@@ -27,16 +27,62 @@
 
 #include "KernelExecutor.h"
 #include "MatrixUtils.h"
+#include "oapMemory.h"
 
 namespace CudaUtils {
 
-void AllocDeviceMem(CUdeviceptr* devPtr, size_t size) {
-  printCuError(cuMemAlloc(devPtr, size));
+namespace
+{
+
+CUdeviceptr allocDeviceMem (size_t size)
+{
+  CUdeviceptr devPtr;
+  printCuError (cuMemAlloc(&devPtr, size));
+  return devPtr;
 }
 
-void FreeDeviceMem(CUdeviceptr ptr) {
-  if (ptr != 0) {
-    printCuError(cuMemFree(ptr));
+void freeDeviceMem (CUdeviceptr ptr)
+{
+  if (ptr != 0)
+  {
+    printCuError (cuMemFree(ptr));
+  }
+}
+
+oap::MemoryManagement<CUdeviceptr, decltype(allocDeviceMem), decltype(freeDeviceMem), 0> gMemoryMng (allocDeviceMem, freeDeviceMem);
+}
+
+void AllocDeviceMem (CUdeviceptr* devPtr, size_t size)
+{
+  CUdeviceptr ptr = gMemoryMng.allocate (size);
+  *devPtr = ptr;
+}
+
+void FreeDeviceMem (CUdeviceptr ptr)
+{
+  gMemoryMng.deallocate (ptr);
+}
+
+void* AllocDeviceMem (uintt size)
+{
+  CUdeviceptr devicePtr;
+  AllocDeviceMem (&devicePtr, size);
+  return reinterpret_cast<void*>(devicePtr);
+}
+
+void* AllocDeviceMem (uintt size, const void* src)
+{
+  void* devPtr = AllocDeviceMem(size);
+  CopyHostToDevice (devPtr, src, size);
+  return devPtr;
+}
+
+void FreeDeviceMem(void* devicePtr)
+{
+  if (devicePtr)
+  {
+    CUdeviceptr cuDPtr = reinterpret_cast<CUdeviceptr>(devicePtr);
+    FreeDeviceMem (cuDPtr);
   }
 }
 
@@ -49,147 +95,162 @@ floatt* GetValue (floatt* const* src)
   return dst;
 }
 
-CUdeviceptr GetReValuesAddress(const math::Matrix* matrix) {
+CUdeviceptr GetReValuesAddress(const math::Matrix* matrix)
+{
   return reinterpret_cast<CUdeviceptr>(&matrix->reValues);
 }
 
-CUdeviceptr GetImValuesAddress(const math::Matrix* matrix) {
+CUdeviceptr GetImValuesAddress(const math::Matrix* matrix)
+{
   return reinterpret_cast<CUdeviceptr>(&matrix->imValues);
 }
 
-CUdeviceptr GetColumnsAddress(const math::Matrix* matrix) {
+CUdeviceptr GetColumnsAddress(const math::Matrix* matrix)
+{
   return reinterpret_cast<CUdeviceptr>(&matrix->columns);
 }
 
-CUdeviceptr GetRowsAddress(const math::Matrix* matrix) {
+CUdeviceptr GetRowsAddress(const math::Matrix* matrix)
+{
   return reinterpret_cast<CUdeviceptr>(&matrix->rows);
 }
 
-floatt* GetReValues(const math::Matrix* matrix) {
+floatt* GetReValues(const math::Matrix* matrix)
+{
   floatt* reValues = NULL;
   cuMemcpyDtoH(&reValues, GetReValuesAddress(matrix), sizeof(floatt*));
   return reValues;
 }
 
-floatt* GetImValues(const math::Matrix* matrix) {
+floatt* GetImValues(const math::Matrix* matrix)
+{
   floatt* imValues = NULL;
   cuMemcpyDtoH(&imValues, GetImValuesAddress(matrix), sizeof(floatt*));
   return imValues;
 }
 
-uintt GetColumns(const math::Matrix* matrix) {
+uintt GetColumns(const math::Matrix* matrix)
+{
   uintt columns = 0;
   cuMemcpyDtoH(&columns, GetColumnsAddress(matrix), sizeof(uintt));
   return columns;
 }
 
-uintt GetRows(const math::Matrix* matrix) {
+uintt GetRows(const math::Matrix* matrix)
+{
   uintt rows = 0;
   cuMemcpyDtoH(&rows, GetRowsAddress(matrix), sizeof(uintt));
   return rows;
 }
 
-CUdeviceptr GetReValuesAddress(CUdeviceptr matrixptr) {
+CUdeviceptr GetReValuesAddress(CUdeviceptr matrixptr)
+{
   math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
   return reinterpret_cast<CUdeviceptr>(&matrix->reValues);
 }
 
-CUdeviceptr GetImValuesAddress(CUdeviceptr matrixptr) {
+CUdeviceptr GetImValuesAddress(CUdeviceptr matrixptr)
+{
   math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
   return reinterpret_cast<CUdeviceptr>(&matrix->imValues);
 }
 
-CUdeviceptr GetColumnsAddress(CUdeviceptr matrixptr) {
+CUdeviceptr GetColumnsAddress(CUdeviceptr matrixptr)
+{
   math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
   return reinterpret_cast<CUdeviceptr>(&matrix->columns);
 }
 
-CUdeviceptr GetRealColumnsAddress(CUdeviceptr matrixptr) {
+CUdeviceptr GetRealColumnsAddress(CUdeviceptr matrixptr)
+{
   math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
   return reinterpret_cast<CUdeviceptr>(&matrix->realColumns);
 }
 
-CUdeviceptr GetRowsAddress(CUdeviceptr matrixptr) {
+CUdeviceptr GetRowsAddress(CUdeviceptr matrixptr)
+{
   math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
   return reinterpret_cast<CUdeviceptr>(&matrix->rows);
 }
 
-CUdeviceptr GetRealRowsAddress(CUdeviceptr matrixptr) {
+CUdeviceptr GetRealRowsAddress(CUdeviceptr matrixptr)
+{
   math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
   return reinterpret_cast<CUdeviceptr>(&matrix->realRows);
 }
 
-CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx) {
+CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx)
+{
   return reinterpret_cast<CUdeviceptr>(&matrixEx->column);
 }
 
-CUdeviceptr GetColumnsAddress(const MatrixEx* matrixEx) {
+CUdeviceptr GetColumnsAddress(const MatrixEx* matrixEx)
+{
   return reinterpret_cast<CUdeviceptr>(&matrixEx->columns);
 }
 
-CUdeviceptr GetBRowAddress(const MatrixEx* matrixEx) {
+CUdeviceptr GetBRowAddress(const MatrixEx* matrixEx)
+{
   return reinterpret_cast<CUdeviceptr>(&matrixEx->row);
 }
 
-CUdeviceptr GetRowsAddress(const MatrixEx* matrixEx) {
+CUdeviceptr GetRowsAddress(const MatrixEx* matrixEx)
+{
   return reinterpret_cast<CUdeviceptr>(&matrixEx->rows);
 }
 
-floatt* GetReValues(CUdeviceptr matrix) {
+floatt* GetReValues(CUdeviceptr matrix)
+{
   floatt* reValues = NULL;
   cuMemcpyDtoH(&reValues, GetReValuesAddress(matrix), sizeof(floatt*));
   return reValues;
 }
 
-floatt* GetImValues(CUdeviceptr matrix) {
+floatt* GetImValues(CUdeviceptr matrix)
+{
   floatt* imValues = NULL;
   cuMemcpyDtoH(&imValues, GetImValuesAddress(matrix), sizeof(floatt*));
   return imValues;
 }
 
-uintt GetColumns(CUdeviceptr matrix) {
+uintt GetColumns(CUdeviceptr matrix)
+{
   uintt columns = 0;
   cuMemcpyDtoH(&columns, GetColumnsAddress(matrix), sizeof(uintt));
   return columns;
 }
 
-uintt GetRows(CUdeviceptr matrix) {
+uintt GetRows(CUdeviceptr matrix)
+{
   uintt rows = 0;
   cuMemcpyDtoH(&rows, GetRowsAddress(matrix), sizeof(uintt));
   return rows;
 }
 
-uintt GetColumns(const MatrixEx* matrixEx) {
+uintt GetColumns(const MatrixEx* matrixEx)
+{
   uintt columns = 0;
   cuMemcpyDtoH(&columns, GetColumnsAddress(matrixEx), sizeof(uintt));
   return columns;
 }
 
-uintt GetRows(const MatrixEx* matrixEx) {
+uintt GetRows(const MatrixEx* matrixEx)
+{
   uintt rows = 0;
   cuMemcpyDtoH(&rows, GetRowsAddress(matrixEx), sizeof(uintt));
   return rows;
 }
 
-CUdeviceptr AllocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows, floatt revalue, floatt imvalue, CuDevicePtrs* cuDevicePtrs)
+CUdeviceptr AllocMatrix_AllocMemory (bool allocRe, bool allocIm, uintt columns, uintt rows, floatt revalue, floatt imvalue, CuDevicePtrs* cuDevicePtrs)
 {
   CUdeviceptr matrix = 0;
-  AllocDeviceMem(&matrix, sizeof(math::Matrix));
+  AllocDeviceMem (&matrix, sizeof(math::Matrix));
 
   CUdeviceptr matrixRe = 0;
   CUdeviceptr matrixIm = 0;
 
-  if (allocRe) {
-    matrixRe = AllocReMatrix(matrix, columns, rows, revalue);
-  } else {
-    matrixRe = SetReMatrixToNull(matrix);
-  }
-
-  if (allocIm) {
-    matrixIm = AllocImMatrix(matrix, columns, rows, imvalue);
-  } else {
-    matrixIm = SetImMatrixToNull(matrix);
-  }
+  matrixRe = allocRe ? AllocReMatrix (matrix, columns, rows, revalue) : SetReMatrixToNull (matrix);
+  matrixIm = allocIm ? AllocImMatrix(matrix, columns, rows, imvalue) : SetImMatrixToNull(matrix);
 
   if (cuDevicePtrs)
   {
@@ -202,12 +263,31 @@ CUdeviceptr AllocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows, 
   return matrix;
 }
 
+CUdeviceptr AllocMatrix_ReuseMemory (uintt columns, uintt rows, floatt* revalues, floatt* imvalues, CuDevicePtrs* cuDevicePtrs)
+{
+  CUdeviceptr matrix = 0;
+  AllocDeviceMem(&matrix, sizeof(math::Matrix));
+
+  CUdeviceptr matrixRe = reinterpret_cast<CUdeviceptr>(revalues);
+  CUdeviceptr matrixIm = reinterpret_cast<CUdeviceptr>(imvalues);
+
+  if (cuDevicePtrs)
+  {
+    cuDevicePtrs->matrixPtr = matrix;
+    cuDevicePtrs->reValuesPtr = gMemoryMng.reuse (matrixRe);
+    cuDevicePtrs->imValuesPtr = gMemoryMng.reuse (matrixIm);
+  }
+
+  SetVariables(matrix, columns, rows);
+  return matrix;
+}
+
 void CopyHtoD(CUdeviceptr devPtr, void* hostPtr, size_t size) {
   printCuError(cuMemcpyHtoD(devPtr, hostPtr, size));
 }
 
-CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
-                          uintt rows, floatt value) {
+CUdeviceptr AllocReMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value)
+{
   CUdeviceptr devicePtrReValues = 0;
   AllocDeviceMem(&devicePtrReValues, columns * rows * sizeof(floatt));
   CopyHtoD(GetReValuesAddress(devicePtrMatrix), &devicePtrReValues,
@@ -217,8 +297,8 @@ CUdeviceptr AllocReMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
   return devicePtrReValues;
 }
 
-CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
-                          uintt rows, floatt value) {
+CUdeviceptr AllocImMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value)
+{
   CUdeviceptr devicePtrImValues = 0;
   AllocDeviceMem(&devicePtrImValues, columns * rows * sizeof(floatt));
   CopyHtoD(GetImValuesAddress(devicePtrMatrix), &devicePtrImValues,
@@ -228,21 +308,24 @@ CUdeviceptr AllocImMatrix(CUdeviceptr devicePtrMatrix, uintt columns,
   return devicePtrImValues;
 }
 
-CUdeviceptr SetReMatrixToNull(CUdeviceptr devicePtrMatrix) {
+CUdeviceptr SetReMatrixToNull(CUdeviceptr devicePtrMatrix)
+{
   CUdeviceptr buffer = 0;
   printCuError(cuMemcpyHtoD(GetReValuesAddress(devicePtrMatrix), &buffer,
                             sizeof(CUdeviceptr)));
   return 0;
 }
 
-CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix) {
+CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix)
+{
   CUdeviceptr buffer = 0;
   printCuError(cuMemcpyHtoD(GetImValuesAddress(devicePtrMatrix), &buffer,
                             sizeof(CUdeviceptr)));
   return 0;
 }
 
-void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows) {
+void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows)
+{
   printCuError(cuMemcpyHtoD(GetColumnsAddress(devicePtrMatrix), &columns,
                             sizeof(uintt)));
   printCuError(cuMemcpyHtoD(GetRealColumnsAddress(devicePtrMatrix), &columns,
@@ -251,25 +334,6 @@ void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows) {
       cuMemcpyHtoD(GetRowsAddress(devicePtrMatrix), &rows, sizeof(uintt)));
   printCuError(
       cuMemcpyHtoD(GetRealRowsAddress(devicePtrMatrix), &rows, sizeof(uintt)));
-}
-
-void* AllocDeviceMem(uintt size) {
-  CUdeviceptr devicePtr;
-  AllocDeviceMem(&devicePtr, size);
-  return reinterpret_cast<void*>(devicePtr);
-}
-
-void* AllocDeviceMem(uintt size, const void* src) {
-  void* devPtr = AllocDeviceMem(size);
-  CopyHostToDevice(devPtr, src, size);
-  return devPtr;
-}
-
-void FreeDeviceMem(void* devicePtr) {
-  if (devicePtr) {
-    CUdeviceptr deviecPtr = reinterpret_cast<CUdeviceptr>(devicePtr);
-    FreeDeviceMem(deviecPtr);
-  }
 }
 
 math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
