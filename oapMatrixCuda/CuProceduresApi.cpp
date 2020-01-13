@@ -191,8 +191,8 @@ void CuProceduresApi::hadamardProductVec (math::Matrix* output, math::Matrix* pa
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
-void CuProceduresApi::calculateQTHQ(math::Matrix* output, math::Matrix* H,
-                             math::Matrix* Q, math::Matrix* aux) {
+void CuProceduresApi::calculateQTHQ (math::Matrix* output, math::Matrix* H, math::Matrix* Q, math::Matrix* aux)
+{
   transpose(output, Q);
   dotProduct(aux, H, output);
   dotProduct(output, Q, aux);

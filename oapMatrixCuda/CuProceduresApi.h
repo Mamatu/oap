@@ -68,6 +68,8 @@ class CuProceduresApi
   }
 
   inline void hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+  inline void elementWiseProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+  inline void schurProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   /**
    *  @brief Calculates hadamard product of matrix and vector of the second matrix.
@@ -525,6 +527,16 @@ inline void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix*
   const uintt output_rows = CudaUtils::GetRows(output);
 
   hadamardProduct (output, params0, params1, output_columns, output_rows);
+}
+
+inline void CuProceduresApi::elementWiseProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  hadamardProduct (output, params0, params1);
+}
+
+inline void CuProceduresApi::schurProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  hadamardProduct (output, params0, params1);
 }
 
 inline void CuProceduresApi::hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
