@@ -68,4 +68,9 @@ class MatrixInfo
 
 }
 
+namespace std
+{
+  std::string to_string (const math::MatrixInfo& minfo);
+}
+
 #endif  // MATRIXINFO_H
