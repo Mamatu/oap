@@ -24,40 +24,14 @@
 
 #include "Matrix.h"
 #include "MatrixInfo.h"
+#include "oapAllocationList.h"
 
-#include "Logger.h"
-
-class MatricesList
+class MatricesList : public oap::AllocationList<math::Matrix, math::MatrixInfo>
 {
   public:
-    using MatrixInfos = std::map<const math::Matrix*, math::MatrixInfo>;
-
     MatricesList (const std::string& id);
-
-    MatricesList (const MatricesList&) = delete;
-    MatricesList (MatricesList&&) = delete;
-    MatricesList& operator= (const MatricesList&) = delete;
-    MatricesList& operator= (MatricesList&&) = delete;
-
     virtual ~MatricesList ();
 
-    const MatrixInfos& getAllocated() const;
-
-    void add (math::Matrix* matrix, const math::MatrixInfo& minfo);
-
-    math::MatrixInfo getMatrixInfo (const math::Matrix* matrix) const;
-
-		bool contains (const math::Matrix* matrix) const;
-
-    math::MatrixInfo remove (const math::Matrix* matrix);
-
-  private:
-    std::string m_id;
-
-    MatrixInfos m_matrixInfos;
-    MatrixInfos m_deletedMatrixInfos;
-
-    void checkOnDelete();
 };
 
 #endif
