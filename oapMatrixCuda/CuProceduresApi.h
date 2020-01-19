@@ -37,6 +37,8 @@
 
 #include "GenericCoreApi.h"
 
+#include "oapMemoryPrimitives.h"
+
 #define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
 namespace oap
@@ -86,6 +88,7 @@ class CuProceduresApi
   inline void hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   void dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+//  void dotProduct (oap::MemoryRegionPtrs* output, math::Matrix* params0, math::Matrix* params1);
 
   void dotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 

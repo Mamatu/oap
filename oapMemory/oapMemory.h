@@ -26,77 +26,77 @@
 
 namespace oap
 {
-  template <typename T, typename NewFunc, typename DeleteFunc, T nullvar>
-  class MemoryManagement final
-  {
-    public:
-      MemoryManagement (const NewFunc& newFunc, const DeleteFunc& deleteFunc) : m_newFunc (newFunc), m_deleteFunc (deleteFunc)
-      {}
+template <typename T, typename NewFunc, typename DeleteFunc, T nullvar>
+class MemoryManagement final
+{
+  public:
+    MemoryManagement (const NewFunc& newFunc, const DeleteFunc& deleteFunc) : m_newFunc (newFunc), m_deleteFunc (deleteFunc)
+    {}
 
-      MemoryManagement (NewFunc&& newFunc, DeleteFunc&& deleteFunc) : m_newFunc (std::forward<NewFunc> (newFunc)), m_deleteFunc (std::forward<DeleteFunc> (deleteFunc))
-      {}
+    MemoryManagement (NewFunc&& newFunc, DeleteFunc&& deleteFunc) : m_newFunc (std::forward<NewFunc> (newFunc)), m_deleteFunc (std::forward<DeleteFunc> (deleteFunc))
+    {}
 
-      ~MemoryManagement ()
+    ~MemoryManagement ()
+    {
+      for (auto& kv : m_counts)
       {
-        for (auto& kv : m_counts)
-        {
-          m_deleteFunc (kv.first);
-        }
-
-        m_counts.clear ();
+        m_deleteFunc (kv.first);
       }
 
-      T allocate (size_t length)
+      m_counts.clear ();
+    }
+
+    T allocate (size_t length)
+    {
+      T memory = m_newFunc (length);
+      m_counts [memory] = 1;
+      return memory;
+    }
+
+    bool deallocate (T memory)
+    {
+      if (memory == nullvar)
       {
-        T memory = m_newFunc (length);
-        m_counts [memory] = 1;
-        return memory;
-      }
-
-      bool deallocate (T memory)
-      {
-        if (memory == nullvar)
-        {
-          return false;
-        }
-
-        auto it = m_counts.find (memory);
-
-        debugAssertMsg (it != m_counts.end(), "Memory %p was not allocated in this class", memory);
-
-        it->second--;
-
-        if (it->second == 0)
-        {
-          m_deleteFunc (memory);
-          m_counts.erase (it);
-          return true;
-        }
-
         return false;
       }
 
-      T reuse (T memory)
+      auto it = m_counts.find (memory);
+
+      debugAssertMsg (it != m_counts.end(), "Memory %p was not allocated in this class", memory);
+
+      it->second--;
+
+      if (it->second == 0)
       {
-        if (memory == nullvar)
-        {
-          return memory;
-        }
+        m_deleteFunc (memory);
+        m_counts.erase (it);
+        return true;
+      }
 
-        auto it = m_counts.find (memory);
+      return false;
+    }
 
-        debugAssertMsg (it != m_counts.end(), "Memory %p was not allocated in this class", memory);
-
-        it->second++;
-      
+    T reuse (T memory)
+    {
+      if (memory == nullvar)
+      {
         return memory;
       }
 
-    private:
-      std::unordered_map<T, size_t> m_counts;
-      funcstore<NewFunc> m_newFunc;
-      funcstore<DeleteFunc> m_deleteFunc;
-  };
+      auto it = m_counts.find (memory);
+
+      debugAssertMsg (it != m_counts.end(), "Memory %p was not allocated in this class", memory);
+
+      it->second++;
+    
+      return memory;
+    }
+
+  private:
+    std::unordered_map<T, size_t> m_counts;
+    funcstore<NewFunc> m_newFunc;
+    funcstore<DeleteFunc> m_deleteFunc;
+};
 }
 
 #endif

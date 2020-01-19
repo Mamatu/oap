@@ -149,3 +149,11 @@ uintt MatrixInfo::rows() const
 }
 
 }
+
+namespace std
+{
+  std::string to_string (const math::MatrixInfo& minfo)
+  {
+    return minfo.toString ();
+  }
+}
