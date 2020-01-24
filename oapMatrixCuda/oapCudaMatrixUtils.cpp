@@ -188,13 +188,13 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix)
 uintt GetColumns(const math::Matrix* dMatrix)
 {
   debugAssert (dMatrix != nullptr);
-  return gMatricesList.getInfo (dMatrix).columns ();
+  return gMatricesList.getUserData (dMatrix).columns ();
 }
 
 uintt GetRows(const math::Matrix* dMatrix)
 {
   debugAssert (dMatrix != nullptr);
-  return gMatricesList.getInfo (dMatrix).rows ();
+  return gMatricesList.getUserData (dMatrix).rows ();
 }
 
 ValuesPtr GetValuesPtr (const math::Matrix* dMatrix)
@@ -231,7 +231,7 @@ floatt* GetImValuesPtr (const math::Matrix* dMatrix)
 math::MatrixInfo GetMatrixInfo(const math::Matrix* dMatrix)
 {
   debugAssert (dMatrix != nullptr);
-  return gMatricesList.getInfo (dMatrix);
+  return gMatricesList.getUserData (dMatrix);
 }
 
 bool IsCudaMatrix(const math::Matrix* devMatrix)

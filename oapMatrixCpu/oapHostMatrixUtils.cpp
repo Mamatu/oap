@@ -959,7 +959,7 @@ math::MatrixInfo CreateMatrixInfo(const math::Matrix* matrix)
 
 math::MatrixInfo GetMatrixInfo (const math::Matrix* matrix)
 {
-  return gMatricesList.getInfo (matrix);
+  return gMatricesList.getUserData (matrix);
 }
 
 void SetSubs(math::Matrix* matrix, uintt subcolumns, uintt subrows)

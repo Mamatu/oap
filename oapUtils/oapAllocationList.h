@@ -46,7 +46,7 @@ class AllocationList
 
     UserData remove (const Object* object);
 
-    UserData getInfo (const Object* object) const;
+    UserData getUserData (const Object* object) const;
 
 		bool contains (const Object* object) const;
 
