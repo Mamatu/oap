@@ -23,7 +23,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "oapMemory.h"
+#include "oapMemoryManager.h"
 
 class OapMemoryManagementTests : public testing::Test {
 public:
