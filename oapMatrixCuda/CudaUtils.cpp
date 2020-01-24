@@ -77,7 +77,7 @@ void* AllocDeviceMem (uintt size, const void* src)
   return devPtr;
 }
 
-void FreeDeviceMem(void* devicePtr)
+void FreeDeviceMem (const void* devicePtr)
 {
   if (devicePtr)
   {

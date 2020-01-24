@@ -26,6 +26,7 @@
 #include "Logger.h"
 
 #include "oapMemoryPrimitives.h"
+#include "oapCommonMemoryApi.h"
 
 namespace oap
 {
@@ -36,11 +37,11 @@ namespace utils
     logAssert (dims.height >= region.loc.y + region.dims.height && dims.width >= region.loc.x + region.dims.width);
   }
 
-  template<typename Ptr>
-  void getPtrs (Ptr* ptrs, Ptr mem, const oap::MemoryDims& dims, const oap::MemoryRegion& region)
+  template<typename Ptr1, typename Ptr2>
+  void getPtrs (Ptr1* ptrs, Ptr2 mem, const oap::MemoryDims& dims, const oap::MemoryRegion& region)
   {
     check (dims, region);
-    Ptr ptr = mem + region.loc.y * dims.width + region.loc.x;
+    Ptr2 ptr = mem + region.loc.y * dims.width + region.loc.x;
     for (uintt idx = 0; idx < region.dims.height; ++idx)
     {
       ptrs[idx] = ptr;
@@ -55,12 +56,12 @@ namespace utils
     {
       container.resize (region.dims.height);
     }
-    getPtrs <Ptr> (container.data(), mem, dims, region);
+    getPtrs <typename Container::value_type, Ptr> (container.data(), mem, dims, region);
   }
 
-  inline void getPtrs (floatt** ptrs, const oap::Memory* memory, const oap::MemoryRegion& region)
+  inline void getPtrs (floatt** ptrs, floatt* ptr, const oap::MemoryDims& memDims, const oap::MemoryRegion& region)
   {
-    getPtrs<floatt*> (ptrs, memory->ptr, memory->dims, region);
+    getPtrs<floatt*> (ptrs, ptr, memDims, region);
   }
 
   template<typename Container>
@@ -68,72 +69,105 @@ namespace utils
   {
     getPtrs (container, memory->ptr, memory->dims, region);
   }
-
-  inline void convertToRegion (oap::MemoryRegion& reg, const oap::Memory* memory, const oap::MemoryLoc& loc = {0, 0})
-  {
-    reg.loc = loc;
-    reg.dims.width = memory->dims.width - loc.x;
-    reg.dims.height = memory->dims.height - loc.y;
-  }
-
-  inline oap::MemoryRegion convertToRegion (const oap::Memory* memory, const oap::MemoryLoc& loc = {0, 0})
-  {
-    oap::MemoryRegion reg;
-    convertToRegion (reg, memory, loc);
-    return reg;
-  }
-
-  inline uintt GetIdx (oap::Memory* memory, const oap::MemoryRegion& reg, uintt x, uintt y)
-  {
-    uintt idx = (x + reg.loc.x) + memory->dims.width * (y + reg.loc.y);
-    return idx;
-  }
-
-  inline floatt* GetPtr (oap::Memory* memory, const oap::MemoryRegion& reg, uintt x, uintt y)
-  {
-    return memory->ptr + (GetIdx (memory, reg, x, y));
-  }
-
-  inline floatt GetValue (oap::Memory* memory, const oap::MemoryRegion& reg, uintt x, uintt y)
-  {
-    return memory->ptr[GetIdx (memory, reg, x, y)];
-  }
-
-  inline uintt GetIdx (oap::Memory* memory, uintt x, uintt y)
-  {
-    return GetIdx (memory, convertToRegion (memory), x, y);
-  }
-
-  inline floatt* GetPtr (oap::Memory* memory, uintt x, uintt y)
-  {
-    return memory->ptr + (GetIdx (memory, x, y));
-  }
-
-  inline floatt GetValue (oap::Memory* memory, uintt x, uintt y)
-  {
-    return *GetPtr (memory, x, y);
-  }
-
 }
 namespace generic
 {
+  template<typename Allocator>
+  oap::Memory* newMemory (const MemoryDims& dims, Allocator&& allocator)
+  {
+    logAssert (dims.width > 0 && dims.height > 0);
+    return allocator (dims);
+  }
+
+  template<typename Allocator>
+  oap::Memory* newMemoryWithValues (const MemoryDims& dims, floatt value, Allocator&& allocator)
+  {
+    logAssert (dims.width > 0 && dims.height > 0);
+    return allocator (dims, value);
+  }
+
+  template<typename Allocator>
+  oap::Memory* newMemoryCopy (const oap::Memory* src, Allocator&& allocator)
+  {
+    return allocator (src);
+  }
+
+  template<typename Allocator>
+  oap::Memory* newMemoryCopyMem (const oap::Memory* src, uintt width, uintt height, Allocator&& allocator)
+  {
+    return allocator (src, width, height);
+  }
+
+  template<typename Allocator>
+  oap::Memory* reuseMemory (const oap::Memory* src, uintt width, uintt height, Allocator&& allocator)
+  {
+    return allocator (src, width, height);
+  }
+
+  template<typename Deallocator>
+  void deleteMemory (const oap::Memory* mem, Deallocator&& deallocator)
+  {
+    return deallocator (mem);
+  }
+
+  template<typename GetD>
+  oap::MemoryDims getDims (const oap::Memory* mem, GetD&& getD)
+  {
+    return getD (mem);
+  }
+
+  template<typename GetRM>
+  floatt* getRawMemory (const oap::Memory* mem, GetRM&& getRM)
+  {
+    return getRM (mem);
+  }
+
   template<typename Memcpy>
-  void copyMemoryRegion (oap::Memory* dst, const oap::MemoryLoc& dstLoc, const oap::Memory* src, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  void copy (oap::Memory* dst, const oap::MemoryLoc& dstLoc, const oap::Memory* src, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
   {
     logAssert (dst->dims.width >= srcReg.dims.width);
     logAssert (dst->dims.height >= srcReg.dims.height);
   
     std::vector<floatt*> dstPtrs;
-    std::vector<floatt*> srcPtrs;
+    std::vector<const floatt*> srcPtrs;
 
-    auto dstReg = utils::convertToRegion (dst, dstLoc);
+    auto dstReg = utils::convertToRegion (dst->dims, dstLoc);
 
     utils::getPtrs (dstPtrs, dst, dstReg);
     utils::getPtrs (srcPtrs, src, srcReg);
 
     for (size_t idx = 0; idx < srcPtrs.size (); ++idx)
     {
-      floatt* srcPtr = srcPtrs[idx];
+      const floatt* srcPtr = srcPtrs[idx];
+      floatt* dstPtr = dstPtrs[idx];
+      memcpy (dstPtr, srcPtr, srcReg.dims.width * sizeof (floatt));
+    }
+  }
+
+  template<typename Memcpy>
+  void copy (oap::Memory* dst, const oap::Memory* src, Memcpy&& memcpy)
+  {
+    const auto& srcReg = utils::convertToRegion (src->dims);
+    copy<Memcpy> (dst, {0, 0}, src, srcReg, memcpy);
+  }
+
+  template<typename Memcpy>
+  void copy (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  {
+    logAssert (dstDims.width >= srcReg.dims.width);
+    logAssert (dstDims.height >= srcReg.dims.height);
+
+    std::vector<floatt*> dstPtrs;
+    std::vector<const floatt*> srcPtrs;
+
+    auto dstReg = utils::convertToRegion (dstDims, dstLoc);
+
+    utils::getPtrs (dstPtrs, dst, dstDims, dstReg);
+    utils::getPtrs (srcPtrs, src, srcDims, srcReg);
+
+    for (size_t idx = 0; idx < srcPtrs.size (); ++idx)
+    {
+      const floatt* srcPtr = srcPtrs[idx];
       floatt* dstPtr = dstPtrs[idx];
       memcpy (dstPtr, srcPtr, srcReg.dims.width * sizeof (floatt));
     }

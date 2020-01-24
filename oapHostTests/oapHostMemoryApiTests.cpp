@@ -24,7 +24,6 @@
 
 #include "oapHostMemoryApi.h"
 
-
 class OapHostMemoryApiTests : public testing::Test {
 public:
 
@@ -40,9 +39,9 @@ TEST_F(OapHostMemoryApiTests, Test_1)
   oap::Memory* memory1 = oap::host::NewMemoryWithValues ({1, 1}, 2.12f);
   oap::Memory* memory2 = oap::host::NewMemoryWithValues ({1, 1}, 1.34f);
 
-  oap::host::CopyMemoryRegion (memory1, {0, 0}, memory2, {{0, 0}, {1, 1}});
+  oap::host::Copy (memory1, {0, 0}, memory2, {{0, 0}, {1, 1}});
 
-  EXPECT_EQ (1.34f, oap::host::GetValue (memory1, {{0, 0}, {1, 1}}, 0, 0));
+  EXPECT_EQ (1.34f, oap::utils::GetValue (memory1, {{0, 0}, {1, 1}}, 0, 0));
 
   oap::host::DeleteMemory (memory1);
   oap::host::DeleteMemory (memory2);
@@ -53,10 +52,10 @@ TEST_F(OapHostMemoryApiTests, Test_2)
   oap::Memory* memory1 = oap::host::NewMemoryWithValues ({1, 2}, 2.12f);
   oap::Memory* memory2 = oap::host::NewMemoryWithValues ({1, 1}, 1.34f);
 
-  oap::host::CopyMemoryRegion (memory1, {0, 0}, memory2, {{0, 0}, {1, 1}});
+  oap::host::Copy (memory1, {0, 0}, memory2, {{0, 0}, {1, 1}});
 
-  EXPECT_EQ (1.34f, oap::host::GetValue (memory1, 0, 0));
-  EXPECT_EQ (2.12f, oap::host::GetValue (memory1, 0, 1));
+  EXPECT_EQ (1.34f, oap::utils::GetValue (memory1, OAP_NONE_REGION, 0, 0));
+  EXPECT_EQ (2.12f, oap::utils::GetValue (memory1, OAP_NONE_REGION, 0, 1));
 
   oap::host::DeleteMemory (memory1);
   oap::host::DeleteMemory (memory2);
@@ -67,13 +66,13 @@ TEST_F(OapHostMemoryApiTests, Test_3)
   oap::Memory* memory1 = oap::host::NewMemoryWithValues ({10, 10}, 2.12f);
   oap::Memory* memory2 = oap::host::NewMemoryWithValues ({9, 9}, 1.34f);
 
-  oap::host::CopyMemoryRegion (memory1, {1, 1}, memory2, {{1, 1}, {3, 3}});
+  oap::host::Copy (memory1, {1, 1}, memory2, {{1, 1}, {3, 3}});
 
   for (uintt x = 0; x < 3; ++x)
   {
     for (uintt y = 0; y < 3; ++y)
     {
-      EXPECT_EQ (1.34f, oap::host::GetValue (memory1, {{1, 1}, {3, 3}}, x, y));
+      EXPECT_EQ (1.34f, oap::utils::GetValue (memory1, {{1, 1}, {3, 3}}, x, y));
     }
   }
   oap::host::DeleteMemory (memory1);
@@ -85,11 +84,11 @@ TEST_F(OapHostMemoryApiTests, Test_4)
   oap::Memory* memory1 = oap::host::NewMemoryWithValues ({1, 3}, 2.12f);
   oap::Memory* memory2 = oap::host::NewMemoryWithValues ({1, 2}, 1.34f);
 
-  oap::host::CopyMemoryRegion (memory1, {0, 1}, memory2, {{0, 0}, {1, 2}});
+  oap::host::Copy (memory1, {0, 1}, memory2, {{0, 0}, {1, 2}});
 
-  EXPECT_EQ (2.12f, oap::host::GetValue (memory1, 0, 0));
-  EXPECT_EQ (1.34f, oap::host::GetValue (memory1, 0, 1));
-  EXPECT_EQ (1.34f, oap::host::GetValue (memory1, 0, 2));
+  EXPECT_EQ (2.12f, oap::utils::GetValue (memory1, OAP_NONE_REGION, 0, 0));
+  EXPECT_EQ (1.34f, oap::utils::GetValue (memory1, OAP_NONE_REGION, 0, 1));
+  EXPECT_EQ (1.34f, oap::utils::GetValue (memory1, OAP_NONE_REGION, 0, 2));
 
   oap::host::DeleteMemory (memory1);
   oap::host::DeleteMemory (memory2);
