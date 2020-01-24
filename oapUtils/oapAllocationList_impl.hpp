@@ -57,7 +57,7 @@ void AllocationList<Object, UserData>::add (Object* object, const UserData& user
 }
 
 template<typename Object, typename UserData>
-UserData AllocationList<Object, UserData>::getInfo (const Object* object) const
+UserData AllocationList<Object, UserData>::getUserData (const Object* object) const
 {
   const auto& map = getAllocated();
   auto it = map.find (object);
