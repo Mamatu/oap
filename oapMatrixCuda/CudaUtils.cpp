@@ -27,7 +27,7 @@
 
 #include "KernelExecutor.h"
 #include "MatrixUtils.h"
-#include "oapMemory.h"
+#include "oapMemoryManager.h"
 
 namespace CudaUtils {
 

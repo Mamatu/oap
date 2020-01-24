@@ -25,6 +25,7 @@
 #include "oapMemoryList.h"
 #include "oapMemoryPrimitives.h"
 #include "oapGenericMemoryApi.h"
+#include "oapMemoryManager.h"
 
 #define ReIsNotNULL(m) m->reValues != nullptr
 #define ImIsNotNULL(m) m->imValues != nullptr

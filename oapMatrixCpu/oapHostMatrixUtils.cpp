@@ -37,7 +37,7 @@
 #include "GenericCoreApi.h"
 
 #include "MatricesList.h"
-#include "oapMemory.h"
+#include "oapMemoryManager.h"
 
 #define ReIsNotNULL(m) m->reValues != nullptr
 #define ImIsNotNULL(m) m->imValues != nullptr
