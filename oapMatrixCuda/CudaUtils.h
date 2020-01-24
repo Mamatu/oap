@@ -41,7 +41,7 @@ void* AllocDeviceMem(uintt size);
 
 void* AllocDeviceMem(uintt size, const void* src);
 
-void FreeDeviceMem(void* devicePtr);
+void FreeDeviceMem(const void* devicePtr);
 
 void FreeDeviceMem(CUdeviceptr ptr);
 
