@@ -39,6 +39,9 @@ __hostdeviceinline__ bool isNone (const oap::MemoryRegion& reg)
 
 __hostdeviceinline__ void setToRegion (oap::MemoryRegion& reg, const oap::MemoryDims& memoryDims, const oap::MemoryLoc& loc = {0, 0})
 {
+  debugAssert (isNone (reg) || memoryDims.width >= reg.loc.x + reg.dims.width);
+  debugAssert (isNone (reg) || memoryDims.height >= reg.loc.y + reg.dims.height);
+
   reg.loc = loc;
   reg.dims.width = memoryDims.width - loc.x;
   reg.dims.height = memoryDims.height - loc.y;
