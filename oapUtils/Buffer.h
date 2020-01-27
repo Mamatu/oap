@@ -30,6 +30,8 @@
 #include <Logger.h>
 #include <Math.h>
 
+namespace oap
+{
 namespace utils
 {
 
@@ -417,5 +419,5 @@ T* Buffer<T, MemUtl>::alloc (uintt length)
 }
 
 }
-
+}
 #endif
