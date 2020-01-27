@@ -21,13 +21,15 @@
 
 #include "MathOperationsCpu.h"
 #include "ThreadData.h"
+#include "MatrixAPI.h"
+
 namespace math {
 
 void MultiplicationConstOperationCpu::execute() {
     intt threadsCount = utils::mapper::createThreadsMap(getBMap(),
         m_threadsCount,
-        m_output->columns - m_subcolumns[0],
-        m_output->rows - m_subrows[0]);
+        gColumns (m_output) - m_subcolumns[0],
+        gRows (m_output) - m_subrows[0]);
     ThreadData<MultiplicationConstOperationCpu>* threads =
         m_threadData;
     for (uintt fa = 0; fa < threadsCount; fa++) {
@@ -70,17 +72,17 @@ void MultiplicationConstOperationCpu::Execute(void* ptr) {
         rep && imp) {
         for (uint fa = begin; fa < end; fa++) {
             for (uint fb = begin1; fb < end1; fb++) {
-                int index = fa + fb * threadData->outputs[0]->columns;
-                int index1 = fa + fb * threadData->params[0]->columns;
-                threadData->outputs[0]->reValues[index] =
-                    threadData->params[0]->reValues[index1] *
+                int index = fa + fb * gColumns (threadData->outputs[0].m_matrix);
+                int index1 = fa + fb * gColumns (threadData->params[0].m_matrix);
+                *GetRePtrIndex (threadData->outputs[0].m_matrix, index) =
+                    GetReIndex (threadData->params[0].m_matrix, index1) *
                     *(rep) -
-                    threadData->params[0]->imValues[index1] *
+                    GetImIndex (threadData->params[0].m_matrix, index1) *
                     *(imp);
-                threadData->outputs[0]->imValues[index] =
-                    threadData->params[0]->imValues[index1] *
+                *GetImPtrIndex (threadData->outputs[0].m_matrix, index) =
+                    GetImIndex (threadData->params[0].m_matrix, index1) *
                     *(rep) +
-                    threadData->params[0]->reValues[index1] *
+                    GetReIndex (threadData->params[0].m_matrix, index1) *
                     *(imp);
             }
         }
@@ -89,13 +91,13 @@ void MultiplicationConstOperationCpu::Execute(void* ptr) {
         rep && !imp) {
         for (uint fa = begin; fa < end; fa++) {
             for (uint fb = begin1; fb < end1; fb++) {
-                int index = fa + fb * threadData->outputs[0]->columns;
-                int index1 = fa + fb * threadData->params[0]->columns;
-                threadData->outputs[0]->reValues[index] =
-                    threadData->params[0]->reValues[index1] *
+                int index = fa + fb * gColumns (threadData->outputs[0].m_matrix);
+                int index1 = fa + fb * gColumns (threadData->params[0].m_matrix);
+                *GetRePtrIndex (threadData->outputs[0].m_matrix, index) =
+                    GetReIndex (threadData->params[0].m_matrix, index1) *
                     *(rep);
-                threadData->outputs[0]->imValues[index] =
-                    threadData->params[0]->imValues[index1] *
+                *GetImPtrIndex (threadData->outputs[0].m_matrix, index) =
+                    GetImIndex (threadData->params[0].m_matrix, index1) *
                     *(rep);
             }
         }
@@ -103,10 +105,10 @@ void MultiplicationConstOperationCpu::Execute(void* ptr) {
         rep && !imp) {
         for (uint fa = begin; fa < end; fa++) {
             for (uint fb = begin1; fb < end1; fb++) {
-                int index = fa + fb * threadData->outputs[0]->columns;
-                int index1 = fa + fb * threadData->params[0]->columns;
-                threadData->outputs[0]->reValues[index] =
-                    threadData->params[0]->reValues[index1] *
+                int index = fa + fb * gColumns (threadData->outputs[0].m_matrix);
+                int index1 = fa + fb * gColumns (threadData->params[0].m_matrix);
+                *GetRePtrIndex (threadData->outputs[0].m_matrix, index) =
+                    GetReIndex (threadData->params[0].m_matrix, index1) *
                     *(rep);
             }
         }
@@ -114,10 +116,10 @@ void MultiplicationConstOperationCpu::Execute(void* ptr) {
         rep && !imp) {
         for (uint fa = begin; fa < end; fa++) {
             for (uint fb = begin1; fb < end1; fb++) {
-                int index = fa + fb * threadData->outputs[0]->columns;
-                int index1 = fa + fb * threadData->params[0]->columns;
-                threadData->outputs[0]->imValues[index] =
-                    threadData->params[0]->imValues[index1] * *(rep);
+                int index = fa + fb * gColumns (threadData->outputs[0].m_matrix);
+                int index1 = fa + fb * gColumns (threadData->params[0].m_matrix);
+                *GetImPtrIndex (threadData->outputs[0].m_matrix, index) =
+                    GetImIndex (threadData->params[0].m_matrix, index1) * *(rep);
             }
         }
     }

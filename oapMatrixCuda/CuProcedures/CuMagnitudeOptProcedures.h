@@ -30,8 +30,8 @@
 __hostdevice__ void CUDA_magnitudeOptRealMatrix (floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1));
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, gRows (matrix1));
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeRealOpt(buffer, sharedIndex, matrix1);
@@ -52,8 +52,8 @@ __hostdevice__ void CUDA_magnitudeOptRealMatrix (floatt* sum, math::Matrix* matr
 __hostdevice__ void CUDA_magnitudeOptReMatrix (floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1));
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, gRows (matrix1));
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeReOpt(buffer, sharedIndex, matrix1);
@@ -74,8 +74,8 @@ __hostdevice__ void CUDA_magnitudeOptReMatrix (floatt* sum, math::Matrix* matrix
 __hostdevice__ void CUDA_magnitudeOptImMatrix (floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, matrix1->columns);
-  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, matrix1->rows);
+  uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1));
+  uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, gRows (matrix1));
   uintt sharedLength = xlength * ylength;
   uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
   cuda_MagnitudeImOpt(buffer, sharedIndex, matrix1);
@@ -96,8 +96,8 @@ __hostdevice__ void CUDA_magnitudeOptImMatrix (floatt* sum, math::Matrix* matrix
 __hostdevice__ void CUDA_magnitudeOpt (floatt* sum, math::Matrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  bool isre = matrix1->reValues != NULL;
-  bool isim = matrix1->imValues != NULL;
+  bool isre = matrix1->re.ptr != NULL;
+  bool isim = matrix1->im.ptr != NULL;
   if (isre && isim)
   {
     CUDA_magnitudeOptRealMatrix(sum, matrix1, buffer);
@@ -116,8 +116,8 @@ __hostdevice__ floatt CUDA_calcMagnitudeOptEx (math::Matrix* matrix1, floatt* bu
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
-  bool isre = matrix1->reValues != NULL;
-  bool isim = matrix1->imValues != NULL;
+  bool isre = matrix1->re.ptr != NULL;
+  bool isim = matrix1->im.ptr != NULL;
 
   uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, columns);
   uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, rows);

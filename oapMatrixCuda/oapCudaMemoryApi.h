@@ -25,43 +25,43 @@
 
 #include "MatrixPrinter.h"
 #include "oapMemoryPrimitives.h"
-#include "oapGenericMemoryApi.h"
-#include "oapCommonMemoryApi.h"
+#include "oapMemory_CommonApi.h"
+#include "oapMemory_CommonApi.h"
 
 namespace oap
 {
 namespace cuda
 {
 
-oap::Memory* NewMemory (const MemoryDims& dims);
-oap::Memory* NewMemoryWithValues (const MemoryDims& dims, floatt value);
-oap::Memory* NewMemoryDeviceCopy (const oap::Memory* src);
-oap::Memory* NewMemoryHostCopy (const oap::Memory* src);
-oap::Memory* NewMemoryDeviceCopyMem (const oap::Memory* src, uintt width, uintt height);
-oap::Memory* NewMemoryHostCopyMem (const oap::Memory* src, uintt width, uintt height);
-oap::Memory* ReuseMemory (const oap::Memory* src, uintt width, uintt height);
+oap::Memory NewMemory (const MemoryDims& dims);
+oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value);
+oap::Memory NewMemoryDeviceCopy (const oap::Memory& src);
+oap::Memory NewMemoryHostCopy (const oap::Memory& src);
+oap::Memory NewMemoryDeviceCopyMem (const oap::Memory& src, uintt width, uintt height);
+oap::Memory NewMemoryHostCopyMem (const oap::Memory& src, uintt width, uintt height);
+oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height);
 
-void DeleteMemory (const oap::Memory* mem);
+void DeleteMemory (const oap::Memory& mem);
 
-oap::MemoryDims GetDims (const oap::Memory* mem);
-floatt* GetRawMemory (const oap::Memory* mem);
+oap::MemoryDims GetDims (const oap::Memory& mem);
+floatt* GetRawMemory (const oap::Memory& mem);
 
-void CopyDeviceToDevice (oap::Memory* dst, const oap::MemoryLoc& dstLoc, const oap::Memory* src, const oap::MemoryRegion& srcReg);
-void CopyDeviceToDevice (oap::Memory* dst, const oap::Memory* src);
+void CopyDeviceToDevice (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyDeviceToDevice (oap::Memory& dst, const oap::Memory& src);
 
-void CopyHostToDevice (oap::Memory* dst, const oap::MemoryLoc& dstLoc, const oap::Memory* src, const oap::MemoryRegion& srcReg);
-void CopyHostToDevice (oap::Memory* dst, const oap::Memory* src);
+void CopyHostToDevice (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyHostToDevice (oap::Memory& dst, const oap::Memory& src);
 
-void CopyDeviceToHost (oap::Memory* dst, const oap::MemoryLoc& dstLoc, const oap::Memory* src, const oap::MemoryRegion& srcReg);
-void CopyDeviceToHost (oap::Memory* dst, const oap::Memory* src);
+void CopyDeviceToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyDeviceToHost (oap::Memory& dst, const oap::Memory& src);
 
-uintt GetIdx (oap::Memory* memory, const oap::MemoryRegion& reg, uintt x, uintt y);
-floatt* GetPtr (oap::Memory* memory, const oap::MemoryRegion& reg, uintt x, uintt y);
-floatt GetValue (oap::Memory* memory, const oap::MemoryRegion& reg, uintt x, uintt y);
+uintt GetIdx (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y);
+floatt* GetPtr (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y);
+floatt GetValue (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y);
 
-uintt GetIdx (oap::Memory* memory, uintt x, uintt y);
-floatt* GetPtr (oap::Memory* memory, uintt x, uintt y);
-floatt GetValue (oap::Memory* memory, uintt x, uintt y);
+uintt GetIdx (oap::Memory& memory, uintt x, uintt y);
+floatt* GetPtr (oap::Memory& memory, uintt x, uintt y);
+floatt GetValue (oap::Memory& memory, uintt x, uintt y);
 
 }
 }

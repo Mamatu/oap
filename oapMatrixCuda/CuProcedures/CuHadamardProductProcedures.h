@@ -22,6 +22,7 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
+#include "MatrixAPI.h"
 
 __hostdevice__ void
 cuda_hadamardProductRe(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
@@ -29,8 +30,8 @@ cuda_hadamardProductRe(math::Matrix* output, math::Matrix* params0, math::Matrix
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  output->reValues[index] = params0->reValues[index] * params1->reValues[index];
+  uintt index = threadIndexX + gColumns (output) * threadIndexY;
+  *GetRePtrIndex (output, index) = GetReIndex (params0, index) * GetReIndex (params1, index);
 }
 
 __hostdevice__ void
@@ -39,8 +40,8 @@ cuda_hadamardProductIm(math::Matrix* output, math::Matrix* params0, math::Matrix
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  output->imValues[index] = params0->imValues[index] * params1->imValues[index];
+  uintt index = threadIndexX + gColumns (output) * threadIndexY;
+  *GetImPtrIndex (output, index) = GetImIndex (params0, index) * GetImIndex (params1, index);
 }
 
 __hostdevice__ void
@@ -49,9 +50,9 @@ cuda_hadamardProductReal(math::Matrix* output, math::Matrix* params0, math::Matr
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  output->reValues[index] = params0->reValues[index] * params1->reValues[index];
-  output->imValues[index] = params0->imValues[index] * params1->imValues[index];
+  uintt index = threadIndexX + gColumns (output) * threadIndexY;
+  *GetRePtrIndex (output, index) = GetReIndex (params0, index) * GetReIndex (params1, index);
+  *GetImPtrIndex (output, index) = GetImIndex (params0, index) * GetImIndex (params1, index);
 }
 
 __hostdevice__ void
@@ -87,9 +88,9 @@ CUDA_hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* 
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
-  bool isInRange = threadIndexX < output->columns && threadIndexY < output->rows;
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
+  bool isInRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
 
   if (isre && isim && isInRange)
   {

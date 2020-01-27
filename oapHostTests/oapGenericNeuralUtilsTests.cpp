@@ -74,7 +74,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_1)
 
   oap::nutils::copyToInputs (layer, vec, oap::nutils::copyHostBufferToHostReMatrix);
 
-  std::vector<floatt> output (hmatrix->reValues, hmatrix->reValues + vec.size());
+  std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + vec.size());
   std::vector<floatt> expectedOutput = {0, 1, 2, 3, 4, 5};
 
   EXPECT_EQ (expectedOutput, output);
@@ -99,7 +99,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_2)
 
   oap::nutils::copyToInputs (layer, vec, oap::nutils::copyHostBufferToHostReMatrix);
 
-  std::vector<floatt> output (hmatrix->reValues, hmatrix->reValues + ((counts / vec.size()) * vec.size()));
+  std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
 
   EXPECT_EQ (expectedOutput, output);
@@ -124,7 +124,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_3)
 
   oap::nutils::copyToInputs (layer, vec, oap::nutils::copyHostBufferToHostReMatrix);
 
-  std::vector<floatt> output (hmatrix->reValues, hmatrix->reValues + ((counts / vec.size()) * vec.size()));
+  std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 6, 7, 4, 4, 8, 2, 5, 5, 0, 0};
 
   EXPECT_EQ (expectedOutput, output);
@@ -159,7 +159,7 @@ TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_1)
 
   oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::nutils::copyHostBufferToHostReMatrix);
 
-  std::vector<floatt> output (network.getExpected(0)->reValues, network.getExpected(0)->reValues + vec.size());
+  std::vector<floatt> output (network.getExpected(0)->re.ptr, network.getExpected(0)->re.ptr + vec.size());
   std::vector<floatt> expectedOutput = {0, 1, 2, 3, 4, 5};
 
   EXPECT_EQ (expectedOutput, output);
@@ -192,7 +192,7 @@ TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_2)
 
   oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::nutils::copyHostBufferToHostReMatrix);
 
-  std::vector<floatt> output (network.getExpected(0)->reValues, network.getExpected(0)->reValues + (vec.size() * 2));
+  std::vector<floatt> output (network.getExpected(0)->re.ptr, network.getExpected(0)->re.ptr + (vec.size() * 2));
   std::vector<floatt> expectedOutput = {0, 1, 1, 2, 2, 3, 3, 5, 4, 8, 5, 9};
 
   EXPECT_EQ (expectedOutput, output);

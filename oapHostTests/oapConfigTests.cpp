@@ -38,6 +38,6 @@ public:
 
 TEST_F(OapConfigTests, TraceLogTest)
 {
-  EXPECT_NE (utils::Config::getTmpPath(), "TMP_PATH");
-  EXPECT_NE (utils::Config::getOapPath(), "OAP_PATH");
+  EXPECT_NE (oap::utils::Config::getTmpPath(), "TMP_PATH");
+  EXPECT_NE (oap::utils::Config::getOapPath(), "OAP_PATH");
 }

@@ -75,7 +75,7 @@ namespace test_api
     {
       size_t trueIdx = idxsToCheck[idx];
       floatt expected = std::get<1>(conversions[trueIdx]);
-      floatt actual = weights->reValues[trueIdx];
+      floatt actual = GetReIndex (weights, trueIdx);
       ASSERT_NEAR (expected, actual, expected_precision) << "Standard expect_near: " << trueIdx << ", " << cwInfo.str();
       callback (expected, actual, trueIdx);
     }
@@ -93,7 +93,7 @@ namespace test_api
     {
       if (std::get<2>(conversions[idx]))
       {
-        callback (std::get<1>(conversions[idx]), weights->reValues[idx], idx);
+        callback (std::get<1>(conversions[idx]), GetReIndex (weights, idx), idx);
       }
     }
   }

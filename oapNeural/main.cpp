@@ -51,7 +51,7 @@ Network* createNetwork (size_t width, size_t height)
 
 std::string getImagesPath()
 {
-  std::string dataPath = utils::Config::getPathInOap("oapNeural/data/");
+  std::string dataPath = oap::utils::Config::getPathInOap("oapNeural/data/");
   dataPath = dataPath + "digits/";
   return dataPath;
 }
@@ -67,7 +67,7 @@ oap::HostMatrixPtr getImageMatrix (const std::string& imagePath)
 
   oap::HostMatrixUPtr imageMatrix = oap::host::NewReMatrix (width, height);
   //math::Matrix* imageMatrix = oap::host::NewReMatrix (width, height);
-  png.getFloattVector(imageMatrix->reValues);
+  png.getFloattVector(imageMatrix->re.ptr);
 
   oap::HostMatrixPtr input = oap::host::NewReMatrix (1, width * height);
   //math::Matrix* input = oap::host::NewReMatrix (1, width * height);
@@ -119,7 +119,7 @@ Context* init (const std::vector<std::pair<std::string, int>>& dataSet)
 
     if (ctx->network == nullptr)
     {
-      ctx->network = createNetwork (imatrix->columns, imatrix->rows);
+      ctx->network = createNetwork (gColumns (imatrix), gRows (imatrix));
     }
 
     ctx->matrices.push_back (imatrix);
@@ -137,7 +137,7 @@ void runTraining (Context* ctx, floatt learningRate, int repeats)
 
     if (pair.second > -1)
     {
-      eoutput->reValues[pair.second] = 1;
+      *GetRePtrIndex (eoutput, pair.second) = 1;
     }
 
     ctx->network->train (matrix, eoutput, ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);

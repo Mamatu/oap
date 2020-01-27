@@ -52,14 +52,14 @@ void HostKernel::setSharedMemory (size_t sizeInBytes)
   m_sharedMemorySize = sizeInBytes;
 }
 
-class ThreadImpl : public utils::Thread {
+class ThreadImpl : public oap::utils::Thread {
   dim3 m_threadIdx;
   dim3 m_blockIdx;
   HostKernel* m_hostKernel;
   std::vector<pthread_t>* m_pthreads;
-  utils::sync::Barrier* m_barrier;
-  utils::sync::Cond m_cond;
-  utils::sync::Mutex m_mutex;
+  oap::utils::sync::Barrier* m_barrier;
+  oap::utils::sync::Cond m_cond;
+  oap::utils::sync::Mutex m_mutex;
   bool m_cancontinue;
   void* m_sharedBuffer;
 
@@ -78,7 +78,7 @@ class ThreadImpl : public utils::Thread {
 
   void setPthreads(std::vector<pthread_t>* pthreads) { m_pthreads = pthreads; }
 
-  void setBarrier(utils::sync::Barrier* barrier) { m_barrier = barrier; }
+  void setBarrier(oap::utils::sync::Barrier* barrier) { m_barrier = barrier; }
   
   void setSharedBuffer (void* buffer) { m_sharedBuffer = buffer; }
 
@@ -142,7 +142,7 @@ void HostKernel::executeKernelAsync() {
   std::vector<ThreadImpl*> threads;
   std::vector<pthread_t> pthreads;
   unsigned int count = blockDim.y * blockDim.x + 1;
-  utils::sync::Barrier barrier(count);
+  oap::utils::sync::Barrier barrier(count);
   // threads.resize(blockDim.x * blockDim.y);
   pthreads.reserve (blockDim.x * blockDim.y);
 

@@ -30,21 +30,21 @@ namespace math {
         if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL &&
                 threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
             for (intt fa = threadData->begins[0]; fa < threadData->ends[0]; fa++) {
-                floatt v1 = threadData->params[0]->reValues[fa] *
-                        threadData->params[0]->reValues[fa];
-                floatt v2 = threadData->params[0]->imValues[fa] *
-                        threadData->params[0]->imValues[fa];
+                floatt v1 = GetReIndex (threadData->params[0].m_matrix, fa) *
+                        GetReIndex (threadData->params[0].m_matrix, fa);
+                floatt v2 = GetImIndex (threadData->params[0].m_matrix, fa) *
+                        GetImIndex (threadData->params[0].m_matrix, fa);
                 output += v1 + v2;
             }
         } else if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL) {
             for (intt fa = threadData->begins[0]; fa < threadData->ends[0]; fa++) {
-                output += threadData->params[0]->reValues[fa] *
-                        threadData->params[0]->reValues[fa];
+                output += GetReIndex (threadData->params[0].m_matrix, fa) *
+                        GetReIndex (threadData->params[0].m_matrix, fa);
             }
         } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
             for (intt fa = threadData->begins[0]; fa < threadData->ends[0]; fa++) {
-                output += threadData->params[0]->imValues[fa] *
-                        threadData->params[0]->imValues[fa];
+                output += GetImIndex (threadData->params[0].m_matrix, fa) *
+                        GetImIndex (threadData->params[0].m_matrix, fa);
             }
         }
         threadData->values[0] = output;
@@ -52,7 +52,7 @@ namespace math {
 
     void MagnitudeOperationCpu::execute() {
         uintt* bmap = utils::mapper::allocMap(this->m_threadsCount);
-        uintt length = m_matrix->columns * m_matrix->rows;
+        uintt length = gColumns (m_matrix) * gRows (m_matrix);
         uintt threadsCount = utils::mapper::createThreadsMap(bmap, this->m_threadsCount, length);
         ThreadData<MagnitudeOperationCpu>* threads = new ThreadData<MagnitudeOperationCpu>[threadsCount];
         for (intt fa = 0; fa < threadsCount; fa++) {

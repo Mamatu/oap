@@ -23,6 +23,7 @@
 #include <string>
 #include <sstream>
 #include "oapMemoryPrimitives.h"
+#include "oapMemory_CommonApi.h"
 
 namespace std
 {
@@ -31,6 +32,17 @@ namespace std
   std::string to_string (const oap::MemoryDims& dims);
 
   std::string to_string (const oap::MemoryLoc& loc);
+
+}
+
+inline bool operator== (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
+{
+  return oap::common::CompareMemoryRegion (reg1, reg2);
+}
+
+inline bool operator!= (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
+{
+  return !(reg1 == reg2);
 }
 
 #endif

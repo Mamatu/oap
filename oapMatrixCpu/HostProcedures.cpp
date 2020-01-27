@@ -156,8 +156,8 @@ class TransposeImpl : public HostKernel {
 
 void HostProcedures::prepare (math::Matrix* matrix, HostKernel& hostKernel)
 {
-  const uint columns = matrix->columns;
-  const uint rows = matrix->rows;
+  const uint columns = gColumns (matrix);
+  const uint rows = gRows (matrix);
 
   utils::mapper::SetThreadsBlocks (m_blocks, m_threads, columns, rows, m_maxThreadsPerBlock);
 
@@ -186,14 +186,14 @@ void HostProcedures::setMaxThreadsPerBlock (uintt threadsPerBlock)
 }
 
 bool HostProcedures::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
-  if (matrix1->columns != matrix2->columns || matrix1->rows != matrix2->rows) {
+  if (gColumns (matrix1) != gColumns (matrix2) || gRows (matrix1) != gRows (matrix2)) {
     return false;
   }
   CompareImpl compareImpl(matrix1, matrix2);
   prepare(matrix1, compareImpl);
   compareImpl.executeKernelAsync();
   uintt sums = compareImpl.getSum();
-  return sums == matrix1->rows * matrix1->columns;
+  return sums == gRows (matrix1) * gColumns (matrix1);
 }
 
 bool HostProcedures::isEqual(math::Matrix* matrix1, math::Matrix* matrix2) {
@@ -402,12 +402,12 @@ void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* para
 
   GetAddressType getReValues = [](const math::Matrix* matrix) -> floatt*
   {
-    return matrix->reValues;
+    return gReValues (matrix);
   };
 
   GetAddressType getImValues = [](const math::Matrix* matrix) -> floatt*
   {
-    return matrix->imValues;
+    return gImValues (matrix);
   };
 
   oap::generic::SumApi<decltype(oap::host::GetMatrixInfo), decltype(memcpy), GetAddressTypeRef>

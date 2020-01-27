@@ -39,13 +39,13 @@ inline void QRDecompositionCpu::prepareGMatrix(math::Matrix* A,
     floatt img = 0;
     floatt ref = 0;
     floatt imf = 0;
-    if (A->reValues) {
-        reg = A->reValues[column + row * A->columns];
-        ref = A->reValues[column + column * A->columns];
+    if (gReValues (A)) {
+        reg = gReValues (A)[column + row * gColumns (A)];
+        ref = gReValues (A)[column + column * gColumns (A)];
     }
-    if (A->imValues) {
-        img = A->imValues[column + row * A->columns];
-        imf = A->imValues[column + column * A->columns];
+    if (gImValues (A)) {
+        img = gImValues (A)[column + row * gColumns (A)];
+        imf = gImValues (A)[column + column * gColumns (A)];
     }
     floatt r = sqrt(ref * ref + reg * reg + img * img + imf * imf);
     floatt lf = sqrt(ref * ref + imf * imf);
@@ -59,17 +59,17 @@ inline void QRDecompositionCpu::prepareGMatrix(math::Matrix* A,
     floatt is = (isign * reg - img * sign) / r;
     floatt c = lf / r;
     floatt ic = 0;
-    if (G->reValues) {
-        G->reValues[column + row * A->columns] = -s;
-        G->reValues[column + column * A->columns] = c;
-        G->reValues[row + row * A->columns] = c;
-        G->reValues[row + column * A->columns] = s;
+    if (gReValues (G)) {
+        gReValues (G)[column + row * gColumns (A)] = -s;
+        gReValues (G)[column + column * gColumns (A)] = c;
+        gReValues (G)[row + row * gColumns (A)] = c;
+        gReValues (G)[row + column * gColumns (A)] = s;
     }
-    if (G->imValues) {
-        G->imValues[column + row * A->columns] = is;
-        G->imValues[column + column * A->columns] = ic;
-        G->imValues[row + row * A->columns] = ic;
-        G->imValues[row + column * A->columns] = is;
+    if (gImValues (G)) {
+        gImValues (G)[column + row * gColumns (A)] = is;
+        gImValues (G)[column + column * gColumns (A)] = ic;
+        gImValues (G)[row + row * gColumns (A)] = ic;
+        gImValues (G)[row + column * gColumns (A)] = is;
     }
 }
 
@@ -83,8 +83,8 @@ void QRDecompositionCpu::execute() {
     math::Matrix* tR1 = NULL;
     math::Matrix* tQ1 = NULL;
 
-    if (m_R1 != NULL && m_R1->rows != R->rows &&
-        m_R1->columns != R->columns) {
+    if (m_R1 != NULL && gRows (m_R1) != gRows (R) &&
+        gColumns (m_R1) != gColumns (R)) {
 oap::host::DeleteMatrix(m_R1);
 oap::host::DeleteMatrix(m_Q1);
 oap::host::DeleteMatrix(m_G);
@@ -106,12 +106,12 @@ oap::host::DeleteMatrix(m_GT);
 
     oap::host::CopyMatrix(m_R1, A);
     oap::host::SetIdentityMatrix(m_Q1);
-    for (uintt fa = 0; fa < A->columns - 1; ++fa) {
-        for (uintt fb = A->rows - 1; fb > fa; --fb) {
-            floatt rev = m_R1->reValues[fa + fb * m_R1->columns];
+    for (uintt fa = 0; fa < gColumns (A) - 1; ++fa) {
+        for (uintt fb = gRows (A) - 1; fb > fa; --fb) {
+            floatt rev = gReValues (m_R1)[fa + fb * gColumns (m_R1)];
             floatt imv = 0;
-            if (m_R1->imValues) {
-                imv = m_R1->imValues[fa + fb * m_R1->columns];
+            if (gImValues (m_R1)) {
+                imv = gImValues (m_R1)[fa + fb * gColumns (m_R1)];
             }
             if ((fabs(rev) < MATH_VALUE_LIMIT &&
                 fabs(imv) < MATH_VALUE_LIMIT) == false) {

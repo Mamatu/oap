@@ -201,8 +201,8 @@ void Context::destroy()
 Context::~Context() { destroy(); }
 
 void Kernel::setDimensionsDevice(math::Matrix* dmatrix) {
-  uintt columns = CudaUtils::GetColumns(dmatrix);
-  uintt rows = CudaUtils::GetRows(dmatrix);
+  uintt columns = oap::cuda::GetColumns(dmatrix);
+  uintt rows = oap::cuda::GetRows(dmatrix);
   setDimensions (columns, rows);
 }
 
@@ -421,8 +421,8 @@ void Kernel::calculateThreadsBlocks(uint blocks[2], uint threads[2],
 
 void Kernel::calculateThreadsBlocksDevice(uint blocks[2], uint threads[2],
                                           math::Matrix* dmatrix) {
-  uintt columns = CudaUtils::GetColumns(dmatrix);
-  uintt rows = CudaUtils::GetRows(dmatrix);
+  uintt columns = oap::cuda::GetColumns(dmatrix);
+  uintt rows = oap::cuda::GetRows(dmatrix);
   calculateThreadsBlocks(blocks, threads, columns, rows);
 }
 
@@ -430,7 +430,7 @@ void Kernel::SetThreadsBlocks(uint blocks[2], uint threads[2],
                               uint w, uint h,
                               uint maxThreadsPerBlock)
 {
-  utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
+  ::utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
 }
 
 bool Kernel::Execute(const char* functionName, void** params, oap::cuda::Kernel& kernel)

@@ -69,7 +69,7 @@ class OapQRTests : public OapCudaStub {
       m_temp2 = oap::host::NewMatrixRef(matrix);
       m_temp3 = oap::host::NewMatrixRef(matrix);
       m_temp4 = oap::host::NewMatrixRef(matrix);
-      calculateDims(m_matrix->columns, m_matrix->rows);
+      calculateDims(gColumns (m_matrix), gRows (m_matrix));
     }
 
     virtual ~QRGRStub() {

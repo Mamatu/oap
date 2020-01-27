@@ -24,12 +24,23 @@
 #include "oapMemoryPrimitivesApi.h"
 #include "oapAllocationList.h"
 
-class MemoryList : public oap::AllocationList<oap::Memory, oap::Memory>
+
+struct MemoryHash
+{
+  std::size_t operator()(const oap::Memory& memory) const noexcept
+  {
+    std::size_t index = std::hash<decltype(memory.ptr)>{}(memory.ptr);
+    return index;
+  }
+};
+
+class MemoryList : public oap::AllocationList<floatt*, size_t>
 {
   public:
     MemoryList (const std::string& id);
     virtual ~MemoryList ();
 
+    virtual std::string toString(const size_t& size) const override;
 };
 
 #endif

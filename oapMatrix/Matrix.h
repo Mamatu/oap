@@ -21,6 +21,7 @@
 #define OAP_MATRIX_H
 
 #include "Math.h"
+#include "oapMemoryPrimitives.h"
 
 //#define DEBUG
 
@@ -36,13 +37,17 @@ struct MatrixDim
 /**
  * Columns orientation
  */
-struct Matrix : public MatrixDim
+struct Matrix
 {
-  uintt realColumns;
-  uintt realRows;
-  floatt* reValues;
-  floatt* imValues;
+  oap::Memory re;
+  oap::MemoryRegion reReg;
+
+  oap::Memory im;
+  oap::MemoryRegion imReg;
 };
 
 }
+
+#define OAP_REGION_IS_VALID(region) (!(region.dims.width == 0 || region.dims.height == 0))
+
 #endif

@@ -25,14 +25,14 @@
 #include "KernelExecutor.h"
 
 template<typename T>
-class TBuffer : public utils::Buffer<T, oap::cuda::HtoDMemUtl>
+class TBuffer : public oap::utils::Buffer<T, oap::cuda::HtoDMemUtl>
 {
   public:
 
     template<typename Arg>
     uintt getArgLength() const
     {
-      return utils::Buffer<T, oap::cuda::HtoDMemUtl>::template getArgLength<Arg>();
+      return oap::utils::Buffer<T, oap::cuda::HtoDMemUtl>::template getArgLength<Arg>();
     }
 };
 
@@ -136,7 +136,7 @@ TEST_F(OapCudaBufferTests, ConvertBufferTest)
 TEST_F(OapCudaBufferTests, WriteReadBufferTest)
 {
   oap::cuda::HtoDBuffer<floatt> buffer;
-  std::string test_path = utils::Config::getPathInTmp("device_tests");
+  std::string test_path = oap::utils::Config::getPathInTmp("device_tests");
   std::string file = test_path + "OapCudaBufferTests_WriteReadBufferTest.bin";
 
   for (int idx = 0; idx < 10000; ++idx)

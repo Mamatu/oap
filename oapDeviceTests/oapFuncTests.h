@@ -86,15 +86,15 @@ void test_defaultExpected (const std::vector<floatt>& revalues, const std::vecto
 {
   test (revalues, imvalues, columns, rows, func, [&expected_revalues, &expected_imvalues](const math::Matrix* hmatrix)
   {
-    if (hmatrix->reValues)
+    if (hmatrix->re.ptr)
     {
-      std::vector<floatt> reVs (hmatrix->reValues, hmatrix->reValues + (hmatrix->columns * hmatrix->rows));
+      std::vector<floatt> reVs (hmatrix->re.ptr, hmatrix->re.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
       ASSERT_EQ(expected_revalues, reVs);
     }
 
-    if (hmatrix->imValues)
+    if (hmatrix->im.ptr)
     {
-      std::vector<floatt> imVs (hmatrix->imValues, hmatrix->imValues + (hmatrix->columns * hmatrix->rows));
+      std::vector<floatt> imVs (hmatrix->im.ptr, hmatrix->im.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
       ASSERT_EQ(expected_imvalues, imVs);
     }
   });
@@ -105,15 +105,15 @@ void test_getVectors (const std::vector<floatt>& revalues, const std::vector<flo
 {
   test (revalues, imvalues, columns, rows, func, [&o_revalues, &o_imvalues](const math::Matrix* hmatrix)
   {
-    if (hmatrix->reValues)
+    if (hmatrix->re.ptr)
     {
-      std::vector<floatt> reVs (hmatrix->reValues, hmatrix->reValues + (hmatrix->columns * hmatrix->rows));
+      std::vector<floatt> reVs (hmatrix->re.ptr, hmatrix->re.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
       o_revalues = std::move (reVs);
     }
 
-    if (hmatrix->imValues)
+    if (hmatrix->im.ptr)
     {
-      std::vector<floatt> imVs (hmatrix->imValues, hmatrix->imValues + (hmatrix->columns * hmatrix->rows));
+      std::vector<floatt> imVs (hmatrix->im.ptr, hmatrix->im.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
       o_imvalues = std::move (imVs);
     }
   });

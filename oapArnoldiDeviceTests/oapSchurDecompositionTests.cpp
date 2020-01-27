@@ -85,8 +85,8 @@ class OapSchurDecomposition : public testing::Test {
     if (kernelType == OapSchurDecomposition::DEVICE) {
       oap::cuda::Kernel kernel;
       kernel.load("liboapMatrixCuda.cubin");
-      uintt columns = eq_hostMatrix->columns;
-      uintt rows = eq_hostMatrix->rows;
+      uintt columns = gColumns (eq_hostMatrix);
+      uintt rows = gRows (eq_hostMatrix);
       DEVICEKernel_CalcTriangularH(matrix, matrix1, matrix2, matrix3, matrix4,
                                    matrix5, matrix6, matrix7, matrix8, columns,
                                    rows, kernel);

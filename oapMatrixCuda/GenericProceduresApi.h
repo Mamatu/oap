@@ -670,14 +670,27 @@ namespace generic
 
   namespace aux
   {
+    namespace
+    {
+      auto getColumns = [](const math::MatrixInfo& matrixInfo)
+      {
+        return matrixInfo.columns ();
+      };
+
+      auto getRows = [](const math::MatrixInfo& matrixInfo)
+      {
+        return matrixInfo.rows ();
+      };
+    }
+
     inline uintt convolve_cache_calculateWidth (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
     {
-      return KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS(matrixInfo, kernelInfo, .columns(), .rows());
+      return KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS(matrixInfo, kernelInfo, getColumns, getRows);
     }
 
     inline uintt convolve_cache_calculateHeight (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
     {
-      return KEROPER_CONVOLUTION_CALCULATE_CACHE_ROWS(matrixInfo, kernelInfo, .rows());
+      return KEROPER_CONVOLUTION_CALCULATE_CACHE_ROWS(matrixInfo, kernelInfo, getRows);
     }
 
     inline uintt convolve_output_calculateWidth (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
@@ -692,12 +705,12 @@ namespace generic
 
     inline uintt pooling_cache_calculateWidth (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
     {
-      return KEROPER_POOLING_CALCULATE_CACHE_COLUMNS(matrixInfo, kernelInfo, .columns(), .rows());
+      return KEROPER_POOLING_CALCULATE_CACHE_COLUMNS(matrixInfo, kernelInfo, getColumns, getRows);
     }
 
     inline uintt pooling_cache_calculateHeight (const math::MatrixInfo& matrixInfo, const math::MatrixInfo& kernelInfo)
     {
-      return KEROPER_POOLING_CALCULATE_CACHE_ROWS(matrixInfo, kernelInfo, .rows());
+      return KEROPER_POOLING_CALCULATE_CACHE_ROWS(matrixInfo, kernelInfo, getRows);
     }
   }
 

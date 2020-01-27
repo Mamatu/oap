@@ -23,44 +23,46 @@
 #include <vector>
 
 #include "oapCudaMatrixUtils.h"
+#include "oapCudaMemoryApi.h"
 #include "oapHostMatrixUtils.h"
 
 #include "KernelExecutor.h"
 #include "MatrixUtils.h"
 #include "oapMemoryManager.h"
+#include "oapMemory_GenericApi.h"
+#include "oapMemory_CommonApi.h"
+#include "oapMemoryPrimitivesApi.h"
 
 namespace CudaUtils {
 
 namespace
 {
 
-CUdeviceptr allocDeviceMem (size_t size)
+inline CUdeviceptr allocDeviceMem (size_t size)
 {
   CUdeviceptr devPtr;
   printCuError (cuMemAlloc(&devPtr, size));
   return devPtr;
 }
 
-void freeDeviceMem (CUdeviceptr ptr)
+inline void freeDeviceMem (CUdeviceptr ptr)
 {
   if (ptr != 0)
   {
     printCuError (cuMemFree(ptr));
   }
 }
-
-oap::MemoryManagement<CUdeviceptr, decltype(allocDeviceMem), decltype(freeDeviceMem), 0> gMemoryMng (allocDeviceMem, freeDeviceMem);
 }
 
 void AllocDeviceMem (CUdeviceptr* devPtr, size_t size)
 {
-  CUdeviceptr ptr = gMemoryMng.allocate (size);
+  CUdeviceptr ptr = allocDeviceMem (size);
   *devPtr = ptr;
 }
 
 void FreeDeviceMem (CUdeviceptr ptr)
 {
-  gMemoryMng.deallocate (ptr);
+  freeDeviceMem (ptr);
 }
 
 void* AllocDeviceMem (uintt size)
@@ -86,97 +88,81 @@ void FreeDeviceMem (const void* devicePtr)
   }
 }
 
-floatt* GetValue (floatt* const* src)
+void ToHost (void* dst, const void* src, size_t size)
 {
-  floatt* dst = nullptr;
-
-  cuMemcpyDtoH (&dst, reinterpret_cast<CUdeviceptr>(src), sizeof(floatt*));
-
-  return dst;
+  cuMemcpyDtoH (&dst, reinterpret_cast<CUdeviceptr>(src), size);
 }
 
-CUdeviceptr GetReValuesAddress(const math::Matrix* matrix)
+oap::Memory* GetReMemoryPtr (const math::Matrix* matrix)
 {
-  return reinterpret_cast<CUdeviceptr>(&matrix->reValues);
+  oap::Memory* re = nullptr;
+  CudaUtils::CopyDeviceToHost (&re, &(matrix->re), sizeof(re));
+  return re;
 }
 
-CUdeviceptr GetImValuesAddress(const math::Matrix* matrix)
+oap::Memory* GetImMemoryPtr (const math::Matrix* matrix)
 {
-  return reinterpret_cast<CUdeviceptr>(&matrix->imValues);
+  oap::Memory* im = nullptr;
+  CudaUtils::CopyDeviceToHost (&im, &(matrix->im), sizeof(im));
+  return im;
 }
 
-CUdeviceptr GetColumnsAddress(const math::Matrix* matrix)
+oap::MemoryRegion* GetReMemoryRegionPtr (const math::Matrix* matrix)
 {
-  return reinterpret_cast<CUdeviceptr>(&matrix->columns);
+  oap::MemoryRegion* reReg = nullptr;
+  CudaUtils::CopyDeviceToHost (&reReg, &(matrix->reReg), sizeof(reReg));
+  return reReg;
 }
 
-CUdeviceptr GetRowsAddress(const math::Matrix* matrix)
+oap::MemoryRegion* GetImMemoryRegionPtr (const math::Matrix* matrix)
 {
-  return reinterpret_cast<CUdeviceptr>(&matrix->rows);
+  oap::MemoryRegion* imReg = nullptr;
+  CudaUtils::CopyDeviceToHost (&imReg, &(matrix->imReg), sizeof(imReg));
+  return imReg;
 }
 
-floatt* GetReValues(const math::Matrix* matrix)
+oap::Memory GetMemory (const math::Matrix* matrix, oap::Memory* cuptr)
 {
-  floatt* reValues = NULL;
-  cuMemcpyDtoH(&reValues, GetReValuesAddress(matrix), sizeof(floatt*));
-  return reValues;
+  oap::Memory mem = oap::common::OAP_NONE_MEMORY();
+  if (cuptr)
+  {
+    CudaUtils::CopyDeviceToHost (&mem, cuptr, sizeof(mem));
+  }
+  return mem;
 }
 
-floatt* GetImValues(const math::Matrix* matrix)
+oap::Memory GetReMemory (const math::Matrix* matrix)
 {
-  floatt* imValues = NULL;
-  cuMemcpyDtoH(&imValues, GetImValuesAddress(matrix), sizeof(floatt*));
-  return imValues;
+  oap::Memory* cuptr = GetReMemoryPtr (matrix);
+  return GetMemory (matrix, cuptr);
 }
 
-uintt GetColumns(const math::Matrix* matrix)
+oap::Memory GetImMemory (const math::Matrix* matrix)
 {
-  uintt columns = 0;
-  cuMemcpyDtoH(&columns, GetColumnsAddress(matrix), sizeof(uintt));
-  return columns;
+  oap::Memory* cuptr = GetImMemoryPtr (matrix);
+  return GetMemory (matrix, cuptr);
 }
 
-uintt GetRows(const math::Matrix* matrix)
+oap::MemoryRegion GetMemoryRegion (const math::Matrix* matrix, oap::MemoryRegion* cuptr)
 {
-  uintt rows = 0;
-  cuMemcpyDtoH(&rows, GetRowsAddress(matrix), sizeof(uintt));
-  return rows;
+  oap::MemoryRegion reg = oap::common::OAP_NONE_REGION();
+  if (cuptr)
+  {
+    CudaUtils::CopyDeviceToHost (&reg, cuptr, sizeof(reg));
+  }
+  return reg;
 }
 
-CUdeviceptr GetReValuesAddress(CUdeviceptr matrixptr)
+oap::MemoryRegion GetReMemoryRegion (const math::Matrix* matrix)
 {
-  math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
-  return reinterpret_cast<CUdeviceptr>(&matrix->reValues);
+  oap::MemoryRegion* cuptr = GetReMemoryRegionPtr (matrix);
+  return GetMemoryRegion (matrix, cuptr);
 }
 
-CUdeviceptr GetImValuesAddress(CUdeviceptr matrixptr)
+oap::MemoryRegion GetImMemoryRegion (const math::Matrix* matrix)
 {
-  math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
-  return reinterpret_cast<CUdeviceptr>(&matrix->imValues);
-}
-
-CUdeviceptr GetColumnsAddress(CUdeviceptr matrixptr)
-{
-  math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
-  return reinterpret_cast<CUdeviceptr>(&matrix->columns);
-}
-
-CUdeviceptr GetRealColumnsAddress(CUdeviceptr matrixptr)
-{
-  math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
-  return reinterpret_cast<CUdeviceptr>(&matrix->realColumns);
-}
-
-CUdeviceptr GetRowsAddress(CUdeviceptr matrixptr)
-{
-  math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
-  return reinterpret_cast<CUdeviceptr>(&matrix->rows);
-}
-
-CUdeviceptr GetRealRowsAddress(CUdeviceptr matrixptr)
-{
-  math::Matrix* matrix = reinterpret_cast<math::Matrix*>(matrixptr);
-  return reinterpret_cast<CUdeviceptr>(&matrix->realRows);
+  oap::MemoryRegion* cuptr = GetImMemoryRegionPtr (matrix);
+  return GetMemoryRegion (matrix, cuptr);
 }
 
 CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx)
@@ -199,34 +185,6 @@ CUdeviceptr GetRowsAddress(const MatrixEx* matrixEx)
   return reinterpret_cast<CUdeviceptr>(&matrixEx->rows);
 }
 
-floatt* GetReValues(CUdeviceptr matrix)
-{
-  floatt* reValues = NULL;
-  cuMemcpyDtoH(&reValues, GetReValuesAddress(matrix), sizeof(floatt*));
-  return reValues;
-}
-
-floatt* GetImValues(CUdeviceptr matrix)
-{
-  floatt* imValues = NULL;
-  cuMemcpyDtoH(&imValues, GetImValuesAddress(matrix), sizeof(floatt*));
-  return imValues;
-}
-
-uintt GetColumns(CUdeviceptr matrix)
-{
-  uintt columns = 0;
-  cuMemcpyDtoH(&columns, GetColumnsAddress(matrix), sizeof(uintt));
-  return columns;
-}
-
-uintt GetRows(CUdeviceptr matrix)
-{
-  uintt rows = 0;
-  cuMemcpyDtoH(&rows, GetRowsAddress(matrix), sizeof(uintt));
-  return rows;
-}
-
 uintt GetColumns(const MatrixEx* matrixEx)
 {
   uintt columns = 0;
@@ -241,109 +199,22 @@ uintt GetRows(const MatrixEx* matrixEx)
   return rows;
 }
 
-CUdeviceptr AllocMatrix_AllocMemory (bool allocRe, bool allocIm, uintt columns, uintt rows, floatt revalue, floatt imvalue, CuDevicePtrs* cuDevicePtrs)
-{
-  CUdeviceptr matrix = 0;
-  AllocDeviceMem (&matrix, sizeof(math::Matrix));
-
-  CUdeviceptr matrixRe = 0;
-  CUdeviceptr matrixIm = 0;
-
-  matrixRe = allocRe ? AllocReMatrix (matrix, columns, rows, revalue) : SetReMatrixToNull (matrix);
-  matrixIm = allocIm ? AllocImMatrix(matrix, columns, rows, imvalue) : SetImMatrixToNull(matrix);
-
-  if (cuDevicePtrs)
-  {
-    cuDevicePtrs->matrixPtr = matrix;
-    cuDevicePtrs->reValuesPtr = matrixRe;
-    cuDevicePtrs->imValuesPtr = matrixIm;
-  }
-
-  SetVariables(matrix, columns, rows);
-  return matrix;
-}
-
-CUdeviceptr AllocMatrix_ReuseMemory (uintt columns, uintt rows, floatt* revalues, floatt* imvalues, CuDevicePtrs* cuDevicePtrs)
-{
-  CUdeviceptr matrix = 0;
-  AllocDeviceMem(&matrix, sizeof(math::Matrix));
-
-  CUdeviceptr matrixRe = reinterpret_cast<CUdeviceptr>(revalues);
-  CUdeviceptr matrixIm = reinterpret_cast<CUdeviceptr>(imvalues);
-
-  if (cuDevicePtrs)
-  {
-    cuDevicePtrs->matrixPtr = matrix;
-    cuDevicePtrs->reValuesPtr = gMemoryMng.reuse (matrixRe);
-    cuDevicePtrs->imValuesPtr = gMemoryMng.reuse (matrixIm);
-  }
-
-  SetVariables(matrix, columns, rows);
-  return matrix;
-}
-
 void CopyHtoD(CUdeviceptr devPtr, void* hostPtr, size_t size) {
   printCuError(cuMemcpyHtoD(devPtr, hostPtr, size));
 }
 
-CUdeviceptr AllocReMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value)
-{
-  CUdeviceptr devicePtrReValues = 0;
-  AllocDeviceMem(&devicePtrReValues, columns * rows * sizeof(floatt));
-  CopyHtoD(GetReValuesAddress(devicePtrMatrix), &devicePtrReValues,
-           sizeof(CUdeviceptr));
-  unsigned int dvalue = *reinterpret_cast<unsigned int*>(&value);
-  cuMemsetD32(devicePtrReValues, dvalue, columns * rows * sizeof(floatt) / 4);
-  return devicePtrReValues;
-}
-
-CUdeviceptr AllocImMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value)
-{
-  CUdeviceptr devicePtrImValues = 0;
-  AllocDeviceMem(&devicePtrImValues, columns * rows * sizeof(floatt));
-  CopyHtoD(GetImValuesAddress(devicePtrMatrix), &devicePtrImValues,
-           sizeof(CUdeviceptr));
-  unsigned int dvalue = *reinterpret_cast<unsigned int*>(&value);
-  cuMemsetD32(devicePtrImValues, dvalue, columns * rows * sizeof(floatt) / 4);
-  return devicePtrImValues;
-}
-
-CUdeviceptr SetReMatrixToNull(CUdeviceptr devicePtrMatrix)
-{
-  CUdeviceptr buffer = 0;
-  printCuError(cuMemcpyHtoD(GetReValuesAddress(devicePtrMatrix), &buffer,
-                            sizeof(CUdeviceptr)));
-  return 0;
-}
-
-CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix)
-{
-  CUdeviceptr buffer = 0;
-  printCuError(cuMemcpyHtoD(GetImValuesAddress(devicePtrMatrix), &buffer,
-                            sizeof(CUdeviceptr)));
-  return 0;
-}
-
-void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows)
-{
-  printCuError(cuMemcpyHtoD(GetColumnsAddress(devicePtrMatrix), &columns,
-                            sizeof(uintt)));
-  printCuError(cuMemcpyHtoD(GetRealColumnsAddress(devicePtrMatrix), &columns,
-                            sizeof(uintt)));
-  printCuError(
-      cuMemcpyHtoD(GetRowsAddress(devicePtrMatrix), &rows, sizeof(uintt)));
-  printCuError(
-      cuMemcpyHtoD(GetRealRowsAddress(devicePtrMatrix), &rows, sizeof(uintt)));
-}
-
+#if 0
 math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
 {
   uintt columns = CudaUtils::GetColumns(devMatrix);
   uintt rows = CudaUtils::GetRows(devMatrix);
-  bool isRe = CudaUtils::GetReValues(devMatrix) != NULL;
-  bool isIm = CudaUtils::GetImValues(devMatrix) != NULL;
+
+  bool isRe = CudaUtils::GetReMemoryPtr (devMatrix) != NULL;
+  bool isIm = CudaUtils::GetImMemoryPtr (devMatrix) != NULL;
+
   return math::MatrixInfo(isRe, isIm, columns, rows);
 }
+#endif
 
 void CopyHostToDevice(void* dst, const void* src, uintt size) {
   CUdeviceptr dstPtr = reinterpret_cast<CUdeviceptr>(dst);
@@ -361,35 +232,69 @@ void CopyDeviceToDevice(void* dst, const void* src, uintt size) {
   cuMemcpyDtoD(dstPtr, srcPtr, size);
 }
 
-void SetReValue(math::Matrix* m, uintt index, floatt value) {
-  floatt* array = GetReValues(m);
-  cuMemcpyHtoD(reinterpret_cast<CUdeviceptr>(&array[index]), &value,
-               sizeof(floatt));
+void SetReValue(math::Matrix* m, uintt index, floatt value)
+{
+  using namespace oap::utils;
+  oap::MemoryRegion regMem = CudaUtils::GetReMemoryRegion (m);
+  oap::Memory mem = CudaUtils::GetReMemory (m);
+
+  oap::MemoryLoc loc = {0, 0};
+
+  loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
+
+  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
 }
 
-floatt GetReValue(const math::Matrix* m, uintt index) {
-  floatt* array = GetReValues(m);
-  floatt value = 0;
-  cuMemcpyDtoH(&value, reinterpret_cast<CUdeviceptr>(&array[index]),
-               sizeof(floatt));
-  return value;
+floatt GetReValue(const math::Matrix* m, uintt index)
+{
+  using namespace oap::utils;
+
+  floatt v;
+  oap::MemoryRegion regMem = CudaUtils::GetReMemoryRegion (m);
+  oap::Memory mem = CudaUtils::GetReMemory (m);
+
+  oap::MemoryLoc loc = {0, 0};
+
+  loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
+
+  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+
+  return v;
 }
 
-void SetImValue(math::Matrix* m, uintt index, floatt value) {
-  floatt* array = GetImValues(m);
-  cuMemcpyHtoD(reinterpret_cast<CUdeviceptr>(&array[index]), &value,
-               sizeof(floatt));
+void SetImValue(math::Matrix* m, uintt index, floatt value)
+{
+  using namespace oap::utils;
+  oap::MemoryRegion regMem = CudaUtils::GetImMemoryRegion (m);
+  oap::Memory mem = CudaUtils::GetImMemory (m);
+
+  oap::MemoryLoc loc = {0, 0};
+
+  loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
+
+  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
 }
 
-floatt GetImValue(const math::Matrix* m, uintt index) {
-  floatt* array = GetImValues(m);
-  floatt value = 0;
-  cuMemcpyDtoH(&value, reinterpret_cast<CUdeviceptr>(&array[index]),
-               sizeof(floatt));
-  return value;
+floatt GetImValue(const math::Matrix* m, uintt index)
+{
+  using namespace oap::utils;
+
+  floatt v;
+  oap::MemoryRegion regMem = CudaUtils::GetImMemoryRegion (m);
+  oap::Memory mem = CudaUtils::GetImMemory (m);
+
+  oap::MemoryLoc loc = {0, 0};
+
+  loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
+
+  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+
+  return v;
 }
 
-floatt GetReDiagonal(math::Matrix* m, uintt index) {
+#if 0
+floatt GetReDiagonal(math::Matrix* m, uintt index)
+{
   uintt columns = GetColumns(m);
   return GetReValue(m, index * columns + index);
 }
@@ -427,7 +332,7 @@ void SetZeroRow(math::Matrix* matrix, uintt index, bool re, bool im) {
                 elementsCount);
   }
 }
-
+#endif
 void GetMatrixStr(std::string& output, math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
 {
   matrixUtils::PrintArgs args;

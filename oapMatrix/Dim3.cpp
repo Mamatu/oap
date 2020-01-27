@@ -93,6 +93,6 @@ void ThreadIdx::wait() {
 }
 
 ThreadIdx::Barriers ThreadIdx::m_barriers;
-utils::sync::Mutex ThreadIdx::m_barriersMutex;
+oap::utils::sync::Mutex ThreadIdx::m_barriersMutex;
 
 #endif

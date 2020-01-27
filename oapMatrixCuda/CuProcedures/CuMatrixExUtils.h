@@ -22,6 +22,7 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
+#include "MatrixAPI.h"
 #include "MatrixEx.h"
 #include "CuMatrixIndexUtilsCommon.h"
 
@@ -29,8 +30,8 @@ __hostdeviceinline__ void cuAux_initMatrixEx (MatrixEx& ex, const math::Matrix* 
 {
   ex.column = 0;
   ex.row = 0;
-  ex.columns = matrix->columns;
-  ex.rows = matrix->rows;
+  ex.columns = gColumns (matrix);
+  ex.rows = gRows (matrix);
 }
 
 __hostdeviceinline__ void cuAux_initMatrixExByThreads (MatrixEx& ex, const math::Matrix* matrix)
@@ -40,8 +41,8 @@ __hostdeviceinline__ void cuAux_initMatrixExByThreads (MatrixEx& ex, const math:
 
   ex.column = threadIndexX;
   ex.row = threadIndexY;
-  ex.columns = matrix->columns;
-  ex.rows = matrix->rows;
+  ex.columns = gColumns (matrix);
+  ex.rows = gRows (matrix);
 }
 
 __hostdeviceinline__ void cuAux_initMatrixExs (MatrixEx exs[3], const math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)

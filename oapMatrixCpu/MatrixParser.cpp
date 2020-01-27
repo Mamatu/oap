@@ -245,7 +245,7 @@ floatt Parser::getValue(uintt index) const
 size_t Parser::getLength() const
 { return m_array.size(); }
 
-const floatt* Parser::getData() const
+const floatt* const Parser::getData() const
 { return m_array.data(); }
 
 bool HasArray (const std::string& text, unsigned int which)

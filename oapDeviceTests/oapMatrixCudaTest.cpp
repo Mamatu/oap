@@ -602,7 +602,7 @@ TEST_F(OapMatrixCudaTests, SetVectorAndCopyTest) {
   size_t columns = 2000;
   math::Matrix* host = oap::host::NewReMatrix(columns, 1);
   for (size_t fa = 0; fa < columns; ++fa) {
-    host->reValues[fa] = fa;
+    *GetRePtrIndex (host, fa) = fa;
   }
 
   math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
@@ -612,14 +612,14 @@ TEST_F(OapMatrixCudaTests, SetVectorAndCopyTest) {
   math::Matrix* host1 = oap::host::NewReMatrix(columns, 1);
 
   for (size_t fa = 0; fa < columns; ++fa) {
-    host1->reValues[fa] = columns + 1;
-    EXPECT_EQ(columns + 1, host1->reValues[fa]);
+    *GetRePtrIndex (host1, fa) = columns + 1;
+    EXPECT_EQ(columns + 1, GetReIndex (host1, fa));
   }
 
   oap::cuda::CopyDeviceMatrixToHostMatrix(host1, device);
 
   for (size_t fa = 0; fa < columns; ++fa) {
-    EXPECT_EQ(fa, host1->reValues[fa]);
+    EXPECT_EQ(fa, GetReIndex (host1, fa));
   }
 
   oap::host::DeleteMatrix(host1);

@@ -95,7 +95,7 @@ namespace test_api
     {
       size_t trueIdx = idxsToCheck[idx];
       floatt expected = conversions[trueIdx];
-      floatt actual = weights->reValues[trueIdx];
+      floatt actual = GetReIndex (weights, trueIdx);
       ASSERT_NEAR (expected, actual, expected_precision) << "Standard expect_near: " << trueIdx << ", " << cwInfo.str();
       callback (expected, actual, trueIdx);
     }
@@ -132,10 +132,10 @@ namespace test_api
   {
     for (const auto& p : points)
     {
-      hinputs->reValues[0] = p.first.first;
-      hinputs->reValues[1] = p.first.second;
+      *GetRePtrIndex (hinputs, 0) = p.first.first;
+      *GetRePtrIndex (hinputs, 1) = p.first.second;
 
-      houtput->reValues[0] = p.second;
+      *GetRePtrIndex (houtput, 0) = p.second;
 
       network->setInputs (hinputs, ArgType::HOST);
       network->setExpected (houtput, ArgType::HOST);
@@ -202,10 +202,10 @@ namespace test_api
         {
           checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__);
 
-          hinputs->reValues[0] = p.first.first;
-          hinputs->reValues[1] = p.first.second;
+          *GetRePtrIndex (hinputs, 0) = p.first.first;
+          *GetRePtrIndex (hinputs, 1) = p.first.second;
 
-          houtput->reValues[0] = p.second;
+          *GetRePtrIndex (houtput, 0) = p.second;
 
           network->setInputs (hinputs, ArgType::HOST);
           network->setExpected (houtput, ArgType::HOST);
@@ -227,7 +227,7 @@ namespace test_api
 
     auto batchesFPHandlersProcess = [&](const BatchesFPHandlers& handlers)
     {
-      for (size_t batchIdx = 0; batchIdx < handlers.size(); ++batchIdx)
+      for (uintt batchIdx = 0; batchIdx < handlers.size(); ++batchIdx)
       {
         size_t cweightsIdx = weightsIdx + batchIdx;
         FPHandler handler = handlers[batchIdx];
@@ -237,22 +237,17 @@ namespace test_api
 
         uintt samplesCount = network->getLayer (network->getLayersCount() - 1, handler)->getSamplesCount ();
 
-        for (size_t sampleIdx = 0; sampleIdx < samplesCount; ++sampleIdx)
+        for (uintt sampleIdx = 0; sampleIdx < samplesCount; ++sampleIdx)
         {
-          for (size_t layerIdx = 0; layerIdx < network->getLayersCount(); ++layerIdx)
+          for (uintt layerIdx = 0; layerIdx < network->getLayersCount(); ++layerIdx)
           {
             DeviceLayer* layer = network->getLayer (layerIdx);
             const DeviceLayer* layerS = network->getLayer (layerIdx, handler);
 
             auto copy = [sampleIdx](math::Matrix* dst, const math::Matrix* src)
             {
-              uintt dims[2][2][2];
               auto minfo = oap::cuda::GetMatrixInfo (dst);
-              oap::generic::initDims (dims, minfo);
-
-              oap::generic::setColumnIdx (0, dims[oap::generic::g_srcIdx]);
-              oap::generic::setRowIdx (sampleIdx * minfo.rows(), dims[oap::generic::g_srcIdx]);
-              oap::cuda::CopyDeviceMatrixToDeviceMatrixDims (dst, src, dims);
+              oap::cuda::CopyDeviceMatrixToDeviceMatrixEx (dst, {0, 0}, src, {{0, sampleIdx * minfo.rows()}, {minfo.columns(), minfo.rows()}});
             };
 
             if (layerIdx == network->getLayersCount () - 1)

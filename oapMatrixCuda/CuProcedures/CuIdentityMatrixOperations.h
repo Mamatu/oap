@@ -70,12 +70,12 @@ __hostdevice__ void CUDA_IdentityMatrixAdd (math::Matrix* output, math::Matrix* 
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const bool inScope = threadIndexX < output->columns && threadIndexY < output->rows; 
+  const bool inScope = threadIndexX < gColumns (output) && threadIndexY < gRows (output); 
 
   if (inScope)
   {
-    const bool isRe = output->reValues != NULL;
-    const bool isIm = output->imValues != NULL;
+    const bool isRe = output->re.ptr != NULL;
+    const bool isIm = output->im.ptr != NULL;
   
     if (isRe && isIm)
     {
@@ -140,12 +140,12 @@ __hostdevice__ void CUDA_IdentityMatrixSubstract (math::Matrix* output, math::Ma
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const bool inScope = threadIndexX < output->columns && threadIndexY < output->rows; 
+  const bool inScope = threadIndexX < gColumns (output) && threadIndexY < gRows (output); 
 
   if (inScope)
   {
-    const bool isRe = output->reValues != NULL;
-    const bool isIm = output->imValues != NULL;
+    const bool isRe = output->re.ptr != NULL;
+    const bool isIm = output->im.ptr != NULL;
   
     if (isRe && isIm)
     {

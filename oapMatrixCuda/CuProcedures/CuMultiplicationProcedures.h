@@ -17,54 +17,49 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef CUMULTIPLICATIONPROCEDURES_H
 #define CUMULTIPLICATIONPROCEDURES_H
 
 #include "CuCore.h"
+#include "Matrix.h"
+#include "MatrixAPI.h"
 
-__hostdevice__ void cuda_multiplyConstantReMatrix(math::Matrix* output,
-                                                  math::Matrix* params0,
-                                                  floatt re) {
+__hostdevice__ void cuda_multiplyConstantReMatrix (math::Matrix* output, math::Matrix* params0, floatt re) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + threadIndexY * output->columns;
-  const uintt limit = output->rows * output->columns;
+  uintt index = threadIndexX + threadIndexY * gColumns (output);
+  const uintt limit = gRows (output) * gColumns (output);
   if (index < limit)
   {
-    output->reValues[index] = params0->reValues[index] * re;
+    *GetRePtrIndex (output, index) = GetReIndex (params0, index) * re;
   }
 }
 
-__hostdevice__ void cuda_multiplyConstantImMatrix(math::Matrix* output,
-                                                  math::Matrix* params0,
-                                                  floatt im) {
+__hostdevice__ void cuda_multiplyConstantImMatrix (math::Matrix* output, math::Matrix* params0, floatt im)
+{
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + threadIndexY * output->columns;
-  const uintt limit = output->rows * output->columns;
+  uintt index = threadIndexX + threadIndexY * gColumns (output);
+  const uintt limit = gRows (output) * gColumns (output);
   if (index < limit)
   {
-    output->imValues[index] = params0->imValues[index] * im;
+    *GetImPtrIndex (output, index) = GetImIndex (params0, index) * im;
   }
 }
 
-__hostdevice__ void cuda_multiplyConstantRealMatrix(math::Matrix* output,
-                                                    math::Matrix* params0,
-                                                    floatt re, floatt im) {
+__hostdevice__ void cuda_multiplyConstantRealMatrix (math::Matrix* output, math::Matrix* params0, floatt re, floatt im)
+{
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + threadIndexY * output->columns;
-  const uintt limit = output->rows * output->columns;
+  uintt index = threadIndexX + threadIndexY * gColumns (output);
+  const uintt limit = gRows (output) * gColumns (output);
   if (index < limit)
   {
-    output->reValues[index] = params0->reValues[index] * re;
-    output->imValues[index] = params0->imValues[index] * im;
+    *GetRePtrIndex (output, index) = GetReIndex (params0, index) * re;
+    *GetImPtrIndex (output, index) = GetImIndex (params0, index) * im;
   }
 }
 
@@ -101,10 +96,10 @@ __hostdevice__ void CUDA_multiplyConstantMatrix(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
   bool isInRange =
-      threadIndexX < output->columns && threadIndexY < output->rows;
+      threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   if (isre && isim && isInRange) {
     cuda_multiplyConstantRealMatrix(output, params0, re, im);
   } else if (isre && isInRange) {

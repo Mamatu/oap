@@ -26,7 +26,7 @@
 
 #include "oapMemoryList.h"
 #include "oapMemoryPrimitives.h"
-#include "oapGenericMemoryApi.h"
+#include "oapMemory_GenericApi.h"
 #include "oapMemoryManager.h"
 
 #define ReIsNotNULL(m) m->reValues != nullptr
@@ -36,7 +36,7 @@
 /*
 std::ostream& operator<<(std::ostream& output, const math::Matrix*& matrix)
 {
-  return output << matrix << ", [" << matrix->columns << ", " << matrix->rows
+  return output << matrix << ", [" << gColumns (matrix) << ", " << gRows (matrix)
          << "]";
 }
 */
@@ -59,12 +59,12 @@ inline void fillWithValue (floatt* values, floatt value, uintt length)
 
 inline void fillRePart(math::Matrix* output, floatt value)
 {
-  fillWithValue (output->reValues, value, output->columns * output->rows);
+  fillWithValue (output->re.ptr, value, gColumns (output) * gRows (output));
 }
 
 inline void fillImPart(math::Matrix* output, floatt value)
 {
-  fillWithValue (output->imValues, value, output->columns * output->rows);
+  fillWithValue (output->im.ptr, value, gColumns (output) * gRows (output));
 }
 
 namespace oap
@@ -74,124 +74,106 @@ namespace host
 
 namespace
 {
+
+MemoryList g_memoryList ("HOST");
+
 floatt* allocateBuffer (size_t length)
 {
-  return new floatt [length];
+  floatt* buffer = new floatt [length];
+  g_memoryList.add (buffer, length);
+  return buffer;
 }
 
-void deallocateBuffer (const floatt* buffer)
+void deallocateBuffer (floatt* const buffer)
 {
+  g_memoryList.remove (buffer);
   delete[] buffer;
 }
 
 oap::MemoryManagement<floatt*, decltype(allocateBuffer), decltype(deallocateBuffer), nullptr> g_memoryMng (allocateBuffer, deallocateBuffer);
-MemoryList g_memoryList ("HOST");
 
-oap::Memory* allocateMemStructure (const oap::MemoryDims& dims, floatt* ptr)
-{
-  oap::Memory* memory = new oap::Memory;
-  memory->dims = dims;
-  memory->ptr = ptr;
-  return memory;
-}
-
-oap::Memory* allocateMem (const oap::MemoryDims& dims)
+floatt* allocateMem (const oap::MemoryDims& dims)
 {
   floatt* raw = g_memoryMng.allocate (dims.width * dims.height);
 
-  oap::Memory* memory = allocateMemStructure (dims, raw);
-  g_memoryList.add (memory, *memory);
-
-  return memory;
+  return raw;
 }
 
-void deallocateMem (const oap::Memory* memory)
+void deallocateMem (const oap::Memory& memory)
 {
-  g_memoryList.remove (memory);
-  g_memoryMng.deallocate (memory->ptr);
-  delete memory;
+  g_memoryMng.deallocate (memory.ptr);
 }
 
 }
 
-oap::Memory* NewMemory (const oap::MemoryDims& dims)
+oap::Memory NewMemory (const oap::MemoryDims& dims)
 {
   return oap::generic::newMemory (dims, allocateMem);
 }
 
-oap::Memory* NewMemoryWithValues (const MemoryDims& dims, floatt value)
+oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value)
 {
   return oap::generic::newMemoryWithValues (dims, value, [](const MemoryDims& dims, floatt value)
   {
-    oap::Memory* memory = NewMemory (dims);
-    math::Memset (memory->ptr, value, dims.width * dims.height);
-    return memory;
+    oap::Memory memory = NewMemory (dims);
+    math::Memset (memory.ptr, value, dims.width * dims.height);
+    return memory.ptr;
   });
 }
 
-oap::Memory* NewMemoryCopy (const oap::Memory* src)
+oap::Memory NewMemoryCopy (const oap::Memory& src)
 {
-  return oap::generic::newMemoryCopy (src, [](const oap::Memory* src)
+  return oap::generic::newMemoryCopy (src, [](floatt* const src, const MemoryDims& dims)
   {
-    oap::Memory* memory = NewMemory (src->dims);
-    oap::host::Copy (memory, src);
-    return memory;
+    oap::Memory memory = NewMemory (dims);
+    const oap::Memory srcMem = {src, dims};
+    oap::host::CopyHostToHost (memory, srcMem);
+    return memory.ptr;
   });
 }
 
-oap::Memory* NewMemoryCopyMem (const oap::Memory* src, uintt width, uintt height)
+oap::Memory NewMemoryCopyMem (const oap::Memory& src, uintt width, uintt height)
 {
-  return oap::generic::newMemoryCopyMem (src, width, height, [](const oap::Memory* src, uintt width, uintt height)
+  return oap::generic::newMemoryCopyMem (src, width, height, [](floatt* const src, const oap::MemoryDims& oldDims, const oap::MemoryDims& newDims)
   {
-    logAssert (src->dims.height * src->dims.width == width * height);
-
-    oap::Memory* memory = NewMemory (src->dims);
-    oap::host::Copy (memory, src);
-    return memory;
+    oap::Memory memory = NewMemory (newDims);
+    oap::host::CopyHostToHost (memory, {src, oldDims});
+    return memory.ptr;
   });
 }
 
-oap::Memory* ReuseMemory (const oap::Memory* src, uintt width, uintt height)
+oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height)
 {
-  return oap::generic::reuseMemory (src, width, height, [](const oap::Memory* src, uintt width, uintt height)
+  return oap::generic::reuseMemory (src, width, height, [](floatt* const src, const oap::MemoryDims& oldDims, const oap::MemoryDims& newDims)
   {
-    logAssert (src->dims.height * src->dims.width == width * height);
-    floatt* ptr = GetRawMemory (src);
-    oap::Memory* out = allocateMemStructure ({width, height}, g_memoryMng.reuse (ptr));
-    return out;
+    return g_memoryMng.reuse (src);
   });
 }
 
-void DeleteMemory (const oap::Memory* mem)
+void DeleteMemory (const oap::Memory& mem)
 {
-  return oap::generic::deleteMemory (mem, [](const oap::Memory* mem)
+  return oap::generic::deleteMemory (mem, [](const oap::Memory& mem)
   {
     deallocateMem (mem);
   });
 }
 
-oap::MemoryDims GetDims (const oap::Memory* mem)
+oap::MemoryDims GetDims (const oap::Memory& mem)
 {
-  return oap::generic::getDims (mem, [](const oap::Memory* mem)
-  {
-    return mem->dims;
-  });
+  return mem.dims;
 }
 
-floatt* GetRawMemory (const oap::Memory* mem)
+floatt* GetRawMemory (const oap::Memory& mem)
 {
-  return oap::generic::getRawMemory (mem, [](const oap::Memory* mem)
-  {
-    return mem->ptr;
-  });
+  return mem.ptr;
 }
 
-void Copy (oap::Memory* dst, const oap::MemoryLoc& dstLoc, const oap::Memory* src, const oap::MemoryRegion& srcReg)
+void CopyHostToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg)
 {
   oap::generic::copy (dst, dstLoc, src, srcReg, memcpy);
 }
 
-void Copy (oap::Memory* dst, const oap::Memory* src)
+void CopyHostToHost (oap::Memory& dst, const oap::Memory& src)
 {
   oap::generic::copy (dst, src, memcpy);
 }

@@ -72,17 +72,17 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
   DeviceLayer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
-  weights1to2->reValues[0] = 1;
-  weights1to2->reValues[1] = 1;
+  *GetRePtrIndex (weights1to2, 0) = 1;
+  *GetRePtrIndex (weights1to2, 1) = 1;
 
   l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
-  inputs->reValues[0] = 1;
-  inputs->reValues[1] = 1;
+  *GetRePtrIndex (inputs, 0) = 1;
+  *GetRePtrIndex (inputs, 1) = 1;
 
   oap::HostMatrixPtr outputs = oap::host::NewReMatrix (1, 1);
-  outputs->reValues[0] = sigmoid (2);
+  *GetRePtrIndex (outputs, 0) = sigmoid (2);
 
   network->setInputs (inputs, ArgType::HOST);
   network->setExpected (outputs, ArgType::HOST);
@@ -92,7 +92,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
   auto getLayerOutput = [](DeviceLayer* layer)
   {
     auto minfo = layer->getOutputsInfo ();
-    oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
+    oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.columns (), minfo.rows ());
     layer->getOutputs (outputsL, ArgType::HOST);
     return outputsL;
   };
@@ -108,8 +108,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
   l1->getHostWeights (bweights1to2);
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 1));
 }
 
 TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
@@ -120,17 +120,17 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
   DeviceLayer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
-  weights1to2->reValues[0] = 1;
-  weights1to2->reValues[1] = 1;
+  *GetRePtrIndex (weights1to2, 0) = 1;
+  *GetRePtrIndex (weights1to2, 1) = 1;
 
   l1->setHostWeights (weights1to2);
 
   oap::HostMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
-  inputs->reValues[0] = 1;
-  inputs->reValues[1] = 1;
+  *GetRePtrIndex (inputs, 0) = 1;
+  *GetRePtrIndex (inputs, 1) = 1;
 
   oap::HostMatrixPtr outputs = oap::host::NewReMatrix (1, 1);
-  outputs->reValues[0] = sigmoid (2);
+  *GetRePtrIndex (outputs, 0) = sigmoid (2);
 
   network->setInputs (inputs, ArgType::HOST);
   network->setExpected (outputs, ArgType::HOST);
@@ -140,7 +140,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
   auto getLayerOutput = [](DeviceLayer* layer)
   {
     auto minfo = layer->getOutputsInfo ();
-    oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
+    oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.columns (), minfo.rows ());
     layer->getOutputs (outputsL, ArgType::HOST);
     return outputsL;
   };
@@ -155,8 +155,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
   l1->getHostWeights (bweights1to2);
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 1));
 }
 
 TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
@@ -167,8 +167,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
   DeviceLayer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
-  weights1to2->reValues[0] = 1;
-  weights1to2->reValues[1] = 1;
+  *GetRePtrIndex (weights1to2, 0) = 1;
+  *GetRePtrIndex (weights1to2, 1) = 1;
 
   l1->setHostWeights (weights1to2);
 
@@ -177,12 +177,12 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
   floatt input1 = 1;
   floatt input2 = 1;
 
-  inputs->reValues[0] = input1;
-  inputs->reValues[1] = input2;
+  *GetRePtrIndex (inputs, 0) = input1;
+  *GetRePtrIndex (inputs, 1) = input2;
 
   oap::HostMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
   floatt error = 0.001;
-  expectedOutputs->reValues[0] = sigmoid (2) + error;
+  *GetRePtrIndex (expectedOutputs, 0) = sigmoid (2) + error;
 
   floatt lr = 0.01;
   network->setLearningRate (lr);
@@ -203,8 +203,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
   l1->getHostWeights (bweights1to2);
 
-  EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (2) * input1, bweights1to2->reValues[0]);
-  EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (2) * input2, bweights1to2->reValues[1]);
+  EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (2) * input1, GetReIndex (bweights1to2, 0));
+  EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (2) * input2, GetReIndex (bweights1to2, 1));
 }
 
 TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
@@ -215,8 +215,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
   DeviceLayer* l2 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
-  weights1to2->reValues[0] = 1;
-  weights1to2->reValues[1] = 1;
+  *GetRePtrIndex (weights1to2, 0) = 1;
+  *GetRePtrIndex (weights1to2, 1) = 1;
 
   l1->setHostWeights (weights1to2);
 
@@ -224,12 +224,12 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
 
   std::vector<floatt> inputsVec = {2, 1};
 
-  inputs->reValues[0] = inputsVec[0];
-  inputs->reValues[1] = inputsVec[1];
+  *GetRePtrIndex (inputs, 0) = inputsVec[0];
+  *GetRePtrIndex (inputs, 1) = inputsVec[1];
 
   oap::HostMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
   floatt error = 0.001;
-  expectedOutputs->reValues[0] = sigmoid (3) + error;
+  *GetRePtrIndex (expectedOutputs, 0) = sigmoid (3) + error;
 
   floatt lr = 0.01;
   network->setLearningRate (lr);
@@ -249,8 +249,8 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
   l1->getHostWeights (bweights1to2);
 
-  EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (3) * inputsVec[0], bweights1to2->reValues[0]);
-  EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (3) * inputsVec[1], bweights1to2->reValues[1]);
+  EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (3) * inputsVec[0], GetReIndex (bweights1to2, 0));
+  EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (3) * inputsVec[1], GetReIndex (bweights1to2, 1));
 }
 
 TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5)
@@ -277,11 +277,11 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5)
 
   std::vector<floatt> inputsVec = {1, 1};
 
-  inputs->reValues[0] = inputsVec[0];
-  inputs->reValues[1] = inputsVec[1];
+  *GetRePtrIndex (inputs, 0) = inputsVec[0];
+  *GetRePtrIndex (inputs, 1) = inputsVec[1];
 
   oap::HostMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
-  expectedOutputs->reValues[0] = sigmoid (sigmoid (2) + sigmoid (2) + sigmoid (2));
+  *GetRePtrIndex (expectedOutputs, 0) = sigmoid (sigmoid (2) + sigmoid (2) + sigmoid (2));
 
   floatt lr = 0.01;
   network->setLearningRate (lr);
@@ -301,14 +301,14 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5)
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
   l1->getHostWeights (bweights1to2);
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 1));
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[2]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[3]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 2));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 3));
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[4]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[5]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 4));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 5));
 }
 
 TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_1)
@@ -335,11 +335,11 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_1)
 
   std::vector<floatt> inputsVec = {1, 1};
 
-  inputs->reValues[0] = inputsVec[0];
-  inputs->reValues[1] = inputsVec[1];
+  *GetRePtrIndex (inputs, 0) = inputsVec[0];
+  *GetRePtrIndex (inputs, 1) = inputsVec[1];
 
   oap::HostMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
-  expectedOutputs->reValues[0] = sigmoid (sigmoid (2) + sigmoid (2) + sigmoid (2));
+  *GetRePtrIndex (expectedOutputs, 0) = sigmoid (sigmoid (2) + sigmoid (2) + sigmoid (2));
 
   floatt lr = 0.01;
   network->setLearningRate (lr);
@@ -363,14 +363,14 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_1)
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
   l1->getHostWeights (bweights1to2);
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 1));
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[2]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[3]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 2));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 3));
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[4]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[5]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 4));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 5));
 }
 
 TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_2)
@@ -410,12 +410,12 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_2)
 
   for (size_t i = 0; i < inputsVec.size(); ++i)
   {
-    inputs->reValues[0] = inputsVec[i].first;
-    inputs->reValues[1] = inputsVec[i].second;
+    *GetRePtrIndex (inputs, 0) = inputsVec[i].first;
+    *GetRePtrIndex (inputs, 1) = inputsVec[i].second;
 
     network->setInputs (inputs, ArgType::HOST);
 
-    expectedOutputs->reValues[0] = expectedOutputsVec[i];
+    *GetRePtrIndex (expectedOutputs, 0) = expectedOutputsVec[i];
     network->setExpected (expectedOutputs, ArgType::HOST);
 
     network->forwardPropagation ();
@@ -433,14 +433,14 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_2)
   oap::HostMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
   l1->getHostWeights (bweights1to2);
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[0]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[1]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 1));
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[2]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[3]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 2));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 3));
 
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[4]);
-  EXPECT_DOUBLE_EQ (1, bweights1to2->reValues[5]);
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 4));
+  EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 5));
 }
 
 TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_3)
@@ -483,12 +483,12 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_3)
 
   for (size_t i = 0; i < inputsVec.size(); ++i)
   {
-    inputs->reValues[0] = inputsVec[i].first;
-    inputs->reValues[1] = inputsVec[i].second;
+    *GetRePtrIndex (inputs, 0) = inputsVec[i].first;
+    *GetRePtrIndex (inputs, 1) = inputsVec[i].second;
 
     network->setInputs (inputs, ArgType::HOST);
 
-    expectedOutputs->reValues[0] = expectedOutputsVec[i];
+    *GetRePtrIndex (expectedOutputs, 0) = expectedOutputsVec[i];
     network->setExpected (expectedOutputs, ArgType::HOST);
 
     network->forwardPropagation ();
@@ -531,7 +531,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_7)
 
   oap::HostMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
   floatt error = 0.001;
-  expectedOutputs->reValues[0] = sigmoid (sigmoid (3) + sigmoid (2) + sigmoid (2)) + error;
+  *GetRePtrIndex (expectedOutputs, 0) = sigmoid (sigmoid (3) + sigmoid (2) + sigmoid (2)) + error;
 
   floatt lr = 0.01;
   network->setLearningRate (lr);
@@ -556,18 +556,18 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_7)
 
   floatt limit = 0.00001;
 
-  EXPECT_NEAR (2 + lr * (error * 1) * dsigmoid (sigmoid(3) + sigmoid(2)) * inputsVec[0], bweights1to2->reValues[0], limit);
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], bweights1to2->reValues[1], limit);
+  EXPECT_NEAR (2 + lr * (error * 1) * dsigmoid (sigmoid(3) + sigmoid(2)) * inputsVec[0], GetReIndex (bweights1to2, 0), limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], GetReIndex (bweights1to2, 1), limit);
 
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], bweights1to2->reValues[2], limit);
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], bweights1to2->reValues[3], limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], GetReIndex (bweights1to2, 2), limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], GetReIndex (bweights1to2, 3), limit);
 
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], bweights1to2->reValues[4], limit);
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], bweights1to2->reValues[5], limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], GetReIndex (bweights1to2, 4), limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], GetReIndex (bweights1to2, 5), limit);
 
-  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(3), bweights2to3->reValues[0], limit);
-  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), bweights2to3->reValues[1], limit);
-  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), bweights2to3->reValues[2], limit);
+  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(3), GetReIndex (bweights2to3, 0), limit);
+  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), GetReIndex (bweights2to3, 1), limit);
+  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), GetReIndex (bweights2to3, 2), limit);
 }
 
 TEST_F(OapNeuralTests_SimpleBackpropagation, Test_8)
@@ -598,7 +598,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_8)
 
   oap::HostMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
   floatt error = 0.001;
-  expectedOutputs->reValues[0] = sigmoid (sigmoid (3) + sigmoid (2) + sigmoid (2)) + error;
+  *GetRePtrIndex (expectedOutputs, 0) = sigmoid (sigmoid (3) + sigmoid (2) + sigmoid (2)) + error;
 
   floatt lr = 0.01;
   network->setLearningRate (lr);
@@ -623,16 +623,16 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_8)
 
   floatt limit = 0.00001;
 
-  EXPECT_NEAR (2 + lr * (error * 1) * dsigmoid (sigmoid(3) + sigmoid(2)) * inputsVec[0], bweights1to2->reValues[0], limit);
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], bweights1to2->reValues[1], limit);
+  EXPECT_NEAR (2 + lr * (error * 1) * dsigmoid (sigmoid(3) + sigmoid(2)) * inputsVec[0], GetReIndex (bweights1to2, 0), limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], GetReIndex (bweights1to2, 1), limit);
 
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], bweights1to2->reValues[2], limit);
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], bweights1to2->reValues[3], limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], GetReIndex (bweights1to2, 2), limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], GetReIndex (bweights1to2, 3), limit);
 
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], bweights1to2->reValues[4], limit);
-  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], bweights1to2->reValues[5], limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[0], GetReIndex (bweights1to2, 4), limit);
+  EXPECT_NEAR (1 + lr * (error * 1) * dsigmoid (sigmoid(2) + sigmoid(2)) * inputsVec[1], GetReIndex (bweights1to2, 5), limit);
 
-  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(3), bweights2to3->reValues[0], limit);
-  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), bweights2to3->reValues[1], limit);
-  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), bweights2to3->reValues[2], limit);
+  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(3), GetReIndex (bweights2to3, 0), limit);
+  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), GetReIndex (bweights2to3, 1), limit);
+  EXPECT_NEAR (1 + lr * error * dsigmoid (sigmoid(3) + sigmoid(2) + sigmoid(2)) * sigmoid(2), GetReIndex (bweights2to3, 2), limit);
 }

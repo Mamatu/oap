@@ -40,11 +40,11 @@
  *  |P11*K11 P12*K12 P21*K21 P22*K22 P12*K11 P13*K12 P22*K21 P23*K22 P13*K11 P14*K12 P23*K21 P24*K22 ...|
  *  |P21*K11 P22*K12 P31*K21 P32*K22 P22*K11 P23*K12 P32*K21 P33*K22 P23*K11 P24*K12 P33*K21 P34*K22 ...|
  */
-#define KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS(matrix, kernel, columns, rows) (matrix columns - kernel columns + 1) * kernel columns * kernel rows
-#define KEROPER_CONVOLUTION_CALCULATE_CACHE_ROWS(matrix, kernel, rows) (matrix rows - kernel rows + 1)
-#define KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX(matrix, kernel, columns, rows) threadIndexX + threadIndexY * KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS(matrix, kernel, columns, rows)
-#define KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X(kernel, columns, rows) CU_MODULO(threadIndexX, kernel columns) + (threadIndexX / (kernel columns * kernel rows))
-#define KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y(kernel, columns, rows) threadIndexY + (CU_MODULO(threadIndexX, kernel columns * kernel rows)) / (kernel columns)
+#define KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS(matrix, kernel, getColumns, getRows) (getColumns (matrix) - getColumns (kernel) + 1) * getColumns (kernel) * getRows (kernel)
+#define KEROPER_CONVOLUTION_CALCULATE_CACHE_ROWS(matrix, kernel, getRows) (getRows (matrix) - getRows (kernel) + 1)
+#define KEROPER_CONVOLUTION_CALCULATE_CACHE_IDX(matrix, kernel,  getColumns, getRows) threadIndexX + threadIndexY * KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS(matrix, kernel,  getColumns, getRows)
+#define KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_X(kernel,  getColumns, getRows) CU_MODULO(threadIndexX, getColumns (kernel)) + (threadIndexX / (getColumns (kernel) * getRows (kernel)))
+#define KEROPER_CONVOLUTION_CALCULATE_PARAM_IDX_Y(kernel,  getColumns, getRows) threadIndexY + (CU_MODULO(threadIndexX, getColumns (kernel) * getRows (kernel))) / (getColumns (kernel))
 
 /**
  * Pooling
@@ -64,27 +64,27 @@
  *  |P11*K11 P12*K12 P21*K21 P22*K22 P13*K11 P14*K12 P23*K21 P24*K22|
  *  |P31*K11 P32*K12 P41*K21 P42*K22 P33*K11 P34*K12 P43*K21 P44*K22|
  */
-#define KEROPER_POOLING_CALCULATE_CACHE_COLUMNS(matrix, kernel, columns, rows) (matrix columns / kernel columns) * (kernel columns * kernel rows)
-#define KEROPER_POOLING_CALCULATE_CACHE_ROWS(matrix, kernel, rows) (matrix rows / kernel rows)
-#define KEROPER_POOLING_CALCULATE_CACHE_IDX(matrix, kernel, columns, rows) threadIndexX + threadIndexY * KEROPER_POOLING_CALCULATE_CACHE_COLUMNS(matrix, kernel, columns, rows)
-#define KEROPER_POOLING_CALCULATE_PARAM_IDX_X(kernel, columns, rows)  CU_MODULO(threadIndexX, kernel columns) + ((threadIndexX / (kernel columns * kernel rows)) * kernel columns)
-#define KEROPER_POOLING_CALCULATE_PARAM_IDX_Y(kernel, columns, rows) (threadIndexY * kernel rows) + (CU_MODULO(threadIndexX, (kernel columns * kernel rows)) / kernel columns)
+#define KEROPER_POOLING_CALCULATE_CACHE_COLUMNS(matrix, kernel,  getColumns, getRows) (getColumns (matrix) / getColumns (kernel)) * (getColumns (kernel) * getRows (kernel))
+#define KEROPER_POOLING_CALCULATE_CACHE_ROWS(matrix, kernel, getRows) (getRows (matrix) / getRows (kernel))
+#define KEROPER_POOLING_CALCULATE_CACHE_IDX(matrix, kernel,  getColumns, getRows) threadIndexX + threadIndexY * KEROPER_POOLING_CALCULATE_CACHE_COLUMNS(matrix, kernel,  getColumns, getRows)
+#define KEROPER_POOLING_CALCULATE_PARAM_IDX_X(kernel,  getColumns, getRows)  CU_MODULO(threadIndexX, getColumns (kernel)) + ((threadIndexX / (getColumns (kernel) * getRows (kernel))) * getColumns (kernel))
+#define KEROPER_POOLING_CALCULATE_PARAM_IDX_Y(kernel,  getColumns, getRows) (threadIndexY * getRows (kernel)) + (CU_MODULO(threadIndexX, (getColumns (kernel) * getRows (kernel))) / getColumns (kernel))
 
-#define KEROPER_CALCULATE_KERNEL_IDX(kernel, columns, rows) CU_MODULO(threadIndexX, kernel columns * kernel rows)
+#define KEROPER_CALCULATE_KERNEL_IDX(kernel,  getColumns, getRows) CU_MODULO(threadIndexX, getColumns (kernel) * getRows (kernel))
 
 #define KEROPER_CALCULATE_OUTPUT_DIM(matrix, kernel, dim) (matrix dim - kernel dim + 1)
 
-#define KEROPER_CALCULATE_OUTPUT_IDX_X(kernel, columns, rows) threadIndexX / (kernel columns * kernel rows)
+#define KEROPER_CALCULATE_OUTPUT_IDX_X(kernel,  getColumns, getRows) threadIndexX / (getColumns (kernel) * getRows (kernel))
 
-#define KEROPER_IS_OUTPUT_IDX(kernel, columns, rows) (CU_MODULO(cacheIdx, kernel columns * kernel rows) == 0)
+#define KEROPER_IS_OUTPUT_IDX(kernel,  getColumns, getRows) (CU_MODULO(cacheIdx, getColumns (kernel) * getRows (kernel)) == 0)
 
-#define KEROPER_CACHE_CODE(type, params, kernel, cache, columns, rows, cache_set_code)            \
-  uintt cacheW = KEROPER_##type##_CALCULATE_CACHE_COLUMNS (params, kernel, columns, rows);        \
-  uintt cacheH = KEROPER_##type##_CALCULATE_CACHE_ROWS (params, kernel, rows);                    \
-  uintt kidx = KEROPER_CALCULATE_KERNEL_IDX(kernel, columns, rows);                               \
-  uintt px = KEROPER_##type##_CALCULATE_PARAM_IDX_X(kernel, columns, rows);                       \
-  uintt py = KEROPER_##type##_CALCULATE_PARAM_IDX_Y(kernel, columns, rows);                       \
-  const uintt cacheIdx = KEROPER_##type##_CALCULATE_CACHE_IDX (params, kernel, columns, rows);    \
+#define KEROPER_CACHE_CODE(type, params, kernel, cache,  getColumns,  getRows, cache_set_code)            \
+  uintt cacheW = KEROPER_##type##_CALCULATE_CACHE_COLUMNS (params, kernel,  getColumns, getRows);        \
+  uintt cacheH = KEROPER_##type##_CALCULATE_CACHE_ROWS (params, kernel, getRows);                    \
+  uintt kidx = KEROPER_CALCULATE_KERNEL_IDX(kernel,  getColumns, getRows);                               \
+  uintt px = KEROPER_##type##_CALCULATE_PARAM_IDX_X(kernel,  getColumns, getRows);                       \
+  uintt py = KEROPER_##type##_CALCULATE_PARAM_IDX_Y(kernel,  getColumns, getRows);                       \
+  const uintt cacheIdx = KEROPER_##type##_CALCULATE_CACHE_IDX (params, kernel,  getColumns, getRows);    \
   cache[cacheIdx] = cache_set_code;
   //cache[cacheIdx] = GetRe (params0, px, py) * GetReIndex (kernel, kidx);
 

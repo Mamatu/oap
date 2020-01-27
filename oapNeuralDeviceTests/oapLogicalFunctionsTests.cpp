@@ -91,15 +91,15 @@ class OapLogicalFunctionsTests : public testing::Test
 
       oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
       oap::HostMatrixUPtr expected = oap::host::NewReMatrix(1, 1);
-      inputs->reValues[0] = a1;
-      inputs->reValues[1] = a2;
+      *GetRePtrIndex (inputs, 0) = a1;
+      *GetRePtrIndex (inputs, 1) = a2;
 
       if (m_hasBias)
       {
-        inputs->reValues[2] = m_bvalue;
+        *GetRePtrIndex (inputs, 2) = m_bvalue;
       }
 
-      expected->reValues[0] = e1;
+      *GetRePtrIndex (expected, 0) = e1;
 
       m_ont->network->train(inputs, expected, ArgType::HOST, m_errorType);
     }
@@ -114,16 +114,16 @@ class OapLogicalFunctionsTests : public testing::Test
       }
 
       oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
-      inputs->reValues[0] = a1;
-      inputs->reValues[1] = a2;
+      *GetRePtrIndex (inputs, 0) = a1;
+      *GetRePtrIndex (inputs, 1) = a2;
 
       if (m_hasBias)
       {
-        inputs->reValues[2] = m_bvalue;
+        *GetRePtrIndex (inputs, 2) = m_bvalue;
       }
 
       auto output = m_ont->network->run (inputs, ArgType::HOST, m_errorType);
-      return m_ont->is(output->reValues[0]);
+      return m_ont->is(GetReIndex (output, 0));
     }
   };
 

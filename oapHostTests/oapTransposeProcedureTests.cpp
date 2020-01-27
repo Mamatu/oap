@@ -42,7 +42,7 @@ class TransposeKernel : public HostKernel {
     m_dst = dst;
     m_src = src;
 
-    setDims(dim3(1, 1), dim3(m_dst->columns, m_dst->rows));
+    setDims(dim3(1, 1), dim3(gColumns (m_dst), gRows (m_dst)));
   }
 
   math::Matrix* m_dst;

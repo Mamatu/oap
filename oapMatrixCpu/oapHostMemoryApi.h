@@ -25,26 +25,26 @@
 
 #include "MatrixPrinter.h"
 #include "oapMemoryPrimitives.h"
-#include "oapGenericMemoryApi.h"
+#include "oapMemory_GenericApi.h"
 
 namespace oap
 {
 namespace host
 {
 
-oap::Memory* NewMemory (const MemoryDims& dims);
-oap::Memory* NewMemoryWithValues (const MemoryDims& dims, floatt value);
-oap::Memory* NewMemoryCopy (const oap::Memory* src);
-oap::Memory* NewMemoryCopyMem (const oap::Memory* src, uintt width, uintt height);
-oap::Memory* ReuseMemory (const oap::Memory* src, uintt width, uintt height);
+oap::Memory NewMemory (const MemoryDims& dims);
+oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value);
+oap::Memory NewMemoryCopy (const oap::Memory& src);
+oap::Memory NewMemoryCopyMem (const oap::Memory& src, uintt width, uintt height);
+oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height);
 
-void DeleteMemory (const oap::Memory* mem);
+void DeleteMemory (const oap::Memory& mem);
 
-oap::MemoryDims GetDims (const oap::Memory* mem);
-floatt* GetRawMemory (const oap::Memory* mem);
+oap::MemoryDims GetDims (const oap::Memory& mem);
+floatt* GetRawMemory (const oap::Memory& mem);
 
-void Copy (oap::Memory* dst, const oap::MemoryLoc& dstLoc, const oap::Memory* src, const oap::MemoryRegion& srcReg);
-void Copy (oap::Memory* dst, const oap::Memory* src);
+void CopyHostToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyHostToHost (oap::Memory& dst, const oap::Memory& src);
 
 }
 }

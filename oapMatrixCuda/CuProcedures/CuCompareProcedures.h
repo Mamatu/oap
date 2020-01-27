@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef CUCOMPAREPROCEDURES_H
 #define CUCOMPAREPROCEDURES_H
 
@@ -27,6 +24,7 @@
 #include "CuMatrixUtils.h"
 #include <stdio.h>
 #include "Matrix.h"
+#include "MatrixAPI.h"
 #include "MatrixEx.h"
 
 #include "CuCompareUtilsCommon.h"
@@ -104,8 +102,8 @@ __hostdevice__ void CUDA_compareRealMatrix(floatt* sum,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uint tindex = threadIndexY * matrix1->columns + threadIndexX;
-  uint length = matrix1->columns * matrix1->rows;
+  uint tindex = threadIndexY * gColumns (matrix1) + threadIndexX;
+  uint length = gColumns (matrix1) * gRows (matrix1);
   if (tindex < length) {
     cuda_compare_real(buffer, matrix1, matrix2, tindex, length);
     threads_sync();
@@ -125,8 +123,8 @@ __hostdevice__ void CUDA_compareImMatrix(floatt* sum,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uint tindex = threadIndexY * matrix1->columns + threadIndexX;
-  uint length = matrix1->columns * matrix1->rows;
+  uint tindex = threadIndexY * gColumns (matrix1) + threadIndexX;
+  uint length = gColumns (matrix1) * gRows (matrix1);
   if (tindex < length) {
     cuda_compare_im(buffer, matrix1, matrix2, tindex, length);
     threads_sync();
@@ -146,8 +144,8 @@ __hostdevice__ void CUDA_compareReMatrix(floatt* sum,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uint tindex = threadIndexY * matrix1->columns + threadIndexX;
-  uint length = matrix1->columns * matrix1->rows;
+  uint tindex = threadIndexY * gColumns (matrix1) + threadIndexX;
+  uint length = gColumns (matrix1) * gRows (matrix1);
   if (tindex < length) {
     cuda_compare_re(buffer, matrix1, matrix2, tindex, length);
     threads_sync();
@@ -166,8 +164,8 @@ __hostdevice__ void CUDA_compare(floatt* sum,
 {
   HOST_INIT();
 
-  bool isre = matrix1->reValues != NULL;
-  bool isim = matrix1->imValues != NULL;
+  bool isre = matrix1->re.ptr != NULL;
+  bool isim = matrix1->im.ptr != NULL;
   if (isre && isim) {
     CUDA_compareRealMatrix(sum, matrix1, matrix2, buffer);
   } else if (isre) {

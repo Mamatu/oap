@@ -364,8 +364,8 @@ void CuHArnoldi::extractEigenvalues(math::Matrix* H, uint m_wantedCount)
 
   for (uint fa = 0; fa < m_triangularHcolumns; ++fa) {
     traceFunction();
-    floatt rev = CudaUtils::GetReDiagonal(H, fa);
-    floatt imv = CudaUtils::GetImDiagonal(H, fa);
+    floatt rev = oap::cuda::GetReDiagonal(H, fa);
+    floatt imv = oap::cuda::GetImDiagonal(H, fa);
 
     Complex c(rev, imv);
     EigenPair oe(c, fa);
@@ -435,8 +435,8 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
     floatt rB = 1. / B;
     m_cuApi.multiplyReConstant(m_v, m_f, rB);
     m_cuApi.setVector(m_V, fa + 1, m_v, m_vrows);
-    CudaUtils::SetZeroRow(m_H, fa + 1, true, true);
-    CudaUtils::SetReValue(m_H, (fa) + m_Hcolumns * (fa + 1), B);
+    oap::cuda::SetZeroRow(m_H, fa + 1, true, true);
+    oap::cuda::SetReValue(m_H, (fa) + m_Hcolumns * (fa + 1), B);
     multiply(m_w, m_v, m_cuApi, oap::VecMultiplicationType::TYPE_WV);
     m_cuApi.transpose(m_transposeV, m_V);
     m_cuApi.dotProduct(m_h, m_transposeV, m_w);
@@ -596,8 +596,8 @@ void CuHArnoldi::alloc(const math::MatrixInfo& matrixInfo, uint k)
     m_wasAllocated = true;
     m_k = k;
   }
-  CudaUtils::SetZeroMatrix(m_v);
-  CudaUtils::SetZeroMatrix(m_V);
+  oap::cuda::SetZeroMatrix(m_v);
+  oap::cuda::SetZeroMatrix(m_V);
 
   m_triangularHInfo = oap::cuda::GetMatrixInfo (m_triangularH);
 }

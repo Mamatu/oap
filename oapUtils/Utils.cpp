@@ -31,9 +31,9 @@ bool Compare::compare(math::Matrix* matrix, floatt d) {
   if (NULL == matrix) {
     return false;
   }
-  uintt length = matrix->rows * matrix->columns;
+  uintt length = gRows (matrix) * gColumns (matrix);
   for (uintt fa = 0; fa < length; ++fa) {
-    if (!rule(matrix->reValues[fa], d)) {
+    if (!rule(gReValues (matrix)[fa], d)) {
       return false;
     }
   }
@@ -41,8 +41,8 @@ bool Compare::compare(math::Matrix* matrix, floatt d) {
 }
 
 math::Matrix* create(const math::Matrix& arg) {
-  return oap::host::NewMatrix(arg.reValues != NULL, arg.imValues != NULL,
-                         arg.columns, arg.rows);
+  return oap::host::NewMatrix(gReValues (&arg) != NULL, gImValues (&arg) != NULL,
+                         gColumns (&arg), gRows (&arg));
 }
 
 bool AlmostEquals(floatt a, floatt b) {
@@ -54,21 +54,21 @@ bool AlmostEquals(floatt a, floatt b, floatt epsilon) {
 }
 
 void diff(math::Matrix* output, math::Matrix* m1, math::Matrix* m2) {
-  for (uintt fa = 0; fa < output->columns; ++fa) {
-    for (uintt fb = 0; fb < output->rows; ++fb) {
-      uintt index = fa + fb * m1->columns;
-      if (output->reValues != NULL) {
-        output->reValues[index] = m1->reValues[index] - m2->reValues[index];
+  for (uintt fa = 0; fa < gColumns (output); ++fa) {
+    for (uintt fb = 0; fb < gRows (output); ++fb) {
+      uintt index = fa + fb * gColumns (m1);
+      if (gReValues (output) != NULL) {
+        gReValues (output)[index] = gReValues (m1)[index] - gReValues (m2)[index];
       }
-      if (output->imValues != NULL) {
-        output->imValues[index] = m1->imValues[index] - m2->imValues[index];
+      if (gImValues (output) != NULL) {
+        gImValues (output)[index] = gImValues (m1)[index] - gImValues (m2)[index];
       }
     }
   }
 }
 
 bool IsEqual(const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff) {
-  if (m1.columns != m2.columns || m1.rows != m2.rows) {
+  if (gColumns (&m1) != gColumns (&m2) || gRows (&m1) != gRows (&m2)) {
     return false;
   }
   return HasValues(m1, m2, tolerance, diff);
@@ -78,16 +78,16 @@ bool HasValues(const math::Matrix& m1, const math::Matrix& m2, floatt tolerance,
   if (diff != NULL) {
     (*diff) = NULL;
   }
-  if (m1.columns * m1.rows != m2.columns * m2.rows) {
+  if (gColumns (&m1) * gRows (&m1) != gColumns (&m2) * gRows (&m2)) {
     return false;
   }
   bool status = true;
-  for (uintt fa = 0; fa < m1.columns; ++fa) {
-    for (uintt fb = 0; fb < m1.rows; ++fb) {
-      uintt index = fa + fb * m1.columns;
-      if (m1.reValues != NULL && m2.reValues != NULL) {
-        floatt re1 = (m1.reValues[index]);
-        floatt re2 = (m2.reValues[index]);
+  for (uintt fa = 0; fa < gColumns (&m1); ++fa) {
+    for (uintt fb = 0; fb < gRows (&m1); ++fb) {
+      uintt index = fa + fb * gColumns (&m1);
+      if (gReValues (&m1) != NULL && gReValues (&m2) != NULL) {
+        floatt re1 = (gReValues (&m1)[index]);
+        floatt re2 = (gReValues (&m2)[index]);
 
         if (!AlmostEquals(re1, re2, tolerance)) {
           status = false;
@@ -95,13 +95,13 @@ bool HasValues(const math::Matrix& m1, const math::Matrix& m2, floatt tolerance,
             if (*diff == NULL) {
               (*diff) = create(m1);
             }
-            (*diff)->reValues[index] = m1.reValues[index] - m2.reValues[index];
+            SetReIdx (*diff, index, GetReIdx (&m1, index) - GetReIdx (&m2, index));
           }
         }
       }
-      if (m1.imValues != NULL && m2.imValues != NULL) {
-        floatt im1 = (m1.imValues[index]);
-        floatt im2 = (m2.imValues[index]);
+      if (gImValues (&m1) != NULL && gImValues (&m2) != NULL) {
+        floatt im1 = (gImValues (&m1)[index]);
+        floatt im2 = (gImValues (&m2)[index]);
 
         if (!AlmostEquals(im1, im2, tolerance)) {
           status = false;
@@ -109,7 +109,7 @@ bool HasValues(const math::Matrix& m1, const math::Matrix& m2, floatt tolerance,
             if (*diff == NULL) {
               (*diff) = create(m1);
             }
-            (*diff)->imValues[index] = m1.imValues[index] - m2.imValues[index];
+            SetImIdx (*diff, index, GetImIdx (&m1, index) - GetImIdx (&m2, index));
           }
         }
       }

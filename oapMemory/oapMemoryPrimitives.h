@@ -21,6 +21,7 @@
 #define OAP_MEMORY_REGION_H
 
 #include "Math.h"
+#include "CuCore.h"
 
 namespace oap
 {
@@ -47,12 +48,6 @@ struct MemoryRegion
 {
   MemoryLoc loc;
   MemoryDims dims;
-};
-
-struct MemoryRegionPtr
-{
-  floatt* ptr;
-  MemoryRegion region;
 };
 
 }

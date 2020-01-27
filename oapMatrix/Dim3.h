@@ -85,13 +85,13 @@ class ThreadIdx {
 
   class BarrierMutex {
    public:
-    utils::sync::Barrier m_barrier;
-    utils::sync::Mutex m_mutex;
+    oap::utils::sync::Barrier m_barrier;
+    oap::utils::sync::Mutex m_mutex;
   };
 
   typedef std::map<pthread_t, BarrierMutex*> Barriers;
   static Barriers m_barriers;
-  static utils::sync::Mutex m_barriersMutex;
+  static oap::utils::sync::Mutex m_barriersMutex;
 
  public:
   ThreadIdx () : m_threadIdx (0, 0, 0), m_blockIdx (0, 0, 0), m_blockDim (0, 0, 1), m_gridDim (0, 0, 1)

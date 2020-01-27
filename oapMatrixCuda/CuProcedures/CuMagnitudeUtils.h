@@ -45,13 +45,13 @@ __hostdevice__ void cuda_MagnitudeRealOpt(floatt* buffer, uintt bufferIndex, mat
 {
   HOST_INIT();
   const bool inScope =
-    aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-    aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+    aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < gRows (m1) &&
+    aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < gColumns (m1);
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
-    buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index] +
-                          m1->imValues[index] * m1->imValues[index];
+    uintt index = aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, gColumns (m1));
+    buffer[bufferIndex] = GetReIndex (m1, index) * GetReIndex (m1, index) +
+                          GetImIndex (m1, index) * GetImIndex (m1, index);
   }
 }
 
@@ -59,24 +59,24 @@ __hostdevice__ void cuda_MagnitudeReOpt(floatt* buffer, uintt bufferIndex, math:
 {
   HOST_INIT();
   const bool inScope =
-    aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-    aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+    aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < gRows (m1) &&
+    aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < gColumns (m1);
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
-    buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index];
+    uintt index = aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, gColumns (m1));
+    buffer[bufferIndex] = GetReIndex (m1, index) * GetReIndex (m1, index);
   }
 }
 
 __hostdevice__ void cuda_MagnitudeImOpt(floatt* buffer, uintt bufferIndex, math::Matrix* m1)
 {
   HOST_INIT();
-  const bool inScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-                       aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns;
+  const bool inScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < gRows (m1) &&
+                       aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < gColumns (m1);
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
-    buffer[bufferIndex] = m1->imValues[index] * m1->imValues[index];
+    uintt index = aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, gColumns (m1));
+    buffer[bufferIndex] = GetImIndex (m1, index) * GetImIndex (m1, index);
   }
 }
 
@@ -98,13 +98,13 @@ __hostdevice__ void cuda_MagnitudeRealVecOpt(floatt* buffer, uintt bufferIndex, 
   dim3 lblockIdx = blockIdx;
   cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
 
-  const bool inScope = aux_GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < m1->rows &&
+  const bool inScope = aux_GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < gRows (m1) &&
                        aux_GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index] +
-                          m1->imValues[index] * m1->imValues[index];
+    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, gColumns (m1));
+    buffer[bufferIndex] = GetReIndex (m1, index) * GetReIndex (m1, index) +
+                          GetImIndex (m1, index) * GetImIndex (m1, index);
   }
 }
 
@@ -116,12 +116,12 @@ __hostdevice__ void cuda_MagnitudeReVecOpt(floatt* buffer, uintt bufferIndex, ma
   dim3 lblockIdx = blockIdx;
   cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
 
-  const bool inScope = aux_GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < m1->rows &&
+  const bool inScope = aux_GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < gRows (m1) &&
                        aux_GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index];
+    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, gColumns (m1));
+    buffer[bufferIndex] = GetReIndex (m1, index) * GetReIndex (m1, index);
   }
 }
 
@@ -133,12 +133,12 @@ __hostdevice__ void cuda_MagnitudeImVecOpt(floatt* buffer, uintt bufferIndex, ma
   dim3 lblockIdx = blockIdx;
   cuda_calculateLocaIdx(lthreadIdx, lblockIdx, m1, column);
 
-  const bool inScope = aux_GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < m1->rows &&
+  const bool inScope = aux_GetMatrixYIndex(lthreadIdx, lblockIdx, blockDim) < gRows (m1) &&
                        aux_GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffer[bufferIndex] = m1->imValues[index] * m1->imValues[index];
+    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, gColumns (m1));
+    buffer[bufferIndex] = GetImIndex (m1, index) * GetImIndex (m1, index);
   }
 }
 
@@ -155,9 +155,9 @@ __hostdevice__ void cuda_MagnitudeRealVecOptEx(floatt* buffer, uintt bufferIndex
   const bool inScope = matrixYIndex >= row1 && matrixYIndex < row2 && aux_GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index] +
-                          m1->imValues[index] * m1->imValues[index];
+    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, gColumns (m1));
+    buffer[bufferIndex] = GetReIndex (m1, index) * GetReIndex (m1, index) +
+                          GetImIndex (m1, index) * GetImIndex (m1, index);
   }
 }
 
@@ -176,8 +176,8 @@ __hostdevice__ void cuda_MagnitudeReVecOptEx(floatt* buffer, uintt bufferIndex,
   const bool inScope = matrixYIndex >= row1 && matrixYIndex < row2 && aux_GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffer[bufferIndex] = m1->reValues[index] * m1->reValues[index];
+    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, gColumns (m1));
+    buffer[bufferIndex] = GetReIndex (m1, index) * GetReIndex (m1, index);
   }
 }
 
@@ -198,8 +198,8 @@ __hostdevice__ void cuda_MagnitudeImVecOptEx(floatt* buffer, uintt bufferIndex,
     aux_GetMatrixXIndex(lthreadIdx, lblockIdx, blockDim) == column;
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, m1->columns);
-    buffer[bufferIndex] = m1->imValues[index] * m1->imValues[index];
+    uintt index = aux_GetMatrixIndex(lthreadIdx, lblockIdx, blockDim, gColumns (m1));
+    buffer[bufferIndex] = GetImIndex (m1, index) * GetImIndex (m1, index);
   }
 }
 
@@ -207,17 +207,17 @@ typedef floatt (*CalcElem_f)(const math::Matrix* matrix, uintt index);
 
 __hostdevice__ floatt cuda_CalcElemReal (const math::Matrix* matrix, uintt index)
 {
-  return matrix->reValues[index] * matrix->reValues[index] + matrix->imValues[index] * matrix->imValues[index];
+  return GetReIndex (matrix, index) * GetReIndex (matrix, index) + GetImIndex (matrix, index) * GetImIndex (matrix, index);
 }
 
 __hostdevice__ floatt cuda_CalcElemRe (const math::Matrix* matrix, uintt index)
 {
-  return matrix->reValues[index] * matrix->reValues[index];
+  return GetReIndex (matrix, index) * GetReIndex (matrix, index);
 }
 
 __hostdevice__ floatt cuda_CalcElemIm (const math::Matrix* matrix, uintt index)
 {
-  return matrix->imValues[index] * matrix->imValues[index];
+  return GetImIndex (matrix, index) * GetImIndex (matrix, index);
 }
 
 __hostdevice__ void cuda_MagnitudeGenericOptEx (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row, uintt columns, uintt rows, CalcElem_f calcElm)
@@ -230,7 +230,7 @@ __hostdevice__ void cuda_MagnitudeGenericOptEx (floatt* buffer, uintt bufferInde
   const bool inScope = matrixYIndex >= row && matrixYIndex < row + rows && matrixXIndex >= column && matrixXIndex < column + columns;
   if (inScope)
   {
-    uintt index = aux_GetMatrixIndex (threadIdx, blockIdx, blockDim, m1->columns);
+    uintt index = aux_GetMatrixIndex (threadIdx, blockIdx, blockDim, gColumns (m1));
     buffer[bufferIndex] = calcElm (m1, index);
   }
 }

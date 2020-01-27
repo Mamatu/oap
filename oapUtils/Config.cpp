@@ -19,6 +19,7 @@
 
 #include "Config.h"
 
+namespace oap {
 namespace utils {
 #define TO_STRING(s) STRING(s)
 #define STRING(s) #s
@@ -88,5 +89,6 @@ std::string Config::getPathInRoot(const std::string& root, const std::string& re
   }
 
   return output;
+}
 }
 }
