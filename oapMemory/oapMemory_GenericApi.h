@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_GENERIC_MEMORY_API_H
-#define OAP_GENERIC_MEMORY_API_H
+#ifndef OAP_MEMORY__GENERIC_API_H
+#define OAP_MEMORY__GENERIC_API_H
 
 #include <vector>
 
@@ -26,7 +26,7 @@
 #include "Logger.h"
 
 #include "oapMemoryPrimitives.h"
-#include "oapCommonMemoryApi.h"
+#include "oapMemory_CommonApi.h"
 
 namespace oap
 {

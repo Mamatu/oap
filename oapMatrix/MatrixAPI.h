@@ -21,6 +21,7 @@
 #define OAP_MATRIXAPI_H
 
 #include "Matrix.h"
+#include "oapMemory_CommonApi.h"
 #include "MatrixTestAPI.h"
 
 #include "CuCore.h"
@@ -28,35 +29,87 @@
 
 #include "oapAssertion.h"
 
-#ifdef OAP_CUDA_BUILD
-
-__hostdeviceinline__ void SetRe(math::Matrix* m, uintt c, uintt r, floatt v) {
-  m->reValues[c + r * m->columns] = v;
+__hostdeviceinline__ uintt gColumns (const math::Matrix* matrix)
+{
+  if (matrix->re)
+  {
+    if (matrix->reReg)
+    {
+      return matrix->reReg->dims.width;
+    }
+    return matrix->re->dims.width;
+  }
+  if (matrix->im)
+  {
+    if (matrix->imReg)
+    {
+      return matrix->imReg->dims.width;
+    }
+    return matrix->im->dims.width;
+  }
+  return 0;
 }
 
-__hostdeviceinline__ floatt GetRe(const math::Matrix* m, uintt c, uintt r) {
-  debugAssert (c + r * m->columns < m->rows * m->columns);
-  return m->reValues[c + r * m->columns];
+__hostdeviceinline__ uintt gRows (const math::Matrix* matrix)
+{
+  if (matrix->re)
+  {
+    if (matrix->reReg)
+    {
+      return matrix->reReg->dims.height;
+    }
+    return matrix->re->dims.height;
+  }
+  if (matrix->im)
+  {
+    if (matrix->imReg)
+    {
+      return matrix->imReg->dims.height;
+    }
+    return matrix->im->dims.height;
+  }
+  return 0;
 }
 
-__hostdeviceinline__ floatt GetReIndex(const math::Matrix* m, uintt index) {
-  debugAssert (index < m->rows * m->columns);
+__hostdeviceinline__ floatt* gReValues (const math::Matrix* matrix)
+{
+  return matrix->re->ptr;
+}
+
+__hostdeviceinline__ floatt* gImValues (const math::Matrix* matrix)
+{
+  return matrix->im->ptr;
+}
+
+__hostdeviceinline__ void SetRe(math::Matrix* m, uintt c, uintt r, floatt v)
+{
+  oap::utils::SetValue (m->re, m->reReg, c, r, v);
+}
+
+__hostdeviceinline__ floatt GetRe(const math::Matrix* m, uintt c, uintt r)
+{
+  debugAssert (c + r * columns (m) < rows (m) * columns (m));
+  return oap::utils::GetValue (m->re, m->reReg, c, r);
+}
+
+/*__hostdeviceinline__ floatt GetReIndex(const math::Matrix* m, uintt index) {
+  debugAssert (index < rows (m) * columns (m));
   return m->reValues[index];
-}
+}*/
 
 __hostdeviceinline__ void SetIm(math::Matrix* m, uintt c, uintt r, floatt v) {
-  m->imValues[c + r * m->columns] = v;
+  oap::utils::SetValue (m->im, m->imReg, c, r, v);
 }
 
 __hostdeviceinline__ floatt GetIm(const math::Matrix* m, uintt c, uintt r) {
-  debugAssert (c + r * m->columns < m->rows * m->columns);
-  return m->imValues[c + r * m->columns];
+  debugAssert (c + r * columns (m) < rows (m) * columns (m));
+  return oap::utils::GetValue (m->im, m->imReg, c, r);
 }
 
-__hostdeviceinline__ floatt GetImIndex(const math::Matrix* m, uintt index) {
-  debugAssert (index < m->rows * m->columns);
+/*__hostdeviceinline__ floatt GetImIndex(const math::Matrix* m, uintt index) {
+  debugAssert (index < rows (m) * columns (m));
   return m->imValues[index];
-}
+}*/
 
 __hostdeviceinline__ void Reset(math::Matrix* m) {}
 
@@ -64,79 +117,5 @@ __hostdeviceinline__ void Push(math::Matrix* m) {}
 
 __hostdeviceinline__ void Pop(math::Matrix* m) {}
 
-#else
-
-#include "MatrixTestAPI.h"
-
-__hostdeviceinline__ void SetRe(math::Matrix* m, uintt c, uintt r, floatt v) {
-  m->reValues[c + r * m->columns] = v;
-  test::setRe(m, c, r, v);
-  debugAssert(c + r * m->columns < m->rows * m->columns);
-}
-
-__hostdeviceinline__ floatt GetRe(const math::Matrix* m, uintt c, uintt r) {
-  test::getRe(m, c, r, m->reValues[c + r * m->columns]);
-  debugAssert(c + r * m->columns < m->rows * m->columns);
-  return m->reValues[c + r * m->columns];
-}
-
-__hostdeviceinline__ floatt GetReIndex(const math::Matrix* m, uintt index) {
-  test::getRe(m, index, m->reValues[index]);
-  debugAssert(index < m->rows * m->columns);
-  return m->reValues[index];
-}
-
-__hostdeviceinline__ void SetIm(math::Matrix* m, uintt c, uintt r, floatt v) {
-  m->imValues[c + r * m->columns] = v;
-  test::setIm(m, c, r, v);
-  debugAssert(c + r * m->columns < m->rows * m->columns);
-}
-
-__hostdeviceinline__ floatt GetIm(const math::Matrix* m, uintt c, uintt r) {
-  test::getIm(m, c, r, m->imValues[c + r * m->columns]);
-  debugAssert(c + r * m->columns < m->rows * m->columns);
-  return m->imValues[c + r * m->columns];
-}
-
-__hostdeviceinline__ floatt GetImIndex(const math::Matrix* m, uintt index) {
-  test::getIm(m, index, m->imValues[index]);
-  debugAssert(index < m->rows * m->columns);
-  return m->imValues[index];
-}
-
-__hostdeviceinline__ void Reset(math::Matrix* m) {
-  HOST_INIT();
-  // threads_sync();
-  test::reset(m);
-  // threads_sync();
-}
-
-__hostdeviceinline__ void Push(math::Matrix* m) {
-  HOST_INIT();
-  // threads_sync();
-  test::push(m);
-  // threads_sync();
-}
-
-__hostdeviceinline__ void Pop(math::Matrix* m) {
-  HOST_INIT();
-  // threads_sync();
-  test::pop(m);
-  // threads_sync();
-}
-
-#endif
-
-__hostdeviceinline__ uintt GetIndex(const math::Matrix* m, uintt c, uintt r) {
-  return c + r * m->columns;
-}
-
-__hostdeviceinline__ floatt* GetRePtr(const math::Matrix* m, uintt c, uintt r) {
-  return m->reValues + GetIndex(m, c, r);
-}
-
-__hostdeviceinline__ floatt* GetImPtr(const math::Matrix* m, uintt c, uintt r) {
-  return m->imValues + GetIndex(m, c, r);
-}
 
 #endif  // MATRIXAPI_H
