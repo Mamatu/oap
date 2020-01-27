@@ -42,7 +42,7 @@ MathOperationsCpu::MathOperationsCpu()  {
     registerMathOperation(&m_substracionOperation);
     registerMathOperation(&m_dotProductOperation);
     registerMathOperation(&m_tensorProductOperation);
-    registerMathOperation(&m_diagonalizationOperation);
+//  registerMathOperation(&m_diagonalizationOperation);
     registerMathOperation(&m_expOperation);
     registerMathOperation(&m_multiplicationConstOperation);
     registerMathOperation(&m_magnitudeOperation);
@@ -293,7 +293,7 @@ math::Status MathOperationsCpu::tensorProduct(math::Matrix* output,
 #endif
     return status;
 }
-
+#if 0
 math::Status MathOperationsCpu::diagonalize(math::Matrix* output,
     math::Matrix* matrix1, math::Matrix* matrix2) {
     math::Status status = execute(this->m_diagonalizationOperation, output, matrix1, matrix2);
@@ -302,7 +302,7 @@ math::Status MathOperationsCpu::diagonalize(math::Matrix* output,
 #endif
     return status;
 }
-
+#endif
 math::Status MathOperationsCpu::multiply(math::Matrix* output,
     math::Matrix* matrix1, floatt* value) {
     math::Status status = execute(this->m_multiplicationConstOperation, output, matrix1, value);
@@ -428,7 +428,7 @@ DEFAULT_CONSTRUCTOR(SubstracionOperationCpu, ISubstracionOperation)
 DEFAULT_CONSTRUCTOR(DotProductOperationCpu, IDotProductOperation);
 DEFAULT_CONSTRUCTOR(TensorProductOperationCpu, ITensorProductOperation);
 DEFAULT_CONSTRUCTOR(MagnitudeOperationCpu, IMagnitudeOperation);
-DEFAULT_CONSTRUCTOR(DiagonalizationOperationCpu, IDiagonalizationOperation);
+//DEFAULT_CONSTRUCTOR(DiagonalizationOperationCpu, IDiagonalizationOperation);
 DEFAULT_CONSTRUCTOR(MultiplicationConstOperationCpu, IMultiplicationConstOperation);
 DEFAULT_CONSTRUCTOR(ExpOperationCpu, IExpOperation);
 //        DEFAULT_CONSTRUCTOR(QRDecomposition);

@@ -19,8 +19,13 @@
 
 #include "oapMemoryList.h"
 
-MemoryList::MemoryList (const std::string& id) : oap::AllocationList<oap::Memory, oap::Memory>(id)
+MemoryList::MemoryList (const std::string& id) : oap::AllocationList<floatt*, size_t>(id)
 {}
 
 MemoryList::~MemoryList ()
 {}
+
+std::string MemoryList::toString(const size_t& size) const
+{
+  return std::to_string (size);
+}

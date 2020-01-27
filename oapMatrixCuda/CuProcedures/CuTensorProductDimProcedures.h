@@ -22,6 +22,7 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
+#include "MatrixAPI.h"
 
 __hostdevice__ void
 cuda_tensorProductReDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
@@ -41,11 +42,11 @@ cuda_tensorProductReDim (math::Matrix* output, math::Matrix* params0, math::Matr
   uintt params1_index_x = threadIndexX % p1columns;
   uintt params0_section_x = threadIndexX / p1columns;
 
-  floatt v0 = params0->reValues[params0_section_x + params0->columns * params0_section_y];
-  floatt v1 = params1->reValues[params1_index_x + params1->columns * params1_index_y];
+  floatt v0 = GetReIndex (params0, params0_section_x + gColumns (params0) * params0_section_y);
+  floatt v1 = GetReIndex (params1, params1_index_x + gColumns (params1) * params1_index_y);
 
-  const uintt outputIdx = threadIndexX + output->columns * threadIndexY;
-  output->reValues[outputIdx] = v0 * v1;
+  const uintt outputIdx = threadIndexX + gColumns (output) * threadIndexY;
+  *GetRePtrIndex (output, outputIdx) = v0 * v1;
 }
 
 __hostdevice__ void
@@ -95,8 +96,8 @@ CUDA_tensorProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isre && isim && isInRange)

@@ -193,9 +193,9 @@ TEST_F(OapClassificationTests, CircleDataTest)
     for (size_t idx = 0; idx < coords.size(); ++idx)
     {
       const auto& coord = coords[idx];
-      hinput->reValues[0 + idx * 3] = coord.getX();
-      hinput->reValues[1 + idx * 3] = coord.getY();
-      hinput->reValues[2 + idx * 3] = 1;
+      *GetRePtrIndex (hinput, 0 + idx * 3) = coord.getX();
+      *GetRePtrIndex (hinput, 1 + idx * 3) = coord.getY();
+      *GetRePtrIndex (hinput, 2 + idx * 3) = 1;
     }
 
     return hinput;
@@ -208,7 +208,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
     for (size_t idx = 0; idx < coords.size(); ++idx)
     {
       const auto& coord = coords[idx];
-      hexpected->reValues[idx] = coord.getPreciseLabel();
+      *GetRePtrIndex (hexpected, idx) = coord.getPreciseLabel();
     }
 
     return hexpected;
@@ -304,9 +304,9 @@ TEST_F(OapClassificationTests, CircleDataTest)
 
     auto forwardPropagation = [&hinput, &houtput, &network] (const Coordinate& coordinate)
     {
-      hinput->reValues[0] = coordinate.getX();
-      hinput->reValues[1] = coordinate.getY();
-      houtput->reValues[0] = coordinate.getPreciseLabel();
+      *GetRePtrIndex (hinput, 0) = coordinate.getX();
+      *GetRePtrIndex (hinput, 1) = coordinate.getY();
+      *GetRePtrIndex (houtput, 0) = coordinate.getPreciseLabel();
 
       network->setInputs (hinput, ArgType::HOST);
       network->setExpected (houtput, ArgType::HOST);
@@ -332,7 +332,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
         for (size_t idx = 0; idx < coords.size(); ++idx)
         {
           Coordinate ncoord = coords[idx];
-          ncoord.setLabel (hostMatrix->reValues[idx]);
+          ncoord.setLabel (GetReIndex (hostMatrix, idx));
           output->push_back (ncoord);
         }
       }
@@ -352,8 +352,8 @@ TEST_F(OapClassificationTests, CircleDataTest)
 
     auto getLabel = [&network, &houtput, &hinput] (floatt x, floatt y)
     {
-      hinput->reValues[0] = x;
-      hinput->reValues[1] = y;
+      *GetRePtrIndex (hinput, 0) = x;
+      *GetRePtrIndex (hinput, 1) = y;
 
       network->setInputs (hinput, ArgType::HOST);
       network->setExpected (houtput, ArgType::HOST);
@@ -362,7 +362,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
 
       network->getOutputs (houtput.get(), ArgType::HOST);
 
-      return houtput->reValues[0] < 0 ? 0 : 1;
+      return GetReIndex (houtput, 0) < 0 ? 0 : 1;
     };
 
     std::vector<floatt> trainingErrors;
@@ -441,7 +441,7 @@ TEST_F(OapClassificationTests, OCR)
 {
   oap::CuProceduresApi calcApi;
 
-  std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
+  std::string path = oap::utils::Config::getPathInOap("oapNeural/data/text/");
   path = path + "MnistExamples.png";
   oap::PngFile pngFile (path, false);
 
@@ -702,7 +702,7 @@ TEST_F(OapClassificationTests, OCR)
     std::vector<floatt> outputs;
     for (size_t idx = 0; idx < 10; ++idx)
     {
-      outputs.push_back (hmatrix->reValues[idx]);
+      outputs.push_back (GetReIndex (hmatrix, idx));
     }
 
     //outputs = convert (outputs);
@@ -720,7 +720,7 @@ TEST_F(OapClassificationTests, OCR)
 
   auto testImage = [&network, &convert, &testPattern](const std::string& ocr_png_image, int digit)
   {
-    std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
+    std::string path = oap::utils::Config::getPathInOap("oapNeural/data/text/");
     path = path + ocr_png_image;
 
     oap::PngFile pngFile (path, false);

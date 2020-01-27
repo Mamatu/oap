@@ -23,9 +23,9 @@
 #include "oapHostMatrixUtils.h"        
 namespace math {
 
-    bool isMatrix(math::Matrix* m) { return m != NULL && m->reValues != NULL && m->imValues != NULL; }
-    bool isReMatrix(math::Matrix* m) { return m != NULL && m->reValues != NULL && m->imValues == NULL; }
-    bool isImMatrix(math::Matrix* m) {return m != NULL && m->reValues == NULL && m->imValues != NULL; }
+    bool isMatrix(math::Matrix* m) { return m != NULL && gReValues (m) != NULL && gImValues (m) != NULL; }
+    bool isReMatrix(math::Matrix* m) { return m != NULL && gReValues (m) != NULL && gImValues (m) == NULL; }
+    bool isImMatrix(math::Matrix* m) {return m != NULL && gReValues (m) == NULL && gImValues (m) != NULL; }
 
     Status ITransposeOperation::beforeExecution() {
         Status status = MatrixOperationOutputMatrix::beforeExecution();

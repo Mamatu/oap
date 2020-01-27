@@ -50,9 +50,9 @@ __hostdevice__ void cuda_CompareRealOpt(floatt* buffer, math::Matrix* m1,
   HOST_INIT();
   uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
   uintt column = GetMatrixColumn(threadIdx, blockIdx, blockDim);
-  const bool inScope = row < m1->rows && column < m1->columns;
+  const bool inScope = row < gRows (m1) && column < gColumns (m1);
   if (inScope) {
-    buffer[sharedIndex] = cuda_getRealDist(m1, m2, column + m1->columns * row);
+    buffer[sharedIndex] = cuda_getRealDist(m1, m2, column + gColumns (m1) * row);
   }
 }
 
@@ -62,9 +62,9 @@ __hostdevice__ void cuda_CompareReOpt(floatt* buffer, math::Matrix* m1,
   HOST_INIT();
   uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
   uintt column = GetMatrixColumn(threadIdx, blockIdx, blockDim);
-  const bool inScope = row < m1->rows && column < m1->columns;
+  const bool inScope = row < gRows (m1) && column < gColumns (m1);
   if (inScope) {
-    buffer[sharedIndex] = cuda_getReDist(m1, m2, column + m1->columns * row);
+    buffer[sharedIndex] = cuda_getReDist(m1, m2, column + gColumns (m1) * row);
   }
 }
 
@@ -74,9 +74,9 @@ __hostdevice__ void cuda_CompareImOpt(floatt* buffer, math::Matrix* m1,
   HOST_INIT();
   uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
   uintt column = GetMatrixColumn(threadIdx, blockIdx, blockDim);
-  const bool inScope = row < m1->rows && column < m1->columns;
+  const bool inScope = row < gRows (m1) && column < gColumns (m1);
   if (inScope) {
-    buffer[sharedIndex] += cuda_getImDist(m1, m2, column + m1->columns * row);
+    buffer[sharedIndex] += cuda_getImDist(m1, m2, column + gColumns (m1) * row);
   }
 }
 

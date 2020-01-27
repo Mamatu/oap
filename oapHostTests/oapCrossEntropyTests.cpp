@@ -55,7 +55,7 @@ TEST_F(OapCrossEntropyTests, CrossEntropyTest1)
 
   cuApi.crossEntropy (output.get(), matrix1, matrix2);
 
-  EXPECT_NEAR (getCrossEntropy (0.2, 0.2), output->reValues[0], 0.00001);
+  EXPECT_NEAR (getCrossEntropy (0.2, 0.2), GetReIndex (output, 0), 0.00001);
 }
 
 TEST_F(OapCrossEntropyTests, CrossEntropyTest2)
@@ -73,15 +73,15 @@ TEST_F(OapCrossEntropyTests, CrossEntropyTest2)
 
   for (size_t idx = 0; idx < 9; ++idx)
   {
-    matrix1->reValues[idx] = getValue (idx, 10);
-    matrix2->reValues[idx] = getValue (idx, 10);
+    *GetRePtrIndex (matrix1, idx) = getValue (idx, 10);
+    *GetRePtrIndex (matrix2, idx) = getValue (idx, 10);
   }
 
   cuApi.crossEntropy (output.get(), matrix1, matrix2);
 
   for (size_t idx = 0; idx < 9; ++idx)
   {
-    EXPECT_NEAR (getCrossEntropy (getValue (idx, 10), getValue (idx, 10)), output->reValues[idx], 0.00001);
+    EXPECT_NEAR (getCrossEntropy (getValue (idx, 10), getValue (idx, 10)), GetReIndex (output, idx), 0.00001);
   }
 }
 

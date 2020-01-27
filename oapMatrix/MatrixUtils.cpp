@@ -44,7 +44,7 @@ uintt Range::getERow() const { return m_brow + m_rows; }
 uintt Range::getRows() const { return m_rows; }
 
 MatrixRange::MatrixRange(const math::Matrix* matrix)
-    : Range(0, matrix->columns, 0, matrix->rows), m_matrix(matrix) {}
+    : Range(0, gColumns (matrix), 0, gRows (matrix)), m_matrix(matrix) {}
 
 MatrixRange::MatrixRange(const math::Matrix* matrix, const Range& range)
     : Range(range), m_matrix(matrix) {}
@@ -55,32 +55,32 @@ MatrixRange::MatrixRange(const math::Matrix* matrix, uintt bcolumn,
 
 MatrixRange::~MatrixRange() {}
 
-bool MatrixRange::isReValues() const { return m_matrix->reValues != NULL; }
+bool MatrixRange::isReValues() const { return gReValues (m_matrix) != NULL; }
 
-bool MatrixRange::isImValues() const { return m_matrix->imValues != NULL; }
+bool MatrixRange::isImValues() const { return gImValues (m_matrix) != NULL; }
 
 const math::Matrix* MatrixRange::getMatrix() const { return m_matrix; }
 
 uintt MatrixRange::getEColumn() const {
-  return std::min(m_bcolumn + m_columns, m_matrix->columns);
+  return std::min(m_bcolumn + m_columns, gColumns (m_matrix));
 }
 
 uintt MatrixRange::getERow() const {
-  return std::min(m_brow + m_rows, m_matrix->rows);
+  return std::min(m_brow + m_rows, gRows (m_matrix));
 }
 
 void MatrixRange::getReSubArrays(SubArrays<floatt>& subArrays) const {
-  getSubArrays(subArrays, m_matrix->reValues, m_matrix);
+  getSubArrays(subArrays, gReValues (m_matrix), m_matrix);
 }
 
 void MatrixRange::getImSubArrays(SubArrays<floatt>& subArrays) const {
-  getSubArrays(subArrays, m_matrix->imValues, m_matrix);
+  getSubArrays(subArrays, gImValues (m_matrix), m_matrix);
 }
 
 void MatrixRange::getSubArrays(SubArrays<floatt>& subArrays, floatt* array,
                                const math::Matrix* matrix) const {
   for (uintt fa = m_brow; fa < m_rows; ++fa) {
-    uintt bindex = m_bcolumn + (m_brow + fa) * matrix->columns;
+    uintt bindex = m_bcolumn + (m_brow + fa) * gColumns (matrix);
     subArrays.push_back(std::make_pair(&array[bindex], m_columns));
   }
 }

@@ -86,7 +86,7 @@ public:
     ExpOperationCpu();
     ~ExpOperationCpu();
 };
-
+/*
 class DiagonalizationOperationCpu :
 public IDiagonalizationOperation,
 public ThreadsCPU<DiagonalizationOperationCpu> {
@@ -97,7 +97,7 @@ public:
     DiagonalizationOperationCpu();
     virtual ~DiagonalizationOperationCpu();
 };
-
+*/
 class TensorProductOperationCpu :
 public ITensorProductOperation,
 public ThreadsCPU<TensorProductOperationCpu> {
@@ -177,7 +177,7 @@ class MathOperationsCpu  {
     SubstracionOperationCpu m_substracionOperation;
     DotProductOperationCpu m_dotProductOperation;
     TensorProductOperationCpu m_tensorProductOperation;
-    DiagonalizationOperationCpu m_diagonalizationOperation;
+    //DiagonalizationOperationCpu m_diagonalizationOperation;
     ExpOperationCpu m_expOperation;
     MultiplicationConstOperationCpu m_multiplicationConstOperation;
     MagnitudeOperationCpu m_magnitudeOperation;

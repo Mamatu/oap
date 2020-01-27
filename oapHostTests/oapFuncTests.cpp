@@ -59,7 +59,7 @@ class OapHostActivationTests : public testing::Test {
     {
       for (size_t idx1 = 0; idx1 < rows; ++idx1)
       {
-        matrix1->reValues[idx] = vgenerator (idx, columns, idx1);
+        *GetRePtrIndex (matrix1, idx) = vgenerator (idx, columns, idx1);
       }
     }
 
@@ -84,10 +84,10 @@ class OapHostActivationTests : public testing::Test {
 
     kernelFunc (output, matrix1, dims);
 
-    EXPECT_DOUBLE_EQ(hostFunc(1), output->reValues[0]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[1]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[2]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[3]) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(hostFunc(1), GetReIndex (output, 0)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 1)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 2)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 3)) << PRINT_FAIL_INFO();
   }
 
 
@@ -101,17 +101,17 @@ class OapHostActivationTests : public testing::Test {
 
     kernelFunc (output, matrix1, dims);
 
-    EXPECT_DOUBLE_EQ(hostFunc(1), output->reValues[0]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(hostFunc(1), output->reValues[1]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[2]) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(hostFunc(1), GetReIndex (output, 0)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(hostFunc(1), GetReIndex (output, 1)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 2)) << PRINT_FAIL_INFO();
 
-    EXPECT_DOUBLE_EQ(hostFunc(1), output->reValues[3]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(hostFunc(1), output->reValues[4]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[5]) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(hostFunc(1), GetReIndex (output, 3)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(hostFunc(1), GetReIndex (output, 4)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 5)) << PRINT_FAIL_INFO();
 
-    EXPECT_DOUBLE_EQ(0, output->reValues[6]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[7]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[8]) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 6)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 7)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 8)) << PRINT_FAIL_INFO();
   }
 
   template<typename KernelFunc, typename HostFunc>
@@ -128,15 +128,15 @@ class OapHostActivationTests : public testing::Test {
 
     kernelFunc (output, matrix1, dims);
 
-    EXPECT_DOUBLE_EQ(hostFunc(1), output->reValues[0]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(hostFunc(1), output->reValues[1]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[2]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[3]) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(hostFunc(1), GetReIndex (output, 0)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(hostFunc(1), GetReIndex (output, 1)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 2)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 3)) << PRINT_FAIL_INFO();
 
-    EXPECT_DOUBLE_EQ(hostFunc(1), output->reValues[4]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(hostFunc(1), output->reValues[5]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[6]) << PRINT_FAIL_INFO();
-    EXPECT_DOUBLE_EQ(0, output->reValues[7]) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(hostFunc(1), GetReIndex (output, 4)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(hostFunc(1), GetReIndex (output, 5)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 6)) << PRINT_FAIL_INFO();
+    EXPECT_DOUBLE_EQ(0, GetReIndex (output, 7)) << PRINT_FAIL_INFO();
   }
 };
 

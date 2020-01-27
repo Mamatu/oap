@@ -18,7 +18,7 @@
  */
 
 #include "DeviceMatrixKernels.h"
-#include "CudaUtils.h"
+#include "oapCudaMatrixUtils.h"
 #include "ThreadsMapper.h"
 
 void prepareDims(uintt w, uintt h, oap::cuda::Kernel& kernel) {
@@ -32,8 +32,8 @@ void prepareDims(uintt w, uintt h, oap::cuda::Kernel& kernel) {
 
 bool execute(const char* functionName, math::Matrix* matrix, void** params,
                  uintt sharedMemory, oap::cuda::Kernel& kernel) {
-  uintt w = CudaUtils::GetColumns(matrix);
-  uintt h = CudaUtils::GetRows(matrix);
+  uintt w = oap::cuda::GetColumns(matrix);
+  uintt h = oap::cuda::GetRows(matrix);
   prepareDims(w, h, kernel);
   kernel.setSharedMemory(sharedMemory);
   return ::oap::cuda::Kernel::Execute(functionName, params, kernel);

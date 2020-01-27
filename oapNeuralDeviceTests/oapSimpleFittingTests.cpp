@@ -119,14 +119,14 @@ class OapSimpleFittingTests : public testing::Test
 
         for (size_t inputIdx = 0; inputIdx < inputNeurons; ++inputIdx)
         {
-          inputs->reValues[inputIdx] = input;
+          *GetRePtrIndex (inputs, inputIdx) = input;
         }
 
         if (isbias)
         {
-          inputs->reValues[inputNeurons - 1] = 1;
+          *GetRePtrIndex (inputs, inputNeurons - 1) = 1;
         }
-        expected->reValues[0] = eoutput;
+        *GetRePtrIndex (expected, 0) = eoutput;
 
         network->setExpected (expected, ArgType::HOST);
         network->setInputs (inputs, ArgType::HOST);
@@ -137,7 +137,7 @@ class OapSimpleFittingTests : public testing::Test
         oap::HostMatrixUPtr houtputs = network->getHostOutputs ();
 
         errors[randomIdx] = network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
-        ioData[randomIdx] = std::make_tuple (input, houtputs->reValues[0], eoutput);
+        ioData[randomIdx] = std::make_tuple (input, GetReIndex (houtputs, 0), eoutput);
 
         network->updateWeights ();
       }
@@ -197,13 +197,13 @@ TEST_F(OapSimpleFittingTests, SinFitting_Test)
 
   for (floatt fidx = -10; fidx < 10; fidx += 0.1)
   {
-    inputs->reValues[0] = fidx;
-    inputs->reValues[1] = 1; // bias
+    *GetRePtrIndex (inputs, 0) = fidx;
+    *GetRePtrIndex (inputs, 1) = 1; // bias
 
 
     network->setInputs (inputs, ArgType::HOST);
     network->forwardPropagation ();
     network->getOutputs (output, ArgType::HOST);
-    EXPECT_THAT(output->reValues[0], DoubleNear (fSin(fidx), 0.001));
+    EXPECT_THAT(GetReIndex (output, 0), DoubleNear (fSin(fidx), 0.001));
   }
 }

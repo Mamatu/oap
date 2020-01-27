@@ -101,7 +101,7 @@ class OapPngFileTests : public testing::Test {
   {
     std::stringstream sstream;
     sstream << "oapNeural/data/text/" << letter << ".png";
-    oap::PngFile png (utils::Config::getFileInOap(sstream.str ()), truncate);
+    oap::PngFile png (oap::utils::Config::getFileInOap(sstream.str ()), truncate);
     png.loadBitmap ();
 
     const size_t length = png.getLength ();
@@ -127,7 +127,7 @@ class OapPngFileTests : public testing::Test {
       iterateBitmap (pixels.get(), width, height, [&pixelsVec](int pixel, size_t x, size_t y){ pixelsVec.push_back (pixel);}, [](){});
       EXPECT_EQ(pattern, pixelsVec);
     }
-    saveImage (&png, utils::Config::getPathInTmp("host_tests/OapPngFileTests_PrintLetters/"), fileName);
+    saveImage (&png, oap::utils::Config::getPathInTmp("host_tests/OapPngFileTests_PrintLetters/"), fileName);
   }
 
 };

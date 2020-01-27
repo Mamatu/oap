@@ -55,7 +55,10 @@ TEST_F(OapMatrixUtilsTests, SetAllValuesTest) {
       SetRe(matrix, fa, fb, expected);
     }
   }
-  EXPECT_TRUE(test::wasSetAllRe(matrix));
+  for (uintt fa = 0; fa < columns * rows; ++fa)
+  {
+    EXPECT_EQ (expected, matrix->re.ptr[fa]);
+  }
   oap::host::DeleteMatrix(matrix);
 }
 

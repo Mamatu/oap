@@ -69,11 +69,11 @@ TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_2)
     {
       for (const auto& p : points)
       {
-        hinputs->reValues[0] = p.first.first;
-        hinputs->reValues[1] = p.first.second;
-        hinputs->reValues[2] = 1;
+        *GetRePtrIndex (hinputs, 0) = p.first.first;
+        *GetRePtrIndex (hinputs, 1) = p.first.second;
+        *GetRePtrIndex (hinputs, 2) = 1;
 
-        houtput->reValues[0] = p.second;
+        *GetRePtrIndex (houtput, 0) = p.second;
 
         network->setInputs (hinputs, ArgType::HOST);
         network->setExpected (houtput, ArgType::HOST);

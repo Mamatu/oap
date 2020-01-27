@@ -26,6 +26,7 @@
 #include "Math.h"
 #include "Matrix.h"
 #include "CudaUtils.h"
+#include "oapCudaMatrixUtils.h"
 
 #include "Logger.h"
 

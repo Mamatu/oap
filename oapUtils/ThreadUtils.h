@@ -24,6 +24,7 @@
 #include <semaphore.h>
 #include "Logger.h"
 
+namespace oap {
 namespace utils {
 
 namespace sync {
@@ -136,5 +137,6 @@ class Thread {
   void run(bool inTheSameThreead = false);
   void join();
 };
+}
 }
 #endif

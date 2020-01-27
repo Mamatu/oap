@@ -26,28 +26,28 @@
 namespace oap
 {
 
-template<typename Object, typename UserData>
-AllocationList<Object, UserData>::AllocationList (const std::string& id) : m_id(id)
+template<typename T, typename UserData>
+AllocationList<T, UserData>::AllocationList (const std::string& id) : m_id(id)
 {}
 
-template<typename Object, typename UserData>
-AllocationList<Object, UserData>::~AllocationList ()
+template<typename T, typename UserData>
+AllocationList<T, UserData>::~AllocationList ()
 {
   checkOnDelete ();
 }
 
-template<typename Object, typename UserData>
-const typename AllocationList<Object, UserData>::InfosMap& AllocationList<Object, UserData>::getAllocated() const
+template<typename T, typename UserData>
+const typename AllocationList<T, UserData>::Map& AllocationList<T, UserData>::getAllocated() const
 {
   return m_existMap;
 }
 
-template<typename Object, typename UserData>
-void AllocationList<Object, UserData>::add (Object* object, const UserData& userData)
+template<typename T, typename UserData>
+void AllocationList<T, UserData>::add (const T object, const UserData& userData)
 {
   m_existMap[object] = userData;
 
-  typename InfosMap::iterator it = m_deletedMap.find (object);
+  typename Map::iterator it = m_deletedMap.find (object);
   if (it != m_deletedMap.end ())
   {
     m_deletedMap.erase (it);
@@ -56,8 +56,8 @@ void AllocationList<Object, UserData>::add (Object* object, const UserData& user
   logTrace ("Registered in %s scope: object = %p %s", m_id.c_str(), object, std::to_string (userData).c_str());
 }
 
-template<typename Object, typename UserData>
-UserData AllocationList<Object, UserData>::getUserData (const Object* object) const
+template<typename T, typename UserData>
+UserData AllocationList<T, UserData>::getUserData (const T object) const
 {
   const auto& map = getAllocated();
   auto it = map.find (object);
@@ -67,8 +67,8 @@ UserData AllocationList<Object, UserData>::getUserData (const Object* object) co
   return it->second;
 }
 
-template<typename Object, typename UserData>
-bool AllocationList<Object, UserData>::contains (const Object* object) const
+template<typename T, typename UserData>
+bool AllocationList<T, UserData>::contains (const T object) const
 {
   const auto& map = getAllocated();
   auto it = map.find (object);
@@ -76,26 +76,26 @@ bool AllocationList<Object, UserData>::contains (const Object* object) const
 	return (it != map.end());
 }
 
-template<typename Object, typename UserData>
-UserData AllocationList<Object, UserData>::remove (const Object* object)
+template<typename T, typename UserData>
+UserData AllocationList<T, UserData>::remove (const T object)
 {
   UserData userData;
 
-  typename InfosMap::iterator it = m_existMap.find(object);
+  typename Map::iterator it = m_existMap.find(object);
   if (m_existMap.end() != it)
   {
     m_deletedMap[object] = it->second;
     userData = it->second;
 
     m_existMap.erase(it);
-    logTrace ("Unregistered in %s scope: object = %p %s", m_id.c_str(), object, std::to_string (userData).c_str());
+    logTrace ("Unregistered in %s scope: object = %p %s", m_id.c_str(), object, toString (userData).c_str());
   }
   else
   {
-    typename InfosMap::iterator it = m_deletedMap.find(object);
+    typename Map::iterator it = m_deletedMap.find(object);
     if (it != m_deletedMap.end ())
     {
-      debugError ("Double deallocation in %s: object = %p %s", m_id.c_str(), object, std::to_string (it->second).c_str());
+      debugError ("Double deallocation in %s: object = %p %s", m_id.c_str(), object, toString (it->second).c_str());
       debugAssert (false);
     }
     else
@@ -107,15 +107,15 @@ UserData AllocationList<Object, UserData>::remove (const Object* object)
   return userData;
 }
 
-template<typename Object, typename UserData>
-void AllocationList<Object, UserData>::checkOnDelete()
+template<typename T, typename UserData>
+void AllocationList<T, UserData>::checkOnDelete()
 {
   if (m_existMap.size() > 0)
   {
     debugError ("Memleak: not deallocated matrices");
-    for (typename InfosMap::iterator it = m_existMap.begin(); it != m_existMap.end(); ++it)
+    for (typename Map::iterator it = m_existMap.begin(); it != m_existMap.end(); ++it)
     {
-      debug("Memleak in %s: object = %p %s not deallocated", m_id.c_str(), it->first, std::to_string (it->second).c_str());
+      debug("Memleak in %s: object = %p %s not deallocated", m_id.c_str(), it->first, toString (it->second).c_str());
     }
     //debugAssert (false);
   }

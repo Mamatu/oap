@@ -21,19 +21,21 @@
 #define CU_CROSSENTROPY_PROCEDURES_H
 
 #include "CuCore.h"
+#include "Matrix.h"
+#include "MatrixAPI.h"
 
 __hostdeviceinline__ void cuda_crossEntropyRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const uintt offset = output->columns;
+  const uintt offset = gColumns (output);
   const uintt index = threadIndexX + offset * threadIndexY;
 
-  floatt coutput = params0->reValues[index] * logf (params1->reValues[index]);
-  coutput = coutput + (1. - params0->reValues[index]) * logf (1. - params1->reValues[index]);
+  floatt coutput = GetReIndex (params0, index) * logf (GetReIndex (params1, index));
+  coutput = coutput + (1. - GetReIndex (params0, index)) * logf (1. - GetReIndex (params1, index));
 
-  output->reValues[index] = coutput;
+  *GetRePtrIndex (output, index) = coutput;
 }
 
 __hostdeviceinline__ void cuda_crossEntropyIm (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
@@ -77,8 +79,8 @@ __hostdeviceinline__ void CUDA_crossEntropy (math::Matrix* output, math::Matrix*
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
 
   if (isre && isim)
   {

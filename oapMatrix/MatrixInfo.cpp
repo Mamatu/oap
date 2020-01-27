@@ -1,4 +1,5 @@
 #include "MatrixInfo.h"
+#include "MatrixAPI.h"
 
 namespace math
 {
@@ -23,11 +24,11 @@ MatrixInfo::MatrixInfo(bool _isRe, bool _isIm, uintt _columns, uintt _rows) : is
 
 MatrixInfo::MatrixInfo(math::Matrix* hostMatrix)
 {
-  isRe = hostMatrix->reValues != NULL;
-  isIm = hostMatrix->imValues != NULL;
+  isRe = gReValues (hostMatrix) != NULL;
+  isIm = gImValues (hostMatrix) != NULL;
 
-  m_matrixDim.columns = hostMatrix->columns;
-  m_matrixDim.rows = hostMatrix->rows;
+  m_matrixDim.columns = gColumns (hostMatrix);
+  m_matrixDim.rows = gRows (hostMatrix);
 }
 
 bool MatrixInfo::isInitialized() const

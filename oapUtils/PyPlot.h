@@ -161,9 +161,9 @@ void plotCoords2D /*= [&network, &houtput, &hinput]*/ (const std::string& path, 
   {
     for (floatt y = std::get<0>(yRange); y < std::get<1>(yRange); y += std::get<2>(yRange))
     {
-     // hinput->reValues[0] = x;
-     // hinput->reValues[1] = y;
-     // hinput->reValues[2] = 1;
+     // *GetRePtrIndex (hinput, 0) = x;
+     // *GetRePtrIndex (hinput, 1) = y;
+     // *GetRePtrIndex (hinput, 2) = 1;
 
      // network->setInputs (hinput, Network::HOST);
      // network->setExpected (houtput, Network::HOST);

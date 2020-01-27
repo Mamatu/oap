@@ -25,7 +25,7 @@ namespace math {
 
     void SubstracionOperationCpu::execute() {
         uintt threadsCount = utils::mapper::createThreadsMap(getBMap(),
-                this->m_threadsCount, m_output->columns, m_output->rows);
+                this->m_threadsCount, gColumns (m_output), gRows (m_output));
         ThreadData<SubstracionOperationCpu>* threads = m_threadData;
         for (uintt fa = 0; fa < threadsCount; fa++) {
             threads[fa].outputs[0] = m_output;
@@ -54,30 +54,30 @@ namespace math {
             for (intt fa1 = begin; fa1 < end; fa1++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt fa = fa1 + offset * fb;
-                    threadData->outputs[0]->reValues[fa] =
-                            threadData->params[0]->reValues[fa] -
-                            threadData->params[1]->reValues[fa];
-                    threadData->outputs[0]->imValues[fa] =
-                            threadData->params[0]->imValues[fa] -
-                            threadData->params[1]->imValues[fa];
+                    *GetRePtrIndex (threadData->params[0].m_matrix, fa) =
+                            GetReIndex (threadData->params[0].m_matrix, fa) -
+                            GetReIndex (threadData->params[1].m_matrix, fa);
+                    *GetImPtrIndex (threadData->params[0].m_matrix, fa) =
+                            GetImIndex (threadData->params[0].m_matrix, fa) -
+                            GetImIndex (threadData->params[1].m_matrix, fa);
                 }
             }
         } else if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL) {
             for (intt fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->reValues[index] =
-                            threadData->params[0]->reValues[index] -
-                            threadData->params[1]->reValues[index];
+                    *GetRePtrIndex (threadData->params[0].m_matrix, index) =
+                            GetReIndex (threadData->params[0].m_matrix, index) -
+                            GetReIndex (threadData->params[1].m_matrix, index);
                 }
             }
         } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
             for (intt fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->imValues[index] =
-                            threadData->params[0]->imValues[index] -
-                            threadData->params[1]->imValues[index];
+                    *GetImPtrIndex (threadData->params[0].m_matrix, index) =
+                            GetImIndex (threadData->params[0].m_matrix, index) -
+                            GetImIndex (threadData->params[1].m_matrix, index);
                 }
             }
         }
@@ -85,8 +85,8 @@ namespace math {
             for (uint fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->reValues[index] =
-                            -threadData->outputs[0]->reValues[index];
+                    *GetRePtrIndex (threadData->params[0].m_matrix, index) =
+                            -GetReIndex (threadData->params[0].m_matrix, index);
                 }
             }
         }
@@ -94,8 +94,8 @@ namespace math {
             for (uint fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->imValues[index] =
-                            -threadData->outputs[0]->imValues[index];
+                    *GetImPtrIndex (threadData->params[0].m_matrix, index) =
+                            -GetImIndex (threadData->params[0].m_matrix, index);
                 }
             }
         }
@@ -103,7 +103,7 @@ namespace math {
             for (uint fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->reValues[index] = 0;
+                    *GetRePtrIndex (threadData->params[0].m_matrix, index) = 0;
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace math {
             for (uint fa = begin; fa < end; fa++) {
                 for (intt fb = begin1; fb < end1; fb++) {
                     intt index = fa + offset * fb;
-                    threadData->outputs[0]->imValues[index] = 0;
+                    *GetImPtrIndex (threadData->params[0].m_matrix, index) = 0;
                 }
             }
         }

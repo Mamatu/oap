@@ -17,9 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #ifndef CUQRPROCEDURES_H
 #define CUQRPROCEDURES_H
 
@@ -74,11 +71,11 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
     floatt is = 0;
     floatt c = 0;
     floatt ic = 0;
-    if (NULL != A->reValues) {
+    if (A->re.ptr != NULL) {
       s = GetRe(A, column, row);
       c = GetRe(A, column, column);
     }
-    if (NULL != A->imValues) {
+    if (A->im.ptr != NULL) {
       is = GetIm(A, column, row);
       ic = GetIm(A, column, column);
     }
@@ -87,13 +84,13 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
     ic = ic / r;
     s = s / r;
     is = is / r;
-    if (NULL != G->reValues) {
+    if (G->re.ptr != NULL) {
       SetRe(G, column, row, -s);
       SetRe(G, column, column, c);
       SetRe(G, row, row, c);
       SetRe(G, row, column, s);
     }
-    if (NULL != G->imValues) {
+    if (G->im.ptr != NULL) {
       SetIm(G, column, row, -is);
       SetIm(G, column, column, ic);
       SetIm(G, row, row, ic);
@@ -118,9 +115,9 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
 
   const floatt tolerance = 0.00001;
 
-  for (uintt fa = 0; fa < A->columns; ++fa)
+  for (uintt fa = 0; fa < gColumns (A); ++fa)
   {
-    for (uintt fb = A->rows - 1; fb > fa; --fb)
+    for (uintt fb = gRows (A) - 1; fb > fa; --fb)
     {
       floatt v = GetRe(A, fa, fb);
       if ((-tolerance < v && v < tolerance) == false)

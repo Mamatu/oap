@@ -39,12 +39,12 @@ namespace
 template<typename LayerT>
 void checkHostInputs (LayerT& layer, const math::Matrix* hostInputs)
 {
-  if (hostInputs->columns != 1)
+  if (gColumns (hostInputs) != 1)
   {
     debugAssert ("Columns of hostInputs matrix must be equal 1" == nullptr);
   }
 
-  if (hostInputs->rows != layer.getRowsCount())
+  if (gRows (hostInputs) != layer.getRowsCount())
   {
     debugAssert ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)" == nullptr);
   }

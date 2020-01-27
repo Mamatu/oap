@@ -50,7 +50,7 @@ __hostdevice__ void CUDA_SetIdentityMatrix(math::Matrix* dst) {
 
   floatt v = threadIndexX == threadIndexY ? 1 : 0;
   SetRe(dst, threadIndexX, threadIndexY, v);
-  if (NULL != dst->imValues) {
+  if (dst->im.ptr != NULL) {
     SetIm(dst, threadIndexX, threadIndexY, 0);
   }
   threads_sync();

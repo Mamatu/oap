@@ -55,7 +55,7 @@ class OapSumTests : public testing::Test {
     oap::DeviceMatrixPtr dmatrix = oap::cuda::NewDeviceReMatrix (columns, rows);
     for (size_t idx = 0; idx < columns * rows; ++idx)
     {
-      hmatrix->reValues[idx] = getValue(idx);
+      *GetRePtrIndex (hmatrix, idx) = getValue(idx);
       expected += getValue(idx);
     }
 

@@ -84,15 +84,15 @@ class OapNeuralTests_TinyTests : public testing::Test
 
         oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
         oap::HostMatrixUPtr expected = oap::host::NewReMatrix(1, 1);
-        inputs->reValues[0] = a1;
-        inputs->reValues[1] = a2;
+        *GetRePtrIndex (inputs, 0) = a1;
+        *GetRePtrIndex (inputs, 1) = a2;
 
         if (m_hasBias)
         {
-          inputs->reValues[2] = m_bvalue;
+          *GetRePtrIndex (inputs, 2) = m_bvalue;
         }
 
-        expected->reValues[0] = e1;
+        *GetRePtrIndex (expected, 0) = e1;
 
         m_ont->network->train (inputs, expected, ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
       }
@@ -107,16 +107,16 @@ class OapNeuralTests_TinyTests : public testing::Test
         }
 
         oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
-        inputs->reValues[0] = a1;
-        inputs->reValues[1] = a2;
+        *GetRePtrIndex (inputs, 0) = a1;
+        *GetRePtrIndex (inputs, 1) = a2;
 
         if (m_hasBias)
         {
-          inputs->reValues[2] = m_bvalue;
+          *GetRePtrIndex (inputs, 2) = m_bvalue;
         }
 
         auto output = m_ont->network->run (inputs, ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
-        return m_ont->is(output->reValues[0]);
+        return m_ont->is(GetReIndex (output, 0));
       }
   };
 
@@ -143,19 +143,19 @@ class OapNeuralTests_TinyTests : public testing::Test
     floatt hw_1 = w_1;
     floatt hw_2 = w_2;
 
-    hw->reValues[0] = hw_1;
-    hw->reValues[1] = hw_2;
+    *GetRePtrIndex (hw, 0) = hw_1;
+    *GetRePtrIndex (hw, 1) = hw_2;
 
-    hinputs->reValues[0] = i_1;
-    hinputs->reValues[1] = i_2;
+    *GetRePtrIndex (hinputs, 0) = i_1;
+    *GetRePtrIndex (hinputs, 1) = i_2;
 
     l1->setHostWeights (hw.get ());
 
     auto output = network->run (hinputs, ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
 
-    EXPECT_THAT(output->reValues[0], testing::DoubleNear(oap::math::sigmoid(hw_1 * i_1 + hw_2 * i_2), 0.0001));
-    EXPECT_EQ(1, output->columns);
-    EXPECT_EQ(1, output->rows);
+    EXPECT_THAT(GetReIndex (output, 0), testing::DoubleNear(oap::math::sigmoid(hw_1 * i_1 + hw_2 * i_2), 0.0001));
+    EXPECT_EQ(1, gColumns (output));
+    EXPECT_EQ(1, gRows (output));
   }
 
   void testBackPropagation_1_to_2(floatt w_1, floatt w_2, floatt i_1, floatt i_2, floatt e_1)
@@ -174,14 +174,14 @@ class OapNeuralTests_TinyTests : public testing::Test
     floatt hw_1 = w_1;
     floatt hw_2 = w_2;
 
-    hw->reValues[0] = hw_1;
-    hw->reValues[1] = hw_2;
+    *GetRePtrIndex (hw, 0) = hw_1;
+    *GetRePtrIndex (hw, 1) = hw_2;
 
-    io->reValues[0] = i_1;
-    io->reValues[1] = i_2;
+    *GetRePtrIndex (io, 0) = i_1;
+    *GetRePtrIndex (io, 1) = i_2;
 
     floatt i1_1 = oap::math::sigmoid(i_1 * hw_1 + i_2 * hw_2);
-    e1->reValues[0] = e_1;
+    *GetRePtrIndex (e1, 0) = e_1;
 
     oap::cuda::CopyHostMatrixToDeviceMatrix (de1, e1);
 
@@ -190,8 +190,8 @@ class OapNeuralTests_TinyTests : public testing::Test
     network->setHostInput (io, 0);
     network->train (io, e1, ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
 
-    hw->reValues[0] = 0;
-    hw->reValues[1] = 0;
+    *GetRePtrIndex (hw, 0) = 0;
+    *GetRePtrIndex (hw, 1) = 0;
 
     network->getHostWeights(hw, 0);
 
@@ -201,8 +201,8 @@ class OapNeuralTests_TinyTests : public testing::Test
     floatt c1 = ds * sigma * i_1;
     floatt c2 = ds * sigma * i_2;
 
-    EXPECT_THAT(hw->reValues[0] - hw_1, testing::DoubleNear(c1, 0.0001));
-    EXPECT_THAT(hw->reValues[1] - hw_2, testing::DoubleNear(c2, 0.0001));
+    EXPECT_THAT(GetReIndex (hw, 0) - hw_1, testing::DoubleNear(c1, 0.0001));
+    EXPECT_THAT(GetReIndex (hw, 1) - hw_2, testing::DoubleNear(c2, 0.0001));
 
     l1->printHostWeights (true);
     l2->printHostWeights (true);
@@ -284,7 +284,7 @@ TEST_F(OapNeuralTests_TinyTests, SaveLoadBufferTest)
     for_test(dis_1_2, dis_0_1);
   }
 
-  utils::ByteBuffer buffer;
+  oap::utils::ByteBuffer buffer;
   //network->save (buffer);
 
   //std::unique_ptr<Network> cnetwork (Network::load (buffer));
@@ -328,7 +328,7 @@ TEST_F(OapNeuralTests_TinyTests, SaveLoadFileTest)
   }
 
   std::string path = "device_tests/OapNeuralTests_TinyTests_SaveLoadFileTest.bin";
-  path = utils::Config::getFileInTmp (path);
+  path = oap::utils::Config::getFileInTmp (path);
 /*
   auto save = [&]()
   {

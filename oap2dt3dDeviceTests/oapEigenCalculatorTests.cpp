@@ -81,7 +81,7 @@ class ArnoldiOperations {
 
       math::MatrixInfo matrixInfo = dataLoader->getMatrixInfo();
 
-      for (uintt index = 0; index < matrixInfo.m_matrixDim.columns; ++index) {
+      for (uintt index = 0; index < matrixInfo.columns (); ++index) {
         math::Matrix* vec = dataLoader->createDeviceRowVector(index);
 
         //oap::cuda::PrintMatrix("vec =", vec);
@@ -98,14 +98,14 @@ class ArnoldiOperations {
   {
     math::Matrix* matrix = m_dataLoader->createMatrix();
 
-    const uintt partSize = matrix->columns;
+    const uintt partSize = gColumns (matrix);
 
     math::Matrix* dvector = NULL;
     uintt vectorrows = 0;
 
     bool dvectorIsCopy = false;
 
-    vectorrows = matrix->columns;
+    vectorrows = gColumns (matrix);
 
     if (eigenCalc->getEigenvectorsType() == ArnUtils::HOST) {
       dvector = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(vector);
@@ -119,7 +119,7 @@ class ArnoldiOperations {
       debugAssert("Invalid eigenvectors type.");
     }
 
-    oap::HostMatrixUPtr refMatrix = oap::host::NewMatrix(matrix, matrix->columns, partSize);
+    oap::HostMatrixUPtr refMatrix = oap::host::NewMatrix(matrix, gColumns (matrix), partSize);
 
     oap::host::CopyMatrix(refMatrix, matrix);
 
@@ -127,8 +127,8 @@ class ArnoldiOperations {
 
     math::MatrixInfo info = oap::host::GetMatrixInfo(refMatrix);
 
-    const uintt matrixcolumns = info.m_matrixDim.columns;
-    uintt matrixrows = info.m_matrixDim.rows;
+    const uintt matrixcolumns = info.columns ();
+    uintt matrixrows = info.rows ();
 
     matrixrows = partSize;
 
@@ -148,8 +148,8 @@ class ArnoldiOperations {
     cuProceduresApi.dotProduct(rightMatrix, dvector, vectorT);
     bool compareResult = cuProceduresApi.compare(leftMatrix, rightMatrix);
 
-    oap::HostMatrixUPtr hleftMatrix = oap::host::NewReMatrix(CudaUtils::GetColumns(leftMatrix), CudaUtils::GetRows(leftMatrix));
-    oap::HostMatrixUPtr hrightMatrix = oap::host::NewReMatrix(CudaUtils::GetColumns(rightMatrix), CudaUtils::GetRows(rightMatrix));
+    oap::HostMatrixUPtr hleftMatrix = oap::host::NewReMatrix(oap::cuda::GetColumns(leftMatrix), oap::cuda::GetRows(leftMatrix));
+    oap::HostMatrixUPtr hrightMatrix = oap::host::NewReMatrix(oap::cuda::GetColumns(rightMatrix), oap::cuda::GetRows(rightMatrix));
 
     oap::cuda::CopyDeviceMatrixToHostMatrix(hrightMatrix, rightMatrix);
     oap::cuda::CopyDeviceMatrixToHostMatrix(hleftMatrix, leftMatrix);
@@ -242,7 +242,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
     auto matricesInitializer = [&evectorsUPtr, wantedEigensCount, &matrixInfo, eigensType]() {
       math::Matrix** evectors = evectorsUPtr.get();
-      const uintt rows = matrixInfo.m_matrixDim.rows;
+      const uintt rows = matrixInfo.rows ();
       for (int fa = 0; fa < wantedEigensCount; ++fa) {
         if (eigensType == ArnUtils::HOST) {
           evectors[fa] = oap::host::NewReMatrix(1, rows);

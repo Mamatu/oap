@@ -37,7 +37,9 @@ namespace cuda
 
 math::Matrix* NewDeviceMatrix(uintt columns, uintt rows);
 
+#if 0
 math::Matrix* NewShareDeviceMatrix(uintt columns, uintt rows, math::Matrix* src);
+#endif
 
 math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix);
 
@@ -56,14 +58,8 @@ uintt GetColumns(const math::Matrix* dMatrix);
 
 uintt GetRows(const math::Matrix* dMatrix);
 
+math::Matrix GetRefHostMatrix (const math::Matrix* dMatrix);
 
-struct ValuesPtr
-{
-  floatt* reValues = nullptr;
-  floatt* imValues = nullptr;
-};
-
-ValuesPtr GetValuesPtr (const math::Matrix* dMatrix);
 floatt* GetReValuesPtr (const math::Matrix* dMatrix);
 floatt* GetImValuesPtr (const math::Matrix* dMatrix);
 
@@ -108,27 +104,6 @@ void CopyHostMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src);
 void CopyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src);
 
 /**
- * @brief Copies device to host with custom dimensions and range
- * @param dst - host matrix
- * @param src - device matrix
- */
-void CopyDeviceMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
-
-/**
- * @brief Copies host to device with custom dimensions and range
- * @param dst - device matrix
- * @param src - host matrix
- */
-void CopyHostMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
-
-/**
- * @brief Copies device to device with custom dimensions and range
- * @param dst - device matrix
- * @param src - device matrix
- */
-void CopyDeviceMatrixToDeviceMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
-
-/**
  * @brief copies davice matrix to host matrix - copy device to host - matrices must have the same product of columns and rows
  *                                              (dst->columns * dst->rows == src->columns * src->rows)
  * @param dst - host matrix
@@ -152,11 +127,31 @@ void CopyHostToDevice(math::Matrix* dst, const math::Matrix* src);
  */
 void CopyDeviceToDevice(math::Matrix* dst, const math::Matrix* src);
 
+void CopyDeviceMatrixToHostMatrixEx (math::Matrix* dst, const oap::MemoryLoc& loc, const math::Matrix* src, const oap::MemoryRegion& reg);
+
+void CopyHostMatrixToDeviceMatrixEx (math::Matrix* dst, const oap::MemoryLoc& loc, const math::Matrix* src, const oap::MemoryRegion& reg);
+
+void CopyDeviceMatrixToDeviceMatrixEx (math::Matrix* dst, const oap::MemoryLoc& loc, const math::Matrix* src, const oap::MemoryRegion& reg);
+
 void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
-
 void SetReMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
-
 void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+
+std::pair<floatt, floatt> GetDiagonal (const math::Matrix* matrix, uintt index);
+floatt GetReDiagonal (const math::Matrix* matrix, uintt index);
+floatt GetImDiagonal (const math::Matrix* matrix, uintt index);
+
+void SetZeroRow (const math::Matrix* matrix, uintt index, bool re = true, bool im = true);
+void SetReZeroRow (const math::Matrix* matrix, uintt index);
+void SetImZeroRow (const math::Matrix* matrix, uintt index);
+
+void SetValueToMatrix (math::Matrix* matrix, floatt re, floatt im);
+void SetValueToReMatrix (math::Matrix* matrix, floatt v);
+void SetValueToImMatrix (math::Matrix* matrix, floatt v);
+
+void SetZeroMatrix (math::Matrix* matrix);
+void SetZeroReMatrix (math::Matrix* matrix);
+void SetZeroImMatrix (math::Matrix* matrix);
 
 MatrixEx** NewDeviceMatrixEx(uintt count);
 
@@ -186,9 +181,9 @@ void PrintMatrix(const std::string& text, const math::Matrix* matrix,
 
 void PrintMatrix(const math::Matrix* matrix);
 
-inline floatt* GetValue (floatt* const* src)
+inline void ToHost (void* dst, const void* src, size_t size)
 {
-  return CudaUtils::GetValue (src);
+  return CudaUtils::ToHost (dst, src, size);
 }
 
 inline void TransferToHost (void* dst, const void* src, uintt size)

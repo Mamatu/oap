@@ -24,14 +24,14 @@
 #include "HostBuffer.h"
 
 template<typename T>
-class TBuffer : public utils::Buffer<T, utils::HostMemUtl>
+class TBuffer : public oap::utils::Buffer<T, oap::utils::HostMemUtl>
 {
   public:
 
     template<typename Arg>
     uintt getArgLength() const
     {
-      return utils::Buffer<T, utils::HostMemUtl>::template getArgLength<Arg>();
+      return oap::utils::Buffer<T, oap::utils::HostMemUtl>::template getArgLength<Arg>();
     }
 };
 
@@ -174,7 +174,7 @@ TEST_F(OapHostBufferTests, ConvertBufferTest)
 TEST_F(OapHostBufferTests, WriteReadBufferTest)
 {
   oap::host::HostBuffer<floatt> buffer;
-  std::string test_path = utils::Config::getPathInTmp("host_tests");
+  std::string test_path = oap::utils::Config::getPathInTmp("host_tests");
   std::string file = test_path + "OapHostBufferTests_WriteReadBufferTest.bin";
 
   for (int idx = 0; idx < 10000; ++idx)

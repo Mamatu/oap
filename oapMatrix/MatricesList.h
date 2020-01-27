@@ -26,13 +26,45 @@
 #include "MatrixInfo.h"
 #include "oapAllocationList.h"
 
-class MatricesList : public oap::AllocationList<math::Matrix, math::MatrixInfo>
+namespace
+{
+  using AllocationList = oap::AllocationList<const math::Matrix*, math::MatrixInfo>;
+
+  template<typename ExtraUserData>
+  using AllocationListEx = oap::AllocationList<const math::Matrix*, std::pair<math::MatrixInfo, ExtraUserData>>;
+}
+
+class MatricesList : public AllocationList
 {
   public:
     MatricesList (const std::string& id);
     virtual ~MatricesList ();
 
+    virtual std::string toString (const math::MatrixInfo&) const override;
 };
 
-#endif
+template<typename ExtraUserData>
+class MatricesListExt : public AllocationListEx<ExtraUserData>
+{
+  public:
+    MatricesListExt (const std::string& id);
+    virtual ~MatricesListExt ();
 
+    virtual std::string toString (const std::pair<math::MatrixInfo, ExtraUserData>&) const override;
+};
+
+template<typename ExtraUserData>
+MatricesListExt<ExtraUserData>::MatricesListExt (const std::string& id) : AllocationListEx<ExtraUserData> (id)
+{}
+
+template<typename ExtraUserData>
+MatricesListExt<ExtraUserData>::~MatricesListExt ()
+{}
+
+template<typename ExtraUserData>
+std::string MatricesListExt<ExtraUserData>::toString (const std::pair<math::MatrixInfo, ExtraUserData>& euData) const
+{
+  return std::to_string (euData.first);
+}
+
+#endif

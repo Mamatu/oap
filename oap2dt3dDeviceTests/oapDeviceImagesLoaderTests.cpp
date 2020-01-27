@@ -52,10 +52,10 @@ TEST_F(OapDeviceImagesLoaderTests, LoadImagesAllocDeallocTest)
 
   uint drows = oap::cuda::GetRows(dmatrix);
   uint dcolumns = oap::cuda::GetColumns(dmatrix);
-  EXPECT_EQ(matrix->columns, matrix1->columns);
-  EXPECT_EQ(matrix->rows, matrix1->rows);
-  EXPECT_EQ(matrix->rows, drows);
-  EXPECT_EQ(matrix->columns, dcolumns);
+  EXPECT_EQ(gColumns (matrix), gColumns (matrix1));
+  EXPECT_EQ(gRows (matrix), gRows (matrix1));
+  EXPECT_EQ(gRows (matrix), drows);
+  EXPECT_EQ(gColumns (matrix), dcolumns);
 
   oap::host::DeleteMatrix(matrix);
   oap::host::DeleteMatrix(matrix1);
@@ -106,7 +106,7 @@ TEST_F(OapDeviceImagesLoaderTests, SquareMatrixAllocationTest)
   }
 
   EXPECT_EQ(1, CudaUtils::GetRows (submatrix));
-  EXPECT_EQ(minfo.m_matrixDim.columns, CudaUtils::GetColumns (submatrix));
+  EXPECT_EQ(minfo.columns (), CudaUtils::GetColumns (submatrix));
 */
 }
 

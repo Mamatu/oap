@@ -72,22 +72,4 @@ __hostdeviceinline__ uintt aux_GetMatrixIndexFromMatrixEx (const MatrixEx& matri
   return aux_GetMatrixYIndexFromMatrixEx (matrixEx) * matrixEx.columns + aux_GetMatrixXIndexFromMatrixEx (matrixEx);
 }
 
-__hostdeviceinline__ uintt aux_GetThreadYIndexFromMatrixEx (const MatrixEx& matrixEx)
-{
-  HOST_INIT();
-  return threadIdx.y + matrixEx.row;
-}
-
-__hostdeviceinline__ uintt aux_GetThreadXIndexFromMatrixEx (const MatrixEx& matrixEx)
-{  
-  HOST_INIT();
-  return  threadIdx.x + matrixEx.column;
-}
-
-__hostdeviceinline__ uintt aux_GetThreadIndexFromMatrixEx (const MatrixEx& matrixEx)
-{
-  HOST_INIT();
-  return aux_GetThreadYIndexFromMatrixEx (matrixEx) * matrixEx.columns + aux_GetThreadXIndexFromMatrixEx (matrixEx);
-}
-
 #endif /* CU_UTILS_COMMON_H */

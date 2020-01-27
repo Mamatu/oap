@@ -161,8 +161,8 @@ TEST_F(OapMatrixPrinterTests, Test5x1)
   
   for (size_t idx = 0; idx < 5; ++idx)
   {
-    matrix->reValues[idx] = idx;
-    matrix->imValues[idx] = idx;
+    *GetRePtrIndex (matrix, idx) = idx;
+    *GetImPtrIndex (matrix, idx) = idx;
   }
 
   std::string str;
@@ -182,12 +182,12 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
-      matrix->reValues[idx] = idx;
-      matrix->imValues[idx] = idx;
+      *GetRePtrIndex (matrix, idx) = idx;
+      *GetImPtrIndex (matrix, idx) = idx;
     }
 
     std::string str;
-    matrixUtils::PrintArgs printArgs (0, false, "\n", matrix->columns);
+    matrixUtils::PrintArgs printArgs (0, false, "\n", gColumns (matrix));
     printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
 
     matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
@@ -199,12 +199,12 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
-      matrix->reValues[idx] = idx;
-      matrix->imValues[idx] = idx;
+      *GetRePtrIndex (matrix, idx) = idx;
+      *GetImPtrIndex (matrix, idx) = idx;
     }
 
     std::string str;
-    matrixUtils::PrintArgs printArgs (0, false, "|", matrix->columns);
+    matrixUtils::PrintArgs printArgs (0, false, "|", gColumns (matrix));
     printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
  
     matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
@@ -216,12 +216,12 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
-      matrix->reValues[idx] = idx;
-      matrix->imValues[idx] = idx;
+      *GetRePtrIndex (matrix, idx) = idx;
+      *GetImPtrIndex (matrix, idx) = idx;
     }
 
     std::string str;
-    matrixUtils::PrintArgs printArgs ("matrix = ", "", 0, false, "|", matrix->columns);
+    matrixUtils::PrintArgs printArgs ("matrix = ", "", 0, false, "|", gColumns (matrix));
     printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
 
     matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
@@ -233,12 +233,12 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
-      matrix->reValues[idx] = idx;
-      matrix->imValues[idx] = idx;
+      *GetRePtrIndex (matrix, idx) = idx;
+      *GetImPtrIndex (matrix, idx) = idx;
     }
 
     std::string str;
-    matrixUtils::PrintArgs printArgs ("matrix = {", "}", 0, false, "|", matrix->columns);
+    matrixUtils::PrintArgs printArgs ("matrix = {", "}", 0, false, "|", gColumns (matrix));
     printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
 
     matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
@@ -250,11 +250,11 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
-      matrix->reValues[idx] = idx;
+      *GetRePtrIndex (matrix, idx) = idx;
     }
 
     std::string str;
-    matrixUtils::PrintArgs printArgs (0, false, "|", matrix->columns);
+    matrixUtils::PrintArgs printArgs (0, false, "|", gColumns (matrix));
     printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
 
     matrixUtils::PrintMatrix (str, matrix.get(), printArgs);
@@ -266,11 +266,11 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
-      matrix->imValues[idx] = idx;
+      *GetImPtrIndex (matrix, idx) = idx;
     }
 
     std::string str;
-    matrixUtils::PrintArgs printArgs (0, false, "|", matrix->columns);
+    matrixUtils::PrintArgs printArgs (0, false, "|", gColumns (matrix));
     printArgs.floatPrintMode = matrixUtils::PrintArgs::FloatPrintMode::NORMAL; 
 
     matrixUtils::PrintMatrix (str, matrix.get(), printArgs);

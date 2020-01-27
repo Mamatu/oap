@@ -37,7 +37,7 @@ namespace nutils
 
 inline void copyHostBufferToHostReMatrix (math::Matrix* matrix, size_t index, const floatt* buffer, size_t size)
 {
-  floatt* re = matrix->reValues;
+  floatt* re = matrix->re.ptr;
   re += index * size;
   memcpy (re, buffer, size * sizeof(floatt));
 }

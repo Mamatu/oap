@@ -20,14 +20,20 @@
 #ifndef OAP_CU_CORE_H
 #define OAP_CU_CORE_H
 
+#include "oapAssertion.h"
+
 #ifdef OAP_CUDA_BUILD
 
 #include <cuda.h>
 #include "cuda_runtime.h"
 #include "cuda_runtime_api.h"
 
-#define __hostdeviceinline__ extern "C" __device__ __forceinline__
-#define __hostdevice__ extern "C" __device__
+#define __hostdeviceinline__ /*extern "C"*/ __device__ __forceinline__
+#define __hostdevice__ /*extern "C"*/ __device__
+#define __hostdevicevariable__ /*extern "C"*/ __device__
+
+#define __c_hostdeviceinline__ extern "C" __device__ __forceinline__
+#define __c_hostdevice__ extern "C" __device__
 
 #define threads_sync() __syncthreads()
 
@@ -44,7 +50,12 @@
 
 #define __hostdeviceinline__ __inline__
 #define __hostdevice__ __inline__
+#define __hostdevicevariable__
+
 #define __shared__
+
+#define __c_hostdeviceinline__ extern "C"
+#define __c_hostdevice__ extern "C"
 
 #define HOST_INIT()                                   \
   ThreadIdx& ti = ThreadIdx::m_threadIdxs[pthread_self()]; \

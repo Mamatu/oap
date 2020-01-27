@@ -19,8 +19,13 @@
 
 #include "MatricesList.h"
 
-MatricesList::MatricesList (const std::string& id) : oap::AllocationList<math::Matrix, math::MatrixInfo>(id)
+MatricesList::MatricesList (const std::string& id) : oap::AllocationList<const math::Matrix*, math::MatrixInfo>(id)
 {}
 
 MatricesList::~MatricesList ()
 {}
+
+std::string MatricesList::toString (const math::MatrixInfo& minfo) const
+{
+  return std::to_string (minfo);
+}

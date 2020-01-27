@@ -31,9 +31,9 @@ __hostdevice__ void CUDA_transposeReMatrixEx(math::Matrix* output,
   THREAD_INDICES_INIT();
 
   if (threadIndexY < mex_erow(matrixEx) && threadIndexX < mex_ecolumn(matrixEx)) {
-    uintt index = threadIndexX + output->columns * threadIndexY;
-    uintt index1 = threadIndexX * params0->columns + threadIndexY;
-    output->reValues[index] = params0->reValues[index1];
+    uintt index = threadIndexX + gColumns (output) * threadIndexY;
+    uintt index1 = threadIndexX * gColumns (params0) + threadIndexY;
+    gReValues (output)[index] = gReValues (params0)[index1];
   }
   threads_sync();
 }
@@ -45,9 +45,9 @@ __hostdevice__ void CUDA_transposeImMatrixEx(math::Matrix* output,
   THREAD_INDICES_INIT();
 
   if (threadIndexY < mex_erow(matrixEx) && threadIndexX < mex_ecolumn(matrixEx)) {
-    uintt index = threadIndexX + output->columns * threadIndexY;
-    uintt index1 = threadIndexX * params0->columns + threadIndexY;
-    output->imValues[index] = params0->imValues[index1];
+    uintt index = threadIndexX + gColumns (output) * threadIndexY;
+    uintt index1 = threadIndexX * gColumns (params0) + threadIndexY;
+    gImValues (output)[index] = gImValues (params0)[index1];
   }
   threads_sync();
 }
@@ -59,10 +59,10 @@ __hostdevice__ void CUDA_transposeRealMatrixEx(math::Matrix* output,
   THREAD_INDICES_INIT();
 
   if (threadIndexY < mex_erow(matrixEx) && threadIndexX < mex_ecolumn(matrixEx)) {
-    uintt index = threadIndexX + output->columns * threadIndexY;
-    uintt index1 = threadIndexX * params0->columns + threadIndexY;
-    output->reValues[index] = params0->reValues[index1];
-    output->imValues[index] = params0->imValues[index1];
+    uintt index = threadIndexX + gColumns (output) * threadIndexY;
+    uintt index1 = threadIndexX * gColumns (params0) + threadIndexY;
+    gReValues (output)[index] = gReValues (params0)[index1];
+    gImValues (output)[index] = gImValues (params0)[index1];
   }
   threads_sync();
 }
@@ -72,8 +72,8 @@ __hostdevice__ void CUDA_transposeMatrixEx(math::Matrix* output,
                                            const MatrixEx& matrixEx) {
   HOST_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
+  bool isre = gReValues (output) != NULL;
+  bool isim = gImValues (output) != NULL;
   if (isre && isim) {
     CUDA_transposeRealMatrixEx(output, params0, matrixEx);
   } else if (isre) {
@@ -88,9 +88,9 @@ __hostdevice__ void cuda_transposeReMatrix(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * params0->columns + threadIndexY;
-  output->reValues[index] = params0->reValues[index1];
+  uintt index = threadIndexX + gColumns (output) * threadIndexY;
+  uintt index1 = threadIndexX * gColumns (params0) + threadIndexY;
+  gReValues (output)[index] = gReValues (params0)[index1];
 }
 
 __hostdevice__ void cuda_transposeImMatrix(math::Matrix* output,
@@ -98,9 +98,9 @@ __hostdevice__ void cuda_transposeImMatrix(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * params0->columns + threadIndexY;
-  output->imValues[index] = params0->imValues[index1];
+  uintt index = threadIndexX + gColumns (output) * threadIndexY;
+  uintt index1 = threadIndexX * gColumns (params0) + threadIndexY;
+  gImValues (output)[index] = gImValues (params0)[index1];
 }
 
 __hostdevice__ void cuda_transposeRealMatrix(math::Matrix* output,
@@ -108,10 +108,10 @@ __hostdevice__ void cuda_transposeRealMatrix(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * params0->columns + threadIndexY;
-  output->reValues[index] = params0->reValues[index1];
-  output->imValues[index] = params0->imValues[index1];
+  uintt index = threadIndexX + gColumns (output) * threadIndexY;
+  uintt index1 = threadIndexX * gColumns (params0) + threadIndexY;
+  gReValues (output)[index] = gReValues (params0)[index1];
+  gImValues (output)[index] = gImValues (params0)[index1];
 }
 
 __hostdevice__ void CUDA_transposeReMatrix(math::Matrix* output,
@@ -143,10 +143,10 @@ __hostdevice__ void CUDA_transposeMatrix(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
+  bool isre = gReValues (output) != NULL;
+  bool isim = gImValues (output) != NULL;
   bool isInRange =
-      threadIndexX < output->columns && threadIndexY < output->rows;
+      threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   if (isre && isim && isInRange) {
     cuda_transposeRealMatrix(output, params0);
   } else if (isre && isInRange) {
@@ -161,19 +161,19 @@ __hostdevice__ void transposeHIm(math::Matrix* output, math::Matrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * params0->columns + threadIndexY;
-  output->imValues[index] = -params0->imValues[index1];
+  uintt index = threadIndexX + gColumns (output) * threadIndexY;
+  uintt index1 = threadIndexX * gColumns (params0) + threadIndexY;
+  gImValues (output)[index] = -gImValues (params0)[index1];
 }
 
 __hostdevice__ void transposeHReIm(math::Matrix* output, math::Matrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt index = threadIndexX + output->columns * threadIndexY;
-  uintt index1 = threadIndexX * params0->columns + threadIndexY;
-  output->reValues[index] = params0->reValues[index1];
-  output->imValues[index] = -params0->imValues[index1];
+  uintt index = threadIndexX + gColumns (output) * threadIndexY;
+  uintt index1 = threadIndexX * gColumns (params0) + threadIndexY;
+  gReValues (output)[index] = gReValues (params0)[index1];
+  gImValues (output)[index] = -gImValues (params0)[index1];
 }
 
 #endif /* CUTRANSPONSEPROCEDURES_H */

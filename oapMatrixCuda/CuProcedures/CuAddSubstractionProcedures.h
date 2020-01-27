@@ -22,6 +22,7 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
+#include "MatrixAPI.h"
 
 __hostdeviceinline__ void cuda_addSubstractReMatrices(math::Matrix* output,
                                                    math::Matrix* params0,
@@ -29,9 +30,9 @@ __hostdeviceinline__ void cuda_addSubstractReMatrices(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = output->columns;
+  uintt offset = gColumns (output);
   uintt index = threadIndexX + offset * threadIndexY;
-  output->reValues[index] += params0->reValues[index] - params1->reValues[index];
+  *GetRePtrIndex (output, index) += GetReIndex (params0, index) - GetReIndex (params1, index);
 }
 
 __hostdeviceinline__ void cuda_addSubstractImMatrices(math::Matrix* output,
@@ -40,9 +41,9 @@ __hostdeviceinline__ void cuda_addSubstractImMatrices(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = output->columns;
+  uintt offset = gColumns (output);
   uintt index = threadIndexX + offset * threadIndexY;
-  output->imValues[index] += params0->imValues[index] - params1->imValues[index];
+  *GetImPtrIndex (output, index) += GetImIndex (params0, index) - GetImIndex (params1, index);
 }
 
 __hostdeviceinline__ void cuda_addSubstractRealMatrices(math::Matrix* output,
@@ -51,14 +52,14 @@ __hostdeviceinline__ void cuda_addSubstractRealMatrices(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = output->columns;
+  uintt offset = gColumns (output);
   uintt index = threadIndexX + offset * threadIndexY;
-  const uintt length = output->columns * output->rows;
+  const uintt length = gColumns (output) * gRows (output);
   if (index < length) {
-    output->reValues[index] +=
-        params0->reValues[index] - params1->reValues[index];
-    output->imValues[index] +=
-        params0->imValues[index] - params1->imValues[index];
+    *GetRePtrIndex (output, index) +=
+        GetReIndex (params0, index) - GetReIndex (params1, index);
+    *GetImPtrIndex (output, index) +=
+        GetImIndex (params0, index) - GetImIndex (params1, index);
   }
 }
 
@@ -95,10 +96,10 @@ __hostdeviceinline__ void CUDA_addSubstractMatrices(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
   bool isInRange =
-      threadIndexX < output->columns && threadIndexY < output->rows;
+      threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   if (isre && isim && isInRange) {
     cuda_addSubstractRealMatrices(output, params0, params1);
   } else if (isre && isInRange) {

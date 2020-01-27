@@ -17,11 +17,9 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #include "ThreadUtils.h"
 
+namespace oap {
 namespace utils {
 
 Thread::Thread() : m_iscond(false), m_isonethread(true) {}
@@ -172,6 +170,7 @@ void CondBool::broadcast() {
   m_shouldlocked = false;
   m_cond.broadcast();
   m_mutex.unlock();
+}
 }
 }
 }

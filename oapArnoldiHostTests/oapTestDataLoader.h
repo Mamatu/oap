@@ -165,10 +165,10 @@ class ACTestData
   }
 
   void load() {
-    loadBlock(m_vredir, refV->reValues, m_counter);
-    loadBlock(m_vimdir, refV->imValues, m_counter);
-    loadBlock(m_wredir, refW->reValues, m_counter);
-    loadBlock(m_wimdir, refW->imValues, m_counter);
+    loadBlock(m_vredir, refV->re.ptr, m_counter);
+    loadBlock(m_vimdir, refV->im.ptr, m_counter);
+    loadBlock(m_wredir, refW->re.ptr, m_counter);
+    loadBlock(m_wimdir, refW->im.ptr, m_counter);
     ++m_counter;
   }
 

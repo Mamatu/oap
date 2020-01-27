@@ -23,6 +23,7 @@
 #include "CuCore.h"
 #include "CuUtils.h"
 #include "Matrix.h"
+#include "MatrixAPI.h"
 #include "CuMatrixExUtils.h"
 
 __hostdeviceinline__ uintt cuda_calcStrideIdx (uintt indexX, uintt indexY, uintt stride)
@@ -49,19 +50,19 @@ __hostdeviceinline__ uintt cuda_calcMatrixIdx_TIX (uintt indexY, const math::Mat
 }
 
 __hostdeviceinline__
-void cuda_transferIntoSM (floatt* sharedMemory, const floatt* deviceMemory, const math::MatrixDim* dim)
+void cuda_transferIntoSM (floatt* sharedMemory, const oap::Memory& deviceMemory, const oap::MemoryRegion& region)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
   
   uintt idx = threadIdx.x + threadIdx.y * blockDim.x;
-  uintt idx1 = threadIndexX + threadIndexY * dim->columns;
+  uintt idx1 = oap::common::GetIdx (deviceMemory, region, threadIndexX, threadIndexY);
 
   sharedMemory[idx] = 0;
 
-  if (threadIndexX < dim->columns && threadIndexY < dim->rows)
+  if (idx1 < region.dims.width * region.dims.height)
   {
-    sharedMemory[idx] = deviceMemory[idx1];
+    sharedMemory[idx] = oap::common::GetValue (deviceMemory, region, threadIndexX, threadIndexY);
   }
 }
 
@@ -80,22 +81,22 @@ void cuda_copyIntoSM (floatt* sharedMemory, const floatt* deviceMemory, const ma
 }
 
 __hostdeviceinline__
-void CUDA_transferIntoSM (floatt* sharedMemory, const floatt* deviceMemory, const math::MatrixDim* dim)
+void CUDA_transferIntoSM (floatt* sharedMemory, const oap::Memory& deviceMemory, const oap::MemoryRegion& region)
 {
-  cuda_transferIntoSM (sharedMemory, deviceMemory, dim);
+  cuda_transferIntoSM (sharedMemory, deviceMemory, region);
   threads_sync ();
 }
 
 __hostdeviceinline__
 void cuda_setSharedMemoryRe (floatt* sharedMemory, const math::Matrix* matrix)
 {
-  cuda_transferIntoSM (sharedMemory, matrix->reValues, matrix);
+  cuda_transferIntoSM (sharedMemory, matrix->re, matrix->reReg);
 }
 
 __hostdeviceinline__
 void cuda_setSharedMemoryIm (floatt* sharedMemory, const math::Matrix* matrix)
 {
-  cuda_transferIntoSM (sharedMemory, matrix->imValues, matrix);
+  cuda_transferIntoSM (sharedMemory, matrix->im, matrix->imReg);
 }
 
 __hostdeviceinline__
@@ -129,12 +130,12 @@ void CUDA_setSharedMemoryReal (floatt* sharedMemoryRe, floatt* sharedMemoryIm, c
 __hostdeviceinline__
 void cuda_setSharedMemory (floatt* sharedMemoryRe, floatt* sharedMemoryIm, const math::Matrix* matrix)
 {
-  if (matrix->reValues != NULL)
+  if (matrix->re.ptr != NULL)
   {
     cuda_setSharedMemoryRe (sharedMemoryRe, matrix);
   }
 
-  if (matrix->imValues != NULL)
+  if (matrix->im.ptr != NULL)
   {
     cuda_setSharedMemoryIm (sharedMemoryIm, matrix);
   }

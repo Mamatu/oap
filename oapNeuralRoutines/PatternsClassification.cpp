@@ -9,6 +9,7 @@
 #include "Controllers.h"
 
 #include "Config.h"
+#include "MatrixAPI.h"
 
 #include "ArgsParser.h"
 
@@ -73,8 +74,8 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     return std::make_tuple (std::move (bitmap), width, height);
   };
 
-  auto patternA = load (utils::Config::getFileInOap(args.patternPath1));
-  auto patternB = load (utils::Config::getFileInOap(args.patternPath2));
+  auto patternA = load (oap::utils::Config::getFileInOap(args.patternPath1));
+  auto patternB = load (oap::utils::Config::getFileInOap(args.patternPath2));
 
   oap::cuda::Context::Instance().create();
 
@@ -117,13 +118,13 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   {
     if (dis(dre) >= 0.5)
     {
-      oap::host::CopyBuffer (input->reValues, upatternA.get (), input->columns * input->rows);
-      eoutput->reValues[0] = 1;
+      oap::host::CopyBuffer (input->re.ptr, upatternA.get (), gColumns (input) * gRows (input));
+      *GetRePtrIndex (eoutput, 0) = 1;
     }
     else
     {
-      oap::host::CopyBuffer (input->reValues, upatternB.get (), input->columns * input->rows);
-      eoutput->reValues[0] = 0;
+      oap::host::CopyBuffer (input->re.ptr, upatternB.get (), gColumns (input) * gRows (input));
+      *GetRePtrIndex (eoutput, 0) = 0;
     }
 
     network->setExpected (eoutput, ArgType::HOST);
@@ -141,7 +142,7 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     std::vector<floatt> vec;
     for (size_t idx = 0; idx < args.networkLayers.size(); ++idx)
     {
-      vec.push_back (matrix->reValues[idx]);
+      vec.push_back (GetReIndex (matrix.get(), idx));
     }
     if (callback)
     {
@@ -151,11 +152,11 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
 
   if (!m_bInterrupted)
   {
-    oap::host::CopyBuffer (input->reValues, upatternA.get (), input->columns * input->rows);
+    oap::host::CopyBuffer (input->re.ptr, upatternA.get (), gColumns (input) * gRows (input));
     auto output1 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output1, args.m_onOutput1);
 
-    oap::host::CopyBuffer (input->reValues, upatternB.get (), input->columns * input->rows);
+    oap::host::CopyBuffer (input->re.ptr, upatternB.get (), gColumns (input) * gRows (input));
     auto output2 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output2, args.m_onOutput2);
   }

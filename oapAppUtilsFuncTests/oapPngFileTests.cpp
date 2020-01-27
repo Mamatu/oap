@@ -35,7 +35,7 @@ class OapPngFileTests : public testing::Test
   public:
     OapPngFileTests()
     {
-      m_data_path = utils::Config::getPathInOap("oap2dt3d/data/");
+      m_data_path = oap::utils::Config::getPathInOap("oap2dt3d/data/");
       m_images_path = m_data_path + "images_monkey/";
     }
 
@@ -250,7 +250,7 @@ TEST_F(OapPngFileTests, TwoImagesPixelVectorsTests)
 
 TEST_F(OapPngFileTests, LoadDigit0)
 {
-  std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
+  std::string path = oap::utils::Config::getPathInOap("oapNeural/data/text/");
   path = path + "digit_0.png";
   oap::PngFile pngFile (path, false);
 
@@ -291,7 +291,7 @@ TEST_F(OapPngFileTests, LoadDigit0)
 
 TEST_F(OapPngFileTests, LoadRow0)
 {
-  std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
+  std::string path = oap::utils::Config::getPathInOap("oapNeural/data/text/");
   path = path + "row_0.png";
   oap::PngFile pngFile (path, false);
 
@@ -338,7 +338,7 @@ TEST_F(OapPngFileTests, LoadRow0)
 
 TEST_F(OapPngFileTests, LoadMnistExamples)
 {
-  std::string path = utils::Config::getPathInOap("oapNeural/data/text/");
+  std::string path = oap::utils::Config::getPathInOap("oapNeural/data/text/");
   path = path + "MnistExamples.png";
   oap::PngFile pngFile (path, false);
 

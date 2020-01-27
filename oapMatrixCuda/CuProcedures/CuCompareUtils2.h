@@ -58,14 +58,14 @@ __hostdevice__ void cuda_CompareRealOptVer2(floatt* buffer, math::Matrix* m1,
   HOST_INIT();
 
   const bool inScope =
-      ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-      ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns &&
+      ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < gRows (m1) &&
+      ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < gColumns (m1) &&
       threadIdx.x < xlength;
 
   if (inScope) {
     uintt index =
-        ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
-    bool isOdd = (m1->columns & 1) && (xlength & 1);
+        ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, gColumns (m1));
+    bool isOdd = (gColumns (m1) & 1) && (xlength & 1);
     buffer[sharedIndex] = cuda_getRealDist(m1, m2, index);
     buffer[sharedIndex] += cuda_getRealDist(m1, m2, index + 1);
     if (isOdd && threadIdx.x == xlength - 1) {
@@ -80,14 +80,14 @@ __hostdevice__ void cuda_CompareReOptVer2(floatt* buffer, math::Matrix* m1,
   HOST_INIT();
 
   const bool inScope =
-      ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-      ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns &&
+      ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < gRows (m1) &&
+      ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < gColumns (m1) &&
       threadIdx.x < xlength;
 
   if (inScope) {
     uintt index =
-        ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
-    bool isOdd = (m1->columns & 1) && (xlength & 1);
+        ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, gColumns (m1));
+    bool isOdd = (gColumns (m1) & 1) && (xlength & 1);
     buffer[sharedIndex] = cuda_getReDist(m1, m2, index);
     buffer[sharedIndex] += cuda_getReDist(m1, m2, index + 1);
     if (isOdd && threadIdx.x == xlength - 1) {
@@ -102,14 +102,14 @@ __hostdevice__ void cuda_CompareImOptVer2(floatt* buffer, math::Matrix* m1,
   HOST_INIT();
 
   const bool inScope =
-      ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < m1->rows &&
-      ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < m1->columns &&
+      ver2_aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < gRows (m1) &&
+      ver2_aux_GetMatrixXIndex(threadIdx, blockIdx, blockDim) < gColumns (m1) &&
       threadIdx.x < xlength;
 
   if (inScope) {
     uintt index =
-        ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, m1->columns);
-    bool isOdd = (m1->columns & 1) && (xlength & 1);
+        ver2_aux_GetMatrixIndex(threadIdx, blockIdx, blockDim, gColumns (m1));
+    bool isOdd = (gColumns (m1) & 1) && (xlength & 1);
     buffer[sharedIndex] = cuda_getImDist(m1, m2, index);
     buffer[sharedIndex] += cuda_getImDist(m1, m2, index + 1);
     if (isOdd && threadIdx.x == xlength - 1) {

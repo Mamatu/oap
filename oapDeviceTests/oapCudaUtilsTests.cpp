@@ -72,11 +72,11 @@ class OapCudaUtilsTests : public testing::Test {
     oap::cuda::DeleteDeviceMatrix(matrix);
   }
 
-  void executeSetGetValueTest(math::Matrix* matrix,
-                              const ValueIndexVec& expecteds) {
-    uintt columns = CudaUtils::GetColumns(matrix);
-    for (ValueIndexVec::const_iterator it = expecteds.begin();
-         it != expecteds.end(); ++it) {
+  void executeSetGetValueTest (math::Matrix* matrix, const ValueIndexVec& expecteds)
+  {
+    uintt columns = oap::cuda::GetColumns(matrix);
+    for (ValueIndexVec::const_iterator it = expecteds.begin(); it != expecteds.end(); ++it)
+    {
       uintt index = it->second.first + columns * it->second.second;
       CudaUtils::SetReValue(matrix, index, it->first.re);
       CudaUtils::SetImValue(matrix, index, it->first.im);
@@ -86,8 +86,8 @@ class OapCudaUtilsTests : public testing::Test {
       EXPECT_DOUBLE_EQ(it->first.im, imvalue);
     }
 
-    for (ValueIndexVec::const_iterator it = expecteds.begin();
-         it != expecteds.end(); ++it) {
+    for (ValueIndexVec::const_iterator it = expecteds.begin(); it != expecteds.end(); ++it)
+    {
       uintt index = it->second.first + columns * it->second.second;
       floatt revalue = CudaUtils::GetReValue(matrix, index);
       floatt imvalue = CudaUtils::GetImValue(matrix, index);

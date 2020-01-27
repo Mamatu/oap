@@ -309,7 +309,7 @@ TEST_F(OapDotProductTests, Test_CustomDim_3)
   uintt p2Dim[2] = {1, 5};
   hostProcedures.dotProduct (houtput, hostM1, hostM2, oDim, p1Dim, p2Dim);
 
-  EXPECT_EQ (5, houtput->reValues[0]);
+  EXPECT_EQ (5, GetReIndex (houtput, 0));
 }
 
 TEST_F(OapDotProductTests, Test_CustomDim_4)
@@ -371,7 +371,7 @@ TEST_F(OapDotProductTests, Test_Periodic_3)
 
   for (uintt idx = 0; idx < 2000; ++idx)
   {
-    hostM2->reValues[idx] = idx;
+    *GetRePtrIndex (hostM2, idx) = idx;
   }
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrix(1, 2000);
@@ -384,9 +384,9 @@ TEST_F(OapDotProductTests, Test_Periodic_3)
     floatt sum = 0.;
     for (uintt i = 0; i < 5; ++i)
     {
-      sum += hostM2->reValues[idx1 * 5 + i];
+      sum += GetReIndex (hostM2, idx1 * 5 + i);
     }
-    floatt value = houtput->reValues[idx];
+    floatt value = GetReIndex (houtput, idx);
     ASSERT_DOUBLE_EQ (sum, value) << "houtput: " << oap::host::to_string(houtput);
   }
 }
@@ -400,7 +400,7 @@ TEST_F(OapDotProductTests, Test_Periodic_4)
 
   for (uintt idx = 0; idx < 10; ++idx)
   {
-    hostM2->reValues[idx] = idx;
+    *GetRePtrIndex (hostM2, idx) = idx;
   }
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrix(1, 10);
@@ -413,9 +413,9 @@ TEST_F(OapDotProductTests, Test_Periodic_4)
     floatt sum = 0.;
     for (uintt i = 0; i < 5; ++i)
     {
-      sum += hostM2->reValues[idx1 * 5 + i];
+      sum += GetReIndex (hostM2, idx1 * 5 + i);
     }
-    floatt value = houtput->reValues[idx];
+    floatt value = GetReIndex (houtput, idx);
     ASSERT_DOUBLE_EQ (sum, value) << "houtput: " << oap::host::to_string(houtput) << " hostM2: " << oap::host::to_string(hostM2);
   }
 }
@@ -453,11 +453,11 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 5, 1);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 2000, 1);
 
-  hostM1->reValues[24] = 2;
-  hostM1->reValues[23] = 2;
-  hostM1->reValues[22] = 2;
-  hostM1->reValues[21] = 2;
-  hostM1->reValues[20] = 2;
+  *GetRePtrIndex (hostM1, 24) = 2;
+  *GetRePtrIndex (hostM1, 23) = 2;
+  *GetRePtrIndex (hostM1, 22) = 2;
+  *GetRePtrIndex (hostM1, 21) = 2;
+  *GetRePtrIndex (hostM1, 20) = 2;
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (1, 2000, 1);
 
@@ -474,11 +474,11 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
   {
     if ((idx + 1) % 5 == 0)
     {
-      ASSERT_DOUBLE_EQ (1, houtput->reValues[idx]) << "IDX: " << idx << " houtput: " << oap::host::to_string(houtput);
+      ASSERT_DOUBLE_EQ (1, GetReIndex (houtput, idx)) << "IDX: " << idx << " houtput: " << oap::host::to_string(houtput);
     }
     else
     {
-      ASSERT_DOUBLE_EQ (5, houtput->reValues[idx]) << "IDX: " << idx << " houtput: " << oap::host::to_string(houtput);
+      ASSERT_DOUBLE_EQ (5, GetReIndex (houtput, idx)) << "IDX: " << idx << " houtput: " << oap::host::to_string(houtput);
     }
   }
 }

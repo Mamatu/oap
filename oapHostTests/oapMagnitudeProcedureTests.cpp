@@ -140,7 +140,7 @@ class MagnitudeUtilsStubImpl : public MagnitudeStub {
   void execute(const dim3& threadIdx, const dim3& blockIdx) {
     if (NULL != m_matrix) {
       uintt xlength = aux_GetLength(blockIdx.x, blockDim.x,
-                                m_matrix->columns / m_algoInfo.getFactor());
+                                gColumns (m_matrix) / m_algoInfo.getFactor());
       uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
       switch (m_algoInfo.getVersion()) {
         case AlgoInfo::MATRIX_MAGNITUDE:
@@ -195,11 +195,11 @@ void OapMagnitudeTests::executeMatrixMagnitudeTest(math::Matrix* matrix) {
   math::MathOperationsCpu mocpu;
 
   MagnitudeUtilsStubImpl magitudeStubImpl1(
-      matrix, matrix->columns, matrix->rows, AlgoInfo::MATRIX_MAGNITUDE);
+      matrix, gColumns (matrix), gRows (matrix), AlgoInfo::MATRIX_MAGNITUDE);
   executeKernelSync(&magitudeStubImpl1);
 
   MagnitudeUtilsStubImpl magitudeStubImpl2(
-      matrix, matrix->columns, matrix->rows, AlgoInfo::MATRIX_MAGNITUDE);
+      matrix, gColumns (matrix), gRows (matrix), AlgoInfo::MATRIX_MAGNITUDE);
   executeKernelSync(&magitudeStubImpl2);
 
   floatt doutput = magitudeStubImpl1.getSum();
@@ -220,7 +220,7 @@ void OapMagnitudeTests::executeMatrixMagnitudeTest(floatt* hArray,
 
 floatt OapMagnitudeTests::executeVectorMagnitude(math::Matrix* matrix,
                                                   uintt column) {
-  MagnitudeUtilsStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows,
+  MagnitudeUtilsStubImpl magitudeStubImpl(matrix, gColumns (matrix), gRows (matrix),
                                           AlgoInfo::MATRIX_VECTOR_MAGNITUDE,
                                           column);
   executeKernelSync(&magitudeStubImpl);
@@ -243,7 +243,7 @@ floatt OapMagnitudeTests::executeVectorMagnitudeTest(math::Matrix* matrix,
 floatt OapMagnitudeTests::executeVectorMagnitudeEx(math::Matrix* matrix,
                                                     uintt column, uintt row1,
                                                     uintt row2) {
-  MagnitudeUtilsStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows,
+  MagnitudeUtilsStubImpl magitudeStubImpl(matrix, gColumns (matrix), gRows (matrix),
                                           AlgoInfo::MATRIX_VECTOR_MAGNITUDE_EX,
                                           column, row1, row2);
   executeKernelSync(&magitudeStubImpl);
@@ -345,11 +345,11 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsParsingBigData) {
   EXPECT_TRUE(matrix != NULL);
 
   MagnitudeUtilsStubImpl magitudeUtilsStubImpl1(
-      matrix, matrix->columns, matrix->rows, AlgoInfo::MATRIX_MAGNITUDE);
+      matrix, gColumns (matrix), gRows (matrix), AlgoInfo::MATRIX_MAGNITUDE);
   executeKernelSync(&magitudeUtilsStubImpl1);
 
   MagnitudeUtilsStubImpl magitudeUtilsStubImpl2(
-      matrix, matrix->columns, matrix->rows, AlgoInfo::MATRIX_MAGNITUDE);
+      matrix, gColumns (matrix), gRows (matrix), AlgoInfo::MATRIX_MAGNITUDE);
   executeKernelSync(&magitudeUtilsStubImpl2);
 
   floatt doutput = magitudeUtilsStubImpl1.getSum();
@@ -375,7 +375,7 @@ TEST_F(OapMagnitudeTests, MagnitudeParsingBigData) {
 
   EXPECT_TRUE(matrix != NULL);
 
-  MagnitudeUtilsStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows,
+  MagnitudeUtilsStubImpl magitudeStubImpl(matrix, gColumns (matrix), gRows (matrix),
                                           AlgoInfo::MATRIX_MAGNITUDE);
 
   executeKernelAsync(&magitudeStubImpl);
@@ -398,7 +398,7 @@ TEST_F(OapMagnitudeTests, MagnitudeParsing1) {
 
   EXPECT_TRUE(matrix != NULL);
 
-  MagnitudeStubImpl magitudeStubImpl(matrix, matrix->columns, matrix->rows);
+  MagnitudeStubImpl magitudeStubImpl(matrix, gColumns (matrix), gRows (matrix));
 
   executeKernelAsync(&magitudeStubImpl);
 

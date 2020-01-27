@@ -25,11 +25,11 @@
 namespace oap
 {
 
-template<typename Object, typename UserData>
+template<typename T, typename UserData>
 class AllocationList
 {
   public:
-    using InfosMap = std::unordered_map<const Object*, UserData>;
+    using Map = std::unordered_map<T, UserData>;
 
     AllocationList (const std::string& id);
 
@@ -40,21 +40,23 @@ class AllocationList
 
     virtual ~AllocationList ();
 
-    const InfosMap& getAllocated() const;
+    const Map& getAllocated() const;
 
-    void add (Object* matrix, const UserData& minfo);
+    void add (const T object, const UserData& minfo);
 
-    UserData remove (const Object* object);
+    UserData remove (const T object);
 
-    UserData getUserData (const Object* object) const;
+    UserData getUserData (const T object) const;
 
-		bool contains (const Object* object) const;
+    virtual std::string toString (const UserData&) const = 0;
+
+		bool contains (const T object) const;
 
   private:
     std::string m_id;
 
-    InfosMap m_existMap;
-    InfosMap m_deletedMap;
+    Map m_existMap;
+    Map m_deletedMap;
 
     void checkOnDelete();
 };

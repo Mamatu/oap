@@ -23,7 +23,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "oapGenericMemoryApi.h"
+#include "oapMemory_GenericApi.h"
 
 
 class OapGenericMemoryApiTests : public testing::Test {

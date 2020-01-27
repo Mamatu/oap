@@ -334,9 +334,9 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
   oap::HostMatrixPtr hmatrix = oap::host::NewReMatrix (1, layer->getRowsCount());
   oap::generic::getErrors (hmatrix, *layer, *m_cuApi, m_expectedOutputs[handler], errorType, oap::cuda::CopyDeviceMatrixToHostMatrix);
 
-  for (uintt idx = 0; idx < hmatrix->rows; ++idx)
+  for (uintt idx = 0; idx < gRows (hmatrix); ++idx)
   {
-    floatt v = hmatrix->reValues [idx];
+    floatt v = GetReIndex (hmatrix, idx);
     m_errorsVec.push_back (v * v * 0.5);
   }
 }

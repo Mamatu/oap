@@ -45,7 +45,9 @@ void FreeDeviceMem(const void* devicePtr);
 
 void FreeDeviceMem(CUdeviceptr ptr);
 
+#if 0
 math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
+#endif
 
 void CopyHostToDevice(void* dst, const void* src, uintt size);
 
@@ -53,23 +55,26 @@ void CopyDeviceToHost(void* dst, const void* src, uintt size);
 
 void CopyDeviceToDevice(void* dst, const void* src, uintt size);
 
-CUdeviceptr GetReValuesAddress(const math::Matrix* matrix);
-CUdeviceptr GetImValuesAddress(const math::Matrix* matrix);
-CUdeviceptr GetColumnsAddress(const math::Matrix* matrix);
-CUdeviceptr GetRowsAddress(const math::Matrix* matrix);
+void ToHost (void* dst, const void* src, size_t length);
 
-floatt* GetValue (floatt* const* ptr);
+oap::Memory* GetReMemoryPtr (const math::Matrix* matrix);
+oap::Memory* GetImMemoryPtr (const math::Matrix* matrix);
 
-floatt* GetReValues(const math::Matrix* matrix);
-floatt* GetImValues(const math::Matrix* matrix);
-uintt GetColumns(const math::Matrix* matrix);
-uintt GetRows(const math::Matrix* matrix);
-CUdeviceptr GetReValuesAddress(CUdeviceptr matrix);
-CUdeviceptr GetImValuesAddress(CUdeviceptr matrix);
-CUdeviceptr GetColumnsAddress(CUdeviceptr matrix);
-CUdeviceptr GetRealColumnsAddress(CUdeviceptr matrix);
-CUdeviceptr GetRowsAddress(CUdeviceptr matrix);
-CUdeviceptr GetRealRowsAddress(CUdeviceptr matrix);
+oap::MemoryRegion* GetReMemoryRegionPtr (const math::Matrix* matrix);
+oap::MemoryRegion* GetImMemoryRegionPtr (const math::Matrix* matrix);
+
+oap::Memory GetMemory (const math::Matrix* matrix, oap::Memory* cuptr);
+
+oap::Memory GetReMemory (const math::Matrix* matrix);
+oap::Memory GetImMemory (const math::Matrix* matrix);
+
+oap::MemoryRegion GetMemoryRegion (const math::Matrix* matrix, oap::MemoryRegion* cuptr);
+
+oap::MemoryRegion GetReMemoryRegion (const math::Matrix* matrix);
+oap::MemoryRegion GetImMemoryRegion (const math::Matrix* matrix);
+
+//uintt GetColumns(const math::Matrix* matrix);
+//uintt GetRows(const math::Matrix* matrix);
 
 CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx);
 CUdeviceptr GetColumnsAddress(const MatrixEx* matrixEx);
@@ -78,28 +83,10 @@ CUdeviceptr GetBRowAddress(const MatrixEx* matrixEx);
 CUdeviceptr GetRowAddress(const MatrixEx* matrixEx);
 
 floatt* GetReValues(CUdeviceptr matrix);
-
 floatt* GetImValues(CUdeviceptr matrix);
-
-uintt GetColumns(CUdeviceptr matrix);
-
-uintt GetRows(CUdeviceptr matrix);
 
 uintt GetColumns(const MatrixEx* matrix);
 uintt GetRows(const MatrixEx* matrix);
-
-struct CuDevicePtrs
-{
-  CUdeviceptr matrixPtr;
-  CUdeviceptr reValuesPtr;
-  CUdeviceptr imValuesPtr;
-};
-
-CUdeviceptr AllocMatrix_AllocMemory (bool allocRe, bool allocIm, uintt columns, uintt rows, floatt revalue = 0, floatt imvalue = 0, CuDevicePtrs* cuDevicePtrs = nullptr);
-CUdeviceptr AllocReMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value);
-CUdeviceptr AllocImMatrix (CUdeviceptr devicePtrMatrix, uintt columns, uintt rows, floatt value);
-
-CUdeviceptr AllocMatrix_ReuseMemory (uintt columns, uintt rows, floatt* revalues, floatt* imvalues, CuDevicePtrs* cuDevicePtrs = nullptr);
 
 CUdeviceptr SetReMatrixToNull(CUdeviceptr devicePtrMatrix);
 CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix);
@@ -112,12 +99,13 @@ floatt GetReValue (const math::Matrix* m, uintt index);
 void SetImValue (math::Matrix* m, uintt index, floatt value);
 floatt GetImValue (const math::Matrix* m, uintt index);
 
+#if 0
 floatt GetReDiagonal(math::Matrix* m, uintt index);
 floatt GetImDiagonal(math::Matrix* m, uintt index);
 
 void SetZeroMatrix(math::Matrix* matrix, bool re = true, bool im = true);
 void SetZeroRow(math::Matrix* matrix, uintt index, bool re = true, bool im = true);
-
+#endif
 void GetMatrixStr(std::string& output, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 
 void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");

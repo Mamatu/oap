@@ -22,6 +22,7 @@
 
 #include "CuCore.h"
 #include "Matrix.h"
+#include "MatrixAPI.h"
 
 __hostdevice__ void cuda_addDotProductRe(math::Matrix* output,
                                       math::Matrix* params0,
@@ -29,15 +30,15 @@ __hostdevice__ void cuda_addDotProductRe(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const uintt columns1 = params0->realColumns;
-  const uintt columns2 = params1->realColumns;
+  const uintt columns1 = gColumns (params0);
+  const uintt columns2 = gColumns (params1);
   const uintt offset = columns1;
   floatt retemp = 0;
   for (intt fa1 = 0; fa1 < offset; fa1++) {
-    retemp += params0->reValues[fa1 + columns1 * threadIndexY] *
-              params1->reValues[fa1 * columns2 + threadIndexX];
+    retemp += GetReIndex (params0, fa1 + columns1 * threadIndexY) *
+              GetReIndex (params1, fa1 * columns2 + threadIndexX);
   }
-  output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
+  *GetRePtrIndex(output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
 __hostdevice__ void cuda_addDotProductIm(math::Matrix* output,
@@ -46,15 +47,15 @@ __hostdevice__ void cuda_addDotProductIm(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const uintt columns1 = params0->realColumns;
-  const uintt columns2 = params1->realColumns;
+  const uintt columns1 = gColumns (params0);
+  const uintt columns2 = gColumns (params1);
   const uintt offset = columns1;
   floatt retemp = 0;
   for (uintt fa1 = 0; fa1 < offset; ++fa1) {
-    retemp += -params0->imValues[fa1 + columns1 * threadIndexY] *
-              params1->imValues[fa1 * columns2 + threadIndexX];
+    retemp += -GetImIndex (params0, fa1 + columns1 * threadIndexY) *
+              GetImIndex (params1, fa1 * columns2 + threadIndexX);
   }
-  output->reValues[threadIndexX + output->realColumns * threadIndexY] = retemp;
+  *GetRePtrIndex(output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
 __hostdevice__ void cuda_addDotProductReal(math::Matrix* output,
@@ -63,24 +64,24 @@ __hostdevice__ void cuda_addDotProductReal(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const uintt columns1 = params0->realColumns;
-  const uintt columns2 = params1->realColumns;
-  const uintt outputColumns = output->realColumns;
+  const uintt columns1 = gColumns (params0);
+  const uintt columns2 = gColumns (params1);
+  const uintt outputColumns = gColumns (output);
   const uintt offset = columns1;
   floatt retemp = 0;
   floatt imtemp = 0;
   for (intt fa1 = 0; fa1 < offset; fa1++) {
-    retemp += params0->reValues[fa1 + columns1 * threadIndexY] *
-              params1->reValues[fa1 * columns2 + threadIndexX];
-    retemp -= params0->imValues[fa1 + columns1 * threadIndexY] *
-              params1->imValues[fa1 * columns2 + threadIndexX];
-    imtemp += params0->reValues[fa1 + columns1 * threadIndexY] *
-              params1->imValues[fa1 * columns2 + threadIndexX];
-    imtemp += params0->imValues[fa1 + columns1 * threadIndexY] *
-              params1->reValues[fa1 * columns2 + threadIndexX];
+    retemp += GetReIndex (params0, fa1 + columns1 * threadIndexY) *
+              GetReIndex (params1, fa1 * columns2 + threadIndexX);
+    retemp -= GetImIndex (params0, fa1 + columns1 * threadIndexY) *
+              GetImIndex (params1, fa1 * columns2 + threadIndexX);
+    imtemp += GetReIndex (params0, fa1 + columns1 * threadIndexY) *
+              GetImIndex (params1, fa1 * columns2 + threadIndexX);
+    imtemp += GetImIndex (params0, fa1 + columns1 * threadIndexY) *
+              GetReIndex (params1, fa1 * columns2 + threadIndexX);
   }
-  output->reValues[threadIndexX + outputColumns * threadIndexY] = retemp;
-  output->imValues[threadIndexX + outputColumns * threadIndexY] = imtemp;
+  *GetRePtrIndex(output, threadIndexX + outputColumns * threadIndexY) = retemp;
+  *GetImPtrIndex(output, threadIndexX + outputColumns * threadIndexY) = imtemp;
 }
 
 __hostdevice__ void CUDA_addDotProductRe(math::Matrix* output,
@@ -114,10 +115,9 @@ __hostdevice__ void CUDA_addDotProduct(math::Matrix* output, math::Matrix* param
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
-  bool isInRange =
-      threadIndexX < output->columns && threadIndexY < output->rows;
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
+  bool isInRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   if (isre && isim && isInRange) {
     CUDA_addDotProductReal(output, params0, params1);
   } else if (isre && isInRange) {
