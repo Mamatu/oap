@@ -55,6 +55,15 @@ void CopyHostToDevice (oap::Memory& dst, const oap::Memory& src);
 void CopyDeviceToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
 void CopyDeviceToHost (oap::Memory& dst, const oap::Memory& src);
 
+void CopyDeviceToDeviceLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyDeviceToDeviceLinear (oap::Memory& dst, const oap::Memory& src);
+
+void CopyHostToDeviceLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyHostToDeviceLinear (oap::Memory& dst, const oap::Memory& src);
+
+void CopyDeviceToHostLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyDeviceToHostLinear (oap::Memory& dst, const oap::Memory& src);
+
 uintt GetIdx (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y);
 floatt* GetPtr (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y);
 floatt GetValue (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y);

@@ -84,6 +84,11 @@ __hostdeviceinline__ void cuda_generic_dotProductImExOffset (math::Matrix* outpu
   *GetImPtrIndex (output, oidx) = im;
 }
 
+__hostdeviceinline__ void printMatrix (const math::Matrix* matrix)
+{
+  printf ("matrix = %p columns = %u rows = %u \n", matrix, gColumns (matrix), gRows (matrix));
+}
+
 __hostdeviceinline__ void cuda_generic_dotProductRealExOffset (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3], uintt _offset)
 {
   HOST_INIT();
@@ -94,6 +99,9 @@ __hostdeviceinline__ void cuda_generic_dotProductRealExOffset (math::Matrix* out
 
   for (uintt midx = 0; midx < offset; ++midx)
   {
+    printf ("midx = %d\n", midx);
+    printMatrix (matrix1);
+    printMatrix (matrix2);
     maux_calcIdxs(midx, matrix1, matrix2, exs);
 
     maux_calcRealValue(matrix1, idx1, matrix2, idx2);

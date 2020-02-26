@@ -35,7 +35,13 @@ namespace oap
 namespace cuda
 {
 
-math::Matrix* NewDeviceMatrix(uintt columns, uintt rows);
+math::Matrix* NewDeviceMatrix (uintt columns, uintt rows);
+math::Matrix* NewDeviceMatrixWithValue (uintt columns, uintt rows, floatt v);
+math::Matrix* NewDeviceReMatrixWithValue (uintt columns, uintt rows, floatt v);
+math::Matrix* NewDeviceImMatrixWithValue (uintt columns, uintt rows, floatt v);
+
+math::Matrix* NewDeviceMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt v);
+math::Matrix* NewDeviceMatrixWithValue (const math::MatrixInfo& minfo, floatt v);
 
 #if 0
 math::Matrix* NewShareDeviceMatrix(uintt columns, uintt rows, math::Matrix* src);
@@ -191,17 +197,15 @@ inline void TransferToHost (void* dst, const void* src, uintt size)
   memcpy (dst, src, size);
 }
 
-void SetReValue(math::Matrix* matrix, floatt value, uintt column, uintt row);
-void SetReValue(math::Matrix* matrix, floatt value, uintt index);
+void SetReValue(math::Matrix* matrix, uintt column, uintt row, floatt value);
+void SetReValue(math::Matrix* matrix, uintt index, floatt value);
 
-void SetImValue(math::Matrix* matrix, floatt value, uintt column, uintt row);
-void SetImValue(math::Matrix* matrix, floatt value, uintt index);
+void SetImValue(math::Matrix* matrix, uintt column, uintt row, floatt value);
+void SetImValue(math::Matrix* matrix, uintt index, floatt value);
 
-void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
-              uintt column, uintt row);
+void SetValue(math::Matrix* matrix, uintt column, uintt row, floatt revalue, floatt imvalue);
 
-void SetValue(math::Matrix* matrix, floatt revalue, floatt imvalue,
-              uintt index);
+void SetValue(math::Matrix* matrix, uintt index, floatt revalue, floatt imvalue);
 
 math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
 

@@ -26,9 +26,9 @@ using LC_t = uintt;
 
 namespace
 {
-inline void __setReValue (math::Matrix* matrix, floatt v, uintt c, uintt r)
+inline void __setReValue (math::Matrix* matrix, uintt c, uintt r, floatt v)
 {
-  oap::cuda::SetReValue(matrix, v, c, r);
+  oap::cuda::SetReValue(matrix, c, r, v);
 }
 }
 

@@ -27,7 +27,9 @@
 #include "KernelExecutor.h"
 
 #include "oapHostMatrixPtr.h"
+#include "oapHostMatrixUPtr.h"
 #include "oapDeviceMatrixPtr.h"
+#include "oapDeviceMatrixUPtr.h"
 
 class OapMatrixCudaTests : public testing::Test {
  public:
@@ -55,6 +57,15 @@ class OapMatrixCudaTests : public testing::Test {
     oap::cuda::Context::Instance().destroy();
   }
 };
+
+TEST_F(OapMatrixCudaTests, CreationAndCopyTests) {
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrixWithValue (1, 1, 12.);
+  oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrixWithValue (1, 1, 0);
+  oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, dmatrix);
+  EXPECT_EQ (12., hmatrix->re.ptr[0]);
+  EXPECT_EQ (1, hmatrix->re.dims.width);
+  EXPECT_EQ (1, hmatrix->re.dims.height);
+}
 
 TEST_F(OapMatrixCudaTests, SetVectorTest) {
   floatt hArray[] = {

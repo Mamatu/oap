@@ -50,9 +50,9 @@ void checkHostInputs (LayerT& layer, const math::Matrix* hostInputs)
   }
 }
 
-void _setReValue (math::Matrix* matrix, floatt v, uintt c, uintt r)
+void _setReValue (math::Matrix* matrix, uintt c, uintt r, floatt v)
 {
-  oap::cuda::SetReValue(matrix, v, c, r);
+  oap::cuda::SetReValue(matrix, c, r, v);
 }
 }
 

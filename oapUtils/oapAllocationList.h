@@ -21,17 +21,18 @@
 #define OAP_ALLOCATION_LIST_H
 
 #include <unordered_map>
+#include <functional>
 
 namespace oap
 {
 
-template<typename T, typename UserData>
+template<typename T, typename UserData, typename ToString>
 class AllocationList
 {
   public:
     using Map = std::unordered_map<T, UserData>;
 
-    AllocationList (const std::string& id);
+    AllocationList (const std::string& id, ToString&& to_string);
 
     AllocationList (const AllocationList&) = delete;
     AllocationList (AllocationList&&) = delete;
@@ -48,12 +49,12 @@ class AllocationList
 
     UserData getUserData (const T object) const;
 
-    virtual std::string toString (const UserData&) const = 0;
-
 		bool contains (const T object) const;
 
   private:
     std::string m_id;
+
+    ToString to_string;
 
     Map m_existMap;
     Map m_deletedMap;

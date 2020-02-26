@@ -84,7 +84,7 @@ namespace host
 
 namespace
 {
-MatricesList gMatricesList ("HOST");
+MatricesList g_matricesList ("MATRICES_HOST");
 
 math::Matrix* allocMatrix_ReuseMemory (uintt columns, uintt rows, const oap::Memory& re, const oap::Memory& im)
 {
@@ -96,7 +96,7 @@ math::Matrix* allocMatrix_ReuseMemory (uintt columns, uintt rows, const oap::Mem
   output->im = oap::host::ReuseMemory (im, columns, rows);
   output->imReg = {{0, 0}, {columns, rows}};
 
-  gMatricesList.add (output, CreateMatrixInfo (output));
+  g_matricesList.add (output, CreateMatrixInfo (output));
 
   return output;
 }
@@ -111,7 +111,7 @@ math::Matrix* allocMatrix_UseMemory (uintt columns, uintt rows, const oap::Memor
   output->im = im;
   output->imReg = {{0, 0}, {columns, rows}};
 
-  gMatricesList.add (output, CreateMatrixInfo (output));
+  g_matricesList.add (output, CreateMatrixInfo (output));
 
   return output;
 }
@@ -141,8 +141,7 @@ math::Matrix* allocMatrix_AllocMemory (bool isre, bool isim, uintt columns, uint
     output->im.dims.height = rows;
   }
 
-  gMatricesList.add (output, CreateMatrixInfo (output));
-
+  g_matricesList.add (output, CreateMatrixInfo (output));
 
   return output;
 }
@@ -323,25 +322,16 @@ void DeleteMatrix(const math::Matrix* matrix)
     return;
   }
 
-  auto minfo = gMatricesList.remove (matrix);
+  auto minfo = g_matricesList.remove (matrix);
 
-  bool reValuesDeallocated = false;
-  bool imValuesDeallocated = false;
-
-  if (gReValues (matrix) != nullptr)
-  {
-    oap::host::DeleteMemory (matrix->re);
-  }
-  if (gImValues (matrix) != nullptr)
-  {
-    oap::host::DeleteMemory (matrix->im);
-  }
+  oap::host::DeleteMemory (matrix->re);
+  oap::host::DeleteMemory (matrix->im);
 
   DELETE_MATRIX(matrix);
 
   if (minfo.isInitialized ())
   {
-    logTrace ("Deallocate: host matrix = %p %s. Memory deallocated: re %d im %d", matrix, minfo.toString().c_str(), reValuesDeallocated, imValuesDeallocated);
+    logTrace ("Deallocate: host matrix = %p %s", matrix, minfo.toString().c_str());
   }
 }
 
@@ -922,7 +912,7 @@ math::MatrixInfo CreateMatrixInfo(const math::Matrix* matrix)
 
 math::MatrixInfo GetMatrixInfo (const math::Matrix* matrix)
 {
-  return gMatricesList.getUserData (matrix);
+  return g_matricesList.getUserData (matrix);
 }
 
 math::Matrix* ReadMatrix (const std::string& path)

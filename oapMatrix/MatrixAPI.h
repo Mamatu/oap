@@ -31,35 +31,48 @@
 #include "oapMemory_CommonApi.h"
 
 #include "oapMemoryPrimitives.h"
-__hostdeviceinline__ uintt gMemoryColumns (const math::Matrix* matrix)
+
+__hostdeviceinline__ uintt gMemoryWidth (const math::Matrix* matrix)
 {
   if (matrix->re.ptr)
   {
-    //if (!oap::common::IsNoneRegion (matrix->reReg))
     return matrix->re.dims.width;
   }
   if (matrix->im.ptr)
   {
-    //if (!oap::common::IsNoneRegion (matrix->imReg))
     return matrix->im.dims.width;
   }
   return 0;
 }
 
-__hostdeviceinline__ uintt gMemoryRows (const math::Matrix* matrix)
+__hostdeviceinline__ uintt gMemoryHeight (const math::Matrix* matrix)
 {
   if (matrix->re.ptr)
   {
-    //if (!oap::common::IsNoneRegion (matrix->reReg))
     return matrix->re.dims.height;
   }
   if (matrix->im.ptr)
   {
-    //if (!oap::common::IsNoneRegion (matrix->imReg))
     return matrix->im.dims.height;
   }
   return 0;
 }
+
+__hostdeviceinline__ uintt gMemoryColumns (const math::Matrix* matrix)
+{
+  return gMemoryWidth (matrix);
+}
+
+__hostdeviceinline__ uintt gMemoryRows (const math::Matrix* matrix)
+{
+  return gMemoryHeight (matrix);
+}
+
+__hostdeviceinline__ uintt gMemoryLength (const math::Matrix* matrix)
+{
+  return gMemoryWidth (matrix) * gMemoryHeight (matrix);
+}
+
 
 __hostdeviceinline__ uintt gColumns (const math::Matrix* matrix)
 {
@@ -109,7 +122,7 @@ __hostdeviceinline__ uintt gRows (const math::Matrix* matrix)
 
 __hostdeviceinline__ floatt* gReValues (const math::Matrix* matrix)
 {
-  if (matrix)
+  if (matrix != NULL)
   {
     return matrix->re.ptr;
   }
@@ -118,7 +131,7 @@ __hostdeviceinline__ floatt* gReValues (const math::Matrix* matrix)
 
 __hostdeviceinline__ floatt* gImValues (const math::Matrix* matrix)
 {
-  if (matrix)
+  if (matrix != NULL)
   {
     return matrix->im.ptr;
   }

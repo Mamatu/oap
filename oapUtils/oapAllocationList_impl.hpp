@@ -26,24 +26,24 @@
 namespace oap
 {
 
-template<typename T, typename UserData>
-AllocationList<T, UserData>::AllocationList (const std::string& id) : m_id(id)
+template<typename T, typename UserData, typename ToString>
+AllocationList<T, UserData, ToString>::AllocationList (const std::string& id, ToString&& _to_string) : m_id(id), to_string(std::forward<ToString>(_to_string))
 {}
 
-template<typename T, typename UserData>
-AllocationList<T, UserData>::~AllocationList ()
+template<typename T, typename UserData, typename ToString>
+AllocationList<T, UserData, ToString>::~AllocationList ()
 {
   checkOnDelete ();
 }
 
-template<typename T, typename UserData>
-const typename AllocationList<T, UserData>::Map& AllocationList<T, UserData>::getAllocated() const
+template<typename T, typename UserData, typename ToString>
+const typename AllocationList<T, UserData, ToString>::Map& AllocationList<T, UserData, ToString>::getAllocated() const
 {
   return m_existMap;
 }
 
-template<typename T, typename UserData>
-void AllocationList<T, UserData>::add (const T object, const UserData& userData)
+template<typename T, typename UserData, typename ToString>
+void AllocationList<T, UserData, ToString>::add (const T object, const UserData& userData)
 {
   m_existMap[object] = userData;
 
@@ -53,11 +53,11 @@ void AllocationList<T, UserData>::add (const T object, const UserData& userData)
     m_deletedMap.erase (it);
   }
 
-  logTrace ("Registered in %s scope: object = %p %s", m_id.c_str(), object, std::to_string (userData).c_str());
+  logTrace ("Registered in %s scope: object = %p %s", m_id.c_str(), object, to_string (userData).c_str());
 }
 
-template<typename T, typename UserData>
-UserData AllocationList<T, UserData>::getUserData (const T object) const
+template<typename T, typename UserData, typename ToString>
+UserData AllocationList<T, UserData, ToString>::getUserData (const T object) const
 {
   const auto& map = getAllocated();
   auto it = map.find (object);
@@ -67,8 +67,8 @@ UserData AllocationList<T, UserData>::getUserData (const T object) const
   return it->second;
 }
 
-template<typename T, typename UserData>
-bool AllocationList<T, UserData>::contains (const T object) const
+template<typename T, typename UserData, typename ToString>
+bool AllocationList<T, UserData, ToString>::contains (const T object) const
 {
   const auto& map = getAllocated();
   auto it = map.find (object);
@@ -76,8 +76,8 @@ bool AllocationList<T, UserData>::contains (const T object) const
 	return (it != map.end());
 }
 
-template<typename T, typename UserData>
-UserData AllocationList<T, UserData>::remove (const T object)
+template<typename T, typename UserData, typename ToString>
+UserData AllocationList<T, UserData, ToString>::remove (const T object)
 {
   UserData userData;
 
@@ -88,14 +88,14 @@ UserData AllocationList<T, UserData>::remove (const T object)
     userData = it->second;
 
     m_existMap.erase(it);
-    logTrace ("Unregistered in %s scope: object = %p %s", m_id.c_str(), object, toString (userData).c_str());
+    logTrace ("Unregistered in %s scope: object = %p %s", m_id.c_str(), object, to_string (userData).c_str());
   }
   else
   {
     typename Map::iterator it = m_deletedMap.find(object);
     if (it != m_deletedMap.end ())
     {
-      debugError ("Double deallocation in %s: object = %p %s", m_id.c_str(), object, toString (it->second).c_str());
+      debugError ("Double deallocation in %s: object = %p %s", m_id.c_str(), object, to_string (it->second).c_str());
       debugAssert (false);
     }
     else
@@ -107,15 +107,15 @@ UserData AllocationList<T, UserData>::remove (const T object)
   return userData;
 }
 
-template<typename T, typename UserData>
-void AllocationList<T, UserData>::checkOnDelete()
+template<typename T, typename UserData, typename ToString>
+void AllocationList<T, UserData, ToString>::checkOnDelete()
 {
   if (m_existMap.size() > 0)
   {
     debugError ("Memleak: not deallocated matrices");
     for (typename Map::iterator it = m_existMap.begin(); it != m_existMap.end(); ++it)
     {
-      debug("Memleak in %s: object = %p %s not deallocated", m_id.c_str(), it->first, toString (it->second).c_str());
+      debug("Memleak in %s: object = %p %s not deallocated", m_id.c_str(), it->first, to_string (it->second).c_str());
     }
     //debugAssert (false);
   }

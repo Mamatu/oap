@@ -57,9 +57,6 @@ void CopyDeviceToDevice(void* dst, const void* src, uintt size);
 
 void ToHost (void* dst, const void* src, size_t length);
 
-oap::Memory* GetReMemoryPtr (const math::Matrix* matrix);
-oap::Memory* GetImMemoryPtr (const math::Matrix* matrix);
-
 oap::MemoryRegion* GetReMemoryRegionPtr (const math::Matrix* matrix);
 oap::MemoryRegion* GetImMemoryRegionPtr (const math::Matrix* matrix);
 

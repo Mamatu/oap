@@ -42,6 +42,9 @@ inline CUdeviceptr allocDeviceMem (size_t size)
 {
   CUdeviceptr devPtr;
   printCuError (cuMemAlloc(&devPtr, size));
+
+  logTrace ("CUDeviceptr = %u", devPtr);
+
   return devPtr;
 }
 
@@ -49,6 +52,7 @@ inline void freeDeviceMem (CUdeviceptr ptr)
 {
   if (ptr != 0)
   {
+    logTrace ("~CUDeviceptr = %u", ptr);
     printCuError (cuMemFree(ptr));
   }
 }
@@ -69,12 +73,15 @@ void* AllocDeviceMem (uintt size)
 {
   CUdeviceptr devicePtr;
   AllocDeviceMem (&devicePtr, size);
-  return reinterpret_cast<void*>(devicePtr);
+  void* ptr = reinterpret_cast<void*>(devicePtr);
+  logTrace ("ptr = %p", ptr);
+  return ptr;
 }
 
 void* AllocDeviceMem (uintt size, const void* src)
 {
   void* devPtr = AllocDeviceMem(size);
+  logTrace ("ptr = %p", devPtr);
   CopyHostToDevice (devPtr, src, size);
   return devPtr;
 }
@@ -83,6 +90,7 @@ void FreeDeviceMem (const void* devicePtr)
 {
   if (devicePtr)
   {
+    logTrace ("~ptr = %p", devicePtr);
     CUdeviceptr cuDPtr = reinterpret_cast<CUdeviceptr>(devicePtr);
     FreeDeviceMem (cuDPtr);
   }
@@ -93,76 +101,38 @@ void ToHost (void* dst, const void* src, size_t size)
   cuMemcpyDtoH (&dst, reinterpret_cast<CUdeviceptr>(src), size);
 }
 
-oap::Memory* GetReMemoryPtr (const math::Matrix* matrix)
-{
-  oap::Memory* re = nullptr;
-  CudaUtils::CopyDeviceToHost (&re, &(matrix->re), sizeof(re));
-  return re;
-}
-
-oap::Memory* GetImMemoryPtr (const math::Matrix* matrix)
-{
-  oap::Memory* im = nullptr;
-  CudaUtils::CopyDeviceToHost (&im, &(matrix->im), sizeof(im));
-  return im;
-}
-
-oap::MemoryRegion* GetReMemoryRegionPtr (const math::Matrix* matrix)
-{
-  oap::MemoryRegion* reReg = nullptr;
-  CudaUtils::CopyDeviceToHost (&reReg, &(matrix->reReg), sizeof(reReg));
-  return reReg;
-}
-
-oap::MemoryRegion* GetImMemoryRegionPtr (const math::Matrix* matrix)
-{
-  oap::MemoryRegion* imReg = nullptr;
-  CudaUtils::CopyDeviceToHost (&imReg, &(matrix->imReg), sizeof(imReg));
-  return imReg;
-}
-
-oap::Memory GetMemory (const math::Matrix* matrix, oap::Memory* cuptr)
+oap::Memory GetMemory (const oap::Memory* cumem)
 {
   oap::Memory mem = oap::common::OAP_NONE_MEMORY();
-  if (cuptr)
-  {
-    CudaUtils::CopyDeviceToHost (&mem, cuptr, sizeof(mem));
-  }
+  CudaUtils::CopyDeviceToHost (&mem, cumem, sizeof(mem));
   return mem;
 }
 
 oap::Memory GetReMemory (const math::Matrix* matrix)
 {
-  oap::Memory* cuptr = GetReMemoryPtr (matrix);
-  return GetMemory (matrix, cuptr);
+  return GetMemory (&(matrix->re));
 }
 
 oap::Memory GetImMemory (const math::Matrix* matrix)
 {
-  oap::Memory* cuptr = GetImMemoryPtr (matrix);
-  return GetMemory (matrix, cuptr);
+  return GetMemory (&(matrix->im));
 }
 
-oap::MemoryRegion GetMemoryRegion (const math::Matrix* matrix, oap::MemoryRegion* cuptr)
+oap::MemoryRegion GetMemoryRegion (const oap::MemoryRegion* cureg)
 {
   oap::MemoryRegion reg = oap::common::OAP_NONE_REGION();
-  if (cuptr)
-  {
-    CudaUtils::CopyDeviceToHost (&reg, cuptr, sizeof(reg));
-  }
+  CudaUtils::CopyDeviceToHost (&reg, cureg, sizeof(reg));
   return reg;
 }
 
 oap::MemoryRegion GetReMemoryRegion (const math::Matrix* matrix)
 {
-  oap::MemoryRegion* cuptr = GetReMemoryRegionPtr (matrix);
-  return GetMemoryRegion (matrix, cuptr);
+  return GetMemoryRegion (&(matrix->reReg));
 }
 
 oap::MemoryRegion GetImMemoryRegion (const math::Matrix* matrix)
 {
-  oap::MemoryRegion* cuptr = GetImMemoryRegionPtr (matrix);
-  return GetMemoryRegion (matrix, cuptr);
+  return GetMemoryRegion (&(matrix->imReg));
 }
 
 CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx)
@@ -217,16 +187,19 @@ math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
 #endif
 
 void CopyHostToDevice(void* dst, const void* src, uintt size) {
+  logTrace ("%s %p -> %p size = %u", __FUNCTION__, src, dst, size);
   CUdeviceptr dstPtr = reinterpret_cast<CUdeviceptr>(dst);
   cuMemcpyHtoD(dstPtr, src, size);
 }
 
 void CopyDeviceToHost(void* dst, const void* src, uintt size) {
+  logTrace ("%s %p -> %p size = %u", __FUNCTION__, src, dst, size);
   CUdeviceptr srcPtr = reinterpret_cast<CUdeviceptr>(src);
   cuMemcpyDtoH(dst, srcPtr, size);
 }
 
 void CopyDeviceToDevice(void* dst, const void* src, uintt size) {
+  logTrace ("%s %p -> %p size = %u", __FUNCTION__, src, dst, size);
   CUdeviceptr dstPtr = reinterpret_cast<CUdeviceptr>(dst);
   CUdeviceptr srcPtr = reinterpret_cast<CUdeviceptr>(src);
   cuMemcpyDtoD(dstPtr, srcPtr, size);
@@ -257,7 +230,7 @@ floatt GetReValue(const math::Matrix* m, uintt index)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
 
   return v;
 }
@@ -272,7 +245,7 @@ void SetImValue(math::Matrix* m, uintt index, floatt value)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {loc, {1, 1}}, CudaUtils::CopyHostToDevice);
 }
 
 floatt GetImValue(const math::Matrix* m, uintt index)
@@ -287,7 +260,7 @@ floatt GetImValue(const math::Matrix* m, uintt index)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
 
   return v;
 }

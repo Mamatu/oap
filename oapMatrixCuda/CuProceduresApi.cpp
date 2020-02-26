@@ -273,7 +273,7 @@ void CuProceduresApi::transpose(math::Matrix* output, math::Matrix* params0) {
 
   if ((wo == 1 && ho == wp && hp == 1) || (ho == 1 && hp == wo && wp == 1))
   {
-    oap::cuda::CopyDeviceToDevice(output, params0);
+    oap::cuda::CopyDeviceToDevice (output, params0);
   }
   else
   {
@@ -447,8 +447,7 @@ void CuProceduresApi::setIdentity (math::Matrix* matrix)
 
 void CuProceduresApi::setZeroMatrix (math::Matrix* matrix)
 {
-  abort ();
-  //CudaUtils::SetZeroMatrix(matrix, true, true);
+  oap::cuda::SetZeroMatrix (matrix);
   m_cuStatus = CUDA_SUCCESS;
 }
 

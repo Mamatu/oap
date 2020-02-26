@@ -75,12 +75,13 @@ namespace host
 namespace
 {
 
-MemoryList g_memoryList ("HOST");
+MemoryList g_memoryList ("MEMORY_HOST");
 
 floatt* allocateBuffer (size_t length)
 {
   floatt* buffer = new floatt [length];
   g_memoryList.add (buffer, length);
+  logTrace ("buffer = %p", buffer);
   return buffer;
 }
 
@@ -88,6 +89,7 @@ void deallocateBuffer (floatt* const buffer)
 {
   g_memoryList.remove (buffer);
   delete[] buffer;
+  logTrace ("~buffer = %p", buffer);
 }
 
 oap::MemoryManagement<floatt*, decltype(allocateBuffer), decltype(deallocateBuffer), nullptr> g_memoryMng (allocateBuffer, deallocateBuffer);

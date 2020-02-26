@@ -28,10 +28,14 @@
 
 namespace
 {
-  using AllocationList = oap::AllocationList<const math::Matrix*, math::MatrixInfo>;
+  using AllocationList = oap::AllocationList<const math::Matrix*, math::MatrixInfo, std::function<std::string(const math::MatrixInfo&)>>;
+
 
   template<typename ExtraUserData>
-  using AllocationListEx = oap::AllocationList<const math::Matrix*, std::pair<math::MatrixInfo, ExtraUserData>>;
+  using UserDataPair = std::pair<math::MatrixInfo, ExtraUserData>;
+
+  template<typename ExtraUserData>
+  using AllocationListEx = oap::AllocationList<const math::Matrix*, UserDataPair<ExtraUserData>, std::function<std::string(const UserDataPair<ExtraUserData>&)>>;
 }
 
 class MatricesList : public AllocationList
@@ -39,8 +43,6 @@ class MatricesList : public AllocationList
   public:
     MatricesList (const std::string& id);
     virtual ~MatricesList ();
-
-    virtual std::string toString (const math::MatrixInfo&) const override;
 };
 
 template<typename ExtraUserData>
@@ -49,22 +51,13 @@ class MatricesListExt : public AllocationListEx<ExtraUserData>
   public:
     MatricesListExt (const std::string& id);
     virtual ~MatricesListExt ();
-
-    virtual std::string toString (const std::pair<math::MatrixInfo, ExtraUserData>&) const override;
 };
 
 template<typename ExtraUserData>
-MatricesListExt<ExtraUserData>::MatricesListExt (const std::string& id) : AllocationListEx<ExtraUserData> (id)
+MatricesListExt<ExtraUserData>::MatricesListExt (const std::string& id) : AllocationListEx<ExtraUserData> (id, [](const UserDataPair<ExtraUserData>& udp) { return std::to_string (udp.first);})
 {}
 
 template<typename ExtraUserData>
 MatricesListExt<ExtraUserData>::~MatricesListExt ()
 {}
-
-template<typename ExtraUserData>
-std::string MatricesListExt<ExtraUserData>::toString (const std::pair<math::MatrixInfo, ExtraUserData>& euData) const
-{
-  return std::to_string (euData.first);
-}
-
 #endif

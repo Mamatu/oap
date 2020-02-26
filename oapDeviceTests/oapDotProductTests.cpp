@@ -439,3 +439,24 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
     }
   }
 }
+
+TEST_F(OapDotProductTests, Test_Value_1)
+{
+  math::Matrix* dM1 = oap::cuda::NewDeviceReMatrixWithValue (1, 1, 2.);
+  math::Matrix* dM2 = oap::cuda::NewDeviceReMatrixWithValue (1, 1, 2.);
+  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(1, 1);
+
+  math::Matrix* houtput = oap::host::NewReMatrix(1, 1);
+
+  cuMatrix->dotProduct (doutput, dM1, dM2);
+
+  oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
+
+  EXPECT_THAT(houtput, MatrixHasValues(4));
+
+  oap::cuda::DeleteDeviceMatrix(doutput);
+  oap::cuda::DeleteDeviceMatrix(dM1);
+  oap::cuda::DeleteDeviceMatrix(dM2);
+  oap::host::DeleteMatrix(houtput);
+}
+

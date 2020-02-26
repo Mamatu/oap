@@ -34,13 +34,11 @@ struct MemoryHash
   }
 };
 
-class MemoryList : public oap::AllocationList<floatt*, size_t>
+class MemoryList : public oap::AllocationList<floatt*, size_t, std::function<std::string(size_t)>>
 {
   public:
     MemoryList (const std::string& id);
     virtual ~MemoryList ();
-
-    virtual std::string toString(const size_t& size) const override;
 };
 
 #endif
