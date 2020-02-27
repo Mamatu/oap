@@ -5,7 +5,7 @@ github (LFS), please execute below command in ./script directory
 
 LFS is not available in recent version.
 
-$ bash download_test_data.sh
+$ bash download_data.sh
 
 or download test data package from link:
 
