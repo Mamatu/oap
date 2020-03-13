@@ -117,7 +117,8 @@ oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value)
   return oap::generic::newMemoryWithValues (dims, value, [](const MemoryDims& dims, floatt value)
   {
     oap::Memory memory = NewMemory (dims);
-    math::Memset (memory.ptr, value, dims.width * dims.height);
+    oap::Memory hmemory = oap::host::NewMemoryWithValues (dims, value);
+    oap::cuda::CopyHostToDevice (memory, hmemory);
     return memory.ptr;
   });
 }

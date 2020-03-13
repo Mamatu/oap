@@ -23,6 +23,7 @@
 #include "gtest/gtest.h"
 
 #include "oapHostMemoryApi.h"
+#include "oapHostMatrixUtils.h"
 
 class OapHostMemoryApiTests : public testing::Test {
 public:
@@ -92,4 +93,66 @@ TEST_F(OapHostMemoryApiTests, Test_4)
 
   oap::host::DeleteMemory (memory1);
   oap::host::DeleteMemory (memory2);
+}
+
+TEST_F(OapHostMemoryApiTests, CopyTest_1)
+{
+  oap::Memory memory1 = oap::host::NewMemoryWithValues ({1, 8}, 0);
+  oap::Memory memory2 = oap::host::NewMemoryWithValues ({1, 1}, 2.f);
+
+  oap::host::CopyHostToHost (memory1, {0, 0}, memory2, {{0, 0}, {1, 1}});
+
+  EXPECT_EQ (2.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 0));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 1));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 2));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 3));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 4));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 5));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 6));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 7));
+
+  oap::host::CopyHostToHost (memory1, {0, 1}, memory2, {{0, 0}, {1, 1}});
+
+  EXPECT_EQ (2.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 0));
+  EXPECT_EQ (2.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 1));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 2));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 3));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 4));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 5));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 6));
+  EXPECT_EQ (0.f, oap::common::GetValue (memory1, oap::common::OAP_NONE_REGION(), 0, 7));
+
+  oap::host::DeleteMemory (memory1);
+  oap::host::DeleteMemory (memory2);
+}
+
+TEST_F(OapHostMemoryApiTests, CopyTest_2)
+{
+  math::Matrix* matrix1 = oap::host::NewReMatrixWithValue (1, 8, 0);
+  math::Matrix* matrix2 = oap::host::NewReMatrixWithValue (1, 1, 2.f);
+
+  oap::host::SetReMatrix (matrix1, matrix2, 0, 0);
+
+  EXPECT_EQ (2.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 0));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 1));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 2));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 3));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 4));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 5));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 6));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 7));
+
+  oap::host::SetReMatrix (matrix1, matrix2, 0, 1);
+
+  EXPECT_EQ (2.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 0));
+  EXPECT_EQ (2.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 1));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 2));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 3));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 4));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 5));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 6));
+  EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re, oap::common::OAP_NONE_REGION(), 0, 7));
+
+  oap::host::DeleteMatrix (matrix1);
+  oap::host::DeleteMatrix (matrix2);
 }

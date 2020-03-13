@@ -133,6 +133,12 @@ __hostdeviceinline__ uintt GetHeight (const oap::MemoryRegion& reg)
   return reg.dims.height;
 }
 
+__hostdeviceinline__ oap::MemoryLoc addLoc (const oap::MemoryLoc& loc1, const oap::MemoryLoc& loc2)
+{
+  oap::MemoryLoc l = {loc1.x + loc2.x, loc1.y + loc2.y};
+  return l;
+}
+
 __hostdeviceinline__ void setToRegion (oap::MemoryRegion& reg, const oap::MemoryDims& memoryDims, const oap::MemoryLoc& loc)
 {
   reg.loc = loc;

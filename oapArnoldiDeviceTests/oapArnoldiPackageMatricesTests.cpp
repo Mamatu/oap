@@ -51,6 +51,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     virtual void SetUp() {
       oap::cuda::Context::Instance().create();
       m_arnoldiCuda = new CuHArnoldiCallback();
+      m_arnoldiCuda->setVecInitType (oap::InitVVectorType::FIRST_VALUE_IS_ONE);
     }
 
     virtual void TearDown() {
@@ -74,6 +75,10 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         oap::cuda::CopyHostMatrixToDeviceMatrix (dvectorT, hvectorT);
         cuProceduresApi.dotProduct (dvalue, dvectorT, m_v);
         oap::cuda::SetReMatrix (m_w, dvalue, 0, idx);
+        PRINT_CUMATRIX(m_w);
+        PRINT_CUMATRIX(dvalue);
+        PRINT_CUMATRIX(dvectorT);
+        PRINT_CUMATRIX(m_v);
       }
     }
 

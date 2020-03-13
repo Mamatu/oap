@@ -447,32 +447,38 @@ void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt 
 
 void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row)
 {
-  math::Matrix hm = GetRefHostMatrix (matrix);
-  math::Matrix hm1 = GetRefHostMatrix (matrix1);
+  math::Matrix hmatrix = oap::cuda::GetRefHostMatrix (matrix);
+  math::Matrix hmatrix1 = oap::cuda::GetRefHostMatrix (matrix1);
 
-  debugAssert ((!hm.re.ptr && !hm1.re.ptr) || (hm.re.ptr && hm1.re.ptr));
-
-  if (!hm.re.ptr && !hm1.re.ptr)
+  auto getMemory = [&](math::Matrix* arg)
   {
-    return;
-  }
+    return arg == matrix ? hmatrix.re : hmatrix1.re;
+  };
 
-  oap::generic::copy (hm.re.ptr, hm.re.dims, hm.reReg.loc, hm1.re.ptr, hm1.re.dims, GetRefMemoryRegion(hm1.re, hm1.reReg), CudaUtils::CopyDeviceToHost);
+  auto getRegion = [&](math::Matrix* arg)
+  {
+    return arg == matrix ? hmatrix.reReg : hmatrix1.reReg;
+  };
+
+  oap::generic::setMatrix (matrix, matrix1, column, row, getMemory, getRegion, CudaUtils::CopyDeviceToDevice);
 }
 
 void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row)
 {
-  math::Matrix hm = GetRefHostMatrix (matrix);
-  math::Matrix hm1 = GetRefHostMatrix (matrix1);
+  math::Matrix hmatrix = oap::cuda::GetRefHostMatrix (matrix);
+  math::Matrix hmatrix1 = oap::cuda::GetRefHostMatrix (matrix1);
 
-  debugAssert ((!hm.im.ptr && !hm1.im.ptr) || (hm.im.ptr && hm1.im.ptr));
-
-  if (!hm.im.ptr && !hm1.im.ptr)
+  auto getMemory = [&](math::Matrix* arg)
   {
-    return;
-  }
+    return arg == matrix ? hmatrix.im : hmatrix1.im;
+  };
 
-  oap::generic::copy (hm.im.ptr, hm.im.dims, hm.imReg.loc, hm1.im.ptr, hm1.im.dims, GetRefMemoryRegion(hm1.im, hm1.imReg), CudaUtils::CopyDeviceToHost);
+  auto getRegion = [&](math::Matrix* arg)
+  {
+    return arg == matrix ? hmatrix.imReg : hmatrix1.imReg;
+  };
+
+  oap::generic::setMatrix (matrix, matrix1, column, row, getMemory, getRegion, CudaUtils::CopyDeviceToDevice);
 }
 
 std::pair<floatt, floatt> GetDiagonal (const math::Matrix* matrix, uintt index)

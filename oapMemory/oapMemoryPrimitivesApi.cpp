@@ -41,4 +41,13 @@ namespace std
     sstream << "(x: " << loc.x << ", y: " << loc.y << ")";
     return sstream.str();
   }
+
+  std::string to_string (const oap::MemoryRegion& region)
+  {
+    std::stringstream sstream;
+    sstream << to_string (region.loc);
+    sstream << " ";
+    sstream << to_string (region.dims);
+    return sstream.str();
+  }
 }

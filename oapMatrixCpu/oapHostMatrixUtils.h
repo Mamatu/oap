@@ -750,6 +750,10 @@ void CopyHostArrayToHostReMatrix (math::Matrix* matrix, const floatt* buffer, si
 
 void CopyHostArrayToHostImMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
 
+void SetMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+
 }
 namespace generic
 {
@@ -982,6 +986,24 @@ void printMatrix (std::string& output, const math::Matrix* matrix, const matrixU
   oap::generic::printCustomMatrix (output, hmatrix, args, minfo);
 
   deleteMatrix (hmatrix);
+}
+
+template<typename GetMemory, typename GetMemoryRegion, typename Memcpy>
+void setMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row, GetMemory&& getMemory, GetMemoryRegion&& getMemoryRegion, Memcpy&& memcpy)
+{
+  oap::Memory hmem = getMemory (matrix);
+  oap::Memory hmem1 = getMemory (matrix1);
+  oap::MemoryRegion hreg = getMemoryRegion (matrix);
+  oap::MemoryRegion hreg1 = getMemoryRegion (matrix1);
+
+  debugAssert ((!hmem.ptr && !hmem1.ptr) || (hmem.ptr && hmem1.ptr));
+
+  if (!hmem.ptr && !hmem1.ptr)
+  {
+    return;
+  }
+
+  oap::generic::copy (hmem.ptr, hmem.dims, oap::common::addLoc (hreg.loc, {column, row}), hmem1.ptr, hmem1.dims, GetRefMemoryRegion(hmem1, hreg1), memcpy);
 }
 
 }

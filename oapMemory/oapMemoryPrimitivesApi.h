@@ -33,6 +33,7 @@ namespace std
 
   std::string to_string (const oap::MemoryLoc& loc);
 
+  std::string to_string (const oap::MemoryRegion& region);
 }
 
 inline bool operator== (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)

@@ -165,9 +165,27 @@ namespace generic
     copy<Memcpy> (dst, {0, 0}, src, srcReg, memcpy);
   }
 
-  template<typename Memcpy>
-  void copyRaw (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  /**
+   *  \brief Cheks if memory can be copied as linear continous block of memory
+   */
+  inline bool isLinearMemory (const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg)
   {
+    bool islinear = (srcReg.dims.width == 1 && (dstDims.height == 1 || dstDims.width == 1)) || (srcReg.dims.height == 1);
+    return islinear;
+  }
+
+  inline bool isBlockMemory (const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg)
+  {
+    return !isLinearMemory (dstDims, dstLoc, srcDims, srcReg);
+  }
+
+  template<typename Memcpy>
+  void copyBlock (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  {
+    logTrace ("%s %p %s %s %p %s %s", __FUNCTION__, dst, std::to_string(dstDims).c_str(), std::to_string(dstLoc).c_str(), src, std::to_string(srcDims).c_str(), std::to_string(srcReg).c_str());
+    logAssert (dstDims.width >= dstLoc.x + srcReg.dims.width);
+    logAssert (dstDims.height >= dstLoc.y + srcReg.dims.height);
+
     std::vector<floatt*> dstPtrs;
     std::vector<const floatt*> srcPtrs;
 
@@ -176,8 +194,7 @@ namespace generic
     utils::getPtrs (dstPtrs, dst, dstDims, dstReg);
     utils::getPtrs (srcPtrs, src, srcDims, srcReg);
 
-    for (size_t idx = 0; idx < srcPtrs.size (); ++idx)
-    {
+    for (size_t idx = 0; idx < srcPtrs.size (); ++idx) {
       const floatt* srcPtr = srcPtrs[idx];
       floatt* dstPtr = dstPtrs[idx];
       memcpy (dstPtr, srcPtr, srcReg.dims.width * sizeof (floatt));
@@ -185,17 +202,9 @@ namespace generic
   }
 
   template<typename Memcpy>
-  void copy (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
-  {
-    logAssert (dstDims.width >= dstLoc.x + srcReg.dims.width);
-    logAssert (dstDims.height >= dstLoc.y + srcReg.dims.height);
-
-    copyRaw (dst, dstDims, dstLoc, src, srcDims, srcReg, memcpy);
-  }
-
-  template<typename Memcpy>
   void copyLinear (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
   {
+    logTrace ("%s %p %s %s %p %s %s", __FUNCTION__, dst, std::to_string(dstDims).c_str(), std::to_string(dstLoc).c_str(), src, std::to_string(srcDims).c_str(), std::to_string(srcReg).c_str());
     logAssert ((srcReg.dims.width == 1 && (dstDims.height == 1 || dstDims.width == 1)) || (srcReg.dims.height == 1));
     uintt srcLen = srcReg.dims.width * srcReg.dims.height;
     uintt dstLen = dstDims.width * dstDims.height;
@@ -206,6 +215,19 @@ namespace generic
     logAssert (dstPos + srcLen <= dstLen);
 
     memcpy (&dst[dstPos], &src[srcPos], srcLen * sizeof (floatt));
+  }
+
+  template<typename Memcpy>
+  void copy (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  {
+    if (isBlockMemory (dstDims, dstLoc, srcDims, srcReg))
+    {
+      copyBlock (dst, dstDims, dstLoc, src, srcDims, srcReg, memcpy);
+    }
+    else
+    {
+      copyLinear (dst, dstDims, dstLoc, src, srcDims, srcReg, memcpy);
+    }
   }
 
   template<typename Memcpy>

@@ -1203,5 +1203,21 @@ void SetSubRowsSafe(math::Matrix* matrix, uintt subrows)
   }
 }
 
+void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row)
+{
+  SetReMatrix (matrix, matrix1, column, row);
+  SetImMatrix (matrix, matrix1, column, row);
+}
+
+void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row)
+{
+  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::Matrix* matrix) { return matrix->re; }, [](math::Matrix* matrix) { return matrix->reReg; }, memcpy);
+}
+
+void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row)
+{
+  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::Matrix* matrix) { return matrix->im; }, [](math::Matrix* matrix) { return matrix->imReg; }, memcpy);
+}
+
 }
 }
