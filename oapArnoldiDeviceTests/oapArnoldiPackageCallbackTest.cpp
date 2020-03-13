@@ -108,8 +108,8 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
     void triangularityTest(const math::Matrix* matrix) {
       floatt limit = 0.001;
-      for (int fa = 0; fa < matrix->columns - 1; ++fa) {
-        floatt value = matrix->reValues[(fa + 1) * matrix->columns + fa];
+      for (int fa = 0; fa < gColumns (matrix) - 1; ++fa) {
+        floatt value = GetRe (matrix, fa + 1, fa);
         bool islower = value < limit;
         bool isgreater = -limit < value;
         EXPECT_TRUE(islower) << value << " is greater than " << limit
@@ -124,11 +124,11 @@ TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
   oap::ACTestData data("data/data1");
   data.load();
 
-  bool isre = data.refW->reValues != NULL;
-  bool isim = data.refW->imValues != NULL;
+  bool isre = data.refW->re.ptr != NULL;
+  bool isim = data.refW->im.ptr != NULL;
 
-  uintt columns = data.refW->columns;
-  uintt rows = data.refW->rows;
+  uintt columns = gColumns (data.refW);
+  uintt rows = gRows (data.refW);
 
   math::Matrix* dmatrix = oap::cuda::NewDeviceMatrix(isre, isim, columns, rows);
 

@@ -191,21 +191,11 @@ void CuProceduresApi::hadamardProductVec (math::Matrix* output, math::Matrix* pa
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
-void CuProceduresApi::calculateQTHQ(math::Matrix* output, math::Matrix* H,
-                             math::Matrix* Q, math::Matrix* aux) {
+void CuProceduresApi::calculateQTHQ (math::Matrix* output, math::Matrix* H, math::Matrix* Q, math::Matrix* aux)
+{
   transpose(output, Q);
   dotProduct(aux, H, output);
   dotProduct(output, Q, aux);
-}
-
-void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* params0,
-                                  math::Matrix* params1, MatrixEx* matrixEx,
-                                  uintt columns, uintt rows)
-{
-  void* params[] = {&output, &params0, &params1, &matrixEx};
-  const char* kname = "CUDAKernel_DotProductEx";
-
-  m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
 }
 
 void CuProceduresApi::dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
@@ -228,8 +218,12 @@ void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* params0,
                              math::Matrix* params1, uintt ocolumns, uintt orows,
                              uintt p1rows, uintt p2columns) {
   void* params[] = {&output, &params0, &params1};
-  bool isRe = CudaUtils::GetReValues(output) != NULL;
-  bool isIm = CudaUtils::GetImValues(output) != NULL;
+
+
+  auto minfo = oap::cuda::GetMatrixInfo (output);
+  const bool isRe = minfo.isRe;
+  const bool isIm = minfo.isIm;
+
   uintt size = (ocolumns * p1rows + orows * p2columns) * sizeof(floatt);
   if (isRe && isIm) {
     size = size * 2;
@@ -242,8 +236,11 @@ void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* params0,
 void CuProceduresApi::dotProductExOpt(math::Matrix* output, math::Matrix* params0,
                                math::Matrix* params1, MatrixEx* matrixEx) {
   void* params[] = {&output, &params0, &params1, &matrixEx};
-  bool isRe = CudaUtils::GetReValues(output) != NULL;
-  bool isIm = CudaUtils::GetImValues(output) != NULL;
+
+  auto minfo = oap::cuda::GetMatrixInfo (output);
+  const bool isRe = minfo.isRe;
+  const bool isIm = minfo.isIm;
+
   const uintt ocolumns = CudaUtils::GetColumns(matrixEx);
   const uintt orows = CudaUtils::GetRows(matrixEx);
   const uintt p1rows = oap::cuda::GetRows(params0);
@@ -276,7 +273,7 @@ void CuProceduresApi::transpose(math::Matrix* output, math::Matrix* params0) {
 
   if ((wo == 1 && ho == wp && hp == 1) || (ho == 1 && hp == wo && wp == 1))
   {
-    oap::cuda::CopyDeviceToDevice(output, params0);
+    oap::cuda::CopyDeviceToDevice (output, params0);
   }
   else
   {
@@ -370,16 +367,15 @@ void CuProceduresApi::sum (floatt& reoutput, floatt& imoutput, const math::Matri
   using GetAddressType = std::function<floatt*(const math::Matrix*)>;
   using GetAddressTypeRef = GetAddressType&;
 
-  GetAddressType getReValues = [](const math::Matrix* matrix) -> floatt*
+   GetAddressType getReValues = [](const math::Matrix* matrix) -> floatt*
   {
-    return CudaUtils::GetReValues (matrix);
+    return CudaUtils::GetReMemory (matrix).ptr;
   };
 
   GetAddressType getImValues = [](const math::Matrix* matrix) -> floatt*
   {
-    return CudaUtils::GetImValues (matrix);
+    return CudaUtils::GetReMemory (matrix).ptr;
   };
-
   generic::SumApi<decltype(oap::cuda::GetMatrixInfo), decltype(CudaUtils::CopyDeviceToHost), GetAddressTypeRef>
   sumApi (oap::cuda::GetMatrixInfo, CudaUtils::CopyDeviceToHost, getReValues, getImValues);
 
@@ -395,6 +391,7 @@ void CuProceduresApi::sum (floatt& reoutput, const math::Matrix* matrix)
   sum (reoutput, imoutput, matrix);
 }
 
+#if 0
 void CuProceduresApi::sum (floatt& reoutput, const floatt* values, size_t count)
 {
   math::Matrix matrix;
@@ -403,6 +400,7 @@ void CuProceduresApi::sum (floatt& reoutput, const floatt* values, size_t count)
   matrix.rows = 1;
   sum (reoutput, &matrix);
 }
+#endif
 
 void CuProceduresApi::magnitudeOpt(floatt& output, math::Matrix* param0) {
   magnitude2Opt(output, param0);
@@ -447,8 +445,9 @@ void CuProceduresApi::setIdentity (math::Matrix* matrix)
   m_cuStatus = oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::cuda::GetMatrixInfo, m_preExecCallback);
 }
 
-void CuProceduresApi::setZeroMatrix(math::Matrix* matrix) {
-  CudaUtils::SetZeroMatrix(matrix, true, true);
+void CuProceduresApi::setZeroMatrix (math::Matrix* matrix)
+{
+  oap::cuda::SetZeroMatrix (matrix);
   m_cuStatus = CUDA_SUCCESS;
 }
 
@@ -554,8 +553,7 @@ bool CuProceduresApi::compareVer2(math::Matrix* matrix1, math::Matrix* matrix2, 
   const uintt w = oap::cuda::GetColumns(matrix1);
   const uintt h = oap::cuda::GetRows(matrix1);
 
-  floatt o = compareProcedure("CUDAKernel_CompareOptVer2", matrix1, matrix2, w, h,
-                          w / 2, h);
+  floatt o = compareProcedure("CUDAKernel_CompareOptVer2", matrix1, matrix2, w, h, w / 2, h);
   return (-tolerance <= o && o <= tolerance);
 }
 
@@ -643,7 +641,7 @@ void CuProceduresApi::linear (math::Matrix* output, math::Matrix* matrix, uintt 
 
 void CuProceduresApi::dlinear (math::Matrix* output, math::Matrix* matrix)
 {
-  oap::HostMatrixUPtr hmatrix = oap::host::NewMatrix (oap::cuda::GetMatrixInfo(output), 1.f);
+  oap::HostMatrixUPtr hmatrix = oap::host::NewMatrixWithValue (oap::cuda::GetMatrixInfo(output), 1.f);
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
 }
 

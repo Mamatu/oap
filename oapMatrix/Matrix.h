@@ -17,18 +17,19 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef OAP_MATRIX_H
 #define OAP_MATRIX_H
 
 #include "Math.h"
+#include "oapMemoryPrimitives.h"
 
 //#define DEBUG
 
-namespace math {
+namespace math
+{
 
-struct MatrixDim {
+struct MatrixDim
+{
   uintt columns;
   uintt rows;
 };
@@ -36,13 +37,17 @@ struct MatrixDim {
 /**
  * Columns orientation
  */
-struct Matrix : public MatrixDim {
-  uintt realColumns;
-  uintt realRows;
-  floatt* reValues;
-  floatt* imValues;
+struct Matrix
+{
+  oap::Memory re;
+  oap::MemoryRegion reReg;
+
+  oap::Memory im;
+  oap::MemoryRegion imReg;
 };
+
 }
 
+#define OAP_REGION_IS_VALID(region) (!(region.dims.width == 0 || region.dims.height == 0))
 
 #endif

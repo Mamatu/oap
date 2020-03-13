@@ -51,6 +51,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     virtual void SetUp() {
       oap::cuda::Context::Instance().create();
       m_arnoldiCuda = new CuHArnoldiCallback();
+      m_arnoldiCuda->setVecInitType (oap::InitVVectorType::FIRST_VALUE_IS_ONE);
     }
 
     virtual void TearDown() {
@@ -69,11 +70,15 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       math::Matrix* dvectorT = userDataObj->dvectorT;
       math::Matrix* dvalue = userDataObj->dvalue;
 
-      for (size_t idx = 0; idx < hmatrix->rows; ++idx) {
+      for (size_t idx = 0; idx < gRows (hmatrix); ++idx) {
         oap::host::GetTransposeReVector (hvectorT, hmatrix, idx);
         oap::cuda::CopyHostMatrixToDeviceMatrix (dvectorT, hvectorT);
         cuProceduresApi.dotProduct (dvalue, dvectorT, m_v);
         oap::cuda::SetReMatrix (m_w, dvalue, 0, idx);
+        PRINT_CUMATRIX(m_w);
+        PRINT_CUMATRIX(dvalue);
+        PRINT_CUMATRIX(dvectorT);
+        PRINT_CUMATRIX(m_v);
       }
     }
 
@@ -95,10 +100,10 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
     oap::HostMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
     {
-        oap::HostMatrixPtr hmatrix = oap::host::NewMatrix(size, size, 0);
+        oap::HostMatrixPtr hmatrix = oap::host::NewMatrixWithValue (size, size, 0);
 
         for (size_t xy = 0; xy < size; ++xy) {
-          hmatrix->reValues[GetIndex(hmatrix, xy, xy)] = getValue(xy);
+          *GetRePtr (hmatrix, xy, xy) = getValue (xy);
         }
 
         return hmatrix;
@@ -138,7 +143,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       ptrs.push_back(smsMatrix);
       ptrs.push_back(eigenvalues);
 
-      for (uint index = 0; index < eigenvalues->columns; ++index) {
+      for (uint index = 0; index < gColumns (eigenvalues); ++index) {
         ptrs.push_back(loadEigenvector(dir, index));     
       }
 
@@ -164,14 +169,14 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
       UserData userData = {
               hmatrix,
-              oap::host::NewReMatrix(hmatrix->columns, 1),
-              oap::cuda::NewDeviceReMatrix(hmatrix->columns, 1),
+              oap::host::NewReMatrix(gColumns (hmatrix), 1),
+              oap::cuda::NewDeviceReMatrix(gColumns (hmatrix), 1),
               oap::cuda::NewDeviceReMatrix(1, 1)
       };
 
       CheckUserData checkUserData = {
               &eigenPairs,
-              oap::host::NewReMatrix(1, hmatrix->rows)
+              oap::host::NewReMatrix(1, gRows (hmatrix))
       };
 
 
@@ -192,7 +197,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       std::vector<math::Matrix*> revectors;
 
       for (size_t idx = 0; idx < wanted; ++idx) {
-        revectors.push_back(oap::host::NewReMatrix(1, hmatrix->rows));
+        revectors.push_back(oap::host::NewReMatrix(1, gRows (hmatrix)));
       }
 
       oap::HostMatricesPtr revectorsPtr = oap::makeHostMatricesPtr(revectors);

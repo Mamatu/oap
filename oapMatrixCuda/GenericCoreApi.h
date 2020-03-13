@@ -22,8 +22,8 @@
 
 #include <map>
 #include <sstream>
-#include <type_traits>
 
+#include "oapTypeTraits.h"
 #include "Buffer.h"
 
 #include "Math.h"
@@ -77,9 +77,6 @@ namespace generic
       GetMatrixInfo&& getMatrixInfo;
       TransferValueToHost&& transferValueToHost;
   };
-
-  template<typename T>
-  using funcstore = typename std::conditional<std::is_function<T>::value, T&&, T>::type;
 
   template<typename GetMatrixInfo, typename GetValueIdx, typename SetValueIdx>
   class MatrixApi

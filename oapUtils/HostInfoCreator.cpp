@@ -38,11 +38,11 @@ void HostInfoCreator::getString(std::string& output, math::Matrix* matrix) const
 
 void HostInfoCreator::getMean(floatt& re, floatt& im,
                               math::Matrix* matrix) const {
-  if (matrix->reValues) {
-    re = utils::getMean(matrix->reValues, matrix->columns * matrix->rows, -1.);
+  if (gReValues (matrix)) {
+    re = utils::getMean(gReValues (matrix), gColumns (matrix) * gRows (matrix), -1.);
   }
-  if (matrix->imValues) {
-    im = utils::getMean(matrix->imValues, matrix->columns * matrix->rows, -1.);
+  if (gImValues (matrix)) {
+    im = utils::getMean(gImValues (matrix), gColumns (matrix) * gRows (matrix), -1.);
   }
 }
 
@@ -63,29 +63,29 @@ void HostInfoCreator::destroyMatrix(math::Matrix* diffMatrix) const {
 }
 
 bool HostInfoCreator::isRe(math::Matrix* matrix) const {
-  return matrix->reValues != NULL;
+  return gReValues (matrix) != NULL;
 }
 
 bool HostInfoCreator::isIm(math::Matrix* matrix) const {
-  return matrix->imValues != NULL;
+  return gImValues (matrix) != NULL;
 }
 
 std::pair<floatt, uintt> HostInfoCreator::getLargestReValue(
     math::Matrix* matrix) const {
-  return utils::getLargest(matrix->reValues, matrix->columns * matrix->rows);
+  return utils::getLargest(gReValues (matrix), gColumns (matrix) * gRows (matrix));
 }
 
 std::pair<floatt, uintt> HostInfoCreator::getLargestImValue(
     math::Matrix* matrix) const {
-  return utils::getLargest(matrix->imValues, matrix->columns * matrix->rows);
+  return utils::getLargest(gImValues (matrix), gColumns (matrix) * gRows (matrix));
 }
 
 std::pair<floatt, uintt> HostInfoCreator::getSmallestReValue(
     math::Matrix* matrix) const {
-  return utils::getSmallest(matrix->reValues, matrix->columns * matrix->rows);
+  return utils::getSmallest(gReValues (matrix), gColumns (matrix) * gRows (matrix));
 }
 
 std::pair<floatt, uintt> HostInfoCreator::getSmallestImValue(
     math::Matrix* matrix) const {
-  return utils::getSmallest(matrix->imValues, matrix->columns * matrix->rows);
+  return utils::getSmallest(gImValues (matrix), gColumns (matrix) * gRows (matrix));
 }

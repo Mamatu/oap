@@ -29,6 +29,8 @@
 #include "MatrixUtils.h"
 #include "MatrixPrinter.h"
 
+#include "oapMemory_GenericApi.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -50,11 +52,13 @@ namespace host
  * @param value
  * @return
  */
-math::Matrix* NewMatrix(uintt columns, uintt rows, floatt value = 0);
+math::Matrix* NewMatrix (uintt columns, uintt rows);
 
 math::Matrix* NewMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray);
 math::Matrix* NewReMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray);
 math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* imarray);
+
+math::Matrix* NewShareMatrix (uintt columns, uintt rows, math::Matrix* src);
 
 /**
  * @brief NewMatrix - creates new matrix, which has the same size
@@ -64,7 +68,7 @@ math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* i
  * @param value
  * @return
  */
-math::Matrix* NewMatrixRef(const math::Matrix* matrix, floatt value = 0);
+math::Matrix* NewMatrixRef(const math::Matrix* matrix);
 
 /**
  * @brief NewMatrix
@@ -74,11 +78,10 @@ math::Matrix* NewMatrixRef(const math::Matrix* matrix, floatt value = 0);
  * @param value
  * @return
  */
-math::Matrix* NewMatrix(const math::Matrix* matrix, uintt columns, uintt rows,
-                        floatt value = 0);
+math::Matrix* NewMatrix (const math::Matrix* matrix, uintt columns, uintt rows);
 
 
-math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value = 0);
+math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo);
 
 /**
  * @brief NewMatrix
@@ -89,21 +92,23 @@ math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo, floatt value = 0);
  * @param value
  * @return
  */
-math::Matrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows, floatt value = 0);
+math::Matrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows);
+
+math::Matrix* NewMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt value);
 
 inline math::Matrix* NewHostMatrix (bool isre, bool isim, uintt columns, uintt rows)
 {
-  return NewMatrix (isre, isim, columns, rows, 0);
+  return NewMatrix (isre, isim, columns, rows);
 }
 
 inline math::Matrix* NewHostReMatrix (uintt columns, uintt rows)
 {
-  return NewMatrix (true, false, columns, rows, 0);
+  return NewMatrix (true, false, columns, rows);
 }
 
 inline math::Matrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
 {
-  return NewMatrix (minfo.isRe, minfo.isIm, minfo.columns(), minfo.rows(), 0);
+  return NewMatrix (minfo.isRe, minfo.isIm, minfo.columns(), minfo.rows());
 }
 
 /**
@@ -113,7 +118,7 @@ inline math::Matrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
  * @param value
  * @return
  */
-math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value = 0);
+math::Matrix* NewReMatrix(uintt columns, uintt rows);
 
 /**
  * @brief NewImMatrix
@@ -122,13 +127,20 @@ math::Matrix* NewReMatrix(uintt columns, uintt rows, floatt value = 0);
  * @param value
  * @return
  */
-math::Matrix* NewImMatrix(uintt columns, uintt rows, floatt value = 0);
+math::Matrix* NewImMatrix(uintt columns, uintt rows);
 
 /**
  * @brief NewMatrix
  * @param text
  * @return
  */
+
+math::Matrix* NewMatrixWithValue (const math::MatrixInfo& minfo, floatt value);
+
+math::Matrix* NewMatrixWithValue (uintt columns, uintt rows, floatt value);
+math::Matrix* NewReMatrixWithValue (uintt columns, uintt rows, floatt value);
+math::Matrix* NewImMatrixWithValue (uintt columns, uintt rows, floatt value);
+
 math::Matrix* NewMatrix(const std::string& text);
 
 inline void CopyBuffer(floatt* dst, floatt* src, uintt length)
@@ -142,27 +154,34 @@ inline void CopyBuffer(floatt* dst, floatt* src, uintt length)
  * @param src
  */
 void CopyMatrix(math::Matrix* dst, const math::Matrix* src);
+void CopyMatrixRegion (math::Matrix* dst, const oap::MemoryLoc& dstLoc, const math::Matrix* src, const oap::MemoryRegion& srcReg);
 
 inline void CopyHostMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
 {
   CopyMatrix (dst, src);
 }
 
+inline void CopyHostMatrixToHostMatrixRegion (math::Matrix* dst, const oap::MemoryLoc& dstLoc, const math::Matrix* src, const oap::MemoryRegion& srcReg)
+{
+  CopyMatrixRegion (dst, dstLoc, src, srcReg);
+}
+
+#if 0
 void CopyMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
 
 inline void CopyHostMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
 {
   CopyMatrixDims (dst, src, dims);
 }
-
+#endif
 inline uintt GetColumns (const math::Matrix* matrix)
 {
-  return matrix->columns;
+  return gColumns (matrix);
 }
 
 inline uintt GetRows (const math::Matrix* matrix)
 {
-  return matrix->rows;
+  return gRows (matrix);
 }
 
 /**
@@ -225,20 +244,20 @@ inline void Copy<floatt>(floatt* dst, floatt* src, uint length)
 template<typename T>
 void Copy(math::Matrix* dst, T* rearray, T* imarray)
 {
-  Copy(dst->reValues, rearray, dst->columns * dst->rows);
-  Copy(dst->imValues, imarray, dst->columns * dst->rows);
+  Copy(gReValues (dst), rearray, gColumns (dst) * gRows (dst));
+  Copy(gImValues (dst), imarray, gColumns (dst) * gRows (dst));
 }
 
 template<typename T>
 void CopyRe(math::Matrix* dst, T* array)
 {
-  Copy(dst->reValues, array, dst->columns * dst->rows);
+  Copy(gReValues (dst), array, gColumns (dst) * gRows (dst));
 }
 
 template<typename T>
 void CopyIm(math::Matrix* dst, T* array)
 {
-  Copy(dst->imValues, array, dst->columns * dst->rows);
+  Copy(gImValues (dst), array, gColumns (dst) * gRows (dst));
 }
 
 /**
@@ -666,12 +685,17 @@ bool WriteMatrix(const std::string& path, const math::Matrix* matrix);
 
 inline bool IsReMatrix(math::Matrix* m)
 {
-  return m != NULL && m->reValues != NULL;
+  return m != NULL && gReValues (m) != NULL;
 }
 
 inline bool IsImMatrix(math::Matrix* m)
 {
-  return m != NULL && m->imValues != NULL;
+  return m != NULL && gImValues (m) != NULL;
+}
+
+inline void ToHost (void* dst, const void* src, size_t size)
+{
+  memcpy (dst, src, size);
 }
 
 void CopySubMatrix(math::Matrix* dst, const math::Matrix* src, uintt cindex, uintt rindex);
@@ -692,19 +716,19 @@ void CopyArrayToImMatrix (math::Matrix* matrix, const floatt* buffer);
 
 inline void SetReValueToMatrix (math::Matrix* matrix, floatt value, size_t idx = 0)
 {
-  matrix->reValues[idx] = value;
+  gReValues (matrix)[idx] = value;
 }
 
 inline void SetReValuesToMatrix (math::Matrix* matrix, const std::vector<floatt>& vec)
 {
-  debugAssert (vec.size() <= matrix->columns * matrix->rows);
-  memcpy (matrix->reValues, vec.data(), sizeof(floatt) * vec.size());
+  debugAssert (vec.size() <= gColumns (matrix) * gRows (matrix));
+  memcpy (gReValues (matrix), vec.data(), sizeof(floatt) * vec.size());
 }
 
 inline void SetReValuesToMatrix (math::Matrix* matrix, floatt* array, size_t length)
 {
-  debugAssert (length <= matrix->columns * matrix->rows);
-  memcpy (matrix->reValues, array, sizeof(floatt) * length);
+  debugAssert (length <= gColumns (matrix) * gRows (matrix));
+  memcpy (gReValues (matrix), array, sizeof(floatt) * length);
 }
 
 template<typename Tuple, size_t Tidx = 0>
@@ -720,20 +744,20 @@ void SetReValuesToMatrix (math::Matrix* matrix, const std::vector<Tuple>& vecl)
   SetReValuesToMatrix (matrix, vec.data(), vec.size());
 }
 
-inline floatt* GetValue(floatt* const* ptr)
-{
-  return *ptr;
-}
-
 void CopyHostArrayToHostMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
 
 void CopyHostArrayToHostReMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
 
 void CopyHostArrayToHostImMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
 
+void SetMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+
 }
 namespace generic
 {
+
 inline void initDims (uintt dims[2][2][2], const math::MatrixInfo& dist, const math::MatrixInfo& src)
 {
   dims[0][0][0] = 0;
@@ -754,9 +778,10 @@ inline void initDims (uintt dims[2][2][2], const math::MatrixInfo& minfo)
   initDims (dims, minfo, minfo);
 }
 
-inline void initDims (uintt dims[2][2][2], const math::Matrix* matrix)
+template<typename GetMatrixInfo>
+void initDims (uintt dims[2][2][2], const math::Matrix* matrix, GetMatrixInfo&& getMatrixInfo)
 {
-  initDims (dims, oap::host::GetMatrixInfo (matrix));
+  initDims (dims, getMatrixInfo (matrix));
 }
 
 const uintt g_srcIdx = 1;
@@ -828,8 +853,13 @@ inline math::MatrixInfo check_CopyMatrixToMatrixDims (const math::MatrixInfo& ds
   return dstInfo;
 }
 
-template<typename CopyBuffer, typename MatrixMemoryApi>
-void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, CopyBuffer&& copyBuffer, MatrixMemoryApi& dstApi, MatrixMemoryApi& srcApi, bool check = true)
+/* \brief Copy matrix to matrix
+ * \params Memcpy - function of type (void* dst, const void* src, size_t size)
+ * \param MatrixMemoryApi - see GenericCoreApi -> class MatrixMemoryApi
+ *
+ */
+template<typename Memcpy, typename MatrixMemoryApi>
+void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& memcpy, MatrixMemoryApi& dstApi, MatrixMemoryApi& srcApi, bool check = true)
 {
   math::MatrixInfo minfo;
   math::MatrixInfo dstInfo = dstApi.getMatrixInfo (dst);
@@ -846,60 +876,72 @@ void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, CopyBuffer&
 
   uintt length = minfo.rows() * minfo.columns();
 
-  auto copyValues = [&](floatt* const* ptr, floatt* const* ptr1)
+  auto getRawPointer = [](oap::Memory* memory, MatrixMemoryApi& api)
   {
-    floatt* values = dstApi.transferValueToHost (ptr);
-    floatt* values1 = srcApi.transferValueToHost (ptr1);
+    floatt* ptr = nullptr;
+    api.transferValueToHost (&ptr, &(memory->ptr), sizeof (floatt*));
+    return ptr;
+  };
 
-    copyBuffer (values, values1, sizeof(floatt) * length);
+  auto getMemoryRegion = [](oap::MemoryRegion* memRegPtr, MatrixMemoryApi& api)
+  {
+    oap::MemoryRegion reg;
+    api.transferValueToHost (&reg, memRegPtr, sizeof (oap::MemoryRegion));
+    return reg;
+  };
+
+  auto getDims = [](oap::Memory* memory, MatrixMemoryApi& api)
+  {
+    oap::MemoryDims memDims;
+    api.transferValueToHost (&memDims, &(memory->dims), sizeof (oap::MemoryDims));
+    return memDims;
+  };
+
+  struct MatrixData
+  {
+    floatt* ptr;
+    oap::MemoryDims dims;
+    oap::MemoryRegion region;
+  };
+
+  auto getMatrixData = [&getRawPointer, &getMemoryRegion, &getDims] (const math::Matrix* matrix, oap::Memory* const* memPPtr, oap::MemoryRegion* const* regPPtr, MatrixMemoryApi& api)
+  {
+    oap::Memory* memory = nullptr;
+    api.transferValueToHost (&memory, memPPtr, sizeof (oap::Memory*));
+
+    floatt* ptr = getRawPointer (memory, api);
+    oap::MemoryDims dims = getDims (memory, api);
+
+    oap::MemoryRegion* regPtr;
+    api.transferValueToHost (&regPtr, regPPtr, sizeof (oap::MemoryRegion*));
+    oap::MemoryRegion reg = getMemoryRegion (regPtr, api);
+
+    MatrixData data = {ptr, dims, reg};
+    return data;
+  };
+
+  auto getReMatrixData = [&](const math::Matrix* matrix, MatrixMemoryApi& api)
+  {
+    return getMatrixData (matrix, &(matrix->re), &(matrix->reReg), api);
+  };
+
+  auto getImMatrixData = [&](const math::Matrix* matrix, MatrixMemoryApi& api)
+  {
+    return getMatrixData (matrix, &(matrix->im), &(matrix->imReg), api);
   };
 
   if (minfo.isRe)
   {
-    copyValues (&dst->reValues, &src->reValues);
+    MatrixData dstRe = getReMatrixData (dst, dstApi);
+    MatrixData srcRe = getReMatrixData (src, srcApi);
+    oap::generic::copy (dstRe.ptr, dstRe.dims, dstRe.region.loc, srcRe.ptr, srcRe.dims, srcRe.region, memcpy);
   }
 
   if (minfo.isIm)
   {
-    copyValues (&dst->imValues, &src->imValues);
-  }
-}
-
-template<typename CopyBuffer, typename MatrixApi>
-void copyMatrixToMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2], CopyBuffer&& copyBuffer, MatrixApi& dstApi, MatrixApi& srcApi)
-{
-  math::MatrixInfo minfo;
-  auto dstInfo = dstApi.getMatrixInfo (dst);
-  auto srcInfo = srcApi.getMatrixInfo (src);
-
-  minfo = check_CopyMatrixToMatrixDims (dstInfo, srcInfo, dims);
-
-  uintt length = getColumns (dims[g_dstIdx]);
-
-  uintt dstOffset = getColumnIdx (dims[g_dstIdx]) + dstInfo.columns() * getRowIdx (dims[g_dstIdx]);
-  uintt srcOffset = getColumnIdx (dims[g_srcIdx]) + srcInfo.columns() * getRowIdx (dims[g_srcIdx]);
-
-  auto copyValues = [&](floatt* const* ptr, floatt* const* ptr1)
-  {
-    floatt* values = dstApi.transferValueToHost (ptr);
-    floatt* values1 = srcApi.transferValueToHost (ptr1);
-
-    for (uintt row = 0; row < getRows (dims[g_dstIdx]); ++row)
-    {
-      floatt* V = values + dstOffset + dstInfo.columns() * row;
-      floatt* V1 = values1 + srcOffset + srcInfo.columns() * row;
-      copyBuffer (V, V1, sizeof(floatt) * length);
-    }
-  };
-
-  if (minfo.isRe)
-  {
-    copyValues (&dst->reValues, &src->reValues);
-  }
-
-  if (minfo.isIm)
-  {
-    copyValues (&dst->imValues, &src->imValues);
+    MatrixData dstIm = getImMatrixData (dst, dstApi);
+    MatrixData srcIm = getImMatrixData (src, srcApi);
+    oap::generic::copy (dstIm.ptr, dstIm.dims, dstIm.region.loc, srcIm.ptr, srcIm.dims, srcIm.region, memcpy);
   }
 }
 
@@ -927,7 +969,7 @@ inline void printCustomMatrix (std::string& output, const math::Matrix* matrix, 
 template<typename GetMatrixInfo>
 void printMatrix (std::string& output, const math::Matrix* matrix, const matrixUtils::PrintArgs& args, GetMatrixInfo&& getMatrixInfo)
 {
-  math::MatrixInfo minfo = getMatrixInfo(matrix);
+  math::MatrixInfo minfo = getMatrixInfo (matrix);
 
   oap::generic::printCustomMatrix (output, matrix, args, minfo);
 }
@@ -946,7 +988,26 @@ void printMatrix (std::string& output, const math::Matrix* matrix, const matrixU
   deleteMatrix (hmatrix);
 }
 
+template<typename GetMemory, typename GetMemoryRegion, typename Memcpy>
+void setMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row, GetMemory&& getMemory, GetMemoryRegion&& getMemoryRegion, Memcpy&& memcpy)
+{
+  oap::Memory hmem = getMemory (matrix);
+  oap::Memory hmem1 = getMemory (matrix1);
+  oap::MemoryRegion hreg = getMemoryRegion (matrix);
+  oap::MemoryRegion hreg1 = getMemoryRegion (matrix1);
+
+  debugAssert ((!hmem.ptr && !hmem1.ptr) || (hmem.ptr && hmem1.ptr));
+
+  if (!hmem.ptr && !hmem1.ptr)
+  {
+    return;
+  }
+
+  oap::generic::copy (hmem.ptr, hmem.dims, oap::common::addLoc (hreg.loc, {column, row}), hmem1.ptr, hmem1.dims, GetRefMemoryRegion(hmem1, hreg1), memcpy);
 }
+
+}
+
 }
 
 #endif /* OAP_HOST_MATRIX_UTILS_H */

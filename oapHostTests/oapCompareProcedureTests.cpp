@@ -78,7 +78,7 @@ class OapCompareTests : public OapCudaStub {
   static int getExpectedResult(math::Matrix* matrix, const dim3& gridDim,
                                const dim3& blockIdx, const dim3& blockDim,
                                const AlgoVersion& algoVersion) {
-    return getExpectedResult(matrix->columns, matrix->rows, gridDim, blockIdx,
+    return getExpectedResult(gColumns (matrix), gRows (matrix), gridDim, blockIdx,
                              blockDim, algoVersion);
   }
 };
@@ -97,7 +97,7 @@ class CompareStubImpl : public HostKernel {
 
   CompareStubImpl(uint columns, uint rows, AlgoVersion::Type algoVersion)
       : m_algoVersion(algoVersion) {
-    m_matrix = oap::host::NewReMatrix(columns, rows, 0);
+    m_matrix = oap::host::NewReMatrixWithValue (columns, rows, 0);
     calculateDims(columns / m_algoVersion.getFactor(), rows);
     m_bufferLength = blockDim.x * blockDim.y;
     m_sumsLength = gridDim.x * gridDim.y;
@@ -116,7 +116,7 @@ class CompareStubImpl : public HostKernel {
   void execute(const dim3& threadIdx, const dim3& blockIdx) {
     if (NULL != m_matrix) {
       uintt xlength = aux_GetLength(blockIdx.x, blockDim.x,
-                                m_matrix->columns / m_algoVersion.getFactor());
+                                gColumns (m_matrix) / m_algoVersion.getFactor());
       uintt sharedIndex = threadIdx.y * xlength + threadIdx.x;
       if (m_algoVersion.getVersion() == AlgoVersion::VERSION_1) {
         cuda_CompareReOpt(m_buffer, m_matrix, m_matrix, sharedIndex, xlength);

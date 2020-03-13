@@ -48,14 +48,14 @@ __hostdevice__ void cuda_convolveRe (math::Matrix* output, const math::Matrix* p
   HOST_INIT();
   THREAD_INDICES_INIT();
   
-  KEROPER_CACHE_CODE(CONVOLUTION, params0, kernel, cache, ->columns, ->rows, GetRe (params0, px, py) * GetReIndex (kernel, kidx);)
+  KEROPER_CACHE_CODE(CONVOLUTION, params0, kernel, cache, gColumns, gRows, GetRe (params0, px, py) * GetReIndex (kernel, kidx);)
   threads_sync();
 
-  CUDA_SumValuesInScope (cache, cacheIdx, cacheW * cacheH, kernel->rows * kernel->columns);
+  CUDA_SumValuesInScope (cache, cacheIdx, cacheW * cacheH, gRows (kernel) * gColumns (kernel));
 
-  if (KEROPER_IS_OUTPUT_IDX (kernel, ->columns, ->rows))
+  if (KEROPER_IS_OUTPUT_IDX (kernel, gColumns, gRows))
   {
-    const uintt ox = KEROPER_CALCULATE_OUTPUT_IDX_X(kernel, ->columns, ->rows);
+    const uintt ox = KEROPER_CALCULATE_OUTPUT_IDX_X(kernel, gColumns, gRows);
     const uintt oy = threadIndexY;
 
     floatt cached = cache[cacheIdx];
@@ -105,9 +105,9 @@ __hostdevice__ void CUDA_convolve (math::Matrix* output, const math::Matrix* par
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
-  bool isInRange = threadIndexX < KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS (params0, kernel, ->columns, ->rows) && threadIndexY < KEROPER_CONVOLUTION_CALCULATE_CACHE_ROWS (params0, kernel, ->rows);
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
+  bool isInRange = threadIndexX < KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS (params0, kernel, gColumns, gRows) && threadIndexY < KEROPER_CONVOLUTION_CALCULATE_CACHE_ROWS (params0, kernel, gRows);
   if (isre && isim && isInRange)
   {
     CUDA_convolveReal (output, params0, kernel, cache);

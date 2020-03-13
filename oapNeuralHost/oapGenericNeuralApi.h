@@ -230,9 +230,9 @@ void initLayerBiases (LayerT& layer, SetReValue&& setReValue, uintt samples = 1)
 {
   if (layer.getBiasesCount() == 1)
   {
-    for (uintt idx = 0; idx <= samples * layer.getTotalNeuronsCount(); idx += layer.getTotalNeuronsCount())
+    for (uintt idx = layer.getTotalNeuronsCount(); idx <= samples * layer.getTotalNeuronsCount(); idx += layer.getTotalNeuronsCount())
     {
-      setReValue (layer.getFPMatrices()->m_inputs, 1.f, 0, idx - 1);
+      setReValue (layer.getFPMatrices()->m_inputs, 0, idx - 1, 1.f);
     }
   }
   else if (layer.getBiasesCount() > 1)
@@ -500,11 +500,13 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
 
   fp.m_errors = alloc.newDeviceMatrixDeviceRef (fp.m_inputs);
   fp.m_errorsAux = alloc.newDeviceMatrixDeviceRef (fp.m_inputs);
+  fp.m_errorsAcc = alloc.newDeviceMatrixDeviceRef (fp.m_inputs);
 
   logTrace ("fp.m_inputs = %p", fp.m_inputs);
   logTrace ("fp.m_sums = %p", fp.m_sums);
   logTrace ("fp.m_errors = %p", fp.m_errors);
   logTrace ("fp.m_errorsAux = %p", fp.m_errorsAux);
+  logTrace ("fp.m_errorsAcc = %p", fp.m_errorsAcc);
   logTraceE ("%s %p", __func__, &fp);
 }
 

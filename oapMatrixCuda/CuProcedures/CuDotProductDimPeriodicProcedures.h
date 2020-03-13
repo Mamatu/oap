@@ -39,7 +39,7 @@ __hostdevice__ void cuda_dotProductDimPeriodic (math::Matrix* output, math::Matr
   uintt indexY1 = (threadIndexY) % periodicRows;
   uintt indexY2 = (threadIndexY / periodicRows) * offset;
 
-  bool inRange = threadIndexX < columns && indexY1 < rows && threadIndexY < output->rows;
+  bool inRange = threadIndexX < columns && indexY1 < rows && threadIndexY < gRows (output);
 
   uintt t0[2] = {0, indexY1};
   uintt t1[2] = {threadIndexX, indexY2};

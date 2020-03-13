@@ -56,18 +56,18 @@ __hostdeviceinline__ void cuda_createExsForDotProduct (MatrixEx exs[3], uintt ma
 
   exs[0].column = threadIndexX;
   exs[0].row = threadIndexY;
-  exs[0].columns = output->columns;
-  exs[0].rows = output->rows;
+  exs[0].columns = gColumns (output);
+  exs[0].rows = gRows (output);
 
   exs[1].column = 0;
   exs[1].row = threadIdx.y;
-  cuda_calc (exs[1].columns, w, params0->columns, idx);
-  cuda_calc (exs[1].rows, h, params0->rows, blockIdx.y);
+  cuda_calc (exs[1].columns, w, gColumns (params0), idx);
+  cuda_calc (exs[1].rows, h, gRows (params0), blockIdx.y);
 
   exs[2].column = threadIdx.x;
   exs[2].row = 0;
-  cuda_calc (exs[2].columns, w, params1->columns, blockIdx.x);
-  cuda_calc (exs[2].rows, h, params1->rows, idx);
+  cuda_calc (exs[2].columns, w, gColumns (params1), blockIdx.x);
+  cuda_calc (exs[2].rows, h, gRows (params1), idx);
 }
 
 __hostdeviceinline__ bool cuda_createExsForCopy (MatrixEx exs[3], uintt idx, const math::Matrix* params0, const math::Matrix* params1)
@@ -80,13 +80,13 @@ __hostdeviceinline__ bool cuda_createExsForCopy (MatrixEx exs[3], uintt idx, con
 
   exs[1].column = w * idx;
   exs[1].row = h * blockIdx.y;
-  bool cont1 = cuda_calc (exs[1].columns, w, params0->columns, idx);
-  cuda_calc (exs[1].rows, h, params0->rows, blockIdx.y);
+  bool cont1 = cuda_calc (exs[1].columns, w, gColumns (params0), idx);
+  cuda_calc (exs[1].rows, h, gRows (params0), blockIdx.y);
 
   exs[2].column = w * blockIdx.x;
   exs[2].row = h * idx;
-  cuda_calc (exs[2].columns, w, params1->columns, blockIdx.x);
-  bool cont2 = cuda_calc (exs[2].rows, h, params1->rows, idx);
+  cuda_calc (exs[2].columns, w, gColumns (params1), blockIdx.x);
+  bool cont2 = cuda_calc (exs[2].rows, h, gRows (params1), idx);
 
   debugAssert (cont1 == cont2);
   return cont1;
@@ -97,9 +97,9 @@ __hostdevice__ void CUDA_dotProductShared (math::Matrix* output, math::Matrix* p
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool inRange = threadIndexX < output->columns && threadIndexY < output->rows;
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
+  bool inRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
 
 
   const uintt w = blockDim.x;

@@ -56,13 +56,17 @@ TEST_F(OapMatrixTests, SubMultiplication1) {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(10, 10, 0);
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrix(10, 10, 1);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrix(10, 10, 1);
+    oap::HostMatrixUPtr output = oap::host::NewReMatrixWithValue (10, 10, 0);
+    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
+    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (10, 10, 1);
     oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
     mo.setSubColumns(5);
     mo.setSubRows(5);
     mo.setThreadsCount(m_threadsCount);
+
+    oap::host::SetSubColumns (eq_output, 5);
+    oap::host::SetSubRows (eq_output, 5);
+
     mo.multiply(output, matrix1, matrix2, 5);
 
     EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
@@ -120,14 +124,20 @@ TEST_F(OapMatrixTests, Substraction) {
 
 TEST_F(OapMatrixTests, Addition1) {
 
-    floatt array[] = {1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 0, 0,
-        0, 0, 0, 0};
-    floatt outputArray[] = {2, 0, 0, 0,
-        0, 2, 0, 0,
-        0, 0, 0, 0,
-        0, 0, 0, 0};
+    floatt array[] =
+    {
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0
+    };
+    floatt outputArray[] =
+    {
+      2, 0, 0, 0,
+      0, 2, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0
+    };
     oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(4, 4, array);
     oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(4, 4, array);
     oap::HostMatrixUPtr output = oap::host::NewReMatrix(4, 4);
@@ -137,6 +147,7 @@ TEST_F(OapMatrixTests, Addition1) {
     mo.setSubColumns(2);
     mo.add(output, matrix1, matrix2);
 
+    oap::host::SetSubColumns (eq_output, 2);
     EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
@@ -174,14 +185,18 @@ TEST_F(OapMatrixTests, Multiplication) {
     math::DotProductOperationCpu multiplicationOperation;
     multiplicationOperation.setThreadsCount(m_threadsCount);
     multiplicationOperation.setOutputMatrix(output);
+
     multiplicationOperation.setSubColumns(2);
+
     multiplicationOperation.setMatrix1(matrix1);
     multiplicationOperation.setMatrix2(matrix2);
     multiplicationOperation.start();
 
+    oap::host::SetSubColumns (eq_output, 2);
+
     EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
-
+#if 0
 TEST_F(OapMatrixTests, Diagonalization) {
     floatt array[] = {2, -2, 1,
         -1, 3, -1,
@@ -212,6 +227,7 @@ TEST_F(OapMatrixTests, Diagonalization) {
 
     EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
+#endif
 
 TEST_F(OapMatrixTests, TensorProduct) {
 
@@ -257,8 +273,8 @@ TEST_F(OapMatrixTests, Multiplication1) {
         20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
         20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
     };
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrix(10, 10, 1);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrix(10, 10, 2);
+    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
+    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (10, 10, 2);
     oap::HostMatrixUPtr output = oap::host::NewReMatrix(10, 10);
     oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
     mo.setThreadsCount(m_threadsCount);
@@ -283,7 +299,7 @@ TEST_F(OapMatrixTests, MultiplicationConst) {
     };
 
     oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrix(10, 10, 1);
+    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
     oap::HostMatrixUPtr matrix2 = NULL;
     floatt m2 = 2.f;
     oap::HostMatrixUPtr output = oap::host::NewReMatrix(10, 10);
@@ -296,15 +312,17 @@ TEST_F(OapMatrixTests, MultiplicationConst) {
 TEST_F(OapMatrixTests, SubMultiplication) {
 
     math::MathOperationsCpu mo;
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(10, 10, 0);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrix(10, 10, 0);
-    eq_output->reValues[0] = 10;
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrix(10, 10, 1);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrix(10, 10, 1);
+    oap::HostMatrixUPtr output = oap::host::NewReMatrixWithValue (10, 10, 0);
+    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixWithValue (10, 10, 0);
+    *GetRePtrIndex (eq_output, 0) = 10;
+    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
+    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (10, 10, 1);
     mo.setSubRows(1);
     mo.setSubColumns(1);
     mo.setThreadsCount(m_threadsCount);
     mo.multiply(output, matrix1, matrix2);
+
+    oap::host::SetSubs (eq_output, 1, 1);
 
     EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
@@ -323,13 +341,15 @@ TEST_F(OapMatrixTests, Transpose) {
         0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
         0.000000, 0.000000, 0.000000, 0.000000, 0.000000
     };
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(5, 10, 0);
+    oap::HostMatrixUPtr output = oap::host::NewReMatrixWithValue (5, 10, 0);
     oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(5, 10, outputArray);
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrix(10, 5, 1);
+    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 5, 1);
     oap::HostMatrixUPtr matrix2 = NULL;
     mo.setSubRows(4);
     mo.setThreadsCount(m_threadsCount);
     mo.transpose(output, matrix1);
+
+    oap::host::SetSubRows (eq_output, 4);
 
     EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }

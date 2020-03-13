@@ -61,7 +61,7 @@ TEST_F(OapConvolutionTests, Test_0)
   calcApi.convolve (outcome, param, kernel);
 
   std::vector<floatt> expected = {1};
-  std::vector<floatt> outcomeVec (outcome->reValues, outcome->reValues + (outcome->rows * outcome->columns));
+  std::vector<floatt> outcomeVec (outcome->re.ptr, outcome->re.ptr + (gRows (outcome) * gColumns (outcome)));
   EXPECT_EQ (expected, outcomeVec);
 }
 
@@ -88,7 +88,7 @@ TEST_F(OapConvolutionTests, Test_1)
   calcApi.convolve (outcome, param, kernel);
 
   std::vector<floatt> expected = {2};
-  std::vector<floatt> outcomeVec (outcome->reValues, outcome->reValues + (outcome->rows * outcome->columns));
+  std::vector<floatt> outcomeVec (outcome->re.ptr, outcome->re.ptr + (gRows (outcome) * gColumns (outcome)));
   EXPECT_EQ (expected, outcomeVec);
 }
 
@@ -119,7 +119,7 @@ TEST_F(OapConvolutionTests, Test_2)
   calcApi.convolve (outcome, param, kernel);
 
   std::vector<floatt> expected = {2, 2, 0, 2};
-  std::vector<floatt> outcomeVec (outcome->reValues, outcome->reValues + (outcome->rows * outcome->columns));
+  std::vector<floatt> outcomeVec (outcome->re.ptr, outcome->re.ptr + (gRows (outcome) * gColumns (outcome)));
   EXPECT_EQ (expected, outcomeVec);
 }
 
@@ -159,6 +159,6 @@ TEST_F(OapConvolutionTests, Test_3)
   calcApi.convolve (outcome, param, kernel);
 
   std::vector<floatt> expected = {4, 3, 4, 2, 4, 3, 2, 3, 4};
-  std::vector<floatt> outcomeVec (outcome->reValues, outcome->reValues + (outcome->rows * outcome->columns));
+  std::vector<floatt> outcomeVec (outcome->re.ptr, outcome->re.ptr + (gRows (outcome) * gColumns (outcome)));
   EXPECT_EQ (expected, outcomeVec);
 }

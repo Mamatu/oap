@@ -68,7 +68,7 @@ class OapSinTests : public testing::Test
     {
       for (size_t idx = 0; idx < 10; ++idx)
       {
-        hinput->reValues[idx] = idx + 1;
+        *GetRePtrIndex (hinput, idx) = idx + 1;
       }
     }
 
@@ -76,7 +76,7 @@ class OapSinTests : public testing::Test
     {
       for (size_t idx = 0; idx < 10; ++idx)
       {
-        hinput->imValues[idx] = idx + 1;
+        *GetImPtrIndex (hinput, idx) = idx + 1;
       }
     }
 
@@ -107,11 +107,11 @@ TEST_F(OapSinTests, SinReTest)
 {
   auto getRe = [](const math::Matrix* matrix, size_t idx) -> floatt
   {
-    return matrix->reValues[idx];
+    return GetReIndex (matrix, idx);
   };
   auto getIm = [](const math::Matrix* matrix, size_t idx) -> floatt
   {
-    return matrix->imValues[idx];
+    return GetImIndex (matrix, idx);
   };
 
   auto newMatrix = [](uintt c, uintt r)
@@ -141,11 +141,11 @@ TEST_F(OapSinTests, SinImTest)
 {
   auto getRe = [](const math::Matrix* matrix, size_t idx) -> floatt
   {
-    return matrix->reValues[idx];
+    return GetReIndex (matrix, idx);
   };
   auto getIm = [](const math::Matrix* matrix, size_t idx) -> floatt
   {
-    return matrix->imValues[idx];
+    return GetImIndex (matrix, idx);
   };
 
   auto newMatrix = [](uintt c, uintt r)
@@ -175,11 +175,11 @@ TEST_F(OapSinTests, DISABLED_SinRealTest)
 {
   auto getRe = [](const math::Matrix* matrix, size_t idx) -> floatt
   {
-    return matrix->reValues[idx];
+    return GetReIndex (matrix, idx);
   };
   auto getIm = [](const math::Matrix* matrix, size_t idx) -> floatt
   {
-    return matrix->imValues[idx];
+    return GetImIndex (matrix, idx);
   };
 
   auto newMatrix = [](uintt c, uintt r)
@@ -220,8 +220,8 @@ TEST_F(OapSinTests, SinDerivativeReTest)
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
-    hinput->reValues[idx] = idx + 1;
-    houtput->reValues[idx] = idx + 1;
+    *GetRePtrIndex (hinput, idx) = idx + 1;
+    *GetRePtrIndex (houtput, idx) = idx + 1;
   }
 
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
@@ -233,7 +233,7 @@ TEST_F(OapSinTests, SinDerivativeReTest)
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
-    EXPECT_DOUBLE_EQ(sinDerivative (idx + 1, idx + 1), houtput->reValues[idx]);
+    EXPECT_DOUBLE_EQ(sinDerivative (idx + 1, idx + 1), GetReIndex (houtput, idx));
   }
 }
 
@@ -252,8 +252,8 @@ TEST_F(OapSinTests, MultiplySinDerivativeReTest)
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
-    hinput->reValues[idx] = idx + 1;
-    houtput->reValues[idx] = idx + 1;
+    *GetRePtrIndex (hinput, idx) = idx + 1;
+    *GetRePtrIndex (houtput, idx) = idx + 1;
   }
 
   oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
@@ -265,7 +265,7 @@ TEST_F(OapSinTests, MultiplySinDerivativeReTest)
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
-    EXPECT_DOUBLE_EQ(multiplySinDerivative (idx + 1, idx + 1), houtput->reValues[idx]);
+    EXPECT_DOUBLE_EQ(multiplySinDerivative (idx + 1, idx + 1), GetReIndex (houtput, idx));
   }
 }
 

@@ -34,34 +34,34 @@ void TransposeOperationCpu::Execute(void* ptr) {
     uintt erow = threadData->ends[1];
     math::Matrix* m_output = threadData->outputs[0].m_matrix;
     const math::Matrix* m_matrix = threadData->params[0].m_matrix;
-    uintt columns = m_matrix->columns;
-    uintt columns1 = m_output->columns;
+    uintt columns = gColumns (m_matrix);
+    uintt columns1 = gColumns (m_output);
     if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL &&
         threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
         for (uintt fa = brow; fa < erow; fa++) {
             for (uintt fb = bcolumn; fb < ecolumn; fb++) {
                 uintt index1 = fb * columns + fa;
-                floatt value = m_matrix->reValues[index1];
-                floatt value1 = m_matrix->imValues[index1];
+                floatt value = gReValues (m_matrix)[index1];
+                floatt value1 = gImValues (m_matrix)[index1];
                 uintt indexa = fa * columns1 + fb;
-                m_output->reValues[indexa] = value;
-                m_output->imValues[indexa] = -value1;
+                gReValues (m_output)[indexa] = value;
+                gImValues (m_output)[indexa] = -value1;
             }
         }
 
     } else if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL) {
         for (uintt fa = brow; fa < erow; fa++) {
             for (uintt fb = bcolumn; fb < ecolumn; fb++) {
-                floatt value = m_matrix->reValues[fb * columns + fa];
-                //m_output->reValues[fa * columns1 + fb] = value;
+                floatt value = gReValues (m_matrix)[fb * columns + fa];
+                //gReValues (m_output)[fa * columns1 + fb] = value;
                 SetRe(m_output, fb, fa, value);
             }
         }
     } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
         for (uintt fa = brow; fa < erow; fa++) {
             for (uintt fb = bcolumn; fb < ecolumn; fb++) {
-                floatt value1 = m_matrix->imValues[fb * columns + fa];
-                m_output->imValues[fa * columns1 + fb] = -value1;
+                floatt value1 = gImValues (m_matrix)[fb * columns + fa];
+                gImValues (m_output)[fa * columns1 + fb] = -value1;
             }
         }
     }
@@ -69,8 +69,8 @@ void TransposeOperationCpu::Execute(void* ptr) {
 
 void TransposeOperationCpu::execute() {
     uintt threadsCount = utils::mapper::createThreadsMap(getBMap(),
-        this->m_threadsCount, m_output->columns - m_subcolumns[0],
-        m_output->rows - m_subrows[0]);
+        this->m_threadsCount, gColumns (m_output) - m_subcolumns[0],
+        gRows (m_output) - m_subrows[0]);
     ThreadData<TransposeOperationCpu>* threads = m_threadData;
     for (uintt fa = 0; fa < threadsCount; fa++) {
         threads[fa].outputs[0] = m_output;

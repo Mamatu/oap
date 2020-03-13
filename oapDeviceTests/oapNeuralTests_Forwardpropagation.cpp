@@ -73,23 +73,23 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
   DeviceLayer* l3 = network->createLayer(1, Activation::TANH);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
-  weights1to2->reValues[0] = -1;
-  weights1to2->reValues[3] = 0.53;
-  weights1to2->reValues[6] = 0.33;
+  *GetRePtrIndex (weights1to2, 0) = -1;
+  *GetRePtrIndex (weights1to2, 3) = 0.53;
+  *GetRePtrIndex (weights1to2, 6) = 0.33;
 
-  weights1to2->reValues[1] = -0.1;
-  weights1to2->reValues[4] = -0.81;
-  weights1to2->reValues[7] = 0.92;
+  *GetRePtrIndex (weights1to2, 1) = -0.1;
+  *GetRePtrIndex (weights1to2, 4) = -0.81;
+  *GetRePtrIndex (weights1to2, 7) = 0.92;
 
-  weights1to2->reValues[2] = 2.2;
-  weights1to2->reValues[5] = 1.8;
-  weights1to2->reValues[8] = 1.8;
+  *GetRePtrIndex (weights1to2, 2) = 2.2;
+  *GetRePtrIndex (weights1to2, 5) = 1.8;
+  *GetRePtrIndex (weights1to2, 8) = 1.8;
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
-  weights2to3->reValues[0] = 4.7;
-  weights2to3->reValues[1] = 4.7;
-  weights2to3->reValues[2] = 4.7;
-  weights2to3->reValues[3] = -7.08;
+  *GetRePtrIndex (weights2to3, 0) = 4.7;
+  *GetRePtrIndex (weights2to3, 1) = 4.7;
+  *GetRePtrIndex (weights2to3, 2) = 4.7;
+  *GetRePtrIndex (weights2to3, 3) = -7.08;
 
   l1->setHostWeights (weights1to2);
   l2->setHostWeights (weights2to3);
@@ -100,8 +100,8 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
   size_t idx = 0;
   auto getLabelIdx = [&hinputs, &houtput, this, &idx] (floatt x, floatt y)
   {
-    hinputs->reValues[0] = x;
-    hinputs->reValues[1] = y;
+    *GetRePtrIndex (hinputs, 0) = x;
+    *GetRePtrIndex (hinputs, 1) = y;
 
     network->setInputs (hinputs, ArgType::HOST);
 
@@ -109,7 +109,7 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 
     network->getOutputs (houtput.get(), ArgType::HOST);
 
-    floatt output = houtput->reValues[0];
+    floatt output = GetReIndex (houtput, 0);
 
     floatt expectedOutput = test_ForwardPropagation_PyPlotCoords::g_expected.at(idx).second;
     EXPECT_NEAR (expectedOutput, output, 0.00001) << "Failure: x: " << x << " y: " << y << " expected: " << expectedOutput << " actual: " << output;
@@ -144,23 +144,23 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parall
   DeviceLayer* l3 = network->createLayer(1, Activation::TANH);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
-  weights1to2->reValues[0] = -1;
-  weights1to2->reValues[3] = 0.53;
-  weights1to2->reValues[6] = 0.33;
+  *GetRePtrIndex (weights1to2, 0) = -1;
+  *GetRePtrIndex (weights1to2, 3) = 0.53;
+  *GetRePtrIndex (weights1to2, 6) = 0.33;
 
-  weights1to2->reValues[1] = -0.1;
-  weights1to2->reValues[4] = -0.81;
-  weights1to2->reValues[7] = 0.92;
+  *GetRePtrIndex (weights1to2, 1) = -0.1;
+  *GetRePtrIndex (weights1to2, 4) = -0.81;
+  *GetRePtrIndex (weights1to2, 7) = 0.92;
 
-  weights1to2->reValues[2] = 2.2;
-  weights1to2->reValues[5] = 1.8;
-  weights1to2->reValues[8] = 1.8;
+  *GetRePtrIndex (weights1to2, 2) = 2.2;
+  *GetRePtrIndex (weights1to2, 5) = 1.8;
+  *GetRePtrIndex (weights1to2, 8) = 1.8;
 
   oap::HostMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
-  weights2to3->reValues[0] = 4.7;
-  weights2to3->reValues[1] = 4.7;
-  weights2to3->reValues[2] = 4.7;
-  weights2to3->reValues[3] = -7.08;
+  *GetRePtrIndex (weights2to3, 0) = 4.7;
+  *GetRePtrIndex (weights2to3, 1) = 4.7;
+  *GetRePtrIndex (weights2to3, 2) = 4.7;
+  *GetRePtrIndex (weights2to3, 3) = -7.08;
 
   l1->setHostWeights (weights1to2);
   l2->setHostWeights (weights2to3);
@@ -171,9 +171,9 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parall
   size_t idx = 0;
   auto getLabelIdx = [&hinputs, &houtput, this, &idx] (floatt x, floatt y)
   {
-    hinputs->reValues[0] = x;
-    hinputs->reValues[1] = y;
-    hinputs->reValues[2] = 1;
+    *GetRePtrIndex (hinputs, 0) = x;
+    *GetRePtrIndex (hinputs, 1) = y;
+    *GetRePtrIndex (hinputs, 2) = 1;
 
     network->setInputs (hinputs, ArgType::HOST);
 
@@ -181,7 +181,7 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parall
 
     network->getOutputs (houtput.get(), ArgType::HOST);
 
-    floatt output = houtput->reValues[0];
+    floatt output = GetReIndex (houtput, 0);
 
     floatt expectedOutput = test_ForwardPropagation_PyPlotCoords::g_expected.at(idx).second;
     EXPECT_NEAR (expectedOutput, output, 0.00001) << "Failure: x: " << x << " y: " << y << " expected: " << expectedOutput << " actual: " << output;

@@ -245,26 +245,13 @@ floatt Parser::getValue(uintt index) const
 size_t Parser::getLength() const
 { return m_array.size(); }
 
-const floatt* Parser::getData() const
+const floatt* const Parser::getData() const
 { return m_array.data(); }
 
 bool HasArray (const std::string& text, unsigned int which)
 {
   Parser parser (text);
   return parser.hasArray (which);
-}
-
-std::pair<floatt*, size_t> CreateArray (const std::string& text, unsigned int which)
-{
-  Parser parser (text);
-  parser.parseArray(which);
-
-  size_t length = parser.getLength();
-
-  floatt* array = new floatt[length];
-  memcpy(array, parser.getData(), length * sizeof(floatt));
-
-  return std::make_pair/*<floatt*, size_t>*/(array, length);
 }
 
 void Parser::ParsingException::merge (const std::string& _msg, const std::string& _code)

@@ -37,6 +37,8 @@
 
 #include "GenericCoreApi.h"
 
+#include "oapMemoryPrimitives.h"
+
 #define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
 namespace oap
@@ -68,6 +70,8 @@ class CuProceduresApi
   }
 
   inline void hadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+  inline void elementWiseProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+  inline void schurProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   /**
    *  @brief Calculates hadamard product of matrix and vector of the second matrix.
@@ -84,6 +88,7 @@ class CuProceduresApi
   inline void hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   void dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+//  void dotProduct (oap::MemoryRegionPtrs* output, math::Matrix* params0, math::Matrix* params1);
 
   void dotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
@@ -209,7 +214,7 @@ class CuProceduresApi
 
   void sum (floatt& reoutput, floatt& imoutput, const math::Matrix* matrix);
   void sum (floatt& reoutput, const math::Matrix* matrix);
-  void sum (floatt& reoutput, const floatt* values, size_t count);
+  //void sum (floatt& reoutput, const floatt* values, size_t count);
   //void sumShared (floatt& output, math::Matrix* params0);
 
   void magnitudeOpt(floatt& output, math::Matrix* params0);
@@ -487,8 +492,8 @@ inline void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* p
   CHECK_MATRIX(params0);
   CHECK_MATRIX(params1);
 #endif
-  const uintt output_columns = CudaUtils::GetColumns(output);
-  const uintt output_rows = CudaUtils::GetRows(output);
+  const uintt output_columns = oap::cuda::GetColumns(output);
+  const uintt output_rows = oap::cuda::GetRows(output);
 
   addDotProduct(output, params0, params1, output_columns, output_rows);
 }
@@ -504,8 +509,8 @@ inline void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* p
   CHECK_MATRIX(params1);
 #endif
 
-  const uintt output_columns = CudaUtils::GetColumns(output);
-  const uintt output_rows = CudaUtils::GetRows(output);
+  const uintt output_columns = oap::cuda::GetColumns(output);
+  const uintt output_rows = oap::cuda::GetRows(output);
 
   tensorProduct (output, params0, params1, output_columns, output_rows);
 }
@@ -521,10 +526,20 @@ inline void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix*
   CHECK_MATRIX(params1);
 #endif
 
-  const uintt output_columns = CudaUtils::GetColumns(output);
-  const uintt output_rows = CudaUtils::GetRows(output);
+  const uintt output_columns = oap::cuda::GetColumns(output);
+  const uintt output_rows = oap::cuda::GetRows(output);
 
   hadamardProduct (output, params0, params1, output_columns, output_rows);
+}
+
+inline void CuProceduresApi::elementWiseProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  hadamardProduct (output, params0, params1);
+}
+
+inline void CuProceduresApi::schurProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+{
+  hadamardProduct (output, params0, params1);
 }
 
 inline void CuProceduresApi::hadamardProductVec(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
@@ -538,17 +553,10 @@ inline void CuProceduresApi::hadamardProductVec(math::Matrix* output, math::Matr
   CHECK_MATRIX(params1);
 #endif
 
-  const uintt output_columns = CudaUtils::GetColumns(output);
-  const uintt output_rows = CudaUtils::GetRows(output);
+  const uintt output_columns = oap::cuda::GetColumns(output);
+  const uintt output_rows = oap::cuda::GetRows(output);
 
   hadamardProductVec (output, params0, params1, output_columns, output_rows);
-}
-
-inline void CuProceduresApi::dotProductEx(math::Matrix* output, math::Matrix* params0,
-                                   math::Matrix* params1, MatrixEx* matrixEx) {
-  const uintt columns = CudaUtils::GetColumns(matrixEx);
-  const uintt rows = CudaUtils::GetRows(matrixEx);
-  dotProductEx(output, params0, params1, matrixEx, columns, rows);
 }
 
 inline void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* params0,

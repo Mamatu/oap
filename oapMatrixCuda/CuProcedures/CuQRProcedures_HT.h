@@ -65,7 +65,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const uintt n = A->rows; 
+  const uintt n = gRows (A); 
 
   for (uint k = 0; k < n; ++k)
   {
@@ -86,7 +86,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
 
     threads_sync ();
 
-    CUDA_getVector (V, V->rows, M, columnIdx);
+    CUDA_getVector (V, gRows (V), M, columnIdx);
 
     if (threadIndexX == 0 && threadIndexY == 0)
     {
@@ -101,7 +101,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
     CUDA_transposeMatrix (VT, V);
     CUDA_specific_dotProduct (VVT, V, VT);
 
-    sum = CUDA_calcMagnitudeOptEx (V, buffer, 0, 0, 1, V->rows);
+    sum = CUDA_calcMagnitudeOptEx (V, buffer, 0, 0, 1, gRows (V));
     if (sum != 0)
     {
       CUDA_multiplyConstantMatrix (VVT, VVT, 2. / sum, 0.);

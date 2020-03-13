@@ -33,7 +33,7 @@ class OapImagesLoaderTests : public testing::Test
  public:
   OapImagesLoaderTests()
   {
-    m_data_path = utils::Config::getPathInOap("oapAppUtilsFuncTests/data/");
+    m_data_path = oap::utils::Config::getPathInOap("oapAppUtilsFuncTests/data/");
     m_images_path = m_data_path + "images/";
   }
 

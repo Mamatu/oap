@@ -20,13 +20,13 @@ class OapHostMatrixUtilsTests : public testing::Test {
   static const std::string testfilepath;
 
   static math::Matrix* createMatrix(uintt columns, uintt rows, GetValue getValue) {
-    math::Matrix* m1 = oap::host::NewMatrix(true, true, columns, rows, 0);
+    math::Matrix* m1 = oap::host::NewMatrixWithValue (true, true, columns, rows, 0);
 
     for (int idx1 = 0; idx1 < columns; ++idx1) {
       for (int idx2 = 0; idx2 < rows; ++idx2) {
         uintt idx3 = idx1 + idx2 * columns;
-        m1->reValues[idx3] = getValue(idx1, idx2, idx3);
-        m1->imValues[idx3] = getValue(idx1, idx2, idx3);
+        *GetRePtrIndex (m1, idx3) = getValue(idx1, idx2, idx3);
+        *GetImPtrIndex (m1, idx3) = getValue(idx1, idx2, idx3);
       }
     }
 
@@ -39,8 +39,8 @@ const std::string OapHostMatrixUtilsTests::testfilepath = "/tmp/Oap/host_tests/t
 TEST_F(OapHostMatrixUtilsTests, Copy) {
   const uintt columns = 11;
   const uintt rows = 15;
-  math::Matrix* m1 = oap::host::NewReMatrix(columns, rows, 1);
-  math::Matrix* m2 = oap::host::NewReMatrix(columns, rows, 0);
+  math::Matrix* m1 = oap::host::NewReMatrixWithValue (columns, rows, 1);
+  math::Matrix* m2 = oap::host::NewReMatrixWithValue (columns, rows, 0);
 
   oap::host::CopyMatrix(m2, m1);
 
@@ -55,13 +55,13 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_1)
   const uintt columns = 11;
   const uintt rows = 15;
 
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrix(15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
+  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   uintt dims[2][2][2];
-  oap::generic::initDims (dims, m2);
+  oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
 
-  oap::host::CopyHostMatrixToHostMatrixDims (m2, m1, dims);
+  oap::host::CopyHostMatrixToHostMatrixRegion (m2, {0, 0}, m1, {0, 0, {gColumns(m2), gRows(m2)}});
 
   EXPECT_THAT(m2.get (), MatrixHasValues(1));
 }
@@ -71,11 +71,11 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_2)
   const uintt columns = 11;
   const uintt rows = 15;
 
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrix(15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
+  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   uintt dims[2][2][2];
-  oap::generic::initDims (dims, m2);
+  oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
 
   oap::generic::setRows (1, dims[oap::generic::g_dstIdx]);
   oap::generic::setColumns (1, dims[oap::generic::g_dstIdx]);
@@ -83,16 +83,16 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_2)
   oap::generic::setRows (1, dims[oap::generic::g_srcIdx]);
   oap::generic::setColumns (1, dims[oap::generic::g_srcIdx]);
 
-  oap::host::CopyHostMatrixToHostMatrixDims (m2, m1, dims);
+  oap::host::CopyHostMatrixToHostMatrixRegion (m2, {0, 0}, m1, {{0, 0},{1, 1}});
 
-  EXPECT_DOUBLE_EQ(1, m2->reValues[0]);
+  EXPECT_DOUBLE_EQ(1, GetReIndex (m2, 0));
 }
 
 TEST_F(OapHostMatrixUtilsTests, SubCopyTest_3)
 {
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrix(15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
-  oap::HostMatrixPtr expected = oap::host::NewReMatrix(5, 6, 0);
+  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostMatrixPtr expected = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   std::vector<floatt> expectedValues =
   {
@@ -106,7 +106,7 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_3)
   oap::host::SetReValuesToMatrix(expected, expectedValues);
 
   uintt dims[2][2][2];
-  oap::generic::initDims (dims, m2);
+  oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
 
   oap::generic::setColumns (3, dims[oap::generic::g_dstIdx]);
   oap::generic::setRows (4, dims[oap::generic::g_dstIdx]);
@@ -117,16 +117,16 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_3)
   oap::generic::setColumnIdx (2, dims[oap::generic::g_dstIdx]);
   oap::generic::setRowIdx (2, dims[oap::generic::g_dstIdx]);
 
-  oap::host::CopyHostMatrixToHostMatrixDims (m2, m1, dims);
+  oap::host::CopyHostMatrixToHostMatrixRegion (m2, {2, 2}, m1, {{0, 0}, {3, 4}});
 
   EXPECT_THAT(expected.get (), MatrixIsEqual(m2.get())) << "actual: " << oap::host::to_string(m2);
 }
 
 TEST_F(OapHostMatrixUtilsTests, SubCopyTest_4)
 {
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrix(15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrix(5, 6, 0);
-  oap::HostMatrixPtr expected = oap::host::NewReMatrix(5, 6, 0);
+  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostMatrixPtr expected = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   std::vector<floatt> expectedValues =
   {
@@ -140,7 +140,7 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_4)
   oap::host::SetReValuesToMatrix(expected, expectedValues);
 
   uintt dims[2][2][2];
-  oap::generic::initDims (dims, m2);
+  oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
 
   oap::generic::setColumns (2, dims[oap::generic::g_dstIdx]);
   oap::generic::setRows (3, dims[oap::generic::g_dstIdx]);
@@ -151,7 +151,7 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_4)
   oap::generic::setColumnIdx (2, dims[oap::generic::g_dstIdx]);
   oap::generic::setRowIdx (2, dims[oap::generic::g_dstIdx]);
 
-  oap::host::CopyHostMatrixToHostMatrixDims (m2, m1, dims);
+  oap::host::CopyHostMatrixToHostMatrixRegion (m2, {2, 2}, m1, {{0, 0}, {2, 3}});
 
   EXPECT_THAT(expected.get (), MatrixIsEqual(m2.get())) << "actual: " << oap::host::to_string(m2);
 }
@@ -167,12 +167,12 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrix) {
   if (status) {
     math::Matrix* m2 = oap::host::ReadMatrix(testfilepath);
 
-    EXPECT_EQ(m2->columns, m1->columns);
-    EXPECT_EQ(m2->rows, m1->rows);
+    EXPECT_EQ(gColumns (m2), gColumns (m1));
+    EXPECT_EQ(gRows (m2), gRows (m1));
 
-    for (int fa = 0; fa < m1->columns * m1->rows; ++fa) {
-      EXPECT_EQ(m1->reValues[fa], m2->reValues[fa]);
-      EXPECT_EQ(m1->imValues[fa], m2->imValues[fa]);
+    for (int fa = 0; fa < gColumns (m1) * gRows (m1); ++fa) {
+      EXPECT_EQ(GetReIndex (m1, fa), GetReIndex (m2, fa));
+      EXPECT_EQ(GetImIndex (m1, fa), GetImIndex (m2, fa));
     }
 
     oap::host::DeleteMatrix(m2);
@@ -192,24 +192,24 @@ TEST_F(OapHostMatrixUtilsTests, WriteReadMatrixEx) {
   if (status) {
     MatrixEx mex;
     mex.row = 0;
-    mex.rows = 10;
+    gRows (&mex) = 10;
 
     mex.column = 4;
-    mex.columns = 6;
+    gColumns (&mex) = 6;
 
     math::Matrix* m2 = oap::host::ReadMatrix(testfilepath, mex);
 
-    EXPECT_EQ(m2->columns, mex.columns);
-    EXPECT_EQ(m2->rows, mex.rows);
+    EXPECT_EQ(gColumns (m2), gColumns (&mex));
+    EXPECT_EQ(gRows (m2), gRows (&mex));
 
-    for (int fa = 0; fa < m2->columns; ++fa)
+    for (int fa = 0; fa < gColumns (m2); ++fa)
     {
-      for (int fb = 0; fb < m2->rows; ++fb)
+      for (int fb = 0; fb < gRows (m2); ++fb)
       {
-        int idx = fa + m2->columns * fb;
-        int idx1 = (mex.column + fa) + m1->columns * (mex.row + fb);
-        EXPECT_EQ(m2->reValues[idx], m1->reValues[idx1]);
-        EXPECT_EQ(m2->imValues[idx], m1->imValues[idx1]);
+        int idx = fa + gColumns (m2) * fb;
+        int idx1 = (mex.column + fa) + gColumns (m1) * (mex.row + fb);
+        EXPECT_EQ(GetReIndex (m2, idx], m1->re[idx1));
+        EXPECT_EQ(GetImIndex (m2, idx], m1->im[idx1));
       }
     }
 
@@ -231,12 +231,12 @@ TEST_F(OapHostMatrixUtilsTests, WriteMatrixReadVector) {
     size_t index = 1;
     math::Matrix* vec = oap::host::ReadRowVector(testfilepath, index);
 
-    EXPECT_EQ(vec->columns, matrix->columns);
-    EXPECT_EQ(vec->rows, 1);
+    EXPECT_EQ(gColumns (vec), gColumns (matrix));
+    EXPECT_EQ(gRows (vec), 1);
 
-    for (int fa = 0; fa < matrix->columns; ++fa) {
-      EXPECT_EQ(fa + index * matrix->columns, vec->reValues[fa]);
-      EXPECT_EQ(fa + index * matrix->columns, vec->imValues[fa]);
+    for (int fa = 0; fa < gColumns (matrix); ++fa) {
+      EXPECT_EQ(fa + index * gColumns (matrix), GetReIndex (vec, fa));
+      EXPECT_EQ(fa + index * gColumns (matrix), GetImIndex (vec, fa));
     }
 
     oap::host::DeleteMatrix(vec);
@@ -248,9 +248,9 @@ TEST_F(OapHostMatrixUtilsTests, NewSubMatrixTests)
 {
   auto initMatrix = [](math::Matrix* matrix)
   {
-    for (uintt idx = 0; idx < matrix->columns; ++idx)
+    for (uintt idx = 0; idx < gColumns (matrix); ++idx)
     {
-      for (uintt idx1 = 0; idx1 < matrix->rows; ++idx1)
+      for (uintt idx1 = 0; idx1 < gRows (matrix); ++idx1)
       {
         oap::host::SetReValue (matrix, idx, idx1, idx + 10 * idx1);
         oap::host::SetImValue (matrix, idx, idx1, idx + 10 * idx1);
@@ -262,26 +262,26 @@ TEST_F(OapHostMatrixUtilsTests, NewSubMatrixTests)
     oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
     oap::HostMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 2, 2);
-    EXPECT_EQ(11, submatrix->reValues[0]);
-    EXPECT_EQ(12, submatrix->reValues[1]);
-    EXPECT_EQ(21, submatrix->reValues[2]);
-    EXPECT_EQ(22, submatrix->reValues[3]);
-    EXPECT_EQ(2, submatrix->columns);
-    EXPECT_EQ(2, submatrix->rows);
+    EXPECT_EQ(11, GetReIndex (submatrix, 0));
+    EXPECT_EQ(12, GetReIndex (submatrix, 1));
+    EXPECT_EQ(21, GetReIndex (submatrix, 2));
+    EXPECT_EQ(22, GetReIndex (submatrix, 3));
+    EXPECT_EQ(2, gColumns (submatrix));
+    EXPECT_EQ(2, gRows (submatrix));
   }
 
   {
     oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
     oap::HostMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 6, 6);
-    EXPECT_EQ(11, submatrix->reValues[0]);
-    EXPECT_EQ(12, submatrix->reValues[1]);
-    EXPECT_EQ(13, submatrix->reValues[2]);
-    EXPECT_EQ(21, submatrix->reValues[3]);
-    EXPECT_EQ(22, submatrix->reValues[4]);
-    EXPECT_EQ(23, submatrix->reValues[5]);
-    EXPECT_EQ(3, submatrix->columns);
-    EXPECT_EQ(3, submatrix->rows);
+    EXPECT_EQ(11, GetReIndex (submatrix, 0));
+    EXPECT_EQ(12, GetReIndex (submatrix, 1));
+    EXPECT_EQ(13, GetReIndex (submatrix, 2));
+    EXPECT_EQ(21, GetReIndex (submatrix, 3));
+    EXPECT_EQ(22, GetReIndex (submatrix, 4));
+    EXPECT_EQ(23, GetReIndex (submatrix, 5));
+    EXPECT_EQ(3, gColumns (submatrix));
+    EXPECT_EQ(3, gRows (submatrix));
   }
 
   {
@@ -315,9 +315,9 @@ TEST_F(OapHostMatrixUtilsTests, GetSubMatrixTest)
 {
   auto initMatrix = [](math::Matrix* matrix)
   {
-    for (uintt idx = 0; idx < matrix->columns; ++idx)
+    for (uintt idx = 0; idx < gColumns (matrix); ++idx)
     {
-      for (uintt idx1 = 0; idx1 < matrix->rows; ++idx1)
+      for (uintt idx1 = 0; idx1 < gRows (matrix); ++idx1)
       {
         oap::host::SetReValue (matrix, idx, idx1, idx + 10 * idx1);
         oap::host::SetImValue (matrix, idx, idx1, idx + 10 * idx1);
@@ -330,44 +330,44 @@ TEST_F(OapHostMatrixUtilsTests, GetSubMatrixTest)
     initMatrix (matrix);
     math::Matrix* submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 2, 2);
 
-    EXPECT_EQ(2, submatrix->columns);
-    EXPECT_EQ(2, submatrix->rows);
+    EXPECT_EQ(2, gColumns (submatrix));
+    EXPECT_EQ(2, gRows (submatrix));
 
-    EXPECT_EQ(11, submatrix->reValues[0]);
-    EXPECT_EQ(12, submatrix->reValues[1]);
-    EXPECT_EQ(21, submatrix->reValues[2]);
-    EXPECT_EQ(22, submatrix->reValues[3]);
+    EXPECT_EQ(11, GetReIndex (submatrix, 0));
+    EXPECT_EQ(12, GetReIndex (submatrix, 1));
+    EXPECT_EQ(21, GetReIndex (submatrix, 2));
+    EXPECT_EQ(22, GetReIndex (submatrix, 3));
 
     math::Matrix* smatrix = oap::host::GetSubMatrix (matrix, 0, 0, submatrix);
     EXPECT_EQ(smatrix, submatrix);
 
-    EXPECT_EQ(2, smatrix->columns);
-    EXPECT_EQ(2, smatrix->rows);
+    EXPECT_EQ(2, gColumns (smatrix));
+    EXPECT_EQ(2, gRows (smatrix));
 
-    EXPECT_EQ(0, smatrix->reValues[0]);
-    EXPECT_EQ(1, smatrix->reValues[1]);
-    EXPECT_EQ(10, smatrix->reValues[2]);
-    EXPECT_EQ(11, smatrix->reValues[3]);
+    EXPECT_EQ(0, GetReIndex (smatrix, 0));
+    EXPECT_EQ(1, GetReIndex (smatrix, 1));
+    EXPECT_EQ(10, GetReIndex (smatrix, 2));
+    EXPECT_EQ(11, GetReIndex (smatrix, 3));
 
     smatrix = oap::host::GetSubMatrix (matrix, 1, 1, smatrix);
     EXPECT_EQ(smatrix, submatrix);
 
-    EXPECT_EQ(2, smatrix->columns);
-    EXPECT_EQ(2, smatrix->rows);
+    EXPECT_EQ(2, gColumns (smatrix));
+    EXPECT_EQ(2, gRows (smatrix));
 
-    EXPECT_EQ(11, smatrix->reValues[0]);
-    EXPECT_EQ(12, smatrix->reValues[1]);
-    EXPECT_EQ(21, smatrix->reValues[2]);
-    EXPECT_EQ(22, smatrix->reValues[3]);
+    EXPECT_EQ(11, GetReIndex (smatrix, 0));
+    EXPECT_EQ(12, GetReIndex (smatrix, 1));
+    EXPECT_EQ(21, GetReIndex (smatrix, 2));
+    EXPECT_EQ(22, GetReIndex (smatrix, 3));
 
     smatrix = oap::host::GetSubMatrix (matrix, 2, 2, smatrix);
     EXPECT_EQ(smatrix, submatrix);
-    EXPECT_EQ(22, smatrix->reValues[0]);
-    EXPECT_EQ(23, smatrix->reValues[1]);
-    EXPECT_EQ(32, smatrix->reValues[2]);
-    EXPECT_EQ(33, smatrix->reValues[3]);
-    EXPECT_EQ(2, smatrix->columns);
-    EXPECT_EQ(2, smatrix->rows);
+    EXPECT_EQ(22, GetReIndex (smatrix, 0));
+    EXPECT_EQ(23, GetReIndex (smatrix, 1));
+    EXPECT_EQ(32, GetReIndex (smatrix, 2));
+    EXPECT_EQ(33, GetReIndex (smatrix, 3));
+    EXPECT_EQ(2, gColumns (smatrix));
+    EXPECT_EQ(2, gRows (smatrix));
 
     math::MatrixInfo submatrixInfo = oap::host::GetMatrixInfo (submatrix);
 
@@ -377,10 +377,10 @@ TEST_F(OapHostMatrixUtilsTests, GetSubMatrixTest)
 
     EXPECT_NE(smatrixInfo, submatrixInfo);
 
-    EXPECT_EQ(1, smatrix->columns);
-    EXPECT_EQ(1, smatrix->rows);
+    EXPECT_EQ(1, gColumns (smatrix));
+    EXPECT_EQ(1, gRows (smatrix));
 
-    EXPECT_EQ(33, smatrix->reValues[0]);
+    EXPECT_EQ(33, GetReIndex (smatrix, 0));
 
     oap::host::DeleteMatrix (smatrix);
   }

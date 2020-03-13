@@ -24,41 +24,40 @@
 
 #include "Matrix.h"
 #include "MatrixInfo.h"
+#include "oapAllocationList.h"
 
-#include "Logger.h"
+namespace
+{
+  using AllocationList = oap::AllocationList<const math::Matrix*, math::MatrixInfo, std::function<std::string(const math::MatrixInfo&)>>;
 
-class MatricesList
+
+  template<typename ExtraUserData>
+  using UserDataPair = std::pair<math::MatrixInfo, ExtraUserData>;
+
+  template<typename ExtraUserData>
+  using AllocationListEx = oap::AllocationList<const math::Matrix*, UserDataPair<ExtraUserData>, std::function<std::string(const UserDataPair<ExtraUserData>&)>>;
+}
+
+class MatricesList : public AllocationList
 {
   public:
-    using MatrixInfos = std::map<const math::Matrix*, math::MatrixInfo>;
-
     MatricesList (const std::string& id);
-
-    MatricesList (const MatricesList&) = delete;
-    MatricesList (MatricesList&&) = delete;
-    MatricesList& operator= (const MatricesList&) = delete;
-    MatricesList& operator= (MatricesList&&) = delete;
-
     virtual ~MatricesList ();
-
-    const MatrixInfos& getAllocated() const;
-
-    void add (math::Matrix* matrix, const math::MatrixInfo& minfo);
-
-    math::MatrixInfo getMatrixInfo (const math::Matrix* matrix) const;
-
-		bool contains (const math::Matrix* matrix) const;
-
-    math::MatrixInfo remove (const math::Matrix* matrix);
-
-  private:
-    std::string m_id;
-
-    MatrixInfos m_matrixInfos;
-    MatrixInfos m_deletedMatrixInfos;
-
-    void checkOnDelete();
 };
 
-#endif
+template<typename ExtraUserData>
+class MatricesListExt : public AllocationListEx<ExtraUserData>
+{
+  public:
+    MatricesListExt (const std::string& id);
+    virtual ~MatricesListExt ();
+};
 
+template<typename ExtraUserData>
+MatricesListExt<ExtraUserData>::MatricesListExt (const std::string& id) : AllocationListEx<ExtraUserData> (id, [](const UserDataPair<ExtraUserData>& udp) { return std::to_string (udp.first);})
+{}
+
+template<typename ExtraUserData>
+MatricesListExt<ExtraUserData>::~MatricesListExt ()
+{}
+#endif

@@ -34,10 +34,10 @@ class OapDeviceMatrixModuleTests : public testing::Test {
   void setSubMatrixTest(uintt columns, uintt rows, float value,
                         uintt subcolumns, uint subrows, floatt subvalue,
                         uintt column, uintt row) {
-    math::Matrix* hmatrix = oap::host::NewMatrix(true, true, columns, rows, value);
+    math::Matrix* hmatrix = oap::host::NewMatrixWithValue (true, true, columns, rows, value);
     math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hmatrix);
 
-    math::Matrix* hsubmatrix = oap::host::NewMatrix(true, true, subcolumns, subrows, subvalue);
+    math::Matrix* hsubmatrix = oap::host::NewMatrixWithValue (true, true, subcolumns, subrows, subvalue);
     math::Matrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hsubmatrix);
 
     oap::cuda::SetMatrix(dmatrix, dsubmatrix, column, row);
@@ -47,8 +47,8 @@ class OapDeviceMatrixModuleTests : public testing::Test {
     {
       for (uintt fb = 0; fb < subrows; ++fb)
       {
-        EXPECT_EQ(subvalue, hmatrix->reValues[(fa + column) + columns * (row + fb)]);
-        EXPECT_EQ(subvalue, hmatrix->imValues[(fa + column) + columns * (row + fb)]);
+        EXPECT_EQ(subvalue, GetReIndex (hmatrix, (fa + column) + columns * (row + fb)));
+        EXPECT_EQ(subvalue, GetImIndex (hmatrix, (fa + column) + columns * (row + fb)));
       }
     }
 
@@ -64,7 +64,7 @@ TEST_F(OapDeviceMatrixModuleTests, GetColumnsTest) {
   uintt columns = 15;
   uintt rows = 10;
   math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, columns, rows);
-  uintt expected = CudaUtils::GetColumns(matrix);
+  uintt expected = oap::cuda::GetColumns(matrix);
   uintt tested = oap::cuda::GetColumns(matrix);
   EXPECT_EQ(expected, tested);
   EXPECT_EQ(columns, tested);
@@ -75,7 +75,7 @@ TEST_F(OapDeviceMatrixModuleTests, GetRowsTest) {
   uintt columns = 15;
   uintt rows = 10;
   math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, columns, rows);
-  uintt expected = CudaUtils::GetRows(matrix);
+  uintt expected = oap::cuda::GetRows(matrix);
   uintt tested = oap::cuda::GetRows(matrix);
   EXPECT_EQ(expected, tested);
   EXPECT_EQ(rows, tested);
@@ -132,11 +132,11 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
 
   std::string path = "/tmp/Oap/device_tests/test_file";
 
-  math::Matrix* m1 = oap::host::NewMatrix(true, true, columns, rows, 0);
+  math::Matrix* m1 = oap::host::NewMatrixWithValue (true, true, columns, rows, 0);
 
   for (int fa = 0; fa < columns * rows; ++fa) {
-    m1->reValues[fa] = fa;
-    m1->imValues[fa] = fa;
+    *GetRePtrIndex (m1, fa) = fa;
+    *GetImPtrIndex (m1, fa) = fa;
   }
 
   math::Matrix* d1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(m1);
@@ -151,14 +151,14 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
     math::Matrix* m2 = oap::host::NewMatrix(oap::cuda::GetMatrixInfo(d2));
     oap::cuda::CopyDeviceMatrixToHostMatrix(m2, d2);
 
-    EXPECT_EQ(m2->columns, m1->columns);
-    EXPECT_EQ(m2->columns, columns);
-    EXPECT_EQ(m2->rows, m1->rows);
-    EXPECT_EQ(m2->rows, rows);
+    EXPECT_EQ(gColumns (m2), gColumns (m1));
+    EXPECT_EQ(gColumns (m2), columns);
+    EXPECT_EQ(gRows (m2), gRows (m1));
+    EXPECT_EQ(gRows (m2), rows);
 
     for (int fa = 0; fa < columns * rows; ++fa) {
-      EXPECT_EQ(m1->reValues[fa], m2->reValues[fa]);
-      EXPECT_EQ(m1->imValues[fa], m2->imValues[fa]);
+      EXPECT_EQ(GetReIndex (m1, fa), GetReIndex (m2, fa));
+      EXPECT_EQ(GetImIndex (m1, fa), GetImIndex (m2, fa));
     }
 
     oap::host::DeleteMatrix(m2);
@@ -172,76 +172,55 @@ TEST_F(OapDeviceMatrixModuleTests, GetValuesPtrTest_1)
 {
   math::Matrix* matrix = oap::cuda::NewDeviceReMatrix (1, 2);
 
-  oap::cuda::ValuesPtr valuesPtr = oap::cuda::GetValuesPtr (matrix);
+  math::Matrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
 
-  floatt* revaluesPtr = CudaUtils::GetReValues (matrix);
-  floatt* imvaluesPtr = CudaUtils::GetImValues (matrix);
+  floatt* revaluesPtr = oap::cuda::GetReValuesPtr (matrix);
+  floatt* imvaluesPtr = oap::cuda::GetImValuesPtr (matrix);
 
-  EXPECT_EQ(revaluesPtr, valuesPtr.reValues);
-  EXPECT_EQ(imvaluesPtr, valuesPtr.imValues);
+  EXPECT_EQ(revaluesPtr, refmatrix.re.ptr);
+  EXPECT_EQ(imvaluesPtr, refmatrix.im.ptr);
   EXPECT_EQ(revaluesPtr, oap::cuda::GetReValuesPtr (matrix));
   EXPECT_EQ(imvaluesPtr, oap::cuda::GetImValuesPtr (matrix));
-  EXPECT_NE(nullptr, valuesPtr.reValues);
-  EXPECT_EQ(nullptr, valuesPtr.imValues);
+  EXPECT_NE(nullptr, refmatrix.re.ptr);
+  EXPECT_EQ(nullptr, refmatrix.im.ptr);
 
   oap::cuda::DeleteDeviceMatrix (matrix);
-
-  valuesPtr = oap::cuda::GetValuesPtr (matrix);
-
-  EXPECT_EQ(nullptr, valuesPtr.reValues);
-  EXPECT_EQ(nullptr, valuesPtr.imValues);
-  EXPECT_EQ(nullptr, oap::cuda::GetReValuesPtr (matrix));
-  EXPECT_EQ(nullptr, oap::cuda::GetImValuesPtr (matrix));
 }
 
 TEST_F(OapDeviceMatrixModuleTests, GetValuesPtrTest_2)
 {
   math::Matrix* matrix = oap::cuda::NewDeviceMatrix (1, 2);
 
-  oap::cuda::ValuesPtr valuesPtr = oap::cuda::GetValuesPtr (matrix);
+  math::Matrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
 
-  floatt* revaluesPtr = CudaUtils::GetReValues (matrix);
-  floatt* imvaluesPtr = CudaUtils::GetImValues (matrix);
+  floatt* revaluesPtr = oap::cuda::GetReValuesPtr (matrix);
+  floatt* imvaluesPtr = oap::cuda::GetImValuesPtr (matrix);
 
-  EXPECT_EQ(revaluesPtr, valuesPtr.reValues);
-  EXPECT_EQ(imvaluesPtr, valuesPtr.imValues);
+  EXPECT_EQ(revaluesPtr, refmatrix.re.ptr);
+  EXPECT_EQ(imvaluesPtr, refmatrix.im.ptr);
   EXPECT_EQ(revaluesPtr, oap::cuda::GetReValuesPtr (matrix));
   EXPECT_EQ(imvaluesPtr, oap::cuda::GetImValuesPtr (matrix));
-  EXPECT_NE(nullptr, valuesPtr.reValues);
-  EXPECT_NE(nullptr, valuesPtr.imValues);
+  EXPECT_NE(nullptr, refmatrix.re.ptr);
+  EXPECT_NE(nullptr, refmatrix.im.ptr);
 
   oap::cuda::DeleteDeviceMatrix (matrix);
-
-  valuesPtr = oap::cuda::GetValuesPtr (matrix);
-
-  EXPECT_EQ(nullptr, valuesPtr.reValues);
-  EXPECT_EQ(nullptr, valuesPtr.imValues);
-  EXPECT_EQ(nullptr, oap::cuda::GetReValuesPtr (matrix));
-  EXPECT_EQ(nullptr, oap::cuda::GetImValuesPtr (matrix));
 }
 
 TEST_F(OapDeviceMatrixModuleTests, GetValuesPtrTest_3)
 {
   math::Matrix* matrix = oap::cuda::NewDeviceImMatrix (1, 2);
 
-  oap::cuda::ValuesPtr valuesPtr = oap::cuda::GetValuesPtr (matrix);
+  math::Matrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
 
-  floatt* revaluesPtr = CudaUtils::GetReValues (matrix);
-  floatt* imvaluesPtr = CudaUtils::GetImValues (matrix);
+  floatt* revaluesPtr = oap::cuda::GetReValuesPtr (matrix);
+  floatt* imvaluesPtr = oap::cuda::GetImValuesPtr (matrix);
 
-  EXPECT_EQ(revaluesPtr, valuesPtr.reValues);
-  EXPECT_EQ(imvaluesPtr, valuesPtr.imValues);
+  EXPECT_EQ(revaluesPtr, refmatrix.re.ptr);
+  EXPECT_EQ(imvaluesPtr, refmatrix.im.ptr);
   EXPECT_EQ(revaluesPtr, oap::cuda::GetReValuesPtr (matrix));
   EXPECT_EQ(imvaluesPtr, oap::cuda::GetImValuesPtr (matrix));
-  EXPECT_EQ(nullptr, valuesPtr.reValues);
-  EXPECT_NE(nullptr, valuesPtr.imValues);
+  EXPECT_EQ(nullptr, refmatrix.re.ptr);
+  EXPECT_NE(nullptr, refmatrix.im.ptr);
 
   oap::cuda::DeleteDeviceMatrix (matrix);
-
-  valuesPtr = oap::cuda::GetValuesPtr (matrix);
-
-  EXPECT_EQ(nullptr, valuesPtr.reValues);
-  EXPECT_EQ(nullptr, valuesPtr.imValues);
-  EXPECT_EQ(nullptr, oap::cuda::GetReValuesPtr (matrix));
-  EXPECT_EQ(nullptr, oap::cuda::GetImValuesPtr (matrix));
 }

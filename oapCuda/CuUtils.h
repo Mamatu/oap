@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include "Math.h"
 #include "Matrix.h"
+#include "MatrixAPI.h"
 #include "CuCore.h"
 
 #ifndef DEBUG
@@ -52,12 +53,12 @@ __hostdevice__ void CUDA_PrintBuffer(const char* s, floatt* buffer, uint length)
 __hostdevice__ void CUDA_PrintMatrix (const char* str, math::Matrix* m)
 {
   printf ("%s = [\n", str);
-  for (uintt fb = 0; fb < m->rows; ++fb)
+  for (uintt fb = 0; fb < gRows (m); ++fb)
   {
     printf("[");
-    for (uintt fa = 0; fa < m->columns; ++fa)
+    for (uintt fa = 0; fa < gColumns (m); ++fa)
     {
-      printf ("%f ", m->reValues[fb * m->columns + fa]);
+      printf ("%f ", gReValues (m)[fb * gColumns (m) + fa]);
     }
     printf("]\n");
   }

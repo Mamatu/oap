@@ -122,11 +122,11 @@ TEST_F(OapImagesLoaderTests, Matrix4x4FromImage) {
 
     math::Matrix* matrix = dataLoader.createMatrix();
 
-    EXPECT_EQ(4, matrix->columns);
-    EXPECT_EQ(4, matrix->rows);
+    EXPECT_EQ(4, gColumns (matrix));
+    EXPECT_EQ(4, gRows (matrix));
 
-    for (size_t fa = 0; fa < matrix->columns; ++fa) {
-      for (size_t fb = 0; fb < matrix->rows; ++fb) {
+    for (size_t fa = 0; fa < gColumns (matrix); ++fa) {
+      for (size_t fb = 0; fb < gRows (matrix); ++fb) {
         const floatt value = GetRe(matrix, fa, fb);
         EXPECT_EQ(1, value);
       }

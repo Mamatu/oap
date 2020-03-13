@@ -29,9 +29,9 @@ __hostdeviceinline__ void cuda_substractReMatrices(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = output->columns;
+  uintt offset = gColumns (output);
   uintt index = threadIndexX + offset * threadIndexY;
-  output->reValues[index] = params0->reValues[index] - params1->reValues[index];
+  gReValues (output)[index] = gReValues (params0)[index] - gReValues (params1)[index];
 }
 
 __hostdeviceinline__ void cuda_substractImMatrices(math::Matrix* output,
@@ -40,9 +40,9 @@ __hostdeviceinline__ void cuda_substractImMatrices(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = output->columns;
+  uintt offset = gColumns (output);
   uintt index = threadIndexX + offset * threadIndexY;
-  output->imValues[index] = params0->imValues[index] - params1->imValues[index];
+  gImValues (output)[index] = gImValues (params0)[index] - gImValues (params1)[index];
 }
 
 __hostdeviceinline__ void cuda_substractRealMatrices(math::Matrix* output,
@@ -51,14 +51,14 @@ __hostdeviceinline__ void cuda_substractRealMatrices(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = output->columns;
+  uintt offset = gColumns (output);
   uintt index = threadIndexX + offset * threadIndexY;
-  const uintt length = output->columns * output->rows;
+  const uintt length = gColumns (output) * gRows (output);
   if (index < length) {
-    output->reValues[index] =
-        params0->reValues[index] - params1->reValues[index];
-    output->imValues[index] =
-        params0->imValues[index] - params1->imValues[index];
+    gReValues (output)[index] =
+        gReValues (params0)[index] - gReValues (params1)[index];
+    gImValues (output)[index] =
+        gImValues (params0)[index] - gImValues (params1)[index];
   }
 }
 
@@ -95,10 +95,10 @@ __hostdeviceinline__ void CUDA_substractMatrices(math::Matrix* output,
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
+  bool isre = gReValues (output) != NULL;
+  bool isim = gImValues (output) != NULL;
   bool isInRange =
-      threadIndexX < output->columns && threadIndexY < output->rows;
+      threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   if (isre && isim && isInRange) {
     cuda_substractRealMatrices(output, params0, params1);
   } else if (isre && isInRange) {

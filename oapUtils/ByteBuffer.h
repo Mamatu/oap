@@ -22,9 +22,12 @@
 
 #include <Buffer.h>
 
+namespace oap
+{
 namespace utils
 {
   using ByteBuffer = Buffer <char, HostMemUtl>;
+}
 }
 
 #endif

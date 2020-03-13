@@ -57,14 +57,14 @@ Status IDotProductOperation::beforeExecution() {
                 oap::host::SetSubRows(m_matrix1, m_subrows[1]);
                 oap::host::SetSubColumns(m_matrix2, m_subcolumns[1]);
                 if (m_offset[1] == MATH_UNDEFINED) {
-                    if (m_matrix1->columns == m_matrix2->rows) {
-                        m_offset[1] = m_matrix1->columns;
+                    if (gColumns (m_matrix1) == gRows (m_matrix2)) {
+                        m_offset[1] = gColumns (m_matrix1);
                     } else {
                         debugAssert(false);
                     }
                 } else {
-                    if (m_offset[1] > m_matrix1->columns
-                        || m_offset[1] > m_matrix2->rows) {
+                    if (m_offset[1] > gColumns (m_matrix1)
+                        || m_offset[1] > gRows (m_matrix2)) {
                         debugAssert(false);
                     }
                 }

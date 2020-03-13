@@ -23,6 +23,7 @@
 #define	OAP_INTERNAL_TYPES_H
 #include "MathOperations.h"
 #include "ThreadsMapper.h"
+#include "MatrixAPI.h"
 
 #define MAX_OUTPUTS_NUMBER 2
 #define MAX_PARAMS_NUMBER 2
@@ -44,8 +45,8 @@ public:
 
         SubMatrix& operator=(math::Matrix* matrix) {
             m_matrix = matrix;
-            m_subcolumns = matrix->columns;
-            m_subrows = matrix->rows;
+            m_subcolumns = gColumns (matrix);
+            m_subrows = gRows (matrix);
             return *this;
         }
 
@@ -100,7 +101,7 @@ public:
         calculateRanges(0, 0, map);
     }
 
-    utils::Thread thread;
+    oap::utils::Thread thread;
     void* m_userDataPtr;
     int index;
     SubMatrix outputs[MAX_OUTPUTS_NUMBER];

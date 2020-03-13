@@ -17,9 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "MathOperations.h"
+#include "MatrixAPI.h"
 
 
 namespace math {
@@ -55,7 +54,7 @@ const char* getErrorStr(math::Status status) {
         }\
 
 
-#define RESET_MATRIX(m) m->columns = m->realColumns; m->rows = m->realRows; 
+#define RESET_MATRIX(m)
 
 CLASS_BA(TwoMatricesOperations,
 if (this->m_output == NULL || this->m_matrix1 == NULL || this->m_matrix2 == NULL) {
@@ -187,12 +186,12 @@ bool IMathOperation::CopyRe(math::Matrix* dst, math::Matrix* src, IMathOperation
 
 bool IMathOperation::IsIm(math::Matrix* matrix) {
     //return matrixUtils->isImMatrix(matrix);
-    return matrix->imValues != NULL;
+    return gImValues (matrix) != NULL;
 }
 
 bool IMathOperation::IsRe(math::Matrix* matrix) {
     //return matrixUtils->isReMatrix(matrix);
-    return matrix->reValues != NULL;
+    return gReValues (matrix) != NULL;
 }
 
 IMathOperation::IMathOperation() {

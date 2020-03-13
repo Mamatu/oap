@@ -29,7 +29,7 @@
 
 #include "oapAssertion.h"
 
-#define CuM_InitMatrix(m) m.columns = 0; m.realColumns = 0; m.rows = 0; m.realRows = 0; m.reValues = NULL; m.imValues = NULL;
+#define CuM_InitMatrix(m) m.re = {NULL, {0, 0}}; m.im = {NULL, {0, 0}}; m.reReg = {{0, 0}, {0, 0}}; m.imReg = {{0, 0}, {0, 0}};
 
 struct MatrixOffset
 {
@@ -42,30 +42,46 @@ __hostdeviceinline__ MatrixOffset CUDA_createGenericMatrixCopy (bool isRe, bool 
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  debugAssert (!isRe || isRe == (matrix->reValues != NULL));
-  debugAssert (!isIm || isIm == (matrix->imValues != NULL));
+  debugAssert (!isRe || isRe == (matrix->re.ptr != NULL));
+  debugAssert (!isIm || isIm == (matrix->im.ptr != NULL));
   debugAssert (columns == matrixEx.columns);
   debugAssert (rows == matrixEx.rows);
 
   math::Matrix oMatrix;
-  CuM_InitMatrix (oMatrix);
 
-  oMatrix.rows = rows;
-  oMatrix.columns = columns;
-  oMatrix.realRows = rows;
-  oMatrix.realColumns = columns;
+  oMatrix.re.ptr = NULL; 
+  oMatrix.re.dims.width = 0; 
+  oMatrix.re.dims.height = 0; 
+
+  oMatrix.reReg.loc.x = 0;
+  oMatrix.reReg.loc.y = 0;
+  oMatrix.reReg.dims.width = 0;
+  oMatrix.reReg.dims.height = 0;
+
+  oMatrix.im.ptr = NULL; 
+  oMatrix.im.dims.width = 0; 
+  oMatrix.im.dims.height = 0; 
+
+  oMatrix.imReg.loc.x = 0;
+  oMatrix.imReg.loc.y = 0;
+  oMatrix.imReg.dims.width = 0;
+  oMatrix.imReg.dims.height = 0;
 
   uintt offset = 0;
 
   if (isRe)
   {
-    oMatrix.reValues = &buffer[offset];
+    oMatrix.re.ptr = &buffer[offset];
+    oMatrix.re.dims.width = columns;
+    oMatrix.re.dims.height = rows;
     offset += rows * columns;
   }
 
   if (isIm)
   {
-    oMatrix.imValues = &buffer[offset];
+    oMatrix.im.ptr = (floatt*)&buffer[offset];
+    oMatrix.im.dims.width = columns;
+    oMatrix.im.dims.height = rows;
     offset += rows * columns;
   }
 
@@ -91,8 +107,8 @@ __hostdeviceinline__ MatrixOffset CUDA_createRealMatrixCopy (floatt* buffer, con
 
 __hostdeviceinline__ MatrixOffset CUDA_createMatrixCopy (floatt* buffer, const math::Matrix* matrix, const MatrixEx& matrixEx)
 {
-  const bool isRe = matrix->reValues != NULL;
-  const bool isIm = matrix->imValues != NULL;
+  const bool isRe = matrix->re.ptr != NULL;
+  const bool isIm = matrix->im.ptr != NULL;
 
   if (isRe && isIm)
   {

@@ -55,7 +55,7 @@ class PatternsClassification : public oap::Routine
   private:
     oap::PatternsClassificationParser m_parser;
     std::atomic_bool m_bInterrupted;
-    utils::sync::CondBool m_cond;
+    oap::utils::sync::CondBool m_cond;
 };
 }
 

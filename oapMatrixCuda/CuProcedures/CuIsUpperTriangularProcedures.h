@@ -32,11 +32,11 @@
 __hostdevice__ int CUDA_isUpperRealTriangular(math::Matrix* matrix) {
   HOST_INIT();
   uintt index = 0;
-  int count = matrix->columns - 1;
-  uintt columns = matrix->columns;
+  int count = gColumns (matrix) - 1;
+  uintt columns = gColumns (matrix);
   for (uintt fa = 0; fa < columns - 1; ++fa) {
-    floatt revalue = matrix->reValues[fa + columns * (fa + 1)];
-    floatt imvalue = matrix->imValues[fa + columns * (fa + 1)];
+    floatt revalue = *GetRePtrIndex (matrix, fa + columns * (fa + 1));
+    floatt imvalue = *GetImPtrIndex (matrix, fa + columns * (fa + 1));
     if ((-MIN_VALUE < revalue && revalue < MIN_VALUE) &&
         (-MIN_VALUE < imvalue && imvalue < MIN_VALUE)) {
       ++index;
@@ -49,10 +49,10 @@ __hostdevice__ int CUDA_isUpperRealTriangular(math::Matrix* matrix) {
 __hostdevice__ int CUDA_isUpperReTriangular(math::Matrix* matrix) {
   HOST_INIT();
   uintt index = 0;
-  int count = matrix->columns - 1;
-  uintt columns = matrix->columns;
+  int count = gColumns (matrix) - 1;
+  uintt columns = gColumns (matrix);
   for (uintt fa = 0; fa < columns - 1; ++fa) {
-    floatt revalue = matrix->reValues[fa + columns * (fa + 1)];
+    floatt revalue = *GetRePtrIndex (matrix, fa + columns * (fa + 1));
     if (-MIN_VALUE < revalue && revalue < MIN_VALUE) {
       ++index;
     }
@@ -64,10 +64,10 @@ __hostdevice__ int CUDA_isUpperReTriangular(math::Matrix* matrix) {
 __hostdevice__ int CUDA_isUpperImTriangular(math::Matrix* matrix) {
   HOST_INIT();
   uintt index = 0;
-  int count = matrix->columns - 1;
-  uintt columns = matrix->columns;
+  int count = gColumns (matrix) - 1;
+  uintt columns = gColumns (matrix);
   for (uintt fa = 0; fa < columns - 1; ++fa) {
-    floatt imvalue = matrix->imValues[fa + columns * (fa + 1)];
+    floatt imvalue = *GetImPtrIndex (matrix, fa + columns * (fa + 1));
     if (-MIN_VALUE < imvalue && imvalue < MIN_VALUE) {
       ++index;
     }
@@ -77,8 +77,8 @@ __hostdevice__ int CUDA_isUpperImTriangular(math::Matrix* matrix) {
 
 __hostdevice__ int CUDA_isUpperTriangular(math::Matrix* matrix) {
   HOST_INIT();
-  bool isre = matrix->reValues != NULL;
-  bool isim = matrix->imValues != NULL;
+  bool isre = matrix->re.ptr != NULL;
+  bool isim = matrix->im.ptr != NULL;
   if (isre && isim) {
     return CUDA_isUpperRealTriangular(matrix);
   } else if (isre) {

@@ -39,11 +39,11 @@ namespace math {
     math::Status DeterminantOperationCpu::beforeExecution() {
         math::Status status = IDeterminantOperation::beforeExecution();
         if (status == math::STATUS_OK) {
-            if (m_matrix->rows != m_matrix->columns) {
+            if (gRows (m_matrix) != gColumns (m_matrix)) {
                 status = math::STATUS_NOT_SUPPORTED_SUBMATRIX;
             } else {
-                if (m_q != NULL && (m_q->rows != m_matrix->rows ||
-                    m_q->columns != m_matrix->columns))
+                if (m_q != NULL && (gRows (m_q) != gRows (m_matrix) ||
+                    gColumns (m_q) != gColumns (m_matrix)))
                 {
                     oap::host::DeleteMatrix(m_q);
                     oap::host::DeleteMatrix(m_r);

@@ -21,42 +21,321 @@
 #define OAP_MATRIXAPI_H
 
 #include "Matrix.h"
+#include "MatrixEx.h"
 #include "MatrixTestAPI.h"
 
 #include "CuCore.h"
 #include "Dim3.h"
 
 #include "oapAssertion.h"
+#include "oapMemory_CommonApi.h"
 
-#ifdef OAP_CUDA_BUILD
+#include "oapMemoryPrimitives.h"
 
-__hostdeviceinline__ void SetRe(math::Matrix* m, uintt c, uintt r, floatt v) {
-  m->reValues[c + r * m->columns] = v;
+__hostdeviceinline__ uintt gMemoryWidth (const math::Matrix* matrix)
+{
+  if (matrix->re.ptr)
+  {
+    return matrix->re.dims.width;
+  }
+  if (matrix->im.ptr)
+  {
+    return matrix->im.dims.width;
+  }
+  return 0;
 }
 
-__hostdeviceinline__ floatt GetRe(const math::Matrix* m, uintt c, uintt r) {
-  debugAssert (c + r * m->columns < m->rows * m->columns);
-  return m->reValues[c + r * m->columns];
+__hostdeviceinline__ uintt gMemoryHeight (const math::Matrix* matrix)
+{
+  if (matrix->re.ptr)
+  {
+    return matrix->re.dims.height;
+  }
+  if (matrix->im.ptr)
+  {
+    return matrix->im.dims.height;
+  }
+  return 0;
+}
+
+__hostdeviceinline__ uintt gMemoryColumns (const math::Matrix* matrix)
+{
+  return gMemoryWidth (matrix);
+}
+
+__hostdeviceinline__ uintt gMemoryRows (const math::Matrix* matrix)
+{
+  return gMemoryHeight (matrix);
+}
+
+__hostdeviceinline__ uintt gMemoryLength (const math::Matrix* matrix)
+{
+  return gMemoryWidth (matrix) * gMemoryHeight (matrix);
+}
+
+
+__hostdeviceinline__ uintt gColumns (const math::Matrix* matrix)
+{
+  if (matrix->re.ptr)
+  {
+    //if (!oap::common::IsNoneRegion (matrix->reReg))
+    if (matrix->reReg.dims.width != 0)
+    {
+      return matrix->reReg.dims.width;
+    }
+    return matrix->re.dims.width;
+  }
+  if (matrix->im.ptr)
+  {
+    //if (!oap::common::IsNoneRegion (matrix->imReg))
+    if (matrix->imReg.dims.width != 0)
+    {
+      return matrix->imReg.dims.width;
+    }
+    return matrix->im.dims.width;
+  }
+  return 0;
+}
+
+__hostdeviceinline__ uintt gRows (const math::Matrix* matrix)
+{
+  if (matrix->re.ptr)
+  {
+    //if (!oap::common::IsNoneRegion (matrix->reReg))
+    if (matrix->reReg.dims.height != 0)
+    {
+      return matrix->reReg.dims.height;
+    }
+    return matrix->re.dims.height;
+  }
+  if (matrix->im.ptr)
+  {
+    //if (!oap::common::IsNoneRegion (matrix->imReg))
+    if (matrix->imReg.dims.height != 0)
+    {
+      return matrix->imReg.dims.height;
+    }
+    return matrix->im.dims.height;
+  }
+  return 0;
+}
+
+__hostdeviceinline__ floatt* gReValues (const math::Matrix* matrix)
+{
+  if (matrix != NULL)
+  {
+    return matrix->re.ptr;
+  }
+  return NULL;
+}
+
+__hostdeviceinline__ floatt* gImValues (const math::Matrix* matrix)
+{
+  if (matrix != NULL)
+  {
+    return matrix->im.ptr;
+  }
+  return NULL;
+}
+
+__hostdeviceinline__ math::MatrixDim convertToMatrixDim (const math::Matrix* matrix)
+{
+  math::MatrixDim dim = {gColumns (matrix), gRows (matrix)};
+  return dim;
+}
+
+__hostdeviceinline__ void SetRe(math::Matrix* m, uintt c, uintt r, floatt v)
+{
+  oap::common::SetValue (m->re, m->reReg, c, r, v);
+}
+
+__hostdeviceinline__ void SetReIdx (math::Matrix* m, uintt idx, floatt v)
+{
+  oap::common::SetValueRegionIdx (m->re, m->reReg, idx, v);
+}
+
+__hostdeviceinline__ floatt GetRe(const math::Matrix* m, uintt c, uintt r)
+{
+  debugAssert (c + r * gColumns (m) < gRows (m) * gColumns (m));
+  return oap::common::GetValue (m->re, m->reReg, c, r);
+}
+
+__hostdeviceinline__ floatt GetReIdx(const math::Matrix* m, uintt index) {
+  return oap::common::GetValueRegionIdx (m->re, m->reReg, index);
 }
 
 __hostdeviceinline__ floatt GetReIndex(const math::Matrix* m, uintt index) {
-  debugAssert (index < m->rows * m->columns);
-  return m->reValues[index];
+  return GetReIdx (m, index);
+}
+
+__hostdeviceinline__ floatt* GetRePtr(const math::Matrix* m, uintt c, uintt r)
+{
+  debugAssert (c + r * gColumns (m) < gRows (m) * gColumns (m));
+  return oap::common::GetPtr (m->re, m->reReg, c, r);
+}
+
+__hostdeviceinline__ floatt* GetRePtrIdx(const math::Matrix* m, uintt index) {
+  return oap::common::GetPtrRegionIdx (m->re, m->reReg, index);
+}
+
+__hostdeviceinline__ floatt* GetRePtrIndex(const math::Matrix* m, uintt index) {
+  return GetRePtrIdx (m, index);
 }
 
 __hostdeviceinline__ void SetIm(math::Matrix* m, uintt c, uintt r, floatt v) {
-  m->imValues[c + r * m->columns] = v;
+  oap::common::SetValue (m->im, m->imReg, c, r, v);
+}
+
+__hostdeviceinline__ void SetImIdx (math::Matrix* m, uintt idx, floatt v)
+{
+  oap::common::SetValueRegionIdx (m->im, m->imReg, idx, v);
 }
 
 __hostdeviceinline__ floatt GetIm(const math::Matrix* m, uintt c, uintt r) {
-  debugAssert (c + r * m->columns < m->rows * m->columns);
-  return m->imValues[c + r * m->columns];
+  debugAssert (c + r * gColumns (m) < gRows (m) * gColumns (m));
+  return oap::common::GetValue (m->im, m->imReg, c, r);
+}
+
+__hostdeviceinline__ floatt GetImIdx(const math::Matrix* m, uintt index) {
+  return oap::common::GetValueRegionIdx (m->im, m->imReg, index);
 }
 
 __hostdeviceinline__ floatt GetImIndex(const math::Matrix* m, uintt index) {
-  debugAssert (index < m->rows * m->columns);
-  return m->imValues[index];
+  return GetImIdx (m, index);
 }
+
+__hostdeviceinline__ floatt* GetImPtr(const math::Matrix* m, uintt c, uintt r)
+{
+  debugAssert (c + r * gColumns (m) < gRows (m) * gColumns (m));
+  return oap::common::GetPtr (m->im, m->imReg, c, r);
+}
+
+__hostdeviceinline__ floatt* GetImPtrIdx(const math::Matrix* m, uintt index) {
+  return oap::common::GetPtrRegionIdx (m->im, m->imReg, index);
+}
+
+__hostdeviceinline__ floatt* GetImPtrIndex(const math::Matrix* m, uintt index) {
+  return GetImPtrIdx (m, index);
+}
+
+__hostdeviceinline__ MatrixEx ConvertToMatrixEx (const oap::MemoryRegion& reg)
+{
+  MatrixEx mex = {reg.loc.x, reg.loc.y, reg.dims.width, reg.dims.height};
+  return mex;
+}
+
+__hostdeviceinline__ oap::MemoryLoc GetReMatrixMemoryLoc (const math::Matrix* m)
+{
+  if (oap::common::isRegion (m->reReg))
+  {
+    return m->reReg.loc;
+  }
+  return {0, 0};
+}
+
+__hostdeviceinline__ oap::MemoryLoc GetImMatrixMemoryLoc (const math::Matrix* m)
+{
+  if (oap::common::isRegion (m->imReg))
+  {
+    return m->imReg.loc;
+  }
+  return {0, 0};
+}
+
+__hostdeviceinline__ oap::MemoryRegion GetReMatrixMemoryRegion (const math::Matrix* m)
+{
+  if (oap::common::isRegion (m->reReg))
+  {
+    return m->reReg;
+  }
+  return {{0, 0}, m->re.dims};
+}
+
+__hostdeviceinline__ oap::MemoryRegion GetImMatrixMemoryRegion (const math::Matrix* m)
+{
+  if (oap::common::isRegion (m->imReg))
+  {
+    return m->imReg;
+  }
+  return {{0, 0}, m->im.dims};
+}
+
+__hostdeviceinline__ oap::MemoryRegion MergeRegions (const oap::MemoryRegion* region, const oap::MemoryRegion* in)
+{
+  debugAssert (in->loc.x + in->dims.width < region->dims.width);
+  debugAssert (in->loc.y + in->dims.height < region->dims.height);
+  oap::MemoryRegion reg = {{region->loc.x + in->loc.x, region->loc.y + in->loc.y}, in->dims};
+  return reg;
+}
+
+__hostdeviceinline__ oap::MemoryRegion GetReMatrixMemoryRegion (const math::Matrix* m, const oap::MemoryRegion* region)
+{
+  oap::MemoryRegion matrixRegion = GetReMatrixMemoryRegion (m);
+  if (region)
+  {
+    matrixRegion = MergeRegions (&matrixRegion, region);
+  }
+  return matrixRegion;
+}
+
+__hostdeviceinline__ oap::MemoryRegion GetImMatrixMemoryRegion (const math::Matrix* m, const oap::MemoryRegion* region)
+{
+  oap::MemoryRegion matrixRegion = GetImMatrixMemoryRegion (m);
+  if (region)
+  {
+    matrixRegion = MergeRegions (&matrixRegion, region);
+  }
+  return matrixRegion;
+}
+
+__hostdeviceinline__ oap::MemoryLoc GetReMatrixMemoryLoc (const math::Matrix* m, const oap::MemoryLoc* loc)
+{
+  oap::MemoryLoc matrixLoc = GetReMatrixMemoryLoc (m);
+  if (loc)
+  {
+    debugAssert (loc->x < gColumns (m));
+    debugAssert (loc->y < gRows (m));
+    matrixLoc.x = matrixLoc.x + loc->x;
+    matrixLoc.y = matrixLoc.y + loc->y;
+  }
+  return matrixLoc;
+}
+
+__hostdeviceinline__ oap::MemoryLoc GetImMatrixMemoryLoc (const math::Matrix* m, const oap::MemoryLoc* loc)
+{
+  oap::MemoryLoc matrixLoc = GetImMatrixMemoryLoc (m);
+  if (loc)
+  {
+    debugAssert (loc->x < gColumns (m));
+    debugAssert (loc->y < gRows (m));
+    matrixLoc.x = matrixLoc.x + loc->x;
+    matrixLoc.y = matrixLoc.y + loc->y;
+  }
+  return matrixLoc;
+}
+
+__hostdeviceinline__ oap::MemoryRegion ConvertToMemoryRegion (const MatrixEx& matrixEx)
+{
+  oap::MemoryRegion region;
+
+  region.loc.x = matrixEx.column;
+  region.loc.y = matrixEx.row;
+  region.dims.width = matrixEx.columns;
+  region.dims.height = matrixEx.rows;
+
+  return region;
+}
+
+__hostdeviceinline__ oap::MemoryRegion GetRefMemoryRegion (const oap::Memory& memory, const oap::MemoryRegion& region)
+{
+  if (oap::common::IsNoneRegion (region))
+  {
+    oap::MemoryRegion refreg = {{0, 0}, memory.dims};
+    return refreg;
+  }
+  return region;
+}
+
 
 __hostdeviceinline__ void Reset(math::Matrix* m) {}
 
@@ -64,79 +343,5 @@ __hostdeviceinline__ void Push(math::Matrix* m) {}
 
 __hostdeviceinline__ void Pop(math::Matrix* m) {}
 
-#else
-
-#include "MatrixTestAPI.h"
-
-__hostdeviceinline__ void SetRe(math::Matrix* m, uintt c, uintt r, floatt v) {
-  m->reValues[c + r * m->columns] = v;
-  test::setRe(m, c, r, v);
-  debugAssert(c + r * m->columns < m->rows * m->columns);
-}
-
-__hostdeviceinline__ floatt GetRe(const math::Matrix* m, uintt c, uintt r) {
-  test::getRe(m, c, r, m->reValues[c + r * m->columns]);
-  debugAssert(c + r * m->columns < m->rows * m->columns);
-  return m->reValues[c + r * m->columns];
-}
-
-__hostdeviceinline__ floatt GetReIndex(const math::Matrix* m, uintt index) {
-  test::getRe(m, index, m->reValues[index]);
-  debugAssert(index < m->rows * m->columns);
-  return m->reValues[index];
-}
-
-__hostdeviceinline__ void SetIm(math::Matrix* m, uintt c, uintt r, floatt v) {
-  m->imValues[c + r * m->columns] = v;
-  test::setIm(m, c, r, v);
-  debugAssert(c + r * m->columns < m->rows * m->columns);
-}
-
-__hostdeviceinline__ floatt GetIm(const math::Matrix* m, uintt c, uintt r) {
-  test::getIm(m, c, r, m->imValues[c + r * m->columns]);
-  debugAssert(c + r * m->columns < m->rows * m->columns);
-  return m->imValues[c + r * m->columns];
-}
-
-__hostdeviceinline__ floatt GetImIndex(const math::Matrix* m, uintt index) {
-  test::getIm(m, index, m->imValues[index]);
-  debugAssert(index < m->rows * m->columns);
-  return m->imValues[index];
-}
-
-__hostdeviceinline__ void Reset(math::Matrix* m) {
-  HOST_INIT();
-  // threads_sync();
-  test::reset(m);
-  // threads_sync();
-}
-
-__hostdeviceinline__ void Push(math::Matrix* m) {
-  HOST_INIT();
-  // threads_sync();
-  test::push(m);
-  // threads_sync();
-}
-
-__hostdeviceinline__ void Pop(math::Matrix* m) {
-  HOST_INIT();
-  // threads_sync();
-  test::pop(m);
-  // threads_sync();
-}
-
-#endif
-
-__hostdeviceinline__ uintt GetIndex(const math::Matrix* m, uintt c, uintt r) {
-  return c + r * m->columns;
-}
-
-__hostdeviceinline__ floatt* GetRePtr(const math::Matrix* m, uintt c, uintt r) {
-  return m->reValues + GetIndex(m, c, r);
-}
-
-__hostdeviceinline__ floatt* GetImPtr(const math::Matrix* m, uintt c, uintt r) {
-  return m->imValues + GetIndex(m, c, r);
-}
 
 #endif  // MATRIXAPI_H

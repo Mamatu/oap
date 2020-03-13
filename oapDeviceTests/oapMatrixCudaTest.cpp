@@ -27,7 +27,11 @@
 #include "KernelExecutor.h"
 
 #include "oapHostMatrixPtr.h"
+#include "oapHostMatrixUPtr.h"
 #include "oapDeviceMatrixPtr.h"
+#include "oapDeviceMatrixUPtr.h"
+#include "oapCudaMemoryApi.h"
+#include "oapHostMemoryApi.h"
 
 class OapMatrixCudaTests : public testing::Test {
  public:
@@ -55,6 +59,15 @@ class OapMatrixCudaTests : public testing::Test {
     oap::cuda::Context::Instance().destroy();
   }
 };
+
+TEST_F(OapMatrixCudaTests, CreationAndCopyTests) {
+  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrixWithValue (1, 1, 12.);
+  oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrixWithValue (1, 1, 0);
+  oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, dmatrix);
+  EXPECT_EQ (12., hmatrix->re.ptr[0]);
+  EXPECT_EQ (1, hmatrix->re.dims.width);
+  EXPECT_EQ (1, hmatrix->re.dims.height);
+}
 
 TEST_F(OapMatrixCudaTests, SetVectorTest) {
   floatt hArray[] = {
@@ -602,7 +615,7 @@ TEST_F(OapMatrixCudaTests, SetVectorAndCopyTest) {
   size_t columns = 2000;
   math::Matrix* host = oap::host::NewReMatrix(columns, 1);
   for (size_t fa = 0; fa < columns; ++fa) {
-    host->reValues[fa] = fa;
+    *GetRePtrIndex (host, fa) = fa;
   }
 
   math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
@@ -612,16 +625,61 @@ TEST_F(OapMatrixCudaTests, SetVectorAndCopyTest) {
   math::Matrix* host1 = oap::host::NewReMatrix(columns, 1);
 
   for (size_t fa = 0; fa < columns; ++fa) {
-    host1->reValues[fa] = columns + 1;
-    EXPECT_EQ(columns + 1, host1->reValues[fa]);
+    *GetRePtrIndex (host1, fa) = columns + 1;
+    EXPECT_EQ(columns + 1, GetReIndex (host1, fa));
   }
 
   oap::cuda::CopyDeviceMatrixToHostMatrix(host1, device);
 
   for (size_t fa = 0; fa < columns; ++fa) {
-    EXPECT_EQ(fa, host1->reValues[fa]);
+    EXPECT_EQ(fa, GetReIndex (host1, fa));
   }
 
   oap::host::DeleteMatrix(host1);
   oap::cuda::DeleteDeviceMatrix(device);
+}
+
+TEST_F(OapMatrixCudaTests, CopyTest_1)
+{
+  {
+    oap::Memory memory1 = oap::cuda::NewMemoryWithValues ({1, 8}, 0);
+    oap::Memory memory2 = oap::cuda::NewMemoryWithValues ({1, 1}, 2.f);
+
+    oap::cuda::CopyDeviceToDevice (memory1, {0, 0}, memory2, {{0, 0}, {1, 1}});
+
+    oap::Memory hmemory = oap::host::NewMemoryWithValues ({1, 8}, 10);
+    oap::cuda::CopyDeviceToHost (hmemory, memory1);
+
+    EXPECT_EQ (2.f, oap::common::GetValue (hmemory, oap::common::OAP_NONE_REGION(), 0, 0));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmemory, oap::common::OAP_NONE_REGION(), 0, 1));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmemory, oap::common::OAP_NONE_REGION(), 0, 3));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmemory, oap::common::OAP_NONE_REGION(), 0, 4));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmemory, oap::common::OAP_NONE_REGION(), 0, 5));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmemory, oap::common::OAP_NONE_REGION(), 0, 6));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmemory, oap::common::OAP_NONE_REGION(), 0, 7));
+
+    oap::cuda::DeleteMemory (memory1);
+    oap::cuda::DeleteMemory (memory2);
+  }
+  {
+    math::Matrix* matrix1 = oap::cuda::NewDeviceReMatrixWithValue (1, 8, 0);
+    math::Matrix* matrix2 = oap::cuda::NewDeviceReMatrixWithValue (1, 1, 2.f);
+
+    oap::cuda::SetReMatrix (matrix1, matrix2, 0, 0);
+
+    oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrixWithValue (1, 8, 10);
+    oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, matrix1);
+
+    EXPECT_EQ (2.f, oap::common::GetValue (hmatrix->re, oap::common::OAP_NONE_REGION(), 0, 0));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmatrix->re, oap::common::OAP_NONE_REGION(), 0, 1));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmatrix->re, oap::common::OAP_NONE_REGION(), 0, 2));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmatrix->re, oap::common::OAP_NONE_REGION(), 0, 3));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmatrix->re, oap::common::OAP_NONE_REGION(), 0, 4));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmatrix->re, oap::common::OAP_NONE_REGION(), 0, 5));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmatrix->re, oap::common::OAP_NONE_REGION(), 0, 6));
+    EXPECT_EQ (0.f, oap::common::GetValue (hmatrix->re, oap::common::OAP_NONE_REGION(), 0, 7));
+
+    oap::cuda::DeleteDeviceMatrix (matrix1);
+    oap::cuda::DeleteDeviceMatrix (matrix2);
+  }
 }

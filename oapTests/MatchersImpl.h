@@ -281,11 +281,11 @@ class MatrixContainsDiagonalValuesMatcher
 
   Complex getComplex(math::Matrix* matrix, uintt index) const {
     floatt re = 0, im = 0;
-    if (matrix->reValues) {
-      re = matrix->reValues[index * matrix->columns + index];
+    if (matrix->re.ptr) {
+      re = GetReIndex (matrix, index * gColumns (matrix) + index);
     }
-    if (matrix->imValues) {
-      im = matrix->imValues[index * matrix->columns + index];
+    if (matrix->im.ptr) {
+      im = GetImIndex (matrix, index * gColumns (matrix) + index);
     }
     return Complex(re, im);
   }
@@ -296,17 +296,17 @@ class MatrixContainsDiagonalValuesMatcher
 
   virtual bool MatchAndExplain(math::Matrix* matrix,
                                MatchResultListener* listener) const {
-    if (matrix->columns != m_matrix->columns &&
-        matrix->rows != m_matrix->rows) {
+    if (gColumns (matrix) != gColumns (m_matrix) &&
+        gRows (matrix) != gRows (m_matrix)) {
       return false;
     }
 
     std::vector<Complex> values;
 
-    for (uintt fa = 0; fa < m_matrix->columns; ++fa) {
+    for (uintt fa = 0; fa < gColumns (m_matrix); ++fa) {
       values.push_back(getComplex(m_matrix, fa));
     }
-    for (uintt fa = 0; fa < matrix->columns; ++fa) {
+    for (uintt fa = 0; fa < gColumns (matrix); ++fa) {
       Complex complex = getComplex(matrix, fa);
       if (std::find(values.begin(), values.end(), complex) == values.end()) {
         return false;
@@ -374,9 +374,9 @@ class MatrixIsUpperTriangularMatcher : public MatcherInterface<math::Matrix*> {
     {
       std::vector<std::tuple<uintt, uintt, floatt>> pairs;
 
-      for (uintt column = 0; column < matrix->columns; ++column)
+      for (uintt column = 0; column < gColumns (matrix); ++column)
       {
-        for (uintt row = 0; row < matrix->rows; ++row)
+        for (uintt row = 0; row < gRows (matrix); ++row)
         {
           floatt v = GetRe (matrix, column, row);
           if (column < row)

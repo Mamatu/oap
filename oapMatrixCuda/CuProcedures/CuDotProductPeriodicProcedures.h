@@ -68,12 +68,12 @@ __hostdevice__ void CUDA_dotProductPeriodic (math::Matrix* output, math::Matrix*
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
 
-  bool inRange = threadIndexX < output->columns && threadIndexY < output->rows;
+  bool inRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   
-  uintt offset = params0->columns;
+  uintt offset = gColumns (params0);
   uintt indexY1 = (threadIndexY) % offset;
 
   uintt t0[2] = {0, indexY1};

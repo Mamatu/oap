@@ -26,8 +26,8 @@ namespace math {
 void DotProductOperationCpu::execute() {
     uintt threadsCount = utils::mapper::createThreadsMap(getBMap(),
         this->m_threadsCount,
-        m_output->columns - m_subcolumns[0],
-        m_output->rows - m_subrows[0]);
+        gColumns (m_output) - m_subcolumns[0],
+        gRows (m_output) - m_subrows[0]);
     ThreadData<DotProductOperationCpu>* threads = m_threadData;
     for (uintt fa = 0; fa < threadsCount; fa++) {
         threads[fa].outputs[0] = m_output;
@@ -51,9 +51,9 @@ void DotProductOperationCpu::Execute(void* ptr) {
     uintt brow = threadData->begins[1];
     uintt ecolumn = threadData->ends[0];
     uintt erow = threadData->ends[1];
-    const uintt realColumns1 = threadData->params[0].m_matrix->realColumns;
-    const uintt realColumns2 = threadData->params[1].m_matrix->realColumns;
-    const uintt outputColumns = threadData->outputs[0].m_matrix->realColumns;
+    const uintt realColumns1 = gMemoryColumns (threadData->params[0].m_matrix);
+    const uintt realColumns2 = gMemoryColumns (threadData->params[1].m_matrix);
+    const uintt outputColumns = gMemoryColumns (threadData->outputs[0].m_matrix);
     uintt* offset = threadData->thiz->m_offset;
     if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL &&
         threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
@@ -62,20 +62,18 @@ void DotProductOperationCpu::Execute(void* ptr) {
                 floatt retemp = 0;
                 floatt imtemp = 0;
                 for (uintt fa1 = offset[0]; fa1 < offset[1]; ++fa1) {
-                    uintt index = fa1 + realColumns1 * fb;
-                    uintt index1 = fa1 * realColumns2 + fa;
-                    retemp += threadData->params[0].m_matrix->reValues[index] *
-                        threadData->params[1].m_matrix->reValues[index1];
-                    retemp -= threadData->params[0].m_matrix->imValues[index] *
-                        threadData->params[1].m_matrix->imValues[index1];
-                    imtemp += threadData->params[0].m_matrix->reValues[index] *
-                        threadData->params[1].m_matrix->imValues[index1];
-                    imtemp += threadData->params[0].m_matrix->imValues[index] *
-                        threadData->params[1].m_matrix->reValues[index1];
+                    retemp += GetRe (threadData->params[0].m_matrix, fa1, fb) *
+                        GetRe (threadData->params[1].m_matrix, fa, fa1);
+                    retemp -= GetIm (threadData->params[0].m_matrix, fa1, fb) *
+                        GetIm (threadData->params[1].m_matrix, fa, fa1);
+                    imtemp += GetRe (threadData->params[0].m_matrix, fa1, fb) *
+                        GetIm (threadData->params[1].m_matrix, fa, fa1);
+                    imtemp += GetIm (threadData->params[0].m_matrix, fa1, fb) *
+                        GetRe (threadData->params[1].m_matrix, fa, fa1);
                 }
                 uintt index = fa + outputColumns * fb;
-                threadData->outputs[0].m_matrix->reValues[index] = retemp;
-                threadData->outputs[0].m_matrix->imValues[index] = imtemp;
+                *GetRePtr (threadData->outputs[0].m_matrix, fa, fb) = retemp;
+                *GetImPtr (threadData->outputs[0].m_matrix, fa, fb) = imtemp;
             }
         }
     } else if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL) {
@@ -83,13 +81,9 @@ void DotProductOperationCpu::Execute(void* ptr) {
             for (uintt fb = brow; fb < erow; ++fb) {
                 floatt retemp = 0;
                 for (uintt fa1 = offset[0]; fa1 < offset[1]; ++fa1) {
-                    uintt index = fa1 + realColumns1 * fb;
-                    uintt index1 = fa1 * realColumns2 + fa;
-                    retemp += threadData->params[0].m_matrix->reValues[index] *
-                        threadData->params[1].m_matrix->reValues[index1];
+                    retemp += GetRe (threadData->params[0].m_matrix, fa1, fb) * GetRe (threadData->params[1].m_matrix, fa, fa1);
                 }
-                uintt index = fa + outputColumns * fb;
-                threadData->outputs[0].m_matrix->reValues[index] = retemp;
+                *GetRePtr (threadData->outputs[0].m_matrix, fa, fb) = retemp;
             }
         }
     } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
@@ -99,12 +93,9 @@ void DotProductOperationCpu::Execute(void* ptr) {
                 for (uintt fa1 = offset[0]; fa1 < offset[1]; ++fa1) {
                     uintt index = fa1 + realColumns1 * fb;
                     uintt index1 = fa1 * realColumns2 + fa;
-                    retemp +=
-                        -threadData->params[0].m_matrix->imValues[index] *
-                        threadData->params[1].m_matrix->imValues[index1];
+                    retemp += -GetIm (threadData->params[0].m_matrix, fa1, fb) * GetIm (threadData->params[1].m_matrix, fa, fa1);
                 }
-                uintt index = fa + outputColumns * fb;
-                threadData->outputs[0].m_matrix->reValues[index] = retemp;
+                *GetRePtr (threadData->outputs[0].m_matrix, fa, fb) = retemp;
             }
         }
     }

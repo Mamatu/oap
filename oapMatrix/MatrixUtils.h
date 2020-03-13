@@ -146,7 +146,7 @@ class PrintArgs
 
     inline void prepareSection (const math::Matrix* matrix)
     {
-      section.length = matrix->columns;
+      section.length = gColumns (matrix);
     }
 };
 

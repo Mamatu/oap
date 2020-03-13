@@ -17,7 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
@@ -38,7 +37,7 @@ class OapMatrixUtilsTests : public testing::Test {
 };
 
 TEST_F(OapMatrixUtilsTests, SetGetValueTest) {
-  math::Matrix* matrix = oap::host::NewMatrix(5, 5, 0);
+  math::Matrix* matrix = oap::host::NewMatrixWithValue (5, 5, 0);
   floatt expected = 2.5644654f;
   SetRe(matrix, 1, 1, expected);
   floatt value = GetRe(matrix, 1, 1);
@@ -49,14 +48,17 @@ TEST_F(OapMatrixUtilsTests, SetGetValueTest) {
 TEST_F(OapMatrixUtilsTests, SetAllValuesTest) {
   uintt columns = 5;
   uintt rows = 5;
-  math::Matrix* matrix = oap::host::NewMatrix(columns, rows, 0);
+  math::Matrix* matrix = oap::host::NewMatrixWithValue (columns, rows, 0);
   floatt expected = 2.5644654f;
   for (uintt fa = 0; fa < columns; ++fa) {
     for (uintt fb = 0; fb < rows; ++fb) {
       SetRe(matrix, fa, fb, expected);
     }
   }
-  EXPECT_TRUE(test::wasSetAllRe(matrix));
+  for (uintt fa = 0; fa < columns * rows; ++fa)
+  {
+    EXPECT_EQ (expected, matrix->re.ptr[fa]);
+  }
   oap::host::DeleteMatrix(matrix);
 }
 
@@ -80,7 +82,7 @@ TEST_F(OapMatrixUtilsTests, GetValuesTest) {
 TEST_F(OapMatrixUtilsTests, PushPopTest) {
   uintt columns = 5;
   uintt rows = 5;
-  math::Matrix* matrix = oap::host::NewMatrix(columns, rows, 0);
+  math::Matrix* matrix = oap::host::NewMatrixWithValue (columns, rows, 0);
   floatt expected = 2.5644654f;
   for (uintt fa = 0; fa < columns; ++fa) {
     for (uintt fb = 0; fb < rows; ++fb) {

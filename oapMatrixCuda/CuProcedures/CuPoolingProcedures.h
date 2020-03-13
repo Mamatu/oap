@@ -36,28 +36,38 @@ struct PoolDims
 };
 }
 
+__hostdeviceinline__ uintt GetPoolRows (const PoolDims& dims)
+{
+  return dims.rows;
+}
+
+__hostdeviceinline__ uintt GetPoolColumns (const PoolDims& dims)
+{
+  return dims.columns;
+}
+
 __hostdevice__ void cuda_poolAverageRe (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  PoolDims outputDims = {output->columns, output->rows};
-  PoolDims paramDims = {matrix->columns, matrix->rows};
+  PoolDims outputDims = {gColumns (output), gRows (output)};
+  PoolDims paramDims = {gColumns (matrix), gRows (matrix)};
   PoolDims kernelDims = {kernel_dims[0], kernel_dims[1]};
 
-  KEROPER_CACHE_CODE(POOLING, paramDims, kernelDims, cache, .columns, .rows, GetRe (matrix, px, py);)
+  KEROPER_CACHE_CODE(POOLING, paramDims, kernelDims, cache, GetPoolColumns, GetPoolRows, GetRe (matrix, px, py);)
   threads_sync();
 
-  CUDA_SumValuesInScope (cache, cacheIdx, cacheW * cacheH, kernelDims.rows * kernelDims.columns);
+  CUDA_SumValuesInScope (cache, cacheIdx, cacheW * cacheH, GetPoolRows (kernelDims) * GetPoolColumns (kernelDims));
 
-  if (KEROPER_IS_OUTPUT_IDX (kernelDims, .columns, .rows))
+  if (KEROPER_IS_OUTPUT_IDX (kernelDims, GetPoolColumns, GetPoolRows))
   {
-    const uintt ox = KEROPER_CALCULATE_OUTPUT_IDX_X(kernelDims, .columns, .rows);
+    const uintt ox = KEROPER_CALCULATE_OUTPUT_IDX_X(kernelDims, GetPoolColumns, GetPoolRows);
     const uintt oy = threadIndexY;
 
     floatt cached = cache[cacheIdx];
     floatt value = GetRe (output, ox, oy);
-    SetRe (output, ox, oy, value + (cached / static_cast<floatt>(kernelDims.rows * kernelDims.columns)));
+    SetRe (output, ox, oy, value + (cached / static_cast<floatt>(GetPoolRows (kernelDims) * GetPoolColumns (kernelDims))));
   }
 }
 
@@ -102,12 +112,12 @@ __hostdevice__ void CUDA_poolAverage (math::Matrix* output, const math::Matrix* 
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  PoolDims paramDims = {matrix->columns, matrix->rows};
+  PoolDims paramDims = {gColumns (matrix), gRows (matrix)};
   PoolDims kernelDims = {kernel_dims[0], kernel_dims[1]};
 
-  bool isre = output->reValues != NULL;
-  bool isim = output->imValues != NULL;
-  bool isInRange = threadIndexX < KEROPER_POOLING_CALCULATE_CACHE_COLUMNS (paramDims, kernelDims, .columns, .rows) && threadIndexY < KEROPER_POOLING_CALCULATE_CACHE_ROWS (paramDims, kernelDims, .rows);
+  bool isre = output->re.ptr != NULL;
+  bool isim = output->im.ptr != NULL;
+  bool isInRange = threadIndexX < KEROPER_POOLING_CALCULATE_CACHE_COLUMNS (paramDims, kernelDims, GetPoolColumns, GetPoolRows) && threadIndexY < KEROPER_POOLING_CALCULATE_CACHE_ROWS (paramDims, kernelDims, GetPoolRows);
   if (isre && isim && isInRange)
   {
     CUDA_poolAverageReal (output, matrix, kernel_dims, cache);

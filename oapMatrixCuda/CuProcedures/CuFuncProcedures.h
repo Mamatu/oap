@@ -32,11 +32,11 @@ __hostdeviceinline__ void cuda_funcRe (math::Matrix* omatrix, math::Matrix* imat
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = omatrix->columns;
+  uintt offset = gColumns (omatrix);
   uintt index = threadIndexX + offset * threadIndexY;
 
-  floatt* output = &omatrix->reValues[index];
-  func (output, imatrix->reValues[index]);
+  floatt* output = &*GetRePtrIndex (omatrix, index);
+  func (output, *GetRePtrIndex (imatrix, index));
 }
 
 __hostdeviceinline__ void cuda_funcIm (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
@@ -44,11 +44,11 @@ __hostdeviceinline__ void cuda_funcIm (math::Matrix* omatrix, math::Matrix* imat
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = omatrix->columns;
+  uintt offset = gColumns (omatrix);
   uintt index = threadIndexX + offset * threadIndexY;
 
-  floatt* output = &omatrix->imValues[index];
-  func (output, imatrix->imValues[index]);
+  floatt* output = &*GetImPtrIndex (omatrix, index);
+  func (output, *GetImPtrIndex (imatrix, index));
 }
 
 __hostdeviceinline__ void cuda_funcReal (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
@@ -56,13 +56,13 @@ __hostdeviceinline__ void cuda_funcReal (math::Matrix* omatrix, math::Matrix* im
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = omatrix->columns;
+  uintt offset = gColumns (omatrix);
   uintt index = threadIndexX + offset * threadIndexY;
 
-  floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->imValues[index];
-  func (reoutput, imatrix->reValues[index]);
-  func (imoutput, imatrix->imValues[index]);
+  floatt* reoutput = &*GetRePtrIndex (omatrix, index);
+  floatt* imoutput = &*GetImPtrIndex (omatrix, index);
+  func (reoutput, *GetRePtrIndex (imatrix, index));
+  func (imoutput, *GetImPtrIndex (imatrix, index));
 }
 
 __hostdeviceinline__ void cuda_funcRe_userData (math::Matrix* omatrix, math::Matrix* imatrix, func_ud_t func, void* ud)
@@ -70,11 +70,11 @@ __hostdeviceinline__ void cuda_funcRe_userData (math::Matrix* omatrix, math::Mat
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = omatrix->columns;
+  uintt offset = gColumns (omatrix);
   uintt index = threadIndexX + offset * threadIndexY;
 
-  floatt* output = &omatrix->reValues[index];
-  func (output, imatrix->reValues[index], ud);
+  floatt* output = &*GetRePtrIndex (omatrix, index);
+  func (output, *GetRePtrIndex (imatrix, index), ud);
   //cuda_debug ("output = %f ");
 }
 
@@ -83,11 +83,11 @@ __hostdeviceinline__ void cuda_funcIm_userData (math::Matrix* omatrix, math::Mat
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = omatrix->columns;
+  uintt offset = gColumns (omatrix);
   uintt index = threadIndexX + offset * threadIndexY;
 
-  floatt* output = &omatrix->imValues[index];
-  func (output, imatrix->imValues[index], ud);
+  floatt* output = &*GetImPtrIndex (omatrix, index);
+  func (output, *GetImPtrIndex (imatrix, index), ud);
 }
 
 __hostdeviceinline__ void cuda_funcReal_userData (math::Matrix* omatrix, math::Matrix* imatrix, func_ud_t func, void* ud)
@@ -95,21 +95,21 @@ __hostdeviceinline__ void cuda_funcReal_userData (math::Matrix* omatrix, math::M
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt offset = omatrix->columns;
+  uintt offset = gColumns (omatrix);
   uintt index = threadIndexX + offset * threadIndexY;
 
-  floatt* reoutput = &omatrix->reValues[index];
-  floatt* imoutput = &omatrix->imValues[index];
-  func (reoutput, imatrix->reValues[index], ud);
-  func (imoutput, imatrix->imValues[index], ud);
+  floatt* reoutput = &*GetRePtrIndex (omatrix, index);
+  floatt* imoutput = &*GetImPtrIndex (omatrix, index);
+  func (reoutput, *GetRePtrIndex (imatrix, index), ud);
+  func (imoutput, *GetImPtrIndex (imatrix, index), ud);
 }
 
 __hostdeviceinline__ void cuda_func (math::Matrix* omatrix, math::Matrix* imatrix, func_t func)
 {
   HOST_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
+  bool isre = omatrix->re.ptr != NULL;
+  bool isim = omatrix->im.ptr != NULL;
 
   if (isre && isim)
   {
@@ -129,8 +129,8 @@ __hostdeviceinline__ void cuda_func_userData (math::Matrix* omatrix, math::Matri
 {
   HOST_INIT();
 
-  bool isre = omatrix->reValues != NULL;
-  bool isim = omatrix->imValues != NULL;
+  bool isre = omatrix->re.ptr != NULL;
+  bool isim = omatrix->im.ptr != NULL;
 
   if (isre && isim)
   {
@@ -152,7 +152,7 @@ __hostdeviceinline__ bool cuda_inRangePD (math::Matrix* matrix, uintt* ex)
   THREAD_INDICES_INIT();
 
   uintt indexY1 = (threadIndexY) % ex[2];
-  return threadIndexX < ex[0] && threadIndexY < matrix->rows && indexY1 < ex[1];
+  return threadIndexX < ex[0] && threadIndexY < gRows (matrix) && indexY1 < ex[1];
 }
 
 #endif

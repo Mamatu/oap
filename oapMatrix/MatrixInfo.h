@@ -1,5 +1,5 @@
-#ifndef MATRIXINFO_H
-#define MATRIXINFO_H
+#ifndef OAP_MATRIX_INFO_H
+#define OAP_MATRIX_INFO_H
 
 #include "Matrix.h"
 #include <sstream>
@@ -66,6 +66,11 @@ class MatrixInfo
   bool isIm;
 };
 
+}
+
+namespace std
+{
+  std::string to_string (const math::MatrixInfo& minfo);
 }
 
 #endif  // MATRIXINFO_H

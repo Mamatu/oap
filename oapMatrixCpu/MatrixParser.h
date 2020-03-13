@@ -20,7 +20,10 @@
 #ifndef OAP_MATRIX_PARSER_H
 #define OAP_MATRIX_PARSER_H
 
+#include <math.h>
+
 #include "MatrixUtils.h"
+#include "oapHostMemoryApi.h"
 
 namespace matrixUtils
 {
@@ -68,7 +71,7 @@ class Parser
   floatt getValue(uintt index) const;
 
   size_t getLength() const;
-  const floatt* getData() const;
+  const floatt* const getData() const;
 
   class ParsingException : public std::exception
   {
@@ -86,8 +89,62 @@ class Parser
 };
 
   bool HasArray (const std::string& text, unsigned int which);
-  std::pair<floatt*, size_t> CreateArray (const std::string& text, unsigned int which);
+
+  template<typename MemAlloc, typename CreateDim>
+  oap::Memory CreateArray (const std::string& text, unsigned int which, MemAlloc&& memAlloc, CreateDim&& createDim)
+  {
+    Parser parser (text);
+    parser.parseArray(which);
+
+    size_t length = parser.getLength();
+
+    uintt columns = 0;
+    uintt rows = 0;
+    bool isC = parser.getColumns (columns);
+    bool isR = parser.getRows(rows);
+
+    oap::MemoryDims dim = createDim(isC, isR, length, columns, rows);
+    oap::Memory memory = memAlloc (parser.getData(), dim);
+
+    return memory;
+  }
+
+  inline oap::MemoryDims CreateMatrixDims_Default (bool iscolumns, bool isrows, uintt length, uintt columns, uintt rows)
+  {
+    uintt dim_columns = 0;
+    uintt dim_rows = 0;
+    if (!(iscolumns && isrows))
+    {
+      size_t sq = sqrt (length);
+      dim_columns = sq;
+      dim_rows = sq;
+    }
+    else if (iscolumns && !isrows)
+    {
+      dim_rows = length / columns;
+    }
+    else if (isrows && !iscolumns)
+    {
+      dim_columns = length / rows;
+    }
+    else
+    {
+      dim_columns = columns;
+      dim_rows = rows;
+    }
+    return {dim_columns, dim_rows};
+  }
+
+  inline oap::Memory CreateArrayDefaultAlloc (const std::string& text, unsigned int which)
+  {
+    auto memAlloc = [](const floatt* const buffer, const oap::MemoryDims& dim)
+    {
+      const oap::Memory temp = {const_cast<floatt*>(buffer), dim}; // to fix
+      oap::Memory memory = oap::host::NewMemoryCopy (temp);
+      return memory;
+    }; 
+    return CreateArray (text, which, memAlloc, CreateMatrixDims_Default);
+  }
 }
 
 #endif
-

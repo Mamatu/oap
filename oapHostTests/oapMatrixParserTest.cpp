@@ -153,11 +153,11 @@ TEST_F(OapMatrixParserTests, Test5) {
   EXPECT_DOUBLE_EQ(double(-0.25), m_parser->getValue(4));
   EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(5));
 
-  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
-  EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[2]);
-  EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[4]);
-  EXPECT_DOUBLE_EQ(double(0), arrayLength.first[5]);
-  delete[] arrayLength.first;
+  oap::Memory arrayLength = matrixUtils::CreateArrayDefaultAlloc (text, 1);
+  EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.ptr[2]);
+  EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.ptr[4]);
+  EXPECT_DOUBLE_EQ(double(0), arrayLength.ptr[5]);
+  oap::host::DeleteMemory (arrayLength);
 }
 
 TEST_F(OapMatrixParserTests, Test5withSeparator) {
@@ -188,11 +188,11 @@ TEST_F(OapMatrixParserTests, Test5withSeparator) {
   EXPECT_DOUBLE_EQ(double(-0.25), m_parser->getValue(4));
   EXPECT_DOUBLE_EQ(double(0), m_parser->getValue(5));
 
-  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
-  EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[2]);
-  EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.first[4]);
-  EXPECT_DOUBLE_EQ(double(0), arrayLength.first[5]);
-  delete[] arrayLength.first;
+  oap::Memory arrayLength = matrixUtils::CreateArrayDefaultAlloc (text, 1);
+  EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.ptr[2]);
+  EXPECT_DOUBLE_EQ(double(-0.25), arrayLength.ptr[4]);
+  EXPECT_DOUBLE_EQ(double(0), arrayLength.ptr[5]);
+  oap::host::DeleteMemory (arrayLength);
 }
 
 TEST_F(OapMatrixParserTests, Test6) {
@@ -306,9 +306,9 @@ TEST_F(OapMatrixParserTests, LargeMatrixQHost4Test) {
 
   m_parser->setText(text);
   EXPECT_NO_THROW(m_parser->parseArray(1));
-  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
-  EXPECT_DOUBLE_EQ(double(-1), arrayLength.first[arrayLength.second - 1]);
-  delete[] arrayLength.first;
+  oap::Memory arrayLength = matrixUtils::CreateArrayDefaultAlloc (text, 1);
+  EXPECT_DOUBLE_EQ(double(-1), arrayLength.ptr[arrayLength.dims.width * arrayLength.dims.height - 1]);
+  oap::host::DeleteMemory (arrayLength);
 }
 
 TEST_F(OapMatrixParserTests, LargeMatrixQHost5Test) {
@@ -316,9 +316,9 @@ TEST_F(OapMatrixParserTests, LargeMatrixQHost5Test) {
 
   m_parser->setText(text);
   EXPECT_NO_THROW(m_parser->parseArray(1));
-  std::pair<floatt*, size_t> arrayLength = matrixUtils::CreateArray(text, 1);
-  EXPECT_DOUBLE_EQ(double(-1), arrayLength.first[arrayLength.second - 1]);
-  delete[] arrayLength.first;
+  oap::Memory arrayLength = matrixUtils::CreateArrayDefaultAlloc (text, 1);
+  EXPECT_DOUBLE_EQ(double(-1), arrayLength.ptr[arrayLength.dims.width * arrayLength.dims.height - 1]);
+  oap::host::DeleteMemory (arrayLength);
 }
 
 TEST_F(OapMatrixParserTests, ParsingWithIndex_1) {

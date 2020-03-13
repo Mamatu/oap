@@ -22,7 +22,10 @@
 
 #include <string>
 
-namespace utils {
+namespace oap
+{
+namespace utils
+{
 class Config {
  public:
   static const std::string& getOapPath();
@@ -42,6 +45,7 @@ class Config {
   static void createPath(const std::string& root, std::string& storePath);
   static std::string getPathInRoot(const std::string& root, const std::string& relativePath, bool slashOnEnd = true);
 };
+}
 }
 
 #endif  // CONFIG_H

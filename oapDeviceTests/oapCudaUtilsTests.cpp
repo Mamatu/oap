@@ -67,34 +67,48 @@ class OapCudaUtilsTests : public testing::Test {
 
   void executeSetGetValueTest(bool isre, bool isim, uintt columns, uintt rows,
                               const ValueIndexVec& expecteds) {
-    math::Matrix* matrix = oap::cuda::NewDeviceMatrix(isre, isim, columns, rows);
+    math::Matrix* matrix = oap::cuda::NewDeviceMatrixWithValue (isre, isim, columns, rows, 0.);
     executeSetGetValueTest(matrix, expecteds);
     oap::cuda::DeleteDeviceMatrix(matrix);
   }
 
-  void executeSetGetValueTest(math::Matrix* matrix,
-                              const ValueIndexVec& expecteds) {
-    uintt columns = CudaUtils::GetColumns(matrix);
-    for (ValueIndexVec::const_iterator it = expecteds.begin();
-         it != expecteds.end(); ++it) {
+  void executeSetGetValueTest (math::Matrix* matrix, const ValueIndexVec& expecteds)
+  {
+    uintt columns = oap::cuda::GetColumns(matrix);
+    for (ValueIndexVec::const_iterator it = expecteds.begin(); it != expecteds.end(); ++it)
+    {
       uintt index = it->second.first + columns * it->second.second;
-      CudaUtils::SetReValue(matrix, index, it->first.re);
-      CudaUtils::SetImValue(matrix, index, it->first.im);
-      floatt revalue = CudaUtils::GetReValue(matrix, index);
-      floatt imvalue = CudaUtils::GetImValue(matrix, index);
-      EXPECT_DOUBLE_EQ(it->first.re, revalue);
-      EXPECT_DOUBLE_EQ(it->first.im, imvalue);
+      auto minfo = oap::cuda::GetMatrixInfo (matrix);
+      if (minfo.isRe)
+      {
+        oap::cuda::SetReValue(matrix, index, it->first.re);
+        floatt revalue = CudaUtils::GetReValue(matrix, index);
+        EXPECT_DOUBLE_EQ(it->first.re, revalue);
+      }
+      if (minfo.isIm)
+      {
+        oap::cuda::SetImValue(matrix, index, it->first.im);
+        floatt imvalue = CudaUtils::GetImValue(matrix, index);
+        EXPECT_DOUBLE_EQ(it->first.im, imvalue);
+      }
     }
 
-    for (ValueIndexVec::const_iterator it = expecteds.begin();
-         it != expecteds.end(); ++it) {
+    for (ValueIndexVec::const_iterator it = expecteds.begin(); it != expecteds.end(); ++it)
+    {
       uintt index = it->second.first + columns * it->second.second;
-      floatt revalue = CudaUtils::GetReValue(matrix, index);
-      floatt imvalue = CudaUtils::GetImValue(matrix, index);
-      EXPECT_DOUBLE_EQ(it->first.re, revalue);
-      EXPECT_DOUBLE_EQ(it->first.im, imvalue);
+      auto minfo = oap::cuda::GetMatrixInfo (matrix);
+      if (minfo.isRe)
+      {
+        floatt revalue = CudaUtils::GetReValue(matrix, index);
+        EXPECT_DOUBLE_EQ(it->first.re, revalue);
+      }
+      if (minfo.isIm)
+      {
+        floatt imvalue = CudaUtils::GetImValue(matrix, index);
+        EXPECT_DOUBLE_EQ(it->first.im, imvalue);
+      }
     }
-    CudaUtils::PrintMatrix(matrix);
+    CudaUtils::PrintMatrix (matrix);
   }
 };
 

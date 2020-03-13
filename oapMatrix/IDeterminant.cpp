@@ -17,9 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "MathOperations.h"
+#include "MatrixAPI.h"
 
 namespace math {
 
@@ -31,7 +30,7 @@ namespace math {
         } else {
             executionPath = EXECUTION_NOTHING;
         }
-        if (matrix->columns != matrix->rows) {
+        if (gColumns (matrix) != gRows (matrix)) {
             return STATUS_INVALID_PARAMS;
         }
         return STATUS_OK;
