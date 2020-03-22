@@ -25,6 +25,9 @@
 #include "CuProceduresApi.h"
 #include "oapCudaMatrixUtils.h"
 
+#include "oapHostMemoryApi.h"
+#include "oapCudaMemoryApi.h"
+
 #include "PatternsClassification.h"
 #include "Controllers.h"
 
@@ -517,6 +520,20 @@ TEST_F(OapClassificationTests, OCR)
     }
   };
 
+  auto convertToMemoryPrimitives = [](oap::Image::Patterns& patterns)
+  {
+    std::vector<oap::Memory> memories;
+    for (size_t idx = 0; idx < patterns.size(); ++idx)
+    {
+      oap::Memory mem = {patterns[idx].patternBitmap.data(), {static_cast<uintt>(patterns[idx].overlapingRegion.width), static_cast<uintt>(patterns[idx].overlapingRegion.height)}};
+      memories.push_back (mem);
+    }
+    return memories;
+  };
+
+  std::vector<oap::Memory> memories = convertToMemoryPrimitives (patterns);
+  oap::Memory cudaMemory = oap::cuda::NewMemoryBulkFromHost (memories, oap::DataDirection::HORIZONTAL);
+
   using Data = std::vector<DataEntry>;
 
   Data data;
@@ -661,7 +678,7 @@ TEST_F(OapClassificationTests, OCR)
 
     oap::device::iterateNetwork (*network, [&rg, &calcApi](DeviceLayer& current, const DeviceLayer& next)
     {
-      //calcApi.scale (current.getBPMatrices()->m_weights);
+      calcApi.scale (current.getBPMatrices()->m_weights);
     });
 
     forwardPropagationFP (trainingHandler);

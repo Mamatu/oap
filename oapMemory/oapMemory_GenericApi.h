@@ -31,6 +31,13 @@
 
 namespace oap
 {
+
+  enum DataDirection
+  {
+    HORIZONTAL,
+    VERTICAL
+  };
+
 namespace utils
 {
   inline void check (const oap::MemoryDims& dims, const oap::MemoryRegion& region)
@@ -234,6 +241,59 @@ namespace generic
   void copy (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion* srcReg, Memcpy&& memcpy)
   {
     copy<Memcpy> (dst, dstDims, dstLoc, src, srcDims, srcReg == nullptr ? common::OAP_NONE_REGION() : *srcReg, memcpy);
+  }
+
+
+  template<typename MemoryVec, typename Allocator, typename Memcpy>
+  oap::Memory newMemory_bulk (const MemoryVec& vec, const oap::DataDirection& dd, Allocator&& alloc, Memcpy&& memcpy)
+  {
+    logAssert (vec.size() > 0);
+
+    oap::MemoryDims dim = {0, 0};
+
+    switch (dd) {
+      case DataDirection::VERTICAL:
+        dim.width = vec[0].dims.width;
+        for (size_t idx = 0; idx < vec.size(); ++idx)
+        {
+          dim.height = dim.height + vec[idx].dims.height;
+          logAssert (idx == 0 || vec[idx].dims.width == vec[idx - 1].dims.width);
+        }
+        break;
+      case DataDirection::HORIZONTAL:
+        dim.height = vec[0].dims.height;
+        for (size_t idx = 0; idx < vec.size(); ++idx)
+        {
+          dim.width = dim.width + vec[idx].dims.width;
+          logAssert (idx == 0 || vec[idx].dims.height == vec[idx - 1].dims.height);
+        }
+        break;
+    };
+
+    oap::Memory memory = alloc (dim);
+    oap::MemoryLoc loc = {0, 0};
+
+    switch (dd) {
+      case DataDirection::VERTICAL:
+        for (size_t idx = 0; idx < vec.size(); ++idx)
+        {
+          oap::MemoryDims dim = vec[idx].dims;
+          floatt* array = vec[idx].ptr;
+          oap::generic::copy (memory, loc, {array, dim}, {{0, 0}, dim}, memcpy);
+          loc.y += dim.height;
+        }
+        break;
+      case DataDirection::HORIZONTAL:
+        for (size_t idx = 0; idx < vec.size(); ++idx)
+        {
+          oap::MemoryDims dim = vec[idx].dims;
+          floatt* array = vec[idx].ptr;
+          oap::generic::copy (memory, loc, {array, dim}, {{0, 0}, dim}, memcpy);
+          loc.x += dim.width;
+        }
+        break;
+    }
+    return memory;
   }
 }
 }

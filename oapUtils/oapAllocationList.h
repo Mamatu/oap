@@ -59,6 +59,7 @@ class AllocationList
     Map m_existMap;
     Map m_deletedMap;
 
+  protected:
     void checkOnDelete();
 };
 }

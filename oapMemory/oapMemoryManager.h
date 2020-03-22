@@ -30,20 +30,24 @@ template <typename T, typename NewFunc, typename DeleteFunc, T nullvar>
 class MemoryManagement final
 {
   public:
-    MemoryManagement (const NewFunc& newFunc, const DeleteFunc& deleteFunc) : m_newFunc (newFunc), m_deleteFunc (deleteFunc)
+    MemoryManagement (const NewFunc& newFunc, const DeleteFunc& deleteFunc, bool autoDealloc = false) : m_newFunc (newFunc), m_deleteFunc (deleteFunc), m_autoDealloc (autoDealloc)
     {}
 
-    MemoryManagement (NewFunc&& newFunc, DeleteFunc&& deleteFunc) : m_newFunc (std::forward<NewFunc> (newFunc)), m_deleteFunc (std::forward<DeleteFunc> (deleteFunc))
+    MemoryManagement (NewFunc&& newFunc, DeleteFunc&& deleteFunc, bool autoDealloc = false) :
+      m_newFunc (std::forward<NewFunc> (newFunc)), m_deleteFunc (std::forward<DeleteFunc> (deleteFunc)), m_autoDealloc (autoDealloc)
     {}
 
     ~MemoryManagement ()
     {
-      for (auto& kv : m_counts)
+      if (m_autoDealloc)
       {
-        m_deleteFunc (kv.first);
-      }
+        for (auto& kv : m_counts)
+        {
+          m_deleteFunc (kv.first);
+        }
 
-      m_counts.clear ();
+        m_counts.clear ();
+      }
     }
 
     T allocate (size_t length)
@@ -96,6 +100,7 @@ class MemoryManagement final
     std::unordered_map<T, size_t> m_counts;
     funcstore<NewFunc> m_newFunc;
     funcstore<DeleteFunc> m_deleteFunc;
+    bool m_autoDealloc;
 };
 }
 

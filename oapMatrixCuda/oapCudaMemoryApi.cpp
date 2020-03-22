@@ -119,6 +119,7 @@ oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value)
     oap::Memory memory = NewMemory (dims);
     oap::Memory hmemory = oap::host::NewMemoryWithValues (dims, value);
     oap::cuda::CopyHostToDevice (memory, hmemory);
+    oap::host::DeleteMemory (hmemory);
     return memory.ptr;
   });
 }

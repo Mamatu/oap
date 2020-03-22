@@ -25,8 +25,10 @@
 
 #include "MatrixPrinter.h"
 #include "oapMemoryPrimitives.h"
+#include "oapMemory_GenericApi.h"
 #include "oapMemory_CommonApi.h"
-#include "oapMemory_CommonApi.h"
+
+#include "CudaUtils.h"
 
 namespace oap
 {
@@ -71,6 +73,18 @@ floatt GetValue (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uin
 uintt GetIdx (oap::Memory& memory, uintt x, uintt y);
 floatt* GetPtr (oap::Memory& memory, uintt x, uintt y);
 floatt GetValue (oap::Memory& memory, uintt x, uintt y);
+
+template<typename MemoryVec>
+oap::Memory NewMemoryBulkFromHost (const MemoryVec& vec, const oap::DataDirection& dd)
+{
+  return oap::generic::newMemory_bulk (vec, dd, oap::cuda::NewMemory, CudaUtils::CopyHostToDevice);
+}
+
+  template<typename MemoryVec>
+oap::Memory NewMemoryBulkFromDevice (const MemoryVec& vec, const oap::DataDirection& dd)
+{
+  return oap::generic::newMemory_bulk (vec, dd, oap::cuda::NewMemory, CudaUtils::CopyDeviceToDevice);
+}
 
 }
 }

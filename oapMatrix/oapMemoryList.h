@@ -24,7 +24,6 @@
 #include "oapMemoryPrimitivesApi.h"
 #include "oapAllocationList.h"
 
-
 struct MemoryHash
 {
   std::size_t operator()(const oap::Memory& memory) const noexcept
