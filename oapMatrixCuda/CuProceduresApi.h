@@ -346,6 +346,8 @@ class CuProceduresApi
    */
   void scale (math::Matrix* matrix);
 
+  void dotProduct (oap::Memory& output, const oap::Memory& arg1, const oap::Memory& arg2, const oap::MemoryRegion_3_Args* regions);
+
   inline void cos (math::Matrix* output, math::Matrix* matrix)
   {
     dsin (output, matrix);

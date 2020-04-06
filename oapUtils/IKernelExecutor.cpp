@@ -63,7 +63,7 @@ namespace oap
     calculateThreadsBlocks (m_executionParams.blocksCount, m_executionParams.threadsCount, w, h);
   }
 
-  void IKernelExecutor::setParams(void** params) { m_params = params; }
+  void IKernelExecutor::setParams(const void** params) { m_params = params; }
 
   int IKernelExecutor::getParamsCount() const
   {
@@ -77,19 +77,19 @@ namespace oap
     return status;
   }
 
-  bool IKernelExecutor::execute (const char* functionName, void** params)
+  bool IKernelExecutor::execute (const char* functionName, const void** params)
   {
     setParams (params);
     return execute (functionName);
   }
 
-  bool IKernelExecutor::execute (const char* functionName, void** params, uintt sharedMemorySize)
+  bool IKernelExecutor::execute (const char* functionName, const void** params, uintt sharedMemorySize)
   {
     m_executionParams.sharedMemSize = sharedMemorySize;
     return execute (functionName, params);
   }
   
-  void** IKernelExecutor::getParams() const
+  const void** IKernelExecutor::getParams() const
   {
     return m_params;
   }

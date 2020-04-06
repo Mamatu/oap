@@ -172,7 +172,7 @@ class Kernel : public oap::IKernelExecutor
 
     static void SetThreadsBlocks (uint blocks[2], uint threads[2], uint w, uint h, uint maxThreadsPerBlock);
 
-    static bool Execute(const char* functionName, void** params, oap::cuda::Kernel& kernel);
+    static bool Execute(const char* functionName, const void** params, oap::cuda::Kernel& kernel);
 
   protected:
     virtual bool run(const char* functionName) override;

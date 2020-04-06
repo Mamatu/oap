@@ -34,6 +34,24 @@
 
 namespace oap
 {
+
+struct Memory_3_Args
+{
+  oap::Memory m_output;
+  oap::Memory m_param1;
+  oap::Memory m_param2;
+};
+
+struct MemoryRegion_3_Args
+{
+  oap::MemoryRegion m_output;
+  oap::MemoryRegion m_param1;
+  oap::MemoryRegion m_param2;
+};
+
+using Tuple_MemoryRegion3 = std::tuple<oap::MemoryRegion, oap::MemoryRegion, oap::MemoryRegion>;
+using Tuple_MemoryRegion3Vec = std::vector<Tuple_MemoryRegion3>;
+
 namespace generic
 {
 
