@@ -23,6 +23,7 @@
 #include <string>
 #include <sstream>
 #include "oapMemoryPrimitives.h"
+#include "oapMemoryUtils.h"
 #include "oapMemory_CommonApi.h"
 
 namespace std
@@ -44,6 +45,20 @@ inline bool operator== (const oap::MemoryRegion& reg1, const oap::MemoryRegion& 
 inline bool operator!= (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
 {
   return !(reg1 == reg2);
+}
+
+inline bool operator< (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
+{
+  bool b1 = oap::utils::lessByX (reg1, reg2);
+  if (!b1)
+  {
+    bool b2 = oap::utils::lessByX (reg2, reg1);
+    if (!b2)
+    {
+      return oap::utils::lessByY (reg1, reg2);
+    }
+  }
+  return b1;
 }
 
 #endif
