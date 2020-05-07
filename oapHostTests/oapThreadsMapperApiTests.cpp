@@ -17,7 +17,6 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <string>
 #include <stdio.h>
 #include <math.h>
@@ -35,67 +34,103 @@ class OapThreadsMapperApiTests : public testing::Test
 
 TEST_F(OapThreadsMapperApiTests, GetThreadsTest_1)
 {
-  {
-    std::vector<oap::MemoryRegion> regions;
-    regions.push_back ({{0, 0}, {1, 1}});
-    regions.push_back ({{1, 1}, {1, 1}});
-    regions.push_back ({{2, 2}, {1, 1}});
-    regions.push_back ({{3, 3}, {1, 1}});
-    regions.push_back ({{4, 4}, {1, 1}});
-    EXPECT_EQ (5, oap::threads::getXThreads (regions));
-  }
-  {
-    std::vector<oap::MemoryRegion> regions;
-    regions.push_back ({{0, 0}, {1, 1}});
-    regions.push_back ({{1, 1}, {1, 1}});
-    regions.push_back ({{2, 2}, {1, 1}});
-    regions.push_back ({{3, 3}, {1, 1}});
-    regions.push_back ({{4, 4}, {1, 1}});
-    EXPECT_EQ (5, oap::threads::getYThreads (regions));
-  }
+  std::vector<oap::MemoryRegion> regions;
+  regions.push_back ({{0, 0}, {1, 1}});
+  regions.push_back ({{1, 1}, {1, 1}});
+  regions.push_back ({{2, 2}, {1, 1}});
+  regions.push_back ({{3, 3}, {1, 1}});
+  regions.push_back ({{4, 4}, {1, 1}});
+  EXPECT_EQ (5, oap::threads::getXThreads (regions));
+  EXPECT_EQ (5, oap::threads::getYThreads (regions));
 }
 
 TEST_F(OapThreadsMapperApiTests, GetThreadsTest_2)
 {
-  {
-    std::vector<oap::MemoryRegion> regions;
-    regions.push_back ({{4, 4}, {1, 1}});
-    regions.push_back ({{3, 3}, {1, 1}});
-    regions.push_back ({{2, 2}, {1, 1}});
-    regions.push_back ({{1, 1}, {1, 1}});
-    regions.push_back ({{0, 0}, {1, 1}});
-    EXPECT_EQ (5, oap::threads::getXThreads (regions));
-  }
-  {
-    std::vector<oap::MemoryRegion> regions;
-    regions.push_back ({{4, 4}, {1, 1}});
-    regions.push_back ({{3, 3}, {1, 1}});
-    regions.push_back ({{2, 2}, {1, 1}});
-    regions.push_back ({{1, 1}, {1, 1}});
-    regions.push_back ({{0, 0}, {1, 1}});
-    EXPECT_EQ (5, oap::threads::getYThreads (regions));
-  }
+  std::vector<oap::MemoryRegion> regions;
+  regions.push_back ({{4, 4}, {1, 1}});
+  regions.push_back ({{3, 3}, {1, 1}});
+  regions.push_back ({{2, 2}, {1, 1}});
+  regions.push_back ({{1, 1}, {1, 1}});
+  regions.push_back ({{0, 0}, {1, 1}});
+  EXPECT_EQ (5, oap::threads::getXThreads (regions));
+  EXPECT_EQ (5, oap::threads::getYThreads (regions));
 }
 
 TEST_F(OapThreadsMapperApiTests, GetThreadsTest_3)
 {
+  std::vector<oap::MemoryRegion> regions;
+  regions.push_back ({{4, 4}, {1, 1}});
+  regions.push_back ({{3, 3}, {1, 1}});
+  regions.push_back ({{2, 2}, {1, 1}});
+  regions.push_back ({{1, 1}, {2, 2}});
+  regions.push_back ({{0, 0}, {2, 2}});
+  EXPECT_EQ (5, oap::threads::getXThreads (regions));
+  EXPECT_EQ (5, oap::threads::getYThreads (regions));
+}
+
+TEST_F(OapThreadsMapperApiTests, GetThreadsTest_4)
+{
+  std::vector<oap::MemoryRegion> regions;
+  regions.push_back ({{4, 4}, {1, 1}});
+  regions.push_back ({{2, 2}, {1, 1}});
+  regions.push_back ({{1, 1}, {2, 2}});
+  regions.push_back ({{0, 0}, {2, 2}});
+  EXPECT_EQ (4, oap::threads::getXThreads (regions));
+  EXPECT_EQ (4, oap::threads::getYThreads (regions));
+}
+
+TEST_F(OapThreadsMapperApiTests, GetThreadsTest_5)
+{
+  std::vector<oap::MemoryRegion> regions;
+  regions.push_back ({{4, 4}, {1, 1}});
+  regions.push_back ({{2, 2}, {1, 1}});
+  regions.push_back ({{1, 1}, {2, 2}});
+  regions.push_back ({{0, 0}, {6, 6}});
+  EXPECT_EQ (6, oap::threads::getXThreads (regions));
+  EXPECT_EQ (6, oap::threads::getYThreads (regions));
+}
+
+TEST_F(OapThreadsMapperApiTests, GetThreadsTest_6)
+{
+  std::vector<oap::MemoryRegion> regions;
+  regions.push_back ({{3, 3}, {1, 1}});
+  regions.push_back ({{0, 0}, {3, 3}});
+  EXPECT_EQ (4, oap::threads::getXThreads (regions));
+  EXPECT_EQ (4, oap::threads::getYThreads (regions));
+}
+
+TEST_F(OapThreadsMapperApiTests, GetThreadsTest_7)
+{
   {
     std::vector<oap::MemoryRegion> regions;
-    regions.push_back ({{4, 4}, {1, 1}});
-    regions.push_back ({{3, 3}, {1, 1}});
-    regions.push_back ({{2, 2}, {1, 1}});
-    regions.push_back ({{1, 1}, {2, 2}});
-    regions.push_back ({{0, 0}, {2, 2}});
-    EXPECT_EQ (5, oap::threads::getXThreads (regions));
+    regions.push_back ({{3, 0}, {1, 1}});
+    regions.push_back ({{0, 0}, {3, 1}});
+    EXPECT_EQ (4, oap::threads::getXThreads (regions));
+    EXPECT_EQ (1, oap::threads::getYThreads (regions));
   }
   {
     std::vector<oap::MemoryRegion> regions;
-    regions.push_back ({{4, 4}, {1, 1}});
-    regions.push_back ({{3, 3}, {1, 1}});
-    regions.push_back ({{2, 2}, {1, 1}});
-    regions.push_back ({{1, 1}, {2, 2}});
-    regions.push_back ({{0, 0}, {2, 2}});
-    EXPECT_EQ (5, oap::threads::getYThreads (regions));
+    regions.push_back ({{0, 3}, {1, 1}});
+    regions.push_back ({{0, 0}, {1, 3}});
+    EXPECT_EQ (1, oap::threads::getXThreads (regions));
+    EXPECT_EQ (4, oap::threads::getYThreads (regions));
   }
 }
 
+TEST_F(OapThreadsMapperApiTests, GetThreadsTest_8)
+{
+  {
+    std::vector<oap::MemoryRegion> regions;
+    regions.push_back ({{5, 0}, {1, 1}});
+    regions.push_back ({{0, 0}, {3, 1}});
+    EXPECT_EQ (4, oap::threads::getXThreads (regions));
+    EXPECT_EQ (1, oap::threads::getYThreads (regions));
+  }
+  {
+    std::vector<oap::MemoryRegion> regions;
+    regions.push_back ({{0, 5}, {1, 1}});
+    regions.push_back ({{0, 0}, {1, 3}});
+    EXPECT_EQ (1, oap::threads::getXThreads (regions));
+    EXPECT_EQ (4, oap::threads::getYThreads (regions));
+  }
+}
