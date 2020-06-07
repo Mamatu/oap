@@ -190,8 +190,12 @@ namespace generic
   void copyBlock (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
   {
     logTrace ("%s %p %s %s %p %s %s", __FUNCTION__, dst, std::to_string(dstDims).c_str(), std::to_string(dstLoc).c_str(), src, std::to_string(srcDims).c_str(), std::to_string(srcReg).c_str());
+
     logAssert (dstDims.width >= dstLoc.x + srcReg.dims.width);
     logAssert (dstDims.height >= dstLoc.y + srcReg.dims.height);
+
+    logAssert (srcDims.width >= srcReg.loc.x + srcReg.dims.width);
+    logAssert (srcDims.height >= srcReg.loc.y + srcReg.dims.height);
 
     std::vector<floatt*> dstPtrs;
     std::vector<const floatt*> srcPtrs;

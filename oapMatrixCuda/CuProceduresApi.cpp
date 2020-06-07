@@ -37,9 +37,6 @@
 #include "CudaCoreApi.h"
 #include "Logger.h"
 
-#include "GenericProceduresApi.h"
-#include "GenericProceduresNewApi.h"
-
 namespace oap
 {
 
@@ -891,7 +888,7 @@ void CuProceduresApi::scale (math::Matrix* matrix)
 
 void CuProceduresApi::dotProduct (oap::Memory& output, const oap::Memory& arg1, const oap::Memory& arg2, const oap::MemoryRegion_3_Args* regions)
 {
-  m_cuStatus = oap::generic::dotProduct (output, arg1, arg2, regions, &m_kernel);
+  //m_cuStatus = oap::generic::dotProduct (output, arg1, arg2, regions, &m_kernel);
 }
 
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,

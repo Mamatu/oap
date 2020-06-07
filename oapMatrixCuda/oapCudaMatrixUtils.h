@@ -25,6 +25,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
+#include "oapThreadsMapperApi.h"
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
 
@@ -59,6 +60,10 @@ inline math::Matrix* NewDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minf
 {
   return NewDeviceMatrix (minfo);
 }
+
+math::Matrix* NewDeviceMatrixFromMemory (uintt columns, uintt rows, oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
+math::Matrix* NewDeviceReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
+math::Matrix* NewDeviceImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
 
 uintt GetColumns(const math::Matrix* dMatrix);
 
@@ -241,6 +246,14 @@ void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
 
 math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
+
+template<typename Matrices>
+oap::threads::ThreadsMapper createThreadsMapper (const Matrices& matrices)
+{
+  return oap::threads::createThreadsMapper (matrices, oap::cuda::GetMatrixInfo, CudaUtils::CopyHostToDevice);
+}
+
+oap::threads::ThreadsMapper CreateThreadsMapper (const std::vector<math::Matrix*>& matrices);
 
 }
 }

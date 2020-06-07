@@ -24,7 +24,7 @@
 #include "Matrix.h"
 #include "MatrixAPI.h"
 
-__hostdevice__ void api2_cuda_dotProductRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void GenericApi_cuda_dotProductRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -43,7 +43,7 @@ __hostdevice__ void api2_cuda_dotProductRe (math::Matrix* output, const math::Ma
   *GetRePtrIndex (output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
-__hostdevice__ void api2_cuda_dotProductIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void GenericApi_cuda_dotProductIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -62,7 +62,7 @@ __hostdevice__ void api2_cuda_dotProductIm (math::Matrix* output, const math::Ma
   *GetRePtrIndex (output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
-__hostdevice__ void api2_cuda_dotProductReal (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void GenericApi_cuda_dotProductReal (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -91,54 +91,35 @@ __hostdevice__ void api2_cuda_dotProductReal (math::Matrix* output, const math::
   gImValues (output)[threadIndexX + outputColumns * threadIndexY] = imtemp;
 }
 
-__hostdevice__ void api2_CUDA_dotProductRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void GenericApi_CUDA_dotProductRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
 {
   HOST_INIT();
 
-  api2_cuda_dotProductRe(output, params0, params1);
+  GenericApi_cuda_dotProductRe(output, params0, params1);
   threads_sync();
 }
 
-__hostdevice__ void api2_CUDA_dotProductIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void GenericApi_CUDA_dotProductIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
 {
   HOST_INIT();
 
-  api2_cuda_dotProductIm(output, params0, params1);
+  GenericApi_cuda_dotProductIm(output, params0, params1);
   threads_sync();
 }
 
-__hostdevice__ void api2_CUDA_dotProductReal (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void GenericApi_CUDA_dotProductReal (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
 {
   HOST_INIT();
 
-  api2_cuda_dotProductReal(output, params0, params1);
+  GenericApi_cuda_dotProductReal(output, params0, params1);
   threads_sync();
 }
 
-__hostdevice__ void api2_CUDA_dotProduct (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void GenericApi_CUDA_dotProduct (oap::Memory& output, const oap::Memory& arg1, const oap::Memory& arg2, const oap::MemoryRegion_3_Args* regions, uintt regionsCount)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = gReValues (output) != NULL;
-  bool isim = gImValues (output) != NULL;
-  bool isInRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
-
-  if (isInRange)
-  {
-    if (isre && isim)
-    {
-      api2_CUDA_dotProductReal (output, params0, params1);
-    }
-    else if (isre)
-    {
-      api2_CUDA_dotProductRe (output, params0, params1);
-    }
-    else if (isim)
-    {
-      api2_CUDA_dotProductIm (output, params0, params1);
-    }
-  }
 }
 
 #endif

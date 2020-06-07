@@ -45,6 +45,16 @@ void FreeDeviceMem(const void* devicePtr);
 
 void FreeDeviceMem(CUdeviceptr ptr);
 
+inline void* Malloc (uintt size)
+{
+  return AllocDeviceMem (size);
+}
+
+inline void Free (void* ptr)
+{
+  FreeDeviceMem (ptr);
+}
+
 #if 0
 math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
 #endif

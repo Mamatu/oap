@@ -17,10 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #ifndef OAP_MATH_TYPES_H
 #define OAP_MATH_TYPES_H
+
+#define MAX_UINTT 0xffffffff
 
 #ifdef OAP_CONFIG_NI_EF
 #define EXTENDED_FLOAT_TYPE

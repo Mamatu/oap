@@ -17,12 +17,24 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_CU_MATRIXUTILS_H
-#define	OAP_CU_MATRIXUTILS_H
+#ifndef OAP_THREAD_MAPPER_PRIMITIVES_H
+#define OAP_THREAD_MAPPER_PRIMITIVES_H
 
-#include "CuUtils.h"
-#include "CuCore.h"
-#include "Matrix.h"
-#include "MatrixEx.h"
+#define OAP_MAPPER_MODE__RELATIVE_SHARED_POINTERS 1
 
-#endif	/* CUMATRIXUTILS_H */
+#if 0
+namespace oap
+{
+namespace threads
+{
+
+struct ThreadsMapper
+{
+  char mode;
+  void* data;
+};
+
+}
+}
+#endif
+#endif

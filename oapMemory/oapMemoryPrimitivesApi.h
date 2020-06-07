@@ -47,6 +47,16 @@ inline bool operator!= (const oap::MemoryRegion& reg1, const oap::MemoryRegion& 
   return !(reg1 == reg2);
 }
 
+inline bool operator== (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2)
+{
+  return dim1.width == dim2.width && dim1.height == dim2.height;
+}
+
+inline bool operator!= (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2)
+{
+  return !(dim1 == dim2);
+}
+
 inline bool operator< (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
 {
   bool b1 = oap::utils::lessByX (reg1, reg2);

@@ -120,6 +120,16 @@ __hostdeviceinline__ uintt gRows (const math::Matrix* matrix)
   return 0;
 }
 
+__hostdeviceinline__ uintt GetColumns (const math::Matrix* matrix)
+{
+  return gColumns (matrix);
+}
+
+__hostdeviceinline__ uintt GetRows (const math::Matrix* matrix)
+{
+  return gRows (matrix);
+}
+
 __hostdeviceinline__ floatt* gReValues (const math::Matrix* matrix)
 {
   if (matrix != NULL)

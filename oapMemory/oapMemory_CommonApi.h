@@ -29,6 +29,7 @@ namespace oap
 {
 namespace common
 {
+
 __hostdeviceinline__ oap::Memory OAP_NONE_MEMORY()
 {
   oap::Memory memory = {0, {0, 0}};

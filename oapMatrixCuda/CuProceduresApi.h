@@ -35,9 +35,11 @@
 
 #include "RecToSquareApi.h"
 
-#include "GenericCoreApi.h"
-
 #include "oapMemoryPrimitives.h"
+
+#include "GenericCoreApi.h"
+#include "GenericProceduresApi.h"
+#include "GenericProceduresNewApi.h"
 
 #define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
@@ -197,7 +199,7 @@ class CuProceduresApi
   void substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void addSubstract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
 
-  inline void add (math::Matrix* output, math::Matrix* params0,math::Matrix* params1);
+  inline void add (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   void add (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void add (math::Matrix* output, const math::Matrix* params0, floatt value);
@@ -369,6 +371,9 @@ class CuProceduresApi
   void calcTriangularHStep (math::Matrix* H, math::Matrix* Q, math::Matrix* R,
                             math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
                             math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6);
+
+  template<typename Matrices>
+  void addConst (Matrices& output, const Matrices& params1, floatt value);
 
   std::string getMsgStatus() const;
 
@@ -589,6 +594,12 @@ inline void CuProceduresApi::add (math::Matrix* output, math::Matrix* params0, m
   const uintt columns = oap::cuda::GetColumns(output);
   const uintt rows = oap::cuda::GetRows(output);
   add(output, params0, params1, columns, rows);
+}
+
+template<typename Matrices>
+void CuProceduresApi::addConst (Matrices& output, const Matrices& params1, floatt value)
+{
+  m_cuStatus = oap::generic::addConstant (output, params1, value, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice); 
 }
 
 }
