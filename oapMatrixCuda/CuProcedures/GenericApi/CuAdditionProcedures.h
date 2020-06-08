@@ -84,43 +84,43 @@ __hostdeviceinline__ void GenericApi_cuda_addRealMatrixValue (math::Matrix** out
   }
 }
 
-__hostdeviceinline__ void GenericApi_CUDA_addReMatrixValue (math::Matrix** output, math::Matrix* const* params0, floatt params1, uintt* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_addReMatrixValue (math::Matrix** output, math::Matrix* const* params0, floatt params1, uintt* mapper)
 {
   HOST_INIT();
   GenericApi_cuda_addReMatrixValue (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void GenericApi_CUDA_addImMatrixValue (math::Matrix** output, math::Matrix* const* params0, floatt params1, uintt* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_addImMatrixValue (math::Matrix** output, math::Matrix* const* params0, floatt params1, uintt* mapper)
 {
   HOST_INIT();
   GenericApi_cuda_addImMatrixValue (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void GenericApi_CUDA_addRealMatrixValue (math::Matrix** output, math::Matrix* const* params0, floatt params1, uintt* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_addRealMatrixValue (math::Matrix** output, math::Matrix* const* params0, floatt params1, uintt* mapper)
 {
   HOST_INIT();
   GenericApi_cuda_addRealMatrixValue (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void GenericApi_CUDA_AddConstant (math::Matrix** output, math::Matrix* const* params0, floatt params1, uintt* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_AddConstant (math::Matrix** output, math::Matrix* const* params0, floatt params1, uintt* mapper)
 {
   bool isRe = output[0]->re.ptr != NULL;
   bool isIm = output[0]->im.ptr != NULL;
 
   if (isRe && isIm)
   {
-    GenericApi_CUDA_addRealMatrixValue (output, params0, params1, mapper);
+    CUDA_GenericApi_addRealMatrixValue (output, params0, params1, mapper);
   }
   else if (isRe)
   {
-    GenericApi_CUDA_addReMatrixValue (output, params0, params1, mapper);
+    CUDA_GenericApi_addReMatrixValue (output, params0, params1, mapper);
   }
   else if (isIm)
   {
-    GenericApi_CUDA_addImMatrixValue (output, params0, params1, mapper);
+    CUDA_GenericApi_addImMatrixValue (output, params0, params1, mapper);
   }
 }
 

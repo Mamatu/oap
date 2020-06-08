@@ -36,7 +36,7 @@ oap::Memory NewMemory (const MemoryDims& dims);
 oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value);
 oap::Memory NewMemoryCopy (const oap::Memory& src);
 oap::Memory NewMemoryCopyMem (const oap::Memory& src, uintt width, uintt height);
-oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height);
+//oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height);
 
 void DeleteMemory (const oap::Memory& mem);
 

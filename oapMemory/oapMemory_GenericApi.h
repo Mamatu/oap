@@ -116,6 +116,7 @@ namespace generic
     return {ptr, dims};
   }
 
+#if 0
   template<typename Allocator>
   oap::Memory reuseMemory (const oap::Memory& src, uintt width, uintt height, Allocator&& allocator)
   {
@@ -124,7 +125,7 @@ namespace generic
     logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
     return {ptr, dims};
   }
-
+#endif
   template<typename Deallocator>
   void deleteMemory (const oap::Memory& mem, Deallocator&& deallocator)
   {

@@ -21,10 +21,29 @@
 
 namespace std
 {
+#if 0
   std::string to_string (const oap::Memory& memory)
   {
     std::stringstream sstream;
     sstream << "(ptr: " << memory.ptr << " width: " << memory.dims.width << ", height: " << memory.dims.height << ")";
+    return sstream.str();
+  }
+#endif
+  std::string to_string (const oap::Memory& memory)
+  {
+    std::stringstream sstream;
+
+    auto setValue = [&sstream](floatt v)
+    {
+      sstream << v << " ";
+    };
+
+    auto endl = [&sstream]()
+    {
+      sstream << std::endl;
+    };
+
+    iterate (setValue, memory, endl);
     return sstream.str();
   }
 

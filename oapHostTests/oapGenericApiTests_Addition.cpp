@@ -35,6 +35,8 @@
 #include <vector>
 #include <iostream>
 
+#include "HostProcedures.h"
+
 using namespace ::testing;
 
 class OapApiVer2Tests_Addition : public testing::Test
@@ -57,25 +59,19 @@ class OapApiVer2Tests_Addition : public testing::Test
 
 TEST_F(OapApiVer2Tests_Addition, SimpleAdd)
 {
+  HostProcedures hp;
   oap::Memory memory = oap::cuda::NewMemoryWithValues ({10, 10}, 0.);
   oap::Memory hmemory = oap::host::NewMemoryWithValues ({10, 10}, 0.);
 
-  oap::MemoryLoc loc = {0, 0};
-  oap::DeviceMatrixUPtr output1 = oap::cuda::NewDeviceReMatrixFromMemory (3, 3, memory, {0, 0});
-  oap::DeviceMatrixUPtr output2 = oap::cuda::NewDeviceReMatrixFromMemory (3, 3, memory, {4, 0});
+  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (3, 3, memory, {0, 0});
+  oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (3, 3, memory, {4, 0});
 
-  oap::DeviceMatrixUPtr matrix1 = oap::cuda::NewDeviceReMatrixWithValue (3, 3, 2.);
-  oap::DeviceMatrixUPtr matrix2 = oap::cuda::NewDeviceReMatrixWithValue (3, 3, 1.);
+  oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (3, 3, 2.);
+  oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (3, 3, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  m_cuApi->addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  hp.addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
   
-  oap::HostMatrixUPtr output1h = oap::host::NewReMatrixWithValue (3, 3, 0);
-  oap::HostMatrixUPtr output2h = oap::host::NewReMatrixWithValue (3, 3, 0);
-
-  oap::cuda::CopyDeviceMatrixToHostMatrix (output1h, output1);
-  oap::cuda::CopyDeviceMatrixToHostMatrix (output2h, output2);
-
   std::vector<floatt> expected1 =
   {
     3, 3, 3,
@@ -90,15 +86,8 @@ TEST_F(OapApiVer2Tests_Addition, SimpleAdd)
     2, 2, 2,
   };
 
-  oap::cuda::CopyDeviceToHost (hmemory, memory);
-
-  std::vector<floatt> actual1 (output1h->re.ptr, output1h->re.ptr + 9);
-  std::vector<floatt> actual2 (output2h->re.ptr, output2h->re.ptr + 9);
-
-  std::vector<floatt> memVec;
-  oap::to_vector (memVec, hmemory);
-
-  std::cout << "Memory: " << std::endl << std::to_string (hmemory);
+  std::vector<floatt> actual1 (output1->re.ptr, output1->re.ptr + 9);
+  std::vector<floatt> actual2 (output2->re.ptr, output2->re.ptr + 9);
 
   EXPECT_EQ (expected1, actual1);
   EXPECT_EQ (expected2, actual2);

@@ -30,6 +30,7 @@
 #include "MatrixPrinter.h"
 
 #include "oapMemory_GenericApi.h"
+#include "oapThreadsMapperApi.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -754,6 +755,17 @@ void SetMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt
 void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
+template<typename Matrices>
+oap::threads::ThreadsMapper createThreadsMapper (const Matrices& matrices)
+{
+  return oap::threads::createThreadsMapper (matrices, oap::host::GetMatrixInfo, memcpy);
+}
+
+oap::threads::ThreadsMapper CreateThreadsMapper (const std::vector<math::Matrix*>& matrices);
+
+math::Matrix* NewMatrixFromMemory (uintt columns, uintt rows, oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
+math::Matrix* NewReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
+math::Matrix* NewImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
 }
 namespace generic
 {

@@ -44,7 +44,7 @@ bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap:
   mapper.map (buffer);
 
   const void* params[] = {&doutput, &dparams1, &dvalue, &buffer};
-  const char* kname = "GenericApi_CUDAKernel_AddConstant";
+  const char* kname = "CUDAKernel_GenericApi_AddConstant";
 
   oap::generic::Args args (mapper.getWidth(), mapper.getHeight());
   args.retrieveDims = false;

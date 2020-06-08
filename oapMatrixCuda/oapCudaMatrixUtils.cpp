@@ -183,19 +183,6 @@ inline math::Matrix* allocRealMatrix_FromMemory (oap::Memory& remem, const oap::
   return allocMatrix (hostRefMatrix);
 }
 
-#if 0
-math::Matrix* allocMatrix_ReuseMemory (uintt columns, uintt rows, floatt* revalues, floatt* imvalues)
-{
-  CudaUtils::CuDevicePtrs devicePtrs;
-
-  CUdeviceptr ptr = CudaUtils::AllocMatrix_ReuseMemory (columns, rows, revalues, imvalues, &devicePtrs);
-  math::Matrix* mptr = reinterpret_cast<math::Matrix*>(ptr);
-
-  registerMatrix (mptr, devicePtrs, math::MatrixInfo (revalues != nullptr, imvalues != nullptr, columns, rows));
-
-  return mptr;
-}
-#endif
 }
 
 math::Matrix* NewDeviceMatrixFromMemory (uintt columns, uintt rows, oap::Memory& remem, const oap::MemoryLoc& reloc, oap::Memory& immem, const oap::MemoryLoc& imloc)

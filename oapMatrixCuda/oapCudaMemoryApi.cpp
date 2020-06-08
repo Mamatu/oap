@@ -164,6 +164,7 @@ oap::Memory NewMemoryHostCopyMem (const oap::Memory& src, uintt width, uintt hei
   });
 }
 
+#if 0
 oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height)
 {
   return oap::generic::reuseMemory (src, width, height, [](floatt* ptr, const oap::MemoryDims& oldDims, const oap::MemoryDims& newDims)
@@ -171,6 +172,7 @@ oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height)
     return g_memoryMng.reuse (ptr);
   });
 }
+#endif
 
 void DeleteMemory (const oap::Memory& mem)
 {

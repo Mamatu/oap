@@ -25,6 +25,7 @@
 #include "HostKernelExecutor.h"
 
 #include "GenericProceduresApi.h"
+#include "GenericProceduresNewApi.h"
 #include "oapHostMatrixUtils.h"
 
 class HostProcedures {
@@ -119,6 +120,12 @@ class HostProcedures {
 
   void convolve (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel);
   void poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel);
+
+  template<typename Matrices>
+  void addConst (Matrices& output, const Matrices& params1, floatt value)
+  {
+    oap::generic::addConstant (output, params1, value, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy); 
+  }
 
  private:
   uint m_threads[2];

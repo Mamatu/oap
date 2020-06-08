@@ -22,9 +22,36 @@
 
 #include <string>
 #include <sstream>
+#include <functional>
 #include "oapMemoryPrimitives.h"
 #include "oapMemoryUtils.h"
 #include "oapMemory_CommonApi.h"
+
+namespace oap
+{
+namespace
+{
+  auto defaultEndl = [](){};
+}
+
+  template<typename SetValue, typename Endl = decltype(defaultEndl)>
+  void iterate (SetValue&& setValue, const oap::Memory& memory, Endl&& endl = std::forward<Endl>(defaultEndl))
+  {
+    for (uintt y = 0; y < memory.dims.height; ++y)
+    {
+      for (uintt x = 0; x < memory.dims.width; ++x)
+      {
+        setValue (memory.ptr[x + y * memory.dims.width]);
+      }
+      endl ();
+    }
+  }
+
+  inline void to_vector (std::vector<floatt>& vector, const oap::Memory& memory)
+  {
+    iterate ([&vector](floatt value) { vector.push_back (value); }, memory);
+  }
+}
 
 namespace std
 {
