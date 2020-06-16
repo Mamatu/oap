@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "oapMemoryPrimitivesApi.h"
-#include "oapThreadMapperPrimitives.h"
+#include "oapThreadsMapperPrimitives.h"
 
 namespace oap {
 
@@ -225,12 +225,15 @@ enum ThreadsCalcAlgo
 class ThreadsMapper
 {
   public:
-    using Callback = std::function<void(uintt* buffer)>;
+    using CreateCallback = std::function<oap::ThreadsMapperS* ()>;
+    using DestroyCallback = std::function<void (const oap::ThreadsMapperS*)>;
 
-    ThreadsMapper (uintt width, uintt height, const Callback& mapping) : m_width(width), m_height(height), m_mapping(mapping)
+    ThreadsMapper (uintt width, uintt height, const CreateCallback& createCallback, const DestroyCallback& destroyCallback) :
+      m_width(width), m_height(height), m_createCallback (createCallback), m_destroyCallback (destroyCallback)
     {}
 
-    ThreadsMapper (uintt width, uintt height, Callback&& mapping) : m_width(width), m_height(height), m_mapping(std::move(mapping))
+    ThreadsMapper (uintt width, uintt height, CreateCallback&& createCallback, DestroyCallback&& destroyCallback) :
+      m_width(width), m_height(height), m_createCallback (std::move(createCallback)), m_destroyCallback (std::move(destroyCallback))
     {}
 
     uintt getWidth () const
@@ -248,15 +251,21 @@ class ThreadsMapper
       return getWidth() * getHeight();
     }
 
-    void map (uintt* buffer) const
+    oap::ThreadsMapperS* create () const
     {
-      m_mapping (buffer);
+      return m_createCallback ();
+    }
+
+    void destroy (const oap::ThreadsMapperS* tms)
+    {
+      m_destroyCallback (tms);
     }
 
   private:
     uintt m_width;
     uintt m_height;
-    Callback m_mapping;
+    CreateCallback m_createCallback;
+    DestroyCallback m_destroyCallback;
 };
 
 template<typename Matrices, typename GetV1V2>
@@ -277,28 +286,30 @@ std::pair<uintt, uintt> getThreadsMapper_SubSimpleAlgo1 (const Matrices& matrice
   return std::make_pair (lv1, lv2);
 }
 
-template<typename Matrices, typename GetMatrixInfo, typename Memcpy>
-ThreadsMapper getThreadsMapper_SimpleAlgo1 (const Matrices& matrices, GetMatrixInfo&& getMatrixInfo, Memcpy&& memcpy)
+template<typename Matrices, typename GetMatrixInfo, typename Malloc, typename Memcpy>
+ThreadsMapper getThreadsMapper_SimpleAlgo1 (const Matrices& matrices, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy)
 {
   using Buffer = std::vector<uintt>;
 
-  auto pair1 = getThreadsMapper_SubSimpleAlgo1 (matrices, [&getMatrixInfo](const math::Matrix* matrix)
-      {
-        auto minfo = getMatrixInfo (matrix);
-        return std::make_pair (minfo.columns(), minfo.rows());
-      });
-  auto pair2 = getThreadsMapper_SubSimpleAlgo1 (matrices, [&getMatrixInfo](const math::Matrix* matrix)
-      {
-        auto minfo = getMatrixInfo (matrix);
-        return std::make_pair (minfo.rows(), minfo.columns());
-      });
-
-  const uintt pair1_out = pair1.first * pair1.second;
-  const uintt pair2_out = pair2.first * pair2.second;
-
-  if (pair1_out < pair2_out)
+  floatt* reMem = nullptr;
+  floatt* imMem = nullptr;
+  for (const math::Matrix* matrix : matrices)
   {
-    auto algo1 = [matrices, &memcpy, &getMatrixInfo, pair1](uintt* buffer)
+    oapAssert (reMem == matrix->re.ptr || reMem == nullptr);
+    reMem = matrix->re.ptr;
+    oapAssert (imMem == matrix->im.ptr || imMem == nullptr);
+    imMem = matrix->im.ptr;
+  }
+
+  if (matrices[0]->re.dims.width == 1)
+  {
+    auto pair1 = getThreadsMapper_SubSimpleAlgo1 (matrices, [&getMatrixInfo](const math::Matrix* matrix)
+    {
+      auto minfo = getMatrixInfo (matrix);
+      return std::make_pair (minfo.columns(), minfo.rows());
+    });
+
+    auto algo1 = [matrices, &malloc, &memcpy, &getMatrixInfo, pair1]()
     {
       Buffer buffer1;
       for (size_t idx = 0; idx < matrices.size(); ++idx)
@@ -327,42 +338,70 @@ ThreadsMapper getThreadsMapper_SimpleAlgo1 (const Matrices& matrices, GetMatrixI
           }
         }
       }
-      memcpy (buffer, buffer1.data(), buffer1.size() * sizeof (Buffer::value_type));
+
+      const size_t size = sizeof(uintt*) * pair1.width * pair1.height;
+
+      oap::ThreadsMapperS* tms = static_cast<oap::ThreadsMapperS*>(malloc(sizeof(oap::ThreadsMapperS)));
+      void* buffer = static_cast<void*>(malloc(size));
+
+      uintt mode = 1;
+      memcpy (tms->data, buffer, sizeof (void*));
+      memcpy (&tms->mode, mode, sizeof(decltype(tms->mode)));
+
+      return tms;
     };
     return ThreadsMapper (pair1.first, pair1.second, algo1);
   }
-
-  auto algo2 = [matrices, &memcpy, &getMatrixInfo, pair2](uintt* buffer)
+  else
   {
-    Buffer membuf1;
-    uintt row = 0, rows = 0;
-    do
+    auto pair2 = getThreadsMapper_SubSimpleAlgo1 (matrices, [&getMatrixInfo](const math::Matrix* matrix)
     {
-      for (size_t idx = 0; idx < matrices.size(); ++idx)
+      auto minfo = getMatrixInfo (matrix);
+      return std::make_pair (minfo.rows(), minfo.columns());
+    });
+
+    auto algo2 = [matrices, &malloc, &memcpy, &getMatrixInfo, pair2]()
+    {
+      Buffer membuf1;
+      uintt row = 0, rows = 0;
+      do
       {
-        math::Matrix* matrix = matrices[idx];
-        auto minfo = getMatrixInfo (matrix);
-        rows = std::max (rows, minfo.rows());
-        if (row < minfo.rows ())
+        for (size_t idx = 0; idx < matrices.size(); ++idx)
         {
-          membuf1.insert (membuf1.end(), minfo.columns(), idx);
+          math::Matrix* matrix = matrices[idx];
+          auto minfo = getMatrixInfo (matrix);
+          rows = std::max (rows, minfo.rows());
+          if (row < minfo.rows ())
+          {
+            membuf1.insert (membuf1.end(), minfo.columns(), idx);
+          }
+          else
+          {
+            membuf1.insert (membuf1.end(), minfo.columns(), MAX_UINTT);
+          }
         }
-        else
-        {
-          membuf1.insert (membuf1.end(), minfo.columns(), MAX_UINTT);
-        }
-      }
-      ++row;
-    } while (row < rows);
-    memcpy (buffer, membuf1.data(), membuf1.size() * sizeof (Buffer::value_type));
-  };
-  return ThreadsMapper (pair2.first, pair2.second, algo2);
+        ++row;
+      } while (row < rows);
+
+      const size_t size = sizeof(uintt*) * pair2.width * pair2.height;
+
+      oap::ThreadsMapperS* tms = static_cast<oap::ThreadsMapperS*>(malloc(sizeof(oap::ThreadsMapperS)));
+      void* buffer = static_cast<void*>(malloc(size));
+
+      uintt mode = 1;
+      memcpy (tms->data, buffer, sizeof (void*));
+      memcpy (&tms->mode, mode, sizeof(decltype(tms->mode)));
+
+      return tms;
+    };
+    return ThreadsMapper (pair2.second, pair2.first, algo2);
+  }
 }
 
-template<typename Matrices, typename GetMatrixInfo, typename Memcpy>
-ThreadsMapper createThreadsMapper (const Matrices& matrices, GetMatrixInfo&& getMatrixInfo, Memcpy&& memcpy)
+template<typename Matrices, typename GetMatrixInfo,  typename Malloc, typename Memcpy>
+ThreadsMapper createThreadsMapper (const Matrices& matrices, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy)
 {
-  return getThreadsMapper_SimpleAlgo1 (matrices, getMatrixInfo, memcpy);
+  return getThreadsMapper_SimpleAlgo1 (matrices, getMatrixInfo, malloc, memcpy);
 }
 
 }

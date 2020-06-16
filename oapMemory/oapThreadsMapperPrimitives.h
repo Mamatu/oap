@@ -17,24 +17,19 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_THREAD_MAPPER_PRIMITIVES_H
-#define OAP_THREAD_MAPPER_PRIMITIVES_H
+#ifndef OAP_THREADS_MAPPER_PRIMITIVES_H
+#define OAP_THREADS_MAPPER_PRIMITIVES_H
 
 #define OAP_MAPPER_MODE__RELATIVE_SHARED_POINTERS 1
 
-#if 0
 namespace oap
 {
-namespace threads
-{
 
-struct ThreadsMapper
+struct ThreadsMapperS
 {
   char mode;
   void* data;
 };
 
 }
-}
-#endif
 #endif

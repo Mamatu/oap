@@ -417,6 +417,7 @@ void Kernel::calculateThreadsBlocks(uint blocks[2], uint threads[2],
                                     uint w, uint h)
 {
   SetThreadsBlocks(blocks, threads, w, h, getMaxThreadsPerBlock());
+  abort();
 }
 
 void Kernel::calculateThreadsBlocksDevice(uint blocks[2], uint threads[2],

@@ -22,7 +22,7 @@
 
 #include "Matrix.h"
 #include "oapMemory_CommonApi.h"
-#include "oapThreadMapperPrimitives.h"
+#include "oapThreadsMapperPrimitives.h"
 #if 0
 namespace oap
 {

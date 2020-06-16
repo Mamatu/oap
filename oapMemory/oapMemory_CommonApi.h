@@ -163,6 +163,15 @@ __hostdeviceinline__ uintt GetIdx (const oap::Memory& memory, const oap::MemoryR
   return bufferIndex;
 }
 
+__hostdeviceinline__ uintt GetMemoryIdx (const oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y)
+{
+  //debugAssert (!isRegion (reg) || memory.dims.width >= reg.loc.x + reg.dims.width);
+  //debugAssert (!isRegion (reg) || memory.dims.height >= reg.loc.y + reg.dims.height);
+  const uintt bufferIndex = x + memory.dims.width * y;
+  debugAssert (bufferIndex < memory.dims.width * memory.dims.height);
+  return bufferIndex;
+}
+
 __hostdeviceinline__ oap::MemoryLoc ConvertDimsIdxToLoc (uintt idx, const oap::MemoryDims& dims)
 {
   debugAssert (idx < dims.width * dims.height);

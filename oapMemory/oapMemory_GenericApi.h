@@ -78,58 +78,52 @@ namespace utils
     getPtrs (container, memory.ptr, memory.dims, region);
   }
 }
+
 namespace generic
 {
-  template<typename Allocator>
-  oap::Memory newMemory (const MemoryDims& dims, Allocator&& allocator)
+  template<typename Allocator, typename RegisterPtr>
+  oap::Memory newMemory (const MemoryDims& dims, Allocator&& allocator, RegisterPtr&& registerPtr)
   {
     logAssert (dims.width > 0 && dims.height > 0);
     floatt* ptr = allocator (dims);
     logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
+    registerPtr (ptr); 
     return {ptr, dims};
   }
 
-  template<typename Allocator>
-  oap::Memory newMemoryWithValues (const MemoryDims& dims, floatt value, Allocator&& allocator)
+  template<typename Memcpy>
+  void copyMemory (oap::Memory& dst, const oap::Memory& src, Memcpy&& memcpy)
   {
-    logAssert (dims.width > 0 && dims.height > 0);
-    floatt* ptr = allocator (dims, value);
-    logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
-    return {ptr, dims};
+    logAssert (dst.dims.width * dst.dims.height == src.dims.width * src.dims.height);
+    memcpy (dst.ptr, src.ptr, dst.dims.width * dst.dims.height * sizeof (floatt));
   }
 
-  template<typename Allocator>
-  oap::Memory newMemoryCopy (const oap::Memory& src, Allocator&& allocator)
+  template<typename RegisterPtr>
+  oap::Memory reuseMemory (const oap::Memory& src, uintt width, uintt height, RegisterPtr&& registerPtr)
   {
-    floatt* ptr = allocator (src.ptr, src.dims);
-    logTrace ("ptr = %p dims = %s", ptr, std::to_string(src.dims).c_str());
-    return {ptr, src.dims};
-  }
-
-  template<typename Allocator>
-  oap::Memory newMemoryCopyMem (const oap::Memory& src, uintt width, uintt height, Allocator&& allocator)
-  {
-    debugAssert (width * height == src.dims.width * src.dims.height && width * height != 0);
-    floatt* ptr = allocator (src.ptr, src.dims, {width, height});
+    floatt* ptr = src.ptr;
     oap::MemoryDims dims = {width, height};
     logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
+    registerPtr (ptr);
     return {ptr, dims};
   }
 
-#if 0
-  template<typename Allocator>
-  oap::Memory reuseMemory (const oap::Memory& src, uintt width, uintt height, Allocator&& allocator)
+  template<typename Deallocator, typename UnregisterPtr>
+  bool deleteMemory (const oap::Memory& mem, Deallocator&& deallocator, UnregisterPtr&& unregisterPtr)
   {
-    floatt* ptr = allocator (src.ptr, src.dims, {width, height});
-    oap::MemoryDims dims = {width, height};
-    logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
-    return {ptr, dims};
-  }
-#endif
-  template<typename Deallocator>
-  void deleteMemory (const oap::Memory& mem, Deallocator&& deallocator)
-  {
-    return deallocator (mem);
+    if (mem.ptr == nullptr)
+    {
+      return false;
+    }
+
+    uintt counter = unregisterPtr (mem.ptr);
+
+    if (counter == 0)
+    {
+      deallocator (mem);
+      return true;
+    }
+    return false;
   }
 
   template<typename GetD>
@@ -247,7 +241,6 @@ namespace generic
   {
     copy<Memcpy> (dst, dstDims, dstLoc, src, srcDims, srcReg == nullptr ? common::OAP_NONE_REGION() : *srcReg, memcpy);
   }
-
 
   template<typename MemoryVec, typename Allocator, typename Memcpy>
   oap::Memory newMemory_bulk (const MemoryVec& vec, const oap::DataDirection& dd, Allocator&& alloc, Memcpy&& memcpy)

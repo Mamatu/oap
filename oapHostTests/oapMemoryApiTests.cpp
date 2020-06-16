@@ -17,21 +17,31 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This code is inspired by https://github.com/dmcrodrigues/macro-logger/blob/master/macrologger.h
+#include "gtest/gtest.h"
+#include "oapHostMemoryApi.h"
 
-#ifndef OAP_ASSERTION_H
-#define	OAP_ASSERTION_H
+class OapMemoryApiTests : public testing::Test
+{
+ public:
 
-#include <assert.h>
+  virtual void SetUp() {}
 
-#ifdef DEBUG
-#define debugAssert(x) assert(x);
-#else
-#define debugAssert(x)
-#endif
-#define oapDebugAssert(x) debugAssert(x)
+  virtual void TearDown() {}
+};
 
-#define logAssert(x) assert(x);
-#define logAssertMsg(x, msg, ...) if (!(x)) { fprintf(stderr, msg, ##__VA_ARGS__); abort(); }
-#define oapAssert(x) logAssert(x)
-#endif
+TEST_F(OapMemoryApiTests, Test_1)
+{
+  oap::Memory memory = oap::host::NewMemory ({1, 1});
+  oap::Memory memory1 = oap::host::ReuseMemory (memory);
+  oap::Memory memory2 = oap::host::ReuseMemory (memory);
+
+  oap::host::DeleteMemory (memory);
+  oap::host::DeleteMemory (memory1);
+  oap::host::DeleteMemory (memory2);
+}
+
+TEST_F(OapMemoryApiTests, Test_2)
+{
+  oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 2.f);
+  oap::host::DeleteMemory (memory);
+}

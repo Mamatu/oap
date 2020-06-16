@@ -41,9 +41,10 @@ oap::Memory NewMemoryDeviceCopy (const oap::Memory& src);
 oap::Memory NewMemoryHostCopy (const oap::Memory& src);
 oap::Memory NewMemoryDeviceCopyMem (const oap::Memory& src, uintt width, uintt height);
 oap::Memory NewMemoryHostCopyMem (const oap::Memory& src, uintt width, uintt height);
-#if 0
+
 oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height);
-#endif
+oap::Memory ReuseMemory (const oap::Memory& src);
+
 void DeleteMemory (const oap::Memory& mem);
 
 oap::MemoryDims GetDims (const oap::Memory& mem);

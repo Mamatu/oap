@@ -22,6 +22,7 @@
 
 #include "Matrix.h"
 #include "oapThreadsMapperApi.h"
+#include "oapThreadsMapperPrimitives.h"
 #include "GenericProceduresApi.h"
 
 namespace oap
@@ -29,8 +30,8 @@ namespace oap
 namespace generic
 {
 
-template<typename Matrices, typename CreateThreadsMapper, typename Malloc, typename Free, typename Memcpy>
-bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap::IKernelExecutor* kexec, CreateThreadsMapper&& createThreadsMapper, Malloc&& malloc, Free&& free, Memcpy&& memcpy)
+template<typename Matrices, typename GetThreadsMapperCreator, typename Malloc, typename Free, typename Memcpy>
+bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap::IKernelExecutor* kexec, GetThreadsMapperCreator&& getThreadsMapperCreator, Malloc&& malloc, Free&& free, Memcpy&& memcpy)
 {
   math::Matrix** doutput = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
   math::Matrix** dparams1 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
@@ -38,10 +39,10 @@ bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap:
   memcpy (doutput, output.data(), sizeof(math::Matrix*) * output.size());
   memcpy (dparams1, params1.data(), sizeof(math::Matrix*) * output.size());
 
-  oap::threads::ThreadsMapper mapper = createThreadsMapper (output);
+  oap::threads::ThreadsMapper mapper = getThreadsMapperCreator (output);
 
   uintt* buffer = static_cast<uintt*>(malloc (sizeof(uintt*) * mapper.getWidth() * mapper.getHeight()));
-  mapper.map (buffer);
+  oap::ThreadsMapperS* tmS = mapper.map (buffer);
 
   const void* params[] = {&doutput, &dparams1, &dvalue, &buffer};
   const char* kname = "CUDAKernel_GenericApi_AddConstant";

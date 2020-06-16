@@ -36,7 +36,7 @@
 #include "GenericCoreApi.h"
 
 #include "MatricesList.h"
-#include "oapMemoryManager.h"
+#include "oapMemoryCounter.h"
 #include "oapHostMemoryApi.h"
 
 #define ReIsNotNULL(m) gReValues (m) != nullptr
@@ -84,6 +84,7 @@ namespace host
 
 namespace
 {
+#if 0
 std::map<floatt*, uintt> g_usedMemoryCounter;
 
 void registerMemory (const oap::Memory& memory)
@@ -113,7 +114,7 @@ void unregisterMemory (const oap::Memory& memory, Callback&& callback)
     }
   }
 }
-
+#endif
 MatricesList g_matricesList ("MATRICES_HOST");
 
 math::Matrix* allocMatrix (const math::Matrix& ref)
@@ -121,9 +122,6 @@ math::Matrix* allocMatrix (const math::Matrix& ref)
   math::Matrix* output = NEW_MATRIX();
 
   memcpy (output, &ref, sizeof(math::Matrix));
-
-  registerMemory (ref.re);
-  registerMemory (ref.im);
 
   g_matricesList.add (output, CreateMatrixInfo (output));
 
@@ -350,8 +348,8 @@ void DeleteMatrix(const math::Matrix* matrix)
 
   auto minfo = g_matricesList.remove (matrix);
 
-  unregisterMemory (matrix->re, oap::host::DeleteMemory);
-  unregisterMemory (matrix->im, oap::host::DeleteMemory);
+  oap::host::DeleteMemory (matrix->re);
+  oap::host::DeleteMemory (matrix->im);
 
   DELETE_MATRIX(matrix);
 
@@ -1257,7 +1255,7 @@ inline math::Matrix* allocReMatrix_FromMemory (oap::Memory& mem, const oap::Memo
 {
   math::Matrix hostRefMatrix;
 
-  hostRefMatrix.re = mem;
+  hostRefMatrix.re = oap::host::ReuseMemory (mem);
   hostRefMatrix.reReg = reg;
   hostRefMatrix.im = {nullptr, {0, 0}};
   hostRefMatrix.imReg = {{0, 0}, {0, 0}};
@@ -1271,7 +1269,7 @@ inline math::Matrix* allocImMatrix_FromMemory (oap::Memory& mem, const oap::Memo
 
   hostRefMatrix.re = {nullptr, {0, 0}};
   hostRefMatrix.reReg = {{0, 0}, {0, 0}};
-  hostRefMatrix.im = mem;
+  hostRefMatrix.im = oap::host::ReuseMemory (mem);
   hostRefMatrix.imReg = reg;
 
   return allocMatrix (hostRefMatrix);
@@ -1281,9 +1279,9 @@ inline math::Matrix* allocRealMatrix_FromMemory (oap::Memory& remem, const oap::
 {
   math::Matrix hostRefMatrix;
 
-  hostRefMatrix.re = remem;
+  hostRefMatrix.re = oap::host::ReuseMemory (remem);
   hostRefMatrix.reReg = rereg;
-  hostRefMatrix.im = immem;
+  hostRefMatrix.im = oap::host::ReuseMemory (immem);
   hostRefMatrix.imReg = imreg;
 
   return allocMatrix (hostRefMatrix);
