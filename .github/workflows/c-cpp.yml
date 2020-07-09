@@ -13,8 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: sudo apt-get install libgtest-dev
-      run: sudo apt-get install libgtest-dev
+    - name: sudo apt-get install gmock gtest
+      run: sudo apt-get install gmock gtest
     - name: make clean
       run: make clean
       env:
