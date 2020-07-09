@@ -18,7 +18,7 @@ jobs:
     - name: make clean
       run: make clean
       env:
-        OAP_GMOCK_PATH: ""
-        OAP_GTEST_PATH: ""
+        OAP_GMOCK_PATH: /usr/src/gmock
+        OAP_GTEST_PATH: /usr/src/gtest
     - name: make
       run: make
