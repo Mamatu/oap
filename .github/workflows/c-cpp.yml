@@ -17,5 +17,8 @@ jobs:
       run: sudo apt-get install libgtest-dev
     - name: make clean
       run: make clean
+      env:
+        OAP_GMOCK_PATH: ""
+        OAP_GTEST_PATH: ""
     - name: make
       run: make
