@@ -21,4 +21,10 @@ jobs:
         OAP_GMOCK_PATH: /usr/src/gmock
         OAP_GTEST_PATH: /usr/src/gtest
         OAP_BUILD_THREADS: 4
+    - name: make and run tests in release mode
+      run: cd scripts && bash download_module_data.sh oapNeural && cd .. && make clean && make MODE=Release TARGET_ARCH=HOST && ./dist/DebugSanitizer/x86/bin/oapHostTests --gtest_shuffle && ./dist/DebugSanitizer/x86/bin/oapAppUtilsTests --gtest_shuffle && ./dist/DebugSanitizer/x86/bin/oapNeuralRoutinesHostTests --gtest_shuffle && ./dist/DebugSanitizer/x86/bin/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadDigit0" && ./dist/DebugSanitizer/x86/bin/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadRow0"
+      env:
+        OAP_GMOCK_PATH: /usr/src/gmock
+        OAP_GTEST_PATH: /usr/src/gtest
+        OAP_BUILD_THREADS: 4
 
