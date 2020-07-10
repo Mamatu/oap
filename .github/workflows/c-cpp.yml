@@ -20,5 +20,6 @@ jobs:
       env:
         OAP_GMOCK_PATH: /usr/src/gmock
         OAP_GTEST_PATH: /usr/src/gtest
+        OAP_BUILD_THREADS: 4
     - name: make
       run: make
