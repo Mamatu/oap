@@ -15,11 +15,14 @@ jobs:
     - uses: actions/checkout@v2
     - name: sudo apt-get install libgtest-dev
       run: sudo apt-get install libgtest-dev
-    - name: make clean
-      run: make clean
+    - name: make and run tests in sanitizer mode
+      run: make clean && make MODE=DebugSanitizer && ./dist/DebugSanitizer/x86/bin/oapHostTests --gtest_shuffle
+      && ./dist/DebugSanitizer/x86/bin/oapAppUtilsTests --gtest_shuffle
+      && ./dist/DebugSanitizer/x86/bin/oapNeuralRoutinesHostTests --gtest_shuffle
+      && ./dist/DebugSanitizer/x86/bin/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadDigit0"
+      && ./dist/DebugSanitizer/x86/bin/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadRow0"
+
       env:
         OAP_GMOCK_PATH: /usr/src/gmock
         OAP_GTEST_PATH: /usr/src/gtest
         OAP_BUILD_THREADS: 4
-    - name: make
-      run: make
