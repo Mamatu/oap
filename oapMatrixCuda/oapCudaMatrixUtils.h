@@ -248,12 +248,12 @@ math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
 template<typename Matrices>
-oap::threads::ThreadsMapper createThreadsMapper (const Matrices& matrices)
+oap::ThreadsMapper createThreadsMapper (const std::vector<Matrices*>& matrices)
 {
-  return oap::threads::createThreadsMapper (matrices, oap::cuda::GetMatrixInfo, CudaUtils::CopyHostToDevice);
+  return oap::threads::createThreadsMapper (matrices, oap::cuda::GetMatrixInfo, CudaUtils::Malloc, CudaUtils::CopyHostToDevice, CudaUtils::Free);
 }
 
-oap::threads::ThreadsMapper CreateThreadsMapper (const std::vector<math::Matrix*>& matrices);
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<const std::vector<math::Matrix*>*>& matrices);
 
 }
 }

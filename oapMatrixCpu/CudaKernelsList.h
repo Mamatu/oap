@@ -232,7 +232,7 @@ void proxy_HOSTKernel_getVector (const void** params)
   HOSTKernel_getVector (v, length, V, column);
 }
 
-void HOSTKernel_GenericApi_AddConstant (math::Matrix** outputs, math::Matrix* const* params1, floatt params2, uintt* mapper)
+void HOSTKernel_GenericApi_AddConstant (math::Matrix** outputs, math::Matrix* const* params1, floatt params2, oap::ThreadsMapperS* mapper)
 {
   CUDA_GenericApi_AddConstant (outputs, params1, params2, mapper);
 }
@@ -241,10 +241,10 @@ void proxy_HOSTKernel_GenericApi_AddConstant (const void** params)
 {
   math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
   math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
-  uintt params2 = *static_cast<const uintt*> (params[2]);
-  uintt* buffer = getParam<uintt> (params[3]);
+  floatt params2 = *static_cast<const floatt*> (params[2]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[3]);
 
-  HOSTKernel_GenericApi_AddConstant (outputs, params1, params2, buffer);
+  HOSTKernel_GenericApi_AddConstant (outputs, params1, params2, mapper);
 }
 
 #endif

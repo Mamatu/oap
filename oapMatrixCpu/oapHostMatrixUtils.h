@@ -756,12 +756,12 @@ void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uin
 void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
 template<typename Matrices>
-oap::threads::ThreadsMapper createThreadsMapper (const Matrices& matrices)
+oap::ThreadsMapper createThreadsMapper (const std::vector<Matrices*>& matricesVec)
 {
-  return oap::threads::createThreadsMapper (matrices, oap::host::GetMatrixInfo, memcpy);
+  return oap::threads::createThreadsMapper (matricesVec, oap::host::GetMatrixInfo, malloc, memcpy, free);
 }
 
-oap::threads::ThreadsMapper CreateThreadsMapper (const std::vector<math::Matrix*>& matrices);
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<const std::vector<math::Matrix*>*>& matrices);
 
 math::Matrix* NewMatrixFromMemory (uintt columns, uintt rows, oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
 math::Matrix* NewReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);

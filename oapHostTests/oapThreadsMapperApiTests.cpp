@@ -23,6 +23,7 @@
 #include "gtest/gtest.h"
 #include "oapHostMatrixUtils.h"
 #include "oapHostMatrixUPtr.h"
+#include "oapHostMemoryApi.h"
 #include "oapThreadsMapperApi.h"
 
 class OapThreadsMapperApiTests : public testing::Test
@@ -33,32 +34,35 @@ class OapThreadsMapperApiTests : public testing::Test
 
   virtual void TearDown() {}
 };
-
+#if 0
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_1)
 {
   oap::HostMatrixUPtr m1 = oap::host::NewMatrix (1, 1);
   std::vector<math::Matrix*> matrices = {m1};
-  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, memcpy);
+  auto mapper = oap::threads::createThreadsMapper (matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
   ASSERT_EQ (1, mapper.getLength());
 
-  std::unique_ptr<uintt[]> buffer (new uintt[1]);
-  mapper.map(buffer.get());
+  oap::ThreadsMapperS* tms = mapper.create();
 
-  EXPECT_EQ (0, buffer[0]);
+  uintt* buffer = static_cast<uintt*>(tms->data);
+  EXPECT_EQ (0, buffer);
+
+  mapper.destroy (tms);
 }
 
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_2)
 {
-  oap::HostMatrixUPtr m1 = oap::host::NewMatrix (1, 1);
-  oap::HostMatrixUPtr m2 = oap::host::NewMatrix (2, 2);
+  oap::Memory memory = oap::host::NewMemoryWithValues ({3, 2}, 0.);
+  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (2, 2, memory, {1, 0});
   std::vector<math::Matrix*> matrices = {m1, m2};
-  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, memcpy);
+  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
   ASSERT_EQ (6, mapper.getLength());
 
-  std::unique_ptr<uintt[]> buffer (new uintt[6]);
-  mapper.map(buffer.get());
+  oap::ThreadsMapperS* tms = mapper.create();
+  uintt* buffer = static_cast<uintt*>(tms->data);
 
   EXPECT_EQ (0, buffer[0]);
   EXPECT_TRUE (MAX_UINTT == buffer[1] || 1 == buffer[1]);
@@ -67,20 +71,26 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_2)
   EXPECT_EQ (1, buffer[4]);
   EXPECT_EQ (1, buffer[5]);
   EXPECT_NE (buffer[1], buffer[3]);
+
+  oap::host::DeleteMemory (memory);
+  mapper.destroy (tms);
 }
 
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_3)
 {
-  oap::HostMatrixUPtr m1 = oap::host::NewMatrix (1, 1);
-  oap::HostMatrixUPtr m2 = oap::host::NewMatrix (1, 2);
-  oap::HostMatrixUPtr m3 = oap::host::NewMatrix (1, 3);
+  oap::Memory memory = oap::host::NewMemoryWithValues ({1, 6}, 0.);
+
+  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (1, 2, memory, {0, 1});
+  oap::HostMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (1, 3, memory, {0, 3});
+
   std::vector<math::Matrix*> matrices = {m1, m2, m3};
-  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, memcpy);
+  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
   ASSERT_EQ (6, mapper.getLength());
 
-  std::unique_ptr<uintt[]> buffer (new uintt[6]);
-  mapper.map(buffer.get());
+  oap::ThreadsMapperS* tms = mapper.create();
+  uintt* buffer = static_cast<uintt*>(tms->data);
 
   EXPECT_EQ (0, buffer[0]);
   EXPECT_EQ (1, buffer[1]);
@@ -88,20 +98,25 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_3)
   EXPECT_EQ (2, buffer[3]);
   EXPECT_EQ (2, buffer[4]);
   EXPECT_EQ (2, buffer[5]);
+
+  oap::host::DeleteMemory (memory);
+  mapper.destroy (tms);
 }
 
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_4)
 {
-  oap::HostMatrixUPtr m1 = oap::host::NewMatrix (1, 1);
-  oap::HostMatrixUPtr m2 = oap::host::NewMatrix (2, 1);
-  oap::HostMatrixUPtr m3 = oap::host::NewMatrix (3, 1);
+  oap::Memory memory = oap::host::NewMemoryWithValues ({6, 1}, 0.);
+
+  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (2, 1, memory, {1, 0});
+  oap::HostMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (3, 1, memory, {3, 0});
   std::vector<math::Matrix*> matrices = {m1, m2, m3};
-  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, memcpy);
+  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
   ASSERT_EQ (6, mapper.getLength());
 
-  std::unique_ptr<uintt[]> buffer (new uintt[6]);
-  mapper.map(buffer.get());
+  oap::ThreadsMapperS* tms = mapper.create();
+  uintt* buffer = static_cast<uintt*>(tms->data);
 
   EXPECT_EQ (0, buffer[0]);
   EXPECT_EQ (1, buffer[1]);
@@ -109,48 +124,87 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_4)
   EXPECT_EQ (2, buffer[3]);
   EXPECT_EQ (2, buffer[4]);
   EXPECT_EQ (2, buffer[5]);
+
+  oap::host::DeleteMemory (memory);
+  mapper.destroy (tms);
 }
 
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_5)
 {
-  oap::HostMatrixUPtr m1 = oap::host::NewMatrix (1, 1);
-  oap::HostMatrixUPtr m2 = oap::host::NewMatrix (2, 1);
-  oap::HostMatrixUPtr m3 = oap::host::NewMatrix (3, 2);
+  oap::Memory memory = oap::host::NewMemoryWithValues ({6, 1}, 0.);
+
+  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (2, 1, memory, {1, 0});
+  oap::HostMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (3, 2, memory, {3, 0});
   std::vector<math::Matrix*> matrices = {m1, m2, m3};
-  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, memcpy);
+  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
   ASSERT_EQ (12, mapper.getLength());
 
-  std::vector<uintt> buffer(12, MAX_UINTT);
-  mapper.map(buffer.data());
+  oap::ThreadsMapperS* tms = mapper.create();
 
   std::vector<uintt> array =
   {
     0, 1, 1, 2, 2, 2, MAX_UINTT, MAX_UINTT, MAX_UINTT, 2, 2, 2
   };
 
-  EXPECT_EQ (array, buffer);
+  uintt* buffer = static_cast<uintt*>(tms->data);
+  EXPECT_EQ (array, std::vector<uintt>(buffer, buffer + array.size()));
+
+  oap::host::DeleteMemory (memory);
+  mapper.destroy (tms);
 }
 
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_6)
 {
-  oap::HostMatrixUPtr m1 = oap::host::NewMatrix (1, 1);
-  oap::HostMatrixUPtr m2 = oap::host::NewMatrix (1, 2);
-  oap::HostMatrixUPtr m3 = oap::host::NewMatrix (3, 2);
+  oap::Memory memory = oap::host::NewMemoryWithValues ({5, 2}, 0.);
+  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (1, 2, memory, {1, 0});
+  oap::HostMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (3, 2, memory, {2, 0});
   std::vector<math::Matrix*> matrices = {m1, m2, m3};
-  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, memcpy);
+  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
   ASSERT_EQ (10, mapper.getLength());
 
-  std::vector<uintt> buffer(10, MAX_UINTT);
-  mapper.map(buffer.data());
+  oap::ThreadsMapperS* tms = mapper.create();
 
   std::vector<uintt> array =
   {
     0, 1, 2, 2, 2, MAX_UINTT, 1, 2, 2, 2
   };
 
-  EXPECT_EQ (array, buffer);
+  uintt* buffer = static_cast<uintt*>(tms->data);
+  EXPECT_EQ (array, std::vector<uintt>(buffer, buffer + array.size()));
+  oap::host::DeleteMemory (memory);
+  mapper.destroy (tms);
+}
+
+TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_7)
+{
+  oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 0.);
+  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
+
+  std::vector<math::Matrix*> matrices = {output1, output2};
+
+  auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
+
+  EXPECT_EQ (2, mapper.getLength());
+  EXPECT_EQ (2, mapper.getWidth());
+  EXPECT_EQ (1, mapper.getHeight());
+
+  oap::ThreadsMapperS* tms = mapper.create();
+
+  std::vector<uintt> array =
+  {
+    0, 1
+  };
+
+  uintt* buffer = static_cast<uintt*>(tms->data);
+  EXPECT_EQ (array, std::vector<uintt>(buffer, buffer + array.size()));
+
+  oap::host::DeleteMemory (memory);
+  mapper.destroy (tms);
 }
 
 #if 0
@@ -256,4 +310,5 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsTest_8)
     EXPECT_EQ (4, oap::threads::getYThreads (regions));
   }
 }
+#endif
 #endif

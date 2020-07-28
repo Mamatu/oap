@@ -518,7 +518,7 @@ CUDAKernel_PoolAverage (math::Matrix* output, math::Matrix* matrix, uintt* ex)
 }
 
 extern "C" __global__ void
-CUDAKernel_GenericApi_AddConstant (math::Matrix** outputs, math::Matrix* const* params1, floatt params2, uintt* mapper)
+CUDAKernel_GenericApi_AddConstant (math::Matrix** outputs, math::Matrix* const* params1, floatt params2, oap::ThreadsMapperS* mapper)
 {
   CUDA_GenericApi_AddConstant (outputs, params1, params2, mapper);
 }

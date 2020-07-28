@@ -22,6 +22,7 @@
 
 #include "Matrix.h"
 #include "oapThreadsMapperApi.h"
+#include "oapThreadsMapperC.h"
 #include "GenericProceduresApi.h"
 
 namespace oap
@@ -29,8 +30,8 @@ namespace oap
 namespace generic
 {
 
-template<typename Matrices, typename CreateThreadsMapper, typename Malloc, typename Free, typename Memcpy>
-bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap::IKernelExecutor* kexec, CreateThreadsMapper&& createThreadsMapper, Malloc&& malloc, Free&& free, Memcpy&& memcpy)
+template<typename Matrices, typename GetThreadsMapper, typename Malloc, typename Free, typename Memcpy>
+bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap::IKernelExecutor* kexec, GetThreadsMapper&& getThreadsMapper, Malloc&& malloc, Free&& free, Memcpy&& memcpy)
 {
   math::Matrix** doutput = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
   math::Matrix** dparams1 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
@@ -38,12 +39,13 @@ bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap:
   memcpy (doutput, output.data(), sizeof(math::Matrix*) * output.size());
   memcpy (dparams1, params1.data(), sizeof(math::Matrix*) * output.size());
 
-  oap::threads::ThreadsMapper mapper = createThreadsMapper (output);
+  const Matrices* output_ptr = &output;
+  const Matrices* params1_ptr = &params1;
+  const std::vector<const Matrices*> mvecs = {output_ptr, params1_ptr};
+  oap::ThreadsMapper mapper = getThreadsMapper (mvecs);
+  oap::ThreadsMapperS* tmS = mapper.create ();
 
-  uintt* buffer = static_cast<uintt*>(malloc (sizeof(uintt*) * mapper.getWidth() * mapper.getHeight()));
-  mapper.map (buffer);
-
-  const void* params[] = {&doutput, &dparams1, &dvalue, &buffer};
+  const void* params[] = {&doutput, &dparams1, &dvalue, &tmS};
   const char* kname = "CUDAKernel_GenericApi_AddConstant";
 
   oap::generic::Args args (mapper.getWidth(), mapper.getHeight());
@@ -56,7 +58,7 @@ bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap:
 
   free (doutput);
   free (dparams1);
-  free (buffer);
+  mapper.destroy (tmS);
 
   return status;
 }

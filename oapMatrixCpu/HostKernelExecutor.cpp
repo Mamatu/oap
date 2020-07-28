@@ -129,4 +129,3 @@ bool HostKernelExecutor::run (const char* functionName)
 
   return true;
 }
-

@@ -25,6 +25,18 @@
 
 #include "CuCore.h"
 
+/**
+ * Macro section
+ */
+#define _memoryIdxX() blockIdx.x * blockDim.x + threadIdx.x
+#define _memoryIdxY() blockIdx.y * blockDim.y + threadIdx.y
+#define _memoryWidth() blockDim.x * gridDim.x
+#define _memoryHeight() blockDim.y * gridDim.y
+
+
+/**
+ * API section
+ */
 namespace oap
 {
 namespace common
@@ -90,6 +102,7 @@ __hostdeviceinline__ bool CompareMemoryRegion (const oap::MemoryRegion& reg1, co
 {
   return reg1.loc.x == reg2.loc.x && reg1.loc.y == reg2.loc.y && reg1.dims.width == reg2.dims.width && reg1.dims.height == reg2.dims.height;
 }
+
 
 #if 0
 __hostdeviceinline__ bool isNone (const oap::MemoryRegion& reg)
@@ -159,6 +172,15 @@ __hostdeviceinline__ uintt GetIdx (const oap::Memory& memory, const oap::MemoryR
   debugAssert (!isRegion (reg) || memory.dims.width >= reg.loc.x + reg.dims.width);
   debugAssert (!isRegion (reg) || memory.dims.height >= reg.loc.y + reg.dims.height);
   const uintt bufferIndex = (x + GetLocX (reg)) + memory.dims.width * (y + GetLocY (reg));
+  debugAssert (bufferIndex < memory.dims.width * memory.dims.height);
+  return bufferIndex;
+}
+
+__hostdeviceinline__ uintt GetMemoryIdx (const oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y)
+{
+  //debugAssert (!isRegion (reg) || memory.dims.width >= reg.loc.x + reg.dims.width);
+  //debugAssert (!isRegion (reg) || memory.dims.height >= reg.loc.y + reg.dims.height);
+  const uintt bufferIndex = x + memory.dims.width * y;
   debugAssert (bufferIndex < memory.dims.width * memory.dims.height);
   return bufferIndex;
 }

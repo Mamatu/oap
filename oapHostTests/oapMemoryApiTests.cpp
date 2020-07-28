@@ -17,24 +17,31 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_THREAD_MAPPER_PRIMITIVES_H
-#define OAP_THREAD_MAPPER_PRIMITIVES_H
+#include "gtest/gtest.h"
+#include "oapHostMemoryApi.h"
 
-#define OAP_MAPPER_MODE__RELATIVE_SHARED_POINTERS 1
+class OapMemoryApiTests : public testing::Test
+{
+ public:
 
-#if 0
-namespace oap
-{
-namespace threads
-{
+  virtual void SetUp() {}
 
-struct ThreadsMapper
-{
-  char mode;
-  void* data;
+  virtual void TearDown() {}
 };
 
+TEST_F(OapMemoryApiTests, Test_1)
+{
+  oap::Memory memory = oap::host::NewMemory ({1, 1});
+  oap::Memory memory1 = oap::host::ReuseMemory (memory);
+  oap::Memory memory2 = oap::host::ReuseMemory (memory);
+
+  oap::host::DeleteMemory (memory);
+  oap::host::DeleteMemory (memory1);
+  oap::host::DeleteMemory (memory2);
 }
+
+TEST_F(OapMemoryApiTests, Test_2)
+{
+  oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 2.f);
+  oap::host::DeleteMemory (memory);
 }
-#endif
-#endif

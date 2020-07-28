@@ -17,21 +17,19 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This code is inspired by https://github.com/dmcrodrigues/macro-logger/blob/master/macrologger.h
+#ifndef OAP_THREADS_MAPPER_S_H
+#define OAP_THREADS_MAPPER_S_H
 
-#ifndef OAP_ASSERTION_H
-#define	OAP_ASSERTION_H
+#define OAP_THREADS_MAPPER_MODE__SIMPLE 1
 
-#include <assert.h>
+namespace oap
+{
 
-#ifdef DEBUG
-#define debugAssert(x) assert(x);
-#else
-#define debugAssert(x)
-#endif
-#define oapDebugAssert(x) debugAssert(x)
+struct ThreadsMapperS
+{
+  char mode;
+  void* data;
+};
 
-#define logAssert(x) assert(x);
-#define logAssertMsg(x, msg, ...) if (!(x)) { fprintf(stderr, msg, ##__VA_ARGS__); abort(); }
-#define oapAssert(x) logAssert(x)
+}
 #endif

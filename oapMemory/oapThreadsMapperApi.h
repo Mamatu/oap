@@ -28,7 +28,9 @@
 #include <vector>
 
 #include "oapMemoryPrimitivesApi.h"
-#include "oapThreadMapperPrimitives.h"
+#include "oapThreadsMapperApi_AbsIndexAlgo.h"
+#include "oapThreadsMapperS.h"
+#include "oapThreadsMapperC.h"
 
 namespace oap {
 
@@ -197,8 +199,6 @@ uintt getThreadsCount (Sections& sections, const MemoryRegions& _regions, Sort&&
   return getThreadsSectionsSum (sections);
 }
 
-
-
 template<typename MemoryRegions>
 uintt getXThreads (const MemoryRegions& regions)
 {
@@ -217,152 +217,10 @@ uintt getYThreads (const MemoryRegions& regions)
 #endif
 }
 
-enum ThreadsCalcAlgo
+template<typename MatricesLine, typename GetMatrixInfo,  typename Malloc, typename Memcpy, typename Free>
+ThreadsMapper createThreadsMapper (const std::vector<const MatricesLine*>& matricesArgs, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
 {
-  SIMPLE_ALGO_1,
-};
-
-class ThreadsMapper
-{
-  public:
-    using Callback = std::function<void(uintt* buffer)>;
-
-    ThreadsMapper (uintt width, uintt height, const Callback& mapping) : m_width(width), m_height(height), m_mapping(mapping)
-    {}
-
-    ThreadsMapper (uintt width, uintt height, Callback&& mapping) : m_width(width), m_height(height), m_mapping(std::move(mapping))
-    {}
-
-    uintt getWidth () const
-    {
-      return m_width;
-    }
-
-    uintt getHeight () const
-    {
-      return m_height;
-    }
-
-    uintt getLength () const 
-    {
-      return getWidth() * getHeight();
-    }
-
-    void map (uintt* buffer) const
-    {
-      m_mapping (buffer);
-    }
-
-  private:
-    uintt m_width;
-    uintt m_height;
-    Callback m_mapping;
-};
-
-template<typename Matrices, typename GetV1V2>
-std::pair<uintt, uintt> getThreadsMapper_SubSimpleAlgo1 (const Matrices& matrices, GetV1V2&& getV1V2)
-{
-  uintt lv1 = 0;
-  uintt lv2 = 0;
-  for (size_t idx = 0; idx < matrices.size(); ++idx) {
-    const math::Matrix* matrix = matrices[idx];
-
-    const auto pair = getV1V2 (matrix);
-    const auto v1 = pair.first;
-    const auto v2 = pair.second;
-
-    lv1 = std::max (v1, lv1);
-    lv2 += v2;
-  }
-  return std::make_pair (lv1, lv2);
-}
-
-template<typename Matrices, typename GetMatrixInfo, typename Memcpy>
-ThreadsMapper getThreadsMapper_SimpleAlgo1 (const Matrices& matrices, GetMatrixInfo&& getMatrixInfo, Memcpy&& memcpy)
-{
-  using Buffer = std::vector<uintt>;
-
-  auto pair1 = getThreadsMapper_SubSimpleAlgo1 (matrices, [&getMatrixInfo](const math::Matrix* matrix)
-      {
-        auto minfo = getMatrixInfo (matrix);
-        return std::make_pair (minfo.columns(), minfo.rows());
-      });
-  auto pair2 = getThreadsMapper_SubSimpleAlgo1 (matrices, [&getMatrixInfo](const math::Matrix* matrix)
-      {
-        auto minfo = getMatrixInfo (matrix);
-        return std::make_pair (minfo.rows(), minfo.columns());
-      });
-
-  const uintt pair1_out = pair1.first * pair1.second;
-  const uintt pair2_out = pair2.first * pair2.second;
-
-  if (pair1_out < pair2_out)
-  {
-    auto algo1 = [matrices, &memcpy, &getMatrixInfo, pair1](uintt* buffer)
-    {
-      Buffer buffer1;
-      for (size_t idx = 0; idx < matrices.size(); ++idx)
-      {
-        math::Matrix* matrix = matrices[idx];
-        auto minfo = getMatrixInfo (matrix);
-
-        debugAssert (minfo.columns() <= pair1.first);
-
-        if (minfo.columns() < pair1.first)
-        {
-          Buffer membuf1 (minfo.columns(), idx);
-          Buffer membuf2 (pair1.first - minfo.columns(), MAX_UINTT);
-          for (size_t row = 0; row < minfo.rows(); ++row)
-          {
-            buffer1.insert (buffer1.end(), membuf1.begin(), membuf1.end());
-            buffer1.insert (buffer1.end(), membuf2.begin(), membuf2.end());
-          }
-        }
-        else
-        {
-          std::vector<uintt> membuf1 (minfo.columns(), idx);
-          for (size_t row = 0; row < minfo.rows(); ++row)
-          {
-            buffer1.insert (buffer1.end(), membuf1.begin(), membuf1.end());
-          }
-        }
-      }
-      memcpy (buffer, buffer1.data(), buffer1.size() * sizeof (Buffer::value_type));
-    };
-    return ThreadsMapper (pair1.first, pair1.second, algo1);
-  }
-
-  auto algo2 = [matrices, &memcpy, &getMatrixInfo, pair2](uintt* buffer)
-  {
-    Buffer membuf1;
-    uintt row = 0, rows = 0;
-    do
-    {
-      for (size_t idx = 0; idx < matrices.size(); ++idx)
-      {
-        math::Matrix* matrix = matrices[idx];
-        auto minfo = getMatrixInfo (matrix);
-        rows = std::max (rows, minfo.rows());
-        if (row < minfo.rows ())
-        {
-          membuf1.insert (membuf1.end(), minfo.columns(), idx);
-        }
-        else
-        {
-          membuf1.insert (membuf1.end(), minfo.columns(), MAX_UINTT);
-        }
-      }
-      ++row;
-    } while (row < rows);
-    memcpy (buffer, membuf1.data(), membuf1.size() * sizeof (Buffer::value_type));
-  };
-  return ThreadsMapper (pair2.first, pair2.second, algo2);
-}
-
-template<typename Matrices, typename GetMatrixInfo, typename Memcpy>
-ThreadsMapper createThreadsMapper (const Matrices& matrices, GetMatrixInfo&& getMatrixInfo, Memcpy&& memcpy)
-{
-  return getThreadsMapper_SimpleAlgo1 (matrices, getMatrixInfo, memcpy);
+  return oap::aia::getThreadsMapper (matricesArgs, getMatrixInfo, malloc, memcpy, free);
 }
 
 }

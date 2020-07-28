@@ -21,50 +21,44 @@
 #define OAP_MEMORY__THREAD_MAPPER_API_H
 
 #include "Matrix.h"
+#include "oapThreadsMapperS.h"
 #include "oapMemory_CommonApi.h"
-#include "oapThreadMapperPrimitives.h"
-#if 0
+#include "oapMemory_ThreadMapperApi_AbsIndexAlgo.h"
+
 namespace oap
 {
 namespace threads
 {
 
-__hostdeviceinline__ void GetMapping_RelativeSharedPointers (dim3& memoryIdx, dim3& matrixIdx, const dim3& threadIdx, const dim3& blockIdx, const dim3& blockDim, const dim3& gridDim, const ThreadsMapper* mapper)
+__hostdeviceinline__ uintt GetIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const Memory& memory, const MemoryRegion& region, const ThreadsMapperS* mapper, uintt argIdx)
 {
-/*  math::Matrix** matrices = static_cast<math::Matrix**>(mapper->data);
-  math::Matrix* matrixPtr = matrices[threadIdx.y * blockDim.x + threadIdx.x];
-  matrixIdx.x = matrixPtr->loc.x;
-  matrixIdx.y = matrixPtr->loc.y;
-  memoryIdx.x = matrixIdx.x + threadIdx.x;
-  memoryIdx.y = matrixIdx.y + threadIdx.y;*/
-}
-
-__hostdeviceinline__ void GetMapping (dim3& memoryIdx, dim3& matrixIdx, const dim3& threadIdx, const dim3& blockIdx, const dim3& blockDim, const dim3& gridDim, const ThreadsMapper* mapper)
-{
-  if (mapper->mode == OAP_MAPPER_MODE__RELATIVE_SHARED_POINTERS)
+  switch (mapper->mode)
   {
-    GetMapping_RelativeSharedPointers (memoryIdx, matrixIdx, threadIdx, blockIdx, blockDim, gridDim, mapper);
-  }
+    case OAP_THREADS_MAPPER_MODE__SIMPLE:
+      return aia::GetIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, memory, region, mapper, argIdx);
+
+    default:
+      return aia::GetIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, memory, region, mapper, argIdx);
+  };
+}
+
+__hostdeviceinline__ bool InRange (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const ThreadsMapperS* mapper)
+{
+  switch (mapper->mode)
+  {
+    case OAP_THREADS_MAPPER_MODE__SIMPLE:
+      return aia::InRange_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, mapper);
+
+    default:
+      return aia::InRange_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, mapper);
+  };
 }
 
 }
 }
 
-#define oap_CALCULATE_MEM_INDEX(dim) blockIdx.dim * blockDim.dim + threadIdx.dim;
+#define _idx(memory, region, mapper, argIdx) oap::threads::GetIdx(threadIdx, blockIdx, blockDim, gridDim, memory, region, mapper, argIdx)
 
-#define OAP_THREADS_MAPPER(mapper)                                                      \
-  dim3 memoryIdx;                                                                       \
-  dim3 matrixIdx;                                                                       \
-  if (mapper == NULL)                                                                   \
-  {                                                                                     \
-    memoryIdx.x = oap_CALCULATE_MEM_INDEX(x);                                           \
-    memoryIdx.y = oap_CALCULATE_MEM_INDEX(y);                                           \
-    matrixIdx = memoryIdx;                                                              \
-  }                                                                                     \
-  else                                                                                  \
-  {                                                                                     \
-    GetMapping (memoryIdx, matrixIdx, threadIdx, blockIdx, blockDim, gridDim, mapper);  \
-  }
+#define _inRange(mapper) oap::threads::InRange(threadIdx, blockIdx, blockDim, gridDim, mapper) 
 
-#endif
 #endif

@@ -17,21 +17,23 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This code is inspired by https://github.com/dmcrodrigues/macro-logger/blob/master/macrologger.h
+#ifndef OAP_MEMORY__THREAD_MAPPER_API__ABS_INDEX_ALGO__COMMON_API_H
+#define OAP_MEMORY__THREAD_MAPPER_API__ABS_INDEX_ALGO__COMMON_API_H
 
-#ifndef OAP_ASSERTION_H
-#define	OAP_ASSERTION_H
+#include "Math.h"
 
-#include <assert.h>
+namespace oap
+{
+namespace aia
+{
 
-#ifdef DEBUG
-#define debugAssert(x) assert(x);
-#else
-#define debugAssert(x)
-#endif
-#define oapDebugAssert(x) debugAssert(x)
+struct UserData
+{
+  uintt* buffer;
+  uintt argsCount;
+};
 
-#define logAssert(x) assert(x);
-#define logAssertMsg(x, msg, ...) if (!(x)) { fprintf(stderr, msg, ##__VA_ARGS__); abort(); }
-#define oapAssert(x) logAssert(x)
+}
+}
+
 #endif

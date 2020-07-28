@@ -45,7 +45,6 @@ namespace cuda
 namespace
 {
 MatricesListExt<math::Matrix> g_matricesList ("MATRICES_CUDA");
-std::map<floatt*, uintt> g_usedMemoryCounter;
 
 void registerMatrix (math::Matrix* matrix, const math::Matrix& hostRefMatrix, const math::MatrixInfo& matrixInfo)
 {
@@ -53,34 +52,6 @@ void registerMatrix (math::Matrix* matrix, const math::Matrix& hostRefMatrix, co
 
   logTrace ("Matrix allocation: %p", matrix);
   g_matricesList.add (matrix, std::make_pair (matrixInfo, hostRefMatrix));
-}
-
-void registerMemory (const oap::Memory& memory)
-{
-  if (memory.ptr != nullptr)
-  {
-    auto it = g_usedMemoryCounter.find (memory.ptr);
-    if (it == g_usedMemoryCounter.end())
-    {
-      g_usedMemoryCounter[memory.ptr] = 0;
-    }
-    g_usedMemoryCounter[memory.ptr]++;
-  }
-}
-
-template<typename Callback>
-void unregisterMemory (const oap::Memory& memory, Callback&& callback)
-{
-  if (memory.ptr != nullptr)
-  {
-    auto it = g_usedMemoryCounter.find(memory.ptr);
-    it->second--;
-    if (it->second == 0)
-    {
-      callback (memory);
-      g_usedMemoryCounter.erase (it);
-    }
-  }
 }
 
 oap::Memory allocPart (bool alloc, uintt columns, uintt rows)
@@ -117,8 +88,6 @@ math::Matrix* allocMatrix (const math::Matrix& hostRefMatrix)
   math::MatrixInfo minfo (allocRe, allocIm, columns, rows);
 
   registerMatrix (matrix, hostRefMatrix, minfo);
-  registerMemory (hostRefMatrix.re);
-  registerMemory (hostRefMatrix.im);
 
   initWithZero (matrix, allocRe, allocIm, columns, rows);
 
@@ -151,7 +120,7 @@ inline math::Matrix* allocReMatrix_FromMemory (oap::Memory& mem, const oap::Memo
 {
   math::Matrix hostRefMatrix;
 
-  hostRefMatrix.re = mem;
+  hostRefMatrix.re = oap::cuda::ReuseMemory (mem);
   hostRefMatrix.reReg = reg;
   hostRefMatrix.im = {nullptr, {0, 0}};
   hostRefMatrix.imReg = {{0, 0}, {0, 0}};
@@ -165,7 +134,7 @@ inline math::Matrix* allocImMatrix_FromMemory (oap::Memory& mem, const oap::Memo
 
   hostRefMatrix.re = {nullptr, {0, 0}};
   hostRefMatrix.reReg = {{0, 0}, {0, 0}};
-  hostRefMatrix.im = mem;
+  hostRefMatrix.im = oap::cuda::ReuseMemory (mem);
   hostRefMatrix.imReg = reg;
 
   return allocMatrix (hostRefMatrix);
@@ -175,9 +144,9 @@ inline math::Matrix* allocRealMatrix_FromMemory (oap::Memory& remem, const oap::
 {
   math::Matrix hostRefMatrix;
 
-  hostRefMatrix.re = remem;
+  hostRefMatrix.re = oap::cuda::ReuseMemory (remem);
   hostRefMatrix.reReg = rereg;
-  hostRefMatrix.im = immem;
+  hostRefMatrix.im = oap::cuda::ReuseMemory (immem);
   hostRefMatrix.imReg = imreg;
 
   return allocMatrix (hostRefMatrix);
@@ -275,13 +244,6 @@ math::Matrix* NewDeviceMatrixWithValue (const math::MatrixInfo& minfo, floatt v)
   return oap::cuda::NewDeviceMatrixWithValue (minfo.isRe, minfo.isIm, minfo.columns(), minfo.rows(), v);
 }
 
-#if 0
-math::Matrix* NewShareDeviceMatrix(uintt columns, uintt rows, math::Matrix* src)
-{
-  return oap::generic::newShareMatrix (columns, rows, src, oap::cuda::GetMatrixInfo, allocMatrix_ReuseMemory, CudaUtils::GetValue);
-}
-#endif
-
 math::Matrix* NewDeviceMatrix(const math::MatrixInfo& minfo)
 {
   return NewDeviceMatrix (minfo.isRe, minfo.isIm, minfo.m_matrixDim.columns, minfo.m_matrixDim.rows);
@@ -331,8 +293,8 @@ void DeleteDeviceMatrix(const math::Matrix* dMatrix)
 
     math::Matrix hm1lvl = pair.second;
 
-    unregisterMemory(hm1lvl.re, oap::cuda::DeleteMemory);
-    unregisterMemory(hm1lvl.im, oap::cuda::DeleteMemory);
+    oap::cuda::DeleteMemory (hm1lvl.re);
+    oap::cuda::DeleteMemory (hm1lvl.im);
 
     CudaUtils::FreeDeviceMem (dMatrix);
 
@@ -1002,7 +964,7 @@ math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
   return oap::host::LoadMatrixInfo (buffer);
 }
 
-oap::threads::ThreadsMapper CreateThreadsMapper (const std::vector<math::Matrix*>& matrices)
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<const std::vector<math::Matrix*>*>& matrices)
 {
   return createThreadsMapper (matrices);
 }

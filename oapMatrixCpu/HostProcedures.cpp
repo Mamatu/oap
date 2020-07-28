@@ -33,7 +33,7 @@
 #include "HostBuffer.h"
 #include "HostKernel.h"
 
-#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
+//#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
 
 class SubstractionImpl : public HostKernel {
  public:
