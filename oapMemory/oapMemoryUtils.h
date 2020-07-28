@@ -202,9 +202,9 @@ namespace utils {
       return outputs.front();
     };
 
-    const auto init = std::make_pair(0u, 0u);
+    Dim initDim = {0u, 0u};
     MapPosIndex mpi;
-    auto output = calc (f_infosPtr, init, mpi);
+    auto output = calc (f_infosPtr, initDim, mpi);
 
     auto dim = output.first;
     auto& map = output.second;
