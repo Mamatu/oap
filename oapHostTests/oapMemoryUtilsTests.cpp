@@ -150,29 +150,30 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_8)
   oap::utils::getTheLowestDim (infos, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         dim = columns * rows;
+        EXPECT_EQ (21, dim);
       });
 
   std::vector<math::MatrixInfo> infos1 = {minfo1, minfo, minfo2};
   oap::utils::getTheLowestDim (infos1, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
-        EXPECT_EQ(dim, columns * rows);
+        EXPECT_EQ (dim, columns * rows);
       });
 
   std::vector<math::MatrixInfo> infos2 = {minfo1, minfo2, minfo};
   oap::utils::getTheLowestDim (infos2, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
-        EXPECT_EQ(dim, columns * rows);
+        EXPECT_EQ (dim, columns * rows);
       });
 
   std::vector<math::MatrixInfo> infos3 = {minfo2, minfo, minfo1};
   oap::utils::getTheLowestDim (infos3, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
-        EXPECT_EQ(dim, columns * rows);
+        EXPECT_EQ (dim, columns * rows);
       });
 
   std::vector<math::MatrixInfo> infos4 = {minfo2, minfo1, minfo};
   oap::utils::getTheLowestDim (infos4, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
-        EXPECT_EQ(dim, columns * rows);
+        EXPECT_EQ (dim, columns * rows);
       });
 }

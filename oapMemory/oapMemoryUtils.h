@@ -85,6 +85,11 @@ namespace utils {
       return output.first.width * output.first.height;
     };
 
+    auto sortFunc = [&calcSize](const Output& output1, const Output& output2)
+    {
+      return calcSize (output1) < calcSize (output2);
+    };
+
     using MInfoPtrs = std::vector<const math::MatrixInfo*>;
     MInfoPtrs f_infosPtr;
     for (uintt idx = 0; idx < infos.size(); ++idx)
@@ -144,7 +149,7 @@ namespace utils {
     };
 
     std::function<Output(const MInfoPtrs& infos, const Dim& o_dim, const MapPosIndex& mpi)> calc;
-    calc = [&calc, &calcMap, &dpd, &createDPB, &f_infosPtr, &mii, &calcSize](const MInfoPtrs& minfosPtr, const Dim& o_dim, const MapPosIndex& mpi)
+    calc = [&calc, &calcMap, &dpd, &createDPB, &f_infosPtr, &mii, &sortFunc](const MInfoPtrs& minfosPtr, const Dim& o_dim, const MapPosIndex& mpi)
     {
       std::vector<Output> outputs;
       for (uintt idx = 0; idx < minfosPtr.size(); ++idx)
@@ -175,7 +180,6 @@ namespace utils {
   
         std::vector<Tuple> vec = {tuple1, tuple2, tuple3, tuple4};
         std::vector<Output> outputs1;
-        //std::sort (vec.begin(), vec.end(), [](const Tuple& tuple1, const Tuple& tuple2){ return std::get<0>(tuple1) * std::get<1>(tuple1) < std::get<0>(tuple2) * std::get<1>(tuple2); });
   
         for (const auto& tuple : vec)
         {
@@ -195,10 +199,13 @@ namespace utils {
           }
           outputs1.push_back (output);
         }
-        std::sort (outputs1.begin(), outputs1.end(), [&calcSize](const Output& output1, const Output& output2){ return calcSize (output1) < calcSize (output2); });
+
+        std::sort (outputs1.begin(), outputs1.end(), sortFunc);
         dpd[dpd_set] = outputs1.front();
+
         outputs.push_back (outputs1.front());
       }
+      std::sort (outputs.begin(), outputs.end(), sortFunc);
       return outputs.front();
     };
 
