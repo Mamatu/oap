@@ -66,7 +66,7 @@ ThreadsMapper getThreadsMapper (const std::vector<const MatricesLine*>& matrices
 
   auto pair2 = std::make_pair (0, 0);
 
-  auto algo2 = [matricesArgs, &malloc, &memcpy, &getMatrixInfo, &pair2]()
+  auto algo2 = [matricesArgs, &malloc, &memcpy, &getMatrixInfo, pair2]()
   {
     Buffer membuf1;
     uintt row = 0, rows = 0;
