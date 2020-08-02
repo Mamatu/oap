@@ -21,8 +21,7 @@
 #include "gmock/gmock.h"
 
 #include "Matrix.h"
-#include "MatrixAPI.h"
-#include "oapHostMatrixUtils.h"
+#include "oapMemoryUtils.h"
 
 namespace host {
 namespace qrtest1 {
@@ -150,7 +149,7 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_8)
   oap::utils::getTheLowestDim (infos, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         dim = columns * rows;
-        EXPECT_EQ (21, dim);
+        EXPECT_EQ (20, dim);
       });
 
   std::vector<math::MatrixInfo> infos1 = {minfo1, minfo, minfo2};
@@ -254,4 +253,37 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_12)
       });
 }
 
+TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_13)
+{
+  math::MatrixInfo minfo (true, false, 1, 1);
+  math::MatrixInfo minfo1 (true, false, 1, 1);
+  math::MatrixInfo minfo2 (true, false, 1, 1);
+  std::vector<math::MatrixInfo> infos = {minfo, minfo1, minfo2};
+  oap::utils::getTheLowestDim (infos, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+      {
+        EXPECT_EQ (3, columns * rows);
+      });
+}
+
+TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_14)
+{
+  math::MatrixInfo minfo (true, false, 1, 1);
+  math::MatrixInfo minfo1 (true, false, 1, 2);
+  math::MatrixInfo minfo2 (true, false, 1, 3);
+  std::vector<math::MatrixInfo> infos = {minfo, minfo1, minfo2};
+  oap::utils::getTheLowestDim (infos, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+      {
+        EXPECT_EQ (6, columns * rows);
+      });
+  std::vector<math::MatrixInfo> infos1 = {minfo1, minfo, minfo2};
+  oap::utils::getTheLowestDim (infos1, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+      {
+        EXPECT_EQ (6, columns * rows);
+      });
+  std::vector<math::MatrixInfo> infos2 = {minfo1, minfo2, minfo};
+  oap::utils::getTheLowestDim (infos2, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+      {
+        EXPECT_EQ (6, columns * rows);
+      });
+}
 

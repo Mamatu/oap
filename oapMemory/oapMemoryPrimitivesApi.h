@@ -24,7 +24,6 @@
 #include <sstream>
 #include <functional>
 #include "oapMemoryPrimitives.h"
-#include "oapMemoryUtils.h"
 #include "oapMemory_CommonApi.h"
 
 namespace oap
@@ -64,38 +63,14 @@ namespace std
   std::string to_string (const oap::MemoryRegion& region);
 }
 
-inline bool operator== (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
-{
-  return oap::common::CompareMemoryRegion (reg1, reg2);
-}
+bool operator== (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2);
 
-inline bool operator!= (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
-{
-  return !(reg1 == reg2);
-}
+bool operator!= (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2);
 
-inline bool operator== (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2)
-{
-  return dim1.width == dim2.width && dim1.height == dim2.height;
-}
+bool operator== (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2);
 
-inline bool operator!= (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2)
-{
-  return !(dim1 == dim2);
-}
+bool operator!= (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2);
 
-inline bool operator< (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
-{
-  bool b1 = oap::utils::lessByX (reg1, reg2);
-  if (!b1)
-  {
-    bool b2 = oap::utils::lessByX (reg2, reg1);
-    if (!b2)
-    {
-      return oap::utils::lessByY (reg1, reg2);
-    }
-  }
-  return b1;
-}
+bool operator< (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2);
 
 #endif

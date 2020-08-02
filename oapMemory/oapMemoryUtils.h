@@ -24,6 +24,7 @@
 #include <functional>
 #include <map>
 #include <set>
+#include <vector>
 #include "oapMemoryPrimitives.h"
 #include "MatrixInfo.h"
 
@@ -63,7 +64,7 @@ namespace utils {
   }
 
   template<typename MatrixInfoVec, typename ThreadsMapperCallback>
-  void getTheLowestDim (const MatrixInfoVec& infos, ThreadsMapperCallback&& tmCallback)
+  std::pair<uintt, uintt> getTheLowestDim (const MatrixInfoVec& infos, ThreadsMapperCallback&& tmCallback)
   {
     using Tuple = std::tuple<uintt, uintt, uintt>;
     using Pair = std::pair<uintt, uintt>;
@@ -77,7 +78,7 @@ namespace utils {
     };
 
     using Output = std::pair<Dim, MapPosIndex>;
-    std::map<std::set<uintt>, Output> dpd;
+    std::map<std::vector<uintt>, Output> dpd;
     std::map<const math::MatrixInfo*, uintt> mii;
 
     auto calcSize = [](const Output& output)
@@ -92,22 +93,21 @@ namespace utils {
 
     using MInfoPtrs = std::vector<const math::MatrixInfo*>;
     MInfoPtrs f_infosPtr;
+
     for (uintt idx = 0; idx < infos.size(); ++idx)
     {
       f_infosPtr.push_back (&infos[idx]);
       mii[f_infosPtr[idx]] = idx;
     }
 
-    auto createDPB = [](uintt nidx, uintt len)
+    auto createDPB = [&mii](const MInfoPtrs& minfosPtr, uintt id)
     {    
-      std::set<uintt> dpb_set;
-      for (uintt idx1 = 0; idx1 < len; ++idx1)
+      std::vector<uintt> dpb_set;
+      for (const auto& ptr : minfosPtr)
       {
-        if (idx1 != nidx)
-        {
-          dpb_set.insert (idx1);
-        }
+        dpb_set.push_back (mii[ptr]);
       }
+      dpb_set.push_back (id);
       return dpb_set;
     };
 
@@ -148,10 +148,18 @@ namespace utils {
       return map;
     };
 
-    std::function<Output(const MInfoPtrs& infos, const Dim& o_dim, const MapPosIndex& mpi)> calc;
-    calc = [&calc, &calcMap, &dpd, &createDPB, &f_infosPtr, &mii, &sortFunc](const MInfoPtrs& minfosPtr, const Dim& o_dim, const MapPosIndex& mpi)
+    std::function<Output(const MInfoPtrs& infos, const Dim& o_dim, const MapPosIndex& mpi, uintt id)> calc;
+    calc = [&calc, &calcMap, &dpd, &createDPB, &f_infosPtr, &mii, &sortFunc](const MInfoPtrs& minfosPtr, const Dim& o_dim, const MapPosIndex& mpi, uintt id)
     {
+      auto dpd_set = std::move (createDPB (minfosPtr, id));
+      auto dpd_it = dpd.find (dpd_set);
+      if (dpd_it != dpd.end())
+      {
+        return dpd_it->second;
+      }
+
       std::vector<Output> outputs;
+
       for (uintt idx = 0; idx < minfosPtr.size(); ++idx)
       {
         MInfoPtrs new_infoPtrs = minfosPtr;
@@ -160,44 +168,38 @@ namespace utils {
         auto info = *it;
         new_infoPtrs.erase (it);
 
-        auto dpd_set = createDPB (idx, minfosPtr.size());
-        auto dpd_it = dpd.find (dpd_set);
-        if (dpd_it != dpd.end())
-        {
-          return dpd_it->second;
-        }
+        const uintt o_columns = o_dim.width;
+        const uintt o_rows = o_dim.height;
 
-        uintt o_columns = o_dim.width;
-        uintt o_rows = o_dim.height;
-  
-        uintt c = info->columns();
-        uintt r = info->rows();
-  
+        const uintt c = info->columns();
+        const uintt r = info->rows();
+
         auto tuple1 = std::make_tuple(o_columns + c, r > o_rows ? r : o_rows, 0);
         auto tuple2 = std::make_tuple(c > o_columns ? c : o_columns, o_rows + r, 1);
         auto tuple3 = std::make_tuple(o_columns + r, c > o_rows ? c : o_rows, 2);
         auto tuple4 = std::make_tuple(r > o_columns ? r : o_columns, o_rows + c, 3);
-  
-        std::vector<Tuple> vec = {tuple1, tuple2, tuple3, tuple4};
+
+        std::vector<Tuple> tuples = {tuple1, tuple2, tuple3, tuple4};
         std::vector<Output> outputs1;
   
-        for (const auto& tuple : vec)
+        for (uintt tupleIdx = 0; tupleIdx < tuples.size(); ++tupleIdx)
         {
+          auto tuple = tuples[tupleIdx];
           Dim dim = {std::get<0>(tuple), std::get<1>(tuple)};
-        
+
           auto mapPosIndex = calcMap (tuple, c, r, mii[info]);
           mapPosIndex.insert (mpi.begin(), mpi.end());
-  
-          Output output;
+
+          Output output1;
           if (new_infoPtrs.size() > 0)
           {
-            output = calc (new_infoPtrs, dim, mapPosIndex);
+            output1 = calc (new_infoPtrs, dim, mapPosIndex, tupleIdx);
           }
           else
           {
-            output = std::make_pair (dim, mapPosIndex);
+            output1 = std::make_pair (dim, mapPosIndex);
           }
-          outputs1.push_back (output);
+          outputs1.push_back (output1);
         }
 
         std::sort (outputs1.begin(), outputs1.end(), sortFunc);
@@ -211,7 +213,7 @@ namespace utils {
 
     Dim initDim = {0u, 0u};
     MapPosIndex mpi;
-    auto output = calc (f_infosPtr, initDim, mpi);
+    auto output = calc (f_infosPtr, initDim, mpi, 0);
 
     auto dim = output.first;
     auto& map = output.second;
@@ -219,6 +221,7 @@ namespace utils {
     {
       tmCallback(it->first.first, it->first.second, it->second, dim.width, dim.height);
     }
+    return std::make_pair(dim.width, dim.height);
   }
 }
 }

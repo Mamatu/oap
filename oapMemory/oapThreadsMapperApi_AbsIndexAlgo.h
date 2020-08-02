@@ -21,6 +21,7 @@
 #define	OAP_THREADS_MAPPER_API__SIMPLE_ALGO_1_H
 
 #include "Matrix.h"
+#include "MatrixInfo.h"
 #include "MatrixAPI.h"
 
 #include <functional>
@@ -31,6 +32,7 @@
 #include "oapThreadsMapperC.h"
 #include "oapThreadsMapperApi.h"
 #include "oapMemory_ThreadMapperApi_AbsIndexAlgo_CommonApi.h"
+#include "oapMemoryUtils.h"
 
 namespace oap {
 
@@ -43,72 +45,67 @@ template<typename MatricesLine, typename GetMatrixInfo, typename Malloc, typenam
 ThreadsMapper getThreadsMapper (const std::vector<const MatricesLine*>& matricesArgs, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
 {
   using Buffer = std::vector<uintt>;
-  static std::map<oap::ThreadsMapperS*, std::pair<uintt*,UserData*>> s_mapperBufferMap;
+  static std::map<oap::ThreadsMapperS*, uintt*> s_mapperBufferMap;
 
   uintt linesCount = matricesArgs.size();
 
+  std::vector<math::MatrixInfo> matrixInfos;
   for (uintt l = 0; l < linesCount; ++l)
   {
     uintt argsCount = matricesArgs[l]->size();
     logAssert (argsCount > 0);
     const math::Matrix* output = (*matricesArgs[l])[0];
     auto minfo = getMatrixInfo (output);
+    matrixInfos.push_back (minfo);
   }
 
+  std::map<std::pair<uintt, uintt>, uintt> map;
+  auto dim = oap::utils::getTheLowestDim (matrixInfos, [&map](uintt x, uintt y, uintt idx, uintt width, uintt height)
+      {
+        map[std::make_pair(x,y)] = idx;
+      });
+
+  std::vector<uintt> buffer;
+  for (uintt y = 0; y < dim.second; ++y)
+  {
+    for (uintt x = 0; x < dim.first; ++x)
+    {
+      auto it = map.find (std::make_pair(x, y));
+      if (it != map.end())
+      {
+        buffer.push_back (it->second);
+      }
+      else
+      {
+        buffer.push_back (MAX_UINTT);
+      }
+    }
+  }
   auto destroyS = [&free](oap::ThreadsMapperS* tms)
   {
     oapDebugAssert(s_mapperBufferMap.find(tms) != s_mapperBufferMap.end());
-    auto pair = s_mapperBufferMap[tms];
-    free (pair.first);
-    free (pair.second);
+    auto buffer = s_mapperBufferMap[tms];
+    free (buffer);
     free (tms);
   };
 
-  auto pair2 = std::make_pair (0, 0);
-
-  auto algo2 = [matricesArgs, &malloc, &memcpy, &getMatrixInfo, pair2]()
+  auto allocS = [dim, map, buffer, &malloc, &memcpy]()
   {
-    Buffer membuf1;
-    uintt row = 0, rows = 0;
-    do
-    {
-      for (size_t idx = 0; idx < matricesArgs.size(); ++idx)
-      {
-        const MatricesLine* matricesLine = matricesArgs[idx];
-        auto minfo = getMatrixInfo ((*matricesLine)[0]);
-        rows = std::max (rows, minfo.rows());
-        if (row < minfo.rows ())
-        {
-          membuf1.insert (membuf1.end(), minfo.columns(), idx);
-        }
-        else
-        {
-          membuf1.insert (membuf1.end(), minfo.columns(), MAX_UINTT);
-        }
-      }
-      ++row;
-    } while (row < rows);
-
-    const size_t size = sizeof(uintt*) * pair2.first * pair2.second;
+    const size_t len = dim.first * dim.second;
 
     oap::ThreadsMapperS* tms = static_cast<oap::ThreadsMapperS*>(malloc(sizeof(oap::ThreadsMapperS)));
-    /*UserData* ud = static_cast<UserData*>(malloc(sizeof(UserData)));
+    uintt* cuBuffer = static_cast<uintt*>(malloc (len));
+    char mode = 1;
 
-    uintt* buffer = static_cast<uintt*>(malloc(size));
-    ::memcpy (buffer, membuf1.data(), membuf1.size() * sizeof (Buffer::value_type));
+    memcpy (cuBuffer, buffer.data(), len * sizeof(decltype(cuBuffer)));
+    memcpy (&tms->data, &cuBuffer, sizeof (decltype(cuBuffer)));
+    memcpy (&tms->mode, &mode, sizeof (decltype(mode)));
 
-    uintt mode = OAP_THREADS_MAPPER_MODE__SIMPLE;
-    uintt margsCount = matrices.size();
+    s_mapperBufferMap[tms] = cuBuffer;
 
-    memcpy (&tms->data, &ud, sizeof (UserData*));
-    memcpy (&tms->mode, &mode, sizeof(decltype(tms->mode)));
-    memcpy (&ud->buffer, &buffer, sizeof (uintt*));
-    memcpy (&ud->argsCount, &margsCount, sizeof (decltype(margsCount)));
-
-    s_mapperBufferMap[tms] = std::make_pair (buffer, ud);*/
     return tms;
   };
-  return ThreadsMapper (pair2.second, pair2.first, algo2, destroyS);
+  return ThreadsMapper (dim.first, dim.second, allocS, destroyS);
 }
 }
 }
