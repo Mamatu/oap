@@ -50,9 +50,11 @@ ThreadsMapper getThreadsMapper (const std::vector<const MatricesLine*>& matrices
   uintt linesCount = matricesArgs.size();
 
   std::vector<math::MatrixInfo> matrixInfos;
+  uintt argsCount = 0;
   for (uintt l = 0; l < linesCount; ++l)
   {
-    uintt argsCount = matricesArgs[l]->size();
+    logAssert (l == 0 || argsCount == matricesArgs[l]->size());
+    argsCount = matricesArgs[l]->size();
     logAssert (argsCount > 0);
     const math::Matrix* output = (*matricesArgs[l])[0];
     auto minfo = getMatrixInfo (output);
@@ -81,6 +83,7 @@ ThreadsMapper getThreadsMapper (const std::vector<const MatricesLine*>& matrices
       }
     }
   }
+
   auto destroyS = [&free](oap::ThreadsMapperS* tms)
   {
     oapDebugAssert(s_mapperBufferMap.find(tms) != s_mapperBufferMap.end());
@@ -89,17 +92,21 @@ ThreadsMapper getThreadsMapper (const std::vector<const MatricesLine*>& matrices
     free (tms);
   };
 
-  auto allocS = [dim, map, buffer, &malloc, &memcpy]()
+  auto allocS = [dim, map, buffer, argsCount, &malloc, &memcpy]()
   {
     const size_t len = dim.first * dim.second;
 
     oap::ThreadsMapperS* tms = static_cast<oap::ThreadsMapperS*>(malloc(sizeof(oap::ThreadsMapperS)));
+    UserData* userData = static_cast<UserData*>(malloc(sizeof(UserData)));
     uintt* cuBuffer = static_cast<uintt*>(malloc (len));
     char mode = 1;
 
     memcpy (cuBuffer, buffer.data(), len * sizeof(decltype(cuBuffer)));
-    memcpy (&tms->data, &cuBuffer, sizeof (decltype(cuBuffer)));
+    memcpy (&tms->data, &userData, sizeof (decltype(userData)));
     memcpy (&tms->mode, &mode, sizeof (decltype(mode)));
+
+    memcpy (&userData->buffer, &cuBuffer, sizeof(decltype(cuBuffer)));
+    memcpy (&userData->argsCount, &argsCount, sizeof(decltype(argsCount)));
 
     s_mapperBufferMap[tms] = cuBuffer;
 
