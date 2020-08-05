@@ -247,13 +247,13 @@ void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
 math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
-template<typename Matrices>
-oap::ThreadsMapper createThreadsMapper (const std::vector<Matrices*>& matrices)
+template<typename MatricesLine>
+oap::ThreadsMapper createThreadsMapper (const std::vector<MatricesLine>& matrices)
 {
   return oap::threads::createThreadsMapper (matrices, oap::cuda::GetMatrixInfo, CudaUtils::Malloc, CudaUtils::CopyHostToDevice, CudaUtils::Free);
 }
 
-oap::ThreadsMapper CreateThreadsMapper (const std::vector<const std::vector<math::Matrix*>*>& matrices);
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices);
 
 }
 }

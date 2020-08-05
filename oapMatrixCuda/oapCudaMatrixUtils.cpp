@@ -964,7 +964,7 @@ math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
   return oap::host::LoadMatrixInfo (buffer);
 }
 
-oap::ThreadsMapper CreateThreadsMapper (const std::vector<const std::vector<math::Matrix*>*>& matrices)
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices)
 {
   return createThreadsMapper (matrices);
 }

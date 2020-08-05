@@ -35,11 +35,13 @@ class OapMemoryUtilsTests : public testing::Test {
   virtual void TearDown() {}
 };
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_1)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_1)
 {
   math::MatrixInfo minfo (true, false, 1, 1);
   std::vector<math::MatrixInfo> infos = {minfo};
-  oap::utils::getTheLowestDim (infos, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (1, columns);
         EXPECT_EQ (1, rows);
@@ -52,13 +54,15 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_1)
       });
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_2)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_2)
 {
   math::MatrixInfo minfo (true, false, 1, 1);
   math::MatrixInfo minfo1 (true, false, 1, 1);
   std::vector<math::MatrixInfo> infos = {minfo, minfo1};
   std::vector<uintt> values;
-  oap::utils::getTheLowestDim (infos, [&values](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&values](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_TRUE ((columns == 2 && rows == 1) || (columns == 1 && rows == 2));
         EXPECT_TRUE(0 <= x && x < 2);
@@ -72,36 +76,42 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_2)
   EXPECT_EQ (1, values[1]);
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_3)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_3)
 {
   math::MatrixInfo minfo (true, false, 1, 1);
   math::MatrixInfo minfo1 (true, false, 1, 2);
   std::vector<math::MatrixInfo> infos = {minfo, minfo1};
-  oap::utils::getTheLowestDim (infos, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (3, columns * rows);
       });
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_4)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_4)
 {
   math::MatrixInfo minfo (true, false, 1, 1);
   math::MatrixInfo minfo1 (true, false, 1, 2);
   math::MatrixInfo minfo2 (true, false, 2, 3);
   std::vector<math::MatrixInfo> infos = {minfo, minfo1, minfo2};
-  oap::utils::getTheLowestDim (infos, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (9, columns * rows);
       });
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_5)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_5)
 {
   math::MatrixInfo minfo (true, false, 1, 2);
   math::MatrixInfo minfo1 (true, false, 2, 3);
   std::vector<math::MatrixInfo> infos = {minfo, minfo1};
   uintt count = 0;
-  oap::utils::getTheLowestDim (infos, [&count](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         ++count;
         EXPECT_EQ (8, columns * rows);
@@ -109,13 +119,15 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_5)
   EXPECT_EQ (8, count);
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_6)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_6)
 {
   math::MatrixInfo minfo (true, false, 1, 2);
   math::MatrixInfo minfo1 (true, false, 3, 3);
   std::vector<math::MatrixInfo> infos = {minfo, minfo1};
   uintt count = 0;
-  oap::utils::getTheLowestDim (infos, [&count](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         ++count;
         EXPECT_EQ (12, columns * rows);
@@ -123,14 +135,16 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_6)
   EXPECT_EQ (11, count);
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_7)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_7)
 {
   math::MatrixInfo minfo (true, false, 1, 2);
   math::MatrixInfo minfo1 (true, false, 1, 2);
   math::MatrixInfo minfo2 (true, false, 3, 3);
   std::vector<math::MatrixInfo> infos = {minfo, minfo1, minfo2};
   uintt count = 0;
-  oap::utils::getTheLowestDim (infos, [&count](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         ++count;
         EXPECT_EQ (15, columns * rows);
@@ -138,7 +152,7 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_7)
   EXPECT_EQ (13, count);
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_8)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_8)
 {
   math::MatrixInfo minfo (true, false, 1, 7);
   math::MatrixInfo minfo1 (true, false, 3, 2);
@@ -146,38 +160,48 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_8)
 
   std::vector<math::MatrixInfo> infos = {minfo, minfo1, minfo2};
   uintt dim = 0;
-  oap::utils::getTheLowestDim (infos, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         dim = columns * rows;
         EXPECT_EQ (20, dim);
       });
 
   std::vector<math::MatrixInfo> infos1 = {minfo1, minfo, minfo2};
-  oap::utils::getTheLowestDim (infos1, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos1,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (dim, columns * rows);
       });
 
   std::vector<math::MatrixInfo> infos2 = {minfo1, minfo2, minfo};
-  oap::utils::getTheLowestDim (infos2, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos2,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (dim, columns * rows);
       });
 
   std::vector<math::MatrixInfo> infos3 = {minfo2, minfo, minfo1};
-  oap::utils::getTheLowestDim (infos3, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos3,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (dim, columns * rows);
       });
 
   std::vector<math::MatrixInfo> infos4 = {minfo2, minfo1, minfo};
-  oap::utils::getTheLowestDim (infos4, [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos4,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (dim, columns * rows);
       });
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_9)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_9)
 {
   math::MatrixInfo minfo (true, false, 2, 2);
   math::MatrixInfo minfo1 (true, false, 3, 3);
@@ -185,18 +209,22 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_9)
   std::vector<math::MatrixInfo> infos1 = {minfo1, minfo};
   uintt count = 0;
   uintt dim = 0;
-  oap::utils::getTheLowestDim (infos, [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         dim = columns * rows;
         ++count;
       });
-  oap::utils::getTheLowestDim (infos1, [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos1,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (dim, columns * rows);
       });
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_10)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_10)
 {
   math::MatrixInfo minfo (true, false, 3, 2);
   math::MatrixInfo minfo1 (true, false, 1, 1);
@@ -204,18 +232,22 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_10)
   std::vector<math::MatrixInfo> infos1 = {minfo1, minfo};
   uintt count = 0;
   uintt dim = 0;
-  oap::utils::getTheLowestDim (infos, [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         dim = columns * rows;
         ++count;
       });
-  oap::utils::getTheLowestDim (infos1, [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos1,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (dim, columns * rows);
       });
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_11)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_11)
 {
   math::MatrixInfo minfo (true, false, 3, 2);
   math::MatrixInfo minfo1 (true, false, 1, 7);
@@ -223,18 +255,22 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_11)
   std::vector<math::MatrixInfo> infos1 = {minfo1, minfo};
   uintt count = 0;
   uintt dim = 0;
-  oap::utils::getTheLowestDim (infos, [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         dim = columns * rows;
         ++count;
       });
-  oap::utils::getTheLowestDim (infos1, [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos1,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (dim, columns * rows);
       });
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_12)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_12)
 {
   math::MatrixInfo minfo (true, false, 1, 1);
   math::MatrixInfo minfo1 (true, false, 1, 7);
@@ -242,46 +278,58 @@ TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_12)
   std::vector<math::MatrixInfo> infos1 = {minfo1, minfo};
   uintt count = 0;
   uintt dim = 0;
-  oap::utils::getTheLowestDim (infos, [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         dim = columns * rows;
         ++count;
       });
-  oap::utils::getTheLowestDim (infos1, [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos1,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [&count, &dim](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (dim, columns * rows);
       });
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_13)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_13)
 {
   math::MatrixInfo minfo (true, false, 1, 1);
   math::MatrixInfo minfo1 (true, false, 1, 1);
   math::MatrixInfo minfo2 (true, false, 1, 1);
   std::vector<math::MatrixInfo> infos = {minfo, minfo1, minfo2};
-  oap::utils::getTheLowestDim (infos, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (3, columns * rows);
       });
 }
 
-TEST_F(OapMemoryUtilsTests, GetTheLowestDimTest_14)
+TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_14)
 {
   math::MatrixInfo minfo (true, false, 1, 1);
   math::MatrixInfo minfo1 (true, false, 1, 2);
   math::MatrixInfo minfo2 (true, false, 1, 3);
   std::vector<math::MatrixInfo> infos = {minfo, minfo1, minfo2};
-  oap::utils::getTheLowestDim (infos, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (6, columns * rows);
       });
   std::vector<math::MatrixInfo> infos1 = {minfo1, minfo, minfo2};
-  oap::utils::getTheLowestDim (infos1, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos1,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (6, columns * rows);
       });
   std::vector<math::MatrixInfo> infos2 = {minfo1, minfo2, minfo};
-  oap::utils::getTheLowestDim (infos2, [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
+  oap::utils::createThreadsBlocks<uintt> (infos2,
+      [] (uintt x, uintt y, uintt index) { return index; },
+      [](uintt x, uintt y, uintt value, uintt columns, uintt rows)
       {
         EXPECT_EQ (6, columns * rows);
       });

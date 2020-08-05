@@ -42,7 +42,7 @@ using Section = std::pair<uintt, uintt>;
 using PairMR = std::pair<oap::MemoryRegion, oap::MemoryRegion>;
 
 template<typename MatricesLine, typename GetMatrixInfo, typename Malloc, typename Memcpy, typename Free>
-ThreadsMapper getThreadsMapper (const std::vector<const MatricesLine*>& matricesArgs, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
+ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
 {
   using Buffer = std::vector<uintt>;
   static std::map<oap::ThreadsMapperS*, uintt*> s_mapperBufferMap;
@@ -53,19 +53,31 @@ ThreadsMapper getThreadsMapper (const std::vector<const MatricesLine*>& matrices
   uintt argsCount = 0;
   for (uintt l = 0; l < linesCount; ++l)
   {
-    logAssert (l == 0 || argsCount == matricesArgs[l]->size());
-    argsCount = matricesArgs[l]->size();
+    logAssert (l == 0 || argsCount == matricesArgs[l].size());
+    argsCount = matricesArgs[l].size();
     logAssert (argsCount > 0);
-    const math::Matrix* output = (*matricesArgs[l])[0];
+    const math::Matrix* output = matricesArgs[l][0];
     auto minfo = getMatrixInfo (output);
     matrixInfos.push_back (minfo);
   }
 
-  std::map<std::pair<uintt, uintt>, uintt> map;
-  auto dim = oap::utils::getTheLowestDim (matrixInfos, [&map](uintt x, uintt y, uintt idx, uintt width, uintt height)
+  std::map<std::pair<uintt, uintt>, std::vector<uintt>> map;
+  auto dim = oap::utils::createThreadsBlocks<std::vector<uintt>> (matrixInfos,
+      [&matricesArgs](uintt x, uintt y, uintt index)
       {
-        map[std::make_pair(x,y)] = idx;
-      });
+        const uintt len = matricesArgs[index].size();
+        std::vector<uintt> indecies;
+        for (uintt idx = 0; idx < len; ++idx)
+        {
+          indecies.push_back (0);
+        }
+        return indecies;
+      },
+      [&map](uintt x, uintt y, const std::vector<uintt>& indecies, uintt width, uintt height)
+      {
+        map[std::make_pair(x,y)] = indecies;
+      }
+      );
 
   std::vector<uintt> buffer;
   for (uintt y = 0; y < dim.second; ++y)
@@ -75,7 +87,10 @@ ThreadsMapper getThreadsMapper (const std::vector<const MatricesLine*>& matrices
       auto it = map.find (std::make_pair(x, y));
       if (it != map.end())
       {
-        buffer.push_back (it->second);
+        for (auto it1 = it->second.begin(); it1 != it->second.end(); ++it1)
+        {
+          buffer.push_back (*it1);
+        }
       }
       else
       {

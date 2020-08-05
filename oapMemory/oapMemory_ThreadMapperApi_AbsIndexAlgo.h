@@ -37,7 +37,8 @@ __hostdevice__ uintt GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 bl
   UserData* ud = static_cast<UserData*>(mapper->data);
 
   uintt threadIndex = y * _memoryWidth() * ud->argsCount + x + argIdx;
-  return static_cast<uintt*>(ud->buffer)[threadIndex];
+  uintt* indecies = static_cast<uintt*>(ud->buffer);
+  return indecies[threadIndex];
 }
 
 __hostdeviceinline__ bool InRange_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)

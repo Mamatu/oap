@@ -33,16 +33,24 @@ namespace generic
 template<typename Matrices, typename GetThreadsMapper, typename Malloc, typename Free, typename Memcpy>
 bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap::IKernelExecutor* kexec, GetThreadsMapper&& getThreadsMapper, Malloc&& malloc, Free&& free, Memcpy&& memcpy)
 {
+  uintt len = output.size();
+  oapAssert (len == params1.size());
+  std::vector<std::vector<math::Matrix*>> matrixArgs;
+
+  for (uintt idx = 0; idx < len; ++idx)
+  {
+    std::vector<math::Matrix*> line = {output[idx], params1[idx]};
+    matrixArgs.push_back (line);
+  }
+
+  oap::ThreadsMapper mapper = getThreadsMapper (matrixArgs);
+
   math::Matrix** doutput = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
   math::Matrix** dparams1 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
 
   memcpy (doutput, output.data(), sizeof(math::Matrix*) * output.size());
   memcpy (dparams1, params1.data(), sizeof(math::Matrix*) * output.size());
 
-  const Matrices* output_ptr = &output;
-  const Matrices* params1_ptr = &params1;
-  const std::vector<const Matrices*> mvecs = {output_ptr, params1_ptr};
-  oap::ThreadsMapper mapper = getThreadsMapper (mvecs);
   oap::ThreadsMapperS* tmS = mapper.create ();
 
   const void* params[] = {&doutput, &dparams1, &dvalue, &tmS};

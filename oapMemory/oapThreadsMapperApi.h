@@ -158,7 +158,7 @@ void getThreadsSections (Sections& sections, const MemoryRegions& _regions, Sort
   {
     const auto& current = regions[idx];
 
-  ggGG  const auto& prev = sections.back();
+    const auto& prev = sections.back();
     uintt ploc = prev.first;
     uintt pdim = prev.second;
     uintt cloc = getLoc (current);
@@ -218,7 +218,7 @@ uintt getYThreads (const MemoryRegions& regions)
 }
 
 template<typename MatricesLine, typename GetMatrixInfo,  typename Malloc, typename Memcpy, typename Free>
-ThreadsMapper createThreadsMapper (const std::vector<const MatricesLine*>& matricesArgs, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
+ThreadsMapper createThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
 {
   return oap::aia::getThreadsMapper (matricesArgs, getMatrixInfo, malloc, memcpy, free);
 }

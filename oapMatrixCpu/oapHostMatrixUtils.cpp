@@ -1242,7 +1242,7 @@ void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uin
   oap::generic::setMatrix (matrix, matrix1, column, row, [](math::Matrix* matrix) { return matrix->im; }, [](math::Matrix* matrix) { return matrix->imReg; }, memcpy);
 }
 
-oap::ThreadsMapper CreateThreadsMapper (const std::vector<const std::vector<math::Matrix*>*>& matricesVec)
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matricesVec)
 {
   return createThreadsMapper (matricesVec);
 }

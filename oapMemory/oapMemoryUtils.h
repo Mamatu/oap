@@ -63,13 +63,13 @@ namespace utils {
     std::sort (container.begin(), container.end(), lessByY);
   }
 
-  template<typename MatrixInfoVec, typename ThreadsMapperCallback>
-  std::pair<uintt, uintt> getTheLowestDim (const MatrixInfoVec& infos, ThreadsMapperCallback&& tmCallback)
+  template<typename UserValue, typename MatrixInfoVec, typename CreateCallback, typename ThreadsMapperCallback>
+  std::pair<uintt, uintt> createThreadsBlocks (const MatrixInfoVec& infos, CreateCallback&& createCallback, ThreadsMapperCallback&& tmCallback)
   {
     using Tuple = std::tuple<uintt, uintt, uintt>;
     using Pair = std::pair<uintt, uintt>;
 
-    using MapPosIndex = std::map<Pair, uintt>;
+    using MapPosIndex = std::map<Pair, UserValue>;
 
     struct Dim
     {
@@ -111,14 +111,14 @@ namespace utils {
       return dpb_set;
     };
 
-    auto fill = [](uintt c, uintt c1, uintt r, uintt r1, uintt v)
+    auto fill = [&createCallback](uintt c, uintt c1, uintt r, uintt r1, uintt idx)
     {
       MapPosIndex map;
       for (uintt x = c; x < c1; ++x)
       {
         for (uintt y = r; y < r1; ++y)
         {
-          map[std::make_pair(x, y)] = v;
+          map[std::make_pair(x, y)] = createCallback (x, y, idx);
         }
       }
       return map;
