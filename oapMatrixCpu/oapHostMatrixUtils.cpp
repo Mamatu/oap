@@ -37,7 +37,6 @@
 
 #include "MatricesList.h"
 #include "oapMemoryCounter.h"
-#include "oapHostMemoryApi.h"
 
 #define ReIsNotNULL(m) gReValues (m) != nullptr
 #define ImIsNotNULL(m) gImValues (m) != nullptr
@@ -400,6 +399,11 @@ std::string GetMatrixStr (const math::Matrix* matrix)
   std::string output;
   oap::generic::printMatrix (output, matrix, matrixUtils::PrintArgs(), oap::host::GetMatrixInfo);
   return output;
+}
+
+math::Matrix GetRefHostMatrix (const math::Matrix* matrix)
+{
+  return *matrix;
 }
 
 void PrintMatrix(FILE* stream, const matrixUtils::PrintArgs& args, const math::Matrix* matrix)

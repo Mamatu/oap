@@ -121,3 +121,36 @@ TEST_F(OapMemoryCommonApiTests, Test_6)
   oap::MemoryRegion region = {{1, 0}, {1, 1}};
   EXPECT_EQ (1, oap::common::GetMemoryRegionIdx (memory, region, 0));
 }
+
+TEST_F(OapMemoryCommonApiTests, Test_7)
+{
+  floatt array[] =
+  {
+    0, 1, 2, 3
+  };
+
+  oap::Memory memory = {array, {1, 4}};
+  oap::MemoryRegion region = {{0, 0}, {1, 1}};
+
+  EXPECT_EQ (0, oap::common::GetMemIdxFromMatrixIdx (memory, region, 0));
+}
+
+TEST_F(OapMemoryCommonApiTests, Test_8)
+{
+  floatt array[] =
+  {
+    0, 1, 2, 3,
+    4, 5, 6, 7,
+    8, 9, 10, 11,
+    12, 13, 14, 15,
+  };
+
+  oap::Memory memory = {array, {4, 4}};
+  oap::MemoryRegion region = {{1, 1}, {2, 2}};
+
+  EXPECT_EQ (5, oap::common::GetMemIdxFromMatrixIdx (memory, region, 0));
+  EXPECT_EQ (6, oap::common::GetMemIdxFromMatrixIdx (memory, region, 1));
+  EXPECT_EQ (9, oap::common::GetMemIdxFromMatrixIdx (memory, region, 2));
+  EXPECT_EQ (10, oap::common::GetMemIdxFromMatrixIdx (memory, region, 3));
+}
+

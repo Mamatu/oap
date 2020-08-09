@@ -185,6 +185,13 @@ __hostdeviceinline__ uintt GetMemoryIdx (const oap::Memory& memory, const oap::M
   return bufferIndex;
 }
 
+__hostdeviceinline__ uintt GetMemIdxFromMatrixIdx (const oap::Memory& memory, const oap::MemoryRegion& reg, uintt matrixIdx)
+{
+  const uintt lx = matrixIdx % reg.dims.width;
+  const uintt ly = matrixIdx / reg.dims.width;
+  return (reg.loc.x + lx) + (reg.loc.y + ly) * memory.dims.width;
+}
+
 __hostdeviceinline__ oap::MemoryLoc ConvertDimsIdxToLoc (uintt idx, const oap::MemoryDims& dims)
 {
   debugAssert (idx < dims.width * dims.height);

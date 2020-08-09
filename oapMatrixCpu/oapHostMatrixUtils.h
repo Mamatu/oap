@@ -32,6 +32,8 @@
 #include "oapMemory_GenericApi.h"
 #include "oapThreadsMapperApi.h"
 
+#include "oapHostMemoryApi.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -336,6 +338,7 @@ floatt GetImValue(const math::Matrix* matrix, uintt column, uintt row);
 void SetImValue(const math::Matrix* matrix, uintt column, uintt row, floatt value);
 
 std::string GetMatrixStr(const math::Matrix* matrix);
+math::Matrix GetRefHostMatrix (const math::Matrix* matrix);
 
 inline std::string to_string (const math::Matrix* matrix)
 {
@@ -758,7 +761,7 @@ void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uin
 template<typename Matrices>
 oap::ThreadsMapper createThreadsMapper (const std::vector<Matrices>& matricesVec)
 {
-  return oap::threads::createThreadsMapper (matricesVec, oap::host::GetMatrixInfo, malloc, memcpy, free);
+  return oap::threads::createThreadsMapper (matricesVec, oap::host::GetRefHostMatrix, malloc, memcpy, free);
 }
 
 oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices);

@@ -36,7 +36,7 @@ __hostdevice__ uintt GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 bl
   const uintt y = _memoryIdxY();
   UserData* ud = static_cast<UserData*>(mapper->data);
 
-  uintt threadIndex = y * _memoryWidth() * ud->argsCount + x + argIdx;
+  uintt threadIndex = (y * _memoryWidth() * ud->argsCount) + x + argIdx;
   uintt* indecies = static_cast<uintt*>(ud->buffer);
   return indecies[threadIndex];
 }

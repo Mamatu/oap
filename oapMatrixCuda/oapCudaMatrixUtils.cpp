@@ -332,6 +332,30 @@ math::Matrix GetRefHostMatrix (const math::Matrix* dMatrix)
   return userData.second;
 }
 
+oap::MemoryRegion GetReMemoryRegion (const math::Matrix* dmatrix)
+{
+  math::Matrix hmatrix = oap::cuda::GetRefHostMatrix (dmatrix);
+  return hmatrix.reReg;
+}
+
+oap::Memory GetReMemory (const math::Matrix* dmatrix)
+{
+  math::Matrix hmatrix = oap::cuda::GetRefHostMatrix (dmatrix);
+  return hmatrix.re;
+}
+
+oap::MemoryRegion GetImMemoryRegion (const math::Matrix* dmatrix)
+{
+  math::Matrix hmatrix = oap::cuda::GetRefHostMatrix (dmatrix);
+  return hmatrix.imReg;
+}
+
+oap::Memory GetImMemory (const math::Matrix* dmatrix)
+{
+  math::Matrix hmatrix = oap::cuda::GetRefHostMatrix (dmatrix);
+  return hmatrix.im;
+}
+
 floatt* GetReValuesPtr (const math::Matrix* dMatrix)
 {
   return GetRefHostMatrix (dMatrix).re.ptr;

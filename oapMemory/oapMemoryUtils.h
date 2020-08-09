@@ -64,12 +64,13 @@ namespace utils {
   }
 
   template<typename UserValue, typename MatrixInfoVec, typename CreateCallback, typename ThreadsMapperCallback>
-  std::pair<uintt, uintt> createThreadsBlocks (const MatrixInfoVec& infos, CreateCallback&& createCallback, ThreadsMapperCallback&& tmCallback)
+  std::pair<uintt, uintt> createThreadsDim (const MatrixInfoVec& infos, CreateCallback&& createCallback, ThreadsMapperCallback&& tmCallback)
   {
     using Tuple = std::tuple<uintt, uintt, uintt>;
     using Pair = std::pair<uintt, uintt>;
 
-    using MapPosIndex = std::map<Pair, UserValue>;
+    using MapPosIndex = std::map<Pair, uintt>;
+    using MapPosUserValue = std::map<Pair, UserValue>;
 
     struct Dim
     {
@@ -111,14 +112,14 @@ namespace utils {
       return dpb_set;
     };
 
-    auto fill = [&createCallback](uintt c, uintt c1, uintt r, uintt r1, uintt idx)
+    auto fill = [](uintt c, uintt c1, uintt r, uintt r1, uintt idx)
     {
       MapPosIndex map;
       for (uintt x = c; x < c1; ++x)
       {
         for (uintt y = r; y < r1; ++y)
         {
-          map[std::make_pair(x, y)] = createCallback (x, y, idx);
+          map[std::make_pair(x, y)] = idx;
         }
       }
       return map;
@@ -217,7 +218,14 @@ namespace utils {
 
     auto dim = output.first;
     auto& map = output.second;
+
+    MapPosUserValue map_uv;
+
     for (auto it = map.begin(); it != map.end(); ++it)
+    {
+      map_uv[it->first] = createCallback (it->first.first, it->first.second, it->second);
+    }
+    for (auto it = map_uv.begin(); it != map_uv.end(); ++it)
     {
       tmCallback(it->first.first, it->first.second, it->second, dim.width, dim.height);
     }
