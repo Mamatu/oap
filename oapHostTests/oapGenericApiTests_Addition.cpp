@@ -62,7 +62,7 @@ TEST_F(OapGenericApiTests_Addition, Test_1)
     3,
   };
 
-  std::vector<floatt> actual1 (output1->re.ptr, output1->re.ptr + 1);
+  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 
@@ -96,8 +96,8 @@ TEST_F(OapGenericApiTests_Addition, Test_2)
     3
   };
 
-  std::vector<floatt> actual1 (output1->re.ptr, output1->re.ptr + 1);
-  std::vector<floatt> actual2 (output2->re.ptr, output2->re.ptr + 1);
+  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
+  std::vector<floatt> actual2 = {oap::common::GetValue (output2->re, output2->reReg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory1);
   std::cout << "Memory: " << std::endl << std::to_string (memory2);
@@ -133,8 +133,8 @@ TEST_F(OapGenericApiTests_Addition, Test_3)
     2,
   };
 
-  std::vector<floatt> actual1 (output1->re.ptr, output1->re.ptr + 1);
-  std::vector<floatt> actual2 (output2->re.ptr, output2->re.ptr + 1);
+  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
+  std::vector<floatt> actual2 = {oap::common::GetValue (output2->re, output2->reReg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 
@@ -168,8 +168,8 @@ TEST_F(OapGenericApiTests_Addition, Test_4)
     2,
   };
 
-  std::vector<floatt> actual1 (output1->re.ptr, output1->re.ptr + 1);
-  std::vector<floatt> actual2 (output2->re.ptr, output2->re.ptr + 1);
+  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
+  std::vector<floatt> actual2 = {oap::common::GetValue (output2->re, output2->reReg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 
@@ -207,8 +207,17 @@ TEST_F(OapGenericApiTests_Addition, Test_5)
     2, 2, 2,
   };
 
-  std::vector<floatt> actual1 (output1->re.ptr, output1->re.ptr + 9);
-  std::vector<floatt> actual2 (output2->re.ptr, output2->re.ptr + 9);
+  std::vector<floatt> actual1;
+  std::vector<floatt> actual2;
+
+  for (uintt x = 0; x < 3; ++x)
+  {
+    for (uintt y = 0; y < 3; ++y)
+    {
+      actual1.push_back (oap::common::GetValue (output1->re, output1->reReg, x, y));
+      actual2.push_back (oap::common::GetValue (output1->re, output1->reReg, x, y));
+    }
+  }
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 

@@ -49,7 +49,7 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
 
   uintt linesCount = matricesArgs.size();
 
-  std::vector<math::Matrix> matrixRefs;
+  std::vector<std::vector<math::Matrix>> matricesRefs;
   std::vector<math::MatrixInfo> matrixInfos;
   uintt argsCount = 0;
   for (uintt l = 0; l < linesCount; ++l)
@@ -57,32 +57,34 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
     logAssert (l == 0 || argsCount == matricesArgs[l].size());
     argsCount = matricesArgs[l].size();
     logAssert (argsCount > 0);
+    std::vector<math::Matrix> matricesRef;
     for (uintt argIdx = 0; argIdx < matricesArgs[l].size(); ++argIdx)
     {
       const math::Matrix* matrix = matricesArgs[l][argIdx];
       auto refmatrix = getRefHostMatrix (matrix);
-      matrixRefs.push_back (refmatrix);
+      matricesRef.push_back (refmatrix);
       if (argIdx == 0)
       {
         matrixInfos.push_back (math::MatrixInfo (refmatrix));
       }
     }
+    matricesRefs.push_back (matricesRef);
   }
 
   std::map<std::pair<uintt, uintt>, std::vector<uintt>> map;
 
   std::map<uintt, uintt> matrixIdxCounter;
   auto dim = oap::utils::createThreadsDim<std::vector<uintt>> (matrixInfos,
-      [&matricesArgs, &matrixIdxCounter, &matrixRefs](uintt x, uintt y, uintt index)
+      [&matricesArgs, &matrixIdxCounter, &matricesRefs](uintt x, uintt y, uintt index)
       {
         const uintt arglen = matricesArgs[index].size();
         std::vector<uintt> indecies;
 
         uintt& matrixIdx = matrixIdxCounter[index];
 
-        for (uintt argidx = 0; argidx < arglen; ++argidx)
+        for (uintt argIdx = 0; argIdx < arglen; ++argIdx)
         {
-          indecies.push_back (oap::common::GetMemIdxFromMatrixIdx (matrixRefs[index].re, matrixRefs[index].reReg, matrixIdx));
+          indecies.push_back (oap::common::GetMemIdxFromMatrixIdx (matricesRefs[index][argIdx].re, matricesRefs[index][argIdx].reReg, matrixIdx));
         }
 
         matrixIdx = matrixIdx + 1;
@@ -95,9 +97,9 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
       });
 
   std::vector<uintt> buffer;
-  for (uintt y = 0; y < dim.second; ++y)
+  for (uintt x = 0; x < dim.first; ++x)
   {
-    for (uintt x = 0; x < dim.first; ++x)
+    for (uintt y = 0; y < dim.second; ++y)
     {
       auto it = map.find (std::make_pair(x, y));
       for (uintt argIdx = 0; argIdx < argsCount; ++argIdx)

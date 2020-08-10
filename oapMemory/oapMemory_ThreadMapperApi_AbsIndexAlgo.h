@@ -30,25 +30,38 @@ namespace oap
 namespace aia
 {
 
-__hostdevice__ uintt GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::Memory& memory, const oap::MemoryRegion& region, const oap::ThreadsMapperS* mapper, uintt argIdx)
+namespace
+{
+__hostdevice__ uintt getDataIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
 {
   const uintt x = _memoryIdxX();
   const uintt y = _memoryIdxY();
   UserData* ud = static_cast<UserData*>(mapper->data);
 
-  uintt threadIndex = (y * _memoryWidth() * ud->argsCount) + x + argIdx;
+  return (y * _memoryWidth() * ud->argsCount) + (x * ud->argsCount);
+}
+}
+
+__hostdevice__ uintt GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::Memory& memory, const oap::MemoryRegion& region, const oap::ThreadsMapperS* mapper, uintt argIdx)
+{
+  UserData* ud = static_cast<UserData*>(mapper->data);
   uintt* indecies = static_cast<uintt*>(ud->buffer);
-  return indecies[threadIndex];
+
+  uintt dataIdx = getDataIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, mapper);
+
+  dataIdx = dataIdx + argIdx;
+
+  return indecies[dataIdx];
 }
 
 __hostdeviceinline__ bool InRange_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
 {
-  const uintt x = _memoryIdxX();
-  const uintt y = _memoryIdxY();
   UserData* ud = static_cast<UserData*>(mapper->data);
+  uintt* indecies = static_cast<uintt*>(ud->buffer);
 
-  uintt threadIndex = y * _memoryWidth() * ud->argsCount + x;
-  return static_cast<uintt*>(ud->buffer)[threadIndex] < MAX_UINTT;
+  uintt dataIdx = getDataIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, mapper);
+
+  return indecies[dataIdx] < MAX_UINTT;
 }
 
 }
