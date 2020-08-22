@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2019 Marcin Matula
+ * Copyright 2016 - 2021 Marcin Matula
  *
  * This file is part of Oap.
  *
@@ -270,7 +270,7 @@ const std::vector<floatt> w2to3_56_1 = {0.2092448118194448, 0.09100441205504109}
 const std::vector<floatt> w3to4_56_1 = {0.08521619071184294, -0.006849773683825876};
 
 const std::vector<floatt> w1to2_57_1 = {-0.2628953820852873, -0.13445880429593948, 0.10370475841558183};
-const std::vector<floatt> w2to3_57_1 = {0.21039918138640845, 0.091821920193153};
+const std::vector<floatt> w2to3_57_1 = {0.21039918138640845, 0.091821920213153};
 const std::vector<floatt> w3to4_57_1 = {0.0889764477442164, 0.0031599521984362992};
 
 const Batches batches_0 = {{
@@ -1249,7 +1249,7 @@ const Points testPoints = {
 const floatt lossTrain_0 = 0.5002537136297341; 
 const floatt lossTest_0 = 0.4990291713483696; 
 
-const std::vector<floatt> w1to2_0_2 = {-0.2625895498512098, -0.1351640120193005, 0.10367403769618518};
+const std::vector<floatt> w1to2_0_2 = {-0.2625895498512098, -0.1351640120213005, 0.10367403769618518};
 const std::vector<floatt> w2to3_0_2 = {0.21057434320709836, 0.09114925111784422};
 const std::vector<floatt> w3to4_0_2 = {0.08866187868627329, -0.004654097431052214};
 
