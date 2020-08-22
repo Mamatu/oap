@@ -37,6 +37,7 @@ oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value);
 oap::Memory NewMemoryCopy (const oap::Memory& src);
 oap::Memory NewMemoryCopyMem (const oap::Memory& src, uintt width, uintt height);
 oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height);
+oap::Memory ReuseMemory (const oap::Memory& src);
 
 void DeleteMemory (const oap::Memory& mem);
 
@@ -45,6 +46,12 @@ floatt* GetRawMemory (const oap::Memory& mem);
 
 void CopyHostToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
 void CopyHostToHost (oap::Memory& dst, const oap::Memory& src);
+
+template<typename MemoryVec>
+oap::Memory NewMemoryBulk (const MemoryVec& vec, const oap::DataDirection& dd)
+{
+  return oap::generic::newMemory_bulk (vec, dd, oap::host::NewMemory, memcpy);
+}
 
 }
 }

@@ -27,7 +27,7 @@
 #include "oapMemoryList.h"
 #include "oapMemoryPrimitives.h"
 #include "oapMemory_GenericApi.h"
-#include "oapMemoryManager.h"
+#include "oapMemoryCounter.h"
 
 #include "CudaUtils.h"
 
@@ -78,105 +78,91 @@ namespace
 {
 
 MemoryList g_memoryList ("MEMORY_CUDA");
+MemoryCounter g_memoryCounter;
 
-floatt* allocateBuffer (size_t length)
+floatt* allocateMem (const oap::MemoryDims& dims)
 {
+  const uintt length = dims.width * dims.height;
   floatt* buffer = static_cast<floatt*>(CudaUtils::AllocDeviceMem (length * sizeof (floatt)));
   g_memoryList.add (buffer, length);
   return buffer;
 }
 
-void deallocateBuffer (floatt* const buffer)
-{
-  g_memoryList.remove (buffer);
-  CudaUtils::FreeDeviceMem (static_cast<const void*>(buffer));
-}
-
-oap::MemoryManagement<floatt*, decltype(allocateBuffer), decltype(deallocateBuffer), nullptr> g_memoryMng (allocateBuffer, deallocateBuffer);
-
-floatt* allocateMem (const oap::MemoryDims& dims)
-{
-  floatt* raw = g_memoryMng.allocate (dims.width * dims.height);
-  return raw;
-}
-
 void deallocateMem (const oap::Memory& memory)
 {
-  g_memoryMng.deallocate (memory.ptr);
+  CudaUtils::FreeDeviceMem (static_cast<const void*>(memory.ptr));
+  g_memoryList.remove (memory.ptr);
 }
 
 }
 
 oap::Memory NewMemory (const oap::MemoryDims& dims)
 {
-  return oap::generic::newMemory (dims, allocateMem); 
+  return oap::generic::newMemory (dims, allocateMem, [](floatt* ptr)
+    {
+      g_memoryCounter.increase (ptr);
+    });
 }
 
 oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value)
 {
-  return oap::generic::newMemoryWithValues (dims, value, [](const MemoryDims& dims, floatt value)
-  {
-    oap::Memory memory = NewMemory (dims);
-    oap::Memory hmemory = oap::host::NewMemoryWithValues (dims, value);
-    oap::cuda::CopyHostToDevice (memory, hmemory);
-    return memory.ptr;
-  });
+  oap::Memory memory = NewMemory (dims);
+  oap::Memory hmemory = oap::host::NewMemoryWithValues (dims, value);
+  oap::cuda::CopyHostToDevice (memory, hmemory);
+  oap::host::DeleteMemory (hmemory);
+  return memory;
 }
 
 oap::Memory NewMemoryDeviceCopy (const oap::Memory& src)
 {
-  return oap::generic::newMemoryCopy (src, [](floatt* const ptr, const oap::MemoryDims& dims)
-  {
-    oap::Memory memory = NewMemory (dims);
-    oap::cuda::CopyDeviceToDevice (memory, {ptr, dims});
-    return memory.ptr;
-  });
+  oap::Memory memory = NewMemory (src.dims);
+  oap::generic::copyMemory (memory, src, CudaUtils::CopyDeviceToDevice);
+  return memory;
 }
 
 oap::Memory NewMemoryHostCopy (const oap::Memory& src)
 {
-  return oap::generic::newMemoryCopy (src, [](floatt* const ptr, const oap::MemoryDims& dims)
-  {
-    oap::Memory memory = NewMemory (dims);
-    oap::cuda::CopyHostToDevice (memory, {ptr, dims});
-    return memory.ptr;
-  });
+  oap::Memory memory = NewMemory (src.dims);
+  oap::generic::copyMemory (memory, src, CudaUtils::CopyHostToDevice);
+  return memory;
 }
 
 oap::Memory NewMemoryDeviceCopyMem (const oap::Memory& src, uintt width, uintt height)
 {
-  return oap::generic::newMemoryCopyMem (src, width, height, [](floatt* const ptr, const oap::MemoryDims& oldDims, const oap::MemoryDims& newDims)
-  {
-    oap::Memory memory = NewMemory (newDims);
-    oap::cuda::CopyDeviceToDevice (memory, {ptr, oldDims});
-    return memory.ptr;
-  });
+  oap::Memory memory = NewMemory ({width, height});
+  oap::generic::copyMemory (memory, src, CudaUtils::CopyDeviceToDevice);
+  return memory;
 }
 
 oap::Memory NewMemoryHostCopyMem (const oap::Memory& src, uintt width, uintt height)
 {
-  return oap::generic::newMemoryCopyMem (src, width, height, [](floatt* const ptr, const oap::MemoryDims& oldDims, const oap::MemoryDims& newDims)
-  {
-    oap::Memory memory = NewMemory (newDims);
-    oap::cuda::CopyHostToDevice (memory, {ptr, oldDims});
-    return memory.ptr;
-  });
+  oap::Memory memory = NewMemory ({width, height});
+  oap::generic::copyMemory (memory, src, CudaUtils::CopyHostToDevice);
+  return memory;
 }
 
 oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height)
 {
-  return oap::generic::reuseMemory (src, width, height, [](floatt* ptr, const oap::MemoryDims& oldDims, const oap::MemoryDims& newDims)
-  {
-    return g_memoryMng.reuse (ptr);
-  });
+  return oap::generic::reuseMemory (src, width, height, [](floatt* ptr)
+      {
+        g_memoryCounter.increase (ptr);
+      });
+}
+
+oap::Memory ReuseMemory (const oap::Memory& src)
+{
+  return oap::generic::reuseMemory (src, src.dims.width, src.dims.height, [](floatt* ptr)
+      {
+        g_memoryCounter.increase (ptr);
+      });
 }
 
 void DeleteMemory (const oap::Memory& mem)
 {
-  return oap::generic::deleteMemory (mem, [](const oap::Memory& mem)
-  {
-    deallocateMem (mem);
-  });
+  oap::generic::deleteMemory (mem, deallocateMem, [](floatt* ptr) -> uintt
+      {
+        return g_memoryCounter.decrease (ptr);
+      });
 }
 
 oap::MemoryDims GetDims (const oap::Memory& mem)

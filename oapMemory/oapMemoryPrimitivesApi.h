@@ -22,8 +22,35 @@
 
 #include <string>
 #include <sstream>
+#include <functional>
 #include "oapMemoryPrimitives.h"
 #include "oapMemory_CommonApi.h"
+
+namespace oap
+{
+namespace
+{
+  auto defaultEndl = [](){};
+}
+
+  template<typename SetValue, typename Endl = decltype(defaultEndl)>
+  void iterate (SetValue&& setValue, const oap::Memory& memory, Endl&& endl = std::forward<Endl>(defaultEndl))
+  {
+    for (uintt y = 0; y < memory.dims.height; ++y)
+    {
+      for (uintt x = 0; x < memory.dims.width; ++x)
+      {
+        setValue (memory.ptr[x + y * memory.dims.width]);
+      }
+      endl ();
+    }
+  }
+
+  inline void to_vector (std::vector<floatt>& vector, const oap::Memory& memory)
+  {
+    iterate ([&vector](floatt value) { vector.push_back (value); }, memory);
+  }
+}
 
 namespace std
 {
@@ -36,14 +63,14 @@ namespace std
   std::string to_string (const oap::MemoryRegion& region);
 }
 
-inline bool operator== (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
-{
-  return oap::common::CompareMemoryRegion (reg1, reg2);
-}
+bool operator== (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2);
 
-inline bool operator!= (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
-{
-  return !(reg1 == reg2);
-}
+bool operator!= (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2);
+
+bool operator== (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2);
+
+bool operator!= (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2);
+
+bool operator< (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2);
 
 #endif

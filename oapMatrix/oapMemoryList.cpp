@@ -23,4 +23,6 @@ MemoryList::MemoryList (const std::string& id) : oap::AllocationList<floatt*, si
 {}
 
 MemoryList::~MemoryList ()
-{}
+{
+  checkOnDelete ();
+}

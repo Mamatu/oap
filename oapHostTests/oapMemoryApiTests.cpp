@@ -17,53 +17,31 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_MEMORY_REGION_H
-#define OAP_MEMORY_REGION_H
+#include "gtest/gtest.h"
+#include "oapHostMemoryApi.h"
 
-#include "Math.h"
-#include "CuCore.h"
-
-namespace oap
+class OapMemoryApiTests : public testing::Test
 {
+ public:
 
-struct MemoryLoc
-{
-  uintt x;
-  uintt y;
+  virtual void SetUp() {}
+
+  virtual void TearDown() {}
 };
 
-struct MemoryDims
+TEST_F(OapMemoryApiTests, Test_1)
 {
-  uintt width;
-  uintt height;
-};
+  oap::Memory memory = oap::host::NewMemory ({1, 1});
+  oap::Memory memory1 = oap::host::ReuseMemory (memory);
+  oap::Memory memory2 = oap::host::ReuseMemory (memory);
 
-struct Memory
-{
-  floatt* ptr;
-  MemoryDims dims;
-};
-
-struct MemoryRegion
-{
-  MemoryLoc loc;
-  MemoryDims dims;
-};
-
-struct Memory_3_Args
-{
-  oap::Memory m_output;
-  oap::Memory m_param1;
-  oap::Memory m_param2;
-};
-
-struct MemoryRegion_3_Args
-{
-  oap::MemoryRegion m_output;
-  oap::MemoryRegion m_param1;
-  oap::MemoryRegion m_param2;
-};
-
+  oap::host::DeleteMemory (memory);
+  oap::host::DeleteMemory (memory1);
+  oap::host::DeleteMemory (memory2);
 }
 
-#endif
+TEST_F(OapMemoryApiTests, Test_2)
+{
+  oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 2.f);
+  oap::host::DeleteMemory (memory);
+}

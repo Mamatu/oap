@@ -34,6 +34,7 @@
 
 namespace oap
 {
+
 namespace generic
 {
 

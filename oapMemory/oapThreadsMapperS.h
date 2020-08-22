@@ -17,53 +17,19 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_MEMORY_REGION_H
-#define OAP_MEMORY_REGION_H
+#ifndef OAP_THREADS_MAPPER_S_H
+#define OAP_THREADS_MAPPER_S_H
 
-#include "Math.h"
-#include "CuCore.h"
+#define OAP_THREADS_MAPPER_MODE__SIMPLE 1
 
 namespace oap
 {
 
-struct MemoryLoc
+struct ThreadsMapperS
 {
-  uintt x;
-  uintt y;
-};
-
-struct MemoryDims
-{
-  uintt width;
-  uintt height;
-};
-
-struct Memory
-{
-  floatt* ptr;
-  MemoryDims dims;
-};
-
-struct MemoryRegion
-{
-  MemoryLoc loc;
-  MemoryDims dims;
-};
-
-struct Memory_3_Args
-{
-  oap::Memory m_output;
-  oap::Memory m_param1;
-  oap::Memory m_param2;
-};
-
-struct MemoryRegion_3_Args
-{
-  oap::MemoryRegion m_output;
-  oap::MemoryRegion m_param1;
-  oap::MemoryRegion m_param2;
+  char mode;
+  void* data;
 };
 
 }
-
 #endif

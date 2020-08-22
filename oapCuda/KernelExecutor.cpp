@@ -271,7 +271,7 @@ bool Kernel::run (const char* functionName)
                        ep.blocksCount[0], ep.blocksCount[1], ep.blocksCount[2],
                        ep.threadsCount[0], ep.threadsCount[1], ep.threadsCount[2],
                        ep.sharedMemSize, NULL,
-                       this->getParams(), NULL));
+                       const_cast<void**>(this->getParams()), NULL));
   }
   else
   {
@@ -433,7 +433,7 @@ void Kernel::SetThreadsBlocks(uint blocks[2], uint threads[2],
   ::utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
 }
 
-bool Kernel::Execute(const char* functionName, void** params, oap::cuda::Kernel& kernel)
+bool Kernel::Execute(const char* functionName, const void** params, oap::cuda::Kernel& kernel)
 {
   kernel.setParams(params);
   return kernel.execute(functionName);

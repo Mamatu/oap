@@ -22,13 +22,18 @@ MatrixInfo::MatrixInfo(bool _isRe, bool _isIm, uintt _columns, uintt _rows) : is
   m_matrixDim.rows = _rows;
 }
 
-MatrixInfo::MatrixInfo(math::Matrix* hostMatrix)
+MatrixInfo::MatrixInfo (const math::Matrix* hostMatrix)
 {
   isRe = gReValues (hostMatrix) != NULL;
   isIm = gImValues (hostMatrix) != NULL;
 
   m_matrixDim.columns = gColumns (hostMatrix);
   m_matrixDim.rows = gRows (hostMatrix);
+}
+
+MatrixInfo::MatrixInfo (const math::Matrix& hostMatrix) : MatrixInfo (&hostMatrix)
+{
+  //empty
 }
 
 bool MatrixInfo::isInitialized() const

@@ -30,7 +30,8 @@ class MatrixInfo
 
   MatrixInfo(bool _isRe, bool _isIm, uintt _columns, uintt _rows);
 
-  explicit MatrixInfo (math::Matrix* hostMatrix);
+  explicit MatrixInfo (const math::Matrix* hostMatrix);
+  explicit MatrixInfo (const math::Matrix& hostMatrix);
 
   bool isInitialized() const;
 

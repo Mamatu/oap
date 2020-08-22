@@ -156,3 +156,94 @@ TEST_F(OapHostMemoryApiTests, CopyTest_2)
   oap::host::DeleteMatrix (matrix1);
   oap::host::DeleteMatrix (matrix2);
 }
+
+TEST_F(OapHostMemoryApiTests, NewMemoryBulk_Test_1)
+{
+  std::vector<oap::Memory> memories =
+  {
+    oap::host::NewMemoryWithValues ({1, 1}, 1.),
+    oap::host::NewMemoryWithValues ({1, 1}, 2.),
+    oap::host::NewMemoryWithValues ({1, 1}, 3.)
+  };
+
+  oap::Memory bulk1 = oap::host::NewMemoryBulk (memories, oap::DataDirection::HORIZONTAL);
+
+  EXPECT_EQ (3, bulk1.dims.width);
+  EXPECT_EQ (1, bulk1.dims.height);
+
+  EXPECT_EQ (1., bulk1.ptr[0]);
+  EXPECT_EQ (2., bulk1.ptr[1]);
+  EXPECT_EQ (3., bulk1.ptr[2]);
+
+  oap::Memory bulk2 = oap::host::NewMemoryBulk (memories, oap::DataDirection::VERTICAL);
+
+  EXPECT_EQ (1, bulk2.dims.width);
+  EXPECT_EQ (3, bulk2.dims.height);
+
+  EXPECT_EQ (1., bulk2.ptr[0]);
+  EXPECT_EQ (2., bulk2.ptr[1]);
+  EXPECT_EQ (3., bulk2.ptr[2]);
+
+  oap::host::DeleteMemory (memories[0]);
+  oap::host::DeleteMemory (memories[1]);
+  oap::host::DeleteMemory (memories[2]);
+
+  oap::host::DeleteMemory (bulk1);
+  oap::host::DeleteMemory (bulk2);
+}
+
+TEST_F(OapHostMemoryApiTests, NewMemoryBulk_Test_2)
+{
+  std::vector<oap::Memory> memories =
+  {
+    oap::host::NewMemoryWithValues ({2, 2}, 1.),
+    oap::host::NewMemoryWithValues ({2, 2}, 2.),
+    oap::host::NewMemoryWithValues ({2, 2}, 3.)
+  };
+
+  oap::Memory bulk1 = oap::host::NewMemoryBulk (memories, oap::DataDirection::HORIZONTAL);
+
+  EXPECT_EQ (6, bulk1.dims.width);
+  EXPECT_EQ (2, bulk1.dims.height);
+
+  EXPECT_EQ (1., bulk1.ptr[0]);
+  EXPECT_EQ (1., bulk1.ptr[1]);
+  EXPECT_EQ (2., bulk1.ptr[2]);
+  EXPECT_EQ (2., bulk1.ptr[3]);
+  EXPECT_EQ (3., bulk1.ptr[4]);
+  EXPECT_EQ (3., bulk1.ptr[5]);
+
+  EXPECT_EQ (1., bulk1.ptr[6]);
+  EXPECT_EQ (1., bulk1.ptr[7]);
+  EXPECT_EQ (2., bulk1.ptr[8]);
+  EXPECT_EQ (2., bulk1.ptr[9]);
+  EXPECT_EQ (3., bulk1.ptr[10]);
+  EXPECT_EQ (3., bulk1.ptr[11]);
+
+  oap::Memory bulk2 = oap::host::NewMemoryBulk (memories, oap::DataDirection::VERTICAL);
+
+  EXPECT_EQ (2, bulk2.dims.width);
+  EXPECT_EQ (6, bulk2.dims.height);
+
+  EXPECT_EQ (1., bulk2.ptr[0]);
+  EXPECT_EQ (1., bulk2.ptr[1]);
+  EXPECT_EQ (1., bulk2.ptr[2]);
+  EXPECT_EQ (1., bulk2.ptr[3]);
+
+  EXPECT_EQ (2., bulk2.ptr[4]);
+  EXPECT_EQ (2., bulk2.ptr[5]);
+  EXPECT_EQ (2., bulk2.ptr[6]);
+  EXPECT_EQ (2., bulk2.ptr[7]);
+
+  EXPECT_EQ (3., bulk2.ptr[8]);
+  EXPECT_EQ (3., bulk2.ptr[9]);
+  EXPECT_EQ (3., bulk2.ptr[10]);
+  EXPECT_EQ (3., bulk2.ptr[11]);
+
+  oap::host::DeleteMemory (memories[0]);
+  oap::host::DeleteMemory (memories[1]);
+  oap::host::DeleteMemory (memories[2]);
+
+  oap::host::DeleteMemory (bulk1);
+  oap::host::DeleteMemory (bulk2);
+}

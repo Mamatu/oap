@@ -23,6 +23,18 @@
 #include "CuMatrixProcedures.h"
 
 template<typename T>
+T* getParam (const void* param)
+{
+  return *static_cast<T* const*> (param);
+}
+
+template<typename T>
+T* getParam (const void** params, size_t index)
+{
+  return getParam<T> (params[index]);
+}
+
+template<typename T>
 T* getParam (void* param)
 {
   return *static_cast<T**> (param);
@@ -40,7 +52,7 @@ void arg_hostKernel (math::Matrix* output)                        \
   arg_cudaKernel (output);                                        \
 }                                                                 \
                                                                   \
-void proxy_##arg_hostKernel (void** params)                       \
+void proxy_##arg_hostKernel (const void** params)                       \
 {                                                                 \
   math::Matrix* output = getParam<math::Matrix> (params[0]);      \
   arg_hostKernel (output);                                        \
@@ -52,7 +64,7 @@ void arg_hostKernel (math::Matrix* output, uintt* ex)                         \
   arg_cudaKernel (output, ex);                                                \
 }                                                                             \
                                                                               \
-void proxy_##arg_hostKernel (void** params)                                   \
+void proxy_##arg_hostKernel (const void** params)                                   \
 {                                                                             \
   math::Matrix* output = getParam<math::Matrix> (params[0]);                  \
   uintt* ex = getParam<uintt> (params[1]);                                    \
@@ -65,7 +77,7 @@ void arg_hostKernel (math::Matrix* output, math::Matrix* param1)  \
   arg_cudaKernel (output, param1);                                \
 }                                                                 \
                                                                   \
-void proxy_##arg_hostKernel (void** params)                       \
+void proxy_##arg_hostKernel (const void** params)                       \
 {                                                                 \
   math::Matrix* output = getParam<math::Matrix> (params[0]);      \
   math::Matrix* matrix = getParam<math::Matrix> (params[1]);      \
@@ -78,7 +90,7 @@ void arg_hostKernel (math::Matrix* output, math::Matrix* param1, uintt* ex)   \
   arg_cudaKernel (output, param1, ex);                                        \
 }                                                                             \
                                                                               \
-void proxy_##arg_hostKernel (void** params)                                   \
+void proxy_##arg_hostKernel (const void** params)                                   \
 {                                                                             \
   math::Matrix* output = getParam<math::Matrix> (params[0]);                  \
   math::Matrix* matrix = getParam<math::Matrix> (params[1]);                  \
@@ -92,7 +104,7 @@ void arg_hostKernel (math::Matrix* output, math::Matrix* param1, math::Matrix* p
   arg_cudaKernel (output, param1, param2);                                              \
 }                                                                                       \
                                                                                         \
-void proxy_##arg_hostKernel (void** params)                                             \
+void proxy_##arg_hostKernel (const void** params)                                             \
 {                                                                                       \
   math::Matrix* output = getParam<math::Matrix> (params[0]);                            \
   math::Matrix* matrix = getParam<math::Matrix> (params[1]);                            \
@@ -106,7 +118,7 @@ void arg_hostKernel (math::Matrix* output, math::Matrix* param1, math::Matrix* p
   arg_cudaKernel (output, param1, param2, ex);                                                      \
 }                                                                                                   \
                                                                                                     \
-void proxy_##arg_hostKernel (void** params)                                                         \
+void proxy_##arg_hostKernel (const void** params)                                                         \
 {                                                                                                   \
   math::Matrix* output = getParam<math::Matrix> (params[0]);                                        \
   math::Matrix* matrix = getParam<math::Matrix> (params[1]);                                        \
@@ -120,7 +132,7 @@ void HOSTKernel_SumShared (floatt* rebuffer, floatt* imbuffer, math::Matrix* mat
   CUDA_sumShared (rebuffer, imbuffer, matrix);
 }
 
-void proxy_HOSTKernel_SumShared (void** params)
+void proxy_HOSTKernel_SumShared (const void** params)
 {
   floatt* param1 = getParam<floatt> (params[0]);
   floatt* param2 = getParam<floatt> (params[1]);
@@ -174,16 +186,16 @@ void HOSTKernel_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::M
   CudaKernel_QRHT(Q, R, A, V, VT, P, VVT);
 }
 
-void proxy_HOSTKernel_QRHT (void** params)
+void proxy_HOSTKernel_QRHT (const void** params)
 {
   size_t i = 0;
-  math::Matrix* Q = getParam<math::Matrix> (params[i++]);
-  math::Matrix* R = getParam<math::Matrix> (params[i++]);
-  math::Matrix* A = getParam<math::Matrix> (params[i++]);
-  math::Matrix* V = getParam<math::Matrix> (params[i++]);
-  math::Matrix* VT = getParam<math::Matrix> (params[i++]);
-  math::Matrix* P = getParam<math::Matrix> (params[i++]);
-  math::Matrix* VVT = getParam<math::Matrix> (params[i++]);
+  math::Matrix* Q = getParam<math::Matrix> (params, i++);
+  math::Matrix* R = getParam<math::Matrix> (params, i++);
+  math::Matrix* A = getParam<math::Matrix> (params, i++);
+  math::Matrix* V = getParam<math::Matrix> (params, i++);
+  math::Matrix* VT = getParam<math::Matrix> (params, i++);
+  math::Matrix* P = getParam<math::Matrix> (params, i++);
+  math::Matrix* VVT = getParam<math::Matrix> (params, i++);
 
   HOSTKernel_QRHT (Q, R, A, V, VT, P, VVT);
 }
@@ -194,12 +206,12 @@ void HOSTKernel_setVector (math::Matrix* V, uintt column,
   CUDAKernel_setVector (V, column, v, length);
 }
 
-void proxy_HOSTKernel_setVector (void** params)
+void proxy_HOSTKernel_setVector (const void** params)
 {
   math::Matrix* V = getParam<math::Matrix> (params[0]);
-  uintt column = *static_cast<uintt*> (params[1]);
+  uintt column = *static_cast<const uintt*> (params[1]);
   math::Matrix* v = getParam<math::Matrix> (params[2]);
-  uintt length = *static_cast<uintt*> (params[3]);
+  uintt length = *static_cast<const uintt*> (params[3]);
 
   HOSTKernel_setVector (V, column, v, length);
 }
@@ -210,14 +222,29 @@ void HOSTKernel_getVector (math::Matrix* v, uintt length,
   CUDAKernel_getVector (v, length, V, column);
 }
 
-void proxy_HOSTKernel_getVector (void** params)
+void proxy_HOSTKernel_getVector (const void** params)
 {
   math::Matrix* v = getParam<math::Matrix> (params[0]);
-  uintt length = *static_cast<uintt*> (params[1]);
+  uintt length = *static_cast<const uintt*> (params[1]);
   math::Matrix* V = getParam<math::Matrix> (params[2]);
-  uintt column = *static_cast<uintt*> (params[3]);
+  uintt column = *static_cast<const uintt*> (params[3]);
 
   HOSTKernel_getVector (v, length, V, column);
+}
+
+void HOSTKernel_GenericApi_AddConstant (math::Matrix** outputs, math::Matrix* const* params1, floatt params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_AddConstant (outputs, params1, params2, mapper);
+}
+
+void proxy_HOSTKernel_GenericApi_AddConstant (const void** params)
+{
+  math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
+  math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
+  floatt params2 = *static_cast<const floatt*> (params[2]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[3]);
+
+  HOSTKernel_GenericApi_AddConstant (outputs, params1, params2, mapper);
 }
 
 #endif

@@ -36,7 +36,7 @@ bool execute(const char* functionName, math::Matrix* matrix, void** params,
   uintt h = oap::cuda::GetRows(matrix);
   prepareDims(w, h, kernel);
   kernel.setSharedMemory(sharedMemory);
-  return ::oap::cuda::Kernel::Execute(functionName, params, kernel);
+  return ::oap::cuda::Kernel::Execute(functionName, const_cast<const void**>(params), kernel);
 }
 
 bool DEVICEKernel_DotProduct(math::Matrix* output, math::Matrix* params0,
@@ -70,7 +70,7 @@ bool DEVICEKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
                                       math::Matrix* R2, math::Matrix* G,
                                       math::Matrix* GT, uintt columns,
                                       uintt rows, oap::cuda::Kernel& kernel) {
-  void* params[] = {&H1, &Q, &R1, &Q1, &QJ, &Q2, &R2, &G, &GT};
+  const void* params[] = {&H1, &Q, &R1, &Q1, &QJ, &Q2, &R2, &G, &GT};
   kernel.setDimensions(columns, rows);
   return oap::cuda::Kernel::Execute("CUDAKernel_CalculateTriangularH", params, kernel);
 }

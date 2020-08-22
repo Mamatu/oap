@@ -34,7 +34,6 @@
 #include "ThreadsMapper.h"
 #include "oapCudaMatrixUtils.h"
 
-#include "GenericProceduresApi.h"
 #include "CudaCoreApi.h"
 #include "Logger.h"
 
@@ -58,7 +57,7 @@ bool CuProceduresApi::execute (const char* functionName, uintt w, uintt h, void*
 
   resetFlags();
 
-  return ::oap::cuda::Kernel::Execute(functionName, params, m_kernel);
+  return ::oap::cuda::Kernel::Execute(functionName, const_cast<const void**>(params), m_kernel);
 }
 
 CuProceduresApi::CuProceduresApi()
@@ -127,7 +126,7 @@ void CuProceduresApi::addDotProduct(math::Matrix* output, math::Matrix* params0,
 
   oap::generic::check_dotProduct (output, params0, params1, m_bmApi);
 
-  void* params[] = {&output, &params0, &params1};
+  const void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_AddDotProduct";
 
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
@@ -144,7 +143,7 @@ void CuProceduresApi::tensorProduct(math::Matrix* output, math::Matrix* params0,
 
   oap::generic::check_tensorProduct (output, params0, params1, columns, rows, m_bmApi);
 
-  void* params[] = {&output, &params0, &params1};
+  const void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_TensorProduct";
 
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
@@ -167,7 +166,7 @@ void CuProceduresApi::hadamardProduct(math::Matrix* output, math::Matrix* params
   oap::generic::BasicMatrixDimApi<decltype(CuProceduresApi::GetColumns), decltype(CuProceduresApi::GetRows)> bmdApi (CuProceduresApi::GetColumns, CuProceduresApi::GetRows);
   oap::generic::check_hadamardProduct (output, params0, params1, columns, rows, bmdApi);
 
-  void* params[] = {&output, &params0, &params1};
+  const void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_HadamardProduct";
 
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
@@ -185,7 +184,7 @@ void CuProceduresApi::hadamardProductVec (math::Matrix* output, math::Matrix* pa
   oap::generic::BasicMatrixDimApi<decltype(CuProceduresApi::GetColumns), decltype(CuProceduresApi::GetRows)> bmdApi (CuProceduresApi::GetColumns, CuProceduresApi::GetRows);
   oap::generic::check_hadamardProductVec (output, params0, params1, columns, rows, bmdApi);
 
-  void* params[] = {&output, &params0, &params1};
+  const void* params[] = {&output, &params0, &params1};
   const char* kname = "CUDAKernel_PHadamardProduct";
 
   m_cuStatus = generic::executeKernel (kname, output, params, &m_kernel, m_bmApi, m_preExecCallback);
@@ -887,6 +886,11 @@ void CuProceduresApi::scale (math::Matrix* matrix)
   this->multiplyConstant (matrix, matrix, 1. / sd, 0);
 }
 
+void CuProceduresApi::dotProduct (oap::Memory& output, const oap::Memory& arg1, const oap::Memory& arg2, const oap::MemoryRegion_3_Args* regions)
+{
+  //m_cuStatus = oap::generic::dotProduct (output, arg1, arg2, regions, &m_kernel);
+}
+
 floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix* matrix1,
                                 math::Matrix* matrix2, uintt w, uintt h,
                                 uintt wthreads, uintt hthreads) {
@@ -910,7 +914,7 @@ floatt CuProceduresApi::compareProcedure(const char* cuKernelName, math::Matrix*
   m_dcompareOutputBuffer.realloc(outputLength);
   m_hcompareOutputBuffer.realloc(outputLength);
 
-  void* params[] = {&m_dcompareOutputBuffer.m_buffer, &matrix1, &matrix2};
+  const void* params[] = {&m_dcompareOutputBuffer.m_buffer, &matrix1, &matrix2};
 
   m_cuStatus = ::oap::cuda::Kernel::Execute(cuKernelName, params, m_kernel);
 
@@ -949,7 +953,7 @@ floatt CuProceduresApi::magnitude2Procedure(const char* cuKernelName,
   m_dmagnitudeOutputBuffer.realloc(outputLength);
   m_hmagnitudeOutputBuffer.realloc(outputLength);
 
-  void* params[] = {&m_dmagnitudeOutputBuffer.m_buffer, &matrix};
+  const void* params[] = {&m_dmagnitudeOutputBuffer.m_buffer, &matrix};
 
   m_cuStatus = ::oap::cuda::Kernel::Execute(cuKernelName, params, m_kernel);
 
@@ -986,13 +990,13 @@ void CuProceduresApi::qrProcedure(QRType qrType, math::Matrix* Q, math::Matrix* 
 
   if (qrType == OPT) {
     m_kernel.setSharedMemory(h * sizeof(floatt));
-    void* params[] = {&Q, &R, &A, &AT, &m_dqrSums.m_buffer, &P, &I, &v, &vt,
+    const void* params[] = {&Q, &R, &A, &AT, &m_dqrSums.m_buffer, &P, &I, &v, &vt,
                       &vvt};
     m_cuStatus =
         ::oap::cuda::Kernel::Execute("CUDAKernel_QRHTOpt", params, m_kernel);
   } else {
     m_dqrBuffer.realloc(h);
-    void* params[] = {&Q, &R, &A, &AT, &m_dqrSums.m_buffer,
+    const void* params[] = {&Q, &R, &A, &AT, &m_dqrSums.m_buffer,
                       &m_dqrBuffer.m_buffer, &P, &I, &v, &vt, &vvt};
     m_cuStatus = ::oap::cuda::Kernel::Execute("CUDAKernel_QRHT", params, m_kernel);
   }

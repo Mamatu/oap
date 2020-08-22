@@ -658,6 +658,7 @@ TEST_F(OapMatrixCudaTests, CopyTest_1)
     EXPECT_EQ (0.f, oap::common::GetValue (hmemory, oap::common::OAP_NONE_REGION(), 0, 6));
     EXPECT_EQ (0.f, oap::common::GetValue (hmemory, oap::common::OAP_NONE_REGION(), 0, 7));
 
+    oap::host::DeleteMemory (hmemory);
     oap::cuda::DeleteMemory (memory1);
     oap::cuda::DeleteMemory (memory2);
   }

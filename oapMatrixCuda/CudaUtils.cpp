@@ -28,7 +28,6 @@
 
 #include "KernelExecutor.h"
 #include "MatrixUtils.h"
-#include "oapMemoryManager.h"
 #include "oapMemory_GenericApi.h"
 #include "oapMemory_CommonApi.h"
 #include "oapMemoryPrimitivesApi.h"

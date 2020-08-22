@@ -27,7 +27,7 @@
 #include "oapMemoryList.h"
 #include "oapMemoryPrimitives.h"
 #include "oapMemory_GenericApi.h"
-#include "oapMemoryManager.h"
+#include "oapMemoryCounter.h"
 
 #define ReIsNotNULL(m) m->reValues != nullptr
 #define ImIsNotNULL(m) m->imValues != nullptr
@@ -76,88 +76,75 @@ namespace
 {
 
 MemoryList g_memoryList ("MEMORY_HOST");
-
-floatt* allocateBuffer (size_t length)
-{
-  floatt* buffer = new floatt [length];
-  g_memoryList.add (buffer, length);
-  logTrace ("buffer = %p", buffer);
-  return buffer;
-}
-
-void deallocateBuffer (floatt* const buffer)
-{
-  g_memoryList.remove (buffer);
-  delete[] buffer;
-  logTrace ("~buffer = %p", buffer);
-}
-
-oap::MemoryManagement<floatt*, decltype(allocateBuffer), decltype(deallocateBuffer), nullptr> g_memoryMng (allocateBuffer, deallocateBuffer);
+MemoryCounter g_memoryCounter;
 
 floatt* allocateMem (const oap::MemoryDims& dims)
 {
-  floatt* raw = g_memoryMng.allocate (dims.width * dims.height);
-
-  return raw;
+  const uintt length = dims.width * dims.height;
+  floatt* buffer = new floatt [length];
+  g_memoryList.add (buffer, length);
+  return buffer;
 }
 
 void deallocateMem (const oap::Memory& memory)
 {
-  g_memoryMng.deallocate (memory.ptr);
+  delete[] memory.ptr;
+  g_memoryList.remove (memory.ptr);
 }
 
 }
 
 oap::Memory NewMemory (const oap::MemoryDims& dims)
 {
-  return oap::generic::newMemory (dims, allocateMem);
+  return oap::generic::newMemory (dims, allocateMem, [](floatt* ptr)
+      {
+        g_memoryCounter.increase (ptr);
+      });
 }
 
 oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value)
 {
-  return oap::generic::newMemoryWithValues (dims, value, [](const MemoryDims& dims, floatt value)
-  {
-    oap::Memory memory = NewMemory (dims);
-    math::Memset (memory.ptr, value, dims.width * dims.height);
-    return memory.ptr;
-  });
+  oap::Memory memory = NewMemory (dims);
+  math::Memset (memory.ptr, value, dims.width * dims.height);
+  return memory;
 }
 
 oap::Memory NewMemoryCopy (const oap::Memory& src)
 {
-  return oap::generic::newMemoryCopy (src, [](floatt* const src, const MemoryDims& dims)
-  {
-    oap::Memory memory = NewMemory (dims);
-    const oap::Memory srcMem = {src, dims};
-    oap::host::CopyHostToHost (memory, srcMem);
-    return memory.ptr;
-  });
+  oap::Memory memory = NewMemory (src.dims);
+  oap::host::CopyHostToHost (memory, src);
+  return memory;
 }
 
 oap::Memory NewMemoryCopyMem (const oap::Memory& src, uintt width, uintt height)
 {
-  return oap::generic::newMemoryCopyMem (src, width, height, [](floatt* const src, const oap::MemoryDims& oldDims, const oap::MemoryDims& newDims)
-  {
-    oap::Memory memory = NewMemory (newDims);
-    oap::host::CopyHostToHost (memory, {src, oldDims});
-    return memory.ptr;
-  });
+  oap::Memory memory = NewMemory ({width, height});
+  oap::generic::copyMemory (memory, src, memcpy);
+  return memory;
 }
 
 oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height)
 {
-  return oap::generic::reuseMemory (src, width, height, [](floatt* const src, const oap::MemoryDims& oldDims, const oap::MemoryDims& newDims)
-  {
-    return g_memoryMng.reuse (src);
-  });
+  return oap::generic::reuseMemory (src, width, height, [](floatt* ptr)
+      {
+        g_memoryCounter.increase (ptr);
+      });
+}
+
+oap::Memory ReuseMemory (const oap::Memory& src)
+{
+  return oap::generic::reuseMemory (src, src.dims.width, src.dims.height, [](floatt* ptr)
+      {
+        g_memoryCounter.increase (ptr);
+      });
 }
 
 void DeleteMemory (const oap::Memory& mem)
 {
-  return oap::generic::deleteMemory (mem, [](const oap::Memory& mem)
-  {
-    deallocateMem (mem);
-  });
+  oap::generic::deleteMemory (mem, deallocateMem, [](floatt* ptr)
+      {
+        return g_memoryCounter.decrease (ptr);
+      });
 }
 
 oap::MemoryDims GetDims (const oap::Memory& mem)

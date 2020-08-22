@@ -29,8 +29,14 @@
 #else
 #define debugAssert(x)
 #endif
+#define oapDebugAssert(x) debugAssert(x)
 
+#ifndef OAP_DISABLE_ASSERTION
 #define logAssert(x) assert(x);
-#define logAssertMsg(x, msg, ...) if (!(x)) { fprintf(stderr, msg, ##__VA_ARGS__); abort(); }
+#else
+#define logAssert(x)
+#endif
 
+#define logAssertMsg(x, msg, ...) if (!(x)) { fprintf(stderr, msg, ##__VA_ARGS__); abort(); }
+#define oapAssert(x) logAssert(x)
 #endif

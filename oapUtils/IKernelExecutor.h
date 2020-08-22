@@ -60,17 +60,17 @@ namespace oap
 
       void setDimensions (uintt w, uintt h);
 
-      void setParams (void** params);
+      void setParams (const void** params);
     
       int getParamsCount() const;
     
-      void** getParams() const;
+      const void** getParams() const;
 
       virtual uint getMaxThreadsPerBlock() const = 0;
 
       bool execute (const char* functionName);
-      bool execute (const char* functionName, void** params);
-      bool execute (const char* functionName, void** params, uintt sharedMemorySize);
+      bool execute (const char* functionName, const void** params);
+      bool execute (const char* functionName, const void** params, uintt sharedMemorySize);
 
       virtual std::string getErrorMsg () const = 0;
 
@@ -84,7 +84,7 @@ namespace oap
     private:
       ExecutionParams m_executionParams;
 
-      void** m_params = nullptr;
+      const void** m_params = nullptr;
       int m_paramsSize = 0;
 
       void reset ();

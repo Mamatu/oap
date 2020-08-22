@@ -54,7 +54,7 @@ class OapThreadsMapperTests : public testing::Test
     EXPECT_GE(m_threadsLimit, m_threads[0] * m_threads[1]);
   }
 };
-
+#if 0
 TEST_F(OapThreadsMapperTests, Test1)
 {
   m_columns = 20;
@@ -165,4 +165,4 @@ TEST_F(OapThreadsMapperTests, Test8)
   EXPECT_LE(m_columns, m_blocks[0] * m_threads[0]);
   EXPECT_LE(m_rows, m_blocks[1] * m_threads[1]);
 }
-
+#endif

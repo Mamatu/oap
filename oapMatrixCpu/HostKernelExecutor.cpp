@@ -27,7 +27,7 @@
 #include <map>
 #include <functional>
 
-std::map<std::string, std::function<void(void**)>> g_kernelsList =
+std::map<std::string, std::function<void(const void**)>> g_kernelsList =
 {
   {"CUDAKernel_SumShared", proxy_HOSTKernel_SumShared},
   {"CUDAKernel_CrossEntropy", proxy_HOSTKernel_CrossEntropy},
@@ -66,16 +66,18 @@ std::map<std::string, std::function<void(void**)>> g_kernelsList =
   {"CUDAKernel_DReluDimPeriodic", proxy_HOSTKernel_DReluDimPeriodic},
 
   {"CUDAKernel_Convolve", proxy_HOSTKernel_Convolve},
-  {"CUDAKernel_PoolAverage", proxy_HOSTKernel_PoolAverage}
+  {"CUDAKernel_PoolAverage", proxy_HOSTKernel_PoolAverage},
+
+  {"CUDAKernel_GenericApi_AddConstant", proxy_HOSTKernel_GenericApi_AddConstant}
 };
 
 class HostKernelImpl : public HostKernel
 {
-    std::function<void(void**)> m_function;
-    void** m_params;
+    std::function<void(const void**)> m_function;
+    const void** m_params;
 
   public:
-    HostKernelImpl (const std::function<void(void**)>& function, void** params) : m_function (function), m_params (params)
+    HostKernelImpl (const std::function<void(const void**)>& function, const void** params) : m_function (function), m_params (params)
     {}
 
   protected:
@@ -127,4 +129,3 @@ bool HostKernelExecutor::run (const char* functionName)
 
   return true;
 }
-

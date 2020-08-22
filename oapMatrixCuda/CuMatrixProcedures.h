@@ -74,4 +74,7 @@
 #include "CuProcedures/CuPoolingProcedures.h"
 #include "CuProcedures/CuConvolutionProcedures.h"
 
+#include "CuProcedures/GenericApi/CuDotProductProcedures.h"
+#include "CuProcedures/GenericApi/CuAdditionProcedures.h"
+
 #endif /* DEVICE_H */

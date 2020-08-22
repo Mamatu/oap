@@ -36,8 +36,7 @@
 #include "GenericCoreApi.h"
 
 #include "MatricesList.h"
-#include "oapMemoryManager.h"
-#include "oapHostMemoryApi.h"
+#include "oapMemoryCounter.h"
 
 #define ReIsNotNULL(m) gReValues (m) != nullptr
 #define ImIsNotNULL(m) gImValues (m) != nullptr
@@ -84,32 +83,44 @@ namespace host
 
 namespace
 {
-MatricesList g_matricesList ("MATRICES_HOST");
+#if 0
+std::map<floatt*, uintt> g_usedMemoryCounter;
 
-math::Matrix* allocMatrix_ReuseMemory (uintt columns, uintt rows, const oap::Memory& re, const oap::Memory& im)
+void registerMemory (const oap::Memory& memory)
 {
-  math::Matrix* output = NEW_MATRIX();
-  uintt length = columns * rows;
-
-  output->re = oap::host::ReuseMemory (re, columns, rows);
-  output->reReg = {{0, 0}, {columns, rows}};
-  output->im = oap::host::ReuseMemory (im, columns, rows);
-  output->imReg = {{0, 0}, {columns, rows}};
-
-  g_matricesList.add (output, CreateMatrixInfo (output));
-
-  return output;
+  if (memory.ptr != nullptr)
+  {
+    auto it = g_usedMemoryCounter.find (memory.ptr);
+    if (it == g_usedMemoryCounter.end())
+    {
+      g_usedMemoryCounter[memory.ptr] = 0;
+    }
+    g_usedMemoryCounter[memory.ptr]++;
+  }
 }
 
-math::Matrix* allocMatrix_UseMemory (uintt columns, uintt rows, const oap::Memory& re, const oap::Memory& im)
+template<typename Callback>
+void unregisterMemory (const oap::Memory& memory, Callback&& callback)
+{
+  if (memory.ptr != nullptr)
+  {
+    auto it = g_usedMemoryCounter.find(memory.ptr);
+    it->second--;
+    if (it->second == 0)
+    {
+      callback (memory);
+      g_usedMemoryCounter.erase (it);
+    }
+  }
+}
+#endif
+MatricesList g_matricesList ("MATRICES_HOST");
+
+math::Matrix* allocMatrix (const math::Matrix& ref)
 {
   math::Matrix* output = NEW_MATRIX();
-  uintt length = columns * rows;
 
-  output->re = re;
-  output->reReg = {{0, 0}, {columns, rows}};
-  output->im = im;
-  output->imReg = {{0, 0}, {columns, rows}};
+  memcpy (output, &ref, sizeof(math::Matrix));
 
   g_matricesList.add (output, CreateMatrixInfo (output));
 
@@ -118,32 +129,33 @@ math::Matrix* allocMatrix_UseMemory (uintt columns, uintt rows, const oap::Memor
 
 math::Matrix* allocMatrix_AllocMemory (bool isre, bool isim, uintt columns, uintt rows, floatt revalue = 0., floatt imvalue = 0.)
 {
-  math::Matrix* output = NEW_MATRIX();
-  uintt length = columns * rows;
+  math::Matrix ref;
 
   if (isre)
   {
-    output->re = oap::host::NewMemory ({columns, rows});
-    output->reReg = {{0, 0}, {columns, rows}};
-    fillRePart (output, revalue);
-
-    output->re.dims.width = columns;
-    output->re.dims.height = rows;
+    ref.re = oap::host::NewMemory ({columns, rows});
+    ref.reReg = {{0, 0}, {columns, rows}};
+    fillRePart (&ref, revalue);
+  }
+  else
+  {
+    ref.re = {nullptr, {0, 0}};
+    ref.reReg = {{0, 0}, {0, 0}};
   }
 
   if (isim)
   {
-    output->im = oap::host::NewMemory ({columns, rows});
-    output->imReg = {{0, 0}, {columns, rows}};
-    fillImPart (output, imvalue);
-
-    output->im.dims.width = columns;
-    output->im.dims.height = rows;
+    ref.im = oap::host::NewMemory ({columns, rows});
+    ref.imReg = {{0, 0}, {columns, rows}};
+    fillImPart (&ref, imvalue);
+  }
+  else
+  {
+    ref.im = {nullptr, {0, 0}};
+    ref.imReg = {{0, 0}, {0, 0}};
   }
 
-  g_matricesList.add (output, CreateMatrixInfo (output));
-
-  return output;
+  return allocMatrix (ref);
 }
 
 }
@@ -292,16 +304,21 @@ math::Matrix* NewMatrix (const std::string& text)
   oap::Memory memRe = {nullptr, {0, 0}};
   oap::Memory memIm = {nullptr, {0, 0}};
 
+  oap::MemoryRegion reReg = {{0, 0}, {0, 0}};
+  oap::MemoryRegion imReg = {{0, 0}, {0, 0}};
+
   try
   {
     if (matrixUtils::HasArray (text, 1))
     {
       memRe = matrixUtils::CreateArrayDefaultAlloc (text, 1);
+      reReg = {{0, 0}, memRe.dims};
     }
 
     if (matrixUtils::HasArray (text, 2))
     {
       memIm = matrixUtils::CreateArrayDefaultAlloc (text, 2);
+      imReg = {{0, 0}, memIm.dims};
     }
   }
   catch (const matrixUtils::Parser::ParsingException& pe)
@@ -310,9 +327,15 @@ math::Matrix* NewMatrix (const std::string& text)
     abort ();
   }
 
+  math::Matrix ref;
+  ref.re = memRe;
+  ref.reReg = reReg;
+  ref.im = memIm;
+  ref.imReg = imReg;
+
   logAssert(memRe.ptr != nullptr || memIm.ptr != nullptr);
 
-  return allocMatrix_UseMemory (columns, rows, memRe, memIm);
+  return allocMatrix (ref);
 }
 
 void DeleteMatrix(const math::Matrix* matrix)
@@ -376,6 +399,11 @@ std::string GetMatrixStr (const math::Matrix* matrix)
   std::string output;
   oap::generic::printMatrix (output, matrix, matrixUtils::PrintArgs(), oap::host::GetMatrixInfo);
   return output;
+}
+
+math::Matrix GetRefHostMatrix (const math::Matrix* matrix)
+{
+  return *matrix;
 }
 
 void PrintMatrix(FILE* stream, const matrixUtils::PrintArgs& args, const math::Matrix* matrix)
@@ -734,8 +762,7 @@ void GetTransposeImVector(floatt* vector, uint length, math::Matrix* matrix, uin
 {
   if (gImValues (matrix))
   {
-    memcpy(vector, &gImValues (matrix)[row * gColumns (matrix)],
-           length * sizeof(floatt));
+    memcpy(vector, &gImValues (matrix)[row * gColumns (matrix)], length * sizeof(floatt));
   }
 }
 
@@ -1219,5 +1246,65 @@ void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uin
   oap::generic::setMatrix (matrix, matrix1, column, row, [](math::Matrix* matrix) { return matrix->im; }, [](math::Matrix* matrix) { return matrix->imReg; }, memcpy);
 }
 
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matricesVec)
+{
+  return createThreadsMapper (matricesVec);
+}
+
+namespace
+{
+
+inline math::Matrix* allocReMatrix_FromMemory (oap::Memory& mem, const oap::MemoryRegion& reg)
+{
+  math::Matrix hostRefMatrix;
+
+  hostRefMatrix.re = oap::host::ReuseMemory (mem);
+  hostRefMatrix.reReg = reg;
+  hostRefMatrix.im = {nullptr, {0, 0}};
+  hostRefMatrix.imReg = {{0, 0}, {0, 0}};
+
+  return allocMatrix (hostRefMatrix);
+}
+
+inline math::Matrix* allocImMatrix_FromMemory (oap::Memory& mem, const oap::MemoryRegion& reg)
+{
+  math::Matrix hostRefMatrix;
+
+  hostRefMatrix.re = {nullptr, {0, 0}};
+  hostRefMatrix.reReg = {{0, 0}, {0, 0}};
+  hostRefMatrix.im = oap::host::ReuseMemory (mem);
+  hostRefMatrix.imReg = reg;
+
+  return allocMatrix (hostRefMatrix);
+}
+
+inline math::Matrix* allocRealMatrix_FromMemory (oap::Memory& remem, const oap::MemoryRegion& rereg, oap::Memory& immem, const oap::MemoryRegion& imreg)
+{
+  math::Matrix hostRefMatrix;
+
+  hostRefMatrix.re = oap::host::ReuseMemory (remem);
+  hostRefMatrix.reReg = rereg;
+  hostRefMatrix.im = oap::host::ReuseMemory (immem);
+  hostRefMatrix.imReg = imreg;
+
+  return allocMatrix (hostRefMatrix);
+}
+
+}
+
+math::Matrix* NewMatrixFromMemory (uintt columns, uintt rows, oap::Memory& remem, const oap::MemoryLoc& reloc, oap::Memory& immem, const oap::MemoryLoc& imloc)
+{
+  return allocRealMatrix_FromMemory (remem, {reloc, {columns, rows}}, immem, {imloc, {columns, rows}});
+}
+
+math::Matrix* NewReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc)
+{
+  return allocReMatrix_FromMemory (memory, {loc, {columns, rows}});
+}
+
+math::Matrix* NewImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc)
+{
+  return allocImMatrix_FromMemory (memory, {loc, {columns, rows}});
+}
 }
 }

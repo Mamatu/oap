@@ -31,6 +31,13 @@
 
 namespace oap
 {
+
+  enum DataDirection
+  {
+    HORIZONTAL,
+    VERTICAL
+  };
+
 namespace utils
 {
   inline void check (const oap::MemoryDims& dims, const oap::MemoryRegion& region)
@@ -71,57 +78,52 @@ namespace utils
     getPtrs (container, memory.ptr, memory.dims, region);
   }
 }
+
 namespace generic
 {
-  template<typename Allocator>
-  oap::Memory newMemory (const MemoryDims& dims, Allocator&& allocator)
+  template<typename Allocator, typename RegisterPtr>
+  oap::Memory newMemory (const MemoryDims& dims, Allocator&& allocator, RegisterPtr&& registerPtr)
   {
     logAssert (dims.width > 0 && dims.height > 0);
     floatt* ptr = allocator (dims);
     logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
+    registerPtr (ptr); 
     return {ptr, dims};
   }
 
-  template<typename Allocator>
-  oap::Memory newMemoryWithValues (const MemoryDims& dims, floatt value, Allocator&& allocator)
+  template<typename Memcpy>
+  void copyMemory (oap::Memory& dst, const oap::Memory& src, Memcpy&& memcpy)
   {
-    logAssert (dims.width > 0 && dims.height > 0);
-    floatt* ptr = allocator (dims, value);
-    logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
-    return {ptr, dims};
+    logAssert (dst.dims.width * dst.dims.height == src.dims.width * src.dims.height);
+    memcpy (dst.ptr, src.ptr, dst.dims.width * dst.dims.height * sizeof (floatt));
   }
 
-  template<typename Allocator>
-  oap::Memory newMemoryCopy (const oap::Memory& src, Allocator&& allocator)
+  template<typename RegisterPtr>
+  oap::Memory reuseMemory (const oap::Memory& src, uintt width, uintt height, RegisterPtr&& registerPtr)
   {
-    floatt* ptr = allocator (src.ptr, src.dims);
-    logTrace ("ptr = %p dims = %s", ptr, std::to_string(src.dims).c_str());
-    return {ptr, src.dims};
-  }
-
-  template<typename Allocator>
-  oap::Memory newMemoryCopyMem (const oap::Memory& src, uintt width, uintt height, Allocator&& allocator)
-  {
-    debugAssert (width * height == src.dims.width * src.dims.height && width * height != 0);
-    floatt* ptr = allocator (src.ptr, src.dims, {width, height});
+    floatt* ptr = src.ptr;
     oap::MemoryDims dims = {width, height};
     logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
+    registerPtr (ptr);
     return {ptr, dims};
   }
 
-  template<typename Allocator>
-  oap::Memory reuseMemory (const oap::Memory& src, uintt width, uintt height, Allocator&& allocator)
+  template<typename Deallocator, typename UnregisterPtr>
+  bool deleteMemory (const oap::Memory& mem, Deallocator&& deallocator, UnregisterPtr&& unregisterPtr)
   {
-    floatt* ptr = allocator (src.ptr, src.dims, {width, height});
-    oap::MemoryDims dims = {width, height};
-    logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
-    return {ptr, dims};
-  }
+    if (mem.ptr == nullptr)
+    {
+      return false;
+    }
 
-  template<typename Deallocator>
-  void deleteMemory (const oap::Memory& mem, Deallocator&& deallocator)
-  {
-    return deallocator (mem);
+    uintt counter = unregisterPtr (mem.ptr);
+
+    if (counter == 0)
+    {
+      deallocator (mem);
+      return true;
+    }
+    return false;
   }
 
   template<typename GetD>
@@ -183,8 +185,12 @@ namespace generic
   void copyBlock (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
   {
     logTrace ("%s %p %s %s %p %s %s", __FUNCTION__, dst, std::to_string(dstDims).c_str(), std::to_string(dstLoc).c_str(), src, std::to_string(srcDims).c_str(), std::to_string(srcReg).c_str());
+
     logAssert (dstDims.width >= dstLoc.x + srcReg.dims.width);
     logAssert (dstDims.height >= dstLoc.y + srcReg.dims.height);
+
+    logAssert (srcDims.width >= srcReg.loc.x + srcReg.dims.width);
+    logAssert (srcDims.height >= srcReg.loc.y + srcReg.dims.height);
 
     std::vector<floatt*> dstPtrs;
     std::vector<const floatt*> srcPtrs;
@@ -234,6 +240,58 @@ namespace generic
   void copy (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion* srcReg, Memcpy&& memcpy)
   {
     copy<Memcpy> (dst, dstDims, dstLoc, src, srcDims, srcReg == nullptr ? common::OAP_NONE_REGION() : *srcReg, memcpy);
+  }
+
+  template<typename MemoryVec, typename Allocator, typename Memcpy>
+  oap::Memory newMemory_bulk (const MemoryVec& vec, const oap::DataDirection& dd, Allocator&& alloc, Memcpy&& memcpy)
+  {
+    logAssert (vec.size() > 0);
+
+    oap::MemoryDims dim = {0, 0};
+
+    switch (dd) {
+      case DataDirection::VERTICAL:
+        dim.width = vec[0].dims.width;
+        for (size_t idx = 0; idx < vec.size(); ++idx)
+        {
+          dim.height = dim.height + vec[idx].dims.height;
+          logAssert (idx == 0 || vec[idx].dims.width == vec[idx - 1].dims.width);
+        }
+        break;
+      case DataDirection::HORIZONTAL:
+        dim.height = vec[0].dims.height;
+        for (size_t idx = 0; idx < vec.size(); ++idx)
+        {
+          dim.width = dim.width + vec[idx].dims.width;
+          logAssert (idx == 0 || vec[idx].dims.height == vec[idx - 1].dims.height);
+        }
+        break;
+    };
+
+    oap::Memory memory = alloc (dim);
+    oap::MemoryLoc loc = {0, 0};
+
+    switch (dd) {
+      case DataDirection::VERTICAL:
+        for (size_t idx = 0; idx < vec.size(); ++idx)
+        {
+          oap::MemoryDims dim = vec[idx].dims;
+          floatt* array = vec[idx].ptr;
+          oap::generic::copy (memory, loc, {array, dim}, {{0, 0}, dim}, memcpy);
+          loc.y += dim.height;
+        }
+        break;
+      case DataDirection::HORIZONTAL:
+        for (size_t idx = 0; idx < vec.size(); ++idx)
+        {
+          oap::MemoryDims dim = vec[idx].dims;
+          floatt* array = vec[idx].ptr;
+          oap::generic::copy (memory, loc, {array, dim}, {{0, 0}, dim}, memcpy);
+          loc.x += dim.width;
+        }
+        break;
+    }
+    return memory;
   }
 }
 }

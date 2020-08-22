@@ -25,6 +25,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
+#include "oapThreadsMapperApi.h"
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
 
@@ -60,11 +61,19 @@ inline math::Matrix* NewDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minf
   return NewDeviceMatrix (minfo);
 }
 
+math::Matrix* NewDeviceMatrixFromMemory (uintt columns, uintt rows, oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
+math::Matrix* NewDeviceReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
+math::Matrix* NewDeviceImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
+
 uintt GetColumns(const math::Matrix* dMatrix);
 
 uintt GetRows(const math::Matrix* dMatrix);
 
 math::Matrix GetRefHostMatrix (const math::Matrix* dMatrix);
+oap::MemoryRegion GetReMemoryRegion (const math::Matrix* dMatrix);
+oap::Memory GetReMemory (const math::Matrix* dMatrix);
+oap::MemoryRegion GetImMemoryRegion (const math::Matrix* dMatrix);
+oap::Memory GetImMemory (const math::Matrix* dMatrix);
 
 floatt* GetReValuesPtr (const math::Matrix* dMatrix);
 floatt* GetImValuesPtr (const math::Matrix* dMatrix);
@@ -241,6 +250,14 @@ void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
 
 math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
+
+template<typename MatricesLine>
+oap::ThreadsMapper createThreadsMapper (const std::vector<MatricesLine>& matrices)
+{
+  return oap::threads::createThreadsMapper (matrices, oap::cuda::GetRefHostMatrix, CudaUtils::Malloc, CudaUtils::CopyHostToDevice, CudaUtils::Free);
+}
+
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices);
 
 }
 }

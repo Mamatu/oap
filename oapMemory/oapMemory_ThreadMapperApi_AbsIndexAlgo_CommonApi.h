@@ -17,53 +17,26 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_MEMORY_REGION_H
-#define OAP_MEMORY_REGION_H
+#ifndef OAP_MEMORY__THREAD_MAPPER_API__ABS_INDEX_ALGO__COMMON_API_H
+#define OAP_MEMORY__THREAD_MAPPER_API__ABS_INDEX_ALGO__COMMON_API_H
 
 #include "Math.h"
-#include "CuCore.h"
 
 namespace oap
 {
-
-struct MemoryLoc
+namespace aia
 {
-  uintt x;
-  uintt y;
+
+struct UserData
+{
+  uintt* buffer;
+  uintt argsCount;
 };
 
-struct MemoryDims
-{
-  uintt width;
-  uintt height;
-};
+// Number of indecies which is stored in buffer for one element
+#define INDECIES_COUNT 2
 
-struct Memory
-{
-  floatt* ptr;
-  MemoryDims dims;
-};
-
-struct MemoryRegion
-{
-  MemoryLoc loc;
-  MemoryDims dims;
-};
-
-struct Memory_3_Args
-{
-  oap::Memory m_output;
-  oap::Memory m_param1;
-  oap::Memory m_param2;
-};
-
-struct MemoryRegion_3_Args
-{
-  oap::MemoryRegion m_output;
-  oap::MemoryRegion m_param1;
-  oap::MemoryRegion m_param2;
-};
-
+}
 }
 
 #endif
