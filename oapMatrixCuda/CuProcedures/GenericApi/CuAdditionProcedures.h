@@ -39,9 +39,6 @@ __hostdeviceinline__ void cuda_GenericApi_addReMatrixValue (math::Matrix** outpu
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt stride = GetColumns (output[0]);
-  uintt threadIndex = threadIndexY * stride + threadIndexX;
-
   uintt oidxs[2];
   uintt pidxs[2];
 
@@ -65,21 +62,21 @@ __hostdeviceinline__ void cuda_GenericApi_addImMatrixValue (math::Matrix** outpu
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  if (_inRange(mapper))
+  uintt oidxs[2];
+  uintt pidxs[2];
+
+  _idxs(oidxs, output, mapper, 0);
+  _idxs(pidxs, params0, mapper, 1);
+
+  if (oidxs[0] < MAX_UINTT)
   {
-    uintt stride = GetColumns (output[0]);
-    uintt threadIndex = threadIndexY * stride + threadIndexX;
+    math::Matrix* o = output[oidxs[0]];
+    const math::Matrix* p0 = params0[pidxs[0]];
 
-    math::Matrix* o = output[threadIndex];
-    const math::Matrix* p0 = params0[threadIndex];
+    HOST_CODE(oapAssert(oidxs[1] < _getLen(o->re)));
+    HOST_CODE(oapAssert(pidxs[1] < _getLen(p0->re)));
 
-    uintt oidx = _getImIdx(o);
-    uintt p0idx = _getImIdx(p0);
-
-    HOST_CODE(oapAssert(oidx < _getLen(o->im)));
-    HOST_CODE(oapAssert(p0idx < _getLen(p0->im)));
-
-    o->im.ptr[oidx] = p0->im.ptr[p0idx] + params1;
+    o->im.ptr[oidxs[1]] = p0->im.ptr[pidxs[1]] + params1;
   }
 }
 
@@ -88,28 +85,22 @@ __hostdeviceinline__ void cuda_GenericApi_addRealMatrixValue (math::Matrix** out
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt stride = GetColumns (output[0]);
-  uintt threadIndex = threadIndexY * stride + threadIndexX;
+  uintt oidxs[2];
+  uintt pidxs[2];
 
-  threadIndex = static_cast<uintt*>(mapper->data)[threadIndex];
-  if (threadIndex < MAX_UINTT)
+  _idxs(oidxs, output, mapper, 0);
+  _idxs(pidxs, params0, mapper, 1);
+
+  if (oidxs[0] < MAX_UINTT)
   {
-    math::Matrix* o = output[threadIndex];
-    const math::Matrix* p0 = params0[threadIndex];
+    math::Matrix* o = output[oidxs[0]];
+    const math::Matrix* p0 = params0[pidxs[0]];
 
-    uintt reoidx = _getReIdx(o);
-    uintt rep0idx = _getReIdx(p0);
+    HOST_CODE(oapAssert(oidxs[1] < _getLen(o->re)));
+    HOST_CODE(oapAssert(pidxs[1] < _getLen(p0->re)));
 
-    uintt imoidx = _getImIdx(o);
-    uintt imp0idx = _getImIdx(p0);
-
-    HOST_CODE(oapAssert(reoidx < _getLen(o->re)));
-    HOST_CODE(oapAssert(rep0idx < _getLen(p0->re)));
-    HOST_CODE(oapAssert(imoidx < _getLen(o->im)));
-    HOST_CODE(oapAssert(imp0idx < _getLen(p0->im)));
-
-    o->re.ptr[reoidx] = p0->re.ptr[rep0idx] + params1;
-    o->im.ptr[imoidx] = p0->im.ptr[imp0idx] + params1;
+    o->re.ptr[oidxs[1]] = p0->re.ptr[pidxs[1]] + params1;
+    o->im.ptr[oidxs[1]] = p0->im.ptr[pidxs[1]] + params1;
   }
 }
 
