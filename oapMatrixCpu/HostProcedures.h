@@ -127,6 +127,12 @@ class HostProcedures {
     oap::generic::addConstant (output, params1, value, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy); 
   }
 
+  template<typename Matrices>
+  void add (Matrices& output, const Matrices& params1, const Matrices& params2)
+  {
+    oap::generic::add (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy); 
+  }
+
  private:
   uint m_threads[2];
   uint m_blocks[2];

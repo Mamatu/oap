@@ -35,7 +35,7 @@
 
 using namespace ::testing;
 
-class OapGenericApiTests_Addition : public testing::Test
+class OapGenericApiTests_AddConst : public testing::Test
 {
  public:
   virtual void SetUp() {
@@ -45,7 +45,7 @@ class OapGenericApiTests_Addition : public testing::Test
   }
 };
 
-TEST_F(OapGenericApiTests_Addition, Test_1)
+TEST_F(OapGenericApiTests_AddConst, Test_1)
 {
   HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 1}, 0.);
@@ -54,10 +54,8 @@ TEST_F(OapGenericApiTests_Addition, Test_1)
 
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
 
-  oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
-  
   std::vector<math::Matrix*> outputs = {output1};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix1}), std::vector<math::Matrix*>({matrix2}));
+  hp.addConst (outputs, std::vector<math::Matrix*>({matrix1}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -73,26 +71,20 @@ TEST_F(OapGenericApiTests_Addition, Test_1)
   oap::host::DeleteMemory (memory);
 }
 
-TEST_F(OapGenericApiTests_Addition, Test_2)
+TEST_F(OapGenericApiTests_AddConst, Test_2)
 {
   HostProcedures hp;
   oap::Memory memory1 = oap::host::NewMemoryWithValues ({2, 1}, 0.);
   oap::Memory memory2 = oap::host::NewMemoryWithValues ({2, 1}, 2.);
-  oap::Memory memory3 = oap::host::NewMemoryWithValues ({2, 1}, 0.);
-  memory3.ptr[0] = 1;
-  memory3.ptr[1] = 2;
 
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory1, {0, 0});
   oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory1, {1, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {0, 0});
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {1, 0});
-
-  oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixFromMemory (1, 1, memory3, {0, 0});
-  oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (1, 1, memory3, {1, 0});
+  oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {0, 0});
+  oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {1, 0});
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
+  hp.addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -101,7 +93,7 @@ TEST_F(OapGenericApiTests_Addition, Test_2)
 
   std::vector<floatt> expected2 =
   {
-    4
+    3
   };
 
   std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
@@ -115,10 +107,9 @@ TEST_F(OapGenericApiTests_Addition, Test_2)
 
   oap::host::DeleteMemory (memory1);
   oap::host::DeleteMemory (memory2);
-  oap::host::DeleteMemory (memory3);
 }
 
-TEST_F(OapGenericApiTests_Addition, Test_3)
+TEST_F(OapGenericApiTests_AddConst, Test_3)
 {
   HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 0.);
@@ -126,13 +117,11 @@ TEST_F(OapGenericApiTests_Addition, Test_3)
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
   oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (1, 1, 2.);
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (1, 1, 1.);
-
+  oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix2, matrix2}));
+  hp.addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -155,22 +144,19 @@ TEST_F(OapGenericApiTests_Addition, Test_3)
   oap::host::DeleteMemory (memory);
 }
 
-TEST_F(OapGenericApiTests_Addition, Test_4)
+TEST_F(OapGenericApiTests_AddConst, Test_4)
 {
   HostProcedures hp;
-  oap::Memory memory = oap::host::NewMemoryWithValues ({4, 1}, 1.);
+  oap::Memory memory = oap::host::NewMemoryWithValues ({3, 1}, 0.);
 
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
   oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (1, 1, 2.);
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (1, 1, 1.);
-
-  oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixFromMemory (1, 1, memory, {2, 0});
-  oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (1, 1, memory, {3, 0});
+  oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
+  hp.addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -193,7 +179,7 @@ TEST_F(OapGenericApiTests_Addition, Test_4)
   oap::host::DeleteMemory (memory);
 }
 
-TEST_F(OapGenericApiTests_Addition, Test_5)
+TEST_F(OapGenericApiTests_AddConst, Test_5)
 {
   HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({10, 10}, 0.);
@@ -201,20 +187,17 @@ TEST_F(OapGenericApiTests_Addition, Test_5)
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (3, 3, memory, {0, 0});
   oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (3, 3, memory, {4, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (3, 3, 2.);
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (3, 3, 1.);
-
-  oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixWithValue (3, 3, 2.);
-  oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (3, 3, 1.);
+  oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (3, 3, 2.);
+  oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (3, 3, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
+  hp.addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
-    4, 4, 4,
-    4, 4, 4,
-    4, 4, 4,
+    3, 3, 3,
+    3, 3, 3,
+    3, 3, 3,
   };
 
   std::vector<floatt> expected2 =
@@ -244,27 +227,19 @@ TEST_F(OapGenericApiTests_Addition, Test_5)
   oap::host::DeleteMemory (memory);
 }
 
-TEST_F(OapGenericApiTests_Addition, Test_6)
+TEST_F(OapGenericApiTests_AddConst, Test_6)
 {
   HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({10, 10}, 0.);
-  oap::Memory memory1 = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  memory1.ptr[4] = 3.;
-  memory1.ptr[5] = 3.;
-  memory1.ptr[14] = 3.;
-  memory1.ptr[15] = 3.;
 
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (3, 3, memory, {0, 0});
   oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (2, 2, memory, {4, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (3, 3, 2.);
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (2, 2, 1.);
-
-  oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixFromMemory (3, 3, memory1, {0, 0});
-  oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (2, 2, memory1, {4, 0});
+  oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (3, 3, 2.);
+  oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (2, 2, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
+  hp.addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -275,8 +250,8 @@ TEST_F(OapGenericApiTests_Addition, Test_6)
 
   std::vector<floatt> expected2 =
   {
-    4, 4,
-    4, 4,
+    2, 2,
+    2, 2,
   };
 
   std::vector<floatt> actual1;
@@ -304,5 +279,4 @@ TEST_F(OapGenericApiTests_Addition, Test_6)
   EXPECT_EQ (expected2, actual2);
 
   oap::host::DeleteMemory (memory);
-  oap::host::DeleteMemory (memory1);
 }

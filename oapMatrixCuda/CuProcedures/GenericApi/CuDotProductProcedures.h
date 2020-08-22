@@ -28,67 +28,18 @@ __hostdevice__ void cuda_GenericApi_dotProductRe (math::Matrix* output, const ma
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
-
-  const uintt columns1 = gColumns (params0);
-  const uintt columns2 = gColumns (params1);
-  const uintt offset = columns1;
-
-  floatt retemp = 0;
-
-  for (intt midx = 0; midx < offset; midx++)
-  {
-    retemp += gReValues (params0)[midx + columns1 * threadIndexY] * gReValues (params1)[midx * columns2 + threadIndexX];
-  }
-
-  *GetRePtrIndex (output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
 __hostdevice__ void cuda_GenericApi_dotProductIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
-
-  const uintt columns1 = gColumns (params0);
-  const uintt columns2 = gColumns (params1);
-  const uintt offset = columns1;
-
-  floatt retemp = 0;
-
-  for (uintt midx = 0; midx < offset; ++midx)
-  {
-    retemp += -gImValues (params0)[midx + columns1 * threadIndexY] * gImValues (params1)[midx * columns2 + threadIndexX];
-  }
-
-  *GetRePtrIndex (output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
 __hostdevice__ void cuda_GenericApi_dotProductReal (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
-
-  const uintt columns1 = gColumns (params0);
-  const uintt columns2 = gColumns (params1);
-  const uintt outputColumns = gColumns (output);
-  const uintt offset = columns1;
-
-  floatt retemp = 0;
-  floatt imtemp = 0;
-
-  for (intt midx = 0; midx < offset; midx++)
-  {
-    retemp += gReValues (params0)[midx + columns1 * threadIndexY] *
-              gReValues (params1)[midx * columns2 + threadIndexX];
-    retemp -= gImValues (params0)[midx + columns1 * threadIndexY] *
-              gImValues (params1)[midx * columns2 + threadIndexX];
-    imtemp += gReValues (params0)[midx + columns1 * threadIndexY] *
-              gImValues (params1)[midx * columns2 + threadIndexX];
-    imtemp += gImValues (params0)[midx + columns1 * threadIndexY] *
-              gReValues (params1)[midx * columns2 + threadIndexX];
-  }
-
-  *GetRePtrIndex (output, threadIndexX + outputColumns * threadIndexY) = retemp;
-  gImValues (output)[threadIndexX + outputColumns * threadIndexY] = imtemp;
 }
 
 __hostdevice__ void CUDA_GenericApi_dotProductRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)

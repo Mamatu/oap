@@ -316,7 +316,6 @@ floatt Network::calculateError (oap::ErrorType errorType)
 
 void Network::forwardPropagation (FPHandler handler)
 {
-  //if (handler == 0)
   if (m_layers[handler][0]->getSamplesCount() == 1)
   {
     oap::generic::forwardPropagation_oneSample<DeviceLayer> (m_layers[handler], *m_cuApi);

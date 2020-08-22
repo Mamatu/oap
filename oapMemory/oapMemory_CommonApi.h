@@ -32,7 +32,7 @@
 #define _memoryIdxY() blockIdx.y * blockDim.y + threadIdx.y
 #define _memoryWidth() blockDim.x * gridDim.x
 #define _memoryHeight() blockDim.y * gridDim.y
-
+#define _getLen(reg) reg.dims.width * reg.dims.height
 
 /**
  * API section

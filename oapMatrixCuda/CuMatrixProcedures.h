@@ -76,5 +76,6 @@
 
 #include "CuProcedures/GenericApi/CuDotProductProcedures.h"
 #include "CuProcedures/GenericApi/CuAdditionProcedures.h"
+#include "CuProcedures/GenericApi/CuAdditionConstProcedures.h"
 
 #endif /* DEVICE_H */

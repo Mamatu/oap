@@ -68,7 +68,8 @@ std::map<std::string, std::function<void(const void**)>> g_kernelsList =
   {"CUDAKernel_Convolve", proxy_HOSTKernel_Convolve},
   {"CUDAKernel_PoolAverage", proxy_HOSTKernel_PoolAverage},
 
-  {"CUDAKernel_GenericApi_AddConstant", proxy_HOSTKernel_GenericApi_AddConstant}
+  {"CUDAKernel_GenericApi_AddConst", proxy_HOSTKernel_GenericApi_AddConst},
+  {"CUDAKernel_GenericApi_Add", proxy_HOSTKernel_GenericApi_Add},
 };
 
 class HostKernelImpl : public HostKernel

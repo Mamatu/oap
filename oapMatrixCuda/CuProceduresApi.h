@@ -375,6 +375,9 @@ class CuProceduresApi
   template<typename Matrices>
   void addConst (Matrices& output, const Matrices& params1, floatt value);
 
+  template<typename Matrices>
+  void add (Matrices& output, const Matrices& params1, const Matrices& params2);
+
   std::string getMsgStatus() const;
 
  private:
@@ -600,6 +603,12 @@ template<typename Matrices>
 void CuProceduresApi::addConst (Matrices& output, const Matrices& params1, floatt value)
 {
   m_cuStatus = oap::generic::addConstant (output, params1, value, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice); 
+}
+
+template<typename Matrices>
+void CuProceduresApi::add (Matrices& output, const Matrices& params1, const Matrices& params2)
+{
+  m_cuStatus = oap::generic::add (output, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice); 
 }
 
 }

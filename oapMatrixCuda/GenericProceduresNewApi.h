@@ -54,7 +54,7 @@ bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap:
   oap::ThreadsMapperS* tmS = mapper.create ();
 
   const void* params[] = {&doutput, &dparams1, &dvalue, &tmS};
-  const char* kname = "CUDAKernel_GenericApi_AddConstant";
+  const char* kname = "CUDAKernel_GenericApi_AddConst";
 
   oap::generic::Args args (mapper.getWidth(), mapper.getHeight());
   args.retrieveDims = false;
@@ -66,6 +66,52 @@ bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap:
 
   free (doutput);
   free (dparams1);
+  mapper.destroy (tmS);
+
+  return status;
+}
+
+template<typename Matrices, typename GetThreadsMapper, typename Malloc, typename Free, typename Memcpy>
+bool add (Matrices& output, const Matrices& params1, const Matrices& params2, oap::IKernelExecutor* kexec, GetThreadsMapper&& getThreadsMapper, Malloc&& malloc, Free&& free, Memcpy&& memcpy)
+{
+  uintt len = output.size();
+  oapAssert (len == params1.size());
+  oapAssert (len == params2.size());
+
+  std::vector<std::vector<math::Matrix*>> matrixArgs;
+
+  for (uintt idx = 0; idx < len; ++idx)
+  {
+    std::vector<math::Matrix*> line = {output[idx], params1[idx], params2[idx]};
+    matrixArgs.push_back (line);
+  }
+
+  oap::ThreadsMapper mapper = getThreadsMapper (matrixArgs);
+
+  math::Matrix** doutput = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
+  math::Matrix** dparams1 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
+  math::Matrix** dparams2 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
+
+  memcpy (doutput, output.data(), sizeof(math::Matrix*) * output.size());
+  memcpy (dparams1, params1.data(), sizeof(math::Matrix*) * output.size());
+  memcpy (dparams2, params2.data(), sizeof(math::Matrix*) * output.size());
+
+  oap::ThreadsMapperS* tmS = mapper.create ();
+
+  const void* params[] = {&doutput, &dparams1, &params2, &tmS};
+  const char* kname = "CUDAKernel_GenericApi_Add";
+
+  oap::generic::Args args (mapper.getWidth(), mapper.getHeight());
+  args.retrieveDims = false;
+  args.prepareDims = true;
+  args.w = mapper.getWidth();
+  args.h = mapper.getHeight();
+
+  auto status = executeKernel (kname, params, kexec, args);  
+
+  free (doutput);
+  free (dparams1);
+  free (dparams2);
   mapper.destroy (tmS);
 
   return status;
