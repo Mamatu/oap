@@ -117,7 +117,7 @@ void AllocationList<T, UserData, ToString>::checkOnDelete()
     {
       debug("Memleak in %s: object = %p %s not deallocated", m_id.c_str(), it->first, to_string (it->second).c_str());
     }
-#ifdef OAP_ABORT_MEMLEAK
+#ifndef OAP_DISABLE_ABORT_MEMLEAK
     debugAssert (false);
 #endif
   }

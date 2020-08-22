@@ -36,7 +36,7 @@ namespace
       {
         logInfo ("%p %lu", it->first, it->second);
       }
-#ifdef OAP_ABORT_MEMLEAK
+#ifndef OAP_DISABLE_ABORT_MEMLEAK
       oapAssert (!counts.empty());
 #endif
     }

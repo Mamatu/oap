@@ -34,6 +34,7 @@ OAP_CU_DEVICE_INDEX - index of graphics card (unit) used for calculations
 OAP_CUDA_BUILD - information that current compilation unit is cuda compilation
 OAP_CONFIG_NI_EF - in this case uintt is unsigned int and floatt is double
 OAP_CONFIG_NI_NF - in this case uintt is unsigned long long int and floatt is double
-OAP_PERFORMANCE_CLOCK_ENABLE - enable macros in oapClock.h for measurment of elipsed time
-OAP_PNG_TEST_PRINT_PATTERNS - print patterns in tetss OapPngFileTests.LoadMnistExamples and OapPngFileTests.LoadRow0
-OAP_ABORT_MEMLEAK - in the case not allocated element of AllocationList, app is terminated by abort
+OAP_PERFORMANCE_CLOCK_ENABLE - enables macros in oapClock.h for measurment of elipsed time
+OAP_PNG_TEST_PRINT_PATTERNS - prints patterns in tetss OapPngFileTests.LoadMnistExamples and OapPngFileTests.LoadRow0
+OAP_DISABLE_ABORT_MEMLEAK - disables abort in the case of not allocated element of AllocationList
+OAP_DISABLE_ASSERTION - disables assertion (logAssertion, oapAssertion)
