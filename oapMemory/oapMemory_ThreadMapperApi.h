@@ -30,15 +30,15 @@ namespace oap
 namespace threads
 {
 
-__hostdeviceinline__ uintt GetIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const Memory& memory, const MemoryRegion& region, const ThreadsMapperS* mapper, uintt argIdx)
+__hostdeviceinline__ void GetIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
 {
   switch (mapper->mode)
   {
     case OAP_THREADS_MAPPER_MODE__SIMPLE:
-      return aia::GetIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, memory, region, mapper, argIdx);
+      aia::GetIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, out, arg, mapper, argIdx);
 
     default:
-      return aia::GetIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, memory, region, mapper, argIdx);
+      aia::GetIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, out, arg, mapper, argIdx);
   };
 }
 
@@ -57,7 +57,7 @@ __hostdeviceinline__ bool InRange (dim3 threadIdx, dim3 blockIdx, dim3 blockDim,
 }
 }
 
-#define _idx(memory, region, mapper, argIdx) oap::threads::GetIdx(threadIdx, blockIdx, blockDim, gridDim, memory, region, mapper, argIdx)
+#define _idxs(out, matrices, mapper, argIdx) oap::threads::GetIdx(threadIdx, blockIdx, blockDim, gridDim, out, matrices, mapper, argIdx)
 
 #define _inRange(mapper) oap::threads::InRange(threadIdx, blockIdx, blockDim, gridDim, mapper) 
 

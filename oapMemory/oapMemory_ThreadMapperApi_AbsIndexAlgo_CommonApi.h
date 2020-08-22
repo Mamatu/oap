@@ -33,6 +33,9 @@ struct UserData
   uintt argsCount;
 };
 
+// Number of indecies which is stored in buffer for one element
+#define INDECIES_COUNT 2
+
 }
 }
 

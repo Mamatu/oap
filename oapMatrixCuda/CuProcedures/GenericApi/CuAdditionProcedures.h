@@ -42,18 +42,21 @@ __hostdeviceinline__ void cuda_GenericApi_addReMatrixValue (math::Matrix** outpu
   uintt stride = GetColumns (output[0]);
   uintt threadIndex = threadIndexY * stride + threadIndexX;
 
-  if (_inRange(mapper))
+  uintt oidxs[2];
+  uintt pidxs[2];
+
+  _idxs(oidxs, output, mapper, 0);
+  _idxs(pidxs, params0, mapper, 1);
+
+  if (oidxs[0] < MAX_UINTT)
   {
-    math::Matrix* o = output[threadIndex];
-    const math::Matrix* p0 = params0[threadIndex];
+    math::Matrix* o = output[oidxs[0]];
+    const math::Matrix* p0 = params0[pidxs[0]];
 
-    uintt oidx = _idx(o->re, o->reReg, mapper, 0);
-    uintt p0idx = _idx(p0->re, p0->reReg, mapper, 1);
+    HOST_CODE(oapAssert(oidxs[1] < _getLen(o->re)));
+    HOST_CODE(oapAssert(pidxs[1] < _getLen(p0->re)));
 
-    HOST_CODE(oapAssert(oidx < _getLen(o->re)));
-    HOST_CODE(oapAssert(p0idx < _getLen(p0->re)));
-
-    o->re.ptr[oidx] = p0->re.ptr[p0idx] + params1;
+    o->re.ptr[oidxs[1]] = p0->re.ptr[pidxs[1]] + params1;
   }
 }
 
@@ -62,12 +65,11 @@ __hostdeviceinline__ void cuda_GenericApi_addImMatrixValue (math::Matrix** outpu
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  uintt stride = GetColumns (output[0]);
-  uintt threadIndex = threadIndexY * stride + threadIndexX;
-
-  threadIndex = static_cast<uintt*>(mapper->data)[threadIndex];
-  if (threadIndex < MAX_UINTT)
+  if (_inRange(mapper))
   {
+    uintt stride = GetColumns (output[0]);
+    uintt threadIndex = threadIndexY * stride + threadIndexX;
+
     math::Matrix* o = output[threadIndex];
     const math::Matrix* p0 = params0[threadIndex];
 

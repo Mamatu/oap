@@ -215,7 +215,7 @@ TEST_F(OapGenericApiTests_Addition, Test_5)
     for (uintt y = 0; y < 3; ++y)
     {
       actual1.push_back (oap::common::GetValue (output1->re, output1->reReg, x, y));
-      actual2.push_back (oap::common::GetValue (output1->re, output1->reReg, x, y));
+      actual2.push_back (oap::common::GetValue (output2->re, output2->reReg, x, y));
     }
   }
 

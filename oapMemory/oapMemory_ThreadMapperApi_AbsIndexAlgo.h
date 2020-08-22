@@ -32,26 +32,27 @@ namespace aia
 
 namespace
 {
-__hostdevice__ uintt getDataIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ uintt getDataIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
 {
   const uintt x = _memoryIdxX();
   const uintt y = _memoryIdxY();
   UserData* ud = static_cast<UserData*>(mapper->data);
 
-  return (y * _memoryWidth() * ud->argsCount) + (x * ud->argsCount);
+  return (y * _memoryWidth() + x) * (ud->argsCount * INDECIES_COUNT);
 }
 }
 
-__hostdevice__ uintt GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::Memory& memory, const oap::MemoryRegion& region, const oap::ThreadsMapperS* mapper, uintt argIdx)
+__hostdevice__ void GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
 {
   UserData* ud = static_cast<UserData*>(mapper->data);
   uintt* indecies = static_cast<uintt*>(ud->buffer);
 
-  uintt dataIdx = getDataIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, mapper);
+  uintt idx = getDataIdx (threadIdx, blockIdx, blockDim, gridDim, mapper);
 
-  dataIdx = dataIdx + argIdx;
+  idx += argIdx * INDECIES_COUNT;
 
-  return indecies[dataIdx];
+  out[0] = indecies[idx];
+  out[1] = indecies[idx + 1];
 }
 
 __hostdeviceinline__ bool InRange_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
@@ -59,9 +60,9 @@ __hostdeviceinline__ bool InRange_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, d
   UserData* ud = static_cast<UserData*>(mapper->data);
   uintt* indecies = static_cast<uintt*>(ud->buffer);
 
-  uintt dataIdx = getDataIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, mapper);
+  uintt dataIdx = getDataIdx (threadIdx, blockIdx, blockDim, gridDim, mapper);
 
-  return indecies[dataIdx] < MAX_UINTT;
+  return indecies[dataIdx] != MAX_UINTT;
 }
 
 }
