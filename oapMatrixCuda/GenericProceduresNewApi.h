@@ -43,7 +43,7 @@ bool addConstant (Matrices& output, const Matrices& params1, floatt dvalue, oap:
     matrixArgs.push_back (line);
   }
 
-  oap::ThreadsMapper mapper = getThreadsMapper (matrixArgs);
+  oap::ThreadsMapper mapper = getThreadsMapper (matrixArgs, oap::threads::ThreadsMapperAlgo::ABS_INDEX);
 
   math::Matrix** doutput = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
   math::Matrix** dparams1 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
@@ -86,7 +86,7 @@ bool add (Matrices& output, const Matrices& params1, const Matrices& params2, oa
     matrixArgs.push_back (line);
   }
 
-  oap::ThreadsMapper mapper = getThreadsMapper (matrixArgs);
+  oap::ThreadsMapper mapper = getThreadsMapper (matrixArgs, oap::threads::ThreadsMapperAlgo::ABS_INDEX);
 
   math::Matrix** doutput = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
   math::Matrix** dparams1 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
@@ -117,22 +117,47 @@ bool add (Matrices& output, const Matrices& params1, const Matrices& params2, oa
   return status;
 }
 
-template<typename GetThreadsCount>
-bool dotProduct (oap::Memory& doutput, const oap::Memory& darg1, const oap::Memory& darg2, const oap::MemoryRegion_3_Args* dregions, uintt dregionsCount, oap::IKernelExecutor* kexec, GetThreadsCount&& getThreadsCount)
+template<typename Matrices, typename GetThreadsMapper, typename Malloc, typename Free, typename Memcpy>
+bool dotProduct (Matrices& output, const Matrices& params1, const Matrices& params2, oap::IKernelExecutor* kexec, GetThreadsMapper&& getThreadsMapper, Malloc&& malloc, Free&& free, Memcpy&& memcpy)
 {
-  auto threads = getThreadsCount (doutput);
+  uintt len = output.size();
+  std::vector<std::vector<math::Matrix*>> matrixArgs;
 
-  const void* params[] = {&doutput.ptr, &doutput.dims, &darg1.ptr, &darg1.dims, &darg2.ptr, &darg2.dims, &dregions, &dregionsCount};
-  const char* kname = "api2_CUDAKernel_DotProduct";
+  for (uintt idx = 0; idx < len; ++idx)
+  {
+    std::vector<math::Matrix*> line = {output[idx]};
+    matrixArgs.push_back (line);
+  }
 
-  Args args (threads.first, threads.second);
+  math::Matrix** doutput = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
+  math::Matrix** dparams1 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
+  math::Matrix** dparams2 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
+
+  memcpy (doutput, output.data(), sizeof(math::Matrix*) * output.size());
+  memcpy (dparams1, params1.data(), sizeof(math::Matrix*) * output.size());
+  memcpy (dparams2, params2.data(), sizeof(math::Matrix*) * output.size());
+
+  oap::ThreadsMapper mapper = getThreadsMapper (matrixArgs, oap::threads::ThreadsMapperAlgo::MATRIX_POS);
+  oap::ThreadsMapperS* tmS = mapper.create ();
+
+  const void* params[] = {&doutput, &dparams1, &params2, &tmS};
+  const char* kname = "CUDAKernel_GenericApi_DotProduct";
+
+  oap::generic::Args args (mapper.getWidth(), mapper.getHeight());
   args.retrieveDims = false;
   args.prepareDims = true;
-  args.w = threads.first;
-  args.h = threads.second;
-  args.sharedMemorySize = args.w * args.h * sizeof(floatt);
+  args.w = mapper.getWidth(); 
+  args.h = mapper.getHeight(); 
+  args.sharedMemorySize = 0;
 
-  return executeKernel (kname, params, kexec, args);
+  auto status = executeKernel (kname, params, kexec, args);
+
+  free (doutput);
+  free (dparams1);
+  free (dparams2);
+  mapper.destroy (tmS);
+
+  return status;
 }
 
 }

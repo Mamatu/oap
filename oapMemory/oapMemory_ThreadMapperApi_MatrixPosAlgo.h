@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_MEMORY__THREAD_MAPPER_API__ABS_INDEX_ALGO_H
-#define OAP_MEMORY__THREAD_MAPPER_API__ABS_INDEX_ALGO_H
+#ifndef OAP_MEMORY__THREAD_MAPPER_API__MATRIX_POS_ALGO_H
+#define OAP_MEMORY__THREAD_MAPPER_API__MATRIX_POS_ALGO_H
 
 #include "Matrix.h"
 #include "oapThreadsMapperS.h"
@@ -27,7 +27,7 @@
 
 namespace oap
 {
-namespace aia
+namespace mp
 {
 
 namespace
@@ -38,24 +38,25 @@ __hostdeviceinline__ uintt getDataIdx (dim3 threadIdx, dim3 blockIdx, dim3 block
   const uintt y = _memoryIdxY();
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
 
-  return (y * _memoryWidth() + x) * (ud->argsCount * AIA_INDECIES_COUNT);
+  return (y * _memoryWidth() + x) * (ud->argsCount * MP_INDECIES_COUNT);
 }
 }
 
-__hostdevice__ void GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
+__hostdevice__ void GetIdx_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[3], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
   uintt* indecies = static_cast<uintt*>(ud->buffer);
 
   uintt idx = getDataIdx (threadIdx, blockIdx, blockDim, gridDim, mapper);
 
-  idx += argIdx * AIA_INDECIES_COUNT;
+  idx += argIdx * MP_INDECIES_COUNT;
 
   out[0] = indecies[idx];
   out[1] = indecies[idx + 1];
+  out[2] = indecies[idx + 2];
 }
 
-__hostdeviceinline__ bool InRange_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ bool InRange_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
   uintt* indecies = static_cast<uintt*>(ud->buffer);

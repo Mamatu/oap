@@ -19,7 +19,6 @@
 
 #ifndef OAP_THREADS_MAPPER_API_H
 #define	OAP_THREADS_MAPPER_API_H
-
 #include "Matrix.h"
 #include "MatrixAPI.h"
 
@@ -28,9 +27,11 @@
 #include <vector>
 
 #include "oapMemoryPrimitivesApi.h"
-#include "oapThreadsMapperApi_AbsIndexAlgo.h"
 #include "oapThreadsMapperS.h"
 #include "oapThreadsMapperC.h"
+
+#include "oapThreadsMapperApi_AbsIndexAlgo.h"
+#include "oapThreadsMapperApi_MatrixPosAlgo.h"
 
 namespace oap {
 
@@ -217,10 +218,23 @@ uintt getYThreads (const MemoryRegions& regions)
 #endif
 }
 
-template<typename MatricesLine, typename GetMatrixInfo,  typename Malloc, typename Memcpy, typename Free>
-ThreadsMapper createThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
+enum ThreadsMapperAlgo
 {
-  return oap::aia::getThreadsMapper (matricesArgs, getMatrixInfo, malloc, memcpy, free);
+  ABS_INDEX,
+  MATRIX_POS
+};
+
+template<typename MatricesLine, typename GetMatrixInfo,  typename Malloc, typename Memcpy, typename Free>
+ThreadsMapper createThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetMatrixInfo&& getMatrixInfo, Malloc&& malloc, Memcpy&& memcpy, Free&& free, ThreadsMapperAlgo algo)
+{
+  switch (algo)
+  {
+    case ABS_INDEX:
+      return oap::aia::getThreadsMapper (matricesArgs, getMatrixInfo, malloc, memcpy, free);
+    case MATRIX_POS:
+      return oap::mp::getThreadsMapper (matricesArgs, getMatrixInfo, malloc, memcpy, free);
+  };
+  logAssertMsg (false, "Not supported");
 }
 
 }

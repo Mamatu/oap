@@ -57,7 +57,7 @@ TEST_F(OapGenericApiTests_Addition, Test_1)
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
   
   std::vector<math::Matrix*> outputs = {output1};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix1}), std::vector<math::Matrix*>({matrix2}));
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1}), std::vector<math::Matrix*>({matrix2}));
 
   std::vector<floatt> expected1 =
   {
@@ -92,7 +92,7 @@ TEST_F(OapGenericApiTests_Addition, Test_2)
   oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (1, 1, memory3, {1, 0});
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
 
   std::vector<floatt> expected1 =
   {
@@ -132,7 +132,7 @@ TEST_F(OapGenericApiTests_Addition, Test_3)
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix2, matrix2}));
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix2, matrix2}));
 
   std::vector<floatt> expected1 =
   {
@@ -170,7 +170,7 @@ TEST_F(OapGenericApiTests_Addition, Test_4)
   oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (1, 1, memory, {3, 0});
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
 
   std::vector<floatt> expected1 =
   {
@@ -208,7 +208,7 @@ TEST_F(OapGenericApiTests_Addition, Test_5)
   oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (3, 3, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
 
   std::vector<floatt> expected1 =
   {
@@ -264,7 +264,7 @@ TEST_F(OapGenericApiTests_Addition, Test_6)
   oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (2, 2, memory1, {4, 0});
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix11, matrix12}), std::vector<math::Matrix*>({matrix21, matrix22}));
 
   std::vector<floatt> expected1 =
   {

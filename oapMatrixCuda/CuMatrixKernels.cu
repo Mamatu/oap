@@ -547,3 +547,9 @@ CUDAKernel_GenericApi_Add (math::Matrix** outputs, math::Matrix* const* params1,
 {
   CUDA_GenericApi_Add (outputs, params1, params2, mapper);
 }
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_DotProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_DotProduct (outputs, params1, params2, mapper);
+}
