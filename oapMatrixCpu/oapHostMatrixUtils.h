@@ -759,12 +759,12 @@ void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uin
 void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
 
 template<typename Matrices>
-oap::ThreadsMapper createThreadsMapper (const std::vector<Matrices>& matricesVec)
+oap::ThreadsMapper createThreadsMapper (const std::vector<Matrices>& matricesVec, oap::threads::ThreadsMapperAlgo algo)
 {
-  return oap::threads::createThreadsMapper (matricesVec, oap::host::GetRefHostMatrix, malloc, memcpy, free);
+  return oap::threads::createThreadsMapper (matricesVec, oap::host::GetRefHostMatrix, malloc, memcpy, free, algo);
 }
 
-oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices);
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices, oap::threads::ThreadsMapperAlgo algo);
 
 math::Matrix* NewMatrixFromMemory (uintt columns, uintt rows, oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
 math::Matrix* NewReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);

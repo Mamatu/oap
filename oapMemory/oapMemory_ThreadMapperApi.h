@@ -21,9 +21,11 @@
 #define OAP_MEMORY__THREAD_MAPPER_API_H
 
 #include "Matrix.h"
+#include "MatrixAPI.h"
 #include "oapThreadsMapperS.h"
 #include "oapMemory_CommonApi.h"
 #include "oapMemory_ThreadMapperApi_AbsIndexAlgo.h"
+#include "oapMemory_ThreadMapperApi_MatrixPosAlgo.h"
 
 namespace oap
 {
@@ -34,23 +36,38 @@ __hostdeviceinline__ void GetIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, 
 {
   switch (mapper->mode)
   {
-    case OAP_THREADS_MAPPER_MODE__SIMPLE:
-      aia::GetIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, out, arg, mapper, argIdx);
+    case OAP_THREADS_MAPPER_MODE__AIA:
+        aia::GetIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, out, arg, mapper, argIdx);
+      break;
+
+    case OAP_THREADS_MAPPER_MODE__MP:
+        uintt out1[3];
+        mp::GetIdx_MatrixPosAlgo (threadIdx, blockIdx, blockDim, gridDim, out1, arg, mapper, argIdx);
+        out[0] = out1[0];
+        out[1] = out1[1] + GetColumns(arg[out[0]]) * out1[2];
+      break;
 
     default:
-      aia::GetIdx_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, out, arg, mapper, argIdx);
+        assert ("Not supported" != NULL);
+      break;
   };
 }
 
-__hostdeviceinline__ bool InRange (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const ThreadsMapperS* mapper)
+__hostdeviceinline__ void GetPos (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
 {
   switch (mapper->mode)
   {
-    case OAP_THREADS_MAPPER_MODE__SIMPLE:
-      return aia::InRange_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, mapper);
+    case OAP_THREADS_MAPPER_MODE__AIA:
+        assert ("Not supported" != NULL);
+      break;
+
+    case OAP_THREADS_MAPPER_MODE__MP:
+        mp::GetIdx_MatrixPosAlgo (threadIdx, blockIdx, blockDim, gridDim, out, arg, mapper, argIdx);
+      break;
 
     default:
-      return aia::InRange_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, mapper);
+        assert ("Not supported" != NULL);
+      break;
   };
 }
 
@@ -59,6 +76,6 @@ __hostdeviceinline__ bool InRange (dim3 threadIdx, dim3 blockIdx, dim3 blockDim,
 
 #define _idxs(out, matrices, mapper, argIdx) oap::threads::GetIdx(threadIdx, blockIdx, blockDim, gridDim, out, matrices, mapper, argIdx)
 
-#define _inRange(mapper) oap::threads::InRange(threadIdx, blockIdx, blockDim, gridDim, mapper) 
+#define _idxpos(out, matrices, mapper, argIdx) oap::threads::GetPos(threadIdx, blockIdx, blockDim, gridDim, out, matrices, mapper, argIdx)
 
 #endif

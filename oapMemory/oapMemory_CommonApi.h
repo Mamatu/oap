@@ -32,7 +32,7 @@
 #define _memoryIdxY() blockIdx.y * blockDim.y + threadIdx.y
 #define _memoryWidth() blockDim.x * gridDim.x
 #define _memoryHeight() blockDim.y * gridDim.y
-
+#define _getLen(reg) reg.dims.width * reg.dims.height
 
 /**
  * API section
@@ -185,11 +185,34 @@ __hostdeviceinline__ uintt GetMemoryIdx (const oap::Memory& memory, const oap::M
   return bufferIndex;
 }
 
-__hostdeviceinline__ uintt GetMemIdxFromMatrixIdx (const oap::Memory& memory, const oap::MemoryRegion& reg, uintt matrixIdx)
+struct Pos
+{
+  uintt x;
+  uintt y;
+};
+
+__hostdeviceinline__ Pos GetMatrixPosFromMatrixIdx (const oap::Memory& memory, const oap::MemoryRegion& reg, uintt matrixIdx)
 {
   const uintt lx = matrixIdx % reg.dims.width;
   const uintt ly = matrixIdx / reg.dims.width;
-  return (reg.loc.x + lx) + (reg.loc.y + ly) * memory.dims.width;
+  return {lx, ly};// (reg.loc.x + lx) + (reg.loc.y + ly) * memory.dims.width;
+}
+
+__hostdeviceinline__ Pos GetMemPosFromMatrixIdx (const oap::Memory& memory, const oap::MemoryRegion& reg, uintt matrixIdx)
+{
+  Pos pos = GetMatrixPosFromMatrixIdx (memory, reg, matrixIdx);
+  return {(reg.loc.x + pos.x), (reg.loc.y + pos.y)};
+}
+
+__hostdeviceinline__ uintt GetMemIdxFromMatrixIdx (const oap::Memory& memory, const oap::MemoryRegion& reg, uintt matrixIdx)
+{
+  Pos pos = GetMemPosFromMatrixIdx (memory, reg, matrixIdx);
+  return (pos.x) + (pos.y) * memory.dims.width;
+}
+
+__hostdeviceinline__ uintt GetMemIdxFromMatrixPos (const oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y)
+{
+  return GetMemIdxFromMatrixIdx (memory, reg, x + reg.dims.width * y);
 }
 
 __hostdeviceinline__ oap::MemoryLoc ConvertDimsIdxToLoc (uintt idx, const oap::MemoryDims& dims)

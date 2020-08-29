@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_THREADS_MAPPER_API__ABS_INDEX_ALGO_H
-#define	OAP_THREADS_MAPPER_API__ABS_INDEX_ALGO_H
+#ifndef OAP_THREADS_MAPPER_API__MATRIX_POS_ALGO_H
+#define	OAP_THREADS_MAPPER_API__MATRIX_POS_ALGO_H
 
 #include "Matrix.h"
 #include "MatrixInfo.h"
@@ -31,24 +31,26 @@
 
 #include "oapThreadsMapperC.h"
 #include "oapThreadsMapperApi.h"
-#include "oapThreadsMapperApi_Common.h"
 #include "oapMemory_ThreadMapperApi_Types.h"
 #include "oapMemoryUtils.h"
 
 namespace oap {
 
-namespace aia {
+namespace mp {
 
 template<typename MatricesLine, typename GetRefHostMatrix, typename Malloc, typename Memcpy, typename Free>
 ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetRefHostMatrix&& getRefHostMatrix, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
 {
-  auto createBuffer = [](std::vector<uintt>& indecies, const math::Matrix& matrix, uintt lineIndex, uintt /*argIdx*/, uintt matrixIdx)
+  auto createBuffer = [](std::vector<uintt>& indecies, const math::Matrix& matrixRef, uintt lineIndex, uintt /*argIdx*/, uintt matrixIdx)
   {
+    common::Pos pos = oap::common::GetMatrixPosFromMatrixIdx (matrixRef.re, matrixRef.reReg, matrixIdx);
+
     indecies.push_back (lineIndex);
-    indecies.push_back (oap::common::GetMemIdxFromMatrixIdx (matrix.re, matrix.reReg, matrixIdx));
+    indecies.push_back (pos.x);
+    indecies.push_back (pos.y);
   };
 
-  return oap::common::getThreadsMapper (matricesArgs, getRefHostMatrix, malloc, memcpy, free, createBuffer, AIA_INDECIES_COUNT, OAP_THREADS_MAPPER_MODE__AIA);
+  return oap::common::getThreadsMapper (matricesArgs, getRefHostMatrix, malloc, memcpy, free, createBuffer, MP_INDECIES_COUNT, OAP_THREADS_MAPPER_MODE__MP);  
 }
 }
 }

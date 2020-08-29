@@ -17,14 +17,18 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_MEMORY__THREAD_MAPPER_API__ABS_INDEX_ALGO__COMMON_API_H
-#define OAP_MEMORY__THREAD_MAPPER_API__ABS_INDEX_ALGO__COMMON_API_H
+#ifndef OAP_MEMORY__THREAD_MAPPER_API__TYPES_H
+#define OAP_MEMORY__THREAD_MAPPER_API__TYPES_H
 
 #include "Math.h"
 
+// Number of indecies which is stored in buffer for one element
+#define AIA_INDECIES_COUNT 2
+#define MP_INDECIES_COUNT 3
+
 namespace oap
 {
-namespace aia
+namespace threads
 {
 
 struct UserData
@@ -32,9 +36,6 @@ struct UserData
   uintt* buffer;
   uintt argsCount;
 };
-
-// Number of indecies which is stored in buffer for one element
-#define INDECIES_COUNT 2
 
 }
 }
