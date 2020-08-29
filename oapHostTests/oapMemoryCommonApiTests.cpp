@@ -1,5 +1,5 @@
 /*
- * CopyHostToHostright 2016 - 2021 Marcin Matula
+ * CopyHostToHostright 2016 - 2019 Marcin Matula
  *
  * This file is part of Oap.
  *
