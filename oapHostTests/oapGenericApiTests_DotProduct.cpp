@@ -55,7 +55,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_1)
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
 
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
-  
+
   std::vector<math::Matrix*> outputs = {output1};
   hp.v2_multiply (outputs, std::vector<math::Matrix*>({matrix1}), std::vector<math::Matrix*>({matrix2}));
 
@@ -86,7 +86,47 @@ TEST_F(OapGenericApiTests_DotProduct, Test_2)
 
   oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixWithValue (1, 1, 4.);
   oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (1, 1, 3.);
-  
+
+  std::vector<math::Matrix*> outputs = {output11, output12};
+  std::vector<math::Matrix*> matrixs1 = {matrix11, matrix12};
+  std::vector<math::Matrix*> matrixs2 = {matrix21, matrix22};
+  hp.v2_multiply (outputs, matrixs1, matrixs2);
+
+  std::vector<floatt> expected1 =
+  {
+    16,
+  };
+
+  std::vector<floatt> expected2 =
+  {
+    9,
+  };
+
+  std::vector<floatt> actual1 = {oap::common::GetValue (output11->re, output11->reReg, 0, 0)};
+  std::vector<floatt> actual2 = {oap::common::GetValue (output12->re, output12->reReg, 0, 0)};
+
+  std::cout << "Memory: " << std::endl << std::to_string (memory);
+
+  EXPECT_EQ (expected1, actual1);
+  EXPECT_EQ (expected2, actual2);
+
+  oap::host::DeleteMemory (memory);
+}
+
+TEST_F(OapGenericApiTests_DotProduct, Test_3)
+{
+  HostProcedures hp;
+  oap::Memory memory = oap::host::NewMemoryWithValues ({1, 2}, 0.);
+
+  oap::HostMatrixUPtr output11 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostMatrixUPtr output12 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 1});
+
+  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (1, 1, 4.);
+  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (1, 1, 3.);
+
+  oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixWithValue (1, 1, 4.);
+  oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (1, 1, 3.);
+
   std::vector<math::Matrix*> outputs = {output11, output12};
   std::vector<math::Matrix*> matrixs1 = {matrix11, matrix12};
   std::vector<math::Matrix*> matrixs2 = {matrix21, matrix22};

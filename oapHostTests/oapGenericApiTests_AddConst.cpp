@@ -55,7 +55,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_1)
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
 
   std::vector<math::Matrix*> outputs = {output1};
-  hp.v2_addConst (outputs, std::vector<math::Matrix*>({matrix1}), 1.f);
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -84,7 +84,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_2)
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {1, 0});
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -121,7 +121,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_3)
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -156,7 +156,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_4)
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -191,7 +191,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_5)
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (3, 3, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -239,7 +239,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_6)
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (2, 2, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {

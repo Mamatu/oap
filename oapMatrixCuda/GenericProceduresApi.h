@@ -47,24 +47,30 @@ namespace generic
 
 using SharedMemoryCallback = std::function<uintt(uintt blocks[2], uintt threads[2])>;
 
+inline void prepareDims (oap::IKernelExecutor* kexec, uintt w, uintt h, uint blocks[2], uint threads[2])
+{
+  kexec->calculateThreadsBlocks (blocks, threads, w, h);
+  kexec->setBlocksCount (blocks[0], blocks[1]);
+  kexec->setThreadsCount (threads[0], threads[1]);
+}
+
 struct Args
 {
-  Args (bool _retrieveDims) : retrieveDims(_retrieveDims)
+  Args (bool _retrieveDims) : m_retrieveDims(_retrieveDims)
   {
-    logAssert (retrieveDims);
+    logAssert (m_retrieveDims);
   }
 
   Args (uintt _w, uintt _h) : w(_w), h(_h)
   {}
 
-  bool retrieveDims = true;
-  uintt w;
-  uintt h;
+  bool m_retrieveDims = true;
+  uintt w = 0;
+  uintt h = 0;
 
-  bool prepareDims = true;
+  bool m_prepareDims = true;
   uint blocks[2];
   uint threads[2];
-
   uintt sharedMemorySize = 0;
 
   /**
@@ -75,16 +81,16 @@ struct Args
    * Type is @SharedMemoryCallback
    */
   SharedMemoryCallback smCallback = nullptr;
+
+  inline void prepareDims (oap::IKernelExecutor* kexec)
+  {
+    oapAssert (w != 0 && h != 0);
+    oap::generic::prepareDims (kexec, w, h, threads, blocks);
+    m_prepareDims = false;
+  }
 };
 
-inline void prepareDims (oap::IKernelExecutor* kexec, uintt w, uintt h, uint blocks[2], uint threads[2])
-{
-  kexec->calculateThreadsBlocks (blocks, threads, w, h);
-  kexec->setBlocksCount (blocks[0], blocks[1]);
-  kexec->setThreadsCount (threads[0], threads[1]);
-}
-
-template<typename PreExecCallback, typename PostExecCallback>
+  template<typename PreExecCallback, typename PostExecCallback>
 bool execute (oap::IKernelExecutor* kexec, const char* functionName, uintt w, uintt h, const void** params, uintt sharedMemory, bool _prepareDims,
              uint blocks[2], uint threads[2], PreExecCallback&& preExecCallback, PostExecCallback&& postExecCallback, const SharedMemoryCallback& smCallback = nullptr)
 {
@@ -114,13 +120,13 @@ bool execute (oap::IKernelExecutor* kexec, const char* functionName, uintt w, ui
 template<typename GetMatrixInfo, typename PreExecCallback>
 bool executeKernel (const std::string& kernelName, const math::MatrixInfo& ref, const void** params, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, PreExecCallback&& preExecCallback, Args args = Args(true))
 {
-  if (args.retrieveDims)
+  if (args.m_retrieveDims)
   {
     args.w = ref.columns ();
     args.h = ref.rows ();
   }
 
-  return execute (kexec, kernelName.c_str(), args.w, args.h, const_cast<const void**>(params), args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){}, args.smCallback);
+  return execute (kexec, kernelName.c_str(), args.w, args.h, const_cast<const void**>(params), args.sharedMemorySize, args.m_prepareDims, args.blocks, args.threads, preExecCallback, [](){}, args.smCallback);
 }
 
 using DefaultExecCallbackType = std::function<void()>;
@@ -129,13 +135,13 @@ template<typename GetMatrixInfo, typename PreExecCallback = DefaultExecCallbackT
 bool executeKernel (const std::string& kernelName, const math::MatrixInfo& ref, const void** params, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo,
                     Args args = Args(true), PreExecCallback&& preExecCallback = [](){}, PostExecCallback&& postExecCallback = [](){})
 {
-  if (args.retrieveDims)
+  if (args.m_retrieveDims)
   {
     args.w = ref.columns ();
     args.h = ref.rows ();
   }
 
-  return execute (kexec, kernelName.c_str(), args.w, args.h, const_cast<const void**>(params), args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, postExecCallback, args.smCallback);
+  return execute (kexec, kernelName.c_str(), args.w, args.h, const_cast<const void**>(params), args.sharedMemorySize, args.m_prepareDims, args.blocks, args.threads, preExecCallback, postExecCallback, args.smCallback);
 }
 
 template<typename GetMatrixInfo, typename PreExecCallback = DefaultExecCallbackType, typename PostExecCallback = DefaultExecCallbackType>
@@ -150,7 +156,7 @@ bool executeKernel (const std::string& kernelName, const math::Matrix* refMatrix
 template<typename GetMatrixInfo, typename PreExecCallback>
 bool executeKernel (const std::string& kernelName, math::Matrix* ref, const void** params, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, PreExecCallback&& preExecCallback, Args args = Args(true))
 {
-  if (args.retrieveDims)
+  if (args.m_retrieveDims)
   {
     auto minfo = bmApi.getMatrixInfo (ref);
 
@@ -158,12 +164,12 @@ bool executeKernel (const std::string& kernelName, math::Matrix* ref, const void
     args.h = minfo.rows ();
   }
 
-  return execute (kexec, kernelName.c_str(), args.w, args.h, const_cast<const void**>(params), args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, preExecCallback, [](){}, args.smCallback);
+  return execute (kexec, kernelName.c_str(), args.w, args.h, const_cast<const void**>(params), args.sharedMemorySize, args.m_prepareDims, args.blocks, args.threads, preExecCallback, [](){}, args.smCallback);
 }
 
 inline bool executeKernel (const std::string& kernelName, const void** params, oap::IKernelExecutor* kexec, Args args)
 {
-  return execute (kexec, kernelName.c_str(), args.w, args.h, const_cast<const void**>(params), args.sharedMemorySize, args.prepareDims, args.blocks, args.threads, [](){}, [](){}, args.smCallback);
+  return execute (kexec, kernelName.c_str(), args.w, args.h, const_cast<const void**>(params), args.sharedMemorySize, args.m_prepareDims, args.blocks, args.threads, [](){}, [](){}, args.smCallback);
 }
 
 template<typename GetMatrixInfo, typename PreExecCallback>
@@ -328,8 +334,8 @@ bool crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* pa
 
   kexec->calculateThreadsBlocks(blocks, threads, w, h);
   kexec->setBlocksCount(blocks[0], blocks[1]);
-  kexec->setThreadsCount(threads[0], threads[1]);   
-    
+  kexec->setThreadsCount(threads[0], threads[1]); 
+
   void* params[] = {&output, &params0, &params1};
 
   return kexec->execute ("CUDAKernel_CrossEntropy", const_cast<const void**>(params));
@@ -348,11 +354,11 @@ bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matri
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = oinfo.columns();
   args.h = oinfo.rows();
 
-  args.prepareDims = true;
+  args.m_prepareDims = true;
 
   void* params[] = {&output, &matrix1, &matrix2};
 
@@ -373,11 +379,11 @@ bool dotProductShared (math::Matrix* output, math::Matrix* matrix1, math::Matrix
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = oinfo.columns ();
   args.h = oinfo.rows ();
 
-  args.prepareDims = true;
+  args.m_prepareDims = true;
   args.smCallback = [&oinfo](uint blocks[2], uint threads[2])
   {
     uintt threadsPerBlock = threads[0] * threads[1];
@@ -417,11 +423,11 @@ bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matri
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = dims[0][0];
   args.h = dims[0][1];
 
-  args.prepareDims = true;
+  args.m_prepareDims = true;
 
   uintt hostEx[] = {args.w, args.h, dims[1][0]};
   uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
@@ -463,11 +469,11 @@ bool dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::M
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = dims[0][0];
   args.h = oinfo.rows();
 
-  args.prepareDims = true;
+  args.m_prepareDims = true;
 
   uintt hostEx[] = {dims[0][0], dims[0][1], dims[1][0], periodicRows};
   uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
@@ -494,7 +500,7 @@ bool tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* p
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = dims[0][0];
   args.h = dims[0][1];
 
@@ -523,7 +529,7 @@ bool qrDecomposition_HT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math
   const char* kname = "CUDAKernel_QRHT";
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = w;
   args.h = h;
 
@@ -556,7 +562,7 @@ bool func (const std::string& kname, math::Matrix* output, math::Matrix* matrix,
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = minfo1.columns();
   args.h = minfo1.rows();
 
@@ -577,7 +583,7 @@ bool funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matr
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = dims[0];
   args.h = minfo1.rows();
 
@@ -601,7 +607,7 @@ bool funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matr
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = dims[0][0];
   args.h = minfo1.rows();
 
@@ -623,7 +629,7 @@ bool setIdentityMatrix (math::Matrix* matrix, oap::IKernelExecutor* kexec, GetMa
 
   const char* kname = "CUDAKernel_SetIdentity";
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = minfo.columns();
   args.h = minfo.rows();
 
@@ -637,7 +643,7 @@ bool setVector (math::Matrix* V, uintt column, math::Matrix* v, uintt length, oa
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = minfo.columns();
   args.h = minfo.rows();
 
@@ -654,7 +660,7 @@ bool getVector (math::Matrix* vector, uintt length, math::Matrix* matrix, uintt 
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = minfo.columns();
   args.h = minfo.rows();
 
@@ -671,7 +677,7 @@ bool getVector(math::Matrix* vector, math::Matrix* matrix, uintt column, oap::IK
 
   oap::generic::Args args (true);
 
-  args.retrieveDims = false;
+  args.m_retrieveDims = false;
   args.w = minfo.columns();
   args.h = minfo.rows();
   uintt length = args.w * args.h;
@@ -738,8 +744,8 @@ bool convolve (math::Matrix* output, const math::Matrix* matrix, const math::Mat
   auto kinfo = getMatrixInfo (kernel);
 
   oap::generic::Args args (true);
-  args.retrieveDims = false;
-  args.prepareDims = true;
+  args.m_retrieveDims = false;
+  args.m_prepareDims = true;
   args.w = aux::convolve_cache_calculateWidth (minfo, kinfo);
   args.h = aux::convolve_cache_calculateHeight (minfo, kinfo);
   args.sharedMemorySize = args.w * args.h * sizeof(floatt);
@@ -761,8 +767,8 @@ bool poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::
   math::MatrixInfo kinfo (minfo.isRe, minfo.isIm, kernel.columns, kernel.rows);
 
   oap::generic::Args args (true);
-  args.retrieveDims = false;
-  args.prepareDims = true;
+  args.m_retrieveDims = false;
+  args.m_prepareDims = true;
   args.w = aux::pooling_cache_calculateWidth (minfo, kinfo);
   args.h = aux::pooling_cache_calculateHeight (minfo, kinfo);
   args.sharedMemorySize = args.w * args.h * sizeof(floatt);

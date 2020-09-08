@@ -53,6 +53,29 @@ __hostdeviceinline__ void GetIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, 
   };
 }
 
+__hostdeviceinline__ bool GetIdxCheck (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
+{
+  bool ret = false;
+  switch (mapper->mode)
+  {
+    case OAP_THREADS_MAPPER_MODE__AIA:
+        ret = aia::GetIdxCheck_AbsIndexAlgo (threadIdx, blockIdx, blockDim, gridDim, out, arg, mapper, argIdx);
+      break;
+
+    case OAP_THREADS_MAPPER_MODE__MP:
+        uintt out1[3];
+        ret = mp::GetIdxCheck_MatrixPosAlgo (threadIdx, blockIdx, blockDim, gridDim, out1, arg, mapper, argIdx);
+        out[0] = out1[0];
+        out[1] = out1[1] + GetColumns(arg[out[0]]) * out1[2];
+      break;
+
+    default:
+        assert ("Not supported" != NULL);
+      break;
+  };
+  return ret;
+}
+
 __hostdeviceinline__ void GetPos (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
 {
   switch (mapper->mode)
@@ -71,11 +94,33 @@ __hostdeviceinline__ void GetPos (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, 
   };
 }
 
+__hostdeviceinline__ bool GetPosCheck (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
+{
+  bool ret = false;
+  switch (mapper->mode)
+  {
+    case OAP_THREADS_MAPPER_MODE__AIA:
+        assert ("Not supported" != NULL);
+      break;
+
+    case OAP_THREADS_MAPPER_MODE__MP:
+        ret = mp::GetIdxCheck_MatrixPosAlgo (threadIdx, blockIdx, blockDim, gridDim, out, arg, mapper, argIdx);
+      break;
+
+    default:
+        assert ("Not supported" != NULL);
+      break;
+  };
+  return ret;
+}
+
 }
 }
 
 #define _idxs(out, matrices, mapper, argIdx) oap::threads::GetIdx(threadIdx, blockIdx, blockDim, gridDim, out, matrices, mapper, argIdx)
+#define _idxs_check(out, matrices, mapper, argIdx) oap::threads::GetIdxCheck(threadIdx, blockIdx, blockDim, gridDim, out, matrices, mapper, argIdx)
 
 #define _idxpos(out, matrices, mapper, argIdx) oap::threads::GetPos(threadIdx, blockIdx, blockDim, gridDim, out, matrices, mapper, argIdx)
+#define _idxpos_check(out, matrices, mapper, argIdx) oap::threads::GetPosCheck(threadIdx, blockIdx, blockDim, gridDim, out, matrices, mapper, argIdx)
 
 #endif

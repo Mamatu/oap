@@ -518,7 +518,7 @@ CUDAKernel_PoolAverage (math::Matrix* output, math::Matrix* matrix, uintt* ex)
 }
 
 extern "C" __global__ void
-CUDAKernel_GenericApi_AddConstant (math::Matrix** outputs, math::Matrix* const* params1, floatt params2, oap::ThreadsMapperS* mapper)
+CUDAKernel_GenericApi_AddConst (math::Matrix** outputs, math::Matrix* const* params1, floatt params2, oap::ThreadsMapperS* mapper)
 {
   CUDA_GenericApi_AddConst (outputs, params1, params2, mapper);
 }
@@ -533,4 +533,22 @@ extern "C" __global__ void
 CUDAKernel_GenericApi_DotProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
 {
   CUDA_GenericApi_DotProduct (outputs, params1, params2, mapper);
+}
+
+  extern "C" __global__ void
+CUDAKernel_GenericApi_MultiplyConst (math::Matrix** outputs, math::Matrix* const* params1, floatt params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_MultiplyConst (outputs, params1, params2, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_HadamardProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_HadamardProduct (outputs, params1, params2, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_TensorProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_TensorProduct (outputs, params1, params2, mapper);
 }

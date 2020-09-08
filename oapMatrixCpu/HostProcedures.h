@@ -123,27 +123,39 @@ class HostProcedures {
 
 
   template<typename Matrices>
-  void v2_addConst (Matrices& output, const Matrices& params1, floatt value)
+  void v2_add (Matrices& output, const Matrices& params1, floatt value)
   {
-    oap::generic::addConstant (output, params1, value, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy); 
+    oap::generic::addConstant (output, params1, value, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy);
   }
 
   template<typename Matrices>
   void v2_add (Matrices& output, const Matrices& params1, const Matrices& params2)
   {
-    oap::generic::add (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy); 
+    oap::generic::add (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy);
   }
 
   template<typename Matrices>
   void v2_dotProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
   {
-    oap::generic::dotProduct (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy); 
+    oap::generic::dotProduct (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy);
   }
 
   template<typename Matrices>
   void v2_multiply (Matrices& output, const Matrices& params1, const Matrices& params2)
   {
     v2_dotProduct<Matrices> (output, params1, params2);
+  }
+
+  template<typename Matrices>
+  void v2_hadamardProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
+  {
+    oap::generic::hadamardProduct (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy);
+  }
+
+  template<typename Matrices>
+  void v2_tensorProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
+  {
+    oap::generic::tensorProduct (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy);
   }
 
  private:

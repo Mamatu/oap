@@ -30,35 +30,35 @@ namespace oap
 class ThreadsMapper
 {
   public:
-    using CreateCallback = std::function<oap::ThreadsMapperS* ()>;
+    using CreateCallback = std::function<oap::ThreadsMapperS* (uintt blockDim[2], uintt gridDim[2])>;
     using DestroyCallback = std::function<void (oap::ThreadsMapperS*)>;
 
     ThreadsMapper (uintt width, uintt height, const CreateCallback& createCallback, const DestroyCallback& destroyCallback) :
-      m_width(width), m_height(height), m_createCallback (createCallback), m_destroyCallback (destroyCallback)
+      m_minWidth(width), m_minHeight(height), m_createCallback (createCallback), m_destroyCallback (destroyCallback)
     {}
 
     ThreadsMapper (uintt width, uintt height, CreateCallback&& createCallback, DestroyCallback&& destroyCallback) :
-      m_width(width), m_height(height), m_createCallback (std::move(createCallback)), m_destroyCallback (std::move(destroyCallback))
+      m_minWidth(width), m_minHeight(height), m_createCallback (std::move(createCallback)), m_destroyCallback (std::move(destroyCallback))
     {}
 
-    uintt getWidth () const
+    uintt getMinWidth () const
     {
-      return m_width;
+      return m_minWidth;
     }
 
-    uintt getHeight () const
+    uintt getMinHeight () const
     {
-      return m_height;
+      return m_minHeight;
     }
 
-    uintt getLength () const 
+    uintt getMinLength () const
     {
-      return getWidth() * getHeight();
+      return getMinWidth() * getMinHeight();
     }
 
-    oap::ThreadsMapperS* create () const
+    oap::ThreadsMapperS* create (uintt blockDim[2], uintt gridDim[2]) const
     {
-      return m_createCallback ();
+      return m_createCallback (blockDim, gridDim);
     }
 
     void destroy (oap::ThreadsMapperS* tms)
@@ -67,8 +67,8 @@ class ThreadsMapper
     }
 
   private:
-    uintt m_width;
-    uintt m_height;
+    uintt m_minWidth;
+    uintt m_minHeight;
     CreateCallback m_createCallback;
     DestroyCallback m_destroyCallback;
 };

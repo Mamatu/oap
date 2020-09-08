@@ -71,6 +71,8 @@ std::map<std::string, std::function<void(const void**)>> g_kernelsList =
   {"CUDAKernel_GenericApi_AddConst", proxy_HOSTKernel_GenericApi_AddConst},
   {"CUDAKernel_GenericApi_Add", proxy_HOSTKernel_GenericApi_Add},
   {"CUDAKernel_GenericApi_DotProduct", proxy_HOSTKernel_GenericApi_DotProduct},
+  {"CUDAKernel_GenericApi_HadamardProduct", proxy_HOSTKernel_GenericApi_HadamardProduct},
+  {"CUDAKernel_GenericApi_TensorProduct", proxy_HOSTKernel_GenericApi_TensorProduct},
 };
 
 class HostKernelImpl : public HostKernel
