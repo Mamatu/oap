@@ -68,7 +68,7 @@ TEST_F(OapApiVer2Tests_Addition, SimpleAdd)
   oap::DeviceMatrixUPtr matrix2 = oap::cuda::NewDeviceReMatrixWithValue (3, 3, 1.);
 
   std::vector<math::Matrix*> outputs = {output1, output2};
-  m_cuApi->addConst (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  m_cuApi->v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
   
   oap::HostMatrixUPtr output1h = oap::host::NewReMatrixWithValue (3, 3, 0);
   oap::HostMatrixUPtr output2h = oap::host::NewReMatrixWithValue (3, 3, 0);
@@ -99,6 +99,9 @@ TEST_F(OapApiVer2Tests_Addition, SimpleAdd)
   oap::to_vector (memVec, hmemory);
 
   std::cout << "Memory: " << std::endl << std::to_string (hmemory);
+
+  oap::cuda::DeleteMemory (memory);
+  oap::host::DeleteMemory (hmemory);
 
   EXPECT_EQ (expected1, actual1);
   EXPECT_EQ (expected2, actual2);

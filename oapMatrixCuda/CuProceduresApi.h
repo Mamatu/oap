@@ -373,10 +373,22 @@ class CuProceduresApi
                             math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6);
 
   template<typename Matrices>
-  void addConst (Matrices& output, const Matrices& params1, floatt value);
+  void v2_add (Matrices& output, const Matrices& params1, floatt value);
 
   template<typename Matrices>
-  void add (Matrices& output, const Matrices& params1, const Matrices& params2);
+  void v2_add (Matrices& output, const Matrices& params1, const Matrices& params2);
+
+  template<typename Matrices>
+  void v2_dotProduct (Matrices& output, const Matrices& params1, const Matrices& params2);
+
+  template<typename Matrices>
+  void v2_multiply (Matrices& output, const Matrices& params1, const Matrices& params2);
+
+  template<typename Matrices>
+  void v2_hadamardProduct (Matrices& output, const Matrices& params1, const Matrices& params2);
+
+  template<typename Matrices>
+  void v2_tensorProduct (Matrices& output, const Matrices& params1, const Matrices& params2);
 
   std::string getMsgStatus() const;
 
@@ -600,15 +612,39 @@ inline void CuProceduresApi::add (math::Matrix* output, math::Matrix* params0, m
 }
 
 template<typename Matrices>
-void CuProceduresApi::addConst (Matrices& output, const Matrices& params1, floatt value)
+void CuProceduresApi::v2_add (Matrices& output, const Matrices& params1, floatt value)
 {
-  m_cuStatus = oap::generic::addConstant (output, params1, value, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice); 
+  m_cuStatus = oap::generic::addConstant (output, params1, value, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice);
 }
 
 template<typename Matrices>
-void CuProceduresApi::add (Matrices& output, const Matrices& params1, const Matrices& params2)
+void CuProceduresApi::v2_add (Matrices& output, const Matrices& params1, const Matrices& params2)
 {
-  m_cuStatus = oap::generic::add (output, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice); 
+  m_cuStatus = oap::generic::add (output, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice);
+}
+
+template<typename Matrices>
+void CuProceduresApi::v2_dotProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
+{
+  m_cuStatus = oap::generic::dotProduct (output, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice);
+}
+
+template<typename Matrices>
+void CuProceduresApi::v2_multiply (Matrices& output, const Matrices& params1, const Matrices& params2)
+{
+  m_cuStatus = v2_dotProduct<Matrices> (output, params1, params2);
+}
+
+template<typename Matrices>
+void CuProceduresApi::v2_hadamardProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
+{
+  m_cuStatus = oap::generic::hadamardProduct (output, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice);
+}
+
+template<typename Matrices>
+void CuProceduresApi::v2_tensorProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
+{
+  m_cuStatus = oap::generic::tensorProduct (output, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice);
 }
 
 }

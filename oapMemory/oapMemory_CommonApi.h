@@ -28,12 +28,12 @@
 /**
  * Macro section
  */
-#define _memoryIdxX() blockIdx.x * blockDim.x + threadIdx.x
-#define _memoryIdxY() blockIdx.y * blockDim.y + threadIdx.y
-#define _memoryWidth() blockDim.x * gridDim.x
-#define _memoryHeight() blockDim.y * gridDim.y
-#define _getLen(reg) reg.dims.width * reg.dims.height
-
+#define _memoryIdxX() (blockIdx.x * blockDim.x + threadIdx.x)
+#define _memoryIdxY() (blockIdx.y * blockDim.y + threadIdx.y)
+#define _memoryWidth() (blockDim.x * gridDim.x)
+#define _memoryHeight() (blockDim.y * gridDim.y)
+#define _getLen(reg) (reg.dims.width * reg.dims.height)
+#define _cuGlbThreadIdx() _memoryIdxX() + _memoryWidth() * _memoryIdxY()
 /**
  * API section
  */

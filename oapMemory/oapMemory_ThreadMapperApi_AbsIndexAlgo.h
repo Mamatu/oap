@@ -30,39 +30,39 @@ namespace oap
 namespace aia
 {
 
-namespace
-{
-__hostdeviceinline__ uintt getDataIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
-{
-  const uintt x = _memoryIdxX();
-  const uintt y = _memoryIdxY();
-  oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
-
-  return (y * _memoryWidth() + x) * (ud->argsCount * AIA_INDECIES_COUNT);
-}
-}
-
 __hostdevice__ void GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
-  uintt* indecies = static_cast<uintt*>(ud->buffer);
 
-  uintt idx = getDataIdx (threadIdx, blockIdx, blockDim, gridDim, mapper);
-
+  uintt idx = ud->mapperBuffer [_cuGlbThreadIdx()];
   idx += argIdx * AIA_INDECIES_COUNT;
 
-  out[0] = indecies[idx];
-  out[1] = indecies[idx + 1];
+  out[0] = ud->dataBuffer[idx];
+  out[1] = ud->dataBuffer[idx + 1];
+}
+
+__hostdevice__ bool GetIdxCheck_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
+{
+  oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
+
+  uintt idx = ud->mapperBuffer [_cuGlbThreadIdx()];
+
+  if (idx != MAX_UINTT)
+  {
+    idx += argIdx * AIA_INDECIES_COUNT;
+
+    out[0] = ud->dataBuffer[idx];
+    out[1] = ud->dataBuffer[idx + 1];
+    return true;
+  }
+  return false;
 }
 
 __hostdeviceinline__ bool InRange_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
-  uintt* indecies = static_cast<uintt*>(ud->buffer);
-
-  uintt dataIdx = getDataIdx (threadIdx, blockIdx, blockDim, gridDim, mapper);
-
-  return indecies[dataIdx] != MAX_UINTT;
+  uintt idx = ud->mapperBuffer [_cuGlbThreadIdx()];
+  return idx != MAX_UINTT;
 }
 
 }

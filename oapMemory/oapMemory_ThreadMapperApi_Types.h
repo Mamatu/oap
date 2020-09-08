@@ -33,7 +33,8 @@ namespace threads
 
 struct UserData
 {
-  uintt* buffer;
+  uintt* mapperBuffer;
+  uintt* dataBuffer;
   uintt argsCount;
 };
 

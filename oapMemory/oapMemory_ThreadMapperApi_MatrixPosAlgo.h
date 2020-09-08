@@ -30,40 +30,40 @@ namespace oap
 namespace mp
 {
 
-namespace
-{
-__hostdeviceinline__ uintt getDataIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
-{
-  const uintt x = _memoryIdxX();
-  const uintt y = _memoryIdxY();
-  oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
-
-  return (y * _memoryWidth() + x) * (ud->argsCount * MP_INDECIES_COUNT);
-}
-}
-
 __hostdevice__ void GetIdx_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[3], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
-  uintt* indecies = static_cast<uintt*>(ud->buffer);
-
-  uintt idx = getDataIdx (threadIdx, blockIdx, blockDim, gridDim, mapper);
+  uintt idx = ud->mapperBuffer [_cuGlbThreadIdx()];
 
   idx += argIdx * MP_INDECIES_COUNT;
 
-  out[0] = indecies[idx];
-  out[1] = indecies[idx + 1];
-  out[2] = indecies[idx + 2];
+  out[0] = ud->dataBuffer[idx];
+  out[1] = ud->dataBuffer[idx + 1];
+  out[2] = ud->dataBuffer[idx + 2];
+}
+
+__hostdevice__ bool GetIdxCheck_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[3], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
+{
+  oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
+  uintt idx = ud->mapperBuffer [_cuGlbThreadIdx()];
+
+  if (idx != MAX_UINTT)
+  {
+    idx += argIdx * MP_INDECIES_COUNT;
+
+    out[0] = ud->dataBuffer[idx];
+    out[1] = ud->dataBuffer[idx + 1];
+    out[2] = ud->dataBuffer[idx + 2];
+    return true;
+  }
+  return false;
 }
 
 __hostdeviceinline__ bool InRange_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, const oap::ThreadsMapperS* mapper)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
-  uintt* indecies = static_cast<uintt*>(ud->buffer);
-
-  uintt dataIdx = getDataIdx (threadIdx, blockIdx, blockDim, gridDim, mapper);
-
-  return indecies[dataIdx] != MAX_UINTT;
+  uintt idx = ud->mapperBuffer [_cuGlbThreadIdx()];
+  return idx != MAX_UINTT;
 }
 
 }

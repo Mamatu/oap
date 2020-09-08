@@ -33,19 +33,21 @@
 #include "oapThreadsMapperApi.h"
 #include "oapMemory_ThreadMapperApi_Types.h"
 #include "oapMemoryUtils.h"
+#include "oapAssertion.h"
 
 namespace oap {
 
 namespace common {
 
 template<typename MatricesLine, typename GetRefHostMatrix, typename Malloc, typename Memcpy, typename Free, typename PushToBuffer>
-ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetRefHostMatrix&& getRefHostMatrix, Malloc&& malloc, Memcpy&& memcpy, Free&& free, PushToBuffer&& pushToBuffer, uintt bufferLen, char mode)
+ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetRefHostMatrix&& getRefHostMatrix, Malloc&& malloc, Memcpy&& memcpy, Free&& free, PushToBuffer&& pushToBuffer, uintt elementsLen, char mode)
 {
   using Buffer = std::vector<uintt>;
   struct AllocatedData
   {
     oap::threads::UserData* userData;
-    uintt* buffer;
+    uintt* mapperBuffer;
+    uintt* dataBuffer;
   };
   static std::map<oap::ThreadsMapperS*, AllocatedData> s_allocMap;
 
@@ -97,56 +99,67 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
         map[std::make_pair(x,y)] = indecies;
       });
 
-  std::vector<uintt> buffer;
-  for (uintt x = 0; x < dim.first; ++x)
-  {
-    for (uintt y = 0; y < dim.second; ++y)
-    {
-      auto it = map.find (std::make_pair(x, y));
-      const uintt indeciesLen = argsCount * bufferLen;
-      if (it != map.end())
-      {
-        for (uintt argIdx = 0; argIdx < indeciesLen; ++argIdx)
-        {
-          auto vec = it->second;
-          logAssert (vec.size() == indeciesLen);
-          buffer.push_back (vec[argIdx]);
-        }
-      }
-      else
-      {
-        buffer.insert (buffer.end(), indeciesLen, MAX_UINTT);
-      }
-    }
-  }
 
   auto destroy = [&free](oap::ThreadsMapperS* tms)
   {
     oapDebugAssert(s_allocMap.find(tms) != s_allocMap.end());
     const auto& allocatedData = s_allocMap[tms];
     free (allocatedData.userData);
-    free (allocatedData.buffer);
+    free (allocatedData.mapperBuffer);
+    free (allocatedData.dataBuffer);
     free (tms);
   };
 
-  auto create = [dim, map, buffer, argsCount, bufferLen, mode, &malloc, &memcpy]()
+  auto create = [dim, map, argsCount, elementsLen, mode, &malloc, &memcpy] (uintt blockDim[2], uintt gridDim[2])
   {
-    const size_t len = dim.first * dim.second * argsCount * bufferLen;
-    logInfo ("Created buffer with length = %u", len);
-    logAssert (buffer.size() == len);
+    std::vector<uintt> mapper_buffer;
+    std::vector<uintt> data_buffer;
+
+    const uintt xtb = blockDim[0] * gridDim[0];
+    const uintt ytb = blockDim[1] * gridDim[1];
+
+    for (uintt x = 0; x < xtb; ++x)
+    {
+      for (uintt y = 0; y < ytb; ++y)
+      {
+        auto it = map.find (std::make_pair(x, y));
+        const uintt indeciesLen = argsCount * elementsLen;
+        if (it != map.end())
+        {
+          mapper_buffer.push_back (data_buffer.size());
+          for (uintt argIdx = 0; argIdx < indeciesLen; ++argIdx)
+          {
+            auto vec = it->second;
+            logAssert (vec.size() == indeciesLen);
+            data_buffer.push_back (vec[argIdx]);
+          }
+        }
+        else
+        {
+          mapper_buffer.push_back (MAX_UINTT);
+        }
+      }
+    }
+
+    const size_t mapper_len = mapper_buffer.size();
+    const size_t data_len = data_buffer.size();
+    logInfo ("Created buffer:  data_buffer (length : %u) and mapper_buffer (length : %u)", data_len, mapper_len);
 
     oap::ThreadsMapperS* tms = static_cast<oap::ThreadsMapperS*>(malloc(sizeof(oap::ThreadsMapperS)));
     oap::threads::UserData* userData = static_cast<oap::threads::UserData*>(malloc(sizeof(oap::threads::UserData)));
-    uintt* cuBuffer = static_cast<uintt*>(malloc (len * sizeof (uintt)));
+    uintt* cuMapperBuffer = static_cast<uintt*>(malloc (mapper_len * sizeof (uintt)));
+    uintt* cuDataBuffer = static_cast<uintt*>(malloc (data_len * sizeof (uintt)));
 
-    memcpy (cuBuffer, buffer.data(), len * sizeof(uintt));
+    memcpy (cuMapperBuffer, mapper_buffer.data(), mapper_len * sizeof(uintt));
+    memcpy (cuDataBuffer, data_buffer.data(), data_len * sizeof(uintt));
     memcpy (&tms->data, &userData, sizeof (decltype(userData)));
     memcpy (&tms->mode, &mode, sizeof (decltype(mode)));
 
-    memcpy (&userData->buffer, &cuBuffer, sizeof(decltype(cuBuffer)));
+    memcpy (&userData->mapperBuffer, &cuMapperBuffer, sizeof(decltype(cuMapperBuffer)));
+    memcpy (&userData->dataBuffer, &cuDataBuffer, sizeof(decltype(cuDataBuffer)));
     memcpy (&userData->argsCount, &argsCount, sizeof(decltype(argsCount)));
 
-    s_allocMap[tms] = {userData, cuBuffer};
+    s_allocMap[tms] = {userData, cuMapperBuffer, cuDataBuffer};
 
     return tms;
   };

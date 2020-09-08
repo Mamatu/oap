@@ -277,4 +277,34 @@ void proxy_HOSTKernel_GenericApi_DotProduct (const void** params)
   HOSTKernel_GenericApi_DotProduct (outputs, params1, params2, mapper);
 }
 
+void HOSTKernel_GenericApi_HadamardProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_HadamardProduct (outputs, params1, params2, mapper);
+}
+
+void proxy_HOSTKernel_GenericApi_HadamardProduct (const void** params)
+{
+  math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
+  math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
+  math::Matrix* const* params2 = getParam<math::Matrix*> (params[2]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[3]);
+
+  HOSTKernel_GenericApi_HadamardProduct (outputs, params1, params2, mapper);
+}
+
+void HOSTKernel_GenericApi_TensorProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_TensorProduct (outputs, params1, params2, mapper);
+}
+
+void proxy_HOSTKernel_GenericApi_TensorProduct (const void** params)
+{
+  math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
+  math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
+  math::Matrix* const* params2 = getParam<math::Matrix*> (params[2]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[3]);
+
+  HOSTKernel_GenericApi_TensorProduct (outputs, params1, params2, mapper);
+}
+
 #endif

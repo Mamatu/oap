@@ -182,7 +182,7 @@ namespace utils {
 
         std::vector<Tuple> tuples = {tuple1, tuple2, tuple3, tuple4};
         std::vector<Output> outputs1;
-  
+
         for (uintt tupleIdx = 0; tupleIdx < tuples.size(); ++tupleIdx)
         {
           auto tuple = tuples[tupleIdx];

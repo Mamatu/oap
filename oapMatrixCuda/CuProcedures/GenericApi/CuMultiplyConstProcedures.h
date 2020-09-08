@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_API2_CU_ADDITION_CONST_PROCEDURES_H
-#define OAP_API2_CU_ADDITION_CONST_PROCEDURES_H
+#ifndef OAP_API2_CU_MULTIPLY_CONST_PROCEDURES_H
+#define OAP_API2_CU_MULTIPLY_CONST_PROCEDURES_H
 
 #include "CuCore.h"
 #include "Matrix.h"
@@ -26,7 +26,7 @@
 #include "oapMemory_ThreadMapperApi.h"
 #include "oapThreadsMapperS.h"
 
-__hostdeviceinline__ void cuda_GenericApi_addReConst (math::Matrix** outputs, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_GenericApi_multiplyReConst (math::Matrix** outputs, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -46,11 +46,11 @@ __hostdeviceinline__ void cuda_GenericApi_addReConst (math::Matrix** outputs, ma
     uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
     uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x, y);
 
-    output->re.ptr[index] = param1->re.ptr[idx1] + value;
+    output->re.ptr[index] = param1->re.ptr[idx1] * value;
   }
 }
 
-__hostdeviceinline__ void cuda_GenericApi_addImConst (math::Matrix** outputs, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_GenericApi_multiplyImConst (math::Matrix** outputs, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -70,11 +70,11 @@ __hostdeviceinline__ void cuda_GenericApi_addImConst (math::Matrix** outputs, ma
     uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
     uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x, y);
 
-    output->im.ptr[index] = param1->im.ptr[idx1] + value;
+    output->im.ptr[index] = param1->im.ptr[idx1] * value;
   }
 }
 
-__hostdeviceinline__ void cuda_GenericApi_addRealConst (math::Matrix** outputs, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_GenericApi_multiplyRealConst (math::Matrix** outputs, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -94,53 +94,53 @@ __hostdeviceinline__ void cuda_GenericApi_addRealConst (math::Matrix** outputs, 
     {
       uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
       uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x, y);
-      output->re.ptr[index] = param1->re.ptr[idx1] + value;
+      output->re.ptr[index] = param1->re.ptr[idx1] * value;
     }
     {
       uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
       uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x, y);
-      output->im.ptr[index] = param1->im.ptr[idx1] + value;
+      output->im.ptr[index] = param1->im.ptr[idx1] * value;
     }
   }
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_addReMatrixConst (math::Matrix** output, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_multiplyReConst (math::Matrix** output, math::Matrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
-  cuda_GenericApi_addReConst (output, params1, value, mapper);
+  cuda_GenericApi_multiplyReConst (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_addImMatrixConst (math::Matrix** output, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_multiplyImConst (math::Matrix** output, math::Matrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
-  cuda_GenericApi_addImConst (output, params1, value, mapper);
+  cuda_GenericApi_multiplyImConst (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_addRealMatrixConst (math::Matrix** output, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_multiplyRealConst (math::Matrix** output, math::Matrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
-  cuda_GenericApi_addRealConst (output, params1, value, mapper);
+  cuda_GenericApi_multiplyRealConst (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_AddConst (math::Matrix** output, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_MultiplyConst (math::Matrix** output, math::Matrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
 {
   bool isRe = output[0]->re.ptr != NULL;
   bool isIm = output[0]->im.ptr != NULL;
 
   if (isRe && isIm)
   {
-    CUDA_GenericApi_addRealMatrixConst (output, params1, value, mapper);
+    CUDA_GenericApi_multiplyRealConst (output, params0, params1, mapper);
   }
   else if (isRe)
   {
-    CUDA_GenericApi_addReMatrixConst (output, params1, value, mapper);
+    CUDA_GenericApi_multiplyReConst (output, params0, params1, mapper);
   }
   else if (isIm)
   {
-    CUDA_GenericApi_addImMatrixConst (output, params1, value, mapper);
+    CUDA_GenericApi_multiplyImConst (output, params0, params1, mapper);
   }
 }
 

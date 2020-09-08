@@ -10,11 +10,11 @@
  *
  * Oap is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Oap. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef OAP_API2_CU_DOT_PRODUCT_SHARED_PROCEDURES_H
@@ -27,70 +27,168 @@
 #include "oapThreadsMapperS.h"
 
 #include "../CuCreateProcedures.h"
-#include "../CuDotProductUtils.h"
-#if 0
-__hostdevice__ void cuda_GenericApi_dotProductRe (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, floatt* sbuffer, oap::ThreadsMapperS* mapper)
+#include "../CuDotProductSpecificProcedures.h"
+
+__hostdevice__ void cuda_GenericApi_dotProductSharedRe (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, floatt* buffer, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
   uintt oidxs[3];
-  _idxpos(oidxs, outputs, mapper, 0);
+  bool inrange = _idxpos_check(oidxs, outputs, mapper, 0);
 
-  math::Matrix* output = outputs[oidxs[0]];
-  math::Matrix* param0 = params0[oidxs[0]];
-  math::Matrix* param1 = params1[oidxs[0]];
+  if (inrange)
+  {
+    math::Matrix* output = outputs[oidxs[0]];
+    math::Matrix* param1 = params0[oidxs[0]];
+    math::Matrix* param2 = params1[oidxs[0]];
 
-  MatrixEx cexs[3];
-  cuAux_initMatrixExs (cexs, output, param0, param1);
+    const uintt columns1 = GetColumns (param1);
+    const uintt columns2 = GetColumns (param2);
+    const uintt offset = columns1;
 
-  MatrixOffset matrixOffset0 = CUDA_createMatrixCopy (sbuffer, param0, cexs[1]);
-  MatrixOffset matrixOffset1 = CUDA_createMatrixCopy (matrixOffset0.buffer, param1, cexs[2]);
+    const uintt x = oidxs[1];
+    const uintt y = oidxs[2];
+    floatt retemp = 0;
 
-  const math::Matrix& sharedParams1 = matrixOffset1.matrix;
+    for (uintt idx = 0; idx < offset; ++idx)
+    {
+      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x + idx, y);
+      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, x, y + idx);
+      retemp += param1->re.ptr[idx1] * param2->re.ptr[idx2];
+    }
+
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
+    output->re.ptr[index] = retemp;
+  }
 }
 
-__hostdevice__ void cuda_GenericApi_dotProductIm  (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* sbuffer, oap::ThreadsMapperS* mapper)
-{
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-}
-
-__hostdevice__ void cuda_GenericApi_dotProductReal (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* sbuffer, oap::ThreadsMapperS* mapper)
-{
-  HOST_INIT();
-  THREAD_INDICES_INIT();
-}
-
-__hostdevice__ void CUDA_GenericApi_dotProductRe (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* sbuffer, oap::ThreadsMapperS* mapper)
-{
-  HOST_INIT();
-
-  cuda_GenericApi_dotProductRe(output, params0, params1, sbuffer, mapper);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_GenericApi_dotProductIm (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* sbuffer, oap::ThreadsMapperS* mapper)
-{
-  HOST_INIT();
-
-  cuda_GenericApi_dotProductIm(output, params0, params1, sbuffer, mapper);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_GenericApi_dotProductReal (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* sbuffer, oap::ThreadsMapperS* mapper)
-{
-  HOST_INIT();
-
-  cuda_GenericApi_dotProductReal(output, params0, params1, sbuffer, mapper);
-  threads_sync();
-}
-
-__hostdevice__ void CUDA_GenericApi_dotProduct (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* sbuffer, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_dotProductSharedIm (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, floatt* buffer, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
+  uintt oidxs[3];
+  bool inrange = _idxpos_check(oidxs, outputs, mapper, 0);
+
+  if (inrange)
+  {
+    math::Matrix* output = outputs[oidxs[0]];
+    math::Matrix* param1 = params0[oidxs[0]];
+    math::Matrix* param2 = params1[oidxs[0]];
+
+    const uintt columns1 = GetColumns (param1);
+    const uintt columns2 = GetColumns (param2);
+    const uintt offset = columns1;
+
+    const uintt x = oidxs[1];
+    const uintt y = oidxs[2];
+    floatt imtemp = 0;
+
+    for (uintt idx = 0; idx < offset; ++idx)
+    {
+      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x + idx, y);
+      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, x, y + idx);
+      imtemp += param1->im.ptr[idx1] * param2->im.ptr[idx2] * -1.;
+    }
+
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
+    output->im.ptr[index] = imtemp;
+  }
 }
-#endif
+
+__hostdevice__ void cuda_GenericApi_dotProductSharedReal (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, floatt* buffer, oap::ThreadsMapperS* mapper)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  uintt oidxs[3];
+  bool inrange = _idxpos_check(oidxs, outputs, mapper, 0);
+
+  if (inrange)
+  {
+    math::Matrix* output = outputs[oidxs[0]];
+    math::Matrix* param1 = params0[oidxs[0]];
+    math::Matrix* param2 = params1[oidxs[0]];
+
+    const uintt columns1 = GetColumns (param1);
+    const uintt columns2 = GetColumns (param2);
+    const uintt offset = columns1;
+
+    const uintt x = oidxs[1];
+    const uintt y = oidxs[2];
+    floatt retemp = 0;
+    floatt imtemp = 0;
+
+    for (uintt idx = 0; idx < offset; ++idx)
+    {
+      {
+        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x + idx, y);
+        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, x, y + idx);
+        retemp += param1->re.ptr[idx1] * param2->re.ptr[idx2];
+      }
+      {
+        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x + idx, y);
+        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, x, y + idx);
+        imtemp += param1->im.ptr[idx1] * param2->im.ptr[idx2] * -1.;
+      }
+    }
+
+    {
+      uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
+      output->re.ptr[index] = retemp;
+    }
+    {
+      uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
+      output->im.ptr[index] = imtemp;
+    }
+  }
+}
+
+__hostdevice__ void CUDA_GenericApi_dotProductSharedRe (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* buffer, oap::ThreadsMapperS* mapper)
+{
+  HOST_INIT();
+
+  cuda_GenericApi_dotProductSharedRe(output, params0, params1, buffer, mapper);
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_GenericApi_dotProductSharedIm (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* buffer, oap::ThreadsMapperS* mapper)
+{
+  HOST_INIT();
+
+  cuda_GenericApi_dotProductSharedIm(output, params0, params1, buffer, mapper);
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_GenericApi_dotProductSharedReal (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* buffer, oap::ThreadsMapperS* mapper)
+{
+  HOST_INIT();
+
+  cuda_GenericApi_dotProductSharedReal(output, params0, params1, buffer, mapper);
+  threads_sync();
+}
+
+__hostdevice__ void CUDA_GenericApi_DotProduct (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, floatt* buffer, oap::ThreadsMapperS* mapper)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+
+  bool isRe = output[0]->re.ptr != NULL;
+  bool isIm = output[0]->im.ptr != NULL;
+
+  if (isRe && isIm)
+  {
+    CUDA_GenericApi_dotProductSharedReal (output, params0, params1, buffer, mapper);
+  }
+  else if (isRe)
+  {
+    CUDA_GenericApi_dotProductSharedRe (output, params0, params1, buffer, mapper);
+  }
+  else if (isIm)
+  {
+    CUDA_GenericApi_dotProductSharedIm (output, params0, params1, buffer, mapper);
+  }
+}
+
 #endif
