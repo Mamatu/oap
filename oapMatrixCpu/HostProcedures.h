@@ -39,7 +39,7 @@ class HostProcedures {
 
   bool isEqual(math::Matrix* matrix1, math::Matrix* matrix2);
 
-  void substract(math::Matrix* output, math::Matrix* matrix1,
+  void subtract(math::Matrix* output, math::Matrix* matrix1,
                  math::Matrix* matrix2);
 
   void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);

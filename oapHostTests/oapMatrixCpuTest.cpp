@@ -112,12 +112,12 @@ TEST_F(OapMatrixTests, Subtraction) {
     oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(4, 4, array);
     oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(4, 4, outputArray);
     oap::HostMatrixUPtr output = oap::host::NewReMatrix(4, 4);
-    math::SubstracionOperationCpu substractionOperation;
-    substractionOperation.setThreadsCount(m_threadsCount);
-    substractionOperation.setOutputMatrix(output);
-    substractionOperation.setMatrix1(matrix1);
-    substractionOperation.setMatrix2(matrix2);
-    substractionOperation.start();
+    math::SubstracionOperationCpu subtractionOperation;
+    subtractionOperation.setThreadsCount(m_threadsCount);
+    subtractionOperation.setOutputMatrix(output);
+    subtractionOperation.setMatrix1(matrix1);
+    subtractionOperation.setMatrix2(matrix2);
+    subtractionOperation.start();
 
     EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }

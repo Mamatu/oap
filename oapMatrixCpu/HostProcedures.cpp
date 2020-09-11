@@ -45,7 +45,7 @@ class SubtractionImpl : public HostKernel {
 
  protected:
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
-    CUDA_substractMatrices(m_output, m_param1, m_param2);
+    CUDA_subtractMatrices(m_output, m_param1, m_param2);
   }
 
   virtual void onChange(HostKernel::ContextChange contextChnage,
@@ -200,11 +200,11 @@ bool HostProcedures::isEqual(math::Matrix* matrix1, math::Matrix* matrix2) {
   return compare(matrix1, matrix2);
 }
 
-void HostProcedures::substract(math::Matrix* output, math::Matrix* matrix1,
+void HostProcedures::subtract(math::Matrix* output, math::Matrix* matrix1,
                                math::Matrix* matrix2) {
-  SubtractionImpl substractionImpl(output, matrix1, matrix2);
-  prepare(output, substractionImpl);
-  substractionImpl.executeKernelAsync();
+  SubtractionImpl subtractionImpl(output, matrix1, matrix2);
+  prepare(output, subtractionImpl);
+  subtractionImpl.executeKernelAsync();
 }
 
 void HostProcedures::dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)

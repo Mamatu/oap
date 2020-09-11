@@ -231,7 +231,7 @@ public:
     math::Status add(math::Matrix* output,
         math::Matrix* matrix1, math::Matrix* matrix2);
 
-    math::Status substract(math::Matrix* output,
+    math::Status subtract(math::Matrix* output,
         math::Matrix* matrix1, math::Matrix* matrix2);
 
     math::Status dotProduct(math::Matrix* output,

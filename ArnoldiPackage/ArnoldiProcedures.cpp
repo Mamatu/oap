@@ -441,7 +441,7 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
     m_cuApi.transpose(m_transposeV, m_V);
     m_cuApi.dotProduct(m_h, m_transposeV, m_w);
     m_cuApi.dotProduct(m_vh, m_V, m_h);
-    m_cuApi.substract(m_f, m_w, m_vh);
+    m_cuApi.subtract(m_f, m_w, m_vh);
     m_cuApi.magnitude(mf, m_f);
     m_cuApi.magnitude(mh, m_h);
 
@@ -451,7 +451,7 @@ bool CuHArnoldi::executeArnoldiFactorization(uint startIndex, floatt rho) {
       traceFunction();
       m_cuApi.dotProduct(m_s, m_transposeV, m_f);
       m_cuApi.dotProduct(m_vs, m_V, m_s);
-      m_cuApi.substract(m_f, m_f, m_vs);
+      m_cuApi.subtract(m_f, m_f, m_vs);
       m_cuApi.add(m_h, m_h, m_s);
     }
 
@@ -531,7 +531,7 @@ floatt CuHArnoldi::checkEigenpairsInternally (const EigenPair& eigenPair, floatt
 
   m_cuApi.multiplyReConstant (aux_v2, m_v, value);
 
-  m_cuApi.substract (m_v, aux_v2, aux_v1);
+  m_cuApi.subtract (m_v, aux_v2, aux_v1);
 
   floatt outcome = -1;
   m_cuApi.magnitude (outcome, m_v);

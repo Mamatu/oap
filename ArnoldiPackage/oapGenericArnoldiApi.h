@@ -66,7 +66,7 @@ void iram_executeInit (Arnoldi& ar, Api& api, VecMultiplication&& multiply)
   api.transpose (ar.m_transposeV, ar.m_V);
   api.dotProduct (ar.m_h, ar.m_transposeV, ar.m_w);
   api.dotProduct (ar.m_vh, ar.m_V, ar.m_h);
-  api.substract (ar.m_f, ar.m_w, ar.m_vh);
+  api.subtract (ar.m_f, ar.m_w, ar.m_vh);
   api.setVector (ar.m_H, 0, ar.m_h, 1);
 }
 
@@ -160,7 +160,7 @@ void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm
   math::Matrix* aux_HI = getter.useMatrix (iargs.hinfo, iargs.memType);
 
   api.setDiagonal (aux_HI, iargs.unwanted[idx].re(), iargs.unwanted[idx].im());
-  api.substract (aux_HI, io.H, aux_HI);
+  api.subtract (aux_HI, io.H, aux_HI);
 
   _qr (io.Q, io.R, aux_HI, iargs.hinfo, cm, iargs.memType, api, qrtype);
 }

@@ -26,7 +26,7 @@
 #include "oapMemory_ThreadMapperApi.h"
 #include "oapThreadsMapperS.h"
 
-__hostdeviceinline__ void cuda_GenericApi_substractReMatrix (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_GenericApi_subtractReMatrix (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -52,7 +52,7 @@ __hostdeviceinline__ void cuda_GenericApi_substractReMatrix (math::Matrix** outp
   }
 }
 
-__hostdeviceinline__ void cuda_GenericApi_substractImMatrix (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_GenericApi_subtractImMatrix (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -78,7 +78,7 @@ __hostdeviceinline__ void cuda_GenericApi_substractImMatrix (math::Matrix** outp
   }
 }
 
-__hostdeviceinline__ void cuda_GenericApi_substractRealMatrix (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_GenericApi_subtractRealMatrix (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -113,24 +113,24 @@ __hostdeviceinline__ void cuda_GenericApi_substractRealMatrix (math::Matrix** ou
   }
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_substractReMatrix (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_subtractReMatrix (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
-  cuda_GenericApi_substractReMatrix (output, params0, params1, mapper);
+  cuda_GenericApi_subtractReMatrix (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_substractImMatrix (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_subtractImMatrix (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
-  cuda_GenericApi_substractImMatrix (output, params0, params1, mapper);
+  cuda_GenericApi_subtractImMatrix (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_substractRealMatrix (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_subtractRealMatrix (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
-  cuda_GenericApi_substractRealMatrix (output, params0, params1, mapper);
+  cuda_GenericApi_subtractRealMatrix (output, params0, params1, mapper);
   threads_sync();
 }
 
@@ -141,15 +141,15 @@ __hostdeviceinline__ void CUDA_GenericApi_Substract (math::Matrix** output, math
 
   if (isRe && isIm)
   {
-    CUDA_GenericApi_substractRealMatrix (output, params0, params1, mapper);
+    CUDA_GenericApi_subtractRealMatrix (output, params0, params1, mapper);
   }
   else if (isRe)
   {
-    CUDA_GenericApi_substractReMatrix (output, params0, params1, mapper);
+    CUDA_GenericApi_subtractReMatrix (output, params0, params1, mapper);
   }
   else if (isIm)
   {
-    CUDA_GenericApi_substractImMatrix (output, params0, params1, mapper);
+    CUDA_GenericApi_subtractImMatrix (output, params0, params1, mapper);
   }
 }
 

@@ -247,7 +247,7 @@ math::Status MathOperationsCpu::add(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::substract(math::Matrix* output,
+math::Status MathOperationsCpu::subtract(math::Matrix* output,
     math::Matrix* matrix1, math::Matrix* matrix2) {
     math::Status status = execute(this->m_substracionOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
