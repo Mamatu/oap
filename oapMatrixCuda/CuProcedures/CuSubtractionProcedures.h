@@ -17,13 +17,13 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUSUBSTRACTIONPROCEDURES_H
-#define CUSUBSTRACTIONPROCEDURES_H
+#ifndef CUSUBTRACTIONPROCEDURES_H
+#define CUSUBTRACTIONPROCEDURES_H
 
 #include "CuCore.h"
 #include "Matrix.h"
 
-__hostdeviceinline__ void cuda_substractReMatrices(math::Matrix* output,
+__hostdeviceinline__ void cuda_subtractReMatrices(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
   HOST_INIT();
@@ -34,7 +34,7 @@ __hostdeviceinline__ void cuda_substractReMatrices(math::Matrix* output,
   gReValues (output)[index] = gReValues (params0)[index] - gReValues (params1)[index];
 }
 
-__hostdeviceinline__ void cuda_substractImMatrices(math::Matrix* output,
+__hostdeviceinline__ void cuda_subtractImMatrices(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
   HOST_INIT();
@@ -45,7 +45,7 @@ __hostdeviceinline__ void cuda_substractImMatrices(math::Matrix* output,
   gImValues (output)[index] = gImValues (params0)[index] - gImValues (params1)[index];
 }
 
-__hostdeviceinline__ void cuda_substractRealMatrices(math::Matrix* output,
+__hostdeviceinline__ void cuda_subtractRealMatrices(math::Matrix* output,
                                                      math::Matrix* params0,
                                                      math::Matrix* params1) {
   HOST_INIT();
@@ -62,34 +62,34 @@ __hostdeviceinline__ void cuda_substractRealMatrices(math::Matrix* output,
   }
 }
 
-__hostdeviceinline__ void CUDA_substractReMatrices(math::Matrix* output,
+__hostdeviceinline__ void CUDA_subtractReMatrices(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
   HOST_INIT();
 
-  CUDA_substractReMatrices(output, params0, params1);
+  CUDA_subtractReMatrices(output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_substractImMatrices(math::Matrix* output,
+__hostdeviceinline__ void CUDA_subtractImMatrices(math::Matrix* output,
                                                    math::Matrix* params0,
                                                    math::Matrix* params1) {
   HOST_INIT();
 
-  cuda_substractImMatrices(output, params0, params1);
+  cuda_subtractImMatrices(output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_substractRealMatrices(math::Matrix* output,
+__hostdeviceinline__ void CUDA_subtractRealMatrices(math::Matrix* output,
                                                      math::Matrix* params0,
                                                      math::Matrix* params1) {
   HOST_INIT();
 
-  cuda_substractRealMatrices(output, params0, params1);
+  cuda_subtractRealMatrices(output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_substractMatrices(math::Matrix* output,
+__hostdeviceinline__ void CUDA_subtractMatrices(math::Matrix* output,
                                                  math::Matrix* params0,
                                                  math::Matrix* params1) {
   HOST_INIT();
@@ -100,11 +100,11 @@ __hostdeviceinline__ void CUDA_substractMatrices(math::Matrix* output,
   bool isInRange =
       threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   if (isre && isim && isInRange) {
-    cuda_substractRealMatrices(output, params0, params1);
+    cuda_subtractRealMatrices(output, params0, params1);
   } else if (isre && isInRange) {
-    cuda_substractReMatrices(output, params0, params1);
+    cuda_subtractReMatrices(output, params0, params1);
   } else if (isim && isInRange) {
-    cuda_substractImMatrices(output, params0, params1);
+    cuda_subtractImMatrices(output, params0, params1);
   }
   threads_sync();
 }

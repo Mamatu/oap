@@ -191,12 +191,12 @@ class CuProceduresApi
 
   void conjugateTranspose(math::Matrix* output, math::Matrix* params0);
 
-  inline void substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
+  inline void subtract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
   inline void addSubstract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
   void crossEntropy(math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
-  void substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
+  void subtract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void addSubstract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
 
   inline void add (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
@@ -590,11 +590,11 @@ inline void CuProceduresApi::dotProductOpt(math::Matrix* output, math::Matrix* p
   dotProductOpt(output, params0, params1, ocolumns, orows, p1rows, p2columns);
 }
 
-inline void CuProceduresApi::substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+inline void CuProceduresApi::subtract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
   const uintt columns = oap::cuda::GetColumns(output);
   const uintt rows = oap::cuda::GetRows(output);
-  substract(output, params0, params1, columns, rows);
+  subtract(output, params0, params1, columns, rows);
 }
 
 inline void CuProceduresApi::addSubstract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)

@@ -368,7 +368,7 @@ void getErrors (math::Matrix* errorsOutput, LayerT& layer, Api& api, math::Matri
   }
   else
   {
-    api.substract (layer.getFPMatrices()->m_errorsAux, layer.getFPMatrices()->m_inputs, expectedDeviceOutputs);
+    api.subtract (layer.getFPMatrices()->m_errorsAux, layer.getFPMatrices()->m_inputs, expectedDeviceOutputs);
   }
   copyKernelMatrixToHostMatrix (errorsOutput, layer.getFPMatrices()->m_errorsAux);
 }
@@ -478,7 +478,7 @@ void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, 
     floatt lr = learningRate / static_cast<floatt>(normalizationFactor);
     api.multiplyReConstant (current->getBPMatrices()->m_weights2, current->getBPMatrices()->m_weights2, lr);
 
-    api.substract (current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights2);
+    api.subtract (current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights2);
   }
 
   postCallback ();

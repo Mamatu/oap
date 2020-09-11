@@ -302,7 +302,7 @@ void CuProceduresApi::conjugateTranspose(math::Matrix* output, math::Matrix* par
   }
 }
 
-void CuProceduresApi::substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
+void CuProceduresApi::subtract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows)
 {
   void* params[] = {&output, &params0, &params1};
   m_cuStatus = execute("CUDAKernel_Substract", columns, rows, params, 0);

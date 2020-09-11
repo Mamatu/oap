@@ -24,7 +24,7 @@
 
 #include "CuIdentityProcedures.h"
 #include "CuAdditionProcedures.h"
-#include "CuSubstractionProcedures.h"
+#include "CuSubtractionProcedures.h"
 #include "CuDotProductSpecificProcedures.h"
 #include "CuSwitchPointer.h"
 
@@ -34,7 +34,7 @@ __hostdevice__ void CUDA_invertMatrix (math::Matrix* AI, math::Matrix* A, math::
 
   CUDA_SetIdentityMatrix(aux2);
   CUDA_SetIdentityMatrix(aux3);
-  CUDA_substractMatrices(aux3, aux2, A);
+  CUDA_subtractMatrices(aux3, aux2, A);
 
   for (uintt fa = 0; fa < 15; ++fa)
   {

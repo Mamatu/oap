@@ -93,17 +93,17 @@ extern "C" __global__ void CUDAKernel_AddMatrixValue (math::Matrix* output, math
 
 extern "C" __global__ void CUDAKernel_SubstractRe(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  CUDA_substractReMatrices(output, params0, params1);
+  CUDA_subtractReMatrices(output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_SubstractIm(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  CUDA_substractImMatrices(output, params0, params1);
+  CUDA_subtractImMatrices(output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_SubstractReal(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  CUDA_substractRealMatrices(output, params0, params1);
+  CUDA_subtractRealMatrices(output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_AddSubstractRe(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
@@ -123,7 +123,7 @@ extern "C" __global__ void CUDAKernel_AddSubstractReal(math::Matrix* output, mat
 
 extern "C" __global__ void CUDAKernel_Substract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
-  CUDA_substractMatrices(output, params0, params1);
+  CUDA_subtractMatrices(output, params0, params1);
 }
 
 extern "C" __global__ void CUDAKernel_AddSubstract(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
