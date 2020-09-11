@@ -22,7 +22,7 @@
 #include <functional>
 
 #include "CuProcedures/CuCompareOptProcedures.h"
-#include "CuProcedures/CuSubstractionProcedures.h"
+#include "CuProcedures/CuSubtractionProcedures.h"
 #include "CuProcedures/CuDotProductSpecificProcedures.h"
 #include "CuProcedures/CuTransposeProcedures.h"
 
@@ -35,13 +35,13 @@
 
 //#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
 
-class SubstractionImpl : public HostKernel {
+class SubtractionImpl : public HostKernel {
  public:
-  SubstractionImpl(math::Matrix* output, math::Matrix* param1,
+  SubtractionImpl(math::Matrix* output, math::Matrix* param1,
                    math::Matrix* param2)
       : m_output(output), m_param1(param1), m_param2(param2) {}
 
-  virtual ~SubstractionImpl() {}
+  virtual ~SubtractionImpl() {}
 
  protected:
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
@@ -202,7 +202,7 @@ bool HostProcedures::isEqual(math::Matrix* matrix1, math::Matrix* matrix2) {
 
 void HostProcedures::substract(math::Matrix* output, math::Matrix* matrix1,
                                math::Matrix* matrix2) {
-  SubstractionImpl substractionImpl(output, matrix1, matrix2);
+  SubtractionImpl substractionImpl(output, matrix1, matrix2);
   prepare(output, substractionImpl);
   substractionImpl.executeKernelAsync();
 }

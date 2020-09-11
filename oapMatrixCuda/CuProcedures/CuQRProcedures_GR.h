@@ -29,7 +29,7 @@
 #include "CuMagnitudeUtils.h"
 #include "CuMagnitudeVecOptProcedures.h"
 #include "CuMultiplicationProcedures.h"
-#include "CuSubstractionProcedures.h"
+#include "CuSubtractionProcedures.h"
 #include "CuSwitchPointer.h"
 
 __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,

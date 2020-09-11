@@ -99,7 +99,7 @@ TEST_F(OapMatrixTests, Addition) {
     EXPECT_THAT(output.get(), MatrixIsEqual(eq_output.get()));
 }
 
-TEST_F(OapMatrixTests, Substraction) {
+TEST_F(OapMatrixTests, Subtraction) {
     floatt array[] = {1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,

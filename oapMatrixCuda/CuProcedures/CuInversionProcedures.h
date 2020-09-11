@@ -24,7 +24,7 @@
 
 #include "CuIdentityProcedures.h"
 #include "CuAdditionProcedures.h"
-#include "CuSubstractionProcedures.h"
+#include "CuSubtractionProcedures.h"
 #include "CuDotProductSpecificProcedures.h"
 #include "CuSwitchPointer.h"
 
