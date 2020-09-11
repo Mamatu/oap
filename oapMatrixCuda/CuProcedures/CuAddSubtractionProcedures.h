@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_CU_ADDSUBSTRACTION_PROCEDURES_H
-#define OAP_CU_ADDSUBSTRACTION_PROCEDURES_H
+#ifndef OAP_CU_ADDSUBTRACTION_PROCEDURES_H
+#define OAP_CU_ADDSUBTRACTION_PROCEDURES_H
 
 #include "CuCore.h"
 #include "Matrix.h"
