@@ -907,15 +907,15 @@ void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& me
 
   auto getDims = [](oap::Memory* memory, MatrixMemoryApi& api)
   {
-    oap::MemoryDims memDims;
-    api.transferValueToHost (&memDims, &(memory->dims), sizeof (oap::MemoryDims));
+    oap::MemoryDim memDims;
+    api.transferValueToHost (&memDims, &(memory->dims), sizeof (oap::MemoryDim));
     return memDims;
   };
 
   struct MatrixData
   {
     floatt* ptr;
-    oap::MemoryDims dims;
+    oap::MemoryDim dims;
     oap::MemoryRegion region;
   };
 
@@ -925,7 +925,7 @@ void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& me
     api.transferValueToHost (&memory, memPPtr, sizeof (oap::Memory*));
 
     floatt* ptr = getRawPointer (memory, api);
-    oap::MemoryDims dims = getDims (memory, api);
+    oap::MemoryDim dims = getDims (memory, api);
 
     oap::MemoryRegion* regPtr;
     api.transferValueToHost (&regPtr, regPPtr, sizeof (oap::MemoryRegion*));

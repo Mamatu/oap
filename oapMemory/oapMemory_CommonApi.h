@@ -78,14 +78,14 @@ __hostdeviceinline__ const oap::MemoryLoc OAP_NONE_LOCATION_CONST()
   return loc;
 }
 
-__hostdeviceinline__ bool CompareMemoryDims (const oap::MemoryDims& dims1, const oap::MemoryDims& dims2)
+__hostdeviceinline__ bool CompareMemoryDim (const oap::MemoryDim& dims1, const oap::MemoryDim& dims2)
 {
   return dims1.width == dims2.width && dims1.height == dims2.height;
 }
 
   __hostdeviceinline__ bool IsNoneMemory (const oap::Memory& mem1)
 {
-  return mem1.ptr == OAP_NONE_MEMORY().ptr && CompareMemoryDims (mem1.dims, OAP_NONE_MEMORY().dims);
+  return mem1.ptr == OAP_NONE_MEMORY().ptr && CompareMemoryDim (mem1.dims, OAP_NONE_MEMORY().dims);
 }
 
 __hostdeviceinline__ bool isRegion (const oap::MemoryRegion& reg)
@@ -153,14 +153,14 @@ __hostdeviceinline__ oap::MemoryLoc addLoc (const oap::MemoryLoc& loc1, const oa
   return l;
 }
 
-__hostdeviceinline__ void setToRegion (oap::MemoryRegion& reg, const oap::MemoryDims& memoryDims, const oap::MemoryLoc& loc)
+__hostdeviceinline__ void setToRegion (oap::MemoryRegion& reg, const oap::MemoryDim& memoryDims, const oap::MemoryLoc& loc)
 {
   reg.loc = loc;
   reg.dims.width = memoryDims.width - loc.x;
   reg.dims.height = memoryDims.height - loc.y;
 }
 
-__hostdeviceinline__ oap::MemoryRegion convertToRegion (const oap::MemoryDims& memoryDims, const oap::MemoryLoc& loc)
+__hostdeviceinline__ oap::MemoryRegion convertToRegion (const oap::MemoryDim& memoryDims, const oap::MemoryLoc& loc)
 {
   oap::MemoryRegion reg;
   setToRegion (reg, memoryDims, loc);
@@ -215,7 +215,7 @@ __hostdeviceinline__ uintt GetMemIdxFromMatrixPos (const oap::Memory& memory, co
   return GetMemIdxFromMatrixIdx (memory, reg, x + reg.dims.width * y);
 }
 
-__hostdeviceinline__ oap::MemoryLoc ConvertDimsIdxToLoc (uintt idx, const oap::MemoryDims& dims)
+__hostdeviceinline__ oap::MemoryLoc ConvertDimsIdxToLoc (uintt idx, const oap::MemoryDim& dims)
 {
   debugAssert (idx < dims.width * dims.height);
   uintt y = idx / dims.width;

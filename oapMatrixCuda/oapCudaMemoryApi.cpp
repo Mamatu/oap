@@ -80,7 +80,7 @@ namespace
 MemoryList g_memoryList ("MEMORY_CUDA");
 MemoryCounter g_memoryCounter;
 
-floatt* allocateMem (const oap::MemoryDims& dims)
+floatt* allocateMem (const oap::MemoryDim& dims)
 {
   const uintt length = dims.width * dims.height;
   floatt* buffer = static_cast<floatt*>(CudaUtils::AllocDeviceMem (length * sizeof (floatt)));
@@ -96,7 +96,7 @@ void deallocateMem (const oap::Memory& memory)
 
 }
 
-oap::Memory NewMemory (const oap::MemoryDims& dims)
+oap::Memory NewMemory (const oap::MemoryDim& dims)
 {
   return oap::generic::newMemory (dims, allocateMem, [](floatt* ptr)
     {
@@ -104,7 +104,7 @@ oap::Memory NewMemory (const oap::MemoryDims& dims)
     });
 }
 
-oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value)
+oap::Memory NewMemoryWithValues (const MemoryDim& dims, floatt value)
 {
   oap::Memory memory = NewMemory (dims);
   oap::Memory hmemory = oap::host::NewMemoryWithValues (dims, value);
@@ -165,7 +165,7 @@ void DeleteMemory (const oap::Memory& mem)
       });
 }
 
-oap::MemoryDims GetDims (const oap::Memory& mem)
+oap::MemoryDim GetDims (const oap::Memory& mem)
 {
   return mem.dims;
 }

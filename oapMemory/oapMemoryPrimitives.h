@@ -32,7 +32,7 @@ struct MemoryLoc
   uintt y;
 };
 
-struct MemoryDims
+struct MemoryDim
 {
   uintt width;
   uintt height;
@@ -41,13 +41,13 @@ struct MemoryDims
 struct Memory
 {
   floatt* ptr;
-  MemoryDims dims;
+  MemoryDim dims;
 };
 
 struct MemoryRegion
 {
   MemoryLoc loc;
-  MemoryDims dims;
+  MemoryDim dims;
 };
 
 struct Memory_3_Args

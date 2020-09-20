@@ -40,7 +40,7 @@ TEST_F(OapGenericMemoryApiTests, Test_1)
 {
   floatt* mem = reinterpret_cast<floatt*>(0u);
   floatt* ptrs[2];
-  oap::MemoryDims dims = {5, 5};
+  oap::MemoryDim dims = {5, 5};
   oap::MemoryRegion region;
   region.loc = {1, 1};
   region.dims = {2, 2};
@@ -55,7 +55,7 @@ TEST_F(OapGenericMemoryApiTests, Test_2)
 {
   floatt* mem = reinterpret_cast<floatt*>(0u);
   std::vector<floatt*> ptrs;
-  oap::MemoryDims dims = {5, 5};
+  oap::MemoryDim dims = {5, 5};
   oap::MemoryRegion region;
   region.loc = {1, 1};
   region.dims = {2, 2};
@@ -71,7 +71,7 @@ TEST_F(OapGenericMemoryApiTests, Test_3)
 {
   floatt* mem = reinterpret_cast<floatt*>(0u);
   std::vector<floatt*> ptrs;
-  oap::MemoryDims dims = {1, 3};
+  oap::MemoryDim dims = {1, 3};
   oap::MemoryRegion region;
   region.loc = {0, 0};
   region.dims = {1, 3};

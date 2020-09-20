@@ -103,13 +103,13 @@ class Parser
     bool isC = parser.getColumns (columns);
     bool isR = parser.getRows(rows);
 
-    oap::MemoryDims dim = createDim(isC, isR, length, columns, rows);
+    oap::MemoryDim dim = createDim(isC, isR, length, columns, rows);
     oap::Memory memory = memAlloc (parser.getData(), dim);
 
     return memory;
   }
 
-  inline oap::MemoryDims CreateMatrixDims_Default (bool iscolumns, bool isrows, uintt length, uintt columns, uintt rows)
+  inline oap::MemoryDim CreateMatrixDims_Default (bool iscolumns, bool isrows, uintt length, uintt columns, uintt rows)
   {
     uintt dim_columns = 0;
     uintt dim_rows = 0;
@@ -137,7 +137,7 @@ class Parser
 
   inline oap::Memory CreateArrayDefaultAlloc (const std::string& text, unsigned int which)
   {
-    auto memAlloc = [](const floatt* const buffer, const oap::MemoryDims& dim)
+    auto memAlloc = [](const floatt* const buffer, const oap::MemoryDim& dim)
     {
       const oap::Memory temp = {const_cast<floatt*>(buffer), dim}; // to fix
       oap::Memory memory = oap::host::NewMemoryCopy (temp);
