@@ -600,7 +600,7 @@ floatt GetImDiagonal (const math::Matrix* matrix, uintt index)
   if (hm.im.ptr)
   {
     oap::MemoryLoc loc = oap::common::ConvertIdxToMemoryLoc (index, hm.im, hm.imReg);
-    oap::generic::copy (&v, {1, 1}, {0, 0}, hm.re.ptr, hm.re.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
+    oap::generic::copy (&v, {1, 1}, {0, 0}, hm.im.ptr, hm.im.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
   }
 
   return v;

@@ -94,10 +94,9 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
       arnoldiCuda->execute(hdim, wanted, matrixInfo);
       EXPECT_THAT(revalues[0], ::testing::DoubleNear(value, tolerance));
-      // EXPECT_DOUBLE_EQ(value, );
-      EXPECT_DOUBLE_EQ(revalues[1], 0);
-      EXPECT_DOUBLE_EQ(imvalues[0], 0);
-      EXPECT_DOUBLE_EQ(imvalues[1], 0);
+      EXPECT_DOUBLE_EQ(0, revalues[1]);
+      EXPECT_DOUBLE_EQ(0, imvalues[0]);
+      EXPECT_DOUBLE_EQ(0, imvalues[1]);
     }
 
     void triangularityTest(const std::string& matrixStr) {
