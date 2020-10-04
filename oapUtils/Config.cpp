@@ -18,6 +18,7 @@
  */
 
 #include "Config.h"
+#include <cstdlib>
 
 namespace oap {
 namespace utils {
@@ -89,6 +90,16 @@ std::string Config::getPathInRoot(const std::string& root, const std::string& re
   }
 
   return output;
+}
+
+std::string Config::getVariable (const std::string& variable)
+{
+  const char* val = std::getenv(variable.c_str());
+  if (val == nullptr)
+  {
+    return "";
+  }
+  return std::string(val);
 }
 }
 }
