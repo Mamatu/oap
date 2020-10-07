@@ -626,8 +626,8 @@ void SetReZeroRow (const math::Matrix* matrix, uintt index)
   {
     uintt columns = gColumns (&hm);
     std::vector<floatt> row(columns, 0.);
-    oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.re, hm.reReg, {0, index});
-    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, row.data(), {columns, 1}, {{0, 0}, {columns, 1}}, CudaUtils::CopyDeviceToHost);
+    oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.re, hm.reReg, {index, 0});
+    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, CudaUtils::CopyHostToDevice);
   }
 }
 
@@ -639,8 +639,8 @@ void SetImZeroRow (const math::Matrix* matrix, uintt index)
   {
     uintt columns = gColumns (&hm);
     std::vector<floatt> row(columns, 0.);
-    oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.im, hm.imReg, {0, index});
-    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, row.data(), {columns, 1}, {{0, 0}, {columns, 1}}, CudaUtils::CopyDeviceToHost);
+    oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.im, hm.imReg, {index, 0});
+    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, CudaUtils::CopyHostToDevice);
   }
 }
 
