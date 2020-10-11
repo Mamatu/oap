@@ -671,6 +671,18 @@ math::Matrix* ReadColumnVector(const std::string& path, size_t index);
 
 void CopyReBuffer (math::Matrix* houput, math::Matrix* hinput);
 
+void SetZeroRow (const math::Matrix* matrix, uintt index, bool re = true, bool im = true);
+void SetReZeroRow (const math::Matrix* matrix, uintt index);
+void SetImZeroRow (const math::Matrix* matrix, uintt index);
+
+void SetValueToMatrix (math::Matrix* matrix, floatt re, floatt im);
+void SetValueToReMatrix (math::Matrix* matrix, floatt v);
+void SetValueToImMatrix (math::Matrix* matrix, floatt v);
+
+void SetZeroMatrix (math::Matrix* matrix);
+void SetZeroReMatrix (math::Matrix* matrix);
+void SetZeroImMatrix (math::Matrix* matrix);
+
 /**
  * @brief Save matrix to file
  * 4 byte - size of boolean variable

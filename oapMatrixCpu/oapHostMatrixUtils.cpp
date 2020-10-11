@@ -1306,5 +1306,99 @@ math::Matrix* NewImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& mem
 {
   return allocImMatrix_FromMemory (memory, {loc, {columns, rows}});
 }
+
+void SetZeroRow (const math::Matrix* matrix, uintt index, bool re, bool im)
+{
+  if (re)
+  {
+    SetReZeroRow (matrix, index);
+  }
+  if (im)
+  {
+    SetImZeroRow (matrix, index);
+  }
+}
+
+void SetReZeroRow (const math::Matrix* matrix, uintt index)
+{
+  math::Matrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.re.ptr)
+  {
+    uintt columns = gColumns (&hm);
+    std::vector<floatt> row(columns, 0.);
+    oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.re, hm.reReg, {index, 0});
+    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy);
+  }
+}
+
+void SetImZeroRow (const math::Matrix* matrix, uintt index)
+{
+  math::Matrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.im.ptr)
+  {
+    uintt columns = gColumns (&hm);
+    std::vector<floatt> row(columns, 0.);
+    oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.im, hm.imReg, {index, 0});
+    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy);
+  }
+}
+
+void SetValueToMatrix (math::Matrix* matrix, floatt re, floatt im)
+{
+  SetValueToReMatrix (matrix, re);
+  SetValueToImMatrix (matrix, im);
+}
+
+void SetValueToReMatrix (math::Matrix* matrix, floatt v)
+{
+  using namespace oap::utils;
+
+  math::Matrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.re.ptr)
+  {
+    auto minfo = GetMatrixInfo (matrix);
+    oap::HostMatrixUPtr uptr = oap::host::NewReMatrixWithValue (minfo.columns(), minfo.rows(), v);
+
+    oap::MemoryLoc loc = GetReMatrixMemoryLoc (&hm);
+    oap::MemoryRegion reg = GetReMatrixMemoryRegion (uptr);
+    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, uptr->re.ptr, uptr->re.dims, reg, memcpy);
+  }
+}
+
+void SetValueToImMatrix (math::Matrix* matrix, floatt v)
+{
+  using namespace oap::utils;
+
+  math::Matrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.im.ptr)
+  {
+    auto minfo = GetMatrixInfo (matrix);
+    oap::HostMatrixUPtr uptr = oap::host::NewImMatrixWithValue (minfo.columns(), minfo.rows(), v);
+
+    oap::MemoryLoc loc = GetImMatrixMemoryLoc (&hm);
+    oap::MemoryRegion reg = GetImMatrixMemoryRegion (uptr);
+    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, uptr->im.ptr, uptr->im.dims, reg, memcpy);
+  }
+}
+
+void SetZeroMatrix (math::Matrix* matrix)
+{
+  SetValueToMatrix (matrix, 0, 0);
+}
+
+void SetZeroReMatrix (math::Matrix* matrix)
+{
+  SetValueToReMatrix (matrix, 0);
+}
+
+void SetZeroImMatrix (math::Matrix* matrix)
+{
+  SetValueToImMatrix (matrix, 0);
+}
+
 }
 }

@@ -385,3 +385,158 @@ TEST_F(OapHostMatrixUtilsTests, GetSubMatrixTest)
     oap::host::DeleteMatrix (smatrix);
   }
 }
+
+TEST_F(OapHostMatrixUtilsTests, SetZeroRow_1)
+{
+  const uintt rows = 10;
+  const uintt columns = 10;
+  oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
+
+  oap::host::SetZeroRow (hostMatrix.get(), 0);
+
+  EXPECT_EQ (rows, gRows (hostMatrix));
+  EXPECT_EQ (columns, gColumns (hostMatrix));
+  for (uintt y = 0; y < rows; ++y)
+  {
+    for (uintt x = 0; x < columns; ++x)
+    {
+      if (x == 0)
+      {
+        EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
+      }
+      else
+      {
+        EXPECT_EQ (1.f, hostMatrix->re.ptr[x + columns * y]);
+      }
+    }
+  }
+  printf ("%s\n", oap::host::to_string(hostMatrix.get()).c_str());
+}
+
+TEST_F(OapHostMatrixUtilsTests, SetZeroRow_2)
+{
+  const uintt rows = 10;
+  const uintt columns = 10;
+  oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
+
+  oap::host::SetZeroRow (hostMatrix, 1);
+
+  EXPECT_EQ (rows, gRows (hostMatrix));
+  EXPECT_EQ (columns, gColumns (hostMatrix));
+  for (uintt y = 0; y < rows; ++y)
+  {
+    for (uintt x = 0; x < columns; ++x)
+    {
+      if (x == 1)
+      {
+        EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
+      }
+      else
+      {
+        EXPECT_EQ (1.f, hostMatrix->re.ptr[x + columns * y]);
+      }
+    }
+  }
+  printf ("%s\n", oap::host::to_string(hostMatrix.get()).c_str());
+}
+
+TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_1)
+{
+  const uintt rows = 16384;
+  const uintt columns = 32;
+  oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
+
+  oap::host::SetZeroMatrix (hostMatrix);
+
+  EXPECT_EQ (rows, gRows (hostMatrix));
+  EXPECT_EQ (columns, gColumns (hostMatrix));
+  for (uintt y = 0; y < rows; ++y)
+  {
+    for (uintt x = 0; x < columns; ++x)
+    {
+      EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
+      EXPECT_EQ (0, hostMatrix->im.ptr[x + columns * y]);
+    }
+  }
+}
+
+TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_2)
+{
+  const uintt rows = 16384;
+  const uintt columns = 32;
+  oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
+
+  oap::host::SetZeroMatrix (hostMatrix);
+
+  EXPECT_EQ (rows, gRows (hostMatrix));
+  EXPECT_EQ (columns, gColumns (hostMatrix));
+  for (uintt y = 0; y < rows; ++y)
+  {
+    for (uintt x = 0; x < columns; ++x)
+    {
+      EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
+      EXPECT_EQ (nullptr, hostMatrix->im.ptr);
+    }
+  }
+}
+
+TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_3)
+{
+  const uintt rows = 16384;
+  const uintt columns = 32;
+  oap::HostMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 1.f);
+
+  oap::host::SetZeroMatrix (hostMatrix);
+
+  EXPECT_EQ (rows, gRows (hostMatrix));
+  EXPECT_EQ (columns, gColumns (hostMatrix));
+  for (uintt y = 0; y < rows; ++y)
+  {
+    for (uintt x = 0; x < columns; ++x)
+    {
+      EXPECT_EQ (nullptr, hostMatrix->re.ptr);
+      EXPECT_EQ (0, hostMatrix->im.ptr[x + columns * y]);
+    }
+  }
+}
+
+TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_4)
+{
+  const uintt rows = 16384;
+  const uintt columns = 32;
+  oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
+
+  oap::host::SetZeroReMatrix (hostMatrix);
+
+  EXPECT_EQ (rows, gRows (hostMatrix));
+  EXPECT_EQ (columns, gColumns (hostMatrix));
+  for (uintt y = 0; y < rows; ++y)
+  {
+    for (uintt x = 0; x < columns; ++x)
+    {
+      EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
+      EXPECT_EQ (nullptr, hostMatrix->im.ptr);
+    }
+  }
+}
+
+TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_5)
+{
+  const uintt rows = 16384;
+  const uintt columns = 32;
+  oap::HostMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 1.f);
+
+  oap::host::SetZeroImMatrix (hostMatrix);
+
+  EXPECT_EQ (rows, gRows (hostMatrix));
+  EXPECT_EQ (columns, gColumns (hostMatrix));
+  for (uintt y = 0; y < rows; ++y)
+  {
+    for (uintt x = 0; x < columns; ++x)
+    {
+      EXPECT_EQ (nullptr, hostMatrix->re.ptr);
+      EXPECT_EQ (0, hostMatrix->im.ptr[x + columns * y]);
+    }
+  }
+}
+
