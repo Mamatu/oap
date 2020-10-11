@@ -54,10 +54,10 @@ void registerMatrix (math::Matrix* matrix, const math::Matrix& hostRefMatrix, co
   g_matricesList.add (matrix, std::make_pair (matrixInfo, hostRefMatrix));
 }
 
-oap::Memory allocPart (bool alloc, uintt columns, uintt rows)
+std::tuple<oap::Memory, oap::MemoryRegion> allocPart (bool alloc, uintt columns, uintt rows)
 {
   oap::Memory memory = {nullptr, {0, 0}};
-  oap::MemoryRegion region = {{0, 0}, {columns, rows}};
+  oap::MemoryRegion region = {{0, 0}, {0, 0}};
 
   if (alloc)
   {
@@ -65,7 +65,7 @@ oap::Memory allocPart (bool alloc, uintt columns, uintt rows)
     region = {{0, 0}, {columns, rows}};
   }
 
-  return memory;
+  return std::make_tuple (memory, region);
 }
 
 void initWithZero (math::Matrix* matrix, bool allocRe, bool allocIm, uintt columns, uintt rows) 
@@ -96,22 +96,14 @@ math::Matrix* allocMatrix (const math::Matrix& hostRefMatrix)
 
 math::Matrix* allocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows)
 {
-  auto initReg = [](oap::MemoryRegion& reg, uintt columns, uintt rows)
-  {
-    if (reg.dims.width == 0 && reg.dims.height == 0)
-    {
-      reg = {{0, 0}, {columns, rows}};
-    }
-  };
-
-  oap::Memory reMem = allocPart (allocRe, columns, rows);
-  oap::Memory imMem = allocPart (allocIm, columns, rows);
+  auto retup = allocPart (allocRe, columns, rows);
+  auto imtup = allocPart (allocIm, columns, rows);
 
   math::Matrix hostRefMatrix;
-  hostRefMatrix.re = reMem;
-  hostRefMatrix.reReg = {{0, 0}, {columns, rows}};
-  hostRefMatrix.im = imMem;
-  hostRefMatrix.imReg = {{0, 0}, {columns, rows}};
+  hostRefMatrix.re = std::get<0>(retup);
+  hostRefMatrix.reReg = std::get<1>(retup);
+  hostRefMatrix.im = std::get<0>(imtup);
+  hostRefMatrix.imReg = std::get<1>(imtup);
 
   return allocMatrix (hostRefMatrix);
 }
@@ -686,17 +678,17 @@ void SetValueToImMatrix (math::Matrix* matrix, floatt v)
 
 void SetZeroMatrix (math::Matrix* matrix)
 {
-  SetValueToMatrix (matrix, 0, 0);
+  SetValueToMatrix (matrix, 0.f, 0.f);
 }
 
 void SetZeroReMatrix (math::Matrix* matrix)
 {
-  SetValueToReMatrix (matrix, 0);
+  SetValueToReMatrix (matrix, 0.f);
 }
 
 void SetZeroImMatrix (math::Matrix* matrix)
 {
-  SetValueToImMatrix (matrix, 0);
+  SetValueToImMatrix (matrix, 0.f);
 }
 
 MatrixEx* NewDeviceMatrixEx()

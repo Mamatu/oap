@@ -172,7 +172,8 @@ namespace generic
    */
   inline bool isLinearMemory (const oap::MemoryDim& dstDims, const oap::MemoryLoc& dstLoc, const oap::MemoryDim& srcDims, const oap::MemoryRegion& srcReg)
   {
-    bool islinear = (srcReg.dims.width == 1 && (dstDims.height == 1 || dstDims.width == 1)) || (srcReg.dims.height == 1);
+    bool islinear = (dstDims.width == srcReg.dims.width && srcReg.dims.width == srcDims.width);
+    islinear = islinear || (dstDims == srcDims && srcDims == srcReg.dims && srcReg.loc.x == 0 && srcReg.loc.y == 0);
     return islinear;
   }
 
@@ -200,10 +201,18 @@ namespace generic
     utils::getPtrs (dstPtrs, dst, dstDims, dstReg);
     utils::getPtrs (srcPtrs, src, srcDims, srcReg);
 
-    for (size_t idx = 0; idx < srcPtrs.size (); ++idx) {
+    for (size_t idx = 0; idx < srcPtrs.size (); ++idx)
+    {
       const floatt* srcPtr = srcPtrs[idx];
       floatt* dstPtr = dstPtrs[idx];
-      memcpy (dstPtr, srcPtr, srcReg.dims.width * sizeof (floatt));
+      if (dst != src)
+      {
+        memcpy (dstPtr, srcPtr, srcReg.dims.width * sizeof (floatt));
+      }
+      else
+      {
+        memmove (dstPtr, srcPtr, srcReg.dims.width * sizeof (floatt));
+      }
     }
   }
 
@@ -211,7 +220,6 @@ namespace generic
   void copyLinear (floatt* dst, const oap::MemoryDim& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDim& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
   {
     logTrace ("%s %p %s %s %p %s %s", __FUNCTION__, dst, std::to_string(dstDims).c_str(), std::to_string(dstLoc).c_str(), src, std::to_string(srcDims).c_str(), std::to_string(srcReg).c_str());
-    logAssert ((srcReg.dims.width == 1 && (dstDims.height == 1 || dstDims.width == 1)) || (srcReg.dims.height == 1));
     uintt srcLen = srcReg.dims.width * srcReg.dims.height;
     uintt dstLen = dstDims.width * dstDims.height;
 
@@ -220,7 +228,14 @@ namespace generic
 
     logAssert (dstPos + srcLen <= dstLen);
 
-    memcpy (&dst[dstPos], &src[srcPos], srcLen * sizeof (floatt));
+    if (dst != src)
+    {
+      memcpy (&dst[dstPos], &src[srcPos], srcLen * sizeof (floatt));
+    }
+    else
+    {
+      memmove (&dst[dstPos], &src[srcPos], srcLen * sizeof (floatt));
+    }
   }
 
   template<typename Memcpy>
