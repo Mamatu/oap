@@ -76,48 +76,12 @@ __hostdeviceinline__ uintt gMemoryLength (const math::Matrix* matrix)
 
 __hostdeviceinline__ uintt gColumns (const math::Matrix* matrix)
 {
-  if (matrix->re.ptr)
-  {
-    //if (!oap::common::IsNoneRegion (matrix->reReg))
-    if (matrix->reReg.dims.width != 0)
-    {
-      return matrix->reReg.dims.width;
-    }
-    return matrix->re.dims.width;
-  }
-  if (matrix->im.ptr)
-  {
-    //if (!oap::common::IsNoneRegion (matrix->imReg))
-    if (matrix->imReg.dims.width != 0)
-    {
-      return matrix->imReg.dims.width;
-    }
-    return matrix->im.dims.width;
-  }
-  return 0;
+  return matrix->dim.columns;
 }
 
 __hostdeviceinline__ uintt gRows (const math::Matrix* matrix)
 {
-  if (matrix->re.ptr)
-  {
-    //if (!oap::common::IsNoneRegion (matrix->reReg))
-    if (matrix->reReg.dims.height != 0)
-    {
-      return matrix->reReg.dims.height;
-    }
-    return matrix->re.dims.height;
-  }
-  if (matrix->im.ptr)
-  {
-    //if (!oap::common::IsNoneRegion (matrix->imReg))
-    if (matrix->imReg.dims.height != 0)
-    {
-      return matrix->imReg.dims.height;
-    }
-    return matrix->im.dims.height;
-  }
-  return 0;
+  return matrix->dim.rows;
 }
 
 __hostdeviceinline__ uintt GetColumns (const math::Matrix* matrix)

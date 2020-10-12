@@ -100,6 +100,8 @@ math::Matrix* allocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows
   auto imtup = allocPart (allocIm, columns, rows);
 
   math::Matrix hostRefMatrix;
+  hostRefMatrix.dim = {columns, rows};
+
   hostRefMatrix.re = std::get<0>(retup);
   hostRefMatrix.reReg = std::get<1>(retup);
   hostRefMatrix.im = std::get<0>(imtup);

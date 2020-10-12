@@ -130,6 +130,7 @@ math::Matrix* allocMatrix (const math::Matrix& ref)
 math::Matrix* allocMatrix_AllocMemory (bool isre, bool isim, uintt columns, uintt rows, floatt revalue = 0., floatt imvalue = 0.)
 {
   math::Matrix ref;
+  ref.dim = {columns, rows};
 
   if (isre)
   {
