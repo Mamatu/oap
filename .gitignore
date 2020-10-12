@@ -2,6 +2,7 @@
 *.so
 *.o
 *.d
+*.swp
 oapCudaTests/dist/
 oapMatrixCuda/dist/
 oapShibataCuda/dist/
