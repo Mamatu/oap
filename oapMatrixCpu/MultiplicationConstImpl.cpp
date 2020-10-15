@@ -74,15 +74,15 @@ void MultiplicationConstOperationCpu::Execute(void* ptr) {
             for (uint fb = begin1; fb < end1; fb++) {
                 int index = fa + fb * gColumns (threadData->outputs[0].m_matrix);
                 int index1 = fa + fb * gColumns (threadData->params[0].m_matrix);
-                *GetRePtrIndex (threadData->outputs[0].m_matrix, index) =
-                    GetReIndex (threadData->params[0].m_matrix, index1) *
+                *GetRePtr (threadData->outputs[0].m_matrix, fa, fb) =
+                    GetRe (threadData->params[0].m_matrix, fa, fb) *
                     *(rep) -
-                    GetImIndex (threadData->params[0].m_matrix, index1) *
+                    GetIm (threadData->params[0].m_matrix, fa, fb) *
                     *(imp);
-                *GetImPtrIndex (threadData->outputs[0].m_matrix, index) =
-                    GetImIndex (threadData->params[0].m_matrix, index1) *
+                *GetImPtr (threadData->outputs[0].m_matrix, fa, fb) =
+                    GetIm (threadData->params[0].m_matrix, fa, fb) *
                     *(rep) +
-                    GetReIndex (threadData->params[0].m_matrix, index1) *
+                    GetRe (threadData->params[0].m_matrix, fa, fb) *
                     *(imp);
             }
         }
