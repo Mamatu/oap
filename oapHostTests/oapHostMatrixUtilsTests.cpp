@@ -562,3 +562,28 @@ TEST_F(OapHostMatrixUtilsTests, GetDiagonal_1)
   EXPECT_DOUBLE_EQ(1.f, oap::host::GetReDiagonal (hostMatrix, 2));
   EXPECT_DOUBLE_EQ(1.f, oap::host::GetReDiagonal (hostMatrix, 3));
 }
+
+TEST_F(OapHostMatrixUtilsTests, GetDiagonal_2)
+{
+  const uintt rows = 6;
+  const uintt columns = 6;
+
+  oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 10.f);
+  for (uintt x = 0; x < 6; ++x)
+  {
+    for (uintt y = 0; y < 6; ++y)
+    {
+      if (x == y)
+      {
+        oap::host::SetReValue (hostMatrix, x, y, static_cast<floatt>(x));
+      }
+    }
+  }
+
+  EXPECT_DOUBLE_EQ(0.f, oap::host::GetReDiagonal (hostMatrix, 0));
+  EXPECT_DOUBLE_EQ(1.f, oap::host::GetReDiagonal (hostMatrix, 1));
+  EXPECT_DOUBLE_EQ(2.f, oap::host::GetReDiagonal (hostMatrix, 2));
+  EXPECT_DOUBLE_EQ(3.f, oap::host::GetReDiagonal (hostMatrix, 3));
+  EXPECT_DOUBLE_EQ(4.f, oap::host::GetReDiagonal (hostMatrix, 4));
+  EXPECT_DOUBLE_EQ(5.f, oap::host::GetReDiagonal (hostMatrix, 5));
+}

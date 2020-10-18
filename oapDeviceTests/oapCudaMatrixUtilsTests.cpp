@@ -419,3 +419,51 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_5)
     }
   }
 }
+
+TEST_F(OapCudaMatrixUtilsTests, GetDiagonal_1)
+{
+  const uintt rows = 4;
+  const uintt columns = 4;
+
+  oap::DeviceMatrixUPtr hostMatrix = oap::cuda::NewDeviceReMatrixWithValue (columns, rows, 1.f);
+  for (uintt x = 0; x < 4; ++x)
+  {
+    for (uintt y = 0; y < 4; ++y)
+    {
+      if (x != y)
+      {
+        oap::cuda::SetReValue (hostMatrix, x, y, 2.);
+      }
+    }
+  }
+
+  EXPECT_DOUBLE_EQ(1.f, oap::cuda::GetReDiagonal (hostMatrix, 0));
+  EXPECT_DOUBLE_EQ(1.f, oap::cuda::GetReDiagonal (hostMatrix, 1));
+  EXPECT_DOUBLE_EQ(1.f, oap::cuda::GetReDiagonal (hostMatrix, 2));
+  EXPECT_DOUBLE_EQ(1.f, oap::cuda::GetReDiagonal (hostMatrix, 3));
+}
+
+TEST_F(OapCudaMatrixUtilsTests, GetDiagonal_2)
+{
+  const uintt rows = 6;
+  const uintt columns = 6;
+
+  oap::DeviceMatrixUPtr hostMatrix = oap::cuda::NewDeviceReMatrixWithValue (columns, rows, 10.f);
+  for (uintt x = 0; x < 6; ++x)
+  {
+    for (uintt y = 0; y < 6; ++y)
+    {
+      if (x == y)
+      {
+        oap::cuda::SetReValue (hostMatrix, x, y, static_cast<floatt>(x));
+      }
+    }
+  }
+
+  EXPECT_DOUBLE_EQ(0.f, oap::cuda::GetReDiagonal (hostMatrix, 0));
+  EXPECT_DOUBLE_EQ(1.f, oap::cuda::GetReDiagonal (hostMatrix, 1));
+  EXPECT_DOUBLE_EQ(2.f, oap::cuda::GetReDiagonal (hostMatrix, 2));
+  EXPECT_DOUBLE_EQ(3.f, oap::cuda::GetReDiagonal (hostMatrix, 3));
+  EXPECT_DOUBLE_EQ(4.f, oap::cuda::GetReDiagonal (hostMatrix, 4));
+  EXPECT_DOUBLE_EQ(5.f, oap::cuda::GetReDiagonal (hostMatrix, 5));
+}

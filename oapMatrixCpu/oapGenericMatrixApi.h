@@ -300,6 +300,9 @@ template<typename GetRefMatrix, typename GetMemory, typename GetRegion, typename
 floatt getDiagonal(const math::Matrix* matrix, uintt index, GetRefMatrix&& getRefMatrix, GetMemory&& getMemory, GetRegion&& getRegion, Memcpy&& gmemcpy)
 {
   math::Matrix hm = getRefMatrix (matrix);
+
+  oapAssert (hm.dim.columns == hm.dim.rows);
+
   floatt v = 0;
 
   const oap::Memory memory = getMemory (matrix, hm);
