@@ -114,6 +114,7 @@ math::Matrix* allocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows
 inline math::Matrix* allocReMatrix_FromMemory (oap::Memory& mem, const oap::MemoryRegion& reg)
 {
   math::Matrix hostRefMatrix;
+  hostRefMatrix.dim = {reg.dims.width, reg.dims.height};
 
   hostRefMatrix.re = oap::cuda::ReuseMemory (mem);
   hostRefMatrix.reReg = reg;
@@ -126,6 +127,7 @@ inline math::Matrix* allocReMatrix_FromMemory (oap::Memory& mem, const oap::Memo
 inline math::Matrix* allocImMatrix_FromMemory (oap::Memory& mem, const oap::MemoryRegion& reg)
 {
   math::Matrix hostRefMatrix;
+  hostRefMatrix.dim = {reg.dims.width, reg.dims.height};
 
   hostRefMatrix.re = {nullptr, {0, 0}};
   hostRefMatrix.reReg = {{0, 0}, {0, 0}};
