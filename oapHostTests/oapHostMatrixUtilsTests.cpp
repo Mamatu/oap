@@ -540,3 +540,25 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_5)
   }
 }
 
+TEST_F(OapHostMatrixUtilsTests, GetDiagonal_1)
+{
+  const uintt rows = 4;
+  const uintt columns = 4;
+
+  oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
+  for (uintt x = 0; x < 4; ++x)
+  {
+    for (uintt y = 0; y < 4; ++y)
+    {
+      if (x != y)
+      {
+        oap::host::SetReValue (hostMatrix, x, y, 2.);
+      }
+    }
+  }
+
+  EXPECT_DOUBLE_EQ(1.f, oap::host::GetReDiagonal (hostMatrix, 0));
+  EXPECT_DOUBLE_EQ(1.f, oap::host::GetReDiagonal (hostMatrix, 1));
+  EXPECT_DOUBLE_EQ(1.f, oap::host::GetReDiagonal (hostMatrix, 2));
+  EXPECT_DOUBLE_EQ(1.f, oap::host::GetReDiagonal (hostMatrix, 3));
+}

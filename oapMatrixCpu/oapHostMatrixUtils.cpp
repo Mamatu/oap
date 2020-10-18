@@ -1418,5 +1418,19 @@ void SetZeroImMatrix (math::Matrix* matrix)
   SetValueToImMatrix (matrix, 0);
 }
 
+floatt GetReDiagonal (const math::Matrix* matrix, uintt index)
+{
+  return oap::generic::getDiagonal (matrix, index, oap::host::GetRefHostMatrix,
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->re;},
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->reReg;}, memcpy);
+}
+
+floatt GetImDiagonal (const math::Matrix* matrix, uintt index)
+{
+  return oap::generic::getDiagonal (matrix, index, oap::host::GetRefHostMatrix,
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->im;},
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->imReg;}, memcpy);
+}
+
 }
 }

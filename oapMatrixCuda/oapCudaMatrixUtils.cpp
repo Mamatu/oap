@@ -26,6 +26,7 @@
 #include <map>
 
 #include "oapCudaMatrixUtils.h"
+#include "oapGenericMatrixApi.h"
 #include "oapCudaMemoryApi.h"
 
 #include "oapHostMatrixUPtr.h"
@@ -574,30 +575,16 @@ std::pair<floatt, floatt> GetDiagonal (const math::Matrix* matrix, uintt index)
 
 floatt GetReDiagonal (const math::Matrix* matrix, uintt index)
 {
-  math::Matrix hm = GetRefHostMatrix (matrix);
-  floatt v = 0;
-
-  if (hm.re.ptr)
-  {
-    oap::MemoryLoc loc = oap::common::ConvertIdxToMemoryLoc (index, hm.re, hm.reReg);
-    oap::generic::copy (&v, {1, 1}, {0, 0}, hm.re.ptr, hm.re.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
-  }
-
-  return v;
+  return oap::generic::getDiagonal (matrix, index, oap::cuda::GetRefHostMatrix,
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return ref.re;},
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return ref.reReg;}, CudaUtils::CopyDeviceToHost);
 }
 
 floatt GetImDiagonal (const math::Matrix* matrix, uintt index)
 {
-  math::Matrix hm = GetRefHostMatrix (matrix);
-  floatt v = 0;
-
-  if (hm.im.ptr)
-  {
-    oap::MemoryLoc loc = oap::common::ConvertIdxToMemoryLoc (index, hm.im, hm.imReg);
-    oap::generic::copy (&v, {1, 1}, {0, 0}, hm.im.ptr, hm.im.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
-  }
-
-  return v;
+  return oap::generic::getDiagonal (matrix, index, oap::cuda::GetRefHostMatrix,
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return ref.im;},
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return ref.imReg;}, CudaUtils::CopyDeviceToHost);
 }
 
 void SetZeroRow (const math::Matrix* matrix, uintt index, bool re, bool im)
