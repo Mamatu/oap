@@ -27,6 +27,9 @@
 #include "oapHostMatrixUPtr.h"
 #include "oapLayer.h"
 
+#include "oapHostMatrixUtils.h"
+#include "oapCudaMatrixUtils.h"
+
 class OapGenericNeuralUtilsTests : public testing::Test
 {
 public:
@@ -42,8 +45,8 @@ public:
     public:
       void allocate (Layer<MockLayerApi>* layer)
       {
-        layer->setFPMatrices (new FPMatrices());
-        layer->setBPMatrices (new BPMatrices());
+        layer->addFPMatrices (new FPMatrices());
+        layer->addBPMatrices (new BPMatrices());
       }
 
       void deallocate (Layer<MockLayerApi>* layer)
@@ -55,7 +58,7 @@ public:
 
   using MockLayer = Layer<MockLayerApi>;
 };
-
+#if 0
 TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_1)
 {
   std::vector<std::vector<floatt>> vec = {{0}, {1}, {2}, {3}, {4}, {5}};
@@ -72,7 +75,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_1)
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = hmatrix.get();
 
-  oap::nutils::copyToInputs (layer, vec, oap::nutils::copyHostBufferToHostReMatrix);
+  oap::nutils::copyToInputs (layer, vec, oap::host::CopyHostBufferToHost);
 
   std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + vec.size());
   std::vector<floatt> expectedOutput = {0, 1, 2, 3, 4, 5};
@@ -97,7 +100,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_2)
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = hmatrix.get();
 
-  oap::nutils::copyToInputs (layer, vec, oap::nutils::copyHostBufferToHostReMatrix);
+  oap::nutils::copyToInputs (layer, vec, oap::host::CopyHostBufferToHost);
 
   std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
@@ -122,7 +125,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_3)
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = hmatrix.get();
 
-  oap::nutils::copyToInputs (layer, vec, oap::nutils::copyHostBufferToHostReMatrix);
+  oap::nutils::copyToInputs (layer, vec, oap::host::CopyHostBufferToHost);
 
   std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 6, 7, 4, 4, 8, 2, 5, 5, 0, 0};
@@ -131,20 +134,29 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_3)
 
   delete layer;
 }
-
+#endif
 TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_1)
 {
-  class NetworkStructureImpl : public NetworkS<oap::HostMatrixPtr>
+  class NetworkStructureImpl
   {
+    std::vector<math::Matrix*> m_expected;
     public:
-      virtual void setExpectedProtected (typename ExpectedOutputs::mapped_type& holder, math::Matrix* expected, ArgType argType) override
+      ~NetworkStructureImpl ()
       {
-        holder = expected;
+        for (math::Matrix* matrix : m_expected)
+        {
+          oap::host::DeleteMatrix (matrix);
+        }
       }
 
-      virtual math::Matrix* convertExpectedProtected (oap::HostMatrixPtr t) const override
+      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
       {
-        return t.get();
+        m_expected = expected;
+      }
+
+      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      {
+        return m_expected;
       }
   };
 
@@ -157,27 +169,38 @@ TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_1)
   size_t counts = oap::nutils::getElementsCount(vec);
   EXPECT_EQ(6, counts);
 
-  oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::nutils::copyHostBufferToHostReMatrix);
+  oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::host::CopyHostBufferToReMatrix);
 
-  std::vector<floatt> output (network.getExpected(0)->re.ptr, network.getExpected(0)->re.ptr + vec.size());
+  std::vector<math::Matrix*> output = network.getExpected();
+
+  std::vector<floatt> actualOutput = oap::nutils::convertToFloattBuffer (output, oap::host::GetMatrixInfo, oap::host::CopyReMatrixToHostBuffer);
   std::vector<floatt> expectedOutput = {0, 1, 2, 3, 4, 5};
 
-  EXPECT_EQ (expectedOutput, output);
+  EXPECT_EQ (expectedOutput, actualOutput);
 }
 
 TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_2)
 {
-  class NetworkStructureImpl : public NetworkS<oap::HostMatrixPtr>
+  class NetworkStructureImpl
   {
+    std::vector<math::Matrix*> m_expected;
     public:
-      virtual void setExpectedProtected (typename ExpectedOutputs::mapped_type& holder, math::Matrix* expected, ArgType argType) override
+      ~NetworkStructureImpl ()
       {
-        holder = expected;
+        for (math::Matrix* matrix : m_expected)
+        {
+          oap::host::DeleteMatrix (matrix);
+        }
       }
 
-      virtual math::Matrix* convertExpectedProtected (oap::HostMatrixPtr t) const override
+      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
       {
-        return t.get();
+        m_expected = expected;
+      }
+
+      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      {
+        return m_expected;
       }
   };
 
@@ -190,10 +213,191 @@ TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_2)
   size_t counts = oap::nutils::getElementsCount(vec);
   EXPECT_EQ(12, counts);
 
-  oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::nutils::copyHostBufferToHostReMatrix);
+  oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::host::CopyHostBufferToReMatrix);
 
-  std::vector<floatt> output (network.getExpected(0)->re.ptr, network.getExpected(0)->re.ptr + (vec.size() * 2));
+  std::vector<math::Matrix*> output = network.getExpected();
+
+  std::vector<floatt> actualOutput = oap::nutils::convertToFloattBuffer (output, oap::host::GetMatrixInfo, oap::host::CopyReMatrixToHostBuffer);
   std::vector<floatt> expectedOutput = {0, 1, 1, 2, 2, 3, 3, 5, 4, 8, 5, 9};
 
-  EXPECT_EQ (expectedOutput, output);
+  EXPECT_EQ (expectedOutput, actualOutput);
 }
+
+TEST_F(OapGenericNeuralUtilsTests, ConvertToMatrices_1)
+{
+  class NetworkStructureImpl
+  {
+    std::vector<math::Matrix*> m_expected;
+    public:
+      ~NetworkStructureImpl ()
+      {
+        for (math::Matrix* matrix : m_expected)
+        {
+          oap::host::DeleteMatrix (matrix);
+        }
+      }
+
+      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
+      {
+        m_expected = expected;
+      }
+
+      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      {
+        return m_expected;
+      }
+  };
+
+  NetworkStructureImpl network;
+  std::vector<std::vector<floatt>> vec = {{0}};
+  oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::host::CopyHostBufferToReMatrix);
+
+  auto expected = network.getExpected();
+
+  EXPECT_EQ(1, expected.size());
+  EXPECT_EQ(1, expected[0]->re.dims.width);
+  EXPECT_EQ(1, expected[0]->re.dims.height);
+  EXPECT_EQ(0.f, expected[0]->re.ptr[0]);
+}
+
+TEST_F(OapGenericNeuralUtilsTests, ConvertToMatrices_2)
+{
+  class NetworkStructureImpl
+  {
+    std::vector<math::Matrix*> m_expected;
+    public:
+      ~NetworkStructureImpl ()
+      {
+        for (math::Matrix* matrix : m_expected)
+        {
+          oap::host::DeleteMatrix (matrix);
+        }
+      }
+
+      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
+      {
+        m_expected = expected;
+      }
+
+      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      {
+        return m_expected;
+      }
+  };
+
+  NetworkStructureImpl network;
+  std::vector<std::vector<floatt>> vec = {{0}, {1}, {2}};
+  oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::host::CopyHostBufferToReMatrix);
+  
+  auto expected = network.getExpected();
+
+  EXPECT_EQ(3, expected.size());
+
+  EXPECT_EQ(1, expected[0]->re.dims.width);
+  EXPECT_EQ(1, expected[0]->re.dims.height);
+  EXPECT_EQ(0.f, expected[0]->re.ptr[0]);
+
+  EXPECT_EQ(1, expected[1]->re.dims.width);
+  EXPECT_EQ(1, expected[1]->re.dims.height);
+  EXPECT_EQ(1.f, expected[1]->re.ptr[0]);
+
+  EXPECT_EQ(1, expected[2]->re.dims.width);
+  EXPECT_EQ(1, expected[2]->re.dims.height);
+  EXPECT_EQ(2.f, expected[2]->re.ptr[0]);
+}
+
+TEST_F(OapGenericNeuralUtilsTests, ConvertToMatrices_3)
+{
+  class NetworkStructureImpl
+  {
+    std::vector<math::Matrix*> m_expected;
+    public:
+      ~NetworkStructureImpl ()
+      {
+        for (math::Matrix* matrix : m_expected)
+        {
+          oap::host::DeleteMatrix (matrix);
+        }
+      }
+
+      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
+      {
+        m_expected = expected;
+      }
+
+      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      {
+        return m_expected;
+      }
+  };
+
+  NetworkStructureImpl network;
+  std::vector<std::vector<floatt>> vec = {{0}, {1, 2}};
+  oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::host::CopyHostBufferToReMatrix);
+  
+  auto expected = network.getExpected();
+
+  EXPECT_EQ(2, expected.size());
+
+  EXPECT_EQ(1, expected[0]->re.dims.width);
+  EXPECT_EQ(1, expected[0]->re.dims.height);
+  EXPECT_EQ(0.f, expected[0]->re.ptr[0]);
+
+  EXPECT_EQ(1, expected[1]->re.dims.width);
+  EXPECT_EQ(2, expected[1]->re.dims.height);
+  EXPECT_EQ(1.f, expected[1]->re.ptr[0]);
+  EXPECT_EQ(2.f, expected[1]->re.ptr[1]);
+}
+
+TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_1)
+{
+  std::vector<math::Matrix*> matrices = {oap::host::NewReMatrixWithValue (1, 1, 1.f)};
+  std::vector<floatt> actualOutput = oap::nutils::convertToFloattBuffer (matrices, oap::host::GetMatrixInfo, oap::host::CopyReMatrixToHostBuffer);
+
+  EXPECT_EQ(1, actualOutput.size());
+  EXPECT_EQ(1.f, actualOutput[0]);
+  oap::host::DeleteMatrix (matrices[0]);
+}
+
+TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_2)
+{
+  std::vector<math::Matrix*> matrices = {oap::host::NewReMatrixWithValue (1, 1, 1.f), oap::host::NewReMatrixWithValue (1, 1, 2.f)};
+  std::vector<floatt> actualOutput = oap::nutils::convertToFloattBuffer (matrices, oap::host::GetMatrixInfo, oap::host::CopyReMatrixToHostBuffer);
+
+  EXPECT_EQ(2, actualOutput.size());
+  EXPECT_EQ(1.f, actualOutput[0]);
+  EXPECT_EQ(2.f, actualOutput[1]);
+
+  for (auto it = matrices.begin(); it != matrices.end(); ++it)
+  {
+    oap::host::DeleteMatrix (*it);
+  }
+}
+
+TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_3)
+{
+  std::vector<math::Matrix*> matrices =
+  {
+    oap::host::NewReMatrixWithValue (1, 1, 0.f),
+    oap::host::NewReMatrixWithValue (1, 1, 1.f),
+    oap::host::NewReMatrixWithValue (1, 1, 2.f),
+    oap::host::NewReMatrixWithValue (1, 1, 3.f),
+    oap::host::NewReMatrixWithValue (1, 1, 4.f),
+    oap::host::NewReMatrixWithValue (1, 1, 5.f),
+  };
+  std::vector<floatt> actualOutput = oap::nutils::convertToFloattBuffer (matrices, oap::host::GetMatrixInfo, oap::host::CopyReMatrixToHostBuffer);
+
+  EXPECT_EQ(6, actualOutput.size());
+  EXPECT_EQ(0.f, actualOutput[0]);
+  EXPECT_EQ(1.f, actualOutput[1]);
+  EXPECT_EQ(2.f, actualOutput[2]);
+  EXPECT_EQ(3.f, actualOutput[3]);
+  EXPECT_EQ(4.f, actualOutput[4]);
+  EXPECT_EQ(5.f, actualOutput[5]);
+
+  for (auto it = matrices.begin(); it != matrices.end(); ++it)
+  {
+    oap::host::DeleteMatrix (*it);
+  }
+}
+
