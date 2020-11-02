@@ -48,7 +48,7 @@ namespace
 
       void allocate (Layer<MockLayerApi>* layer)
       {
-        layer->setFPMatrices(new FPMatrices ());
+        layer->addFPMatrices(new FPMatrices ());
       }
 
       void deallocate (Layer<MockLayerApi>* layer)
