@@ -29,6 +29,7 @@
 #include "Matrix.h"
 #include "MatrixInfo.h"
 
+using LHandler = uintt;
 using FPHandler = uintt;
 
 enum class Activation
