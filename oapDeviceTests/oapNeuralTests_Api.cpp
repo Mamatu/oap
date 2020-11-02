@@ -21,9 +21,9 @@
 
 namespace test_api
 {
-  FPHandler createBatchFPHandler (Network* network, const Batch& batch)
+  LHandler createBatchLHandler (Network* network, const Batch& batch)
   {
-    FPHandler handler = network->createFPLayer (batch.size());
+    LHandler handler = network->createFPLayer (batch.size());
     DeviceLayer* flS = network->getLayer (0, handler);
     DeviceLayer* llS = network->getLayer (network->getLayersCount() - 1, handler);
 
@@ -37,6 +37,7 @@ namespace test_api
       SetRe (hinputs, 0, idx * 3 + 1, pl.first.second);
       SetRe (hinputs, 0, idx * 3 + 2, 1);
       SetRe (hexpected, 0, idx, pl.second);
+      logTrace ("%f %f %f -> %f", pl.first.first, pl.first.second, 1.f, pl.second);
     }
 
     network->setInputs (hinputs, ArgType::HOST, handler);
@@ -44,24 +45,24 @@ namespace test_api
     return handler;
   }
 
-  std::vector<FPHandler> createBatchFPHandlers (Network* network, const Batches& batches)
+  std::vector<LHandler> createBatchLHandlers (Network* network, const Batches& batches)
   {
-    std::vector<FPHandler> handlers;
+    std::vector<LHandler> handlers;
 
     for (const auto& batch : batches)
     {
-      handlers.push_back (createBatchFPHandler (network, batch));
+      handlers.push_back (createBatchLHandler (network, batch));
     }
 
     return handlers;
   }
 
-  void convertBatchToBatchFPHandlers (Network* network, Step& step)
+  void convertBatchToBatchLHandlers (Network* network, Step& step)
   {
     Batches& batches = std::get<0>(step);
-    BatchesFPHandlers& batchesFPHandlers = std::get<3>(step);
+    BatchesLHandlers& batchesLHandlers = std::get<3>(step);
 
-    batchesFPHandlers = std::move (createBatchFPHandlers (network, batches));
+    batchesLHandlers = std::move (createBatchLHandlers (network, batches));
     batches.clear ();
   }
 
@@ -72,11 +73,11 @@ namespace test_api
     debugAssert(dst->getTotalNeuronsCount() == src->getTotalNeuronsCount());
   }
 
-  void convertBatchToBatchFPHandlers (Network* network, Steps& steps)
+  void convertBatchToBatchLHandlers (Network* network, Steps& steps)
   {
     for (Step& step : steps)
     {
-      convertBatchToBatchFPHandlers (network, step);
+      convertBatchToBatchLHandlers (network, step);
     }
   }
 
@@ -142,6 +143,7 @@ namespace test_api
 
       network->forwardPropagation ();
       network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, ep.calcType);
+      logTrace ("%f %f -> %f", p.first.first, p.first.second, p.second);
     }
 
     EXPECT_NEAR (expectedLoss, network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR), expected_precision);
@@ -200,7 +202,7 @@ namespace test_api
 
         for (const auto& p : batch)
         {
-          checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__);
+          ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__));
 
           *GetRePtrIndex (hinputs, 0) = p.first.first;
           *GetRePtrIndex (hinputs, 1) = p.first.second;
@@ -225,12 +227,12 @@ namespace test_api
       }
     };
 
-    auto batchesFPHandlersProcess = [&](const BatchesFPHandlers& handlers)
+    auto batchesLHandlersProcess = [&](const BatchesLHandlers& handlers)
     {
       for (uintt batchIdx = 0; batchIdx < handlers.size(); ++batchIdx)
       {
         size_t cweightsIdx = weightsIdx + batchIdx;
-        FPHandler handler = handlers[batchIdx];
+        LHandler handler = handlers[batchIdx];
 
         network->forwardPropagation (handler);
         network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, ep.calcType, handler);
@@ -276,10 +278,10 @@ namespace test_api
     }
     else
     {
-      const BatchesFPHandlers& batchesFPHandlers = std::get<3>(step);
-      if (!batchesFPHandlers.empty())
+      const BatchesLHandlers& batchesLHandlers = std::get<3>(step);
+      if (!batchesLHandlers.empty())
       {
-        batchesFPHandlersProcess (batchesFPHandlers);
+        batchesLHandlersProcess (batchesLHandlers);
         testMode = TestMode::FP_HANDLER;
       }
     }

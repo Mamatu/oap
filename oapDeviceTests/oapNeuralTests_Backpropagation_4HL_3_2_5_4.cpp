@@ -67,7 +67,7 @@ TEST_F(OapNeuralTests_Backpropagation_4HL_3_2_5_4, Test_1_FP_MODE)
   auto network = test_api::createNetwork (g_networkInfo);
 
   Steps steps = g_steps;
-  test_api::convertBatchToBatchFPHandlers (network.get(), steps);
+  test_api::convertBatchToBatchLHandlers (network.get(), steps);
 
   ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec, g_weights4to5Vec, g_weights5to6Vec}, steps, g_idxsToCheck));
   ASSERT_EQ (test_api::TestMode::FP_HANDLER, testMode);
@@ -84,7 +84,7 @@ TEST_F(OapNeuralTests_Backpropagation_4HL_3_2_5_4, Test_2_FP_MODE)
   auto network = test_api::createNetwork (g_networkInfo);
 
   Steps steps = g_steps;
-  test_api::convertBatchToBatchFPHandlers (network.get(), steps);
+  test_api::convertBatchToBatchLHandlers (network.get(), steps);
 
   ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec, g_weights3to4Vec, g_weights4to5Vec, g_weights5to6Vec}, steps, g_idxsToCheck, ep));
   ASSERT_EQ (test_api::TestMode::FP_HANDLER, testMode);

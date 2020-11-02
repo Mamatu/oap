@@ -96,7 +96,7 @@ TEST_F(OapNeuralTests_Backpropagation_1HL_3, Test_4_FP_MODE)
   test_api::TestMode testMode = test_api::TestMode::NONE;
 
   Steps steps = g_steps;
-  test_api::convertBatchToBatchFPHandlers (network.get(), steps);
+  test_api::convertBatchToBatchLHandlers (network.get(), steps);
 
   ASSERT_NO_FATAL_FAILURE(test_api::testSteps (testMode, network.get(), {g_weights1to2Vec, g_weights2to3Vec}, steps, g_idxsToCheck));
 
