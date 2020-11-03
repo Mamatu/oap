@@ -111,7 +111,7 @@ math::Matrix* allocMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows
   return allocMatrix (hostRefMatrix);
 }
 
-inline math::Matrix* allocReMatrix_FromMemory (oap::Memory& mem, const oap::MemoryRegion& reg)
+inline math::Matrix* allocReMatrix_FromMemory (const oap::Memory& mem, const oap::MemoryRegion& reg)
 {
   math::Matrix hostRefMatrix;
   hostRefMatrix.dim = {reg.dims.width, reg.dims.height};
@@ -124,7 +124,7 @@ inline math::Matrix* allocReMatrix_FromMemory (oap::Memory& mem, const oap::Memo
   return allocMatrix (hostRefMatrix);
 }
 
-inline math::Matrix* allocImMatrix_FromMemory (oap::Memory& mem, const oap::MemoryRegion& reg)
+inline math::Matrix* allocImMatrix_FromMemory (const oap::Memory& mem, const oap::MemoryRegion& reg)
 {
   math::Matrix hostRefMatrix;
   hostRefMatrix.dim = {reg.dims.width, reg.dims.height};
@@ -137,7 +137,7 @@ inline math::Matrix* allocImMatrix_FromMemory (oap::Memory& mem, const oap::Memo
   return allocMatrix (hostRefMatrix);
 }
 
-inline math::Matrix* allocRealMatrix_FromMemory (oap::Memory& remem, const oap::MemoryRegion& rereg, oap::Memory& immem, const oap::MemoryRegion& imreg)
+inline math::Matrix* allocRealMatrix_FromMemory (const oap::Memory& remem, const oap::MemoryRegion& rereg, const oap::Memory& immem, const oap::MemoryRegion& imreg)
 {
   math::Matrix hostRefMatrix;
 
@@ -151,17 +151,17 @@ inline math::Matrix* allocRealMatrix_FromMemory (oap::Memory& remem, const oap::
 
 }
 
-math::Matrix* NewDeviceMatrixFromMemory (uintt columns, uintt rows, oap::Memory& remem, const oap::MemoryLoc& reloc, oap::Memory& immem, const oap::MemoryLoc& imloc)
+math::Matrix* NewDeviceMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& remem, const oap::MemoryLoc& reloc, oap::Memory& immem, const oap::MemoryLoc& imloc)
 {
   return allocRealMatrix_FromMemory (remem, {reloc, {columns, rows}}, immem, {imloc, {columns, rows}});
 }
 
-math::Matrix* NewDeviceReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc)
+math::Matrix* NewDeviceReMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& memory, const oap::MemoryLoc& loc)
 {
   return allocReMatrix_FromMemory (memory, {loc, {columns, rows}});
 }
 
-math::Matrix* NewDeviceImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc)
+math::Matrix* NewDeviceImMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& memory, const oap::MemoryLoc& loc)
 {
   return allocImMatrix_FromMemory (memory, {loc, {columns, rows}});
 }
@@ -974,6 +974,24 @@ math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
 oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices, oap::threads::ThreadsMapperAlgo algo)
 {
   return createThreadsMapper (matrices, algo);
+}
+
+void CopyDeviceReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix)
+{
+  math::Matrix ref = oap::cuda::GetRefHostMatrix (matrix);
+  oap::cuda::CopyDeviceToHostBuffer (buffer, length, ref.re, ref.reReg);
+}
+
+void CopyHostBufferToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length)
+{
+  math::Matrix ref = oap::cuda::GetRefHostMatrix (matrix);
+  oap::cuda::CopyHostBufferToDevice (ref.re, ref.reReg, buffer, length);
+}
+
+void CopyDeviceBufferToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length)
+{
+  math::Matrix ref = oap::cuda::GetRefHostMatrix (matrix);
+  oap::cuda::CopyDeviceBufferToDevice (ref.re, ref.reReg, buffer, length);
 }
 
 }

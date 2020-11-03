@@ -769,6 +769,9 @@ floatt GetReDiagonal (const math::Matrix* matrix, uintt index);
 
 floatt GetImDiagonal (const math::Matrix* matrix, uintt index);
 
+void CopyReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix);
+void CopyHostBufferToReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length);
+
 }
 }
 

@@ -167,5 +167,15 @@ void CopyHostToHost (oap::Memory& dst, const oap::Memory& src)
   oap::generic::copy (dst, src, memcpy);
 }
 
+void CopyHostToHostBuffer (floatt* buffer, uintt length, const oap::Memory& src, const oap::MemoryRegion& srcReg)
+{
+  oap::generic::copyMemoryRegionToBuffer (buffer, length, src.ptr, src.dims, srcReg, memcpy);
+}
+
+void CopyHostBufferToHost (oap::Memory& dst, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length)
+{
+  oap::generic::copyBufferToMemoryRegion (dst.ptr, dst.dims, dstReg, buffer, length, memcpy);
+}
+
 }
 }

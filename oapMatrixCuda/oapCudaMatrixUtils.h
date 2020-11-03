@@ -61,9 +61,9 @@ inline math::Matrix* NewDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minf
   return NewDeviceMatrix (minfo);
 }
 
-math::Matrix* NewDeviceMatrixFromMemory (uintt columns, uintt rows, oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
-math::Matrix* NewDeviceReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
-math::Matrix* NewDeviceImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
+math::Matrix* NewDeviceMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
+math::Matrix* NewDeviceReMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& memory, const oap::MemoryLoc& loc);
+math::Matrix* NewDeviceImMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& memory, const oap::MemoryLoc& loc);
 
 uintt GetColumns(const math::Matrix* dMatrix);
 
@@ -258,6 +258,10 @@ oap::ThreadsMapper createThreadsMapper (const std::vector<MatricesLine>& matrice
 }
 
 oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices, oap::threads::ThreadsMapperAlgo algo);
+
+void CopyDeviceReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix);
+void CopyHostBufferToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length);
+void CopyDeviceBufferToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length);
 
 }
 }

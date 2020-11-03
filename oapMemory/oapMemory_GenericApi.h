@@ -257,8 +257,30 @@ namespace generic
     copy<Memcpy> (dst, dstDims, dstLoc, src, srcDims, srcReg == nullptr ? common::OAP_NONE_REGION() : *srcReg, memcpy);
   }
 
-  template<typename MemoryVec, typename Allocator, typename Memcpy>
-  oap::Memory newMemory_bulk (const MemoryVec& vec, const oap::DataDirection& dd, Allocator&& alloc, Memcpy&& memcpy)
+  template<typename Memcpy>
+  void copyMemoryRegionToBuffer (floatt* buffer, uintt length, const floatt* src, const oap::MemoryDim& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  {
+    oapAssert (length == srcReg.dims.width * srcReg.dims.height);
+    oap::Memory memory = {buffer, srcReg.dims};
+    copy (memory.ptr, memory.dims, {0, 0}, src, srcDims, srcReg, memcpy);
+  }
+
+  template<typename Memcpy>
+  void copyBufferToMemoryRegion (floatt* dst, const oap::MemoryDim& dstDims, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length, Memcpy&& memcpy)
+  {
+    oapAssert (length == dstReg.dims.width * dstReg.dims.height);
+    oap::Memory memory = {const_cast<floatt*>(buffer), dstReg.dims};
+    oap::MemoryRegion srcReg = {{0, 0}, {dstReg.dims.width, dstReg.dims.height}};
+    copy (dst, dstDims, dstReg.loc, memory.ptr, memory.dims, srcReg, memcpy);
+  }
+
+  namespace
+  {
+    auto emptyMldCallback = [](const oap::Memory& memory, const oap::MemoryLoc& loc, const oap::MemoryDim& dim) {};
+  }
+
+  template<typename MemoryVec, typename Allocator, typename Memcpy, typename MemLocDimCallback = decltype (emptyMldCallback)>
+  oap::Memory newMemory_bulk (const MemoryVec& vec, const oap::DataDirection& dd, Allocator&& alloc, Memcpy&& memcpy, MemLocDimCallback&& mldCall = std::move (emptyMldCallback))
   {
     logAssert (vec.size() > 0);
 
@@ -294,6 +316,7 @@ namespace generic
           floatt* array = vec[idx].ptr;
           oap::generic::copy (memory, loc, {array, dim}, {{0, 0}, dim}, memcpy);
           loc.y += dim.height;
+          mldCall (memory, loc, dim);
         }
         break;
       case DataDirection::HORIZONTAL:
@@ -303,6 +326,7 @@ namespace generic
           floatt* array = vec[idx].ptr;
           oap::generic::copy (memory, loc, {array, dim}, {{0, 0}, dim}, memcpy);
           loc.x += dim.width;
+          mldCall (memory, loc, dim);
         }
         break;
     }

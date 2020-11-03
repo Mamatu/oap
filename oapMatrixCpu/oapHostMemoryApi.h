@@ -53,6 +53,15 @@ oap::Memory NewMemoryBulk (const MemoryVec& vec, const oap::DataDirection& dd)
   return oap::generic::newMemory_bulk (vec, dd, oap::host::NewMemory, memcpy);
 }
 
+template<typename MemoryVec, typename MemLocDimCallback>
+oap::Memory NewMemoryBulk (const MemoryVec& vec, const oap::DataDirection& dd, MemLocDimCallback&& mldCallback)
+{
+  return oap::generic::newMemory_bulk (vec, dd, oap::host::NewMemory, memcpy, mldCallback);
+}
+
+void CopyHostToHostBuffer (floatt* buffer, uintt length, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyHostBufferToHost (oap::Memory& src, const oap::MemoryRegion& srcReg, const floatt* buffer, uintt length);
+
 }
 }
 

@@ -68,6 +68,10 @@ void CopyHostToDeviceLinear (oap::Memory& dst, const oap::Memory& src);
 void CopyDeviceToHostLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
 void CopyDeviceToHostLinear (oap::Memory& dst, const oap::Memory& src);
 
+void CopyDeviceToHostBuffer (floatt* buffer, uintt length, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyHostBufferToDevice (oap::Memory& dst, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length);
+void CopyDeviceBufferToDevice (oap::Memory& dst, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length);
+
 uintt GetIdx (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y);
 floatt* GetPtr (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y);
 floatt GetValue (oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y);
@@ -82,10 +86,22 @@ oap::Memory NewMemoryBulkFromHost (const MemoryVec& vec, const oap::DataDirectio
   return oap::generic::newMemory_bulk (vec, dd, oap::cuda::NewMemory, CudaUtils::CopyHostToDevice);
 }
 
-  template<typename MemoryVec>
+template<typename MemoryVec, typename MemLocDimCallback>
+oap::Memory NewMemoryBulkFromHost (const MemoryVec& vec, const oap::DataDirection& dd, MemLocDimCallback&& mldCallback)
+{
+  return oap::generic::newMemory_bulk (vec, dd, oap::cuda::NewMemory, CudaUtils::CopyHostToDevice, mldCallback);
+}
+
+template<typename MemoryVec>
 oap::Memory NewMemoryBulkFromDevice (const MemoryVec& vec, const oap::DataDirection& dd)
 {
   return oap::generic::newMemory_bulk (vec, dd, oap::cuda::NewMemory, CudaUtils::CopyDeviceToDevice);
+}
+
+template<typename MemoryVec, typename MemLocDimCallback>
+oap::Memory NewMemoryBulkFromDevice (const MemoryVec& vec, const oap::DataDirection& dd, MemLocDimCallback&& mldCallback)
+{
+  return oap::generic::newMemory_bulk (vec, dd, oap::cuda::NewMemory, CudaUtils::CopyDeviceToDevice, mldCallback);
 }
 
 }

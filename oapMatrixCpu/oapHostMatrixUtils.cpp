@@ -1432,5 +1432,17 @@ floatt GetImDiagonal (const math::Matrix* matrix, uintt index)
                                     [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->imReg;}, memcpy);
 }
 
+void CopyReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix)
+{
+  math::Matrix ref = oap::host::GetRefHostMatrix (matrix);
+  oap::host::CopyHostToHostBuffer (buffer, length, ref.re, ref.reReg);
+}
+
+void CopyHostBufferToReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length)
+{
+  math::Matrix ref = oap::host::GetRefHostMatrix (matrix);
+  oap::host::CopyHostBufferToHost (ref.re, ref.reReg, buffer, length);
+}
+
 }
 }
