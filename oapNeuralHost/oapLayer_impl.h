@@ -69,27 +69,97 @@ uintt Layer<LayerApi>::getRowsCount() const
 }
 
 template<typename LayerApi>
-BPMatrices* Layer<LayerApi>::getBPMatrices () const
+BPMatrices* Layer<LayerApi>::getBPMatrices (uintt idx) const
 {
-  return m_bpMatrices;
+  if (m_bpMatrices.empty())
+  {
+    return nullptr;
+  }
+  return m_bpMatrices[idx];
 }
 
 template<typename LayerApi>
-FPMatrices* Layer<LayerApi>::getFPMatrices () const
+FPMatrices* Layer<LayerApi>::getFPMatrices (uintt idx) const
 {
-  return m_fpMatrices;
+  if (m_fpMatrices.empty())
+  {
+    return nullptr;
+  }
+  return m_fpMatrices[idx];
+}
+
+template<typename LayerApi>
+void Layer<LayerApi>::addBPMatrices (BPMatrices* bpMatrices)
+{
+  if (bpMatrices == nullptr)
+  {
+    return;
+  }
+  m_bpMatrices.push_back (bpMatrices);
+  m_weights.push_back (bpMatrices->m_weights);
+  m_weights1.push_back (bpMatrices->m_weights1);
+  m_weights2.push_back (bpMatrices->m_weights2);
+  m_tinputs.push_back (bpMatrices->m_tinputs);
+  m_tweights.push_back (bpMatrices->m_tweights);
+}
+
+template<typename LayerApi>
+void Layer<LayerApi>::addFPMatrices (FPMatrices* fpMatrices)
+{
+  if (fpMatrices == nullptr)
+  {
+    return;
+  }
+  m_fpMatrices.push_back (fpMatrices);
+  m_sums.push_back (fpMatrices->m_sums);
+  m_errors.push_back (fpMatrices->m_errors);
+  m_errorsAux.push_back (fpMatrices->m_errorsAux);
+  m_inputs.push_back (fpMatrices->m_inputs);
+}
+
+template<typename CDst, typename CSrc, typename Get>
+void cleanIterate (CDst& dst, const CSrc& src, Get&& get)
+{
+  dst.clear();
+  for (const auto& ep : src)
+  {
+    dst.push_back (get(src));
+  }
+}
+
+template<typename LayerApi>
+template<typename BPMatricesVec>
+void Layer<LayerApi>::setBPMatrices (BPMatricesVec&& bpMatrices)
+{
+  m_bpMatrices = std::forward<BPMatricesVec>(bpMatrices);
+  cleanIterate(m_weights, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_weights;});
+  cleanIterate(m_weights1, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_weights1;});
+  cleanIterate(m_weights2, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_weights2;});
+  cleanIterate(m_tinputs, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_tinputs;});
+  cleanIterate(m_tweights, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_tweights;});
 }
 
 template<typename LayerApi>
 void Layer<LayerApi>::setBPMatrices (BPMatrices* bpMatrices)
 {
-  m_bpMatrices = bpMatrices;
+  addBPMatrices (bpMatrices);
+}
+
+template<typename LayerApi>
+template<typename FPMatricesVec>
+void Layer<LayerApi>::setFPMatrices (FPMatricesVec&& fpMatrices)
+{
+  m_fpMatrices = std::forward<FPMatricesVec>(fpMatrices);
+  cleanIterate(m_sums, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_sums;});
+  cleanIterate(m_errors, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_errors;});
+  cleanIterate(m_errorsAux, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_errorsAux;});
+  cleanIterate(m_inputs, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_inputs;});
 }
 
 template<typename LayerApi>
 void Layer<LayerApi>::setFPMatrices (FPMatrices* fpMatrices)
 {
-  m_fpMatrices = fpMatrices;
+  addFPMatrices (fpMatrices);
 }
 
 template<typename LayerApi>

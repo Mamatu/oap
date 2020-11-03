@@ -32,8 +32,9 @@ template<typename LayerApi>
 class Layer final
 {
 public:
-  Layer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation);
+  using Matrices = std::vector<math::Matrix*>;
 
+  Layer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation);
   ~Layer();
 
   uintt getTotalNeuronsCount() const;
@@ -42,10 +43,20 @@ public:
   uintt getSamplesCount() const;
   uintt getRowsCount() const;
 
-  BPMatrices* getBPMatrices () const;
-  FPMatrices* getFPMatrices () const;
+  BPMatrices* getBPMatrices (uintt idx = 0) const;
+  FPMatrices* getFPMatrices (uintt idx = 0) const;
+
+  void addBPMatrices (BPMatrices* bpMatrices);
+  void addFPMatrices (FPMatrices* fpMatrices);
+
+  template<typename BPMatricesVec>
+  void setBPMatrices (BPMatricesVec&& bpMatrices);
 
   void setBPMatrices (BPMatrices* bpMatrices);
+
+  template<typename FPMatricesVec>
+  void setFPMatrices (FPMatricesVec&& fpMatrices);
+
   void setFPMatrices (FPMatrices* fpMatrices);
 
   void setNextLayer (Layer* nextLayer);
@@ -74,6 +85,16 @@ public:
 
   void initRandomWeights (const Layer* nextLayer);
 
+  Matrices& getSums() { return m_sums; }
+  Matrices& getErrors() { return m_errors; }
+  Matrices& getErrorsAux() { return m_errorsAux; }
+  Matrices& getInputs() { return m_inputs; }
+  Matrices& getTInputs() { return m_tinputs; }
+  Matrices& getWeights() { return m_weights; }
+  Matrices& getTWeights() { return m_tweights; }
+  Matrices& getWeights1() { return m_weights1; }
+  Matrices& getWeights2() { return m_weights2; }
+
 private:
   static void deallocate(math::Matrix** matrix);
 
@@ -82,8 +103,19 @@ private:
   uintt m_biasesCount;
   uintt m_samplesCount;
 
-  FPMatrices* m_fpMatrices = nullptr;
-  BPMatrices* m_bpMatrices = nullptr;
+  std::vector<FPMatrices*> m_fpMatrices;
+  std::vector<BPMatrices*> m_bpMatrices;
+
+  Matrices m_sums;
+  Matrices m_errors;
+  Matrices m_errorsAux;
+  Matrices m_inputs;
+  Matrices m_tinputs;
+  Matrices m_weights;
+  Matrices m_tweights;
+  Matrices m_weights1;
+  Matrices m_weights2;
+
   Layer* m_nextLayer = nullptr;
 
   LayerApi m_layerApi;

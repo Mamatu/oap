@@ -134,7 +134,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_3)
 
   delete layer;
 }
-#endif
+
 TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_1)
 {
   class NetworkStructureImpl
@@ -400,4 +400,4 @@ TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_3)
     oap::host::DeleteMatrix (*it);
   }
 }
-
+#endif
