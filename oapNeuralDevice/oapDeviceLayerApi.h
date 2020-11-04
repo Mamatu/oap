@@ -42,7 +42,7 @@ class DeviceLayerApi
 
   inline void getOutputs (const Layer<DeviceLayerApi>* layer, math::Matrix* matrix, ArgType type) const;
 
-  inline void getHostWeights (Layer<DeviceLayerApi>* layer, math::Matrix* output);
+  inline void getHostWeights (math::Matrix* output, Layer<DeviceLayerApi>* layer);
 
   inline void setHostInputs(Layer<DeviceLayerApi>* layer, const math::Matrix* hInputs);
 
@@ -77,7 +77,7 @@ inline void DeviceLayerApi::getOutputs (const Layer<DeviceLayerApi>* layer, math
   return oap::device::getOutputs (*layer, matrix, type);
 }
 
-inline void DeviceLayerApi::getHostWeights (Layer<DeviceLayerApi>* layer, math::Matrix* output)
+inline void DeviceLayerApi::getHostWeights (math::Matrix* output, Layer<DeviceLayerApi>* layer)
 {
   oap::cuda::CopyDeviceMatrixToHostMatrix (output, layer->getBPMatrices()->m_weights);
 }

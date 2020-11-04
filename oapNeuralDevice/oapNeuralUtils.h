@@ -35,53 +35,38 @@ inline void copyHostBufferToDeviceReMatrix (math::Matrix* matrix, size_t index, 
   CudaUtils::CopyHostToDevice (re, buffer, size * sizeof(floatt));
 }
 
-inline void copyCudaBufferToDeviceReMatrix (math::Matrix* matrix, size_t index, const floatt* buffer, size_t size)
-{
-  floatt* re = oap::cuda::GetReValuesPtr (matrix);
-  re += index * size;
-  CudaUtils::CopyDeviceToDevice (re, buffer, size * sizeof(floatt));
-}
-
 template<typename LayerT, typename CopyBufferToMatrix>
-void copyToInputs (Network* network, FPHandler handler, size_t index, const floatt* buffer, size_t size, CopyBufferToMatrix&& copyBufferToMatrix)
+void copyToInputs (Network* network, LHandler handler, size_t index, const floatt* buffer, size_t size, CopyBufferToMatrix&& copyBufferToMatrix)
 {
   LayerT* ilayer = network->getLayer (0, handler);
   oap::nutils::copyToInputs (ilayer, index, buffer, size, copyBufferToMatrix);
 }
 
 template<typename LayerT, typename Container2D, typename CopyBufferToMatrix>
-void copyToInputs (Network* network, FPHandler handler, const Container2D& container2D, CopyBufferToMatrix&& copyBufferToMatrix)
+void copyToInputs (Network* network, LHandler handler, const Container2D& container2D, CopyBufferToMatrix&& copyBufferToMatrix)
 {
   LayerT* ilayer = network->getLayer (0, handler);
   oap::nutils::copyToInputs (ilayer, container2D, copyBufferToMatrix);
 }
 
 template<typename Container2D, typename CopyBufferToMatrix>
-void copyCudaToExpectedOutput (Network* network, FPHandler handler, const Container2D& container2D, CopyBufferToMatrix&& copyBufferToMatrix)
+void copyCudaToExpectedOutput (Network* network, LHandler handler, const Container2D& container2D, CopyBufferToMatrix&& copyBufferToMatrix)
 {
-  math::Matrix* matrix = network->getExpected (handler);
-  debugAssert (matrix != nullptr);
+  auto matrices = network->getExpected (handler);
+  debugAssert (!matrices.empty());
 
   size_t fsize = 0;
-  iterate (container2D, [&matrix, &copyBufferToMatrix, &fsize](const Container2D& container2D, size_t idx)
+  iterate (container2D, [&matrices, &copyBufferToMatrix, &fsize](const Container2D& container2D, size_t idx)
   {
     const size_t size = container2D[idx].size();
     if (idx == 0) { fsize = size; }
     debugAssert (fsize == size);
-    oap::nutils::copyTo (matrix, idx * size, container2D[idx].data(), size, copyBufferToMatrix);
+    copyBufferToMatrix (matrices[idx], container2D[idx].data(), size);
   });
 }
 
-template<typename CopyBufferToMatrix>
-void copyCudaToExpectedOutput (Network* network, FPHandler handler, size_t index, const floatt* buffer, size_t size, CopyBufferToMatrix&& copyBufferToMatrix)
-{
-  math::Matrix* matrix = network->getExpected (handler);
-  debugAssert (matrix != nullptr);
-  oap::nutils::copyTo (matrix, index, buffer, size, copyBufferToMatrix);
-}
-
 template<typename Container2D>
-void createDeviceExpectedOutput (Network* network, FPHandler handler, const Container2D& container2D, ArgType containerType)
+void createDeviceExpectedOutput (Network* network, LHandler handler, const Container2D& container2D, ArgType containerType)
 {
 #ifdef DEBUG
   const auto* layer = network->getLayer (network->getLayersCount() - 1, handler);
@@ -94,11 +79,11 @@ void createDeviceExpectedOutput (Network* network, FPHandler handler, const Cont
 
   if (containerType == ArgType::DEVICE)
   {
-    createExpectedOutput (network, handler, container2D, containerType, oap::cuda::NewDeviceReMatrix, copyCudaBufferToDeviceReMatrix);
+    createExpectedOutput (network, handler, container2D, containerType, oap::cuda::NewDeviceReMatrix, oap::cuda::CopyDeviceBufferToDeviceReMatrix);
   }
   else if (containerType == ArgType::HOST)
   {
-    createExpectedOutput (network, handler, container2D, containerType, oap::cuda::NewDeviceReMatrix, copyHostBufferToDeviceReMatrix);
+    createExpectedOutput (network, handler, container2D, containerType, oap::cuda::NewDeviceReMatrix, oap::cuda::CopyHostBufferToDeviceReMatrix);
   }
   debugAssertMsg (containerType != ArgType::DEVICE_COPY, "DEVICE_COPY mode is not supported");
 }
@@ -108,17 +93,17 @@ void copyToInputs (LayerT* ilayer, const Container2D& container2D, ArgType conta
 {
   if (containerType == ArgType::DEVICE)
   {
-    copyToInputs (ilayer, container2D, copyCudaBufferToDeviceReMatrix);
+    copyToInputs (ilayer, container2D, oap::cuda::CopyDeviceBufferToDeviceReMatrix);
   }
   else if (containerType == ArgType::HOST)
   {
-    copyToInputs (ilayer, container2D, copyHostBufferToDeviceReMatrix);
+    copyToInputs (ilayer, container2D, oap::cuda::CopyHostBufferToDeviceReMatrix);
   }
   debugAssertMsg (containerType != ArgType::DEVICE_COPY, "DEVICE_COPY mode is not supported");
 }
 
-template<typename LayerT, typename Container2D>
-void copyToInputs (Network* network, FPHandler handler, const Container2D& container2D, ArgType containerType)
+ template<typename LayerT, typename Container2D>
+void copyToInputs (Network* network, LHandler handler, const Container2D& container2D, ArgType containerType)
 {
   LayerT* layer = network->getLayer (0, handler);
   copyToInputs (layer, container2D, containerType);

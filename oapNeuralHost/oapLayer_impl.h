@@ -201,7 +201,7 @@ void Layer<LayerApi>::getOutputs (math::Matrix* matrix, ArgType type) const
 template<typename LayerApi>
 void Layer<LayerApi>::getHostWeights (math::Matrix* output)
 {
-    m_layerApi.getHostWeights (this, output);
+    m_layerApi.getHostWeights (output, this);
 }
 
 template<typename LayerApi>

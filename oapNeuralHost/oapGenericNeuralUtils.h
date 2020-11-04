@@ -28,19 +28,12 @@
 #include "Logger.h"
 
 #include "oapLayerStructure.h"
-#include "oapNetworkStructure.h"
+#include "MatrixAPI.h"
 
 namespace oap
 {
 namespace nutils
 {
-
-inline void copyHostBufferToHostReMatrix (math::Matrix* matrix, size_t index, const floatt* buffer, size_t size)
-{
-  floatt* re = matrix->re.ptr;
-  re += index * size;
-  memcpy (re, buffer, size * sizeof(floatt));
-}
 
 template<typename Container>
 Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSet, const Container& data, size_t trainingSize, size_t testSize)
@@ -138,16 +131,10 @@ Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSe
   return splitIntoTestAndTrainingSet (trainingSet, testSet, data, trainingSize, data.size() - trainingSize);
 }
 
-template<typename CopyBufferToMatrix>
-void copyTo (math::Matrix* matrix, size_t index, const floatt* buffer, size_t size, CopyBufferToMatrix&& copyBufferToMatrix)
-{
-  copyBufferToMatrix (matrix, index, buffer, size);
-}
-
 template<typename LayerT, typename CopyBufferToMatrix>
 void copyToInputs (LayerT* ilayer, size_t index, const floatt* buffer, size_t size, CopyBufferToMatrix&& copyBufferToMatrix)
 {
-  copyTo (ilayer->getFPMatrices()->m_inputs, index, buffer, size, copyBufferToMatrix);
+  copyBufferToMatrix (ilayer->getFPMatrices(index)->m_inputs, buffer, size);
 }
 
 template<typename Container, typename Callback>
@@ -160,13 +147,24 @@ void iterate (const Container& container, Callback&& callback)
   }
 }
 
+template<typename Container, typename GetSize>
+size_t getElementsCount (const Container& container, GetSize&& getSize)
+{
+  size_t count = 0;
+  for (size_t idx = 0; idx < container.size(); ++idx)
+  {
+    count += getSize (container[idx]);
+  }
+  return count;
+}
+
 template<typename Container>
 size_t getElementsCount (const Container& container)
 {
   size_t count = 0;
   for (size_t idx = 0; idx < container.size(); ++idx)
   {
-    count += container[idx].size ();
+    count += container[idx].size();
   }
   return count;
 }
@@ -184,24 +182,48 @@ void copyToInputs (LayerT* ilayer, const Container2D& container2D, CopyBufferToM
   });
 }
 
-template<typename T, typename Container2D, typename CreateMatrix, typename CopyBufferToMatrix>
-void createExpectedOutput (NetworkS<T>* network, FPHandler handler, Container2D container2D, ArgType argType, CreateMatrix&& createMatrix, CopyBufferToMatrix&& copyBufferToMatrix)
+template<typename Network, typename Container2D, typename CreateMatrix, typename CopyBufferToMatrix>
+void createExpectedOutput (Network* network, LHandler handler, const Container2D& container2D, ArgType argType, CreateMatrix&& createMatrix, CopyBufferToMatrix&& copyBufferToMatrix)
 {
-  math::Matrix* matrix = network->getExpected (handler);
-
-  if (matrix == nullptr)
+  std::vector<math::Matrix*> matrices;
+  for (uintt idx = 0; idx < container2D.size(); ++idx)
   {
-    size_t containerLength = oap::nutils::getElementsCount (container2D);
-
-    network->setExpected (createMatrix (1, containerLength), argType, handler);
-    matrix = network->getExpected (handler);
+    matrices.push_back (createMatrix (1, container2D[idx].size()));
   }
 
-  iterate (container2D, [&matrix, &copyBufferToMatrix](const Container2D& container2D, size_t idx)
+  iterate (container2D, [&matrices, &copyBufferToMatrix](const Container2D& container2D, size_t idx)
   {
-    const size_t size = container2D[idx].size();
-    oap::nutils::copyTo (matrix, idx, container2D[idx].data(), size, copyBufferToMatrix);
+    for (uintt idx = 0; idx < matrices.size(); ++idx)
+    {
+      const size_t size = container2D[idx].size();
+      copyBufferToMatrix (matrices[idx], container2D[idx].data(), size);
+    }
   });
+
+  network->setExpected (matrices, argType, handler); // std::move
+}
+
+template<template<typename, typename> class Vec, typename GetMatrixInfo, typename CopyMatrixToBuffer>
+Vec<floatt, std::allocator<floatt>> convertToFloattBuffer (const Vec<math::Matrix*, std::allocator<math::Matrix*>>& matrices, GetMatrixInfo&& getMatrixInfo, CopyMatrixToBuffer&& copyMatrixToBuffer)
+{
+  uintt length = getElementsCount (matrices, [&getMatrixInfo](const math::Matrix* matrix)
+      {
+        math::MatrixInfo minfo = getMatrixInfo(matrix);
+        return minfo.columns() * minfo.rows();
+      });
+
+  Vec<floatt, std::allocator<floatt>> buffer;
+  buffer.resize (length);
+  uintt pos = 0;
+
+  for (uintt idx = 0; idx < matrices.size(); ++idx)
+  {
+    math::MatrixInfo matrixInfo = getMatrixInfo(matrices[idx]);
+    uintt sublength = matrixInfo.columns() * matrixInfo.rows();
+    copyMatrixToBuffer (&buffer[pos], sublength, matrices[idx]);
+    pos += sublength;
+  }
+  return buffer;
 }
 
 }
