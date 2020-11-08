@@ -42,6 +42,7 @@ namespace generic
 template<typename Api>
 void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api)
 {
+  logTrace("");
   switch (activation)
   {
     case Activation::SIGMOID:
@@ -73,6 +74,7 @@ void activateFunc (math::Matrix* output, math::Matrix* input, Activation activat
 template<typename Api>
 void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2])
 {
+  logTrace("");
   switch (activation)
   {
     case Activation::SIGMOID:
@@ -104,6 +106,7 @@ void activateFunc (math::Matrix* output, math::Matrix* input, Activation activat
 template<typename Api>
 void activateFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2][2])
 {
+  logTrace("");
   switch (activation)
   {
     case Activation::SIGMOID:
@@ -135,6 +138,7 @@ void activateFunc (math::Matrix* output, math::Matrix* input, Activation activat
 template<typename Api>
 void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api)
 {
+  logTrace("");
   switch (activation)
   {
     case Activation::SIGMOID:
@@ -166,6 +170,7 @@ void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activ
 template<typename Api>
 void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2])
 {
+  logTrace("");
   switch (activation)
   {
     case Activation::SIGMOID:
@@ -197,6 +202,7 @@ void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activ
 template<typename Api>
 void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activation, Api& api, uintt dims[2][2])
 {
+  logTrace("");
   switch (activation)
   {
     case Activation::SIGMOID:
@@ -228,6 +234,7 @@ void derivativeFunc (math::Matrix* output, math::Matrix* input, Activation activ
 template<typename LayerT, typename SetReValue>
 void initLayerBiases (LayerT& layer, SetReValue&& setReValue, uintt samples = 1)
 {
+  logTrace("");
   if (layer.getBiasesCount() == 1)
   {
     for (uintt idx = layer.getTotalNeuronsCount(); idx <= samples * layer.getTotalNeuronsCount(); idx += layer.getTotalNeuronsCount())
@@ -244,6 +251,7 @@ void initLayerBiases (LayerT& layer, SetReValue&& setReValue, uintt samples = 1)
 template<typename Layers, typename SetReValue>
 void initNetworkBiases (const Layers& layers, SetReValue&& setReValue)
 {
+  logTrace("");
   for (uintt idx = 0; idx < layers.size(); ++idx)
   {
     initLayerBiases (*layers[idx], setReValue);
@@ -253,6 +261,7 @@ void initNetworkBiases (const Layers& layers, SetReValue&& setReValue)
 template<typename LayerT, typename CopyMatrixToMatrix, typename SetReValue>
 void setInputs(LayerT& layer, const math::Matrix* inputs, CopyMatrixToMatrix&& copyMatrixToMatrix, SetReValue&& setReValue)
 {
+  logTrace("");
   copyMatrixToMatrix (layer.getFPMatrices()->m_inputs, inputs);
 
   initLayerBiases (layer, setReValue);
@@ -261,6 +270,7 @@ void setInputs(LayerT& layer, const math::Matrix* inputs, CopyMatrixToMatrix&& c
 template<typename LayerT, typename CopyKernelMatrixToMatrix>
 void getHostWeights (math::Matrix* output, const LayerT& layer, CopyKernelMatrixToMatrix&& copyKernelMatrixToMatrix)
 {
+  logTrace("");
   copyKernelMatrixToMatrix (output, layer.getBPMatrices()->m_weights);
 }
 
@@ -269,6 +279,7 @@ void printHostWeights (const LayerT& layer, bool newLine, CopyKernelMatrixToMatr
 {
   //debugAssertMsg (layer.getNextLayer() != nullptr, "Provided layer does not contain next layer. Weights matrices are not assigned into last layer.");
 
+  logTrace("");
   std::stringstream sstream;
   sstream << "Layer (" << &layer << ") weights = ";
   std::string matrixStr;
@@ -292,6 +303,7 @@ template<typename LayerT, typename Layers, typename Api>
 void forwardPropagation_oneSample (const Layers& layers, Api& api)
 {
   //debugAssertMsg (layers.getSamplesCount() == 1, "For samples higher than 1 please use forwardPropagationExtended method");
+  logTrace("");
 
   LayerT* previous = nullptr;
   LayerT* current = layers[0];
@@ -322,6 +334,7 @@ template<typename LayerT, typename Layers, typename Api>
 void forwardPropagation_multiSamples (const Layers& layers, Api& api)
 {
   //debugAssertMsg (layers.getSamplesCount() > 1, "For samples count equals to 1 please use forwardPropagation method");
+  logTrace("");
 
   LayerT* previous = nullptr;
   LayerT* current = layers[0];
@@ -360,6 +373,7 @@ template<typename LayerT, typename Api, typename CopyKernelMatrixToHostMatrix>
 void getErrors (math::Matrix* errorsOutput, LayerT& layer, Api& api, math::Matrix* expectedDeviceOutputs,
                 oap::ErrorType errorType, CopyKernelMatrixToHostMatrix&& copyKernelMatrixToHostMatrix)
 {
+  logTrace("");
   debugAssert (expectedDeviceOutputs != nullptr);
 
   if (errorType == oap::ErrorType::CROSS_ENTROPY)
@@ -376,6 +390,7 @@ void getErrors (math::Matrix* errorsOutput, LayerT& layer, Api& api, math::Matri
 template<typename LayerT, typename Layers, typename Api, typename CopyMatrixToMatrix>
 void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
+  logTrace("");
   auto calcErrors = [&layers, &api]()
   {
     int idx = layers.size () - 1;
@@ -467,6 +482,7 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
 template<typename LayerT, typename Layers, typename Api, typename PostCallback>
 void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, floatt learningRate, uintt normalizationFactor)
 {
+  logTrace("");
   LayerT* current = nullptr;
   LayerT* next = layers[0];
 
@@ -480,13 +496,12 @@ void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, 
 
     api.subtract (current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights2);
   }
-
-  postCallback ();
 }
 
 template<typename AllocNeuronsApi, typename LayerT>
 void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCount = 1)
 {
+  logTrace("");
   logTraceS ("%s %p", __func__, &fp);
 
   const uintt unitsCount = layerRef.getTotalNeuronsCount ();
@@ -513,6 +528,7 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
 template<typename DeallocMatrixApi>
 void deallocateFPMatrices (FPMatrices& fp)
 {
+  logTrace("");
   logTrace ("%s %p", __func__, &fp);
   DeallocMatrixApi dealloc;
 
@@ -537,6 +553,7 @@ void deallocateFPMatrices (FPMatrices& fp)
 template<typename DeallocMatrixApi>
 void deallocateBPMatrices (BPMatrices& bp)
 {
+  logTrace("");
   logTraceS ("%s %p", __func__, &bp);
   DeallocMatrixApi dealloc;
 
@@ -560,6 +577,7 @@ void deallocateBPMatrices (BPMatrices& bp)
 template<typename DeallocMatrixApi, typename LayerT>
 void deallocateFPMatricesInLayer (LayerT& layer)
 {
+  logTrace("");
   if (layer.getFPMatrices() == nullptr)
   {
     return;
@@ -570,6 +588,7 @@ void deallocateFPMatricesInLayer (LayerT& layer)
 template<typename DeallocMatrixApi, typename LayerT>
 void deallocateBPMatricesInLayer (LayerT& layer)
 {
+  logTrace("");
   if (layer.getBPMatrices() == nullptr)
   {
     return;
@@ -580,6 +599,7 @@ void deallocateBPMatricesInLayer (LayerT& layer)
 template<typename AllocApi, typename LayerT>
 void allocateBPMatrices (BPMatrices& bp, LayerT& layer, const LayerT& nextLayer)
 {
+  logTrace("");
   logTraceS ("%s %p", __func__, &bp);
   const uintt cUCount = layer.getTotalNeuronsCount ();
   const uintt nUCount = nextLayer.getNeuronsCount ();
@@ -608,6 +628,7 @@ void allocateBPMatrices (BPMatrices& bp, LayerT& layer, const LayerT& nextLayer)
 template<typename LayerT, typename DeallocMatrixApi>
 void deallocate (LayerT& layer)
 {
+  logTrace("");
   deallocateFPMatricesInLayer<DeallocMatrixApi> (layer);
   deallocateBPMatricesInLayer<DeallocMatrixApi> (layer);
 }
@@ -615,6 +636,7 @@ void deallocate (LayerT& layer)
 template<typename AllocNeuronsApi, typename LayerT>
 void createFPMatrices (LayerT& layer)
 {
+  logTrace("");
   FPMatrices* fpMatrices = new FPMatrices();
 
   layer.setFPMatrices (fpMatrices);
@@ -624,6 +646,7 @@ void createFPMatrices (LayerT& layer)
 template<typename AllocNeuronsApi, typename LayerT>
 void createBPMatrices (LayerT& layer, LayerT& nextLayer)
 {
+  logTrace("");
   BPMatrices* bpMatrices = new BPMatrices();
 
   layer.setBPMatrices (bpMatrices);
@@ -633,6 +656,7 @@ void createBPMatrices (LayerT& layer, LayerT& nextLayer)
 template<typename LayerT>
 LayerT* createLayer (uintt neurons, bool hasBias, uintt samplesCount, Activation activation)
 {
+  logTrace("");
   LayerT* layer = new LayerT (neurons, hasBias ? 1 : 0, samplesCount, activation);
 
   debugInfo ("Layer %p allocates %u neurons (neurons : %u, bias : %u)", layer, layer->getTotalNeuronsCount(), layer->getNeuronsCount(), layer->getBiasesCount());
@@ -643,6 +667,7 @@ LayerT* createLayer (uintt neurons, bool hasBias, uintt samplesCount, Activation
 template<typename LayerT, typename AllocWeightsApi>
 void connectLayers (LayerT* previous, LayerT* next)
 {
+  logTrace("");
   previous->setNextLayer (next);
   oap::generic::createBPMatrices<AllocWeightsApi> (*previous, *next);
 }
@@ -650,6 +675,7 @@ void connectLayers (LayerT* previous, LayerT* next)
 template<typename LayerT, typename CopyHostMatrixToMatrix, typename GetMatrixInfo>
 void setHostWeights (LayerT& layer, math::Matrix* weights, CopyHostMatrixToMatrix&& copyHostMatrixToMatrix, GetMatrixInfo&& getLayerMatrixInfo, GetMatrixInfo&& getArgMatrixInfo)
 {
+  logTrace("");
   auto linfo = getLayerMatrixInfo (layer.getBPMatrices()->m_weights);
   auto ainfo = getArgMatrixInfo (weights);
 
@@ -661,12 +687,14 @@ void setHostWeights (LayerT& layer, math::Matrix* weights, CopyHostMatrixToMatri
 template<typename LayerT, typename GetMatrixInfo>
 math::MatrixInfo getOutputsInfo (const LayerT& layer, GetMatrixInfo&& getMatrixInfo)
 {
+  logTrace("");
   return getMatrixInfo (layer.getFPMatrices()->m_inputs);
 }
 
 template<typename LayerT, typename CopyMatrixToMatrix>
 void getOutputs (math::Matrix* matrix, const LayerT& layer, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
+  logTrace("");
   copyMatrixToMatrix (matrix, layer.getFPMatrices()->m_inputs);
 }
 
