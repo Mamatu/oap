@@ -609,8 +609,8 @@ void backPropagation_multiMatrices (const Layers& layers, Api& api, CopyMatrixTo
   calcNablaWeights ();
 }
 
-template<typename LayerT, typename Layers, typename Api, typename PostCallback>
-void updateWeights(const Layers& layers, Api& api, PostCallback&& postCallback, floatt learningRate, uintt normalizationFactor)
+template<typename LayerT, typename Layers, typename Api>
+void updateWeights(const Layers& layers, Api& api, floatt learningRate, uintt normalizationFactor)
 {
   logTrace("");
   LayerT* current = nullptr;
