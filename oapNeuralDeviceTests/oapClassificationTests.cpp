@@ -290,8 +290,8 @@ TEST_F(OapClassificationTests, CircleDataTest)
     network->createLayer(3, true, Activation::TANH);
     network->createLayer(1, Activation::NONE);
 
-    FPHandler testHandler = network->createFPLayer (testData.size());
-    FPHandler trainingHandler = network->createFPLayer (trainingData.size());
+    LHandler testHandler = network->createFPLayer (testData.size());
+    LHandler trainingHandler = network->createFPLayer (trainingData.size());
 
     DeviceLayer* testLayer = network->getLayer (0, testHandler);
     oap::cuda::CopyHostMatrixToDeviceMatrix (testLayer->getFPMatrices()->m_inputs, testHInputs);

@@ -111,11 +111,12 @@ void Network::addLayer (DeviceLayer* layer)
   debugAssertMsg (m_layers.size() == 1, "DeviceLayer added by createLayer, createLevel or addLayer must be the first layer in m_layers");
 
   m_layers[0].push_back (layer);
+  m_layerType[0] = LayerType::ONE_MATRIX;
 
   oap::generic::initLayerBiases (*layer, __setReValue);
 }
 
-LHandler Network::createFPLayer (uintt samples)
+LHandler Network::createFPLayer (uintt samples, LayerType ltype)
 {
   debugAssertMsg (samples != 0, "Count of samples must be higher than 0");
   debugAssertMsg (!m_layers.empty(), "No layers to create fp sections.");
@@ -140,7 +141,9 @@ LHandler Network::createFPLayer (uintt samples)
 
   m_layers.push_back (m_fplayers);
 
-  return m_layers.size() - 1;
+  LHandler handler = m_layers.size() - 1;
+  m_layerType[handler] = ltype;
+  return handler;
 }
 
 oap::HostMatrixUPtr Network::run (const math::Matrix* inputs, ArgType argType, oap::ErrorType errorType)
@@ -352,13 +355,21 @@ floatt Network::calculateError (oap::ErrorType errorType)
 
 void Network::forwardPropagation (LHandler handler)
 {
-  if (m_layers[handler][0]->getSamplesCount() == 1)
+  auto type = getType(handler);
+  if (type == LayerType::ONE_MATRIX)
   {
-    oap::generic::forwardPropagation_oneSample<DeviceLayer> (m_layers[handler], *m_cuApi);
+    if (m_layers[handler][0]->getSamplesCount() == 1)
+    {
+      oap::generic::forwardPropagation_oneSample<DeviceLayer> (m_layers[handler], *m_cuApi);
+    }
+    else
+    {
+      oap::generic::forwardPropagation_multiSamples<DeviceLayer> (m_layers[handler], *m_cuApi);
+    }
   }
   else
   {
-    oap::generic::forwardPropagation_multiSamples<DeviceLayer> (m_layers[handler], *m_cuApi);
+    debugAssertMsg (type == LayerType::MULTI_MATRICES, "not supported yet");
   }
 }
 
@@ -382,7 +393,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
 {
   DeviceLayer* layer = m_layers[handler][getLayersCount() - 1];
 
-  if (m_layers[handler][0]->getSamplesCount() == 1)
+  if (m_layers[handler][0]->getSamplesCount() == 1 || getType(handler) == LayerType::ONE_MATRIX)
   {
     oap::HostMatrixPtr hmatrix = oap::host::NewReMatrix (1, layer->getRowsCount());
     oap::generic::getErrors (hmatrix, *layer, *m_cuApi, m_expectedOutputs[handler][0], errorType, oap::cuda::CopyDeviceMatrixToHostMatrix);
@@ -416,7 +427,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
 
 void Network::backPropagation (LHandler handler)
 {
-  if (m_layers[handler][0]->getSamplesCount() == 1)
+  if (m_layers[handler][0]->getSamplesCount() == 1 || getType(handler) == LayerType::ONE_MATRIX)
   {
     oap::generic::backPropagation<DeviceLayer> (m_layers[handler], *m_cuApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
   }
@@ -429,14 +440,15 @@ void Network::backPropagation (LHandler handler)
 void Network::updateWeights(LHandler handler)
 {
   //if (handler == 0)
-  if (m_layers[handler][0]->getSamplesCount() == 1)
+  if (m_layers[handler][0]->getSamplesCount() == 1 || getType(handler) == LayerType::ONE_MATRIX)
   {
-    oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_cuApi, [this]() { this->postStep(); }, m_learningRate, m_errorsVec.size());
+    oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_cuApi, m_learningRate, m_errorsVec.size());
   }
   else
   {
-    oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_cuApi, [this]() { this->postStep(); }, m_learningRate, m_errorsVec.size());
+    oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_cuApi, m_learningRate, m_errorsVec.size());
   }
+  this->postStep();
 }
 
 bool Network::train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, ArgType argType, oap::ErrorType errorType)

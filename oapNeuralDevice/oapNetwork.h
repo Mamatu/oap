@@ -26,6 +26,8 @@
 
 #include "oapNetworkStructure.h"
 
+enum class LayerType { ONE_MATRIX, MULTI_MATRICES };
+
 class Network
 {
 public: // types
@@ -57,8 +59,7 @@ public:
 
   void addLayer (DeviceLayer* layer);
 
-  LHandler createFPLayer (uintt samples);
-  LHandler createMMLayer (uintt samples);
+  LHandler createFPLayer (uintt samples, LayerType ltype = LayerType::ONE_MATRIX);
 
   oap::HostMatrixUPtr run (const math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
 
@@ -155,6 +156,11 @@ private:
   using LayersVec = std::vector<Layers>;
 
   LayersVec m_layers;
+  std::map<LHandler, LayerType> m_layerType;
+  LayerType getType (LHandler handler) const
+  {
+    return m_layerType.at(handler);
+  }
 
   std::vector<FPMatrices*> m_AllFpMatricesVec;
   std::vector<BPMatrices*> m_AllBpMatricesVec;
