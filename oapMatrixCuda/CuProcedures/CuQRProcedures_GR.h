@@ -115,9 +115,9 @@ __hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
 
   const floatt tolerance = 0.00001;
 
-  for (uintt fa = 0; fa < gColumns (A); ++fa)
+  for (uintt fa = 0; fa < A->dim.columns; ++fa)
   {
-    for (uintt fb = gRows (A) - 1; fb > fa; --fb)
+    for (uintt fb = A->dim.rows - 1; fb > fa; --fb)
     {
       floatt v = GetRe(A, fa, fb);
       if ((-tolerance < v && v < tolerance) == false)

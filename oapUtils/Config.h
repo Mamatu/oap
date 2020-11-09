@@ -38,6 +38,7 @@ class Config {
   static std::string getPathInTmp(const std::string& relativePath);
   static std::string getFileInTmp(const std::string& relativePath);
 
+  static std::string getVariable (const std::string& variable);
  private:
   static std::string oapPath;
   static std::string tmpPath;

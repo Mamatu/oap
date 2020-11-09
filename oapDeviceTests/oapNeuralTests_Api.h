@@ -48,13 +48,13 @@ namespace test_api
 
   const floatt expected_precision = 0.0000000000001;
 
-  void convertBatchToBatchFPHandlers (Network* network, Steps& steps);
+  void convertBatchToBatchLHandlers (Network* network, Steps& steps);
 
   auto defaultCheck = [](floatt expected, floatt actual, size_t idx) { EXPECT_NEAR (expected, actual, expected_precision) << "Idx: " << idx; };
   using CheckCallback = std::function<void(floatt, floatt, size_t)>;
 
-  FPHandler createBatchFPHandler (Network* network, const Batch& batch);
-  std::vector<FPHandler> createBatchFPHandlers (Network* network, const Batches& batches);
+  LHandler createBatchLHandler (Network* network, const Batch& batch);
+  std::vector<LHandler> createBatchLHandlers (Network* network, const Batches& batches);
 
   struct CheckWeightsInfo
   {

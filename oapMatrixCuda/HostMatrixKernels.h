@@ -122,13 +122,13 @@ bool HOSTKernel_QRGR (math::Matrix* Q, math::Matrix* R, math::Matrix* A,
 
   copyKernelMatrixToKernelMatrix (R1, A);
 
-  uintt count = 0;
+  bool first = true;
 
   const auto minfo = mapi.getMatrixInfo (A);
   uintt Acolumns = minfo.columns();
   uintt Arows = minfo.rows();
 
-  const floatt limit = 0.0000000001;
+  const floatt limit = 0.00001;
 
   for (uintt fa = 0; fa < Acolumns; ++fa)
   {
@@ -141,9 +141,10 @@ bool HOSTKernel_QRGR (math::Matrix* Q, math::Matrix* R, math::Matrix* A,
         host_prepareGMatrix(R1, fa, fb, G, capi, mapi);
         capi.dotProduct (R, G, R1);
 
-        if (count == 0)
+        if (first)
         {
           capi.transpose(Q, G);
+          first = false;
         }
         else
         {
@@ -151,13 +152,12 @@ bool HOSTKernel_QRGR (math::Matrix* Q, math::Matrix* R, math::Matrix* A,
           capi.dotProduct(Q, Q1, GT);
         }
 
-        ++count;
         aux_swapPointers(&R1, &R);
         aux_swapPointers(&Q1, &Q);
       }
     }
   }
-  if (count % 2 != 0)
+  if (Q1 != rQ)
   {
     copyKernelMatrixToKernelMatrix(rQ, Q1);
     copyKernelMatrixToKernelMatrix(rR, R1);

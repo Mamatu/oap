@@ -78,7 +78,7 @@ namespace
 MemoryList g_memoryList ("MEMORY_HOST");
 MemoryCounter g_memoryCounter;
 
-floatt* allocateMem (const oap::MemoryDims& dims)
+floatt* allocateMem (const oap::MemoryDim& dims)
 {
   const uintt length = dims.width * dims.height;
   floatt* buffer = new floatt [length];
@@ -94,7 +94,7 @@ void deallocateMem (const oap::Memory& memory)
 
 }
 
-oap::Memory NewMemory (const oap::MemoryDims& dims)
+oap::Memory NewMemory (const oap::MemoryDim& dims)
 {
   return oap::generic::newMemory (dims, allocateMem, [](floatt* ptr)
       {
@@ -102,7 +102,7 @@ oap::Memory NewMemory (const oap::MemoryDims& dims)
       });
 }
 
-oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value)
+oap::Memory NewMemoryWithValues (const MemoryDim& dims, floatt value)
 {
   oap::Memory memory = NewMemory (dims);
   math::Memset (memory.ptr, value, dims.width * dims.height);
@@ -147,7 +147,7 @@ void DeleteMemory (const oap::Memory& mem)
       });
 }
 
-oap::MemoryDims GetDims (const oap::Memory& mem)
+oap::MemoryDim GetDims (const oap::Memory& mem)
 {
   return mem.dims;
 }
@@ -165,6 +165,16 @@ void CopyHostToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::
 void CopyHostToHost (oap::Memory& dst, const oap::Memory& src)
 {
   oap::generic::copy (dst, src, memcpy);
+}
+
+void CopyHostToHostBuffer (floatt* buffer, uintt length, const oap::Memory& src, const oap::MemoryRegion& srcReg)
+{
+  oap::generic::copyMemoryRegionToBuffer (buffer, length, src.ptr, src.dims, srcReg, memcpy);
+}
+
+void CopyHostBufferToHost (oap::Memory& dst, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length)
+{
+  oap::generic::copyBufferToMemoryRegion (dst.ptr, dst.dims, dstReg, buffer, length, memcpy);
 }
 
 }

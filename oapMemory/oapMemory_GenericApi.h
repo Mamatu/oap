@@ -40,13 +40,13 @@ namespace oap
 
 namespace utils
 {
-  inline void check (const oap::MemoryDims& dims, const oap::MemoryRegion& region)
+  inline void check (const oap::MemoryDim& dims, const oap::MemoryRegion& region)
   {
     logAssert (dims.height >= region.loc.y + region.dims.height && dims.width >= region.loc.x + region.dims.width);
   }
 
   template<typename Ptr1, typename Ptr2>
-  void getPtrs (Ptr1* ptrs, Ptr2 mem, const oap::MemoryDims& dims, const oap::MemoryRegion& region)
+  void getPtrs (Ptr1* ptrs, Ptr2 mem, const oap::MemoryDim& dims, const oap::MemoryRegion& region)
   {
     check (dims, region);
     Ptr2 ptr = mem + region.loc.y * dims.width + region.loc.x;
@@ -58,7 +58,7 @@ namespace utils
   }
 
   template<typename Container, typename Ptr>
-  void getPtrs (Container& container, Ptr mem, const oap::MemoryDims& dims, const oap::MemoryRegion& region)
+  void getPtrs (Container& container, Ptr mem, const oap::MemoryDim& dims, const oap::MemoryRegion& region)
   {
     if (container.size() < region.dims.height)
     {
@@ -67,7 +67,7 @@ namespace utils
     getPtrs <typename Container::value_type, Ptr> (container.data(), mem, dims, region);
   }
 
-  inline void getPtrs (floatt** ptrs, floatt* ptr, const oap::MemoryDims& memDims, const oap::MemoryRegion& region)
+  inline void getPtrs (floatt** ptrs, floatt* ptr, const oap::MemoryDim& memDims, const oap::MemoryRegion& region)
   {
     getPtrs<floatt*> (ptrs, ptr, memDims, region);
   }
@@ -82,7 +82,7 @@ namespace utils
 namespace generic
 {
   template<typename Allocator, typename RegisterPtr>
-  oap::Memory newMemory (const MemoryDims& dims, Allocator&& allocator, RegisterPtr&& registerPtr)
+  oap::Memory newMemory (const MemoryDim& dims, Allocator&& allocator, RegisterPtr&& registerPtr)
   {
     logAssert (dims.width > 0 && dims.height > 0);
     floatt* ptr = allocator (dims);
@@ -102,7 +102,7 @@ namespace generic
   oap::Memory reuseMemory (const oap::Memory& src, uintt width, uintt height, RegisterPtr&& registerPtr)
   {
     floatt* ptr = src.ptr;
-    oap::MemoryDims dims = {width, height};
+    oap::MemoryDim dims = {width, height};
     logTrace ("ptr = %p dims = %s", ptr, std::to_string(dims).c_str());
     registerPtr (ptr);
     return {ptr, dims};
@@ -127,7 +127,7 @@ namespace generic
   }
 
   template<typename GetD>
-  oap::MemoryDims getDims (const oap::Memory& mem, GetD&& getD)
+  oap::MemoryDim getDims (const oap::Memory& mem, GetD&& getD)
   {
     return getD (mem.ptr, mem.dims);
   }
@@ -170,19 +170,20 @@ namespace generic
   /**
    *  \brief Cheks if memory can be copied as linear continous block of memory
    */
-  inline bool isLinearMemory (const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg)
+  inline bool isLinearMemory (const oap::MemoryDim& dstDims, const oap::MemoryLoc& dstLoc, const oap::MemoryDim& srcDims, const oap::MemoryRegion& srcReg)
   {
-    bool islinear = (srcReg.dims.width == 1 && (dstDims.height == 1 || dstDims.width == 1)) || (srcReg.dims.height == 1);
+    bool islinear = (dstDims.width == srcReg.dims.width && srcReg.dims.width == srcDims.width);
+    islinear = islinear || (dstDims == srcDims && srcDims == srcReg.dims && srcReg.loc.x == 0 && srcReg.loc.y == 0);
     return islinear;
   }
 
-  inline bool isBlockMemory (const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg)
+  inline bool isBlockMemory (const oap::MemoryDim& dstDims, const oap::MemoryLoc& dstLoc, const oap::MemoryDim& srcDims, const oap::MemoryRegion& srcReg)
   {
     return !isLinearMemory (dstDims, dstLoc, srcDims, srcReg);
   }
 
   template<typename Memcpy>
-  void copyBlock (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  void copyBlock (floatt* dst, const oap::MemoryDim& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDim& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
   {
     logTrace ("%s %p %s %s %p %s %s", __FUNCTION__, dst, std::to_string(dstDims).c_str(), std::to_string(dstLoc).c_str(), src, std::to_string(srcDims).c_str(), std::to_string(srcReg).c_str());
 
@@ -200,18 +201,25 @@ namespace generic
     utils::getPtrs (dstPtrs, dst, dstDims, dstReg);
     utils::getPtrs (srcPtrs, src, srcDims, srcReg);
 
-    for (size_t idx = 0; idx < srcPtrs.size (); ++idx) {
+    for (size_t idx = 0; idx < srcPtrs.size (); ++idx)
+    {
       const floatt* srcPtr = srcPtrs[idx];
       floatt* dstPtr = dstPtrs[idx];
-      memcpy (dstPtr, srcPtr, srcReg.dims.width * sizeof (floatt));
+      if (dst != src)
+      {
+        memcpy (dstPtr, srcPtr, srcReg.dims.width * sizeof (floatt));
+      }
+      else
+      {
+        memmove (dstPtr, srcPtr, srcReg.dims.width * sizeof (floatt));
+      }
     }
   }
 
   template<typename Memcpy>
-  void copyLinear (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  void copyLinear (floatt* dst, const oap::MemoryDim& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDim& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
   {
     logTrace ("%s %p %s %s %p %s %s", __FUNCTION__, dst, std::to_string(dstDims).c_str(), std::to_string(dstLoc).c_str(), src, std::to_string(srcDims).c_str(), std::to_string(srcReg).c_str());
-    logAssert ((srcReg.dims.width == 1 && (dstDims.height == 1 || dstDims.width == 1)) || (srcReg.dims.height == 1));
     uintt srcLen = srcReg.dims.width * srcReg.dims.height;
     uintt dstLen = dstDims.width * dstDims.height;
 
@@ -220,11 +228,18 @@ namespace generic
 
     logAssert (dstPos + srcLen <= dstLen);
 
-    memcpy (&dst[dstPos], &src[srcPos], srcLen * sizeof (floatt));
+    if (dst != src)
+    {
+      memcpy (&dst[dstPos], &src[srcPos], srcLen * sizeof (floatt));
+    }
+    else
+    {
+      memmove (&dst[dstPos], &src[srcPos], srcLen * sizeof (floatt));
+    }
   }
 
   template<typename Memcpy>
-  void copy (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  void copy (floatt* dst, const oap::MemoryDim& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDim& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
   {
     if (isBlockMemory (dstDims, dstLoc, srcDims, srcReg))
     {
@@ -237,17 +252,39 @@ namespace generic
   }
 
   template<typename Memcpy>
-  void copy (floatt* dst, const oap::MemoryDims& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDims& srcDims, const oap::MemoryRegion* srcReg, Memcpy&& memcpy)
+  void copy (floatt* dst, const oap::MemoryDim& dstDims, const oap::MemoryLoc& dstLoc, const floatt* src, const oap::MemoryDim& srcDims, const oap::MemoryRegion* srcReg, Memcpy&& memcpy)
   {
     copy<Memcpy> (dst, dstDims, dstLoc, src, srcDims, srcReg == nullptr ? common::OAP_NONE_REGION() : *srcReg, memcpy);
   }
 
-  template<typename MemoryVec, typename Allocator, typename Memcpy>
-  oap::Memory newMemory_bulk (const MemoryVec& vec, const oap::DataDirection& dd, Allocator&& alloc, Memcpy&& memcpy)
+  template<typename Memcpy>
+  void copyMemoryRegionToBuffer (floatt* buffer, uintt length, const floatt* src, const oap::MemoryDim& srcDims, const oap::MemoryRegion& srcReg, Memcpy&& memcpy)
+  {
+    oapAssert (length == srcReg.dims.width * srcReg.dims.height);
+    oap::Memory memory = {buffer, srcReg.dims};
+    copy (memory.ptr, memory.dims, {0, 0}, src, srcDims, srcReg, memcpy);
+  }
+
+  template<typename Memcpy>
+  void copyBufferToMemoryRegion (floatt* dst, const oap::MemoryDim& dstDims, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length, Memcpy&& memcpy)
+  {
+    oapAssert (length == dstReg.dims.width * dstReg.dims.height);
+    oap::Memory memory = {const_cast<floatt*>(buffer), dstReg.dims};
+    oap::MemoryRegion srcReg = {{0, 0}, dstReg.dims};
+    copy (dst, dstDims, dstReg.loc, memory.ptr, memory.dims, srcReg, memcpy);
+  }
+
+  namespace
+  {
+    auto emptyMldCallback = [](const oap::Memory& memory, const oap::MemoryLoc& loc, const oap::MemoryDim& dim) {};
+  }
+
+  template<typename MemoryVec, typename Allocator, typename Memcpy, typename MemLocDimCallback = decltype (emptyMldCallback)>
+  oap::Memory newMemory_bulk (const MemoryVec& vec, const oap::DataDirection& dd, Allocator&& alloc, Memcpy&& memcpy, MemLocDimCallback&& mldCall = std::move (emptyMldCallback))
   {
     logAssert (vec.size() > 0);
 
-    oap::MemoryDims dim = {0, 0};
+    oap::MemoryDim dim = {0, 0};
 
     switch (dd) {
       case DataDirection::VERTICAL:
@@ -275,19 +312,21 @@ namespace generic
       case DataDirection::VERTICAL:
         for (size_t idx = 0; idx < vec.size(); ++idx)
         {
-          oap::MemoryDims dim = vec[idx].dims;
+          oap::MemoryDim dim = vec[idx].dims;
           floatt* array = vec[idx].ptr;
           oap::generic::copy (memory, loc, {array, dim}, {{0, 0}, dim}, memcpy);
           loc.y += dim.height;
+          mldCall (memory, loc, dim);
         }
         break;
       case DataDirection::HORIZONTAL:
         for (size_t idx = 0; idx < vec.size(); ++idx)
         {
-          oap::MemoryDims dim = vec[idx].dims;
+          oap::MemoryDim dim = vec[idx].dims;
           floatt* array = vec[idx].ptr;
           oap::generic::copy (memory, loc, {array, dim}, {{0, 0}, dim}, memcpy);
           loc.x += dim.width;
+          mldCall (memory, loc, dim);
         }
         break;
     }

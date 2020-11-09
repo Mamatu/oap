@@ -512,7 +512,7 @@ void CuHArnoldi::executeShiftedQRIteration(uint p)
 
   oap::generic::iram_shiftedQRIterations::InOutArgs io = {m_Q, m_H};
   oap::generic::iram_shiftedQRIterations::InArgs iargs = {m_unwanted, m_triangularHInfo, "CUDA"};
-  oap::generic::iram_shiftedQRIterations::proc (io, iargs, *this, m_cuApi, m_qrtype);
+  oap::generic::iram_shiftedQRIterations::proc (io, iargs, *this, m_cuApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix, m_qrtype);
 
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (m_EV, m_V);
   m_cuApi.dotProduct(m_V, m_EV, m_Q);

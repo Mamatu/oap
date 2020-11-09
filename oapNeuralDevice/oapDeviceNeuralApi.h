@@ -37,7 +37,7 @@ namespace
 {
 
 template<typename LayerT>
-void checkHostInputs (LayerT& layer, const math::Matrix* hostInputs)
+void checkHostInputs (LayerT& layer, const math::Matrix* const hostInputs)
 {
   if (gColumns (hostInputs) != 1)
   {
@@ -47,6 +47,15 @@ void checkHostInputs (LayerT& layer, const math::Matrix* hostInputs)
   if (gRows (hostInputs) != layer.getRowsCount())
   {
     debugAssert ("Rows of hostInputs matrix must be equal neurons count (or neurons count + 1 if is bias neuron)" == nullptr);
+  }
+}
+
+template<typename LayerT, typename Matrices>
+void checkHostInputsMatrices (LayerT& layer, const Matrices& hostInputs)
+{
+  for (uintt idx = 0; idx < hostInputs.size(); ++idx)
+  {
+    checkHostInputs (layer, hostInputs[idx]);
   }
 }
 
@@ -66,6 +75,20 @@ void setHostInputs (LayerT& layer, const math::Matrix* hInputs)
 
 template<typename LayerT>
 void setDeviceInputs (LayerT& layer, const math::Matrix* dInputs)
+{
+  oap::generic::setInputs (layer, dInputs, oap::cuda::CopyDeviceMatrixToDeviceMatrix, _setReValue);
+}
+
+template<typename LayerT, typename Matrices>
+void setHostInputs (LayerT& layer, const Matrices& hInputs)
+{
+  checkHostInputsMatrices (layer, hInputs);
+
+  oap::generic::setInputs (layer, hInputs, oap::cuda::CopyHostMatrixToDeviceMatrix, _setReValue);
+}
+
+template<typename LayerT, typename Matrices>
+void setDeviceInputs (LayerT& layer, const Matrices& dInputs)
 {
   oap::generic::setInputs (layer, dInputs, oap::cuda::CopyDeviceMatrixToDeviceMatrix, _setReValue);
 }

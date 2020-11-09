@@ -48,7 +48,7 @@ namespace std
     return sstream.str();
   }
 
-  std::string to_string (const oap::MemoryDims& dims)
+  std::string to_string (const oap::MemoryDim& dims)
   {
     std::stringstream sstream;
     sstream << "(width: " << dims.width << ", height: " << dims.height << ")";
@@ -82,12 +82,12 @@ bool operator!= (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2)
   return !(reg1 == reg2);
 }
 
-bool operator== (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2)
+bool operator== (const oap::MemoryDim& dim1, const oap::MemoryDim& dim2)
 {
   return dim1.width == dim2.width && dim1.height == dim2.height;
 }
 
-bool operator!= (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2)
+bool operator!= (const oap::MemoryDim& dim1, const oap::MemoryDim& dim2)
 {
   return !(dim1 == dim2);
 }

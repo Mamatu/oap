@@ -68,12 +68,12 @@ inline void fillWithValue (floatt* values, floatt value, uintt length)
 
 inline void fillRePart(math::Matrix* output, floatt value)
 {
-  fillWithValue (gReValues (output), value, gColumns (output) * gRows (output));
+  fillWithValue (gReValues (output), value, output->dim.columns * output->dim.rows);
 }
 
 inline void fillImPart(math::Matrix* output, floatt value)
 {
-  fillWithValue (gImValues (output), value, gColumns (output) * gRows (output));
+  fillWithValue (gImValues (output), value, output->dim.columns * output->dim.rows);
 }
 
 namespace oap
@@ -130,6 +130,7 @@ math::Matrix* allocMatrix (const math::Matrix& ref)
 math::Matrix* allocMatrix_AllocMemory (bool isre, bool isim, uintt columns, uintt rows, floatt revalue = 0., floatt imvalue = 0.)
 {
   math::Matrix ref;
+  ref.dim = {columns, rows};
 
   if (isre)
   {
@@ -301,6 +302,9 @@ math::Matrix* NewMatrix (const std::string& text)
   bool iscolumns = parser.getColumns (columns);
   bool isrows = parser.getRows (rows);
 
+  bool isre = false;
+  bool isim = false;
+
   oap::Memory memRe = {nullptr, {0, 0}};
   oap::Memory memIm = {nullptr, {0, 0}};
 
@@ -313,12 +317,18 @@ math::Matrix* NewMatrix (const std::string& text)
     {
       memRe = matrixUtils::CreateArrayDefaultAlloc (text, 1);
       reReg = {{0, 0}, memRe.dims};
+      columns = columns == 0 ? reReg.dims.width : columns;
+      rows = rows == 0 ? reReg.dims.height : rows;
+      isre = true;
     }
 
     if (matrixUtils::HasArray (text, 2))
     {
       memIm = matrixUtils::CreateArrayDefaultAlloc (text, 2);
       imReg = {{0, 0}, memIm.dims};
+      columns = columns == 0 ? imReg.dims.width : columns;
+      rows = rows == 0 ? imReg.dims.height : rows;
+      isim = true;
     }
   }
   catch (const matrixUtils::Parser::ParsingException& pe)
@@ -328,11 +338,13 @@ math::Matrix* NewMatrix (const std::string& text)
   }
 
   math::Matrix ref;
+  ref.dim = {columns, rows};
   ref.re = memRe;
   ref.reReg = reReg;
   ref.im = memIm;
   ref.imReg = imReg;
 
+  oapAssert (!isre || !isim || reReg.dims == imReg.dims);
   logAssert(memRe.ptr != nullptr || memIm.ptr != nullptr);
 
   return allocMatrix (ref);
@@ -1166,13 +1178,13 @@ void SetSubColumns(math::Matrix* matrix, uintt subcolumns)
 {
   if (subcolumns != MATH_UNDEFINED)
   {
-    if (matrix->re.ptr != nullptr) { matrix->reReg.dims.width = subcolumns; }
-    if (matrix->im.ptr != nullptr) { matrix->imReg.dims.width = subcolumns; }
+    if (matrix->re.ptr != nullptr) { matrix->dim.columns = subcolumns; matrix->reReg.dims.width = subcolumns; }
+    if (matrix->im.ptr != nullptr) { matrix->dim.columns = subcolumns; matrix->imReg.dims.width = subcolumns; }
   }
   else
   {
-    if (matrix->re.ptr != nullptr) { matrix->reReg.dims.width = matrix->im.dims.width; }
-    if (matrix->im.ptr != nullptr) { matrix->imReg.dims.width = matrix->im.dims.width; }
+    if (matrix->re.ptr != nullptr) { matrix->dim.columns = matrix->re.dims.width; matrix->reReg.dims.width = matrix->im.dims.width; }
+    if (matrix->im.ptr != nullptr) { matrix->dim.columns = matrix->im.dims.width; matrix->imReg.dims.width = matrix->im.dims.width; }
   }
 }
 
@@ -1180,13 +1192,13 @@ void SetSubRows(math::Matrix* matrix, uintt subrows)
 {
   if (subrows != MATH_UNDEFINED)
   {
-    if (matrix->re.ptr != nullptr) { matrix->reReg.dims.height = subrows; }
-    if (matrix->im.ptr != nullptr) { matrix->imReg.dims.height = subrows; }
+    if (matrix->re.ptr != nullptr) { matrix->dim.rows = subrows; matrix->reReg.dims.height = subrows; }
+    if (matrix->im.ptr != nullptr) { matrix->dim.rows = subrows; matrix->imReg.dims.height = subrows; }
   }
   else
   {
-    if (matrix->re.ptr != nullptr) { matrix->reReg.dims.height = matrix->im.dims.height; }
-    if (matrix->im.ptr != nullptr) { matrix->imReg.dims.height = matrix->im.dims.height; }
+    if (matrix->re.ptr != nullptr) { matrix->dim.rows = matrix->re.dims.height; matrix->reReg.dims.height = matrix->re.dims.height; }
+    if (matrix->im.ptr != nullptr) { matrix->dim.rows = matrix->im.dims.height; matrix->imReg.dims.height = matrix->im.dims.height; }
   }
 }
 
@@ -1257,6 +1269,7 @@ namespace
 inline math::Matrix* allocReMatrix_FromMemory (oap::Memory& mem, const oap::MemoryRegion& reg)
 {
   math::Matrix hostRefMatrix;
+  hostRefMatrix.dim = {reg.dims.width, reg.dims.height};
 
   hostRefMatrix.re = oap::host::ReuseMemory (mem);
   hostRefMatrix.reReg = reg;
@@ -1269,6 +1282,7 @@ inline math::Matrix* allocReMatrix_FromMemory (oap::Memory& mem, const oap::Memo
 inline math::Matrix* allocImMatrix_FromMemory (oap::Memory& mem, const oap::MemoryRegion& reg)
 {
   math::Matrix hostRefMatrix;
+  hostRefMatrix.dim = {reg.dims.width, reg.dims.height};
 
   hostRefMatrix.re = {nullptr, {0, 0}};
   hostRefMatrix.reReg = {{0, 0}, {0, 0}};
@@ -1280,7 +1294,11 @@ inline math::Matrix* allocImMatrix_FromMemory (oap::Memory& mem, const oap::Memo
 
 inline math::Matrix* allocRealMatrix_FromMemory (oap::Memory& remem, const oap::MemoryRegion& rereg, oap::Memory& immem, const oap::MemoryRegion& imreg)
 {
+  oapAssert (rereg.dims == imreg.dims);
+
   math::Matrix hostRefMatrix;
+
+  hostRefMatrix.dim = {rereg.dims.width, rereg.dims.height};
 
   hostRefMatrix.re = oap::host::ReuseMemory (remem);
   hostRefMatrix.reReg = rereg;
@@ -1306,5 +1324,125 @@ math::Matrix* NewImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& mem
 {
   return allocImMatrix_FromMemory (memory, {loc, {columns, rows}});
 }
+
+void SetZeroRow (const math::Matrix* matrix, uintt index, bool re, bool im)
+{
+  if (re)
+  {
+    SetReZeroRow (matrix, index);
+  }
+  if (im)
+  {
+    SetImZeroRow (matrix, index);
+  }
+}
+
+void SetReZeroRow (const math::Matrix* matrix, uintt index)
+{
+  math::Matrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.re.ptr)
+  {
+    uintt columns = gColumns (&hm);
+    std::vector<floatt> row(columns, 0.);
+    oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.re, hm.reReg, {index, 0});
+    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy);
+  }
+}
+
+void SetImZeroRow (const math::Matrix* matrix, uintt index)
+{
+  math::Matrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.im.ptr)
+  {
+    uintt columns = gColumns (&hm);
+    std::vector<floatt> row(columns, 0.);
+    oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.im, hm.imReg, {index, 0});
+    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy);
+  }
+}
+
+void SetValueToMatrix (math::Matrix* matrix, floatt re, floatt im)
+{
+  SetValueToReMatrix (matrix, re);
+  SetValueToImMatrix (matrix, im);
+}
+
+void SetValueToReMatrix (math::Matrix* matrix, floatt v)
+{
+  using namespace oap::utils;
+
+  math::Matrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.re.ptr)
+  {
+    auto minfo = GetMatrixInfo (matrix);
+    oap::HostMatrixUPtr uptr = oap::host::NewReMatrixWithValue (minfo.columns(), minfo.rows(), v);
+
+    oap::MemoryLoc loc = GetReMatrixMemoryLoc (&hm);
+    oap::MemoryRegion reg = GetReMatrixMemoryRegion (uptr);
+    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, uptr->re.ptr, uptr->re.dims, reg, memcpy);
+  }
+}
+
+void SetValueToImMatrix (math::Matrix* matrix, floatt v)
+{
+  using namespace oap::utils;
+
+  math::Matrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.im.ptr)
+  {
+    auto minfo = GetMatrixInfo (matrix);
+    oap::HostMatrixUPtr uptr = oap::host::NewImMatrixWithValue (minfo.columns(), minfo.rows(), v);
+
+    oap::MemoryLoc loc = GetImMatrixMemoryLoc (&hm);
+    oap::MemoryRegion reg = GetImMatrixMemoryRegion (uptr);
+    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, uptr->im.ptr, uptr->im.dims, reg, memcpy);
+  }
+}
+
+void SetZeroMatrix (math::Matrix* matrix)
+{
+  SetValueToMatrix (matrix, 0, 0);
+}
+
+void SetZeroReMatrix (math::Matrix* matrix)
+{
+  SetValueToReMatrix (matrix, 0);
+}
+
+void SetZeroImMatrix (math::Matrix* matrix)
+{
+  SetValueToImMatrix (matrix, 0);
+}
+
+floatt GetReDiagonal (const math::Matrix* matrix, uintt index)
+{
+  return oap::generic::getDiagonal (matrix, index, oap::host::GetRefHostMatrix,
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->re;},
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->reReg;}, memcpy);
+}
+
+floatt GetImDiagonal (const math::Matrix* matrix, uintt index)
+{
+  return oap::generic::getDiagonal (matrix, index, oap::host::GetRefHostMatrix,
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->im;},
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->imReg;}, memcpy);
+}
+
+void CopyReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix)
+{
+  math::Matrix ref = oap::host::GetRefHostMatrix (matrix);
+  oap::host::CopyHostToHostBuffer (buffer, length, ref.re, ref.reReg);
+}
+
+void CopyHostBufferToReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length)
+{
+  math::Matrix ref = oap::host::GetRefHostMatrix (matrix);
+  oap::host::CopyHostBufferToHost (ref.re, ref.reReg, buffer, length);
+}
+
 }
 }

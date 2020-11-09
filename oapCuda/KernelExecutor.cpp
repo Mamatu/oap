@@ -26,6 +26,7 @@
 #include "Logger.h"
 #include "KernelExecutor.h"
 #include "ThreadsMapper.h"
+#include "Config.h"
 
 #define printCuErrorStatus(status, cuResult)                                   \
   if (cuResult != 0) {                                                         \
@@ -164,13 +165,18 @@ void Context::create (int _deviceIndex)
   }
   else if (deviceIndex < 0)
   {
-#ifndef OAP_CU_DEVICE_INDEX
-    deviceIndex = 0;
-    logDebug ("The first device will be used.");
-#else
-    deviceIndex = OAP_CU_DEVICE_INDEX;
-    logDebug ("The device with number %d will be used.", deviceIndex);
-#endif
+    std::string varval = oap::utils::Config::getVariable ("OAP_CU_DEVICE_INDEX");
+
+    if (varval.empty())
+    {
+      deviceIndex = 0;
+      logDebug ("The first device will be used.");
+    }
+    else
+    {
+      deviceIndex = std::stoi(varval.c_str());
+      logDebug ("The device with number %d will be used.", deviceIndex);
+    }
   }
 
   debugAssertMsg(deviceIndex >= 0 && deviceIndex < count, "Index of device is out of scope!");

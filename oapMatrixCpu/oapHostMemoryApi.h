@@ -32,8 +32,8 @@ namespace oap
 namespace host
 {
 
-oap::Memory NewMemory (const MemoryDims& dims);
-oap::Memory NewMemoryWithValues (const MemoryDims& dims, floatt value);
+oap::Memory NewMemory (const MemoryDim& dims);
+oap::Memory NewMemoryWithValues (const MemoryDim& dims, floatt value);
 oap::Memory NewMemoryCopy (const oap::Memory& src);
 oap::Memory NewMemoryCopyMem (const oap::Memory& src, uintt width, uintt height);
 oap::Memory ReuseMemory (const oap::Memory& src, uintt width, uintt height);
@@ -41,7 +41,7 @@ oap::Memory ReuseMemory (const oap::Memory& src);
 
 void DeleteMemory (const oap::Memory& mem);
 
-oap::MemoryDims GetDims (const oap::Memory& mem);
+oap::MemoryDim GetDims (const oap::Memory& mem);
 floatt* GetRawMemory (const oap::Memory& mem);
 
 void CopyHostToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg);
@@ -52,6 +52,15 @@ oap::Memory NewMemoryBulk (const MemoryVec& vec, const oap::DataDirection& dd)
 {
   return oap::generic::newMemory_bulk (vec, dd, oap::host::NewMemory, memcpy);
 }
+
+template<typename MemoryVec, typename MemLocDimCallback>
+oap::Memory NewMemoryBulk (const MemoryVec& vec, const oap::DataDirection& dd, MemLocDimCallback&& mldCallback)
+{
+  return oap::generic::newMemory_bulk (vec, dd, oap::host::NewMemory, memcpy, mldCallback);
+}
+
+void CopyHostToHostBuffer (floatt* buffer, uintt length, const oap::Memory& src, const oap::MemoryRegion& srcReg);
+void CopyHostBufferToHost (oap::Memory& src, const oap::MemoryRegion& srcReg, const floatt* buffer, uintt length);
 
 }
 }

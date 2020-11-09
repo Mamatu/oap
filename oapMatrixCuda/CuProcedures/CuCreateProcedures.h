@@ -49,6 +49,9 @@ __hostdeviceinline__ MatrixOffset CUDA_createGenericMatrixCopy (bool isRe, bool 
 
   math::Matrix oMatrix;
 
+  oMatrix.dim.columns = columns;
+  oMatrix.dim.rows = rows;
+
   oMatrix.re.ptr = NULL; 
   oMatrix.re.dims.width = 0; 
   oMatrix.re.dims.height = 0; 

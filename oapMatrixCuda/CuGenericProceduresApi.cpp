@@ -17,53 +17,31 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_MEMORY_REGION_H
-#define OAP_MEMORY_REGION_H
+#include "CuGenericProceduresApi.h"
 
-#include "Math.h"
-#include "CuCore.h"
+#include <functional>
+#include <iterator>
+#include <math.h>
+
+#include "Logger.h"
+#include "HostMatrixKernels.h"
+
+#include "oapDeviceMatrixUPtr.h"
+#include "oapDeviceMatrixPtr.h"
+#include "oapHostMatrixUPtr.h"
+#include "oapHostMatrixPtr.h"
+
+#include "ThreadsMapper.h"
+#include "oapCudaMatrixUtils.h"
+
+#include "CudaCoreApi.h"
+#include "Logger.h"
 
 namespace oap
 {
+  CuGenericProceduresApi::CuGenericProceduresApi(CuProceduresApi* cuApi) : m_cuApi (cuApi)
+  {}
 
-struct MemoryLoc
-{
-  uintt x;
-  uintt y;
-};
-
-struct MemoryDim
-{
-  uintt width;
-  uintt height;
-};
-
-struct Memory
-{
-  floatt* ptr;
-  MemoryDim dims;
-};
-
-struct MemoryRegion
-{
-  MemoryLoc loc;
-  MemoryDim dims;
-};
-
-struct Memory_3_Args
-{
-  oap::Memory m_output;
-  oap::Memory m_param1;
-  oap::Memory m_param2;
-};
-
-struct MemoryRegion_3_Args
-{
-  oap::MemoryRegion m_output;
-  oap::MemoryRegion m_param1;
-  oap::MemoryRegion m_param2;
-};
-
+  CuGenericProceduresApi::~CuGenericProceduresApi()
+  {}
 }
-
-#endif

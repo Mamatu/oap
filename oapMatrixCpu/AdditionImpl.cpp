@@ -59,30 +59,30 @@ void AdditionOperationCpu::Execute(void* ptr) {
         for (intt fa = begin; fa < end; fa++) {
             for (intt fb = begin1; fb < end1; fb++) {
                 intt index = fa + offset * fb;
-                *GetRePtrIndex (threadData->outputs[0].m_matrix, index) =
-                    GetReIndex (threadData->params[0].m_matrix, index) +
-                    GetReIndex (threadData->params[1].m_matrix, index);
-                *GetImPtrIndex (threadData->outputs[0].m_matrix, index) =
-                    GetImIndex (threadData->params[0].m_matrix, index) +
-                    GetImIndex (threadData->params[1].m_matrix, index);
+                *GetRePtr (threadData->outputs[0].m_matrix, fa, fb) =
+                    GetRe (threadData->params[0].m_matrix, fa, fb) +
+                    GetRe (threadData->params[1].m_matrix, fa, fb);
+                *GetImPtr (threadData->outputs[0].m_matrix, fa, fb) =
+                    GetIm (threadData->params[0].m_matrix, fa, fb) +
+                    GetIm (threadData->params[1].m_matrix, fa, fb);
             }
         }
     } else if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL) {
         for (intt fa = begin; fa < end; fa++) {
             for (intt fb = begin1; fb < end1; fb++) {
                 intt index = fa + offset * fb;
-                *GetRePtrIndex (threadData->outputs[0].m_matrix, index) =
-                    GetReIndex (threadData->params[0].m_matrix, index) +
-                    GetReIndex (threadData->params[1].m_matrix, index);
+                *GetRePtr (threadData->outputs[0].m_matrix, fa, fb) =
+                    GetRe (threadData->params[0].m_matrix, fa, fb) +
+                    GetRe (threadData->params[1].m_matrix, fa, fb);
             }
         }
     } else if (threadData->thiz->m_executionPathIm == EXECUTION_NORMAL) {
         for (intt fa = begin; fa < end; fa++) {
             for (intt fb = begin1; fb < end1; fb++) {
                 intt index = fa + offset * fb;
-                *GetImPtrIndex (threadData->outputs[0].m_matrix, index) =
-                    GetImIndex (threadData->params[0].m_matrix, index) +
-                    GetImIndex (threadData->params[1].m_matrix, index);
+                *GetImPtr (threadData->outputs[0].m_matrix, fa, fb) =
+                    GetIm (threadData->params[0].m_matrix, fa, fb) +
+                    GetIm (threadData->params[1].m_matrix, fa, fb);
             }
         }
     }

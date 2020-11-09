@@ -182,8 +182,8 @@ struct InArgs
   const std::string memType;
 };
 
-template<typename Api>
-void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm, Api& api, oap::QRType qrtype)
+template<typename Api, typename CopyKernelMatrixToKernelMatrix>
+void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm, Api& api, CopyKernelMatrixToKernelMatrix&& copyKernelMatrixToKernelMatrix, oap::QRType qrtype)
 {
   //debugAssert (!ar.m_unwanted.empty());
   auto getter = cm.getter ();
@@ -196,6 +196,8 @@ void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm
 
   api.setIdentity (aux_Q1);
   api.setIdentity (aux_QJ);
+
+  math::Matrix* ioQ = io.Q;
 
   oap::generic::iram_singleShiftedQRIteration::InOutArgs io1;
   io1.Q = aux_Q1;
@@ -211,40 +213,15 @@ void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm
     api.conjugateTranspose (aux_QT, aux_Q1);
     api.dotProduct (aux_HO, io.H, aux_Q1);
     api.dotProduct (io.H, aux_QT, aux_HO);
-    api.dotProduct (io.Q, aux_QJ, aux_Q1);
-    aux_swapPointers (&io.Q, &aux_QJ);
+    api.dotProduct (ioQ, aux_QJ, aux_Q1);
+    aux_swapPointers (&ioQ, &aux_QJ);
   }
 
-  if (iargs.unwanted.size() % 2 != 0)
+  if (aux_QJ != io.Q)
   {
-    aux_swapPointers (&io.Q, &aux_QJ);
+    copyKernelMatrixToKernelMatrix (io.Q, aux_QJ);
   }
 }
-}
-
-template<typename Arnoldi, typename CalcApi, typename CopyKernelMatrixToKernelMatrix>
-void calcTriangularH (Arnoldi& ar, uintt count, CalcApi& capi, CopyKernelMatrixToKernelMatrix&& copyKernelMatrixToKernelMatrix, oap::QRType qrtype)
-{
-  bool status = false;
-  capi.setIdentity (ar.m_Q);
-  math::Matrix* QJ = ar.m_QJ;
-  math::Matrix* Q = ar.m_Q;
-
-  status = capi.isUpperTriangular (ar.m_triangularH);
-
-  for (uint idx = 0; idx < count && status == false; ++idx)
-  {
-    _qr (ar.m_triangularH, ar, capi, qrtype);
-
-    capi.dotProduct (ar.m_triangularH, ar.m_R1, Q);
-    capi.dotProduct (QJ, ar.m_Q1, Q);
-    aux_swapPointers (&QJ, &Q);
-    status = capi.isUpperTriangular (ar.m_triangularH);
-  }
-
-  aux_swapPointers (&QJ, &Q);
-
-  copyKernelMatrixToKernelMatrix (ar.m_Q1, QJ);
 }
 
 namespace iram_calcTriangularH_Host
@@ -277,22 +254,21 @@ void proc (InOutArgs& io, const InArgs& iargs, CalcApi& capi, CopyKernelMatrixTo
   math::Matrix* aux_R = getter1.useMatrix (iargs.thInfo, iargs.memType);
 
   capi.setIdentity (aux_Q);
+  math::Matrix* ioQ = io.Q;
 
   status = capi.isUpperTriangular (io.H);
 
   for (uint idx = 0; idx < iargs.count && status == false; ++idx)
   {
-    _qr (io.Q, aux_R, io.H, iargs.thInfo, iargs.context, iargs.memType, capi, iargs.qrtype);
+    _qr (ioQ, aux_R, io.H, iargs.thInfo, iargs.context, iargs.memType, capi, iargs.qrtype);
 
-    capi.dotProduct (io.H, aux_R, io.Q);
-    capi.dotProduct (aux_Q1, io.Q, aux_Q);
+    capi.dotProduct (io.H, aux_R, ioQ);
+    capi.dotProduct (aux_Q1, ioQ, aux_Q);
     aux_swapPointers (&aux_Q1, &aux_Q);
     status = capi.isUpperTriangular (io.H);
   }
 
-  aux_swapPointers (&aux_Q1, &aux_Q);
-
-  copyKernelMatrixToKernelMatrix (io.Q, aux_Q1);
+  copyKernelMatrixToKernelMatrix (io.Q, aux_Q);
 }
 
 }
@@ -425,6 +401,7 @@ void deallocStage3(Arnoldi& ar, DeleteKernelMatrix&& deleteKernelMatrix)
   deleteKernelMatrix (ar.m_R2);
 }
 
-}}
+}
+}
 
 #endif

@@ -79,6 +79,15 @@
 #include "CuProcedures/GenericApi/CuAdditionConstProcedures.h"
 #include "CuProcedures/GenericApi/CuMultiplyConstProcedures.h"
 #include "CuProcedures/GenericApi/CuHadamardProductProcedures.h"
+#include "CuProcedures/GenericApi/CuPartialHadamardProductProcedures.h"
 #include "CuProcedures/GenericApi/CuTensorProductProcedures.h"
+#include "CuProcedures/GenericApi/CuTransposeProcedures.h"
+#include "CuProcedures/GenericApi/CuSinProcedures.h"
+#include "CuProcedures/GenericApi/CuTanhProcedures.h"
+#include "CuProcedures/GenericApi/CuSigmoidProcedures.h"
+#include "CuProcedures/GenericApi/CuSoftplusProcedures.h"
+#include "CuProcedures/GenericApi/CuReluProcedures.h"
+#include "CuProcedures/GenericApi/CuPReluProcedures.h"
+#include "CuProcedures/GenericApi/CuLinearProcedures.h"
 
 #endif /* DEVICE_H */

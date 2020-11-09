@@ -21,12 +21,14 @@
 #define OAP_NEURAL_NETWORK_H
 
 #include "oapDeviceLayer.h"
-#include "CuProceduresApi.h"
+#include "CuGenericProceduresApi.h"
 #include "oapDeviceMatrixPtr.h"
 
 #include "oapNetworkStructure.h"
 
-class Network : public NetworkS<oap::DeviceMatrixPtr>
+enum class LayerType { ONE_MATRIX, MULTI_MATRICES };
+
+class Network
 {
 public: // types
 
@@ -40,6 +42,7 @@ public: // types
   };
 
 public:
+  using Matrices = std::vector<math::Matrix*>;
 
   Network(oap::CuProceduresApi* calcApi = nullptr);
   virtual ~Network();
@@ -49,29 +52,33 @@ public:
   Network& operator= (const Network&) = delete;
   Network& operator= (Network&&) = delete;
 
-  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, bool binitWeights = true);
-  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, bool binitWeights = true);
+  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX, bool binitWeights = true);
+  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX, bool binitWeights = true);
 
-  void createLevel (DeviceLayer* layer, bool binitWeights = true);
+  void createLevel (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX, bool binitWeights = true);
 
-  void addLayer (DeviceLayer* layer);
+  void addLayer (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX);
 
-  FPHandler createFPLayer (uintt samples);
+  LHandler createFPLayer (uintt samples, LayerType ltype = LayerType::ONE_MATRIX);
 
   oap::HostMatrixUPtr run (const math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
 
-  void setInputs (const math::Matrix* inputs, ArgType argType, FPHandler handler = 0);
+  void setInputs (math::Matrix* inputs, ArgType argType, LHandler handler = 0);
+  void setInputs (const Matrices& inputs, ArgType argType, LHandler handler = 0);
 
-  void destroyFPSection (FPHandler handle);
+  void destroyFPSection (LHandler handle);
 
-  math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType, FPHandler handler = 0) const;
+  math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType, LHandler handler = 0) const;
+  Matrices getOutputs (Matrices& outputs, ArgType argType, LHandler handler = 0) const;
+
   math::Matrix* getHostOutputs () const;
 
   math::MatrixInfo getOutputInfo () const;
   math::MatrixInfo getInputInfo () const;
 
-  void forwardPropagation (FPHandler handler = 0);
-  void accumulateErrors (oap::ErrorType errorType, CalculationType calcType, FPHandler handler = 0);
+  void forwardPropagation (LHandler handler = 0);
+  void fbPropagation (LHandler handler, oap::ErrorType errorType, CalculationType calcType);
+  void accumulateErrors (oap::ErrorType errorType, CalculationType calcType, LHandler handler = 0);
 
   math::Matrix* getErrors (ArgType type) const;
 
@@ -83,12 +90,12 @@ public:
 
   floatt calculateError (oap::ErrorType errorType);
 
-  void backPropagation (FPHandler handler = 0);
+  void backPropagation (LHandler handler = 0);
 
-  void updateWeights (FPHandler handler = 0);
+  void updateWeights (LHandler handler = 0);
 
+  bool train (const Matrices& hostInputs, const Matrices& expectedHostOutputs, ArgType argType, oap::ErrorType errorType);
   bool train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, ArgType argType, oap::ErrorType errorType);
-
 
   void setController (IController* icontroller);
 
@@ -101,16 +108,12 @@ public:
   void setLearningRate (floatt lr);
   floatt getLearningRate () const;
 
-  //void save (utils::ByteBuffer& buffer) const;
-
-  //static Network* load (const utils::ByteBuffer& buffer);
-
   uintt getLayersCount () const
   {
     return m_layers[0].size ();
   }
   
-  DeviceLayer* getLayer(uintt layerIndex, FPHandler handler = 0) const;
+  DeviceLayer* getLayer(uintt layerIndex, LHandler handler = 0) const;
 
   bool operator== (const Network& network) const;
   bool operator!= (const Network& network) const;
@@ -133,20 +136,34 @@ public:
     }
   }
 
-protected:
   void setHostInputs (math::Matrix* inputs, uintt layerIndex);
-  virtual void setExpectedProtected (typename ExpectedOutputs::mapped_type& holder, math::Matrix* expected, ArgType argType) override;
-  virtual math::Matrix* convertExpectedProtected (oap::DeviceMatrixPtr t) const override;
+  void setHostInputs (const std::vector<math::Matrix*>& inputs, uintt layerIndex);
+
+  void setExpected (math::Matrix* expected, ArgType argType, LHandler handler = 0);
+  void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0);
+  Matrices getExpected (LHandler handler) const;
 
 private:
+  std::vector<floatt> m_errorsVec;
+
+  floatt m_learningRate = 0.1f;
+  uintt m_step = 1;
+
+  using ExpectedOutputs = std::map<LHandler, Matrices>;
+  ExpectedOutputs m_expectedOutputs;
 
   using Layers = std::vector<DeviceLayer*>;
   using LayersVec = std::vector<Layers>;
 
   LayersVec m_layers;
+  std::map<LHandler, LayerType> m_layerType;
+  LayerType getType (LHandler handler) const
+  {
+    return m_layerType.at(handler);
+  }
 
-  std::vector<FPMatrices*> m_fpMatricesVec;
-  std::vector<BPMatrices*> m_bpMatricesVec;
+  std::vector<FPMatrices*> m_AllFpMatricesVec;
+  std::vector<BPMatrices*> m_AllBpMatricesVec;
 
   void deallocateFPMatrices();
   void deallocateBPMatrices();
@@ -154,11 +171,15 @@ private:
   void destroyNetwork();
   void destroyLayers();
 
+  void destroyInnerExpectedMatrices();
+  bool m_innerExpectedMatrices = false;
+
   inline void calculateError();
 
   bool shouldContinue (oap::ErrorType errorType);
 
   oap::CuProceduresApi* m_cuApi;
+  oap::CuGenericProceduresApi* m_cuGApi;
   bool m_releaseCuApi;
   IController* m_icontroller = nullptr;
 
@@ -170,6 +191,8 @@ private:
 
   template<typename LayerT, typename AllocNeuronsApi>
   friend void allocateNeurons (LayerT& ls, uintt neuronsCount, uintt biasCount);
+
+  void setExpectedProtected (typename ExpectedOutputs::mapped_type& holder, const std::vector<math::Matrix*>& expected, ArgType argType);
 };
 
 #endif

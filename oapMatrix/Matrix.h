@@ -44,6 +44,8 @@ struct Matrix
 
   oap::Memory im;
   oap::MemoryRegion imReg;
+
+  MatrixDim dim;
 };
 
 }

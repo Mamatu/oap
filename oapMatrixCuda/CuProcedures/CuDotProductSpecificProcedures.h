@@ -29,8 +29,8 @@ __hostdevice__ void cuda_specific_dotProductRe (math::Matrix* output, const math
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const uintt columns1 = gColumns (params0);
-  const uintt columns2 = gColumns (params1);
+  const uintt columns1 = params0->dim.columns;
+  const uintt columns2 = params1->dim.columns;
   const uintt offset = columns1;
 
   floatt retemp = 0;
@@ -48,8 +48,8 @@ __hostdevice__ void cuda_specific_dotProductIm (math::Matrix* output, const math
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const uintt columns1 = gColumns (params0);
-  const uintt columns2 = gColumns (params1);
+  const uintt columns1 = params0->dim.columns;
+  const uintt columns2 = params1->dim.columns;
   const uintt offset = columns1;
 
   floatt retemp = 0;
@@ -67,8 +67,8 @@ __hostdevice__ void cuda_specific_dotProductReal (math::Matrix* output, const ma
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  const uintt columns1 = gColumns (params0);
-  const uintt columns2 = gColumns (params1);
+  const uintt columns1 = params0->dim.columns;
+  const uintt columns2 = params1->dim.columns;
   const uintt outputColumns = gColumns (output);
   const uintt offset = columns1;
 

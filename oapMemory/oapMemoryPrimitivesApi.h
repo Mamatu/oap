@@ -56,7 +56,7 @@ namespace std
 {
   std::string to_string (const oap::Memory& memory);
 
-  std::string to_string (const oap::MemoryDims& dims);
+  std::string to_string (const oap::MemoryDim& dims);
 
   std::string to_string (const oap::MemoryLoc& loc);
 
@@ -67,9 +67,9 @@ bool operator== (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2);
 
 bool operator!= (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2);
 
-bool operator== (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2);
+bool operator== (const oap::MemoryDim& dim1, const oap::MemoryDim& dim2);
 
-bool operator!= (const oap::MemoryDims& dim1, const oap::MemoryDims& dim2);
+bool operator!= (const oap::MemoryDim& dim1, const oap::MemoryDim& dim2);
 
 bool operator< (const oap::MemoryRegion& reg1, const oap::MemoryRegion& reg2);
 

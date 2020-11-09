@@ -548,7 +548,134 @@ CUDAKernel_GenericApi_HadamardProduct (math::Matrix** outputs, math::Matrix* con
 }
 
 extern "C" __global__ void
+CUDAKernel_GenericApi_PartialHadamardProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_PartialHadamardProduct (outputs, params1, params2, mapper);
+}
+
+extern "C" __global__ void
 CUDAKernel_GenericApi_TensorProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
 {
   CUDA_GenericApi_TensorProduct (outputs, params1, params2, mapper);
 }
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_Transpose (math::Matrix** outputs, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_Transpose (outputs, params1, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_Tanh (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_tanh (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_DTanh (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_dtanh (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_MultiplyDTanh (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_multiplyDTanh (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_Sin (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_sin (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_DSin (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_dsin (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_MultiplyDSin (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_multiplyDSin (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_Sigmoid (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_sigmoid (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_DSigmoid (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_dsigmoid (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_MultiplyDSigmoid (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_multiplyDSigmoid (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_Softplus (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_softplus (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_DSoftplus (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_dsoftplus (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_MultiplyDSoftplus (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_multiplyDSoftplus (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_Relu (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_relu (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_DRelu (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_drelu (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_MultiplyDRelu (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_multiplyDRelu (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_Prelu (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_prelu (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_DPrelu (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_dprelu (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_MultiplyDPrelu (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_multiplyDPrelu (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_Linear (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_linear (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_DLinear (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_dlinear (outputs, params, mapper);
+}
+
+extern "C" __global__ void
+CUDAKernel_GenericApi_MultiplyDLinear (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper) {
+  cuda_genericApi_multiplyDLinear (outputs, params, mapper);
+}
+
