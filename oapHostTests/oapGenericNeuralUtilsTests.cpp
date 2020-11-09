@@ -57,7 +57,7 @@ public:
 
   using MockLayer = Layer<MockLayerApi>;
 };
-#if 0
+
 TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_1)
 {
   std::vector<std::vector<floatt>> vec = {{0}, {1}, {2}, {3}, {4}, {5}};
@@ -74,7 +74,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_1)
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = hmatrix.get();
 
-  oap::nutils::copyToInputs (layer, vec, oap::host::CopyHostBufferToHost);
+  oap::nutils::copyToInputs_oneMatrix (layer, vec, oap::host::CopyHostBufferToReMatrix);
 
   std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + vec.size());
   std::vector<floatt> expectedOutput = {0, 1, 2, 3, 4, 5};
@@ -99,7 +99,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_2)
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = hmatrix.get();
 
-  oap::nutils::copyToInputs (layer, vec, oap::host::CopyHostBufferToHost);
+  oap::nutils::copyToInputs_oneMatrix (layer, vec, oap::host::CopyHostBufferToReMatrix);
 
   std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
@@ -124,7 +124,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_3)
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = hmatrix.get();
 
-  oap::nutils::copyToInputs (layer, vec, oap::host::CopyHostBufferToHost);
+  oap::nutils::copyToInputs_oneMatrix (layer, vec, oap::host::CopyHostBufferToReMatrix);
 
   std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 6, 7, 4, 4, 8, 2, 5, 5, 0, 0};
@@ -399,4 +399,3 @@ TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_3)
     oap::host::DeleteMatrix (*it);
   }
 }
-#endif

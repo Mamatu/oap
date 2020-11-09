@@ -163,8 +163,8 @@ size_t getElementsCount (const Container& container)
   return count;
 }
 
-template<typename Network, typename Container2D, typename CreateMatrix, typename CopyBufferToMatrix>
-void createExpectedOutput (Network* network, LHandler handler, const Container2D& container2D, ArgType argType, CreateMatrix&& createMatrix, CopyBufferToMatrix&& copyBufferToMatrix)
+template<typename Network, typename Container, typename CreateMatrix, typename CopyBufferToMatrix>
+void createExpectedOutput (Network* network, LHandler handler, const Container& container2D, ArgType argType, CreateMatrix&& createMatrix, CopyBufferToMatrix&& copyBufferToMatrix)
 {
   std::vector<math::Matrix*> matrices;
   for (uintt idx = 0; idx < container2D.size(); ++idx)
@@ -172,7 +172,7 @@ void createExpectedOutput (Network* network, LHandler handler, const Container2D
     matrices.push_back (createMatrix (1, container2D[idx].size()));
   }
 
-  iterate (container2D, [&matrices, &copyBufferToMatrix](const Container2D& container2D, size_t idx)
+  iterate (container2D, [&matrices, &copyBufferToMatrix](const Container& container2D, size_t idx)
   {
     for (uintt idx = 0; idx < matrices.size(); ++idx)
     {
@@ -213,12 +213,12 @@ void copyToInputs_multiMatrices (LayerT* ilayer, size_t index, const floatt* buf
   copyBufferToMatrix (ilayer->getFPMatrices(index)->m_inputs, buffer, size);
 }
 
-template<typename LayerT, typename Container2D, typename CopyBufferToMatrix>
-void copyToInputs_multiMatrices (LayerT* ilayer, const Container2D& container2D, CopyBufferToMatrix&& copyBufferToMatrix)
+template<typename LayerT, typename Container, typename CopyBufferToMatrix>
+void copyToInputs_multiMatrices (LayerT* ilayer, const Container& container2D, CopyBufferToMatrix&& copyBufferToMatrix)
 {
   size_t fsize = 0;
   debugAssert (container2D.size() > 0);
-  iterate (container2D, [ilayer, &copyBufferToMatrix, &fsize](const Container2D& container2D, size_t idx)
+  iterate (container2D, [ilayer, &copyBufferToMatrix, &fsize](const Container& container2D, size_t idx)
   {
     if (idx == 0) { fsize = container2D[idx].size(); }
     debugAssert (fsize == container2D[idx].size());
@@ -234,14 +234,14 @@ void copyToInputs_oneMatrix (LayerT* ilayer, const floatt* buffer, size_t size, 
 
 namespace
 {
-template<typename Container2D>
+template<typename Container>
 class VectorHandler
 {
   std::vector<floatt>& m_vec;
-  const Container2D& m_container;
+  const Container& m_container;
   uintt m_idx;
   public:
-    VectorHandler (std::vector<floatt>& vec, const Container2D& container, uintt idx) : m_vec(vec), m_container (container), m_idx(idx)
+    VectorHandler (std::vector<floatt>& vec, const Container& container, uintt idx) : m_vec(vec), m_container (container), m_idx(idx)
     {}
 
     void call()
@@ -253,14 +253,14 @@ class VectorHandler
     }
 };
 
-template<typename Container2D>
+template<typename Container>
 class FloattHandler
 {
   std::vector<floatt>& m_vec;
-  const Container2D& m_container;
+  const Container& m_container;
   uintt m_idx;
   public:
-    FloattHandler (std::vector<floatt>& vec, const Container2D& container, uintt idx) : m_vec(vec), m_container (container), m_idx(idx)
+    FloattHandler (std::vector<floatt>& vec, const Container& container, uintt idx) : m_vec(vec), m_container (container), m_idx(idx)
     {}
 
     void call()
@@ -272,11 +272,11 @@ class FloattHandler
     }
 };
 
-template<typename Container2D>
+template<typename Container>
 class NotSupportedHandler
 {
   public:
-    NotSupportedHandler (std::vector<floatt>& vec, const Container2D& container, uintt idx)
+    NotSupportedHandler (std::vector<floatt>& vec, const Container& container, uintt idx)
     {}
 
     void call()
@@ -286,18 +286,18 @@ class NotSupportedHandler
 };
 }
 
-template<typename LayerT, typename Container2D, typename CopyBufferToMatrix>
-void copyToInputs_oneMatrix (LayerT* ilayer, const Container2D& container2D, CopyBufferToMatrix&& copyBufferToMatrix)
+template<typename LayerT, typename Container, typename CopyBufferToMatrix>
+void copyToInputs_oneMatrix (LayerT* ilayer, const Container& container, CopyBufferToMatrix&& copyBufferToMatrix)
 {
-  uintt length = oap::nutils::getElementsCount (container2D);
+  uintt length = oap::nutils::getElementsCount (container);
   std::vector<floatt> buffer;
   buffer.reserve(length);
   size_t fsize = 0;
-  iterate (container2D, [ilayer, &buffer, &copyBufferToMatrix, &fsize](const Container2D& container2D, size_t idx)
+  iterate (container, [ilayer, &buffer, &copyBufferToMatrix, &fsize](const Container& container2D, size_t idx)
   {
-    constexpr bool isVector = std::is_same<std::vector<floatt>, typename Container2D::value_type>::value;
-    constexpr bool isFloatt = std::is_same<floatt, typename Container2D::value_type>::value;
-    typename std::conditional<isVector, VectorHandler<Container2D>, typename std::conditional<isFloatt, FloattHandler<Container2D>, NotSupportedHandler<Container2D>>::type>::type
+    constexpr bool isVector = std::is_same<std::vector<floatt>, typename Container::value_type>::value;
+    constexpr bool isFloatt = std::is_same<floatt, typename Container::value_type>::value;
+    typename std::conditional<isVector, VectorHandler<Container>, typename std::conditional<isFloatt, FloattHandler<Container>, NotSupportedHandler<Container>>::type>::type
       obj(buffer, container2D, idx);
 
     obj.call();
