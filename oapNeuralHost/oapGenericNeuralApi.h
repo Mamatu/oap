@@ -262,12 +262,6 @@ void initNetworkBiases (const Layers& layers, SetReValue&& setReValue)
   }
 }
 
-template<typename LayerT, typename CopyMatrixToMatrix, typename SetReValue>
-void setInputs(LayerT& layer, const math::Matrix* input, CopyMatrixToMatrix&& copyMatrixToMatrix, SetReValue&& setReValue)
-{
-  setInputs (layer, {input}, copyMatrixToMatrix, setReValue);
-}
-
 template<typename LayerT, typename Matrices, typename CopyMatrixToMatrix, typename SetReValue>
 void setInputs (LayerT& layer, const Matrices& inputs, CopyMatrixToMatrix&& copyMatrixToMatrix, SetReValue&& setReValue)
 {
@@ -278,6 +272,13 @@ void setInputs (LayerT& layer, const Matrices& inputs, CopyMatrixToMatrix&& copy
   }
 
   initLayerBiases (layer, setReValue);
+}
+
+template<typename LayerT, typename CopyMatrixToMatrix, typename SetReValue>
+void setInputs(LayerT& layer, const math::Matrix* input, CopyMatrixToMatrix&& copyMatrixToMatrix, SetReValue&& setReValue)
+{
+  std::vector<const math::Matrix*> inputs = {input};
+  setInputs (layer, inputs, copyMatrixToMatrix, setReValue);
 }
 
 template<typename LayerT, typename CopyKernelMatrixToMatrix>
