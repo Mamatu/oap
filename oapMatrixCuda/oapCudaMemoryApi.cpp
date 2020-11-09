@@ -314,7 +314,7 @@ void CopyDeviceToHostBuffer (floatt* buffer, uintt length, const oap::Memory& sr
 
 void CopyHostBufferToDevice (oap::Memory& dst, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length)
 {
-  oap::generic::copyBufferToMemoryRegion (dst.ptr, dst.dims, dstReg, buffer, length, CudaUtils::CopyDeviceToHost);
+  oap::generic::copyBufferToMemoryRegion (dst.ptr, dst.dims, dstReg, buffer, length, CudaUtils::CopyHostToDevice);
 }
 
 void CopyDeviceBufferToDevice (oap::Memory& dst, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length)
