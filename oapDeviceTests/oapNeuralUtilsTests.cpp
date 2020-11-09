@@ -75,7 +75,7 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_1)
   oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = dmatrix.get();
 
-  oap::nutils::copyToInputs (layer, vec, ArgType::HOST);
+  oap::nutils::copyToInputs_oneMatrix (layer, vec, ArgType::HOST);
 
   oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
 
@@ -102,7 +102,7 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_2)
   oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = dmatrix.get();
 
-  oap::nutils::copyToInputs (layer, vec, ArgType::HOST);
+  oap::nutils::copyToInputs_oneMatrix (layer, vec, ArgType::HOST);
 
   oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
 
@@ -129,7 +129,7 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_3)
   oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = dmatrix.get();
 
-  oap::nutils::copyToInputs (layer, vec, ArgType::HOST);
+  oap::nutils::copyToInputs_oneMatrix (layer, vec, ArgType::HOST);
 
   oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
 

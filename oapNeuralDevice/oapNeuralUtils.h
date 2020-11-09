@@ -89,24 +89,45 @@ void createDeviceExpectedOutput (Network* network, LHandler handler, const Conta
 }
 
 template<typename LayerT, typename Container2D>
-void copyToInputs (LayerT* ilayer, const Container2D& container2D, ArgType containerType)
+void copyToInputs_oneMatrix (LayerT* ilayer, const Container2D& container2D, ArgType containerType)
 {
   if (containerType == ArgType::DEVICE)
   {
-    copyToInputs (ilayer, container2D, oap::cuda::CopyDeviceBufferToDeviceReMatrix);
+    copyToInputs_oneMatrix (ilayer, container2D, oap::cuda::CopyDeviceBufferToDeviceReMatrix);
   }
   else if (containerType == ArgType::HOST)
   {
-    copyToInputs (ilayer, container2D, oap::cuda::CopyHostBufferToDeviceReMatrix);
+    copyToInputs_oneMatrix (ilayer, container2D, oap::cuda::CopyHostBufferToDeviceReMatrix);
+  }
+  debugAssertMsg (containerType != ArgType::DEVICE_COPY, "DEVICE_COPY mode is not supported");
+}
+
+template<typename LayerT, typename Container2D>
+void copyToInputs_oneMatrix (Network* network, LHandler handler, const Container2D& container2D, ArgType containerType)
+{
+  LayerT* layer = network->getLayer (0, handler);
+  copyToInputs_oneMatrix (layer, container2D, containerType);
+}
+
+template<typename LayerT, typename Container2D>
+void copyToInputs_multiMatrices (LayerT* ilayer, const Container2D& container2D, ArgType containerType)
+{
+  if (containerType == ArgType::DEVICE)
+  {
+    copyToInputs_multiMatrices (ilayer, container2D, oap::cuda::CopyDeviceBufferToDeviceReMatrix);
+  }
+  else if (containerType == ArgType::HOST)
+  {
+    copyToInputs_multiMatrices (ilayer, container2D, oap::cuda::CopyHostBufferToDeviceReMatrix);
   }
   debugAssertMsg (containerType != ArgType::DEVICE_COPY, "DEVICE_COPY mode is not supported");
 }
 
  template<typename LayerT, typename Container2D>
-void copyToInputs (Network* network, LHandler handler, const Container2D& container2D, ArgType containerType)
+void copyToInputs_multiMatrices (Network* network, LHandler handler, const Container2D& container2D, ArgType containerType)
 {
   LayerT* layer = network->getLayer (0, handler);
-  copyToInputs (layer, container2D, containerType);
+  copyToInputs_multiMatrices (layer, container2D, containerType);
 }
 
 }
