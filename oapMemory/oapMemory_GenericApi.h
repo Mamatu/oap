@@ -270,7 +270,7 @@ namespace generic
   {
     oapAssert (length == dstReg.dims.width * dstReg.dims.height);
     oap::Memory memory = {const_cast<floatt*>(buffer), dstReg.dims};
-    oap::MemoryRegion srcReg = {{0, 0}, {dstReg.dims.width, dstReg.dims.height}};
+    oap::MemoryRegion srcReg = {{0, 0}, dstReg.dims};
     copy (dst, dstDims, dstReg.loc, memory.ptr, memory.dims, srcReg, memcpy);
   }
 
