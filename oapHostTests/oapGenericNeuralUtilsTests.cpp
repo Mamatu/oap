@@ -28,7 +28,6 @@
 #include "oapLayer.h"
 
 #include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
 
 class OapGenericNeuralUtilsTests : public testing::Test
 {

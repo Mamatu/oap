@@ -23,7 +23,6 @@
 #include "GenericCoreApi.h"
 #include "MatrixInfo.h"
 #include "oapMatricesContext.h"
-#include  "oapCudaMatrixUtils.h"
 
 #include "ArnoldiUtils.h"
 
