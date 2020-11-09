@@ -615,12 +615,12 @@ TEST_F(OapClassificationTests, OCR)
   floatt initLR = 0.1;
   network->setLearningRate (initLR);
 
-  auto* layer = network->createLayer(rs.getSize (), true, Activation::SIGMOID, false);
-  network->createLayer(rs.getSize() * 2, true, Activation::SIGMOID, false);
-  network->createLayer(rs.getSize(), true, Activation::SIGMOID, false);
-  network->createLayer(rs.getSize(), true, Activation::SIGMOID, false);
-  network->createLayer(rs.getSize() * 2, true, Activation::SIGMOID, false);
-  network->createLayer(10, Activation::NONE, false);
+  auto* layer = network->createLayer(rs.getSize (), true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
+  network->createLayer(rs.getSize() * 2, true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
+  network->createLayer(rs.getSize(), true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
+  network->createLayer(rs.getSize(), true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
+  network->createLayer(rs.getSize() * 2, true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
+  network->createLayer(10, Activation::NONE, LayerType::ONE_MATRIX, false);
 
   oap::device::RandomGenerator rg (-0.5, .5);
 
@@ -645,8 +645,8 @@ TEST_F(OapClassificationTests, OCR)
   FPHandler testHandler = network->createFPLayer (testData.size());
   FPHandler trainingHandler = network->createFPLayer (trainingData.size());
 
-  oap::nutils::copyToInputs<DeviceLayer> (network.get(), testHandler, testData_pb, ArgType::HOST);
-  oap::nutils::copyToInputs<DeviceLayer> (network.get(), trainingHandler, trainingData_pb, ArgType::HOST);
+  oap::nutils::copyToInputs_oneMatrix<DeviceLayer> (network.get(), testHandler, testData_pb, ArgType::HOST);
+  oap::nutils::copyToInputs_oneMatrix<DeviceLayer> (network.get(), trainingHandler, trainingData_pb, ArgType::HOST);
 
   oap::nutils::createDeviceExpectedOutput (network.get(), testHandler, testData_eo, ArgType::DEVICE);
   oap::nutils::createDeviceExpectedOutput (network.get(), trainingHandler, trainingData_eo, ArgType::DEVICE);

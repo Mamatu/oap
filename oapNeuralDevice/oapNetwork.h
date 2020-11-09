@@ -52,12 +52,12 @@ public:
   Network& operator= (const Network&) = delete;
   Network& operator= (Network&&) = delete;
 
-  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, bool binitWeights = true);
-  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, bool binitWeights = true);
+  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX, bool binitWeights = true);
+  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX, bool binitWeights = true);
 
-  void createLevel (DeviceLayer* layer, bool binitWeights = true);
+  void createLevel (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX, bool binitWeights = true);
 
-  void addLayer (DeviceLayer* layer);
+  void addLayer (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX);
 
   LHandler createFPLayer (uintt samples, LayerType ltype = LayerType::ONE_MATRIX);
 
