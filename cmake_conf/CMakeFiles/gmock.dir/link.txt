@@ -1,1 +1,0 @@
-/usr/bin/g++-8 -fPIC -shared -Wl,-soname,libgmock.so -o libgmock.so CMakeFiles/gmock.dir/home/mmatula/gmock-1.7.0/src/gmock-all.cc.o  -lpthread 
