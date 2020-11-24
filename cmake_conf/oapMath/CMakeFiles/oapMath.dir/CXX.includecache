@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/mmatula/tmp/cmake/oap/oapMath/Math.cpp
+string.h
+-
+Math.h
+/home/mmatula/tmp/cmake/oap/oapMath/Math.h
+
+/home/mmatula/tmp/cmake/oap/oapMath/Math.h
+

@@ -1,0 +1,7 @@
+get_filename_component(a_dir "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
+get_filename_component(a_dir "${a_dir}" NAME)
+set(TARGET "${a_dir}")
+set(INCLUDE_PATHS "")
+#execute_process(tar -xzf ./data/images_monkey.tar.gz -C ./data)
+#execute_process(tar -xzf ./data/images_monkey_125.tar.gz -C ./data)
+set(EXTRA_LIBS -loapAppUtils -loap2dt3dDevice -loapNeuralDevice -loapMatrixCuda -loapCuda -loapMatrixCpu -loapMatrix -loapUtils)

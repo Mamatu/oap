@@ -1,0 +1,5 @@
+get_filename_component(a_dir "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
+get_filename_component(a_dir "${a_dir}" NAME)
+set(TARGET "${a_dir}")
+set(INCLUDE_PATHS "oapMath")
+set(EXTRA_LIBS -loapAppUtils -loapMatrix -loapCuda -loapMatrixCpu -loapUtils)

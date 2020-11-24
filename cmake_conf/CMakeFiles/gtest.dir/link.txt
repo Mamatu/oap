@@ -1,0 +1,1 @@
+/usr/bin/g++-8 -fPIC -shared -Wl,-soname,libgtest.so -o libgtest.so CMakeFiles/gtest.dir/home/mmatula/gmock-1.7.0/gtest/src/gtest-all.cc.o CMakeFiles/gtest.dir/home/mmatula/gmock-1.7.0/gtest/src/gtest_main.cc.o  -lpthread 
