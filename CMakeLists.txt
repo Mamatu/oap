@@ -20,6 +20,7 @@ endif()
 file(MAKE_DIRECTORY ${TMP_PATH}/tests_data)
 file(MAKE_DIRECTORY ${TMP_PATH}/conversion_data)
 file(MAKE_DIRECTORY ${TMP_PATH}/host_tests)
+file(MAKE_DIRECTORY ${TMP_PATH}/host_tests/test_file)
 file(MAKE_DIRECTORY ${TMP_PATH}/host_tests/OapPngFileTests_PrintLetters)
 file(MAKE_DIRECTORY ${TMP_PATH}/device_tests)
 
