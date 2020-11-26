@@ -35,7 +35,7 @@ class OapHostMatrixUtilsTests : public testing::Test {
   }
 };
 
-const std::string OapHostMatrixUtilsTests::testfilepath = oap::utils::Config::getPathInTmp("host_tests/test_file");
+const std::string OapHostMatrixUtilsTests::testfilepath = oap::utils::Config::getFileInTmp("host_tests/test_file");
 
 TEST_F(OapHostMatrixUtilsTests, Copy) {
   const uintt columns = 11;
