@@ -9,7 +9,7 @@ set(TMP_PATH "${CMAKE_CURRENT_BINARY_DIR}/Oap" CACHE STRING "Path to temporary d
 set (BUILD_MODE "DEBUG" CACHE STRING "Build mode. Can be: DEBUG, RELEASE, DEBUG_SANITIZER")
 set (BUILD_PART "ALL" CACHE STRING "Build specific part of s/w. In the case of ALL device and host parts will be compiled. Can be: ALL, HOST")
 
-add_definitions (-DDEBUG -DOAP_CONFIG_NI_EF -DLOG_LEVEL=DEBUG_LEVEL) #to change
+add_definitions (-DDEBUG -DOAP_CONFIG_NI_EF -DLOG_LEVEL=DEBUG_LEVEL -DOAP_PATH=${OAP_PATH} -DTMP_PATH=${TMP_PATH}) #to change
 
 if("${BUILD_PART}" STREQUAL "ALL")
   project(oap CXX CUDA)
