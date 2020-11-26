@@ -4,5 +4,6 @@ set(TARGET "${a_dir}")
 set(INCLUDE_PATHS "oapMath")
 
 list(APPEND DEPS oapMath)
+list(APPEND DEPS oapMemory)
 
 set(EXTRA_LIBS )
