@@ -6,6 +6,30 @@ set_target_properties( PROPERTIES LINKER_LANGUAGE CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(TMP_PATH "${CMAKE_CURRENT_BINARY_DIR}/Oap" CACHE STRING "Path to temporary directory for data etc.")
+set (BUILD_MODE "DEBUG" CACHE STRING "Build mode. Can be: DEBUG, RELEASE, DEBUG_SANITIZER")
+set (BUILD_PART "ALL" CACHE STRING "Build specific part of s/w. In the case of ALL device and host parts will be compiled. Can be: ALL, HOST")
+
+file(MAKE_DIRECTORY ${TMP_PATH}/tests_data)
+file(MAKE_DIRECTORY ${TMP_PATH}/conversion_data)
+file(MAKE_DIRECTORY ${TMP_PATH}/host_tests)
+file(MAKE_DIRECTORY ${TMP_PATH}/host_tests/OapPngFileTests_PrintLetters)
+file(MAKE_DIRECTORY ${TMP_PATH}/device_tests)
+
+if("${BUILD_MODE}" STREQUAL "DEBUG")
+  set(CMAKE_CXX_FLAGS "-g3")
+elseif("${BUILD_MODE}" STREQUAL "RELEASE")
+  set(CMAKE_CXX_FLAGS "-O2")
+elseif("${BUILD_MODE}" STREQUAL "DEBUG_SANITIZER")
+  set(CMAKE_CXX_FLAGS "-g3 -fsanitize=address -fno-omit-frame-pointer")
+else()
+  message(FATAL_ERROR "This kind of BUILD_MODE is not supported")
+endif()
+
+if(NOT("${BUILD_PART}" STREQUAL "ALL" OR "${BUILD_PART}" STREQUAL "HOST"))
+  message(FATAL_ERROR "This kind of BUILD_PART is not supported")
+endif()
+
 file(GLOB gmock_source $ENV{OAP_GMOCK_PATH}/src/gmock-all.cc)
 file(GLOB gtest_source $ENV{OAP_GTEST_PATH}/src/gtest-all.cc $ENV{OAP_GTEST_PATH}/src/gtest_main.cc)
 
@@ -18,8 +42,6 @@ target_include_directories(gtest PUBLIC $ENV{OAP_GTEST_PATH}/include $ENV{OAP_GT
 target_link_libraries(gmock PUBLIC -lpthread)
 target_link_libraries(gtest PUBLIC -lpthread)
 
-
-#shared libraries
 list(APPEND LIBS oapMath)
 list(APPEND LIBS oapMatrix)
 list(APPEND LIBS oapUtils)
@@ -32,25 +54,17 @@ list(APPEND LIBS oapNeuralDevice)
 list(APPEND LIBS oapNeuralRoutines)
 list(APPEND LIBS oapNeuralRoutinesHost)
 list(APPEND LIBS ArnoldiPackage)
-
-#cushared libraries
 list(APPEND LIBS oapMatrixCuda)
 list(APPEND LIBS oap2dt3dDevice)
 
-#executables
 list(APPEND EXECS oap2dt3d)
 list(APPEND EXECS oapNeuralApps)
 list(APPEND EXECS oapNeural)
-
-#executables tests
 list(APPEND EXECS oapAppUtilsFuncTests)
 list(APPEND EXECS oapAppUtilsTests)
 list(APPEND EXECS oapArnoldiHostTests)
-#list(APPEND EXECS oapCMatrixDataTests)
 list(APPEND EXECS oapHostTests)
 list(APPEND EXECS oapNeuralRoutinesHostTests)
-
-#executables cu tests
 list(APPEND EXECS oap2dt3dDeviceTests)
 list(APPEND EXECS oapArnoldiDeviceTests)
 list(APPEND EXECS oapDeviceTests)
@@ -71,7 +85,9 @@ include_directories (oapQRTestSamples)
 include_directories (oapCMatrixDataTests)
 include_directories (oapDeviceTestsData)
 
-include_directories ($ENV{OAP_CUDA_PATH}/include)
+if("${BUILD_PART}" STREQUAL "ALL")
+  include_directories ($ENV{OAP_CUDA_PATH}/include)
+endif()
 
 add_definitions (-DDEBUG -DOAP_PATH=/home/mmatula/oap -DTMP_PATH=/tmp/Oap -DOAP_CONFIG_NI_EF -DLOG_LEVEL=DEBUG_LEVEL)
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.17)
 
 if("${BUILD_PART}" STREQUAL "ALL")
 
@@ -14,7 +14,7 @@ if(DEPS)
 add_dependencies(${TARGET} ${DEPS})
 endif()
 
-target_link_libraries(${TARGET} PUBLIC gmock gtest ${DEPS} ${EXTRA_LIBS})
+target_link_libraries(${TARGET} PUBLIC ${DEPS} ${EXTRA_LIBS})
 target_include_directories(${TARGET} PUBLIC ${INCLUDE_PATH})
 
 endif()

@@ -14,5 +14,6 @@ oap2dt3dFuncTests/data/
 oapDeviceTests/data/
 oapArnoldiDeviceTests/data/
 oapNeural/data/
-*/build/
+*/build
+build
 oapAppUtilsFuncTests/data/
