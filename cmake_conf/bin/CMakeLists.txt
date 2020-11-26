@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.17)
-
 include (module.cmake)
 
+cmake_minimum_required(VERSION 3.17)
 file(GLOB source "*.h" "*.cpp" "*.c")
 
 add_executable(${TARGET} ${source})
