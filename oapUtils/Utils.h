@@ -73,8 +73,10 @@ template <typename T>
 class Ranges : public std::vector<std::pair<T, Range> > {};
 
 template <typename T>
-bool isMatched(T* array, size_t length, const Ranges<T>& matched,
-               const Ranges<T>& notmatched) {}
+bool isMatched(T* array, size_t length, const Ranges<T>& matched, const Ranges<T>& notmatched)
+{
+  return false;
+}
 
 // template<typename T> typedef typename std::vector<std::pair<T, Range<T> > >
 // Ranges<T>;
