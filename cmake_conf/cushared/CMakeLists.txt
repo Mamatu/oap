@@ -17,8 +17,8 @@ add_library(${TARGET} SHARED ${source})
 
 #$(NVCC) -DOAP_CUDA_BUILD $(NVCCOPTIONS) $(NVCC_INCLUDE_DIRS) $(INCLUDE_DIRS) --cubin $(CU_FILES) -o $@.cubin
 
-add_custom_command(OUTPUT ${TARGET}.cubin_1 POST_BUILD COMMAND ${CMAKE_COMMAND} -E aa${NVCC} --cubin ${cu_source} -o ${TARGET}.cubin DEPENDS ${cu_source})
-add_custom_target(${TARGET}.cubin DEPENDS ${TARGET}.cubin_1)
+add_custom_target(${TARGET}.cubin ALL DEPENDS ${TARGET}.cubin)
+add_custom_command(OUTPUT ${TARGET}.cubin COMMAND ${CMAKE_CUDA_COMPILER} --cubin ${cu_source} -o ${TARGET}.cubin DEPENDS ${cu_source})
 
 add_definitions(-DOAP_CUDA_BUILD)
 
