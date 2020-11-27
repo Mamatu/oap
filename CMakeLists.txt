@@ -4,7 +4,7 @@ set_target_properties( PROPERTIES LINKER_LANGUAGE CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(OAP_PATH "${PROJECT_SOURCE_DIR}" CACHE STRING "Path to project.")
+set(OAP_PATH "${CMAKE_SOURCE_DIR}" CACHE STRING "Path to project.")
 set(TMP_PATH "${CMAKE_CURRENT_BINARY_DIR}/Oap" CACHE STRING "Path to temporary directory for data etc.")
 set (BUILD_MODE "DEBUG" CACHE STRING "Build mode. Can be: DEBUG, RELEASE, DEBUG_SANITIZER")
 set (BUILD_PART "ALL" CACHE STRING "Build specific part of s/w. In the case of ALL device and host parts will be compiled. Can be: ALL, HOST")
