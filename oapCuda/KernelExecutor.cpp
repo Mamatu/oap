@@ -349,6 +349,9 @@ inline char* readData(const char* path) {
 inline char* readData(const char* path, const Strings& sysPathes) {
   for (size_t fa = 0; fa < sysPathes.size(); ++fa) {
     std::string p = sysPathes[fa] + "/" + path;
+#ifdef DEBUG
+    debug ("%s %d: %s", __func__, __LINE__, p.c_str());
+#endif
     char* data = readData(p.c_str());
     if (data != NULL) {
       return data;
@@ -357,21 +360,26 @@ inline char* readData(const char* path, const Strings& sysPathes) {
   return NULL;
 }
 
-inline char* loadData(std::string& loadedPath, const char** pathes,
-                      bool extraSysPathes = true) {
+inline char* loadData(std::string& loadedPath, const char** pathes, bool extraSysPathes = true)
+{
   std::vector<std::string> sysPathes;
-  if (extraSysPathes) {
+  if (extraSysPathes)
+  {
     getSysPathes(sysPathes);
   }
-  while (pathes != NULL && *pathes != NULL) {
+  while (pathes != NULL && *pathes != NULL)
+  {
     char* data = readData(*pathes);
-    if (data != NULL) {
+    if (data != NULL)
+    {
       loadedPath = *pathes;
       return data;
     }
-    if (extraSysPathes) {
+    if (extraSysPathes)
+    {
       data = readData(*pathes, sysPathes);
-      if (data != NULL) {
+      if (data != NULL)
+      {
         loadedPath = *pathes;
         return data;
       }
@@ -384,15 +392,23 @@ inline char* loadData(std::string& loadedPath, const char** pathes,
 inline char* loadData(const char* path, bool extraSysPathes = true) {
   const char* pathes[] = {path, NULL};
   std::string lpath;
-  return loadData(lpath, pathes, extraSysPathes);
+  char* data = loadData(lpath, pathes, extraSysPathes);
+#ifdef DEBUG
+  debug ("Loaded: %p %s", data, lpath.c_str());
+#endif
+  return data;
 }
 
-bool Kernel::load(const char* path) {
+bool Kernel::load(const char* path)
+{
   setImage(loadData(path));
 #ifdef DEBUG
-  if (m_image == NULL) {
+  if (m_image == NULL)
+  {
     debug("Cannot load %s.\n", path);
-  } else {
+  }
+  else
+  {
     debug("Loaded %s.\n", path);
   }
 #endif

@@ -326,6 +326,7 @@ class Buffer
     uintt increaseReadIdx (size_t count = 1) const
     {
       m_readIdx += getArgLength<Arg> (count);
+      return m_readIdx;
     }
 
   private:

@@ -32,6 +32,7 @@ const char* getStr(math::Status status) {
         case math::STATUS_ERROR:
             return "STATUS_ERROR";
     };
+    return nullptr;
 }
 
 const char* getErrorStr(math::Status status) {
@@ -43,7 +44,9 @@ const char* getErrorStr(math::Status status) {
         case math::STATUS_ERROR:
             return "STATUS_ERROR";
     };
+    return nullptr;
 }
+
 #define CLASS_BA(class_name, code, code1)\
         Status class_name::beforeExecution() {\
                 code \
