@@ -1,5 +1,6 @@
 #include "oapHostMatrixUtils.h"
 #include "MatchersUtils.h"
+#include "Config.h"
 
 #include "oapHostMatrixUPtr.h"
 #include "oapHostMatrixPtr.h"
@@ -34,7 +35,7 @@ class OapHostMatrixUtilsTests : public testing::Test {
   }
 };
 
-const std::string OapHostMatrixUtilsTests::testfilepath = "/tmp/Oap/host_tests/test_file";
+const std::string OapHostMatrixUtilsTests::testfilepath = oap::utils::Config::getFileInTmp("host_tests/test_file");
 
 TEST_F(OapHostMatrixUtilsTests, Copy) {
   const uintt columns = 11;
