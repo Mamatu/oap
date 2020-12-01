@@ -710,7 +710,7 @@ void CuProceduresApi::v2_dotProduct (Matrices& outputs, const Matrices& params1,
 template<typename Matrices>
 void CuProceduresApi::v2_multiply (Matrices& outputs, const Matrices& params1, const Matrices& params2)
 {
-  m_cuStatus = v2_dotProduct<Matrices> (outputs, params1, params2);
+  m_cuStatus = oap::generic::dotProduct (outputs, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice);
 }
 
 template<typename Matrices>
