@@ -63,28 +63,39 @@ namespace utils {
     std::sort (container.begin(), container.end(), lessByY);
   }
 
+namespace
+{
   template<typename UserValue, typename MatrixInfoVec, typename CreateCallback, typename ThreadsMapperCallback>
-  std::pair<uintt, uintt> createThreadsDim (const MatrixInfoVec& infos, CreateCallback&& createCallback, ThreadsMapperCallback&& tmCallback)
+  std::pair<uintt, uintt> createThreadsDim_simple (const MatrixInfoVec& infos, CreateCallback&& createCallback, ThreadsMapperCallback&& tmCallback)
   {
+    for (uintt idx = 0; idx < infos.size(); ++idx)
+    {
+      auto minfo = infos[idx];
+    }
+  }
+}
+
+  template<typename UserValue, typename MatrixInfoVec, typename CreateCallback>
+  std::pair<uintt, uintt> createThreadsDim (const MatrixInfoVec& infos, CreateCallback&& createCallback)
+  {
+    oapAssert (!infos.empty());
     using Tuple = std::tuple<uintt, uintt, uintt>;
     using Pair = std::pair<uintt, uintt>;
 
     using MapPosIndex = std::map<Pair, uintt>;
     using MapPosUserValue = std::map<Pair, UserValue>;
 
-    struct Dim
-    {
-      uintt width;
-      uintt height;
-    };
+    using Dim = std::pair<uintt, uintt>;
 
     using Output = std::pair<Dim, MapPosIndex>;
-    std::map<std::vector<uintt>, Output> dpd;
+    using SubOutputKey = std::pair<std::vector<Dim>, uintt>;
+
+    std::map<SubOutputKey, Output> subOutputs;
     std::map<const math::MatrixInfo*, uintt> mii;
 
     auto calcSize = [](const Output& output)
     {
-      return output.first.width * output.first.height;
+      return output.first.first * output.first.second;
     };
 
     auto sortFunc = [&calcSize](const Output& output1, const Output& output2)
@@ -102,13 +113,14 @@ namespace utils {
     }
 
     auto createDPB = [&mii](const MInfoPtrs& minfosPtr, uintt id)
-    {    
-      std::vector<uintt> dpb_set;
+    {
+      using SubOutcome = std::pair<std::vector<Dim>, uintt>;
+      SubOutcome dpb_set;
       for (const auto& ptr : minfosPtr)
       {
-        dpb_set.push_back (mii[ptr]);
+        dpb_set.first.push_back ({ptr->columns(), ptr->rows()});
       }
-      dpb_set.push_back (id);
+      dpb_set.second = id;
       return dpb_set;
     };
 
@@ -150,11 +162,11 @@ namespace utils {
     };
 
     std::function<Output(const MInfoPtrs& infos, const Dim& o_dim, const MapPosIndex& mpi, uintt id)> calc;
-    calc = [&calc, &calcMap, &dpd, &createDPB, &f_infosPtr, &mii, &sortFunc](const MInfoPtrs& minfosPtr, const Dim& o_dim, const MapPosIndex& mpi, uintt id)
+    calc = [&calc, &calcMap, &subOutputs, &createDPB, &f_infosPtr, &mii, &sortFunc](const MInfoPtrs& minfosPtr, const Dim& o_dim, const MapPosIndex& mpi, uintt id)
     {
       auto dpd_set = std::move (createDPB (minfosPtr, id));
-      auto dpd_it = dpd.find (dpd_set);
-      if (dpd_it != dpd.end())
+      auto dpd_it = subOutputs.find (dpd_set);
+      if (dpd_it != subOutputs.end())
       {
         return dpd_it->second;
       }
@@ -169,8 +181,8 @@ namespace utils {
         auto info = *it;
         new_infoPtrs.erase (it);
 
-        const uintt o_columns = o_dim.width;
-        const uintt o_rows = o_dim.height;
+        const uintt o_columns = o_dim.first;
+        const uintt o_rows = o_dim.second;
 
         const uintt c = info->columns();
         const uintt r = info->rows();
@@ -204,7 +216,7 @@ namespace utils {
         }
 
         std::sort (outputs1.begin(), outputs1.end(), sortFunc);
-        dpd[dpd_set] = outputs1.front();
+        subOutputs[dpd_set] = outputs1.front();
 
         outputs.push_back (outputs1.front());
       }
@@ -223,13 +235,9 @@ namespace utils {
 
     for (auto it = map.begin(); it != map.end(); ++it)
     {
-      map_uv[it->first] = createCallback (it->first.first, it->first.second, it->second);
+      createCallback (it->first.first, it->first.second, it->second, dim.first, dim.second);
     }
-    for (auto it = map_uv.begin(); it != map_uv.end(); ++it)
-    {
-      tmCallback(it->first.first, it->first.second, it->second, dim.width, dim.height);
-    }
-    return std::make_pair(dim.width, dim.height);
+    return std::make_pair(dim.first, dim.second);
   }
 }
 }
