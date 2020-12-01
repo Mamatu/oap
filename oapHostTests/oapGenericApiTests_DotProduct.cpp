@@ -179,23 +179,11 @@ TEST_F(OapGenericApiTests_DotProduct, Test_4)
       {-0.116176394, -0.543101653,  1.000000000}
     };
 
-  std::vector<math::Matrix*> outputs;
-  std::vector<math::Matrix*> params1;
-  std::vector<math::Matrix*> params2;
-  for (auto& vec : params1_raw)
-  {
-    math::Matrix* output = oap::host::NewReMatrix (1, 3);
-    outputs.push_back (output);
-
-    math::Matrix* matrix = oap::host::NewReMatrixCopyOfArray (3, 3, vec.data());
-    params1.push_back (matrix);
-  }
-
-  for (auto& vec : params2_raw)
-  {
-    math::Matrix* matrix = oap::host::NewReMatrixCopyOfArray (1, 3, vec.data());
-    params2.push_back (matrix);
-  }
+  math::MatrixInfo minfo(true, false, 1, 3);
+  math::MatrixInfo minfo1(true, false, 3, 3);
+  std::vector<math::Matrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
+  std::vector<math::Matrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::Matrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
 
   hp.v2_multiply (outputs, params1, params2);
 

@@ -32,6 +32,8 @@
 #include "oapDeviceMatrixPtr.h"
 #include "oapFuncTests.h"
 
+#include "CudaMatchersUtils.h"
+
 using namespace ::testing;
 
 class OapGenericApiTests_DotProduct : public testing::Test
@@ -76,33 +78,39 @@ TEST_F(OapGenericApiTests_DotProduct, Test_1)
       {-0.116176394, -0.543101653,  1.000000000}
     };
 
-  std::vector<math::Matrix*> outputs;
-  std::vector<math::Matrix*> params1;
-  std::vector<math::Matrix*> params2;
-  for (auto& vec : params1_raw)
-  {
-    math::Matrix* output = oap::cuda::NewDeviceReMatrix (1, 3);
-    outputs.push_back (output);
-
-    math::Matrix* matrix = oap::cuda::NewDeviceReMatrixCopyOfArray (3, 3, vec.data());
-    params1.push_back (matrix);
-  }
-
-  for (auto& vec : params2_raw)
-  {
-    math::Matrix* matrix = oap::cuda::NewDeviceReMatrixCopyOfArray (1, 3, vec.data());
-    params2.push_back (matrix);
-  }
+  math::MatrixInfo minfo(true, false, 1, 3);
+  math::MatrixInfo minfo1(true, false, 3, 3);
+  std::vector<math::Matrix*> outputs = oap::cuda::NewDeviceMatrices (minfo, params1_raw.size());
+  std::vector<math::Matrix*> params1 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::Matrix*> params2 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo, params2_raw);
 
   m_cuApi->v2_multiply (outputs, params1, params2);
 
-  PRINT_CUMATRIX_CARRAY(outputs[0]);
-  PRINT_CUMATRIX_CARRAY(outputs[1]);
-  PRINT_CUMATRIX_CARRAY(outputs[2]);
-  PRINT_CUMATRIX_CARRAY(outputs[3]);
-  PRINT_CUMATRIX_CARRAY(outputs[4]);
-  PRINT_CUMATRIX_CARRAY(outputs[5]);
-  PRINT_CUMATRIX_CARRAY(outputs[6]);
+  PRINT_CUMATRIX_CARRAY(outputs);
+  /*PRINT_CUMATRIX(outputs[0]);
+  PRINT_CUMATRIX(outputs[1]);
+  PRINT_CUMATRIX(outputs[2]);
+  PRINT_CUMATRIX(outputs[3]);
+  PRINT_CUMATRIX(outputs[4]);
+  PRINT_CUMATRIX(outputs[5]);
+  PRINT_CUMATRIX(outputs[6]);*/
+
+  std::vector<std::vector<floatt>> expected_raw =
+    {
+      { 0.264996029, -0.327199891,  0.000000000},
+      { 0.559138926, -0.371919774,  0.000000000},
+      { 0.460739674, -0.364118158,  0.000000000},
+      { 0.384748063, -0.381777198,  0.000000000},
+      { 0.431693179, -0.313980184,  0.000000000},
+      { 0.378665560, -0.331393754,  0.000000000},
+      { 0.315650421, -0.287728207,  0.000000000}
+    };
+
+  for (uintt idx = 0; idx < outputs.size(); ++idx)
+  {
+    oap::HostMatrixPtr matrix = oap::host::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
+    EXPECT_THAT (matrix.get(), oap::cuda::MatrixIsEqualHK (outputs[idx]));
+  }
 
   oap::cuda::deleteDeviceMatrices (outputs);
   oap::cuda::deleteDeviceMatrices (params1);

@@ -25,6 +25,7 @@
 #define PRINT_MATRIX(m) logInfo ("%s %p\n%s %s", #m, m, oap::host::to_string(m).c_str(), oap::host::GetMatrixInfo(m).toString().c_str());
 #define PRINT_DIMS_3_2(m) logInfo ("%s dims = {{%u, %u}, {%u, %u}, {%u, %u}} ", #m, m[0][0], m[0][1], m[1][0], m[1][1], m[2][0], m[2][1]);
 #define PRINT_DIMS_2_2_2(m) logInfo ("%s dims = {{{%u, %u}, {%u, %u}}, {{%u, %u}, {%u, %u}}} ", #m, m[0][0][0], m[0][0][1], m[0][1][0], m[0][1][1], m[1][0][0], m[1][0][1], m[1][1][0], m[1][1][1]);
+#define PRINT_MATRIX_CARRAY(m) logInfo ("%s", oap::host::to_carraystr(m).c_str());
 
 namespace oap
 {
@@ -282,6 +283,16 @@ math::Matrix* NewImMatrixCopy(uint columns, uint rows, T* imArray)
  * @param matrix
  */
 void DeleteMatrix(const math::Matrix* matrix);
+
+template<typename Matrices>
+void deleteMatrices(const Matrices& matrices)
+{
+  for (uintt idx = 0; idx < matrices.size(); ++idx)
+  {
+    const math::Matrix* matrix = matrices[idx];
+    DeleteMatrix (matrix);
+  }
+}
 
 /**
  * @brief GetReValue
@@ -771,6 +782,14 @@ floatt GetImDiagonal (const math::Matrix* matrix, uintt index);
 
 void CopyReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix);
 void CopyHostBufferToReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length);
+
+std::string to_carraystr(const math::Matrix* matrix);
+std::string to_carraystr(const std::vector<math::Matrix*>& matrices);
+
+std::vector<math::Matrix*> NewMatrices (const std::vector<math::MatrixInfo>& minfos);
+std::vector<math::Matrix*> NewMatrices (const math::MatrixInfo& minfo, uintt count);
+std::vector<math::Matrix*> NewMatricesCopyOfArray (const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays);
+std::vector<math::Matrix*> NewMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays);
 
 }
 }

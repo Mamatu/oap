@@ -1444,5 +1444,100 @@ void CopyHostBufferToReMatrix (math::Matrix* matrix, const floatt* buffer, uintt
   oap::host::CopyHostBufferToHost (ref.re, ref.reReg, buffer, length);
 }
 
+std::string to_carraystr(const math::Matrix* matrix)
+{
+  std::string str;
+  if (matrix == nullptr)
+  {
+    str = "nullptr";
+    return str;
+  }
+
+  matrixUtils::PrintArgs args;
+  args.prepareSection (matrix);
+  args.section.separator = ",";
+  args.leftBracket = "{";
+  args.rightBracket = "}";
+  args.repeats = true;
+
+  oap::generic::printMatrix (str, matrix, args, oap::host::GetMatrixInfo);
+  return str;
+}
+
+std::string to_carraystr(const std::vector<math::Matrix*>& matrices)
+{
+  std::vector<std::string> strs;
+  for (const math::Matrix* matrix : matrices)
+  {
+    strs.push_back (oap::host::to_carraystr (matrix));
+  }
+  std::stringstream sstream;
+  sstream << "{";
+  for (uintt idx = 0; idx < strs.size(); ++idx)
+  {
+    std::string str = strs[idx];
+    sstream << str;
+    if (idx < strs.size() - 1)
+    {
+      sstream << ", ";
+    }
+  }
+  sstream << "}";
+  return sstream.str();
+}
+
+std::vector<math::Matrix*> NewMatrices (const std::vector<math::MatrixInfo>& minfos)
+{
+  std::vector<math::Matrix*> matrices;
+  for (const auto& minfo : minfos)
+  {
+    math::Matrix* matrix = oap::host::NewHostMatrixFromMatrixInfo (minfo);
+    matrices.push_back (matrix);
+  }
+  return matrices;
+}
+
+std::vector<math::Matrix*> NewMatrices (const math::MatrixInfo& minfo, uintt count)
+{
+  std::vector<math::MatrixInfo> minfos (count, minfo);
+  return NewMatrices (minfos);
+}
+
+std::vector<math::Matrix*> NewMatricesCopyOfArray (const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays)
+{
+  std::vector<math::Matrix*> matrices;
+  oapAssert (arrays.size() == minfos.size());
+  for (uintt idx = 0; idx < minfos.size(); ++idx)
+  {
+    auto& minfo = minfos[idx];
+    if (minfo.isRe && minfo.isIm)
+    {
+      math::Matrix* matrix = NewMatrixCopyOfArray (minfo.columns(), minfo.rows(), arrays[idx].data(), arrays[idx].data());
+      matrices.push_back (matrix);
+    }
+    else if(minfo.isRe)
+    {
+      math::Matrix* matrix = NewReMatrixCopyOfArray (minfo.columns(), minfo.rows(), arrays[idx].data());
+      matrices.push_back (matrix);
+    }
+    else if(minfo.isIm)
+    {
+      math::Matrix* matrix = NewImMatrixCopyOfArray (minfo.columns(), minfo.rows(), arrays[idx].data());
+      matrices.push_back (matrix);
+    }
+    else
+    {
+      oapAssert ("not supported" == nullptr);
+    }
+  }
+  return matrices;
+}
+
+std::vector<math::Matrix*> NewMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays)
+{
+  std::vector<math::MatrixInfo> minfos (arrays.size(), minfo);
+  return NewMatricesCopyOfArray (minfos, arrays);  
+}
+
 }
 }

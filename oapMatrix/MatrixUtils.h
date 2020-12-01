@@ -107,6 +107,8 @@ class PrintArgs
     std::string pretext = ""; ///<text printed before matrix string representation
     std::string posttext = ""; ///<text printed after matrix string representation
 
+    std::string leftBracket = "[";
+    std::string rightBracket = "]";
     floatt zrr = 0; ///< zero round range any number which fullfils condition |number| <= zrr, will be print as zero
     bool repeats = false; ///< if true the same number will be repeatedly printed, otherwise will be used pattern <repeats x times>
 
