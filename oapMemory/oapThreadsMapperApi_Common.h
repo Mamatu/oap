@@ -81,7 +81,7 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
   std::map<std::pair<uintt, uintt>, std::vector<uintt>> map;
   std::map<uintt, uintt> matrixIdxCounter;
 
-  auto dim = oap::utils::createThreadsDim<std::vector<uintt>> (matrixInfos,
+  auto dim = oap::utils::createThreadsDim (matrixInfos,
       [&matricesArgs, &matrixIdxCounter, &matricesRefs, &createBuffer, &map](uintt x, uintt y, uintt lineIndex, uintt width, uintt height)
       {
         const uintt arglen = matricesArgs[lineIndex].size();

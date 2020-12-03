@@ -65,25 +65,57 @@ namespace utils {
 
 namespace
 {
-  template<typename UserValue, typename MatrixInfoVec, typename CreateCallback, typename ThreadsMapperCallback>
-  std::pair<uintt, uintt> createThreadsDim_simple (const MatrixInfoVec& infos, CreateCallback&& createCallback, ThreadsMapperCallback&& tmCallback)
+  template<typename MatrixInfoVec, typename CreateCallback>
+  bool createThreadsDim_simple (std::pair<uintt, uintt>& dim, const MatrixInfoVec& infos, CreateCallback&& createCallback)
   {
+    math::MatrixInfo mref;
     for (uintt idx = 0; idx < infos.size(); ++idx)
     {
       auto minfo = infos[idx];
+      if (idx == 0)
+      {
+        mref = minfo;
+      }
+      if (mref != minfo)
+      {
+        return false;
+      }
     }
+    uintt columns = mref.columns();
+    uintt rows = mref.rows() * infos.size();
+    dim = std::make_pair (columns, rows);
+    for (uintt r = 0; r < rows; ++r)
+    {
+      for (uintt c = 0; c < columns; ++c)
+      {
+        uintt index = r / mref.rows();
+        createCallback (c, r, index, columns, rows);
+      }
+    }
+    return true;
   }
 }
 
-  template<typename UserValue, typename MatrixInfoVec, typename CreateCallback>
+  /**
+   * @param createCallback - (uintt x, uintt y, uintt index, uintt columns, uintt rows)
+   */
+  template<typename MatrixInfoVec, typename CreateCallback>
   std::pair<uintt, uintt> createThreadsDim (const MatrixInfoVec& infos, CreateCallback&& createCallback)
   {
     oapAssert (!infos.empty());
+
+    {
+      std::pair<uintt, uintt> dim;
+      bool b = createThreadsDim_simple (dim, infos, createCallback);
+      if (b)
+      {
+        return dim;
+      }
+    }
     using Tuple = std::tuple<uintt, uintt, uintt>;
     using Pair = std::pair<uintt, uintt>;
 
     using MapPosIndex = std::map<Pair, uintt>;
-    using MapPosUserValue = std::map<Pair, UserValue>;
 
     using Dim = std::pair<uintt, uintt>;
 
@@ -230,8 +262,6 @@ namespace
 
     auto dim = output.first;
     auto& map = output.second;
-
-    MapPosUserValue map_uv;
 
     for (auto it = map.begin(); it != map.end(); ++it)
     {
