@@ -52,14 +52,20 @@ public:
   Network& operator= (const Network&) = delete;
   Network& operator= (Network&&) = delete;
 
-  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX, bool binitWeights = true);
-  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX, bool binitWeights = true);
+  /**
+   *  Initializes weights by random values
+   */
+  void initWeights (bool init);
 
-  void createLevel (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX, bool binitWeights = true);
+  void initTopology (const std::vector<uintt>& topology, const std::vector<uintt>& biases, const std::vector<Activation>& activations);
 
-  void addLayer (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX);
+  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX);
+  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX);
+  void createLevel (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX);
 
   LHandler createFPLayer (uintt samples, LayerType ltype = LayerType::ONE_MATRIX);
+  LHandler createSharedFPLayer (const std::vector<LHandler>& handlers, LayerType ltype = LayerType::ONE_MATRIX);
+  LHandler createSharedFPLayer (const std::vector<std::vector<FPMatrices*>>& fpmatrices, LayerType ltype = LayerType::ONE_MATRIX);
 
   oap::HostMatrixUPtr run (const math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
 
@@ -69,7 +75,7 @@ public:
   void destroyFPSection (LHandler handle);
 
   math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType, LHandler handler = 0) const;
-  Matrices getOutputs (Matrices& outputs, ArgType argType, LHandler handler = 0) const;
+  void getOutputs (Matrices& outputs, ArgType argType, LHandler handler = 0) const;
 
   math::Matrix* getHostOutputs () const;
 
@@ -110,9 +116,15 @@ public:
 
   uintt getLayersCount () const
   {
-    return m_layers[0].size ();
+    return m_networkTopology.size ();
   }
-  
+
+  uintt getNeuronsCount (uintt layerIdx) const;
+  uintt getBiasesCount (uintt layerIdx) const;
+  Activation getActivation (uintt layerIdx) const;
+  BPMatrices* getBPMatrices (uintt layerIdx) const;
+  NBPair getNBPair(uintt layerIdx) const;
+
   DeviceLayer* getLayer(uintt layerIndex, LHandler handler = 0) const;
 
   bool operator== (const Network& network) const;
@@ -144,6 +156,18 @@ public:
   Matrices getExpected (LHandler handler) const;
 
 private:
+  struct GenericFPLayerArgs
+  {
+    uintt samples;
+    std::vector<std::vector<FPMatrices*>> fpmatrices;
+  };
+
+  LHandler createGenericFPLayer (LayerType ltype, const GenericFPLayerArgs& args);
+
+  void addLayer (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX);
+  void addToTopology(DeviceLayer* layer);
+  void addToTopologyBPMatrices(DeviceLayer* layer);
+
   std::vector<floatt> m_errorsVec;
 
   floatt m_learningRate = 0.1f;
@@ -188,6 +212,14 @@ private:
     //std::cout << "[network] ";
     return std::cout;
   }
+
+  std::vector<uintt> m_networkTopology;
+  std::vector<uintt> m_networkBiases;
+  std::vector<Activation> m_networkActivations;
+  std::vector<BPMatrices*> m_bpMatricesNetwork;
+  bool m_isCreatedByNetworkTopology = false;
+  bool m_isCreatedByApi = false;
+  bool m_initWeights = true;
 
   template<typename LayerT, typename AllocNeuronsApi>
   friend void allocateNeurons (LayerT& ls, uintt neuronsCount, uintt biasCount);

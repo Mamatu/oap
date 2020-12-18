@@ -41,22 +41,28 @@ namespace
     return oap::host::NewHostMatrixFromMatrixInfo (minfo);
   }
 
+  inline math::Matrix* _newSharedSubMatrix (const math::MatrixDim& mdim, const math::Matrix* matrix)
+  {
+    return oap::host::NewSharedSubMatrix (mdim, matrix);
+  }
+
   inline math::Matrix* _newMatrixRef (const math::Matrix* matrix)
   {
     return oap::host::NewMatrixRef (matrix);
   }
 }
 
-template<typename NewMemory, typename NewMatrixFromMatrixInfo>
+template<typename NewMemory, typename NewMatrixFromMatrixInfo, typename NewSharedSubMatrix>
 class AllocNeuronsApi
 {
   public:
-    AllocNeuronsApi (NewMemory&& _newMemory, NewMatrixFromMatrixInfo&& _newMatrixFromMatrixInfo) :
-                     newMemory (_newMemory), newMatrixFromMatrixInfo (_newMatrixFromMatrixInfo)
+    AllocNeuronsApi (NewMemory&& _newMemory, NewMatrixFromMatrixInfo&& _newMatrixFromMatrixInfo, NewSharedSubMatrix&& _newSharedSubMatrix) :
+                     newMemory (_newMemory), newMatrixFromMatrixInfo (_newMatrixFromMatrixInfo), newSharedSubMatrix(_newSharedSubMatrix)
     {}
 
     NewMemory&& newMemory;
     NewMatrixFromMatrixInfo&& newMatrixFromMatrixInfo;
+    NewSharedSubMatrix&& newSharedSubMatrix;
 };
 
 template<typename NewDeviceMatrixFromMatrixInfo, typename NewDeviceMatrixDeviceRef, typename NewHostMatrixFromMatrixInfo, typename CopyHostMatrixToDeviceMatrix>
@@ -92,7 +98,7 @@ namespace host
 namespace
 {
 
-  using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(_newHostMemory), decltype(_newHostMatrixFromMatrixInfo)>;
+  using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(_newHostMemory), decltype(_newHostMatrixFromMatrixInfo), decltype(_newSharedSubMatrix)>;
   using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(_newHostMatrixFromMatrixInfo), decltype(_newMatrixRef), decltype(_newHostMatrixFromMatrixInfo), decltype(oap::host::CopyHostMatrixToHostMatrix)>;
   using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::host::DeleteMatrix), decltype(oap::host::DeleteMatrix)>;
 
@@ -102,7 +108,7 @@ class AllocNeuronsApi : public GenericAllocNeuronsApi
 {
   public:
     AllocNeuronsApi () :
-    GenericAllocNeuronsApi (_newHostMemory, _newHostMatrixFromMatrixInfo)
+    GenericAllocNeuronsApi (_newHostMemory, _newHostMatrixFromMatrixInfo, _newSharedSubMatrix)
     {}
 };
 

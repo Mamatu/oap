@@ -89,6 +89,18 @@ FPMatrices* Layer<LayerApi>::getFPMatrices (uintt idx) const
 }
 
 template<typename LayerApi>
+uintt Layer<LayerApi>::getBPMatricesCount () const
+{
+  return m_bpMatrices.size();
+}
+
+template<typename LayerApi>
+uintt Layer<LayerApi>::getFPMatricesCount () const
+{
+  return m_fpMatrices.size();
+}
+
+template<typename LayerApi>
 void Layer<LayerApi>::addBPMatrices (BPMatrices* bpMatrices)
 {
   if (bpMatrices == nullptr)
@@ -112,9 +124,12 @@ void Layer<LayerApi>::addFPMatrices (FPMatrices* fpMatrices)
   }
   m_fpMatrices.push_back (fpMatrices);
   m_sums.push_back (fpMatrices->m_sums);
+  m_sums_wb.push_back (fpMatrices->m_sums_wb);
   m_errors.push_back (fpMatrices->m_errors);
+  m_errors_wb.push_back (fpMatrices->m_errors_wb);
   m_errorsAux.push_back (fpMatrices->m_errorsAux);
   m_inputs.push_back (fpMatrices->m_inputs);
+  m_inputs_wb.push_back (fpMatrices->m_inputs_wb);
 }
 
 template<typename CDst, typename CSrc, typename Get>
@@ -123,7 +138,7 @@ void cleanIterate (CDst& dst, const CSrc& src, Get&& get)
   dst.clear();
   for (const auto& ep : src)
   {
-    dst.push_back (get(src));
+    dst.push_back (get(ep));
   }
 }
 
@@ -151,9 +166,12 @@ void Layer<LayerApi>::setFPMatrices (FPMatricesVec&& fpMatrices)
 {
   m_fpMatrices = std::forward<FPMatricesVec>(fpMatrices);
   cleanIterate(m_sums, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_sums;});
+  cleanIterate(m_sums_wb, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_sums_wb;});
   cleanIterate(m_errors, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_errors;});
+  cleanIterate(m_errors_wb, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_errors_wb;});
   cleanIterate(m_errorsAux, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_errorsAux;});
   cleanIterate(m_inputs, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_inputs;});
+  cleanIterate(m_inputs_wb, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_inputs_wb;});
 }
 
 template<typename LayerApi>

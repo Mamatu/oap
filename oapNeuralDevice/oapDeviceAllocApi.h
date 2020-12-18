@@ -44,6 +44,11 @@ namespace
     return oap::cuda::NewDeviceMatrixDeviceRef (matrix);
   }
 
+  inline math::Matrix* _newDeviceSharedSubMatrix (const math::MatrixDim& mdim, const math::Matrix* matrix)
+  {
+    return oap::cuda::NewDeviceSharedSubMatrix (mdim, matrix);
+  }
+
   inline oap::Memory _newDeviceMemory (const oap::MemoryDim& dim)
   {
     return oap::cuda::NewMemory (dim);
@@ -54,7 +59,7 @@ namespace
     return oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
   }
 
-  using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(_newDeviceMemory), decltype(_newDeviceMatrixFromMatrixInfo)>;
+  using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(_newDeviceMemory), decltype(_newDeviceMatrixFromMatrixInfo), decltype(_newDeviceSharedSubMatrix)>;
 
   using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(_newDeviceMatrixFromMatrixInfo), decltype(_newDeviceMatrixDeviceRef), decltype(_newHostMatrixFromMatrixInfo), decltype(oap::cuda::CopyHostMatrixToDeviceMatrix)>;
 
@@ -65,7 +70,7 @@ class AllocNeuronsApi : public GenericAllocNeuronsApi
 {
   public:
     AllocNeuronsApi () :
-    GenericAllocNeuronsApi (_newDeviceMemory, _newDeviceMatrixFromMatrixInfo)
+    GenericAllocNeuronsApi (_newDeviceMemory, _newDeviceMatrixFromMatrixInfo, _newDeviceSharedSubMatrix)
     {}
 };
 

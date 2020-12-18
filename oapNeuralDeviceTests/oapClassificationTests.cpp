@@ -35,6 +35,7 @@
 #include "Config.h"
 
 #include "oapNeuralUtils.h"
+#include "oapMatrixRandomGenerator.h"
 
 class OapClassificationTests : public testing::Test
 {
@@ -166,17 +167,15 @@ using Coordinates = std::vector<Coordinate>;
 
 TEST_F(OapClassificationTests, CircleDataTest)
 {
-  auto generateCoords = [](Coordinates& coordinates, floatt r_min, floatt r_max, size_t count, floatt label) -> Coordinates
-  {
-    std::random_device rd;
-    std::default_random_engine dre (rd());
-    std::uniform_real_distribution<floatt> r_dis(r_min, r_max);
-    std::uniform_real_distribution<floatt> q_dis(0., 2. * 3.14);
+  uintt seed = 123456789;
+  oap::utils::RandomGenerator rg (-0.5f, 0.5f, seed);
 
+  auto generateCoords = [&rg](Coordinates& coordinates, floatt r_min, floatt r_max, size_t count, floatt label) -> Coordinates
+  {
     for (size_t idx = 0; idx < count; ++idx)
     {
-      floatt r = r_dis (dre);
-      floatt q = q_dis (dre);
+      floatt r = rg(r_min, r_max);
+      floatt q = rg(0., 2. * 3.14);
       coordinates.emplace_back (q, r, label);
     }
 
@@ -201,6 +200,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
       *GetRePtrIndex (hinput, 2 + idx * 3) = 1;
     }
 
+    PRINT_MATRIX_CARRAY(hinput);
     return hinput;
   };
 
@@ -252,7 +252,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
   //normalize (coordinates);
   oap::pyplot::plot2DAll ("/tmp/plot_normalize_coords.py", oap::pyplot::convert(coordinates), fileType);
 
-  auto modifiedCoordinates = oap::nutils::splitIntoTestAndTrainingSet (trainingData, testData, coordinates, 2.f / 3.f);
+  auto modifiedCoordinates = oap::nutils::splitIntoTestAndTrainingSet (trainingData, testData, coordinates, 2.f / 3.f, rg);
 
   oap::pyplot::plot2DAll ("/tmp/plot_test_data.py", oap::pyplot::convert(testData), fileType);
   oap::pyplot::plot2DAll ("/tmp/plot_training_data.py", oap::pyplot::convert(trainingData), fileType);
@@ -285,6 +285,8 @@ TEST_F(OapClassificationTests, CircleDataTest)
 
     floatt initLR = 0.03;
     network->setLearningRate (initLR);
+
+    network->initWeights (false);
 
     network->createLayer(2, true, Activation::TANH);
     network->createLayer(3, true, Activation::TANH);
@@ -332,6 +334,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
       if (output != nullptr)
       {
         network->getOutputs (hostMatrix.get(), ArgType::HOST, handler);
+        PRINT_MATRIX_CARRAY(hostMatrix.get());
         for (size_t idx = 0; idx < coords.size(); ++idx)
         {
           Coordinate ncoord = coords[idx];
@@ -368,6 +371,13 @@ TEST_F(OapClassificationTests, CircleDataTest)
       return GetReIndex (houtput, 0) < 0 ? 0 : 1;
     };
 
+    oap::device::iterateNetwork (*network, [&rg](DeviceLayer& current, const DeviceLayer& next)
+    {
+      oap::utils::MatrixRandomGenerator mrg (&rg);
+      mrg.setFilter (oap::device::BiasesFilter<DeviceLayer> (current, next));
+      oap::device::initRandomWeights (current, next, oap::cuda::GetMatrixInfo, mrg);
+    });
+
     std::vector<floatt> trainingErrors;
     std::vector<floatt> testErrors;
     trainingErrors.reserve(1500);
@@ -381,6 +391,7 @@ TEST_F(OapClassificationTests, CircleDataTest)
     debugAssertMsg (trainingData.size () % batchSize == 0, "Training data size is not multiple of batch size. Not handled case. training_size: %lu batch_size: %lu", trainingData.size(), batchSize);
     do
     {
+      network->printLayersWeights();
       for(size_t idx = 0; idx < trainingData.size(); idx += batchSize)
       {
         for (size_t c = 0; c < batchSize; ++c)
@@ -433,14 +444,14 @@ TEST_F(OapClassificationTests, CircleDataTest)
     }
     while (testError > 0.005 && terrorCount < 10000);
 
-    EXPECT_GE (1000, terrorCount);
+    EXPECT_GE (400, terrorCount);
 
     oap::pyplot::plotCoords2D ("/tmp/plot_plane_xy.py", std::make_tuple(-5, 5, 0.1), std::make_tuple(-5, 5, 0.1), getLabel, {"r*", "b*"});
   }
-
 }
 
-TEST_F(OapClassificationTests, OCR)
+#if 0
+TEST_F(OapClassificationTests, DISABLED_OCR)
 {
   oap::CuProceduresApi calcApi;
 
@@ -609,30 +620,26 @@ TEST_F(OapClassificationTests, OCR)
   {
     network->forwardPropagation (handler);
     network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST, handler);
-    //PRINT_CUMATRIX(network->getLayer(network->getLayersCount () - 1, handler)->getFPMatrices()->m_inputs);
   };
 
   floatt initLR = 0.1;
   network->setLearningRate (initLR);
 
-  auto* layer = network->createLayer(rs.getSize (), true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
-  network->createLayer(rs.getSize() * 2, true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
-  network->createLayer(rs.getSize(), true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
-  network->createLayer(rs.getSize(), true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
-  network->createLayer(rs.getSize() * 2, true, Activation::SIGMOID, LayerType::ONE_MATRIX, false);
-  network->createLayer(10, Activation::NONE, LayerType::ONE_MATRIX, false);
-
-  oap::device::RandomGenerator rg (-0.5, .5);
+  auto* layer = network->createLayer(rs.getSize (), true, Activation::SIGMOID, LayerType::ONE_MATRIX);
+  network->createLayer(rs.getSize() * 2, true, Activation::SIGMOID, LayerType::ONE_MATRIX);
+  network->createLayer(rs.getSize(), true, Activation::SIGMOID, LayerType::ONE_MATRIX);
+  network->createLayer(rs.getSize(), true, Activation::SIGMOID, LayerType::ONE_MATRIX);
+  network->createLayer(rs.getSize() * 2, true, Activation::SIGMOID, LayerType::ONE_MATRIX);
+  network->createLayer(10, Activation::NONE, LayerType::ONE_MATRIX);
+//#if 0
+  oap::utils::MatrixRandomGenerator rg (-0.5, .5);
 
   oap::device::iterateNetwork (*network, [&rg, &calcApi](DeviceLayer& current, const DeviceLayer& next)
   {
-    rg.setValueCallback (oap::device::BiasesFilter<DeviceLayer> (current, next));
-    //PRINT_CUMATRIX(current.getBPMatrices()->m_weights);
-    //rg.setMatrixCallback ([&calcApi](math::Matrix* matrix, ArgType argType) { if (argType == ArgType::DEVICE) { calcApi.scale (matrix); } });
+    rg.setFilter (oap::device::BiasesFilter<DeviceLayer> (current, next));
     oap::device::initRandomWeights (current, next, oap::cuda::GetMatrixInfo, rg);
-    //PRINT_CUMATRIX(current.getBPMatrices()->m_weights);
   });
-
+//#endif
   allocateFPSections (testData);
   allocateFPSections (trainingData);
 
@@ -667,20 +674,14 @@ TEST_F(OapClassificationTests, OCR)
       {
         FPHandler handler = trainingData[idx + c].handler;
         forwardPropagationFP (handler);
-        //PRINT_CUMATRIX(network->getLayer(0, handler)->getFPMatrices()->m_inputs);
-        //PRINT_CUMATRIX(network->getLayer(1, handler)->getFPMatrices()->m_inputs);
-        //PRINT_CUMATRIX(network->getLayer(2, handler)->getFPMatrices()->m_inputs);
-        //PRINT_CUMATRIX(network->getLayer(0, handler)->getBPMatrices()->m_weights);
         network->backPropagation (handler);
       }
       network->updateWeights ();
     }
-
     oap::device::iterateNetwork (*network, [&rg, &calcApi](DeviceLayer& current, const DeviceLayer& next)
     {
       calcApi.scale (current.getBPMatrices()->m_weights);
     });
-
     forwardPropagationFP (trainingHandler);
     trainingError = network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
     network->postStep ();
@@ -762,3 +763,4 @@ TEST_F(OapClassificationTests, OCR)
   //testImage ("digit_8_ocr.png", 8);
   //testImage ("digit_9_ocr.png", 9);
 }
+#endif

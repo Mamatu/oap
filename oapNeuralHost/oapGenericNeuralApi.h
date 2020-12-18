@@ -269,6 +269,9 @@ void setInputs (LayerT& layer, const Matrices& inputs, CopyMatrixToMatrix&& copy
   for (uintt idx = 0; idx < inputs.size(); ++idx)
   {
     copyMatrixToMatrix (layer.getFPMatrices(idx)->m_inputs, inputs[idx]);
+#ifdef OAP_CUDA_BUILD
+    PRINT_CUMATRIX_CARRAY(layer.getFPMatrices(idx)->m_inputs);
+#endif
   }
 
   initLayerBiases (layer, setReValue);
@@ -304,7 +307,7 @@ void printHostWeights (const LayerT& layer, bool newLine, CopyKernelMatrixToMatr
   }
   else
   {
-    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix (layer.getTotalNeuronsCount(), layer.getNextLayer()->getTotalNeuronsCount());
+    oap::HostMatrixUPtr matrix = oap::host::NewHostMatrixFromMatrixInfo (layer.getWeightsInfo());
     copyKernelMatrixToMatrix (matrix.get(), layer.getBPMatrices()->m_weights);
 
     oap::host::ToString (matrixStr, matrix.get());
@@ -318,6 +321,7 @@ void forwardPropagation_oneSample (const Layers& layers, Api& api)
 {
   //debugAssertMsg (layers.getSamplesCount() == 1, "For samples higher than 1 please use forwardPropagationExtended method");
   logTrace("");
+  logInfo("");
 
   LayerT* previous = nullptr;
   LayerT* current = layers[0];
@@ -341,6 +345,13 @@ void forwardPropagation_oneSample (const Layers& layers, Api& api)
     api.dotProduct (current_fp.m_sums, previous_bp.m_weights, previous_fp.m_inputs, dims);
 
     activateFunc (current_fp.m_inputs, current_fp.m_sums, previous->getActivation(), api, dims[0]);
+#ifdef OAP_CUDA_BUILD
+    printf("TO_CHECK layer = %u\n", idx);
+    PRINT_CUMATRIX_CARRAY(current_fp.m_inputs);
+    //PRINT_CUMATRIX_CARRAY(current_fp.m_sums);
+    //PRINT_CUMATRIX_CARRAY(previous_bp.m_weights);
+    //PRINT_CUMATRIX_CARRAY(previous_fp.m_inputs);
+#endif
   }
 }
 
@@ -350,6 +361,7 @@ void forwardPropagation_multiSamples (const Layers& layers, Api& api)
   //debugAssertMsg (layers.getSamplesCount() > 1, "For samples count equals to 1 please use forwardPropagation method");
   logTrace("");
 
+  logInfo("");
   LayerT* previous = nullptr;
   LayerT* current = layers[0];
 
@@ -380,6 +392,13 @@ void forwardPropagation_multiSamples (const Layers& layers, Api& api)
     };
 
     activateFunc (current_fp.m_inputs, current_fp.m_sums, previous->getActivation(), api, dims1);
+#ifdef OAP_CUDA_BUILD
+    printf("TO_CHECK layer = %u\n", idx);
+    PRINT_CUMATRIX_CARRAY(current_fp.m_inputs);
+    //PRINT_CUMATRIX_CARRAY(current_fp.m_sums);
+    //PRINT_CUMATRIX_CARRAY(previous_bp.m_weights);
+    //PRINT_CUMATRIX_CARRAY(previous_fp.m_inputs);
+#endif
   }
 }
 
@@ -388,6 +407,7 @@ void forwardPropagation_multiMatrices (const Layers& layers, Api& api)
 {
   //debugAssertMsg (layers.getSamplesCount() > 1, "For samples count equals to 1 please use forwardPropagation method");
 
+  logInfo("");
   logTrace("");
   LayerT* previous = nullptr;
   LayerT* current = layers[0];
@@ -397,13 +417,23 @@ void forwardPropagation_multiMatrices (const Layers& layers, Api& api)
     previous = current;
     current = layers[idx];
 
-    auto& current_sums = current->getSums ();
     auto& current_inputs = current->getInputs ();
+    auto& current_sums = current->getSums ();
+    auto& current_sums_wb = current->getSumsWB ();
+    auto& current_inputs_wb = current->getInputsWB ();
     auto& previous_inputs = previous->getInputs ();
     auto& previous_weights = previous->getWeights ();
 
-    api.dotProduct (current_sums, previous_weights, previous_inputs);
-    activateFunc (current_inputs, current_sums, previous->getActivation(), api);
+    api.dotProduct (current_sums_wb, previous_weights, previous_inputs);
+    activateFunc (current_inputs_wb, current_sums_wb, previous->getActivation(), api);
+
+#ifdef OAP_CUDA_BUILD
+    printf("TO_CHECK layer = %u\n", idx);
+    PRINT_CUMATRIX_CARRAY(current_inputs);
+    //PRINT_CUMATRIX_CARRAY(current_sums);
+    //PRINT_CUMATRIX_CARRAY(previous_weights);
+    //PRINT_CUMATRIX_CARRAY(previous_inputs);
+#endif
   }
 }
 
@@ -411,6 +441,7 @@ template<typename LayerT, typename Api, typename CopyKernelMatrixToHostMatrix>
 void getErrors (math::Matrix* errorsOutput, LayerT& layer, Api& api, math::Matrix* expectedDeviceOutputs, oap::ErrorType errorType, CopyKernelMatrixToHostMatrix&& copyKernelMatrixToHostMatrix)
 {
   logTrace("");
+  logInfo("");
   debugAssert (expectedDeviceOutputs != nullptr);
 
   if (errorType == oap::ErrorType::CROSS_ENTROPY)
@@ -422,12 +453,21 @@ void getErrors (math::Matrix* errorsOutput, LayerT& layer, Api& api, math::Matri
     api.subtract (layer.getFPMatrices()->m_errorsAux, layer.getFPMatrices()->m_inputs, expectedDeviceOutputs);
   }
   copyKernelMatrixToHostMatrix (errorsOutput, layer.getFPMatrices()->m_errorsAux);
+#ifdef OAP_CUDA_BUILD
+/*  printf("ERRORS_CHECK\n");
+  PRINT_MATRIX_CARRAY(errorsOutput);
+  PRINT_CUMATRIX_CARRAY(layer.getFPMatrices()->m_inputs);
+  PRINT_CUMATRIX_CARRAY(expectedDeviceOutputs);*/
+#endif
 }
 
 template<typename Matrices, typename LayerT, typename Api, typename CopyKernelMatrixToHostMatrix>
 void getErrors_multiMatrices (const Matrices& errorsOutput, LayerT& layer, Api& api, const Matrices& expectedDeviceOutputs, oap::ErrorType errorType, CopyKernelMatrixToHostMatrix&& copyKernelMatrixToHostMatrix)
 {
   debugAssert (!expectedDeviceOutputs.empty());
+  logInfo("");
+  debugAssert (!errorsOutput.empty());
+  debugAssert (errorsOutput.size() == layer.getFPMatricesCount());
 
   logTrace("");
   if (errorType == oap::ErrorType::CROSS_ENTROPY)
@@ -442,11 +482,18 @@ void getErrors_multiMatrices (const Matrices& errorsOutput, LayerT& layer, Api& 
   {
     copyKernelMatrixToHostMatrix (errorsOutput[idx], layer.getErrorsAux()[idx]);
   }
+#ifdef OAP_CUDA_BUILD
+  /*printf("ERRORS_CHECK\n");
+  PRINT_MATRIX_CARRAY(errorsOutput);
+  PRINT_CUMATRIX_CARRAY(layer.getInputs());
+  PRINT_CUMATRIX_CARRAY(expectedDeviceOutputs);*/
+#endif
 }
 
 template<typename LayerT, typename Layers, typename Api, typename CopyMatrixToMatrix>
 void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
+  logInfo("");
   logTrace("");
   auto calcErrors = [&layers, &api]()
   {
@@ -508,10 +555,6 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
       FPMatrices& next_fp = *next->getFPMatrices ();
 
       api.transpose (current_bp.m_tinputs, current_fp.m_inputs);
-#ifdef OAP_CUDA_BUILD
-      //PRINT_CUMATRIX(current_bp.m_tinputs);
-      //PRINT_CUMATRIX(current_fp.m_inputs);
-#endif
       {
         uintt dims[3][2] =
         {
@@ -521,8 +564,19 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
         };
         api.tensorProduct (current_bp.m_weights1, current_bp.m_tinputs, next_fp.m_errors, dims);
       }
-
+#ifdef OAP_CUDA_BUILD
+  PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
+#endif
       api.add (current_bp.m_weights2, current_bp.m_weights2, current_bp.m_weights1);
+#ifdef OAP_CUDA_BUILD
+  PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
+  PRINT_CUMATRIX_CARRAY(current_bp.m_weights1);
+#endif
+#ifdef OAP_CUDA_BUILD
+  PRINT_CUMATRIX_CARRAY(current_bp.m_weights);
+  PRINT_CUMATRIX_CARRAY(current_bp.m_weights1);
+  PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
+#endif
     }
   };
 
@@ -536,9 +590,10 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
   calcNablaWeights ();
 }
 
-template<typename LayerT, typename Layers, typename Api, typename CopyMatrixToMatrix>
-void backPropagation_multiMatrices (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyMatrixToMatrix)
+template<typename LayerT, typename Layers, typename Api, typename Api2, typename CopyMatrixToMatrix>
+void backPropagation_multiMatrices (const Layers& layers, Api& api, Api2& api2, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
+  logInfo("");
   logTrace("");
   auto calcErrors = [&layers, &api]()
   {
@@ -549,10 +604,11 @@ void backPropagation_multiMatrices (const Layers& layers, Api& api, CopyMatrixTo
 
     auto calculateCurrentErrors = [&api] (LayerT* current, LayerT* previous)
     {
+      auto& current_sums_wb = current->getSumsWB ();
       auto& current_sums = current->getSums ();
       auto& current_errors = current->getErrors ();
 
-      oap::generic::derivativeFunc (current_sums, current_sums, previous->getActivation(), api);
+      oap::generic::derivativeFunc (current_sums_wb, current_sums_wb, previous->getActivation(), api);
       api.hadamardProductVec (current_errors, current_errors, current_sums);
     };
 
@@ -568,14 +624,23 @@ void backPropagation_multiMatrices (const Layers& layers, Api& api, CopyMatrixTo
       auto& current_tweights = current->getTWeights ();
       auto& current_weights = current->getWeights ();
       auto& current_errors = current->getErrors();
+      auto& current_errors_wb = current->getErrorsWB();
       auto& next_errors = next->getErrors();
+      auto& next_errors_wb = next->getErrorsWB();
 
       api.transpose (current_tweights, current_weights);
-      api.dotProduct (current_errors, current_tweights, next_errors);
+      //PRINT_CUMATRIX_CARRAY(current_tweights);
+      //PRINT_CUMATRIX_CARRAY(current_weights);
+
+
+      api.dotProduct (current_errors, current_tweights, next_errors_wb);
+      //PRINT_CUMATRIX_CARRAY(current_errors);
+      //PRINT_CUMATRIX_CARRAY(current_tweights);
+      //PRINT_CUMATRIX_CARRAY(next_errors);
       calculateCurrentErrors (current, previous);
     }
   };
-
+#if 0
   auto calcNablaWeights = [&layers, &api]()
   {
     LayerT* current = nullptr;
@@ -592,18 +657,77 @@ void backPropagation_multiMatrices (const Layers& layers, Api& api, CopyMatrixTo
       auto& current_tinputs = current->getTInputs ();
  
       auto& next_errors = next->getErrors ();
+      auto& next_errors_wb = next->getErrorsWB ();
 
       api.transpose (current_tinputs, current_inputs);
-      api.tensorProduct (current_weights1, current_tinputs, next_errors);
+      //PRINT_CUMATRIX_CARRAY(current_tinputs);
+      //PRINT_CUMATRIX_CARRAY(current_inputs);
+
+      api.tensorProduct (current_weights1, current_tinputs, next_errors_wb);
+      //PRINT_CUMATRIX_CARRAY(current_weights1);
+      //PRINT_CUMATRIX_CARRAY(current_tinputs);
+      //PRINT_CUMATRIX_CARRAY(next_errors);
 
       api.add (current_weights2, current_weights2, current_weights1);
+      //PRINT_CUMATRIX_CARRAY(current_weights2);
+      //PRINT_CUMATRIX_CARRAY(current_weights2);
+      //PRINT_CUMATRIX_CARRAY(current_weights1);
+    }
+  };
+#endif
+  auto calcNablaWeights = [&layers, &api2]()
+  {
+    LayerT* current = nullptr;
+    LayerT* next = layers[0];
+
+    for (uintt idx = 1; idx < layers.size(); ++idx)
+    {
+      current = next;
+      next = layers[idx];
+  
+      const uintt fpMatricesCount = current->getFPMatricesCount();
+
+      BPMatrices& current_bp = *current->getBPMatrices ();
+      for (uintt fpidx = 0; fpidx < fpMatricesCount; ++fpidx)
+      {
+        FPMatrices& current_fp = *current->getFPMatrices (fpidx);
+        FPMatrices& next_fp = *next->getFPMatrices (fpidx);
+
+        api2.transpose (current_bp.m_tinputs, current_fp.m_inputs);
+        {
+          uintt dims[3][2] =
+          {
+            {current->getTotalNeuronsCount(), next->getNeuronsCount()},
+            {current->getTotalNeuronsCount(), 1},
+            {1, next->getNeuronsCount()},
+          };
+          api2.tensorProduct (current_bp.m_weights1, current_bp.m_tinputs, next_fp.m_errors, dims);
+        }
+#ifdef OAP_CUDA_BUILD
+        PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
+#endif
+        api2.add (current_bp.m_weights2, current_bp.m_weights2, current_bp.m_weights1);
+#ifdef OAP_CUDA_BUILD
+        PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
+        PRINT_CUMATRIX_CARRAY(current_bp.m_weights1);
+#endif
+      }
+#ifdef OAP_CUDA_BUILD
+  PRINT_CUMATRIX_CARRAY(current_bp.m_weights);
+  PRINT_CUMATRIX_CARRAY(current_bp.m_weights1);
+  PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
+#endif
     }
   };
 
   LayerT* current = layers.back ();
-  FPMatrices& current_fp = *current->getFPMatrices ();
 
-  copyMatrixToMatrix (current_fp.m_errors, current_fp.m_errorsAux);
+  uintt fpcount = current->getFPMatricesCount();
+  for (uintt fpidx = 0; fpidx < fpcount; ++fpidx)
+  {
+    FPMatrices& current_fp = *current->getFPMatrices (fpidx);
+    copyMatrixToMatrix (current_fp.m_errors, current_fp.m_errorsAux);
+  }
 
   calcErrors ();
 
@@ -614,6 +738,7 @@ template<typename LayerT, typename Layers, typename Api>
 void updateWeights(const Layers& layers, Api& api, floatt learningRate, uintt normalizationFactor)
 {
   logTrace("");
+  logInfo("");
   LayerT* current = nullptr;
   LayerT* next = layers[0];
 
@@ -623,9 +748,18 @@ void updateWeights(const Layers& layers, Api& api, floatt learningRate, uintt no
     next = layers[idx];
 
     floatt lr = learningRate / static_cast<floatt>(normalizationFactor);
+#ifdef OAP_CUDA_BUILD
+    PRINT_CUMATRIX_CARRAY(current->getBPMatrices()->m_weights2);
+#endif
     api.multiplyReConstant (current->getBPMatrices()->m_weights2, current->getBPMatrices()->m_weights2, lr);
-
+logInfo ("lr = %f", lr);
+#ifdef OAP_CUDA_BUILD
+    PRINT_CUMATRIX_CARRAY(current->getBPMatrices()->m_weights2);
+#endif
     api.subtract (current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights2);
+#ifdef OAP_CUDA_BUILD
+    PRINT_CUMATRIX_CARRAY(current->getBPMatrices()->m_weights);
+#endif
   }
 }
 
@@ -635,26 +769,90 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
   logTrace("");
   logTraceS ("%s %p", __func__, &fp);
 
-  const uintt unitsCount = layerRef.getTotalNeuronsCount ();
+  const uintt unitsCountWithBiases = layerRef.getTotalNeuronsCount ();
+  const uintt unitsCount = layerRef.getNeuronsCount ();
 
   AllocNeuronsApi alloc;
   const auto noneMemory = oap::common::OAP_NONE_MEMORY();
 
-  fp.m_matricesInfo = math::MatrixInfo (true, false, 1, unitsCount * samplesCount);
+  fp.m_matricesInfo = math::MatrixInfo (true, false, 1, unitsCountWithBiases * samplesCount);
+  fp.m_matricesInfo_wb = math::MatrixInfo (true, false, 1, unitsCount * samplesCount);
+  const math::MatrixDim mdim_wb = {fp.m_matricesInfo_wb.columns(), fp.m_matricesInfo_wb.rows()};
 
   fp.m_inputs = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
+  fp.m_inputs_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_inputs);
   fp.m_sums = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
+  fp.m_sums_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_sums);
 
   fp.m_errors = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
+  fp.m_errors_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_errors);
   fp.m_errorsAux = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
   fp.m_errorsAcc = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
 
+  logTrace ("minfo = %s", std::to_string(fp.m_matricesInfo).c_str());
   logTrace ("fp.m_inputs = %p", fp.m_inputs);
+  logTrace ("fp.m_inputs_wb = %p", fp.m_inputs_wb);
   logTrace ("fp.m_sums = %p", fp.m_sums);
+  logTrace ("fp.m_sums_wb = %p", fp.m_sums_wb);
   logTrace ("fp.m_errors = %p", fp.m_errors);
   logTrace ("fp.m_errorsAux = %p", fp.m_errorsAux);
   logTrace ("fp.m_errorsAcc = %p", fp.m_errorsAcc);
   logTraceE ("%s %p", __func__, &fp);
+}
+
+template<typename AllocNeuronsApi, typename LayerT>
+void allocateSharedFPMatrices (FPMatrices& fp, const LayerT& layerRef, FPMatrices* orig)
+{
+  logTrace("");
+  logTraceS ("%s %p", __func__, &fp);
+  const uintt samplesCount = 1;
+
+  const uintt unitsCountWithBiases = layerRef.getTotalNeuronsCount ();
+  const uintt unitsCount = layerRef.getNeuronsCount ();
+
+  AllocNeuronsApi alloc;
+  const auto noneMemory = oap::common::OAP_NONE_MEMORY();
+
+  fp.m_matricesInfo = math::MatrixInfo (true, false, 1, unitsCountWithBiases * samplesCount);
+  fp.m_matricesInfo_wb = math::MatrixInfo (true, false, 1, unitsCount * samplesCount);
+  const math::MatrixDim mdim = {fp.m_matricesInfo.columns(), fp.m_matricesInfo.rows()};
+  const math::MatrixDim mdim_wb = {fp.m_matricesInfo_wb.columns(), fp.m_matricesInfo_wb.rows()};
+
+  fp.m_inputs = alloc.newSharedSubMatrix (mdim, orig->m_inputs);
+  fp.m_inputs_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_inputs);
+  fp.m_sums = alloc.newSharedSubMatrix (mdim, orig->m_sums);
+  fp.m_sums_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_sums);
+
+  fp.m_errors = alloc.newSharedSubMatrix (mdim, orig->m_errors);
+  fp.m_errors_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_errors);
+  fp.m_errorsAux = alloc.newSharedSubMatrix (mdim, orig->m_errorsAux);
+  fp.m_errorsAcc = alloc.newSharedSubMatrix (mdim, orig->m_errorsAcc);
+
+  logTrace ("minfo = %s", std::to_string(fp.m_matricesInfo).c_str());
+  logTrace ("fp.m_inputs = %p", fp.m_inputs);
+  logTrace ("fp.m_inputs_wb = %p", fp.m_inputs_wb);
+  logTrace ("fp.m_sums = %p", fp.m_sums);
+  logTrace ("fp.m_sums_wb = %p", fp.m_sums_wb);
+  logTrace ("fp.m_errors = %p", fp.m_errors);
+  logTrace ("fp.m_errorsAux = %p", fp.m_errorsAux);
+  logTrace ("fp.m_errorsAcc = %p", fp.m_errorsAcc);
+  logTraceE ("%s %p", __func__, &fp);
+}
+
+template<typename AllocNeuronsApi, typename LayerT>
+FPMatrices* allocateFPMatrices (const LayerT& layerRef, uintt samplesCount = 1)
+{
+  FPMatrices* fpMatrices = new FPMatrices ();
+  allocateFPMatrices<AllocNeuronsApi> (*fpMatrices, layerRef, samplesCount);
+  return fpMatrices;
+}
+
+template<typename AllocNeuronsApi, typename LayerT>
+FPMatrices* allocateSharedFPMatrices (const LayerT& layerRef, FPMatrices* orig)
+{
+  FPMatrices* fpMatrices = new FPMatrices ();
+  allocateSharedFPMatrices<AllocNeuronsApi> (*fpMatrices, layerRef, orig);
+  return fpMatrices;
 }
 
 template<typename DeallocMatrixApi>
@@ -674,8 +872,11 @@ void deallocateFPMatrices (FPMatrices& fp)
   };
 
   delk (&fp.m_inputs);
+  delk (&fp.m_inputs_wb);
   delk (&fp.m_sums);
+  delk (&fp.m_sums_wb);
   delk (&fp.m_errors);
+  delk (&fp.m_errors_wb);
   delk (&fp.m_errorsAcc);
   delk (&fp.m_errorsAux);
 
@@ -728,13 +929,13 @@ void deallocateBPMatricesInLayer (LayerT& layer)
   deallocateBPMatrices<DeallocMatrixApi> (*layer.getBPMatrices());
 }
 
-template<typename AllocApi, typename LayerT>
-void allocateBPMatrices (BPMatrices& bp, LayerT& layer, const LayerT& nextLayer)
+template<typename AllocApi>
+void allocateBPMatrices (BPMatrices& bp, const NBPair& neuronsCount1, const NBPair& neuronsCount2)
 {
   logTrace("");
   logTraceS ("%s %p", __func__, &bp);
-  const uintt cUCount = layer.getTotalNeuronsCount ();
-  const uintt nUCount = nextLayer.getNeuronsCount ();
+  const uintt cUCount = neuronsCount1.first + neuronsCount1.second;
+  const uintt nUCount = neuronsCount2.first;
 
   AllocApi alloc;
   auto noneMemory = oap::common::OAP_NONE_MEMORY();
@@ -756,6 +957,26 @@ void allocateBPMatrices (BPMatrices& bp, LayerT& layer, const LayerT& nextLayer)
   logTrace ("bp.m_weights2 = %p", bp.m_weights2);
   logTrace ("bp.m_tweights = %p", bp.m_tweights);
   logTraceE ("%s %p", __func__, &bp);
+}
+
+template<typename AllocApi>
+BPMatrices* allocateBPMatrices (const NBPair& neuronsCount1, const NBPair& neuronsCount2)
+{
+  BPMatrices* bpMatrices = new BPMatrices ();
+  allocateBPMatrices<AllocApi> (*bpMatrices, neuronsCount1, neuronsCount2);
+  return bpMatrices;
+}
+
+template<typename AllocApi, typename LayerT>
+void allocateBPMatrices (BPMatrices& bp, const LayerT& layer, const LayerT& nextLayer)
+{
+  allocateBPMatrices (bp, layer.getNBPair(), nextLayer.getNBPair());
+}
+
+template<typename AllocApi, typename LayerT>
+BPMatrices* allocateBPMatrices (const LayerT& layer, const LayerT& nextLayer)
+{
+  return allocateBPMatrices<AllocApi> (layer.getNBPair(), nextLayer.getNBPair());
 }
 
 template<typename LayerT, typename DeallocMatrixApi>
@@ -780,10 +1001,8 @@ template<typename AllocNeuronsApi, typename LayerT>
 void createBPMatrices (LayerT& layer, LayerT& nextLayer)
 {
   logTrace("");
-  BPMatrices* bpMatrices = new BPMatrices();
-
+  BPMatrices* bpMatrices = allocateBPMatrices<AllocNeuronsApi> (layer, nextLayer);
   layer.addBPMatrices (bpMatrices);
-  allocateBPMatrices<AllocNeuronsApi> (*layer.getBPMatrices(), layer, nextLayer);
 }
 
 template<typename LayerT>

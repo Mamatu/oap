@@ -46,6 +46,9 @@ public:
   BPMatrices* getBPMatrices (uintt idx = 0) const;
   FPMatrices* getFPMatrices (uintt idx = 0) const;
 
+  uintt getBPMatricesCount () const;
+  uintt getFPMatricesCount () const;
+
   void addBPMatrices (BPMatrices* bpMatrices);
   void addFPMatrices (FPMatrices* fpMatrices);
 
@@ -86,14 +89,22 @@ public:
   void initRandomWeights (const Layer* nextLayer);
 
   Matrices& getSums() { return m_sums; }
+  Matrices& getSumsWB() { return m_sums_wb; }
   Matrices& getErrors() { return m_errors; }
+  Matrices& getErrorsWB() { return m_errors_wb; }
   Matrices& getErrorsAux() { return m_errorsAux; }
   Matrices& getInputs() { return m_inputs; }
+  Matrices& getInputsWB() { return m_inputs_wb; }
   Matrices& getTInputs() { return m_tinputs; }
   Matrices& getWeights() { return m_weights; }
   Matrices& getTWeights() { return m_tweights; }
   Matrices& getWeights1() { return m_weights1; }
   Matrices& getWeights2() { return m_weights2; }
+
+  NBPair getNBPair() const
+  {
+    return std::make_pair(getNeuronsCount(), getBiasesCount());
+  }
 
 private:
   static void deallocate(math::Matrix** matrix);
@@ -107,9 +118,12 @@ private:
   std::vector<BPMatrices*> m_bpMatrices;
 
   Matrices m_sums;
+  Matrices m_sums_wb;
   Matrices m_errors;
+  Matrices m_errors_wb;
   Matrices m_errorsAux;
   Matrices m_inputs;
+  Matrices m_inputs_wb;
   Matrices m_tinputs;
   Matrices m_weights;
   Matrices m_tweights;

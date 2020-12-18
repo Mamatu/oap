@@ -28,6 +28,7 @@
 #include "Logger.h"
 
 #include "oapLayerStructure.h"
+#include "oapRandomGenerator.h"
 #include "MatrixAPI.h"
 
 namespace oap
@@ -35,13 +36,13 @@ namespace oap
 namespace nutils
 {
 
-template<typename Container>
-Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSet, const Container& data, size_t trainingSize, size_t testSize)
+template<typename Container, typename RandomFunc>
+Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSet, const Container& data, size_t trainingSize, size_t testSize, RandomFunc&& rf)
 {
   debugAssert (data.size() == trainingSize + testSize);
 
   Container modifiableData = data;
-  std::random_shuffle (modifiableData.begin(), modifiableData.end());
+  std::random_shuffle (modifiableData.begin(), modifiableData.end(), rf);
 
   trainingSet.resize (trainingSize);
   testSet.resize (modifiableData.size() - trainingSize);
@@ -56,6 +57,19 @@ Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSe
   logInfo ("test set: %lu", testSet.size());
 
   return modifiableData;
+}
+
+template<typename Container>
+Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSet, const Container& data, size_t trainingSize, size_t testSize, oap::utils::RandomGenerator& rg)
+{
+  auto randomFunc = [&rg](int n)
+  {
+    int i = static_cast<int>(rg(0, static_cast<floatt>(n)));
+    logTrace ("randomFunc = %d\n",i);
+    return i;
+  };
+
+  return splitIntoTestAndTrainingSet (trainingSet, testSet, data, trainingSize, testSize, randomFunc);
 }
 
 template<typename Array>
@@ -122,13 +136,13 @@ Container scale (const Container& container)
 }
 
 template<typename Container>
-Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSet, const Container& data, floatt rate)
+Container splitIntoTestAndTrainingSet (Container& trainingSet, Container& testSet, const Container& data, floatt rate, oap::utils::RandomGenerator& rg)
 {
   debugAssert (rate > 0 && rate <= 1);
 
   const size_t trainingSize = rate * data.size();
 
-  return splitIntoTestAndTrainingSet (trainingSet, testSet, data, trainingSize, data.size() - trainingSize);
+  return splitIntoTestAndTrainingSet (trainingSet, testSet, data, trainingSize, data.size() - trainingSize, rg);
 }
 
 template<typename Container, typename Callback>
@@ -207,31 +221,6 @@ Vec<floatt, std::allocator<floatt>> convertToFloattBuffer (const Vec<math::Matri
   return buffer;
 }
 
-template<typename LayerT, typename CopyBufferToMatrix>
-void copyToInputs_multiMatrices (LayerT* ilayer, size_t index, const floatt* buffer, size_t size, CopyBufferToMatrix&& copyBufferToMatrix)
-{
-  copyBufferToMatrix (ilayer->getFPMatrices(index)->m_inputs, buffer, size);
-}
-
-template<typename LayerT, typename Container, typename CopyBufferToMatrix>
-void copyToInputs_multiMatrices (LayerT* ilayer, const Container& container2D, CopyBufferToMatrix&& copyBufferToMatrix)
-{
-  size_t fsize = 0;
-  debugAssert (container2D.size() > 0);
-  iterate (container2D, [ilayer, &copyBufferToMatrix, &fsize](const Container& container2D, size_t idx)
-  {
-    if (idx == 0) { fsize = container2D[idx].size(); }
-    debugAssert (fsize == container2D[idx].size());
-    copyToInputs (ilayer, idx, container2D[idx].data(), container2D[idx].size(), copyBufferToMatrix);
-  });
-}
-
-template<typename LayerT, typename CopyBufferToMatrix>
-void copyToInputs_oneMatrix (LayerT* ilayer, const floatt* buffer, size_t size, CopyBufferToMatrix&& copyBufferToMatrix)
-{
-  copyBufferToMatrix (ilayer->getFPMatrices()->m_inputs, buffer, size);
-}
-
 namespace
 {
 template<typename Container>
@@ -284,6 +273,31 @@ class NotSupportedHandler
       oapAssert ("Not supported type");
     }
 };
+}
+
+template<typename LayerT, typename CopyBufferToMatrix>
+void copyToInputs_multiMatrices (LayerT* ilayer, size_t index, const floatt* buffer, size_t size, CopyBufferToMatrix&& copyBufferToMatrix)
+{
+  copyBufferToMatrix (ilayer->getFPMatrices(index)->m_inputs, buffer, size);
+}
+
+template<typename LayerT, typename Container, typename CopyBufferToMatrix>
+void copyToInputs_multiMatrices (LayerT* ilayer, const Container& container2D, CopyBufferToMatrix&& copyBufferToMatrix)
+{
+  size_t fsize = 0;
+  debugAssert (container2D.size() > 0);
+  iterate (container2D, [ilayer, &copyBufferToMatrix, &fsize](const Container& container2D, size_t idx)
+  {
+    if (idx == 0) { fsize = container2D[idx].size(); }
+    debugAssert (fsize == container2D[idx].size());
+    copyToInputs (ilayer, idx, container2D[idx].data(), container2D[idx].size(), copyBufferToMatrix);
+  });
+}
+
+template<typename LayerT, typename CopyBufferToMatrix>
+void copyToInputs_oneMatrix (LayerT* ilayer, const floatt* buffer, size_t size, CopyBufferToMatrix&& copyBufferToMatrix)
+{
+  copyBufferToMatrix (ilayer->getFPMatrices()->m_inputs, buffer, size);
 }
 
 template<typename LayerT, typename Container, typename CopyBufferToMatrix>
