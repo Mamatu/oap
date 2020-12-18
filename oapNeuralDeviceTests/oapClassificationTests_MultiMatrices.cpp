@@ -202,7 +202,6 @@ TEST_F(OapClassificationTests_MultiMatrices, CircleDataTest)
       matrices.push_back (hinput);
     }
 
-    PRINT_MATRIX_CARRAY(matrices);
     return matrices;
   };
 
@@ -382,7 +381,6 @@ TEST_F(OapClassificationTests_MultiMatrices, CircleDataTest)
       if (output != nullptr)
       {
         network->getOutputs (hostMatrix, ArgType::HOST, handler);
-        PRINT_MATRIX_CARRAY(hostMatrix);
         for (size_t idx = 0; idx < coords.size(); ++idx)
         {
           Coordinate ncoord = coords[idx];

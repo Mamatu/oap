@@ -200,7 +200,6 @@ TEST_F(OapClassificationTests, CircleDataTest)
       *GetRePtrIndex (hinput, 2 + idx * 3) = 1;
     }
 
-    PRINT_MATRIX_CARRAY(hinput);
     return hinput;
   };
 
@@ -334,7 +333,6 @@ TEST_F(OapClassificationTests, CircleDataTest)
       if (output != nullptr)
       {
         network->getOutputs (hostMatrix.get(), ArgType::HOST, handler);
-        PRINT_MATRIX_CARRAY(hostMatrix.get());
         for (size_t idx = 0; idx < coords.size(); ++idx)
         {
           Coordinate ncoord = coords[idx];
@@ -610,7 +608,6 @@ TEST_F(OapClassificationTests, DISABLED_OCR)
       //calcApi.scale (it->expectedVector);
 
       printf ("digit = %d\n", it->digit);
-      //PRINT_CUMATRIX (it->expectedVector.get());
       oap::bitmap::printBitmap (converted, it->pattern->overlapingRegion.width, it->pattern->overlapingRegion.height);
       network->setExpected (it->expectedVector, ArgType::DEVICE, handler);
     }

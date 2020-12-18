@@ -30,10 +30,6 @@
 #include "oapHostMatrixUtils.h"
 #include "oapHostMatrixUPtr.h"
 
-#ifdef OAP_CUDA_BUILD
-  #include "oapCudaMatrixUtils.h"
-#endif
-
 namespace oap
 {
 namespace generic
@@ -269,9 +265,6 @@ void setInputs (LayerT& layer, const Matrices& inputs, CopyMatrixToMatrix&& copy
   for (uintt idx = 0; idx < inputs.size(); ++idx)
   {
     copyMatrixToMatrix (layer.getFPMatrices(idx)->m_inputs, inputs[idx]);
-#ifdef OAP_CUDA_BUILD
-    PRINT_CUMATRIX_CARRAY(layer.getFPMatrices(idx)->m_inputs);
-#endif
   }
 
   initLayerBiases (layer, setReValue);
@@ -345,13 +338,6 @@ void forwardPropagation_oneSample (const Layers& layers, Api& api)
     api.dotProduct (current_fp.m_sums, previous_bp.m_weights, previous_fp.m_inputs, dims);
 
     activateFunc (current_fp.m_inputs, current_fp.m_sums, previous->getActivation(), api, dims[0]);
-#ifdef OAP_CUDA_BUILD
-    printf("TO_CHECK layer = %u\n", idx);
-    PRINT_CUMATRIX_CARRAY(current_fp.m_inputs);
-    //PRINT_CUMATRIX_CARRAY(current_fp.m_sums);
-    //PRINT_CUMATRIX_CARRAY(previous_bp.m_weights);
-    //PRINT_CUMATRIX_CARRAY(previous_fp.m_inputs);
-#endif
   }
 }
 
@@ -392,13 +378,6 @@ void forwardPropagation_multiSamples (const Layers& layers, Api& api)
     };
 
     activateFunc (current_fp.m_inputs, current_fp.m_sums, previous->getActivation(), api, dims1);
-#ifdef OAP_CUDA_BUILD
-    printf("TO_CHECK layer = %u\n", idx);
-    PRINT_CUMATRIX_CARRAY(current_fp.m_inputs);
-    //PRINT_CUMATRIX_CARRAY(current_fp.m_sums);
-    //PRINT_CUMATRIX_CARRAY(previous_bp.m_weights);
-    //PRINT_CUMATRIX_CARRAY(previous_fp.m_inputs);
-#endif
   }
 }
 
@@ -427,13 +406,6 @@ void forwardPropagation_multiMatrices (const Layers& layers, Api& api)
     api.dotProduct (current_sums_wb, previous_weights, previous_inputs);
     activateFunc (current_inputs_wb, current_sums_wb, previous->getActivation(), api);
 
-#ifdef OAP_CUDA_BUILD
-    printf("TO_CHECK layer = %u\n", idx);
-    PRINT_CUMATRIX_CARRAY(current_inputs);
-    //PRINT_CUMATRIX_CARRAY(current_sums);
-    //PRINT_CUMATRIX_CARRAY(previous_weights);
-    //PRINT_CUMATRIX_CARRAY(previous_inputs);
-#endif
   }
 }
 
@@ -453,12 +425,6 @@ void getErrors (math::Matrix* errorsOutput, LayerT& layer, Api& api, math::Matri
     api.subtract (layer.getFPMatrices()->m_errorsAux, layer.getFPMatrices()->m_inputs, expectedDeviceOutputs);
   }
   copyKernelMatrixToHostMatrix (errorsOutput, layer.getFPMatrices()->m_errorsAux);
-#ifdef OAP_CUDA_BUILD
-/*  printf("ERRORS_CHECK\n");
-  PRINT_MATRIX_CARRAY(errorsOutput);
-  PRINT_CUMATRIX_CARRAY(layer.getFPMatrices()->m_inputs);
-  PRINT_CUMATRIX_CARRAY(expectedDeviceOutputs);*/
-#endif
 }
 
 template<typename Matrices, typename LayerT, typename Api, typename CopyKernelMatrixToHostMatrix>
@@ -482,12 +448,6 @@ void getErrors_multiMatrices (const Matrices& errorsOutput, LayerT& layer, Api& 
   {
     copyKernelMatrixToHostMatrix (errorsOutput[idx], layer.getErrorsAux()[idx]);
   }
-#ifdef OAP_CUDA_BUILD
-  /*printf("ERRORS_CHECK\n");
-  PRINT_MATRIX_CARRAY(errorsOutput);
-  PRINT_CUMATRIX_CARRAY(layer.getInputs());
-  PRINT_CUMATRIX_CARRAY(expectedDeviceOutputs);*/
-#endif
 }
 
 template<typename LayerT, typename Layers, typename Api, typename CopyMatrixToMatrix>
@@ -564,19 +524,7 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
         };
         api.tensorProduct (current_bp.m_weights1, current_bp.m_tinputs, next_fp.m_errors, dims);
       }
-#ifdef OAP_CUDA_BUILD
-  PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
-#endif
       api.add (current_bp.m_weights2, current_bp.m_weights2, current_bp.m_weights1);
-#ifdef OAP_CUDA_BUILD
-  PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
-  PRINT_CUMATRIX_CARRAY(current_bp.m_weights1);
-#endif
-#ifdef OAP_CUDA_BUILD
-  PRINT_CUMATRIX_CARRAY(current_bp.m_weights);
-  PRINT_CUMATRIX_CARRAY(current_bp.m_weights1);
-  PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
-#endif
     }
   };
 
@@ -703,20 +651,8 @@ void backPropagation_multiMatrices (const Layers& layers, Api& api, Api2& api2, 
           };
           api2.tensorProduct (current_bp.m_weights1, current_bp.m_tinputs, next_fp.m_errors, dims);
         }
-#ifdef OAP_CUDA_BUILD
-        PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
-#endif
         api2.add (current_bp.m_weights2, current_bp.m_weights2, current_bp.m_weights1);
-#ifdef OAP_CUDA_BUILD
-        PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
-        PRINT_CUMATRIX_CARRAY(current_bp.m_weights1);
-#endif
       }
-#ifdef OAP_CUDA_BUILD
-  PRINT_CUMATRIX_CARRAY(current_bp.m_weights);
-  PRINT_CUMATRIX_CARRAY(current_bp.m_weights1);
-  PRINT_CUMATRIX_CARRAY(current_bp.m_weights2);
-#endif
     }
   };
 
@@ -748,18 +684,8 @@ void updateWeights(const Layers& layers, Api& api, floatt learningRate, uintt no
     next = layers[idx];
 
     floatt lr = learningRate / static_cast<floatt>(normalizationFactor);
-#ifdef OAP_CUDA_BUILD
-    PRINT_CUMATRIX_CARRAY(current->getBPMatrices()->m_weights2);
-#endif
     api.multiplyReConstant (current->getBPMatrices()->m_weights2, current->getBPMatrices()->m_weights2, lr);
-logInfo ("lr = %f", lr);
-#ifdef OAP_CUDA_BUILD
-    PRINT_CUMATRIX_CARRAY(current->getBPMatrices()->m_weights2);
-#endif
     api.subtract (current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights, current->getBPMatrices()->m_weights2);
-#ifdef OAP_CUDA_BUILD
-    PRINT_CUMATRIX_CARRAY(current->getBPMatrices()->m_weights);
-#endif
   }
 }
 
