@@ -34,6 +34,12 @@ struct MatrixDim
   uintt rows;
 };
 
+struct MatrixLoc
+{
+  uintt x;
+  uintt y;
+};
+
 /**
  * Columns orientation
  */
