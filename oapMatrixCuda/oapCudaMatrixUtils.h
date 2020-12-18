@@ -285,6 +285,9 @@ std::vector<math::Matrix*> NewDeviceMatrices (const math::MatrixInfo& minfo, uin
 std::vector<math::Matrix*> NewDeviceMatricesCopyOfArray(const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays);
 std::vector<math::Matrix*> NewDeviceMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays);
 
+math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::Matrix* matrix);
+math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixDim& dim, const math::Matrix* matrix);
+
 }
 }
 

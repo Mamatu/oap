@@ -791,6 +791,14 @@ std::vector<math::Matrix*> NewMatrices (const math::MatrixInfo& minfo, uintt cou
 std::vector<math::Matrix*> NewMatricesCopyOfArray (const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays);
 std::vector<math::Matrix*> NewMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays);
 
+/**
+ * @param loc - location in matrix (@see param matrix)
+ * @param dim - dimension of new matrix
+ * @param matrix - original matrix whose memory will be shared with constructed matrix
+ */
+math::Matrix* NewSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::Matrix* matrix);
+math::Matrix* NewSharedSubMatrix (const math::MatrixDim& dim, const math::Matrix* matrix);
+
 }
 }
 

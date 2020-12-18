@@ -704,13 +704,13 @@ void CuProceduresApi::v2_subtract (Matrices& outputs, const Matrices& params1, c
 template<typename Matrices>
 void CuProceduresApi::v2_dotProduct (Matrices& outputs, const Matrices& params1, const Matrices& params2)
 {
-  m_cuStatus = oap::generic::dotProduct (outputs, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice);
+  m_cuStatus = oap::generic::dotProduct (outputs, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice, oap::cuda::GetMatrixInfo);
 }
 
 template<typename Matrices>
 void CuProceduresApi::v2_multiply (Matrices& outputs, const Matrices& params1, const Matrices& params2)
 {
-  m_cuStatus = oap::generic::dotProduct (outputs, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice);
+  m_cuStatus = oap::generic::dotProduct (outputs, params1, params2, &m_kernel, oap::cuda::CreateThreadsMapper, CudaUtils::Malloc, CudaUtils::Free, CudaUtils::CopyHostToDevice, oap::cuda::GetMatrixInfo);
 }
 
 template<typename Matrices>

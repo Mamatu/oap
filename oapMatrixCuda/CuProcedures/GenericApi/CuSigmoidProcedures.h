@@ -58,4 +58,9 @@ __hostdeviceinline__ void cuda_genericApi_multiplyDSigmoid (math::Matrix** outpu
   cuda_func (outputs, params, cuda_genericApi_mDSigmoidFunc, mapper);
 }
 
+__hostdeviceinline__ void CUDA_GenericApi_Sigmoid (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_sigmoid (outputs, params, mapper);
+}
+
 #endif

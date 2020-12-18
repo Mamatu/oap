@@ -415,6 +415,10 @@ std::string GetMatrixStr (const math::Matrix* matrix)
 
 math::Matrix GetRefHostMatrix (const math::Matrix* matrix)
 {
+  if (!g_matricesList.contains (matrix))
+  {
+    oapAssert ("Not in list" == nullptr);
+  }
   return *matrix;
 }
 
@@ -1537,6 +1541,44 @@ std::vector<math::Matrix*> NewMatricesCopyOfArray(const math::MatrixInfo& minfo,
 {
   std::vector<math::MatrixInfo> minfos (arrays.size(), minfo);
   return NewMatricesCopyOfArray (minfos, arrays);  
+}
+
+math::Matrix* NewSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::Matrix* matrix)
+{
+  auto minfo = oap::host::GetMatrixInfo (matrix);
+
+  oapAssert (loc.x < minfo.columns());
+  oapAssert (loc.y < minfo.rows());
+  oapAssert (loc.x + dim.columns <= minfo.columns());
+  oapAssert (loc.y + dim.rows <= minfo.rows());
+
+  math::Matrix refmatrix = oap::host::GetRefHostMatrix (matrix);
+  math::Matrix* output = nullptr;
+
+  if (minfo.isRe && minfo.isIm)
+  {
+    oap::MemoryLoc reloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.re, refmatrix.reReg, {loc.x, loc.y});
+    oap::MemoryLoc imloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.im, refmatrix.imReg, {loc.x, loc.y});
+
+    output = oap::host::NewMatrixFromMemory (dim.columns, dim.rows, refmatrix.re, reloc, refmatrix.im, imloc);
+  }
+  else if (minfo.isRe)
+  {
+    oap::MemoryLoc reloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.re, refmatrix.reReg, {loc.x, loc.y});
+    output = oap::host::NewReMatrixFromMemory (dim.columns, dim.rows, refmatrix.re, reloc);
+  }
+  else if (minfo.isIm)
+  {
+    oap::MemoryLoc imloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.im, refmatrix.imReg, {loc.x, loc.y});
+    output = oap::host::NewImMatrixFromMemory (dim.columns, dim.rows, refmatrix.im, imloc);
+  }
+
+  return output;
+}
+
+math::Matrix* NewSharedSubMatrix (const math::MatrixDim& dim, const math::Matrix* matrix)
+{
+  return NewSharedSubMatrix ({0,0}, dim, matrix);
 }
 
 }

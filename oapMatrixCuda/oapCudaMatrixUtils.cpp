@@ -1048,7 +1048,9 @@ std::string to_carraystr(const std::vector<math::Matrix*>& matrices)
   std::vector<math::Matrix*> hptrs;
   for (const math::Matrix* matrix : matrices)
   {
-    math::Matrix* hmatrix = oap::host::NewHostMatrixFromMatrixInfo (oap::cuda::GetMatrixInfo (matrix));
+    auto minfo = oap::cuda::GetMatrixInfo (matrix);
+    logTrace("%s", std::to_string (minfo).c_str());
+    math::Matrix* hmatrix = oap::host::NewHostMatrixFromMatrixInfo (minfo);
     oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, matrix);
     hptrs.push_back (hmatrix);
   }
@@ -1099,6 +1101,44 @@ std::vector<math::Matrix*> NewDeviceMatricesCopyOfArray(const math::MatrixInfo& 
 {
   std::vector<math::MatrixInfo> minfos (arrays.size(), minfo);
   return NewDeviceMatricesCopyOfArray (minfos, arrays);
+}
+
+math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::Matrix* matrix)
+{
+  auto minfo = oap::cuda::GetMatrixInfo (matrix);
+
+  oapAssert (loc.x < minfo.columns());
+  oapAssert (loc.y < minfo.rows());
+  oapAssert (loc.x + dim.columns <= minfo.columns());
+  oapAssert (loc.y + dim.rows <= minfo.rows());
+
+  math::Matrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
+  math::Matrix* output = nullptr;
+
+  if (minfo.isRe && minfo.isIm)
+  {
+    oap::MemoryLoc reloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.re, refmatrix.reReg, {loc.x, loc.y});
+    oap::MemoryLoc imloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.im, refmatrix.imReg, {loc.x, loc.y});
+
+    output = oap::cuda::NewDeviceMatrixFromMemory (dim.columns, dim.rows, refmatrix.re, reloc, refmatrix.im, imloc);
+  }
+  else if (minfo.isRe)
+  {
+    oap::MemoryLoc reloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.re, refmatrix.reReg, {loc.x, loc.y});
+    output = oap::cuda::NewDeviceReMatrixFromMemory (dim.columns, dim.rows, refmatrix.re, reloc);
+  }
+  else if (minfo.isIm)
+  {
+    oap::MemoryLoc imloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.im, refmatrix.imReg, {loc.x, loc.y});
+    output = oap::cuda::NewDeviceImMatrixFromMemory (dim.columns, dim.rows, refmatrix.im, imloc);
+  }
+
+  return output;
+}
+
+math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixDim& dim, const math::Matrix* matrix)
+{
+  return NewDeviceSharedSubMatrix ({0, 0}, dim, matrix);
 }
 
 }

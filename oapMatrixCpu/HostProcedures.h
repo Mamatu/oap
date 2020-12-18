@@ -137,7 +137,7 @@ class HostProcedures {
   template<typename Matrices>
   void v2_dotProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
   {
-    oap::generic::dotProduct (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy);
+    oap::generic::dotProduct (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy, oap::host::GetMatrixInfo);
   }
 
   template<typename Matrices>
@@ -156,6 +156,12 @@ class HostProcedures {
   void v2_tensorProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
   {
     oap::generic::tensorProduct (output, params1, params2, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy);
+  }
+
+  template<typename Matrices>
+  void v2_sigmoid (Matrices& output, const Matrices& params1)
+  {
+    oap::generic::sigmoid (output, params1, &m_kernel, oap::host::CreateThreadsMapper, malloc, free, memcpy);
   }
 
  private:

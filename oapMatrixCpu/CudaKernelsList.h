@@ -307,4 +307,18 @@ void proxy_HOSTKernel_GenericApi_TensorProduct (const void** params)
   HOSTKernel_GenericApi_TensorProduct (outputs, params1, params2, mapper);
 }
 
+void HOSTKernel_GenericApi_Sigmoid (math::Matrix** outputs, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_Sigmoid (outputs, params1, mapper);
+}
+
+void proxy_HOSTKernel_GenericApi_Sigmoid (const void** params)
+{
+  math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
+  math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[2]);
+
+  HOSTKernel_GenericApi_Sigmoid (outputs, params1, mapper);
+}
+
 #endif
