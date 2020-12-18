@@ -67,9 +67,7 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_2)
       [&values] (uintt x, uintt y, uintt index, uintt columns, uintt rows)
       {
         EXPECT_TRUE ((columns == 2 && rows == 1) || (columns == 1 && rows == 2));
-        EXPECT_TRUE(0 <= x && x < 2);
-        EXPECT_TRUE(0 <= y && y < 2);
-        EXPECT_EQ(0, y);
+        EXPECT_TRUE((0 <= x && x < 2 && y == 0) || (0 <= y && y < 2 && x == 0));
         values.push_back (index);
       });
 
@@ -325,9 +323,7 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_15)
       {
         std::vector<uintt> indecies = {0, 0};
         EXPECT_TRUE ((columns == 2 && rows == 1) || (columns == 1 && rows == 2));
-        EXPECT_TRUE(0 <= x && x < 2);
-        EXPECT_TRUE(0 <= y && y < 2);
-        EXPECT_EQ(0, y);
+        EXPECT_TRUE((0 <= y && y < 2 && x == 0) || (0 <= x && x < 2 && y == 0));
       });
 
   EXPECT_TRUE (dim.first == 1 || dim.first == 2);
