@@ -12,7 +12,7 @@ namespace utils
 class MatrixRandomGenerator final
 {
   public:
-    using Filter = std::function<floatt(floatt, uintt, uintt)>;
+    using Filter = std::function<floatt(uintt, uintt, floatt)>;
 
     MatrixRandomGenerator (floatt min, floatt max);
     MatrixRandomGenerator (floatt min, floatt max, uintt seed);

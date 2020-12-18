@@ -40,7 +40,7 @@ floatt MatrixRandomGenerator::operator()(uintt c, uintt r)
 
   if (m_filter)
   {
-    return m_filter (v, c, r);
+    return m_filter (c, r, v);
   }
 
   return v;

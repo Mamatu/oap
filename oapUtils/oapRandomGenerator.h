@@ -16,12 +16,13 @@ class RandomGenerator final
     RandomGenerator (floatt min, floatt max);
     RandomGenerator (floatt min, floatt max, uintt seed);
 
-    RandomGenerator (const RandomGenerator& rg);
+    std::pair<floatt, floatt> setRange (floatt min, floatt max);
 
     floatt operator()();
+    floatt operator()(floatt min, floatt max);
 
   private:
-    floatt m_min, m_max;
+    std::pair<floatt, floatt> m_range;
     std::random_device m_rd;
     std::default_random_engine m_dre;
     std::uniform_real_distribution<floatt> m_dis;
