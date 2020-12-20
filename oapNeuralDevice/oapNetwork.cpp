@@ -74,6 +74,7 @@ void Network::initTopology (const std::vector<uintt>& topology, const std::vecto
 
     auto* bpMatrices = oap::generic::allocateBPMatrices<oap::alloc::cuda::AllocWeightsApi>(pnb, nnb);
     m_bpMatricesNetwork.push_back (bpMatrices);
+    m_AllBpMatricesVec.push_back (bpMatrices);
   }
 
   m_isCreatedByNetworkTopology = true;
@@ -519,7 +520,6 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
     for (uintt idx = 0; idx < gRows (hmatrix); ++idx)
     {
       floatt v = GetReIndex (hmatrix, idx);
-      logInfo ("v = %f", v);
       m_errorsVec.push_back (v * v * 0.5);
     }
   }
@@ -539,7 +539,6 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
       for (uintt idx = 0; idx < gRows (hmatrix); ++idx)
       {
         floatt v = GetReIndex (hmatrix, idx);
-        logInfo ("v = %f", v);
         m_errorsVec.push_back (v * v * 0.5);
       }
     }
