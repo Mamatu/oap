@@ -314,7 +314,6 @@ void forwardPropagation_oneSample (const Layers& layers, Api& api)
 {
   //debugAssertMsg (layers.getSamplesCount() == 1, "For samples higher than 1 please use forwardPropagationExtended method");
   logTrace("");
-  logInfo("");
 
   LayerT* previous = nullptr;
   LayerT* current = layers[0];
@@ -347,7 +346,6 @@ void forwardPropagation_multiSamples (const Layers& layers, Api& api)
   //debugAssertMsg (layers.getSamplesCount() > 1, "For samples count equals to 1 please use forwardPropagation method");
   logTrace("");
 
-  logInfo("");
   LayerT* previous = nullptr;
   LayerT* current = layers[0];
 
@@ -386,7 +384,6 @@ void forwardPropagation_multiMatrices (const Layers& layers, Api& api)
 {
   //debugAssertMsg (layers.getSamplesCount() > 1, "For samples count equals to 1 please use forwardPropagation method");
 
-  logInfo("");
   logTrace("");
   LayerT* previous = nullptr;
   LayerT* current = layers[0];
@@ -413,7 +410,6 @@ template<typename LayerT, typename Api, typename CopyKernelMatrixToHostMatrix>
 void getErrors (math::Matrix* errorsOutput, LayerT& layer, Api& api, math::Matrix* expectedDeviceOutputs, oap::ErrorType errorType, CopyKernelMatrixToHostMatrix&& copyKernelMatrixToHostMatrix)
 {
   logTrace("");
-  logInfo("");
   debugAssert (expectedDeviceOutputs != nullptr);
 
   if (errorType == oap::ErrorType::CROSS_ENTROPY)
@@ -431,7 +427,6 @@ template<typename Matrices, typename LayerT, typename Api, typename CopyKernelMa
 void getErrors_multiMatrices (const Matrices& errorsOutput, LayerT& layer, Api& api, const Matrices& expectedDeviceOutputs, oap::ErrorType errorType, CopyKernelMatrixToHostMatrix&& copyKernelMatrixToHostMatrix)
 {
   debugAssert (!expectedDeviceOutputs.empty());
-  logInfo("");
   debugAssert (!errorsOutput.empty());
   debugAssert (errorsOutput.size() == layer.getFPMatricesCount());
 
@@ -453,7 +448,6 @@ void getErrors_multiMatrices (const Matrices& errorsOutput, LayerT& layer, Api& 
 template<typename LayerT, typename Layers, typename Api, typename CopyMatrixToMatrix>
 void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
-  logInfo("");
   logTrace("");
   auto calcErrors = [&layers, &api]()
   {
@@ -541,7 +535,6 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
 template<typename LayerT, typename Layers, typename Api, typename Api2, typename CopyMatrixToMatrix>
 void backPropagation_multiMatrices (const Layers& layers, Api& api, Api2& api2, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
-  logInfo("");
   logTrace("");
   auto calcErrors = [&layers, &api]()
   {
@@ -674,7 +667,6 @@ template<typename LayerT, typename Layers, typename Api>
 void updateWeights(const Layers& layers, Api& api, floatt learningRate, uintt normalizationFactor)
 {
   logTrace("");
-  logInfo("");
   LayerT* current = nullptr;
   LayerT* next = layers[0];
 
