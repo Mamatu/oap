@@ -51,7 +51,7 @@ void registerMatrix (math::Matrix* matrix, const math::Matrix& hostRefMatrix, co
 {
   logTrace ("Matrix: %p %s", matrix, matrixInfo.toString().c_str());
 
-  logTrace ("Matrix allocation: %p", matrix);
+  logTrace ("Matrix allocation: %p (%p, %p)", matrix, hostRefMatrix.re.ptr, hostRefMatrix.im.ptr);
   g_matricesList.add (matrix, std::make_pair (matrixInfo, hostRefMatrix));
 }
 
