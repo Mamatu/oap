@@ -47,21 +47,21 @@ class HostProcedures {
 
   void dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2);
 
-  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2], uintt periodicRows);
+  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, oap::generic::Dim32 dim, uintt periodicRows);
 
-  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+  void dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, oap::generic::Dim32 dim)
   {
     uintt periodicRows = oap::host::GetRows (matrix1);
-    dotProductDimPeriodic (output, matrix1, matrix2, dims, periodicRows);
+    dotProductDimPeriodic (output, matrix1, matrix2, dim, periodicRows);
   }
 
-  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+  void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, oap::generic::Dim32 dim);
 
   void dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
                    uintt outputDim[2], uintt params0Dim[2], uintt params1Dim[2])
   {
-    uintt dims[3][2] = {{outputDim[0], outputDim[1]}, {params0Dim[0], params0Dim[1]}, {params1Dim[0], params1Dim[1]}};
-    dotProduct (output, matrix1, matrix2, dims);
+    oap::generic::Dim32 dim {{{outputDim[0], outputDim[1]}, {params0Dim[0], params0Dim[1]}, {params1Dim[0], params1Dim[1]}}};
+    dotProduct (output, matrix1, matrix2, dim);
   }
 
   void transpose(math::Matrix* output, math::Matrix* matrix);
@@ -74,39 +74,39 @@ class HostProcedures {
   void relu (math::Matrix* output, math::Matrix* matrix);
   void softplus (math::Matrix* output, math::Matrix* matrix);
 
-  void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-  void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-  void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-  void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-  void prelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-  void relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
+  void tanh (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
+  void sigmoid (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
+  void linear (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
+  void sin (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
+  void prelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
+  void relu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
+  void softplus (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
 
-  void tanh (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
-  void sigmoid (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
-  void linear (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
-  void sin (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
-  void prelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
-  void relu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
-  void softplus (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void tanh (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
+  void sigmoid (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
+  void linear (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
+  void sin (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
+  void prelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
+  void relu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
+  void softplus (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
 
   void dprelu (math::Matrix* output, math::Matrix* matrix);
   void drelu (math::Matrix* output, math::Matrix* matrix);
-  void dprelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-  void drelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-  void dprelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
-  void drelu (math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void dprelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
+  void drelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
+  void dprelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
+  void drelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
 
   void sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0);
 
   void crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1);
 
-  void tensorProduct (math::Matrix* matrix, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2]);
+  void tensorProduct (math::Matrix* matrix, math::Matrix* params0, math::Matrix* params1, oap::generic::Dim32 dim);
 
-  inline void tensorProduct (math::Matrix* matrix, math::Matrix* params0, math::Matrix* params1, uintt dims1[2], uintt dims2[2], uintt dims3[2])
+  inline void tensorProduct (math::Matrix* matrix, math::Matrix* params0, math::Matrix* params1, uintt dim1[2], uintt dim2[2], uintt dim3[2])
   {
-    uintt dims[3][2] = {{dims1[0], dims1[1]}, {dims2[0], dims2[1]}, {dims3[0], dims3[1]}};
-    tensorProduct (matrix, params0, params1, dims);
+    oap::generic::Dim32 dim {{{dim1[0], dim1[1]}, {dim2[0], dim2[1]}, {dim3[0], dim3[1]}}};
+    tensorProduct (matrix, params0, params1, dim);
   }
 
   void QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT);
@@ -181,8 +181,8 @@ class HostProcedures {
     return hostArray;
   }
 
-  void _funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2]);
-  void _funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2][2]);
+  void _funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim);
+  void _funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
   std::function<uintt*(uintt*, uintt)> m_createKernelArray;
 };
 

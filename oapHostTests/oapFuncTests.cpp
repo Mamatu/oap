@@ -80,7 +80,7 @@ class OapHostActivationTests : public testing::Test {
     oap::HostMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (2, 2, 1);
     oap::HostMatrixPtr output = oap::host::NewReMatrixWithValue (2, 2, 0);
 
-    uintt dims[2] = {1, 1};
+    oap::generic::Dim2 dims {{1, 1}};
 
     kernelFunc (output, matrix1, dims);
 
@@ -97,7 +97,7 @@ class OapHostActivationTests : public testing::Test {
     oap::HostMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (3, 3, 1);
     oap::HostMatrixPtr output = oap::host::NewReMatrixWithValue (3, 3, 0);
 
-    uintt dims[2] = {2, 2};
+    oap::generic::Dim2 dims {{2, 2}};
 
     kernelFunc (output, matrix1, dims);
 
@@ -120,11 +120,11 @@ class OapHostActivationTests : public testing::Test {
     oap::HostMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (2, 4, 1);
     oap::HostMatrixPtr output = oap::host::NewReMatrixWithValue (2, 4, 0);
 
-    uintt dims[2][2] =
-    {
+    oap::generic::Dim22 dims =
+    {{
       {2, 1},
       {2, 2}
-    };
+    }};
 
     kernelFunc (output, matrix1, dims);
 
@@ -214,61 +214,61 @@ TEST_F(OapHostActivationTests, TanhTest_Dim_1)
 
   using namespace std::placeholders;
   HostProcedures hp;
-  test_dim_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, uintt[2])>(&HostProcedures::tanh, &hp, _1, _2, _3), oap::math::tanh);
+  test_dim_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, oap::generic::Dim2)>(&HostProcedures::tanh, &hp, _1, _2, _3), oap::math::tanh);
 }
 
 TEST_F(OapHostActivationTests, SinTest_Dim_1)
 {
   using namespace std::placeholders;
   HostProcedures hp;
-  test_dim_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, uintt[2])>(&HostProcedures::sin, &hp, _1, _2, _3), oap::math::sin);
+  test_dim_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, oap::generic::Dim2)>(&HostProcedures::sin, &hp, _1, _2, _3), oap::math::sin);
 }
 
 TEST_F(OapHostActivationTests, SigmoidTest_Dim_1)
 {
   using namespace std::placeholders;
   HostProcedures hp;
-  test_dim_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, uintt[2])>(&HostProcedures::sigmoid, &hp, _1, _2, _3), oap::math::sigmoid);
+  test_dim_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, oap::generic::Dim2)>(&HostProcedures::sigmoid, &hp, _1, _2, _3), oap::math::sigmoid);
 }
 
 TEST_F(OapHostActivationTests, TanhTest_Dim_2)
 {
   using namespace std::placeholders;
   HostProcedures hp;
-  test_dim_2 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, uintt[2])>(&HostProcedures::tanh, &hp, _1, _2, _3), oap::math::tanh);
+  test_dim_2 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, oap::generic::Dim2)>(&HostProcedures::tanh, &hp, _1, _2, _3), oap::math::tanh);
 }
 
 TEST_F(OapHostActivationTests, SinTest_Dim_2)
 {
   using namespace std::placeholders;
   HostProcedures hp;
-  test_dim_2 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, uintt[2])>(&HostProcedures::sin, &hp, _1, _2, _3), oap::math::sin);
+  test_dim_2 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, oap::generic::Dim2)>(&HostProcedures::sin, &hp, _1, _2, _3), oap::math::sin);
 }
 
 TEST_F(OapHostActivationTests, SigmoidTest_Dim_2)
 {
   using namespace std::placeholders;
   HostProcedures hp;
-  test_dim_2 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, uintt[2])>(&HostProcedures::sigmoid, &hp, _1, _2, _3), oap::math::sigmoid);
+  test_dim_2 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, oap::generic::Dim2)>(&HostProcedures::sigmoid, &hp, _1, _2, _3), oap::math::sigmoid);
 }
 
 TEST_F(OapHostActivationTests, TanhTest_DimPeriodic_1)
 {
   using namespace std::placeholders;
   HostProcedures hp;
-  test_dim_periodic_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, uintt[2][2])>(&HostProcedures::tanh, &hp, _1, _2, _3), oap::math::tanh);
+  test_dim_periodic_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, oap::generic::Dim22)>(&HostProcedures::tanh, &hp, _1, _2, _3), oap::math::tanh);
 }
 
 TEST_F(OapHostActivationTests, SinTest_DimPeriodic_1)
 {
   using namespace std::placeholders;
   HostProcedures hp;
-  test_dim_periodic_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, uintt[2][2])>(&HostProcedures::sin, &hp, _1, _2, _3), oap::math::sin);
+  test_dim_periodic_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, oap::generic::Dim22)>(&HostProcedures::sin, &hp, _1, _2, _3), oap::math::sin);
 }
 
 TEST_F(OapHostActivationTests, SigmoidTest_DimPeriodic_1)
 {
   using namespace std::placeholders;
   HostProcedures hp;
-  test_dim_periodic_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, uintt[2][2])>(&HostProcedures::sigmoid, &hp, _1, _2, _3), oap::math::sigmoid);
+  test_dim_periodic_1 (std::bind<void(HostProcedures::*)(math::Matrix*, math::Matrix*, oap::generic::Dim22)>(&HostProcedures::sigmoid, &hp, _1, _2, _3), oap::math::sigmoid);
 }

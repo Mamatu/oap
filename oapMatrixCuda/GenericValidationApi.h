@@ -23,6 +23,7 @@
 #include "GenericCoreApi.h"
 
 #include "MatrixInfo.h"
+#include "oapProcedures.h"
 
 namespace oap
 {
@@ -90,21 +91,21 @@ void check_Size (const math::MatrixInfo& minfo, math::Matrix* matrix, const Dim&
   debugAssert (dim[1] <= rows);
 }
 
-inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2],
+inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim,
                               const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
 {
-  check_Size (oinfo, output, dims[0]);
-  check_Size (minfo1, params0, dims[1]);
-  check_Size (minfo2, params1, dims[2]);
+  check_Size (oinfo, output, dim[0]);
+  check_Size (minfo1, params0, dim[1]);
+  check_Size (minfo2, params1, dim[2]);
 
-  const uintt output_columns = dims[0][0];
-  const uintt output_rows = dims[0][1];
+  const uintt output_columns = dim[0][0];
+  const uintt output_rows = dim[0][1];
 
-  const uintt params0_columns = dims[1][0];
-  const uintt params0_rows = dims[1][1];
+  const uintt params0_columns = dim[1][0];
+  const uintt params0_rows = dim[1][1];
 
-  const uintt params1_columns = dims[2][0];
-  const uintt params1_rows = dims[2][1];
+  const uintt params1_columns = dim[2][0];
+  const uintt params1_rows = dim[2][1];
 
 #ifdef CU_PROCEDURES_API_PRINT
   oap::cuda::PrintMatrixInfo("params0 = ", params0);
@@ -140,21 +141,21 @@ inline void check_dotProductPeriodic (math::Matrix* output, math::Matrix* params
   debugAssertMsg (output_rows % params0_rows == 0, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
 }
 
-inline void check_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2], uintt periodicRows,
+inline void check_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim, uintt periodicRows,
                                       const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
 {
-  check_Size (oinfo, output, dims[0]);
-  check_Size (minfo1, params0, dims[1]);
-  check_Size (minfo2, params1, dims[2]);
+  check_Size (oinfo, output, dim[0]);
+  check_Size (minfo1, params0, dim[1]);
+  check_Size (minfo2, params1, dim[2]);
 
-  const uintt d_output_columns = dims[0][0];
-  const uintt d_output_rows = dims[0][1];
+  const uintt d_output_columns = dim[0][0];
+  const uintt d_output_rows = dim[0][1];
 
-  const uintt d_params0_columns = dims[1][0];
-  const uintt d_params0_rows = dims[1][1];
+  const uintt d_params0_columns = dim[1][0];
+  const uintt d_params0_rows = dim[1][1];
 
-  const uintt d_params1_columns = dims[2][0];
-  const uintt d_params1_rows = dims[2][1];
+  const uintt d_params1_columns = dim[2][0];
+  const uintt d_params1_rows = dim[2][1];
 
   const uintt output_columns = oinfo.columns();
   const uintt output_rows = oinfo.rows();
@@ -202,21 +203,21 @@ void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Mat
   debugAssertMsg (output_columns == params0_columns * params1_columns, "output_columns = %u params0_columns = %u params1_columns = %u", output_columns, params0_columns, params1_columns);
 }
 
-inline void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2],
+inline void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim,
                           const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo0, const math::MatrixInfo& minfo1)
 {
-  check_Size (oinfo, output, dims[0]);
-  check_Size (minfo0, params0, dims[1]);
-  check_Size (minfo1, params1, dims[2]);
+  check_Size (oinfo, output, dim[0]);
+  check_Size (minfo0, params0, dim[1]);
+  check_Size (minfo1, params1, dim[2]);
 
-  const uintt output_columns = dims[0][0];
-  const uintt output_rows = dims[0][1];
+  const uintt output_columns = dim[0][0];
+  const uintt output_rows = dim[0][1];
 
-  const uintt params0_columns = dims[1][0];
-  const uintt params0_rows = dims[1][1];
+  const uintt params0_columns = dim[1][0];
+  const uintt params0_rows = dim[1][1];
 
-  const uintt params1_columns = dims[2][0];
-  const uintt params1_rows = dims[2][1];
+  const uintt params1_columns = dim[2][0];
+  const uintt params1_rows = dim[2][1];
 
 #ifdef CU_PROCEDURES_API_PRINT
   oap::cuda::PrintMatrixInfo("params0 = ", params0);

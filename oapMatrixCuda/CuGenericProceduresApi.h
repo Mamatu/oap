@@ -21,13 +21,15 @@
 #define OAP_CU_GENERIC_PROCEDURES_API_H
 
 #include "CuProceduresApi.h"
+#include "oapProcedures.h"
 
 namespace oap
 {
 
-class CuGenericProceduresApi
+class CuGenericProceduresApi : public oap::generic::MultiMatricesProcedures
 {
  public:
+  using Matrices = oap::generic::MultiMatricesProcedures::Matrices;
   CuGenericProceduresApi(CuProceduresApi* cuApi);
   virtual ~CuGenericProceduresApi();
 
@@ -36,155 +38,56 @@ class CuGenericProceduresApi
   CuGenericProceduresApi& operator=(const CuGenericProceduresApi&) = delete;
   CuGenericProceduresApi& operator=(CuGenericProceduresApi&&) = delete;
 
-  template<typename Matrices>
-  void add (Matrices& output, const Matrices& params1, floatt value)
-  {
-    m_cuApi->v2_add (output, params1, value);
-  }
+  void add (Matrices& output, const Matrices& params1, floatt value);
 
-  template<typename Matrices>
-  void add (Matrices& output, const Matrices& params1, const Matrices& params2)
-  {
-    m_cuApi->v2_add (output, params1, params2);
-  }
+  void add (Matrices& output, const Matrices& params1, const Matrices& params2);
 
-  template<typename Matrices>
-  void subtract (Matrices& output, const Matrices& params1, const Matrices& params2)
-  {
-    m_cuApi->v2_subtract (output, params1, params2);
-  }
+  void subtract (Matrices& output, const Matrices& params1, const Matrices& params2);
 
-  template<typename Matrices>
-  void dotProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
-  {
-    m_cuApi->v2_dotProduct (output, params1, params2);
-  }
+  void dotProduct (Matrices& output, const Matrices& params1, const Matrices& params2);
 
-  template<typename Matrices>
-  void multiply (Matrices& output, const Matrices& params1, const Matrices& params2)
-  {
-    m_cuApi->v2_multiply (output, params1, params2);
-  }
+  void multiply (Matrices& output, const Matrices& params1, const Matrices& params2);
 
-  template<typename Matrices>
-  void hadamardProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
-  {
-    m_cuApi->v2_hadamardProduct (output, params1, params2);
-  }
+  void hadamardProduct (Matrices& output, const Matrices& params1, const Matrices& params2);
 
-  template<typename Matrices>
-  void hadamardProductVec (Matrices& output, const Matrices& params1, const Matrices& params2)
-  {
-    m_cuApi->v2_hadamardProductVec (output, params1, params2);
-  }
+  void hadamardProductVec (Matrices& output, const Matrices& params1, const Matrices& params2);
 
-  template<typename Matrices>
-  void tensorProduct (Matrices& output, const Matrices& params1, const Matrices& params2)
-  {
-    m_cuApi->v2_tensorProduct (output, params1, params2);
-  }
+  void tensorProduct (Matrices& output, const Matrices& params1, const Matrices& params2);
 
-  template<typename Matrices>
-  void transpose (Matrices& output, const Matrices& params1)
-  {
-    m_cuApi->v2_transpose (output, params1);
-  }
+  void transpose (Matrices& output, const Matrices& params1);
 
-  template<typename Matrices>
-  void sigmoid (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_sigmoid (output, params);
-  }
+  void sigmoid (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void dsigmoid (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_dsigmoid (output, params);
-  }
+  void dsigmoid (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void multiplyDSigmoid (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_multiplyDSigmoid (output, params);
-  }
+  void multiplyDSigmoid (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void linear (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_linear (output, params);
-  }
+  void linear (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void dlinear (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_dlinear (output, params);
-  }
+  void dlinear (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void tanh (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_tanh (output, params);
-  }
+  void tanh (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void dtanh (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_dtanh (output, params);
-  }
+  void dtanh (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void sin (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_sin (output, params);
-  }
+  void sin (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void dsin (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_dsin (output, params);
-  }
+  void dsin (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void multiplyDSin (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_multiplyDSin (output, params);
-  }
+  void multiplyDSin (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void relu (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_relu (output, params);
-  }
+  void relu (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void drelu (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_drelu (output, params);
-  }
+  void drelu (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void prelu (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_prelu (output, params);
-  }
+  void prelu (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void dprelu (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_dprelu (output, params);
-  }
+  void dprelu (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void softplus (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_softplus (output, params);
-  }
+  void softplus (Matrices& output, const Matrices& params);
 
-  template<typename Matrices>
-  void dsoftplus (Matrices& output, Matrices& params)
-  {
-    m_cuApi->v2_dsoftplus (output, params);
-  }
+  void dsoftplus (Matrices& output, const Matrices& params);
+
   private:
     CuProceduresApi* m_cuApi;
 };

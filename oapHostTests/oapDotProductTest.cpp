@@ -429,12 +429,12 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_1)
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (3, 1000, 1);
 
-  uintt dims[3][2] =
-  {
+  oap::generic::Dim32 dims
+  {{
     {2, 10},
     {10, 10},
     {2, 10}
-  };
+  }};
 
   hostProcedures.dotProductDimPeriodic (houtput, hostM1, hostM2, dims);
 
@@ -461,12 +461,12 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (1, 2000, 1);
 
-  uintt dims[3][2] =
-  {
+  oap::generic::Dim32 dims
+  {{
     {1, 4},
     {5, 4},
     {1, 5}
-  };
+  }};
 
   hostProcedures.dotProductDimPeriodic (houtput, hostM1, hostM2, dims);
 
@@ -492,12 +492,12 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_3)
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (3, 3, 0);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 402, 0);
 
-  uintt dims[3][2] =
-  {
+  oap::generic::Dim32 dims
+  {{
     {1, 3},
     {3, 3},
     {1, 3}
-  };
+  }};
 
   oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
   oap::host::CopyArrayToReMatrix (hostM2, t_reValues2);

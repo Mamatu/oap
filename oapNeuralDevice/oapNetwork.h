@@ -202,8 +202,8 @@ private:
 
   bool shouldContinue (oap::ErrorType errorType);
 
-  oap::CuProceduresApi* m_cuApi;
-  oap::CuGenericProceduresApi* m_cuGApi;
+  oap::generic::SingleMatrixProcedures* m_cuApi;
+  oap::generic::MultiMatricesProcedures* m_cuGApi;
   bool m_releaseCuApi;
   IController* m_icontroller = nullptr;
 

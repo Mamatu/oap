@@ -39,8 +39,9 @@ Network::Network(oap::CuProceduresApi* calcApi) : m_cuApi (calcApi), m_releaseCu
 {
   if (m_cuApi == nullptr)
   {
-    m_cuApi = new oap::CuProceduresApi ();
-    m_cuGApi = new oap::CuGenericProceduresApi (m_cuApi);
+    oap::CuProceduresApi* capi = new oap::CuProceduresApi ();
+    m_cuApi = capi;
+    m_cuGApi = new oap::CuGenericProceduresApi (capi);
     m_releaseCuApi = true;
   }
 }

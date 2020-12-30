@@ -29,6 +29,7 @@
 
 #include "oapHostMatrixUtils.h"
 #include "oapHostMatrixUPtr.h"
+#include "oapProcedures.h"
 
 namespace oap
 {
@@ -68,7 +69,7 @@ void activateFunc (MT output, MT input, Activation activation, Api& api)
 }
 
 template<typename MT, typename Api>
-void activateFunc (MT output, MT input, Activation activation, Api& api, uintt dims[2])
+void activateFunc (MT output, MT input, Activation activation, Api& api, oap::generic::Dim2 dims)
 {
   logTrace("");
   switch (activation)
@@ -100,7 +101,7 @@ void activateFunc (MT output, MT input, Activation activation, Api& api, uintt d
 }
 
 template<typename MT, typename Api>
-void activateFunc (MT output, MT input, Activation activation, Api& api, uintt dims[2][2])
+void activateFunc (MT output, MT input, Activation activation, Api& api, oap::generic::Dim22 dims)
 {
   logTrace("");
   switch (activation)
@@ -164,7 +165,7 @@ void derivativeFunc (MT output, MT input, Activation activation, Api& api)
 }
 
 template<typename MT, typename Api>
-void derivativeFunc (MT output, MT input, Activation activation, Api& api, uintt dims[2])
+void derivativeFunc (MT output, MT input, Activation activation, Api& api, oap::generic::Dim2 dims)
 {
   logTrace("");
   switch (activation)
@@ -196,7 +197,7 @@ void derivativeFunc (MT output, MT input, Activation activation, Api& api, uintt
 }
 
 template<typename MT, typename Api>
-void derivativeFunc (MT output, MT input, Activation activation, Api& api, uintt dims[2][2])
+void derivativeFunc (MT output, MT input, Activation activation, Api& api, oap::generic::Dim22 dims)
 {
   logTrace("");
   switch (activation)
@@ -323,12 +324,12 @@ void forwardPropagation_oneSample (const Layers& layers, Api& api)
     previous = current;
     current = layers[idx];
 
-    uintt dims[3][2] =
-    {
+    oap::generic::Dim32 dims
+    {{
       {1, current->getNeuronsCount()},
       {previous->getTotalNeuronsCount(), current->getNeuronsCount()},
       {1, previous->getTotalNeuronsCount()}
-    };
+    }};
 
     FPMatrices& current_fp = *current->getFPMatrices ();
     FPMatrices& previous_fp = *previous->getFPMatrices ();
@@ -358,22 +359,22 @@ void forwardPropagation_multiSamples (const Layers& layers, Api& api)
     FPMatrices& previous_fp = *previous->getFPMatrices ();
     BPMatrices& previous_bp = *previous->getBPMatrices ();
 
-    uintt dims[3][2] =
-    {
+    oap::generic::Dim32 dims
+    {{
       {1, current->getNeuronsCount()},
       {previous->getTotalNeuronsCount(), current->getNeuronsCount()},
       {1, previous->getTotalNeuronsCount()}
-    };
+    }};
 
     uintt periodicRows = current->getTotalNeuronsCount(); 
 
     api.dotProductDimPeriodic (current_fp.m_sums, previous_bp.m_weights, previous_fp.m_inputs, dims, periodicRows);
 
-    uintt dims1[2][2] =
-    {
+    oap::generic::Dim22 dims1
+    {{
       {1, current->getNeuronsCount()},
       {1, current->getTotalNeuronsCount()}
-    };
+    }};
 
     activateFunc (current_fp.m_inputs, current_fp.m_sums, previous->getActivation(), api, dims1);
   }
@@ -402,7 +403,6 @@ void forwardPropagation_multiMatrices (const Layers& layers, Api& api)
 
     api.dotProduct (current_sums_wb, previous_weights, previous_inputs);
     activateFunc (current_inputs_wb, current_sums_wb, previous->getActivation(), api);
-
   }
 }
 
@@ -460,7 +460,7 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
     {
       FPMatrices& current_fp = *current->getFPMatrices ();
 
-      uintt dims[2] = {1, current->getNeuronsCount()};
+      oap::generic::Dim2 dims {{1, current->getNeuronsCount()}};
       oap::generic::derivativeFunc (current_fp.m_sums, current_fp.m_sums, previous->getActivation(), api, dims);
       api.hadamardProductVec (current_fp.m_errors, current_fp.m_errors, current_fp.m_sums);
     };
@@ -481,12 +481,12 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
 
       api.transpose (current_bp.m_tweights, current_bp.m_weights);
 
-      uintt dims[3][2] =
-      {
+      oap::generic::Dim32 dims
+      {{
         {1, current->getTotalNeuronsCount()},
         {next->getNeuronsCount(), current->getTotalNeuronsCount()},
         {1, next->getNeuronsCount()}
-      };
+      }};
 
       api.dotProduct (current_fp.m_errors, current_bp.m_tweights, next_fp.m_errors, dims);
       calculateCurrentErrors (current, previous);
@@ -510,12 +510,12 @@ void backPropagation (const Layers& layers, Api& api, CopyMatrixToMatrix&& copyM
 
       api.transpose (current_bp.m_tinputs, current_fp.m_inputs);
       {
-        uintt dims[3][2] =
-        {
+        oap::generic::Dim32 dims
+        {{
           {current->getTotalNeuronsCount(), next->getNeuronsCount()},
           {current->getTotalNeuronsCount(), 1},
           {1, next->getNeuronsCount()},
-        };
+        }};
         api.tensorProduct (current_bp.m_weights1, current_bp.m_tinputs, next_fp.m_errors, dims);
       }
       api.add (current_bp.m_weights2, current_bp.m_weights2, current_bp.m_weights1);
@@ -636,12 +636,12 @@ void backPropagation_multiMatrices (const Layers& layers, Api& api, Api2& api2, 
 
         api2.transpose (current_bp.m_tinputs, current_fp.m_inputs);
         {
-          uintt dims[3][2] =
-          {
+          oap::generic::Dim32 dims
+          {{
             {current->getTotalNeuronsCount(), next->getNeuronsCount()},
             {current->getTotalNeuronsCount(), 1},
             {1, next->getNeuronsCount()},
-          };
+          }};
           api2.tensorProduct (current_bp.m_weights1, current_bp.m_tinputs, next_fp.m_errors, dims);
         }
         api2.add (current_bp.m_weights2, current_bp.m_weights2, current_bp.m_weights1);

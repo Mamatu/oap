@@ -41,12 +41,14 @@
 #include "GenericProceduresApi.h"
 #include "GenericProceduresNewApi.h"
 
+#include "oapProcedures.h"
+
 #define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
 namespace oap
 {
 
-class CuProceduresApi
+class CuProceduresApi : public oap::generic::SingleMatrixProcedures
 {
  public:
   CuProceduresApi();
@@ -57,23 +59,17 @@ class CuProceduresApi
   CuProceduresApi& operator=(const CuProceduresApi&) = delete;
   CuProceduresApi& operator=(CuProceduresApi&&) = delete;
 
-  inline void addDotProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
+  void addDotProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
 
-  inline void tensorProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
+  void tensorProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
 
+  void tensorProduct (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim);
 
-  void tensorProduct (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2]);
+  void tensorProduct (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2]);
 
-  inline void tensorProduct (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
-  {
-
-    uintt dims[3][2] = {{outputD[0], outputD[1]}, {matrix1D[0], matrix1D[1]}, {matrix2D[0], matrix2D[1]}};
-    tensorProduct (outputs, params0, params1, dims);
-  }
-
-  inline void hadamardProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
-  inline void elementWiseProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
-  inline void schurProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
+  void hadamardProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
+  void elementWiseProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
+  void schurProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
 
   /**
    *  @brief Calculates hadamard product of matrix and vector of the second matrix.
@@ -87,7 +83,7 @@ class CuProceduresApi
    *
    *  Example of use: oapPartialHadamardProductTests.cpp
    */
-  inline void hadamardProductVec(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
+  void hadamardProductVec(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1) override;
 
   void dotProduct (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
 //  void dotProduct (oap::MemoryRegionPtrs* outputs, math::Matrix* params0, math::Matrix* params1);
@@ -102,7 +98,7 @@ class CuProceduresApi
   void calculateQTHQ(math::Matrix* outputs, math::Matrix* H, math::Matrix* Q,
                      math::Matrix* aux);
 
-  inline void dotProductEx(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, MatrixEx* matrixEx);
+  void dotProductEx(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, MatrixEx* matrixEx);
 
   /**
    * If outputs and matrix2 have more rows than columns of matrix1, then next following rows will be multiply as separated matrix.
@@ -152,20 +148,20 @@ class CuProceduresApi
   /**
   * The same like in dotProductPeriodic but dimensions by matrices are defined by user.
   */
-  void dotProductDimPeriodic (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2], uintt periodicRows);
+  void dotProductDimPeriodic (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, generic::Dim32 dim, uintt periodicRows);
 
-  void dotProductDimPeriodic (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2])
+  void dotProductDimPeriodic (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, generic::Dim32 dim)
   {
     uintt periodicRows = oap::cuda::GetRows(matrix1);
-    dotProductDimPeriodic (outputs, matrix1, matrix2, dims, periodicRows);
+    dotProductDimPeriodic (outputs, matrix1, matrix2, dim, periodicRows);
   }
 
-  void dotProduct (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2]);
+  void dotProduct (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, generic::Dim32 dim);
 
   void dotProduct (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2,
                    uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
   {
-    uintt dims[3][2] = {{outputD[0], outputD[1]}, {matrix1D[0], matrix1D[1]}, {matrix2D[0], matrix2D[1]}};
+    generic::Dim32 dims {{{outputD[0], outputD[1]}, {matrix1D[0], matrix1D[1]}, {matrix2D[0], matrix2D[1]}}};
 
     dotProduct (outputs, matrix1, matrix2, dims);
   }
@@ -174,7 +170,7 @@ class CuProceduresApi
                     math::Matrix* params1, MatrixEx* matrixEx, uintt columns,
                     uintt rows);
 
-  inline void dotProductOpt(math::Matrix* outputs, math::Matrix* params0,
+  void dotProductOpt(math::Matrix* outputs, math::Matrix* params0,
                             math::Matrix* params1);
 
   void dotProductOpt(math::Matrix* outputs, math::Matrix* params0,
@@ -187,19 +183,19 @@ class CuProceduresApi
   void transposeEx(math::Matrix* outputs, math::Matrix* params0,
                          MatrixEx* matrixEx);
 
-  void transpose(math::Matrix* outputs, math::Matrix* params0);
+  void transpose(math::Matrix* outputs, math::Matrix* params0) override;
 
   void conjugateTranspose(math::Matrix* outputs, math::Matrix* params0);
 
-  inline void subtract(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
-  inline void addSubstract(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
+  void subtract(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1) override;
+  void addSubstract(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
 
-  void crossEntropy(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
+  void crossEntropy(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1) override;
 
   void subtract(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void addSubstract(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
 
-  inline void add (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
+  void add (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1) override;
 
   void add (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void add (math::Matrix* outputs, const math::Matrix* params0, floatt value);
@@ -229,7 +225,7 @@ class CuProceduresApi
 
   void magnitude2OptVer2(floatt& outputs, math::Matrix* params0);
 
-  void multiplyReConstant(math::Matrix* v, math::Matrix* f, floatt re);
+  void multiplyReConstant(math::Matrix* v, math::Matrix* f, floatt re) override;
 
   void multiplyConstant(math::Matrix* v, math::Matrix* f, floatt re, floatt im);
 
@@ -237,7 +233,7 @@ class CuProceduresApi
 
   void setIdentity(math::Matrix* matrix);
 
-  void setZeroMatrix(math::Matrix* matrix);
+  void setZeroMatrix(math::Matrix* matrix) override;
 
   bool compare(math::Matrix* matrix1, math::Matrix* matrix2, floatt tolerance = 0);
 
@@ -245,78 +241,78 @@ class CuProceduresApi
 
   // Sigmoid function and derivatives
   void sigmoid (math::Matrix* matrix);
-  void sigmoid (math::Matrix* matrix, uintt dim[2]);
-  void sigmoid (math::Matrix* matrix, uintt dim[2][2]);
+  void sigmoid (math::Matrix* matrix, generic::Dim2 dim);
+  void sigmoid (math::Matrix* matrix, generic::Dim22 dim);
 
-  void sigmoid (math::Matrix* outputs, math::Matrix* matrix);
-  void sigmoid (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void sigmoid (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void sigmoid (math::Matrix* outputs, math::Matrix* matrix) override;
+  void sigmoid (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void sigmoid (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
-  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix);
-  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix, uintt dim[2]);
-  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix, uintt dim[2][2]);
+  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix) override;
+  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix, generic::Dim2 dim);
+  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix, generic::Dim22 dim);
 
   void multiplyDSigmoid (math::Matrix* omatrix, math::Matrix* matrix);
-  void multiplyDSigmoid (math::Matrix* omatrix, math::Matrix* matrix, uintt dim[2]);
-  void multiplyDSigmoid (math::Matrix* omatrix, math::Matrix* matrix, uintt dim[2][2]);
+  void multiplyDSigmoid (math::Matrix* omatrix, math::Matrix* matrix, generic::Dim2 dim);
+  void multiplyDSigmoid (math::Matrix* omatrix, math::Matrix* matrix, generic::Dim22 dim);
 
   // Linear function and derivatives
-  void linear (math::Matrix* outputs, math::Matrix* matrix);
-  void linear (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void linear (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void linear (math::Matrix* outputs, math::Matrix* matrix) override;
+  void linear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void linear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
-  void dlinear (math::Matrix* outputs, math::Matrix* matrix);
-  void dlinear (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void dlinear (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void dlinear (math::Matrix* outputs, math::Matrix* matrix) override;
+  void dlinear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void dlinear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
   // Tanh/tanh function and derivatives
-  void tanh (math::Matrix* outputs, math::Matrix* matrix);
-  void tanh (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void tanh (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void tanh (math::Matrix* outputs, math::Matrix* matrix) override;
+  void tanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void tanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
-  void dtanh (math::Matrix* outputs, math::Matrix* matrix);
-  void dtanh (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void dtanh (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void dtanh (math::Matrix* outputs, math::Matrix* matrix) override;
+  void dtanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void dtanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
   // Sin/sin function and derivatives
-  void sin (math::Matrix* outputs, math::Matrix* matrix);
-  void sin (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void sin (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void sin (math::Matrix* outputs, math::Matrix* matrix) override;
+  void sin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void sin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
-  void dsin (math::Matrix* outputs, math::Matrix* matrix);
-  void dsin (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void dsin (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void dsin (math::Matrix* outputs, math::Matrix* matrix) override;
+  void dsin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void dsin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
   void multiplyDSin (math::Matrix* outputs, math::Matrix* matrix);
-  void multiplyDSin (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void multiplyDSin (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void multiplyDSin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void multiplyDSin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
   // Relu/relu function and derivatives
-  void relu (math::Matrix* outputs, math::Matrix* matrix);
-  void relu (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void relu (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void relu (math::Matrix* outputs, math::Matrix* matrix) override;
+  void relu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void relu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
-  void drelu (math::Matrix* outputs, math::Matrix* matrix);
-  void drelu (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void drelu (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void drelu (math::Matrix* outputs, math::Matrix* matrix) override;
+  void drelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void drelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
   // PRelu/prelu function and derivatives where paramters is 0.01
-  void prelu (math::Matrix* outputs, math::Matrix* matrix);
-  void prelu (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void prelu (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void prelu (math::Matrix* outputs, math::Matrix* matrix) override;
+  void prelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void prelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
-  void dprelu (math::Matrix* outputs, math::Matrix* matrix);
-  void dprelu (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void dprelu (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void dprelu (math::Matrix* outputs, math::Matrix* matrix) override;
+  void dprelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void dprelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
   // Softplus/softplus function and derivatives
-  void softplus (math::Matrix* outputs, math::Matrix* matrix);
-  void softplus (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void softplus (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void softplus (math::Matrix* outputs, math::Matrix* matrix) override;
+  void softplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void softplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
-  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix);
-  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2]);
-  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix, uintt dim[2][2]);
+  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix) override;
+  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
+  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
 
   /**
    * \brief Convolution operation
@@ -559,6 +555,32 @@ private:
 
     return array;
   }
+/*
+  uintt* createKernelArray (oap::generic::Dim32 dim32)
+  {
+    uintt harray [6] =
+    {
+      dim32[0][0], dim32[0][1],
+      dim32[1][0], dim32[1][1],
+      dim32[2][0], dim32[2][1]
+    };
+    return createKernelArray (harray, 6);
+  }
+
+  uintt* createKernelArray (oap::generic::Dim22 dim22)
+  {
+    uintt harray [4] =
+    {
+      dim22[0][0], dim22[0][1],
+      dim22[1][0], dim22[1][1],
+    };
+    return createKernelArray (harray, 4);
+  }
+
+  uintt* createKernelArray (oap::generic::Dim2 dim2)
+  {
+    return createKernelArray (dim2.data(), 2);
+  }*/
 
   MatrixEx* createDeviceMatrixEx(const MatrixEx& host)
   {
@@ -575,113 +597,6 @@ private:
   std::function<void()> m_preExecCallback;//(std::bind(&CuProceduresApi::resetFlags, this)
   std::function<uintt*(uintt*, uintt)> m_createKernelArray;
 };
-
-inline void CuProceduresApi::addDotProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1)
-{
-#ifdef CU_PROCEDURES_API_PRINT
-  debug(__func__);
-#endif
-#ifdef DEBUG
-  CHECK_MATRIX(outputs);
-  CHECK_MATRIX(params0);
-  CHECK_MATRIX(params1);
-#endif
-  const uintt output_columns = oap::cuda::GetColumns(outputs);
-  const uintt output_rows = oap::cuda::GetRows(outputs);
-
-  addDotProduct(outputs, params0, params1, output_columns, output_rows);
-}
-
-inline void CuProceduresApi::tensorProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1)
-{
-#ifdef CU_PROCEDURES_API_PRINT
-  debug(__func__);
-#endif
-#ifdef DEBUG
-  CHECK_MATRIX(outputs);
-  CHECK_MATRIX(params0);
-  CHECK_MATRIX(params1);
-#endif
-
-  const uintt output_columns = oap::cuda::GetColumns(outputs);
-  const uintt output_rows = oap::cuda::GetRows(outputs);
-
-  tensorProduct (outputs, params0, params1, output_columns, output_rows);
-}
-
-inline void CuProceduresApi::hadamardProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1)
-{
-#ifdef CU_PROCEDURES_API_PRINT
-  debug(__func__);
-#endif
-#ifdef DEBUG
-  CHECK_MATRIX(outputs);
-  CHECK_MATRIX(params0);
-  CHECK_MATRIX(params1);
-#endif
-
-  const uintt output_columns = oap::cuda::GetColumns(outputs);
-  const uintt output_rows = oap::cuda::GetRows(outputs);
-
-  hadamardProduct (outputs, params0, params1, output_columns, output_rows);
-}
-
-inline void CuProceduresApi::elementWiseProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1)
-{
-  hadamardProduct (outputs, params0, params1);
-}
-
-inline void CuProceduresApi::schurProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1)
-{
-  hadamardProduct (outputs, params0, params1);
-}
-
-inline void CuProceduresApi::hadamardProductVec(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1)
-{
-#ifdef CU_PROCEDURES_API_PRINT
-  debug(__func__);
-#endif
-#ifdef DEBUG
-  CHECK_MATRIX(outputs);
-  CHECK_MATRIX(params0);
-  CHECK_MATRIX(params1);
-#endif
-
-  const uintt output_columns = oap::cuda::GetColumns(outputs);
-  const uintt output_rows = oap::cuda::GetRows(outputs);
-
-  hadamardProductVec (outputs, params0, params1, output_columns, output_rows);
-}
-
-inline void CuProceduresApi::dotProductOpt(math::Matrix* outputs, math::Matrix* params0,
-                                    math::Matrix* params1) {
-  const uintt ocolumns = oap::cuda::GetColumns(outputs);
-  const uintt orows = oap::cuda::GetRows(outputs);
-  const uintt p1rows = oap::cuda::GetRows(params0);
-  const uintt p2columns = oap::cuda::GetColumns(params1);
-  dotProductOpt(outputs, params0, params1, ocolumns, orows, p1rows, p2columns);
-}
-
-inline void CuProceduresApi::subtract(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1)
-{
-  const uintt columns = oap::cuda::GetColumns(outputs);
-  const uintt rows = oap::cuda::GetRows(outputs);
-  subtract(outputs, params0, params1, columns, rows);
-}
-
-inline void CuProceduresApi::addSubstract(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1)
-{
-  const uintt columns = oap::cuda::GetColumns(outputs);
-  const uintt rows = oap::cuda::GetRows(outputs);
-  addSubstract(outputs, params0, params1, columns, rows);
-}
-
-inline void CuProceduresApi::add (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1)
-{
-  const uintt columns = oap::cuda::GetColumns(outputs);
-  const uintt rows = oap::cuda::GetRows(outputs);
-  add(outputs, params0, params1, columns, rows);
-}
 
 template<typename Matrices>
 void CuProceduresApi::v2_add (Matrices& outputs, const Matrices& params1, floatt value)
