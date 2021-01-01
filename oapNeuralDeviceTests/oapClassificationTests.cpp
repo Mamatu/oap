@@ -280,7 +280,9 @@ TEST_F(OapClassificationTests, CircleDataTest)
     oap::HostMatrixPtr testHExpected = generateExpectedHostMatrix (testData);
     oap::HostMatrixPtr trainingHExpected = generateExpectedHostMatrix (trainingData);
 
-    std::unique_ptr<Network> network (new Network());
+    auto* singleApi = new oap::CuProceduresApi();
+    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+    std::unique_ptr<Network> network (new Network (singleApi, multiApi, true));
 
     floatt initLR = 0.03;
     network->setLearningRate (initLR);

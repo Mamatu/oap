@@ -60,7 +60,9 @@ class OapSimpleFittingTests : public testing::Test
              const ErrorCallback& callback = [](floatt error, Network* network){},
              const Function1D& function1d = sigmoid)
   {
-    std::unique_ptr<Network> network (new Network());
+    auto* singleApi = new oap::CuProceduresApi();
+    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+    std::unique_ptr<Network> network (new Network(singleApi, multiApi, true));
     DeviceLayer* l1 = network->createLayer(inputNeurons.first + (inputNeurons.second ? 1 : 0));
     DeviceLayer* l2 = network->createLayer(1);
 
@@ -184,7 +186,9 @@ TEST_F(OapSimpleFittingTests, SinFitting_Test)
     return sin (0.5 * x - 4.f);
   };
 
-  std::shared_ptr<Network> network (new Network());
+  auto* singleApi = new oap::CuProceduresApi();
+  auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+  std::shared_ptr<Network> network (new Network(singleApi, multiApi, true));
   network->createLayer(1 + 1, Activation::LINEAR);
   network->createLayer(1, Activation::SIN);
 

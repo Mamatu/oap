@@ -26,6 +26,7 @@
 
 #include "KernelExecutor.h"
 #include "CuProceduresApi.h"
+#include "MultiMatricesCuProcedures.h"
 
 #include "oapHostMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"
@@ -40,7 +41,9 @@
 
 Network* createNetwork (size_t width, size_t height)
 {
-  Network* network = new Network();
+  auto* singleApi = new oap::CuProceduresApi();
+  auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+  Network* network = new Network(singleApi, multiApi, true);
 
   network->createLayer(width*height);
   network->createLayer(80);

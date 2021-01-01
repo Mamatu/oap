@@ -18,6 +18,7 @@
  */
 
 #include "oapNeuralTests_Api.h"
+#include "MultiMatricesCuProcedures.h"
 
 namespace test_api
 {
@@ -104,7 +105,9 @@ namespace test_api
 
   std::unique_ptr<Network> createNetwork()
   {
-    std::unique_ptr<Network> network (new Network());
+    auto* singleApi = new oap::CuProceduresApi();
+    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+    std::unique_ptr<Network> network (new Network(singleApi, multiApi, true));
     network->createLayer(2, true, Activation::TANH);
     network->createLayer(3, true, Activation::TANH);
     network->createLayer(1, Activation::TANH);
@@ -114,7 +117,9 @@ namespace test_api
 
   std::unique_ptr<Network> createNetwork (const std::vector<size_t>& hiddenLayers)
   {
-    std::unique_ptr<Network> network (new Network());
+    auto* singleApi = new oap::CuProceduresApi();
+    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+    std::unique_ptr<Network> network (new Network(singleApi, multiApi, true));
 
     network->createLayer(2, true, Activation::TANH);
 

@@ -83,7 +83,8 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
 
   if (args.loadingPath.empty ())
   {
-    network = new Network;
+    oapAssert ("to check" == nullptr);
+    //network = new Network();
   }
   else
   {

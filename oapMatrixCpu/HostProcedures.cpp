@@ -94,8 +94,8 @@ class CompareImpl : public HostKernel {
  protected:
   template <typename T>
   T getSum(T* buffer, size_t length) const {
-    T output = 0;
-    for (uintt fa = 0; fa < length; ++fa) {
+    T output;
+    for (uintt fa; fa < length; ++fa) {
       output += buffer[fa];
     }
     return output;
@@ -389,35 +389,6 @@ void HostProcedures::softplus (math::Matrix* output, math::Matrix* matrix, oap::
   _funcDimPeriodic ("CUDAKernel_SoftplusDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
-{
-  oap::host::HostBuffer<floatt> m_hsumsReBuffer;
-  oap::host::HostBuffer<floatt> m_dsumsReBuffer;
-  oap::host::HostBuffer<floatt> m_hsumsImBuffer;
-  oap::host::HostBuffer<floatt> m_dsumsImBuffer;
-
-  using GetAddressType = std::function<floatt*(const math::Matrix*)>;
-  using GetAddressTypeRef = GetAddressType&;
-
-  GetAddressType getReValues = [](const math::Matrix* matrix) -> floatt*
-  {
-    return gReValues (matrix);
-  };
-
-  GetAddressType getImValues = [](const math::Matrix* matrix) -> floatt*
-  {
-    return gImValues (matrix);
-  };
-
-  oap::generic::SumApi<decltype(oap::host::GetMatrixInfo), decltype(memcpy), GetAddressTypeRef>
-  sumApi (oap::host::GetMatrixInfo, memcpy, getReValues, getImValues);
-
-  oap::generic::SumBuffers<oap::host::HostBuffer<floatt>, oap::host::HostBuffer<floatt>>
-  sumBuffers (m_hsumsReBuffer, m_dsumsReBuffer, m_hsumsImBuffer, m_dsumsImBuffer);
-
-  oap::generic::sum (reoutput, imoutput, params0, &m_kernel, sumApi, sumBuffers);
-}
-
 void HostProcedures::crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
 {
   oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
@@ -464,3 +435,134 @@ void HostProcedures::poolAverage (math::Matrix* output, const math::Matrix* matr
 {
   oap::generic::poolAverage (output, matrix, kernel, &m_kernel, oap::host::GetMatrixInfo, [](){}, m_createKernelArray);
 }
+
+void HostProcedures::dsigmoid (math::Matrix* output, math::Matrix* input)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_DRelu", output, input, &m_kernel, m_bmApi, true, [](){});
+}
+
+void HostProcedures::dlinear (math::Matrix* output, math::Matrix* input)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_DLinear", output, input, &m_kernel, m_bmApi, true, [](){});
+}
+
+void HostProcedures::dtanh (math::Matrix* output, math::Matrix* input)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_DTanh", output, input, &m_kernel, m_bmApi, true, [](){});
+}
+
+void HostProcedures::dsin (math::Matrix* output, math::Matrix* input)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_DSin", output, input, &m_kernel, m_bmApi, true, [](){});
+}
+
+void HostProcedures::dsoftplus (math::Matrix* output, math::Matrix* input)
+{
+  oap::generic::executeKernel1Arg ("CUDAKernel_DSoftplus", output, input, &m_kernel, m_bmApi, true, [](){});
+}
+
+void HostProcedures::dsigmoid (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+{
+  _funcDim ("CUDAKernel_DSigmoid", output, input, dim);
+}
+
+void HostProcedures::dlinear (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+{
+  _funcDim ("CUDAKernel_DLinear", output, input, dim);
+}
+
+void HostProcedures::dtanh (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+{
+  _funcDim ("CUDAKernel_DTanh", output, input, dim);
+}
+
+void HostProcedures::dsin (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+{
+  _funcDim ("CUDAKernel_DSin", output, input, dim);
+}
+
+void HostProcedures::dsoftplus (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+{
+  _funcDim ("CUDAKernel_DSoftplus", output, input, dim);
+}
+
+void HostProcedures::dsigmoid (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+{
+  _funcDimPeriodic ("CUDAKernel_DSigmoid", output, input, dim);
+}
+
+void HostProcedures::dlinear (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+{
+  _funcDimPeriodic ("CUDAKernel_DLinear", output, input, dim);
+}
+
+void HostProcedures::dtanh (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+{
+  _funcDimPeriodic ("CUDAKernel_DTanh", output, input, dim);
+}
+
+void HostProcedures::dsin (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+{
+  _funcDimPeriodic ("CUDAKernel_DSin", output, input, dim);
+}
+
+void HostProcedures::dsoftplus (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+{
+  _funcDimPeriodic ("CUDAKernel_DSoftplus", output, input, dim);
+}
+
+void HostProcedures::hadamardProductVec (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+{
+  oap::generic::hadamardProductVec (output, param1, param2, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
+
+void HostProcedures::add (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+{
+  oap::generic::add (output, param1, param2, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
+
+void HostProcedures::multiplyReConstant (math::Matrix* output, math::Matrix* param1, floatt re)
+{
+  oap::generic::multiplyReConst (output, param1, re, &m_kernel, oap::host::GetMatrixInfo, [](){});
+}
+
+/*void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
+{
+  oap::host::HostBuffer<floatt> m_hsumsReBuffer;
+  oap::host::HostBuffer<floatt> m_dsumsReBuffer;
+  oap::host::HostBuffer<floatt> m_hsumsImBuffer;
+  oap::host::HostBuffer<floatt> m_dsumsImBuffer;
+
+  using GetAddressType = std::function<floatt*(const math::Matrix*)>;
+  using GetAddressTypeRef = GetAddressType&;
+
+  GetAddressType getReValues = [](const math::Matrix* matrix) -> floatt*
+  {
+    return gReValues (matrix);
+  };
+
+  GetAddressType getImValues = [](const math::Matrix* matrix) -> floatt*
+  {
+    return gImValues (matrix);
+  };
+
+  oap::generic::SumApi<decltype(oap::host::GetMatrixInfo), decltype(memcpy), GetAddressTypeRef>
+  sumApi (oap::host::GetMatrixInfo, memcpy, getReValues, getImValues);
+
+  oap::generic::SumBuffers<oap::host::HostBuffer<floatt>, oap::host::HostBuffer<floatt>>
+  sumBuffers (m_hsumsReBuffer, m_dsumsReBuffer, m_hsumsImBuffer, m_dsumsImBuffer);
+
+  oap::generic::sum (reoutput, imoutput, params0, &m_kernel, sumApi, sumBuffers);
+}*/
+
+void HostProcedures::sum (floatt& reoutput, floatt& imoutput, const math::Matrix* param)
+{
+  //m_cuStatus = 
+  oap::generic::sum (reoutput, imoutput, param, &m_kernel, oap::host::GetMatrixInfo, oap::host::GetRefHostMatrix, memcpy, m_hsumsReBuffer, m_hsumsImBuffer, m_dsumsReBuffer, m_dsumsImBuffer);
+}
+
+void HostProcedures::setZeroMatrix (math::Matrix* param)
+{
+  oap::host::SetZeroMatrix (param);
+}
+

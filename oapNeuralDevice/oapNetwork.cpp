@@ -35,24 +35,16 @@ inline void __setReValue (math::Matrix* matrix, uintt c, uintt r, floatt v)
 }
 }
 
-Network::Network(oap::CuProceduresApi* calcApi) : m_cuApi (calcApi), m_releaseCuApi (false)
-{
-  if (m_cuApi == nullptr)
-  {
-    oap::CuProceduresApi* capi = new oap::CuProceduresApi ();
-    m_cuApi = capi;
-    m_cuGApi = new oap::CuGenericProceduresApi (capi);
-    m_releaseCuApi = true;
-  }
-}
+Network::Network(oap::generic::SingleMatrixProcedures* smp, oap::generic::MultiMatricesProcedures* mmp, bool deallocate) : m_singleApi (smp), m_multiApi (mmp), m_deallocate (deallocate)
+{}
 
 Network::~Network()
 {
   destroyNetwork ();
-  if (m_releaseCuApi)
+  if (m_deallocate)
   {
-    delete m_cuGApi;
-    delete m_cuApi;
+    delete m_multiApi;
+    delete m_singleApi;
   }
 }
 
@@ -433,7 +425,8 @@ floatt Network::calculateRMSE ()
 floatt Network::calculateSum ()
 {
   floatt eValue = 0;
-  m_cuApi->sum (eValue, m_layers[0].back()->getFPMatrices()->m_errorsAux);
+  floatt imvalue = 0;
+  m_singleApi->sum (eValue, imvalue, m_layers[0].back()->getFPMatrices()->m_errorsAux);
   return eValue;
 }
 
@@ -468,16 +461,16 @@ void Network::forwardPropagation (LHandler handler)
   {
     if (m_layers[handler][0]->getSamplesCount() == 1)
     {
-      oap::generic::forwardPropagation_oneSample<DeviceLayer> (m_layers[handler], *m_cuApi);
+      oap::generic::forwardPropagation_oneSample<DeviceLayer> (m_layers[handler], *m_singleApi);
     }
     else
     {
-      oap::generic::forwardPropagation_multiSamples<DeviceLayer> (m_layers[handler], *m_cuApi);
+      oap::generic::forwardPropagation_multiSamples<DeviceLayer> (m_layers[handler], *m_singleApi);
     }
   }
   else if (type == LayerType::MULTI_MATRICES)
   {
-    oap::generic::forwardPropagation_multiMatrices<DeviceLayer> (m_layers[handler], *m_cuGApi);
+    oap::generic::forwardPropagation_multiMatrices<DeviceLayer> (m_layers[handler], *m_multiApi);
   }
   else
   {
@@ -491,20 +484,20 @@ void Network::fbPropagation (LHandler handler, oap::ErrorType errorType, Calcula
   {
     if (m_layers[handler][0]->getSamplesCount() == 1)
     {
-      oap::generic::forwardPropagation_oneSample<DeviceLayer> (m_layers[handler], *m_cuApi);
+      oap::generic::forwardPropagation_oneSample<DeviceLayer> (m_layers[handler], *m_singleApi);
       accumulateErrors (errorType, calcType, handler);
       backPropagation (handler);
     }
     else
     {
-      oap::generic::forwardPropagation_multiSamples<DeviceLayer> (m_layers[handler], *m_cuApi);
+      oap::generic::forwardPropagation_multiSamples<DeviceLayer> (m_layers[handler], *m_singleApi);
       accumulateErrors (errorType, calcType, handler);
       backPropagation (handler);
     }
   }
   else if (getType(handler) == LayerType::MULTI_MATRICES)
   {
-    oap::generic::forwardPropagation_multiMatrices<DeviceLayer> (m_layers[handler], *m_cuGApi);
+    oap::generic::forwardPropagation_multiMatrices<DeviceLayer> (m_layers[handler], *m_multiApi);
     accumulateErrors (errorType, calcType, handler);
     backPropagation (handler);
   }
@@ -517,7 +510,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
   if (m_layers[handler][0]->getSamplesCount() == 1 || getType(handler) == LayerType::ONE_MATRIX)
   {
     oap::HostMatrixPtr hmatrix = oap::host::NewReMatrix (1, layer->getRowsCount());
-    oap::generic::getErrors (hmatrix, *layer, *m_cuApi, m_expectedOutputs[handler][0], errorType, oap::cuda::CopyDeviceMatrixToHostMatrix);
+    oap::generic::getErrors (hmatrix, *layer, *m_singleApi, m_expectedOutputs[handler][0], errorType, oap::cuda::CopyDeviceMatrixToHostMatrix);
     for (uintt idx = 0; idx < gRows (hmatrix); ++idx)
     {
       floatt v = GetReIndex (hmatrix, idx);
@@ -533,7 +526,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
       math::Matrix* hmatrix = oap::host::NewReMatrix (1, layer->getTotalNeuronsCount());
       hmatrices.push_back (hmatrix);
     }
-    oap::generic::getErrors_multiMatrices (hmatrices, *layer, *m_cuGApi, m_expectedOutputs[handler], errorType, oap::cuda::CopyDeviceMatrixToHostMatrix);
+    oap::generic::getErrors_multiMatrices (hmatrices, *layer, *m_multiApi, m_expectedOutputs[handler], errorType, oap::cuda::CopyDeviceMatrixToHostMatrix);
     for (uintt idx1 = 0; idx1 < hmatrices.size(); ++idx1)
     {
       const auto& hmatrix = hmatrices[idx1];
@@ -551,11 +544,11 @@ void Network::backPropagation (LHandler handler)
 {
   if (getType(handler) == LayerType::ONE_MATRIX)
   {
-    oap::generic::backPropagation<DeviceLayer> (m_layers[handler], *m_cuApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
+    oap::generic::backPropagation<DeviceLayer> (m_layers[handler], *m_singleApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
   }
   else if (getType(handler) == LayerType::MULTI_MATRICES)
   {
-    oap::generic::backPropagation_multiMatrices<DeviceLayer> (m_layers[handler], *m_cuGApi, *m_cuApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
+    oap::generic::backPropagation_multiMatrices<DeviceLayer> (m_layers[handler], *m_multiApi, *m_singleApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
   }
   else
   {
@@ -565,15 +558,15 @@ void Network::backPropagation (LHandler handler)
 
 void Network::updateWeights(LHandler handler)
 {
-  oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_cuApi, m_learningRate, m_errorsVec.size());
+  oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_singleApi, m_learningRate, m_errorsVec.size());
 #if 0
   if (getType(handler) == LayerType::ONE_MATRIX)
   {
-    oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_cuApi, m_learningRate, m_errorsVec.size());
+    oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_singleApi, m_learningRate, m_errorsVec.size());
   }
   else if (getType(handler) == LayerType::MULTI_MATRICES)
   {
-    oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_cuApi, m_learningRate, m_errorsVec.size());
+    oap::generic::updateWeights<DeviceLayer> (m_layers[handler], *m_singleApi, m_learningRate, m_errorsVec.size());
   }
   else
   {
@@ -923,7 +916,7 @@ void Network::printLayersWeights () const
 void Network::postStep(DeviceLayer* layer)
 {
   resetErrors (layer);
-  m_cuApi->setZeroMatrix (layer->getBPMatrices()->m_weights2);
+  m_singleApi->setZeroMatrix (layer->getBPMatrices()->m_weights2);
 }
 
 void Network::postStep ()
@@ -941,9 +934,9 @@ void Network::resetErrors (DeviceLayer* layer)
   const uintt fplen = layer->getFPMatricesCount();
   for (uintt fpidx = 0; fpidx < fplen; ++fpidx)
   {
-    m_cuApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errors);
-    m_cuApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errorsAcc);
-    m_cuApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errorsAux);
+    m_singleApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errors);
+    m_singleApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errorsAcc);
+    m_singleApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errorsAux);
   }
 }
 

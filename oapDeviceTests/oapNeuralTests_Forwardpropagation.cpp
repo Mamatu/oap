@@ -38,6 +38,8 @@ namespace
 class NetworkT : public Network
 {
   public:
+    NetworkT(oap::CuProceduresApi* single, oap::MultiMatricesCuProcedures* multi, bool p) : Network(single, multi, p)  {}
+
     void setHostInput (math::Matrix* inputs, size_t index)
     {
       Network::setHostInputs (inputs, index);
@@ -55,7 +57,10 @@ class OapNeuralTests_Forwardpropagation : public testing::Test
   {
     oap::cuda::Context::Instance().create();
     network = nullptr;
-    network = new NetworkT();
+
+    auto* singleApi = new oap::CuProceduresApi();
+    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+    network = new NetworkT(singleApi, multiApi, true);
   }
 
   virtual void TearDown()

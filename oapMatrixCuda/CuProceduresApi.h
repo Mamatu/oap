@@ -63,7 +63,7 @@ class CuProceduresApi : public oap::generic::SingleMatrixProcedures
 
   void tensorProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1);
 
-  void tensorProduct (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim);
+  void tensorProduct (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim) override;
 
   void tensorProduct (math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2]);
 
@@ -92,8 +92,6 @@ class CuProceduresApi : public oap::generic::SingleMatrixProcedures
 
   void addDotProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
   void tensorProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
-  void hadamardProduct(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
-  void hadamardProductVec(math::Matrix* outputs, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows);
 
   void calculateQTHQ(math::Matrix* outputs, math::Matrix* H, math::Matrix* Q,
                      math::Matrix* aux);
@@ -148,7 +146,7 @@ class CuProceduresApi : public oap::generic::SingleMatrixProcedures
   /**
   * The same like in dotProductPeriodic but dimensions by matrices are defined by user.
   */
-  void dotProductDimPeriodic (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, generic::Dim32 dim, uintt periodicRows);
+  void dotProductDimPeriodic (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, generic::Dim32 dim, uintt periodicRows) override;
 
   void dotProductDimPeriodic (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, generic::Dim32 dim)
   {
@@ -156,7 +154,7 @@ class CuProceduresApi : public oap::generic::SingleMatrixProcedures
     dotProductDimPeriodic (outputs, matrix1, matrix2, dim, periodicRows);
   }
 
-  void dotProduct (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, generic::Dim32 dim);
+  void dotProduct (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2, generic::Dim32 dim) override;
 
   void dotProduct (math::Matrix* outputs, math::Matrix* matrix1, math::Matrix* matrix2,
                    uintt outputD[2], uintt matrix1D[2], uintt matrix2D[2])
@@ -210,8 +208,8 @@ class CuProceduresApi : public oap::generic::SingleMatrixProcedures
 
   void magnitude (floatt& outputs, math::Matrix* params0);
 
-  void sum (floatt& reoutput, floatt& imoutput, const math::Matrix* matrix);
-  void sum (floatt& reoutput, const math::Matrix* matrix);
+  void sum (floatt& reoutput, floatt& imoutput, const math::Matrix* matrix) override;
+  //void sum (floatt& reoutput, const math::Matrix* matrix);
   //void sum (floatt& reoutput, const floatt* values, size_t count);
   //void sumShared (floatt& outputs, math::Matrix* params0);
 
@@ -245,12 +243,12 @@ class CuProceduresApi : public oap::generic::SingleMatrixProcedures
   void sigmoid (math::Matrix* matrix, generic::Dim22 dim);
 
   void sigmoid (math::Matrix* outputs, math::Matrix* matrix) override;
-  void sigmoid (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void sigmoid (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void sigmoid (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void sigmoid (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix) override;
-  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix, generic::Dim2 dim);
-  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix, generic::Dim22 dim);
+  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix, generic::Dim2 dim) override;
+  void dsigmoid (math::Matrix* omatrix, math::Matrix* imatrix, generic::Dim22 dim) override;
 
   void multiplyDSigmoid (math::Matrix* omatrix, math::Matrix* matrix);
   void multiplyDSigmoid (math::Matrix* omatrix, math::Matrix* matrix, generic::Dim2 dim);
@@ -258,30 +256,30 @@ class CuProceduresApi : public oap::generic::SingleMatrixProcedures
 
   // Linear function and derivatives
   void linear (math::Matrix* outputs, math::Matrix* matrix) override;
-  void linear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void linear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void linear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void linear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   void dlinear (math::Matrix* outputs, math::Matrix* matrix) override;
-  void dlinear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void dlinear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void dlinear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void dlinear (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   // Tanh/tanh function and derivatives
   void tanh (math::Matrix* outputs, math::Matrix* matrix) override;
-  void tanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void tanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void tanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void tanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   void dtanh (math::Matrix* outputs, math::Matrix* matrix) override;
-  void dtanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void dtanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void dtanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void dtanh (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   // Sin/sin function and derivatives
   void sin (math::Matrix* outputs, math::Matrix* matrix) override;
-  void sin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void sin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void sin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void sin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   void dsin (math::Matrix* outputs, math::Matrix* matrix) override;
-  void dsin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void dsin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void dsin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void dsin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   void multiplyDSin (math::Matrix* outputs, math::Matrix* matrix);
   void multiplyDSin (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
@@ -289,30 +287,30 @@ class CuProceduresApi : public oap::generic::SingleMatrixProcedures
 
   // Relu/relu function and derivatives
   void relu (math::Matrix* outputs, math::Matrix* matrix) override;
-  void relu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void relu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void relu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void relu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   void drelu (math::Matrix* outputs, math::Matrix* matrix) override;
-  void drelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void drelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void drelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void drelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   // PRelu/prelu function and derivatives where paramters is 0.01
   void prelu (math::Matrix* outputs, math::Matrix* matrix) override;
-  void prelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void prelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void prelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void prelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   void dprelu (math::Matrix* outputs, math::Matrix* matrix) override;
-  void dprelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void dprelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void dprelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void dprelu (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   // Softplus/softplus function and derivatives
   void softplus (math::Matrix* outputs, math::Matrix* matrix) override;
-  void softplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void softplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void softplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void softplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   void dsoftplus (math::Matrix* outputs, math::Matrix* matrix) override;
-  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim);
-  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim);
+  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim2 dim) override;
+  void dsoftplus (math::Matrix* outputs, math::Matrix* matrix, generic::Dim22 dim) override;
 
   /**
    * \brief Convolution operation

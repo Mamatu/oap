@@ -208,6 +208,9 @@ bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, con
   return execute (kexec, kernelName.c_str(), w, h, const_cast<const void**>(params), 0, _prepareDims, blocks, threads, preExecCallback, [](){});
 }
 
+namespace internal
+{
+
 template<typename GetMatrixInfo, typename Copy, typename GetAddress>
 class SumApi : public BasicMatrixApi<GetMatrixInfo>
 {
@@ -217,9 +220,9 @@ class SumApi : public BasicMatrixApi<GetMatrixInfo>
            getReAddress (_getReAddress), getImAddress (_getImAddress)
     {}
 
-    Copy&& copy;
-    GetAddress&& getReAddress;
-    GetAddress&& getImAddress;
+    Copy copy;
+    GetAddress getReAddress;
+    GetAddress getImAddress;
 };
 
 template<typename HBuffer, typename DBuffer>
@@ -315,6 +318,7 @@ bool sum (floatt& reoutput, floatt& imoutput, const math::Matrix* matrix, oap::I
   }
 
   return cuStatus;
+}
 }
 
 template<typename GetMatrixInfo>
@@ -777,6 +781,132 @@ bool poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::
 
   return executeKernel (kname, minfo, const_cast<const void**>(params), kexec, getMatrixInfo, args, preExecCallback, [](){});
 }
+
+template<typename GetMatrixInfo, typename PreExecCallback>
+bool hadamardProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+{
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+
+  auto minfo = getMatrixInfo (output);
+  oap::generic::check_hadamardProduct (output, params0, params1, minfo.columns(), minfo.rows(), getMatrixInfo);
+
+  oap::generic::Args args (true);
+  args.m_retrieveDims = false;
+  args.m_prepareDims = true;
+  args.w = minfo.columns();
+  args.h = minfo.rows();
+
+  const void* params[] = {&output, &params0, &params1};
+  const char* kname = "CUDAKernel_HadamardProduct";
+
+  return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
+}
+
+template<typename GetMatrixInfo, typename PreExecCallback>
+bool hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+{
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(params0);
+  CHECK_MATRIX(params1);
+
+  auto minfo = getMatrixInfo (output);
+  oap::generic::check_hadamardProductVec (output, params0, params1, minfo.columns(), minfo.rows(), getMatrixInfo);
+
+  oap::generic::Args args (true);
+  args.m_retrieveDims = false;
+  args.m_prepareDims = true;
+  args.w = minfo.columns();
+  args.h = minfo.rows();
+  const void* params[] = {&output, &params0, &params1};
+  const char* kname = "CUDAKernel_PHadamardProduct";
+
+  return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
+}
+
+template<typename GetMatrixInfo, typename PreExecCallback>
+bool add (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+{
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(param1);
+  CHECK_MATRIX(param2);
+
+  auto minfo = getMatrixInfo (output);
+  auto pinfo1 = getMatrixInfo (param1);
+  auto pinfo2 = getMatrixInfo (param2);
+
+  oapAssert (minfo.columns() == pinfo1.columns());
+  oapAssert (minfo.columns() == pinfo2.columns());
+  oapAssert (minfo.rows() == pinfo1.rows());
+  oapAssert (minfo.rows() == pinfo2.rows());
+
+  oap::generic::Args args (true);
+  args.m_retrieveDims = false;
+  args.m_prepareDims = true;
+  args.w = minfo.columns();
+  args.h = minfo.rows();
+  const void* params[] = {&output, &param1, &param2};
+  const char* kname = "CUDAKernel_AddMatrices";
+
+  return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
+}
+
+template<typename GetMatrixInfo, typename PreExecCallback>
+bool multiplyReConst (math::Matrix* output, math::Matrix* param1, floatt re, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
+{
+  CHECK_MATRIX(output);
+  CHECK_MATRIX(param1);
+
+  auto minfo = getMatrixInfo (output);
+  auto pinfo1 = getMatrixInfo (param1);
+
+  oapAssert (minfo.columns() == pinfo1.columns());
+  oapAssert (minfo.rows() == pinfo1.rows());
+
+  oap::generic::Args args (true);
+  args.m_retrieveDims = false;
+  args.m_prepareDims = true;
+  args.w = minfo.columns();
+  args.h = minfo.rows();
+  const void* params[] = {&output, &param1, &re};
+  const char* kname = "CUDAKernel_MultiplyConstantRe";
+
+  return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
+}
+
+template<typename GetMatrixInfo, typename GetRefHostMatrix, typename CopyKernelToHost, typename HBuffer, typename KBuffer>
+bool sum (floatt& reoutput, floatt& imoutput, const math::Matrix* param, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, GetRefHostMatrix&& getRefHostMatrix, CopyKernelToHost&& copyKToH,
+          HBuffer& hrebuffer, HBuffer& himbuffer, KBuffer& krebuffer, KBuffer& kimbuffer)
+{
+  CHECK_MATRIX(param);
+
+  reoutput = 0;
+  imoutput = 0;
+
+  using GetAddressType = std::function<floatt*(const math::Matrix*)>;
+
+  GetAddressType getReMem = [&getRefHostMatrix](const math::Matrix* matrix)
+  {
+    math::Matrix hmatrix = getRefHostMatrix (matrix);
+    return hmatrix.re.ptr;
+  };
+
+  GetAddressType getImMem = [&getRefHostMatrix](const math::Matrix* matrix)
+  {
+    math::Matrix hmatrix = getRefHostMatrix (matrix);
+    return hmatrix.im.ptr;
+  };
+
+  generic::internal::SumApi<GetMatrixInfo, CopyKernelToHost, GetAddressType>
+  sumApi (getMatrixInfo, copyKToH, std::move(getReMem), std::move(getImMem));
+
+  generic::internal::SumBuffers<HBuffer, KBuffer>
+  sumBuffers (hrebuffer, krebuffer, himbuffer, kimbuffer);
+
+  return generic::internal::sum (reoutput, imoutput, param, kexec, sumApi, sumBuffers);
+}
+
 }
 }
 

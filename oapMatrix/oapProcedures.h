@@ -37,6 +37,8 @@ using Dim2 = std::array<uintt, 2>;
 class SingleMatrixProcedures
 {
   public:
+    virtual ~SingleMatrixProcedures() {}
+
     virtual void sigmoid (math::Matrix* output, math::Matrix* input) = 0;
 
     virtual void linear (math::Matrix* output, math::Matrix* input) = 0;
@@ -139,7 +141,7 @@ class SingleMatrixProcedures
   
     virtual void multiplyReConstant (math::Matrix* output, math::Matrix* param1, floatt re) = 0;
   
-    virtual void sum (floatt& output, const math::Matrix* param) = 0;
+    virtual void sum (floatt& reoutput, floatt& imoutput, const math::Matrix* param) = 0;
   
     virtual void setZeroMatrix (math::Matrix* param) = 0;
 };
@@ -148,7 +150,9 @@ class MultiMatricesProcedures
 {
   public:
     using Matrices = std::vector<math::Matrix*>;
-  
+
+    virtual ~MultiMatricesProcedures() {}
+
     virtual void sigmoid (Matrices& output, const Matrices& input) = 0;
   
     virtual void linear (Matrices& output, const Matrices& input) = 0;

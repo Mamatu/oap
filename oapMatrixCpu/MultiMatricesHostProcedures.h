@@ -17,26 +17,26 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_CU_GENERIC_PROCEDURES_API_H
-#define OAP_CU_GENERIC_PROCEDURES_API_H
+#ifndef OAP_MULTI_MATRICES_HOST_PROCEDURES_H
+#define OAP_MULTI_MATRICES_HOST_PROCEDURES_H
 
-#include "CuProceduresApi.h"
+#include "HostProcedures.h"
 #include "oapProcedures.h"
 
 namespace oap
 {
 
-class CuGenericProceduresApi : public oap::generic::MultiMatricesProcedures
+class MultiMatricesHostProcedures : public oap::generic::MultiMatricesProcedures
 {
  public:
   using Matrices = oap::generic::MultiMatricesProcedures::Matrices;
-  CuGenericProceduresApi(CuProceduresApi* cuApi);
-  virtual ~CuGenericProceduresApi();
+  MultiMatricesHostProcedures(HostProcedures* hostProcedures);
+  virtual ~MultiMatricesHostProcedures();
 
-  CuGenericProceduresApi(const CuGenericProceduresApi&) = delete;
-  CuGenericProceduresApi(CuGenericProceduresApi&&) = delete;
-  CuGenericProceduresApi& operator=(const CuGenericProceduresApi&) = delete;
-  CuGenericProceduresApi& operator=(CuGenericProceduresApi&&) = delete;
+  MultiMatricesHostProcedures(const MultiMatricesHostProcedures&) = delete;
+  MultiMatricesHostProcedures(MultiMatricesHostProcedures&&) = delete;
+  MultiMatricesHostProcedures& operator=(const MultiMatricesHostProcedures&) = delete;
+  MultiMatricesHostProcedures& operator=(MultiMatricesHostProcedures&&) = delete;
 
   void add (Matrices& output, const Matrices& params1, floatt value);
 
@@ -60,8 +60,6 @@ class CuGenericProceduresApi : public oap::generic::MultiMatricesProcedures
 
   void dsigmoid (Matrices& output, const Matrices& params);
 
-  void multiplyDSigmoid (Matrices& output, const Matrices& params);
-
   void linear (Matrices& output, const Matrices& params);
 
   void dlinear (Matrices& output, const Matrices& params);
@@ -73,8 +71,6 @@ class CuGenericProceduresApi : public oap::generic::MultiMatricesProcedures
   void sin (Matrices& output, const Matrices& params);
 
   void dsin (Matrices& output, const Matrices& params);
-
-  void multiplyDSin (Matrices& output, const Matrices& params);
 
   void relu (Matrices& output, const Matrices& params);
 
@@ -89,7 +85,7 @@ class CuGenericProceduresApi : public oap::generic::MultiMatricesProcedures
   void dsoftplus (Matrices& output, const Matrices& params);
 
   private:
-    CuProceduresApi* m_cuApi;
+    HostProcedures* m_procs;
 };
 
 }

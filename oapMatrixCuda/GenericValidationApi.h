@@ -229,17 +229,20 @@ inline void check_tensorProduct (math::Matrix* output, math::Matrix* params0, ma
   debugAssertMsg (output_columns == params0_columns * params1_columns, "output_columns = %u params0_columns = %u params1_columns = %u", output_columns, params0_columns, params1_columns);
 }
 
-template<typename GetColumns, typename GetRows>
-void check_hadamardProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixDimApi<GetColumns, GetRows>& matrixDimApi)
+template<typename GetMatrixInfo>
+void check_hadamardProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, GetMatrixInfo&& getMatrixInfo)
 {
+  auto minfo0 = getMatrixInfo (params0);
+  auto minfo1 = getMatrixInfo (params1);
+
   const uintt output_columns = columns;
   const uintt output_rows = rows;
 
-  const uintt params0_columns = matrixDimApi.getColumns(params0);
-  const uintt params0_rows = matrixDimApi.getRows(params0);
+  const uintt params0_columns = minfo0.columns();
+  const uintt params0_rows = minfo0.rows();
 
-  const uintt params1_columns = matrixDimApi.getColumns(params1);
-  const uintt params1_rows = matrixDimApi.getRows(params1);
+  const uintt params1_columns = minfo1.columns();
+  const uintt params1_rows = minfo1.rows();
 
 #ifdef CU_PROCEDURES_API_PRINT
   oap::cuda::PrintMatrixInfo("params0 = ", params0);
@@ -251,17 +254,20 @@ void check_hadamardProduct (math::Matrix* output, math::Matrix* params0, math::M
   debugAssertMsg (output_columns == params0_columns && output_columns == params1_columns, "output_columns = %u params0_columns = %u params1_columns = %u", output_columns, params0_columns, params1_columns);
 }
 
-template<typename GetColumns, typename GetRows>
-void check_hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixDimApi<GetColumns, GetRows>& matrixDimApi)
+template<typename GetMatrixInfo>
+void check_hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, GetMatrixInfo&& getMatrixInfo)
 {
+  auto minfo0 = getMatrixInfo (params0);
+  auto minfo1 = getMatrixInfo (params1);
+
   const uintt output_columns = columns;
   const uintt output_rows = rows;
 
-  const uintt params0_columns = matrixDimApi.getColumns(params0);
-  const uintt params0_rows = matrixDimApi.getRows(params0);
+  const uintt params0_columns = minfo0.columns();
+  const uintt params0_rows = minfo0.rows();
 
-  const uintt params1_columns = matrixDimApi.getColumns(params1);
-  const uintt params1_rows = matrixDimApi.getRows(params1);
+  const uintt params1_columns = minfo1.columns();
+  const uintt params1_rows = minfo1.rows();
 
 #ifdef CU_PROCEDURES_API_PRINT
   oap::cuda::PrintMatrixInfo("params0 = ", params0);

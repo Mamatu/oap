@@ -21,7 +21,7 @@
 #define OAP_NEURAL_NETWORK_H
 
 #include "oapDeviceLayer.h"
-#include "CuGenericProceduresApi.h"
+#include "MultiMatricesCuProcedures.h"
 #include "oapDeviceMatrixPtr.h"
 
 #include "oapNetworkStructure.h"
@@ -44,7 +44,7 @@ public: // types
 public:
   using Matrices = std::vector<math::Matrix*>;
 
-  Network(oap::CuProceduresApi* calcApi = nullptr);
+  Network (oap::generic::SingleMatrixProcedures* smp, oap::generic::MultiMatricesProcedures* mmp, bool deallocate);
   virtual ~Network();
 
   Network (const Network&) = delete;
@@ -202,9 +202,9 @@ private:
 
   bool shouldContinue (oap::ErrorType errorType);
 
-  oap::generic::SingleMatrixProcedures* m_cuApi;
-  oap::generic::MultiMatricesProcedures* m_cuGApi;
-  bool m_releaseCuApi;
+  oap::generic::SingleMatrixProcedures* m_singleApi;
+  oap::generic::MultiMatricesProcedures* m_multiApi;
+  bool m_deallocate;
   IController* m_icontroller = nullptr;
 
   std::ostream& log()

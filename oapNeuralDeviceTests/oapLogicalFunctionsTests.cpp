@@ -56,7 +56,9 @@ class OapLogicalFunctionsTests : public testing::Test
   virtual void SetUp()
   {
     oap::cuda::Context::Instance().create();
-    network = new Network();
+    auto* singleApi = new oap::CuProceduresApi();
+    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+    network = new Network (singleApi, multiApi, true);
     m_learningSteps = 100000;
   }
 
