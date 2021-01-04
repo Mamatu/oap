@@ -39,6 +39,8 @@
 #include <utility>
 #include <random>
 
+#if 0
+
 Network* createNetwork (size_t width, size_t height)
 {
   auto* singleApi = new oap::CuProceduresApi();
@@ -48,8 +50,8 @@ Network* createNetwork (size_t width, size_t height)
   network->createLayer(width*height);
   network->createLayer(80);
   network->createLayer(10);
-
   return network;
+  return nullptr;
 }
 
 std::string getImagesPath()
@@ -206,5 +208,11 @@ int main(int argc, char** argv)
 
   delete ctx;
   oap::cuda::Context::Instance().destroy();
+  return 0;
+}
+#endif
+
+int main()
+{
   return 0;
 }

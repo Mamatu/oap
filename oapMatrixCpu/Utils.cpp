@@ -40,9 +40,9 @@ bool Compare::compare(math::Matrix* matrix, floatt d) {
   return true;
 }
 
-math::Matrix* create(const math::Matrix& arg) {
-  return oap::host::NewMatrix(gReValues (&arg) != NULL, gImValues (&arg) != NULL,
-                         gColumns (&arg), gRows (&arg));
+math::Matrix* create(const math::Matrix& arg)
+{
+  return oap::host::NewMatrix(gReValues (&arg) != NULL, gImValues (&arg) != NULL, gColumns (&arg), gRows (&arg));
 }
 
 bool AlmostEquals(floatt a, floatt b) {

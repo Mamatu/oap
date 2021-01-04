@@ -17,10 +17,11 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_NEURAL_UTILS_H
-#define OAP_NEURAL_UTILS_H
+#ifndef OAP_DEVICE_NEURAL_UTILS_H
+#define OAP_DEVICE_NEURAL_UTILS_H
 
 #include "oapGenericNeuralUtils.h"
+#include "oapCudaMatrixUtils.h"
 #include "oapNetwork.h"
 
 namespace oap

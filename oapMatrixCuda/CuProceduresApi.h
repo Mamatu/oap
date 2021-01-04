@@ -48,6 +48,13 @@
 namespace oap
 {
 
+namespace math
+{
+  using Matrix = ::math::Matrix;
+  using MatrixDim = ::math::MatrixDim;
+  using MatrixInfo = ::math::MatrixInfo;
+}
+
 class CuProceduresApi : public oap::generic::SingleMatrixProcedures
 {
  public:

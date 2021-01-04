@@ -28,14 +28,26 @@
 
 class Network;
 
-template<typename LayerApi>
-class Layer final
+namespace oap
 {
+
+class Layer
+{
+  template<typename CDst, typename CSrc, typename Get>
+  static void cleanIterate (CDst& dst, const CSrc& src, Get&& get)
+  {
+    dst.clear();
+    for (const auto& ep : src)
+    {
+      dst.push_back (get(ep));
+    }
+  }
+
 public:
   using Matrices = std::vector<math::Matrix*>;
 
   Layer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation);
-  ~Layer();
+  virtual ~Layer();
 
   uintt getTotalNeuronsCount() const;
   uintt getNeuronsCount() const;
@@ -53,12 +65,30 @@ public:
   void addFPMatrices (FPMatrices* fpMatrices);
 
   template<typename BPMatricesVec>
-  void setBPMatrices (BPMatricesVec&& bpMatrices);
+  void setBPMatrices (BPMatricesVec&& bpMatrices)
+  {
+    m_bpMatrices = std::forward<BPMatricesVec>(bpMatrices);
+    cleanIterate(m_weights, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_weights;});
+    cleanIterate(m_weights1, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_weights1;});
+    cleanIterate(m_weights2, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_weights2;});
+    cleanIterate(m_tinputs, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_tinputs;});
+    cleanIterate(m_tweights, m_bpMatrices, [](const BPMatrices& bp){ return bp.m_tweights;});
+  }
 
   void setBPMatrices (BPMatrices* bpMatrices);
 
   template<typename FPMatricesVec>
-  void setFPMatrices (FPMatricesVec&& fpMatrices);
+  void setFPMatrices (FPMatricesVec&& fpMatrices)
+  {
+    m_fpMatrices = std::forward<FPMatricesVec>(fpMatrices);
+    cleanIterate(m_sums, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_sums;});
+    cleanIterate(m_sums_wb, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_sums_wb;});
+    cleanIterate(m_errors, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_errors;});
+    cleanIterate(m_errors_wb, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_errors_wb;});
+    cleanIterate(m_errorsAux, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_errorsAux;});
+    cleanIterate(m_inputs, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_inputs;});
+    cleanIterate(m_inputs_wb, m_fpMatrices, [](const FPMatrices& fp){ return fp.m_inputs_wb;});
+  }
 
   void setFPMatrices (FPMatrices* fpMatrices);
 
@@ -67,26 +97,21 @@ public:
 
   Activation getActivation () const;
 
-  math::MatrixInfo getOutputsInfo () const;
-  math::MatrixInfo getInputsInfo () const;
+  virtual math::MatrixInfo getOutputsInfo () const = 0;
+  virtual math::MatrixInfo getInputsInfo () const = 0;
 
-  void getOutputs (math::Matrix* matrix, ArgType type) const;
+  virtual void getOutputs (math::Matrix* matrix, ArgType type) const = 0;
+  virtual void getHostWeights (math::Matrix* output) = 0;
 
-  void getHostWeights (math::Matrix* output);
+  virtual void setHostInputs (const math::Matrix* hInputs) = 0;
+  virtual void setDeviceInputs (const math::Matrix* dInputs) = 0;
 
-  void setHostInputs (const math::Matrix* hInputs);
-  void setDeviceInputs (const math::Matrix* dInputs);
+  virtual math::MatrixInfo getWeightsInfo () const = 0;
 
-  void deallocate();
+  virtual void printHostWeights (bool newLine) const = 0;
 
-  math::MatrixInfo getWeightsInfo () const;
-
-  void printHostWeights (bool newLine) const;
-
-  void setHostWeights (math::Matrix* weights);
-  void setDeviceWeights (math::Matrix* weights);
-
-  void initRandomWeights (const Layer* nextLayer);
+  virtual void setHostWeights (math::Matrix* weights) = 0;
+  virtual void setDeviceWeights (math::Matrix* weights) = 0;
 
   Matrices& getSums() { return m_sums; }
   Matrices& getSumsWB() { return m_sums_wb; }
@@ -107,8 +132,6 @@ public:
   }
 
 private:
-  static void deallocate(math::Matrix** matrix);
-
   Activation m_activation;
   uintt m_neuronsCount;
   uintt m_biasesCount;
@@ -131,10 +154,7 @@ private:
   Matrices m_weights2;
 
   Layer* m_nextLayer = nullptr;
-
-  LayerApi m_layerApi;
 };
-
-#include "oapLayer_impl.h"
+}
 
 #endif

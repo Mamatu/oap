@@ -21,10 +21,41 @@
 #define OAP_NEURAL_DEVICE_LAYER_H
 
 #include "oapLayer.h"
-#include "oapDeviceNeuralApi.h"
-#include "oapDeviceLayerApi.h"
-#include "oapCudaMatrixUtils.h"
 
-using DeviceLayer = Layer<DeviceLayerApi>;
+namespace oap
+{
 
+namespace math
+{
+  using Matrix = ::math::Matrix;
+  using MatrixInfo = ::math::MatrixInfo;
+}
+
+class DeviceLayer : public Layer
+{
+  public:
+    DeviceLayer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation);
+    virtual ~DeviceLayer();
+
+    math::MatrixInfo getOutputsInfo () const override;
+
+    math::MatrixInfo getInputsInfo () const override;
+
+    void getOutputs (math::Matrix* matrix, ArgType type) const override;
+
+    void getHostWeights (math::Matrix* output) override;
+
+    void setHostInputs(const math::Matrix* hInputs) override;
+
+    void setDeviceInputs(const math::Matrix* dInputs) override;
+
+    math::MatrixInfo getWeightsInfo () const override;
+
+    void printHostWeights (const bool newLine) const override;
+
+    void setHostWeights (math::Matrix* weights) override;
+
+    void setDeviceWeights (math::Matrix* weights) override;
+};
+}
 #endif

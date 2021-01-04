@@ -51,9 +51,9 @@ namespace math {
     }
 
     void MagnitudeOperationCpu::execute() {
-        uintt* bmap = utils::mapper::allocMap(this->m_threadsCount);
+        uintt* bmap = oap::utils::mapper::allocMap(this->m_threadsCount);
         uintt length = gColumns (m_matrix) * gRows (m_matrix);
-        uintt threadsCount = utils::mapper::createThreadsMap(bmap, this->m_threadsCount, length);
+        uintt threadsCount = oap::utils::mapper::createThreadsMap(bmap, this->m_threadsCount, length);
         ThreadData<MagnitudeOperationCpu>* threads = new ThreadData<MagnitudeOperationCpu>[threadsCount];
         for (intt fa = 0; fa < threadsCount; fa++) {
             threads[fa].params[0] = m_matrix;
@@ -70,7 +70,7 @@ namespace math {
             output += threads[fa].values[0];
         }
         (*this->m_output1) = sqrt(output);
-        utils::mapper::freeMap(bmap);
+        oap::utils::mapper::freeMap(bmap);
         delete[] threads;
     }
 }

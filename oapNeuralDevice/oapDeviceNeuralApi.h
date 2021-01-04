@@ -25,14 +25,10 @@
 
 #include "oapGenericNeuralApi.h"
 #include "oapDeviceAllocApi.h"
+#include "oapLayer.h"
 
 #include "oapCudaMatrixUtils.h"
 #include "oapMatrixRandomGenerator.h"
-
-namespace oap
-{
-namespace device
-{
 
 namespace
 {
@@ -75,6 +71,17 @@ void _setReValue (math::Matrix* matrix, uintt c, uintt r, floatt v)
 {
   oap::cuda::SetReValue(matrix, c, r, v);
 }
+}
+
+namespace oap
+{
+namespace device
+{
+
+namespace math
+{
+using Matrix = ::math::Matrix;
+using MatrixInfo = ::math::MatrixInfo;
 }
 
 template<typename LayerT>
@@ -143,107 +150,15 @@ void setDeviceWeights (LayerT& layer, math::Matrix* weights)
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer.getBPMatrices()->m_weights, weights);
 }
 
- template<typename LayerT>
-math::Matrix* getWeights (const LayerT& layer)
-{
-  debugAssert (layer.getBPMatrices()->m_weights != nullptr);
-  return layer.getBPMatrices()->m_weights;
-}
-
-template<typename LayerT, typename GetMatrixInfo>
-math::MatrixInfo getWeightsInfo (const LayerT& layer, GetMatrixInfo&& getMatrixInfo)
-{
-  math::Matrix* weights = getWeights (layer);
-  return getMatrixInfo (weights);
-}
-
 template<typename LayerT>
 void setWeights (const LayerT& layer, const math::Matrix* hmatrix)
 {
-  math::Matrix* weights = getWeights (layer);
-  oap::cuda::CopyHostMatrixToDeviceMatrix (weights, hmatrix);
-  PRINT_CUMATRIX (weights);
-  PRINT_MATRIX (hmatrix);
+  oap::generic::setWeights (layer, hmatrix, oap::cuda::CopyHostMatrixToDeviceMatrix);
 }
 
-template<typename LayerT>
-class BiasesFilter final
+inline math::MatrixInfo GetWeightsInfo (const oap::Layer& layer)
 {
-  public:
-    BiasesFilter (const math::MatrixInfo& layerWeightsInfo, const LayerT& nextLayerT) :
-      m_winfo (layerWeightsInfo), m_nextLayerT (nextLayerT)
-    {}
-
-    BiasesFilter (const LayerT& layer, const LayerT& nextLayerT) :
-      m_winfo (oap::device::getWeightsInfo(layer, oap::cuda::GetMatrixInfo)), m_nextLayerT (nextLayerT)
-    {}
-
-    floatt operator()(uintt c, uintt r, floatt v) const
-    {
-      if (m_nextLayerT.getBiasesCount() == 1 && m_winfo.rows() - 1 == r)
-      {
-        return 0.;
-      }
-      return v;
-    }
-
-  private:
-    math::MatrixInfo m_winfo;
-    const LayerT& m_nextLayerT;
-};
-
-template<typename LayerT, typename MatrixRandomGenerator>
-oap::HostMatrixUPtr createRandomMatrix (LayerT& layer, const math::MatrixInfo& minfo, MatrixRandomGenerator&& mrg)
-{
-  oap::HostMatrixUPtr randomMatrix = oap::host::NewReMatrix (minfo.columns(), minfo.rows());
-
-  for (uintt c = 0; c < minfo.columns(); ++c)
-  {
-    for (uintt r = 0; r < minfo.rows(); ++r)
-    {
-      SetRe (randomMatrix.get(), c, r, mrg(c, r));
-    }
-  }
-
-  //rg (randomMatrix.get(), ArgType::HOST);
-
-  return std::move (randomMatrix);
-}
-
-template<typename LayerT, typename GetMatrixInfo, typename MatrixRandomGenerator>
-void initRandomWeights (LayerT& layer, const LayerT& nextLayer, GetMatrixInfo&& getMatrixInfo, MatrixRandomGenerator&& mrg)
-{
-  math::MatrixInfo winfo = getWeightsInfo (layer, getMatrixInfo);
-
-  auto randomMatrix = createRandomMatrix (layer, winfo, mrg);
-
-  setWeights (layer, randomMatrix.get ());
-}
-
-template<typename LayerT, typename GetMatrixInfo, typename Range = std::pair<floatt, floatt>>
-void initRandomWeightsByRange (LayerT& layer, const LayerT& nextLayer, GetMatrixInfo&& getMatrixInfo, Range&& range = std::pair<floatt, floatt>(-0.5, 0.5))
-{
-  math::MatrixInfo winfo = getWeightsInfo (layer, getMatrixInfo);
-
-  oap::utils::MatrixRandomGenerator rg (range.first, range.second);
-  rg.setFilter (oap::device::BiasesFilter<LayerT> (winfo, nextLayer));
-
-  auto randomMatrix = createRandomMatrix (layer, winfo, rg);
-
-  setWeights (layer, randomMatrix.get ());
-  //rg (getWeights (layer), ArgType::DEVICE);
-}
-
-template<typename NetworkT, typename Callback>
-void iterateNetwork (NetworkT& network, Callback&& callback)
-{
-  for (size_t idx = 0; idx < network.getLayersCount() - 1; ++idx)
-  {
-    auto* clayer = network.getLayer (idx);
-    auto* nlayer = network.getLayer (idx + 1);
-
-    callback (*clayer, *nlayer);
-  }
+  return oap::generic::getWeightsInfo (layer, oap::cuda::GetMatrixInfo);
 }
 
 }

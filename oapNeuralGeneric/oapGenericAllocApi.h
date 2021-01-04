@@ -29,28 +29,6 @@ namespace oap
 {
 namespace alloc
 {
-namespace
-{
-  inline oap::Memory _newHostMemory (const oap::MemoryDim& dim)
-  {
-    return oap::host::NewMemory (dim);
-  }
-
-  inline math::Matrix* _newHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo, const oap::Memory& memory)
-  {
-    return oap::host::NewHostMatrixFromMatrixInfo (minfo);
-  }
-
-  inline math::Matrix* _newSharedSubMatrix (const math::MatrixDim& mdim, const math::Matrix* matrix)
-  {
-    return oap::host::NewSharedSubMatrix (mdim, matrix);
-  }
-
-  inline math::Matrix* _newMatrixRef (const math::Matrix* matrix)
-  {
-    return oap::host::NewMatrixRef (matrix);
-  }
-}
 
 template<typename NewMemory, typename NewMatrixFromMatrixInfo, typename NewSharedSubMatrix>
 class AllocNeuronsApi
@@ -93,42 +71,6 @@ class DeallocLayerApi
     DeleteHostMatrix&& deleteHostMatrix;
 };
 
-namespace host
-{
-namespace
-{
-
-  using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(_newHostMemory), decltype(_newHostMatrixFromMatrixInfo), decltype(_newSharedSubMatrix)>;
-  using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(_newHostMatrixFromMatrixInfo), decltype(_newMatrixRef), decltype(_newHostMatrixFromMatrixInfo), decltype(oap::host::CopyHostMatrixToHostMatrix)>;
-  using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::host::DeleteMatrix), decltype(oap::host::DeleteMatrix)>;
-
-}
-
-class AllocNeuronsApi : public GenericAllocNeuronsApi
-{
-  public:
-    AllocNeuronsApi () :
-    GenericAllocNeuronsApi (_newHostMemory, _newHostMatrixFromMatrixInfo, _newSharedSubMatrix)
-    {}
-};
-
-class AllocWeightsApi : public GenericAllocWeightsApi
-{
-  public:
-    AllocWeightsApi () :
-    GenericAllocWeightsApi (_newHostMatrixFromMatrixInfo, _newMatrixRef, _newHostMatrixFromMatrixInfo, oap::host::CopyHostMatrixToHostMatrix)
-    {}
-};
-
-class DeallocLayerApi : public GenericDeallocLayerApi
-{
-  public:
-    DeallocLayerApi ():
-    GenericDeallocLayerApi (oap::host::DeleteMatrix, oap::host::DeleteMatrix)
-    {}
-};
-
-}
 }
 }
 #endif

@@ -17,4 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapNetworkStructure.h"
+#include "oapNetworkGenericApi.h"
+
+namespace oap
+{
+NetworkGenericApi::~NetworkGenericApi()
+{}
+}

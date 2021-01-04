@@ -51,13 +51,13 @@ public:
 template<typename T> ThreadsCPU<T>::ThreadsCPU() : ThreadsCountProperty(),
 m_bmap(NULL), m_threadData(NULL) {
     m_threadData = new ThreadData<T>[m_threadsCount];
-    m_bmap = utils::mapper::allocMap(m_threadsCount);
+    m_bmap = oap::utils::mapper::allocMap(m_threadsCount);
 }
 
 template<typename T> ThreadsCPU<T>::~ThreadsCPU() {
     if (m_bmap) {
-        utils::mapper::freeMap(m_bmap);
-        delete[] m_threadData;
+      oap::utils::mapper::freeMap(m_bmap);
+      delete[] m_threadData;
     }
 }
 
@@ -68,13 +68,13 @@ template<typename T> uintt* ThreadsCPU<T>::getBMap() const {
 template<typename T> void ThreadsCPU<T>::setThreadsCount(uintt threadsCount) {
     if (this->m_threadsCount < threadsCount || m_bmap == NULL) {
         if (m_bmap) {
-            utils::mapper::freeMap(m_bmap);
-            delete[] m_threadData;
-            m_bmap = NULL;
+          oap::utils::mapper::freeMap(m_bmap);
+          delete[] m_threadData;
+          m_bmap = NULL;
         }
         if (m_bmap == NULL) {
-            m_threadData = new ThreadData<T>[threadsCount];
-            m_bmap = utils::mapper::allocMap(threadsCount);
+          m_threadData = new ThreadData<T>[threadsCount];
+          m_bmap = oap::utils::mapper::allocMap(threadsCount);
         }
     }
     this->m_threadsCount = threadsCount;

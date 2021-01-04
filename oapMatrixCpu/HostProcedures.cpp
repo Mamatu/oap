@@ -33,6 +33,9 @@
 #include "HostBuffer.h"
 #include "HostKernel.h"
 
+namespace oap
+{
+
 //#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
 
 class SubtractionImpl : public HostKernel {
@@ -159,7 +162,7 @@ void HostProcedures::prepare (math::Matrix* matrix, HostKernel& hostKernel)
   const uint columns = gColumns (matrix);
   const uint rows = gRows (matrix);
 
-  utils::mapper::SetThreadsBlocks (m_blocks, m_threads, columns, rows, m_maxThreadsPerBlock);
+  oap::utils::mapper::SetThreadsBlocks (m_blocks, m_threads, columns, rows, m_maxThreadsPerBlock);
 
   hostKernel.setDims(m_blocks, m_threads);
 }
@@ -168,7 +171,7 @@ void HostProcedures::prepare(size_t w, size_t h, HostKernel& hostKernel) {
   const uint columns = w;
   const uint rows = h;
 
-  utils::mapper::SetThreadsBlocks(m_blocks, m_threads, columns, rows, m_maxThreadsPerBlock);
+  oap::utils::mapper::SetThreadsBlocks(m_blocks, m_threads, columns, rows, m_maxThreadsPerBlock);
 
   hostKernel.setDims(m_blocks, m_threads);
 }
@@ -565,4 +568,4 @@ void HostProcedures::setZeroMatrix (math::Matrix* param)
 {
   oap::host::SetZeroMatrix (param);
 }
-
+}

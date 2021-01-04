@@ -43,7 +43,7 @@ void HostKernel::setDims(const dim3& gridDim, const dim3& blockDim) {
 void HostKernel::calculateDims(uintt columns, uintt rows) {
   uint blocks[2];
   uint threads[2];
-  utils::mapper::SetThreadsBlocks(blocks, threads, columns, rows, 1024);
+  oap::utils::mapper::SetThreadsBlocks(blocks, threads, columns, rows, 1024);
   setDims (dim3(blocks[0], blocks[1]), dim3(threads[0], threads[1]));
 }
 

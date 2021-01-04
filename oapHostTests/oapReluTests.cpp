@@ -43,7 +43,7 @@ TEST_F(OapReluTests, FunctionTest)
   size_t c = 1024;
   size_t r = 1024;
   size_t length = c*r;
-  HostProcedures hp;
+  oap::HostProcedures hp;
 
   std::vector<floatt> revalues;
   std::vector<floatt> exp_revalues;
@@ -72,7 +72,7 @@ TEST_F(OapReluTests, DerivativeTest)
   size_t c = 1024;
   size_t r = 1024;
   size_t length = c*r;
-  HostProcedures hp;
+  oap::HostProcedures hp;
 
   std::vector<floatt> revalues;
   std::vector<floatt> exp_revalues;

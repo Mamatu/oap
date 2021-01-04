@@ -24,8 +24,8 @@
 #include "Logger.h"
 #include "Math.h"
 
+namespace oap {
 namespace utils {
-
 namespace mapper {
 
 void SetThreadsBlocks(uint blocks[2], uint threads[2], uint w, uint h, uint threadsLimit);
@@ -136,6 +136,7 @@ template<typename T > T createThreadsMap(T* array,
     T length) {
     T a = T(1);
     return createThreadsMap(array, threadsCount, length, a);
+}
 }
 }
 }

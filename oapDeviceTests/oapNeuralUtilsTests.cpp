@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#if 0
 #include <gtest/gtest.h>
 #include <iterator>
 
@@ -24,6 +24,7 @@
 
 #include "oapNeuralUtils.h"
 #include "oapLayer.h"
+#include "KernelExecutor.h"
 
 class OapNeuralUtilsTests : public testing::Test
 {
@@ -140,3 +141,4 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_3)
 
   delete layer;
 }
+#endif

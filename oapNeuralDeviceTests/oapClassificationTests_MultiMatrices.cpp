@@ -23,10 +23,12 @@
 
 #include "gtest/gtest.h"
 #include "CuProceduresApi.h"
+#include "MultiMatricesCuProcedures.h"
 #include "oapCudaMatrixUtils.h"
 
 #include "oapHostMemoryApi.h"
 #include "oapCudaMemoryApi.h"
+#include "oapDeviceNeuralApi.h"
 
 #include "PatternsClassification.h"
 #include "Controllers.h"
@@ -34,7 +36,10 @@
 #include "PyPlot.h"
 #include "Config.h"
 
-#include "oapNeuralUtils.h"
+#include "oapDeviceNeuralUtils.h"
+#include "oapDeviceNeuralApi.h"
+#include "oapNetwork.h"
+#include "oapNetworkCudaApi.h"
 #include "oapRandomGenerator.h"
 
 class OapClassificationTests_MultiMatrices : public testing::Test
@@ -299,7 +304,8 @@ TEST_F(OapClassificationTests_MultiMatrices, CircleDataTest)
 
     auto* singleApi = new oap::CuProceduresApi();
     auto* multiApi = new oap::MultiMatricesCuProcedures(singleApi);
-    std::unique_ptr<Network> network (new Network(singleApi, multiApi, true));
+    auto* nca = new oap::NetworkCudaApi();
+    std::unique_ptr<oap::Network> network (new oap::Network(singleApi, multiApi, nca, true));
 
     floatt initLR = 0.03;
     network->setLearningRate (initLR);
@@ -343,13 +349,13 @@ TEST_F(OapClassificationTests_MultiMatrices, CircleDataTest)
     LHandler testHandler = network->createFPLayer (testData.size(), LayerType::MULTI_MATRICES);
     LHandler trainingHandler = network->createSharedFPLayer (handlers, LayerType::MULTI_MATRICES);
 
-    DeviceLayer* testLayer = network->getLayer (0, testHandler);
+    oap::Layer* testLayer = network->getLayer (0, testHandler);
     for (uintt idx = 0; idx < testHInputs.size(); ++idx)
     {
       oap::cuda::CopyHostMatrixToDeviceMatrix (testLayer->getFPMatrices(idx)->m_inputs, testHInputs[idx]);
     }
 
-    DeviceLayer* trainingLayer = network->getLayer (0, trainingHandler);
+    oap::Layer* trainingLayer = network->getLayer (0, trainingHandler);
     ASSERT_EQ (trainingHInputs.size(), trainingLayer->getFPMatricesCount());
     for (uintt idx = 0; idx < trainingHInputs.size(); ++idx)
     {
@@ -362,11 +368,11 @@ TEST_F(OapClassificationTests_MultiMatrices, CircleDataTest)
     oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
     oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
-    oap::device::iterateNetwork (*network, [&rg](DeviceLayer& current, const DeviceLayer& next)
+    oap::nutils::iterateNetwork (*network, [&rg](oap::Layer& current, const oap::Layer& next)
     {
       oap::utils::MatrixRandomGenerator mrg (&rg);
-      mrg.setFilter (oap::device::BiasesFilter<DeviceLayer> (current, next));
-      oap::device::initRandomWeights (current, next, oap::cuda::GetMatrixInfo, mrg);
+      mrg.setFilter (oap::nutils::BiasesFilter<oap::Layer> (current, next, oap::device::GetWeightsInfo));
+      oap::nutils::initRandomWeights (current, next, oap::cuda::GetMatrixInfo, oap::cuda::CopyHostMatrixToDeviceMatrix, mrg);
     });
 
     auto forwardPropagationFP = [&network] (FPHandler handler)

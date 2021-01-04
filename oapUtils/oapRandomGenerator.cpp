@@ -13,7 +13,7 @@ RandomGenerator::RandomGenerator (floatt min, floatt max) :
 
 RandomGenerator::RandomGenerator (floatt min, floatt max, uintt seed) : RandomGenerator(min, max)
 {
-  m_dre.seed (seed);
+  setSeed (seed);
 }
 
 std::pair<floatt, floatt> RandomGenerator::setRange (floatt min, floatt max)
@@ -24,6 +24,11 @@ std::pair<floatt, floatt> RandomGenerator::setRange (floatt min, floatt max)
   m_dis = std::uniform_real_distribution<floatt>(min, max);
 
   return previousRange;
+}
+
+void RandomGenerator::setSeed (floatt seed)
+{
+  m_dre.seed (seed);
 }
 
 floatt RandomGenerator::operator()()

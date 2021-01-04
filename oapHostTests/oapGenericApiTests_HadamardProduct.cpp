@@ -25,10 +25,10 @@
 
 class oapGenericApiTests_HadamardProduct : public testing::Test {
  public:
-  HostProcedures* hostApi;
+   oap::HostProcedures* hostApi;
 
   virtual void SetUp() {
-    hostApi = new HostProcedures();
+    hostApi = new oap::HostProcedures();
   }
 
   virtual void TearDown() {

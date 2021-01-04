@@ -20,13 +20,15 @@
 #ifndef OAP_NEURAL_NETWORK_H
 #define OAP_NEURAL_NETWORK_H
 
-#include "oapDeviceLayer.h"
-#include "MultiMatricesCuProcedures.h"
-#include "oapDeviceMatrixPtr.h"
-
-#include "oapNetworkStructure.h"
+#include "oapLayer.h"
+#include "oapProcedures.h"
+#include "oapNetworkGenericApi.h"
+#include "oapHostMatrixPtr.h"
 
 enum class LayerType { ONE_MATRIX, MULTI_MATRICES };
+
+namespace oap
+{
 
 class Network
 {
@@ -44,7 +46,7 @@ public: // types
 public:
   using Matrices = std::vector<math::Matrix*>;
 
-  Network (oap::generic::SingleMatrixProcedures* smp, oap::generic::MultiMatricesProcedures* mmp, bool deallocate);
+  Network (oap::generic::SingleMatrixProcedures* smp, oap::generic::MultiMatricesProcedures* mmp, oap::NetworkGenericApi* nga, bool deallocate);
   virtual ~Network();
 
   Network (const Network&) = delete;
@@ -59,15 +61,16 @@ public:
 
   void initTopology (const std::vector<uintt>& topology, const std::vector<uintt>& biases, const std::vector<Activation>& activations);
 
-  DeviceLayer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX);
-  DeviceLayer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX);
-  void createLevel (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX);
+  oap::Layer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX);
+  oap::Layer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX);
+  void createLevel (oap::Layer* layer, LayerType layerType = LayerType::ONE_MATRIX);
 
   LHandler createFPLayer (uintt samples, LayerType ltype = LayerType::ONE_MATRIX);
   LHandler createSharedFPLayer (const std::vector<LHandler>& handlers, LayerType ltype = LayerType::ONE_MATRIX);
   LHandler createSharedFPLayer (const std::vector<std::vector<FPMatrices*>>& fpmatrices, LayerType ltype = LayerType::ONE_MATRIX);
 
   oap::HostMatrixUPtr run (const math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
+  void setHostInputs (math::Matrix* inputs, uintt index);
 
   void setInputs (math::Matrix* inputs, ArgType argType, LHandler handler = 0);
   void setInputs (const Matrices& inputs, ArgType argType, LHandler handler = 0);
@@ -125,17 +128,17 @@ public:
   BPMatrices* getBPMatrices (uintt layerIdx) const;
   NBPair getNBPair(uintt layerIdx) const;
 
-  DeviceLayer* getLayer(uintt layerIndex, LHandler handler = 0) const;
+  Layer* getLayer(uintt layerIndex, LHandler handler = 0) const;
 
   bool operator== (const Network& network) const;
   bool operator!= (const Network& network) const;
 
   void printLayersWeights () const;
 
-  void postStep (DeviceLayer* layer);
+  void postStep (Layer* layer);
   void postStep ();
 
-  void resetErrors (DeviceLayer* layer);
+  void resetErrors (Layer* layer);
   void resetErrors ();
   void resetErrorsVec ();
 
@@ -148,14 +151,16 @@ public:
     }
   }
 
-  void setHostInputs (math::Matrix* inputs, uintt layerIndex);
-  void setHostInputs (const std::vector<math::Matrix*>& inputs, uintt layerIndex);
+  void setHostInputs (const Matrices& inputs, uintt layerIndex);
 
   void setExpected (math::Matrix* expected, ArgType argType, LHandler handler = 0);
   void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0);
   Matrices getExpected (LHandler handler) const;
+  void printLayersInputs () const;
 
 private:
+  NetworkGenericApi* m_nga;
+
   struct GenericFPLayerArgs
   {
     uintt samples;
@@ -164,9 +169,9 @@ private:
 
   LHandler createGenericFPLayer (LayerType ltype, const GenericFPLayerArgs& args);
 
-  void addLayer (DeviceLayer* layer, LayerType layerType = LayerType::ONE_MATRIX);
-  void addToTopology(DeviceLayer* layer);
-  void addToTopologyBPMatrices(DeviceLayer* layer);
+  void addLayer (Layer* layer, LayerType layerType = LayerType::ONE_MATRIX);
+  void addToTopology(Layer* layer);
+  void addToTopologyBPMatrices(Layer* layer);
 
   std::vector<floatt> m_errorsVec;
 
@@ -176,7 +181,7 @@ private:
   using ExpectedOutputs = std::map<LHandler, Matrices>;
   ExpectedOutputs m_expectedOutputs;
 
-  using Layers = std::vector<DeviceLayer*>;
+  using Layers = std::vector<Layer*>;
   using LayersVec = std::vector<Layers>;
 
   LayersVec m_layers;
@@ -224,7 +229,13 @@ private:
   template<typename LayerT, typename AllocNeuronsApi>
   friend void allocateNeurons (LayerT& ls, uintt neuronsCount, uintt biasCount);
 
+  void setHostInputs (Layer* layer, const Matrices& inputs);
+  void setDeviceInputs (Layer* layer, const Matrices& inputs);
+  void setHostInputs (Layer* layer, const math::Matrix* inputs);
+  void setDeviceInputs (Layer* layer, const math::Matrix* inputs);
+  void setDeviceWeights (Layer* layer, const math::Matrix* weights);
+
   void setExpectedProtected (typename ExpectedOutputs::mapped_type& holder, const std::vector<math::Matrix*>& expected, ArgType argType);
 };
-
+}
 #endif

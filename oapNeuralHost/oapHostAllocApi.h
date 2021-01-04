@@ -54,11 +54,6 @@ namespace
     return oap::host::NewMemory (dim);
   }
 
-  inline math::Matrix* _newHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo, const oap::Memory& memory)
-  {
-    return oap::host::NewHostMatrixFromMatrixInfo (minfo);
-  }
-
   using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(_newHostMemory), decltype(_newHostMatrixFromMatrixInfo), decltype(_newHostSharedSubMatrix)>;
 
   using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(_newHostMatrixFromMatrixInfo), decltype(_newHostMatrixRef), decltype(_newHostMatrixFromMatrixInfo), decltype(oap::host::CopyHostMatrixToHostMatrix)>;
@@ -78,7 +73,7 @@ class AllocWeightsApi : public GenericAllocWeightsApi
 {
   public:
     AllocWeightsApi () :
-    GenericAllocWeightsApi (_newHostMatrixFromMatrixInfo, _newHostMatrixDeviceRef, _newHostMatrixFromMatrixInfo, oap::host::CopyHostMatrixToDeviceMatrix)
+    GenericAllocWeightsApi (_newHostMatrixFromMatrixInfo, _newHostMatrixRef, _newHostMatrixFromMatrixInfo, oap::host::CopyHostMatrixToHostMatrix)
     {}
 };
 
@@ -86,7 +81,7 @@ class DeallocLayerApi : public GenericDeallocLayerApi
 {
   public:
     DeallocLayerApi ():
-    GenericDeallocLayerApi (oap::host::DeleteDeviceMatrix, oap::host::DeleteMatrix)
+    GenericDeallocLayerApi (oap::host::DeleteMatrix, oap::host::DeleteMatrix)
     {}
 };
 

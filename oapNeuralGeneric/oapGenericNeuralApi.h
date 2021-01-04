@@ -23,7 +23,6 @@
 #include <stdexcept>
 
 #include "oapLayerStructure.h"
-#include "oapNetworkStructure.h"
 
 #include "oapGenericAllocApi.h"
 
@@ -691,21 +690,20 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
   const uintt unitsCount = layerRef.getNeuronsCount ();
 
   AllocNeuronsApi alloc;
-  const auto noneMemory = oap::common::OAP_NONE_MEMORY();
 
   fp.m_matricesInfo = math::MatrixInfo (true, false, 1, unitsCountWithBiases * samplesCount);
   fp.m_matricesInfo_wb = math::MatrixInfo (true, false, 1, unitsCount * samplesCount);
   const math::MatrixDim mdim_wb = {fp.m_matricesInfo_wb.columns(), fp.m_matricesInfo_wb.rows()};
 
-  fp.m_inputs = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
+  fp.m_inputs = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
   fp.m_inputs_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_inputs);
-  fp.m_sums = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
+  fp.m_sums = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
   fp.m_sums_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_sums);
 
-  fp.m_errors = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
+  fp.m_errors = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
   fp.m_errors_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_errors);
-  fp.m_errorsAux = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
-  fp.m_errorsAcc = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo, noneMemory);
+  fp.m_errorsAux = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
+  fp.m_errorsAcc = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
 
   logTrace ("minfo = %s", std::to_string(fp.m_matricesInfo).c_str());
   logTrace ("fp.m_inputs = %p", fp.m_inputs);
@@ -774,7 +772,7 @@ FPMatrices* allocateSharedFPMatrices (const LayerT& layerRef, FPMatrices* orig)
 }
 
 template<typename DeallocMatrixApi>
-void deallocateFPMatrices (FPMatrices& fp)
+void deallocateFPMatrices (FPMatrices* fp)
 {
   logTrace("");
   logTrace ("%s %p", __func__, &fp);
@@ -789,20 +787,21 @@ void deallocateFPMatrices (FPMatrices& fp)
     }
   };
 
-  delk (&fp.m_inputs);
-  delk (&fp.m_inputs_wb);
-  delk (&fp.m_sums);
-  delk (&fp.m_sums_wb);
-  delk (&fp.m_errors);
-  delk (&fp.m_errors_wb);
-  delk (&fp.m_errorsAcc);
-  delk (&fp.m_errorsAux);
+  delk (&fp->m_inputs);
+  delk (&fp->m_inputs_wb);
+  delk (&fp->m_sums);
+  delk (&fp->m_sums_wb);
+  delk (&fp->m_errors);
+  delk (&fp->m_errors_wb);
+  delk (&fp->m_errorsAcc);
+  delk (&fp->m_errorsAux);
 
-  dealloc.deleteHostMatrix (fp.m_errorsHost);
+  dealloc.deleteHostMatrix (fp->m_errorsHost);
+  delete fp;
 }
 
 template<typename DeallocMatrixApi>
-void deallocateBPMatrices (BPMatrices& bp)
+void deallocateBPMatrices (BPMatrices* bp)
 {
   logTrace("");
   logTraceS ("%s %p", __func__, &bp);
@@ -817,11 +816,12 @@ void deallocateBPMatrices (BPMatrices& bp)
     }
   };
 
-  delk (&bp.m_tinputs);
-  delk (&bp.m_weights);
-  delk (&bp.m_tweights);
-  delk (&bp.m_weights1);
-  delk (&bp.m_weights2);
+  delk (&bp->m_tinputs);
+  delk (&bp->m_weights);
+  delk (&bp->m_tweights);
+  delk (&bp->m_weights1);
+  delk (&bp->m_weights2);
+  delete bp;
   logTraceE ("%s %p", __func__, &bp);
 }
 
@@ -856,18 +856,17 @@ void allocateBPMatrices (BPMatrices& bp, const NBPair& neuronsCount1, const NBPa
   const uintt nUCount = neuronsCount2.first;
 
   AllocApi alloc;
-  auto noneMemory = oap::common::OAP_NONE_MEMORY();
 
   math::MatrixInfo tinputsInfo (true, false, cUCount, 1);
-  bp.m_tinputs = alloc.newDeviceMatrixFromMatrixInfo (tinputsInfo, noneMemory); //todo: use transpose
+  bp.m_tinputs = alloc.newDeviceMatrixFromMatrixInfo (tinputsInfo); //todo: use transpose
 
   math::MatrixInfo weightsInfo (true, false, cUCount, nUCount);
-  bp.m_weights = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo, noneMemory);
-  bp.m_weights1 = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo, noneMemory);
-  bp.m_weights2 = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo, noneMemory);
+  bp.m_weights = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo);
+  bp.m_weights1 = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo);
+  bp.m_weights2 = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo);
 
   math::MatrixInfo tweightsInfo (true, false, nUCount, cUCount);
-  bp.m_tweights = alloc.newDeviceMatrixFromMatrixInfo (tweightsInfo, noneMemory);
+  bp.m_tweights = alloc.newDeviceMatrixFromMatrixInfo (tweightsInfo);
 
   logTrace ("bp.m_tinputs = %p", bp.m_tinputs);
   logTrace ("bp.m_weights = %p", bp.m_weights);
@@ -966,6 +965,27 @@ void getOutputs (math::Matrix* matrix, const LayerT& layer, CopyMatrixToMatrix&&
 {
   logTrace("");
   copyMatrixToMatrix (matrix, layer.getFPMatrices()->m_inputs);
+}
+
+template<typename LayerT>
+math::Matrix* getWeights (const LayerT& layer)
+{
+  debugAssert (layer.getBPMatrices()->m_weights != nullptr);
+  return layer.getBPMatrices()->m_weights;
+}
+
+template<typename LayerT, typename GetMatrixInfo>
+math::MatrixInfo getWeightsInfo (const LayerT& layer, GetMatrixInfo&& getMatrixInfo)
+{
+  math::Matrix* weights = getWeights (layer);
+  return getMatrixInfo (weights);
+}
+
+template<typename LayerT, typename CopyHostMatrixToKernelMatrix>
+void setWeights (const LayerT& layer, const math::Matrix* hmatrix, CopyHostMatrixToKernelMatrix&& copyHostMatrixToKernelMatrix)
+{
+  math::Matrix* weights = getWeights (layer);
+  copyHostMatrixToKernelMatrix (weights, hmatrix);
 }
 
 }

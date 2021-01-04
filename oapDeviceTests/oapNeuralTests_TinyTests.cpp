@@ -18,8 +18,10 @@
  */
 
 #include <string>
+#include <random>
 #include "gtest/gtest.h"
 #include "CuProceduresApi.h"
+#include "MultiMatricesCuProcedures.h"
 #include "KernelExecutor.h"
 #include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
@@ -28,20 +30,21 @@
 #include "oapDeviceMatrixUPtr.h"
 #include "oapHostMatrixUtils.h"
 #include "oapNetwork.h"
+#include "oapNetworkCudaApi.h"
 #include "oapFunctions.h"
 #include "PyPlot.h"
 #include "Config.h"
 
 namespace
 {
-class NetworkT : public Network
+class NetworkT : public oap::Network
 {
   public:
-    NetworkT(oap::CuProceduresApi* single, oap::MultiMatricesCuProcedures* multi, bool p) : Network(single, multi, p)  {}
+    NetworkT(oap::CuProceduresApi* single, oap::MultiMatricesCuProcedures* multi, oap::NetworkCudaApi* nca, bool p) : oap::Network(single, multi, nca, p)  {}
 
     void setHostInput (math::Matrix* inputs, size_t index)
     {
-      Network::setHostInputs (inputs, index);
+      oap::Network::setHostInputs (inputs, index);
     }
 };
 }
@@ -59,7 +62,8 @@ class OapNeuralTests_TinyTests : public testing::Test
 
     auto* singleApi = new oap::CuProceduresApi();
     auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
-    network = new NetworkT(singleApi, multiApi, true);
+    auto* nca = new oap::NetworkCudaApi ();
+    network = new NetworkT(singleApi, multiApi, nca, true);
   }
 
   virtual void TearDown()
@@ -137,7 +141,7 @@ class OapNeuralTests_TinyTests : public testing::Test
 
   void testForwardPropagation_2_to_1 (floatt w_1, floatt w_2, floatt i_1, floatt i_2)
   {
-    DeviceLayer* l1 = network->createLayer(2);
+    oap::Layer* l1 = network->createLayer(2);
     network->createLayer(1);
 
     network->setLearningRate (1);
@@ -165,8 +169,8 @@ class OapNeuralTests_TinyTests : public testing::Test
 
   void testBackPropagation_1_to_2(floatt w_1, floatt w_2, floatt i_1, floatt i_2, floatt e_1)
   {
-    DeviceLayer* l1 = network->createLayer(2);
-    DeviceLayer* l2 = network->createLayer(1);
+    oap::Layer* l1 = network->createLayer(2);
+    oap::Layer* l2 = network->createLayer(1);
 
     network->setLearningRate (1);
 
@@ -258,9 +262,9 @@ TEST_F(OapNeuralTests_TinyTests, SaveLoadBufferTest)
 {
   bool isbias = true;
 
-  DeviceLayer* l1 = network->createLayer(isbias ? 3 : 2);
-  DeviceLayer* l2 = network->createLayer(6);
-  DeviceLayer* l3 = network->createLayer(1);
+  oap::Layer* l1 = network->createLayer(isbias ? 3 : 2);
+  oap::Layer* l2 = network->createLayer(6);
+  oap::Layer* l3 = network->createLayer(1);
 
   Runner r(isbias, this, 1);
   network->setLearningRate (0.001);
@@ -292,7 +296,7 @@ TEST_F(OapNeuralTests_TinyTests, SaveLoadBufferTest)
   oap::utils::ByteBuffer buffer;
   //network->save (buffer);
 
-  //std::unique_ptr<Network> cnetwork (Network::load (buffer));
+  //std::unique_ptr<oap::Network> cnetwork (oap::Network::load (buffer));
 
   //EXPECT_TRUE (*network == *cnetwork);
 }
@@ -301,9 +305,9 @@ TEST_F(OapNeuralTests_TinyTests, SaveLoadFileTest)
 {
   bool isbias = true;
 
-  DeviceLayer* l1 = network->createLayer(isbias ? 3 : 2);
-  DeviceLayer* l2 = network->createLayer(6);
-  DeviceLayer* l3 = network->createLayer(1);
+  oap::Layer* l1 = network->createLayer(isbias ? 3 : 2);
+  oap::Layer* l2 = network->createLayer(6);
+  oap::Layer* l3 = network->createLayer(1);
 
   Runner r(isbias, this, 1);
   network->setLearningRate (0.001);
@@ -342,10 +346,10 @@ TEST_F(OapNeuralTests_TinyTests, SaveLoadFileTest)
     buffer.fwrite (path);
   };
 
-  auto load = [&]() -> std::unique_ptr<Network>
+  auto load = [&]() -> std::unique_ptr<oap::Network>
   {
     utils::ByteBuffer buffer (path);
-    return std::unique_ptr<Network> (Network::load (buffer));
+    return std::unique_ptr<oap::Network> (oap::Network::load (buffer));
   };
 
   save ();

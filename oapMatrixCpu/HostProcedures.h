@@ -31,6 +31,16 @@
 #include "oapProcedures.h"
 #include "HostBuffer.h"
 
+namespace oap
+{
+
+namespace math
+{
+  using Matrix = ::math::Matrix;
+  using MatrixDim = ::math::MatrixDim;
+  using MatrixInfo = ::math::MatrixInfo;
+}
+
 class HostProcedures : public oap::generic::SingleMatrixProcedures {
  private:
   oap::host::HostBuffer<floatt> m_dsumsReBuffer;
@@ -311,5 +321,5 @@ class HostProcedures : public oap::generic::SingleMatrixProcedures {
   void _funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim);
   std::function<uintt*(uintt*, uintt)> m_createKernelArray;
 };
-
+}
 #endif  // HOSTCOMPAREPROCEDURE_H

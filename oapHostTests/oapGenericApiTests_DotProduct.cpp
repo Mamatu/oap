@@ -47,7 +47,7 @@ class OapGenericApiTests_DotProduct : public testing::Test
 
 TEST_F(OapGenericApiTests_DotProduct, Test_1)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 1}, 0.);
 
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
@@ -75,7 +75,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_1)
 
 TEST_F(OapGenericApiTests_DotProduct, Test_2)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 2}, 0.);
 
   oap::HostMatrixUPtr output11 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
@@ -115,7 +115,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_2)
 
 TEST_F(OapGenericApiTests_DotProduct, Test_3)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 2}, 0.);
 
   oap::HostMatrixUPtr output11 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
@@ -155,7 +155,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_3)
 
 TEST_F(OapGenericApiTests_DotProduct, Test_4)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
 
   std::vector<std::vector<floatt>> params1_raw =
     {
@@ -223,7 +223,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_4)
 
 TEST_F(OapGenericApiTests_DotProduct, Test_5)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
 
   std::vector<std::vector<floatt>> params1_raw =
   {
@@ -275,7 +275,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_5)
 
 TEST_F(OapGenericApiTests_DotProduct, Test_6)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
 
   std::vector<std::vector<floatt>> params1_raw =
   {

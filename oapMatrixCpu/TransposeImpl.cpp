@@ -68,7 +68,7 @@ void TransposeOperationCpu::Execute(void* ptr) {
 }
 
 void TransposeOperationCpu::execute() {
-    uintt threadsCount = utils::mapper::createThreadsMap(getBMap(),
+    uintt threadsCount = oap::utils::mapper::createThreadsMap(getBMap(),
         this->m_threadsCount, gColumns (m_output) - m_subcolumns[0],
         gRows (m_output) - m_subrows[0]);
     ThreadData<TransposeOperationCpu>* threads = m_threadData;

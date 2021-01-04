@@ -25,10 +25,10 @@
 
 class oapGenericApiTests_ActivationFunction : public testing::Test {
  public:
-  HostProcedures* hostApi;
+   oap::HostProcedures* hostApi;
 
   virtual void SetUp() {
-    hostApi = new HostProcedures();
+    hostApi = new oap::HostProcedures();
   }
 
   virtual void TearDown() {
@@ -44,7 +44,7 @@ floatt sigmoid (floatt x)
 TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_1)
 {
   using namespace std::placeholders;
-  HostProcedures hp;
+  oap::HostProcedures hp;
 
   math::Matrix* output = oap::host::NewReMatrixWithValue (1, 1, 0.);
   math::Matrix* param = oap::host::NewReMatrixWithValue (1, 1, 2.);
@@ -67,7 +67,7 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_1)
 TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_2)
 {
   using namespace std::placeholders;
-  HostProcedures hp;
+  oap::HostProcedures hp;
 
   math::Matrix* output = oap::host::NewReMatrixWithValue (1, 1, 0.);
   math::Matrix* output1 = oap::host::NewReMatrixWithValue (1, 1, 0.);
@@ -92,7 +92,7 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_2)
 
 TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_3)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
 
   math::Matrix* output = oap::host::NewReMatrixWithValue (4, 4, 0.);
   math::Matrix* output1 = oap::host::NewReMatrixWithValue (4, 4, 0.);
@@ -116,7 +116,7 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_3)
 
 TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_4)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
 
   oap::HostMatrixUPtr output = oap::host::NewReMatrixWithValue (1, 4, 0.);
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixWithValue (1, 4, 0.);

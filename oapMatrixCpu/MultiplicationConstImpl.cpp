@@ -26,7 +26,7 @@
 namespace math {
 
 void MultiplicationConstOperationCpu::execute() {
-    intt threadsCount = utils::mapper::createThreadsMap(getBMap(),
+    intt threadsCount = oap::utils::mapper::createThreadsMap(getBMap(),
         m_threadsCount,
         gColumns (m_output) - m_subcolumns[0],
         gRows (m_output) - m_subrows[0]);

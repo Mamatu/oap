@@ -1,3 +1,6 @@
+#include <random>
+#include <vector>
+
 #include "PatternsClassification.h"
 
 #include "CuProceduresApi.h"
@@ -12,7 +15,6 @@
 #include "MatrixAPI.h"
 
 #include "ArgsParser.h"
-
 namespace oap
 {
 
@@ -218,3 +220,4 @@ void checkIfFileExists (FILE* file, const std::string& path)
 }
 
 }
+

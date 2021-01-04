@@ -24,17 +24,10 @@
 #include <math.h>
 
 #include "Logger.h"
-#include "HostMatrixKernels.h"
-
-#include "oapDeviceMatrixUPtr.h"
-#include "oapDeviceMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"
 #include "oapHostMatrixPtr.h"
 
 #include "ThreadsMapper.h"
-#include "oapCudaMatrixUtils.h"
-
-#include "CudaCoreApi.h"
 #include "Logger.h"
 
 namespace oap

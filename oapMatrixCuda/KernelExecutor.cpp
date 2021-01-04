@@ -452,7 +452,7 @@ void Kernel::SetThreadsBlocks(uint blocks[2], uint threads[2],
                               uint w, uint h,
                               uint maxThreadsPerBlock)
 {
-  ::utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
+  oap::utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
 }
 
 bool Kernel::Execute(const char* functionName, const void** params, oap::cuda::Kernel& kernel)

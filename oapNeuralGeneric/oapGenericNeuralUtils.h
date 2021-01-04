@@ -31,6 +31,10 @@
 #include "oapRandomGenerator.h"
 #include "MatrixAPI.h"
 
+#include "oapHostMatrixUPtr.h"
+#include "oapMatrixRandomGenerator.h"
+#include "oapGenericNeuralApi.h"
+
 namespace oap
 {
 namespace nutils
@@ -317,6 +321,87 @@ void copyToInputs_oneMatrix (LayerT* ilayer, const Container& container, CopyBuf
     obj.call();
   });
   copyToInputs_oneMatrix (ilayer, buffer.data(), buffer.size(), copyBufferToMatrix);
+}
+
+template<typename NetworkT, typename Callback>
+void iterateNetwork (NetworkT& network, Callback&& callback)
+{
+  for (size_t idx = 0; idx < network.getLayersCount() - 1; ++idx)
+  {
+    auto* clayer = network.getLayer (idx);
+    auto* nlayer = network.getLayer (idx + 1);
+
+    callback (*clayer, *nlayer);
+  }
+}
+
+template<typename LayerT>
+class BiasesFilter final
+{
+  public:
+    template<typename GetWeightsInfo>
+    BiasesFilter (const LayerT& currentLayerT, const LayerT& nextLayerT, GetWeightsInfo&& getWeightsInfo) :
+      BiasesFilter (getWeightsInfo (currentLayerT), nextLayerT)
+    {}
+
+    BiasesFilter (const math::MatrixInfo& layerWeightsInfo, const LayerT& nextLayerT) :
+      m_winfo (layerWeightsInfo), m_nextLayerT (nextLayerT)
+    {}
+
+    floatt operator()(uintt c, uintt r, floatt v) const
+    {
+      if (m_nextLayerT.getBiasesCount() == 1 && m_winfo.rows() - 1 == r)
+      {
+        return 0.;
+      }
+      return v;
+    }
+
+  private:
+    math::MatrixInfo m_winfo;
+    const LayerT& m_nextLayerT;
+};
+
+template<typename LayerT, typename MatrixRandomGenerator>
+oap::HostMatrixUPtr createRandomMatrix (LayerT& layer, const math::MatrixInfo& minfo, MatrixRandomGenerator&& mrg)
+{
+  oap::HostMatrixUPtr randomMatrix = oap::host::NewReMatrix (minfo.columns(), minfo.rows());
+
+  for (uintt c = 0; c < minfo.columns(); ++c)
+  {
+    for (uintt r = 0; r < minfo.rows(); ++r)
+    {
+      SetRe (randomMatrix.get(), c, r, mrg(c, r));
+    }
+  }
+
+  //rg (randomMatrix.get(), ArgType::HOST);
+
+  return std::move (randomMatrix);
+}
+
+template<typename LayerT, typename GetMatrixInfo, typename CopyHostMatrixToKernelMatrix, typename MatrixRandomGenerator>
+void initRandomWeights (LayerT& layer, const LayerT& nextLayer, GetMatrixInfo&& getMatrixInfo, CopyHostMatrixToKernelMatrix&& copyHostMatrixToKernelMatrix, MatrixRandomGenerator&& mrg)
+{
+  math::MatrixInfo winfo = oap::generic::getWeightsInfo (layer, getMatrixInfo);
+
+  auto randomMatrix = createRandomMatrix (layer, winfo, mrg);
+
+  oap::generic::setWeights (layer, randomMatrix.get (), copyHostMatrixToKernelMatrix);
+}
+
+template<typename LayerT, typename GetMatrixInfo, typename CopyHostMatrixToKernelMatrix, typename Range = std::pair<floatt, floatt>>
+void initRandomWeightsByRange (LayerT& layer, const LayerT& nextLayer, GetMatrixInfo&& getMatrixInfo, CopyHostMatrixToKernelMatrix&& copyHostMatrixToKernelMatrix, Range&& range = std::pair<floatt, floatt>(-0.5, 0.5))
+{
+  math::MatrixInfo winfo = oap::generic::getWeightsInfo (layer, getMatrixInfo);
+
+  oap::utils::MatrixRandomGenerator rg (range.first, range.second);
+  rg.setFilter (oap::nutils::BiasesFilter<LayerT> (winfo, nextLayer));
+
+  auto randomMatrix = createRandomMatrix (layer, winfo, rg);
+
+  oap::generic::setWeights (layer, randomMatrix.get (), copyHostMatrixToKernelMatrix);
+  //rg (getWeights (layer), ArgType::DEVICE);
 }
 
 }

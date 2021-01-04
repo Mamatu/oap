@@ -24,7 +24,7 @@
 namespace math {
 
     void SubstracionOperationCpu::execute() {
-        uintt threadsCount = utils::mapper::createThreadsMap(getBMap(),
+        uintt threadsCount = oap::utils::mapper::createThreadsMap(getBMap(),
                 this->m_threadsCount, gColumns (m_output), gRows (m_output));
         ThreadData<SubstracionOperationCpu>* threads = m_threadData;
         for (uintt fa = 0; fa < threadsCount; fa++) {

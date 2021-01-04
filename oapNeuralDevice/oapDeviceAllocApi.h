@@ -26,19 +26,8 @@
 #include "oapCudaMatrixUtils.h"
 #include "oapCudaMemoryApi.h"
 
-namespace oap
-{
-namespace alloc
-{
-namespace cuda
-{
 namespace
 {
-  inline math::Matrix* _newHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
-  {
-    return oap::host::NewHostMatrixFromMatrixInfo (minfo);
-  }
-
   inline math::Matrix* _newDeviceMatrixDeviceRef (const math::Matrix* matrix)
   {
     return oap::cuda::NewDeviceMatrixDeviceRef (matrix);
@@ -54,17 +43,24 @@ namespace
     return oap::cuda::NewMemory (dim);
   }
 
-  inline math::Matrix* _newDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minfo, const oap::Memory& memory)
+  inline math::Matrix* _newDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
   {
     return oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
   }
 
   using GenericAllocNeuronsApi = oap::alloc::AllocNeuronsApi<decltype(_newDeviceMemory), decltype(_newDeviceMatrixFromMatrixInfo), decltype(_newDeviceSharedSubMatrix)>;
 
-  using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(_newDeviceMatrixFromMatrixInfo), decltype(_newDeviceMatrixDeviceRef), decltype(_newHostMatrixFromMatrixInfo), decltype(oap::cuda::CopyHostMatrixToDeviceMatrix)>;
+  using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(_newDeviceMatrixFromMatrixInfo), decltype(_newDeviceMatrixDeviceRef), decltype(_newDeviceMatrixFromMatrixInfo), decltype(oap::cuda::CopyHostMatrixToDeviceMatrix)>;
 
   using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::cuda::DeleteDeviceMatrix), decltype(oap::host::DeleteMatrix)>;
 }
+
+namespace oap
+{
+namespace alloc
+{
+namespace cuda
+{
 
 class AllocNeuronsApi : public GenericAllocNeuronsApi
 {
@@ -78,7 +74,7 @@ class AllocWeightsApi : public GenericAllocWeightsApi
 {
   public:
     AllocWeightsApi () :
-    GenericAllocWeightsApi (_newDeviceMatrixFromMatrixInfo, _newDeviceMatrixDeviceRef, _newHostMatrixFromMatrixInfo, oap::cuda::CopyHostMatrixToDeviceMatrix)
+    GenericAllocWeightsApi (_newDeviceMatrixFromMatrixInfo, _newDeviceMatrixDeviceRef, _newDeviceMatrixFromMatrixInfo, oap::cuda::CopyHostMatrixToDeviceMatrix)
     {}
 };
 

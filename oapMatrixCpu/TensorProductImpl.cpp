@@ -25,8 +25,8 @@ namespace math {
 
     void TensorProductOperationCpu::execute() {
         debugFuncBegin();
-        uintt* bmap = utils::mapper::allocMap(this->m_threadsCount);
-        uintt threadsCount = utils::mapper::createThreadsMap(bmap,
+        uintt* bmap = oap::utils::mapper::allocMap(this->m_threadsCount);
+        uintt threadsCount = oap::utils::mapper::createThreadsMap(bmap,
                 this->m_threadsCount,
                 gColumns (m_output),
                 gRows (m_output));
@@ -45,7 +45,7 @@ namespace math {
         for (uintt fa = 0; fa < threadsCount; fa++) {
             threads[fa].thread.join();
         }
-        utils::mapper::freeMap(bmap);
+        oap::utils::mapper::freeMap(bmap);
         delete[] threads;
         debugFuncEnd();
     }

@@ -17,6 +17,7 @@ class RandomGenerator final
     RandomGenerator (floatt min, floatt max, uintt seed);
 
     std::pair<floatt, floatt> setRange (floatt min, floatt max);
+    void setSeed (floatt seed);
 
     floatt operator()();
     floatt operator()(floatt min, floatt max);

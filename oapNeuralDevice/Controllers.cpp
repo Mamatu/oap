@@ -1,5 +1,8 @@
 #include "Controllers.h"
 
+namespace oap
+{
+
 SE_ID_Controller::SE_ID_Controller (floatt limit, uintt dataSetSize, const std::function<void(floatt, uintt, floatt)>& callback) :
   m_limit(limit), m_dataSetSize(dataSetSize), m_sqes(0), m_sc(true), m_callback(callback)
 {}
@@ -110,4 +113,5 @@ void StepController::setError (floatt sqe, oap::ErrorType etype) {}
 bool StepController::shouldContinue()
 {
   return (m_step < m_sstep);
+}
 }
