@@ -42,7 +42,7 @@ math::MatrixInfo NetworkHostApi::getMatrixInfo (const math::Matrix* matrix) cons
 {
   return oap::host::GetMatrixInfo (matrix);
 }
-
+/*
 FPMatrices* NetworkHostApi::allocateFPMatrices (const Layer& layer, uintt samplesCount)
 {
   return oap::generic::allocateFPMatrices<oap::alloc::host::AllocNeuronsApi> (layer, samplesCount);
@@ -67,7 +67,7 @@ void NetworkHostApi::deallocateBPMatrices (BPMatrices* bpmatrices)
 {
   oap::generic::deallocateBPMatrices<oap::alloc::host::DeallocLayerApi>(bpmatrices);
 }
-
+*/
 Layer* NetworkHostApi::createLayer (uintt neurons, bool hasBias, uintt samplesCount, Activation activation)
 {
   return new oap::HostLayer (neurons, hasBias, samplesCount, activation);
@@ -98,19 +98,36 @@ math::Matrix* NetworkHostApi::newKernelReMatrix (uintt columns, uintt rows)
   return oap::host::NewReMatrix (columns, rows);
 }
 
-math::Matrix* NetworkHostApi::newKernelMatrixHostRef (math::Matrix* matrix)
+math::Matrix* NetworkHostApi::newKernelMatrixHostRef (const math::Matrix* matrix)
 {
   return oap::host::NewMatrixRef (matrix);
 }
 
-math::Matrix* NetworkHostApi::newKernelMatrixKernelRef (math::Matrix* matrix)
+math::Matrix* NetworkHostApi::newKernelMatrixKernelRef (const math::Matrix* matrix)
 {
   return oap::host::NewMatrixRef (matrix);
 }
 
+/*
 void NetworkHostApi::connectLayers (oap::Layer* previous, oap::Layer* layer)
 {
   oap::generic::connectLayers<Layer, oap::alloc::host::AllocWeightsApi>(previous, layer);
+}
+*/
+
+math::Matrix* NetworkHostApi::newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::Matrix* matrix)
+{
+  return oap::host::NewSharedSubMatrix (mdim, matrix);
+}
+
+oap::Memory NetworkHostApi::newKernelMemory (const oap::MemoryDim& dim)
+{
+  return oap::host::NewMemory (dim);
+}
+
+math::Matrix* NetworkHostApi::newKernelMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+{
+  return oap::host::NewHostMatrixFromMatrixInfo (minfo);
 }
 
 }

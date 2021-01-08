@@ -62,7 +62,7 @@ void Network::initTopology (const std::vector<uintt>& topology, const std::vecto
     NBPair pnb = getNBPair (idx - 1);
     NBPair nnb = getNBPair (idx);
 
-    auto* bpMatrices = m_nga->allocateBPMatrices (pnb, nnb);
+    auto* bpMatrices = oap::generic::allocateBPMatrices (pnb, nnb, m_nga);
     m_bpMatricesNetwork.push_back (bpMatrices);
     m_AllBpMatricesVec.push_back (bpMatrices);
   }
@@ -80,7 +80,7 @@ Layer* Network::createLayer (uintt neurons, bool hasBias, const Activation& acti
 {
   oapAssert (!m_isCreatedByNetworkTopology);
   Layer* layer = m_nga->createLayer (neurons, hasBias, 1, activation);
-  FPMatrices* fpMatrices = m_nga->allocateFPMatrices (*layer, 1);
+  FPMatrices* fpMatrices = oap::generic::allocateFPMatrices (*layer, 1, m_nga);
   oap::generic::initLayerBiases (*layer, [this](math::Matrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue (matrix, c, r, v); }, 1);
 
   m_AllFpMatricesVec.push_back (fpMatrices);
@@ -106,7 +106,7 @@ void Network::createLevel (Layer* layer, LayerType layerType)
 
   if (previous != nullptr)
   {
-    m_nga->connectLayers (previous, layer);
+    oap::generic::connectLayers (previous, layer, m_nga);
 
     m_AllBpMatricesVec.push_back (previous->getBPMatrices());
 
@@ -212,11 +212,11 @@ LHandler Network::createGenericFPLayer (LayerType ltype, const Network::GenericF
       FPMatrices* fpMatrices = nullptr;
       if (args.fpmatrices.empty())
       {
-        fpMatrices = m_nga->allocateFPMatrices (*layer_fp, samplesCount.second);
+        fpMatrices = oap::generic::allocateFPMatrices (*layer_fp, samplesCount.second, m_nga);
       }
       else
       {
-        fpMatrices = m_nga->allocateSharedFPMatrices (*layer_fp, args.fpmatrices[idx][idx1]);
+        fpMatrices = oap::generic::allocateSharedFPMatrices (*layer_fp, args.fpmatrices[idx][idx1], m_nga);
       }
 
       m_AllFpMatricesVec.push_back (fpMatrices);
@@ -792,7 +792,7 @@ void Network::deallocateFPMatrices()
 {
   for (auto* fpMatrices : m_AllFpMatricesVec)
   {
-    m_nga->deallocateFPMatrices (fpMatrices);
+    oap::generic::deallocateFPMatrices (fpMatrices, m_nga);
   }
 }
 
@@ -800,7 +800,7 @@ void Network::deallocateBPMatrices()
 {
   for (auto* bpMatrices : m_AllBpMatricesVec)
   {
-    m_nga->deallocateBPMatrices (bpMatrices);
+    oap::generic::deallocateBPMatrices (bpMatrices, m_nga);
   }
 }
 

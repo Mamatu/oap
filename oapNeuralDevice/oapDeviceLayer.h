@@ -20,16 +20,12 @@
 #ifndef OAP_NEURAL_DEVICE_LAYER_H
 #define OAP_NEURAL_DEVICE_LAYER_H
 
+#include "Matrix.h"
+#include "MatrixInfo.h"
 #include "oapLayer.h"
 
 namespace oap
 {
-
-namespace math
-{
-  using Matrix = ::math::Matrix;
-  using MatrixInfo = ::math::MatrixInfo;
-}
 
 class DeviceLayer : public Layer
 {
@@ -58,4 +54,5 @@ class DeviceLayer : public Layer
     void setDeviceWeights (math::Matrix* weights) override;
 };
 }
+
 #endif

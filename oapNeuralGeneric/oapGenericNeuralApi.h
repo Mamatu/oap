@@ -30,6 +30,8 @@
 #include "oapHostMatrixUPtr.h"
 #include "oapProcedures.h"
 
+#include "oapNetworkGenericApi.h"
+
 namespace oap
 {
 namespace generic
@@ -680,8 +682,8 @@ void updateWeights(const Layers& layers, Api& api, floatt learningRate, uintt no
   }
 }
 
-template<typename AllocNeuronsApi, typename LayerT>
-void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCount = 1)
+template<typename LayerT>
+void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCount, oap::NetworkGenericApi* nga)
 {
   logTrace("");
   logTraceS ("%s %p", __func__, &fp);
@@ -689,21 +691,19 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
   const uintt unitsCountWithBiases = layerRef.getTotalNeuronsCount ();
   const uintt unitsCount = layerRef.getNeuronsCount ();
 
-  AllocNeuronsApi alloc;
-
   fp.m_matricesInfo = math::MatrixInfo (true, false, 1, unitsCountWithBiases * samplesCount);
   fp.m_matricesInfo_wb = math::MatrixInfo (true, false, 1, unitsCount * samplesCount);
   const math::MatrixDim mdim_wb = {fp.m_matricesInfo_wb.columns(), fp.m_matricesInfo_wb.rows()};
 
-  fp.m_inputs = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
-  fp.m_inputs_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_inputs);
-  fp.m_sums = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
-  fp.m_sums_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_sums);
+  fp.m_inputs = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
+  fp.m_inputs_wb = nga->newKernelSharedSubMatrix (mdim_wb, fp.m_inputs);
+  fp.m_sums = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
+  fp.m_sums_wb = nga->newKernelSharedSubMatrix (mdim_wb, fp.m_sums);
 
-  fp.m_errors = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
-  fp.m_errors_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_errors);
-  fp.m_errorsAux = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
-  fp.m_errorsAcc = alloc.newMatrixFromMatrixInfo (fp.m_matricesInfo);
+  fp.m_errors = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
+  fp.m_errors_wb = nga->newKernelSharedSubMatrix (mdim_wb, fp.m_errors);
+  fp.m_errorsAux = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
+  fp.m_errorsAcc = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
 
   logTrace ("minfo = %s", std::to_string(fp.m_matricesInfo).c_str());
   logTrace ("fp.m_inputs = %p", fp.m_inputs);
@@ -716,8 +716,8 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
   logTraceE ("%s %p", __func__, &fp);
 }
 
-template<typename AllocNeuronsApi, typename LayerT>
-void allocateSharedFPMatrices (FPMatrices& fp, const LayerT& layerRef, FPMatrices* orig)
+template<typename LayerT>
+void allocateSharedFPMatrices (FPMatrices& fp, const LayerT& layerRef, FPMatrices* orig, oap::NetworkGenericApi* nga)
 {
   logTrace("");
   logTraceS ("%s %p", __func__, &fp);
@@ -726,7 +726,6 @@ void allocateSharedFPMatrices (FPMatrices& fp, const LayerT& layerRef, FPMatrice
   const uintt unitsCountWithBiases = layerRef.getTotalNeuronsCount ();
   const uintt unitsCount = layerRef.getNeuronsCount ();
 
-  AllocNeuronsApi alloc;
   const auto noneMemory = oap::common::OAP_NONE_MEMORY();
 
   fp.m_matricesInfo = math::MatrixInfo (true, false, 1, unitsCountWithBiases * samplesCount);
@@ -734,15 +733,15 @@ void allocateSharedFPMatrices (FPMatrices& fp, const LayerT& layerRef, FPMatrice
   const math::MatrixDim mdim = {fp.m_matricesInfo.columns(), fp.m_matricesInfo.rows()};
   const math::MatrixDim mdim_wb = {fp.m_matricesInfo_wb.columns(), fp.m_matricesInfo_wb.rows()};
 
-  fp.m_inputs = alloc.newSharedSubMatrix (mdim, orig->m_inputs);
-  fp.m_inputs_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_inputs);
-  fp.m_sums = alloc.newSharedSubMatrix (mdim, orig->m_sums);
-  fp.m_sums_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_sums);
+  fp.m_inputs = nga->newKernelSharedSubMatrix (mdim, orig->m_inputs);
+  fp.m_inputs_wb = nga->newKernelSharedSubMatrix (mdim_wb, fp.m_inputs);
+  fp.m_sums = nga->newKernelSharedSubMatrix (mdim, orig->m_sums);
+  fp.m_sums_wb = nga->newKernelSharedSubMatrix (mdim_wb, fp.m_sums);
 
-  fp.m_errors = alloc.newSharedSubMatrix (mdim, orig->m_errors);
-  fp.m_errors_wb = alloc.newSharedSubMatrix (mdim_wb, fp.m_errors);
-  fp.m_errorsAux = alloc.newSharedSubMatrix (mdim, orig->m_errorsAux);
-  fp.m_errorsAcc = alloc.newSharedSubMatrix (mdim, orig->m_errorsAcc);
+  fp.m_errors = nga->newKernelSharedSubMatrix (mdim, orig->m_errors);
+  fp.m_errors_wb = nga->newKernelSharedSubMatrix (mdim_wb, fp.m_errors);
+  fp.m_errorsAux = nga->newKernelSharedSubMatrix (mdim, orig->m_errorsAux);
+  fp.m_errorsAcc = nga->newKernelSharedSubMatrix (mdim, orig->m_errorsAcc);
 
   logTrace ("minfo = %s", std::to_string(fp.m_matricesInfo).c_str());
   logTrace ("fp.m_inputs = %p", fp.m_inputs);
@@ -755,34 +754,32 @@ void allocateSharedFPMatrices (FPMatrices& fp, const LayerT& layerRef, FPMatrice
   logTraceE ("%s %p", __func__, &fp);
 }
 
-template<typename AllocNeuronsApi, typename LayerT>
-FPMatrices* allocateFPMatrices (const LayerT& layerRef, uintt samplesCount = 1)
+template<typename LayerT>
+FPMatrices* allocateFPMatrices (const LayerT& layerRef, uintt samplesCount, oap::NetworkGenericApi* nga)
 {
   FPMatrices* fpMatrices = new FPMatrices ();
-  allocateFPMatrices<AllocNeuronsApi> (*fpMatrices, layerRef, samplesCount);
+  allocateFPMatrices (*fpMatrices, layerRef, samplesCount, nga);
   return fpMatrices;
 }
 
-template<typename AllocNeuronsApi, typename LayerT>
-FPMatrices* allocateSharedFPMatrices (const LayerT& layerRef, FPMatrices* orig)
+template<typename LayerT>
+FPMatrices* allocateSharedFPMatrices (const LayerT& layerRef, FPMatrices* orig, oap::NetworkGenericApi* nga)
 {
   FPMatrices* fpMatrices = new FPMatrices ();
-  allocateSharedFPMatrices<AllocNeuronsApi> (*fpMatrices, layerRef, orig);
+  allocateSharedFPMatrices (*fpMatrices, layerRef, orig, nga);
   return fpMatrices;
 }
 
-template<typename DeallocMatrixApi>
-void deallocateFPMatrices (FPMatrices* fp)
+inline void deallocateFPMatrices (FPMatrices* fp, oap::NetworkGenericApi* nga)
 {
   logTrace("");
   logTrace ("%s %p", __func__, &fp);
-  DeallocMatrixApi dealloc;
 
-  auto delk = [&dealloc](math::Matrix** matrix)
+  auto delk = [&nga](math::Matrix** matrix)
   {
     if (matrix != nullptr)
     {
-      dealloc.deleteKernelMatrix (*matrix);
+      nga->deleteKernelMatrix (*matrix);
       matrix = nullptr;
     }
   };
@@ -796,22 +793,20 @@ void deallocateFPMatrices (FPMatrices* fp)
   delk (&fp->m_errorsAcc);
   delk (&fp->m_errorsAux);
 
-  dealloc.deleteHostMatrix (fp->m_errorsHost);
+  oap::host::DeleteMatrix (fp->m_errorsHost);
   delete fp;
 }
 
-template<typename DeallocMatrixApi>
-void deallocateBPMatrices (BPMatrices* bp)
+inline void deallocateBPMatrices (BPMatrices* bp, oap::NetworkGenericApi* nga)
 {
   logTrace("");
   logTraceS ("%s %p", __func__, &bp);
-  DeallocMatrixApi dealloc;
 
-  auto delk = [&dealloc](math::Matrix** matrix)
+  auto delk = [&nga](math::Matrix** matrix)
   {
     if (matrix != nullptr)
     {
-      dealloc.deleteKernelMatrix (*matrix);
+      nga->deleteKernelMatrix (*matrix);
       matrix = nullptr;
     }
   };
@@ -825,48 +820,45 @@ void deallocateBPMatrices (BPMatrices* bp)
   logTraceE ("%s %p", __func__, &bp);
 }
 
-template<typename DeallocMatrixApi, typename LayerT>
-void deallocateFPMatricesInLayer (LayerT& layer)
+template<typename LayerT>
+void deallocateFPMatricesInLayer (LayerT& layer, oap::NetworkGenericApi* nga)
 {
   logTrace("");
   if (layer.getFPMatrices() == nullptr)
   {
     return;
   }
-  deallocateFPMatrices<DeallocMatrixApi> (*layer.getFPMatrices());
+  deallocateFPMatrices (*layer.getFPMatrices(), nga);
 }
 
-template<typename DeallocMatrixApi, typename LayerT>
-void deallocateBPMatricesInLayer (LayerT& layer)
+template<typename LayerT>
+void deallocateBPMatricesInLayer (LayerT& layer, oap::NetworkGenericApi* nga)
 {
   logTrace("");
   if (layer.getBPMatrices() == nullptr)
   {
     return;
   }
-  deallocateBPMatrices<DeallocMatrixApi> (*layer.getBPMatrices());
+  deallocateBPMatrices (*layer.getBPMatrices(), nga);
 }
 
-template<typename AllocApi>
-void allocateBPMatrices (BPMatrices& bp, const NBPair& neuronsCount1, const NBPair& neuronsCount2)
+inline void allocateBPMatrices (BPMatrices& bp, const NBPair& neuronsCount1, const NBPair& neuronsCount2, oap::NetworkGenericApi* nga)
 {
   logTrace("");
   logTraceS ("%s %p", __func__, &bp);
   const uintt cUCount = neuronsCount1.first + neuronsCount1.second;
   const uintt nUCount = neuronsCount2.first;
 
-  AllocApi alloc;
-
   math::MatrixInfo tinputsInfo (true, false, cUCount, 1);
-  bp.m_tinputs = alloc.newDeviceMatrixFromMatrixInfo (tinputsInfo); //todo: use transpose
+  bp.m_tinputs = nga->newKernelMatrixFromMatrixInfo (tinputsInfo); //todo: use transpose
 
   math::MatrixInfo weightsInfo (true, false, cUCount, nUCount);
-  bp.m_weights = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo);
-  bp.m_weights1 = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo);
-  bp.m_weights2 = alloc.newDeviceMatrixFromMatrixInfo (weightsInfo);
+  bp.m_weights = nga->newKernelMatrixFromMatrixInfo (weightsInfo);
+  bp.m_weights1 = nga->newKernelMatrixFromMatrixInfo (weightsInfo);
+  bp.m_weights2 = nga->newKernelMatrixFromMatrixInfo (weightsInfo);
 
   math::MatrixInfo tweightsInfo (true, false, nUCount, cUCount);
-  bp.m_tweights = alloc.newDeviceMatrixFromMatrixInfo (tweightsInfo);
+  bp.m_tweights = nga->newKernelMatrixFromMatrixInfo (tweightsInfo);
 
   logTrace ("bp.m_tinputs = %p", bp.m_tinputs);
   logTrace ("bp.m_weights = %p", bp.m_weights);
@@ -876,32 +868,31 @@ void allocateBPMatrices (BPMatrices& bp, const NBPair& neuronsCount1, const NBPa
   logTraceE ("%s %p", __func__, &bp);
 }
 
-template<typename AllocApi>
-BPMatrices* allocateBPMatrices (const NBPair& neuronsCount1, const NBPair& neuronsCount2)
+inline BPMatrices* allocateBPMatrices (const NBPair& neuronsCount1, const NBPair& neuronsCount2, oap::NetworkGenericApi* nga)
 {
   BPMatrices* bpMatrices = new BPMatrices ();
-  allocateBPMatrices<AllocApi> (*bpMatrices, neuronsCount1, neuronsCount2);
+  allocateBPMatrices (*bpMatrices, neuronsCount1, neuronsCount2, nga);
   return bpMatrices;
 }
 
-template<typename AllocApi, typename LayerT>
+template<typename LayerT>
 void allocateBPMatrices (BPMatrices& bp, const LayerT& layer, const LayerT& nextLayer)
 {
   allocateBPMatrices (bp, layer.getNBPair(), nextLayer.getNBPair());
 }
 
-template<typename AllocApi, typename LayerT>
-BPMatrices* allocateBPMatrices (const LayerT& layer, const LayerT& nextLayer)
+template<typename LayerT>
+BPMatrices* allocateBPMatrices (const LayerT& layer, const LayerT& nextLayer, oap::NetworkGenericApi* nga)
 {
-  return allocateBPMatrices<AllocApi> (layer.getNBPair(), nextLayer.getNBPair());
+  return allocateBPMatrices (layer.getNBPair(), nextLayer.getNBPair(), nga);
 }
 
-template<typename LayerT, typename DeallocMatrixApi>
-void deallocate (LayerT& layer)
+template<typename LayerT>
+void deallocate (LayerT& layer, oap::NetworkGenericApi* nga)
 {
   logTrace("");
-  deallocateFPMatricesInLayer<DeallocMatrixApi> (layer);
-  deallocateBPMatricesInLayer<DeallocMatrixApi> (layer);
+  deallocateFPMatricesInLayer (layer, nga);
+  deallocateBPMatricesInLayer (layer, nga);
 }
 
 template<typename AllocNeuronsApi, typename LayerT>
@@ -914,11 +905,11 @@ void createFPMatrices (LayerT& layer)
   allocateFPMatrices<AllocNeuronsApi> (*layer.getFPMatrices(), layer, layer.getSamplesCount());
 }
 
-template<typename AllocNeuronsApi, typename LayerT>
-void createBPMatrices (LayerT& layer, LayerT& nextLayer)
+template<typename LayerT>
+void createBPMatrices (LayerT& layer, LayerT& nextLayer, oap::NetworkGenericApi* nga)
 {
   logTrace("");
-  BPMatrices* bpMatrices = allocateBPMatrices<AllocNeuronsApi> (layer, nextLayer);
+  BPMatrices* bpMatrices = allocateBPMatrices (layer, nextLayer, nga);
   layer.addBPMatrices (bpMatrices);
 }
 
@@ -933,12 +924,12 @@ LayerT* createLayer (uintt neurons, bool hasBias, uintt samplesCount, Activation
   return layer;
 }
 
-template<typename LayerT, typename AllocWeightsApi>
-void connectLayers (LayerT* previous, LayerT* next)
+template<typename LayerT>
+void connectLayers (LayerT* previous, LayerT* next, oap::NetworkGenericApi* nga)
 {
   logTrace("");
   previous->setNextLayer (next);
-  oap::generic::createBPMatrices<AllocWeightsApi> (*previous, *next);
+  oap::generic::createBPMatrices (*previous, *next, nga);
 }
 
 template<typename LayerT, typename CopyHostMatrixToMatrix, typename GetMatrixInfo>

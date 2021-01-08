@@ -20,6 +20,8 @@
 #ifndef OAP_HOST_MATRIX_UTILS_H
 #define OAP_HOST_MATRIX_UTILS_H
 
+#include "Matrix.h"
+
 #include "oapGenericMatrixApi.h"
 
 #define PRINT_MATRIX(m) logInfo ("%s %p\n%s %s", #m, m, oap::host::to_string(m).c_str(), oap::host::GetMatrixInfo(m).toString().c_str());

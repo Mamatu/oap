@@ -149,6 +149,7 @@ DEFINE_3M(HOSTKernel_Convolve, CudaKernel_convolve)
 DEFINE_2M_EX(HOSTKernel_PoolAverage, CudaKernel_poolAverage)
 
 DEFINE_2M(HOSTKernel_Tanh, cuda_tanh)
+DEFINE_2M(HOSTKernel_DTanh, cuda_dtanh)
 DEFINE_2M(HOSTKernel_Sigmoid, cuda_sigmoid)
 DEFINE_2M(HOSTKernel_Sin, cuda_sin)
 
@@ -230,6 +231,48 @@ void proxy_HOSTKernel_getVector (const void** params)
   uintt column = *static_cast<const uintt*> (params[3]);
 
   HOSTKernel_getVector (v, length, V, column);
+}
+
+void HOSTKernel_PHadamardProduct (math::Matrix* outputs, math::Matrix* params1, math::Matrix* params2)
+{
+  CUDA_phadamardProduct (outputs, params1, params2);
+}
+
+void proxy_HOSTKernel_PHadamardProduct (const void** params)
+{
+  math::Matrix* outputs = getParam<math::Matrix> (params[0]);
+  math::Matrix* params1 = getParam<math::Matrix> (params[1]);
+  math::Matrix* params2 = getParam<math::Matrix> (params[2]);
+
+  HOSTKernel_PHadamardProduct (outputs, params1, params2);
+}
+
+void HOSTKernel_AddMatrices (math::Matrix* outputs, math::Matrix* params1, math::Matrix* params2)
+{
+  CUDA_addMatrices (outputs, params1, params2);
+}
+
+void proxy_HOSTKernel_AddMatrices (const void** params)
+{
+  math::Matrix* outputs = getParam<math::Matrix> (params[0]);
+  math::Matrix* params1 = getParam<math::Matrix> (params[1]);
+  math::Matrix* params2 = getParam<math::Matrix> (params[2]);
+
+  HOSTKernel_AddMatrices (outputs, params1, params2);
+}
+
+void HOSTKernel_MultiplyConstantRe (math::Matrix* outputs, math::Matrix* params1, floatt re)
+{
+  CUDA_multiplyConstantReMatrix (outputs, params1, re);
+}
+
+void proxy_HOSTKernel_MultiplyConstantRe (const void** params)
+{
+  math::Matrix* outputs = getParam<math::Matrix> (params[0]);
+  math::Matrix* params1 = getParam<math::Matrix> (params[1]);
+  floatt re = *static_cast<const floatt*> (params[2]);
+
+  HOSTKernel_MultiplyConstantRe (outputs, params1, re);
 }
 
 void HOSTKernel_GenericApi_AddConst (math::Matrix** outputs, math::Matrix* const* params1, floatt params2, oap::ThreadsMapperS* mapper)

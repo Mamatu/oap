@@ -4,6 +4,5 @@ set(TARGET "${a_dir}")
 set(INCLUDE_PATHS "oapMath")
 
 list(APPEND DEPS oapUtils)
-list(APPEND DEPS oapNeuralHost)
 
 set(EXTRA_LIBS )

@@ -27,12 +27,6 @@
 namespace oap
 {
 
-namespace math
-{
-  using Matrix = ::math::Matrix;
-  using MatrixInfo = ::math::MatrixInfo;
-}
-
 class HostLayer : public Layer
 {
   public:

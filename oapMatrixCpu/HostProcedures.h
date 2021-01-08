@@ -34,13 +34,6 @@
 namespace oap
 {
 
-namespace math
-{
-  using Matrix = ::math::Matrix;
-  using MatrixDim = ::math::MatrixDim;
-  using MatrixInfo = ::math::MatrixInfo;
-}
-
 class HostProcedures : public oap::generic::SingleMatrixProcedures {
  private:
   oap::host::HostBuffer<floatt> m_dsumsReBuffer;

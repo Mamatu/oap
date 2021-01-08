@@ -78,12 +78,6 @@ namespace oap
 namespace device
 {
 
-namespace math
-{
-using Matrix = ::math::Matrix;
-using MatrixInfo = ::math::MatrixInfo;
-}
-
 template<typename LayerT>
 void setHostInputs (LayerT& layer, const math::Matrix* hInputs)
 {

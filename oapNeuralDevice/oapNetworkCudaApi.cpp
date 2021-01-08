@@ -44,7 +44,7 @@ math::MatrixInfo NetworkCudaApi::getMatrixInfo (const math::Matrix* matrix) cons
   return oap::cuda::GetMatrixInfo (matrix);
 }
 
-FPMatrices* NetworkCudaApi::allocateFPMatrices (const Layer& layer, uintt samplesCount)
+/*FPMatrices* NetworkCudaApi::allocateFPMatrices (const Layer& layer, uintt samplesCount)
 {
   return oap::generic::allocateFPMatrices<oap::alloc::cuda::AllocNeuronsApi> (layer, samplesCount);
 }
@@ -67,7 +67,7 @@ void NetworkCudaApi::deallocateFPMatrices (FPMatrices* fpmatrices)
 void NetworkCudaApi::deallocateBPMatrices (BPMatrices* bpmatrices)
 {
   oap::generic::deallocateBPMatrices<oap::alloc::cuda::DeallocLayerApi>(bpmatrices);
-}
+}*/
 
 Layer* NetworkCudaApi::createLayer (uintt neurons, bool hasBias, uintt samplesCount, Activation activation)
 {
@@ -99,18 +99,34 @@ math::Matrix* NetworkCudaApi::newKernelReMatrix (uintt columns, uintt rows)
   return oap::cuda::NewDeviceReMatrix (columns, rows);
 }
 
-math::Matrix* NetworkCudaApi::newKernelMatrixHostRef (math::Matrix* matrix)
+math::Matrix* NetworkCudaApi::newKernelMatrixHostRef (const math::Matrix* matrix)
 {
   return oap::cuda::NewDeviceMatrixHostRef (matrix);
 }
 
-math::Matrix* NetworkCudaApi::newKernelMatrixKernelRef (math::Matrix* matrix)
+math::Matrix* NetworkCudaApi::newKernelMatrixKernelRef (const math::Matrix* matrix)
 {
   return oap::cuda::NewDeviceMatrixDeviceRef (matrix);
 }
-
+/*
 void NetworkCudaApi::connectLayers (oap::Layer* previous, oap::Layer* layer)
 {
   oap::generic::connectLayers<Layer, oap::alloc::cuda::AllocWeightsApi>(previous, layer);
 }
+*/
+math::Matrix* NetworkCudaApi::newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::Matrix* matrix)
+{
+  return oap::cuda::NewDeviceSharedSubMatrix (mdim, matrix);
+}
+
+oap::Memory NetworkCudaApi::newKernelMemory (const oap::MemoryDim& dim)
+{
+  return oap::cuda::NewMemory (dim); 
+}
+
+math::Matrix* NetworkCudaApi::newKernelMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+{
+  return oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
+}
+
 }

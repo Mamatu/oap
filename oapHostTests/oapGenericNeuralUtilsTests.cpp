@@ -22,11 +22,10 @@
 
 #include "oapHostMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"
-#include "oapLayer.h"
+#include "oapHostLayer.h"
+#include "oapGenericNeuralUtils.h"
 
 #include "oapHostMatrixUtils.h"
-
-#if 0
 
 class OapGenericNeuralUtilsTests : public testing::Test
 {
@@ -37,28 +36,25 @@ public:
 
   virtual void TearDown()
   {}
+};
 
-  class MockLayer : public oap::Layer
+namespace
+{
+  class MockLayer : public oap::HostLayer
   {
     public:
-      math::MatrixInfo getOutputsInfo () const {}
-      math::MatrixInfo getInputsInfo () const {}
+      MockLayer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation) : oap::HostLayer (neuronsCount, biasesCount, samplesCount, activation)
+      {
+        m_fpMatrices.push_back (new FPMatrices ());
+      }
 
-      void getOutputs (math::Matrix* matrix, ArgType type) const {}
-      void getHostWeights (math::Matrix* output) {}
-
-      void setHostInputs (const math::Matrix* hInputs) {}
-      void setDeviceInputs (const math::Matrix* dInputs) {}
-
-      math::MatrixInfo getWeightsInfo () const {}
-
-      void printHostWeights (bool newLine) const {}
-
-      void setHostWeights (math::Matrix* weights) {}
-      void setDeviceWeights (math::Matrix* weights) {}
+      virtual ~MockLayer()
+      {
+        delete m_fpMatrices[0];
+      }
   };
 
-};
+}
 
 TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_1)
 {
@@ -400,4 +396,3 @@ TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_3)
     oap::host::DeleteMatrix (*it);
   }
 }
-#endif

@@ -37,6 +37,8 @@
 #include "PyPlot.h"
 #include "Config.h"
 
+#include "Matrix.h"
+
 namespace test_api
 {
   enum class TestMode

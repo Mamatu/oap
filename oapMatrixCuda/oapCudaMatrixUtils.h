@@ -38,14 +38,6 @@ namespace oap
 namespace cuda
 {
 
-namespace math
-{
-  using Matrix = ::math::Matrix;
-  using MatrixLoc = ::math::MatrixLoc;
-  using MatrixDim = ::math::MatrixDim;
-  using MatrixInfo = ::math::MatrixInfo;
-}
-
 math::Matrix* NewDeviceMatrix (uintt columns, uintt rows);
 math::Matrix* NewDeviceMatrixWithValue (uintt columns, uintt rows, floatt v);
 math::Matrix* NewDeviceReMatrixWithValue (uintt columns, uintt rows, floatt v);

@@ -30,6 +30,7 @@
 std::map<std::string, std::function<void(const void**)>> g_kernelsList =
 {
   {"CUDAKernel_SumShared", proxy_HOSTKernel_SumShared},
+  {"CUDAKernel_AddMatrices", proxy_HOSTKernel_AddMatrices},
   {"CUDAKernel_CrossEntropy", proxy_HOSTKernel_CrossEntropy},
   {"CUDAKernel_DotProductDim", proxy_HOSTKernel_DotProductDim},
   {"CUDAKernel_DotProductPeriodic", proxy_HOSTKernel_DotProductPeriodic},
@@ -38,6 +39,7 @@ std::map<std::string, std::function<void(const void**)>> g_kernelsList =
   {"CUDAKernel_DotProductShared", proxy_HOSTKernel_DotProductShared},
   {"CUDAKernel_TensorProductDim", proxy_HOSTKernel_TensorProductDim},
   {"CUDAKernel_Tanh", proxy_HOSTKernel_Tanh},
+  {"CUDAKernel_DTanh", proxy_HOSTKernel_DTanh},
   {"CUDAKernel_Sigmoid", proxy_HOSTKernel_Sigmoid},
   {"CUDAKernel_Sin", proxy_HOSTKernel_Sin},
   {"CUDAKernel_TanhDim", proxy_HOSTKernel_TanhDim},
@@ -50,6 +52,8 @@ std::map<std::string, std::function<void(const void**)>> g_kernelsList =
   {"CUDAKernel_SetIdentity", proxy_HOSTKernel_SetIdentity},
   {"CUDAKernel_SetVector", proxy_HOSTKernel_setVector},
   {"CUDAKernel_GetVector", proxy_HOSTKernel_getVector},
+  {"CUDAKernel_PHadamardProduct", proxy_HOSTKernel_PHadamardProduct},
+  {"CUDAKernel_MultiplyConstantRe", proxy_HOSTKernel_MultiplyConstantRe},
 
   {"CUDAKernel_PRelu", proxy_HOSTKernel_PRelu},
   {"CUDAKernel_DPRelu", proxy_HOSTKernel_DPRelu},
@@ -119,7 +123,11 @@ bool HostKernelExecutor::run (const char* functionName)
 
   if (it == g_kernelsList.end ())
   {
-    debugAssertMsg (false, "Function name is not registerd in g_kernelsList");
+    std::stringstream sstr;
+    sstr << "Function name ";
+    sstr << functionName;
+    sstr << " is not registered in g_kernelsList";
+    debugAssertMsg (false, "%s", sstr.str().c_str());
     return false;
   }
 

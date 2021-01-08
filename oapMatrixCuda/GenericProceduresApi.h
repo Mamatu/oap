@@ -47,13 +47,6 @@ namespace oap
 namespace generic
 {
 
-namespace math
-{
-  using Matrix = ::math::Matrix;
-  using MatrixInfo = ::math::MatrixInfo;
-  using MatrixDim = ::math::MatrixDim;
-}
-
 using SharedMemoryCallback = std::function<uintt(uintt blocks[2], uintt threads[2])>;
 
 inline void prepareDims (oap::IKernelExecutor* kexec, uintt w, uintt h, uint blocks[2], uint threads[2])
