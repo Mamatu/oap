@@ -170,7 +170,7 @@ class Coordinate
 
 using Coordinates = std::vector<Coordinate>;
 
-TEST_F(OapClassificationTests_MultiMatrices, CircleDataTest)
+TEST_F(OapClassificationTests_MultiMatrices, RingDataTest)
 {
   uintt seed = 123456789;
   oap::utils::RandomGenerator rg (-0.5f, 0.5f, seed);

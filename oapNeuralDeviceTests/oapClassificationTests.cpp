@@ -51,7 +51,7 @@ class OapClassificationTests : public testing::Test
 
 };
 
-TEST_F(OapClassificationTests, CircleDataTest)
+TEST_F(OapClassificationTests, RingDataTest)
 {
   auto* singleApi = new oap::CuProceduresApi();
   auto* multiApi = new oap::MultiMatricesCuProcedures(singleApi);
