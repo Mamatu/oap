@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_POINTS_CLASSIFICATION__TEST_IMPL_H
-#define OAP_POINTS_CLASSIFICATION__TEST_IMPL_H
+#ifndef OAP_POINTS_CLASSIFICATION_MULTI_MATRICES__TEST_IMPL_H
+#define OAP_POINTS_CLASSIFICATION_MULTI_MATRICES__TEST_IMPL_H
 
 #include <algorithm>
 #include <iterator>
@@ -44,15 +44,10 @@ namespace oap
 {
 
 template<typename CopyHostMatrixToKernelMatrix, typename GetMatrixInfo>
-void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* singleApi, oap::generic::MultiMatricesProcedures* multiApi, oap::NetworkGenericApi* nga,
-      CopyHostMatrixToKernelMatrix&& copyHostMatrixToKernelMatrix, GetMatrixInfo&& getMatrixInfo)
+void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatrixProcedures* singleApi, oap::generic::MultiMatricesProcedures* multiApi, oap::NetworkGenericApi* nga,
+     CopyHostMatrixToKernelMatrix&& copyHostMatrixToKernelMatrix, GetMatrixInfo&& getMatrixInfo)
 {
-  oap::utils::RandomGenerator rg (-0.5f, 0.5f);
-
-  if (seed != 0)
-  {
-    rg.setSeed (seed);
-  }
+  oap::utils::RandomGenerator rg (-0.5f, 0.5f, seed);
 
   auto generateCoords = [&rg](Coordinates& coordinates, floatt r_min, floatt r_max, size_t count, floatt label) -> Coordinates
   {
@@ -74,30 +69,47 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
 
   auto generateInputHostMatrix = [](const Coordinates& coords)
   {
-    oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, coords.size() * 3);
+    std::vector<math::Matrix*> matrices;
 
     for (size_t idx = 0; idx < coords.size(); ++idx)
     {
+      math::Matrix* hinput = oap::host::NewReMatrix (1, 3);
       const auto& coord = coords[idx];
-      *GetRePtrIndex (hinput, 0 + idx * 3) = coord.getX();
-      *GetRePtrIndex (hinput, 1 + idx * 3) = coord.getY();
-      *GetRePtrIndex (hinput, 2 + idx * 3) = 1;
+      *GetRePtrIndex (hinput, 0) = coord.getX();
+      *GetRePtrIndex (hinput, 1) = coord.getY();
+      *GetRePtrIndex (hinput, 2) = 1;
+      matrices.push_back (hinput);
     }
 
-    return hinput;
+    return matrices;
+  };
+
+  auto generateOutputHostMatrix = [](uintt count, uintt rows = 1)
+  {
+    std::vector<math::Matrix*> matrices;
+
+    for (size_t idx = 0; idx < count; ++idx)
+    {
+      math::Matrix* houtput = oap::host::NewReMatrix (1, rows);
+      matrices.push_back (houtput);
+    }
+
+    return matrices;
   };
 
   auto generateExpectedHostMatrix = [](const Coordinates& coords)
   {
-    oap::HostMatrixPtr hexpected = oap::host::NewReMatrix (1, coords.size());
+    std::vector<math::Matrix*> matrices;
 
     for (size_t idx = 0; idx < coords.size(); ++idx)
     {
+      math::Matrix* hexpected = oap::host::NewReMatrix (1, 1);
       const auto& coord = coords[idx];
-      *GetRePtrIndex (hexpected, idx) = coord.getPreciseLabel();
+      *GetRePtrIndex (hexpected, 0) = coord.getPreciseLabel();
+      matrices.push_back (hexpected);
     }
 
-    return hexpected;
+    return matrices;
   };
 
   auto getMinMax = [](const Coordinates& coordinates)
@@ -155,34 +167,71 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
   size_t batchSize = 7;
 
   {
-    oap::HostMatrixPtr testHInputs = generateInputHostMatrix (testData);
-    oap::HostMatrixPtr trainingHInputs = generateInputHostMatrix (trainingData);
+    std::vector<math::Matrix*> testHInputs = generateInputHostMatrix (testData);
+    std::vector<math::Matrix*> trainingHInputs = generateInputHostMatrix (trainingData);
 
-    oap::HostMatrixPtr testHOutputs = oap::host::NewReMatrix (1, testData.size());
-    oap::HostMatrixPtr trainingHOutputs = oap::host::NewReMatrix (1, trainingData.size());
+    std::vector<math::Matrix*> testHOutputs = generateOutputHostMatrix (testData.size());
+    std::vector<math::Matrix*> trainingHOutputs = generateOutputHostMatrix (trainingData.size());
 
-    oap::HostMatrixPtr testHExpected = generateExpectedHostMatrix (testData);
-    oap::HostMatrixPtr trainingHExpected = generateExpectedHostMatrix (trainingData);
+    std::vector<math::Matrix*> testHExpected = generateExpectedHostMatrix (testData);
+    std::vector<math::Matrix*> trainingHExpected = generateExpectedHostMatrix (trainingData);
 
-    std::unique_ptr<Network> network (new Network (singleApi, multiApi, nga, false));
+    std::unique_ptr<oap::Network> network (new oap::Network(singleApi, multiApi, nga, true));
 
     floatt initLR = 0.03;
     network->setLearningRate (initLR);
-
     network->initWeights (false);
+    network->initTopology({2, 3, 1}, {true, true, false}, {Activation::TANH, Activation::TANH, Activation::NONE});
 
-    network->createLayer(2, true, Activation::TANH);
-    network->createLayer(3, true, Activation::TANH);
-    network->createLayer(1, Activation::NONE);
+    auto createMMLayer = [&network] (LHandler handler, uintt startIdx, const Coordinates& coords, uintt length)
+    {
+      std::vector<math::Matrix*> hinputs;
+      std::vector<math::Matrix*> houtputs;
+      for (uintt idx = startIdx; idx < startIdx + length; ++idx)
+      {
+        const auto& coordinate = coords[idx];
+        math::Matrix* hinput = oap::host::NewReMatrix (1, 3);
+        math::Matrix* houtput = oap::host::NewReMatrix (1, 1);
+        *GetRePtrIndex (hinput, 0) = coordinate.getX();
+        *GetRePtrIndex (hinput, 1) = coordinate.getY();
+        *GetRePtrIndex (houtput, 0) = coordinate.getPreciseLabel();
+        hinputs.push_back (hinput);
+        houtputs.push_back (houtput);
+      }
+      network->setInputs (hinputs, ArgType::HOST, handler);
+      network->setExpected (houtputs, ArgType::HOST, handler);
+      oap::host::deleteMatrices (hinputs);
+      oap::host::deleteMatrices (houtputs);
+    };
 
-    LHandler testHandler = network->createFPLayer (testData.size());
-    LHandler trainingHandler = network->createFPLayer (trainingData.size());
+    auto createBatch = [&createMMLayer, &trainingData, &batchSize](LHandler handler, uintt startIdx)
+    {
+      createMMLayer (handler, startIdx, trainingData, batchSize);
+    };
+
+    std::vector<LHandler> handlers;
+    for (uintt idx = 0; idx < trainingData.size(); idx += batchSize)
+    {
+      LHandler handler = network->createFPLayer (batchSize, LayerType::MULTI_MATRICES);
+      createBatch (handler, idx);
+      handlers.push_back (handler);
+    }
+
+    LHandler testHandler = network->createFPLayer (testData.size(), LayerType::MULTI_MATRICES);
+    LHandler trainingHandler = network->createSharedFPLayer (handlers, LayerType::MULTI_MATRICES);
 
     oap::Layer* testLayer = network->getLayer (0, testHandler);
-    copyHostMatrixToKernelMatrix (testLayer->getFPMatrices()->m_inputs, testHInputs);
+    for (uintt idx = 0; idx < testHInputs.size(); ++idx)
+    {
+      copyHostMatrixToKernelMatrix (testLayer->getFPMatrices(idx)->m_inputs, testHInputs[idx]);
+    }
 
     oap::Layer* trainingLayer = network->getLayer (0, trainingHandler);
-    copyHostMatrixToKernelMatrix (trainingLayer->getFPMatrices()->m_inputs, trainingHInputs);
+    ASSERT_EQ (trainingHInputs.size(), trainingLayer->getFPMatricesCount());
+    for (uintt idx = 0; idx < trainingHInputs.size(); ++idx)
+    {
+      copyHostMatrixToKernelMatrix (trainingLayer->getFPMatrices(idx)->m_inputs, trainingHInputs[idx]);
+    }
 
     network->setExpected (testHExpected, ArgType::HOST, testHandler);
     network->setExpected (trainingHExpected, ArgType::HOST, trainingHandler);
@@ -190,18 +239,12 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
     oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
     oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
-    auto forwardPropagation = [&hinput, &houtput, &network] (const Coordinate& coordinate)
+    oap::nutils::iterateNetwork (*network, [&rg, &getMatrixInfo, &nga](oap::Layer& current, const oap::Layer& next)
     {
-      *GetRePtrIndex (hinput, 0) = coordinate.getX();
-      *GetRePtrIndex (hinput, 1) = coordinate.getY();
-      *GetRePtrIndex (houtput, 0) = coordinate.getPreciseLabel();
-
-      network->setInputs (hinput, ArgType::HOST);
-      network->setExpected (houtput, ArgType::HOST);
-
-      network->forwardPropagation ();
-      network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
-    };
+      oap::utils::MatrixRandomGenerator mrg (&rg);
+      mrg.setFilter (oap::nutils::BiasesFilter<oap::Layer> (current, next, [&getMatrixInfo](const oap::Layer& layer) { return oap::generic::getWeightsInfo(layer, getMatrixInfo); }));
+      oap::nutils::initRandomWeights (current, next, getMatrixInfo, [&nga](math::Matrix* dst, const math::Matrix* src){ nga->copyHostMatrixToKernelMatrix(dst, src); }, mrg);
+    });
 
     auto forwardPropagationFP = [&network] (FPHandler handler)
     {
@@ -209,18 +252,18 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
       network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST, handler);
     };
 
-    auto calculateCoordsError = [&forwardPropagationFP, &network](const Coordinates& coords, FPHandler handler, oap::HostMatrixPtr hostMatrix, Coordinates* output = nullptr)
+    auto calculateCoordsError = [&forwardPropagationFP, &network](const Coordinates& coords, FPHandler handler, std::vector<math::Matrix*>& hostMatrix, Coordinates* output = nullptr)
     {
       std::vector<Coordinate> pcoords;
       forwardPropagationFP (handler);
 
       if (output != nullptr)
       {
-        network->getOutputs (hostMatrix.get(), ArgType::HOST, handler);
+        network->getOutputs (hostMatrix, ArgType::HOST, handler);
         for (size_t idx = 0; idx < coords.size(); ++idx)
         {
           Coordinate ncoord = coords[idx];
-          ncoord.setLabel (GetReIndex (hostMatrix, idx));
+          ncoord.setLabel (GetReIndex (hostMatrix[idx], 0));
           output->push_back (ncoord);
         }
       }
@@ -230,7 +273,7 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
       return error;
     };
 
-    auto calculateCoordsErrorPlot = [&calculateCoordsError, fileType](const Coordinates& coords, FPHandler handler, oap::HostMatrixPtr hostMatrix, const std::string& path)
+    auto calculateCoordsErrorPlot = [&calculateCoordsError, fileType](const Coordinates& coords, FPHandler handler, std::vector<math::Matrix*>& hostMatrix, const std::string& path)
     {
       Coordinates pcoords;
       floatt output = calculateCoordsError (coords, handler, hostMatrix, &pcoords);
@@ -253,13 +296,6 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
       return GetReIndex (houtput, 0) < 0 ? 0 : 1;
     };
 
-    oap::nutils::iterateNetwork (*network, [&rg, &getMatrixInfo, &nga](oap::Layer& current, const oap::Layer& next)
-    {
-      oap::utils::MatrixRandomGenerator mrg (&rg);
-      mrg.setFilter (oap::nutils::BiasesFilter<oap::Layer> (current, next, [&getMatrixInfo](const oap::Layer& layer) { return oap::generic::getWeightsInfo(layer, getMatrixInfo); }));
-      oap::nutils::initRandomWeights (current, next, getMatrixInfo, [&nga](math::Matrix* dst, const math::Matrix* src){ nga->copyHostMatrixToKernelMatrix(dst, src); }, mrg);
-    });
-
     std::vector<floatt> trainingErrors;
     std::vector<floatt> testErrors;
     trainingErrors.reserve(1500);
@@ -274,13 +310,9 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
     do
     {
       network->printLayersWeights();
-      for(size_t idx = 0; idx < trainingData.size(); idx += batchSize)
+      for(auto& batch : handlers)
       {
-        for (size_t c = 0; c < batchSize; ++c)
-        {
-          forwardPropagation (trainingData[idx + c]);
-          network->backPropagation ();
-        }
+        network->fbPropagation (batch, oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::DEVICE);
         network->updateWeights ();
       }
       floatt dTestError = testError;
@@ -326,11 +358,20 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
     }
     while (testError > 0.005 && terrorCount < 10000);
 
-    EXPECT_GE (400, terrorCount);
+    EXPECT_GE (1000, terrorCount);
 
-    oap::pyplot::plotCoords2D ("/tmp/plot_plane_xy.py", std::make_tuple(-5, 5, 0.1), std::make_tuple(-5, 5, 0.1), getLabel, {"r*", "b*"});
+    //oap::pyplot::plotCoords2D ("/tmp/plot_plane_xy.py", std::make_tuple(-5, 5, 0.1), std::make_tuple(-5, 5, 0.1), getLabel, {"r*", "b*"});
+    oap::host::deleteMatrices(testHInputs);
+    oap::host::deleteMatrices(trainingHInputs);
+
+    oap::host::deleteMatrices(testHOutputs);
+    oap::host::deleteMatrices(trainingHOutputs);
+
+    oap::host::deleteMatrices(testHExpected);
+    oap::host::deleteMatrices(trainingHExpected);
   }
 }
+
 }
 
 #endif

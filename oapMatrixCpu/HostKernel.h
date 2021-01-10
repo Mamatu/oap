@@ -22,6 +22,7 @@
 
 #include "Dim3.h"
 #include "IKernelExecutor.h"
+#include "oapHostKernelThread.h"
 
 class ThreadImpl;
 class HostKernel;

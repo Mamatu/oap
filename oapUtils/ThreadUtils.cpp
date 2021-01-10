@@ -22,58 +22,108 @@
 namespace oap {
 namespace utils {
 
-Thread::Thread() : m_iscond(false), m_isonethread(true) {}
-
-Thread::~Thread() {}
-
-void Thread::onRun(pthread_t threadId) {}
-
-void Thread::setFunction(ThreadFunction_f _function, void* _ptr) {
-  this->m_function = _function;
-  this->m_ptr = _ptr;
+AsyncQueue::AsyncQueue ()
+{
+  m_stop.store (false);
 }
 
-void* Thread::Execute(void* ptr) {
-  Thread* thread = (Thread*)(ptr);
-  if (!thread->m_isonethread) {
-    thread->m_mutex.lock();
-    if (thread->m_iscond == false) {
-      thread->m_cond.wait(thread->m_mutex);
-      thread->m_iscond = false;
+AsyncQueue::~AsyncQueue ()
+{
+  stop();
+}
+
+bool AsyncQueue::push (const Function& function)
+{
+  return _push (function);
+}
+
+bool AsyncQueue::push (Function&& function)
+{
+  return _push (function);
+}
+
+void AsyncQueue::stop ()
+{
+  if (!m_stop)
+  {
+    m_stop = true;
+    m_cv.notify_one();
+    if (m_thread != nullptr)
+    {
+      m_thread->join();
     }
-    thread->m_mutex.unlock();
-  }
-  thread->m_function(thread->m_ptr);
-
-  if (!thread->m_isonethread) {
-    void* retVal = NULL;
-    pthread_exit(retVal);
+    delete m_thread;
   }
 }
 
-void Thread::run(bool inTheSameThreead) {
-  m_isonethread = inTheSameThreead;
-  if (!m_isonethread) {
-    pthread_create(&m_thread, 0, Thread::Execute, this);
-  } else {
-    m_thread = pthread_self();
-  }
-  onRun(m_thread);
-  if (!m_isonethread) {
-    m_mutex.lock();
-    m_iscond = true;
-    m_cond.signal();
-    m_mutex.unlock();
-  } else {
-    Execute(this);
+const std::thread* AsyncQueue::getThread() const
+{
+  return m_thread;
+}
+
+void AsyncQueue::runThread ()
+{
+  if (m_thread == nullptr)
+  {
+    m_thread = new std::thread ([this]()
+      {
+        bool cont = true;
+
+        while (cont)
+        {
+          Function function;
+          {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            if (!m_queue.empty())
+            {
+              function = std::move(m_queue.front());
+              m_queue.pop();
+            }
+          }
+          function (std::this_thread::get_id());
+          {
+            std::unique_lock<std::mutex> ul(m_mutex);
+            m_cv.wait (ul, [this]() {return m_stop.load() || m_queue.size() > 0; });
+          }
+          {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            cont = m_queue.size() > 0 || !m_stop.load();
+          }
+        }
+      });
   }
 }
 
-void Thread::join() {
-  if (m_isonethread == false) {
-    void* o = NULL;
-    pthread_join(m_thread, &o);
+Thread::Thread() {}
+
+Thread::~Thread()
+{
+  stop();
+}
+
+void Thread::onRun(std::thread::id threadId) {}
+
+void Thread::run (Function _function, void* _ptr)
+{
+  m_asyncQueue.push ([this, _function, _ptr](std::thread::id id)
+      {
+        {
+          std::unique_lock<std::mutex> ul(m_mutex);
+          m_cv.wait (ul, [this]() { return m_onrunDone; });
+        }
+        _function (_ptr);
+      });
+  onRun (m_asyncQueue.getThread()->get_id());
+  {
+    std::unique_lock<std::mutex> ul(m_mutex);
+    m_onrunDone = true;
   }
+  m_cv.notify_one();
+}
+
+void Thread::stop()
+{
+  m_asyncQueue.stop();
 }
 
 namespace sync {
@@ -151,20 +201,19 @@ CondBool::CondBool() { m_shouldlocked = true; }
 CondBool::~CondBool() {}
 
 void CondBool::wait() {
-  m_mutex.lock();
+  oap::utils::sync::MutexLocker lock (m_mutex);
   if (m_shouldlocked) {
     m_cond.wait(m_mutex);
   }
   m_shouldlocked = true;
-  m_mutex.unlock();
 }
 
 void CondBool::signal() {
-  m_mutex.lock();
+  oap::utils::sync::MutexLocker lock (m_mutex);
   m_shouldlocked = false;
   m_cond.signal();
-  m_mutex.unlock();
 }
+
 void CondBool::broadcast() {
   m_mutex.lock();
   m_shouldlocked = false;

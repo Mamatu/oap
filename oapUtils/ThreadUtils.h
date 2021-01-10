@@ -22,6 +22,14 @@
 
 #include <pthread.h>
 #include <semaphore.h>
+
+#include <atomic>
+#include <functional>
+#include <thread>
+#include <mutex>
+#include <queue>
+#include <condition_variable>
+
 #include "Logger.h"
 
 namespace oap {
@@ -30,51 +38,53 @@ namespace utils {
 namespace sync {
 class Cond;
 
-class Mutex {
- public:
-  Mutex();
-  virtual ~Mutex();
-  void lock();
-  void unlock();
+class Mutex
+{
+  public:
+    Mutex();
+    virtual ~Mutex();
+    void lock();
+    void unlock();
 
- protected:
-  pthread_mutex_t mutex;
-  pthread_mutex_t* ptr_mutex;
-  friend class Cond;
+  protected:
+    pthread_mutex_t mutex;
+    pthread_mutex_t* ptr_mutex;
+    friend class Cond;
 };
 
 class RecursiveMutex : public Mutex {
- public:
-  RecursiveMutex();
-  virtual ~RecursiveMutex();
+  public:
+    RecursiveMutex();
+    virtual ~RecursiveMutex();
 
- private:
-  pthread_mutexattr_t mutexattr;
-  pthread_mutexattr_t* ptr_mutexattr;
+  private:
+    pthread_mutexattr_t mutexattr;
+    pthread_mutexattr_t* ptr_mutexattr;
 };
 
 class MutexLocker {
   utils::sync::Mutex& m_mutex;
 
- public:
-  inline MutexLocker(utils::sync::Mutex& mutex) : m_mutex(mutex) {
-    m_mutex.lock();
-  }
+  public:
+    inline MutexLocker(utils::sync::Mutex& mutex) : m_mutex(mutex)
+    {
+      m_mutex.lock();
+    }
 
-  inline ~MutexLocker() { m_mutex.unlock(); }
+    inline ~MutexLocker() { m_mutex.unlock(); }
 };
 
 class Cond {
- public:
-  Cond();
-  virtual ~Cond();
-  void wait(Mutex* mutex);
-  void wait(Mutex& mutex);
-  void broadcast();
-  void signal();
+  public:
+    Cond();
+    virtual ~Cond();
+    void wait(Mutex* mutex);
+    void wait(Mutex& mutex);
+    void broadcast();
+    void signal();
 
- private:
-  pthread_cond_t cond;
+  private:
+    pthread_cond_t cond;
 };
 
 class Semaphore {
@@ -114,28 +124,70 @@ class CondBool {
 };
 }
 
-typedef void (*ThreadFunction_f)(void* ptr);
+class AsyncQueue
+{
+  public:
+    using Function = std::function<void(std::thread::id)>;
 
-class Thread {
-  ThreadFunction_f m_function;
-  void* m_ptr;
-  pthread_t m_thread;
-  static void* Execute(void* m_ptr);
+    AsyncQueue ();
+    virtual ~AsyncQueue ();
 
-  utils::sync::Cond m_cond;
-  utils::sync::Mutex m_mutex;
-  bool m_iscond;
-  bool m_isonethread;
+    bool push(const Function& function);
+    bool push(Function&& function);
 
- protected:
-  virtual void onRun (pthread_t threadId);
+    void stop();
 
- public:
-  Thread();
-  virtual ~Thread();
-  void setFunction(ThreadFunction_f _function, void* _ptr);
-  void run(bool inTheSameThreead = false);
-  void join();
+    const std::thread* getThread() const;
+
+  private:
+    std::thread* m_thread = nullptr;
+    std::condition_variable m_cv;
+    std::mutex m_mutex;
+    std::queue<Function> m_queue;
+    std::atomic_bool m_stop;
+
+    void runThread ();
+
+    template<typename Function>
+    bool _push(Function&& function)
+    {
+      {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (!m_stop.load())
+        {
+          m_queue.push (std::forward<Function>(function));
+          m_cv.notify_one ();
+        }
+        else
+        {
+          return false;
+        }
+      }
+      runThread();
+      return true;
+    }
+};
+
+class Thread
+{
+  public:
+    using Function = std::function<void(void*)>;
+
+  protected:
+    virtual void onRun (std::thread::id id);
+
+  public:
+    Thread ();
+    virtual ~Thread ();
+
+    void run (Function function, void* ptr);
+    void stop();
+
+  private:
+    AsyncQueue m_asyncQueue;
+    std::mutex m_mutex;
+    std::condition_variable m_cv;
+    bool m_onrunDone = false;
 };
 }
 }

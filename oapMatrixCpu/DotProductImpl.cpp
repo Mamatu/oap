@@ -35,12 +35,10 @@ void DotProductOperationCpu::execute() {
         threads[fa].params[1] = m_matrix2;
         threads[fa].calculateRanges(m_subcolumns, m_subrows, getBMap(), fa);
         threads[fa].thiz = this;
-        threads[fa].thread.setFunction(DotProductOperationCpu::Execute,
-            &threads[fa]);
-        threads[fa].thread.run((this->m_threadsCount == 1));
+        threads[fa].thread.run (DotProductOperationCpu::Execute, &threads[fa]);
     }
     for (uintt fa = 0; fa < threadsCount; fa++) {
-        threads[fa].thread.join();
+        threads[fa].thread.stop();
     }
 }
 

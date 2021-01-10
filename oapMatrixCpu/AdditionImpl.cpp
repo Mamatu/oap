@@ -38,11 +38,10 @@ void AdditionOperationCpu::execute() {
         threads[fa].thiz = this;
         oap::utils::mapper::getThreadsMap(map, getBMap(), fa);
         threads[fa].calculateRanges(map);
-        threads[fa].thread.setFunction(AdditionOperationCpu::Execute, &threads[fa]);
-        threads[fa].thread.run((this->m_threadsCount == 1));
+        threads[fa].thread.run (AdditionOperationCpu::Execute, &threads[fa]);
     }
     for (uint fa = 0; fa < threadsCount; fa++) {
-        threads[fa].thread.join();
+        threads[fa].thread.stop();
     }
 }
 

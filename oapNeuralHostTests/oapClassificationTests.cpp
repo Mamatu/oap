@@ -48,3 +48,16 @@ TEST_F(OapClassificationTests, RingDataTest)
   delete multiApi;
   delete nha;
 }
+
+TEST_F(OapClassificationTests, RingDataTest_MultiMatrices)
+{
+  auto* singleApi = new oap::HostProcedures ();
+  oap::MultiMatricesHostProcedures* multiApi = new oap::MultiMatricesHostProcedures (singleApi);
+  auto* nha = new oap::NetworkHostApi ();
+  oap::runPointsClassification_multiMatrices (123456789, singleApi, multiApi, nha, oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo);
+
+  delete singleApi;
+  delete multiApi;
+  delete nha;
+}
+

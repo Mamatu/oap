@@ -38,12 +38,10 @@ namespace math {
             threads[fa].params[1] = m_matrix2;
             threads[fa].calculateRanges(m_subcolumns, m_subrows, bmap, fa);
             threads[fa].thiz = this;
-            threads[fa].thread.setFunction(TensorProductOperationCpu::Execute,
-                    &threads[fa]);
-            threads[fa].thread.run((this->m_threadsCount == 1));
+            threads[fa].thread.run (TensorProductOperationCpu::Execute, &threads[fa]);
         }
         for (uintt fa = 0; fa < threadsCount; fa++) {
-            threads[fa].thread.join();
+            threads[fa].thread.stop();
         }
         oap::utils::mapper::freeMap(bmap);
         delete[] threads;
