@@ -32,14 +32,14 @@ __hostdeviceinline__ void cuda_genericApi_sigmoidFunc (floatt* output, floatt va
 __hostdeviceinline__ void cuda_genericApi_dsigmoidFunc (floatt* output, floatt value)
 {
   floatt sv = 0;
-  cuda_sigmoidFunc (&sv, value);
+  cuda_genericApi_sigmoidFunc (&sv, value);
   (*output) =  sv * (1.f  - sv);
 }
 
 __hostdeviceinline__ void cuda_genericApi_mDSigmoidFunc (floatt* output, floatt value)
 {
   floatt sv = 0;
-  cuda_sigmoidFunc (&sv, value);
+  cuda_genericApi_sigmoidFunc (&sv, value);
   (*output) =  (*output) * sv * (1.f  - sv);
 }
 
@@ -56,11 +56,6 @@ __hostdeviceinline__ void cuda_genericApi_dsigmoid (math::Matrix** outputs, math
 __hostdeviceinline__ void cuda_genericApi_multiplyDSigmoid (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_genericApi_mDSigmoidFunc, mapper);
-}
-
-__hostdeviceinline__ void CUDA_GenericApi_Sigmoid (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
-{
-  cuda_genericApi_sigmoid (outputs, params, mapper);
 }
 
 #endif
