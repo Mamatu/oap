@@ -74,7 +74,9 @@ class HostKernelThread : protected oap::utils::Thread
 
     void run();
 
-    void stop();
+    std::thread::id get_id() const;
+
+    //void stop();
   protected:
     static void Execute(void* ptr);
     virtual void onRun(std::thread::id threadId);

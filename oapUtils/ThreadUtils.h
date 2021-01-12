@@ -33,7 +33,18 @@
 #include "Logger.h"
 
 namespace oap {
+
+namespace thread
+{
+std::string str_id (const std::thread* thread);
+
+std::string str_id (std::thread::id id);
+
+std::string str_id ();
+}
+
 namespace utils {
+
 
 namespace sync {
 class Cond;
@@ -182,7 +193,11 @@ class Thread
 
     void run (Function function, void* ptr);
     void stop();
-
+    
+    std::thread::id get_id() const
+    {
+      return m_asyncQueue.getThread()->get_id();
+    }
   private:
     AsyncQueue m_asyncQueue;
     std::mutex m_mutex;
@@ -191,4 +206,11 @@ class Thread
 };
 }
 }
+
+namespace std
+{
+  std::string to_string(const std::thread* thread);
+  std::string to_string(std::thread::id id);
+}
+
 #endif

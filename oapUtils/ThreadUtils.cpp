@@ -20,6 +20,29 @@
 #include "ThreadUtils.h"
 
 namespace oap {
+namespace thread
+{
+std::string str_id (const std::thread* thread)
+{
+  std::stringstream sstr;
+  sstr << thread->get_id();
+  return sstr.str();
+}
+
+std::string str_id (std::thread::id id)
+{
+  std::stringstream sstr;
+  sstr << id;
+  return sstr.str();
+}
+
+std::string str_id ()
+{
+  std::stringstream sstr;
+  sstr << std::this_thread::get_id();
+  return sstr.str();
+}
+}
 namespace utils {
 
 AsyncQueue::AsyncQueue ()
@@ -46,7 +69,10 @@ void AsyncQueue::stop ()
 {
   if (!m_stop)
   {
-    m_stop = true;
+    {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      m_stop = true;
+    }
     m_cv.notify_one();
     if (m_thread != nullptr)
     {
@@ -68,28 +94,27 @@ void AsyncQueue::runThread ()
     m_thread = new std::thread ([this]()
       {
         bool cont = true;
-
-        while (cont)
+        do
         {
           Function function;
           {
             std::lock_guard<std::mutex> lock(m_mutex);
             if (!m_queue.empty())
             {
-              function = std::move(m_queue.front());
+              function = std::move (m_queue.front());
               m_queue.pop();
             }
           }
           function (std::this_thread::get_id());
           {
             std::unique_lock<std::mutex> ul(m_mutex);
-            m_cv.wait (ul, [this]() {return m_stop.load() || m_queue.size() > 0; });
+            m_cv.wait (ul, [this]() { return m_stop.load() || m_queue.size() > 0; });
           }
           {
             std::lock_guard<std::mutex> lock(m_mutex);
-            cont = m_queue.size() > 0 || !m_stop.load();
+            cont = !m_queue.empty() || !m_stop.load();
           }
-        }
+        } while (cont);
       });
   }
 }
@@ -222,4 +247,17 @@ void CondBool::broadcast() {
 }
 }
 }
+}
+
+namespace std
+{
+  std::string to_string(const std::thread* thread)
+  {
+    return oap::thread::str_id (thread);
+  }
+
+  std::string to_string(std::thread::id id)
+  {
+    return oap::thread::str_id (id);
+  }
 }

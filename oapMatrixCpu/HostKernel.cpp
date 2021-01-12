@@ -24,14 +24,35 @@
 
 #include <memory>
 
-HostKernel::HostKernel() {}
 
-HostKernel::HostKernel(uintt columns, uintt rows) {
-  calculateDims(columns, rows);
-}
+std::map<void*, HostKernel::ThreadsPool> HostKernel::s_threads;
+std::mutex HostKernel::s_mutex;
+
+HostKernel::HostKernel() : m_ctx(this), m_release (true) {}
+HostKernel::HostKernel(void* ctx, bool releaseThreads) : m_ctx(ctx), m_release (releaseThreads)  {}
 
 HostKernel::~HostKernel()
-{}
+{
+  if (m_release)
+  {
+    ReleaseThreads(m_ctx);
+  }
+}
+
+void HostKernel::ReleaseThreads(void* ctx)
+{
+  std::lock_guard<std::mutex> lg (s_mutex);
+  auto it = s_threads.find(ctx);
+  if (it != s_threads.end())
+  {
+    for (auto it1 = it->second.begin(); it1 != it->second.end(); ++it1)
+    {
+      delete it1->second;
+    }
+    it->second.clear();
+    s_threads.erase (it);
+  }
+}
 
 void HostKernel::setDims(const dim3& gridDim, const dim3& blockDim) {
   this->blockDim = blockDim;
@@ -75,7 +96,25 @@ void HostKernel::executeKernelAsync()
       threadIdx.y = threadIdxY;
       if (blockIdx.x == 0 && blockIdx.y == 0)
       {
-        oap::HostKernelThread* threadImpl = new oap::HostKernelThread();
+        {
+          std::lock_guard<std::mutex> lg (s_mutex);
+          auto it = s_threads.find (m_ctx);
+          if (it == s_threads.end())
+          {
+            s_threads[m_ctx] = ThreadsPool ();
+          }
+        }
+        {
+          std::lock_guard<std::mutex> lg (s_mutex);
+          auto it = s_threads[m_ctx].find(std::make_pair(threadIdxX, threadIdxY));
+          if (it == s_threads[m_ctx].end())
+          {
+            oap::HostKernelThread* threadImpl = new oap::HostKernelThread();
+            s_threads[m_ctx][std::make_pair(threadIdxX, threadIdxY)] = threadImpl;
+          }
+        }
+
+        oap::HostKernelThread* threadImpl = s_threads[m_ctx][std::make_pair(threadIdxX, threadIdxY)];
 
         threadImpl->setExecCallback ([this](dim3 threadIdx, dim3 blockIdx)
             {
@@ -84,11 +123,11 @@ void HostKernel::executeKernelAsync()
             });
         threadImpl->setBlockDim (blockDim);
         threadImpl->setGridDim (gridDim);
-        threadImpl->setThreadIdx(threadIdx);
-        threadImpl->setBlockIdx(blockIdx);
-        threadImpl->setPthreads(&m_pthreads);
-        threadImpl->setBarrier(&barrier);
-        m_threads.push_back(threadImpl);
+        threadImpl->setThreadIdx (threadIdx);
+        threadImpl->setBlockIdx (blockIdx);
+        threadImpl->setPthreads (&m_pthreads);
+        threadImpl->setBarrier (&barrier);
+        m_threads.push_back (threadImpl);
       }
     }
   }
@@ -124,13 +163,8 @@ void HostKernel::executeKernelAsync()
       this->onChange(HostKernel::CUDA_BLOCK, threadIdx, blockIdx);
     }
   }
-  for (size_t fa = 0; fa < m_threads.size(); ++fa)
-  {
-    m_threads.at(fa)->stop();
-    delete m_threads.at(fa);
-  }
-  m_threads.clear();
 
+  m_threads.clear();
   ThreadIdx::destroyBarrier(m_pthreads);
   m_pthreads.clear();
 }

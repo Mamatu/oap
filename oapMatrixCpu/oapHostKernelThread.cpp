@@ -47,7 +47,10 @@ void HostKernelThread::setBarrier(oap::utils::sync::Barrier* barrier) { m_barrie
 
 void HostKernelThread::setSharedBuffer (void* buffer) { m_sharedBuffer = buffer; }
 
-HostKernelThread::~HostKernelThread() {}
+HostKernelThread::~HostKernelThread()
+{
+  Thread::stop();
+}
 
 void HostKernelThread::waitOn()
 {
@@ -61,12 +64,13 @@ void HostKernelThread::waitOn()
 
 void HostKernelThread::run()
 {
+  m_cancontinue = false;
   Thread::run (HostKernelThread::Execute, this);
 }
 
-void HostKernelThread::stop()
+std::thread::id HostKernelThread::get_id() const
 {
-  Thread::stop();
+  return Thread::get_id();
 }
 
 void HostKernelThread::Execute(void* ptr)
