@@ -40,8 +40,7 @@ namespace oap
 
 class SubtractionImpl : public HostKernel {
  public:
-  SubtractionImpl(math::Matrix* output, math::Matrix* param1,
-                   math::Matrix* param2)
+  SubtractionImpl(math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
       : m_output(output), m_param1(param1), m_param2(param2) {}
 
   virtual ~SubtractionImpl() {}
@@ -203,8 +202,8 @@ bool HostProcedures::isEqual(math::Matrix* matrix1, math::Matrix* matrix2) {
   return compare(matrix1, matrix2);
 }
 
-void HostProcedures::subtract(math::Matrix* output, math::Matrix* matrix1,
-                               math::Matrix* matrix2) {
+void HostProcedures::subtract(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+{
   SubtractionImpl subtractionImpl(output, matrix1, matrix2);
   prepare(output, subtractionImpl);
   subtractionImpl.executeKernelAsync();

@@ -74,10 +74,15 @@ std::map<std::string, std::function<void(const void**)>> g_kernelsList =
 
   {"CUDAKernel_GenericApi_AddConst", proxy_HOSTKernel_GenericApi_AddConst},
   {"CUDAKernel_GenericApi_Add", proxy_HOSTKernel_GenericApi_Add},
+  {"CUDAKernel_GenericApi_Subtract", proxy_HOSTKernel_GenericApi_Subtract},
   {"CUDAKernel_GenericApi_DotProduct", proxy_HOSTKernel_GenericApi_DotProduct},
   {"CUDAKernel_GenericApi_HadamardProduct", proxy_HOSTKernel_GenericApi_HadamardProduct},
+  {"CUDAKernel_GenericApi_PHadamardProduct", proxy_HOSTKernel_GenericApi_PHadamardProduct},
   {"CUDAKernel_GenericApi_TensorProduct", proxy_HOSTKernel_GenericApi_TensorProduct},
+  {"CUDAKernel_GenericApi_Transpose", proxy_HOSTKernel_GenericApi_Transpose},
   {"CUDAKernel_GenericApi_Sigmoid", proxy_HOSTKernel_GenericApi_Sigmoid},
+  {"CUDAKernel_GenericApi_Tanh", proxy_HOSTKernel_GenericApi_Tanh},
+  {"CUDAKernel_GenericApi_DTanh", proxy_HOSTKernel_GenericApi_DTanh},
 };
 
 class HostKernelImpl : public HostKernel
@@ -86,7 +91,7 @@ class HostKernelImpl : public HostKernel
     const void** m_params;
 
   public:
-    HostKernelImpl (const std::function<void(const void**)>& function, const void** params) : m_function (function), m_params (params)
+    HostKernelImpl (const std::function<void(const void**)>& function, const void** params, void* ctx) : HostKernel(ctx, false), m_function (function), m_params (params)
     {}
 
   protected:
@@ -100,7 +105,9 @@ HostKernelExecutor::HostKernelExecutor(uint maxThreadsPerBlock) : m_maxThreadsPe
 {}
 
 HostKernelExecutor::~HostKernelExecutor()
-{}
+{
+  HostKernel::ReleaseThreads (this);
+}
 
 std::string HostKernelExecutor::getErrorMsg () const
 {
@@ -131,7 +138,7 @@ bool HostKernelExecutor::run (const char* functionName)
     return false;
   }
 
-  HostKernelImpl hki (it->second, getParams());
+  HostKernelImpl hki (it->second, getParams(), this);
   const oap::ExecutionParams& eParams = this->getExecutionParams ();
   dim3 blockDim (eParams.threadsCount);
   dim3 gridDim (eParams.blocksCount);

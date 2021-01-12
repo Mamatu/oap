@@ -305,6 +305,21 @@ void proxy_HOSTKernel_GenericApi_Add (const void** params)
   HOSTKernel_GenericApi_Add (outputs, params1, params2, mapper);
 }
 
+void HOSTKernel_GenericApi_Subtract (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_Subtract (outputs, params1, params2, mapper);
+}
+
+void proxy_HOSTKernel_GenericApi_Subtract (const void** params)
+{
+  math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
+  math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
+  math::Matrix* const* params2 = getParam<math::Matrix*> (params[2]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[3]);
+
+  HOSTKernel_GenericApi_Subtract (outputs, params1, params2, mapper);
+}
+
 void HOSTKernel_GenericApi_DotProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
 {
   CUDA_GenericApi_DotProduct (outputs, params1, params2, mapper);
@@ -335,6 +350,21 @@ void proxy_HOSTKernel_GenericApi_HadamardProduct (const void** params)
   HOSTKernel_GenericApi_HadamardProduct (outputs, params1, params2, mapper);
 }
 
+void HOSTKernel_GenericApi_PHadamardProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_PartialHadamardProduct (outputs, params1, params2, mapper);
+}
+
+void proxy_HOSTKernel_GenericApi_PHadamardProduct (const void** params)
+{
+  math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
+  math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
+  math::Matrix* const* params2 = getParam<math::Matrix*> (params[2]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[3]);
+
+  HOSTKernel_GenericApi_PHadamardProduct (outputs, params1, params2, mapper);
+}
+
 void HOSTKernel_GenericApi_TensorProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
 {
   CUDA_GenericApi_TensorProduct (outputs, params1, params2, mapper);
@@ -350,9 +380,23 @@ void proxy_HOSTKernel_GenericApi_TensorProduct (const void** params)
   HOSTKernel_GenericApi_TensorProduct (outputs, params1, params2, mapper);
 }
 
+void HOSTKernel_GenericApi_Transpose (math::Matrix** outputs, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+{
+  CUDA_GenericApi_Transpose (outputs, params1, mapper);
+}
+
+void proxy_HOSTKernel_GenericApi_Transpose (const void** params)
+{
+  math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
+  math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[2]);
+
+  HOSTKernel_GenericApi_Transpose (outputs, params1, mapper);
+}
+
 void HOSTKernel_GenericApi_Sigmoid (math::Matrix** outputs, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
 {
-  CUDA_GenericApi_Sigmoid (outputs, params1, mapper);
+  cuda_genericApi_sigmoid (outputs, params1, mapper);
 }
 
 void proxy_HOSTKernel_GenericApi_Sigmoid (const void** params)
@@ -362,6 +406,34 @@ void proxy_HOSTKernel_GenericApi_Sigmoid (const void** params)
   oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[2]);
 
   HOSTKernel_GenericApi_Sigmoid (outputs, params1, mapper);
+}
+
+void HOSTKernel_GenericApi_Tanh (math::Matrix** outputs, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_tanh (outputs, params1, mapper);
+}
+
+void proxy_HOSTKernel_GenericApi_Tanh (const void** params)
+{
+  math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
+  math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[2]);
+
+  HOSTKernel_GenericApi_Tanh (outputs, params1, mapper);
+}
+
+void HOSTKernel_GenericApi_DTanh (math::Matrix** outputs, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+{
+  cuda_genericApi_dtanh (outputs, params1, mapper);
+}
+
+void proxy_HOSTKernel_GenericApi_DTanh (const void** params)
+{
+  math::Matrix** outputs = getParam<math::Matrix*> (params[0]);
+  math::Matrix* const* params1 = getParam<math::Matrix*> (params[1]);
+  oap::ThreadsMapperS* mapper = getParam<oap::ThreadsMapperS> (params[2]);
+
+  HOSTKernel_GenericApi_DTanh (outputs, params1, mapper);
 }
 
 #endif

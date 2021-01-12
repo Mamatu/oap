@@ -20,6 +20,8 @@
 #ifndef OAP_HOST_KERNEL_H
 #define OAP_HOST_KERNEL_H
 
+#include <mutex>
+
 #include "Dim3.h"
 #include "IKernelExecutor.h"
 #include "oapHostKernelThread.h"
@@ -31,10 +33,10 @@ class HostKernel
 {
   public:
     HostKernel();
-
-    HostKernel(uintt columns, uintt rows);
+    HostKernel(void* ctx, bool releaseThreads);
 
     virtual ~HostKernel();
+    static void ReleaseThreads(void* ctx);
 
     void setDims(const dim3& gridDim, const dim3& blockDim);
 
@@ -66,7 +68,11 @@ class HostKernel
     size_t m_sharedMemorySize = 0;
 
   private:
-    friend class ThreadImpl;
+    using ThreadsPool = std::map<std::pair<uintt, uintt>, oap::HostKernelThread*>;
+    static std::map<void*, ThreadsPool> s_threads;
+    static std::mutex s_mutex;
+    void* m_ctx;
+    bool m_release = false;
 };
 
 #endif
