@@ -176,7 +176,7 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
     std::vector<math::Matrix*> testHExpected = generateExpectedHostMatrix (testData);
     std::vector<math::Matrix*> trainingHExpected = generateExpectedHostMatrix (trainingData);
 
-    std::unique_ptr<oap::Network> network (new oap::Network(singleApi, multiApi, nga, true));
+    std::unique_ptr<oap::Network> network (new oap::Network(singleApi, multiApi, nga, false));
 
     floatt initLR = 0.03;
     network->setLearningRate (initLR);
