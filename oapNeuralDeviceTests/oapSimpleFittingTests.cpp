@@ -29,6 +29,7 @@
 
 #include "Controllers.h"
 
+#if 0
 using ErrorCallback = std::function<void(floatt error, oap::Network* network)>;
 using Function1D = std::function<floatt(floatt)>;
 
@@ -215,3 +216,4 @@ TEST_F(OapSimpleFittingTests, SinFitting_Test)
     EXPECT_THAT(GetReIndex (output, 0), DoubleNear (fSin(fidx), 0.001));
   }
 }
+#endif

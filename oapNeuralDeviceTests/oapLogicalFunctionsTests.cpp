@@ -50,7 +50,7 @@ class NetworkT : public oap::Network
       oap::Network::setHostInputs (inputs, index);
     }
 };*/
-
+#if 0
 class OapLogicalFunctionsTests : public testing::Test
 {
  public:
@@ -347,3 +347,4 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd)
     }
   }
 }
+#endif
