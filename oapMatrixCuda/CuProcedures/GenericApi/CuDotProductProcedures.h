@@ -53,8 +53,8 @@ __hostdevice__ void cuda_GenericApi_dotProductRe (math::Matrix** outputs, math::
 
     for (uintt idx = 0; idx < offset; ++idx)
     {
-      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, idx, y);
-      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, x, idx);
+      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x + idx, y);
+      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, x, y + idx);
       retemp += param1->re.ptr[idx1] * param2->re.ptr[idx2];
     }
 
@@ -87,8 +87,8 @@ __hostdevice__ void cuda_GenericApi_dotProductIm (math::Matrix** outputs, math::
 
     for (uintt idx = 0; idx < offset; ++idx)
     {
-      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, idx, y);
-      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, x, idx);
+      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x + idx, y);
+      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, x, y + idx);
       imtemp += param1->im.ptr[idx1] * param2->im.ptr[idx2] * -1.;
     }
 
@@ -123,13 +123,13 @@ __hostdevice__ void cuda_GenericApi_dotProductReal (math::Matrix** outputs, math
     for (uintt idx = 0; idx < offset; ++idx)
     {
       {
-        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, idx, y);
-        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, x, idx);
+        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x + idx, y);
+        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, x, y + idx);
         retemp += param1->re.ptr[idx1] * param2->re.ptr[idx2];
       }
       {
-        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, idx, y);
-        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, x, idx);
+        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x + idx, y);
+        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, x, y + idx);
         imtemp += param1->im.ptr[idx1] * param2->im.ptr[idx2] * -1.;
       }
     }

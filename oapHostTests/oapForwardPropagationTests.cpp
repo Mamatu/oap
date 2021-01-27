@@ -32,7 +32,7 @@
 #include "oapLayer.h"
 
 #include "oapFunctions.h"
-#if 0
+
 class OapForwardPropagationTests : public testing::Test {
 public:
 
@@ -45,24 +45,26 @@ public:
 
 namespace
 {
-  class MockLayer
+  class MockLayerApi
   {
     public:
-      void allocate ()
+      void allocate (Layer<MockLayerApi>* layer)
       {
       }
 
-      void deallocate ()
+      void deallocate (Layer<MockLayerApi>* layer)
       {
         delete layer->getFPMatrices();
         delete layer->getBPMatrices();
       }
   };
+
+  using MockLayer = Layer<MockLayerApi>;
 }
 
 std::vector<oap::HostMatrixPtr> runForwardPropagation (const std::vector<uintt> ns, const std::vector<oap::HostMatrixPtr> weights)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   auto ldeleter = [](MockLayer* layer)
   {
@@ -200,4 +202,3 @@ TEST_F(OapForwardPropagationTests, Test_3)
   EXPECT_DOUBLE_EQ (sigmoid (2), GetReIndex (outputsL, 0));
 }
 
-#endif

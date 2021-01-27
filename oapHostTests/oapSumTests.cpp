@@ -40,7 +40,7 @@ class OapSumTests : public testing::Test {
   template<typename GetValue, typename Compare, typename NewMatrix>
   void test (size_t columns, size_t rows, GetValue&& getValue, Compare&& compare, NewMatrix&& newMatrix, uint maxThreadsPerBlock = 1024)
   {
-    oap::HostProcedures cuApi (maxThreadsPerBlock);
+    HostProcedures cuApi (maxThreadsPerBlock);
 
     size_t expected = 0;
     oap::HostMatrixPtr hmatrix = newMatrix (columns, rows, 0);

@@ -32,14 +32,14 @@ __hostdeviceinline__ void cuda_genericApi_sigmoidFunc (floatt* output, floatt va
 __hostdeviceinline__ void cuda_genericApi_dsigmoidFunc (floatt* output, floatt value)
 {
   floatt sv = 0;
-  cuda_genericApi_sigmoidFunc (&sv, value);
+  cuda_sigmoidFunc (&sv, value);
   (*output) =  sv * (1.f  - sv);
 }
 
 __hostdeviceinline__ void cuda_genericApi_mDSigmoidFunc (floatt* output, floatt value)
 {
   floatt sv = 0;
-  cuda_genericApi_sigmoidFunc (&sv, value);
+  cuda_sigmoidFunc (&sv, value);
   (*output) =  (*output) * sv * (1.f  - sv);
 }
 

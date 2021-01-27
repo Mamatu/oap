@@ -89,7 +89,7 @@ class ThreadIdx {
     oap::utils::sync::Mutex m_mutex;
   };
 
-  typedef std::map<std::thread::id, BarrierMutex*> Barriers;
+  typedef std::map<pthread_t, BarrierMutex*> Barriers;
   static Barriers m_barriers;
   static oap::utils::sync::Mutex m_barriersMutex;
 
@@ -97,7 +97,7 @@ class ThreadIdx {
   ThreadIdx () : m_threadIdx (0, 0, 0), m_blockIdx (0, 0, 0), m_blockDim (0, 0, 1), m_gridDim (0, 0, 1)
   {}
 
-  typedef std::map<std::thread::id, ThreadIdx> ThreadIdxs;
+  typedef std::map<pthread_t, ThreadIdx> ThreadIdxs;
   static ThreadIdxs m_threadIdxs;
 
   void setThreadIdx(const dim3& dim3);
@@ -112,8 +112,8 @@ class ThreadIdx {
   const dim3& getGridDim() const;
   void* getSharedBuffer() const;
 
-  static void createBarrier(const std::vector<std::thread::id>& threads);
-  static void destroyBarrier(const std::vector<std::thread::id>& threads);
+  static void createBarrier(const std::vector<pthread_t>& threads);
+  static void destroyBarrier(const std::vector<pthread_t>& threads);
   static void wait();
 
   void clear();

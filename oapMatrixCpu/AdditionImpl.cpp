@@ -25,23 +25,24 @@
 namespace math {
 
 void AdditionOperationCpu::execute() {
-    uintt threadsCount = oap::utils::mapper::createThreadsMap(getBMap(),
+    uintt threadsCount = utils::mapper::createThreadsMap(getBMap(),
         this->m_threadsCount,
         gColumns (m_output),
         gRows (m_output));
     ThreadData<AdditionOperationCpu>* threads = m_threadData;
-    oap::utils::mapper::ThreadsMap<uintt> map;
+    utils::mapper::ThreadsMap<uintt> map;
     for (uintt fa = 0; fa < threadsCount; fa++) {
         threads[fa].outputs[0] = this->m_output;
         threads[fa].params[0] = this->m_matrix1;
         threads[fa].params[1] = this->m_matrix2;
         threads[fa].thiz = this;
-        oap::utils::mapper::getThreadsMap(map, getBMap(), fa);
+        utils::mapper::getThreadsMap(map, getBMap(), fa);
         threads[fa].calculateRanges(map);
-        threads[fa].thread.run (AdditionOperationCpu::Execute, &threads[fa]);
+        threads[fa].thread.setFunction(AdditionOperationCpu::Execute, &threads[fa]);
+        threads[fa].thread.run((this->m_threadsCount == 1));
     }
     for (uint fa = 0; fa < threadsCount; fa++) {
-        threads[fa].thread.stop();
+        threads[fa].thread.join();
     }
 }
 

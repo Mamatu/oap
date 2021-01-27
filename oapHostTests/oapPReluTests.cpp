@@ -41,7 +41,7 @@ class OapPReluTests : public testing::Test
 
 void testFunction (size_t c, size_t r)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
   size_t length = c*r;
   std::vector<floatt> revalues;
   std::vector<floatt> exp_revalues;
@@ -91,7 +91,7 @@ namespace
 template<typename Callback = DefaultCallback>
 void testDerivative (size_t c, size_t r, Callback&& callback = std::forward<Callback> (defaultCallback))
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t length = c*r;
   std::vector<floatt> revalues;
@@ -138,7 +138,7 @@ TEST_F(OapPReluTests, FunctionTest_1024_1024)
 
 TEST_F(OapPReluTests, DerivativeTest_1024_1024)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t c = 1024;
   size_t r = 1024;
@@ -156,7 +156,7 @@ TEST_F(OapPReluTests, FunctionTest_32_32)
 
 TEST_F(OapPReluTests, DerivativeTest_32_32)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t c = 32;
   size_t r = 32;
@@ -166,7 +166,7 @@ TEST_F(OapPReluTests, DerivativeTest_32_32)
 
 TEST_F(OapPReluTests, DerivativeTest_32_32_AllHigherThan0)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t c = 32;
   size_t r = 32;
@@ -176,7 +176,7 @@ TEST_F(OapPReluTests, DerivativeTest_32_32_AllHigherThan0)
 
 TEST_F(OapPReluTests, DerivativeTest_32_32_AllLessThan0)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t c = 32;
   size_t r = 32;
@@ -186,7 +186,7 @@ TEST_F(OapPReluTests, DerivativeTest_32_32_AllLessThan0)
 
 TEST_F(OapPReluTests, DerivativeTest_32_32_OneHigherThan0)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t c = 32;
   size_t r = 32;
@@ -196,7 +196,7 @@ TEST_F(OapPReluTests, DerivativeTest_32_32_OneHigherThan0)
 
 TEST_F(OapPReluTests, DerivativeTest_32_32_OneLessThan0)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t c = 32;
   size_t r = 32;
@@ -206,7 +206,7 @@ TEST_F(OapPReluTests, DerivativeTest_32_32_OneLessThan0)
 
 TEST_F(OapPReluTests, DerivativeTest_32_32_HalfHigherThan0)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t c = 32;
   size_t r = 32;
@@ -216,7 +216,7 @@ TEST_F(OapPReluTests, DerivativeTest_32_32_HalfHigherThan0)
 
 TEST_F(OapPReluTests, DerivativeTest_32_32_HalfLessThan0)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t c = 32;
   size_t r = 32;
@@ -234,7 +234,7 @@ TEST_F(OapPReluTests, FunctionTest_11_11)
 
 TEST_F(OapPReluTests, DerivativeTest_11_11)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   size_t c = 11;
   size_t r = 11;

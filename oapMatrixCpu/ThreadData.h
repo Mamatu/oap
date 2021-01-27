@@ -66,29 +66,28 @@ public:
         memset(ends, 0, MAX_ENDS_NUMBER * sizeof (int));
     }
 
-    void calculateRanges(uintt* bmap, uintt fa)
-    {
-      oap::utils::mapper::ThreadsMap<uintt> tm;
-      oap::utils::mapper::getThreadsMap(tm, bmap, fa);
-      calculateRanges(0, 0, tm);
+    void calculateRanges(uintt* bmap, uintt fa) {
+        utils::mapper::ThreadsMap<uintt> tm;
+        utils::mapper::getThreadsMap(tm, bmap, fa);
+        calculateRanges(0, 0, tm);
     }
 
-    void calculateRanges(uintt columns[2], uintt rows[2], uintt* bmap, uintt fa)
-    {
-      oap::utils::mapper::ThreadsMap<uintt> tm;
-      oap::utils::mapper::getThreadsMap(tm, bmap, fa);
-      calculateRanges(columns[0], rows[0], tm);
-    }
-
-    void calculateRanges(uintt column, uintt row, uintt* bmap, uintt fa)
-    {
-      oap::utils::mapper::ThreadsMap<uintt> tm;
-      oap::utils::mapper::getThreadsMap(tm, bmap, fa);
-      calculateRanges(row, column, tm);
+    void calculateRanges(uintt columns[2], uintt rows[2],
+        uintt* bmap, uintt fa) {
+        utils::mapper::ThreadsMap<uintt> tm;
+        utils::mapper::getThreadsMap(tm, bmap, fa);
+        calculateRanges(columns[0], rows[0], tm);
     }
 
     void calculateRanges(uintt column, uintt row,
-        oap::utils::mapper::ThreadsMap<uintt>& map) {
+        uintt* bmap, uintt fa) {
+        utils::mapper::ThreadsMap<uintt> tm;
+        utils::mapper::getThreadsMap(tm, bmap, fa);
+        calculateRanges(row, column, tm);
+    }
+
+    void calculateRanges(uintt column, uintt row,
+        utils::mapper::ThreadsMap<uintt>& map) {
         begins[0] = column + map.beginColumn;
         begins[1] = row + map.beginRow;
         ends[0] = column + map.endColumn;
@@ -98,7 +97,7 @@ public:
         assert(begins[1] < ends[1]);
     }
 
-    void calculateRanges (oap::utils::mapper::ThreadsMap<uintt>& map) {
+    void calculateRanges(utils::mapper::ThreadsMap<uintt>& map) {
         calculateRanges(0, 0, map);
     }
 

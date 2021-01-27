@@ -46,7 +46,7 @@ cuda_genericApi_phadamardProductRe(math::Matrix** outputs, math::Matrix* const* 
 
     uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
     uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x, y);
-    uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, 0, y);
+    uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, 1, y);
 
     output->re.ptr[index] = param1->re.ptr[idx1] * param2->re.ptr[idx2];
   }
@@ -72,7 +72,7 @@ cuda_genericApi_phadamardProductIm(math::Matrix** outputs, math::Matrix* const* 
 
     uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
     uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x, y);
-    uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, 0, y);
+    uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, 1, y);
 
     output->im.ptr[index] = param1->im.ptr[idx1] * param2->im.ptr[idx2];
   }
@@ -99,14 +99,14 @@ cuda_genericApi_phadamardProductReal(math::Matrix** outputs, math::Matrix* const
     {
       uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
       uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x, y);
-      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, 0, y);
+      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, 1, y);
 
       output->re.ptr[index] = param1->re.ptr[idx1] * param2->re.ptr[idx2];
     }
     {
       uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
       uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x, y);
-      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, 0, y);
+      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, 1, y);
 
       output->im.ptr[index] = param1->im.ptr[idx1] * param2->im.ptr[idx2];
     }

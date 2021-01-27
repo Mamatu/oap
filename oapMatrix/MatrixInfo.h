@@ -66,14 +66,7 @@ class MatrixInfo
   bool isRe;
   bool isIm;
 };
-}
 
-namespace oap
-{
-namespace math
-{
-using MatrixInfo = ::math::MatrixInfo;
-}
 }
 
 namespace std

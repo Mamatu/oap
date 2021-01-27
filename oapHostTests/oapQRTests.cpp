@@ -108,7 +108,7 @@ class OapQRTests : public OapCudaStub {
   }
 
   void ExpectThatQRIsA(QRStub* qrStub, math::Matrix* eq_matrix) {
-    oap::HostProcedures hostProcedures;
+    HostProcedures hostProcedures;
     math::Matrix* matrix = oap::host::NewMatrixRef(qrStub->getQ());
     hostProcedures.setMaxThreadsPerBlock (1024);
     hostProcedures.dotProduct(matrix, qrStub->getQ(), qrStub->getR());
@@ -117,7 +117,7 @@ class OapQRTests : public OapCudaStub {
   }
 
   void ExpectThatQIsUnitary(QRStub* qrStub) {
-    oap::HostProcedures hostProcedures;
+    HostProcedures hostProcedures;
     math::Matrix* QT = oap::host::NewMatrixCopy(qrStub->getQ());
     math::Matrix* matrix = oap::host::NewMatrixRef(qrStub->getQ());
     hostProcedures.setMaxThreadsPerBlock (1024);

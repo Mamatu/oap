@@ -50,7 +50,7 @@ class OapThreadsMapperTests : public testing::Test
 
   void calculate()
   {
-    oap::utils::mapper::SetThreadsBlocks(m_blocks, m_threads, m_columns, m_rows, m_threadsLimit);
+    utils::mapper::SetThreadsBlocks(m_blocks, m_threads, m_columns, m_rows, m_threadsLimit);
     EXPECT_GE(m_threadsLimit, m_threads[0] * m_threads[1]);
   }
 };

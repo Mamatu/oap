@@ -22,10 +22,8 @@
 
 #include "oapDeviceMatrixUPtr.h"
 
-#include "oapHostLayer.h"
-#include "KernelExecutor.h"
-#include "oapGenericNeuralUtils.h"
-#include "oapDeviceNeuralUtils.h"
+#include "oapNeuralUtils.h"
+#include "oapLayer.h"
 
 class OapNeuralUtilsTests : public testing::Test
 {
@@ -44,19 +42,22 @@ public:
 
 namespace
 {
-  class MockLayer : public oap::HostLayer
+  class MockLayerApi
   {
     public:
-      MockLayer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation) : oap::HostLayer (neuronsCount, biasesCount, samplesCount, activation)
+
+      void allocate (Layer<MockLayerApi>* layer)
       {
-        m_fpMatrices.push_back (new FPMatrices ());
+        layer->addFPMatrices(new FPMatrices ());
       }
-  
-      virtual ~MockLayer()
+
+      void deallocate (Layer<MockLayerApi>* layer)
       {
-        delete m_fpMatrices[0];
+        delete layer->getFPMatrices ();
       }
   };
+
+  using MockLayer = Layer<MockLayerApi>;
 }
 
 TEST_F(OapNeuralUtilsTests, CopyIntoTest_1)

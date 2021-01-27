@@ -166,31 +166,25 @@ bool subtract (Matrices& output, const Matrices& params1, const Matrices& params
   return status;
 }
 
-template<typename Matrices, typename GetThreadsMapper, typename Malloc, typename Free, typename Memcpy, typename GetMatrixInfo>
-bool dotProduct (Matrices& outputs, const Matrices& params1, const Matrices& params2, oap::IKernelExecutor* kexec, GetThreadsMapper&& getThreadsMapper, Malloc&& malloc, Free&& free, Memcpy&& memcpy, GetMatrixInfo&& getMatrixInfo)
+template<typename Matrices, typename GetThreadsMapper, typename Malloc, typename Free, typename Memcpy>
+bool dotProduct (Matrices& output, const Matrices& params1, const Matrices& params2, oap::IKernelExecutor* kexec, GetThreadsMapper&& getThreadsMapper, Malloc&& malloc, Free&& free, Memcpy&& memcpy)
 {
-  uintt len = outputs.size();
+  uintt len = output.size();
   std::vector<std::vector<math::Matrix*>> matrixArgs;
 
   for (uintt idx = 0; idx < len; ++idx)
   {
-    math::MatrixInfo _output = getMatrixInfo(outputs[idx]);
-    math::MatrixInfo _param1 = getMatrixInfo(params1[idx]);
-    math::MatrixInfo _param2 = getMatrixInfo(params2[idx]);
-    oapAssert (_param1.columns () == _param2.rows());
-    oapAssert (_output.columns () == _param2.columns());
-    oapAssert (_output.rows () == _param1.rows());
-    std::vector<math::Matrix*> line = {outputs[idx]};
+    std::vector<math::Matrix*> line = {output[idx]};
     matrixArgs.push_back (line);
   }
 
-  math::Matrix** doutput = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * outputs.size()));
-  math::Matrix** dparams1 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * outputs.size()));
-  math::Matrix** dparams2 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * outputs.size()));
+  math::Matrix** doutput = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
+  math::Matrix** dparams1 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
+  math::Matrix** dparams2 = static_cast<math::Matrix**>(malloc (sizeof(math::Matrix*) * output.size()));
 
-  memcpy (doutput, outputs.data(), sizeof(math::Matrix*) * outputs.size());
-  memcpy (dparams1, params1.data(), sizeof(math::Matrix*) * outputs.size());
-  memcpy (dparams2, params2.data(), sizeof(math::Matrix*) * outputs.size());
+  memcpy (doutput, output.data(), sizeof(math::Matrix*) * output.size());
+  memcpy (dparams1, params1.data(), sizeof(math::Matrix*) * output.size());
+  memcpy (dparams2, params2.data(), sizeof(math::Matrix*) * output.size());
 
   oap::ThreadsMapper mapper = getThreadsMapper (matrixArgs, oap::threads::ThreadsMapperAlgo::MATRIX_POS);
 

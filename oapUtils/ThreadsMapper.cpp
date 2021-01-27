@@ -22,8 +22,6 @@
 #include <vector>
 #include <math.h>
 
-namespace oap {
-
 namespace utils {
 
 namespace mapper {
@@ -73,7 +71,6 @@ void SetThreadsBlocks(uint blocks[2], uint threads[2], uint w, uint h, uint thre
     increaseBlock(blocks, threads, 0, w);
     increaseBlock(blocks, threads, 1, h);
   }
-}
 }
 }
 }

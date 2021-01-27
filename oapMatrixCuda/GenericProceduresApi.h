@@ -39,8 +39,6 @@
 
 #define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
 
-#include "oapProcedures.h"
-
 namespace oap
 {
 
@@ -76,10 +74,10 @@ struct Args
   uintt sharedMemorySize = 0;
 
   /**
-   * \brief Shared memory callback which is invoke to define size of shared memory block (in bytes). 1st argument is blocks dim ([0] - x [1] - y), 2st argument of callback is threads dim ([0] - x [1] - y)
+   * \brief Shared memory callback which is invoke to define size of shared memory block (in bytes). 1st argument is blocks dims ([0] - x [1] - y), 2st argument of callback is threads dims ([0] - x [1] - y)
    *
-   * The first argument of callback is blocks dim (as 2d array [0] - x [1] - y)
-   * The second argument of callback is threads dim (as 2d array [0] - x [1] - y)
+   * The first argument of callback is blocks dims (as 2d array [0] - x [1] - y)
+   * The second argument of callback is threads dims (as 2d array [0] - x [1] - y)
    * Type is @SharedMemoryCallback
    */
   SharedMemoryCallback smCallback = nullptr;
@@ -191,7 +189,7 @@ bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, con
 }
 
 template<typename GetMatrixInfo, typename PreExecCallback, typename CreateKernelArray>
-bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, const math::Matrix* arg, generic::Dim2 dim,
+bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, const math::Matrix* arg, uintt dims[2],
                         oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& bmApi, bool _prepareDims, PreExecCallback&& preExecCallback, CreateKernelArray&& createKernelArray)
 {
   uint blocks[2];
@@ -202,14 +200,11 @@ bool executeKernel1Arg (const std::string& kernelName, math::Matrix* output, con
   const uintt w = minfo.columns ();
   const uintt h = minfo.rows ();
 
-  uintt* karray = createKernelArray(dim.data(), 2);
+  uintt* karray = createKernelArray(dims, 2);
   const void* params[] = {&output, &arg, &karray};
 
   return execute (kexec, kernelName.c_str(), w, h, const_cast<const void**>(params), 0, _prepareDims, blocks, threads, preExecCallback, [](){});
 }
-
-namespace internal
-{
 
 template<typename GetMatrixInfo, typename Copy, typename GetAddress>
 class SumApi : public BasicMatrixApi<GetMatrixInfo>
@@ -220,9 +215,9 @@ class SumApi : public BasicMatrixApi<GetMatrixInfo>
            getReAddress (_getReAddress), getImAddress (_getImAddress)
     {}
 
-    Copy copy;
-    GetAddress getReAddress;
-    GetAddress getImAddress;
+    Copy&& copy;
+    GetAddress&& getReAddress;
+    GetAddress&& getImAddress;
 };
 
 template<typename HBuffer, typename DBuffer>
@@ -319,7 +314,6 @@ bool sum (floatt& reoutput, floatt& imoutput, const math::Matrix* matrix, oap::I
 
   return cuStatus;
 }
-}
 
 template<typename GetMatrixInfo>
 bool crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, oap::IKernelExecutor* kexec, BasicMatrixApi<GetMatrixInfo>& api)
@@ -414,7 +408,7 @@ bool dotProductShared (math::Matrix* output, math::Matrix* matrix1, math::Matrix
 }
 
 template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
-bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, generic::Dim32 dim,
+bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, uintt dims[3][2],
                 oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
                 PreExecCallback&& preExecCallback, CreateKernelArray&& createKernelArray)
 {
@@ -422,7 +416,7 @@ bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matri
   auto minfo1 = bmApi.getMatrixInfo (matrix1);
   auto minfo2 = bmApi.getMatrixInfo (matrix2);
 
-  oap::generic::check_dotProduct (output, matrix1, matrix2, dim,
+  oap::generic::check_dotProduct (output, matrix1, matrix2, dims,
                                  oinfo, minfo1, minfo2);
 
   const char* kname = "CUDAKernel_DotProductDim";
@@ -430,12 +424,12 @@ bool dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matri
   oap::generic::Args args (true);
 
   args.m_retrieveDims = false;
-  args.w = dim[0][0];
-  args.h = dim[0][1];
+  args.w = dims[0][0];
+  args.h = dims[0][1];
 
   args.m_prepareDims = true;
 
-  uintt hostEx[] = {args.w, args.h, dim[1][0]};
+  uintt hostEx[] = {args.w, args.h, dims[1][0]};
   uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
   void* params[] = {&output, &matrix1, &matrix2, &kernelArray};
 
@@ -461,7 +455,7 @@ bool dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matr
 
 template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
 bool dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                            generic::Dim32 dim, uintt periodicRows,
+                            uintt dims[3][2], uintt periodicRows,
                             oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
                             PreExecCallback&& preExecCallback, CreateKernelArray&& createKernelArray)
 {
@@ -469,19 +463,19 @@ bool dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::M
   auto minfo1 = bmApi.getMatrixInfo (matrix1);
   auto minfo2 = bmApi.getMatrixInfo (matrix2);
 
-  oap::generic::check_dotProductDimPeriodic (output, matrix1, matrix2, dim, periodicRows, oinfo, minfo1, minfo2);
+  oap::generic::check_dotProductDimPeriodic (output, matrix1, matrix2, dims, periodicRows, oinfo, minfo1, minfo2);
 
   const char* kname = "CUDAKernel_DotProductDimPeriodic";
 
   oap::generic::Args args (true);
 
   args.m_retrieveDims = false;
-  args.w = dim[0][0];
+  args.w = dims[0][0];
   args.h = oinfo.rows();
 
   args.m_prepareDims = true;
 
-  uintt hostEx[] = {dim[0][0], dim[0][1], dim[1][0], periodicRows};
+  uintt hostEx[] = {dims[0][0], dims[0][1], dims[1][0], periodicRows};
   uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
 
   void* params[] = {&output, &matrix1, &matrix2, &kernelArray};
@@ -490,7 +484,7 @@ bool dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::M
 }
 
 template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
-bool tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim,
+bool tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt dims[3][2],
                     oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
                     PreExecCallback&& preExecCallback, CreateKernelArray&& createKernelArray)
 {
@@ -502,15 +496,15 @@ bool tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* p
   auto minfo0 = bmApi.getMatrixInfo (params0);
   auto minfo1 = bmApi.getMatrixInfo (params1);
 
-  oap::generic::check_tensorProduct (output, params0, params1, dim, oinfo, minfo0, minfo1);
+  oap::generic::check_tensorProduct (output, params0, params1, dims, oinfo, minfo0, minfo1);
 
   oap::generic::Args args (true);
 
   args.m_retrieveDims = false;
-  args.w = dim[0][0];
-  args.h = dim[0][1];
+  args.w = dims[0][0];
+  args.h = dims[0][1];
 
-  uintt hostEx[] = {dim[0][0], dim[0][1], dim[1][0], dim[1][1], dim[2][0], dim[2][1]};
+  uintt hostEx[] = {dims[0][0], dims[0][1], dims[1][0], dims[1][1], dims[2][0], dims[2][1]};
   uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
 
   void* params[] = {&output, &params0, &params1, &kernelArray};
@@ -578,7 +572,7 @@ bool func (const std::string& kname, math::Matrix* output, math::Matrix* matrix,
 }
 
 template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
-bool funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, generic::Dim2 dim,
+bool funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2],
               oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
               PreExecCallback&& preExecCallback, CreateKernelArray&& createKernelArray)
 {
@@ -590,10 +584,10 @@ bool funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matr
   oap::generic::Args args (true);
 
   args.m_retrieveDims = false;
-  args.w = dim[0];
+  args.w = dims[0];
   args.h = minfo1.rows();
 
-  uintt hostEx[] = {dim[0], dim[1]};
+  uintt hostEx[] = {dims[0], dims[1]};
   uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
 
   void* params[] = {&output, &matrix, &kernelArray};
@@ -602,7 +596,7 @@ bool funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matr
 }
 
 template<typename BasicMatrixApi, typename PreExecCallback, typename CreateKernelArray>
-bool funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, generic::Dim22 dim,
+bool funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, uintt dims[2][2],
                      oap::IKernelExecutor* kexec, BasicMatrixApi& bmApi,
                      PreExecCallback&& preExecCallback, CreateKernelArray&& createKernelArray)
 {
@@ -614,10 +608,10 @@ bool funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matr
   oap::generic::Args args (true);
 
   args.m_retrieveDims = false;
-  args.w = dim[0][0];
+  args.w = dims[0][0];
   args.h = minfo1.rows();
 
-  uintt hostEx[] = {dim[0][0], dim[0][1], dim[1][1]};
+  uintt hostEx[] = {dims[0][0], dims[0][1], dims[1][1]};
   uintt* kernelArray = createKernelArray (hostEx, sizeof(hostEx) / sizeof(uintt));
 
   void* params[] = {&output, &matrix, &kernelArray};
@@ -763,10 +757,10 @@ template<typename GetMatrixInfo, typename PreExecCallback, typename CreateKernel
 bool poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback,
                   CreateKernelArray&& createKernelArray)
 {
-  generic::Dim2 dim = {kernel.columns, kernel.rows};
-  uintt* kdim = createKernelArray(dim.data(), 2);
+  uintt dims[2] = {kernel.columns, kernel.rows};
+  uintt* kdims = createKernelArray(dims, 2);
 
-  void* params[] = {&output, &matrix, &kdim};
+  void* params[] = {&output, &matrix, &kdims};
   const char* kname = "CUDAKernel_PoolAverage";
 
   auto minfo = getMatrixInfo (matrix);
@@ -781,132 +775,6 @@ bool poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::
 
   return executeKernel (kname, minfo, const_cast<const void**>(params), kexec, getMatrixInfo, args, preExecCallback, [](){});
 }
-
-template<typename GetMatrixInfo, typename PreExecCallback>
-bool hadamardProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
-{
-  CHECK_MATRIX(output);
-  CHECK_MATRIX(params0);
-  CHECK_MATRIX(params1);
-
-  auto minfo = getMatrixInfo (output);
-  oap::generic::check_hadamardProduct (output, params0, params1, minfo.columns(), minfo.rows(), getMatrixInfo);
-
-  oap::generic::Args args (true);
-  args.m_retrieveDims = false;
-  args.m_prepareDims = true;
-  args.w = minfo.columns();
-  args.h = minfo.rows();
-
-  const void* params[] = {&output, &params0, &params1};
-  const char* kname = "CUDAKernel_HadamardProduct";
-
-  return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
-}
-
-template<typename GetMatrixInfo, typename PreExecCallback>
-bool hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
-{
-  CHECK_MATRIX(output);
-  CHECK_MATRIX(params0);
-  CHECK_MATRIX(params1);
-
-  auto minfo = getMatrixInfo (output);
-  oap::generic::check_hadamardProductVec (output, params0, params1, minfo.columns(), minfo.rows(), getMatrixInfo);
-
-  oap::generic::Args args (true);
-  args.m_retrieveDims = false;
-  args.m_prepareDims = true;
-  args.w = minfo.columns();
-  args.h = minfo.rows();
-  const void* params[] = {&output, &params0, &params1};
-  const char* kname = "CUDAKernel_PHadamardProduct";
-
-  return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
-}
-
-template<typename GetMatrixInfo, typename PreExecCallback>
-bool add (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
-{
-  CHECK_MATRIX(output);
-  CHECK_MATRIX(param1);
-  CHECK_MATRIX(param2);
-
-  auto minfo = getMatrixInfo (output);
-  auto pinfo1 = getMatrixInfo (param1);
-  auto pinfo2 = getMatrixInfo (param2);
-
-  oapAssert (minfo.columns() == pinfo1.columns());
-  oapAssert (minfo.columns() == pinfo2.columns());
-  oapAssert (minfo.rows() == pinfo1.rows());
-  oapAssert (minfo.rows() == pinfo2.rows());
-
-  oap::generic::Args args (true);
-  args.m_retrieveDims = false;
-  args.m_prepareDims = true;
-  args.w = minfo.columns();
-  args.h = minfo.rows();
-  const void* params[] = {&output, &param1, &param2};
-  const char* kname = "CUDAKernel_AddMatrices";
-
-  return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
-}
-
-template<typename GetMatrixInfo, typename PreExecCallback>
-bool multiplyReConst (math::Matrix* output, math::Matrix* param1, floatt re, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, PreExecCallback&& preExecCallback)
-{
-  CHECK_MATRIX(output);
-  CHECK_MATRIX(param1);
-
-  auto minfo = getMatrixInfo (output);
-  auto pinfo1 = getMatrixInfo (param1);
-
-  oapAssert (minfo.columns() == pinfo1.columns());
-  oapAssert (minfo.rows() == pinfo1.rows());
-
-  oap::generic::Args args (true);
-  args.m_retrieveDims = false;
-  args.m_prepareDims = true;
-  args.w = minfo.columns();
-  args.h = minfo.rows();
-  const void* params[] = {&output, &param1, &re};
-  const char* kname = "CUDAKernel_MultiplyConstantRe";
-
-  return executeKernel (kname, minfo, params, kexec, getMatrixInfo, args, preExecCallback, [](){});
-}
-
-template<typename GetMatrixInfo, typename GetRefHostMatrix, typename CopyKernelToHost, typename HBuffer, typename KBuffer>
-bool sum (floatt& reoutput, floatt& imoutput, const math::Matrix* param, oap::IKernelExecutor* kexec, GetMatrixInfo&& getMatrixInfo, GetRefHostMatrix&& getRefHostMatrix, CopyKernelToHost&& copyKToH,
-          HBuffer& hrebuffer, HBuffer& himbuffer, KBuffer& krebuffer, KBuffer& kimbuffer)
-{
-  CHECK_MATRIX(param);
-
-  reoutput = 0;
-  imoutput = 0;
-
-  using GetAddressType = std::function<floatt*(const math::Matrix*)>;
-
-  GetAddressType getReMem = [&getRefHostMatrix](const math::Matrix* matrix)
-  {
-    math::Matrix hmatrix = getRefHostMatrix (matrix);
-    return hmatrix.re.ptr;
-  };
-
-  GetAddressType getImMem = [&getRefHostMatrix](const math::Matrix* matrix)
-  {
-    math::Matrix hmatrix = getRefHostMatrix (matrix);
-    return hmatrix.im.ptr;
-  };
-
-  generic::internal::SumApi<GetMatrixInfo, CopyKernelToHost, GetAddressType>
-  sumApi (getMatrixInfo, copyKToH, std::move(getReMem), std::move(getImMem));
-
-  generic::internal::SumBuffers<HBuffer, KBuffer>
-  sumBuffers (hrebuffer, krebuffer, himbuffer, kimbuffer);
-
-  return generic::internal::sum (reoutput, imoutput, param, kexec, sumApi, sumBuffers);
-}
-
 }
 }
 

@@ -4,6 +4,7 @@ set(TARGET "${a_dir}")
 set(INCLUDE_PATHS "")
 
 list(APPEND DEPS oapAppUtils)
+list(APPEND DEPS oapCuda)
 list(APPEND DEPS oap2dt3dDevice)
 list(APPEND DEPS oapMatrix)
 list(APPEND DEPS oapMatrixCpu)

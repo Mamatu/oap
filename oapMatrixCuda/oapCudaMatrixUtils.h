@@ -26,12 +26,10 @@
 #include "MatrixEx.h"
 
 #include "oapThreadsMapperApi.h"
-#include "oapHostMatrixUtils.h"
 #include "ThreadUtils.h"
 #include "CudaUtils.h"
 
 #define PRINT_CUMATRIX(m) logInfo ("%s %p\n%s %s", #m, m, oap::cuda::to_string(m).c_str(), oap::cuda::GetMatrixInfo(m).toString().c_str());
-#define PRINT_CUMATRIX_CARRAY(m) logInfo ("%s", oap::cuda::to_carraystr(m).c_str());
 
 namespace oap
 {
@@ -98,16 +96,6 @@ math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows);
 math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
 
 void DeleteDeviceMatrix(const math::Matrix* deviceMatrix);
-
-template<typename Matrices>
-void deleteDeviceMatrices(const Matrices& matrices)
-{
-  for (uintt idx = 0; idx < matrices.size(); ++idx)
-  {
-    const math::Matrix* matrix = matrices[idx];
-    DeleteDeviceMatrix (matrix);
-  }
-}
 
 /**
  * @brief CopyDeviceMatrixToHostMatrix - copy device to host - matrices must have the same columns and rows
@@ -274,19 +262,6 @@ oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matr
 void CopyDeviceReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix);
 void CopyHostBufferToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length);
 void CopyDeviceBufferToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length);
-
-std::string to_carraystr(const math::Matrix* matrix);
-std::string to_carraystr(const std::vector<math::Matrix*>& matrices);
-
-math::Matrix* NewDeviceReMatrixCopyOfArray(uintt columns, uintt rows, floatt* array);
-
-std::vector<math::Matrix*> NewDeviceMatrices (const std::vector<math::MatrixInfo>& minfos);
-std::vector<math::Matrix*> NewDeviceMatrices (const math::MatrixInfo& minfo, uintt count);
-std::vector<math::Matrix*> NewDeviceMatricesCopyOfArray(const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays);
-std::vector<math::Matrix*> NewDeviceMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays);
-
-math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::Matrix* matrix);
-math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixDim& dim, const math::Matrix* matrix);
 
 }
 }

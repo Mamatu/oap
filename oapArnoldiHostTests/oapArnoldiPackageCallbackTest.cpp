@@ -36,7 +36,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
       UserPair userPair = std::make_pair(&data, enableValidateOfV);
 
-      auto multiply = [&userPair] (math::Matrix* w, math::Matrix* v, oap::HostProcedures& cuProceduresApi, oap::VecMultiplicationType mt)
+      auto multiply = [&userPair] (math::Matrix* w, math::Matrix* v, HostProcedures& cuProceduresApi, oap::VecMultiplicationType mt)
       {
         if (mt == oap::VecMultiplicationType::TYPE_WV) {
           oap::ACTestData* data = userPair.first;
@@ -53,7 +53,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
       };
 
       oap::generic::CuHArnoldiS ca;
-      oap::HostProcedures hp;
+      HostProcedures hp;
       math::MatrixInfo matrixInfo (true, true, data.getElementsCount(), data.getElementsCount());
 
       oap::generic::allocStage1 (ca, matrixInfo, oap::host::NewHostMatrix);

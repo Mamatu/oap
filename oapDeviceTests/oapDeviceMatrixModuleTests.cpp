@@ -21,7 +21,6 @@
 #include "oapHostMatrixUtils.h"
 
 #include "oapDeviceMatrixUPtr.h"
-#include "Config.h"
 
 #include "KernelExecutor.h"
 #include "gtest/gtest.h"
@@ -131,7 +130,7 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
   uintt columns = 10;
   uintt rows = 10;
 
-  std::string path = oap::utils::Config::getFileInTmp("device_tests/test_file");
+  std::string path = "/tmp/Oap/device_tests/test_file";
 
   math::Matrix* m1 = oap::host::NewMatrixWithValue (true, true, columns, rows, 0);
 

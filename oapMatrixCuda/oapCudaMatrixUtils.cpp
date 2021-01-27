@@ -51,7 +51,7 @@ void registerMatrix (math::Matrix* matrix, const math::Matrix& hostRefMatrix, co
 {
   logTrace ("Matrix: %p %s", matrix, matrixInfo.toString().c_str());
 
-  logTrace ("Matrix allocation: %p (%p, %p)", matrix, hostRefMatrix.re.ptr, hostRefMatrix.im.ptr);
+  logTrace ("Matrix allocation: %p", matrix);
   g_matricesList.add (matrix, std::make_pair (matrixInfo, hostRefMatrix));
 }
 
@@ -971,51 +971,9 @@ math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer)
   return oap::host::LoadMatrixInfo (buffer);
 }
 
-std::map<std::vector<std::vector<math::Matrix*>>, oap::ThreadsMapper> g_threadsMapper;
-/*
-bool operator<(const std::vector<math::Matrix*>& arg1, const std::vector<math::Matrix*>& arg2)
-{
-  if (arg1.size() != arg2.size())
-  {
-    return arg1.size() < arg2.size();
-  }
-
-  uintt length = arg1.size();
-
-  for (uintt idx = 0; idx < length; ++idx)
-  {
-    if (arg1[idx] != arg2[idx])
-    {
-      return arg1[idx] < arg2[idx];
-    }
-  }
-  return false;
-}
-
-bool operator<(const std::vector<std::vector<math::Matrix*>>& arg1, const std::vector<std::vector<math::Matrix*>>& arg2)
-{
-  if (arg1.size() != arg2.size())
-  {
-    return arg1.size() < arg2.size();
-  }
-  uintt length = arg1.size();
-  for (uintt idx = 0; idx < length; ++idx)
-  {
-    return arg1[idx] < arg2[idx];
-  }
-  return false;
-}*/
-
 oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices, oap::threads::ThreadsMapperAlgo algo)
 {
-  auto it = g_threadsMapper.find(matrices);
-  if (it != g_threadsMapper.end())
-  {
-    return it->second;
-  }
-  oap::ThreadsMapper mapper = createThreadsMapper (matrices, algo);
-  g_threadsMapper.insert(std::make_pair(matrices, mapper));
-  return mapper;
+  return createThreadsMapper (matrices, algo);
 }
 
 void CopyDeviceReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix)
@@ -1034,111 +992,6 @@ void CopyDeviceBufferToDeviceReMatrix (math::Matrix* matrix, const floatt* buffe
 {
   math::Matrix ref = oap::cuda::GetRefHostMatrix (matrix);
   oap::cuda::CopyDeviceBufferToDevice (ref.re, ref.reReg, buffer, length);
-}
-
-std::string to_carraystr(const math::Matrix* matrix)
-{
-  oap::HostMatrixUPtr hmatrix = oap::host::NewHostMatrixFromMatrixInfo (oap::cuda::GetMatrixInfo (matrix));
-  oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, matrix);
-  return oap::host::to_carraystr (hmatrix);
-}
-
-std::string to_carraystr(const std::vector<math::Matrix*>& matrices)
-{
-  std::vector<math::Matrix*> hptrs;
-  for (const math::Matrix* matrix : matrices)
-  {
-    auto minfo = oap::cuda::GetMatrixInfo (matrix);
-    logTrace("%s", std::to_string (minfo).c_str());
-    math::Matrix* hmatrix = oap::host::NewHostMatrixFromMatrixInfo (minfo);
-    oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, matrix);
-    hptrs.push_back (hmatrix);
-  }
-  std::string str = oap::host::to_carraystr (hptrs);
-  oap::host::deleteMatrices (hptrs);
-  return str;
-}
-
-math::Matrix* NewDeviceReMatrixCopyOfArray(uintt columns, uintt rows, floatt* array)
-{
-  oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrixCopyOfArray (columns, rows, array);
-  math::Matrix* dmatrix = oap::cuda::NewDeviceReMatrix (columns, rows);
-  oap::cuda::CopyHostMatrixToDeviceMatrix (dmatrix, hmatrix);
-  return dmatrix;
-}
-
-std::vector<math::Matrix*> NewDeviceMatrices (const std::vector<math::MatrixInfo>& minfos)
-{
-  std::vector<math::Matrix*> matrices;
-  for (const auto& minfo : minfos)
-  {
-    math::Matrix* matrix = oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
-    matrices.push_back (matrix);
-  }
-  return matrices;
-}
-
-std::vector<math::Matrix*> NewDeviceMatrices (const math::MatrixInfo& minfo, uintt count)
-{
-  std::vector<math::MatrixInfo> minfos (count, minfo);
-  return NewDeviceMatrices (minfos);
-}
-
-std::vector<math::Matrix*> NewDeviceMatricesCopyOfArray(const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays)
-{
-  std::vector<math::Matrix*> hmatrices = oap::host::NewMatricesCopyOfArray (minfos, arrays);
-  std::vector<math::Matrix*> dmatrices;
-  for (math::Matrix* hmatrix : hmatrices)
-  {
-    math::Matrix* dmatrix = NewDeviceMatrixCopyOfHostMatrix (hmatrix);
-    dmatrices.push_back (dmatrix);
-  }
-  oap::host::deleteMatrices (hmatrices);
-  return dmatrices;
-}
-
-std::vector<math::Matrix*> NewDeviceMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays)
-{
-  std::vector<math::MatrixInfo> minfos (arrays.size(), minfo);
-  return NewDeviceMatricesCopyOfArray (minfos, arrays);
-}
-
-math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::Matrix* matrix)
-{
-  auto minfo = oap::cuda::GetMatrixInfo (matrix);
-
-  oapAssert (loc.x < minfo.columns());
-  oapAssert (loc.y < minfo.rows());
-  oapAssert (loc.x + dim.columns <= minfo.columns());
-  oapAssert (loc.y + dim.rows <= minfo.rows());
-
-  math::Matrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
-  math::Matrix* output = nullptr;
-
-  if (minfo.isRe && minfo.isIm)
-  {
-    oap::MemoryLoc reloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.re, refmatrix.reReg, {loc.x, loc.y});
-    oap::MemoryLoc imloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.im, refmatrix.imReg, {loc.x, loc.y});
-
-    output = oap::cuda::NewDeviceMatrixFromMemory (dim.columns, dim.rows, refmatrix.re, reloc, refmatrix.im, imloc);
-  }
-  else if (minfo.isRe)
-  {
-    oap::MemoryLoc reloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.re, refmatrix.reReg, {loc.x, loc.y});
-    output = oap::cuda::NewDeviceReMatrixFromMemory (dim.columns, dim.rows, refmatrix.re, reloc);
-  }
-  else if (minfo.isIm)
-  {
-    oap::MemoryLoc imloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.im, refmatrix.imReg, {loc.x, loc.y});
-    output = oap::cuda::NewDeviceImMatrixFromMemory (dim.columns, dim.rows, refmatrix.im, imloc);
-  }
-
-  return output;
-}
-
-math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixDim& dim, const math::Matrix* matrix)
-{
-  return NewDeviceSharedSubMatrix ({0, 0}, dim, matrix);
 }
 
 }

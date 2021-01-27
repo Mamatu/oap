@@ -3,7 +3,7 @@ get_filename_component(a_dir "${a_dir}" NAME)
 set(TARGET "${a_dir}")
 set(INCLUDE_PATHS "oapMath")
 
+list(APPEND DEPS oapNeuralDevice)
 list(APPEND DEPS oapAppUtils)
-list(APPEND DEPS oapNeuralGeneric)
 
 set(EXTRA_LIBS )

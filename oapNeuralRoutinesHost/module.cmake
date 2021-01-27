@@ -4,8 +4,5 @@ set(TARGET "${a_dir}")
 set(INCLUDE_PATHS "oapMath")
 
 list(APPEND DEPS oapUtils)
-list(APPEND DEPS oapMatrix)
-list(APPEND DEPS oapMatrixCpu)
-list(APPEND DEPS oapNeuralGeneric)
 
 set(EXTRA_LIBS )

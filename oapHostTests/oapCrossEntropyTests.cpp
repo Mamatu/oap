@@ -47,7 +47,7 @@ class OapCrossEntropyTests : public testing::Test {
 
 TEST_F(OapCrossEntropyTests, CrossEntropyTest1)
 {
-  oap::HostProcedures cuApi;
+  HostProcedures cuApi;
 
   oap::HostMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 0.2);
   oap::HostMatrixPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 0.2);
@@ -60,7 +60,7 @@ TEST_F(OapCrossEntropyTests, CrossEntropyTest1)
 
 TEST_F(OapCrossEntropyTests, CrossEntropyTest2)
 {
-  oap::HostProcedures cuApi;
+  HostProcedures cuApi;
 
   oap::HostMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (1, 10, 0);
   oap::HostMatrixPtr matrix2 = oap::host::NewReMatrixWithValue (1, 10, 0);

@@ -56,14 +56,11 @@ const dim3& ThreadIdx::getGridDim() const { return m_gridDim; }
 
 void* ThreadIdx::getSharedBuffer() const { return m_sharedBuffer; }
 
-void ThreadIdx::createBarrier(const std::vector<std::thread::id>& threads)
-{
+void ThreadIdx::createBarrier(const std::vector<pthread_t>& threads) {
   m_barriersMutex.lock();
   BarrierMutex* bm = NULL;
-  for (size_t fa = 0; fa < threads.size(); ++fa)
-  {
-    if (fa == 0)
-    {
+  for (size_t fa = 0; fa < threads.size(); ++fa) {
+    if (fa == 0) {
       bm = new BarrierMutex();
       bm->m_barrier.init(threads.size());
     }
@@ -72,13 +69,10 @@ void ThreadIdx::createBarrier(const std::vector<std::thread::id>& threads)
   m_barriersMutex.unlock();
 }
 
-void ThreadIdx::destroyBarrier(const std::vector<std::thread::id>& threads)
-{
+void ThreadIdx::destroyBarrier(const std::vector<pthread_t>& threads) {
   m_barriersMutex.lock();
-  for (size_t fa = 0; fa < threads.size(); ++fa)
-  {
-    if (fa == 0)
-    {
+  for (size_t fa = 0; fa < threads.size(); ++fa) {
+    if (fa == 0) {
       delete m_barriers[threads[fa]];
     }
     m_barriers.erase(threads[fa]);
@@ -86,22 +80,15 @@ void ThreadIdx::destroyBarrier(const std::vector<std::thread::id>& threads)
   m_barriersMutex.unlock();
 }
 
-void ThreadIdx::wait()
-{
-  if (m_barriers.count(std::this_thread::get_id()) > 0)
-  {
-    if (m_barriers[std::this_thread::get_id()] != NULL)
-    {
-      m_barriers[std::this_thread::get_id()]->m_barrier.wait();
+void ThreadIdx::wait() {
+  if (m_barriers.count(pthread_self()) > 0) {
+    if (m_barriers[pthread_self()] != NULL) {
+      m_barriers[pthread_self()]->m_barrier.wait();
+    } else {
+      debugAssert(m_barriers.count(pthread_self()) > 0);
     }
-    else
-    {
-      debugAssert(m_barriers.count(std::this_thread::get_id()) > 0);
-    }
-  }
-  else
-  {
-    debugAssert(m_barriers[std::this_thread::get_id()] != NULL);
+  } else {
+    debugAssert(m_barriers[pthread_self()] != NULL);
   }
 }
 

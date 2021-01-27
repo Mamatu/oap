@@ -76,7 +76,6 @@
 
 #include "CuProcedures/GenericApi/CuDotProductProcedures.h"
 #include "CuProcedures/GenericApi/CuAdditionProcedures.h"
-#include "CuProcedures/GenericApi/CuSubtractionProcedures.h"
 #include "CuProcedures/GenericApi/CuAdditionConstProcedures.h"
 #include "CuProcedures/GenericApi/CuMultiplyConstProcedures.h"
 #include "CuProcedures/GenericApi/CuHadamardProductProcedures.h"

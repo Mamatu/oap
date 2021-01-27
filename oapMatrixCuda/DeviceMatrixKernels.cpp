@@ -25,7 +25,7 @@ void prepareDims(uintt w, uintt h, oap::cuda::Kernel& kernel) {
   uint blocks[2];
   uint threads[2];
   uintt maxThreadsPerBlock = kernel.getMaxThreadsPerBlock();
-  oap::utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
+  utils::mapper::SetThreadsBlocks(blocks, threads, w, h, maxThreadsPerBlock);
   kernel.setBlocksCount(blocks[0], blocks[1]);
   kernel.setThreadsCount(threads[0], threads[1]);
 }

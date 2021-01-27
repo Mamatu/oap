@@ -20,7 +20,6 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "CuProceduresApi.h"
-#include "MultiMatricesCuProcedures.h"
 #include "KernelExecutor.h"
 #include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
@@ -28,7 +27,6 @@
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 #include "oapNetwork.h"
-#include "oapNetworkCudaApi.h"
 #include "oapFunctions.h"
 #include "PyPlot.h"
 #include "Config.h"
@@ -37,14 +35,12 @@
 
 namespace
 {
-class NetworkT : public oap::Network
+class NetworkT : public Network
 {
   public:
-    NetworkT(oap::CuProceduresApi* single, oap::MultiMatricesCuProcedures* multi, oap::NetworkCudaApi* nga, bool p) : Network(single, multi, nga, p)  {}
-
     void setHostInput (math::Matrix* inputs, size_t index)
     {
-      oap::Network::setHostInputs (inputs, index);
+      Network::setHostInputs (inputs, index);
     }
 };
 }
@@ -59,11 +55,7 @@ class OapNeuralTests_Forwardpropagation : public testing::Test
   {
     oap::cuda::Context::Instance().create();
     network = nullptr;
-
-    auto* singleApi = new oap::CuProceduresApi();
-    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
-    auto* nga = new oap::NetworkCudaApi ();
-    network = new NetworkT(singleApi, multiApi, nga, true);
+    network = new NetworkT();
   }
 
   virtual void TearDown()
@@ -76,9 +68,9 @@ class OapNeuralTests_Forwardpropagation : public testing::Test
 
 TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 {
-  oap::Layer* l1 = network->createLayer(2, true, Activation::TANH);
-  oap::Layer* l2 = network->createLayer(3, true, Activation::TANH);
-  oap::Layer* l3 = network->createLayer(1, Activation::TANH);
+  DeviceLayer* l1 = network->createLayer(2, true, Activation::TANH);
+  DeviceLayer* l2 = network->createLayer(3, true, Activation::TANH);
+  DeviceLayer* l3 = network->createLayer(1, Activation::TANH);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   *GetRePtrIndex (weights1to2, 0) = -1;
@@ -147,9 +139,9 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
 
 TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parallel)
 {
-  oap::Layer* l1 = network->createLayer(2, true, Activation::TANH);
-  oap::Layer* l2 = network->createLayer(3, true, Activation::TANH);
-  oap::Layer* l3 = network->createLayer(1, Activation::TANH);
+  DeviceLayer* l1 = network->createLayer(2, true, Activation::TANH);
+  DeviceLayer* l2 = network->createLayer(3, true, Activation::TANH);
+  DeviceLayer* l3 = network->createLayer(1, Activation::TANH);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   *GetRePtrIndex (weights1to2, 0) = -1;

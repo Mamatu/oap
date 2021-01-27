@@ -37,7 +37,7 @@ class OapQRHTTests : public testing::Test {
 
 TEST_F(OapQRHTTests, Test_1)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   floatt h_expected_init[] =
   {
@@ -112,7 +112,7 @@ TEST_F(OapQRHTTests, Test_1)
 
 TEST_F(OapQRHTTests, Test_2)
 {
-  oap::HostProcedures hp;
+  HostProcedures hp;
 
   floatt h_init[] =
   {

@@ -378,12 +378,12 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_1)
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (3, 1000, 1);
 
-  oap::generic::Dim32 dims
-  {{
+  uintt dims[3][2] =
+  {
     {2, 10},
     {10, 10},
     {2, 10}
-  }};
+  };
 
   oap::DeviceMatrixPtr dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   oap::DeviceMatrixPtr dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
@@ -417,12 +417,12 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
   oap::DeviceMatrixPtr dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
   oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(houtput);
 
-  oap::generic::Dim32 dims
-  {{
+  uintt dims[3][2] =
+  {
     {1, 4},
     {5, 4},
     {1, 5}
-  }};
+  };
 
   cuMatrix->dotProductDimPeriodic (doutput, dM1, dM2, dims);
   oap::cuda::CopyDeviceMatrixToHostMatrix (houtput, doutput);

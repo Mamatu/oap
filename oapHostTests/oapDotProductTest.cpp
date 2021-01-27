@@ -24,7 +24,7 @@ class OapDotProductTests : public testing::Test {
 
 TEST_F(OapDotProductTests, Test1)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (1, 10, 2);
   math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (10, 1, 2);
@@ -42,7 +42,7 @@ TEST_F(OapDotProductTests, Test1)
 
 TEST_F(OapDotProductTests, Shared_Test_1)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (1, 4, 2);
   math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (4, 1, 2);
@@ -60,7 +60,7 @@ TEST_F(OapDotProductTests, Shared_Test_1)
 
 TEST_F(OapDotProductTests, Shared_Test_2)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (4, 1, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (1, 4, 2);
@@ -74,7 +74,7 @@ TEST_F(OapDotProductTests, Shared_Test_2)
 
 TEST_F(OapDotProductTests, Shared_Test_3)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (1, 4, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (4, 1, 2);
@@ -89,7 +89,7 @@ TEST_F(OapDotProductTests, Shared_Test_3)
 
 TEST_F(OapDotProductTests, Shared_Test_4)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (4, 1, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (1, 4, 2);
@@ -104,7 +104,7 @@ TEST_F(OapDotProductTests, Shared_Test_4)
 
 TEST_F(OapDotProductTests, Shared_Test_5)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (4, 4, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (4, 4, 2);
@@ -119,7 +119,7 @@ TEST_F(OapDotProductTests, Shared_Test_5)
 
 TEST_F(OapDotProductTests, Shared_Test_6)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (1, 4, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (4, 1, 2);
@@ -134,7 +134,7 @@ TEST_F(OapDotProductTests, Shared_Test_6)
 
 TEST_F(OapDotProductTests, Shared_Test_7)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (4, 1, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (1, 4, 2);
@@ -149,7 +149,7 @@ TEST_F(OapDotProductTests, Shared_Test_7)
 
 TEST_F(OapDotProductTests, Shared_Test_8)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (4, 4, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (4, 4, 2);
@@ -164,7 +164,7 @@ TEST_F(OapDotProductTests, Shared_Test_8)
 
 TEST_F(OapDotProductTests, Shared_Test_9)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (4, 4, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (4, 4, 2);
@@ -179,7 +179,7 @@ TEST_F(OapDotProductTests, Shared_Test_9)
 
 TEST_F(OapDotProductTests, Shared_Test_10)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (1, 4, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (4, 1, 2);
@@ -194,7 +194,7 @@ TEST_F(OapDotProductTests, Shared_Test_10)
 
 TEST_F(OapDotProductTests, Shared_Test_11)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (4, 1, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (1, 4, 2);
@@ -209,7 +209,7 @@ TEST_F(OapDotProductTests, Shared_Test_11)
 
 TEST_F(OapDotProductTests, Shared_Test_12)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (4, 4, 2);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (4, 4, 2);
@@ -224,7 +224,7 @@ TEST_F(OapDotProductTests, Shared_Test_12)
 
 TEST_F(OapDotProductTests, Shared_Test_13)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixUPtr hostM1 = oap::host::NewReMatrixWithValue (1, 64, 3);
   oap::HostMatrixUPtr hostM2 = oap::host::NewReMatrixWithValue (64, 1, 2);
@@ -239,7 +239,7 @@ TEST_F(OapDotProductTests, Shared_Test_13)
 
 TEST_F(OapDotProductTests, Test_CustomDim_1)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (4, 2, 0);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (3, 4, 0);
@@ -264,7 +264,7 @@ TEST_F(OapDotProductTests, Test_CustomDim_1)
 
 TEST_F(OapDotProductTests, Test_CustomDim_2)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 2, 0);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (4, 5, 0);
@@ -289,7 +289,7 @@ TEST_F(OapDotProductTests, Test_CustomDim_2)
 
 TEST_F(OapDotProductTests, Test_CustomDim_3)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (6, 1, 0);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 6, 0);
@@ -314,7 +314,7 @@ TEST_F(OapDotProductTests, Test_CustomDim_3)
 
 TEST_F(OapDotProductTests, Test_CustomDim_4)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (10, 10, 1);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (3, 10, 1);
@@ -336,7 +336,7 @@ TEST_F(OapDotProductTests, Test_CustomDim_4)
 
 TEST_F(OapDotProductTests, Test_Periodic_1)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (3, 3, 1);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 12, 1);
@@ -350,7 +350,7 @@ TEST_F(OapDotProductTests, Test_Periodic_1)
 
 TEST_F(OapDotProductTests, Test_Periodic_2)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 5, 1);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 2000, 1);
@@ -364,7 +364,7 @@ TEST_F(OapDotProductTests, Test_Periodic_2)
 
 TEST_F(OapDotProductTests, Test_Periodic_3)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 5, 1);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 2000, 1);
@@ -393,7 +393,7 @@ TEST_F(OapDotProductTests, Test_Periodic_3)
 
 TEST_F(OapDotProductTests, Test_Periodic_4)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 5, 1);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 10, 1);
@@ -422,19 +422,19 @@ TEST_F(OapDotProductTests, Test_Periodic_4)
 
 TEST_F(OapDotProductTests, Test_DimPeriodic_1)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (10, 10, 1);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (3, 1000, 1);
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (3, 1000, 1);
 
-  oap::generic::Dim32 dims
-  {{
+  uintt dims[3][2] =
+  {
     {2, 10},
     {10, 10},
     {2, 10}
-  }};
+  };
 
   hostProcedures.dotProductDimPeriodic (houtput, hostM1, hostM2, dims);
 
@@ -448,7 +448,7 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_1)
 
 TEST_F(OapDotProductTests, Test_DimPeriodic_2)
 {
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (5, 5, 1);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 2000, 1);
@@ -461,12 +461,12 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (1, 2000, 1);
 
-  oap::generic::Dim32 dims
-  {{
+  uintt dims[3][2] =
+  {
     {1, 4},
     {5, 4},
     {1, 5}
-  }};
+  };
 
   hostProcedures.dotProductDimPeriodic (houtput, hostM1, hostM2, dims);
 
@@ -486,18 +486,18 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
 TEST_F(OapDotProductTests, Test_DimPeriodic_3)
 {
   using namespace oapDotProduct_Data::Test_4;
-  oap::HostProcedures hostProcedures;
+  HostProcedures hostProcedures;
 
   oap::HostMatrixPtr houtput = oap::host::NewReMatrixWithValue (1, 536, 0);
   oap::HostMatrixPtr hostM1 = oap::host::NewReMatrixWithValue (3, 3, 0);
   oap::HostMatrixPtr hostM2 = oap::host::NewReMatrixWithValue (1, 402, 0);
 
-  oap::generic::Dim32 dims
-  {{
+  uintt dims[3][2] =
+  {
     {1, 3},
     {3, 3},
     {1, 3}
-  }};
+  };
 
   oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
   oap::host::CopyArrayToReMatrix (hostM2, t_reValues2);

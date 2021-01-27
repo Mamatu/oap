@@ -189,7 +189,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostQ.get(), ca.m_Q1);
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostR.get(), ca.m_R1);
 
-  oap::HostProcedures hp;
+  HostProcedures hp;
   EXPECT_THAT (hostQ.get(), MatrixIsOrthogonal (hp));
   EXPECT_THAT (hostR.get(), MatrixIsUpperTriangular ());
 
@@ -256,7 +256,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_2)
 
   PRINT_MATRIX(hostQ.get());
   PRINT_MATRIX(hostR.get());
-  oap::HostProcedures hp;
+  HostProcedures hp;
   EXPECT_THAT (hostQ.get(), MatrixIsOrthogonal (hp));
   EXPECT_THAT (hostR.get(), MatrixIsUpperTriangular ());
 }
@@ -327,7 +327,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostQ.get(), Q.get());
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostR.get(), R.get());
 
-  oap::HostProcedures hp;
+  HostProcedures hp;
   EXPECT_THAT (hostQ.get(), MatrixIsOrthogonal (hp));
   EXPECT_THAT (hostR.get(), MatrixIsUpperTriangular ());
 }

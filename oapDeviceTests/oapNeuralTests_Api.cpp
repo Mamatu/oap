@@ -18,18 +18,14 @@
  */
 
 #include "oapNeuralTests_Api.h"
-#include "oapNetwork.h"
-#include "oapDeviceLayer.h"
-#include "oapNetworkCudaApi.h"
-#include "MultiMatricesCuProcedures.h"
 
 namespace test_api
 {
-  LHandler createBatchLHandler (oap::Network* network, const Batch& batch)
+  LHandler createBatchLHandler (Network* network, const Batch& batch)
   {
     LHandler handler = network->createFPLayer (batch.size());
-    oap::Layer* flS = network->getLayer (0, handler);
-    oap::Layer* llS = network->getLayer (network->getLayersCount() - 1, handler);
+    DeviceLayer* flS = network->getLayer (0, handler);
+    DeviceLayer* llS = network->getLayer (network->getLayersCount() - 1, handler);
 
     oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, flS->getRowsCount ());
     oap::HostMatrixPtr hexpected = oap::host::NewReMatrix (1, llS->getRowsCount ());
@@ -49,7 +45,7 @@ namespace test_api
     return handler;
   }
 
-  std::vector<LHandler> createBatchLHandlers (oap::Network* network, const Batches& batches)
+  std::vector<LHandler> createBatchLHandlers (Network* network, const Batches& batches)
   {
     std::vector<LHandler> handlers;
 
@@ -61,7 +57,7 @@ namespace test_api
     return handlers;
   }
 
-  void convertBatchToBatchLHandlers (oap::Network* network, Step& step)
+  void convertBatchToBatchLHandlers (Network* network, Step& step)
   {
     Batches& batches = std::get<0>(step);
     BatchesLHandlers& batchesLHandlers = std::get<3>(step);
@@ -70,14 +66,14 @@ namespace test_api
     batches.clear ();
   }
 
-  void copySample (oap::DeviceLayer* dst, const oap::DeviceLayer* src, uintt sample)
+  void copySample (DeviceLayer* dst, const DeviceLayer* src, uintt sample)
   {
     debugAssert(sample < src->getSamplesCount ());
     debugAssert(dst->getNeuronsCount() == src->getNeuronsCount());
     debugAssert(dst->getTotalNeuronsCount() == src->getTotalNeuronsCount());
   }
 
-  void convertBatchToBatchLHandlers (oap::Network* network, Steps& steps)
+  void convertBatchToBatchLHandlers (Network* network, Steps& steps)
   {
     for (Step& step : steps)
     {
@@ -106,12 +102,9 @@ namespace test_api
     }
   }
 
-  std::unique_ptr<oap::Network> createNetwork()
+  std::unique_ptr<Network> createNetwork()
   {
-    auto* singleApi = new oap::CuProceduresApi();
-    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
-    auto* nga = new oap::NetworkCudaApi ();
-    std::unique_ptr<oap::Network> network (new oap::Network(singleApi, multiApi, nga, true));
+    std::unique_ptr<Network> network (new Network());
     network->createLayer(2, true, Activation::TANH);
     network->createLayer(3, true, Activation::TANH);
     network->createLayer(1, Activation::TANH);
@@ -119,12 +112,9 @@ namespace test_api
     return network;
   }
 
-  std::unique_ptr<oap::Network> createNetwork (const std::vector<size_t>& hiddenLayers)
+  std::unique_ptr<Network> createNetwork (const std::vector<size_t>& hiddenLayers)
   {
-    auto* singleApi = new oap::CuProceduresApi();
-    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
-    auto* nga = new oap::NetworkCudaApi ();
-    std::unique_ptr<oap::Network> network (new oap::Network(singleApi, multiApi, nga, true));
+    std::unique_ptr<Network> network (new Network());
 
     network->createLayer(2, true, Activation::TANH);
 
@@ -138,14 +128,13 @@ namespace test_api
     return network;
   }
 
-  void testError (oap::Network* network, const Points& points, floatt expectedLoss,
+  void testError (Network* network, const Points& points, floatt expectedLoss,
                   oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput, const ExtraParams& ep)
   {
     for (const auto& p : points)
     {
       *GetRePtrIndex (hinputs, 0) = p.first.first;
       *GetRePtrIndex (hinputs, 1) = p.first.second;
-      *GetRePtrIndex (hinputs, 2) = 1.f;
 
       *GetRePtrIndex (houtput, 0) = p.second;
 
@@ -178,7 +167,7 @@ namespace test_api
     return iwi;
   };
 
-  void testStep (TestMode& testMode, oap::Network* network,
+  void testStep (TestMode& testMode, Network* network,
                  const Steps& steps, size_t stepIdx,
                  const WeightsLayers& weightsLayers,
                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
@@ -192,7 +181,7 @@ namespace test_api
     {
       for (size_t lidx = 0; lidx < network->getLayersCount() - 1; ++lidx)
       {
-        oap::Layer* layer = network->getLayer(lidx);
+        DeviceLayer* layer = network->getLayer(lidx);
         auto wmatrix = weightsMatrices[lidx];
         layer->getHostWeights (wmatrix);
         ASSERT_NO_FATAL_FAILURE(checkWeights (weightsLayers[lidx][weightsIdx], wmatrix, idxToChecks[lidx], {lidx, stepIdx, batchIdx, line}));
@@ -230,11 +219,7 @@ namespace test_api
           ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx, stepIdx, batchIdx, __LINE__));
         }
 
-        network->printLayersWeights();
-        network->printLayersInputs();
         network->updateWeights ();
-        network->printLayersWeights();
-        network->printLayersInputs();
 
         ASSERT_NO_FATAL_FAILURE(checkWeightsLayer (cweightsIdx + 1, stepIdx, batchIdx, __LINE__));
 
@@ -258,8 +243,8 @@ namespace test_api
         {
           for (uintt layerIdx = 0; layerIdx < network->getLayersCount(); ++layerIdx)
           {
-            oap::Layer* layer = network->getLayer (layerIdx);
-            const oap::Layer* layerS = network->getLayer (layerIdx, handler);
+            DeviceLayer* layer = network->getLayer (layerIdx);
+            const DeviceLayer* layerS = network->getLayer (layerIdx, handler);
 
             auto copy = [sampleIdx](math::Matrix* dst, const math::Matrix* src)
             {
@@ -323,7 +308,7 @@ namespace test_api
     network->postStep();
   }
 
-  void testSteps (TestMode& testMode, oap::Network* network,
+  void testSteps (TestMode& testMode, Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   oap::HostMatrixPtr hinputs,
@@ -377,7 +362,7 @@ namespace test_api
 
     for (size_t lidx = 0; lidx < network->getLayersCount() - 1; ++lidx)
     {
-      oap::Layer* layer = network->getLayer(lidx);
+      DeviceLayer* layer = network->getLayer(lidx);
 
       oap::HostMatrixPtr weightsMatrix = oap::host::NewMatrix (layer->getWeightsInfo());
       oap::host::SetReValuesToMatrix (weightsMatrix, weightsLayers[lidx][initWeightsIdx]);
@@ -400,7 +385,7 @@ namespace test_api
     }
   }
 
-  void testSteps (TestMode& testMode, oap::Network* network,
+  void testSteps (TestMode& testMode, Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   const IdxsToCheck& idxToChecks,

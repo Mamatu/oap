@@ -530,12 +530,6 @@ CUDAKernel_GenericApi_Add (math::Matrix** outputs, math::Matrix* const* params1,
 }
 
 extern "C" __global__ void
-CUDAKernel_GenericApi_Subtract (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
-{
-  CUDA_GenericApi_Subtract (outputs, params1, params2, mapper);
-}
-
-extern "C" __global__ void
 CUDAKernel_GenericApi_DotProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
 {
   CUDA_GenericApi_DotProduct (outputs, params1, params2, mapper);
@@ -555,12 +549,6 @@ CUDAKernel_GenericApi_HadamardProduct (math::Matrix** outputs, math::Matrix* con
 
 extern "C" __global__ void
 CUDAKernel_GenericApi_PartialHadamardProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
-{
-  CUDA_GenericApi_PartialHadamardProduct (outputs, params1, params2, mapper);
-}
-
-extern "C" __global__ void
-CUDAKernel_GenericApi_PHadamardProduct (math::Matrix** outputs, math::Matrix* const* params1, math::Matrix* const* params2, oap::ThreadsMapperS* mapper)
 {
   CUDA_GenericApi_PartialHadamardProduct (outputs, params1, params2, mapper);
 }

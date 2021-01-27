@@ -24,9 +24,6 @@
 #include <functional>
 #include <queue>
 
-namespace oap
-{
-
 /**
  * Square Error - Independent Data
  */
@@ -104,5 +101,5 @@ class StepController : public Network::IController
 
    virtual bool shouldContinue() override;
 };
-}
+
 #endif

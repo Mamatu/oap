@@ -68,7 +68,7 @@ void TransposeOperationCpu::Execute(void* ptr) {
 }
 
 void TransposeOperationCpu::execute() {
-    uintt threadsCount = oap::utils::mapper::createThreadsMap(getBMap(),
+    uintt threadsCount = utils::mapper::createThreadsMap(getBMap(),
         this->m_threadsCount, gColumns (m_output) - m_subcolumns[0],
         gRows (m_output) - m_subrows[0]);
     ThreadData<TransposeOperationCpu>* threads = m_threadData;
@@ -77,10 +77,12 @@ void TransposeOperationCpu::execute() {
         threads[fa].params[0] = m_matrix;
         threads[fa].calculateRanges(m_subcolumns, m_subrows, getBMap(), fa);
         threads[fa].thiz = this;
-        threads[fa].thread.run (TransposeOperationCpu::Execute, &threads[fa]);
+        threads[fa].thread.setFunction(TransposeOperationCpu::Execute,
+            &threads[fa]);
+        threads[fa].thread.run((this->m_threadsCount == 1));
     }
     for (uint fa = 0; fa < threadsCount; fa++) {
-        threads[fa].thread.stop();
+        threads[fa].thread.join();
     }
 }
 }
