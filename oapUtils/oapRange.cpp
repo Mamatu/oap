@@ -1,5 +1,8 @@
 #include "oapRange.h"
 
+namespace matrixUtils
+{
+
 Range::Range(uintt bcolumn, uintt columns, uintt brow, uintt rows)
     : m_bcolumn(bcolumn), m_columns(columns), m_brow(brow), m_rows(rows) {}
 
@@ -13,3 +16,4 @@ uintt Range::getBRow() const { return m_brow; }
 uintt Range::getERow() const { return m_brow + m_rows; }
 uintt Range::getRows() const { return m_rows; }
 
+}

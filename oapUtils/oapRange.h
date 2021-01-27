@@ -3,6 +3,9 @@
 
 #include "Math.h"
 
+namespace matrixUtils
+{
+
 class Range {
  protected:
   uintt m_bcolumn;
@@ -23,5 +26,6 @@ class Range {
   virtual uintt getERow() const;
   virtual uintt getRows() const;
 };
+}
 
 #endif
