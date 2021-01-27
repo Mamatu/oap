@@ -23,10 +23,10 @@ class RandomGenerator final
     floatt operator()(floatt min, floatt max);
 
   private:
-    std::pair<floatt, floatt> m_range;
     std::random_device m_rd;
     std::default_random_engine m_dre;
     std::uniform_real_distribution<floatt> m_dis;
+    std::pair<floatt, floatt> m_range;
 };
 }
 }
