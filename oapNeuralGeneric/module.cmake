@@ -6,6 +6,5 @@ set(INCLUDE_PATHS "oapMath")
 list(APPEND DEPS oapUtils)
 list(APPEND DEPS oapMatrix)
 list(APPEND DEPS oapMatrixCpu)
-list(APPEND DEPS oapMatrixCuda)
 
 set(EXTRA_LIBS )
