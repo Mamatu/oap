@@ -6,7 +6,11 @@ include (module.cmake)
 file(GLOB_RECURSE source "*.cpp" "*.c")
 file(GLOB_RECURSE cu_source "*.cu")
 
-add_library(${TARGET} SHARED ${source})
+if("${LINKING}" STREQUAL "DYNAMIC")
+  add_library(${TARGET} SHARED ${source})
+elseif("${LINKING}" STREQUAL "STATIC")
+  add_library(${TARGET} STATIC ${source})
+endif()
 
 add_definitions(-DOAP_CUDA_BUILD)
 

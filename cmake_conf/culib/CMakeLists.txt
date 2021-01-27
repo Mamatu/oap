@@ -4,7 +4,12 @@ include (module.cmake)
 
 file(GLOB source "*.h" "*.cpp" "*.c")
 
-add_library(${TARGET} SHARED ${source})
+
+if("${LINKING}" STREQUAL "DYNAMIC")
+  add_library(${TARGET} SHARED ${source})
+elseif("${LINKING}" STREQUAL "STATIC")
+  add_library(${TARGET} STATIC ${source})
+endif()
 
 add_definitions(-DOAP_CUDA_BUILD)
 

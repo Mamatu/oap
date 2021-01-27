@@ -3,3 +3,5 @@ get_filename_component(a_dir "${a_dir}" NAME)
 set(TARGET "${a_dir}")
 set(INCLUDE_PATHS "oapMath")
 set(EXTRA_LIBS )
+
+list(APPEND DEPS oapUtils)

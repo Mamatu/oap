@@ -10,6 +10,8 @@ set (BUILD_MODE "DEBUG" CACHE STRING "Build mode. Can be: DEBUG, RELEASE, DEBUG_
 set (BUILD_PART "ALL" CACHE STRING "Build specific part of s/w. In the case of ALL device and host parts will be compiled. Can be: ALL, HOST")
 set (LOG_LEVEL "DEBUG_LEVEL" CACHE STRING "Log level")
 set (MATH_TYPE_CONFIGURATION "NI_EF" CACHE STRING "Type of math values NI_EF, EI_EF")
+set (CPU_PROFILING "N" CACHE STRING "Add pg options for compiling (profiling). It will turn on also LINKING STATIC mode")
+set (LINKING "DYNAMIC" CACHE STRING "Choose linking options: DYNAMIC or STATIC")
 
 set(NVCC_COMPILATION_OPTIONS "")
 
@@ -51,6 +53,16 @@ elseif("${BUILD_MODE}" STREQUAL "DEBUG_SANITIZER")
   set(NVCC_COMPILATION_OPTIONS "-g")
 else()
   message(FATAL_ERROR "This kind of BUILD_MODE is not supported")
+endif()
+
+
+if("${CPU_PROFILING}" STREQUAL "Y")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+  set (LINKING "STATIC")
+endif()
+
+if("${LINKING}" STREQUAL "STATIC")
+  
 endif()
 
 if(NOT("${BUILD_PART}" STREQUAL "ALL" OR "${BUILD_PART}" STREQUAL "HOST"))

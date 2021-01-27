@@ -5,7 +5,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 file(GLOB source "*.h" "*.cpp" "*.c")
 
-add_library(${TARGET} SHARED ${source})
+if("${LINKING}" STREQUAL "DYNAMIC")
+  add_library(${TARGET} SHARED ${source})
+elseif("${LINKING}" STREQUAL "STATIC")
+  add_library(${TARGET} STATIC ${source})
+endif()
 
 if(DEPS)
 add_dependencies(${TARGET} ${DEPS})
