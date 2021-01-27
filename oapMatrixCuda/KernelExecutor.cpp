@@ -238,6 +238,7 @@ void Kernel::unload() { unloadCuModule(); }
 
 void Kernel::setImage(void* image) {
   this->m_image = image;
+  logInfo ("image = %p", m_image);
   loadCuModule();
 }
 
@@ -289,12 +290,11 @@ bool Kernel::run (const char* functionName)
     abort();
   }
 
-  //unloadCuModule();
-
   return status == 0;
 }
 
-Kernel::~Kernel() {
+Kernel::~Kernel()
+{
   unloadCuModule();
   releaseImage();
 }
@@ -349,9 +349,7 @@ inline char* readData(const char* path) {
 inline char* readData(const char* path, const Strings& sysPathes) {
   for (size_t fa = 0; fa < sysPathes.size(); ++fa) {
     std::string p = sysPathes[fa] + "/" + path;
-#ifdef DEBUG
-    debug ("%s %d: %s", __func__, __LINE__, p.c_str());
-#endif
+    logInfo ("%s", p.c_str());
     char* data = readData(p.c_str());
     if (data != NULL) {
       return data;
@@ -373,7 +371,12 @@ inline char* loadData(std::string& loadedPath, const char** pathes, bool extraSy
     if (data != NULL)
     {
       loadedPath = *pathes;
+      logInfo ("Loaded from %s", loadedPath.c_str());
       return data;
+    }
+    else
+    {
+      logInfo ("Cannot load from %s", *pathes);
     }
     if (extraSysPathes)
     {
@@ -381,7 +384,12 @@ inline char* loadData(std::string& loadedPath, const char** pathes, bool extraSy
       if (data != NULL)
       {
         loadedPath = *pathes;
+        logInfo ("Loaded from %s", loadedPath.c_str());
         return data;
+      }
+      else
+      {
+        logInfo ("Cannot load from %s", *pathes);
       }
     }
     ++pathes;
@@ -402,16 +410,14 @@ inline char* loadData(const char* path, bool extraSysPathes = true) {
 bool Kernel::load(const char* path)
 {
   setImage(loadData(path));
-#ifdef DEBUG
   if (m_image == NULL)
   {
-    debug("Cannot load %s.\n", path);
+    logInfo("Cannot load %s.", path);
   }
   else
   {
-    debug("Loaded %s.\n", path);
+    logInfo("Loaded %s.", path);
   }
-#endif
   return m_image != NULL;
 }
 
@@ -430,8 +436,10 @@ bool Kernel::load(const char** pathes) {
 
 void Kernel::releaseImage() {
   if (m_image != NULL) {
+    logError ("~image = %p", m_image);
     char* data = (char*)m_image;
     delete[] data;
+    m_image = NULL;
   }
 }
 
