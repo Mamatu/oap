@@ -4,7 +4,6 @@ set(TARGET "${a_dir}")
 set(INCLUDE_PATHS "oapMath")
 
 list(APPEND DEPS oapMath)
-list(APPEND DEPS oapMatrix)
 
 set(EXTRA_LIBS )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

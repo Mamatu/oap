@@ -47,7 +47,7 @@ class OapGenericApiTests_AddConst : public testing::Test
 
 TEST_F(OapGenericApiTests_AddConst, Test_1)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 1}, 0.);
 
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
@@ -73,7 +73,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_1)
 
 TEST_F(OapGenericApiTests_AddConst, Test_2)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
   oap::Memory memory1 = oap::host::NewMemoryWithValues ({2, 1}, 0.);
   oap::Memory memory2 = oap::host::NewMemoryWithValues ({2, 1}, 2.);
 
@@ -111,7 +111,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_2)
 
 TEST_F(OapGenericApiTests_AddConst, Test_3)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 0.);
 
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
@@ -146,7 +146,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_3)
 
 TEST_F(OapGenericApiTests_AddConst, Test_4)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({3, 1}, 0.);
 
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
@@ -181,7 +181,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_4)
 
 TEST_F(OapGenericApiTests_AddConst, Test_5)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({10, 10}, 0.);
 
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (3, 3, memory, {0, 0});
@@ -229,7 +229,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_5)
 
 TEST_F(OapGenericApiTests_AddConst, Test_6)
 {
-  HostProcedures hp;
+  oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({10, 10}, 0.);
 
   oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (3, 3, memory, {0, 0});

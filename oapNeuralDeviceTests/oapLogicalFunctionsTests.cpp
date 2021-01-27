@@ -18,8 +18,11 @@
  */
 
 #include <string>
+#include <random>
+
 #include "gtest/gtest.h"
 #include "CuProceduresApi.h"
+#include "MultiMatricesCuProcedures.h"
 #include "KernelExecutor.h"
 #include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
@@ -27,36 +30,41 @@
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 #include "oapNetwork.h"
+#include "oapNetworkCudaApi.h"
 #include "Controllers.h"
 
 #include "PngFile.h"
 #include "Config.h"
+
 /*
-class NetworkT : public Network
+class NetworkT : public oap::Network
 {
   public:
     void executeLearning(math::Matrix* expected)
     {
-      Network::executeLearning (expected, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
+      oap::Network::executeLearning (expected, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
     }
 
     void setHostInput (math::Matrix* inputs, size_t index)
     {
-      Network::setHostInputs (inputs, index);
+      oap::Network::setHostInputs (inputs, index);
     }
 };*/
-
+#if 0
 class OapLogicalFunctionsTests : public testing::Test
 {
  public:
   CUresult status;
-  Network* network;
+  oap::Network* network;
   size_t m_learningSteps;
 
   virtual void SetUp()
   {
     oap::cuda::Context::Instance().create();
-    network = new Network();
+    auto* singleApi = new oap::CuProceduresApi();
+    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+    auto* nca = new oap::NetworkCudaApi ();
+    network = new oap::Network (singleApi, multiApi, nca, true);
     m_learningSteps = 100000;
   }
 
@@ -150,12 +158,12 @@ class OapLogicalFunctionsTests : public testing::Test
 
 TEST_F(OapLogicalFunctionsTests, LogicalOr_Binary)
 {
-  DeviceLayer* l1 = network->createLayer(2);
+  oap::Layer* l1 = network->createLayer(2);
   network->createLayer(1);
 
   network->setLearningRate (0.01);
   
-  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.062, 4);
+  std::shared_ptr<oap::SE_CD_Controller> controller = std::make_shared<oap::SE_CD_Controller>(0.062, 4);
   network->setController (controller.get());
   
   Runner r(false, this);
@@ -182,13 +190,13 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary)
 {
   bool isbias = true;
 
-  DeviceLayer* l1 = network->createLayer(isbias ? 3 : 2);
+  oap::Layer* l1 = network->createLayer(isbias ? 3 : 2);
   network->createLayer(1);
 
   Runner r(isbias, this);
   network->setLearningRate (0.01);
 
-  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.05, 4);
+  std::shared_ptr<oap::SE_CD_Controller> controller = std::make_shared<oap::SE_CD_Controller>(0.05, 4);
   network->setController (controller.get());
 
   for (size_t idx = 0; idx < m_learningSteps && controller->shouldContinue(); ++idx)
@@ -214,13 +222,13 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
 {
   bool isbias = true;
 
-  DeviceLayer* l1 = network->createLayer(isbias ? 3 : 2);
+  oap::Layer* l1 = network->createLayer(isbias ? 3 : 2);
   network->createLayer(1);
 
   Runner r(isbias, this, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
   network->setLearningRate (0.01);
 
-  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.05, 4);
+  std::shared_ptr<oap::SE_CD_Controller> controller = std::make_shared<oap::SE_CD_Controller>(0.05, 4);
   network->setController (controller.get());
 
   for (size_t idx = 0; idx < m_learningSteps && controller->shouldContinue(); ++idx)
@@ -245,14 +253,14 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd_Binary_CrossEntropy)
 
 TEST_F(OapLogicalFunctionsTests, DISABLED_LogicalOr)
 {
-  DeviceLayer* l1 = network->createLayer(2);
+  oap::Layer* l1 = network->createLayer(2);
   network->createLayer(1);
 
   network->setLearningRate (0.1);
 
   Runner r(false, this);
 
-  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.006, 40);
+  std::shared_ptr<oap::SE_CD_Controller> controller = std::make_shared<oap::SE_CD_Controller>(0.006, 40);
   network->setController (controller.get());
 
   for (size_t idx = 0; idx < m_learningSteps && controller->shouldContinue(); ++idx)
@@ -285,9 +293,9 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd)
 {
   bool isbias = true;
 
-  DeviceLayer* l1 = network->createLayer(isbias ? 2 : 3);
-  DeviceLayer* l2 = network->createLayer(isbias ? 4*10 : 4*10+1);
-  DeviceLayer* l3 = network->createLayer(1);
+  oap::Layer* l1 = network->createLayer(isbias ? 2 : 3);
+  oap::Layer* l2 = network->createLayer(isbias ? 4*10 : 4*10+1);
+  oap::Layer* l3 = network->createLayer(1);
 
   Runner r(isbias, this, oap::ErrorType::MEAN_SQUARE_ERROR);
   network->setLearningRate (0.01);
@@ -305,7 +313,7 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd)
     }
   };
 
-  std::shared_ptr<SE_CD_Controller> controller = std::make_shared<SE_CD_Controller>(0.001, setSize, callback);
+  std::shared_ptr<oap::SE_CD_Controller> controller = std::make_shared<oap::SE_CD_Controller>(0.001, setSize, callback);
   network->setController (controller.get());
 
   std::random_device rd;
@@ -339,3 +347,4 @@ TEST_F(OapLogicalFunctionsTests, LogicalAnd)
     }
   }
 }
+#endif

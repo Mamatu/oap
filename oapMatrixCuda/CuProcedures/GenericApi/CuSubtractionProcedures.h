@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_API2_CU_ADDITION_PROCEDURES_H
-#define OAP_API2_CU_ADDITION_PROCEDURES_H
+#ifndef OAP_API2_CU_SUBTRACTION_PROCEDURES_H
+#define OAP_API2_CU_SUBTRACTION_PROCEDURES_H
 
 #include "CuCore.h"
 #include "Matrix.h"
@@ -134,7 +134,7 @@ __hostdeviceinline__ void CUDA_GenericApi_subtractRealMatrix (math::Matrix** out
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_Substract (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_Subtract (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   bool isRe = output[0]->re.ptr != NULL;
   bool isIm = output[0]->im.ptr != NULL;

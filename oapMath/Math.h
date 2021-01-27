@@ -64,6 +64,17 @@ namespace math {
 void Memset(floatt* array, floatt value, intt length);
 }
 
+namespace oap
+{
+namespace math
+{
+inline void Memset(floatt* array, floatt value, intt length)
+{
+  ::math::Memset (array, value, length);
+}
+}
+}
+
 struct Complex {
   Complex() {
     re = 0;

@@ -24,7 +24,7 @@
 namespace math {
 
     void SubstracionOperationCpu::execute() {
-        uintt threadsCount = utils::mapper::createThreadsMap(getBMap(),
+        uintt threadsCount = oap::utils::mapper::createThreadsMap(getBMap(),
                 this->m_threadsCount, gColumns (m_output), gRows (m_output));
         ThreadData<SubstracionOperationCpu>* threads = m_threadData;
         for (uintt fa = 0; fa < threadsCount; fa++) {
@@ -32,12 +32,11 @@ namespace math {
             threads[fa].params[0] = m_matrix1;
             threads[fa].params[1] = m_matrix2;
             threads[fa].thiz = this;
-            threads[fa].thread.setFunction(SubstracionOperationCpu::Execute, &threads[fa]);
             threads[fa].calculateRanges(m_subcolumns, m_subrows, getBMap(), fa);
-            threads[fa].thread.run((this->m_threadsCount == 1));
+            threads[fa].thread.run (SubstracionOperationCpu::Execute, &threads[fa]);
         }
         for (uint fa = 0; fa < threadsCount; fa++) {
-            threads[fa].thread.join();
+            threads[fa].thread.stop();
         }
     }
 

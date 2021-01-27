@@ -153,7 +153,6 @@ uintt MatrixInfo::rows() const
 {
   return m_matrixDim.rows;
 }
-
 }
 
 namespace std

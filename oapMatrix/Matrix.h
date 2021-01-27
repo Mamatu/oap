@@ -24,14 +24,18 @@
 #include "oapMemoryPrimitives.h"
 
 //#define DEBUG
-
 namespace math
 {
-
 struct MatrixDim
 {
   uintt columns;
   uintt rows;
+};
+
+struct MatrixLoc
+{
+  uintt x;
+  uintt y;
 };
 
 /**
@@ -47,7 +51,16 @@ struct Matrix
 
   MatrixDim dim;
 };
+}
 
+namespace oap
+{
+namespace math
+{
+  using MatrixDim = ::math::MatrixDim;
+  using MatrixLoc = ::math::MatrixLoc;
+  using Matrix = ::math::Matrix;
+}
 }
 
 #define OAP_REGION_IS_VALID(region) (!(region.dims.width == 0 || region.dims.height == 0))

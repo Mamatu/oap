@@ -50,7 +50,7 @@ TEST_F(OapPoolingTests, AverageTest)
     112, 100, 25, 14
   };
 
-  HostProcedures calcApi;
+  oap::HostProcedures calcApi;
 
   oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (2, 2);
   oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (4, 4, paramArray);

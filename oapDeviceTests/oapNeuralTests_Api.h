@@ -37,6 +37,8 @@
 #include "PyPlot.h"
 #include "Config.h"
 
+#include "Matrix.h"
+
 namespace test_api
 {
   enum class TestMode
@@ -48,13 +50,13 @@ namespace test_api
 
   const floatt expected_precision = 0.0000000000001;
 
-  void convertBatchToBatchLHandlers (Network* network, Steps& steps);
+  void convertBatchToBatchLHandlers (oap::Network* network, Steps& steps);
 
   auto defaultCheck = [](floatt expected, floatt actual, size_t idx) { EXPECT_NEAR (expected, actual, expected_precision) << "Idx: " << idx; };
   using CheckCallback = std::function<void(floatt, floatt, size_t)>;
 
-  LHandler createBatchLHandler (Network* network, const Batch& batch);
-  std::vector<LHandler> createBatchLHandlers (Network* network, const Batches& batches);
+  LHandler createBatchLHandler (oap::Network* network, const Batch& batch);
+  std::vector<LHandler> createBatchLHandlers (oap::Network* network, const Batches& batches);
 
   struct CheckWeightsInfo
   {
@@ -98,9 +100,9 @@ namespace test_api
     }
   }
 
-  std::unique_ptr<Network> createNetwork();
+  std::unique_ptr<oap::Network> createNetwork();
 
-  std::unique_ptr<Network> createNetwork (const std::vector<size_t>& hiddenLayers);
+  std::unique_ptr<oap::Network> createNetwork (const std::vector<size_t>& hiddenLayers);
 
   struct ExtraParams
   {
@@ -109,13 +111,13 @@ namespace test_api
     std::pair<size_t,size_t> stepsRange = {0, 0};
   };
 
-  void testError (Network* network, const Points& points, floatt expectedLoss,
+  void testError (oap::Network* network, const Points& points, floatt expectedLoss,
                   oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
                   const ExtraParams& extraParams = ExtraParams());
 
   size_t calculateWIdx (size_t initStepIdx, const Steps& steps);
 
-  void testStep (TestMode& testMode, Network* network,
+  void testStep (TestMode& testMode, oap::Network* network,
                  const Steps& steps, size_t stepIdx,
                  const WeightsLayers& weightsLayers,
                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
@@ -123,7 +125,7 @@ namespace test_api
                  const IdxsToCheck& idxToChecks,
                  const ExtraParams& extraParams = ExtraParams());
 
-  void testSteps (TestMode& testMode, Network* network,
+  void testSteps (TestMode& testMode, oap::Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   oap::HostMatrixPtr hinputs,
@@ -131,7 +133,7 @@ namespace test_api
                   const IdxsToCheck& idxToChecks,
                   const ExtraParams& extraParams = ExtraParams());
 
-  void testSteps (TestMode& testMode, Network* network,
+  void testSteps (TestMode& testMode, oap::Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
                   const IdxsToCheck& idxToChecks,

@@ -79,7 +79,7 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
   std::stringstream sstream;
   sstream.precision (args.floatPrecision);
   sstream << args.pretext;
-  sstream << "[";
+  sstream << args.leftBracket;
 
   // vecIdx - index in valuesVec
   // elementIdx - index of element in matrix
@@ -135,7 +135,7 @@ void PrintArrays(std::string& output, T** arrays, uintt* lengths, uintt count, c
     }
   }
 
-  sstream << "]";
+  sstream << args.rightBracket;
   sstream << args.posttext;
   output += sstream.str();
 }

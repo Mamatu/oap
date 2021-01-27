@@ -26,7 +26,7 @@
 namespace math {
 
 void MultiplicationConstOperationCpu::execute() {
-    intt threadsCount = utils::mapper::createThreadsMap(getBMap(),
+    intt threadsCount = oap::utils::mapper::createThreadsMap(getBMap(),
         m_threadsCount,
         gColumns (m_output) - m_subcolumns[0],
         gRows (m_output) - m_subrows[0]);
@@ -47,12 +47,10 @@ void MultiplicationConstOperationCpu::execute() {
         }
         threads[fa].calculateRanges(m_subcolumns, m_subrows, getBMap(), fa);
         threads[fa].thiz = this;
-        threads[fa].thread.setFunction(
-            MultiplicationConstOperationCpu::Execute, &threads[fa]);
-        threads[fa].thread.run((this->m_threadsCount == 1));
+        threads[fa].thread.run (MultiplicationConstOperationCpu::Execute, &threads[fa]);
     }
     for (uint fa = 0; fa < threadsCount; fa++) {
-        threads[fa].thread.join();
+        threads[fa].thread.stop();
     }
     this->m_revalue = NULL;
     this->m_imvalue = NULL;

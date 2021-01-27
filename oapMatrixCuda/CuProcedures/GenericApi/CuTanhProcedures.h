@@ -32,14 +32,14 @@ __hostdeviceinline__ void cuda_ga_tanhFunc (floatt* output, floatt value)
 __hostdeviceinline__ void cuda_ga_dtanhFunc (floatt* output, floatt value)
 {
   floatt th = 0;
-  cuda_tanhFunc (&th, value);
+  cuda_ga_tanhFunc (&th, value);
   (*output) =  (1.f  - th * th);
 }
 
 __hostdeviceinline__ void cuda_ga_mDTanhFunc (floatt* output, floatt value)
 {
   floatt th = 0;
-  cuda_tanhFunc (&th, value);
+  cuda_ga_tanhFunc (&th, value);
   (*output) =  (*output) * (1.f  - th * th);
 }
 

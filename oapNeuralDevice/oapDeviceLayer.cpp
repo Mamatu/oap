@@ -18,3 +18,66 @@
  */
 
 #include "oapDeviceLayer.h"
+#include "oapCudaMatrixUtils.h"
+#include "oapDeviceNeuralApi.h"
+
+namespace oap
+{
+
+DeviceLayer::DeviceLayer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation) : Layer (neuronsCount, biasesCount, samplesCount, activation)
+{}
+
+DeviceLayer::~DeviceLayer()
+{}
+
+math::MatrixInfo DeviceLayer::getOutputsInfo () const
+{
+  return oap::generic::getOutputsInfo (*this, oap::cuda::GetMatrixInfo);
+}
+
+math::MatrixInfo DeviceLayer::getInputsInfo () const
+{
+  return oap::device::getInputsInfo (*this);
+}
+
+void DeviceLayer::getOutputs (math::Matrix* matrix, ArgType type) const
+{
+  return oap::device::getOutputs (*this, matrix, type);
+}
+
+void DeviceLayer::getHostWeights (math::Matrix* output)
+{
+  oap::cuda::CopyDeviceMatrixToHostMatrix (output, getBPMatrices()->m_weights);
+}
+
+void DeviceLayer::setHostInputs(const math::Matrix* hInputs)
+{
+  oap::device::setHostInputs (*this, hInputs);
+}
+
+void DeviceLayer::setDeviceInputs(const math::Matrix* dInputs)
+{
+  oap::device::setDeviceInputs (*this, dInputs);
+}
+
+math::MatrixInfo DeviceLayer::getWeightsInfo () const
+{
+  return oap::cuda::GetMatrixInfo (getBPMatrices()->m_weights);
+}
+
+void DeviceLayer::printHostWeights (bool newLine) const
+{
+  oap::generic::printHostWeights (*this, newLine, oap::cuda::CopyDeviceMatrixToHostMatrix);
+}
+
+void DeviceLayer::setHostWeights (math::Matrix* weights)
+{
+  oap::device::setHostWeights (*this, weights);
+}
+
+void DeviceLayer::setDeviceWeights (math::Matrix* weights)
+{
+  oap::device::setDeviceWeights (*this, weights);
+}
+
+}
