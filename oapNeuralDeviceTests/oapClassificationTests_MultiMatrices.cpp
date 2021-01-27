@@ -58,4 +58,7 @@ TEST_F(OapClassificationTests_MultiMatrices, RingDataTest)
   auto* multiApi = new oap::MultiMatricesCuProcedures(singleApi);
   auto* nca = new oap::NetworkCudaApi();
   oap::runPointsClassification_multiMatrices (123456789, singleApi, multiApi, nca, oap::cuda::CopyHostMatrixToDeviceMatrix, oap::cuda::GetMatrixInfo);
+  delete nca;
+  delete multiApi;
+  delete singleApi;
 }
