@@ -39,8 +39,8 @@ namespace oap {
 
 namespace common {
 
-template<typename MatricesLine, typename GetRefHostMatrix, typename Malloc, typename Memcpy, typename Free, typename PushToBuffer>
-ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetRefHostMatrix&& getRefHostMatrix, Malloc&& malloc, Memcpy&& memcpy, Free&& free, PushToBuffer&& pushToBuffer, uintt elementsLen, char mode)
+template<typename MatricesLine, typename GetRefHostMatrix, typename Malloc, typename Memcpy, typename Free, typename CreateBuffer>
+ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetRefHostMatrix&& getRefHostMatrix, Malloc&& malloc, Memcpy&& memcpy, Free&& free, CreateBuffer&& createBuffer, uintt elementsLen, char mode)
 {
   using Buffer = std::vector<uintt>;
   struct AllocatedData
@@ -56,6 +56,9 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
   std::vector<std::vector<math::Matrix>> matricesRefs;
   std::vector<math::MatrixInfo> matrixInfos;
   uintt argsCount = 0;
+
+  std::map<uintt, floatt*> memoryCheckerMap; // to check if args
+
   for (uintt l = 0; l < linesCount; ++l)
   {
     logAssert (l == 0 || argsCount == matricesArgs[l].size());
@@ -78,8 +81,8 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
   std::map<std::pair<uintt, uintt>, std::vector<uintt>> map;
   std::map<uintt, uintt> matrixIdxCounter;
 
-  auto dim = oap::utils::createThreadsDim<std::vector<uintt>> (matrixInfos,
-      [&matricesArgs, &matrixIdxCounter, &matricesRefs, &pushToBuffer](uintt x, uintt y, uintt lineIndex)
+  auto dim = oap::utils::createThreadsDim (matrixInfos,
+      [&matricesArgs, &matrixIdxCounter, &matricesRefs, &createBuffer, &map](uintt x, uintt y, uintt lineIndex, uintt width, uintt height)
       {
         const uintt arglen = matricesArgs[lineIndex].size();
         std::vector<uintt> indecies;
@@ -87,15 +90,10 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
         uintt& matrixIdx = matrixIdxCounter[lineIndex];
         for (uintt argIdx = 0; argIdx < arglen; ++argIdx)
         {
-          pushToBuffer (indecies, matricesRefs[lineIndex][argIdx], lineIndex, argIdx, matrixIdx);
+          createBuffer (indecies, matricesRefs[lineIndex][argIdx], lineIndex, argIdx, matrixIdx);
         }
 
         matrixIdx = matrixIdx + 1;
-
-        return indecies;
-      },
-      [&map](uintt x, uintt y, const std::vector<uintt>& indecies, uintt width, uintt height)
-      {
         map[std::make_pair(x,y)] = indecies;
       });
 
@@ -143,7 +141,7 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
 
     const size_t mapper_len = mapper_buffer.size();
     const size_t data_len = data_buffer.size();
-    logInfo ("Created buffer:  data_buffer (length : %u) and mapper_buffer (length : %u)", data_len, mapper_len);
+    logTrace ("Created buffer:  data_buffer (length : %u) and mapper_buffer (length : %u)", data_len, mapper_len);
 
     oap::ThreadsMapperS* tms = static_cast<oap::ThreadsMapperS*>(malloc(sizeof(oap::ThreadsMapperS)));
     oap::threads::UserData* userData = static_cast<oap::threads::UserData*>(malloc(sizeof(oap::threads::UserData)));

@@ -57,14 +57,14 @@
 #define __c_hostdeviceinline__ extern "C"
 #define __c_hostdevice__ extern "C"
 
-#define HOST_INIT()                                   \
-  ThreadIdx& ti = ThreadIdx::m_threadIdxs[pthread_self()]; \
-  uint3 threadIdx = ti.getThreadIdx();                     \
-  dim3 blockIdx = ti.getBlockIdx();                        \
-  dim3 blockDim = ti.getBlockDim();                        \
+#define HOST_INIT()                                                   \
+  ThreadIdx& ti = ThreadIdx::m_threadIdxs[std::this_thread::get_id()];\
+  uint3 threadIdx = ti.getThreadIdx();                                \
+  dim3 blockIdx = ti.getBlockIdx();                                   \
+  dim3 blockDim = ti.getBlockDim();                                   \
   dim3 gridDim = ti.getGridDim();
 
-#define HOST_INIT_SHARED(type, buffer)  ThreadIdx& his_ti = ThreadIdx::m_threadIdxs[pthread_self()]; buffer = static_cast<type*>(his_ti.getSharedBuffer());
+#define HOST_INIT_SHARED(type, buffer)  ThreadIdx& his_ti = ThreadIdx::m_threadIdxs[std::this_thread::get_id()]; buffer = static_cast<type*>(his_ti.getSharedBuffer());
 
 #define HOST_CODE(code) code
 

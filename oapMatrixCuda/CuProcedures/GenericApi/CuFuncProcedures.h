@@ -89,13 +89,13 @@ __hostdeviceinline__ void cuda_funcReal (math::Matrix** outputs, math::Matrix* c
     math::Matrix* output = outputs[oidxs[0]];
     math::Matrix* param = params[oidxs[0]];
 
-    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-
     {
+      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
       floatt* outputValue = &output->re.ptr[idx];
       func (outputValue, param->re.ptr[idx]);
     }
     {
+      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
       floatt* outputValue = &output->im.ptr[idx];
       func (outputValue, param->im.ptr[idx]);
     }
@@ -141,7 +141,7 @@ __hostdeviceinline__ void cuda_funcIm_userData (math::Matrix** outputs, math::Ma
     math::Matrix* output = outputs[oidxs[0]];
     math::Matrix* param = params[oidxs[0]];
 
-    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
+    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
 
     floatt* outputValue = &output->im.ptr[idx];
     func (outputValue, param->im.ptr[idx], ud);
@@ -164,13 +164,13 @@ __hostdeviceinline__ void cuda_funcReal_userData (math::Matrix** outputs, math::
     math::Matrix* output = outputs[oidxs[0]];
     math::Matrix* param = params[oidxs[0]];
 
-    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-
     {
+      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
       floatt* outputValue = &output->re.ptr[idx];
       func (outputValue, param->re.ptr[idx], ud);
     }
     {
+      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
       floatt* outputValue = &output->im.ptr[idx];
       func (outputValue, param->im.ptr[idx], ud);
     }

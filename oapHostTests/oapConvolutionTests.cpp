@@ -52,7 +52,7 @@ TEST_F(OapConvolutionTests, Test_0)
     1,
   };
 
-  HostProcedures calcApi;
+  oap::HostProcedures calcApi;
 
   oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
   oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (1, 1, paramArray);
@@ -79,7 +79,7 @@ TEST_F(OapConvolutionTests, Test_1)
     0, 1
   };
 
-  HostProcedures calcApi;
+  oap::HostProcedures calcApi;
 
   oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
   oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (2, 2, paramArray);
@@ -110,7 +110,7 @@ TEST_F(OapConvolutionTests, Test_2)
   // cache = [1 0 0 1 1 0 0 1
   //          0 0 0 0 1 0 0 1]
 
-  HostProcedures calcApi;
+  oap::HostProcedures calcApi;
 
   oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (2, 2);
   oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (3, 3, paramArray);
@@ -141,7 +141,7 @@ TEST_F(OapConvolutionTests, Test_3)
     1, 0, 1
   };
 
-  HostProcedures calcApi;
+  oap::HostProcedures calcApi;
 
   oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
   oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);

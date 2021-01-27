@@ -20,6 +20,7 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "CuProceduresApi.h"
+#include "MultiMatricesCuProcedures.h"
 #include "KernelExecutor.h"
 #include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
@@ -27,18 +28,21 @@
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 #include "oapNetwork.h"
+#include "oapNetworkCudaApi.h"
 #include "oapFunctions.h"
 #include "PyPlot.h"
 #include "Config.h"
 
 namespace
 {
-class NetworkT : public Network
+class NetworkT : public oap::Network
 {
   public:
+    NetworkT (oap::CuProceduresApi* single, oap::MultiMatricesCuProcedures* multi, oap::NetworkCudaApi* nca, bool p) : oap::Network(single, multi, nca, p) {}
+
     void setHostInput (math::Matrix* inputs, size_t index)
     {
-      Network::setHostInputs (inputs, index);
+      oap::Network::setHostInputs (inputs, index);
     }
 };
 }
@@ -53,7 +57,11 @@ class OapNeuralTests_SimpleForwardPropagation : public testing::Test
   {
     oap::cuda::Context::Instance().create();
     network = nullptr;
-    network = new NetworkT();
+
+    auto* singleApi = new oap::CuProceduresApi();
+    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+    auto* nca = new oap::NetworkCudaApi ();
+    network = new NetworkT(singleApi, multiApi, nca, true);
   }
 
   virtual void TearDown()
@@ -68,9 +76,9 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_1)
 {
   using namespace oap::math;
 
-  DeviceLayer* l1 = network->createLayer(2);
-  DeviceLayer* l2 = network->createLayer(2);
-  DeviceLayer* l3 = network->createLayer(1);
+  oap::Layer* l1 = network->createLayer(2);
+  oap::Layer* l2 = network->createLayer(2);
+  oap::Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 2);
   *GetRePtrIndex (weights1to2, 0) = 1;
@@ -105,9 +113,9 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_2)
 {
   using namespace oap::math;
 
-  DeviceLayer* l1 = network->createLayer(3);
-  DeviceLayer* l2 = network->createLayer(3);
-  DeviceLayer* l3 = network->createLayer(1);
+  oap::Layer* l1 = network->createLayer(3);
+  oap::Layer* l2 = network->createLayer(3);
+  oap::Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   *GetRePtrIndex (weights1to2, 0) = 1;
@@ -150,9 +158,9 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_3)
 {
   using namespace oap::math;
 
-  DeviceLayer* l1 = network->createLayer(3);
-  DeviceLayer* l2 = network->createLayer(3);
-  DeviceLayer* l3 = network->createLayer(1);
+  oap::Layer* l1 = network->createLayer(3);
+  oap::Layer* l2 = network->createLayer(3);
+  oap::Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   *GetRePtrIndex (weights1to2, 0) = 2;
@@ -195,9 +203,9 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_4)
 {
   using namespace oap::math;
 
-  DeviceLayer* l1 = network->createLayer(3);
-  DeviceLayer* l2 = network->createLayer(3);
-  DeviceLayer* l3 = network->createLayer(1);
+  oap::Layer* l1 = network->createLayer(3);
+  oap::Layer* l2 = network->createLayer(3);
+  oap::Layer* l3 = network->createLayer(1);
 
   oap::HostMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
   *GetRePtrIndex (weights1to2, 0) = 4;
@@ -229,7 +237,7 @@ TEST_F(OapNeuralTests_SimpleForwardPropagation, SimpleForwardPropagation_4)
 
   network->forwardPropagation ();
 
-  auto getLayerOutput = [](DeviceLayer* layer)
+  auto getLayerOutput = [](oap::Layer* layer)
   {
     auto minfo = layer->getOutputsInfo ();
     oap::HostMatrixPtr outputsL = oap::host::NewReMatrix (minfo.columns(), minfo.rows());

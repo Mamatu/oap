@@ -32,13 +32,13 @@ TEST_F(OapTensorProductTests, Test_1)
   oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
   oap::host::CopyArrayToReMatrix (hostM2, t_reValues2);
 
-  HostProcedures hp;
-  uintt dims[3][2] =
-  {
+  oap::HostProcedures hp;
+  oap::generic::Dim32 dims
+  {{
     {1, 2},
     {1, 2},
     {1, 1}
-  };
+  }};
 
   hp.tensorProduct (houtput, hostM1, hostM2, dims);
 
@@ -59,13 +59,13 @@ TEST_F(OapTensorProductTests, Test_2)
   oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
   oap::host::CopyArrayToReMatrix (hostM2, t_reValues2);
 
-  HostProcedures hp;
-  uintt dims[3][2] =
-  {
+  oap::HostProcedures hp;
+  oap::generic::Dim32 dims
+  {{
     {2, 1},
     {2, 1},
     {1, 1}
-  };
+  }};
 
   hp.tensorProduct (houtput, hostM1, hostM2, dims);
 

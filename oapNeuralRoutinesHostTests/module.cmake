@@ -4,9 +4,9 @@ set(TARGET "${a_dir}")
 set(INCLUDE_PATHS "")
 
 list(APPEND DEPS oapAppUtils)
-list(APPEND DEPS oapMatrixCpu)
 list(APPEND DEPS oapMatrix)
-list(APPEND DEPS oapNeuralRoutinesHost)
+list(APPEND DEPS oapMatrixCpu)
 list(APPEND DEPS oapUtils)
+list(APPEND DEPS oapNeuralRoutinesHost)
 
 set(EXTRA_LIBS )

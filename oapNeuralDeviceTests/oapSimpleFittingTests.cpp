@@ -24,10 +24,13 @@
 #include "gmock/gmock.h"
 
 #include "CuProceduresApi.h"
+#include "MultiMatricesCuProcedures.h"
+#include "oapNetworkCudaApi.h"
 
 #include "Controllers.h"
 
-using ErrorCallback = std::function<void(floatt error, Network* network)>;
+#if 0
+using ErrorCallback = std::function<void(floatt error, oap::Network* network)>;
 using Function1D = std::function<floatt(floatt)>;
 
 using namespace ::testing;
@@ -57,23 +60,26 @@ class OapSimpleFittingTests : public testing::Test
     return  std::sin (x);
   }
   void fit (const std::pair<size_t, bool>& inputNeurons, floatt learningRate = 0.5, floatt limit = 0.0000001,
-             const ErrorCallback& callback = [](floatt error, Network* network){},
+             const ErrorCallback& callback = [](floatt error, oap::Network* network){},
              const Function1D& function1d = sigmoid)
   {
-    std::unique_ptr<Network> network (new Network());
-    DeviceLayer* l1 = network->createLayer(inputNeurons.first + (inputNeurons.second ? 1 : 0));
-    DeviceLayer* l2 = network->createLayer(1);
+    auto* singleApi = new oap::CuProceduresApi();
+    auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+    auto* nca = new oap::NetworkCudaApi ();
+    std::unique_ptr<oap::Network> network (new oap::Network(singleApi, multiApi, nca, true));
+    oap::Layer* l1 = network->createLayer(inputNeurons.first + (inputNeurons.second ? 1 : 0));
+    oap::Layer* l2 = network->createLayer(1);
 
     network->setLearningRate (learningRate);
 
     fit (std::make_pair(std::move(network), inputNeurons.second), limit, callback, function1d);
   }
 
-  void fit (std::pair<std::shared_ptr<Network>, bool>&& networkPair, floatt limit = 0.0000001,
-             const ErrorCallback& callback = [](floatt error, Network*){},
+  void fit (std::pair<std::shared_ptr<oap::Network>, bool>&& networkPair, floatt limit = 0.0000001,
+             const ErrorCallback& callback = [](floatt error, oap::Network*){},
              const Function1D& function1d = sigmoid)
   {
-    std::shared_ptr<Network> network (networkPair.first);
+    std::shared_ptr<oap::Network> network (networkPair.first);
     bool isbias = networkPair.second;
 
     const size_t inputNeurons = network->getLayer(0)->getNeuronsCount();
@@ -174,7 +180,7 @@ TEST_F(OapSimpleFittingTests, SigmoidFitting_2to1_Test)
 TEST_F(OapSimpleFittingTests, SigmoidFitting_10to1_Test)
 {
   const floatt limit = 0.00000000001;
-  fit (std::make_pair(10, true), 1, limit, [limit](floatt error, Network* network){ if (error < limit * 100) { network->setLearningRate(0.1); } });
+  fit (std::make_pair(10, true), 1, limit, [limit](floatt error, oap::Network* network){ if (error < limit * 100) { network->setLearningRate(0.1); } });
 }
 
 TEST_F(OapSimpleFittingTests, SinFitting_Test)
@@ -184,13 +190,16 @@ TEST_F(OapSimpleFittingTests, SinFitting_Test)
     return sin (0.5 * x - 4.f);
   };
 
-  std::shared_ptr<Network> network (new Network());
+  auto* singleApi = new oap::CuProceduresApi();
+  auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+  auto* nca = new oap::NetworkCudaApi ();
+  std::shared_ptr<oap::Network> network (new oap::Network(singleApi, multiApi, nca, true));
   network->createLayer(1 + 1, Activation::LINEAR);
   network->createLayer(1, Activation::SIN);
 
   network->setLearningRate (0.1);
   const floatt limit = 0.00000000001;
-  fit (std::make_pair(network, true), limit, [limit](floatt error, Network* network){ if (error < 0.00000000005) { network->setLearningRate(0.01); } },fSin);
+  fit (std::make_pair(network, true), limit, [limit](floatt error, oap::Network* network){ if (error < 0.00000000005) { network->setLearningRate(0.01); } },fSin);
 
   oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, 2);
   oap::HostMatrixUPtr output = oap::host::NewReMatrix(1, 1);
@@ -207,3 +216,4 @@ TEST_F(OapSimpleFittingTests, SinFitting_Test)
     EXPECT_THAT(GetReIndex (output, 0), DoubleNear (fSin(fidx), 0.001));
   }
 }
+#endif

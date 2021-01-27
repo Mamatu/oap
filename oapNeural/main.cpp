@@ -26,6 +26,7 @@
 
 #include "KernelExecutor.h"
 #include "CuProceduresApi.h"
+#include "MultiMatricesCuProcedures.h"
 
 #include "oapHostMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"
@@ -38,15 +39,19 @@
 #include <utility>
 #include <random>
 
+#if 0
+
 Network* createNetwork (size_t width, size_t height)
 {
-  Network* network = new Network();
+  auto* singleApi = new oap::CuProceduresApi();
+  auto* multiApi = new oap::MultiMatricesCuProcedures (singleApi);
+  Network* network = new Network(singleApi, multiApi, true);
 
   network->createLayer(width*height);
   network->createLayer(80);
   network->createLayer(10);
-
   return network;
+  return nullptr;
 }
 
 std::string getImagesPath()
@@ -203,5 +208,11 @@ int main(int argc, char** argv)
 
   delete ctx;
   oap::cuda::Context::Instance().destroy();
+  return 0;
+}
+#endif
+
+int main()
+{
   return 0;
 }

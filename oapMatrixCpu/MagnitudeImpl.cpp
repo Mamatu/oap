@@ -51,26 +51,25 @@ namespace math {
     }
 
     void MagnitudeOperationCpu::execute() {
-        uintt* bmap = utils::mapper::allocMap(this->m_threadsCount);
+        uintt* bmap = oap::utils::mapper::allocMap(this->m_threadsCount);
         uintt length = gColumns (m_matrix) * gRows (m_matrix);
-        uintt threadsCount = utils::mapper::createThreadsMap(bmap, this->m_threadsCount, length);
+        uintt threadsCount = oap::utils::mapper::createThreadsMap(bmap, this->m_threadsCount, length);
         ThreadData<MagnitudeOperationCpu>* threads = new ThreadData<MagnitudeOperationCpu>[threadsCount];
         for (intt fa = 0; fa < threadsCount; fa++) {
             threads[fa].params[0] = m_matrix;
             threads[fa].calculateRanges(m_subcolumns, m_subrows, bmap, fa);
             threads[fa].thiz = this;
-            threads[fa].thread.setFunction(MagnitudeOperationCpu::Execute, &threads[fa]);
-            threads[fa].thread.run((this->m_threadsCount == 1));
+            threads[fa].thread.run(MagnitudeOperationCpu::Execute, &threads[fa]);
         }
         for (uint fa = 0; fa < threadsCount; fa++) {
-            threads[fa].thread.join();
+            threads[fa].thread.stop();
         }
         floatt output = 0.;
         for (uint fa = 0; fa < threadsCount; fa++) {
             output += threads[fa].values[0];
         }
         (*this->m_output1) = sqrt(output);
-        utils::mapper::freeMap(bmap);
+        oap::utils::mapper::freeMap(bmap);
         delete[] threads;
     }
 }

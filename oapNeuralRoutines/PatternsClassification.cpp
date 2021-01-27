@@ -1,3 +1,6 @@
+#include <random>
+#include <vector>
+
 #include "PatternsClassification.h"
 
 #include "CuProceduresApi.h"
@@ -12,7 +15,6 @@
 #include "MatrixAPI.h"
 
 #include "ArgsParser.h"
-
 namespace oap
 {
 
@@ -83,7 +85,8 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
 
   if (args.loadingPath.empty ())
   {
-    network = new Network;
+    oapAssert ("to check" == nullptr);
+    //network = new Network();
   }
   else
   {
@@ -217,3 +220,4 @@ void checkIfFileExists (FILE* file, const std::string& path)
 }
 
 }
+

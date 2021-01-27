@@ -31,6 +31,7 @@
 
 using LHandler = uintt;
 using FPHandler = uintt;
+using NBPair = std::pair<uintt, uintt>;
 
 enum class Activation
 {
@@ -91,12 +92,16 @@ struct FPMatrices final
   }
 
   math::Matrix* m_inputs = nullptr;
+  math::Matrix* m_inputs_wb = nullptr;
   math::Matrix* m_sums = nullptr;
+  math::Matrix* m_sums_wb = nullptr;
   math::Matrix* m_errors = nullptr;
+  math::Matrix* m_errors_wb = nullptr;
   math::Matrix* m_errorsAcc = nullptr;
   math::Matrix* m_errorsAux = nullptr;
   math::Matrix* m_errorsHost = nullptr;
   math::MatrixInfo m_matricesInfo;
+  math::MatrixInfo m_matricesInfo_wb;
 };
 
 /**
