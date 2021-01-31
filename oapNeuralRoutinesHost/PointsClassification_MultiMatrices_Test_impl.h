@@ -356,7 +356,7 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
       }
       ++terrorCount;
     }
-    while (testError > 0.005 && terrorCount < 356);
+    while (testError > 0.005 && terrorCount < 357);
 
     EXPECT_GE (356, terrorCount);
 
