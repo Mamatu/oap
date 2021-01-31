@@ -21,7 +21,6 @@
 #define OAP_ALLOCATION_LIST_H
 
 #include <unordered_map>
-#include <map>
 #include <functional>
 
 namespace oap
@@ -31,7 +30,7 @@ template<typename T, typename UserData, typename ToString>
 class AllocationList
 {
   public:
-    using Map = std::map<T, UserData>;
+    using Map = std::unordered_map<T, UserData>;
 
     AllocationList (const std::string& id, ToString&& to_string);
 
