@@ -549,7 +549,7 @@ void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uin
     return arg == matrix ? hmatrix.reReg : hmatrix1.reReg;
   };
 
-  oap::generic::setMatrix (matrix, matrix1, column, row, getMemory, getRegion, CudaUtils::CopyDeviceToDevice);
+  oap::generic::setMatrix (matrix, matrix1, column, row, getMemory, getRegion, CudaUtils::CopyDeviceToDevice, CudaUtils::MoveDeviceToDevice);
 }
 
 void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row)
@@ -567,7 +567,7 @@ void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uin
     return arg == matrix ? hmatrix.imReg : hmatrix1.imReg;
   };
 
-  oap::generic::setMatrix (matrix, matrix1, column, row, getMemory, getRegion, CudaUtils::CopyDeviceToDevice);
+  oap::generic::setMatrix (matrix, matrix1, column, row, getMemory, getRegion, CudaUtils::CopyDeviceToDevice, CudaUtils::MoveDeviceToDevice);
 }
 
 std::pair<floatt, floatt> GetDiagonal (const math::Matrix* matrix, uintt index)
@@ -579,14 +579,14 @@ floatt GetReDiagonal (const math::Matrix* matrix, uintt index)
 {
   return oap::generic::getDiagonal (matrix, index, oap::cuda::GetRefHostMatrix,
                                     [](const math::Matrix* matrix, const math::Matrix& ref){return ref.re;},
-                                    [](const math::Matrix* matrix, const math::Matrix& ref){return ref.reReg;}, CudaUtils::CopyDeviceToHost);
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return ref.reReg;}, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 }
 
 floatt GetImDiagonal (const math::Matrix* matrix, uintt index)
 {
   return oap::generic::getDiagonal (matrix, index, oap::cuda::GetRefHostMatrix,
                                     [](const math::Matrix* matrix, const math::Matrix& ref){return ref.im;},
-                                    [](const math::Matrix* matrix, const math::Matrix& ref){return ref.imReg;}, CudaUtils::CopyDeviceToHost);
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return ref.imReg;}, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 }
 
 void SetZeroRow (const math::Matrix* matrix, uintt index, bool re, bool im)
@@ -610,7 +610,7 @@ void SetReZeroRow (const math::Matrix* matrix, uintt index)
     uintt columns = gColumns (&hm);
     std::vector<floatt> row(columns, 0.);
     oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.re, hm.reReg, {index, 0});
-    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, CudaUtils::CopyHostToDevice);
+    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
   }
 }
 
@@ -623,7 +623,7 @@ void SetImZeroRow (const math::Matrix* matrix, uintt index)
     uintt columns = gColumns (&hm);
     std::vector<floatt> row(columns, 0.);
     oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.im, hm.imReg, {index, 0});
-    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, CudaUtils::CopyHostToDevice);
+    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
   }
 }
 
@@ -646,7 +646,7 @@ void SetValueToReMatrix (math::Matrix* matrix, floatt v)
 
     oap::MemoryLoc loc = GetReMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetReMatrixMemoryRegion (uptr);
-    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, uptr->re.ptr, uptr->re.dims, reg, CudaUtils::CopyHostToDevice);
+    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, uptr->re.ptr, uptr->re.dims, reg, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
   }
 }
 
@@ -663,7 +663,7 @@ void SetValueToImMatrix (math::Matrix* matrix, floatt v)
 
     oap::MemoryLoc loc = GetImMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetImMatrixMemoryRegion (uptr);
-    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, uptr->im.ptr, uptr->im.dims, reg, CudaUtils::CopyHostToDevice);
+    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, uptr->im.ptr, uptr->im.dims, reg, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
   }
 }
 
@@ -847,7 +847,7 @@ void SetReValue(math::Matrix* matrix, uintt index, floatt value)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 void SetImValue (math::Matrix* matrix, uintt column, uintt row, floatt value)
@@ -867,7 +867,7 @@ void SetImValue (math::Matrix* matrix, uintt index, floatt value)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 void SetValue (math::Matrix* matrix, uintt column, uintt row, floatt revalue, floatt imvalue)

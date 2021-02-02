@@ -225,7 +225,7 @@ void SetReValue(math::Matrix* m, uintt index, floatt value)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 floatt GetReValue(const math::Matrix* m, uintt index)
@@ -240,7 +240,7 @@ floatt GetReValue(const math::Matrix* m, uintt index)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
+  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 
   return v;
 }
@@ -255,7 +255,7 @@ void SetImValue(math::Matrix* m, uintt index, floatt value)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 floatt GetImValue(const math::Matrix* m, uintt index)
@@ -270,7 +270,7 @@ floatt GetImValue(const math::Matrix* m, uintt index)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
+  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 
   return v;
 }

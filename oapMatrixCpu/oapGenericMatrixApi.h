@@ -149,7 +149,7 @@ inline math::MatrixInfo check_CopyMatrixToMatrixDims (const math::MatrixInfo& ds
  *
  */
 template<typename Memcpy, typename MatrixMemoryApi>
-void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& memcpy, MatrixMemoryApi& dstApi, MatrixMemoryApi& srcApi, bool check = true)
+void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& memcpy, Memcpy&& memmove, MatrixMemoryApi& dstApi, MatrixMemoryApi& srcApi, bool check = true)
 {
   math::MatrixInfo minfo;
   math::MatrixInfo dstInfo = dstApi.getMatrixInfo (dst);
@@ -224,14 +224,14 @@ void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& me
   {
     MatrixData dstRe = getReMatrixData (dst, dstApi);
     MatrixData srcRe = getReMatrixData (src, srcApi);
-    oap::generic::copy (dstRe.ptr, dstRe.dims, dstRe.region.loc, srcRe.ptr, srcRe.dims, srcRe.region, memcpy);
+    oap::generic::copy (dstRe.ptr, dstRe.dims, dstRe.region.loc, srcRe.ptr, srcRe.dims, srcRe.region, memcpy, memmove);
   }
 
   if (minfo.isIm)
   {
     MatrixData dstIm = getImMatrixData (dst, dstApi);
     MatrixData srcIm = getImMatrixData (src, srcApi);
-    oap::generic::copy (dstIm.ptr, dstIm.dims, dstIm.region.loc, srcIm.ptr, srcIm.dims, srcIm.region, memcpy);
+    oap::generic::copy (dstIm.ptr, dstIm.dims, dstIm.region.loc, srcIm.ptr, srcIm.dims, srcIm.region, memcpy, memmove);
   }
 }
 
@@ -279,7 +279,7 @@ void printMatrix (std::string& output, const math::Matrix* matrix, const matrixU
 }
 
 template<typename GetMemory, typename GetMemoryRegion, typename Memcpy>
-void setMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row, GetMemory&& getMemory, GetMemoryRegion&& getMemoryRegion, Memcpy&& memcpy)
+void setMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row, GetMemory&& getMemory, GetMemoryRegion&& getMemoryRegion, Memcpy&& memcpy, Memcpy&& memmove)
 {
   oap::Memory hmem = getMemory (matrix);
   oap::Memory hmem1 = getMemory (matrix1);
@@ -293,11 +293,11 @@ void setMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt
     return;
   }
 
-  oap::generic::copy (hmem.ptr, hmem.dims, oap::common::addLoc (hreg.loc, {column, row}), hmem1.ptr, hmem1.dims, GetRefMemoryRegion(hmem1, hreg1), memcpy);
+  oap::generic::copy (hmem.ptr, hmem.dims, oap::common::addLoc (hreg.loc, {column, row}), hmem1.ptr, hmem1.dims, GetRefMemoryRegion(hmem1, hreg1), memcpy, memmove);
 }
 
 template<typename GetRefMatrix, typename GetMemory, typename GetRegion, typename Memcpy>
-floatt getDiagonal(const math::Matrix* matrix, uintt index, GetRefMatrix&& getRefMatrix, GetMemory&& getMemory, GetRegion&& getRegion, Memcpy&& gmemcpy)
+floatt getDiagonal(const math::Matrix* matrix, uintt index, GetRefMatrix&& getRefMatrix, GetMemory&& getMemory, GetRegion&& getRegion, Memcpy&& memcpy, Memcpy&& memmove)
 {
   math::Matrix hm = getRefMatrix (matrix);
 
@@ -311,7 +311,7 @@ floatt getDiagonal(const math::Matrix* matrix, uintt index, GetRefMatrix&& getRe
   if (memory.ptr)
   {
     oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (memory, region, {index, index});
-    oap::generic::copy (&v, {1, 1}, {0, 0}, memory.ptr, memory.dims, {loc, {1, 1}}, gmemcpy);
+    oap::generic::copy (&v, {1, 1}, {0, 0}, memory.ptr, memory.dims, {loc, {1, 1}}, memcpy, memmove);
   }
 
   return v;

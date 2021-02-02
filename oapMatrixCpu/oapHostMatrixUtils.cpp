@@ -1254,12 +1254,12 @@ void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt 
 
 void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row)
 {
-  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::Matrix* matrix) { return matrix->re; }, [](math::Matrix* matrix) { return matrix->reReg; }, memcpy);
+  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::Matrix* matrix) { return matrix->re; }, [](math::Matrix* matrix) { return matrix->reReg; }, memcpy, memmove);
 }
 
 void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row)
 {
-  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::Matrix* matrix) { return matrix->im; }, [](math::Matrix* matrix) { return matrix->imReg; }, memcpy);
+  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::Matrix* matrix) { return matrix->im; }, [](math::Matrix* matrix) { return matrix->imReg; }, memcpy, memmove);
 }
 
 oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matricesVec, oap::threads::ThreadsMapperAlgo algo)
@@ -1350,7 +1350,7 @@ void SetReZeroRow (const math::Matrix* matrix, uintt index)
     uintt columns = gColumns (&hm);
     std::vector<floatt> row(columns, 0.);
     oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.re, hm.reReg, {index, 0});
-    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy);
+    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy, memmove);
   }
 }
 
@@ -1363,7 +1363,7 @@ void SetImZeroRow (const math::Matrix* matrix, uintt index)
     uintt columns = gColumns (&hm);
     std::vector<floatt> row(columns, 0.);
     oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.im, hm.imReg, {index, 0});
-    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy);
+    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy, memmove);
   }
 }
 
@@ -1386,7 +1386,7 @@ void SetValueToReMatrix (math::Matrix* matrix, floatt v)
 
     oap::MemoryLoc loc = GetReMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetReMatrixMemoryRegion (uptr);
-    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, uptr->re.ptr, uptr->re.dims, reg, memcpy);
+    oap::generic::copy (hm.re.ptr, hm.re.dims, loc, uptr->re.ptr, uptr->re.dims, reg, memcpy, memmove);
   }
 }
 
@@ -1403,7 +1403,7 @@ void SetValueToImMatrix (math::Matrix* matrix, floatt v)
 
     oap::MemoryLoc loc = GetImMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetImMatrixMemoryRegion (uptr);
-    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, uptr->im.ptr, uptr->im.dims, reg, memcpy);
+    oap::generic::copy (hm.im.ptr, hm.im.dims, loc, uptr->im.ptr, uptr->im.dims, reg, memcpy, memmove);
   }
 }
 
@@ -1426,14 +1426,14 @@ floatt GetReDiagonal (const math::Matrix* matrix, uintt index)
 {
   return oap::generic::getDiagonal (matrix, index, oap::host::GetRefHostMatrix,
                                     [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->re;},
-                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->reReg;}, memcpy);
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->reReg;}, memcpy, memmove);
 }
 
 floatt GetImDiagonal (const math::Matrix* matrix, uintt index)
 {
   return oap::generic::getDiagonal (matrix, index, oap::host::GetRefHostMatrix,
                                     [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->im;},
-                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->imReg;}, memcpy);
+                                    [](const math::Matrix* matrix, const math::Matrix& ref){return matrix->imReg;}, memcpy, memmove);
 }
 
 void CopyReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix)
