@@ -26,8 +26,6 @@
 #include "oapHostMatrixPtr.h"
 #include "oapHostMatrixUPtr.h"
 
-enum class LayerType { ONE_MATRIX, MULTI_MATRICES };
-
 namespace oap
 {
 
