@@ -204,6 +204,17 @@ void CopyDeviceToDevice(void* dst, const void* src, uintt size) {
   cuMemcpyDtoD(dstPtr, srcPtr, size);
 }
 
+void MoveDeviceToDevice (void* dst, const void* src, uintt size)
+{
+  logTrace ("%s %p -> %p size = %u", __FUNCTION__, src, dst, size);
+  CUdeviceptr tempPtr = allocDeviceMem (size);
+  CUdeviceptr dstPtr = reinterpret_cast<CUdeviceptr>(dst);
+  CUdeviceptr srcPtr = reinterpret_cast<CUdeviceptr>(src);
+  cuMemcpyDtoD(tempPtr, srcPtr, size);
+  cuMemcpyDtoD(dstPtr, tempPtr, size);
+  freeDeviceMem (tempPtr);
+}
+
 void SetReValue(math::Matrix* m, uintt index, floatt value)
 {
   using namespace oap::utils;

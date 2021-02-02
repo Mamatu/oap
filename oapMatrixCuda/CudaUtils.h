@@ -64,6 +64,7 @@ void CopyHostToDevice(void* dst, const void* src, uintt size);
 void CopyDeviceToHost(void* dst, const void* src, uintt size);
 
 void CopyDeviceToDevice(void* dst, const void* src, uintt size);
+void MoveDeviceToDevice(void* dst, const void* src, uintt size);
 
 void ToHost (void* dst, const void* src, size_t length);
 
