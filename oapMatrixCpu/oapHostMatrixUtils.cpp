@@ -528,8 +528,8 @@ void CopyMatrix (math::Matrix* dst, const math::Matrix* src)
   oap::generic::MatrixMemoryApi<decltype(oap::host::GetMatrixInfo), decltype (oap::host::ToHost)> mmApi (oap::host::GetMatrixInfo, oap::host::ToHost);
   oap::generic::copyMatrixToMatrix (dst, src, memcpy, mmApi, mmApi);
 #endif
-  if (dst->re.ptr && src->re.ptr) {oap::host::CopyHostToHost (dst->re, {0, 0}, src->re, {{0, 0}, src->re.dims});}
-  if (dst->im.ptr && src->im.ptr) {oap::host::CopyHostToHost (dst->im, {0, 0}, src->im, {{0, 0}, src->im.dims});}
+  if (dst->re.ptr && src->re.ptr) {oap::host::CopyHostToHost (dst->re, {0, 0}, src->re, {{0, 0}, src->reReg.dims});}
+  if (dst->im.ptr && src->im.ptr) {oap::host::CopyHostToHost (dst->im, {0, 0}, src->im, {{0, 0}, src->imReg.dims});}
 }
 
 void CopyMatrixRegion (math::Matrix* dst, const oap::MemoryLoc& dstLoc, const math::Matrix* src, const oap::MemoryRegion& srcReg)

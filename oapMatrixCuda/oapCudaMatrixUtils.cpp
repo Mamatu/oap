@@ -448,8 +448,8 @@ inline void copyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matri
 
   auto srcRef = GetRefHostMatrix (src);
   auto dstRef = GetRefHostMatrix (dst);
-  if (srcRef.re.ptr && dstRef.re.ptr) { oap::cuda::CopyDeviceToDevice (dstRef.re, srcRef.re); }
-  if (srcRef.im.ptr && dstRef.im.ptr) { oap::cuda::CopyDeviceToDevice (dstRef.im, srcRef.im); }
+  if (srcRef.re.ptr && dstRef.re.ptr) { oap::cuda::CopyDeviceToDevice (dstRef.re, dstRef.reReg.loc, srcRef.re, srcRef.reReg); }
+  if (srcRef.im.ptr && dstRef.im.ptr) { oap::cuda::CopyDeviceToDevice (dstRef.im, dstRef.imReg.loc, srcRef.im, srcRef.imReg); }
 }
 
 void CopyDeviceMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
