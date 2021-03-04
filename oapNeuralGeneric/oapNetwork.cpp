@@ -81,7 +81,7 @@ Layer* Network::createLayer (uintt neurons, bool hasBias, const Activation& acti
   oapAssert (!m_isCreatedByNetworkTopology);
   Layer* layer = m_nga->createLayer (neurons, hasBias, 1, activation);
   FPMatrices* fpMatrices = oap::generic::allocateFPMatrices (*layer, 1, m_nga);
-  oap::generic::initLayerBiases (*layer, [this](math::Matrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue (matrix, c, r, v); }, 1);
+  oap::generic::initLayerBiases (*layer, [this](math::ComplexMatrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue (matrix, c, r, v); }, 1);
 
   m_AllFpMatricesVec.push_back (fpMatrices);
   layer->addFPMatrices (fpMatrices);
@@ -114,8 +114,8 @@ void Network::createLevel (Layer* layer, LayerType layerType)
     {
       std::pair<floatt, floatt> range = std::make_pair (-0.5, 0.5);
       oap::nutils::initRandomWeightsByRange (*previous, *layer,
-          [this](const math::Matrix* matrix) { return m_nga->getMatrixInfo(matrix); },
-          [this](math::Matrix* dst, const math::Matrix* src){ m_nga->copyHostMatrixToKernelMatrix(dst, src); },
+          [this](const math::ComplexMatrix* matrix) { return m_nga->getMatrixInfo(matrix); },
+          [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src){ m_nga->copyHostMatrixToKernelMatrix(dst, src); },
           range);
     }
     addToTopologyBPMatrices (previous);
@@ -136,7 +136,7 @@ void Network::addLayer (Layer* layer, LayerType layerType)
   m_layers[0].push_back(layer);
   m_layerType[0] = layerType;
 
-  oap::generic::initLayerBiases (*layer, [this](math::Matrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue (matrix, c, r, v); });
+  oap::generic::initLayerBiases (*layer, [this](math::ComplexMatrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue (matrix, c, r, v); });
   m_isCreatedByApi = true;
 }
 
@@ -228,7 +228,7 @@ LHandler Network::createGenericFPLayer (LayerType ltype, const Network::GenericF
         layer_fp->addBPMatrices (getBPMatrices (idx));
       }
 
-      oap::generic::initLayerBiases (*layer_fp, [this](math::Matrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue (matrix, c, r, v); }, samplesCount.second);
+      oap::generic::initLayerBiases (*layer_fp, [this](math::ComplexMatrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue (matrix, c, r, v); }, samplesCount.second);
     }
     fplayers.push_back (layer_fp);
   }
@@ -244,7 +244,7 @@ LHandler Network::createGenericFPLayer (LayerType ltype, const Network::GenericF
   return registerHandler(std::move (fplayers));
 }
 
-oap::HostMatrixUPtr Network::run (const math::Matrix* inputs, ArgType argType, oap::ErrorType errorType)
+oap::HostMatrixUPtr Network::run (const math::ComplexMatrix* inputs, ArgType argType, oap::ErrorType errorType)
 {
   Layer* layer = m_layers[0].front();
 
@@ -270,19 +270,19 @@ oap::HostMatrixUPtr Network::run (const math::Matrix* inputs, ArgType argType, o
 
   auto llayer = m_layers[0].back();
 
-  math::Matrix* output = oap::host::NewReMatrix (1, llayer->getTotalNeuronsCount());
+  math::ComplexMatrix* output = oap::host::NewReMatrix (1, llayer->getTotalNeuronsCount());
   m_nga->copyKernelMatrixToHostMatrix (output, llayer->getFPMatrices()->m_inputs);
 
   return oap::HostMatrixUPtr (output);
 }
 
-void Network::setHostInputs (math::Matrix* inputs, uintt index)
+void Network::setHostInputs (math::ComplexMatrix* inputs, uintt index)
 {
   Layer* layer = m_layers[index].front();
   setHostInputs (layer, inputs);
 }
 
-void Network::setInputs (math::Matrix* inputs, ArgType argType, LHandler handler)
+void Network::setInputs (math::ComplexMatrix* inputs, ArgType argType, LHandler handler)
 {
   Matrices matrices = {inputs};
   setInputs (matrices, argType, handler);
@@ -315,37 +315,37 @@ void Network::setInputs (const Matrices& inputs, ArgType argType, LHandler handl
 void Network::setHostInputs (Layer* layer, const Matrices& inputs)
 {
   oap::generic::setInputs(*layer, inputs,
-      [this](math::Matrix* dst, const math::Matrix* src){m_nga->copyHostMatrixToKernelMatrix (dst, src);},
-      [this](math::Matrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue(matrix, c, r, v); });
+      [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src){m_nga->copyHostMatrixToKernelMatrix (dst, src);},
+      [this](math::ComplexMatrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue(matrix, c, r, v); });
 }
 
 void Network::setDeviceInputs (Layer* layer, const Matrices& inputs)
 {
   oap::generic::setInputs(*layer, inputs,
-      [this](math::Matrix* dst, const math::Matrix* src){m_nga->copyKernelMatrixToKernelMatrix (dst, src);},
-      [this](math::Matrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue(matrix, c, r, v); });
+      [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src){m_nga->copyKernelMatrixToKernelMatrix (dst, src);},
+      [this](math::ComplexMatrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue(matrix, c, r, v); });
 }
 
-void Network::setHostInputs (Layer* layer, const math::Matrix* inputs)
+void Network::setHostInputs (Layer* layer, const math::ComplexMatrix* inputs)
 {
-  oap::generic::setInputs(*layer, std::vector<const math::Matrix*>({inputs}),
-      [this](math::Matrix* dst, const math::Matrix* src){m_nga->copyHostMatrixToKernelMatrix (dst, src);},
-      [this](math::Matrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue(matrix, c, r, v); });
+  oap::generic::setInputs(*layer, std::vector<const math::ComplexMatrix*>({inputs}),
+      [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src){m_nga->copyHostMatrixToKernelMatrix (dst, src);},
+      [this](math::ComplexMatrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue(matrix, c, r, v); });
 }
 
-void Network::setDeviceInputs (Layer* layer, const math::Matrix* inputs)
+void Network::setDeviceInputs (Layer* layer, const math::ComplexMatrix* inputs)
 {
-  oap::generic::setInputs(*layer, std::vector<const math::Matrix*>({inputs}),
-      [this](math::Matrix* dst, const math::Matrix* src){m_nga->copyHostMatrixToKernelMatrix (dst, src);},
-      [this](math::Matrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue(matrix, c, r, v); });
+  oap::generic::setInputs(*layer, std::vector<const math::ComplexMatrix*>({inputs}),
+      [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src){m_nga->copyHostMatrixToKernelMatrix (dst, src);},
+      [this](math::ComplexMatrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue(matrix, c, r, v); });
 
 }
 
-math::Matrix* Network::getOutputs (math::Matrix* outputs, ArgType argType, LHandler handler) const
+math::ComplexMatrix* Network::getOutputs (math::ComplexMatrix* outputs, ArgType argType, LHandler handler) const
 {
   Layer* ilayer = m_layers[handler][getLayersCount() - 1];
 
-  math::Matrix* cmatrix = nullptr;
+  math::ComplexMatrix* cmatrix = nullptr;
   FPMatrices* fpMatrices = ilayer->getFPMatrices();
 
   switch (argType)
@@ -394,12 +394,12 @@ void Network::getOutputs (Matrices& outputs, ArgType argType, LHandler handler) 
   };
 }
 
-math::Matrix* Network::getHostOutputs () const
+math::ComplexMatrix* Network::getHostOutputs () const
 {
   Layer* llayer = m_layers[0].back();
   auto minfo = m_nga->getMatrixInfo (llayer->getFPMatrices()->m_inputs);
 
-  math::Matrix* matrix = oap::host::NewMatrix (minfo);
+  math::ComplexMatrix* matrix = oap::host::NewMatrix (minfo);
   return getOutputs (matrix, ArgType::HOST);
 }
 
@@ -415,7 +415,7 @@ math::MatrixInfo Network::getInputInfo () const
   return m_nga->getMatrixInfo (flayer->getFPMatrices()->m_inputs);
 }
 
-math::Matrix* Network::getErrors (ArgType type) const
+math::ComplexMatrix* Network::getErrors (ArgType type) const
 {
   Layer* last = m_layers[0].back();
   FPMatrices* fpMatrices = last->getFPMatrices();
@@ -428,13 +428,13 @@ math::Matrix* Network::getErrors (ArgType type) const
     }
     case ArgType::HOST:
     {
-      math::Matrix* matrix = oap::host::NewReMatrix (1, last->getNeuronsCount());
+      math::ComplexMatrix* matrix = oap::host::NewReMatrix (1, last->getNeuronsCount());
       m_nga->copyKernelMatrixToHostMatrix (matrix, fpMatrices->m_errors);
       return matrix;
     }
     case ArgType::DEVICE_COPY:
     {
-      math::Matrix* matrix = m_nga->newKernelReMatrix (1, last->getNeuronsCount());
+      math::ComplexMatrix* matrix = m_nga->newKernelReMatrix (1, last->getNeuronsCount());
       m_nga->copyKernelMatrixToKernelMatrix (matrix, fpMatrices->m_errors);
       return matrix;
     }
@@ -544,7 +544,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
   {
     oap::HostMatrixPtr hmatrix = oap::host::NewReMatrix (1, layer->getRowsCount());
     oap::generic::getErrors (hmatrix, *layer, *m_singleApi, m_expectedOutputs[handler][0], errorType,
-        [this](math::Matrix* dst, const math::Matrix* src){ m_nga->copyKernelMatrixToHostMatrix (dst, src); });
+        [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src){ m_nga->copyKernelMatrixToHostMatrix (dst, src); });
     for (uintt idx = 0; idx < gRows (hmatrix); ++idx)
     {
       floatt v = GetReIndex (hmatrix, idx);
@@ -557,11 +557,11 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
     uintt size = m_expectedOutputs[handler].size();
     for (uintt idx = 0; idx < size; ++idx)
     {
-      math::Matrix* hmatrix = oap::host::NewReMatrix (1, layer->getTotalNeuronsCount());
+      math::ComplexMatrix* hmatrix = oap::host::NewReMatrix (1, layer->getTotalNeuronsCount());
       hmatrices.push_back (hmatrix);
     }
     oap::generic::getErrors_multiMatrices (hmatrices, *layer, *m_multiApi, m_expectedOutputs[handler], errorType,
-        [this](math::Matrix* dst, const math::Matrix* src){ m_nga->copyKernelMatrixToHostMatrix (dst, src); });
+        [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src){ m_nga->copyKernelMatrixToHostMatrix (dst, src); });
     for (uintt idx1 = 0; idx1 < hmatrices.size(); ++idx1)
     {
       const auto& hmatrix = hmatrices[idx1];
@@ -579,11 +579,11 @@ void Network::backPropagation (LHandler handler)
 {
   if (getType(handler) == LayerType::ONE_MATRIX)
   {
-    oap::generic::backPropagation<Layer> (m_layers[handler], *m_singleApi, [this](math::Matrix* dst, const math::Matrix* src) { m_nga->copyKernelMatrixToKernelMatrix(dst, src); });
+    oap::generic::backPropagation<Layer> (m_layers[handler], *m_singleApi, [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src) { m_nga->copyKernelMatrixToKernelMatrix(dst, src); });
   }
   else if (getType(handler) == LayerType::MULTI_MATRICES)
   {
-    oap::generic::backPropagation_multiMatrices<Layer> (m_layers[handler], *m_multiApi, *m_singleApi, [this](math::Matrix* dst, const math::Matrix* src) { m_nga->copyKernelMatrixToKernelMatrix(dst, src); });
+    oap::generic::backPropagation_multiMatrices<Layer> (m_layers[handler], *m_multiApi, *m_singleApi, [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src) { m_nga->copyKernelMatrixToKernelMatrix(dst, src); });
   }
   else
   {
@@ -611,7 +611,7 @@ void Network::updateWeights(LHandler handler)
   this->postStep();
 }
 
-bool Network::train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, ArgType argType, oap::ErrorType errorType)
+bool Network::train (math::ComplexMatrix* hostInputs, math::ComplexMatrix* expectedHostOutputs, ArgType argType, oap::ErrorType errorType)
 {
   Matrices hostInputsMatrix = {hostInputs};
   Matrices ehoMatrix = {expectedHostOutputs};
@@ -644,25 +644,25 @@ void Network::setController(Network::IController* icontroller)
   m_icontroller = icontroller;
 }
 
-void Network::setHostWeights (math::Matrix* weights, uintt layerIndex)
+void Network::setHostWeights (math::ComplexMatrix* weights, uintt layerIndex)
 {
   Layer* layer = m_layers[0][layerIndex];
   m_nga->copyHostMatrixToKernelMatrix (layer->getBPMatrices()->m_weights, weights);
 }
 
-void Network::getHostWeights (math::Matrix* weights, uintt layerIndex)
+void Network::getHostWeights (math::ComplexMatrix* weights, uintt layerIndex)
 {
   Layer* layer = getLayer (layerIndex);
   m_nga->copyKernelMatrixToHostMatrix (weights, layer->getBPMatrices()->m_weights);
 }
 
-void Network::setDeviceWeights (math::Matrix* weights, uintt layerIndex)
+void Network::setDeviceWeights (math::ComplexMatrix* weights, uintt layerIndex)
 {
   Layer* layer = m_layers[0][layerIndex];
   setDeviceWeights (layer, weights);
 }
 
-void Network::setDeviceWeights (Layer* layer, const math::Matrix* weights)
+void Network::setDeviceWeights (Layer* layer, const math::ComplexMatrix* weights)
 {
   m_nga->copyKernelMatrixToKernelMatrix (layer->getBPMatrices()->m_weights, weights);
 }
@@ -811,12 +811,12 @@ void Network::setHostInputs (const Matrices& inputs, uintt layerIndex)
   setHostInputs (layer, inputs);
 }
 
-void Network::setExpected (math::Matrix* expected, ArgType argType, LHandler handler)
+void Network::setExpected (math::ComplexMatrix* expected, ArgType argType, LHandler handler)
 {
-  setExpected (std::vector<math::Matrix*>({expected}), argType, handler);
+  setExpected (std::vector<math::ComplexMatrix*>({expected}), argType, handler);
 }
 
-void Network::setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler)
+void Network::setExpected (const std::vector<math::ComplexMatrix*>& expected, ArgType argType, LHandler handler)
 {
   typename ExpectedOutputs::mapped_type& holders = m_expectedOutputs[handler];
   setExpectedProtected (holders, expected, argType);
@@ -832,7 +832,7 @@ Network::Matrices Network::getExpected (LHandler handler) const
   return it->second;
 }
 
-void Network::setExpectedProtected (typename ExpectedOutputs::mapped_type& holders, const std::vector<math::Matrix*>& expected, ArgType argType)
+void Network::setExpectedProtected (typename ExpectedOutputs::mapped_type& holders, const std::vector<math::ComplexMatrix*>& expected, ArgType argType)
 {
   oapAssert (holders.size() <= expected.size());
   switch (argType)
@@ -844,7 +844,7 @@ void Network::setExpectedProtected (typename ExpectedOutputs::mapped_type& holde
       {
         for (uintt idx = 0; idx < expected.size(); ++idx)
         {
-          math::Matrix* holder = m_nga->newKernelMatrixHostRef (expected[idx]);
+          math::ComplexMatrix* holder = m_nga->newKernelMatrixHostRef (expected[idx]);
           m_nga->copyHostMatrixToKernelMatrix (holder, expected[idx]);
           holders.push_back (holder);
         }
@@ -853,7 +853,7 @@ void Network::setExpectedProtected (typename ExpectedOutputs::mapped_type& holde
       {
         for (uintt idx = 0; idx < expected.size(); ++idx)
         {
-          math::Matrix* holder = holders[idx];
+          math::ComplexMatrix* holder = holders[idx];
           m_nga->copyHostMatrixToKernelMatrix (holder, expected[idx]);
         }
       }
@@ -872,7 +872,7 @@ void Network::setExpectedProtected (typename ExpectedOutputs::mapped_type& holde
       {
         for (uintt idx = 0; idx < expected.size(); ++idx)
         {
-          math::Matrix* holder = m_nga->newKernelMatrixKernelRef (expected[idx]);
+          math::ComplexMatrix* holder = m_nga->newKernelMatrixKernelRef (expected[idx]);
           m_nga->copyKernelMatrixToKernelMatrix (holder, expected[idx]);
           holders.push_back (holder);
         }
@@ -881,7 +881,7 @@ void Network::setExpectedProtected (typename ExpectedOutputs::mapped_type& holde
       {
         for (uintt idx = 0; idx < expected.size(); ++idx)
         {
-          math::Matrix* holder = holders[idx];
+          math::ComplexMatrix* holder = holders[idx];
           m_nga->copyKernelMatrixToKernelMatrix (holder, expected[idx]);
         }
       }

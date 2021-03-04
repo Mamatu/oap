@@ -23,18 +23,18 @@ CuHArnoldiCallbackBase::CuHArnoldiCallbackBase() : CuHArnoldi() {}
 
 CuHArnoldiCallbackBase::~CuHArnoldiCallbackBase() {}
 
-void CuHArnoldiDefault::multiply(math::Matrix* w, math::Matrix* v,
+void CuHArnoldiDefault::multiply(math::ComplexMatrix* w, math::ComplexMatrix* v,
                                  oap::CuProceduresApi& cuProceduresApi,
                                  oap::VecMultiplicationType mt) {
   cuProceduresApi.dotProduct(w, m_A, v);
 }
 
-void CuHArnoldiCallbackBase::multiply(math::Matrix* w, math::Matrix* v, oap::CuProceduresApi& cuProceduresApi, oap::VecMultiplicationType mt)
+void CuHArnoldiCallbackBase::multiply(math::ComplexMatrix* w, math::ComplexMatrix* v, oap::CuProceduresApi& cuProceduresApi, oap::VecMultiplicationType mt)
 {
   m_multiplyFunc(w, v, cuProceduresApi, m_userData, mt);
 }
 
-bool CuHArnoldiCallbackBase::checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max)
+bool CuHArnoldiCallbackBase::checkEigenspair(floatt reevalue, floatt imevalue, math::ComplexMatrix* vector, uint index, uint max)
 {
   return m_checkFunc(reevalue, imevalue, vector, index, max, m_checkUserData);
 }

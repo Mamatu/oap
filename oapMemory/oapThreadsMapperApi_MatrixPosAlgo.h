@@ -41,9 +41,9 @@ namespace mp {
 template<typename MatricesLine, typename GetRefHostMatrix, typename Malloc, typename Memcpy, typename Free>
 ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetRefHostMatrix&& getRefHostMatrix, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
 {
-  auto createBuffer = [](std::vector<uintt>& indecies, const math::Matrix& matrixRef, uintt lineIndex, uintt /*argIdx*/, uintt matrixIdx)
+  auto createBuffer = [](std::vector<uintt>& indecies, const math::ComplexMatrix& matrixRef, uintt lineIndex, uintt /*argIdx*/, uintt matrixIdx)
   {
-    common::Pos pos = oap::common::GetMatrixPosFromMatrixIdx (matrixRef.re, matrixRef.reReg, matrixIdx);
+    common::Pos pos = oap::common::GetMatrixPosFromMatrixIdx (matrixRef.re.mem, matrixRef.re.reg, matrixIdx);
 
     indecies.push_back (lineIndex);
     indecies.push_back (pos.x);

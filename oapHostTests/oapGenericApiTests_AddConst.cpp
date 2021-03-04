@@ -54,15 +54,15 @@ TEST_F(OapGenericApiTests_AddConst, Test_1)
 
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
 
-  std::vector<math::Matrix*> outputs = {output1};
-  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1}), 1.f);
+  std::vector<math::ComplexMatrix*> outputs = {output1};
+  hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1}), 1.f);
 
   std::vector<floatt> expected1 =
   {
     3,
   };
 
-  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
+  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re.mem, output1->re.reg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 
@@ -83,8 +83,8 @@ TEST_F(OapGenericApiTests_AddConst, Test_2)
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {0, 0});
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {1, 0});
 
-  std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  std::vector<math::ComplexMatrix*> outputs = {output1, output2};
+  hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -96,8 +96,8 @@ TEST_F(OapGenericApiTests_AddConst, Test_2)
     3
   };
 
-  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
-  std::vector<floatt> actual2 = {oap::common::GetValue (output2->re, output2->reReg, 0, 0)};
+  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re.mem, output1->re.reg, 0, 0)};
+  std::vector<floatt> actual2 = {oap::common::GetValue (output2->re.mem, output2->re.reg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory1);
   std::cout << "Memory: " << std::endl << std::to_string (memory2);
@@ -120,8 +120,8 @@ TEST_F(OapGenericApiTests_AddConst, Test_3)
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
-  std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  std::vector<math::ComplexMatrix*> outputs = {output1, output2};
+  hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -133,8 +133,8 @@ TEST_F(OapGenericApiTests_AddConst, Test_3)
     2,
   };
 
-  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
-  std::vector<floatt> actual2 = {oap::common::GetValue (output2->re, output2->reReg, 0, 0)};
+  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re.mem, output1->re.reg, 0, 0)};
+  std::vector<floatt> actual2 = {oap::common::GetValue (output2->re.mem, output2->re.reg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 
@@ -155,8 +155,8 @@ TEST_F(OapGenericApiTests_AddConst, Test_4)
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
-  std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  std::vector<math::ComplexMatrix*> outputs = {output1, output2};
+  hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -168,8 +168,8 @@ TEST_F(OapGenericApiTests_AddConst, Test_4)
     2,
   };
 
-  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
-  std::vector<floatt> actual2 = {oap::common::GetValue (output2->re, output2->reReg, 0, 0)};
+  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re.mem, output1->re.reg, 0, 0)};
+  std::vector<floatt> actual2 = {oap::common::GetValue (output2->re.mem, output2->re.reg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 
@@ -190,8 +190,8 @@ TEST_F(OapGenericApiTests_AddConst, Test_5)
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (3, 3, 2.);
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (3, 3, 1.);
 
-  std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  std::vector<math::ComplexMatrix*> outputs = {output1, output2};
+  hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -214,8 +214,8 @@ TEST_F(OapGenericApiTests_AddConst, Test_5)
   {
     for (uintt y = 0; y < 3; ++y)
     {
-      actual1.push_back (oap::common::GetValue (output1->re, output1->reReg, x, y));
-      actual2.push_back (oap::common::GetValue (output2->re, output2->reReg, x, y));
+      actual1.push_back (oap::common::GetValue (output1->re.mem, output1->re.reg, x, y));
+      actual2.push_back (oap::common::GetValue (output2->re.mem, output2->re.reg, x, y));
     }
   }
 
@@ -238,8 +238,8 @@ TEST_F(OapGenericApiTests_AddConst, Test_6)
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (3, 3, 2.);
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (2, 2, 1.);
 
-  std::vector<math::Matrix*> outputs = {output1, output2};
-  hp.v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  std::vector<math::ComplexMatrix*> outputs = {output1, output2};
+  hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1, matrix2}), 1.f);
 
   std::vector<floatt> expected1 =
   {
@@ -261,7 +261,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_6)
   {
     for (uintt y = 0; y < 3; ++y)
     {
-      actual1.push_back (oap::common::GetValue (output1->re, output1->reReg, x, y));
+      actual1.push_back (oap::common::GetValue (output1->re.mem, output1->re.reg, x, y));
     }
   }
 
@@ -269,7 +269,7 @@ TEST_F(OapGenericApiTests_AddConst, Test_6)
   {
     for (uintt y = 0; y < 2; ++y)
     {
-      actual2.push_back (oap::common::GetValue (output2->re, output2->reReg, x, y));
+      actual2.push_back (oap::common::GetValue (output2->re.mem, output2->re.reg, x, y));
     }
   }
 

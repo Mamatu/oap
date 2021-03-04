@@ -38,7 +38,7 @@ namespace
 {
 
 template<typename LayerT>
-void checkHostInputs (LayerT& layer, const math::Matrix* const hostInputs)
+void checkHostInputs (LayerT& layer, const math::ComplexMatrix* const hostInputs)
 {
   if (gColumns (hostInputs) != 1)
   {
@@ -71,14 +71,14 @@ void checkHostInputsMatrices (LayerT& layer, const Matrices& hostInputs)
   }
 }
 
-void _setReValue (math::Matrix* matrix, uintt c, uintt r, floatt v)
+void _setReValue (math::ComplexMatrix* matrix, uintt c, uintt r, floatt v)
 {
   oap::host::SetReValue(matrix, c, r, v);
 }
 }
 
 template<typename LayerT>
-void setHostInputs (LayerT& layer, const math::Matrix* hInputs)
+void setHostInputs (LayerT& layer, const math::ComplexMatrix* hInputs)
 {
   checkHostInputs (layer, hInputs);
 
@@ -86,7 +86,7 @@ void setHostInputs (LayerT& layer, const math::Matrix* hInputs)
 }
 
 template<typename LayerT>
-void setDeviceInputs (LayerT& layer, const math::Matrix* dInputs)
+void setDeviceInputs (LayerT& layer, const math::ComplexMatrix* dInputs)
 {
   oap::generic::setInputs (layer, dInputs, oap::host::CopyHostMatrixToHostMatrix, _setReValue);
 }
@@ -118,7 +118,7 @@ math::MatrixInfo getInputsInfo (LayerT& layer)
 }
 
 template<typename LayerT>
-void getOutputs (const LayerT& layer, math::Matrix* matrix, ArgType type)
+void getOutputs (const LayerT& layer, math::ComplexMatrix* matrix, ArgType type)
 {
   switch (type)
   {
@@ -132,19 +132,19 @@ void getOutputs (const LayerT& layer, math::Matrix* matrix, ArgType type)
 }
 
 template<typename LayerT>
-void setHostWeights (LayerT& layer, math::Matrix* weights)
+void setHostWeights (LayerT& layer, math::ComplexMatrix* weights)
 {
   oap::generic::setHostWeights (layer, weights, oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
 }
 
 template<typename LayerT>
-void setDeviceWeights (LayerT& layer, math::Matrix* weights)
+void setDeviceWeights (LayerT& layer, math::ComplexMatrix* weights)
 {
   oap::host::CopyHostMatrixToHostMatrix (layer.getBPMatrices()->m_weights, weights);
 }
 
  template<typename LayerT>
-math::Matrix* getWeights (const LayerT& layer)
+math::ComplexMatrix* getWeights (const LayerT& layer)
 {
   debugAssert (layer.getBPMatrices()->m_weights != nullptr);
   return layer.getBPMatrices()->m_weights;
@@ -153,14 +153,14 @@ math::Matrix* getWeights (const LayerT& layer)
 template<typename LayerT, typename GetMatrixInfo>
 math::MatrixInfo getWeightsInfo (const LayerT& layer, GetMatrixInfo&& getMatrixInfo)
 {
-  math::Matrix* weights = getWeights (layer);
+  math::ComplexMatrix* weights = getWeights (layer);
   return getMatrixInfo (weights);
 }
 
 template<typename LayerT>
-void setWeights (const LayerT& layer, const math::Matrix* hmatrix)
+void setWeights (const LayerT& layer, const math::ComplexMatrix* hmatrix)
 {
-  math::Matrix* weights = getWeights (layer);
+  math::ComplexMatrix* weights = getWeights (layer);
   oap::host::CopyHostMatrixToHostMatrix (weights, hmatrix);
 }
 

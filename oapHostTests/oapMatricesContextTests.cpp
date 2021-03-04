@@ -48,9 +48,9 @@ TEST_F(OapMatricesContextTests, ReturnUnusedMatrix_ApiTest_1)
 
   math::MatrixInfo minfo (true, false, 10, 10);
 
-  math::Matrix* m1 = context.useMatrix (minfo, HOST);
+  math::ComplexMatrix* m1 = context.useMatrix (minfo, HOST);
   context.unuseAllMatrices ();
-  math::Matrix* m2 = context.useMatrix (minfo, HOST);
+  math::ComplexMatrix* m2 = context.useMatrix (minfo, HOST);
 
   EXPECT_EQ(m1, m2);
 }
@@ -63,9 +63,9 @@ TEST_F(OapMatricesContextTests, ReturnUnusedMatrix_ApiTest_2)
 
   math::MatrixInfo minfo (true, false, 10, 10);
 
-  math::Matrix* m1 = context.useMatrix (minfo, "HOST");
+  math::ComplexMatrix* m1 = context.useMatrix (minfo, "HOST");
   context.unuseAllMatrices ();
-  math::Matrix* m2 = context.useMatrix (math::MatrixInfo (true, false, 10, 10), "HOST");
+  math::ComplexMatrix* m2 = context.useMatrix (math::MatrixInfo (true, false, 10, 10), "HOST");
 
   EXPECT_EQ(m1, m2);
 }
@@ -83,9 +83,9 @@ TEST_F(OapMatricesContextTests, Clear_ApiTest)
 
   math::MatrixInfo minfo (true, false, 10, 10);
 
-  math::Matrix* m1 = context.useMatrix (minfo, HOST);
+  math::ComplexMatrix* m1 = context.useMatrix (minfo, HOST);
   context.unuseAllMatrices ();
-  math::Matrix* m2 = context.useMatrix (math::MatrixInfo (true, false, 10, 10), HOST);
+  math::ComplexMatrix* m2 = context.useMatrix (math::MatrixInfo (true, false, 10, 10), HOST);
 
   EXPECT_EQ(m1, m2);
 
@@ -94,7 +94,7 @@ TEST_F(OapMatricesContextTests, Clear_ApiTest)
   class Allocator
   {
     public:
-      virtual math::Matrix* newMatrix (const math::MatrixInfo& minfo)
+      virtual math::ComplexMatrix* newMatrix (const math::MatrixInfo& minfo)
       {
         return oap::host::NewHostMatrixFromMatrixInfo (minfo);
       }
@@ -103,7 +103,7 @@ TEST_F(OapMatricesContextTests, Clear_ApiTest)
   class AllocatorMock : public Allocator
   {
     public:
-      MOCK_METHOD1 (newMatrix, math::Matrix*(const math::MatrixInfo&));
+      MOCK_METHOD1 (newMatrix, math::ComplexMatrix*(const math::MatrixInfo&));
   };
   
   
@@ -111,7 +111,7 @@ TEST_F(OapMatricesContextTests, Clear_ApiTest)
   EXPECT_CALL (allocatorMock, newMatrix(_)).WillOnce (Invoke (oap::host::NewHostMatrixFromMatrixInfo));
 
   context.registerMemType (HOST, std::bind (&AllocatorMock::newMatrix, &allocatorMock, std::placeholders::_1), oap::host::DeleteMatrix);
-  math::Matrix* m3 = context.useMatrix (minfo, HOST);
+  math::ComplexMatrix* m3 = context.useMatrix (minfo, HOST);
 }
 
 TEST_F(OapMatricesContextTests, Reuse_ApiTest)
@@ -127,7 +127,7 @@ TEST_F(OapMatricesContextTests, Reuse_ApiTest)
   class Allocator
   {
     public:
-      virtual math::Matrix* newMatrix (const math::MatrixInfo& minfo)
+      virtual math::ComplexMatrix* newMatrix (const math::MatrixInfo& minfo)
       {
         return oap::host::NewHostMatrixFromMatrixInfo (minfo);
       }
@@ -136,7 +136,7 @@ TEST_F(OapMatricesContextTests, Reuse_ApiTest)
   class AllocatorMock : public Allocator
   {
     public:
-      MOCK_METHOD1 (newMatrix, math::Matrix*(const math::MatrixInfo&));
+      MOCK_METHOD1 (newMatrix, math::ComplexMatrix*(const math::MatrixInfo&));
   };
   
   
@@ -145,10 +145,10 @@ TEST_F(OapMatricesContextTests, Reuse_ApiTest)
 
   context.registerMemType (HOST, std::bind (&AllocatorMock::newMatrix, &allocatorMock, std::placeholders::_1), oap::host::DeleteMatrix);
 
-  math::Matrix* m1 = context.useMatrix (minfo, HOST);
+  math::ComplexMatrix* m1 = context.useMatrix (minfo, HOST);
   context.unuseAllMatrices ();
 
-  math::Matrix* m2 = context.useMatrix (minfo, HOST);
+  math::ComplexMatrix* m2 = context.useMatrix (minfo, HOST);
 
   EXPECT_EQ (m1, m2);
 }
@@ -166,7 +166,7 @@ TEST_F(OapMatricesContextTests, GetterUse_ApiTest)
   class Allocator
   {
     public:
-      virtual math::Matrix* newMatrix (const math::MatrixInfo& minfo)
+      virtual math::ComplexMatrix* newMatrix (const math::MatrixInfo& minfo)
       {
         return oap::host::NewHostMatrixFromMatrixInfo (minfo);
       }
@@ -175,7 +175,7 @@ TEST_F(OapMatricesContextTests, GetterUse_ApiTest)
   class AllocatorMock : public Allocator
   {
     public:
-      MOCK_METHOD1 (newMatrix, math::Matrix*(const math::MatrixInfo&));
+      MOCK_METHOD1 (newMatrix, math::ComplexMatrix*(const math::MatrixInfo&));
   };
   
   
@@ -184,8 +184,8 @@ TEST_F(OapMatricesContextTests, GetterUse_ApiTest)
 
   context.registerMemType (HOST, std::bind (&AllocatorMock::newMatrix, &allocatorMock, std::placeholders::_1), oap::host::DeleteMatrix);
 
-  math::Matrix* m1 = reinterpret_cast<math::Matrix*>(0x1);
-  math::Matrix* m2 = reinterpret_cast<math::Matrix*>(0x2);
+  math::ComplexMatrix* m1 = reinterpret_cast<math::ComplexMatrix*>(0x1);
+  math::ComplexMatrix* m2 = reinterpret_cast<math::ComplexMatrix*>(0x2);
   {
     oap::generic::MatricesContext::Getter getter = context.getter();
     m1 = getter.useMatrix (minfo, HOST);
@@ -211,7 +211,7 @@ TEST_F(OapMatricesContextTests, GetterInMethod_ApiTest)
   class Allocator
   {
     public:
-      virtual math::Matrix* newMatrix (const math::MatrixInfo& minfo)
+      virtual math::ComplexMatrix* newMatrix (const math::MatrixInfo& minfo)
       {
         return oap::host::NewHostMatrixFromMatrixInfo (minfo);
       }
@@ -220,7 +220,7 @@ TEST_F(OapMatricesContextTests, GetterInMethod_ApiTest)
   class AllocatorMock : public Allocator
   {
     public:
-      MOCK_METHOD1 (newMatrix, math::Matrix*(const math::MatrixInfo&));
+      MOCK_METHOD1 (newMatrix, math::ComplexMatrix*(const math::MatrixInfo&));
   };
   
   
@@ -229,8 +229,8 @@ TEST_F(OapMatricesContextTests, GetterInMethod_ApiTest)
 
   context.registerMemType (HOST, std::bind (&AllocatorMock::newMatrix, &allocatorMock, std::placeholders::_1), oap::host::DeleteMatrix);
 
-  math::Matrix* m1 = reinterpret_cast<math::Matrix*>(0x1);
-  math::Matrix* m2 = reinterpret_cast<math::Matrix*>(0x2);
+  math::ComplexMatrix* m1 = reinterpret_cast<math::ComplexMatrix*>(0x1);
+  math::ComplexMatrix* m2 = reinterpret_cast<math::ComplexMatrix*>(0x2);
   {
     oap::generic::MatricesContext::Getter getter = context.getter();
     m1 = getter.useMatrix (minfo, HOST);
@@ -254,15 +254,15 @@ TEST_F(OapMatricesContextTests, GeneralTest_1)
 
   context.registerMemType ("CUDA", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix);
 
-  auto func = [&context, &minfo](math::Matrix** m1)
+  auto func = [&context, &minfo](math::ComplexMatrix** m1)
   {
     auto getter = context.getter();
-    math::Matrix* matrix = getter.useMatrix (minfo, "CUDA");
+    math::ComplexMatrix* matrix = getter.useMatrix (minfo, "CUDA");
     *m1 = matrix;
   };
 
-  math::Matrix* m01;
-  math::Matrix* m11;
+  math::ComplexMatrix* m01;
+  math::ComplexMatrix* m11;
 
   func (&m01);
   func (&m11);
@@ -280,17 +280,17 @@ TEST_F(OapMatricesContextTests, GeneralTest_2)
 
   context.registerMemType ("CUDA", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix);
 
-  auto func = [&context, &minfo](math::Matrix** m1, math::Matrix** m2)
+  auto func = [&context, &minfo](math::ComplexMatrix** m1, math::ComplexMatrix** m2)
   {
     auto getter = context.getter();
-    math::Matrix* matrix = getter.useMatrix (minfo, "CUDA");
-    math::Matrix* matrix1 = getter.useMatrix (minfo, "CUDA");
+    math::ComplexMatrix* matrix = getter.useMatrix (minfo, "CUDA");
+    math::ComplexMatrix* matrix1 = getter.useMatrix (minfo, "CUDA");
     *m1 = matrix;
     *m2 = matrix1;
   };
 
-  math::Matrix* m1[2];
-  math::Matrix* m2[2];
+  math::ComplexMatrix* m1[2];
+  math::ComplexMatrix* m2[2];
 
   func (&m1[0], &m2[0]);
   EXPECT_TRUE (context.isUsed (m1[0]) == oap::generic::MatricesContext::FALSE);

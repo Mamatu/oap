@@ -110,7 +110,7 @@ void CuHArnoldi::setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues) {
   m_imoevalues = imoevalues;
 }
 
-void CuHArnoldi::setOutputsEigenvectors(math::Matrix** oevectors) {
+void CuHArnoldi::setOutputsEigenvectors(math::ComplexMatrix** oevectors) {
   traceFunction();
   m_oevectors = oevectors;
 }
@@ -226,7 +226,7 @@ void CuHArnoldi::extractOutput() {
   extractOutput(m_EV);
 }
 
-void CuHArnoldi::extractOutput(math::Matrix* EV)
+void CuHArnoldi::extractOutput(math::ComplexMatrix* EV)
 {
   traceFunction();
 
@@ -257,12 +257,12 @@ void CuHArnoldi::extractOutput(math::Matrix* EV)
   }
 }
 
-void CuHArnoldi::getEigenvector(math::Matrix* vector, const EigenPair& eigenPair)
+void CuHArnoldi::getEigenvector(math::ComplexMatrix* vector, const EigenPair& eigenPair)
 {
   getEigenvector(vector, eigenPair.getIndex());
 }
 
-void CuHArnoldi::getEigenvector(math::Matrix* vector, uint index)
+void CuHArnoldi::getEigenvector(math::ComplexMatrix* vector, uint index)
 {
   traceFunction();
 
@@ -338,7 +338,7 @@ void CuHArnoldi::calculateTriangularHInHost ()
   oap::generic::iram_calcTriangularH_Host::proc (io, iargs, m_cuApi, oap::cuda::CopyDeviceMatrixToDeviceMatrix);
 }
 
-void CuHArnoldi::calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo)
+void CuHArnoldi::calculateTriangularHEigens(const math::ComplexMatrix* normalH, const math::MatrixInfo& matrixInfo)
 {
   traceFunction();
   oap::cuda::CopyDeviceMatrixToDeviceMatrix(m_triangularH, normalH);
@@ -354,7 +354,7 @@ void CuHArnoldi::sortPWorstEigens(uint m_wantedCount)
   extractEigenvalues(m_triangularH, m_wantedCount);
 }
 
-void CuHArnoldi::extractEigenvalues(math::Matrix* H, uint m_wantedCount)
+void CuHArnoldi::extractEigenvalues(math::ComplexMatrix* H, uint m_wantedCount)
 {
   traceFunction();
   std::vector<EigenPair> values;
@@ -523,8 +523,8 @@ floatt CuHArnoldi::checkEigenpairsInternally (const EigenPair& eigenPair, floatt
   traceFunction();
   floatt value = eigenPair.re();
 
-  math::Matrix* aux_v1 = useMatrix (m_matrixInfo.isRe, m_matrixInfo.isIm, 1, m_matrixInfo.rows(), "CUDA");
-  math::Matrix* aux_v2 = useMatrix (m_matrixInfo.isRe, m_matrixInfo.isIm, 1, m_matrixInfo.rows(), "CUDA");
+  math::ComplexMatrix* aux_v1 = useMatrix (m_matrixInfo.isRe, m_matrixInfo.isIm, 1, m_matrixInfo.rows(), "CUDA");
+  math::ComplexMatrix* aux_v2 = useMatrix (m_matrixInfo.isRe, m_matrixInfo.isIm, 1, m_matrixInfo.rows(), "CUDA");
 
   m_cuApi.getVector (m_v, m_vrows, m_EV, eigenPair.getIndex());
   multiply (aux_v1, m_v, m_cuApi, oap::VecMultiplicationType::TYPE_EIGENVECTOR);  // m_cuApi.dotProduct(v1, H, v);
@@ -617,7 +617,7 @@ void CuHArnoldi::alloc1(const math::MatrixInfo& matrixInfo, uint k)
 void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uint k)
 {
   traceFunction();
-  auto newHostMatrix = [](bool isre, bool isim, uintt columns, uintt rows) -> math::Matrix*
+  auto newHostMatrix = [](bool isre, bool isim, uintt columns, uintt rows) -> math::ComplexMatrix*
   {
     return oap::host::NewMatrix (isre, isim, columns, rows);
   };

@@ -25,7 +25,7 @@
 #include "MatrixAPI.h"
 
 __hostdevice__ void
-cuda_phadamardProductRe(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+cuda_phadamardProductRe(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -36,7 +36,7 @@ cuda_phadamardProductRe(math::Matrix* output, math::Matrix* params0, math::Matri
 }
 
 __hostdevice__ void
-cuda_phadamardProductIm(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+cuda_phadamardProductIm(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -47,7 +47,7 @@ cuda_phadamardProductIm(math::Matrix* output, math::Matrix* params0, math::Matri
 }
 
 __hostdevice__ void
-cuda_phadamardProductReal(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+cuda_phadamardProductReal(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -59,7 +59,7 @@ cuda_phadamardProductReal(math::Matrix* output, math::Matrix* params0, math::Mat
 }
 
 __hostdevice__ void
-CUDA_phadamardProductRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+CUDA_phadamardProductRe (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -68,7 +68,7 @@ CUDA_phadamardProductRe (math::Matrix* output, math::Matrix* params0, math::Matr
 }
 
 __hostdevice__ void
-CUDA_phadamardProductIm(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+CUDA_phadamardProductIm(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -77,7 +77,7 @@ CUDA_phadamardProductIm(math::Matrix* output, math::Matrix* params0, math::Matri
 }
 
 __hostdevice__ void
-CUDA_phadamardProductReal(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+CUDA_phadamardProductReal(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -86,13 +86,13 @@ CUDA_phadamardProductReal(math::Matrix* output, math::Matrix* params0, math::Mat
 }
 
 __hostdevice__ void
-CUDA_phadamardProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+CUDA_phadamardProduct(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
   bool isInRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
 
   if (isre && isim && isInRange)

@@ -26,10 +26,10 @@ TEST_F(OapDotProductTests, Test1)
 {
   oap::HostProcedures hostProcedures;
 
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (1, 10, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (10, 1, 2);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (1, 10, 2);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (10, 1, 2);
 
-  math::Matrix* houtput = oap::host::NewReMatrix(10, 10);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(10, 10);
 
   hostProcedures.dotProduct (houtput, hostM1, hostM2);
 
@@ -44,10 +44,10 @@ TEST_F(OapDotProductTests, Shared_Test_1)
 {
   oap::HostProcedures hostProcedures;
 
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (1, 4, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (4, 1, 2);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (1, 4, 2);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (4, 1, 2);
 
-  math::Matrix* houtput = oap::host::NewReMatrix(4, 4);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(4, 4);
 
   hostProcedures.dotProductShared (houtput, hostM1, hostM2);
 

@@ -27,7 +27,7 @@
 #include "oapThreadsMapperS.h"
 #include "oapMemory_ThreadMapperApi.h"
 
-__hostdeviceinline__ void cuda_funcRe (math::Matrix** outputs, math::Matrix* const* params, func_t func, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_funcRe (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, func_t func, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -40,17 +40,17 @@ __hostdeviceinline__ void cuda_funcRe (math::Matrix** outputs, math::Matrix* con
     const uintt x = oidxs[1];
     const uintt y = oidxs[2];
 
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param = params[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param = params[oidxs[0]];
 
-    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
+    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
 
-    floatt* outputValue = &output->re.ptr[idx];
-    func (outputValue, param->re.ptr[idx]);
+    floatt* outputValue = &output->re.mem.ptr[idx];
+    func (outputValue, param->re.mem.ptr[idx]);
   }
 }
 
-__hostdeviceinline__ void cuda_funcIm (math::Matrix** outputs, math::Matrix* const* params, func_t func, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_funcIm (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, func_t func, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -63,17 +63,17 @@ __hostdeviceinline__ void cuda_funcIm (math::Matrix** outputs, math::Matrix* con
     const uintt x = oidxs[1];
     const uintt y = oidxs[2];
 
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param = params[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param = params[oidxs[0]];
 
-    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
+    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
 
-    floatt* outputValue = &output->im.ptr[idx];
-    func (outputValue, param->im.ptr[idx]);
+    floatt* outputValue = &output->im.mem.ptr[idx];
+    func (outputValue, param->im.mem.ptr[idx]);
   }
 }
 
-__hostdeviceinline__ void cuda_funcReal (math::Matrix** outputs, math::Matrix* const* params, func_t func, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_funcReal (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, func_t func, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -86,104 +86,104 @@ __hostdeviceinline__ void cuda_funcReal (math::Matrix** outputs, math::Matrix* c
     const uintt x = oidxs[1];
     const uintt y = oidxs[2];
 
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param = params[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param = params[oidxs[0]];
 
     {
-      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-      floatt* outputValue = &output->re.ptr[idx];
-      func (outputValue, param->re.ptr[idx]);
+      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+      floatt* outputValue = &output->re.mem.ptr[idx];
+      func (outputValue, param->re.mem.ptr[idx]);
     }
     {
-      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
-      floatt* outputValue = &output->im.ptr[idx];
-      func (outputValue, param->im.ptr[idx]);
-    }
-  }
-}
-
-__hostdeviceinline__ void cuda_funcRe_userData (math::Matrix** outputs, math::Matrix* const* params, func_ud_t func, void* ud, oap::ThreadsMapperS* mapper)
-{
-  HOST_INIT();
-  THREAD_INDICES_INIT();
- 
-  uintt oidxs[3];
-  bool inrange = _idxpos_check(oidxs, outputs, mapper, 0);
-
-  if (inrange)
-  {
-    const uintt x = oidxs[1];
-    const uintt y = oidxs[2];
-
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param = params[oidxs[0]];
-
-    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-
-    floatt* outputValue = &output->re.ptr[idx];
-    func (outputValue, param->re.ptr[idx], ud);
-  }
-}
-
-__hostdeviceinline__ void cuda_funcIm_userData (math::Matrix** outputs, math::Matrix* const* params, func_ud_t func, void* ud, oap::ThreadsMapperS* mapper)
-{
-  HOST_INIT();
-  THREAD_INDICES_INIT();
- 
-  uintt oidxs[3];
-  bool inrange = _idxpos_check(oidxs, outputs, mapper, 0);
-
-  if (inrange)
-  {
-    const uintt x = oidxs[1];
-    const uintt y = oidxs[2];
-
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param = params[oidxs[0]];
-
-    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
-
-    floatt* outputValue = &output->im.ptr[idx];
-    func (outputValue, param->im.ptr[idx], ud);
-  }
-}
-
-__hostdeviceinline__ void cuda_funcReal_userData (math::Matrix** outputs, math::Matrix* const* params, func_ud_t func, void* ud, oap::ThreadsMapperS* mapper)
-{
-  HOST_INIT();
-  THREAD_INDICES_INIT();
- 
-  uintt oidxs[3];
-  bool inrange = _idxpos_check(oidxs, outputs, mapper, 0);
-
-  if (inrange)
-  {
-    const uintt x = oidxs[1];
-    const uintt y = oidxs[2];
-
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param = params[oidxs[0]];
-
-    {
-      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-      floatt* outputValue = &output->re.ptr[idx];
-      func (outputValue, param->re.ptr[idx], ud);
-    }
-    {
-      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
-      floatt* outputValue = &output->im.ptr[idx];
-      func (outputValue, param->im.ptr[idx], ud);
+      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
+      floatt* outputValue = &output->im.mem.ptr[idx];
+      func (outputValue, param->im.mem.ptr[idx]);
     }
   }
 }
 
+__hostdeviceinline__ void cuda_funcRe_userData (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, func_ud_t func, void* ud, oap::ThreadsMapperS* mapper)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+ 
+  uintt oidxs[3];
+  bool inrange = _idxpos_check(oidxs, outputs, mapper, 0);
 
-__hostdeviceinline__ void cuda_func (math::Matrix** outputs, math::Matrix* const* params, func_t func, oap::ThreadsMapperS* mapper)
+  if (inrange)
+  {
+    const uintt x = oidxs[1];
+    const uintt y = oidxs[2];
+
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param = params[oidxs[0]];
+
+    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+
+    floatt* outputValue = &output->re.mem.ptr[idx];
+    func (outputValue, param->re.mem.ptr[idx], ud);
+  }
+}
+
+__hostdeviceinline__ void cuda_funcIm_userData (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, func_ud_t func, void* ud, oap::ThreadsMapperS* mapper)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+ 
+  uintt oidxs[3];
+  bool inrange = _idxpos_check(oidxs, outputs, mapper, 0);
+
+  if (inrange)
+  {
+    const uintt x = oidxs[1];
+    const uintt y = oidxs[2];
+
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param = params[oidxs[0]];
+
+    uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
+
+    floatt* outputValue = &output->im.mem.ptr[idx];
+    func (outputValue, param->im.mem.ptr[idx], ud);
+  }
+}
+
+__hostdeviceinline__ void cuda_funcReal_userData (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, func_ud_t func, void* ud, oap::ThreadsMapperS* mapper)
+{
+  HOST_INIT();
+  THREAD_INDICES_INIT();
+ 
+  uintt oidxs[3];
+  bool inrange = _idxpos_check(oidxs, outputs, mapper, 0);
+
+  if (inrange)
+  {
+    const uintt x = oidxs[1];
+    const uintt y = oidxs[2];
+
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param = params[oidxs[0]];
+
+    {
+      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+      floatt* outputValue = &output->re.mem.ptr[idx];
+      func (outputValue, param->re.mem.ptr[idx], ud);
+    }
+    {
+      uintt idx = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
+      floatt* outputValue = &output->im.mem.ptr[idx];
+      func (outputValue, param->im.mem.ptr[idx], ud);
+    }
+  }
+}
+
+
+__hostdeviceinline__ void cuda_func (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, func_t func, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
 
-  bool isre = outputs[0]->re.ptr != NULL;
-  bool isim = outputs[0]->im.ptr != NULL;
+  bool isre = outputs[0]->re.mem.ptr != NULL;
+  bool isim = outputs[0]->im.mem.ptr != NULL;
 
   if (isre && isim)
   {
@@ -199,12 +199,12 @@ __hostdeviceinline__ void cuda_func (math::Matrix** outputs, math::Matrix* const
   }
 }
 
-__hostdeviceinline__ void cuda_func_userData (math::Matrix** outputs, math::Matrix* const* params, func_ud_t func, void* ud, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_func_userData (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, func_ud_t func, void* ud, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
 
-  bool isre = outputs[0]->re.ptr != NULL;
-  bool isim = outputs[0]->im.ptr != NULL;
+  bool isre = outputs[0]->re.mem.ptr != NULL;
+  bool isim = outputs[0]->im.mem.ptr != NULL;
 
   if (isre && isim)
   {

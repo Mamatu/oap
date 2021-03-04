@@ -91,15 +91,15 @@ struct FPMatrices final
     logTrace ("%p", this);
   }
 
-  math::Matrix* m_inputs = nullptr;
-  math::Matrix* m_inputs_wb = nullptr;
-  math::Matrix* m_sums = nullptr;
-  math::Matrix* m_sums_wb = nullptr;
-  math::Matrix* m_errors = nullptr;
-  math::Matrix* m_errors_wb = nullptr;
-  math::Matrix* m_errorsAcc = nullptr;
-  math::Matrix* m_errorsAux = nullptr;
-  math::Matrix* m_errorsHost = nullptr;
+  math::ComplexMatrix* m_inputs = nullptr;
+  math::ComplexMatrix* m_inputs_wb = nullptr;
+  math::ComplexMatrix* m_sums = nullptr;
+  math::ComplexMatrix* m_sums_wb = nullptr;
+  math::ComplexMatrix* m_errors = nullptr;
+  math::ComplexMatrix* m_errors_wb = nullptr;
+  math::ComplexMatrix* m_errorsAcc = nullptr;
+  math::ComplexMatrix* m_errorsAux = nullptr;
+  math::ComplexMatrix* m_errorsHost = nullptr;
   math::MatrixInfo m_matricesInfo;
   math::MatrixInfo m_matricesInfo_wb;
 };
@@ -119,11 +119,11 @@ struct BPMatrices final
     logTrace ("%p", this);
   }
 
-  math::Matrix* m_tinputs = nullptr;
-  math::Matrix* m_weights = nullptr;
-  math::Matrix* m_tweights = nullptr;
-  math::Matrix* m_weights1 = nullptr;
-  math::Matrix* m_weights2 = nullptr;
+  math::ComplexMatrix* m_tinputs = nullptr;
+  math::ComplexMatrix* m_weights = nullptr;
+  math::ComplexMatrix* m_tweights = nullptr;
+  math::ComplexMatrix* m_weights1 = nullptr;
+  math::ComplexMatrix* m_weights2 = nullptr;
 };
 
 #endif

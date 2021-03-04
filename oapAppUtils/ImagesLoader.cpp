@@ -42,18 +42,18 @@ ImagesLoader::ImagesLoader(const Images& images, bool dealocateImages,
 
 ImagesLoader::~ImagesLoader() { cleanImageStuff(); }
 
-math::Matrix* ImagesLoader::createMatrix()
+math::ComplexMatrix* ImagesLoader::createMatrix()
 {
   return createMatrix(0, m_images.size());
 }
 
-math::Matrix* ImagesLoader::createMatrix(uintt index, uintt length)
+math::ComplexMatrix* ImagesLoader::createMatrix(uintt index, uintt length)
 {
   const size_t refLength = m_images[0]->getLength();
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
 
-  math::Matrix* hostMatrix = oap::host::NewReMatrix(length, refLength);
+  math::ComplexMatrix* hostMatrix = oap::host::NewReMatrix(length, refLength);
 
   try {
     for (size_t fa = index; fa < index + length; ++fa) {
@@ -68,18 +68,18 @@ math::Matrix* ImagesLoader::createMatrix(uintt index, uintt length)
   return hostMatrix;
 }
 
-math::Matrix* ImagesLoader::createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
+math::ComplexMatrix* ImagesLoader::createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
 {
-  math::Matrix* matrix = createMatrix();
+  math::ComplexMatrix* matrix = createMatrix();
   return oap::host::NewSubMatrix(matrix, cindex, rindex, columns, rows);
 }
 
-math::Matrix* ImagesLoader::createColumnVector(size_t index) {
+math::ComplexMatrix* ImagesLoader::createColumnVector(size_t index) {
   const size_t refLength = m_images[0]->getLength();
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
 
-  math::Matrix* hostMatrix = oap::host::NewReMatrix(1, refLength);
+  math::ComplexMatrix* hostMatrix = oap::host::NewReMatrix(1, refLength);
 
   try {
     loadColumnVector(hostMatrix, 0, floatsvec, index);
@@ -92,10 +92,10 @@ math::Matrix* ImagesLoader::createColumnVector(size_t index) {
   return hostMatrix;
 }
 
-math::Matrix* ImagesLoader::createRowVector(size_t index) {
+math::ComplexMatrix* ImagesLoader::createRowVector(size_t index) {
   createDataMatrixFiles();
 
-  math::Matrix* matrix = oap::host::ReadRowVector(m_file, index);
+  math::ComplexMatrix* matrix = oap::host::ReadRowVector(m_file, index);
   if (matrix == NULL) {
     throw oap::exceptions::TmpOapNotExist();
   }
@@ -141,7 +141,7 @@ size_t ImagesLoader::getImagesCount() const { return m_images.size(); }
 
 oap::Image* ImagesLoader::getImage(size_t index) const { return m_images[index]; }
 
-void ImagesLoader::loadColumnVector(math::Matrix* matrix, size_t column, floatt* vec, size_t imageIndex)
+void ImagesLoader::loadColumnVector(math::ComplexMatrix* matrix, size_t column, floatt* vec, size_t imageIndex)
 {
   const size_t refLength = m_images[0]->getLength();
 
@@ -270,7 +270,7 @@ void ImagesLoader::cleanImageStuff() {
 
 void ImagesLoader::createDataMatrixFiles() {
   if (m_file.length() == 0) {
-    math::Matrix* matrix = createMatrix();
+    math::ComplexMatrix* matrix = createMatrix();
 
     std::string filePath = m_matrixFileDir;
 

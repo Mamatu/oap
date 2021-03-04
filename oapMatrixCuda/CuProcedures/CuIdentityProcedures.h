@@ -26,7 +26,7 @@
 #include "CuCore.h"
 #include "MatrixAPI.h"
 
-__hostdevice__ void CUDA_SetIdentityReMatrix(math::Matrix* dst) {
+__hostdevice__ void CUDA_SetIdentityReMatrix(math::ComplexMatrix* dst) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -35,7 +35,7 @@ __hostdevice__ void CUDA_SetIdentityReMatrix(math::Matrix* dst) {
   threads_sync();
 }
 
-__hostdevice__ void CUDA_SetIdentityImMatrix(math::Matrix* dst) {
+__hostdevice__ void CUDA_SetIdentityImMatrix(math::ComplexMatrix* dst) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -44,13 +44,13 @@ __hostdevice__ void CUDA_SetIdentityImMatrix(math::Matrix* dst) {
   threads_sync();
 }
 
-__hostdevice__ void CUDA_SetIdentityMatrix(math::Matrix* dst) {
+__hostdevice__ void CUDA_SetIdentityMatrix(math::ComplexMatrix* dst) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
   floatt v = threadIndexX == threadIndexY ? 1 : 0;
   SetRe(dst, threadIndexX, threadIndexY, v);
-  if (dst->im.ptr != NULL) {
+  if (dst->im.mem.ptr != NULL) {
     SetIm(dst, threadIndexX, threadIndexY, 0);
   }
   threads_sync();

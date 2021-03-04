@@ -60,7 +60,7 @@ __hostdeviceinline__ floatt csign (floatt x)
   return sign (x);
 }
 
-__hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, floatt* buffer, math::Matrix* P, math::Matrix* VVT)
+__hostdevice__ void CUDA_QRHT (math::ComplexMatrix* Q, math::ComplexMatrix* R, math::ComplexMatrix* A, math::ComplexMatrix* V, math::ComplexMatrix* VT, floatt* buffer, math::ComplexMatrix* P, math::ComplexMatrix* VVT)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -72,7 +72,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
     uintt columnIdx = k;
     uintt rowIdx = k;
 
-    math::Matrix* M = A;
+    math::ComplexMatrix* M = A;
 
     if (k > 0)
     {
@@ -123,7 +123,7 @@ __hostdevice__ void CUDA_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A
   }
 }
 
-__hostdevice__ void CudaKernel_QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT)
+__hostdevice__ void CudaKernel_QRHT (math::ComplexMatrix* Q, math::ComplexMatrix* R, math::ComplexMatrix* A, math::ComplexMatrix* V, math::ComplexMatrix* VT, math::ComplexMatrix* P, math::ComplexMatrix* VVT)
 {
   floatt* sharedMemory = NULL;
   HOST_INIT_SHARED (floatt, sharedMemory);

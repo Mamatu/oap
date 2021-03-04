@@ -37,21 +37,21 @@ class DeviceLayer : public Layer
 
     math::MatrixInfo getInputsInfo () const override;
 
-    void getOutputs (math::Matrix* matrix, ArgType type) const override;
+    void getOutputs (math::ComplexMatrix* matrix, ArgType type) const override;
 
-    void getHostWeights (math::Matrix* output) override;
+    void getHostWeights (math::ComplexMatrix* output) override;
 
-    void setHostInputs(const math::Matrix* hInputs) override;
+    void setHostInputs(const math::ComplexMatrix* hInputs) override;
 
-    void setDeviceInputs(const math::Matrix* dInputs) override;
+    void setDeviceInputs(const math::ComplexMatrix* dInputs) override;
 
     math::MatrixInfo getWeightsInfo () const override;
 
     void printHostWeights (const bool newLine) const override;
 
-    void setHostWeights (math::Matrix* weights) override;
+    void setHostWeights (math::ComplexMatrix* weights) override;
 
-    void setDeviceWeights (math::Matrix* weights) override;
+    void setDeviceWeights (math::ComplexMatrix* weights) override;
 };
 }
 

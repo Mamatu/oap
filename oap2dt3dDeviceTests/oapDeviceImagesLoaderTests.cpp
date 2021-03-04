@@ -46,9 +46,9 @@ TEST_F(OapDeviceImagesLoaderTests, LoadImagesAllocDeallocTest)
   oap::DeviceImagesLoader* ddl = oap::ImagesLoader::createImagesLoader<oap::PngFile, oap::DeviceImagesLoader>(info);
   oap::ImagesLoader* dl = oap::ImagesLoader::createImagesLoader<oap::PngFile, oap::ImagesLoader>(info);
 
-  math::Matrix* matrix = ddl->createRowVector(0);
-  math::Matrix* dmatrix = ddl->createDeviceRowVector(0);
-  math::Matrix* matrix1 = dl->createRowVector(0);
+  math::ComplexMatrix* matrix = ddl->createRowVector(0);
+  math::ComplexMatrix* dmatrix = ddl->createDeviceRowVector(0);
+  math::ComplexMatrix* matrix1 = dl->createRowVector(0);
 
   uint drows = oap::cuda::GetRows(dmatrix);
   uint dcolumns = oap::cuda::GetColumns(dmatrix);
@@ -82,7 +82,7 @@ TEST_F(OapDeviceImagesLoaderTests, SquareMatrixAllocationTest)
 /*
 
   {
-    math::Matrix* sm1 = smatrix.createDeviceSubMatrix (0, 100);
+    math::ComplexMatrix* sm1 = smatrix.createDeviceSubMatrix (0, 100);
     sm1 = smatrix.getDeviceSubMatrix (1, 100, sm1);
     sm1 = smatrix.getDeviceSubMatrix (1, 100, sm1);
     EXPECT_THROW(smatrix.getDeviceSubMatrix (10000000, 100, sm1), std::runtime_error);

@@ -53,7 +53,7 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
 
   uintt linesCount = matricesArgs.size();
 
-  std::vector<std::vector<math::Matrix>> matricesRefs;
+  std::vector<std::vector<math::ComplexMatrix>> matricesRefs;
   std::vector<math::MatrixInfo> matrixInfos;
   uintt argsCount = 0;
 
@@ -64,10 +64,10 @@ ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, G
     logAssert (l == 0 || argsCount == matricesArgs[l].size());
     argsCount = matricesArgs[l].size();
     logAssert (argsCount > 0);
-    std::vector<math::Matrix> matricesRef;
+    std::vector<math::ComplexMatrix> matricesRef;
     for (uintt argIdx = 0; argIdx < matricesArgs[l].size(); ++argIdx)
     {
-      const math::Matrix* matrix = matricesArgs[l][argIdx];
+      const math::ComplexMatrix* matrix = matricesArgs[l][argIdx];
       auto refmatrix = getRefHostMatrix (matrix);
       matricesRef.push_back (refmatrix);
       if (argIdx == 0)

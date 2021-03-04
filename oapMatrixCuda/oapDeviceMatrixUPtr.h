@@ -34,7 +34,7 @@ namespace oap {
    */
   class DeviceMatrixUPtr : public oap::MatrixUniquePtr {
     public:
-      DeviceMatrixUPtr(math::Matrix* matrix = nullptr, bool bDeallocate = true) :
+      DeviceMatrixUPtr(math::ComplexMatrix* matrix = nullptr, bool bDeallocate = true) :
         oap::MatrixUniquePtr(matrix, oap::cuda::DeleteDeviceMatrix, bDeallocate)
       {
       }
@@ -50,14 +50,14 @@ namespace oap {
    */
   class DeviceMatricesUPtr : public oap::MatricesUniquePtr {
     public:
-      DeviceMatricesUPtr(math::Matrix** matrices, unsigned int count) :
+      DeviceMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count) :
         oap::MatricesUniquePtr(matrices, count, oap::cuda::DeleteDeviceMatrix) {}
 
-      DeviceMatricesUPtr(std::initializer_list<math::Matrix*> matrices) :
+      DeviceMatricesUPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
         oap::MatricesUniquePtr(matrices, oap::cuda::DeleteDeviceMatrix) {}
 
     private:
-      DeviceMatricesUPtr(math::Matrix** matrices, unsigned int count, bool bCopyArray) :
+      DeviceMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
         oap::MatricesUniquePtr (matrices, count, oap::cuda::DeleteDeviceMatrix, bCopyArray) {}
 
       template<class SmartPtr, template<typename, typename> class Container, typename T>
@@ -65,16 +65,16 @@ namespace oap {
   };
 
   template<template<typename, typename> class Container>
-  DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::Matrix*, std::allocator<math::Matrix*> >& matrices) {
+  DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
     return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(matrices);
   }
 
   template<template<typename> class Container>
-  DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::Matrix*>& matrices) {
+  DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::ComplexMatrix*>& matrices) {
     return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(matrices);
   }
 
-  inline DeviceMatricesUPtr makeDeviceMatricesUPtr(math::Matrix** array, size_t count) {
+  inline DeviceMatricesUPtr makeDeviceMatricesUPtr(math::ComplexMatrix** array, size_t count) {
     return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(array, count);
   }
 }

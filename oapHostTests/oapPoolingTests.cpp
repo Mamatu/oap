@@ -58,6 +58,6 @@ TEST_F(OapPoolingTests, AverageTest)
   calcApi.poolAverage (outcome, param, {2, 2});
 
   std::vector<floatt> expected = {13, 8, 79, 20};
-  std::vector<floatt> outcomeVec (outcome->re.ptr, outcome->re.ptr + (gRows (outcome) * gColumns (outcome)));
+  std::vector<floatt> outcomeVec (outcome->re.mem.ptr, outcome->re.mem.ptr + (gRows (outcome) * gColumns (outcome)));
   EXPECT_EQ (expected, outcomeVec);
 }

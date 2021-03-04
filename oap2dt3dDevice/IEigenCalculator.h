@@ -51,7 +51,7 @@ class IEigenCalculator {
  protected:
   void setEigenvaluesOutput(floatt*);
 
-  void setEigenvectorsOutput(math::Matrix**, ArnUtils::Type);
+  void setEigenvectorsOutput(math::ComplexMatrix**, ArnUtils::Type);
 
   oap::DeviceImagesLoader* getImagesLoader() const;
 
@@ -83,7 +83,7 @@ class IEigenCalculator {
   CuHArnoldiCallback* m_cuHArnoldi;
 
   floatt* m_revalues;
-  math::Matrix** m_eigenvectors;
+  math::ComplexMatrix** m_eigenvectors;
 };
 }
 

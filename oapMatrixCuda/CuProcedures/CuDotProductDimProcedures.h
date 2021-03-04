@@ -27,7 +27,7 @@
 #include "CuCore.h"
 #include "CuDotProductGenericProcedures.h"
 
-__hostdevice__ void cuda_dotProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+__hostdevice__ void cuda_dotProductDim (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -47,7 +47,7 @@ __hostdevice__ void cuda_dotProductDim (math::Matrix* output, math::Matrix* para
   cuda_generic_dotProductExOffset (output, params0, params1, exs, offset, inRange);
 }
 
-__hostdevice__ void CUDA_dotProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+__hostdevice__ void CUDA_dotProductDim (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt* ex)
 {
   cuda_dotProductDim (output, params0, params1, ex);
   threads_sync ();

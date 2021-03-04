@@ -84,9 +84,9 @@ namespace generic
   {
     private:
       math::MatrixInfo m_minfo;
-      math::Matrix* m_matrix = nullptr;
+      math::ComplexMatrix* m_matrix = nullptr;
 
-      inline void updateMatrixInfo (math::Matrix* matrix)
+      inline void updateMatrixInfo (math::ComplexMatrix* matrix)
       {
         if (m_matrix != matrix)
         {
@@ -113,28 +113,28 @@ namespace generic
         setImValueIdx (std::forward<SetValueIdx&&>(_setImValueIdx))
       {}
 
-      inline floatt getReValue (math::Matrix* matrix, uintt column, uintt row)
+      inline floatt getReValue (math::ComplexMatrix* matrix, uintt column, uintt row)
       {
         updateMatrixInfo (matrix);
         debugAssert (m_minfo.isRe);
         return getReValueIdx (matrix, column + row * m_minfo.columns ());
       }
 
-      inline floatt getImValue (math::Matrix* matrix, uintt column, uintt row)
+      inline floatt getImValue (math::ComplexMatrix* matrix, uintt column, uintt row)
       {
         updateMatrixInfo (matrix);
         debugAssert (m_minfo.isIm);
         return getImValueIdx (matrix, column + row * m_minfo.columns ());
       }
 
-      inline void setReValue (math::Matrix* matrix, uintt column, uintt row, floatt value)
+      inline void setReValue (math::ComplexMatrix* matrix, uintt column, uintt row, floatt value)
       {
         updateMatrixInfo (matrix);
         debugAssert (m_minfo.isRe);
         setReValueIdx (matrix, column + row * m_minfo.columns (), value);
       }
 
-      inline void setImValue (math::Matrix* matrix, uintt column, uintt row, floatt value)
+      inline void setImValue (math::ComplexMatrix* matrix, uintt column, uintt row, floatt value)
       {
         updateMatrixInfo (matrix);
         debugAssert (m_minfo.isIm);

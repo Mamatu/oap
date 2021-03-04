@@ -28,7 +28,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::Matrix* matrix1, floatt* buffer)
+__hostdevice__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::ComplexMatrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
   uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1) / 2);
@@ -50,7 +50,7 @@ __hostdevice__ void CUDA_magnitudeOptRealMatrixVer2(floatt* sum, math::Matrix* m
   }
 }
 
-__hostdevice__ void CUDA_magnitudeOptReMatrixVer2(floatt* sum, math::Matrix* matrix1, floatt* buffer)
+__hostdevice__ void CUDA_magnitudeOptReMatrixVer2(floatt* sum, math::ComplexMatrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
   uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1) / 2);
@@ -73,7 +73,7 @@ __hostdevice__ void CUDA_magnitudeOptReMatrixVer2(floatt* sum, math::Matrix* mat
   }
 }
 
-__hostdevice__ void CUDA_magnitudeOptImMatrixVer2(floatt* sum, math::Matrix* matrix1, floatt* buffer)
+__hostdevice__ void CUDA_magnitudeOptImMatrixVer2(floatt* sum, math::ComplexMatrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
   uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1) / 2);
@@ -95,11 +95,11 @@ __hostdevice__ void CUDA_magnitudeOptImMatrixVer2(floatt* sum, math::Matrix* mat
   }
 }
 
-__hostdevice__ void CUDA_magnitudeOptVer2(floatt* sum, math::Matrix* matrix1, floatt* buffer)
+__hostdevice__ void CUDA_magnitudeOptVer2(floatt* sum, math::ComplexMatrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  bool isre = matrix1->re.ptr != NULL;
-  bool isim = matrix1->im.ptr != NULL;
+  bool isre = matrix1->re.mem.ptr != NULL;
+  bool isim = matrix1->im.mem.ptr != NULL;
   if (isre && isim)
   {
     CUDA_magnitudeOptRealMatrixVer2(sum, matrix1, buffer);

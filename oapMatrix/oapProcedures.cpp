@@ -24,232 +24,232 @@ namespace oap
 namespace generic
 {
 /*
-void SingleMatrixProcedures::sigmoid (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::sigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::linear (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::linear (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::tanh (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::tanh (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::sin (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::sin (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::relu (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::relu (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::prelu (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::prelu (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::softplus (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::softplus (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::sigmoid (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::sigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::linear (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::linear (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::tanh (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::tanh (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::sin (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::sin (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::relu (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::relu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::prelu (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::prelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::softplus (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::softplus (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dsigmoid (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dlinear (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::dlinear (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dtanh (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::dtanh (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dsin (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::dsin (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::drelu (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::drelu (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dprelu (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::dprelu (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dsoftplus (math::Matrix* output, math::Matrix* input)
+void SingleMatrixProcedures::dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dsigmoid (math::Matrix* output, math::Matrix* input, Dim2 dim)
+void SingleMatrixProcedures::dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dlinear (math::Matrix* output, math::Matrix* input, Dim2 dim)
+void SingleMatrixProcedures::dlinear (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dtanh (math::Matrix* output, math::Matrix* input, Dim2 dim)
+void SingleMatrixProcedures::dtanh (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dsin (math::Matrix* output, math::Matrix* input, Dim2 dim)
+void SingleMatrixProcedures::dsin (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::drelu (math::Matrix* output, math::Matrix* input, Dim2 dim)
+void SingleMatrixProcedures::drelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dprelu (math::Matrix* output, math::Matrix* input, Dim2 dim)
+void SingleMatrixProcedures::dprelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dsoftplus (math::Matrix* output, math::Matrix* input, Dim2 dim)
+void SingleMatrixProcedures::dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dsigmoid (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dlinear (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::dlinear (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dtanh (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::dtanh (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dsin (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::dsin (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::drelu (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::drelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dprelu (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::dprelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dsoftplus (math::Matrix* output, math::Matrix* input, Dim22 dim)
+void SingleMatrixProcedures::dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dotProduct (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, Dim32 dim)
+void SingleMatrixProcedures::dotProduct (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2, Dim32 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::dotProductDimPeriodic (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, Dim32 dim, uintt periodicRows)
+void SingleMatrixProcedures::dotProductDimPeriodic (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2, Dim32 dim, uintt periodicRows)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::crossEntropy (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+void SingleMatrixProcedures::crossEntropy (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::subtract (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+void SingleMatrixProcedures::subtract (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::hadamardProductVec (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+void SingleMatrixProcedures::hadamardProductVec (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::transpose (math::Matrix* output, math::Matrix* param1)
+void SingleMatrixProcedures::transpose (math::ComplexMatrix* output, math::ComplexMatrix* param1)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::tensorProduct (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, Dim32 dim)
+void SingleMatrixProcedures::tensorProduct (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2, Dim32 dim)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::add (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+void SingleMatrixProcedures::add (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::multiplyReConstant (math::Matrix* output, math::Matrix* param1, floatt re)
+void SingleMatrixProcedures::multiplyReConstant (math::ComplexMatrix* output, math::ComplexMatrix* param1, floatt re)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::sum (floatt& output, math::Matrix* param)
+void SingleMatrixProcedures::sum (floatt& output, math::ComplexMatrix* param)
 {
   oapAssert ("Not implemented" == nullptr);
 }
 
-void SingleMatrixProcedures::setZeroMatrix (math::Matrix* param)
+void SingleMatrixProcedures::setZeroMatrix (math::ComplexMatrix* param)
 {
   oapAssert ("Not implemented" == nullptr);
 }

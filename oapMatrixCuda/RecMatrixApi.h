@@ -28,13 +28,13 @@ namespace oap
 
 class RecMatrixApi final
 {
-    const math::Matrix* m_recHostMatrix;
+    const math::ComplexMatrix* m_recHostMatrix;
     const bool m_deallocate;
 
     oap::HostMatrixPtr m_recSubHostMatrix;
 
   public:
-    RecMatrixApi (const math::Matrix* recHostMatrix, const bool deallocate);
+    RecMatrixApi (const math::ComplexMatrix* recHostMatrix, const bool deallocate);
     ~RecMatrixApi ();
 
     RecMatrixApi (const RecMatrixApi& sm) = delete;
@@ -42,17 +42,17 @@ class RecMatrixApi final
     RecMatrixApi& operator= (const RecMatrixApi& sm) = delete;
     RecMatrixApi& operator= (RecMatrixApi&& sm) = delete;
 
-    math::Matrix* createDeviceMatrix ();
+    math::ComplexMatrix* createDeviceMatrix ();
 
-    math::Matrix* getDeviceMatrix (math::Matrix* dmatrix);
+    math::ComplexMatrix* getDeviceMatrix (math::ComplexMatrix* dmatrix);
 
-    math::Matrix* getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix);
+    math::ComplexMatrix* getDeviceSubMatrix (uintt rindex, uintt rlength, math::ComplexMatrix* dmatrix);
 
     math::MatrixInfo getMatrixInfo () const;
 
-    const math::Matrix* getHostMatrix () const;
+    const math::ComplexMatrix* getHostMatrix () const;
 
-    math::Matrix* getHostSubMatrix (uintt cindex, uintt rindex, uintt clength, uintt rlength);
+    math::ComplexMatrix* getHostSubMatrix (uintt cindex, uintt rindex, uintt clength, uintt rlength);
 };
 
 }

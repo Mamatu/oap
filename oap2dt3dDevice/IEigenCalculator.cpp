@@ -83,7 +83,7 @@ oap::DeviceImagesLoader* IEigenCalculator::getImagesLoader() const
   return m_dataLoader;
 }
 
-void IEigenCalculator::setEigenvectorsOutput(math::Matrix** eigenvectors, ArnUtils::Type eigenvectorsType) {
+void IEigenCalculator::setEigenvectorsOutput(math::ComplexMatrix** eigenvectors, ArnUtils::Type eigenvectorsType) {
   m_eigenvectors = eigenvectors;
   m_eigenvectorsType = eigenvectorsType;
 }

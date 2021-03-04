@@ -184,7 +184,7 @@ size_t getElementsCount (const Container& container)
 template<typename Network, typename Container, typename CreateMatrix, typename CopyBufferToMatrix>
 void createExpectedOutput (Network* network, LHandler handler, const Container& container2D, ArgType argType, CreateMatrix&& createMatrix, CopyBufferToMatrix&& copyBufferToMatrix)
 {
-  std::vector<math::Matrix*> matrices;
+  std::vector<math::ComplexMatrix*> matrices;
   for (uintt idx = 0; idx < container2D.size(); ++idx)
   {
     matrices.push_back (createMatrix (1, container2D[idx].size()));
@@ -203,9 +203,9 @@ void createExpectedOutput (Network* network, LHandler handler, const Container& 
 }
 
 template<template<typename, typename> class Vec, typename GetMatrixInfo, typename CopyMatrixToBuffer>
-Vec<floatt, std::allocator<floatt>> convertToFloattBuffer (const Vec<math::Matrix*, std::allocator<math::Matrix*>>& matrices, GetMatrixInfo&& getMatrixInfo, CopyMatrixToBuffer&& copyMatrixToBuffer)
+Vec<floatt, std::allocator<floatt>> convertToFloattBuffer (const Vec<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*>>& matrices, GetMatrixInfo&& getMatrixInfo, CopyMatrixToBuffer&& copyMatrixToBuffer)
 {
-  uintt length = getElementsCount (matrices, [&getMatrixInfo](const math::Matrix* matrix)
+  uintt length = getElementsCount (matrices, [&getMatrixInfo](const math::ComplexMatrix* matrix)
       {
         math::MatrixInfo minfo = getMatrixInfo(matrix);
         return minfo.columns() * minfo.rows();

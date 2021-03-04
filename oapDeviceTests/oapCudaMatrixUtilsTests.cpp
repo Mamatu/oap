@@ -84,7 +84,7 @@ TEST_F(OapCudaMatrixUtilsTests, SaveLoadMatrixToFile)
   oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (columns, rows);
   oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hmatrix);
 
-  auto save = [&](math::Matrix* matrix)
+  auto save = [&](math::ComplexMatrix* matrix)
   {
     oap::utils::ByteBuffer buffer;
     oap::cuda::SaveMatrix (matrix, buffer);
@@ -218,8 +218,8 @@ TEST_F(OapCudaMatrixUtilsTests, NewHostMatrixCopyOfDeviceMatrixTest)
     oap::HostMatrixUPtr matrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix(deviceMatrix);
     EXPECT_EQ (rows, gRows (matrix));
     EXPECT_EQ (columns, gColumns (matrix));
-    EXPECT_TRUE (matrix->re.ptr != nullptr);
-    EXPECT_TRUE (matrix->im.ptr != nullptr);
+    EXPECT_TRUE (matrix->re.mem.ptr != nullptr);
+    EXPECT_TRUE (matrix->im.mem.ptr != nullptr);
   }
   {
     const uintt rows = 10;
@@ -229,8 +229,8 @@ TEST_F(OapCudaMatrixUtilsTests, NewHostMatrixCopyOfDeviceMatrixTest)
     oap::HostMatrixUPtr matrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix(deviceMatrix);
     EXPECT_EQ (rows, gRows (matrix));
     EXPECT_EQ (columns, gColumns (matrix));
-    EXPECT_TRUE (matrix->re.ptr != nullptr);
-    EXPECT_FALSE (matrix->im.ptr != nullptr);
+    EXPECT_TRUE (matrix->re.mem.ptr != nullptr);
+    EXPECT_FALSE (matrix->im.mem.ptr != nullptr);
   }
   {
     const uintt rows = 10;
@@ -240,8 +240,8 @@ TEST_F(OapCudaMatrixUtilsTests, NewHostMatrixCopyOfDeviceMatrixTest)
     oap::HostMatrixUPtr matrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix(deviceMatrix);
     EXPECT_EQ (rows, gRows (matrix));
     EXPECT_EQ (columns, gColumns (matrix));
-    EXPECT_FALSE (matrix->re.ptr != nullptr);
-    EXPECT_TRUE (matrix->im.ptr != nullptr);
+    EXPECT_FALSE (matrix->re.mem.ptr != nullptr);
+    EXPECT_TRUE (matrix->im.mem.ptr != nullptr);
   }
 }
 
@@ -264,11 +264,11 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroRow_1)
     {
       if (x == 0)
       {
-        EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
+        EXPECT_EQ (0, hostMatrix->re.mem.ptr[x + columns * y]);
       }
       else
       {
-        EXPECT_EQ (1.f, hostMatrix->re.ptr[x + columns * y]);
+        EXPECT_EQ (1.f, hostMatrix->re.mem.ptr[x + columns * y]);
       }
     }
   }
@@ -294,11 +294,11 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroRow_2)
     {
       if (x == 1)
       {
-        EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
+        EXPECT_EQ (0, hostMatrix->re.mem.ptr[x + columns * y]);
       }
       else
       {
-        EXPECT_EQ (1.f, hostMatrix->re.ptr[x + columns * y]);
+        EXPECT_EQ (1.f, hostMatrix->re.mem.ptr[x + columns * y]);
       }
     }
   }
@@ -322,8 +322,8 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_1)
   {
     for (uintt x = 0; x < columns; ++x)
     {
-      EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
-      EXPECT_EQ (0, hostMatrix->im.ptr[x + columns * y]);
+      EXPECT_EQ (0, hostMatrix->re.mem.ptr[x + columns * y]);
+      EXPECT_EQ (0, hostMatrix->im.mem.ptr[x + columns * y]);
     }
   }
 }
@@ -345,8 +345,8 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_2)
   {
     for (uintt x = 0; x < columns; ++x)
     {
-      EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
-      EXPECT_EQ (nullptr, hostMatrix->im.ptr);
+      EXPECT_EQ (0, hostMatrix->re.mem.ptr[x + columns * y]);
+      EXPECT_EQ (nullptr, hostMatrix->im.mem.ptr);
     }
   }
 }
@@ -368,8 +368,8 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_3)
   {
     for (uintt x = 0; x < columns; ++x)
     {
-      EXPECT_EQ (nullptr, hostMatrix->re.ptr);
-      EXPECT_EQ (0, hostMatrix->im.ptr[x + columns * y]);
+      EXPECT_EQ (nullptr, hostMatrix->re.mem.ptr);
+      EXPECT_EQ (0, hostMatrix->im.mem.ptr[x + columns * y]);
     }
   }
 }
@@ -391,8 +391,8 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_4)
   {
     for (uintt x = 0; x < columns; ++x)
     {
-      EXPECT_EQ (0, hostMatrix->re.ptr[x + columns * y]);
-      EXPECT_EQ (nullptr, hostMatrix->im.ptr);
+      EXPECT_EQ (0, hostMatrix->re.mem.ptr[x + columns * y]);
+      EXPECT_EQ (nullptr, hostMatrix->im.mem.ptr);
     }
   }
 }
@@ -414,8 +414,8 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_5)
   {
     for (uintt x = 0; x < columns; ++x)
     {
-      EXPECT_EQ (nullptr, hostMatrix->re.ptr);
-      EXPECT_EQ (0, hostMatrix->im.ptr[x + columns * y]);
+      EXPECT_EQ (nullptr, hostMatrix->re.mem.ptr);
+      EXPECT_EQ (0, hostMatrix->im.mem.ptr[x + columns * y]);
     }
   }
 }

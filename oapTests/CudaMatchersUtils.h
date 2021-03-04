@@ -34,35 +34,35 @@
 
 namespace oap { namespace cuda {
 
-  inline Matcher<math::Matrix*> MatrixIsEqualHK (math::Matrix* matrix, const InfoType& infoType = InfoType())
+  inline Matcher<math::ComplexMatrix*> MatrixIsEqualHK (math::ComplexMatrix* matrix, const InfoType& infoType = InfoType())
   {
     return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherHK (matrix, infoType));
   }
 
-  inline Matcher<math::Matrix*> MatrixIsEqualKH (math::Matrix* matrix, const InfoType& infoType = InfoType())
+  inline Matcher<math::ComplexMatrix*> MatrixIsEqualKH (math::ComplexMatrix* matrix, const InfoType& infoType = InfoType())
   {
     return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherKH (matrix, infoType));
   }
 
-  inline Matcher<math::Matrix*> MatrixIsEqualKK (math::Matrix* matrix, const InfoType& infoType = InfoType())
+  inline Matcher<math::ComplexMatrix*> MatrixIsEqualKK (math::ComplexMatrix* matrix, const InfoType& infoType = InfoType())
   {
     return MakeMatcher(new oap::cuda::MatrixIsEqualMatcherKK (matrix, infoType));
   }
 
-  inline Matcher<math::Matrix*> MatrixHasValues (math::Matrix* matrix, const InfoType& infoType = InfoType())
+  inline Matcher<math::ComplexMatrix*> MatrixHasValues (math::ComplexMatrix* matrix, const InfoType& infoType = InfoType())
   {
     return MakeMatcher(new oap::cuda::MatrixHasValuesMatcher(matrix, infoType));
   }
 
-  inline Matcher<math::Matrix*> MatrixIsDiagonal(floatt value) {
+  inline Matcher<math::ComplexMatrix*> MatrixIsDiagonal(floatt value) {
     return MakeMatcher(new oap::cuda::MatrixIsDiagonalMatcher(value));
   }
 
-  inline Matcher<math::Matrix*> MatrixIsIdentity() {
+  inline Matcher<math::ComplexMatrix*> MatrixIsIdentity() {
     return MakeMatcher(new oap::cuda::MatrixIsIdentityMatcher());
   }
 
-  inline Matcher<math::Matrix*> MatrixHasValues(floatt value) {
+  inline Matcher<math::ComplexMatrix*> MatrixHasValues(floatt value) {
     return MakeMatcher(new oap::cuda::MatrixValuesAreEqualMatcher(value));
   }
 

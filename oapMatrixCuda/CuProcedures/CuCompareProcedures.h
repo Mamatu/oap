@@ -30,8 +30,8 @@
 #include "CuCompareUtilsCommon.h"
 
 __hostdevice__ void cuda_compare_re(floatt* buffer,
-                                     math::Matrix* m1,
-                                     math::Matrix* m2,
+                                     math::ComplexMatrix* m1,
+                                     math::ComplexMatrix* m2,
                                      uint tindex, uint length)
 {
   uint index = tindex * 2;
@@ -47,8 +47,8 @@ __hostdevice__ void cuda_compare_re(floatt* buffer,
 }
 
 __hostdevice__ void cuda_compare_real(floatt* buffer,
-                                      math::Matrix* m1,
-                                      math::Matrix* m2,
+                                      math::ComplexMatrix* m1,
+                                      math::ComplexMatrix* m2,
                                       uint tindex, uint length) {
   uint index = tindex * 2;
   uint c = length & 1;
@@ -63,8 +63,8 @@ __hostdevice__ void cuda_compare_real(floatt* buffer,
 }
 
 __hostdevice__ void cuda_compare_im(floatt* buffer,
-                                     math::Matrix* m1,
-                                     math::Matrix* m2,
+                                     math::ComplexMatrix* m1,
+                                     math::ComplexMatrix* m2,
                                      uint tindex, uint length)
 {
   uint index = tindex * 2;
@@ -95,8 +95,8 @@ __hostdevice__ void cuda_compare_step_2(floatt* buffer,
 }
 
 __hostdevice__ void CUDA_compareRealMatrix(floatt* sum,
-                                           math::Matrix* matrix1,
-                                           math::Matrix* matrix2,
+                                           math::ComplexMatrix* matrix1,
+                                           math::ComplexMatrix* matrix2,
                                            floatt* buffer)
 {
   HOST_INIT();
@@ -116,8 +116,8 @@ __hostdevice__ void CUDA_compareRealMatrix(floatt* sum,
 }
 
 __hostdevice__ void CUDA_compareImMatrix(floatt* sum,
-                                         math::Matrix* matrix1,
-                                         math::Matrix* matrix2,
+                                         math::ComplexMatrix* matrix1,
+                                         math::ComplexMatrix* matrix2,
                                          floatt* buffer)
 {
   HOST_INIT();
@@ -137,8 +137,8 @@ __hostdevice__ void CUDA_compareImMatrix(floatt* sum,
 }
 
 __hostdevice__ void CUDA_compareReMatrix(floatt* sum,
-                                         math::Matrix* matrix1,
-                                         math::Matrix* matrix2,
+                                         math::ComplexMatrix* matrix1,
+                                         math::ComplexMatrix* matrix2,
                                          floatt* buffer)
 {
   HOST_INIT();
@@ -158,14 +158,14 @@ __hostdevice__ void CUDA_compareReMatrix(floatt* sum,
 }
 
 __hostdevice__ void CUDA_compare(floatt* sum,
-                                 math::Matrix* matrix1,
-                                 math::Matrix* matrix2,
+                                 math::ComplexMatrix* matrix1,
+                                 math::ComplexMatrix* matrix2,
                                  floatt* buffer)
 {
   HOST_INIT();
 
-  bool isre = matrix1->re.ptr != NULL;
-  bool isim = matrix1->im.ptr != NULL;
+  bool isre = matrix1->re.mem.ptr != NULL;
+  bool isim = matrix1->im.mem.ptr != NULL;
   if (isre && isim) {
     CUDA_compareRealMatrix(sum, matrix1, matrix2, buffer);
   } else if (isre) {

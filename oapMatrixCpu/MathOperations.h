@@ -67,10 +67,10 @@ namespace math {
         /**
          * \brief Pointer to value
          */
-        static bool CopyIm(math::Matrix* dst, math::Matrix* src, IMathOperation *thiz);
-        static bool CopyRe(math::Matrix* dst, math::Matrix* src, IMathOperation *thiz);
-        static bool IsIm(math::Matrix* matrix);
-        static bool IsRe(math::Matrix* matrix);
+        static bool CopyIm(math::ComplexMatrix* dst, math::ComplexMatrix* src, IMathOperation *thiz);
+        static bool CopyRe(math::ComplexMatrix* dst, math::ComplexMatrix* src, IMathOperation *thiz);
+        static bool IsIm(math::ComplexMatrix* matrix);
+        static bool IsRe(math::ComplexMatrix* matrix);
         virtual void execute() = 0;
         virtual Status beforeExecution() = 0;
         virtual Status afterExecution() = 0;
@@ -90,21 +90,21 @@ namespace math {
     protected:
         TwoMatricesOperations();
         virtual ~TwoMatricesOperations();
-        Matrix* m_matrix1;
-        Matrix* m_matrix2;
-        Matrix* m_output;
+        ComplexMatrix* m_matrix1;
+        ComplexMatrix* m_matrix2;
+        ComplexMatrix* m_output;
         Status beforeExecution();
         Status afterExecution();
     public:
-        void setMatrix1(Matrix* matrix);
-        void setMatrix2(Matrix* matrix);
-        void setOutputMatrix(Matrix* matrix);
+        void setMatrix1(ComplexMatrix* matrix);
+        void setMatrix2(ComplexMatrix* matrix);
+        void setOutputMatrix(ComplexMatrix* matrix);
     };
 
     class MatrixValueOperation : public IMathOperation {
     protected:
-        Matrix* m_matrix;
-        Matrix* m_output;
+        ComplexMatrix* m_matrix;
+        ComplexMatrix* m_output;
         floatt* m_revalue;
         floatt* m_imvalue;
         Status beforeExecution();
@@ -112,28 +112,28 @@ namespace math {
     public:
         MatrixValueOperation();
         virtual ~MatrixValueOperation();
-        void setMatrix(Matrix* matrix);
+        void setMatrix(ComplexMatrix* matrix);
         void setReValue(floatt* value);
         void setImValue(floatt* value);
-        void setOutputMatrix(Matrix* matrix);
+        void setOutputMatrix(ComplexMatrix* matrix);
     };
 
     class MatrixOperationOutputMatrix : public IMathOperation {
     protected:
-        Matrix* m_matrix;
-        Matrix* m_output;
+        ComplexMatrix* m_matrix;
+        ComplexMatrix* m_output;
         Status beforeExecution();
         Status afterExecution();
     public:
         MatrixOperationOutputMatrix();
         virtual ~MatrixOperationOutputMatrix();
-        void setMatrix(Matrix* matrix);
-        void setOutputMatrix(Matrix* matrix);
+        void setMatrix(ComplexMatrix* matrix);
+        void setOutputMatrix(ComplexMatrix* matrix);
     };
 
     class MatrixOperationOutputValue : public IMathOperation {
     protected:
-        Matrix* m_matrix;
+        ComplexMatrix* m_matrix;
         floatt* m_output1;
         floatt* m_output2;
         Status beforeExecution();
@@ -141,14 +141,14 @@ namespace math {
     public:
         MatrixOperationOutputValue();
         virtual ~MatrixOperationOutputValue();
-        void setMatrix(Matrix* matrix);
+        void setMatrix(ComplexMatrix* matrix);
         void setOutputValue1(floatt* value);
         void setOutputValue2(floatt* value);
     };
 
     class MatrixOperationOutputValues : public IMathOperation {
     protected:
-        Matrix* m_matrix;
+        ComplexMatrix* m_matrix;
         floatt* m_reoutputs;    
         floatt* m_imoutputs;
         uintt m_count;
@@ -157,24 +157,24 @@ namespace math {
     public:
         MatrixOperationOutputValues();
         virtual ~MatrixOperationOutputValues();
-        void setMatrix(Matrix* matrix);
+        void setMatrix(ComplexMatrix* matrix);
         void setReOutputValues(floatt* revalue, uintt count);
         void setImOutputValues(floatt* imvalue, uintt count);
     };
 
     class MatrixOperationTwoOutputs : public IMathOperation {
     protected:
-        Matrix* m_matrix;
-        Matrix* m_output1;
-        Matrix* m_output2;
+        ComplexMatrix* m_matrix;
+        ComplexMatrix* m_output1;
+        ComplexMatrix* m_output2;
         Status beforeExecution();
         Status afterExecution();
     public:
         MatrixOperationTwoOutputs();
         virtual ~MatrixOperationTwoOutputs();
-        void setMatrix(Matrix* matrix);
-        void setOutputMatrix1(Matrix* matrix);
-        void setOutputMatrix2(Matrix* matrix);
+        void setMatrix(ComplexMatrix* matrix);
+        void setOutputMatrix1(ComplexMatrix* matrix);
+        void setOutputMatrix2(ComplexMatrix* matrix);
     };
 
     class IAdditionOperation : public TwoMatricesOperations {
@@ -192,9 +192,9 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     private:
-        Status beforeExecution(math::Matrix* output,
-                math::Matrix* matrix1, math::Matrix* matrix2,
-                bool(*HasInstance)(math::Matrix* matrix),
+        Status beforeExecution(math::ComplexMatrix* output,
+                math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+                bool(*HasInstance)(math::ComplexMatrix* matrix),
                 ExecutionPath& executionPath);
     public:
         IAdditionOperation();
@@ -215,9 +215,9 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     private:
-        Status beforeExecution(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
-                bool(*isNotNull)(math::Matrix* matrix),
+        Status beforeExecution(math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+                bool(*copy)(math::ComplexMatrix* src, math::ComplexMatrix* dst, math::IMathOperation* thiz),
+                bool(*isNotNull)(math::ComplexMatrix* matrix),
                 ISubstracionOperation::ExecutionPath& executionPath);
     public:
         ISubstracionOperation();
@@ -241,9 +241,9 @@ namespace math {
         Status afterExecution();
         virtual void execute() = 0;
     private:
-        Status beforeExecution(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
-                bool(*isNotNull)(math::Matrix* matrix),
+        Status beforeExecution(math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+                bool(*copy)(math::ComplexMatrix* src, math::ComplexMatrix* dst, math::IMathOperation* thiz),
+                bool(*isNotNull)(math::ComplexMatrix* matrix),
                 IDotProductOperation::ExecutionPath& executionPath);
     public:
         IDotProductOperation();
@@ -265,10 +265,10 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     private:
-        Status prepare(math::Matrix* output, math::Matrix* matrix1, floatt* value,
-                bool(*copy)(math::Matrix* src, math::Matrix* dst,
+        Status prepare(math::ComplexMatrix* output, math::ComplexMatrix* matrix1, floatt* value,
+                bool(*copy)(math::ComplexMatrix* src, math::ComplexMatrix* dst,
                 math::IMathOperation* thiz),
-                bool(*isNotNull)(math::Matrix* matrix),
+                bool(*isNotNull)(math::ComplexMatrix* matrix),
                 IMultiplicationConstOperation::ExecutionPath& executionPath);
     public:
         IMultiplicationConstOperation();
@@ -297,9 +297,9 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     private:
-        Status beforeExecution(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
-                bool(*isNotNull)(math::Matrix* matrix),
+        Status beforeExecution(math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+                bool(*copy)(math::ComplexMatrix* src, math::ComplexMatrix* dst, math::IMathOperation* thiz),
+                bool(*isNotNull)(math::ComplexMatrix* matrix),
                 IDiagonalizationOperation::ExecutionPath& executionPath);
     public:
         IDiagonalizationOperation();
@@ -319,9 +319,9 @@ namespace math {
         Status beforeExecution();
         virtual void execute() = 0;
     private:
-        Status beforeExecution(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-                bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
-                bool(*isNotNull)(math::Matrix* matrix),
+        Status beforeExecution(math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+                bool(*copy)(math::ComplexMatrix* src, math::ComplexMatrix* dst, math::IMathOperation* thiz),
+                bool(*isNotNull)(math::ComplexMatrix* matrix),
                 ITensorProductOperation::ExecutionPath& executionPath);
     public:
         ITensorProductOperation();
@@ -366,8 +366,8 @@ namespace math {
             EXECUTION_NOTHING
         };
 
-        Status prepare(floatt* output, math::Matrix* matrix,
-                bool(*isNotNull)(math::Matrix* matrix),
+        Status prepare(floatt* output, math::ComplexMatrix* matrix,
+                bool(*isNotNull)(math::ComplexMatrix* matrix),
                 ExecutionPath& executionPath);
 
         ExecutionPath m_executionPathRe;

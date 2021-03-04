@@ -45,7 +45,7 @@ public: // types
   };
 
 public:
-  using Matrices = std::vector<math::Matrix*>;
+  using Matrices = std::vector<math::ComplexMatrix*>;
 
   Network (oap::generic::SingleMatrixProcedures* smp, oap::generic::MultiMatricesProcedures* mmp, oap::NetworkGenericApi* nga, bool deallocate);
   virtual ~Network();
@@ -70,18 +70,18 @@ public:
   LHandler createSharedFPLayer (const std::vector<LHandler>& handlers, LayerType ltype = LayerType::ONE_MATRIX);
   LHandler createSharedFPLayer (const std::vector<std::vector<FPMatrices*>>& fpmatrices, LayerType ltype = LayerType::ONE_MATRIX);
 
-  oap::HostMatrixUPtr run (const math::Matrix* hostInputs, ArgType argType, oap::ErrorType errorType);
-  void setHostInputs (math::Matrix* inputs, uintt index);
+  oap::HostMatrixUPtr run (const math::ComplexMatrix* hostInputs, ArgType argType, oap::ErrorType errorType);
+  void setHostInputs (math::ComplexMatrix* inputs, uintt index);
 
-  void setInputs (math::Matrix* inputs, ArgType argType, LHandler handler = 0);
+  void setInputs (math::ComplexMatrix* inputs, ArgType argType, LHandler handler = 0);
   void setInputs (const Matrices& inputs, ArgType argType, LHandler handler = 0);
 
   void destroyFPSection (LHandler handle);
 
-  math::Matrix* getOutputs (math::Matrix* outputs, ArgType argType, LHandler handler = 0) const;
+  math::ComplexMatrix* getOutputs (math::ComplexMatrix* outputs, ArgType argType, LHandler handler = 0) const;
   void getOutputs (Matrices& outputs, ArgType argType, LHandler handler = 0) const;
 
-  math::Matrix* getHostOutputs () const;
+  math::ComplexMatrix* getHostOutputs () const;
 
   math::MatrixInfo getOutputInfo () const;
   math::MatrixInfo getInputInfo () const;
@@ -90,7 +90,7 @@ public:
   void fbPropagation (LHandler handler, oap::ErrorType errorType, CalculationType calcType);
   void accumulateErrors (oap::ErrorType errorType, CalculationType calcType, LHandler handler = 0);
 
-  math::Matrix* getErrors (ArgType type) const;
+  math::ComplexMatrix* getErrors (ArgType type) const;
 
   floatt calculateMSE ();
   floatt calculateRMSE ();
@@ -105,15 +105,15 @@ public:
   void updateWeights (LHandler handler = 0);
 
   bool train (const Matrices& hostInputs, const Matrices& expectedHostOutputs, ArgType argType, oap::ErrorType errorType);
-  bool train (math::Matrix* hostInputs, math::Matrix* expectedHostOutputs, ArgType argType, oap::ErrorType errorType);
+  bool train (math::ComplexMatrix* hostInputs, math::ComplexMatrix* expectedHostOutputs, ArgType argType, oap::ErrorType errorType);
 
   void setController (IController* icontroller);
 
-  void setHostWeights (math::Matrix* weights, uintt layerIndex);
+  void setHostWeights (math::ComplexMatrix* weights, uintt layerIndex);
 
-  void getHostWeights (math::Matrix* weights, uintt layerIndex);
+  void getHostWeights (math::ComplexMatrix* weights, uintt layerIndex);
 
-  void setDeviceWeights (math::Matrix* weights, uintt layerIndex);
+  void setDeviceWeights (math::ComplexMatrix* weights, uintt layerIndex);
 
   void setLearningRate (floatt lr);
   floatt getLearningRate () const;
@@ -154,8 +154,8 @@ public:
 
   void setHostInputs (const Matrices& inputs, uintt layerIndex);
 
-  void setExpected (math::Matrix* expected, ArgType argType, LHandler handler = 0);
-  void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0);
+  void setExpected (math::ComplexMatrix* expected, ArgType argType, LHandler handler = 0);
+  void setExpected (const std::vector<math::ComplexMatrix*>& expected, ArgType argType, LHandler handler = 0);
   Matrices getExpected (LHandler handler) const;
   void printLayersInputs () const;
 
@@ -232,11 +232,11 @@ private:
 
   void setHostInputs (Layer* layer, const Matrices& inputs);
   void setDeviceInputs (Layer* layer, const Matrices& inputs);
-  void setHostInputs (Layer* layer, const math::Matrix* inputs);
-  void setDeviceInputs (Layer* layer, const math::Matrix* inputs);
-  void setDeviceWeights (Layer* layer, const math::Matrix* weights);
+  void setHostInputs (Layer* layer, const math::ComplexMatrix* inputs);
+  void setDeviceInputs (Layer* layer, const math::ComplexMatrix* inputs);
+  void setDeviceWeights (Layer* layer, const math::ComplexMatrix* weights);
 
-  void setExpectedProtected (typename ExpectedOutputs::mapped_type& holder, const std::vector<math::Matrix*>& expected, ArgType argType);
+  void setExpectedProtected (typename ExpectedOutputs::mapped_type& holder, const std::vector<math::ComplexMatrix*>& expected, ArgType argType);
 };
 }
 #endif

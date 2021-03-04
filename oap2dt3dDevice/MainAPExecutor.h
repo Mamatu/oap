@@ -31,9 +31,9 @@ class MainAPExecutor final
     class EigenCalculator;
     MainAPExecutor(CuHArnoldiCallback* cuhArnolldi, bool deallocateArnoldi);
 
-    static void multiplyMatrixCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
-    static void multiplySubMatrixCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
-    static void multiplyVecsCallback(math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
+    static void multiplyMatrixCallback(math::ComplexMatrix* m_w, math::ComplexMatrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
+    static void multiplySubMatrixCallback(math::ComplexMatrix* m_w, math::ComplexMatrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
+    static void multiplyVecsCallback(math::ComplexMatrix* m_w, math::ComplexMatrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
 
     static bool sizeCondition (const math::MatrixInfo& info)
     {
@@ -59,7 +59,7 @@ class MainAPExecutor final
           IEigenCalculator::setEigenvaluesOutput (eigenvalues);
         }
 
-        void setEigenvectorsOutput(math::Matrix** eigenvecs, ArnUtils::Type type)
+        void setEigenvectorsOutput(math::ComplexMatrix** eigenvecs, ArnUtils::Type type)
         {
           IEigenCalculator::setEigenvectorsOutput (eigenvecs, type);
         }

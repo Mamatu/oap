@@ -41,7 +41,7 @@ class NetworkT : public oap::Network
     NetworkT (oap::CuProceduresApi* single, oap::MultiMatricesCuProcedures* multi, oap::NetworkCudaApi* nga, bool p) : oap::Network (single, multi, nga, p)
     {}
 
-    void setHostInput (math::Matrix* inputs, size_t index)
+    void setHostInput (math::ComplexMatrix* inputs, size_t index)
     {
       oap::Network::setHostInputs (inputs, index);
     }

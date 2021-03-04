@@ -38,19 +38,19 @@ class SquareMatrixApi final
   math::MatrixInfo     m_rowVectorInfo;
   math::MatrixInfo     m_subMatrixInfo;
 
-  math::Matrix* m_matrix;
-  math::Matrix* m_matrixT;
-  math::Matrix* m_rowVector;
-  math::Matrix* m_subMatrix;
+  math::ComplexMatrix* m_matrix;
+  math::ComplexMatrix* m_matrixT;
+  math::ComplexMatrix* m_rowVector;
+  math::ComplexMatrix* m_subMatrix;
   void destroyMatrices ();
 
-  math::Matrix* getMatrix ();
-  math::Matrix* getMatrixT ();
-  math::Matrix* getRowVector (uintt index);
-  math::Matrix* getSubMatrix (uintt rindex, uintt rlength);
+  math::ComplexMatrix* getMatrix ();
+  math::ComplexMatrix* getMatrixT ();
+  math::ComplexMatrix* getRowVector (uintt index);
+  math::ComplexMatrix* getSubMatrix (uintt rindex, uintt rlength);
 
-  void destroyMatrix(math::Matrix** matrix);
-  math::Matrix* resetMatrix (math::Matrix* matrix, const math::MatrixInfo& minfo);
+  void destroyMatrix(math::ComplexMatrix** matrix);
+  math::ComplexMatrix* resetMatrix (math::ComplexMatrix* matrix, const math::MatrixInfo& minfo);
 
   public:
     SquareMatrixApi (CuProceduresApi& api, RecMatrixApi& orig);
@@ -63,10 +63,10 @@ class SquareMatrixApi final
 
     math::MatrixInfo getMatrixInfo () const;
 
-    math::Matrix* createDeviceMatrix ();
+    math::ComplexMatrix* createDeviceMatrix ();
 
-    math::Matrix* getDeviceMatrix (math::Matrix* dmatrix);
-    math::Matrix* getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix);
+    math::ComplexMatrix* getDeviceMatrix (math::ComplexMatrix* dmatrix);
+    math::ComplexMatrix* getDeviceSubMatrix (uintt rindex, uintt rlength, math::ComplexMatrix* dmatrix);
 };
 
 }

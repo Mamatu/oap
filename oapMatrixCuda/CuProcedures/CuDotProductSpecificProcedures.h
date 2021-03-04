@@ -24,7 +24,7 @@
 #include "Matrix.h"
 #include "MatrixAPI.h"
 
-__hostdevice__ void cuda_specific_dotProductRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void cuda_specific_dotProductRe (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -43,7 +43,7 @@ __hostdevice__ void cuda_specific_dotProductRe (math::Matrix* output, const math
   *GetRePtrIndex (output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
-__hostdevice__ void cuda_specific_dotProductIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void cuda_specific_dotProductIm (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -62,7 +62,7 @@ __hostdevice__ void cuda_specific_dotProductIm (math::Matrix* output, const math
   *GetRePtrIndex (output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
-__hostdevice__ void cuda_specific_dotProductReal (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void cuda_specific_dotProductReal (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -91,7 +91,7 @@ __hostdevice__ void cuda_specific_dotProductReal (math::Matrix* output, const ma
   gImValues (output)[threadIndexX + outputColumns * threadIndexY] = imtemp;
 }
 
-__hostdevice__ void CUDA_specific_dotProductRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void CUDA_specific_dotProductRe (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -99,7 +99,7 @@ __hostdevice__ void CUDA_specific_dotProductRe (math::Matrix* output, const math
   threads_sync();
 }
 
-__hostdevice__ void CUDA_specific_dotProductIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void CUDA_specific_dotProductIm (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -107,7 +107,7 @@ __hostdevice__ void CUDA_specific_dotProductIm (math::Matrix* output, const math
   threads_sync();
 }
 
-__hostdevice__ void CUDA_specific_dotProductReal (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void CUDA_specific_dotProductReal (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -115,7 +115,7 @@ __hostdevice__ void CUDA_specific_dotProductReal (math::Matrix* output, const ma
   threads_sync();
 }
 
-__hostdevice__ void CUDA_specific_dotProduct (math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdevice__ void CUDA_specific_dotProduct (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();

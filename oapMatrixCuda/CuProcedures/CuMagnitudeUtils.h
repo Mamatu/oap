@@ -41,7 +41,7 @@ __hostdevice__ void cuda_SumValues(floatt* buffer, uintt bufferIndex, uintt buff
   }
 }
 
-__hostdevice__ void cuda_MagnitudeRealOpt(floatt* buffer, uintt bufferIndex, math::Matrix* m1)
+__hostdevice__ void cuda_MagnitudeRealOpt(floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1)
 {
   HOST_INIT();
   const bool inScope =
@@ -55,7 +55,7 @@ __hostdevice__ void cuda_MagnitudeRealOpt(floatt* buffer, uintt bufferIndex, mat
   }
 }
 
-__hostdevice__ void cuda_MagnitudeReOpt(floatt* buffer, uintt bufferIndex, math::Matrix* m1)
+__hostdevice__ void cuda_MagnitudeReOpt(floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1)
 {
   HOST_INIT();
   const bool inScope =
@@ -68,7 +68,7 @@ __hostdevice__ void cuda_MagnitudeReOpt(floatt* buffer, uintt bufferIndex, math:
   }
 }
 
-__hostdevice__ void cuda_MagnitudeImOpt(floatt* buffer, uintt bufferIndex, math::Matrix* m1)
+__hostdevice__ void cuda_MagnitudeImOpt(floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1)
 {
   HOST_INIT();
   const bool inScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < gRows (m1) &&
@@ -80,7 +80,7 @@ __hostdevice__ void cuda_MagnitudeImOpt(floatt* buffer, uintt bufferIndex, math:
   }
 }
 
-__hostdeviceinline__ void cuda_calculateLocaIdx(uint3& lthreadIdx, dim3& lblockIdx, math::Matrix* m1, uintt column)
+__hostdeviceinline__ void cuda_calculateLocaIdx(uint3& lthreadIdx, dim3& lblockIdx, math::ComplexMatrix* m1, uintt column)
 {
   HOST_INIT();
 
@@ -90,7 +90,7 @@ __hostdeviceinline__ void cuda_calculateLocaIdx(uint3& lthreadIdx, dim3& lblockI
   lthreadIdx.y = lthreadIdx.y % blockDim.y;
 }
 
-__hostdevice__ void cuda_MagnitudeRealVecOpt(floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column)
+__hostdevice__ void cuda_MagnitudeRealVecOpt(floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1, uintt column)
 {
   HOST_INIT();
 
@@ -108,7 +108,7 @@ __hostdevice__ void cuda_MagnitudeRealVecOpt(floatt* buffer, uintt bufferIndex, 
   }
 }
 
-__hostdevice__ void cuda_MagnitudeReVecOpt(floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column)
+__hostdevice__ void cuda_MagnitudeReVecOpt(floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1, uintt column)
 {
   HOST_INIT();
 
@@ -125,7 +125,7 @@ __hostdevice__ void cuda_MagnitudeReVecOpt(floatt* buffer, uintt bufferIndex, ma
   }
 }
 
-__hostdevice__ void cuda_MagnitudeImVecOpt(floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column)
+__hostdevice__ void cuda_MagnitudeImVecOpt(floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1, uintt column)
 {
   HOST_INIT();
 
@@ -142,7 +142,7 @@ __hostdevice__ void cuda_MagnitudeImVecOpt(floatt* buffer, uintt bufferIndex, ma
   }
 }
 
-__hostdevice__ void cuda_MagnitudeRealVecOptEx(floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row1, uintt row2)
+__hostdevice__ void cuda_MagnitudeRealVecOptEx(floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1, uintt column, uintt row1, uintt row2)
 {
   HOST_INIT();
 
@@ -162,7 +162,7 @@ __hostdevice__ void cuda_MagnitudeRealVecOptEx(floatt* buffer, uintt bufferIndex
 }
 
 __hostdevice__ void cuda_MagnitudeReVecOptEx(floatt* buffer, uintt bufferIndex,
-    math::Matrix* m1, uintt column,
+    math::ComplexMatrix* m1, uintt column,
     uintt row1, uintt row2)
 {
   HOST_INIT();
@@ -182,7 +182,7 @@ __hostdevice__ void cuda_MagnitudeReVecOptEx(floatt* buffer, uintt bufferIndex,
 }
 
 __hostdevice__ void cuda_MagnitudeImVecOptEx(floatt* buffer, uintt bufferIndex,
-    math::Matrix* m1, uintt column,
+    math::ComplexMatrix* m1, uintt column,
     uintt row1, uintt row2)
 {
   HOST_INIT();
@@ -203,24 +203,24 @@ __hostdevice__ void cuda_MagnitudeImVecOptEx(floatt* buffer, uintt bufferIndex,
   }
 }
 
-typedef floatt (*CalcElem_f)(const math::Matrix* matrix, uintt index);
+typedef floatt (*CalcElem_f)(const math::ComplexMatrix* matrix, uintt index);
 
-__hostdevice__ floatt cuda_CalcElemReal (const math::Matrix* matrix, uintt index)
+__hostdevice__ floatt cuda_CalcElemReal (const math::ComplexMatrix* matrix, uintt index)
 {
   return GetReIndex (matrix, index) * GetReIndex (matrix, index) + GetImIndex (matrix, index) * GetImIndex (matrix, index);
 }
 
-__hostdevice__ floatt cuda_CalcElemRe (const math::Matrix* matrix, uintt index)
+__hostdevice__ floatt cuda_CalcElemRe (const math::ComplexMatrix* matrix, uintt index)
 {
   return GetReIndex (matrix, index) * GetReIndex (matrix, index);
 }
 
-__hostdevice__ floatt cuda_CalcElemIm (const math::Matrix* matrix, uintt index)
+__hostdevice__ floatt cuda_CalcElemIm (const math::ComplexMatrix* matrix, uintt index)
 {
   return GetImIndex (matrix, index) * GetImIndex (matrix, index);
 }
 
-__hostdevice__ void cuda_MagnitudeGenericOptEx (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row, uintt columns, uintt rows, CalcElem_f calcElm)
+__hostdevice__ void cuda_MagnitudeGenericOptEx (floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1, uintt column, uintt row, uintt columns, uintt rows, CalcElem_f calcElm)
 {
   HOST_INIT();
 
@@ -235,17 +235,17 @@ __hostdevice__ void cuda_MagnitudeGenericOptEx (floatt* buffer, uintt bufferInde
   }
 }
 
-__hostdevice__ void cuda_MagnitudeRealMatrixOptEx (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row, uintt columns, uintt rows)
+__hostdevice__ void cuda_MagnitudeRealMatrixOptEx (floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1, uintt column, uintt row, uintt columns, uintt rows)
 {
   cuda_MagnitudeGenericOptEx (buffer, bufferIndex, m1, column, row, columns, rows, cuda_CalcElemReal);
 }
 
-__hostdevice__ void cuda_MagnitudeReMatrixOptEx (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row, uintt columns, uintt rows)
+__hostdevice__ void cuda_MagnitudeReMatrixOptEx (floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1, uintt column, uintt row, uintt columns, uintt rows)
 {
   cuda_MagnitudeGenericOptEx (buffer, bufferIndex, m1, column, row, columns, rows, cuda_CalcElemRe);
 }
 
-__hostdevice__ void cuda_MagnitudeImMatrixOptEx (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt column, uintt row, uintt columns, uintt rows)
+__hostdevice__ void cuda_MagnitudeImMatrixOptEx (floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1, uintt column, uintt row, uintt columns, uintt rows)
 {
   cuda_MagnitudeGenericOptEx (buffer, bufferIndex, m1, column, row, columns, rows, cuda_CalcElemIm);
 }

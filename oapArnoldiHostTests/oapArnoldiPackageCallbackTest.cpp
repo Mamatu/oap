@@ -36,7 +36,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
       UserPair userPair = std::make_pair(&data, enableValidateOfV);
 
-      auto multiply = [&userPair] (math::Matrix* w, math::Matrix* v, oap::HostProcedures& cuProceduresApi, oap::VecMultiplicationType mt)
+      auto multiply = [&userPair] (math::ComplexMatrix* w, math::ComplexMatrix* v, oap::HostProcedures& cuProceduresApi, oap::VecMultiplicationType mt)
       {
         if (mt == oap::VecMultiplicationType::TYPE_WV) {
           oap::ACTestData* data = userPair.first;

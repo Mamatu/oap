@@ -52,8 +52,8 @@ __hostdevice__ void cuda_CompareBufferVer2(floatt* buffer, uint sharedIndex,
   }
 }
 
-__hostdevice__ void cuda_CompareRealOptVer2(floatt* buffer, math::Matrix* m1,
-                                            math::Matrix* m2, uint sharedIndex,
+__hostdevice__ void cuda_CompareRealOptVer2(floatt* buffer, math::ComplexMatrix* m1,
+                                            math::ComplexMatrix* m2, uint sharedIndex,
                                             uint xlength) {
   HOST_INIT();
 
@@ -74,8 +74,8 @@ __hostdevice__ void cuda_CompareRealOptVer2(floatt* buffer, math::Matrix* m1,
   }
 }
 
-__hostdevice__ void cuda_CompareReOptVer2(floatt* buffer, math::Matrix* m1,
-                                          math::Matrix* m2, uint sharedIndex,
+__hostdevice__ void cuda_CompareReOptVer2(floatt* buffer, math::ComplexMatrix* m1,
+                                          math::ComplexMatrix* m2, uint sharedIndex,
                                           uint xlength) {
   HOST_INIT();
 
@@ -96,8 +96,8 @@ __hostdevice__ void cuda_CompareReOptVer2(floatt* buffer, math::Matrix* m1,
   }
 }
 
-__hostdevice__ void cuda_CompareImOptVer2(floatt* buffer, math::Matrix* m1,
-                                          math::Matrix* m2, uint sharedIndex,
+__hostdevice__ void cuda_CompareImOptVer2(floatt* buffer, math::ComplexMatrix* m1,
+                                          math::ComplexMatrix* m2, uint sharedIndex,
                                           uint xlength) {
   HOST_INIT();
 

@@ -29,17 +29,17 @@ class CuHArnoldiDefault : public CuHArnoldi {
  * @brief Set device matrix to calculate its eigenvalues and eigenvectors.
  * @param A
  */
-  void setMatrix(math::Matrix* A) { m_A = A; }
+  void setMatrix(math::ComplexMatrix* A) { m_A = A; }
 
  protected:
-  virtual void multiply (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, oap::VecMultiplicationType);
+  virtual void multiply (math::ComplexMatrix* m_w, math::ComplexMatrix* m_v, oap::CuProceduresApi& cuProceduresApi, oap::VecMultiplicationType);
 
-  virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max) {
+  virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::ComplexMatrix* vector, uint index, uint max) {
     return true;
   }
 
  private:
-  math::Matrix* m_A;
+  math::ComplexMatrix* m_A;
 };
 
 class CuHArnoldiCallbackBase : public CuHArnoldi
@@ -48,17 +48,17 @@ class CuHArnoldiCallbackBase : public CuHArnoldi
     CuHArnoldiCallbackBase();
     virtual ~CuHArnoldiCallbackBase();
 
-    typedef void (*MultiplyFunc) (math::Matrix* m_w, math::Matrix* m_v,  oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
+    typedef void (*MultiplyFunc) (math::ComplexMatrix* m_w, math::ComplexMatrix* m_v,  oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt);
 
-    typedef bool (*CheckFunc) (floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max, void* userData);
+    typedef bool (*CheckFunc) (floatt reevalue, floatt imevalue, math::ComplexMatrix* vector, uint index, uint max, void* userData);
 
     void setCallback(MultiplyFunc multiplyFunc, void* userData);
     void setCheckCallback(CheckFunc multiplyFunc, void* userData);
 
   protected:
-    virtual void multiply (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, oap::VecMultiplicationType mt);
+    virtual void multiply (math::ComplexMatrix* m_w, math::ComplexMatrix* m_v, oap::CuProceduresApi& cuProceduresApi, oap::VecMultiplicationType mt);
 
-    virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max);
+    virtual bool checkEigenspair(floatt reevalue, floatt imevalue, math::ComplexMatrix* vector, uint index, uint max);
 
  private:
   MultiplyFunc m_multiplyFunc;

@@ -25,13 +25,13 @@
 #include "CuPReluProcedures.h"
 
 
-__hostdeviceinline__ void cuda_relu (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_relu (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   floatt alpha = 0.;
   cuda_func_userData (output, matrix, cuda_preluFunc, &alpha);
 }
 
-__hostdeviceinline__ void cuda_drelu(math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_drelu(math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   floatt alpha = 0.;
   cuda_func_userData (output, matrix, cuda_dpreluFunc, &alpha);

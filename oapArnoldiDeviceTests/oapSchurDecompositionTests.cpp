@@ -44,9 +44,9 @@ class OapSchurDecomposition : public testing::Test {
 
   enum KernelType { DEVICE, HOST };
 
-  void executeTestQUQT(math::Matrix* H, math::Matrix* Q, math::Matrix* QT,
-                       math::Matrix* output1, math::Matrix* output2,
-                       math::Matrix* eq_initMatrix, math::Matrix* hostMatrix,
+  void executeTestQUQT(math::ComplexMatrix* H, math::ComplexMatrix* Q, math::ComplexMatrix* QT,
+                       math::ComplexMatrix* output1, math::ComplexMatrix* output2,
+                       math::ComplexMatrix* eq_initMatrix, math::ComplexMatrix* hostMatrix,
                        oap::CuProceduresApi& cuMatrix) {
     //cuMatrix.transposeMatrix(QT, Q);
     //cuMatrix.dotProduct(output2, H, QT);
@@ -62,25 +62,25 @@ class OapSchurDecomposition : public testing::Test {
                    const std::string& eq_matrixStr,
                    OapSchurDecomposition::KernelType kernelType) {
     oap::CuProceduresApi cuMatrix;
-    math::Matrix* matrix = oap::cuda::NewDeviceMatrix(matrixStr);
-    math::Matrix* matrix1 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
-    math::Matrix* matrix2 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
-    math::Matrix* matrix3 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
-    math::Matrix* matrix4 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
-    math::Matrix* matrix5 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
-    math::Matrix* matrix6 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
-    math::Matrix* matrix7 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
-    math::Matrix* matrix8 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix(matrixStr);
+    math::ComplexMatrix* matrix1 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::ComplexMatrix* matrix2 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::ComplexMatrix* matrix3 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::ComplexMatrix* matrix4 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::ComplexMatrix* matrix5 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::ComplexMatrix* matrix6 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::ComplexMatrix* matrix7 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
+    math::ComplexMatrix* matrix8 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
 
-    math::Matrix* eq_hostMatrix = oap::host::NewMatrix(eq_matrixStr);
-    math::Matrix* eq_initMatrix = oap::host::NewMatrix(matrixStr);
-    math::Matrix* hostMatrix = oap::host::NewMatrixRef(eq_hostMatrix);
+    math::ComplexMatrix* eq_hostMatrix = oap::host::NewMatrix(eq_matrixStr);
+    math::ComplexMatrix* eq_initMatrix = oap::host::NewMatrix(matrixStr);
+    math::ComplexMatrix* hostMatrix = oap::host::NewMatrixRef(eq_hostMatrix);
 
-    math::Matrix* H = matrix;
-    math::Matrix* Q = matrix1;
-    math::Matrix* QT = matrix8;
-    math::Matrix* output1 = matrix7;
-    math::Matrix* output2 = matrix6;
+    math::ComplexMatrix* H = matrix;
+    math::ComplexMatrix* Q = matrix1;
+    math::ComplexMatrix* QT = matrix8;
+    math::ComplexMatrix* output1 = matrix7;
+    math::ComplexMatrix* output2 = matrix6;
 
     if (kernelType == OapSchurDecomposition::DEVICE) {
       oap::cuda::Kernel kernel;

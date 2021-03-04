@@ -66,7 +66,7 @@ MathOperationsCpu::~MathOperationsCpu() {
 }
 
 math::Status MathOperationsCpu::execute(math::TwoMatricesOperations& obj,
-    math::Matrix* output, math::Matrix* arg1, math::Matrix* arg2) {
+    math::ComplexMatrix* output, math::ComplexMatrix* arg1, math::ComplexMatrix* arg2) {
     obj.setSubRows(m_subrows);
     obj.setSubColumns(m_subcolumns);
     obj.setOutputMatrix(output);
@@ -81,7 +81,7 @@ math::Status MathOperationsCpu::execute(math::TwoMatricesOperations& obj,
 }
 
 math::Status MathOperationsCpu::execute(math::MatrixValueOperation& obj,
-    math::Matrix* output, math::Matrix* arg1, floatt* value) {
+    math::ComplexMatrix* output, math::ComplexMatrix* arg1, floatt* value) {
     obj.setSubRows(m_subrows);
     obj.setSubColumns(m_subcolumns);
     obj.setOutputMatrix(output);
@@ -96,7 +96,7 @@ math::Status MathOperationsCpu::execute(math::MatrixValueOperation& obj,
 }
 
 math::Status MathOperationsCpu::execute(math::MatrixValueOperation& obj,
-    math::Matrix* output, math::Matrix* arg1, floatt* revalue,
+    math::ComplexMatrix* output, math::ComplexMatrix* arg1, floatt* revalue,
     floatt* imvalue) {
     obj.setSubRows(m_subrows);
     obj.setSubColumns(m_subcolumns);
@@ -113,7 +113,7 @@ math::Status MathOperationsCpu::execute(math::MatrixValueOperation& obj,
 }
 
 math::Status MathOperationsCpu::execute(math::MatrixOperationOutputMatrix& obj,
-    math::Matrix* output, math::Matrix* arg1) {
+    math::ComplexMatrix* output, math::ComplexMatrix* arg1) {
     obj.setSubRows(m_subrows);
     obj.setSubColumns(m_subcolumns);
     obj.setOutputMatrix(output);
@@ -127,7 +127,7 @@ math::Status MathOperationsCpu::execute(math::MatrixOperationOutputMatrix& obj,
 }
 
 math::Status MathOperationsCpu::execute(math::MatrixOperationOutputValue& obj,
-    floatt* output, math::Matrix* arg1) {
+    floatt* output, math::ComplexMatrix* arg1) {
     obj.setSubRows(m_subrows);
     obj.setSubColumns(m_subcolumns);
     obj.setOutputValue1(output);
@@ -142,7 +142,7 @@ math::Status MathOperationsCpu::execute(math::MatrixOperationOutputValue& obj,
 }
 
 math::Status MathOperationsCpu::execute(math::MatrixOperationOutputValue& obj,
-    floatt* output1, floatt* output2, math::Matrix* arg1) {
+    floatt* output1, floatt* output2, math::ComplexMatrix* arg1) {
     obj.setSubRows(m_subrows);
     obj.setSubColumns(m_subcolumns);
     obj.setOutputValue1(output1);
@@ -157,7 +157,7 @@ math::Status MathOperationsCpu::execute(math::MatrixOperationOutputValue& obj,
 }
 
 math::Status MathOperationsCpu::execute(math::MatrixOperationTwoOutputs& obj,
-    math::Matrix* output1, math::Matrix* output2, math::Matrix* arg1) {
+    math::ComplexMatrix* output1, math::ComplexMatrix* output2, math::ComplexMatrix* arg1) {
     obj.setSubRows(m_subrows);
     obj.setSubColumns(m_subcolumns);
     obj.setOutputMatrix1(output1);
@@ -238,8 +238,8 @@ void MathOperationsCpu::registerValueName(void* value, const std::string& name) 
 #endif
 }
 
-math::Status MathOperationsCpu::add(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2) {
+math::Status MathOperationsCpu::add(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2) {
     math::Status status = execute(this->m_additionOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1, matrix2);
@@ -247,8 +247,8 @@ math::Status MathOperationsCpu::add(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::subtract(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2) {
+math::Status MathOperationsCpu::subtract(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2) {
     math::Status status = execute(this->m_substracionOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1, matrix2);
@@ -256,8 +256,8 @@ math::Status MathOperationsCpu::subtract(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::dotProduct(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2) {
+math::Status MathOperationsCpu::dotProduct(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2) {
     math::Status status = execute(this->m_dotProductOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1, matrix2);
@@ -265,8 +265,8 @@ math::Status MathOperationsCpu::dotProduct(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::dotProduct(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2, uintt offset) {
+math::Status MathOperationsCpu::dotProduct(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2, uintt offset) {
     m_dotProductOperation.setOffset(offset);
     math::Status status = execute(m_dotProductOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
@@ -275,8 +275,8 @@ math::Status MathOperationsCpu::dotProduct(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::dotProduct(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2, uintt boffset, uintt eoffset) {
+math::Status MathOperationsCpu::dotProduct(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2, uintt boffset, uintt eoffset) {
     m_dotProductOperation.setOffset(boffset, eoffset);
     math::Status status = execute(m_dotProductOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
@@ -285,8 +285,8 @@ math::Status MathOperationsCpu::dotProduct(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::tensorProduct(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2) {
+math::Status MathOperationsCpu::tensorProduct(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2) {
     math::Status status = execute(this->m_tensorProductOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1, matrix2);
@@ -294,8 +294,8 @@ math::Status MathOperationsCpu::tensorProduct(math::Matrix* output,
     return status;
 }
 #if 0
-math::Status MathOperationsCpu::diagonalize(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2) {
+math::Status MathOperationsCpu::diagonalize(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2) {
     math::Status status = execute(this->m_diagonalizationOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1, matrix2);
@@ -303,8 +303,8 @@ math::Status MathOperationsCpu::diagonalize(math::Matrix* output,
     return status;
 }
 #endif
-math::Status MathOperationsCpu::multiply(math::Matrix* output,
-    math::Matrix* matrix1, floatt* value) {
+math::Status MathOperationsCpu::multiply(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, floatt* value) {
     math::Status status = execute(this->m_multiplicationConstOperation, output, matrix1, value);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1, value);
@@ -312,8 +312,8 @@ math::Status MathOperationsCpu::multiply(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::multiply(math::Matrix* output,
-    math::Matrix* matrix1, floatt* revalue, floatt* imvalue) {
+math::Status MathOperationsCpu::multiply(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, floatt* revalue, floatt* imvalue) {
     math::Status status = execute(this->m_multiplicationConstOperation,
         output, matrix1, revalue, imvalue);
 #ifdef DEBUG_MATRIX_OPERATIONS
@@ -322,7 +322,7 @@ math::Status MathOperationsCpu::multiply(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::exp(math::Matrix* output, math::Matrix* matrix1) {
+math::Status MathOperationsCpu::exp(math::ComplexMatrix* output, math::ComplexMatrix* matrix1) {
     math::Status status = execute(this->m_expOperation, output, matrix1);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1);
@@ -330,8 +330,8 @@ math::Status MathOperationsCpu::exp(math::Matrix* output, math::Matrix* matrix1)
     return status;
 }
 
-math::Status MathOperationsCpu::multiply(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2) {
+math::Status MathOperationsCpu::multiply(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2) {
     math::Status status = execute(this->m_dotProductOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1, matrix2);
@@ -339,8 +339,8 @@ math::Status MathOperationsCpu::multiply(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::multiply(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2, uintt offset) {
+math::Status MathOperationsCpu::multiply(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2, uintt offset) {
     m_dotProductOperation.setOffset(offset);
     math::Status status = execute(m_dotProductOperation, output, matrix1, matrix2);
 #ifdef DEBUG_MATRIX_OPERATIONS
@@ -349,8 +349,8 @@ math::Status MathOperationsCpu::multiply(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::multiply(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2,
+math::Status MathOperationsCpu::multiply(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
     uintt boffset, uintt eoffset) {
     m_dotProductOperation.setOffset(boffset, eoffset);
     math::Status status = execute(m_dotProductOperation,
@@ -361,7 +361,7 @@ math::Status MathOperationsCpu::multiply(math::Matrix* output,
     return status;
 }
 
-math::Status MathOperationsCpu::magnitude(floatt* output, math::Matrix* matrix1) {
+math::Status MathOperationsCpu::magnitude(floatt* output, math::ComplexMatrix* matrix1) {
     math::Status status = execute(m_magnitudeOperation, output, matrix1);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1);
@@ -369,7 +369,7 @@ math::Status MathOperationsCpu::magnitude(floatt* output, math::Matrix* matrix1)
     return status;
 }
 
-math::Status MathOperationsCpu::transpose(math::Matrix* output, math::Matrix* matrix1) {
+math::Status MathOperationsCpu::transpose(math::ComplexMatrix* output, math::ComplexMatrix* matrix1) {
     math::Status status = execute(m_transposeOperation, output, matrix1);
 #ifdef DEBUG_MATRIX_OPERATIONS
     printInfo(__FUNCTION__, output, matrix1);
@@ -377,7 +377,7 @@ math::Status MathOperationsCpu::transpose(math::Matrix* output, math::Matrix* ma
     return status;
 }
 
-math::Status MathOperationsCpu::transpose(math::Matrix* output, math::Matrix* matrix1,
+math::Status MathOperationsCpu::transpose(math::ComplexMatrix* output, math::ComplexMatrix* matrix1,
     uintt subcolumns[2], uintt subrows[2]) {
     math::Status status = execute(m_transposeOperation, output, matrix1);
 #ifdef DEBUG_MATRIX_OPERATIONS
@@ -386,7 +386,7 @@ math::Status MathOperationsCpu::transpose(math::Matrix* output, math::Matrix* ma
     return status;
 }
 
-math::Status MathOperationsCpu::transpose(math::Matrix* matrix) {
+math::Status MathOperationsCpu::transpose(math::ComplexMatrix* matrix) {
 #ifdef DEBUG_MATRIX_OPERATIONS            
     std::string matrixStr = "";
     oap::host::GetReMatrixStr(matrixStr, matrix);
@@ -398,16 +398,16 @@ math::Status MathOperationsCpu::transpose(math::Matrix* matrix) {
     return status;
 }
 
-math::Status MathOperationsCpu::det(floatt* output, math::Matrix* matrix) {
+math::Status MathOperationsCpu::det(floatt* output, math::ComplexMatrix* matrix) {
     return execute(m_determinantOperation, output, matrix);
 }
 
-math::Status MathOperationsCpu::det(floatt* output, floatt* output1, math::Matrix* matrix) {
+math::Status MathOperationsCpu::det(floatt* output, floatt* output1, math::ComplexMatrix* matrix) {
     return execute(m_determinantOperation, output, output1, matrix);
 }
 
-math::Status MathOperationsCpu::qrDecomposition(math::Matrix* Q,
-    math::Matrix* R, math::Matrix* matrix) {
+math::Status MathOperationsCpu::qrDecomposition(math::ComplexMatrix* Q,
+    math::ComplexMatrix* R, math::ComplexMatrix* matrix) {
     return execute(m_qrDecomposition, Q, R, matrix);
 }
 

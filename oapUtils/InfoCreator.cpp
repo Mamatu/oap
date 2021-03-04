@@ -26,20 +26,20 @@ InfoCreator::~InfoCreator() {}
 
 void InfoCreator::onSetInfoTypeCallback(const InfoType& infoType) {}
 
-void InfoCreator::onSetExpectedCallback(math::Matrix* expected) {}
+void InfoCreator::onSetExpectedCallback(math::ComplexMatrix* expected) {}
 
-void InfoCreator::onSetOutputCallback(math::Matrix* output) {}
+void InfoCreator::onSetOutputCallback(math::ComplexMatrix* output) {}
 
-math::Matrix* InfoCreator::getExpectedMatrix() const { return m_expected; }
+math::ComplexMatrix* InfoCreator::getExpectedMatrix() const { return m_expected; }
 
-math::Matrix* InfoCreator::getOutputMatrix() const { return m_output; }
+math::ComplexMatrix* InfoCreator::getOutputMatrix() const { return m_output; }
 
-void InfoCreator::setExpected(math::Matrix* expected) {
+void InfoCreator::setExpected(math::ComplexMatrix* expected) {
   m_expected = expected;
   onSetExpectedCallback(m_expected);
 }
 
-void InfoCreator::setOutput(math::Matrix* output) {
+void InfoCreator::setOutput(math::ComplexMatrix* output) {
   m_output = output;
   onSetOutputCallback(m_output);
 }
@@ -52,7 +52,7 @@ void InfoCreator::getInfo(std::string& output) const { output = m_info; }
 
 void InfoCreator::getSLInfo(std::string& outputStr, const std::string& label,
                             ICMethod methodre, ICMethod methodim,
-                            math::Matrix* diffmatrix) const {
+                            math::ComplexMatrix* diffmatrix) const {
   std::stringstream sstream;
   if (isRe(diffmatrix)) {
     std::pair<floatt, uintt> largestre = (this->*methodre)(diffmatrix);
@@ -74,9 +74,9 @@ void InfoCreator::getSLInfo(std::string& outputStr, const std::string& label,
 }
 
 void InfoCreator::createInfo(std::string& outputStr, const InfoType& infoType,
-                             math::Matrix* diffmatrix) const {
-  math::Matrix* output = getOutputMatrix();
-  math::Matrix* expected = getExpectedMatrix();
+                             math::ComplexMatrix* diffmatrix) const {
+  math::ComplexMatrix* output = getOutputMatrix();
+  math::ComplexMatrix* expected = getExpectedMatrix();
   bool isequal = diffmatrix == NULL;
   if (!isequal) {
     if (infoType.getInfo() & InfoType::MEAN) {
@@ -101,20 +101,20 @@ void InfoCreator::createInfo(std::string& outputStr, const InfoType& infoType,
 }
 
 void InfoCreator::printMatrix(std::string& output, const std::string& message,
-                              math::Matrix* matrix) const {
+                              math::ComplexMatrix* matrix) const {
   std::string matrixStr;
   getString(matrixStr, matrix);
   output += message + matrixStr + "\n";
 }
 
 bool InfoCreator::printMeans(std::string& output,
-                             math::Matrix* diffmatrix) const {
-  math::Matrix* expectedMatrix = getExpectedMatrix();
-  math::Matrix* outputMatrix = getOutputMatrix();
+                             math::ComplexMatrix* diffmatrix) const {
+  math::ComplexMatrix* expectedMatrix = getExpectedMatrix();
+  math::ComplexMatrix* outputMatrix = getOutputMatrix();
   if (expectedMatrix == NULL || outputMatrix == NULL) {
     return false;
   }
-  math::Matrix* diff = diffmatrix;
+  math::ComplexMatrix* diff = diffmatrix;
   printMean(output, "Expected mean = ", expectedMatrix);
   printMean(output, "Output mean = ", outputMatrix);
   printMean(output, "Diff mean = ", diff);
@@ -122,7 +122,7 @@ bool InfoCreator::printMeans(std::string& output,
 }
 
 void InfoCreator::printMean(std::string& output, const std::string& message,
-                            math::Matrix* matrix) const {
+                            math::ComplexMatrix* matrix) const {
   std::string matrixStr;
   floatt are = 0;
   floatt aim = 0;
@@ -135,9 +135,9 @@ void InfoCreator::printMean(std::string& output, const std::string& message,
 }
 
 bool InfoCreator::isEqual(floatt tolerance) {
-  math::Matrix* output = getOutputMatrix();
-  math::Matrix* expected = getExpectedMatrix();
-  math::Matrix* diffMatrix = NULL;
+  math::ComplexMatrix* output = getOutputMatrix();
+  math::ComplexMatrix* expected = getExpectedMatrix();
+  math::ComplexMatrix* diffMatrix = NULL;
   bool result = compare(output, expected, tolerance, &diffMatrix);
   if (result == false) {
     createInfo(m_info, m_infoType, diffMatrix);
@@ -147,9 +147,9 @@ bool InfoCreator::isEqual(floatt tolerance) {
 }
 
 bool InfoCreator::hasValues(floatt tolerance) {
-  math::Matrix* output = getOutputMatrix();
-  math::Matrix* expected = getExpectedMatrix();
-  math::Matrix* diffMatrix = NULL;
+  math::ComplexMatrix* output = getOutputMatrix();
+  math::ComplexMatrix* expected = getExpectedMatrix();
+  math::ComplexMatrix* diffMatrix = NULL;
   bool result = compareValues(output, expected, tolerance, &diffMatrix);
   if (diffMatrix != NULL) {
     createInfo(m_info, m_infoType, diffMatrix);

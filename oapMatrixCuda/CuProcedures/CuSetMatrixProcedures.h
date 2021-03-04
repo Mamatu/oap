@@ -28,7 +28,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_setDiagonalReMatrix(math::Matrix* dst, floatt v) {
+__hostdevice__ void CUDA_setDiagonalReMatrix(math::ComplexMatrix* dst, floatt v) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -41,7 +41,7 @@ __hostdevice__ void CUDA_setDiagonalReMatrix(math::Matrix* dst, floatt v) {
   threads_sync();
 }
 
-__hostdevice__ void CUDA_setDiagonalImMatrix(math::Matrix* dst, floatt v) {
+__hostdevice__ void CUDA_setDiagonalImMatrix(math::ComplexMatrix* dst, floatt v) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -54,31 +54,31 @@ __hostdevice__ void CUDA_setDiagonalImMatrix(math::Matrix* dst, floatt v) {
   threads_sync();
 }
 
-__hostdevice__ void CUDA_setDiagonalMatrix(math::Matrix* dst, floatt rev,
+__hostdevice__ void CUDA_setDiagonalMatrix(math::ComplexMatrix* dst, floatt rev,
                                            floatt imv) {
-  if (dst->re.ptr != NULL) {
+  if (dst->re.mem.ptr != NULL) {
     CUDA_setDiagonalReMatrix(dst, rev);
   }
-  if (dst->im.ptr != NULL) {
+  if (dst->im.mem.ptr != NULL) {
     CUDA_setDiagonalImMatrix(dst, imv);
   }
 }
 
-__hostdevice__ void CUDA_setZeroMatrix(math::Matrix* matrix) {
+__hostdevice__ void CUDA_setZeroMatrix(math::ComplexMatrix* matrix) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
   if (threadIndexX < gColumns (matrix) && threadIndexY < gRows (matrix)) {
-    if (matrix->re.ptr != NULL) {
+    if (matrix->re.mem.ptr != NULL) {
       *GetRePtrIndex (matrix, threadIndexY * gColumns (matrix) + threadIndexX) = 0;
     }
-    if (matrix->im.ptr != NULL) {
+    if (matrix->im.mem.ptr != NULL) {
       *GetImPtrIndex (matrix, threadIndexY * gColumns (matrix) + threadIndexX) = 0;
     }
   }
 }
 
-__hostdevice__ void CUDA_setIdentityMatrix(math::Matrix* matrix) {
+__hostdevice__ void CUDA_setIdentityMatrix(math::ComplexMatrix* matrix) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -87,24 +87,24 @@ __hostdevice__ void CUDA_setIdentityMatrix(math::Matrix* matrix) {
     v = 1;
   }
   if (threadIndexX < gColumns (matrix) && threadIndexY < gRows (matrix)) {
-    if (matrix->re.ptr != NULL) {
+    if (matrix->re.mem.ptr != NULL) {
       *GetRePtrIndex (matrix, threadIndexY * gColumns (matrix) + threadIndexX) = v;
     }
-    if (matrix->im.ptr != NULL) {
+    if (matrix->im.mem.ptr != NULL) {
       *GetImPtrIndex (matrix, threadIndexY * gColumns (matrix) + threadIndexX) = 0;
     }
   }
 }
 
-__hostdevice__ floatt CUDA_getReDiagonal(math::Matrix* matrix, intt index) {
-  if (matrix->re.ptr == NULL) {
+__hostdevice__ floatt CUDA_getReDiagonal(math::ComplexMatrix* matrix, intt index) {
+  if (matrix->re.mem.ptr == NULL) {
     return 0;
   }
   return *GetRePtrIndex (matrix, index + gColumns (matrix) * index);
 }
 
-__hostdevice__ floatt CUDA_getImDiagonal(math::Matrix* matrix, intt index) {
-  if (matrix->im.ptr == NULL) {
+__hostdevice__ floatt CUDA_getImDiagonal(math::ComplexMatrix* matrix, intt index) {
+  if (matrix->im.mem.ptr == NULL) {
     return 0;
   }
   return *GetImPtrIndex (matrix, index + gColumns (matrix) * index);

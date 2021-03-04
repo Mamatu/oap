@@ -34,7 +34,7 @@ namespace oap {
    */
   class HostMatrixUPtr : public oap::MatrixUniquePtr {
     public:
-      HostMatrixUPtr (math::Matrix* matrix, bool bDeallocate = true) :
+      HostMatrixUPtr (math::ComplexMatrix* matrix, bool bDeallocate = true) :
         oap::MatrixUniquePtr (matrix, oap::host::DeleteMatrix, bDeallocate)
       {
       }
@@ -50,17 +50,17 @@ namespace oap {
    */
   class HostMatricesUPtr : public oap::MatricesUniquePtr {
     public:
-      HostMatricesUPtr(math::Matrix** matrices, unsigned int count) :
+      HostMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count) :
         oap::MatricesUniquePtr(matrices, count, oap::host::DeleteMatrix) {}
 
       HostMatricesUPtr(size_t count) :
         oap::MatricesUniquePtr(count, oap::host::DeleteMatrix) {}
 
-      HostMatricesUPtr(std::initializer_list<math::Matrix*> matrices) :
+      HostMatricesUPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
         oap::MatricesUniquePtr(matrices, oap::host::DeleteMatrix) {}
 
     private:
-      HostMatricesUPtr(math::Matrix** matrices, unsigned int count, bool bCopyArray) :
+      HostMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
         oap::MatricesUniquePtr (matrices, count, oap::host::DeleteMatrix, bCopyArray) {}
 
       template<class SmartPtr, template<typename, typename> class Container, typename T>
@@ -68,16 +68,16 @@ namespace oap {
   };
 
   template<template<typename, typename> class Container>
-  HostMatricesUPtr makeHostMatricesUPtr(const Container<math::Matrix*, std::allocator<math::Matrix*> >& matrices) {
+  HostMatricesUPtr makeHostMatricesUPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
     return smartptr_utils::makeSmartPtr<HostMatricesUPtr>(matrices);
   }
 
   template<template<typename> class Container>
-  HostMatricesUPtr makeHostMatricesUPtr(const Container<math::Matrix*>& matrices) {
+  HostMatricesUPtr makeHostMatricesUPtr(const Container<math::ComplexMatrix*>& matrices) {
     return smartptr_utils::makeSmartPtr<HostMatricesUPtr>(matrices);
   }
 
-  inline HostMatricesUPtr makeHostMatricesUPtr(math::Matrix** array, size_t count) {
+  inline HostMatricesUPtr makeHostMatricesUPtr(math::ComplexMatrix** array, size_t count) {
     return smartptr_utils::makeSmartPtr<HostMatricesUPtr>(array, count);
   }
 }

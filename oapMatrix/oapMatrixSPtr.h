@@ -30,13 +30,13 @@ namespace oap
 {
 namespace stdlib
 {
-  using MatrixSharedPtr = ::std::shared_ptr<math::Matrix>;
+  using MatrixSharedPtr = ::std::shared_ptr<math::ComplexMatrix>;
 
-  using MatricesSharedPtr = ::std::shared_ptr<math::Matrix*>;
+  using MatricesSharedPtr = ::std::shared_ptr<math::ComplexMatrix*>;
 
-  using MatrixUniquePtr = ::std::unique_ptr<math::Matrix, deleters::MatrixDeleterWrapper>;
+  using MatrixUniquePtr = ::std::unique_ptr<math::ComplexMatrix, deleters::MatrixDeleterWrapper>;
 
-  using MatricesUniquePtr = ::std::unique_ptr<math::Matrix*, deleters::MatricesDeleter>;
+  using MatricesUniquePtr = ::std::unique_ptr<math::ComplexMatrix*, deleters::MatricesDeleter>;
 }
 
   template<class StdMatrixPtr>

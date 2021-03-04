@@ -56,15 +56,15 @@ TEST_F(OapGenericApiTests_DotProduct, Test_1)
 
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
-  std::vector<math::Matrix*> outputs = {output1};
-  hp.v2_multiply (outputs, std::vector<math::Matrix*>({matrix1}), std::vector<math::Matrix*>({matrix2}));
+  std::vector<math::ComplexMatrix*> outputs = {output1};
+  hp.v2_multiply (outputs, std::vector<math::ComplexMatrix*>({matrix1}), std::vector<math::ComplexMatrix*>({matrix2}));
 
   std::vector<floatt> expected1 =
   {
     2,
   };
 
-  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re, output1->reReg, 0, 0)};
+  std::vector<floatt> actual1 = {oap::common::GetValue (output1->re.mem, output1->re.reg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 
@@ -87,9 +87,9 @@ TEST_F(OapGenericApiTests_DotProduct, Test_2)
   oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixWithValue (1, 1, 4.);
   oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (1, 1, 3.);
 
-  std::vector<math::Matrix*> outputs = {output11, output12};
-  std::vector<math::Matrix*> matrixs1 = {matrix11, matrix12};
-  std::vector<math::Matrix*> matrixs2 = {matrix21, matrix22};
+  std::vector<math::ComplexMatrix*> outputs = {output11, output12};
+  std::vector<math::ComplexMatrix*> matrixs1 = {matrix11, matrix12};
+  std::vector<math::ComplexMatrix*> matrixs2 = {matrix21, matrix22};
   hp.v2_multiply (outputs, matrixs1, matrixs2);
 
   std::vector<floatt> expected1 =
@@ -102,8 +102,8 @@ TEST_F(OapGenericApiTests_DotProduct, Test_2)
     9,
   };
 
-  std::vector<floatt> actual1 = {oap::common::GetValue (output11->re, output11->reReg, 0, 0)};
-  std::vector<floatt> actual2 = {oap::common::GetValue (output12->re, output12->reReg, 0, 0)};
+  std::vector<floatt> actual1 = {oap::common::GetValue (output11->re.mem, output11->re.reg, 0, 0)};
+  std::vector<floatt> actual2 = {oap::common::GetValue (output12->re.mem, output12->re.reg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 
@@ -127,9 +127,9 @@ TEST_F(OapGenericApiTests_DotProduct, Test_3)
   oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixWithValue (1, 1, 4.);
   oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (1, 1, 3.);
 
-  std::vector<math::Matrix*> outputs = {output11, output12};
-  std::vector<math::Matrix*> matrixs1 = {matrix11, matrix12};
-  std::vector<math::Matrix*> matrixs2 = {matrix21, matrix22};
+  std::vector<math::ComplexMatrix*> outputs = {output11, output12};
+  std::vector<math::ComplexMatrix*> matrixs1 = {matrix11, matrix12};
+  std::vector<math::ComplexMatrix*> matrixs2 = {matrix21, matrix22};
   hp.v2_multiply (outputs, matrixs1, matrixs2);
 
   std::vector<floatt> expected1 =
@@ -142,8 +142,8 @@ TEST_F(OapGenericApiTests_DotProduct, Test_3)
     9,
   };
 
-  std::vector<floatt> actual1 = {oap::common::GetValue (output11->re, output11->reReg, 0, 0)};
-  std::vector<floatt> actual2 = {oap::common::GetValue (output12->re, output12->reReg, 0, 0)};
+  std::vector<floatt> actual1 = {oap::common::GetValue (output11->re.mem, output11->re.reg, 0, 0)};
+  std::vector<floatt> actual2 = {oap::common::GetValue (output12->re.mem, output12->re.reg, 0, 0)};
 
   std::cout << "Memory: " << std::endl << std::to_string (memory);
 
@@ -181,9 +181,9 @@ TEST_F(OapGenericApiTests_DotProduct, Test_4)
 
   math::MatrixInfo minfo(true, false, 1, 3);
   math::MatrixInfo minfo1(true, false, 3, 3);
-  std::vector<math::Matrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
-  std::vector<math::Matrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
-  std::vector<math::Matrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
+  std::vector<math::ComplexMatrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
+  std::vector<math::ComplexMatrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::ComplexMatrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
 
   hp.v2_multiply (outputs, params1, params2);
 
@@ -249,9 +249,9 @@ TEST_F(OapGenericApiTests_DotProduct, Test_5)
 
   math::MatrixInfo minfo(true, false, 1, 3);
   math::MatrixInfo minfo1(true, false, 3, 3);
-  std::vector<math::Matrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
-  std::vector<math::Matrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
-  std::vector<math::Matrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
+  std::vector<math::ComplexMatrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
+  std::vector<math::ComplexMatrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::ComplexMatrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
 
   hp.v2_multiply (outputs, params1, params2);
 
@@ -302,15 +302,15 @@ TEST_F(OapGenericApiTests_DotProduct, Test_6)
   math::MatrixInfo minfo(true, false, 1, 4);
   math::MatrixDim mdim = {1, 3};
   math::MatrixInfo minfo1(true, false, 3, 3);
-  std::vector<math::Matrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
-  std::vector<math::Matrix*> outputs_wb;
+  std::vector<math::ComplexMatrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
+  std::vector<math::ComplexMatrix*> outputs_wb;
   for (auto* matrix : outputs)
   {
     outputs_wb.push_back (oap::host::NewSharedSubMatrix (mdim, matrix));
   }
-  std::vector<math::Matrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
-  std::vector<math::Matrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
-  std::vector<math::Matrix*> params2_wb;
+  std::vector<math::ComplexMatrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::ComplexMatrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
+  std::vector<math::ComplexMatrix*> params2_wb;
   for (auto* matrix : params2)
   {
     params2_wb.push_back (oap::host::NewSharedSubMatrix (mdim, matrix));

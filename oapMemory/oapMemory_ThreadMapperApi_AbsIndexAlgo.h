@@ -30,7 +30,7 @@ namespace oap
 namespace aia
 {
 
-__hostdevice__ void GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
+__hostdevice__ void GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::ComplexMatrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
 
@@ -41,7 +41,7 @@ __hostdevice__ void GetIdx_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blo
   out[1] = ud->dataBuffer[idx + 1];
 }
 
-__hostdevice__ bool GetIdxCheck_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
+__hostdevice__ bool GetIdxCheck_AbsIndexAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::ComplexMatrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
 

@@ -32,8 +32,8 @@
 #include "MatrixAPI.h"
 
 __hostdevice__ void CUDA_compareOptRealMatrixVer2 (floatt* sum,
-                                                   math::Matrix* matrix1,
-                                                   math::Matrix* matrix2,
+                                                   math::ComplexMatrix* matrix1,
+                                                   math::ComplexMatrix* matrix2,
                                                    floatt* buffer)
 {
     HOST_INIT();
@@ -54,8 +54,8 @@ __hostdevice__ void CUDA_compareOptRealMatrixVer2 (floatt* sum,
 }
 
 __hostdevice__ void CUDA_compareOptReMatrixVer2 (floatt* sum,
-                                                 math::Matrix* matrix1,
-                                                 math::Matrix* matrix2,
+                                                 math::ComplexMatrix* matrix1,
+                                                 math::ComplexMatrix* matrix2,
                                                  floatt* buffer)
 {
     HOST_INIT();
@@ -77,8 +77,8 @@ __hostdevice__ void CUDA_compareOptReMatrixVer2 (floatt* sum,
 }
 
 __hostdevice__ void CUDA_compareOptImMatrixVer2 (floatt* sum,
-                                                 math::Matrix* matrix1,
-                                                 math::Matrix* matrix2,
+                                                 math::ComplexMatrix* matrix1,
+                                                 math::ComplexMatrix* matrix2,
                                                  floatt* buffer)
 {
     HOST_INIT();
@@ -99,13 +99,13 @@ __hostdevice__ void CUDA_compareOptImMatrixVer2 (floatt* sum,
 }
 
 __hostdevice__ void CUDA_compareOptVer2 (floatt* sum,
-                                         math::Matrix* matrix1,
-                                         math::Matrix* matrix2,
+                                         math::ComplexMatrix* matrix1,
+                                         math::ComplexMatrix* matrix2,
                                          floatt* buffer)
 {
     HOST_INIT();
-    bool isre = matrix1->re.ptr != NULL;
-    bool isim = matrix1->im.ptr != NULL;
+    bool isre = matrix1->re.mem.ptr != NULL;
+    bool isim = matrix1->im.mem.ptr != NULL;
     if (isre && isim) {
         CUDA_compareOptRealMatrixVer2(sum, matrix1, matrix2, buffer);
     } else if (isre) {

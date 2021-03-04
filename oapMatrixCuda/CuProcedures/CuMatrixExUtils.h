@@ -26,7 +26,7 @@
 #include "MatrixEx.h"
 #include "CuMatrixIndexUtilsCommon.h"
 
-__hostdeviceinline__ void cuAux_initMatrixEx (MatrixEx& ex, const math::Matrix* matrix)
+__hostdeviceinline__ void cuAux_initMatrixEx (MatrixEx& ex, const math::ComplexMatrix* matrix)
 {
   ex.column = 0;
   ex.row = 0;
@@ -34,7 +34,7 @@ __hostdeviceinline__ void cuAux_initMatrixEx (MatrixEx& ex, const math::Matrix* 
   ex.rows = gRows (matrix);
 }
 
-__hostdeviceinline__ void cuAux_initMatrixExByThreads (MatrixEx& ex, const math::Matrix* matrix)
+__hostdeviceinline__ void cuAux_initMatrixExByThreads (MatrixEx& ex, const math::ComplexMatrix* matrix)
 {
   HOST_INIT ();
   THREAD_INDICES_INIT ();
@@ -45,14 +45,14 @@ __hostdeviceinline__ void cuAux_initMatrixExByThreads (MatrixEx& ex, const math:
   ex.rows = gRows (matrix);
 }
 
-__hostdeviceinline__ void cuAux_initMatrixExs (MatrixEx exs[3], const math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdeviceinline__ void cuAux_initMatrixExs (MatrixEx exs[3], const math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   cuAux_initMatrixEx (exs[0], output);
   cuAux_initMatrixEx (exs[1], params0);
   cuAux_initMatrixEx (exs[2], params1);
 }
 
-__hostdeviceinline__ void cuAux_initMatrixExsByThreads (MatrixEx exs[3], const math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdeviceinline__ void cuAux_initMatrixExsByThreads (MatrixEx exs[3], const math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   cuAux_initMatrixExByThreads (exs[0], output);
   cuAux_initMatrixExByThreads (exs[1], params0);

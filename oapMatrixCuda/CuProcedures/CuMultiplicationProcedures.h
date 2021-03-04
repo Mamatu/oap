@@ -24,7 +24,7 @@
 #include "Matrix.h"
 #include "MatrixAPI.h"
 
-__hostdevice__ void cuda_multiplyConstantReMatrix (math::Matrix* output, math::Matrix* params0, floatt re) {
+__hostdevice__ void cuda_multiplyConstantReMatrix (math::ComplexMatrix* output, math::ComplexMatrix* params0, floatt re) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -36,7 +36,7 @@ __hostdevice__ void cuda_multiplyConstantReMatrix (math::Matrix* output, math::M
   }
 }
 
-__hostdevice__ void cuda_multiplyConstantImMatrix (math::Matrix* output, math::Matrix* params0, floatt im)
+__hostdevice__ void cuda_multiplyConstantImMatrix (math::ComplexMatrix* output, math::ComplexMatrix* params0, floatt im)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -49,7 +49,7 @@ __hostdevice__ void cuda_multiplyConstantImMatrix (math::Matrix* output, math::M
   }
 }
 
-__hostdevice__ void cuda_multiplyConstantRealMatrix (math::Matrix* output, math::Matrix* params0, floatt re, floatt im)
+__hostdevice__ void cuda_multiplyConstantRealMatrix (math::ComplexMatrix* output, math::ComplexMatrix* params0, floatt re, floatt im)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -63,8 +63,8 @@ __hostdevice__ void cuda_multiplyConstantRealMatrix (math::Matrix* output, math:
   }
 }
 
-__hostdevice__ void CUDA_multiplyConstantReMatrix(math::Matrix* output,
-                                                  math::Matrix* params0,
+__hostdevice__ void CUDA_multiplyConstantReMatrix(math::ComplexMatrix* output,
+                                                  math::ComplexMatrix* params0,
                                                   floatt re) {
   HOST_INIT();
 
@@ -72,8 +72,8 @@ __hostdevice__ void CUDA_multiplyConstantReMatrix(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_multiplyConstantImMatrix(math::Matrix* output,
-                                                  math::Matrix* params0,
+__hostdevice__ void CUDA_multiplyConstantImMatrix(math::ComplexMatrix* output,
+                                                  math::ComplexMatrix* params0,
                                                   floatt im) {
   HOST_INIT();
 
@@ -81,8 +81,8 @@ __hostdevice__ void CUDA_multiplyConstantImMatrix(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_multiplyConstantRealMatrix(math::Matrix* output,
-                                                    math::Matrix* params0,
+__hostdevice__ void CUDA_multiplyConstantRealMatrix(math::ComplexMatrix* output,
+                                                    math::ComplexMatrix* params0,
                                                     floatt re, floatt im) {
   HOST_INIT();
 
@@ -90,14 +90,14 @@ __hostdevice__ void CUDA_multiplyConstantRealMatrix(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_multiplyConstantMatrix(math::Matrix* output,
-                                                math::Matrix* params0,
+__hostdevice__ void CUDA_multiplyConstantMatrix(math::ComplexMatrix* output,
+                                                math::ComplexMatrix* params0,
                                                 floatt re, floatt im) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
   bool isInRange =
       threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   if (isre && isim && isInRange) {

@@ -50,7 +50,7 @@ __hostdevice__ void CUDA_PrintBuffer(const char* s, floatt* buffer, uint length)
   printf("}\n");
 }
 
-__hostdevice__ void CUDA_PrintMatrix (const char* str, math::Matrix* m)
+__hostdevice__ void CUDA_PrintMatrix (const char* str, math::ComplexMatrix* m)
 {
   printf ("%s = [\n", str);
   for (uintt fb = 0; fb < gRows (m); ++fb)

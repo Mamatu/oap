@@ -147,7 +147,7 @@ __hostdevice__ void cuda_SumValuesInBuffers (floatt* buffers[2], uintt bufferInd
   }
 }
 
-__hostdevice__ void cuda_SumReal(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1)
+__hostdevice__ void cuda_SumReal(floatt* buffers[2], uintt bufferIndex, math::ComplexMatrix* m1)
 {
   HOST_INIT();
   const bool inScope =
@@ -161,7 +161,7 @@ __hostdevice__ void cuda_SumReal(floatt* buffers[2], uintt bufferIndex, math::Ma
   }
 }
 
-__hostdevice__ void cuda_SumRe(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1)
+__hostdevice__ void cuda_SumRe(floatt* buffers[2], uintt bufferIndex, math::ComplexMatrix* m1)
 {
   HOST_INIT();
   const bool inYScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < gRows (m1);
@@ -174,7 +174,7 @@ __hostdevice__ void cuda_SumRe(floatt* buffers[2], uintt bufferIndex, math::Matr
   }
 }
 
-__hostdevice__ void cuda_SumIm(floatt* buffers[2], uintt bufferIndex, math::Matrix* m1)
+__hostdevice__ void cuda_SumIm(floatt* buffers[2], uintt bufferIndex, math::ComplexMatrix* m1)
 {
   HOST_INIT();
   const bool inScope = aux_GetMatrixYIndex(threadIdx, blockIdx, blockDim) < gRows (m1) &&

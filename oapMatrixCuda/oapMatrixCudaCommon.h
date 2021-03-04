@@ -6,7 +6,7 @@
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 
-inline std::ostream& operator<<(std::ostream& out, const math::Matrix* matrix)
+inline std::ostream& operator<<(std::ostream& out, const math::ComplexMatrix* matrix)
 {
   std::string str;
 	if (oap::cuda::IsDeviceMatrix (matrix))

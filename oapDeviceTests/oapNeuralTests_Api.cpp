@@ -92,7 +92,7 @@ namespace test_api
     return sstream.str ();
   }
 
-  void checkWeights (const std::vector<floatt>& conversions, const math::Matrix* weights, const std::vector<size_t>& idxsToCheck,
+  void checkWeights (const std::vector<floatt>& conversions, const math::ComplexMatrix* weights, const std::vector<size_t>& idxsToCheck,
                     const CheckWeightsInfo& cwInfo,
                     CheckCallback&& callback)
   {
@@ -261,7 +261,7 @@ namespace test_api
             oap::Layer* layer = network->getLayer (layerIdx);
             const oap::Layer* layerS = network->getLayer (layerIdx, handler);
 
-            auto copy = [sampleIdx](math::Matrix* dst, const math::Matrix* src)
+            auto copy = [sampleIdx](math::ComplexMatrix* dst, const math::ComplexMatrix* src)
             {
               auto minfo = oap::cuda::GetMatrixInfo (dst);
               oap::cuda::CopyDeviceMatrixToDeviceMatrixEx (dst, {0, 0}, src, {{0, sampleIdx * minfo.rows()}, {minfo.columns(), minfo.rows()}});

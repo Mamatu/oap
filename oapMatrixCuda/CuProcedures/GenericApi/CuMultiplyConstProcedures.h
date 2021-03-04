@@ -26,7 +26,7 @@
 #include "oapMemory_ThreadMapperApi.h"
 #include "oapThreadsMapperS.h"
 
-__hostdeviceinline__ void cuda_GenericApi_multiplyReConst (math::Matrix** outputs, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_GenericApi_multiplyReConst (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -37,20 +37,20 @@ __hostdeviceinline__ void cuda_GenericApi_multiplyReConst (math::Matrix** output
 
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    const math::Matrix* param1 = params1[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    const math::ComplexMatrix* param1 = params1[oidxs[0]];
 
     const uintt x = oidxs[1];
     const uintt y = oidxs[2];
 
-    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x, y);
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re.mem, param1->re.reg, x, y);
 
-    output->re.ptr[index] = param1->re.ptr[idx1] * value;
+    output->re.mem.ptr[index] = param1->re.mem.ptr[idx1] * value;
   }
 }
 
-__hostdeviceinline__ void cuda_GenericApi_multiplyImConst (math::Matrix** outputs, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_GenericApi_multiplyImConst (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -61,20 +61,20 @@ __hostdeviceinline__ void cuda_GenericApi_multiplyImConst (math::Matrix** output
 
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    const math::Matrix* param1 = params1[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    const math::ComplexMatrix* param1 = params1[oidxs[0]];
 
     const uintt x = oidxs[1];
     const uintt y = oidxs[2];
 
-    uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
-    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x, y);
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
+    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im.mem, param1->im.reg, x, y);
 
-    output->im.ptr[index] = param1->im.ptr[idx1] * value;
+    output->im.mem.ptr[index] = param1->im.mem.ptr[idx1] * value;
   }
 }
 
-__hostdeviceinline__ void cuda_GenericApi_multiplyRealConst (math::Matrix** outputs, math::Matrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_GenericApi_multiplyRealConst (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params1, floatt value, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -85,50 +85,50 @@ __hostdeviceinline__ void cuda_GenericApi_multiplyRealConst (math::Matrix** outp
 
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    const math::Matrix* param1 = params1[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    const math::ComplexMatrix* param1 = params1[oidxs[0]];
 
     const uintt x = oidxs[1];
     const uintt y = oidxs[2];
 
     {
-      uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, x, y);
-      output->re.ptr[index] = param1->re.ptr[idx1] * value;
+      uintt index = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re.mem, param1->re.reg, x, y);
+      output->re.mem.ptr[index] = param1->re.mem.ptr[idx1] * value;
     }
     {
-      uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
-      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, x, y);
-      output->im.ptr[index] = param1->im.ptr[idx1] * value;
+      uintt index = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
+      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im.mem, param1->im.reg, x, y);
+      output->im.mem.ptr[index] = param1->im.mem.ptr[idx1] * value;
     }
   }
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_multiplyReConst (math::Matrix** output, math::Matrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_multiplyReConst (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   cuda_GenericApi_multiplyReConst (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_multiplyImConst (math::Matrix** output, math::Matrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_multiplyImConst (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   cuda_GenericApi_multiplyImConst (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_multiplyRealConst (math::Matrix** output, math::Matrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_multiplyRealConst (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   cuda_GenericApi_multiplyRealConst (output, params0, params1, mapper);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_GenericApi_MultiplyConst (math::Matrix** output, math::Matrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void CUDA_GenericApi_MultiplyConst (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, floatt params1, oap::ThreadsMapperS* mapper)
 {
-  bool isRe = output[0]->re.ptr != NULL;
-  bool isIm = output[0]->im.ptr != NULL;
+  bool isRe = output[0]->re.mem.ptr != NULL;
+  bool isIm = output[0]->im.mem.ptr != NULL;
 
   if (isRe && isIm)
   {

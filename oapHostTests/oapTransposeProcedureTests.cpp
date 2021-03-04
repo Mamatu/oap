@@ -34,27 +34,27 @@ class OapTransposeTests : public OapCudaStub {
 
 class TransposeKernel : public HostKernel {
  public:
-  TransposeKernel(math::Matrix* dst, math::Matrix* src) {
+  TransposeKernel(math::ComplexMatrix* dst, math::ComplexMatrix* src) {
     setMatrices(dst, src);
   }
 
-  void setMatrices(math::Matrix* dst, math::Matrix* src) {
+  void setMatrices(math::ComplexMatrix* dst, math::ComplexMatrix* src) {
     m_dst = dst;
     m_src = src;
 
     setDims(dim3(1, 1), dim3(gColumns (m_dst), gRows (m_dst)));
   }
 
-  math::Matrix* m_dst;
-  math::Matrix* m_src;
+  math::ComplexMatrix* m_dst;
+  math::ComplexMatrix* m_src;
   virtual void execute(const dim3& threadIdx, const dim3& blockIdx) {
     cuda_transposeReMatrix(m_dst, m_src);
   }
 };
 
 TEST_F(OapTransposeTests, TransposeVectorTest) {
-  math::Matrix* matrix = oap::host::NewReMatrixWithValue (1, 1000, 2);
-  math::Matrix* matrixT = oap::host::NewReMatrixWithValue (1000, 1, 0);
+  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (1, 1000, 2);
+  math::ComplexMatrix* matrixT = oap::host::NewReMatrixWithValue (1000, 1, 0);
 
   TransposeKernel transposeKernel(matrixT, matrix);
 
@@ -67,8 +67,8 @@ TEST_F(OapTransposeTests, TransposeVectorTest) {
 }
 
 TEST_F(OapTransposeTests, TransposeConjVectorTest) {
-  math::Matrix* matrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
-  math::Matrix* matrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
+  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
+  math::ComplexMatrix* matrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
 
   TransposeKernel transposeKernel(matrixT, matrix);
 
@@ -82,8 +82,8 @@ TEST_F(OapTransposeTests, TransposeConjVectorTest) {
 
 TEST_F(OapTransposeTests, TransposeVectorTest1) {
   uint length = 1000;
-  math::Matrix* matrix = oap::host::NewReMatrixWithValue (1, length, 1);
-  math::Matrix* matrixT = oap::host::NewReMatrixWithValue (length, 1, 5);
+  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (1, length, 1);
+  math::ComplexMatrix* matrixT = oap::host::NewReMatrixWithValue (length, 1, 5);
 
   for (int fa = 0; fa < length; ++fa) {
     SetRe(matrix, 0, fa, fa);
@@ -103,8 +103,8 @@ TEST_F(OapTransposeTests, TransposeVectorTest1) {
 
 TEST_F(OapTransposeTests, TransposeConjVectorTest1) {
   uint length = 1000;
-  math::Matrix* matrix = oap::host::NewReMatrixWithValue (length, 1, 2);
-  math::Matrix* matrixT = oap::host::NewReMatrixWithValue (1, length, 5);
+  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (length, 1, 2);
+  math::ComplexMatrix* matrixT = oap::host::NewReMatrixWithValue (1, length, 5);
 
   for (int fa = 0; fa < length; ++fa) {
     SetRe(matrix, fa, 0, fa);

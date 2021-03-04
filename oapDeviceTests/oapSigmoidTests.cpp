@@ -55,8 +55,8 @@ class OapSigmoidTests : public testing::Test
     oap::cuda::Context::Instance().destroy();
   }
 
-  using NewMatrix = std::function<math::Matrix*(uintt, uintt)>;
-  using GetValue = std::function<floatt(const math::Matrix*, size_t)>;
+  using NewMatrix = std::function<math::ComplexMatrix*(uintt, uintt)>;
+  using GetValue = std::function<floatt(const math::ComplexMatrix*, size_t)>;
 
 
   void test_Sigmoid (const NewMatrix& newDMatrix, const NewMatrix& newHMatrix, const GetValue& getReValue, const GetValue& getImValue)
@@ -116,11 +116,11 @@ class OapSigmoidTests : public testing::Test
 
 TEST_F(OapSigmoidTests, SigmoidReTest)
 {
-  auto getRe = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getRe = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetReIndex (matrix, idx);
   };
-  auto getIm = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getIm = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetImIndex (matrix, idx);
   };
@@ -150,11 +150,11 @@ TEST_F(OapSigmoidTests, SigmoidReTest)
 
 TEST_F(OapSigmoidTests, SigmoidImTest)
 {
-  auto getRe = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getRe = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetReIndex (matrix, idx);
   };
-  auto getIm = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getIm = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetImIndex (matrix, idx);
   };
@@ -184,11 +184,11 @@ TEST_F(OapSigmoidTests, SigmoidImTest)
 
 TEST_F(OapSigmoidTests, DISABLED_SigmoidRealTest)
 {
-  auto getRe = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getRe = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetReIndex (matrix, idx);
   };
-  auto getIm = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getIm = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetImIndex (matrix, idx);
   };

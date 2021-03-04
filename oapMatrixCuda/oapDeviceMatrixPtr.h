@@ -34,8 +34,8 @@ namespace oap {
    */
   class DeviceMatrixPtr : public oap::MatrixSharedPtr {
     public:
-      DeviceMatrixPtr(math::Matrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix,
-      [this](const math::Matrix* matrix) { logTrace("Destroy: DeviceMatrixPtr = %p matrix = %p", this, matrix); oap::cuda::DeleteDeviceMatrix(matrix); })
+      DeviceMatrixPtr(math::ComplexMatrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix,
+      [this](const math::ComplexMatrix* matrix) { logTrace("Destroy: DeviceMatrixPtr = %p matrix = %p", this, matrix); oap::cuda::DeleteDeviceMatrix(matrix); })
       {
         logTrace("Create: DeviceMatrixPtr = %p matrix = %p", this, matrix);
       }
@@ -51,14 +51,14 @@ namespace oap {
    */
   class DeviceMatricesPtr : public oap::MatricesSharedPtr {
     public:
-      DeviceMatricesPtr(math::Matrix** matrices, unsigned int count) :
+      DeviceMatricesPtr(math::ComplexMatrix** matrices, unsigned int count) :
         oap::MatricesSharedPtr (matrices, count, oap::cuda::DeleteDeviceMatrix) {}
 
-      DeviceMatricesPtr(std::initializer_list<math::Matrix*> matrices) :
+      DeviceMatricesPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
         oap::MatricesSharedPtr (matrices, oap::cuda::DeleteDeviceMatrix) {}
 
     private:
-      DeviceMatricesPtr(math::Matrix** matrices, unsigned int count, bool bCopyArray) :
+      DeviceMatricesPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
         oap::MatricesSharedPtr (matrices, count, oap::cuda::DeleteDeviceMatrix, bCopyArray) {}
 
       template<class SmartPtr, template<typename, typename> class Container, typename T>
@@ -66,16 +66,16 @@ namespace oap {
   };
 
   template<template<typename, typename> class Container>
-  DeviceMatricesPtr makeDeviceMatricesPtr(const Container<math::Matrix*, std::allocator<math::Matrix*> >& matrices) {
+  DeviceMatricesPtr makeDeviceMatricesPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
     return smartptr_utils::makeSmartPtr<DeviceMatricesPtr>(matrices);
   }
 
   template<template<typename> class Container>
-  DeviceMatricesPtr makeDeviceMatricesPtr(const Container<math::Matrix*>& matrices) {
+  DeviceMatricesPtr makeDeviceMatricesPtr(const Container<math::ComplexMatrix*>& matrices) {
     return smartptr_utils::makeSmartPtr<DeviceMatricesPtr>(matrices);
   }
 
-  inline DeviceMatricesPtr makeDeviceMatricesPtr(math::Matrix** array, size_t count) {
+  inline DeviceMatricesPtr makeDeviceMatricesPtr(math::ComplexMatrix** array, size_t count) {
     return smartptr_utils::makeSmartPtr<DeviceMatricesPtr>(array, count);
   }
 }

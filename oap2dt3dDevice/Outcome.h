@@ -32,7 +32,7 @@ class Outcome
       return m_errors[index];
     }
 
-    const math::Matrix* getVector(size_t index)
+    const math::ComplexMatrix* getVector(size_t index)
     {
       return m_evectors[index];
     }

@@ -33,8 +33,8 @@ class CuProceduresApi;
 class RecToSquareApi final
 {
   public:
-    explicit RecToSquareApi (CuProceduresApi& api, const math::Matrix* recMatrix, bool deallocate);
-    explicit RecToSquareApi (const math::Matrix* recMatrix, bool deallocate);
+    explicit RecToSquareApi (CuProceduresApi& api, const math::ComplexMatrix* recMatrix, bool deallocate);
+    explicit RecToSquareApi (const math::ComplexMatrix* recMatrix, bool deallocate);
     virtual ~RecToSquareApi();
 
     RecToSquareApi (const RecToSquareApi& sm) = delete;
@@ -44,21 +44,21 @@ class RecToSquareApi final
 
     math::MatrixInfo getMatrixInfo() const;
 
-    math::Matrix* createDeviceMatrix();
+    math::ComplexMatrix* createDeviceMatrix();
 
-    math::Matrix* createDeviceRowVector(uintt index);
-    math::Matrix* createDeviceSubMatrix (uintt rindex, uintt rlength);
+    math::ComplexMatrix* createDeviceRowVector(uintt index);
+    math::ComplexMatrix* createDeviceSubMatrix (uintt rindex, uintt rlength);
 
-    math::Matrix* getDeviceRowVector(uintt index, math::Matrix* dmatrix);
-    math::Matrix* getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix);
+    math::ComplexMatrix* getDeviceRowVector(uintt index, math::ComplexMatrix* dmatrix);
+    math::ComplexMatrix* getDeviceSubMatrix (uintt rindex, uintt rlength, math::ComplexMatrix* dmatrix);
 
   private:
     CuProceduresApi* m_api;
     RecMatrixApi m_rec;
     SquareMatrixApi m_sq;
 
-    void checkIdx (uintt row, const math::MatrixInfo& minfo, math::Matrix* matrix = nullptr) const;
-    void checkIfZero (uintt length, math::Matrix* matrix = nullptr) const;
+    void checkIdx (uintt row, const math::MatrixInfo& minfo, math::ComplexMatrix* matrix = nullptr) const;
+    void checkIfZero (uintt length, math::ComplexMatrix* matrix = nullptr) const;
 };
 
 }

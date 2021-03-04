@@ -47,7 +47,7 @@ class EigenCalculator : public oap::IEigenCalculator
       oap::IEigenCalculator::setEigenvaluesOutput (eigenvalues);
     }
 
-    void setEigenvectorsOutput(math::Matrix** eigenvecs, ArnUtils::Type type)
+    void setEigenvectorsOutput(math::ComplexMatrix** eigenvecs, ArnUtils::Type type)
     {
       oap::IEigenCalculator::setEigenvectorsOutput (eigenvecs, type);
     }
@@ -61,7 +61,7 @@ class EigenCalculator : public oap::IEigenCalculator
 class ArnoldiOperations {
  public:
   oap::DeviceImagesLoader* m_dataLoader;
-  math::Matrix* value;
+  math::ComplexMatrix* value;
   oap::CuProceduresApi cuProceduresApi;
 
   ArnoldiOperations(oap::DeviceImagesLoader* dataLoader)
@@ -71,7 +71,7 @@ class ArnoldiOperations {
 
   ~ArnoldiOperations() { oap::cuda::DeleteDeviceMatrix(value); }
 
-  static void multiplyFunc(math::Matrix* m_w, math::Matrix* m_v,
+  static void multiplyFunc(math::ComplexMatrix* m_w, math::ComplexMatrix* m_v,
                            oap::CuProceduresApi& cuProceduresApi,
                            void* userData, oap::VecMultiplicationType mt)
   {
@@ -82,7 +82,7 @@ class ArnoldiOperations {
       math::MatrixInfo matrixInfo = dataLoader->getMatrixInfo();
 
       for (uintt index = 0; index < matrixInfo.columns (); ++index) {
-        math::Matrix* vec = dataLoader->createDeviceRowVector(index);
+        math::ComplexMatrix* vec = dataLoader->createDeviceRowVector(index);
 
         //oap::cuda::PrintMatrix("vec =", vec);
 
@@ -94,13 +94,13 @@ class ArnoldiOperations {
     }
   }
 
-  bool verifyOutput (math::Matrix* vector, floatt value, EigenCalculator* eigenCalc)
+  bool verifyOutput (math::ComplexMatrix* vector, floatt value, EigenCalculator* eigenCalc)
   {
-    math::Matrix* matrix = m_dataLoader->createMatrix();
+    math::ComplexMatrix* matrix = m_dataLoader->createMatrix();
 
     const uintt partSize = gColumns (matrix);
 
-    math::Matrix* dvector = NULL;
+    math::ComplexMatrix* dvector = NULL;
     uintt vectorrows = 0;
 
     bool dvectorIsCopy = false;
@@ -164,7 +164,7 @@ class ArnoldiOperations {
     return compareResult;
   }
 
-  math::Matrix* createDeviceMatrix() const {
+  math::ComplexMatrix* createDeviceMatrix() const {
     return m_dataLoader->createDeviceMatrix();
   }
 };
@@ -183,7 +183,7 @@ class MatricesDeleter {
     MatricesDeleter(int eigensCount, ArnUtils::Type type) :
       m_eigensCount(eigensCount), m_type(type) {}
 
-    MatricesDeleter& operator() (math::Matrix** evectors) {
+    MatricesDeleter& operator() (math::ComplexMatrix** evectors) {
       for (int fa = 0; fa < m_eigensCount; ++fa) {
         debug("Deleted matrix %p", evectors[fa]);
         if (m_type == ArnUtils::HOST) {
@@ -198,14 +198,14 @@ class MatricesDeleter {
 
 };
 
-using MatricesUPtr = std::unique_ptr<math::Matrix*, MatricesDeleter>;
+using MatricesUPtr = std::unique_ptr<math::ComplexMatrix*, MatricesDeleter>;
 
 class TestCuHArnoldiCallback : public CuHArnoldiCallback {
  public:
   TestCuHArnoldiCallback(ArnoldiOperations* ao, int counterLimit = 5) : m_ao(ao), m_counterLimit(counterLimit), m_counter(0) {
   }
 
-  bool checkEigenspair(floatt revalue, floatt imvalue, math::Matrix* vector, uint index, uint max) {
+  bool checkEigenspair(floatt revalue, floatt imvalue, math::ComplexMatrix* vector, uint index, uint max) {
     ++m_counter;
     debug("counter = %d", m_counter);
 
@@ -238,10 +238,10 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
     MatricesDeleter matricesDeleter(wantedEigensCount, eigensType);
 
-    MatricesUPtr evectorsUPtr(new math::Matrix* [wantedEigensCount], matricesDeleter);
+    MatricesUPtr evectorsUPtr(new math::ComplexMatrix* [wantedEigensCount], matricesDeleter);
 
     auto matricesInitializer = [&evectorsUPtr, wantedEigensCount, &matrixInfo, eigensType]() {
-      math::Matrix** evectors = evectorsUPtr.get();
+      math::ComplexMatrix** evectors = evectorsUPtr.get();
       const uintt rows = matrixInfo.rows ();
       for (int fa = 0; fa < wantedEigensCount; ++fa) {
         if (eigensType == ArnUtils::HOST) {
@@ -255,7 +255,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
     matricesInitializer();
 
-    math::Matrix** evectors = evectorsUPtr.get();
+    math::ComplexMatrix** evectors = evectorsUPtr.get();
 
     eigenCalculator.setEigenvaluesOutput(reoevalues);
 
@@ -289,9 +289,9 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
       EXPECT_THAT(trace1, StringIsEqual(trace2, pathTraceFiles + "_DEVICE.log", pathTraceFiles + "_HOST.log"));
 
-      math::Matrix** deviceMatrices = deviceEVectors.get();
-      math::Matrix** hostMatrices = hostEVectors.get();
-      math::Matrix* hostMatrix = oap::host::NewMatrixRef (hostEVectors.get()[0]);
+      math::ComplexMatrix** deviceMatrices = deviceEVectors.get();
+      math::ComplexMatrix** hostMatrices = hostEVectors.get();
+      math::ComplexMatrix* hostMatrix = oap::host::NewMatrixRef (hostEVectors.get()[0]);
       for (int fa = 0; fa < wantedEigensCount; ++fa) {
         oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
         

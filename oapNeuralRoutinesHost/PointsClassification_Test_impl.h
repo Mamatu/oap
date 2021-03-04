@@ -257,7 +257,7 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
     {
       oap::utils::MatrixRandomGenerator mrg (&rg);
       mrg.setFilter (oap::nutils::BiasesFilter<oap::Layer> (current, next, [&getMatrixInfo](const oap::Layer& layer) { return oap::generic::getWeightsInfo(layer, getMatrixInfo); }));
-      oap::nutils::initRandomWeights (current, next, getMatrixInfo, [&nga](math::Matrix* dst, const math::Matrix* src){ nga->copyHostMatrixToKernelMatrix(dst, src); }, mrg);
+      oap::nutils::initRandomWeights (current, next, getMatrixInfo, [&nga](math::ComplexMatrix* dst, const math::ComplexMatrix* src){ nga->copyHostMatrixToKernelMatrix(dst, src); }, mrg);
     });
 
     std::vector<floatt> trainingErrors;

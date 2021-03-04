@@ -64,7 +64,7 @@ TEST_F(OapReluTests, FunctionTest)
     }
   }
 
-  oap::host::func::test_defaultExpected (revalues, {}, c, r, [&hp](math::Matrix* o, math::Matrix* i) { hp.relu(o, i); }, exp_revalues, {});
+  oap::host::func::test_defaultExpected (revalues, {}, c, r, [&hp](math::ComplexMatrix* o, math::ComplexMatrix* i) { hp.relu(o, i); }, exp_revalues, {});
 }
 
 TEST_F(OapReluTests, DerivativeTest)
@@ -93,5 +93,5 @@ TEST_F(OapReluTests, DerivativeTest)
     }
   }
 
-  oap::host::func::test_defaultExpected (revalues, {}, c, r, [&hp](math::Matrix* o, math::Matrix* i) { hp.drelu(o, i); }, exp_revalues, {});
+  oap::host::func::test_defaultExpected (revalues, {}, c, r, [&hp](math::ComplexMatrix* o, math::ComplexMatrix* i) { hp.drelu(o, i); }, exp_revalues, {});
 }

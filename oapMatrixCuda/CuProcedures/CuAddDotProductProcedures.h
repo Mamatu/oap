@@ -24,9 +24,9 @@
 #include "Matrix.h"
 #include "MatrixAPI.h"
 
-__hostdevice__ void cuda_addDotProductRe(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
+__hostdevice__ void cuda_addDotProductRe(math::ComplexMatrix* output,
+                                      math::ComplexMatrix* params0,
+                                      math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -41,9 +41,9 @@ __hostdevice__ void cuda_addDotProductRe(math::Matrix* output,
   *GetRePtrIndex(output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
-__hostdevice__ void cuda_addDotProductIm(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
+__hostdevice__ void cuda_addDotProductIm(math::ComplexMatrix* output,
+                                      math::ComplexMatrix* params0,
+                                      math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -58,9 +58,9 @@ __hostdevice__ void cuda_addDotProductIm(math::Matrix* output,
   *GetRePtrIndex(output, threadIndexX + gColumns (output) * threadIndexY) = retemp;
 }
 
-__hostdevice__ void cuda_addDotProductReal(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1) {
+__hostdevice__ void cuda_addDotProductReal(math::ComplexMatrix* output,
+                                        math::ComplexMatrix* params0,
+                                        math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -84,39 +84,39 @@ __hostdevice__ void cuda_addDotProductReal(math::Matrix* output,
   *GetImPtrIndex(output, threadIndexX + outputColumns * threadIndexY) = imtemp;
 }
 
-__hostdevice__ void CUDA_addDotProductRe(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
+__hostdevice__ void CUDA_addDotProductRe(math::ComplexMatrix* output,
+                                      math::ComplexMatrix* params0,
+                                      math::ComplexMatrix* params1) {
   HOST_INIT();
 
   cuda_addDotProductRe(output, params0, params1);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_addDotProductIm(math::Matrix* output,
-                                      math::Matrix* params0,
-                                      math::Matrix* params1) {
+__hostdevice__ void CUDA_addDotProductIm(math::ComplexMatrix* output,
+                                      math::ComplexMatrix* params0,
+                                      math::ComplexMatrix* params1) {
   HOST_INIT();
 
   cuda_addDotProductIm(output, params0, params1);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_addDotProductReal(math::Matrix* output,
-                                        math::Matrix* params0,
-                                        math::Matrix* params1) {
+__hostdevice__ void CUDA_addDotProductReal(math::ComplexMatrix* output,
+                                        math::ComplexMatrix* params0,
+                                        math::ComplexMatrix* params1) {
   HOST_INIT();
 
   cuda_addDotProductReal(output, params0, params1);
   threads_sync();
 }
-__hostdevice__ void CUDA_addDotProduct(math::Matrix* output, math::Matrix* params0,
-                                    math::Matrix* params1) {
+__hostdevice__ void CUDA_addDotProduct(math::ComplexMatrix* output, math::ComplexMatrix* params0,
+                                    math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
   bool isInRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   if (isre && isim && isInRange) {
     CUDA_addDotProductReal(output, params0, params1);

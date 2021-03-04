@@ -135,15 +135,15 @@ class QRDecompositionCpu :
 public IQRDecomposition,
 public ThreadsCountProperty {
     static void Execute(void* ptr);
-    math::Matrix* m_R1;
-    math::Matrix* m_Q1;
-    math::Matrix* m_G;
-    math::Matrix* m_GT;
+    math::ComplexMatrix* m_R1;
+    math::ComplexMatrix* m_Q1;
+    math::ComplexMatrix* m_G;
+    math::ComplexMatrix* m_GT;
     DotProductOperationCpu dotProduct;
     TransposeOperationCpu transpose;
-    inline void prepareGMatrix(math::Matrix* Matrix,
+    inline void prepareGMatrix(math::ComplexMatrix* ComplexMatrix,
         uintt column, uintt row,
-        math::Matrix* G);
+        math::ComplexMatrix* G);
 protected:
     void execute();
 public:
@@ -155,8 +155,8 @@ class DeterminantOperationCpu :
 public IDeterminantOperation,
 public ThreadsCountProperty {
     QRDecompositionCpu m_qrDecomposition;
-    math::Matrix* m_q;
-    math::Matrix* m_r;
+    math::ComplexMatrix* m_q;
+    math::ComplexMatrix* m_r;
 protected:
     math::Status beforeExecution();
     void execute();
@@ -192,27 +192,27 @@ class MathOperationsCpu  {
     std::vector<ThreadsCountProperty*> properties;
 
     inline math::Status execute(math::TwoMatricesOperations& obj,
-        math::Matrix* output, math::Matrix* arg1, math::Matrix* arg2);
+        math::ComplexMatrix* output, math::ComplexMatrix* arg1, math::ComplexMatrix* arg2);
 
     inline math::Status execute(math::MatrixValueOperation& obj,
-        math::Matrix* output, math::Matrix* arg1, floatt* value);
+        math::ComplexMatrix* output, math::ComplexMatrix* arg1, floatt* value);
 
     inline math::Status execute(math::MatrixValueOperation& obj,
-        math::Matrix* output, math::Matrix* arg1, floatt* revalue,
+        math::ComplexMatrix* output, math::ComplexMatrix* arg1, floatt* revalue,
         floatt* imvalue);
 
     inline math::Status execute(math::MatrixOperationOutputMatrix& obj,
-        math::Matrix* output, math::Matrix* arg1);
+        math::ComplexMatrix* output, math::ComplexMatrix* arg1);
 
     inline math::Status execute(math::MatrixOperationOutputValue& obj,
-        floatt* output, math::Matrix* arg1);
+        floatt* output, math::ComplexMatrix* arg1);
 
     inline math::Status execute(math::MatrixOperationOutputValue& obj,
-        floatt* output1, floatt* output2, math::Matrix* arg1);
+        floatt* output1, floatt* output2, math::ComplexMatrix* arg1);
 
     inline math::Status execute(math::MatrixOperationTwoOutputs& obj,
-        math::Matrix* output1, math::Matrix* output2,
-        math::Matrix* arg1);
+        math::ComplexMatrix* output1, math::ComplexMatrix* output2,
+        math::ComplexMatrix* arg1);
 public:
     MathOperationsCpu();
     virtual ~MathOperationsCpu();
@@ -228,62 +228,62 @@ public:
     void unsetSubRows();
     void unsetSubColumns();
 
-    math::Status add(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2);
+    math::Status add(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2);
 
-    math::Status subtract(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2);
+    math::Status subtract(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2);
 
-    math::Status dotProduct(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2);
+    math::Status dotProduct(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2);
 
-    math::Status dotProduct(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2, uintt offset);
+    math::Status dotProduct(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2, uintt offset);
 
-    math::Status dotProduct(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2,
+    math::Status dotProduct(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
         uintt boffset, uintt eoffset);
 
-    math::Status tensorProduct(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2);
+    math::Status tensorProduct(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2);
 
-    math::Status diagonalize(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2);
+    math::Status diagonalize(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2);
 
-    math::Status multiply(math::Matrix* output,
-        math::Matrix* matrix1, floatt* value);
+    math::Status multiply(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, floatt* value);
 
-    math::Status multiply(math::Matrix* output,
-        math::Matrix* matrix1, floatt* revalue, floatt* imvalue);
+    math::Status multiply(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, floatt* revalue, floatt* imvalue);
 
-    math::Status exp(math::Matrix* output,
-        math::Matrix* matrix1);
+    math::Status exp(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1);
 
-    math::Status multiply(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2);
+    math::Status multiply(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2);
 
-    math::Status multiply(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2, uintt offset);
+    math::Status multiply(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2, uintt offset);
 
-    math::Status multiply(math::Matrix* output,
-        math::Matrix* matrix1, math::Matrix* matrix2,
+    math::Status multiply(math::ComplexMatrix* output,
+        math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
         uintt boffset, uintt eoffset);
 
-    math::Status magnitude(floatt* output, math::Matrix* matrix1);
+    math::Status magnitude(floatt* output, math::ComplexMatrix* matrix1);
 
-    math::Status transpose(math::Matrix* output, math::Matrix* matrix1);
-    math::Status transpose(math::Matrix* output, math::Matrix* matrix1,
+    math::Status transpose(math::ComplexMatrix* output, math::ComplexMatrix* matrix1);
+    math::Status transpose(math::ComplexMatrix* output, math::ComplexMatrix* matrix1,
         uintt subcolumns[2], uintt subrows[2]);
 
-    math::Status transpose(math::Matrix* matrix);
+    math::Status transpose(math::ComplexMatrix* matrix);
 
-    math::Status det(floatt* output, math::Matrix* matrix);
+    math::Status det(floatt* output, math::ComplexMatrix* matrix);
 
     math::Status det(floatt* output,
-        floatt* output1, math::Matrix* matrix);
+        floatt* output1, math::ComplexMatrix* matrix);
 
-    math::Status qrDecomposition(math::Matrix* Q,
-        math::Matrix* R, math::Matrix* matrix);
+    math::Status qrDecomposition(math::ComplexMatrix* Q,
+        math::ComplexMatrix* R, math::ComplexMatrix* matrix);
 };
 
 }

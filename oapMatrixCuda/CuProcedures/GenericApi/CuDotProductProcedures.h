@@ -29,7 +29,7 @@
 #include "../CuCreateProcedures.h"
 #include "../CuDotProductSpecificProcedures.h"
 
-__hostdevice__ void cuda_GenericApi_dotProductRe (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_dotProductRe (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -39,9 +39,9 @@ __hostdevice__ void cuda_GenericApi_dotProductRe (math::Matrix** outputs, math::
 
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param1 = params0[oidxs[0]];
-    math::Matrix* param2 = params1[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param1 = params0[oidxs[0]];
+    math::ComplexMatrix* param2 = params1[oidxs[0]];
 
     const uintt columns1 = GetColumns (param1);
     const uintt columns2 = GetColumns (param2);
@@ -53,17 +53,17 @@ __hostdevice__ void cuda_GenericApi_dotProductRe (math::Matrix** outputs, math::
 
     for (uintt idx = 0; idx < offset; ++idx)
     {
-      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, idx, y);
-      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, x, idx);
-      retemp += param1->re.ptr[idx1] * param2->re.ptr[idx2];
+      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re.mem, param1->re.reg, idx, y);
+      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re.mem, param2->re.reg, x, idx);
+      retemp += param1->re.mem.ptr[idx1] * param2->re.mem.ptr[idx2];
     }
 
-    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-    output->re.ptr[index] = retemp;
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+    output->re.mem.ptr[index] = retemp;
   }
 }
 
-__hostdevice__ void cuda_GenericApi_dotProductIm (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_dotProductIm (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -73,9 +73,9 @@ __hostdevice__ void cuda_GenericApi_dotProductIm (math::Matrix** outputs, math::
 
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param1 = params0[oidxs[0]];
-    math::Matrix* param2 = params1[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param1 = params0[oidxs[0]];
+    math::ComplexMatrix* param2 = params1[oidxs[0]];
 
     const uintt columns1 = GetColumns (param1);
     const uintt columns2 = GetColumns (param2);
@@ -87,17 +87,17 @@ __hostdevice__ void cuda_GenericApi_dotProductIm (math::Matrix** outputs, math::
 
     for (uintt idx = 0; idx < offset; ++idx)
     {
-      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, idx, y);
-      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, x, idx);
-      imtemp += param1->im.ptr[idx1] * param2->im.ptr[idx2] * -1.;
+      uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im.mem, param1->im.reg, idx, y);
+      uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im.mem, param2->im.reg, x, idx);
+      imtemp += param1->im.mem.ptr[idx1] * param2->im.mem.ptr[idx2] * -1.;
     }
 
-    uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
-    output->im.ptr[index] = imtemp;
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
+    output->im.mem.ptr[index] = imtemp;
   }
 }
 
-__hostdevice__ void cuda_GenericApi_dotProductReal (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_dotProductReal (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -107,9 +107,9 @@ __hostdevice__ void cuda_GenericApi_dotProductReal (math::Matrix** outputs, math
 
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param1 = params0[oidxs[0]];
-    math::Matrix* param2 = params1[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param1 = params0[oidxs[0]];
+    math::ComplexMatrix* param2 = params1[oidxs[0]];
 
     const uintt columns1 = GetColumns (param1);
     const uintt columns2 = GetColumns (param2);
@@ -123,29 +123,29 @@ __hostdevice__ void cuda_GenericApi_dotProductReal (math::Matrix** outputs, math
     for (uintt idx = 0; idx < offset; ++idx)
     {
       {
-        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, idx, y);
-        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, x, idx);
-        retemp += param1->re.ptr[idx1] * param2->re.ptr[idx2];
+        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re.mem, param1->re.reg, idx, y);
+        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re.mem, param2->re.reg, x, idx);
+        retemp += param1->re.mem.ptr[idx1] * param2->re.mem.ptr[idx2];
       }
       {
-        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, idx, y);
-        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im, param2->imReg, x, idx);
-        imtemp += param1->im.ptr[idx1] * param2->im.ptr[idx2] * -1.;
+        uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im.mem, param1->im.reg, idx, y);
+        uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->im.mem, param2->im.reg, x, idx);
+        imtemp += param1->im.mem.ptr[idx1] * param2->im.mem.ptr[idx2] * -1.;
       }
     }
 
     {
-      uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-      output->re.ptr[index] = retemp;
+      uintt index = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+      output->re.mem.ptr[index] = retemp;
     }
     {
-      uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
-      output->im.ptr[index] = imtemp;
+      uintt index = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
+      output->im.mem.ptr[index] = imtemp;
     }
   }
 }
 
-__hostdevice__ void CUDA_GenericApi_dotProductRe (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_dotProductRe (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
 
@@ -153,7 +153,7 @@ __hostdevice__ void CUDA_GenericApi_dotProductRe (math::Matrix** output, math::M
   threads_sync();
 }
 
-__hostdevice__ void CUDA_GenericApi_dotProductIm (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_dotProductIm (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
 
@@ -161,7 +161,7 @@ __hostdevice__ void CUDA_GenericApi_dotProductIm (math::Matrix** output, math::M
   threads_sync();
 }
 
-__hostdevice__ void CUDA_GenericApi_dotProductReal (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_dotProductReal (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
 
@@ -169,13 +169,13 @@ __hostdevice__ void CUDA_GenericApi_dotProductReal (math::Matrix** output, math:
   threads_sync();
 }
 
-__hostdevice__ void CUDA_GenericApi_DotProduct (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_DotProduct (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isRe = output[0]->re.ptr != NULL;
-  bool isIm = output[0]->im.ptr != NULL;
+  bool isRe = output[0]->re.mem.ptr != NULL;
+  bool isIm = output[0]->im.mem.ptr != NULL;
 
   if (isRe && isIm)
   {

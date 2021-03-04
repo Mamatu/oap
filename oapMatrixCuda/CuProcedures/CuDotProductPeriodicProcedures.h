@@ -63,13 +63,13 @@
  * C40 = A10 * B30 + A11 * B40 + A12 * B50
  *
  */
-__hostdevice__ void CUDA_dotProductPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdevice__ void CUDA_dotProductPeriodic (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
 
   bool inRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   

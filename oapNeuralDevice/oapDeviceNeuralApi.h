@@ -34,7 +34,7 @@ namespace
 {
 
 template<typename LayerT>
-void checkHostInputs (LayerT& layer, const math::Matrix* const hostInputs)
+void checkHostInputs (LayerT& layer, const math::ComplexMatrix* const hostInputs)
 {
   if (gColumns (hostInputs) != 1)
   {
@@ -67,7 +67,7 @@ void checkHostInputsMatrices (LayerT& layer, const Matrices& hostInputs)
   }
 }
 
-void _setReValue (math::Matrix* matrix, uintt c, uintt r, floatt v)
+void _setReValue (math::ComplexMatrix* matrix, uintt c, uintt r, floatt v)
 {
   oap::cuda::SetReValue(matrix, c, r, v);
 }
@@ -79,7 +79,7 @@ namespace device
 {
 
 template<typename LayerT>
-void setHostInputs (LayerT& layer, const math::Matrix* hInputs)
+void setHostInputs (LayerT& layer, const math::ComplexMatrix* hInputs)
 {
   checkHostInputs (layer, hInputs);
 
@@ -87,7 +87,7 @@ void setHostInputs (LayerT& layer, const math::Matrix* hInputs)
 }
 
 template<typename LayerT>
-void setDeviceInputs (LayerT& layer, const math::Matrix* dInputs)
+void setDeviceInputs (LayerT& layer, const math::ComplexMatrix* dInputs)
 {
   oap::generic::setInputs (layer, dInputs, oap::cuda::CopyDeviceMatrixToDeviceMatrix, _setReValue);
 }
@@ -119,7 +119,7 @@ math::MatrixInfo getInputsInfo (LayerT& layer)
 }
 
 template<typename LayerT>
-void getOutputs (const LayerT& layer, math::Matrix* matrix, ArgType type)
+void getOutputs (const LayerT& layer, math::ComplexMatrix* matrix, ArgType type)
 {
   switch (type)
   {
@@ -133,19 +133,19 @@ void getOutputs (const LayerT& layer, math::Matrix* matrix, ArgType type)
 }
 
 template<typename LayerT>
-void setHostWeights (LayerT& layer, math::Matrix* weights)
+void setHostWeights (LayerT& layer, math::ComplexMatrix* weights)
 {
   oap::generic::setHostWeights (layer, weights, oap::cuda::CopyHostMatrixToDeviceMatrix, oap::cuda::GetMatrixInfo, oap::host::GetMatrixInfo);
 }
 
 template<typename LayerT>
-void setDeviceWeights (LayerT& layer, math::Matrix* weights)
+void setDeviceWeights (LayerT& layer, math::ComplexMatrix* weights)
 {
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (layer.getBPMatrices()->m_weights, weights);
 }
 
 template<typename LayerT>
-void setWeights (const LayerT& layer, const math::Matrix* hmatrix)
+void setWeights (const LayerT& layer, const math::ComplexMatrix* hmatrix)
 {
   oap::generic::setWeights (layer, hmatrix, oap::cuda::CopyHostMatrixToDeviceMatrix);
 }
