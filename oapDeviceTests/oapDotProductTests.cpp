@@ -55,13 +55,13 @@ class OapDotProductTests : public testing::Test {
 
 TEST_F(OapDotProductTests, Test_1)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (1, 10, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (10, 1, 2);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (1, 10, 2);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (10, 1, 2);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(10, 10);
-  math::Matrix* houtput = oap::host::NewReMatrix(10, 10);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(10, 10);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(10, 10);
 
   cuMatrix->dotProduct(doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
@@ -123,13 +123,13 @@ TEST_F(OapDotProductTests, SharedTest_64x64)
 
 TEST_F(OapDotProductTests, Test_CustomDim_1)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (1, 10, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (10, 1, 2);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (1, 10, 2);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (10, 1, 2);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(10, 10);
-  math::Matrix* houtput = oap::host::NewReMatrix(10, 10);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(10, 10);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(10, 10);
 
   uintt oDim[2] = {10, 10};
   uintt p1Dim[2] = {1, 10};
@@ -202,12 +202,12 @@ TEST_F(OapDotProductTests, Test_CustomDim_2)
 
 TEST_F(OapDotProductTests, BigDataTest_1)
 {
-  math::Matrix* Q = oap::host::NewMatrix(Qstr);
-  math::Matrix* QJ = oap::host::NewMatrix(QJstr);
+  math::ComplexMatrix* Q = oap::host::NewMatrix(Qstr);
+  math::ComplexMatrix* QJ = oap::host::NewMatrix(QJstr);
 
-  math::Matrix* dQJ = oap::cuda::NewDeviceMatrixHostRef(QJ);
-  math::Matrix* dQ = oap::cuda::NewDeviceMatrixHostRef(Q);
-  math::Matrix* doutput = oap::cuda::NewDeviceMatrixHostRef(Q);
+  math::ComplexMatrix* dQJ = oap::cuda::NewDeviceMatrixHostRef(QJ);
+  math::ComplexMatrix* dQ = oap::cuda::NewDeviceMatrixHostRef(Q);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceMatrixHostRef(Q);
 
   cuMatrix->dotProduct(doutput, dQ, dQJ);
   cuMatrix->dotProduct(doutput, dQJ, dQ);
@@ -442,11 +442,11 @@ TEST_F(OapDotProductTests, Test_DimPeriodic_2)
 
 TEST_F(OapDotProductTests, Test_Value_1)
 {
-  math::Matrix* dM1 = oap::cuda::NewDeviceReMatrixWithValue (1, 1, 2.);
-  math::Matrix* dM2 = oap::cuda::NewDeviceReMatrixWithValue (1, 1, 2.);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(1, 1);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceReMatrixWithValue (1, 1, 2.);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceReMatrixWithValue (1, 1, 2.);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(1, 1);
 
-  math::Matrix* houtput = oap::host::NewReMatrix(1, 1);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(1, 1);
 
   cuMatrix->dotProduct (doutput, dM1, dM2);
 

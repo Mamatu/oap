@@ -26,7 +26,7 @@
 
 __hostdeviceinline__ void setSharedMatrixReal(
     floatt* buffer1Re, floatt* buffer1Im, floatt* buffer2Re, floatt* buffer2Im,
-    math::Matrix* params0, math::Matrix* params1, uintt offset,
+    math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt offset,
     uintt threadIndexX, uintt threadIndexY) {
   HOST_INIT();
   const uintt columns1 = params0->realColumns;
@@ -45,15 +45,15 @@ __hostdeviceinline__ void setSharedMatrixReal(
 
 __hostdeviceinline__ void setSharedMatrixRe(floatt* buffer1Re,
                                             floatt* buffer2Re,
-                                            math::Matrix* params0,
-                                            math::Matrix* params1, uintt offset,
+                                            math::ComplexMatrix* params0,
+                                            math::ComplexMatrix* params1, uintt offset,
                                             uintt threadIndexX,
                                             uintt threadIndexY) {}
 
 __hostdeviceinline__ void setSharedMatrixIm(floatt* buffer1Im,
                                             floatt* buffer2Im,
-                                            math::Matrix* params0,
-                                            math::Matrix* params1, uintt offset,
+                                            math::ComplexMatrix* params0,
+                                            math::ComplexMatrix* params1, uintt offset,
                                             uintt threadIndexX,
                                             uintt threadIndexY) {}
 

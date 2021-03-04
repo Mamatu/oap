@@ -30,7 +30,7 @@ namespace oap
 namespace mp
 {
 
-__hostdevice__ void GetIdx_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[3], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
+__hostdevice__ void GetIdx_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[3], const math::ComplexMatrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
   uintt idx = ud->mapperBuffer [_cuGlbThreadIdx()];
@@ -42,7 +42,7 @@ __hostdevice__ void GetIdx_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 bl
   out[2] = ud->dataBuffer[idx + 2];
 }
 
-__hostdevice__ bool GetIdxCheck_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[3], const math::Matrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
+__hostdevice__ bool GetIdxCheck_MatrixPosAlgo (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[3], const math::ComplexMatrix* const* arg, const oap::ThreadsMapperS* mapper, uintt argIdx)
 {
   oap::threads::UserData* ud = static_cast<oap::threads::UserData*>(mapper->data);
   uintt idx = ud->mapperBuffer [_cuGlbThreadIdx()];

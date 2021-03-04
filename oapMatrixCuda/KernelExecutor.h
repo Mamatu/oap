@@ -154,7 +154,7 @@ class Kernel : public oap::IKernelExecutor
 
     virtual std::string getErrorMsg () const override;
 
-    void setDimensionsDevice(math::Matrix* dmatrix);
+    void setDimensionsDevice(math::ComplexMatrix* dmatrix);
 
     virtual uint getMaxThreadsPerBlock() const override;
 
@@ -168,7 +168,7 @@ class Kernel : public oap::IKernelExecutor
                               uint w, uint h);
 
     void calculateThreadsBlocksDevice(uint blocks[2], uint threads[2],
-                                    math::Matrix* dmatrix);
+                                    math::ComplexMatrix* dmatrix);
 
     static void SetThreadsBlocks (uint blocks[2], uint threads[2], uint w, uint h, uint maxThreadsPerBlock);
 

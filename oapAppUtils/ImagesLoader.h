@@ -114,15 +114,15 @@ class ImagesLoader {
    * @brief Creates matrix from sets of pngImagesLoader
    * @return matrix in host space
    */
-  math::Matrix* createMatrix();
+  math::ComplexMatrix* createMatrix();
 
-  math::Matrix* createMatrix(uintt index, uintt length);
+  math::ComplexMatrix* createMatrix(uintt index, uintt length);
 
-  math::Matrix* createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows);
+  math::ComplexMatrix* createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows);
 
-  math::Matrix* createColumnVector(size_t index);
+  math::ComplexMatrix* createColumnVector(size_t index);
 
-  math::Matrix* createRowVector(size_t index);
+  math::ComplexMatrix* createRowVector(size_t index);
 
   /**
    * @brief Gets Matrxinfo from set of pngImagesLoader
@@ -166,7 +166,7 @@ class ImagesLoader {
   std::string m_matrixFileDir;
   std::string m_file;
 
-  void loadColumnVector(math::Matrix* matrix, size_t column, floatt* vec,
+  void loadColumnVector(math::ComplexMatrix* matrix, size_t column, floatt* vec,
                         size_t imageIndex);
 
   void load();

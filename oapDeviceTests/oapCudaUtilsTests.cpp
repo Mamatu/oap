@@ -67,12 +67,12 @@ class OapCudaUtilsTests : public testing::Test {
 
   void executeSetGetValueTest(bool isre, bool isim, uintt columns, uintt rows,
                               const ValueIndexVec& expecteds) {
-    math::Matrix* matrix = oap::cuda::NewDeviceMatrixWithValue (isre, isim, columns, rows, 0.);
+    math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrixWithValue (isre, isim, columns, rows, 0.);
     executeSetGetValueTest(matrix, expecteds);
     oap::cuda::DeleteDeviceMatrix(matrix);
   }
 
-  void executeSetGetValueTest (math::Matrix* matrix, const ValueIndexVec& expecteds)
+  void executeSetGetValueTest (math::ComplexMatrix* matrix, const ValueIndexVec& expecteds)
   {
     uintt columns = oap::cuda::GetColumns(matrix);
     for (ValueIndexVec::const_iterator it = expecteds.begin(); it != expecteds.end(); ++it)
@@ -152,7 +152,7 @@ TEST_F(OapCudaUtilsTests, SetGetValuesMatrix2) {
   vec.push_back(ValueIndex(c, Index(column, column)));
   vec.push_back(ValueIndex(c, Index(row, row)));
   vec.push_back(ValueIndex(s, Index(row, column)));
-  math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, 64, 64);
+  math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix(true, true, 64, 64);
   m_kernel->setDimensionsDevice(matrix);
   DEVICEKernel_SetIdentity(matrix, *m_kernel);
   executeSetGetValueTest(matrix, vec);
@@ -169,7 +169,7 @@ TEST_F(OapCudaUtilsTests, SetGetValuesMatrix3) {
   vec.push_back(ValueIndex(c, Index(column, column)));
   vec.push_back(ValueIndex(c, Index(row, row)));
   vec.push_back(ValueIndex(s, Index(row, column)));
-  math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, 32, 32);
+  math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix(true, true, 32, 32);
   m_kernel->setDimensionsDevice(matrix);
   DEVICEKernel_SetIdentity(matrix, *m_kernel);
   executeSetGetValueTest(matrix, vec);

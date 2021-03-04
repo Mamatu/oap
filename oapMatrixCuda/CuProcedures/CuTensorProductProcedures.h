@@ -25,7 +25,7 @@
 #include "MatrixAPI.h"
 
 __hostdevice__ void
-cuda_tensorProductRe(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+cuda_tensorProductRe(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -43,21 +43,21 @@ cuda_tensorProductRe(math::Matrix* output, math::Matrix* params0, math::Matrix* 
 }
 
 __hostdevice__ void
-cuda_tensorProductIm(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+cuda_tensorProductIm(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
 __hostdevice__ void
-cuda_tensorProductReal(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+cuda_tensorProductReal(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
 __hostdevice__ void
-CUDA_tensorProductRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+CUDA_tensorProductRe (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -66,7 +66,7 @@ CUDA_tensorProductRe (math::Matrix* output, math::Matrix* params0, math::Matrix*
 }
 
 __hostdevice__ void
-CUDA_tensorProductIm(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+CUDA_tensorProductIm(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -75,7 +75,7 @@ CUDA_tensorProductIm(math::Matrix* output, math::Matrix* params0, math::Matrix* 
 }
 
 __hostdevice__ void
-CUDA_tensorProductReal(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+CUDA_tensorProductReal(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -84,13 +84,13 @@ CUDA_tensorProductReal(math::Matrix* output, math::Matrix* params0, math::Matrix
 }
 
 __hostdevice__ void
-CUDA_tensorProduct(math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+CUDA_tensorProduct(math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
   bool isInRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
 
   if (isre && isim && isInRange)

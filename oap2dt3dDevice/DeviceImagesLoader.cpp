@@ -29,57 +29,57 @@ DeviceImagesLoader::DeviceImagesLoader(const Images& images, bool dealocateImage
 
 DeviceImagesLoader::~DeviceImagesLoader() {}
 
-math::Matrix* DeviceImagesLoader::createDeviceMatrix() {
-  math::Matrix* host = createMatrix();
-  math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
+math::ComplexMatrix* DeviceImagesLoader::createDeviceMatrix() {
+  math::ComplexMatrix* host = createMatrix();
+  math::ComplexMatrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
 
-math::Matrix* DeviceImagesLoader::createDeviceRowVector(size_t index) {
-  math::Matrix* host = createRowVector(index);
-  math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
+math::ComplexMatrix* DeviceImagesLoader::createDeviceRowVector(size_t index) {
+  math::ComplexMatrix* host = createRowVector(index);
+  math::ComplexMatrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
 
-math::Matrix* DeviceImagesLoader::getDeviceRowVector(size_t index, math::Matrix* dmatrix)
+math::ComplexMatrix* DeviceImagesLoader::getDeviceRowVector(size_t index, math::ComplexMatrix* dmatrix)
 {
-  math::Matrix* host = createRowVector(index);
+  math::ComplexMatrix* host = createRowVector(index);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, host);
   oap::host::DeleteMatrix(host);
   return dmatrix;
 }
 
-math::Matrix* DeviceImagesLoader::createDeviceColumnVector(size_t index) {
-  math::Matrix* host = createColumnVector(index);
-  math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
+math::ComplexMatrix* DeviceImagesLoader::createDeviceColumnVector(size_t index) {
+  math::ComplexMatrix* host = createColumnVector(index);
+  math::ComplexMatrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
 
-math::Matrix* DeviceImagesLoader::getDeviceColumnVector(size_t index, math::Matrix* dmatrix)
+math::ComplexMatrix* DeviceImagesLoader::getDeviceColumnVector(size_t index, math::ComplexMatrix* dmatrix)
 {
-  math::Matrix* host = createColumnVector(index);
+  math::ComplexMatrix* host = createColumnVector(index);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, host);
   oap::host::DeleteMatrix(host);
   return dmatrix;
 }
 
-math::Matrix* DeviceImagesLoader::createDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
+math::ComplexMatrix* DeviceImagesLoader::createDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
 {
-  math::Matrix* host = createSubMatrix (cindex, rindex, columns, rows);
-  math::Matrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
+  math::ComplexMatrix* host = createSubMatrix (cindex, rindex, columns, rows);
+  math::ComplexMatrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
   oap::host::DeleteMatrix(host);
   return device;
 }
 
-math::Matrix* DeviceImagesLoader::getDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows, math::Matrix* dmatrix)
+math::ComplexMatrix* DeviceImagesLoader::getDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows, math::ComplexMatrix* dmatrix)
 {
   uintt columns1 = oap::cuda::GetColumns (dmatrix);
   uintt rows1 = oap::cuda::GetRows (dmatrix);
 
-  math::Matrix* host = createSubMatrix (cindex, rindex, columns, rows);
+  math::ComplexMatrix* host = createSubMatrix (cindex, rindex, columns, rows);
 
   if (columns != columns1 || rows != rows1)
   {

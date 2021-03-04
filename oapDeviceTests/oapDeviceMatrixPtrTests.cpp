@@ -50,7 +50,7 @@ TEST_F(OapDeviceMatrixPtrTests, MemLeakPtrTest)
 
 TEST_F(OapDeviceMatrixPtrTests, MemLeakPtrsTest)
 {
-  std::vector<math::Matrix*> vec = {
+  std::vector<math::ComplexMatrix*> vec = {
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10)
@@ -62,7 +62,7 @@ TEST_F(OapDeviceMatrixPtrTests, MemLeakPtrsTest)
 TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
 {
   {
-    std::vector<math::Matrix*> vec = {
+    std::vector<math::ComplexMatrix*> vec = {
       oap::cuda::NewDeviceReMatrix(10, 10),
       oap::cuda::NewDeviceReMatrix(10, 10),
       oap::cuda::NewDeviceReMatrix(10, 10)
@@ -77,7 +77,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
   }
 
   {
-    std::vector<math::Matrix*> vec = {
+    std::vector<math::ComplexMatrix*> vec = {
       oap::cuda::NewDeviceReMatrix(10, 13),
       oap::cuda::NewDeviceReMatrix(10, 14),
       oap::cuda::NewDeviceReMatrix(10, 15)
@@ -92,7 +92,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
   }
 
   {
-    std::list<math::Matrix*> list = {
+    std::list<math::ComplexMatrix*> list = {
       oap::cuda::NewDeviceReMatrix(10, 10),
       oap::cuda::NewDeviceReMatrix(10, 10),
       oap::cuda::NewDeviceReMatrix(10, 10),
@@ -110,7 +110,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
   }
 
   {
-    math::Matrix** array =  new math::Matrix*[2];
+    math::ComplexMatrix** array =  new math::ComplexMatrix*[2];
     array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
     array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
 
@@ -123,7 +123,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
   }
 
   {
-    math::Matrix** array =  new math::Matrix*[2];
+    math::ComplexMatrix** array =  new math::ComplexMatrix*[2];
     array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
     array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
 
@@ -136,7 +136,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
   }
 
   {
-    math::Matrix* array [3] =
+    math::ComplexMatrix* array [3] =
     {
       oap::cuda::NewDeviceReMatrix(10, 125),
       oap::cuda::NewDeviceImMatrix (10, 13),
@@ -151,7 +151,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
   }
 
   {
-    math::Matrix* array [3] =
+    math::ComplexMatrix* array [3] =
     {
       oap::cuda::NewDeviceReMatrix(10, 125),
       oap::cuda::NewDeviceImMatrix (10, 13),
@@ -175,19 +175,19 @@ TEST_F(OapDeviceMatrixPtrTests, ResetPtrTest)
 
 TEST_F(OapDeviceMatrixPtrTests, ResetPtrsTest)
 {
-  std::vector<math::Matrix*> vec = {
+  std::vector<math::ComplexMatrix*> vec = {
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10)
   };
 
-  std::vector<math::Matrix*> vec1 = {
+  std::vector<math::ComplexMatrix*> vec1 = {
     oap::cuda::NewDeviceReMatrix(10, 13),
     oap::cuda::NewDeviceReMatrix(10, 14),
     oap::cuda::NewDeviceReMatrix(10, 15)
   };
 
-  std::initializer_list<math::Matrix*> list = {
+  std::initializer_list<math::ComplexMatrix*> list = {
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10),
@@ -195,11 +195,11 @@ TEST_F(OapDeviceMatrixPtrTests, ResetPtrsTest)
     oap::cuda::NewDeviceReMatrix(10, 100)
   };
 
-  math::Matrix** array =  new math::Matrix*[2];
+  math::ComplexMatrix** array =  new math::ComplexMatrix*[2];
   array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
   array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
 
-  math::Matrix* array1[3] =
+  math::ComplexMatrix* array1[3] =
   {
     oap::cuda::NewDeviceReMatrix (110, 25),
     oap::cuda::NewDeviceImMatrix (110, 25),
@@ -228,13 +228,13 @@ TEST_F(OapDeviceMatrixPtrTests, AssignmentPtrTest)
 
 TEST_F(OapDeviceMatrixPtrTests, AssignmentPtrsTest)
 {
-  std::vector<math::Matrix*> vec = {
+  std::vector<math::ComplexMatrix*> vec = {
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10)
   };
 
-  std::vector<math::Matrix*> vec1 = {
+  std::vector<math::ComplexMatrix*> vec1 = {
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10),
     oap::cuda::NewDeviceReMatrix(10, 10),

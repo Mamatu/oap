@@ -121,12 +121,12 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   {
     if (dis(dre) >= 0.5)
     {
-      oap::host::CopyBuffer (input->re.ptr, upatternA.get (), gColumns (input) * gRows (input));
+      oap::host::CopyBuffer (input->re.mem.ptr, upatternA.get (), gColumns (input) * gRows (input));
       *GetRePtrIndex (eoutput, 0) = 1;
     }
     else
     {
-      oap::host::CopyBuffer (input->re.ptr, upatternB.get (), gColumns (input) * gRows (input));
+      oap::host::CopyBuffer (input->re.mem.ptr, upatternB.get (), gColumns (input) * gRows (input));
       *GetRePtrIndex (eoutput, 0) = 0;
     }
 
@@ -155,11 +155,11 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
 
   if (!m_bInterrupted)
   {
-    oap::host::CopyBuffer (input->re.ptr, upatternA.get (), gColumns (input) * gRows (input));
+    oap::host::CopyBuffer (input->re.mem.ptr, upatternA.get (), gColumns (input) * gRows (input));
     auto output1 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output1, args.m_onOutput1);
 
-    oap::host::CopyBuffer (input->re.ptr, upatternB.get (), gColumns (input) * gRows (input));
+    oap::host::CopyBuffer (input->re.mem.ptr, upatternB.get (), gColumns (input) * gRows (input));
     auto output2 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output2, args.m_onOutput2);
   }

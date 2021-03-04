@@ -40,12 +40,12 @@
 class NetworkT : public oap::Network
 {
   public:
-    void executeLearning(math::Matrix* expected)
+    void executeLearning(math::ComplexMatrix* expected)
     {
       oap::Network::executeLearning (expected, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
     }
 
-    void setHostInput (math::Matrix* inputs, size_t index)
+    void setHostInput (math::ComplexMatrix* inputs, size_t index)
     {
       oap::Network::setHostInputs (inputs, index);
     }

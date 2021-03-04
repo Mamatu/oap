@@ -55,7 +55,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   void setOutputsEigenvalues(floatt* reoevalues, floatt* imoevalues);
 
-  void setOutputsEigenvectors(math::Matrix** oevectors);
+  void setOutputsEigenvectors(math::ComplexMatrix** oevectors);
 
   void setOutputType(ArnUtils::Type outputType);
 
@@ -71,10 +71,10 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   void execute (uint k, uint wantedCount, const math::MatrixInfo& matrixInfo, ArnUtils::Type matrixType = ArnUtils::DEVICE);
 
  protected:  // methods - multiplication to implement
-  virtual void multiply(math::Matrix*, math::Matrix*, oap::CuProceduresApi&, oap::VecMultiplicationType) = 0;
+  virtual void multiply(math::ComplexMatrix*, math::ComplexMatrix*, oap::CuProceduresApi&, oap::VecMultiplicationType) = 0;
 
  protected:  // methods - to drive algorithm
-  virtual bool checkEigenspair(floatt revalue, floatt imevalue, math::Matrix* vector,
+  virtual bool checkEigenspair(floatt revalue, floatt imevalue, math::ComplexMatrix* vector,
                                uint index, uint max) = 0;
 
  protected:  // data, matrices
@@ -88,7 +88,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   floatt* m_reoevalues;
   floatt* m_imoevalues;
-  math::Matrix** m_oevectors;
+  math::ComplexMatrix** m_oevectors;
 
   bool m_wasAllocated;
   uint m_k;
@@ -117,8 +117,8 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   math::MatrixInfo m_triangularHInfo;
 
  private:  // internal methods - inline
-  inline void aux_swapPointers(math::Matrix** a, math::Matrix** b) {
-    math::Matrix* temp = *b;
+  inline void aux_swapPointers(math::ComplexMatrix** a, math::ComplexMatrix** b) {
+    math::ComplexMatrix* temp = *b;
     *b = *a;
     *a = temp;
   }
@@ -142,9 +142,9 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
   }
 
  private:
-  void getEigenvector(math::Matrix* vector, const EigenPair& eigenPair);
+  void getEigenvector(math::ComplexMatrix* vector, const EigenPair& eigenPair);
 
-  void getEigenvector(math::Matrix* vector, uint index);
+  void getEigenvector(math::ComplexMatrix* vector, uint index);
 
  private:  // internal methods
   void initVvector_fvis1();
@@ -158,11 +158,11 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
   void (CuHArnoldi::*m_calculateTriangularHPtr)();
 
-  void calculateTriangularHEigens(const math::Matrix* normalH, const math::MatrixInfo& matrixInfo);
+  void calculateTriangularHEigens(const math::ComplexMatrix* normalH, const math::MatrixInfo& matrixInfo);
 
   void sortPWorstEigens(uint wantedCount);
 
-  void extractEigenvalues(math::Matrix* m_triangularH, uint wantedCount);
+  void extractEigenvalues(math::ComplexMatrix* m_triangularH, uint wantedCount);
 
   void getWanted(const std::vector<EigenPair>& values, std::vector<EigenPair>& wanted,
     std::vector<EigenPair>& unwanted, uint wantedCount);
@@ -211,7 +211,7 @@ class CuHArnoldi : public oap::generic::CuHArnoldiS
 
  private: // extract methods
   void extractOutput();
-  void extractOutput(math::Matrix* EV);
+  void extractOutput(math::ComplexMatrix* EV);
 
  public:
   /**

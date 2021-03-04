@@ -23,7 +23,7 @@
 #include "CuCore.h"
 #include "MatrixAPI.h"
 
-__hostdevice__ void cuda_IdentityMatrixAdd_Real (math::Matrix* output, math::Matrix* matrix)
+__hostdevice__ void cuda_IdentityMatrixAdd_Real (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -46,7 +46,7 @@ __hostdevice__ void cuda_IdentityMatrixAdd_Real (math::Matrix* output, math::Mat
   }
 }
 
-__hostdevice__ void cuda_IdentityMatrixAdd_Re (math::Matrix* output, math::Matrix* matrix)
+__hostdevice__ void cuda_IdentityMatrixAdd_Re (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -65,7 +65,7 @@ __hostdevice__ void cuda_IdentityMatrixAdd_Re (math::Matrix* output, math::Matri
   }
 }
 
-__hostdevice__ void CUDA_IdentityMatrixAdd (math::Matrix* output, math::Matrix* matrix)
+__hostdevice__ void CUDA_IdentityMatrixAdd (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -74,8 +74,8 @@ __hostdevice__ void CUDA_IdentityMatrixAdd (math::Matrix* output, math::Matrix* 
 
   if (inScope)
   {
-    const bool isRe = output->re.ptr != NULL;
-    const bool isIm = output->im.ptr != NULL;
+    const bool isRe = output->re.mem.ptr != NULL;
+    const bool isIm = output->im.mem.ptr != NULL;
   
     if (isRe && isIm)
     {
@@ -93,7 +93,7 @@ __hostdevice__ void CUDA_IdentityMatrixAdd (math::Matrix* output, math::Matrix* 
   threads_sync ();
 }
 
-__hostdevice__ void cuda_IdentityMatrixSubstract_Real (math::Matrix* output, math::Matrix* matrix)
+__hostdevice__ void cuda_IdentityMatrixSubstract_Real (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -116,7 +116,7 @@ __hostdevice__ void cuda_IdentityMatrixSubstract_Real (math::Matrix* output, mat
   }
 }
 
-__hostdevice__ void cuda_IdentityMatrixSubstract_Re (math::Matrix* output, math::Matrix* matrix)
+__hostdevice__ void cuda_IdentityMatrixSubstract_Re (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -135,7 +135,7 @@ __hostdevice__ void cuda_IdentityMatrixSubstract_Re (math::Matrix* output, math:
   }
 }
 
-__hostdevice__ void CUDA_IdentityMatrixSubstract (math::Matrix* output, math::Matrix* matrix)
+__hostdevice__ void CUDA_IdentityMatrixSubstract (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -144,8 +144,8 @@ __hostdevice__ void CUDA_IdentityMatrixSubstract (math::Matrix* output, math::Ma
 
   if (inScope)
   {
-    const bool isRe = output->re.ptr != NULL;
-    const bool isIm = output->im.ptr != NULL;
+    const bool isRe = output->re.mem.ptr != NULL;
+    const bool isIm = output->im.mem.ptr != NULL;
   
     if (isRe && isIm)
     {

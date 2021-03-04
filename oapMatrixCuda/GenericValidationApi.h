@@ -39,7 +39,7 @@ inline void check_isEqualDim (const math::MatrixInfo& minfo1, const math::Matrix
 }
 
 template<typename BasicMatrixApi>
-void check_isEqualDim (math::Matrix* m1, math::Matrix* m2, BasicMatrixApi& bmApi)
+void check_isEqualDim (math::ComplexMatrix* m1, math::ComplexMatrix* m2, BasicMatrixApi& bmApi)
 {
   if (m1 != m2)
   {
@@ -72,7 +72,7 @@ inline void check_dotProduct (const math::MatrixInfo& output, const math::Matrix
 }
 
 template<typename BasicMatrixApi>
-void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, BasicMatrixApi& bmApi)
+void check_dotProduct (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, BasicMatrixApi& bmApi)
 {
   auto oinfo = bmApi.getMatrixInfo (output);
   auto minfo0 = bmApi.getMatrixInfo (params0);
@@ -82,7 +82,7 @@ void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix
 }
 
 template<typename Dim>
-void check_Size (const math::MatrixInfo& minfo, math::Matrix* matrix, const Dim& dim)
+void check_Size (const math::MatrixInfo& minfo, math::ComplexMatrix* matrix, const Dim& dim)
 {
   const uintt columns = minfo.columns ();
   const uintt rows = minfo.rows ();
@@ -91,7 +91,7 @@ void check_Size (const math::MatrixInfo& minfo, math::Matrix* matrix, const Dim&
   debugAssert (dim[1] <= rows);
 }
 
-inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim,
+inline void check_dotProduct (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, generic::Dim32 dim,
                               const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
 {
   check_Size (oinfo, output, dim[0]);
@@ -118,7 +118,7 @@ inline void check_dotProduct (math::Matrix* output, math::Matrix* params0, math:
   debugAssertMsg (output_rows == params0_rows, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
 }
 
-inline void check_dotProductPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1,
+inline void check_dotProductPeriodic (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1,
                                       const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
 {
   const uintt output_columns = oinfo.columns();
@@ -141,7 +141,7 @@ inline void check_dotProductPeriodic (math::Matrix* output, math::Matrix* params
   debugAssertMsg (output_rows % params0_rows == 0, "output_rows = %u params0_rows = %u", output_rows, params0_rows);
 }
 
-inline void check_dotProductDimPeriodic (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim, uintt periodicRows,
+inline void check_dotProductDimPeriodic (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, generic::Dim32 dim, uintt periodicRows,
                                       const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo1, const math::MatrixInfo& minfo2)
 {
   check_Size (oinfo, output, dim[0]);
@@ -179,7 +179,7 @@ inline void check_dotProductDimPeriodic (math::Matrix* output, math::Matrix* par
 }
 
 template<typename GetMatrixInfo>
-void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, BasicMatrixApi<GetMatrixInfo>& bmApi)
+void check_tensorProduct (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt columns, uintt rows, BasicMatrixApi<GetMatrixInfo>& bmApi)
 {
   const uintt output_columns = columns;
   const uintt output_rows = rows;
@@ -203,7 +203,7 @@ void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Mat
   debugAssertMsg (output_columns == params0_columns * params1_columns, "output_columns = %u params0_columns = %u params1_columns = %u", output_columns, params0_columns, params1_columns);
 }
 
-inline void check_tensorProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, generic::Dim32 dim,
+inline void check_tensorProduct (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, generic::Dim32 dim,
                           const math::MatrixInfo& oinfo, const math::MatrixInfo& minfo0, const math::MatrixInfo& minfo1)
 {
   check_Size (oinfo, output, dim[0]);
@@ -230,7 +230,7 @@ inline void check_tensorProduct (math::Matrix* output, math::Matrix* params0, ma
 }
 
 template<typename GetMatrixInfo>
-void check_hadamardProduct (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, GetMatrixInfo&& getMatrixInfo)
+void check_hadamardProduct (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt columns, uintt rows, GetMatrixInfo&& getMatrixInfo)
 {
   auto minfo0 = getMatrixInfo (params0);
   auto minfo1 = getMatrixInfo (params1);
@@ -255,7 +255,7 @@ void check_hadamardProduct (math::Matrix* output, math::Matrix* params0, math::M
 }
 
 template<typename GetMatrixInfo>
-void check_hadamardProductVec (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt columns, uintt rows, GetMatrixInfo&& getMatrixInfo)
+void check_hadamardProductVec (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt columns, uintt rows, GetMatrixInfo&& getMatrixInfo)
 {
   auto minfo0 = getMatrixInfo (params0);
   auto minfo1 = getMatrixInfo (params1);

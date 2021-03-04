@@ -59,16 +59,16 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       oap::cuda::Context::Instance().destroy();
     }
 
-    static void multiply (math::Matrix* m_w, math::Matrix* m_v,
+    static void multiply (math::ComplexMatrix* m_w, math::ComplexMatrix* m_v,
                           oap::CuProceduresApi& cuProceduresApi,
                           void* userData, oap::VecMultiplicationType mt)
     {
       UserData* userDataObj = static_cast<UserData*>(userData);
 
-      math::Matrix* hmatrix = userDataObj->hmatrix;
-      math::Matrix* hvectorT = userDataObj->hvectorT;
-      math::Matrix* dvectorT = userDataObj->dvectorT;
-      math::Matrix* dvalue = userDataObj->dvalue;
+      math::ComplexMatrix* hmatrix = userDataObj->hmatrix;
+      math::ComplexMatrix* hvectorT = userDataObj->hvectorT;
+      math::ComplexMatrix* dvectorT = userDataObj->dvectorT;
+      math::ComplexMatrix* dvalue = userDataObj->dvalue;
 
       for (size_t idx = 0; idx < gRows (hmatrix); ++idx) {
         oap::host::GetTransposeReVector (hvectorT, hmatrix, idx);
@@ -82,7 +82,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       }
     }
 
-    static bool check(floatt reevalue, floatt imevalue, math::Matrix* vector, uint index, uint max, void* userData) {
+    static bool check(floatt reevalue, floatt imevalue, math::ComplexMatrix* vector, uint index, uint max, void* userData) {
       CheckUserData* checkUserData = static_cast<CheckUserData*>(userData);
 
       oap::HostMatrixPtr eigenvectors = checkUserData->eigenvectors;
@@ -194,7 +194,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
       std::unique_ptr<floatt[]> revalues(new floatt[wanted]);
 
-      std::vector<math::Matrix*> revectors;
+      std::vector<math::ComplexMatrix*> revectors;
 
       for (size_t idx = 0; idx < wanted; ++idx) {
         revectors.push_back(oap::host::NewReMatrix(1, gRows (hmatrix)));

@@ -24,8 +24,8 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_transposeReMatrixEx(math::Matrix* output,
-                                             math::Matrix* params0,
+__hostdevice__ void CUDA_transposeReMatrixEx(math::ComplexMatrix* output,
+                                             math::ComplexMatrix* params0,
                                              const MatrixEx& matrixEx) {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -38,8 +38,8 @@ __hostdevice__ void CUDA_transposeReMatrixEx(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeImMatrixEx(math::Matrix* output,
-                                             math::Matrix* params0,
+__hostdevice__ void CUDA_transposeImMatrixEx(math::ComplexMatrix* output,
+                                             math::ComplexMatrix* params0,
                                              const MatrixEx& matrixEx) {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -52,8 +52,8 @@ __hostdevice__ void CUDA_transposeImMatrixEx(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeRealMatrixEx(math::Matrix* output,
-                                               math::Matrix* params0,
+__hostdevice__ void CUDA_transposeRealMatrixEx(math::ComplexMatrix* output,
+                                               math::ComplexMatrix* params0,
                                                const MatrixEx& matrixEx) {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -67,8 +67,8 @@ __hostdevice__ void CUDA_transposeRealMatrixEx(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeMatrixEx(math::Matrix* output,
-                                           math::Matrix* params0,
+__hostdevice__ void CUDA_transposeMatrixEx(math::ComplexMatrix* output,
+                                           math::ComplexMatrix* params0,
                                            const MatrixEx& matrixEx) {
   HOST_INIT();
 
@@ -83,8 +83,8 @@ __hostdevice__ void CUDA_transposeMatrixEx(math::Matrix* output,
   }
 }
 
-__hostdevice__ void cuda_transposeReMatrix(math::Matrix* output,
-                                           math::Matrix* params0) {
+__hostdevice__ void cuda_transposeReMatrix(math::ComplexMatrix* output,
+                                           math::ComplexMatrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -93,8 +93,8 @@ __hostdevice__ void cuda_transposeReMatrix(math::Matrix* output,
   gReValues (output)[index] = gReValues (params0)[index1];
 }
 
-__hostdevice__ void cuda_transposeImMatrix(math::Matrix* output,
-                                           math::Matrix* params0) {
+__hostdevice__ void cuda_transposeImMatrix(math::ComplexMatrix* output,
+                                           math::ComplexMatrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -103,8 +103,8 @@ __hostdevice__ void cuda_transposeImMatrix(math::Matrix* output,
   gImValues (output)[index] = gImValues (params0)[index1];
 }
 
-__hostdevice__ void cuda_transposeRealMatrix(math::Matrix* output,
-                                             math::Matrix* params0) {
+__hostdevice__ void cuda_transposeRealMatrix(math::ComplexMatrix* output,
+                                             math::ComplexMatrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -114,32 +114,32 @@ __hostdevice__ void cuda_transposeRealMatrix(math::Matrix* output,
   gImValues (output)[index] = gImValues (params0)[index1];
 }
 
-__hostdevice__ void CUDA_transposeReMatrix(math::Matrix* output,
-                                           math::Matrix* params0) {
+__hostdevice__ void CUDA_transposeReMatrix(math::ComplexMatrix* output,
+                                           math::ComplexMatrix* params0) {
   HOST_INIT();
 
   cuda_transposeReMatrix(output, params0);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeImMatrix(math::Matrix* output,
-                                           math::Matrix* params0) {
+__hostdevice__ void CUDA_transposeImMatrix(math::ComplexMatrix* output,
+                                           math::ComplexMatrix* params0) {
   HOST_INIT();
 
   cuda_transposeImMatrix(output, params0);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeRealMatrix(math::Matrix* output,
-                                             math::Matrix* params0) {
+__hostdevice__ void CUDA_transposeRealMatrix(math::ComplexMatrix* output,
+                                             math::ComplexMatrix* params0) {
   HOST_INIT();
 
   cuda_transposeRealMatrix(output, params0);
   threads_sync();
 }
 
-__hostdevice__ void CUDA_transposeMatrix(math::Matrix* output,
-                                         math::Matrix* params0) {
+__hostdevice__ void CUDA_transposeMatrix(math::ComplexMatrix* output,
+                                         math::ComplexMatrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -157,7 +157,7 @@ __hostdevice__ void CUDA_transposeMatrix(math::Matrix* output,
   threads_sync();
 }
 
-__hostdevice__ void transposeHIm(math::Matrix* output, math::Matrix* params0) {
+__hostdevice__ void transposeHIm(math::ComplexMatrix* output, math::ComplexMatrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -166,7 +166,7 @@ __hostdevice__ void transposeHIm(math::Matrix* output, math::Matrix* params0) {
   gImValues (output)[index] = -gImValues (params0)[index1];
 }
 
-__hostdevice__ void transposeHReIm(math::Matrix* output, math::Matrix* params0) {
+__hostdevice__ void transposeHReIm(math::ComplexMatrix* output, math::ComplexMatrix* params0) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 

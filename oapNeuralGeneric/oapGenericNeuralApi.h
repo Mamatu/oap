@@ -273,14 +273,14 @@ void setInputs (LayerT& layer, const Matrices& inputs, CopyMatrixToMatrix&& copy
 }
 
 template<typename LayerT, typename CopyMatrixToMatrix, typename SetReValue>
-void setInputs(LayerT& layer, const math::Matrix* input, CopyMatrixToMatrix&& copyMatrixToMatrix, SetReValue&& setReValue)
+void setInputs(LayerT& layer, const math::ComplexMatrix* input, CopyMatrixToMatrix&& copyMatrixToMatrix, SetReValue&& setReValue)
 {
-  std::vector<const math::Matrix*> inputs = {input};
+  std::vector<const math::ComplexMatrix*> inputs = {input};
   setInputs (layer, inputs, copyMatrixToMatrix, setReValue);
 }
 
 template<typename LayerT, typename CopyKernelMatrixToMatrix>
-void getHostWeights (math::Matrix* output, const LayerT& layer, CopyKernelMatrixToMatrix&& copyKernelMatrixToMatrix)
+void getHostWeights (math::ComplexMatrix* output, const LayerT& layer, CopyKernelMatrixToMatrix&& copyKernelMatrixToMatrix)
 {
   logTrace("");
   copyKernelMatrixToMatrix (output, layer.getBPMatrices()->m_weights);
@@ -408,7 +408,7 @@ void forwardPropagation_multiMatrices (const Layers& layers, Api& api)
 }
 
 template<typename LayerT, typename Api, typename CopyKernelMatrixToHostMatrix>
-void getErrors (math::Matrix* errorsOutput, LayerT& layer, Api& api, math::Matrix* expectedDeviceOutputs, oap::ErrorType errorType, CopyKernelMatrixToHostMatrix&& copyKernelMatrixToHostMatrix)
+void getErrors (math::ComplexMatrix* errorsOutput, LayerT& layer, Api& api, math::ComplexMatrix* expectedDeviceOutputs, oap::ErrorType errorType, CopyKernelMatrixToHostMatrix&& copyKernelMatrixToHostMatrix)
 {
   logTrace("");
   debugAssert (expectedDeviceOutputs != nullptr);
@@ -775,7 +775,7 @@ inline void deallocateFPMatrices (FPMatrices* fp, oap::NetworkGenericApi* nga)
   logTrace("");
   logTrace ("%s %p", __func__, &fp);
 
-  auto delk = [&nga](math::Matrix** matrix)
+  auto delk = [&nga](math::ComplexMatrix** matrix)
   {
     if (matrix != nullptr)
     {
@@ -802,7 +802,7 @@ inline void deallocateBPMatrices (BPMatrices* bp, oap::NetworkGenericApi* nga)
   logTrace("");
   logTraceS ("%s %p", __func__, &bp);
 
-  auto delk = [&nga](math::Matrix** matrix)
+  auto delk = [&nga](math::ComplexMatrix** matrix)
   {
     if (matrix != nullptr)
     {
@@ -933,7 +933,7 @@ void connectLayers (LayerT* previous, LayerT* next, oap::NetworkGenericApi* nga)
 }
 
 template<typename LayerT, typename CopyHostMatrixToMatrix, typename GetMatrixInfo>
-void setHostWeights (LayerT& layer, math::Matrix* weights, CopyHostMatrixToMatrix&& copyHostMatrixToMatrix, GetMatrixInfo&& getLayerMatrixInfo, GetMatrixInfo&& getArgMatrixInfo)
+void setHostWeights (LayerT& layer, math::ComplexMatrix* weights, CopyHostMatrixToMatrix&& copyHostMatrixToMatrix, GetMatrixInfo&& getLayerMatrixInfo, GetMatrixInfo&& getArgMatrixInfo)
 {
   logTrace("");
   auto linfo = getLayerMatrixInfo (layer.getBPMatrices()->m_weights);
@@ -952,14 +952,14 @@ math::MatrixInfo getOutputsInfo (const LayerT& layer, GetMatrixInfo&& getMatrixI
 }
 
 template<typename LayerT, typename CopyMatrixToMatrix>
-void getOutputs (math::Matrix* matrix, const LayerT& layer, CopyMatrixToMatrix&& copyMatrixToMatrix)
+void getOutputs (math::ComplexMatrix* matrix, const LayerT& layer, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
   logTrace("");
   copyMatrixToMatrix (matrix, layer.getFPMatrices()->m_inputs);
 }
 
 template<typename LayerT>
-math::Matrix* getWeights (const LayerT& layer)
+math::ComplexMatrix* getWeights (const LayerT& layer)
 {
   debugAssert (layer.getBPMatrices()->m_weights != nullptr);
   return layer.getBPMatrices()->m_weights;
@@ -968,14 +968,14 @@ math::Matrix* getWeights (const LayerT& layer)
 template<typename LayerT, typename GetMatrixInfo>
 math::MatrixInfo getWeightsInfo (const LayerT& layer, GetMatrixInfo&& getMatrixInfo)
 {
-  math::Matrix* weights = getWeights (layer);
+  math::ComplexMatrix* weights = getWeights (layer);
   return getMatrixInfo (weights);
 }
 
 template<typename LayerT, typename CopyHostMatrixToKernelMatrix>
-void setWeights (const LayerT& layer, const math::Matrix* hmatrix, CopyHostMatrixToKernelMatrix&& copyHostMatrixToKernelMatrix)
+void setWeights (const LayerT& layer, const math::ComplexMatrix* hmatrix, CopyHostMatrixToKernelMatrix&& copyHostMatrixToKernelMatrix)
 {
-  math::Matrix* weights = getWeights (layer);
+  math::ComplexMatrix* weights = getWeights (layer);
   copyHostMatrixToKernelMatrix (weights, hmatrix);
 }
 

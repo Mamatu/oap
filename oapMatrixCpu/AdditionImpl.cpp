@@ -85,7 +85,7 @@ void AdditionOperationCpu::Execute(void* ptr) {
             }
         }
     }
-    if (threadData->outputs[0]->re.ptr != NULL
+    if (threadData->outputs[0]->re.mem.ptr != NULL
         && threadData->thiz->m_executionPathRe == EXECUTION_OUTPUT_TO_ZEROS) {
         for (intt fa = begin; fa < end; fa++) {
             for (intt fb = begin1; fb < end1; fb++) {
@@ -94,7 +94,7 @@ void AdditionOperationCpu::Execute(void* ptr) {
             }
         }
     }
-    if (threadData->outputs[0]->im.ptr != NULL
+    if (threadData->outputs[0]->im.mem.ptr != NULL
         && threadData->thiz->m_executionPathIm == EXECUTION_OUTPUT_TO_ZEROS) {
         for (intt fa = begin; fa < end; fa++) {
             for (intt fb = begin1; fb < end1; fb++) {

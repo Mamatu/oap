@@ -28,12 +28,12 @@
 
 namespace
 {
-  inline math::Matrix* _newDeviceMatrixDeviceRef (const math::Matrix* matrix)
+  inline math::ComplexMatrix* _newDeviceMatrixDeviceRef (const math::ComplexMatrix* matrix)
   {
     return oap::cuda::NewDeviceMatrixDeviceRef (matrix);
   }
 
-  inline math::Matrix* _newDeviceSharedSubMatrix (const math::MatrixDim& mdim, const math::Matrix* matrix)
+  inline math::ComplexMatrix* _newDeviceSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)
   {
     return oap::cuda::NewDeviceSharedSubMatrix (mdim, matrix);
   }
@@ -43,7 +43,7 @@ namespace
     return oap::cuda::NewMemory (dim);
   }
 
-  inline math::Matrix* _newDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+  inline math::ComplexMatrix* _newDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
   {
     return oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
   }

@@ -169,7 +169,7 @@ void IMathOperation::unsetSubColumns() {
     this->m_subcolumns[1] = MATH_UNDEFINED;
 }
 
-bool IMathOperation::CopyIm(math::Matrix* dst, math::Matrix* src, IMathOperation *thiz) {
+bool IMathOperation::CopyIm(math::ComplexMatrix* dst, math::ComplexMatrix* src, IMathOperation *thiz) {
     if (thiz->m_subcolumns[1] == MATH_UNDEFINED &&
         thiz->m_subrows[1] == MATH_UNDEFINED) {
         //matrixCopier->copyImMatrixToImMatrix(dst, src);
@@ -178,7 +178,7 @@ bool IMathOperation::CopyIm(math::Matrix* dst, math::Matrix* src, IMathOperation
     return b;
 }
 
-bool IMathOperation::CopyRe(math::Matrix* dst, math::Matrix* src, IMathOperation *thiz) {
+bool IMathOperation::CopyRe(math::ComplexMatrix* dst, math::ComplexMatrix* src, IMathOperation *thiz) {
     if (thiz->m_subcolumns[1] == MATH_UNDEFINED &&
         thiz->m_subrows[1] == MATH_UNDEFINED) {
         //matrixCopier->copyReMatrixToReMatrix(dst, src);
@@ -187,12 +187,12 @@ bool IMathOperation::CopyRe(math::Matrix* dst, math::Matrix* src, IMathOperation
     return b;
 }
 
-bool IMathOperation::IsIm(math::Matrix* matrix) {
+bool IMathOperation::IsIm(math::ComplexMatrix* matrix) {
     //return matrixUtils->isImMatrix(matrix);
     return gImValues (matrix) != NULL;
 }
 
-bool IMathOperation::IsRe(math::Matrix* matrix) {
+bool IMathOperation::IsRe(math::ComplexMatrix* matrix) {
     //return matrixUtils->isReMatrix(matrix);
     return gReValues (matrix) != NULL;
 }
@@ -282,19 +282,19 @@ MatrixOperationTwoOutputs::~MatrixOperationTwoOutputs() {
     // not implemented
 }
 
-void TwoMatricesOperations::setMatrix1(Matrix* matrix) {
+void TwoMatricesOperations::setMatrix1(ComplexMatrix* matrix) {
     this->m_matrix1 = matrix;
 }
 
-void TwoMatricesOperations::setMatrix2(Matrix* matrix) {
+void TwoMatricesOperations::setMatrix2(ComplexMatrix* matrix) {
     this->m_matrix2 = matrix;
 }
 
-void TwoMatricesOperations::setOutputMatrix(Matrix* matrix) {
+void TwoMatricesOperations::setOutputMatrix(ComplexMatrix* matrix) {
     this->m_output = matrix;
 }
 
-void MatrixValueOperation::setMatrix(Matrix* matrix) {
+void MatrixValueOperation::setMatrix(ComplexMatrix* matrix) {
     this->m_matrix = matrix;
 }
 
@@ -306,19 +306,19 @@ void MatrixValueOperation::setImValue(floatt* value) {
     this->m_imvalue = value;
 }
 
-void MatrixValueOperation::setOutputMatrix(Matrix* matrix) {
+void MatrixValueOperation::setOutputMatrix(ComplexMatrix* matrix) {
     this->m_output = matrix;
 }
 
-void MatrixOperationOutputMatrix::setMatrix(Matrix* matrix) {
+void MatrixOperationOutputMatrix::setMatrix(ComplexMatrix* matrix) {
     this->m_matrix = matrix;
 }
 
-void MatrixOperationOutputMatrix::setOutputMatrix(Matrix* matrix) {
+void MatrixOperationOutputMatrix::setOutputMatrix(ComplexMatrix* matrix) {
     this->m_output = matrix;
 }
 
-void MatrixOperationOutputValue::setMatrix(Matrix* matrix) {
+void MatrixOperationOutputValue::setMatrix(ComplexMatrix* matrix) {
     this->m_matrix = matrix;
 }
 
@@ -330,7 +330,7 @@ void MatrixOperationOutputValue::setOutputValue2(floatt* value) {
     this->m_output2 = value;
 }
 
-void MatrixOperationOutputValues::setMatrix(Matrix* matrix) {
+void MatrixOperationOutputValues::setMatrix(ComplexMatrix* matrix) {
     this->m_matrix = matrix;
 }
 
@@ -343,15 +343,15 @@ void MatrixOperationOutputValues::setImOutputValues(floatt* values, uintt count)
     this->m_imoutputs = values;
 }
 
-void MatrixOperationTwoOutputs::setMatrix(Matrix* matrix) {
+void MatrixOperationTwoOutputs::setMatrix(ComplexMatrix* matrix) {
     this->m_matrix = matrix;
 }
 
-void MatrixOperationTwoOutputs::setOutputMatrix1(Matrix* matrix) {
+void MatrixOperationTwoOutputs::setOutputMatrix1(ComplexMatrix* matrix) {
     this->m_output1 = matrix;
 }
 
-void MatrixOperationTwoOutputs::setOutputMatrix2(Matrix* matrix) {
+void MatrixOperationTwoOutputs::setOutputMatrix2(ComplexMatrix* matrix) {
     this->m_output2 = matrix;
 }
 }

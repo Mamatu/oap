@@ -37,9 +37,9 @@ namespace math {
         return status;
     }
 
-    Status IMultiplicationConstOperation::prepare(math::Matrix* output, math::Matrix* matrix1, floatt* value,
-            bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
-            bool(*isNotNull)(math::Matrix* matrix),
+    Status IMultiplicationConstOperation::prepare(math::ComplexMatrix* output, math::ComplexMatrix* matrix1, floatt* value,
+            bool(*copy)(math::ComplexMatrix* src, math::ComplexMatrix* dst, math::IMathOperation* thiz),
+            bool(*isNotNull)(math::ComplexMatrix* matrix),
             IMultiplicationConstOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
         //MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();

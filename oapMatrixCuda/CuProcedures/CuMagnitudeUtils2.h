@@ -40,7 +40,7 @@ __hostdevice__ void cuda_SumValuesVer2(floatt* buffer, uintt bufferIndex, uintt 
   }
 }
 
-__hostdevice__ void cuda_MagnitudeRealOptVer2 (floatt* buffer, uintt bufferIndex, math::Matrix* m1, uintt xlength)
+__hostdevice__ void cuda_MagnitudeRealOptVer2 (floatt* buffer, uintt bufferIndex, math::ComplexMatrix* m1, uintt xlength)
 {
   HOST_INIT();
 
@@ -65,7 +65,7 @@ __hostdevice__ void cuda_MagnitudeRealOptVer2 (floatt* buffer, uintt bufferIndex
 }
 
 __hostdevice__ void cuda_MagnitudeReOptVer2(floatt* buffer, uintt bufferIndex,
-    math::Matrix* m1, uintt xlength)
+    math::ComplexMatrix* m1, uintt xlength)
 {
   HOST_INIT();
 
@@ -87,7 +87,7 @@ __hostdevice__ void cuda_MagnitudeReOptVer2(floatt* buffer, uintt bufferIndex,
 }
 
 __hostdevice__ void cuda_MagnitudeImOptVer2(floatt* buffer, uintt bufferIndex,
-    math::Matrix* m1, uintt xlength)
+    math::ComplexMatrix* m1, uintt xlength)
 {
   HOST_INIT();
 

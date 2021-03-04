@@ -65,7 +65,7 @@ class OapRecToSquareApiTests : public testing::Test
 
 TEST_F(OapRecToSquareApiTests, Test25x5RecMatrix)
 {
-  math::Matrix* matrix = oap::host::NewReMatrixWithValue (5, 25, 1);
+  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (5, 25, 1);
 
   oap::RecToSquareApi rtsApi (matrix, true);
   auto minfo = rtsApi.getMatrixInfo();
@@ -86,7 +86,7 @@ TEST_F(OapRecToSquareApiTests, Test25x5RecMatrix)
 
 TEST_F(OapRecToSquareApiTests, Test11x6RecMatrix)
 {
-  math::Matrix* matrix = oap::host::NewReMatrixWithValue (6, 11, 1);
+  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (6, 11, 1);
 
   oap::RecToSquareApi rtsApi (matrix, true);
   auto minfo = rtsApi.getMatrixInfo();

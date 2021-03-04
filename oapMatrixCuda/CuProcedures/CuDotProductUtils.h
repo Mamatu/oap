@@ -88,61 +88,61 @@ void CUDA_transferIntoSM (floatt* sharedMemory, const oap::Memory& deviceMemory,
 }
 
 __hostdeviceinline__
-void cuda_setSharedMemoryRe (floatt* sharedMemory, const math::Matrix* matrix)
+void cuda_setSharedMemoryRe (floatt* sharedMemory, const math::ComplexMatrix* matrix)
 {
-  cuda_transferIntoSM (sharedMemory, matrix->re, matrix->reReg);
+  cuda_transferIntoSM (sharedMemory, matrix->re.mem, matrix->re.reg);
 }
 
 __hostdeviceinline__
-void cuda_setSharedMemoryIm (floatt* sharedMemory, const math::Matrix* matrix)
+void cuda_setSharedMemoryIm (floatt* sharedMemory, const math::ComplexMatrix* matrix)
 {
-  cuda_transferIntoSM (sharedMemory, matrix->im, matrix->imReg);
+  cuda_transferIntoSM (sharedMemory, matrix->im.mem, matrix->im.reg);
 }
 
 __hostdeviceinline__
-void CUDA_setSharedMemoryRe (floatt* sharedMemory, const math::Matrix* matrix)
+void CUDA_setSharedMemoryRe (floatt* sharedMemory, const math::ComplexMatrix* matrix)
 {
   cuda_setSharedMemoryRe (sharedMemory, matrix);
   threads_sync ();
 }
 
 __hostdeviceinline__
-void CUDA_setSharedMemoryIm (floatt* sharedMemory, const math::Matrix* matrix)
+void CUDA_setSharedMemoryIm (floatt* sharedMemory, const math::ComplexMatrix* matrix)
 {
   cuda_setSharedMemoryIm (sharedMemory, matrix);
   threads_sync ();
 }
 
 __hostdeviceinline__
-void cuda_setSharedMemoryReal (floatt* sharedMemoryRe, floatt* sharedMemoryIm, const math::Matrix* matrix)
+void cuda_setSharedMemoryReal (floatt* sharedMemoryRe, floatt* sharedMemoryIm, const math::ComplexMatrix* matrix)
 {
   cuda_setSharedMemoryRe (sharedMemoryRe, matrix);
   cuda_setSharedMemoryIm (sharedMemoryIm, matrix);
 }
 
 __hostdeviceinline__
-void CUDA_setSharedMemoryReal (floatt* sharedMemoryRe, floatt* sharedMemoryIm, const math::Matrix* matrix)
+void CUDA_setSharedMemoryReal (floatt* sharedMemoryRe, floatt* sharedMemoryIm, const math::ComplexMatrix* matrix)
 {
   cuda_setSharedMemoryReal (sharedMemoryRe, sharedMemoryIm, matrix);
   threads_sync ();
 }
 
 __hostdeviceinline__
-void cuda_setSharedMemory (floatt* sharedMemoryRe, floatt* sharedMemoryIm, const math::Matrix* matrix)
+void cuda_setSharedMemory (floatt* sharedMemoryRe, floatt* sharedMemoryIm, const math::ComplexMatrix* matrix)
 {
-  if (matrix->re.ptr != NULL)
+  if (matrix->re.mem.ptr != NULL)
   {
     cuda_setSharedMemoryRe (sharedMemoryRe, matrix);
   }
 
-  if (matrix->im.ptr != NULL)
+  if (matrix->im.mem.ptr != NULL)
   {
     cuda_setSharedMemoryIm (sharedMemoryIm, matrix);
   }
 }
 
 __hostdeviceinline__
-void CUDA_setSharedMemory (floatt* sharedMemoryRe, floatt* sharedMemoryIm, const math::Matrix* matrix)
+void CUDA_setSharedMemory (floatt* sharedMemoryRe, floatt* sharedMemoryIm, const math::ComplexMatrix* matrix)
 {
   cuda_setSharedMemory (sharedMemoryRe, sharedMemoryIm, matrix);
   threads_sync ();

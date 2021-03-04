@@ -27,7 +27,7 @@
 namespace oap
 {
 
-math::Matrix* SquareMatrixApi::getMatrix ()
+math::ComplexMatrix* SquareMatrixApi::getMatrix ()
 {
   debugFunc ();
 
@@ -43,7 +43,7 @@ math::Matrix* SquareMatrixApi::getMatrix ()
   return m_matrix;
 }
 
-math::Matrix* SquareMatrixApi::getMatrixT ()
+math::ComplexMatrix* SquareMatrixApi::getMatrixT ()
 {
   debugFunc ();
 
@@ -52,7 +52,7 @@ math::Matrix* SquareMatrixApi::getMatrixT ()
 
   if(!m_matrixTInfo.isInitialized () || m_matrixTInfo != minfo)
   {
-    math::Matrix* matrix = getMatrix ();
+    math::ComplexMatrix* matrix = getMatrix ();
     m_matrixT = resetMatrix (m_matrixT, minfo);
 
     m_api.transpose (m_matrixT, matrix);
@@ -62,7 +62,7 @@ math::Matrix* SquareMatrixApi::getMatrixT ()
   return m_matrixT;
 }
 
-math::Matrix* SquareMatrixApi::getRowVector (uintt index)
+math::ComplexMatrix* SquareMatrixApi::getRowVector (uintt index)
 {
   debugFunc ();
 
@@ -82,13 +82,13 @@ math::Matrix* SquareMatrixApi::getRowVector (uintt index)
   return m_rowVector;
 }
 
-math::Matrix* SquareMatrixApi::getSubMatrix (uintt rindex, uintt rlength)
+math::ComplexMatrix* SquareMatrixApi::getSubMatrix (uintt rindex, uintt rlength)
 {
   debugFunc ();
 
   math::MatrixInfo minfo = m_orig.getMatrixInfo ();
 
-  math::Matrix* hmatrix = m_orig.getHostSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);
+  math::ComplexMatrix* hmatrix = m_orig.getHostSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);
 
   minfo = oap::host::GetMatrixInfo (hmatrix);
 
@@ -133,36 +133,36 @@ math::MatrixInfo SquareMatrixApi::getMatrixInfo () const
   return minfo;
 }
 
-math::Matrix* SquareMatrixApi::createDeviceMatrix ()
+math::ComplexMatrix* SquareMatrixApi::createDeviceMatrix ()
 {
   auto minfo = getMatrixInfo ();
-  math::Matrix* matrix = oap::cuda::NewDeviceMatrix (minfo);
+  math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix (minfo);
   return getDeviceMatrix (matrix);
 }
 
-math::Matrix* SquareMatrixApi::getDeviceMatrix (math::Matrix* dmatrix)
+math::ComplexMatrix* SquareMatrixApi::getDeviceMatrix (math::ComplexMatrix* dmatrix)
 {
   debugFunc ();
   auto minfo = m_orig.getMatrixInfo ();
 
-  math::Matrix* matrix = getMatrix ();
-  math::Matrix* matrixT = getMatrixT ();
+  math::ComplexMatrix* matrix = getMatrix ();
+  math::ComplexMatrix* matrixT = getMatrixT ();
 
-  math::Matrix* output = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, minfo.m_matrixDim.rows);
+  math::ComplexMatrix* output = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, minfo.m_matrixDim.rows);
 
   m_api.dotProduct (output, matrix, matrixT);
 
   return output;
 }
 
-math::Matrix* SquareMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix)
+math::ComplexMatrix* SquareMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::ComplexMatrix* dmatrix)
 {
   debugFunc ();
   auto minfo = m_orig.getMatrixInfo ();
 
-  math::Matrix* matrixT = getMatrixT ();
+  math::ComplexMatrix* matrixT = getMatrixT ();
 
-  math::Matrix* subMatrix = getSubMatrix (rindex, rlength);
+  math::ComplexMatrix* subMatrix = getSubMatrix (rindex, rlength);
 
   auto subinfo = oap::cuda::GetMatrixInfo (subMatrix);
   auto dinfo = oap::cuda::GetMatrixInfo (dmatrix);
@@ -180,7 +180,7 @@ math::Matrix* SquareMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, 
   return dmatrix;
 }
 
-void SquareMatrixApi::destroyMatrix(math::Matrix** matrix)
+void SquareMatrixApi::destroyMatrix(math::ComplexMatrix** matrix)
 {
   if (matrix != nullptr && *matrix != nullptr)
   {
@@ -189,7 +189,7 @@ void SquareMatrixApi::destroyMatrix(math::Matrix** matrix)
   }
 }
 
-math::Matrix* SquareMatrixApi::resetMatrix (math::Matrix* matrix, const math::MatrixInfo& minfo)
+math::ComplexMatrix* SquareMatrixApi::resetMatrix (math::ComplexMatrix* matrix, const math::MatrixInfo& minfo)
 {
   oap::cuda::DeleteDeviceMatrix (matrix);
   return oap::cuda::NewDeviceMatrix (minfo);

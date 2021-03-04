@@ -64,7 +64,7 @@ void testFunction (size_t c, size_t r)
 
   std::vector<floatt> ore;
   std::vector<floatt> oim;
-  oap::host::func::test_getVectors (revalues, {}, c, r, [&hp](math::Matrix* o, math::Matrix* i) { hp.prelu(o, i); }, ore, oim);
+  oap::host::func::test_getVectors (revalues, {}, c, r, [&hp](math::ComplexMatrix* o, math::ComplexMatrix* i) { hp.prelu(o, i); }, ore, oim);
 
   EXPECT_TRUE(oim.empty ());
   ASSERT_EQ (exp_revalues.size(), ore.size());
@@ -74,7 +74,7 @@ void testFunction (size_t c, size_t r)
     ASSERT_DOUBLE_EQ (exp_revalues[idx], ore[idx]);
   }
 
-  oap::host::func::test_defaultExpected (revalues, {}, c, r, [&hp](math::Matrix* o, math::Matrix* i) { hp.prelu(o, i); }, exp_revalues, {});
+  oap::host::func::test_defaultExpected (revalues, {}, c, r, [&hp](math::ComplexMatrix* o, math::ComplexMatrix* i) { hp.prelu(o, i); }, exp_revalues, {});
 }
 
 namespace 
@@ -115,7 +115,7 @@ void testDerivative (size_t c, size_t r, Callback&& callback = std::forward<Call
 
   std::vector<floatt> ore;
   std::vector<floatt> oim;
-  oap::host::func::test_getVectors (revalues, {}, c, r, [&hp](math::Matrix* o, math::Matrix* i) { hp.dprelu(o, i); }, ore, oim);
+  oap::host::func::test_getVectors (revalues, {}, c, r, [&hp](math::ComplexMatrix* o, math::ComplexMatrix* i) { hp.dprelu(o, i); }, ore, oim);
 
   EXPECT_TRUE(oim.empty ());
   ASSERT_EQ (exp_revalues.size(), ore.size());
@@ -125,7 +125,7 @@ void testDerivative (size_t c, size_t r, Callback&& callback = std::forward<Call
     ASSERT_DOUBLE_EQ (exp_revalues[idx], ore[idx]) << "idx: " << idx;
   }
 
-  oap::host::func::test_defaultExpected (revalues, {}, c, r, [&hp](math::Matrix* o, math::Matrix* i) { hp.dprelu(o, i); }, exp_revalues, {});
+  oap::host::func::test_defaultExpected (revalues, {}, c, r, [&hp](math::ComplexMatrix* o, math::ComplexMatrix* i) { hp.dprelu(o, i); }, exp_revalues, {});
 }
 
 TEST_F(OapPReluTests, FunctionTest_1024_1024)

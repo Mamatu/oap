@@ -41,13 +41,13 @@ namespace host
  * @param value
  * @return
  */
-math::Matrix* NewMatrix (uintt columns, uintt rows);
+math::ComplexMatrix* NewMatrix (uintt columns, uintt rows);
 
-math::Matrix* NewMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray);
-math::Matrix* NewReMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray);
-math::Matrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* imarray);
+math::ComplexMatrix* NewMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray);
+math::ComplexMatrix* NewReMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray);
+math::ComplexMatrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const floatt* imarray);
 
-math::Matrix* NewShareMatrix (uintt columns, uintt rows, math::Matrix* src);
+math::ComplexMatrix* NewShareMatrix (uintt columns, uintt rows, math::ComplexMatrix* src);
 
 /**
  * @brief NewMatrix - creates new matrix, which has the same size
@@ -57,7 +57,7 @@ math::Matrix* NewShareMatrix (uintt columns, uintt rows, math::Matrix* src);
  * @param value
  * @return
  */
-math::Matrix* NewMatrixRef(const math::Matrix* matrix);
+math::ComplexMatrix* NewMatrixRef(const math::ComplexMatrix* matrix);
 
 /**
  * @brief NewMatrix
@@ -67,10 +67,10 @@ math::Matrix* NewMatrixRef(const math::Matrix* matrix);
  * @param value
  * @return
  */
-math::Matrix* NewMatrix (const math::Matrix* matrix, uintt columns, uintt rows);
+math::ComplexMatrix* NewMatrix (const math::ComplexMatrix* matrix, uintt columns, uintt rows);
 
 
-math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo);
+math::ComplexMatrix* NewMatrix(const math::MatrixInfo& matrixInfo);
 
 /**
  * @brief NewMatrix
@@ -81,21 +81,21 @@ math::Matrix* NewMatrix(const math::MatrixInfo& matrixInfo);
  * @param value
  * @return
  */
-math::Matrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows);
+math::ComplexMatrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows);
 
-math::Matrix* NewMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt value);
+math::ComplexMatrix* NewMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt value);
 
-inline math::Matrix* NewHostMatrix (bool isre, bool isim, uintt columns, uintt rows)
+inline math::ComplexMatrix* NewHostMatrix (bool isre, bool isim, uintt columns, uintt rows)
 {
   return NewMatrix (isre, isim, columns, rows);
 }
 
-inline math::Matrix* NewHostReMatrix (uintt columns, uintt rows)
+inline math::ComplexMatrix* NewHostReMatrix (uintt columns, uintt rows)
 {
   return NewMatrix (true, false, columns, rows);
 }
 
-inline math::Matrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+inline math::ComplexMatrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
 {
   return NewMatrix (minfo.isRe, minfo.isIm, minfo.columns(), minfo.rows());
 }
@@ -107,7 +107,7 @@ inline math::Matrix* NewHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
  * @param value
  * @return
  */
-math::Matrix* NewReMatrix(uintt columns, uintt rows);
+math::ComplexMatrix* NewReMatrix(uintt columns, uintt rows);
 
 /**
  * @brief NewImMatrix
@@ -116,7 +116,7 @@ math::Matrix* NewReMatrix(uintt columns, uintt rows);
  * @param value
  * @return
  */
-math::Matrix* NewImMatrix(uintt columns, uintt rows);
+math::ComplexMatrix* NewImMatrix(uintt columns, uintt rows);
 
 /**
  * @brief NewMatrix
@@ -124,13 +124,13 @@ math::Matrix* NewImMatrix(uintt columns, uintt rows);
  * @return
  */
 
-math::Matrix* NewMatrixWithValue (const math::MatrixInfo& minfo, floatt value);
+math::ComplexMatrix* NewMatrixWithValue (const math::MatrixInfo& minfo, floatt value);
 
-math::Matrix* NewMatrixWithValue (uintt columns, uintt rows, floatt value);
-math::Matrix* NewReMatrixWithValue (uintt columns, uintt rows, floatt value);
-math::Matrix* NewImMatrixWithValue (uintt columns, uintt rows, floatt value);
+math::ComplexMatrix* NewMatrixWithValue (uintt columns, uintt rows, floatt value);
+math::ComplexMatrix* NewReMatrixWithValue (uintt columns, uintt rows, floatt value);
+math::ComplexMatrix* NewImMatrixWithValue (uintt columns, uintt rows, floatt value);
 
-math::Matrix* NewMatrix(const std::string& text);
+math::ComplexMatrix* NewMatrix(const std::string& text);
 
 inline void CopyBuffer(floatt* dst, floatt* src, uintt length)
 {
@@ -142,33 +142,33 @@ inline void CopyBuffer(floatt* dst, floatt* src, uintt length)
  * @param dst
  * @param src
  */
-void CopyMatrix(math::Matrix* dst, const math::Matrix* src);
-void CopyMatrixRegion (math::Matrix* dst, const oap::MemoryLoc& dstLoc, const math::Matrix* src, const oap::MemoryRegion& srcReg);
+void CopyMatrix(math::ComplexMatrix* dst, const math::ComplexMatrix* src);
+void CopyMatrixRegion (math::ComplexMatrix* dst, const oap::MemoryLoc& dstLoc, const math::ComplexMatrix* src, const oap::MemoryRegion& srcReg);
 
-inline void CopyHostMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
+inline void CopyHostMatrixToHostMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src)
 {
   CopyMatrix (dst, src);
 }
 
-inline void CopyHostMatrixToHostMatrixRegion (math::Matrix* dst, const oap::MemoryLoc& dstLoc, const math::Matrix* src, const oap::MemoryRegion& srcReg)
+inline void CopyHostMatrixToHostMatrixRegion (math::ComplexMatrix* dst, const oap::MemoryLoc& dstLoc, const math::ComplexMatrix* src, const oap::MemoryRegion& srcReg)
 {
   CopyMatrixRegion (dst, dstLoc, src, srcReg);
 }
 
 #if 0
-void CopyMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2]);
+void CopyMatrixDims (math::ComplexMatrix* dst, const math::ComplexMatrix* src, uintt dims[2][2][2]);
 
-inline void CopyHostMatrixToHostMatrixDims (math::Matrix* dst, const math::Matrix* src, uintt dims[2][2][2])
+inline void CopyHostMatrixToHostMatrixDims (math::ComplexMatrix* dst, const math::ComplexMatrix* src, uintt dims[2][2][2])
 {
   CopyMatrixDims (dst, src, dims);
 }
 #endif
-inline uintt GetColumns (const math::Matrix* matrix)
+inline uintt GetColumns (const math::ComplexMatrix* matrix)
 {
   return gColumns (matrix);
 }
 
-inline uintt GetRows (const math::Matrix* matrix)
+inline uintt GetRows (const math::ComplexMatrix* matrix)
 {
   return gRows (matrix);
 }
@@ -181,7 +181,7 @@ inline uintt GetRows (const math::Matrix* matrix)
  * @param column index of column which will be omitted
  * @param row index of row which will be omitted
  */
-void Copy(math::Matrix* dst, const math::Matrix* src, uintt column, uintt row);
+void Copy(math::ComplexMatrix* dst, const math::ComplexMatrix* src, uintt column, uintt row);
 
 /**
  * @brief Copy
@@ -189,21 +189,21 @@ void Copy(math::Matrix* dst, const math::Matrix* src, uintt column, uintt row);
  * @param src
  * @param MatrixEx
  */
-void Copy(math::Matrix* dst, const math::Matrix* src, const MatrixEx& matrixEx);
+void Copy(math::ComplexMatrix* dst, const math::ComplexMatrix* src, const MatrixEx& matrixEx);
 
 /**
  * @brief CopyRe
  * @param dst
  * @param src
  */
-void CopyRe(math::Matrix* dst, const math::Matrix* src);
+void CopyRe(math::ComplexMatrix* dst, const math::ComplexMatrix* src);
 
 /**
  * @brief CopyIm
  * @param dst
  * @param src
  */
-void CopyIm(math::Matrix* dst, const math::Matrix* src);
+void CopyIm(math::ComplexMatrix* dst, const math::ComplexMatrix* src);
 
 template<typename T>
 void Copy(floatt* dst, T* src, uint length)
@@ -231,20 +231,20 @@ inline void Copy<floatt>(floatt* dst, floatt* src, uint length)
 }
 
 template<typename T>
-void Copy(math::Matrix* dst, T* rearray, T* imarray)
+void Copy(math::ComplexMatrix* dst, T* rearray, T* imarray)
 {
   Copy(gReValues (dst), rearray, gColumns (dst) * gRows (dst));
   Copy(gImValues (dst), imarray, gColumns (dst) * gRows (dst));
 }
 
 template<typename T>
-void CopyRe(math::Matrix* dst, T* array)
+void CopyRe(math::ComplexMatrix* dst, T* array)
 {
   Copy(gReValues (dst), array, gColumns (dst) * gRows (dst));
 }
 
 template<typename T>
-void CopyIm(math::Matrix* dst, T* array)
+void CopyIm(math::ComplexMatrix* dst, T* array)
 {
   Copy(gImValues (dst), array, gColumns (dst) * gRows (dst));
 }
@@ -254,28 +254,28 @@ void CopyIm(math::Matrix* dst, T* array)
  * @param matrix
  * @return
  */
-math::Matrix* NewMatrixCopy(const math::Matrix* matrix);
+math::ComplexMatrix* NewMatrixCopy(const math::ComplexMatrix* matrix);
 
 template<typename T>
-math::Matrix* NewMatrixCopy(uint columns, uint rows, T* reArray, T* imArray)
+math::ComplexMatrix* NewMatrixCopy(uint columns, uint rows, T* reArray, T* imArray)
 {
-  math::Matrix* output = oap::host::NewMatrix(reArray != NULL, imArray != NULL, columns, rows);
+  math::ComplexMatrix* output = oap::host::NewMatrix(reArray != NULL, imArray != NULL, columns, rows);
   oap::host::Copy<T>(output, reArray, imArray);
   return output;
 }
 
 template<typename T>
-math::Matrix* NewReMatrixCopy(uint columns, uint rows, T* reArray)
+math::ComplexMatrix* NewReMatrixCopy(uint columns, uint rows, T* reArray)
 {
-  math::Matrix* output = oap::host::NewMatrix(reArray != NULL, false, columns, rows);
+  math::ComplexMatrix* output = oap::host::NewMatrix(reArray != NULL, false, columns, rows);
   oap::host::CopyRe<T>(output, reArray);
   return output;
 }
 
 template<typename T>
-math::Matrix* NewImMatrixCopy(uint columns, uint rows, T* imArray)
+math::ComplexMatrix* NewImMatrixCopy(uint columns, uint rows, T* imArray)
 {
-  math::Matrix* output = oap::host::NewMatrix(false, imArray != NULL, columns, rows);
+  math::ComplexMatrix* output = oap::host::NewMatrix(false, imArray != NULL, columns, rows);
   oap::host::CopyIm<T>(output, imArray);
   return output;
 }
@@ -284,14 +284,14 @@ math::Matrix* NewImMatrixCopy(uint columns, uint rows, T* imArray)
  * @brief DeleteMatrix
  * @param matrix
  */
-void DeleteMatrix(const math::Matrix* matrix);
+void DeleteMatrix(const math::ComplexMatrix* matrix);
 
 template<typename Matrices>
 void deleteMatrices(const Matrices& matrices)
 {
   for (uintt idx = 0; idx < matrices.size(); ++idx)
   {
-    const math::Matrix* matrix = matrices[idx];
+    const math::ComplexMatrix* matrix = matrices[idx];
     DeleteMatrix (matrix);
   }
 }
@@ -303,7 +303,7 @@ void deleteMatrices(const Matrices& matrices)
  * @param row
  * @return
  */
-floatt GetReValue(const math::Matrix* matrix, uintt column, uintt row);
+floatt GetReValue(const math::ComplexMatrix* matrix, uintt column, uintt row);
 
 /**
  * @brief SetReValue
@@ -312,7 +312,7 @@ floatt GetReValue(const math::Matrix* matrix, uintt column, uintt row);
  * @param row
  * @param value
  */
-void SetReValue(const math::Matrix* matrix, uintt column, uintt row,
+void SetReValue(const math::ComplexMatrix* matrix, uintt column, uintt row,
                 floatt value);
 
 /**
@@ -322,7 +322,7 @@ void SetReValue(const math::Matrix* matrix, uintt column, uintt row,
  * @param row
  * @return
  */
-floatt GetImValue(const math::Matrix* matrix, uintt column, uintt row);
+floatt GetImValue(const math::ComplexMatrix* matrix, uintt column, uintt row);
 
 /**
  * @brief SetImValue
@@ -331,50 +331,50 @@ floatt GetImValue(const math::Matrix* matrix, uintt column, uintt row);
  * @param row
  * @param value
  */
-void SetImValue(const math::Matrix* matrix, uintt column, uintt row, floatt value);
+void SetImValue(const math::ComplexMatrix* matrix, uintt column, uintt row, floatt value);
 
-std::string GetMatrixStr(const math::Matrix* matrix);
-math::Matrix GetRefHostMatrix (const math::Matrix* matrix);
+std::string GetMatrixStr(const math::ComplexMatrix* matrix);
+math::ComplexMatrix GetRefHostMatrix (const math::ComplexMatrix* matrix);
 
-inline std::string to_string (const math::Matrix* matrix)
+inline std::string to_string (const math::ComplexMatrix* matrix)
 {
   return GetMatrixStr (matrix);
 }
 
-void ToString(std::string& str, const math::Matrix* matrix);
+void ToString(std::string& str, const math::ComplexMatrix* matrix);
 
-void PrintMatrix(FILE* stream, const matrixUtils::PrintArgs& args, const math::Matrix* matrix);
-void PrintMatrix(FILE* stream, const math::Matrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
+void PrintMatrix(FILE* stream, const matrixUtils::PrintArgs& args, const math::ComplexMatrix* matrix);
+void PrintMatrix(FILE* stream, const math::ComplexMatrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
 
-void PrintMatrix(const matrixUtils::PrintArgs& args, const math::Matrix* matrix);
-void PrintMatrix(const math::Matrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
+void PrintMatrix(const matrixUtils::PrintArgs& args, const math::ComplexMatrix* matrix);
+void PrintMatrix(const math::ComplexMatrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
 
-bool PrintMatrixToFile(const std::string& path, const matrixUtils::PrintArgs& args, const math::Matrix* matrix);
-bool PrintMatrixToFile(const std::string& path, const math::Matrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
+bool PrintMatrixToFile(const std::string& path, const matrixUtils::PrintArgs& args, const math::ComplexMatrix* matrix);
+bool PrintMatrixToFile(const std::string& path, const math::ComplexMatrix* matrix, const matrixUtils::PrintArgs& args = matrixUtils::PrintArgs());
 
 /**
  * @brief PrintImMatrix
  * @param stream
  * @param matrix
  */
-void PrintImMatrix(FILE* stream, const math::Matrix* matrix);
+void PrintImMatrix(FILE* stream, const math::ComplexMatrix* matrix);
 
 /**
  * @brief PrintImMatrix
  * @param matrix
  */
-void PrintImMatrix(const math::Matrix* matrix);
+void PrintImMatrix(const math::ComplexMatrix* matrix);
 
 /**
  * @brief PrintImMatrix
  * @param text
  * @param matrix
  */
-void PrintImMatrix(const std::string& text, const math::Matrix* matrix);
+void PrintImMatrix(const std::string& text, const math::ComplexMatrix* matrix);
 
-void SetVector(math::Matrix* matrix, uintt column, math::Matrix* vector);
+void SetVector(math::ComplexMatrix* matrix, uintt column, math::ComplexMatrix* vector);
 
-void SetVector(math::Matrix* matrix, uintt column, floatt* revector,
+void SetVector(math::ComplexMatrix* matrix, uintt column, floatt* revector,
                floatt* imvector, uintt length);
 
 /**
@@ -384,7 +384,7 @@ void SetVector(math::Matrix* matrix, uintt column, floatt* revector,
  * @param vector
  * @param length
  */
-void SetReVector(math::Matrix* matrix, uintt column, floatt* vector,
+void SetReVector(math::ComplexMatrix* matrix, uintt column, floatt* vector,
                  uintt length);
 
 /**
@@ -394,7 +394,7 @@ void SetReVector(math::Matrix* matrix, uintt column, floatt* vector,
  * @param vector
  * @param length
  */
-void SetTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector,
+void SetTransposeReVector(math::ComplexMatrix* matrix, uintt row, floatt* vector,
                           uintt length);
 
 /**
@@ -404,7 +404,7 @@ void SetTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector,
  * @param vector
  * @param length
  */
-void SetImVector(math::Matrix* matrix, uintt column, floatt* vector,
+void SetImVector(math::ComplexMatrix* matrix, uintt column, floatt* vector,
                  uintt length);
 
 /**
@@ -414,7 +414,7 @@ void SetImVector(math::Matrix* matrix, uintt column, floatt* vector,
  * @param vector
  * @param length
  */
-void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector,
+void SetTransposeImVector(math::ComplexMatrix* matrix, uintt row, floatt* vector,
                           uintt length);
 
 /**
@@ -423,7 +423,7 @@ void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector,
  * @param column
  * @param vector
  */
-void SetReVector(math::Matrix* matrix, uintt column, floatt* vector);
+void SetReVector(math::ComplexMatrix* matrix, uintt column, floatt* vector);
 
 /**
  * @brief SetTransposeReVector
@@ -431,7 +431,7 @@ void SetReVector(math::Matrix* matrix, uintt column, floatt* vector);
  * @param row
  * @param vector
  */
-void SetTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector);
+void SetTransposeReVector(math::ComplexMatrix* matrix, uintt row, floatt* vector);
 
 /**
  * @brief SetImVector
@@ -439,7 +439,7 @@ void SetTransposeReVector(math::Matrix* matrix, uintt row, floatt* vector);
  * @param column
  * @param vector
  */
-void SetImVector(math::Matrix* matrix, uintt column, floatt* vector);
+void SetImVector(math::ComplexMatrix* matrix, uintt column, floatt* vector);
 
 /**
  * @brief SetTransposeImVector
@@ -447,18 +447,18 @@ void SetImVector(math::Matrix* matrix, uintt column, floatt* vector);
  * @param row
  * @param vector
  */
-void SetTransposeImVector(math::Matrix* matrix, uintt row, floatt* vector);
+void SetTransposeImVector(math::ComplexMatrix* matrix, uintt row, floatt* vector);
 
-void GetVector(math::Matrix* vector, math::Matrix* matrix, uintt column);
+void GetVector(math::ComplexMatrix* vector, math::ComplexMatrix* matrix, uintt column);
 
 void GetVector(floatt* revector, floatt* imvector, uint length,
-               math::Matrix* matrix, uint column);
+               math::ComplexMatrix* matrix, uint column);
 
-void GetTransposeVector(math::Matrix* vector, math::Matrix* matrix, uint column);
+void GetTransposeVector(math::ComplexMatrix* vector, math::ComplexMatrix* matrix, uint column);
 
-void GetTransposeReVector(math::Matrix* vector, math::Matrix* matrix, uint column);
+void GetTransposeReVector(math::ComplexMatrix* vector, math::ComplexMatrix* matrix, uint column);
 
-void GetTransposeImVector(math::Matrix* vector, math::Matrix* matrix, uint column);
+void GetTransposeImVector(math::ComplexMatrix* vector, math::ComplexMatrix* matrix, uint column);
 
 /**
  * @brief GetReVector
@@ -467,7 +467,7 @@ void GetTransposeImVector(math::Matrix* vector, math::Matrix* matrix, uint colum
  * @param matrix
  * @param column
  */
-void GetReVector(floatt* vector, uint length, math::Matrix* matrix, uint column);
+void GetReVector(floatt* vector, uint length, math::ComplexMatrix* matrix, uint column);
 
 /**
  * @brief GetTransposeReVector
@@ -476,7 +476,7 @@ void GetReVector(floatt* vector, uint length, math::Matrix* matrix, uint column)
  * @param matrix
  * @param row
  */
-void GetTransposeReVector(floatt* vector, uint length, math::Matrix* matrix, uint row);
+void GetTransposeReVector(floatt* vector, uint length, math::ComplexMatrix* matrix, uint row);
 
 /**
  * @brief GetImVector
@@ -485,7 +485,7 @@ void GetTransposeReVector(floatt* vector, uint length, math::Matrix* matrix, uin
  * @param matrix
  * @param column
  */
-void GetImVector(floatt* vector, uint length, math::Matrix* matrix, uint column);
+void GetImVector(floatt* vector, uint length, math::ComplexMatrix* matrix, uint column);
 
 /**
  * @brief GetTransposeImVector
@@ -494,7 +494,7 @@ void GetImVector(floatt* vector, uint length, math::Matrix* matrix, uint column)
  * @param matrix
  * @param row
  */
-void GetTransposeImVector(floatt* vector, uint length, math::Matrix* matrix, uint row);
+void GetTransposeImVector(floatt* vector, uint length, math::ComplexMatrix* matrix, uint row);
 
 /**
  * @brief GetReVector
@@ -502,7 +502,7 @@ void GetTransposeImVector(floatt* vector, uint length, math::Matrix* matrix, uin
  * @param matrix
  * @param column
  */
-void GetReVector(floatt* vector, math::Matrix* matrix, uint column);
+void GetReVector(floatt* vector, math::ComplexMatrix* matrix, uint column);
 
 /**
  * @brief GetTransposeReVector
@@ -510,7 +510,7 @@ void GetReVector(floatt* vector, math::Matrix* matrix, uint column);
  * @param matrix
  * @param row
  */
-void GetTransposeReVector(floatt* vector, math::Matrix* matrix, uint row);
+void GetTransposeReVector(floatt* vector, math::ComplexMatrix* matrix, uint row);
 
 /**
  * @brief GetImVector
@@ -518,7 +518,7 @@ void GetTransposeReVector(floatt* vector, math::Matrix* matrix, uint row);
  * @param matrix
  * @param column
  */
-void GetImVector(floatt* vector, math::Matrix* matrix, uint column);
+void GetImVector(floatt* vector, math::ComplexMatrix* matrix, uint column);
 
 /**
  * @brief GetTransposeImVector
@@ -526,19 +526,19 @@ void GetImVector(floatt* vector, math::Matrix* matrix, uint column);
  * @param matrix
  * @param row
  */
-void GetTransposeImVector(floatt* vector, math::Matrix* matrix, uint row);
+void GetTransposeImVector(floatt* vector, math::ComplexMatrix* matrix, uint row);
 
 /**
  * @brief SetIdentity
  * @param matrix
  */
-void SetIdentity(math::Matrix* matrix);
+void SetIdentity(math::ComplexMatrix* matrix);
 
 /**
  * @brief SetIdentityMatrix
  * @param matrix
  */
-void SetIdentityMatrix(math::Matrix* matrix);
+void SetIdentityMatrix(math::ComplexMatrix* matrix);
 
 /**
  * @brief SmallestDiff
@@ -546,7 +546,7 @@ void SetIdentityMatrix(math::Matrix* matrix);
  * @param matrix1
  * @return
  */
-floatt SmallestDiff(math::Matrix* matrix, math::Matrix* matrix1);
+floatt SmallestDiff(math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1);
 
 /**
  * @brief LargestDiff
@@ -554,32 +554,32 @@ floatt SmallestDiff(math::Matrix* matrix, math::Matrix* matrix1);
  * @param matrix1
  * @return
  */
-floatt LargestDiff(math::Matrix* matrix, math::Matrix* matrix1);
+floatt LargestDiff(math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1);
 
 /**
  * @brief GetTrace
  * @param matrix
  * @return
  */
-floatt GetTrace(math::Matrix* matrix);
+floatt GetTrace(math::ComplexMatrix* matrix);
 
 /**
  * @brief SetReZero
  * @param matrix
  */
-void SetReZero(math::Matrix* matrix);
+void SetReZero(math::ComplexMatrix* matrix);
 
 /**
  * @brief SetImZero
  * @param matrix
  */
-void SetImZero(math::Matrix* matrix);
+void SetImZero(math::ComplexMatrix* matrix);
 
 /**
  * @brief SetZero
  * @param matrix
  */
-void SetZero(math::Matrix* matrix);
+void SetZero(math::ComplexMatrix* matrix);
 
 /**
  * @brief IsEquals
@@ -588,7 +588,7 @@ void SetZero(math::Matrix* matrix);
  * @param diff
  * @return
  */
-bool IsEquals(math::Matrix* matrix, math::Matrix* matrix1, floatt diff = 0.1);
+bool IsEquals(math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, floatt diff = 0.1);
 
 /**
  * @brief SetSubs
@@ -596,21 +596,21 @@ bool IsEquals(math::Matrix* matrix, math::Matrix* matrix1, floatt diff = 0.1);
  * @param subcolumns
  * @param subrows
  */
-void SetSubs(math::Matrix* matrix, uintt subcolumns, uintt subrows);
+void SetSubs(math::ComplexMatrix* matrix, uintt subcolumns, uintt subrows);
 
 /**
  * @brief SetSubColumns
  * @param matrix
  * @param subcolumns
  */
-void SetSubColumns(math::Matrix* matrix, uintt subcolumns);
+void SetSubColumns(math::ComplexMatrix* matrix, uintt subcolumns);
 
 /**
  * @brief SetSubRows
  * @param matrix
  * @param subrows
  */
-void SetSubRows(math::Matrix* matrix, uintt subrows);
+void SetSubRows(math::ComplexMatrix* matrix, uintt subrows);
 
 /**
  * @brief SetSubsSafe
@@ -618,66 +618,66 @@ void SetSubRows(math::Matrix* matrix, uintt subrows);
  * @param subcolumns
  * @param subrows
  */
-void SetSubsSafe(math::Matrix* matrix, uintt subcolumns, uintt subrows);
+void SetSubsSafe(math::ComplexMatrix* matrix, uintt subcolumns, uintt subrows);
 
 /**
  * @brief SetSubColumnsSafe
  * @param matrix
  * @param subcolumns
  */
-void SetSubColumnsSafe(math::Matrix* matrix, uintt subcolumns);
+void SetSubColumnsSafe(math::ComplexMatrix* matrix, uintt subcolumns);
 
 /**
  * @brief SetSubRowsSafe
  * @param matrix
  * @param subrows
  */
-void SetSubRowsSafe(math::Matrix* matrix, uintt subrows);
+void SetSubRowsSafe(math::ComplexMatrix* matrix, uintt subrows);
 
 /**
  * @brief SetDiagonalMatrix
  * @param matrix
  * @param a
  */
-void SetDiagonalMatrix(math::Matrix* matrix, floatt a);
+void SetDiagonalMatrix(math::ComplexMatrix* matrix, floatt a);
 
 /**
  * @brief SetDiagonalReMatrix
  * @param matrix
  * @param a
  */
-void SetDiagonalReMatrix(math::Matrix* matrix, floatt a);
+void SetDiagonalReMatrix(math::ComplexMatrix* matrix, floatt a);
 
 /**
  * @brief SetDiagonalImMatrix
  * @param matrix
  * @param a
  */
-void SetDiagonalImMatrix(math::Matrix* matrix, floatt a);
+void SetDiagonalImMatrix(math::ComplexMatrix* matrix, floatt a);
 
-math::MatrixInfo CreateMatrixInfo (const math::Matrix* matrix);
+math::MatrixInfo CreateMatrixInfo (const math::ComplexMatrix* matrix);
 
-math::MatrixInfo GetMatrixInfo (const math::Matrix* matrix);
+math::MatrixInfo GetMatrixInfo (const math::ComplexMatrix* matrix);
 
-math::Matrix* ReadMatrix(const std::string& path);
+math::ComplexMatrix* ReadMatrix(const std::string& path);
 
-math::Matrix* ReadRowVector(const std::string& path, size_t index);
+math::ComplexMatrix* ReadRowVector(const std::string& path, size_t index);
 
-math::Matrix* ReadColumnVector(const std::string& path, size_t index);
+math::ComplexMatrix* ReadColumnVector(const std::string& path, size_t index);
 
-void CopyReBuffer (math::Matrix* houput, math::Matrix* hinput);
+void CopyReBuffer (math::ComplexMatrix* houput, math::ComplexMatrix* hinput);
 
-void SetZeroRow (const math::Matrix* matrix, uintt index, bool re = true, bool im = true);
-void SetReZeroRow (const math::Matrix* matrix, uintt index);
-void SetImZeroRow (const math::Matrix* matrix, uintt index);
+void SetZeroRow (const math::ComplexMatrix* matrix, uintt index, bool re = true, bool im = true);
+void SetReZeroRow (const math::ComplexMatrix* matrix, uintt index);
+void SetImZeroRow (const math::ComplexMatrix* matrix, uintt index);
 
-void SetValueToMatrix (math::Matrix* matrix, floatt re, floatt im);
-void SetValueToReMatrix (math::Matrix* matrix, floatt v);
-void SetValueToImMatrix (math::Matrix* matrix, floatt v);
+void SetValueToMatrix (math::ComplexMatrix* matrix, floatt re, floatt im);
+void SetValueToReMatrix (math::ComplexMatrix* matrix, floatt v);
+void SetValueToImMatrix (math::ComplexMatrix* matrix, floatt v);
 
-void SetZeroMatrix (math::Matrix* matrix);
-void SetZeroReMatrix (math::Matrix* matrix);
-void SetZeroImMatrix (math::Matrix* matrix);
+void SetZeroMatrix (math::ComplexMatrix* matrix);
+void SetZeroReMatrix (math::ComplexMatrix* matrix);
+void SetZeroImMatrix (math::ComplexMatrix* matrix);
 
 /**
  * @brief Save matrix to file
@@ -693,14 +693,14 @@ void SetZeroImMatrix (math::Matrix* matrix);
  * if the second boolean is true:
  *  columns * rows * sizeoffloatt - im part of matrix
  */
-bool WriteMatrix(const std::string& path, const math::Matrix* matrix);
+bool WriteMatrix(const std::string& path, const math::ComplexMatrix* matrix);
 
-inline bool IsReMatrix(math::Matrix* m)
+inline bool IsReMatrix(math::ComplexMatrix* m)
 {
   return m != NULL && gReValues (m) != NULL;
 }
 
-inline bool IsImMatrix(math::Matrix* m)
+inline bool IsImMatrix(math::ComplexMatrix* m)
 {
   return m != NULL && gImValues (m) != NULL;
 }
@@ -710,41 +710,41 @@ inline void ToHost (void* dst, const void* src, size_t size)
   memcpy (dst, src, size);
 }
 
-void CopySubMatrix(math::Matrix* dst, const math::Matrix* src, uintt cindex, uintt rindex);
+void CopySubMatrix(math::ComplexMatrix* dst, const math::ComplexMatrix* src, uintt cindex, uintt rindex);
 
-math::Matrix* NewSubMatrix (const math::Matrix* orig, uintt cindex, uintt rindex, uintt clength, uintt rlength);
+math::ComplexMatrix* NewSubMatrix (const math::ComplexMatrix* orig, uintt cindex, uintt rindex, uintt clength, uintt rlength);
 
-math::Matrix* GetSubMatrix (const math::Matrix* orig, uintt cindex, uintt rindex, math::Matrix* matrix);
+math::ComplexMatrix* GetSubMatrix (const math::ComplexMatrix* orig, uintt cindex, uintt rindex, math::ComplexMatrix* matrix);
 
-void SaveMatrix (const math::Matrix* matrix, utils::ByteBuffer& buffer);
+void SaveMatrix (const math::ComplexMatrix* matrix, utils::ByteBuffer& buffer);
 void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
 
-math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
+math::ComplexMatrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
-void CopyArrayToMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer);
-void CopyArrayToReMatrix (math::Matrix* matrix, const floatt* buffer);
-void CopyArrayToImMatrix (math::Matrix* matrix, const floatt* buffer);
+void CopyArrayToMatrix (math::ComplexMatrix* matrix, const floatt* rebuffer, const floatt* imbuffer);
+void CopyArrayToReMatrix (math::ComplexMatrix* matrix, const floatt* buffer);
+void CopyArrayToImMatrix (math::ComplexMatrix* matrix, const floatt* buffer);
 
-inline void SetReValueToMatrix (math::Matrix* matrix, floatt value, size_t idx = 0)
+inline void SetReValueToMatrix (math::ComplexMatrix* matrix, floatt value, size_t idx = 0)
 {
   gReValues (matrix)[idx] = value;
 }
 
-inline void SetReValuesToMatrix (math::Matrix* matrix, const std::vector<floatt>& vec)
+inline void SetReValuesToMatrix (math::ComplexMatrix* matrix, const std::vector<floatt>& vec)
 {
   debugAssert (vec.size() <= gColumns (matrix) * gRows (matrix));
   memcpy (gReValues (matrix), vec.data(), sizeof(floatt) * vec.size());
 }
 
-inline void SetReValuesToMatrix (math::Matrix* matrix, floatt* array, size_t length)
+inline void SetReValuesToMatrix (math::ComplexMatrix* matrix, floatt* array, size_t length)
 {
   debugAssert (length <= gColumns (matrix) * gRows (matrix));
   memcpy (gReValues (matrix), array, sizeof(floatt) * length);
 }
 
 template<typename Tuple, size_t Tidx = 0>
-void SetReValuesToMatrix (math::Matrix* matrix, const std::vector<Tuple>& vecl)
+void SetReValuesToMatrix (math::ComplexMatrix* matrix, const std::vector<Tuple>& vecl)
 {
   std::vector<floatt> vec;
   vec.reserve (vecl.size());
@@ -756,15 +756,15 @@ void SetReValuesToMatrix (math::Matrix* matrix, const std::vector<Tuple>& vecl)
   SetReValuesToMatrix (matrix, vec.data(), vec.size());
 }
 
-void CopyHostArrayToHostMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
+void CopyHostArrayToHostMatrix (math::ComplexMatrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
 
-void CopyHostArrayToHostReMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
+void CopyHostArrayToHostReMatrix (math::ComplexMatrix* matrix, const floatt* buffer, size_t length);
 
-void CopyHostArrayToHostImMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
+void CopyHostArrayToHostImMatrix (math::ComplexMatrix* matrix, const floatt* buffer, size_t length);
 
-void SetMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
-void SetReMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
-void SetImMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+void SetMatrix (math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt column, uintt row);
+void SetReMatrix (math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt column, uintt row);
+void SetImMatrix (math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt column, uintt row);
 
 template<typename Matrices>
 oap::ThreadsMapper createThreadsMapper (const std::vector<Matrices>& matricesVec, oap::threads::ThreadsMapperAlgo algo)
@@ -772,34 +772,34 @@ oap::ThreadsMapper createThreadsMapper (const std::vector<Matrices>& matricesVec
   return oap::threads::createThreadsMapper (matricesVec, oap::host::GetRefHostMatrix, malloc, memcpy, free, algo);
 }
 
-oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices, oap::threads::ThreadsMapperAlgo algo);
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::ComplexMatrix*>>& matrices, oap::threads::ThreadsMapperAlgo algo);
 
-math::Matrix* NewMatrixFromMemory (uintt columns, uintt rows, oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
-math::Matrix* NewReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
-math::Matrix* NewImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
+math::ComplexMatrix* NewMatrixFromMemory (uintt columns, uintt rows, oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
+math::ComplexMatrix* NewReMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
+math::ComplexMatrix* NewImMatrixFromMemory (uintt columns, uintt rows, oap::Memory& memory, const oap::MemoryLoc& loc);
 
-floatt GetReDiagonal (const math::Matrix* matrix, uintt index);
+floatt GetReDiagonal (const math::ComplexMatrix* matrix, uintt index);
 
-floatt GetImDiagonal (const math::Matrix* matrix, uintt index);
+floatt GetImDiagonal (const math::ComplexMatrix* matrix, uintt index);
 
-void CopyReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix);
-void CopyHostBufferToReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length);
+void CopyReMatrixToHostBuffer (floatt* buffer, uintt length, const math::ComplexMatrix* matrix);
+void CopyHostBufferToReMatrix (math::ComplexMatrix* matrix, const floatt* buffer, uintt length);
 
-std::string to_carraystr(const math::Matrix* matrix);
-std::string to_carraystr(const std::vector<math::Matrix*>& matrices);
+std::string to_carraystr(const math::ComplexMatrix* matrix);
+std::string to_carraystr(const std::vector<math::ComplexMatrix*>& matrices);
 
-std::vector<math::Matrix*> NewMatrices (const std::vector<math::MatrixInfo>& minfos);
-std::vector<math::Matrix*> NewMatrices (const math::MatrixInfo& minfo, uintt count);
-std::vector<math::Matrix*> NewMatricesCopyOfArray (const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays);
-std::vector<math::Matrix*> NewMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays);
+std::vector<math::ComplexMatrix*> NewMatrices (const std::vector<math::MatrixInfo>& minfos);
+std::vector<math::ComplexMatrix*> NewMatrices (const math::MatrixInfo& minfo, uintt count);
+std::vector<math::ComplexMatrix*> NewMatricesCopyOfArray (const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays);
+std::vector<math::ComplexMatrix*> NewMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays);
 
 /**
  * @param loc - location in matrix (@see param matrix)
  * @param dim - dimension of new matrix
  * @param matrix - original matrix whose memory will be shared with constructed matrix
  */
-math::Matrix* NewSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::Matrix* matrix);
-math::Matrix* NewSharedSubMatrix (const math::MatrixDim& dim, const math::Matrix* matrix);
+math::ComplexMatrix* NewSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::ComplexMatrix* matrix);
+math::ComplexMatrix* NewSharedSubMatrix (const math::MatrixDim& dim, const math::ComplexMatrix* matrix);
 
 }
 }

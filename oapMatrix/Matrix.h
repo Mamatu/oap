@@ -38,17 +38,19 @@ struct MatrixLoc
   uintt y;
 };
 
+struct Matrix
+{
+  oap::Memory mem;
+  oap::MemoryRegion reg;
+};
+
 /**
  * Columns orientation
  */
-struct Matrix
+struct ComplexMatrix
 {
-  oap::Memory re;
-  oap::MemoryRegion reReg;
-
-  oap::Memory im;
-  oap::MemoryRegion imReg;
-
+  Matrix re;
+  Matrix im;
   MatrixDim dim;
 };
 }
@@ -60,6 +62,7 @@ namespace math
   using MatrixDim = ::math::MatrixDim;
   using MatrixLoc = ::math::MatrixLoc;
   using Matrix = ::math::Matrix;
+  using ComplexMatrix = ::math::ComplexMatrix;
 }
 }
 

@@ -39,117 +39,117 @@ class SingleMatrixProcedures
   public:
     virtual ~SingleMatrixProcedures() {}
 
-    virtual void sigmoid (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void sigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
 
-    virtual void linear (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void linear (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
 
-    virtual void tanh (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void tanh (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
 
-    virtual void sin (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void sin (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void relu (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void relu (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void prelu (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void prelu (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void softplus (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void softplus (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
 
-    virtual void sigmoid (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void sigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void linear (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void linear (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void tanh (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void tanh (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void sin (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void sin (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void relu (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void relu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void prelu (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void prelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void softplus (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void softplus (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void sigmoid (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void sigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void linear (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void linear (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void tanh (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void tanh (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void sin (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void sin (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void relu (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void relu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void prelu (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void prelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void softplus (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void softplus (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void dsigmoid (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void dlinear (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void dlinear (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void dtanh (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void dtanh (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void dsin (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void dsin (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void drelu (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void drelu (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void dprelu (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void dprelu (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void dsoftplus (math::Matrix* output, math::Matrix* input) = 0;
+    virtual void dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix* input) = 0;
   
-    virtual void dsigmoid (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void dlinear (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void dlinear (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void dtanh (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void dtanh (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void dsin (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void dsin (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void drelu (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void drelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void dprelu (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void dprelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void dsoftplus (math::Matrix* output, math::Matrix* input, Dim2 dim) = 0;
+    virtual void dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim2 dim) = 0;
   
-    virtual void dsigmoid (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void dlinear (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void dlinear (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void dtanh (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void dtanh (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void dsin (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void dsin (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void drelu (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void drelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void dprelu (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void dprelu (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void dsoftplus (math::Matrix* output, math::Matrix* input, Dim22 dim) = 0;
+    virtual void dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix* input, Dim22 dim) = 0;
   
-    virtual void dotProduct (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, Dim32 dim) = 0;
+    virtual void dotProduct (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2, Dim32 dim) = 0;
   
-    virtual void dotProductDimPeriodic (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, Dim32 dim, uintt periodicRows) = 0;
+    virtual void dotProductDimPeriodic (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2, Dim32 dim, uintt periodicRows) = 0;
   
-    virtual void crossEntropy (math::Matrix* output, math::Matrix* param1, math::Matrix* param2) = 0;
+    virtual void crossEntropy (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2) = 0;
   
-    virtual void subtract (math::Matrix* output, math::Matrix* param1, math::Matrix* param2) = 0;
+    virtual void subtract (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2) = 0;
   
-    virtual void hadamardProductVec (math::Matrix* output, math::Matrix* param1, math::Matrix* param2) = 0;
+    virtual void hadamardProductVec (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2) = 0;
   
-    virtual void transpose (math::Matrix* output, math::Matrix* param1) = 0;
+    virtual void transpose (math::ComplexMatrix* output, math::ComplexMatrix* param1) = 0;
   
-    virtual void tensorProduct (math::Matrix* output, math::Matrix* param1, math::Matrix* param2, Dim32 dim) = 0;
+    virtual void tensorProduct (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2, Dim32 dim) = 0;
   
-    virtual void add (math::Matrix* output, math::Matrix* param1, math::Matrix* param2) = 0;
+    virtual void add (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2) = 0;
   
-    virtual void multiplyReConstant (math::Matrix* output, math::Matrix* param1, floatt re) = 0;
+    virtual void multiplyReConstant (math::ComplexMatrix* output, math::ComplexMatrix* param1, floatt re) = 0;
   
-    virtual void sum (floatt& reoutput, floatt& imoutput, const math::Matrix* param) = 0;
+    virtual void sum (floatt& reoutput, floatt& imoutput, const math::ComplexMatrix* param) = 0;
   
-    virtual void setZeroMatrix (math::Matrix* param) = 0;
+    virtual void setZeroMatrix (math::ComplexMatrix* param) = 0;
 };
 
 class MultiMatricesProcedures
 {
   public:
-    using Matrices = std::vector<math::Matrix*>;
+    using Matrices = std::vector<math::ComplexMatrix*>;
 
     virtual ~MultiMatricesProcedures() {}
 

@@ -38,7 +38,7 @@ class MatrixValuesAreEqualMatcher : public ::MatrixValuesAreEqualMatcher
   MatrixValuesAreEqualMatcher(floatt value) : ::MatrixValuesAreEqualMatcher(value)
   {}
 
-  virtual bool MatchAndExplain(math::Matrix* matrix, MatchResultListener* listener) const override
+  virtual bool MatchAndExplain(math::ComplexMatrix* matrix, MatchResultListener* listener) const override
   {
     oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixValuesAreEqualMatcher::MatchAndExplain (hmatrix.get(), listener);
@@ -48,11 +48,11 @@ class MatrixValuesAreEqualMatcher : public ::MatrixValuesAreEqualMatcher
 class MatrixIsEqualMatcherKH : public ::MatrixIsEqualMatcher
 {
  public:
-  MatrixIsEqualMatcherKH (math::Matrix* matrix, const InfoType& infoType)
+  MatrixIsEqualMatcherKH (math::ComplexMatrix* matrix, const InfoType& infoType)
       : ::MatrixIsEqualMatcher(matrix, infoType)
   {}
 
-  virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const override
+  virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const override
   {
     oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixIsEqualMatcher::MatchAndExplain (hmatrix.get (), listener);
@@ -62,7 +62,7 @@ class MatrixIsEqualMatcherKH : public ::MatrixIsEqualMatcher
 class MatrixIsEqualMatcherHK : public ::MatrixIsEqualMatcher
 {
  public:
-  MatrixIsEqualMatcherHK (math::Matrix* matrix, const InfoType& infoType)
+  MatrixIsEqualMatcherHK (math::ComplexMatrix* matrix, const InfoType& infoType)
       : ::MatrixIsEqualMatcher (oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix), infoType)
   {}
 
@@ -71,7 +71,7 @@ class MatrixIsEqualMatcherHK : public ::MatrixIsEqualMatcher
     oap::host::DeleteMatrix (m_matrix);
   }
 
-  virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const override
+  virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const override
   {
     return ::MatrixIsEqualMatcher::MatchAndExplain (matrix, listener);
   }
@@ -80,7 +80,7 @@ class MatrixIsEqualMatcherHK : public ::MatrixIsEqualMatcher
 class MatrixIsEqualMatcherKK : public ::MatrixIsEqualMatcher
 {
  public:
-  MatrixIsEqualMatcherKK (math::Matrix* matrix, const InfoType& infoType)
+  MatrixIsEqualMatcherKK (math::ComplexMatrix* matrix, const InfoType& infoType)
       : ::MatrixIsEqualMatcher (oap::cuda::NewHostMatrixCopyOfDeviceMatrix(matrix), infoType)
   {}
 
@@ -89,7 +89,7 @@ class MatrixIsEqualMatcherKK : public ::MatrixIsEqualMatcher
     oap::host::DeleteMatrix (m_matrix);
   }
 
-  virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const override
+  virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const override
   {
     oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixIsEqualMatcher::MatchAndExplain (hmatrix.get(), listener);
@@ -99,11 +99,11 @@ class MatrixIsEqualMatcherKK : public ::MatrixIsEqualMatcher
 class MatrixHasValuesMatcher : public ::MatrixHasValuesMatcher
 {
  public:
-  MatrixHasValuesMatcher(math::Matrix* matrix, const InfoType& infoType)
+  MatrixHasValuesMatcher(math::ComplexMatrix* matrix, const InfoType& infoType)
       : ::MatrixHasValuesMatcher(matrix, infoType)
   {}
 
-  virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const
+  virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const
   {
     oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixHasValuesMatcher::MatchAndExplain (hmatrix.get (), listener);
@@ -115,7 +115,7 @@ class MatrixIsDiagonalMatcher : public ::MatrixIsDiagonalMatcher
  public:
   MatrixIsDiagonalMatcher(floatt value, const InfoType& infoType = InfoType()) : ::MatrixIsDiagonalMatcher (value, infoType) {}
 
-  virtual bool MatchAndExplain(math::Matrix* matrix, MatchResultListener* listener) const override
+  virtual bool MatchAndExplain(math::ComplexMatrix* matrix, MatchResultListener* listener) const override
   {
     oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixIsDiagonalMatcher::MatchAndExplain (hmatrix.get(), listener);

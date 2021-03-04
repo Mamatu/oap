@@ -35,16 +35,16 @@ class DeviceImagesLoader : public ImagesLoader {
    * @brief Creates device matrix from set of pngImagesLoader
    * @return matrix in device space
    */
-  math::Matrix* createDeviceMatrix();
+  math::ComplexMatrix* createDeviceMatrix();
 
-  math::Matrix* createDeviceRowVector(size_t index);
-  math::Matrix* getDeviceRowVector(size_t index, math::Matrix* dmatrix);
+  math::ComplexMatrix* createDeviceRowVector(size_t index);
+  math::ComplexMatrix* getDeviceRowVector(size_t index, math::ComplexMatrix* dmatrix);
 
-  math::Matrix* createDeviceColumnVector(size_t index);
-  math::Matrix* getDeviceColumnVector(size_t index, math::Matrix* dmatrix);
+  math::ComplexMatrix* createDeviceColumnVector(size_t index);
+  math::ComplexMatrix* getDeviceColumnVector(size_t index, math::ComplexMatrix* dmatrix);
   
-  math::Matrix* createDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows);
-  math::Matrix* getDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows, math::Matrix* dmatrix);
+  math::ComplexMatrix* createDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows);
+  math::ComplexMatrix* getDeviceSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows, math::ComplexMatrix* dmatrix);
 };
 
 }

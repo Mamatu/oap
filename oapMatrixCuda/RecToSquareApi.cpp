@@ -27,11 +27,11 @@
 namespace oap
 {
 
-RecToSquareApi::RecToSquareApi (CuProceduresApi& api, const math::Matrix* recHostMatrix, bool deallocate) :
+RecToSquareApi::RecToSquareApi (CuProceduresApi& api, const math::ComplexMatrix* recHostMatrix, bool deallocate) :
 m_api(nullptr), m_rec (recHostMatrix, deallocate), m_sq (api, m_rec)
 {}
 
-RecToSquareApi::RecToSquareApi (const math::Matrix* recHostMatrix, bool deallocate) :
+RecToSquareApi::RecToSquareApi (const math::ComplexMatrix* recHostMatrix, bool deallocate) :
 m_api(new CuProceduresApi()), m_rec (recHostMatrix, deallocate), m_sq (*m_api, m_rec)
 {}
 
@@ -54,7 +54,7 @@ math::MatrixInfo RecToSquareApi::getMatrixInfo() const
   return minfo;
 }
 
-math::Matrix* RecToSquareApi::createDeviceMatrix()
+math::ComplexMatrix* RecToSquareApi::createDeviceMatrix()
 {
   debugFunc ();
 
@@ -68,7 +68,7 @@ math::Matrix* RecToSquareApi::createDeviceMatrix()
   return m_sq.createDeviceMatrix ();
 }
 
-math::Matrix* RecToSquareApi::createDeviceSubMatrix(uintt rindex, uintt rlength)
+math::ComplexMatrix* RecToSquareApi::createDeviceSubMatrix(uintt rindex, uintt rlength)
 {
   debugFunc ();
 
@@ -79,12 +79,12 @@ math::Matrix* RecToSquareApi::createDeviceSubMatrix(uintt rindex, uintt rlength)
 
   minfo.m_matrixDim = {minfo.m_matrixDim.rows, rlength};
 
-  math::Matrix* doutput = oap::cuda::NewDeviceMatrix (minfo);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceMatrix (minfo);
 
   return getDeviceSubMatrix (rindex, rlength, doutput);
 }
 
-math::Matrix* RecToSquareApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix)
+math::ComplexMatrix* RecToSquareApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::ComplexMatrix* dmatrix)
 {
   debugFunc ();
 
@@ -106,7 +106,7 @@ math::Matrix* RecToSquareApi::getDeviceSubMatrix (uintt rindex, uintt rlength, m
   return m_sq.getDeviceSubMatrix (rindex, rlength, dmatrix);
 }
 
-math::Matrix* RecToSquareApi::createDeviceRowVector (uintt index)
+math::ComplexMatrix* RecToSquareApi::createDeviceRowVector (uintt index)
 {
   debugFunc ();
 
@@ -114,12 +114,12 @@ math::Matrix* RecToSquareApi::createDeviceRowVector (uintt index)
 
   checkIdx (index, minfo);
 
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, 1);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix (minfo.m_matrixDim.rows, 1);
 
   return getDeviceRowVector (index, doutput);
 }
 
-math::Matrix* RecToSquareApi::getDeviceRowVector (uintt index, math::Matrix* dmatrix)
+math::ComplexMatrix* RecToSquareApi::getDeviceRowVector (uintt index, math::ComplexMatrix* dmatrix)
 {
   debugFunc ();
 
@@ -140,7 +140,7 @@ math::Matrix* RecToSquareApi::getDeviceRowVector (uintt index, math::Matrix* dma
   return m_sq.getDeviceSubMatrix (index, 1, dmatrix);
 }
 
-void RecToSquareApi::checkIdx (uintt row, const math::MatrixInfo& minfo, math::Matrix* matrix) const
+void RecToSquareApi::checkIdx (uintt row, const math::MatrixInfo& minfo, math::ComplexMatrix* matrix) const
 {
   if (row >= minfo.rows ())
   {
@@ -152,7 +152,7 @@ void RecToSquareApi::checkIdx (uintt row, const math::MatrixInfo& minfo, math::M
   }
 }
 
-void RecToSquareApi::checkIfZero (uintt length, math::Matrix* matrix) const
+void RecToSquareApi::checkIfZero (uintt length, math::ComplexMatrix* matrix) const
 {
   if (length == 0)
   {

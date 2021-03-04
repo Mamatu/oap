@@ -30,7 +30,7 @@ void prepareDims(uintt w, uintt h, oap::cuda::Kernel& kernel) {
   kernel.setThreadsCount(threads[0], threads[1]);
 }
 
-bool execute(const char* functionName, math::Matrix* matrix, void** params,
+bool execute(const char* functionName, math::ComplexMatrix* matrix, void** params,
                  uintt sharedMemory, oap::cuda::Kernel& kernel) {
   uintt w = oap::cuda::GetColumns(matrix);
   uintt h = oap::cuda::GetRows(matrix);
@@ -39,36 +39,36 @@ bool execute(const char* functionName, math::Matrix* matrix, void** params,
   return ::oap::cuda::Kernel::Execute(functionName, const_cast<const void**>(params), kernel);
 }
 
-bool DEVICEKernel_DotProduct(math::Matrix* output, math::Matrix* params0,
-                                 math::Matrix* params1,
+bool DEVICEKernel_DotProduct(math::ComplexMatrix* output, math::ComplexMatrix* params0,
+                                 math::ComplexMatrix* params1,
                                  oap::cuda::Kernel& kernel) {
   void* params[] = {&output, &params0, &params1};
   return execute("CUDAKernel_DotProduct", output, params, 0, kernel);
 }
 
-bool DEVICEKernel_Transpose(math::Matrix* output, math::Matrix* params0,
+bool DEVICEKernel_Transpose(math::ComplexMatrix* output, math::ComplexMatrix* params0,
                                 oap::cuda::Kernel& kernel) {
   void* params[] = {&output, &params0};
   return execute("CUDAKernel_Transpose", output, params, 0, kernel);
 }
 
-bool DEVICEKernel_SetIdentity(math::Matrix* matrix,
+bool DEVICEKernel_SetIdentity(math::ComplexMatrix* matrix,
                                   oap::cuda::Kernel& kernel) {
   void* params[] = {&matrix};
   return execute("CUDAKernel_SetIdentity", matrix, params, 0, kernel);
 }
 
-bool DEVICEKernel_Substract(math::Matrix* output, math::Matrix* params0,
-                                math::Matrix* params1, oap::cuda::Kernel& kernel) {
+bool DEVICEKernel_Substract(math::ComplexMatrix* output, math::ComplexMatrix* params0,
+                                math::ComplexMatrix* params1, oap::cuda::Kernel& kernel) {
   void* params[] = {&output, &params0, &params1};
   return execute("CUDAKernel_Substract", output, params, 0, kernel);
 }
 
-bool DEVICEKernel_CalcTriangularH(math::Matrix* H1, math::Matrix* Q,
-                                      math::Matrix* R1, math::Matrix* Q1,
-                                      math::Matrix* QJ, math::Matrix* Q2,
-                                      math::Matrix* R2, math::Matrix* G,
-                                      math::Matrix* GT, uintt columns,
+bool DEVICEKernel_CalcTriangularH(math::ComplexMatrix* H1, math::ComplexMatrix* Q,
+                                      math::ComplexMatrix* R1, math::ComplexMatrix* Q1,
+                                      math::ComplexMatrix* QJ, math::ComplexMatrix* Q2,
+                                      math::ComplexMatrix* R2, math::ComplexMatrix* G,
+                                      math::ComplexMatrix* GT, uintt columns,
                                       uintt rows, oap::cuda::Kernel& kernel) {
   const void* params[] = {&H1, &Q, &R1, &Q1, &QJ, &Q2, &R2, &G, &GT};
   kernel.setDimensions(columns, rows);

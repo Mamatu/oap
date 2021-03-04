@@ -77,7 +77,7 @@ class OapImagesLoaderTests : public testing::Test
     });
   }
 
-  math::Matrix* createMatrix (const std::string& imageName, size_t count, bool frugalMode = true) {
+  math::ComplexMatrix* createMatrix (const std::string& imageName, size_t count, bool frugalMode = true) {
     oap::Images images;
 
     logInfoLongTest();
@@ -91,7 +91,7 @@ class OapImagesLoaderTests : public testing::Test
     oap::ImagesLoader dataLoader(images, true, frugalMode);
 
     math::MatrixInfo matrixInfo = dataLoader.getMatrixInfo();
-    math::Matrix* matrix = dataLoader.createMatrix();
+    math::ComplexMatrix* matrix = dataLoader.createMatrix();
 
     EXPECT_EQ(count, matrixInfo.m_matrixDim.columns);
     EXPECT_EQ(images[0]->getLength(), matrixInfo.m_matrixDim.rows);
@@ -117,7 +117,7 @@ TEST_F(OapImagesLoaderTests, LoadBlueScreen)
 
 TEST_F(OapImagesLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode)
 {
-  math::Matrix* matrix = createMatrix("green.png", 900, false);
+  math::ComplexMatrix* matrix = createMatrix("green.png", 900, false);
 
   floatt expected = oap::Image::convertRgbToFloatt(0, 255, 0);
 
@@ -128,7 +128,7 @@ TEST_F(OapImagesLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode)
 
 TEST_F(OapImagesLoaderTests, CreateMatrixFromGreenScreenFrugalMode)
 {
-  math::Matrix* matrix = createMatrix("green.png", 900, true);
+  math::ComplexMatrix* matrix = createMatrix("green.png", 900, true);
 
   floatt expected = oap::Image::convertRgbToFloatt(0, 255, 0);
 
@@ -139,14 +139,14 @@ TEST_F(OapImagesLoaderTests, CreateMatrixFromGreenScreenFrugalMode)
 
 TEST_F(OapImagesLoaderTests, CreateMatrixFromMonkeyScreen)
 {
-  math::Matrix* matrix = createMatrix("monkey.png", 1000);
+  math::ComplexMatrix* matrix = createMatrix("monkey.png", 1000);
   oap::host::DeleteMatrix(matrix);
 }
 
 TEST_F(OapImagesLoaderTests, LoadMonkeyImagesAndCreateMatrix)
 {
   oap::ImagesLoader* dataloader = NULL;
-  math::Matrix* matrix = NULL;
+  math::ComplexMatrix* matrix = NULL;
   logInfoLongTest();
 
   EXPECT_NO_THROW(
@@ -189,7 +189,7 @@ TEST_F(OapImagesLoaderTests, LoadBlueRecTest)
 TEST_F(OapImagesLoaderTests, LoadMonkeyImagesCreateMatrix)
 {
   oap::ImagesLoader* dataloader = NULL;
-  math::Matrix* matrix = NULL;
+  math::ComplexMatrix* matrix = NULL;
   logInfoLongTest();
 
   EXPECT_NO_THROW(
@@ -257,8 +257,8 @@ class ImagesLoaderTest : public oap::ImagesLoader
  private:
   static void testColumnsIdentity (oap::ImagesLoader* dataloader, size_t imagesCount)
   {
-    std::vector<math::Matrix*> columnVecs;
-    std::vector<math::Matrix*> rowVecs;
+    std::vector<math::ComplexMatrix*> columnVecs;
+    std::vector<math::ComplexMatrix*> rowVecs;
 
     for (int fa = 0; fa < imagesCount; ++fa)
     {
@@ -270,7 +270,7 @@ class ImagesLoaderTest : public oap::ImagesLoader
     {
       EXPECT_THAT(columnVecs[fa], Not(MatrixIsEqual(columnVecs[fa + 1])))
           << "Actual: Columns vectors are equal: " << fa << ", " << fa + 1
-          << " Matrix =" << oap::host::GetMatrixStr(columnVecs[fa]);
+          << " ComplexMatrix =" << oap::host::GetMatrixStr(columnVecs[fa]);
     }
 
     for (int fa = 0; fa < imagesCount; ++fa)
@@ -278,7 +278,7 @@ class ImagesLoaderTest : public oap::ImagesLoader
       EXPECT_EQ(GetRe(columnVecs[fa], 0, fa), GetRe(rowVecs[fa], fa, 0));
     }
 
-    auto deleteMatrices = [](std::vector<math::Matrix*>& vec)
+    auto deleteMatrices = [](std::vector<math::ComplexMatrix*>& vec)
     {
       for (int fa = 0; fa < vec.size(); ++fa)
       {
@@ -339,7 +339,7 @@ TEST_F(OapImagesLoaderTests, Load2MonkeyImagesCreateRowVectors)
 
 TEST_F(OapImagesLoaderTests, ImagesLoaderSaveTruncatedImagesTest)
 {
-  math::Matrix* matrix = NULL;
+  math::ComplexMatrix* matrix = NULL;
   logInfoLongTest();
 
   std::string dir = "/tmp/Oap/tests_data";

@@ -28,8 +28,8 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_compareOptRealMatrix(floatt* sum, math::Matrix* matrix1,
-                                              math::Matrix* matrix2,
+__hostdevice__ void CUDA_compareOptRealMatrix(floatt* sum, math::ComplexMatrix* matrix1,
+                                              math::ComplexMatrix* matrix2,
                                               floatt* buffer) {
   HOST_INIT();
   uint xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1));
@@ -48,8 +48,8 @@ __hostdevice__ void CUDA_compareOptRealMatrix(floatt* sum, math::Matrix* matrix1
   }
 }
 
-__hostdevice__ void CUDA_compareOptReMatrix(floatt* sum, math::Matrix* matrix1,
-                                            math::Matrix* matrix2,
+__hostdevice__ void CUDA_compareOptReMatrix(floatt* sum, math::ComplexMatrix* matrix1,
+                                            math::ComplexMatrix* matrix2,
                                             floatt* buffer) {
   HOST_INIT();
   uint xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1));
@@ -69,8 +69,8 @@ __hostdevice__ void CUDA_compareOptReMatrix(floatt* sum, math::Matrix* matrix1,
   }
 }
 
-__hostdevice__ void CUDA_compareOptImMatrix(floatt* sum, math::Matrix* matrix1,
-                                            math::Matrix* matrix2,
+__hostdevice__ void CUDA_compareOptImMatrix(floatt* sum, math::ComplexMatrix* matrix1,
+                                            math::ComplexMatrix* matrix2,
                                             floatt* buffer) {
   HOST_INIT();
   uint xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1));
@@ -90,8 +90,8 @@ __hostdevice__ void CUDA_compareOptImMatrix(floatt* sum, math::Matrix* matrix1,
 }
 
 __hostdevice__ void CUDA_compareOpt(floatt* sum,
-                                    math::Matrix* matrix1,
-                                    math::Matrix* matrix2,
+                                    math::ComplexMatrix* matrix1,
+                                    math::ComplexMatrix* matrix2,
                                     floatt* buffer)
 {
   HOST_INIT();

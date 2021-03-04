@@ -44,7 +44,7 @@ int main()
   {
     floatt value = outcome->getValue(idx);
     floatt error = outcome->getError(idx);
-    const math::Matrix* vec = outcome->getVector(idx);
+    const math::ComplexMatrix* vec = outcome->getVector(idx);
     printf("---------------------------------------\n");
     printf("wanted = %f \n", value);
     printf("error = %f \n", error);

@@ -80,9 +80,9 @@ TEST_F(OapGenericApiTests_DotProduct, Test_1)
 
   math::MatrixInfo minfo(true, false, 1, 3);
   math::MatrixInfo minfo1(true, false, 3, 3);
-  std::vector<math::Matrix*> outputs = oap::cuda::NewDeviceMatrices (minfo, params1_raw.size());
-  std::vector<math::Matrix*> params1 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo1, params1_raw);
-  std::vector<math::Matrix*> params2 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo, params2_raw);
+  std::vector<math::ComplexMatrix*> outputs = oap::cuda::NewDeviceMatrices (minfo, params1_raw.size());
+  std::vector<math::ComplexMatrix*> params1 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::ComplexMatrix*> params2 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo, params2_raw);
 
   m_cuApi->v2_multiply (outputs, params1, params2);
 
@@ -153,9 +153,9 @@ TEST_F(OapGenericApiTests_DotProduct, Test_2)
 
   math::MatrixInfo minfo(true, false, 1, 3);
   math::MatrixInfo minfo1(true, false, 3, 3);
-  std::vector<math::Matrix*> outputs = oap::cuda::NewDeviceMatrices (minfo, params1_raw.size());
-  std::vector<math::Matrix*> params1 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo1, params1_raw);
-  std::vector<math::Matrix*> params2 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo, params2_raw);
+  std::vector<math::ComplexMatrix*> outputs = oap::cuda::NewDeviceMatrices (minfo, params1_raw.size());
+  std::vector<math::ComplexMatrix*> params1 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::ComplexMatrix*> params2 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo, params2_raw);
 
   m_cuApi->v2_multiply (outputs, params1, params2);
 
@@ -226,9 +226,9 @@ TEST_F(OapGenericApiTests_DotProduct, Test_3)
 
   math::MatrixInfo minfo(true, false, 1, 3);
   math::MatrixInfo minfo1(true, false, 3, 3);
-  std::vector<math::Matrix*> outputs = oap::cuda::NewDeviceMatrices (minfo, params1_raw.size());
-  std::vector<math::Matrix*> params1 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo1, params1_raw);
-  std::vector<math::Matrix*> params2 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo, params2_raw);
+  std::vector<math::ComplexMatrix*> outputs = oap::cuda::NewDeviceMatrices (minfo, params1_raw.size());
+  std::vector<math::ComplexMatrix*> params1 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::ComplexMatrix*> params2 = oap::cuda::NewDeviceMatricesCopyOfArray (minfo, params2_raw);
 
   m_cuApi->v2_multiply (outputs, params1, params2);
 

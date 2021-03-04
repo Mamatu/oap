@@ -31,9 +31,9 @@ enum Type { Re, Im };
 
 typedef std::pair<uintt, uintt> MatrixDim;
 typedef std::pair<MatrixDim, floatt> MatrixElement;
-typedef std::pair<const math::Matrix*, int> MatrixLevel;
+typedef std::pair<const math::ComplexMatrix*, int> MatrixLevel;
 typedef std::multimap<MatrixLevel, MatrixElement> MatrixElements;
-typedef std::map<const math::Matrix*, MatrixLevel> MatrixLevels;
+typedef std::map<const math::ComplexMatrix*, MatrixLevel> MatrixLevels;
 
 MatrixElements globalMatrixElementsSetRe;
 MatrixElements globalMatrixElementsSetIm;
@@ -45,7 +45,7 @@ oap::utils::sync::Mutex globalCurrentLevelMutex;
 
 namespace test {
 
-inline MatrixLevel& getCurrentLevel(const math::Matrix* matrix) {
+inline MatrixLevel& getCurrentLevel(const math::ComplexMatrix* matrix) {
   oap::utils::sync::MutexLocker locker(globalCurrentLevelMutex);
   if (globalCurrentLevel.count(matrix) == 0) {
     MatrixLevel matrixLevel(matrix, 0);
@@ -54,15 +54,15 @@ inline MatrixLevel& getCurrentLevel(const math::Matrix* matrix) {
   return globalCurrentLevel[matrix];
 }
 
-uintt calcColumn(const math::Matrix* matrix, uintt index) {
+uintt calcColumn(const math::ComplexMatrix* matrix, uintt index) {
   return index % gColumns (matrix);
 }
 
-uintt calcRow(const math::Matrix* matrix, uintt index) {
+uintt calcRow(const math::ComplexMatrix* matrix, uintt index) {
   return index / gColumns (matrix);
 }
 
-bool isElement(const MatrixElements& matrixElements, const math::Matrix* matrix,
+bool isElement(const MatrixElements& matrixElements, const math::ComplexMatrix* matrix,
                uintt column, uintt row) {
   oap::utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   std::pair<MatrixElements::const_iterator, MatrixElements::const_iterator>
@@ -78,14 +78,14 @@ bool isElement(const MatrixElements& matrixElements, const math::Matrix* matrix,
   return false;
 }
 
-void addElement(MatrixElements& matrixElements, const math::Matrix* matrix,
+void addElement(MatrixElements& matrixElements, const math::ComplexMatrix* matrix,
                 uintt column, uintt row, floatt value) {
   oap::utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   matrixElements.insert(std::pair<MatrixLevel, MatrixElement>(
       getCurrentLevel(matrix), MatrixElement(MatrixDim(column, row), value)));
 }
 
-void removeElement(MatrixElements& matrixElements, const math::Matrix* matrix) {
+void removeElement(MatrixElements& matrixElements, const math::ComplexMatrix* matrix) {
   oap::utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   MatrixLevel& level = getCurrentLevel(matrix);
   if (matrixElements.count(level) > 0) {
@@ -93,19 +93,19 @@ void removeElement(MatrixElements& matrixElements, const math::Matrix* matrix) {
   }
 }
 
-void reset(const math::Matrix* matrix) {
+void reset(const math::ComplexMatrix* matrix) {
   removeElement(globalMatrixElementsSetRe, matrix);
   removeElement(globalMatrixElementsSetIm, matrix);
   removeElement(globalMatrixElementsGetRe, matrix);
   removeElement(globalMatrixElementsGetIm, matrix);
 }
 
-void push(const math::Matrix* matrix) {
+void push(const math::ComplexMatrix* matrix) {
   oap::utils::sync::MutexLocker locker(globalCurrentLevelMutex);
   globalCurrentLevel[matrix].second = globalCurrentLevel[matrix].second + 1;
 }
 
-void pop(const math::Matrix* matrix) {
+void pop(const math::ComplexMatrix* matrix) {
   oap::utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   if (globalCurrentLevel[matrix].second > 0) {
     globalMatrixElementsSetRe.erase(globalCurrentLevel[matrix]);
@@ -117,64 +117,64 @@ void pop(const math::Matrix* matrix) {
   }
 }
 
-uintt getStackLevels(const math::Matrix* matrix) {
+uintt getStackLevels(const math::ComplexMatrix* matrix) {
   if (globalCurrentLevel.count(matrix) == 0) {
     return 0;
   }
   return globalCurrentLevel[matrix].second + 1;
 }
 
-void setRe(const math::Matrix* matrix, uintt column, uintt row, floatt value) {
+void setRe(const math::ComplexMatrix* matrix, uintt column, uintt row, floatt value) {
   addElement(globalMatrixElementsSetRe, matrix, column, row, value);
 }
 
-void setRe(const math::Matrix* matrix, uintt index, floatt value) {
+void setRe(const math::ComplexMatrix* matrix, uintt index, floatt value) {
   setRe(matrix, calcColumn(matrix, index), calcRow(matrix, index), value);
 }
 
-void setIm(const math::Matrix* matrix, uintt column, uintt row, floatt value) {
+void setIm(const math::ComplexMatrix* matrix, uintt column, uintt row, floatt value) {
   addElement(globalMatrixElementsSetIm, matrix, column, row, value);
 }
 
-void setIm(const math::Matrix* matrix, uintt index, floatt value) {
+void setIm(const math::ComplexMatrix* matrix, uintt index, floatt value) {
   setIm(matrix, calcColumn(matrix, index), calcRow(matrix, index), value);
 }
 
-void getRe(const math::Matrix* matrix, uintt column, uintt row, floatt value) {
+void getRe(const math::ComplexMatrix* matrix, uintt column, uintt row, floatt value) {
   addElement(globalMatrixElementsGetRe, matrix, column, row, value);
 }
 
-void getRe(const math::Matrix* matrix, uintt index, floatt value) {
+void getRe(const math::ComplexMatrix* matrix, uintt index, floatt value) {
   getRe(matrix, calcColumn(matrix, index), calcRow(matrix, index), value);
 }
 
-void getIm(const math::Matrix* matrix, uintt column, uintt row, floatt value) {
+void getIm(const math::ComplexMatrix* matrix, uintt column, uintt row, floatt value) {
   addElement(globalMatrixElementsGetIm, matrix, column, row, value);
 }
 
-void getIm(const math::Matrix* matrix, uintt index, floatt value) {
+void getIm(const math::ComplexMatrix* matrix, uintt index, floatt value) {
   getIm(matrix, calcColumn(matrix, index), calcRow(matrix, index), value);
 }
 
-bool wasSetRe(const math::Matrix* matrix, uintt column, uintt row) {
+bool wasSetRe(const math::ComplexMatrix* matrix, uintt column, uintt row) {
   return isElement(globalMatrixElementsSetRe, matrix, column, row);
 }
 
-bool wasSetIm(const math::Matrix* matrix, uintt column, uintt row) {
+bool wasSetIm(const math::ComplexMatrix* matrix, uintt column, uintt row) {
   return isElement(globalMatrixElementsSetIm, matrix, column, row);
 }
 
-bool wasGetRe(const math::Matrix* matrix, uintt column, uintt row) {
+bool wasGetRe(const math::ComplexMatrix* matrix, uintt column, uintt row) {
   return isElement(globalMatrixElementsGetRe, matrix, column, row);
 }
 
-bool wasGetIm(const math::Matrix* matrix, uintt column, uintt row) {
+bool wasGetIm(const math::ComplexMatrix* matrix, uintt column, uintt row) {
   return isElement(globalMatrixElementsGetIm, matrix, column, row);
 }
 
-bool areAllElements(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
+bool areAllElements(const math::ComplexMatrix* matrix, uintt bcolumn, uintt ecolumn,
                     uintt brow, uintt erow,
-                    bool (*funcptr)(const math::Matrix* matrix, uintt column,
+                    bool (*funcptr)(const math::ComplexMatrix* matrix, uintt column,
                                     uintt row)) {
   for (uintt column = bcolumn; column < ecolumn; ++column) {
     for (uintt row = brow; row < erow; ++row) {
@@ -186,58 +186,58 @@ bool areAllElements(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
   return true;
 }
 
-bool wasSetRangeRe(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
+bool wasSetRangeRe(const math::ComplexMatrix* matrix, uintt bcolumn, uintt ecolumn,
                    uintt brow, uintt erow) {
   return areAllElements(matrix, bcolumn, ecolumn, brow, erow, wasSetRe);
 }
 
-bool wasSetRangeIm(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
+bool wasSetRangeIm(const math::ComplexMatrix* matrix, uintt bcolumn, uintt ecolumn,
                    uintt brow, uintt erow) {
   return areAllElements(matrix, bcolumn, ecolumn, brow, erow, wasSetIm);
 }
 
-bool wasSetAllRe(const math::Matrix* matrix) {
+bool wasSetAllRe(const math::ComplexMatrix* matrix) {
   return wasSetRangeRe(matrix, 0, gColumns (matrix), 0, gRows (matrix));
 }
 
-bool wasSetAllIm(const math::Matrix* matrix) {
+bool wasSetAllIm(const math::ComplexMatrix* matrix) {
   return wasSetRangeIm(matrix, 0, gColumns (matrix), 0, gRows (matrix));
 }
 
-bool wasGetRangeRe(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
+bool wasGetRangeRe(const math::ComplexMatrix* matrix, uintt bcolumn, uintt ecolumn,
                    uintt brow, uintt erow) {
   return areAllElements(matrix, bcolumn, ecolumn, brow, erow, wasGetRe);
 }
 
-bool wasGetRangeIm(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
+bool wasGetRangeIm(const math::ComplexMatrix* matrix, uintt bcolumn, uintt ecolumn,
                    uintt brow, uintt erow) {
   return areAllElements(matrix, bcolumn, ecolumn, brow, erow, wasGetIm);
 }
 
-bool wasGetAllRe(const math::Matrix* matrix) {
+bool wasGetAllRe(const math::ComplexMatrix* matrix) {
   return wasGetRangeRe(matrix, 0, gColumns (matrix), 0, gRows (matrix));
 }
 
-bool wasGetAllIm(const math::Matrix* matrix) {
+bool wasGetAllIm(const math::ComplexMatrix* matrix) {
   return wasGetRangeIm(matrix, 0, gColumns (matrix), 0, gRows (matrix));
 }
 
-uintt getSetValuesCountRe(const math::Matrix* matrix) {
+uintt getSetValuesCountRe(const math::ComplexMatrix* matrix) {
   oap::utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   return globalMatrixElementsSetRe.count(getCurrentLevel(matrix));
 }
 
-uintt getSetValuesCountIm(const math::Matrix* matrix) {
+uintt getSetValuesCountIm(const math::ComplexMatrix* matrix) {
   oap::utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   return globalMatrixElementsSetIm.count(getCurrentLevel(matrix));
 }
 
-uintt getGetValuesCountRe(const math::Matrix* matrix) {
+uintt getGetValuesCountRe(const math::ComplexMatrix* matrix) {
   oap::utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   return globalMatrixElementsGetRe.count(getCurrentLevel(matrix));
 }
 
-uintt getGetValuesCountIm(const math::Matrix* matrix) {
+uintt getGetValuesCountIm(const math::ComplexMatrix* matrix) {
   oap::utils::sync::MutexLocker locker(globalMatrixElementsMutex);
   return globalMatrixElementsGetIm.count(getCurrentLevel(matrix));
 }

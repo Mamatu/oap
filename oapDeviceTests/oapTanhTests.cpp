@@ -51,8 +51,8 @@ class OapTanhTests : public testing::Test
     oap::cuda::Context::Instance().destroy();
   }
 
-  using NewMatrix = std::function<math::Matrix*(uintt, uintt)>;
-  using GetValue = std::function<floatt(const math::Matrix*, size_t)>;
+  using NewMatrix = std::function<math::ComplexMatrix*(uintt, uintt)>;
+  using GetValue = std::function<floatt(const math::ComplexMatrix*, size_t)>;
 
 
   void test_Tanh (const NewMatrix& newDMatrix, const NewMatrix& newHMatrix, const GetValue& getReValue, const GetValue& getImValue)
@@ -103,11 +103,11 @@ class OapTanhTests : public testing::Test
 
 TEST_F(OapTanhTests, TanhReTest)
 {
-  auto getRe = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getRe = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetReIndex (matrix, idx);
   };
-  auto getIm = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getIm = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetImIndex (matrix, idx);
   };
@@ -137,11 +137,11 @@ TEST_F(OapTanhTests, TanhReTest)
 
 TEST_F(OapTanhTests, TanhImTest)
 {
-  auto getRe = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getRe = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetReIndex (matrix, idx);
   };
-  auto getIm = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getIm = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetImIndex (matrix, idx);
   };
@@ -171,11 +171,11 @@ TEST_F(OapTanhTests, TanhImTest)
 
 TEST_F(OapTanhTests, DISABLED_TanhRealTest)
 {
-  auto getRe = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getRe = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetReIndex (matrix, idx);
   };
-  auto getIm = [](const math::Matrix* matrix, size_t idx) -> floatt
+  auto getIm = [](const math::ComplexMatrix* matrix, size_t idx) -> floatt
   {
     return GetImIndex (matrix, idx);
   };

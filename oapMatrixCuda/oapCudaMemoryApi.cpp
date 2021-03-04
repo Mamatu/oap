@@ -36,19 +36,19 @@
 
 #ifdef DEBUG
 /*
-std::ostream& operator<<(std::ostream& output, const math::Matrix*& matrix)
+std::ostream& operator<<(std::ostream& output, const math::ComplexMatrix*& matrix)
 {
   return output << matrix << ", [" << matrix->columns << ", " << matrix->rows
          << "]";
 }
 */
-#define NEW_MATRIX() new math::Matrix();
+#define NEW_MATRIX() new math::ComplexMatrix();
 
 #define DELETE_MATRIX(matrix) delete matrix;
 
 #else
 
-#define NEW_MATRIX() new math::Matrix();
+#define NEW_MATRIX() new math::ComplexMatrix();
 
 #define DELETE_MATRIX(matrix) delete matrix;
 
@@ -59,14 +59,14 @@ inline void fillWithValue (floatt* values, floatt value, uintt length)
   math::Memset (values, value, length);
 }
 
-inline void fillRePart(math::Matrix* output, floatt value)
+inline void fillRePart(math::ComplexMatrix* output, floatt value)
 {
-  fillWithValue (output->re.ptr, value, output->re.dims.width * output->re.dims.height);
+  fillWithValue (output->re.mem.ptr, value, output->re.mem.dims.width * output->re.mem.dims.height);
 }
 
-inline void fillImPart(math::Matrix* output, floatt value)
+inline void fillImPart(math::ComplexMatrix* output, floatt value)
 {
-  fillWithValue (output->im.ptr, value, output->im.dims.width * output->im.dims.height);
+  fillWithValue (output->im.mem.ptr, value, output->im.mem.dims.width * output->im.mem.dims.height);
 }
 
 namespace oap

@@ -32,8 +32,8 @@ void TransposeOperationCpu::Execute(void* ptr) {
     uintt brow = threadData->begins[1];
     uintt ecolumn = threadData->ends[0];
     uintt erow = threadData->ends[1];
-    math::Matrix* m_output = threadData->outputs[0].m_matrix;
-    const math::Matrix* m_matrix = threadData->params[0].m_matrix;
+    math::ComplexMatrix* m_output = threadData->outputs[0].m_matrix;
+    const math::ComplexMatrix* m_matrix = threadData->params[0].m_matrix;
     uintt columns = gColumns (m_matrix);
     uintt columns1 = gColumns (m_output);
     if (threadData->thiz->m_executionPathRe == EXECUTION_NORMAL &&

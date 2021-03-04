@@ -33,9 +33,9 @@ namespace math {
         return status;
     }
 
-    Status ITensorProductOperation::beforeExecution(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2,
-            bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
-            bool(*isNotNull)(math::Matrix* matrix),
+    Status ITensorProductOperation::beforeExecution(math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+            bool(*copy)(math::ComplexMatrix* src, math::ComplexMatrix* dst, math::IMathOperation* thiz),
+            bool(*isNotNull)(math::ComplexMatrix* matrix),
             ITensorProductOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
         //MatrixUtils* matrixUtils = this->m_module->getMatrixUtils();

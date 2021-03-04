@@ -28,14 +28,14 @@
 
 namespace
 {
-  using AllocationList = oap::AllocationList<const math::Matrix*, math::MatrixInfo, std::function<std::string(const math::MatrixInfo&)>>;
+  using AllocationList = oap::AllocationList<const math::ComplexMatrix*, math::MatrixInfo, std::function<std::string(const math::MatrixInfo&)>>;
 
 
   template<typename ExtraUserData>
   using UserDataPair = std::pair<math::MatrixInfo, ExtraUserData>;
 
   template<typename ExtraUserData>
-  using AllocationListEx = oap::AllocationList<const math::Matrix*, UserDataPair<ExtraUserData>, std::function<std::string(const UserDataPair<ExtraUserData>&)>>;
+  using AllocationListEx = oap::AllocationList<const math::ComplexMatrix*, UserDataPair<ExtraUserData>, std::function<std::string(const UserDataPair<ExtraUserData>&)>>;
 }
 
 class MatricesList : public AllocationList

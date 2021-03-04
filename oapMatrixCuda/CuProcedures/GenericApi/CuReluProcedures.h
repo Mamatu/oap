@@ -24,19 +24,19 @@
 #include "Matrix.h"
 #include "CuPReluProcedures.h"
 
-__hostdeviceinline__ void cuda_genericApi_relu (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_relu (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   floatt alpha = 0.;
   cuda_func_userData (outputs, params, cuda_genericApi_preluFunc, &alpha, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_drelu (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_drelu (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   floatt alpha = 0.;
   cuda_func_userData (outputs, params, cuda_genericApi_dpreluFunc, &alpha, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_multiplyDRelu (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_multiplyDRelu (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   floatt alpha = 0.;
   cuda_func_userData (outputs, params, cuda_genericApi_multiplyDPreluFunc, &alpha, mapper);

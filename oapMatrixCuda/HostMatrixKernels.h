@@ -30,16 +30,16 @@
 
 namespace
 {
-inline void aux_swapPointers (math::Matrix** a, math::Matrix** b)
+inline void aux_swapPointers (math::ComplexMatrix** a, math::ComplexMatrix** b)
 {
-  math::Matrix* temp = *b;
+  math::ComplexMatrix* temp = *b;
   *b = *a;
   *a = temp;
 }
 }
 
 template<typename CalcApi, typename MatrixApi>
-void host_prepareGMatrix (math::Matrix* A, uintt column, uintt row, math::Matrix* G, CalcApi& capi, MatrixApi& mapi)
+void host_prepareGMatrix (math::ComplexMatrix* A, uintt column, uintt row, math::ComplexMatrix* G, CalcApi& capi, MatrixApi& mapi)
 {
   capi.setIdentity (G);
 
@@ -112,13 +112,13 @@ void host_prepareGMatrix (math::Matrix* A, uintt column, uintt row, math::Matrix
 }
 
 template<typename CalcApi, typename MatrixApi, typename CopyKernelMatrixToKernelMatrix>
-bool HOSTKernel_QRGR (math::Matrix* Q, math::Matrix* R, math::Matrix* A,
-                      math::Matrix* Q1, math::Matrix* R1, math::Matrix* G,
-                      math::Matrix* GT, CalcApi& capi, MatrixApi& mapi,
+bool HOSTKernel_QRGR (math::ComplexMatrix* Q, math::ComplexMatrix* R, math::ComplexMatrix* A,
+                      math::ComplexMatrix* Q1, math::ComplexMatrix* R1, math::ComplexMatrix* G,
+                      math::ComplexMatrix* GT, CalcApi& capi, MatrixApi& mapi,
                       CopyKernelMatrixToKernelMatrix&& copyKernelMatrixToKernelMatrix)
 {
-  math::Matrix* rQ = Q;
-  math::Matrix* rR = R;
+  math::ComplexMatrix* rQ = Q;
+  math::ComplexMatrix* rR = R;
 
   copyKernelMatrixToKernelMatrix (R1, A);
 

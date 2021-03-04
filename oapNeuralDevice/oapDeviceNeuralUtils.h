@@ -29,7 +29,7 @@ namespace oap
 namespace nutils
 {
   
-inline void copyHostBufferToDeviceReMatrix (math::Matrix* matrix, size_t index, const floatt* buffer, size_t size)
+inline void copyHostBufferToDeviceReMatrix (math::ComplexMatrix* matrix, size_t index, const floatt* buffer, size_t size)
 {
   floatt* re = oap::cuda::GetReValuesPtr (matrix);
   re += index * size;

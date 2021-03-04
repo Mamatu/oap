@@ -25,39 +25,39 @@
 #include "Matrix.h"
 
 namespace test {
-void reset(const math::Matrix* matrix);
-void push(const math::Matrix* matrix);
-void pop(const math::Matrix* matrix);
-uintt getStackLevels(const math::Matrix* matrix);
-void setRe(const math::Matrix* matrix, uintt column, uintt row, floatt value);
-void setRe(const math::Matrix* matrix, uintt index, floatt value);
-void setIm(const math::Matrix* matrix, uintt column, uintt row, floatt value);
-void setIm(const math::Matrix* matrix, uintt index, floatt value);
-bool wasSetRe(const math::Matrix* matrix, uintt column, uintt row);
-bool wasSetIm(const math::Matrix* matrix, uintt column, uintt row);
+void reset(const math::ComplexMatrix* matrix);
+void push(const math::ComplexMatrix* matrix);
+void pop(const math::ComplexMatrix* matrix);
+uintt getStackLevels(const math::ComplexMatrix* matrix);
+void setRe(const math::ComplexMatrix* matrix, uintt column, uintt row, floatt value);
+void setRe(const math::ComplexMatrix* matrix, uintt index, floatt value);
+void setIm(const math::ComplexMatrix* matrix, uintt column, uintt row, floatt value);
+void setIm(const math::ComplexMatrix* matrix, uintt index, floatt value);
+bool wasSetRe(const math::ComplexMatrix* matrix, uintt column, uintt row);
+bool wasSetIm(const math::ComplexMatrix* matrix, uintt column, uintt row);
 
-bool wasSetRangeRe(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
+bool wasSetRangeRe(const math::ComplexMatrix* matrix, uintt bcolumn, uintt ecolumn,
                    uintt brow, uintt erow);
-bool wasSetRangeIm(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
+bool wasSetRangeIm(const math::ComplexMatrix* matrix, uintt bcolumn, uintt ecolumn,
                    uintt brow, uintt erow);
-bool wasSetAllRe(const math::Matrix* matrix);
-bool wasSetAllIm(const math::Matrix* matrix);
-void getRe(const math::Matrix* matrix, uintt column, uintt row, floatt value);
-void getRe(const math::Matrix* matrix, uintt index, floatt value);
-void getIm(const math::Matrix* matrix, uintt column, uintt row, floatt value);
-void getIm(const math::Matrix* matrix, uintt index, floatt value);
-bool wasGetRe(const math::Matrix* matrix, uintt column, uintt row);
-bool wasGetIm(const math::Matrix* matrix, uintt column, uintt row);
-bool wasGetRangeRe(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
+bool wasSetAllRe(const math::ComplexMatrix* matrix);
+bool wasSetAllIm(const math::ComplexMatrix* matrix);
+void getRe(const math::ComplexMatrix* matrix, uintt column, uintt row, floatt value);
+void getRe(const math::ComplexMatrix* matrix, uintt index, floatt value);
+void getIm(const math::ComplexMatrix* matrix, uintt column, uintt row, floatt value);
+void getIm(const math::ComplexMatrix* matrix, uintt index, floatt value);
+bool wasGetRe(const math::ComplexMatrix* matrix, uintt column, uintt row);
+bool wasGetIm(const math::ComplexMatrix* matrix, uintt column, uintt row);
+bool wasGetRangeRe(const math::ComplexMatrix* matrix, uintt bcolumn, uintt ecolumn,
                    uintt brow, uintt erow);
-bool wasGetRangeIm(const math::Matrix* matrix, uintt bcolumn, uintt ecolumn,
+bool wasGetRangeIm(const math::ComplexMatrix* matrix, uintt bcolumn, uintt ecolumn,
                    uintt brow, uintt erow);
-bool wasGetAllRe(const math::Matrix* matrix);
-bool wasGetAllIm(const math::Matrix* matrix);
-uintt getSetValuesCountRe(const math::Matrix* matrix);
-uintt getSetValuesCountIm(const math::Matrix* matrix);
-uintt getGetValuesCountRe(const math::Matrix* matrix);
-uintt getGetValuesCountIm(const math::Matrix* matrix);
+bool wasGetAllRe(const math::ComplexMatrix* matrix);
+bool wasGetAllIm(const math::ComplexMatrix* matrix);
+uintt getSetValuesCountRe(const math::ComplexMatrix* matrix);
+uintt getSetValuesCountIm(const math::ComplexMatrix* matrix);
+uintt getGetValuesCountRe(const math::ComplexMatrix* matrix);
+uintt getGetValuesCountIm(const math::ComplexMatrix* matrix);
 };
 
 #endif

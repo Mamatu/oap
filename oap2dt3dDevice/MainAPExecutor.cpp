@@ -39,7 +39,7 @@ struct UserData
   oap::RecToSquareApi* rtsApi;
 };
 
-void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt)
+void MainAPExecutor::multiplyMatrixCallback (math::ComplexMatrix* m_w, math::ComplexMatrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt)
 {
   debugFunc ();
 
@@ -50,13 +50,13 @@ void MainAPExecutor::multiplyMatrixCallback (math::Matrix* m_w, math::Matrix* m_
     auto dvalue = udObj->value;
     auto rts = udObj->rtsApi;
 
-    math::Matrix* dmatrix = rts->createDeviceMatrix();
+    math::ComplexMatrix* dmatrix = rts->createDeviceMatrix();
     cuProceduresApi.dotProduct(m_w, dmatrix, m_v);
     oap::cuda::DeleteDeviceMatrix(dmatrix);
   }
 }
 
-void MainAPExecutor::multiplySubMatrixCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt)
+void MainAPExecutor::multiplySubMatrixCallback (math::ComplexMatrix* m_w, math::ComplexMatrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt)
 {
   debugFunc ();
 
@@ -74,7 +74,7 @@ void MainAPExecutor::multiplySubMatrixCallback (math::Matrix* m_w, math::Matrix*
       subInfo.m_matrixDim.rows = subInfo.m_matrixDim.rows - 1; // Todo: binary search
     }
 
-    math::Matrix* submatrix = nullptr;
+    math::ComplexMatrix* submatrix = nullptr;
 
     uintt index = 0;
     while (index < matrixInfo.m_matrixDim.rows)
@@ -99,7 +99,7 @@ void MainAPExecutor::multiplySubMatrixCallback (math::Matrix* m_w, math::Matrix*
   }
 }
 
-void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt)
+void MainAPExecutor::multiplyVecsCallback (math::ComplexMatrix* m_w, math::ComplexMatrix* m_v, oap::CuProceduresApi& cuProceduresApi, void* userData, oap::VecMultiplicationType mt)
 {
   debugFunc ();
 
@@ -112,7 +112,7 @@ void MainAPExecutor::multiplyVecsCallback (math::Matrix* m_w, math::Matrix* m_v,
 
     math::MatrixInfo matrixInfo = rts->getMatrixInfo();
 
-    math::Matrix* vec = rts->createDeviceRowVector(0);
+    math::ComplexMatrix* vec = rts->createDeviceRowVector(0);
     cuProceduresApi.dotProduct(udObj->value, vec, m_v);
     oap::cuda::SetMatrix(m_w, udObj->value, 0, 0);
 

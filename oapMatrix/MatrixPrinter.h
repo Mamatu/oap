@@ -178,7 +178,7 @@ void PrintImValues (std::string& output, const MatrixRange& matrixRange, const P
 
 void PrintMatrix (std::string& output, const MatrixRange& matrixRange, const PrintArgs& args = PrintArgs());
 
-void PrintMatrix (std::string& output, const math::Matrix* matrix, const PrintArgs& args = PrintArgs());
+void PrintMatrix (std::string& output, const math::ComplexMatrix* matrix, const PrintArgs& args = PrintArgs());
 
 }
 

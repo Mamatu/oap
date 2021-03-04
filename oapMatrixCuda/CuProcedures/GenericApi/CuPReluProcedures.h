@@ -43,32 +43,32 @@ __hostdevice__ void cuda_genericApi_multiplyDPreluFunc (floatt* output, floatt v
   (*output) = (*output) * ((value > 0.) ? 1. : alpha);
 }
 
-__hostdeviceinline__ void cuda_genericApi_prelu_alpha (math::Matrix** outputs, math::Matrix* const* params, floatt alpha, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_prelu_alpha (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, floatt alpha, oap::ThreadsMapperS* mapper)
 {
   cuda_func_userData (outputs, params, cuda_genericApi_preluFunc, &alpha, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_dprelu_alpha (math::Matrix** outputs, math::Matrix* const* params, floatt alpha, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_dprelu_alpha (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, floatt alpha, oap::ThreadsMapperS* mapper)
 {
   cuda_func_userData (outputs, params, cuda_genericApi_dpreluFunc, &alpha, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_multiplyDPrelu_alpha (math::Matrix** outputs, math::Matrix* const* params, floatt alpha, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_multiplyDPrelu_alpha (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, floatt alpha, oap::ThreadsMapperS* mapper)
 {
   cuda_func_userData (outputs, params, cuda_genericApi_multiplyDPreluFunc, &alpha, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_prelu (math::Matrix** output, math::Matrix* const* matrix, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_prelu (math::ComplexMatrix** output, math::ComplexMatrix* const* matrix, oap::ThreadsMapperS* mapper)
 {
   cuda_genericApi_prelu_alpha (output, matrix, 0.01, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_dprelu (math::Matrix** output, math::Matrix* const* matrix, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_dprelu (math::ComplexMatrix** output, math::ComplexMatrix* const* matrix, oap::ThreadsMapperS* mapper)
 {
   cuda_genericApi_dprelu_alpha (output, matrix, 0.01, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_multiplyDPrelu (math::Matrix** output, math::Matrix* const* matrix, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_multiplyDPrelu (math::ComplexMatrix** output, math::ComplexMatrix* const* matrix, oap::ThreadsMapperS* mapper)
 {
   cuda_genericApi_multiplyDPrelu_alpha (output, matrix, 0.01, mapper);
 }

@@ -44,18 +44,18 @@ class oapGenericApi_HadamardProductTests : public testing::Test {
 
 TEST_F(oapGenericApi_HadamardProductTests, InitTest)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 1);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 1);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 1);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 1);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(16, 16);
-  math::Matrix* houtput = oap::host::NewReMatrix(16, 16);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(16, 16);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(16, 16);
 
   //EXPECT_THROW(cuMatrix->v2_hadamardProduct (nullptr, dM1, dM2), std::runtime_error);
   //EXPECT_THROW(cuMatrix->v2_hadamardProduct (doutput, nullptr, dM2), std::runtime_error);
   //EXPECT_THROW(cuMatrix->v2_hadamardProduct (doutput, dM1, nullptr), std::runtime_error);
-  //EXPECT_THROW(cuMatrix->v2_hadamardProduct (std::vector<math::Matrix*>({doutput}), std::vector<math::Matrix*>({dM1}), std::vector<math::Matrix*>({dM2})), std::runtime_error);
+  //EXPECT_THROW(cuMatrix->v2_hadamardProduct (std::vector<math::ComplexMatrix*>({doutput}), std::vector<math::ComplexMatrix*>({dM1}), std::vector<math::ComplexMatrix*>({dM2})), std::runtime_error);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   oap::cuda::DeleteDeviceMatrix(doutput);
@@ -68,16 +68,16 @@ TEST_F(oapGenericApi_HadamardProductTests, InitTest)
 
 TEST_F(oapGenericApi_HadamardProductTests, Test1)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 1);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 1);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 1);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 1);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(4, 4);
-  math::Matrix* houtput = oap::host::NewReMatrix(4, 4);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(4, 4);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(4, 4);
 
-  auto outputs = std::vector<math::Matrix*>({doutput});
-  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::Matrix*>({dM1}), std::vector<math::Matrix*>({dM2}));
+  auto outputs = std::vector<math::ComplexMatrix*>({doutput});
+  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::ComplexMatrix*>({dM1}), std::vector<math::ComplexMatrix*>({dM2}));
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(1));
@@ -92,16 +92,16 @@ TEST_F(oapGenericApi_HadamardProductTests, Test1)
 
 TEST_F(oapGenericApi_HadamardProductTests, Test2)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (3, 4, 1);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (3, 4, 1);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (3, 4, 1);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (3, 4, 1);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(3, 4);
-  math::Matrix* houtput = oap::host::NewReMatrix(3, 4);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(3, 4);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(3, 4);
 
-  auto outputs = std::vector<math::Matrix*>({doutput});
-  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::Matrix*>({dM1}), std::vector<math::Matrix*>({dM2}));
+  auto outputs = std::vector<math::ComplexMatrix*>({doutput});
+  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::ComplexMatrix*>({dM1}), std::vector<math::ComplexMatrix*>({dM2}));
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(1));
@@ -116,16 +116,16 @@ TEST_F(oapGenericApi_HadamardProductTests, Test2)
 
 TEST_F(oapGenericApi_HadamardProductTests, Test3)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (3, 4, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (3, 4, 1);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (3, 4, 2);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (3, 4, 1);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(3, 4);
-  math::Matrix* houtput = oap::host::NewReMatrix(3, 4);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(3, 4);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(3, 4);
 
-  auto outputs = std::vector<math::Matrix*>({doutput});
-  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::Matrix*>({dM1}), std::vector<math::Matrix*>({dM2}));
+  auto outputs = std::vector<math::ComplexMatrix*>({doutput});
+  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::ComplexMatrix*>({dM1}), std::vector<math::ComplexMatrix*>({dM2}));
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(2));
@@ -140,17 +140,17 @@ TEST_F(oapGenericApi_HadamardProductTests, Test3)
 
 TEST_F(oapGenericApi_HadamardProductTests, Test4)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (3, 4, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (3, 4, 3);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (3, 4, 2);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (3, 4, 3);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(3, 4);
-  math::Matrix* houtput = oap::host::NewReMatrix(3, 4);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(3, 4);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(3, 4);
 
 
-  auto outputs = std::vector<math::Matrix*>({doutput});
-  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::Matrix*>({dM1}), std::vector<math::Matrix*>({dM2}));
+  auto outputs = std::vector<math::ComplexMatrix*>({doutput});
+  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::ComplexMatrix*>({dM1}), std::vector<math::ComplexMatrix*>({dM2}));
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(6));
@@ -165,16 +165,16 @@ TEST_F(oapGenericApi_HadamardProductTests, Test4)
 
 TEST_F(oapGenericApi_HadamardProductTests, Test5)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (32, 32, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (32, 32, 3);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (32, 32, 2);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (32, 32, 3);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(32, 32);
-  math::Matrix* houtput = oap::host::NewReMatrix(32, 32);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(32, 32);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(32, 32);
 
-  auto outputs = std::vector<math::Matrix*>({doutput});
-  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::Matrix*>({dM1}), std::vector<math::Matrix*>({dM2}));
+  auto outputs = std::vector<math::ComplexMatrix*>({doutput});
+  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::ComplexMatrix*>({dM1}), std::vector<math::ComplexMatrix*>({dM2}));
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(6));
@@ -189,16 +189,16 @@ TEST_F(oapGenericApi_HadamardProductTests, Test5)
 
 TEST_F(oapGenericApi_HadamardProductTests, Test6)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (33, 33, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (33, 33, 3);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (33, 33, 2);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (33, 33, 3);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(33, 33);
-  math::Matrix* houtput = oap::host::NewReMatrix(33, 33);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(33, 33);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(33, 33);
 
-  auto outputs = std::vector<math::Matrix*>({doutput});
-  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::Matrix*>({dM1}), std::vector<math::Matrix*>({dM2}));
+  auto outputs = std::vector<math::ComplexMatrix*>({doutput});
+  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::ComplexMatrix*>({dM1}), std::vector<math::ComplexMatrix*>({dM2}));
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(6));
@@ -213,16 +213,16 @@ TEST_F(oapGenericApi_HadamardProductTests, Test6)
 
 TEST_F(oapGenericApi_HadamardProductTests, Test7)
 {
-  math::Matrix* hostM1 = oap::host::NewReMatrixWithValue (312, 456, 2);
-  math::Matrix* hostM2 = oap::host::NewReMatrixWithValue (312, 456, 3);
+  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (312, 456, 2);
+  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (312, 456, 3);
 
-  math::Matrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
-  math::Matrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
-  math::Matrix* doutput = oap::cuda::NewDeviceReMatrix(312, 456);
-  math::Matrix* houtput = oap::host::NewReMatrix(312, 456);
+  math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
+  math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
+  math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(312, 456);
+  math::ComplexMatrix* houtput = oap::host::NewReMatrix(312, 456);
 
-  auto outputs = std::vector<math::Matrix*>({doutput});
-  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::Matrix*>({dM1}), std::vector<math::Matrix*>({dM2}));
+  auto outputs = std::vector<math::ComplexMatrix*>({doutput});
+  cuMatrix->v2_hadamardProduct (outputs, std::vector<math::ComplexMatrix*>({dM1}), std::vector<math::ComplexMatrix*>({dM2}));
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
 
   EXPECT_THAT(houtput, MatrixHasValues(6));

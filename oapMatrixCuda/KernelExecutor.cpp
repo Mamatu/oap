@@ -206,7 +206,7 @@ void Context::destroy()
 
 Context::~Context() { destroy(); }
 
-void Kernel::setDimensionsDevice(math::Matrix* dmatrix) {
+void Kernel::setDimensionsDevice(math::ComplexMatrix* dmatrix) {
   uintt columns = oap::cuda::GetColumns(dmatrix);
   uintt rows = oap::cuda::GetRows(dmatrix);
   setDimensions (columns, rows);
@@ -450,7 +450,7 @@ void Kernel::calculateThreadsBlocks(uint blocks[2], uint threads[2],
 }
 
 void Kernel::calculateThreadsBlocksDevice(uint blocks[2], uint threads[2],
-                                          math::Matrix* dmatrix) {
+                                          math::ComplexMatrix* dmatrix) {
   uintt columns = oap::cuda::GetColumns(dmatrix);
   uintt rows = oap::cuda::GetRows(dmatrix);
   calculateThreadsBlocks(blocks, threads, columns, rows);

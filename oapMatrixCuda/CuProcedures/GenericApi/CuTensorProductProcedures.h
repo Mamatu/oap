@@ -29,7 +29,7 @@
 #include "../CuCreateProcedures.h"
 #include "../CuDotProductSpecificProcedures.h"
 
-__hostdevice__ void cuda_GenericApi_tensorProductRe (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_tensorProductRe (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -39,9 +39,9 @@ __hostdevice__ void cuda_GenericApi_tensorProductRe (math::Matrix** outputs, mat
  
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param1 = params0[oidxs[0]];
-    math::Matrix* param2 = params1[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param1 = params0[oidxs[0]];
+    math::ComplexMatrix* param2 = params1[oidxs[0]];
    
     const uintt columns1 = GetColumns (param1);
     const uintt columns2 = GetColumns (param2);
@@ -56,15 +56,15 @@ __hostdevice__ void cuda_GenericApi_tensorProductRe (math::Matrix** outputs, mat
     uintt params1_index_x = x % gColumns (param1);
     uintt params0_section_x = x / gColumns (param1);
   
-    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, params0_section_x, params0_section_y);
-    uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re, param2->reReg, params1_index_x, params1_index_y);
+    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re.mem, param1->re.reg, params0_section_x, params0_section_y);
+    uintt idx2 = oap::common::GetMemIdxFromMatrixPos (param2->re.mem, param2->re.reg, params1_index_x, params1_index_y);
   
-    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-    output->re.ptr[index] = param1->re.ptr[idx1] * param2->re.ptr[idx2];
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+    output->re.mem.ptr[index] = param1->re.mem.ptr[idx1] * param2->re.mem.ptr[idx2];
   }
 }
 
-__hostdevice__ void cuda_GenericApi_tensorProductIm (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_tensorProductIm (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -72,7 +72,7 @@ __hostdevice__ void cuda_GenericApi_tensorProductIm (math::Matrix** outputs, mat
   assert ("Not supported" != NULL);
 }
 
-__hostdevice__ void cuda_GenericApi_tensorProductReal (math::Matrix** outputs, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_tensorProductReal (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -80,7 +80,7 @@ __hostdevice__ void cuda_GenericApi_tensorProductReal (math::Matrix** outputs, m
   assert ("Not supported" != NULL);
 }
 
-__hostdevice__ void CUDA_GenericApi_tensorProductRe (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_tensorProductRe (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
  
@@ -88,7 +88,7 @@ __hostdevice__ void CUDA_GenericApi_tensorProductRe (math::Matrix** output, math
   threads_sync();
 }
 
-__hostdevice__ void CUDA_GenericApi_tensorProductIm (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_tensorProductIm (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
  
@@ -96,7 +96,7 @@ __hostdevice__ void CUDA_GenericApi_tensorProductIm (math::Matrix** output, math
   threads_sync();
 }
 
-__hostdevice__ void CUDA_GenericApi_tensorProductReal (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_tensorProductReal (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
  
@@ -104,13 +104,13 @@ __hostdevice__ void CUDA_GenericApi_tensorProductReal (math::Matrix** output, ma
   threads_sync();
 }
 
-__hostdevice__ void CUDA_GenericApi_TensorProduct (math::Matrix** output, math::Matrix* const* params0, math::Matrix* const* params1, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_TensorProduct (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, math::ComplexMatrix* const* params1, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
  
-  bool isRe = output[0]->re.ptr != NULL;
-  bool isIm = output[0]->im.ptr != NULL;
+  bool isRe = output[0]->re.mem.ptr != NULL;
+  bool isIm = output[0]->im.mem.ptr != NULL;
  
   if (isRe && isIm)
   {

@@ -39,17 +39,17 @@ __hostdeviceinline__ void cuda_ga_mCosFunc (floatt* output, floatt value)
   (*output) =  (*output) * cos (value);
 }
 
-__hostdeviceinline__ void cuda_genericApi_sin (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_sin (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_ga_sinFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_dsin(math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_dsin(math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_ga_cosFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_multiplyDSin(math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_multiplyDSin(math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_ga_mCosFunc, mapper);
 }

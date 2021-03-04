@@ -38,13 +38,13 @@ using ::testing::Matcher;
 using ::testing::MatcherInterface;
 using ::testing::MatchResultListener;
 
-class MatrixValuesAreEqualMatcher : public MatcherInterface<math::Matrix*> {
+class MatrixValuesAreEqualMatcher : public MatcherInterface<math::ComplexMatrix*> {
   floatt m_value;
 
  public:
   MatrixValuesAreEqualMatcher(floatt value) : m_value(value) {}
 
-  virtual bool MatchAndExplain(math::Matrix* matrix,
+  virtual bool MatchAndExplain(math::ComplexMatrix* matrix,
                                MatchResultListener* listener) const {
     std::string v;
     matrixUtils::PrintMatrix(v, matrix);
@@ -53,26 +53,26 @@ class MatrixValuesAreEqualMatcher : public MatcherInterface<math::Matrix*> {
   }
 
   virtual void DescribeTo(::std::ostream* os) const {
-    *os << "Matrix values are equal " << m_value;
+    *os << "ComplexMatrix values are equal " << m_value;
   }
 
   virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "Matrix values are not equal " << m_value;
+    *os << "ComplexMatrix values are not equal " << m_value;
   }
 };
 
-class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
+class MatrixIsEqualMatcher : public MatcherInterface<math::ComplexMatrix*> {
 
   protected:
-    math::Matrix* m_matrix;
+    math::ComplexMatrix* m_matrix;
     InfoType m_infoType;
 
   public:
-    MatrixIsEqualMatcher(math::Matrix* matrix, const InfoType& infoType)
+    MatrixIsEqualMatcher(math::ComplexMatrix* matrix, const InfoType& infoType)
       : m_matrix(matrix), m_infoType(infoType)
     {}
 
-    virtual bool MatchAndExplain(math::Matrix* matrix, MatchResultListener* listener) const
+    virtual bool MatchAndExplain(math::ComplexMatrix* matrix, MatchResultListener* listener) const
     {
       HostInfoCreator infoCreator;
       infoCreator.setExpected(matrix);
@@ -94,18 +94,18 @@ class MatrixIsEqualMatcher : public MatcherInterface<math::Matrix*> {
     }
 };
 
-class MatrixHasValuesMatcher : public MatcherInterface<math::Matrix*>
+class MatrixHasValuesMatcher : public MatcherInterface<math::ComplexMatrix*>
 {
   protected:
-    math::Matrix* m_matrix;
+    math::ComplexMatrix* m_matrix;
     InfoType m_infoType;
 
   public:
-    MatrixHasValuesMatcher(math::Matrix* matrix, const InfoType& infoType)
+    MatrixHasValuesMatcher(math::ComplexMatrix* matrix, const InfoType& infoType)
       : m_matrix(matrix), m_infoType(infoType)
     {}
 
-    virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const
+    virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const
     {
       HostInfoCreator infoCreator;
       infoCreator.setExpected(matrix);
@@ -119,23 +119,23 @@ class MatrixHasValuesMatcher : public MatcherInterface<math::Matrix*>
     }
 
     virtual void DescribeTo(::std::ostream* os) const {
-      *os << "Matrix has equal values.";
+      *os << "ComplexMatrix has equal values.";
     }
 
     virtual void DescribeNegationTo(::std::ostream* os) const {
-      *os << "Matrix has not equal values.";
+      *os << "ComplexMatrix has not equal values.";
     }
 };
 
-class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {
+class MatrixIsDiagonalMatcher : public MatcherInterface<math::ComplexMatrix*> {
   floatt m_value;
   InfoType m_infoType;
 
  public:
   MatrixIsDiagonalMatcher (floatt value, const InfoType& infoType) : m_value(value), m_infoType(infoType) {}
 
-  virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const {
-    math::Matrix* diffmatrix = NULL;
+  virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const {
+    math::ComplexMatrix* diffmatrix = NULL;
     bool isequal = utils::IsDiagonalMatrix((*matrix), m_value, m_infoType.getTolerance(), &diffmatrix);
 
     std::string matrixStr;
@@ -150,11 +150,11 @@ class MatrixIsDiagonalMatcher : public MatcherInterface<math::Matrix*> {
   }
 
   virtual void DescribeTo(::std::ostream* os) const {
-    *os << "Matrix is diagonal.";
+    *os << "ComplexMatrix is diagonal.";
   }
 
   virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "Matrix is not diagonal.";
+    *os << "ComplexMatrix is not diagonal.";
   }
 };
 
@@ -163,24 +163,24 @@ class MatrixIsIdentityMatcher : public MatrixIsDiagonalMatcher {
   MatrixIsIdentityMatcher (const InfoType& infoType) : MatrixIsDiagonalMatcher(1.f, infoType) {}
 
   virtual void DescribeTo(::std::ostream* os) const {
-    *os << "Matrix is identity.";
+    *os << "ComplexMatrix is identity.";
   }
 
   virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "Matrix is not identity.";
+    *os << "ComplexMatrix is not identity.";
   }
 };
 
-class MatrixTestAPIMatcher : public MatcherInterface<math::Matrix*> {
-  bool (*m_checker)(const math::Matrix* matrix);
-  uintt (*m_getter)(const math::Matrix* matrix);
+class MatrixTestAPIMatcher : public MatcherInterface<math::ComplexMatrix*> {
+  bool (*m_checker)(const math::ComplexMatrix* matrix);
+  uintt (*m_getter)(const math::ComplexMatrix* matrix);
 
  public:
-  MatrixTestAPIMatcher(bool (*checker)(const math::Matrix* matrix),
-                       uintt (*getter)(const math::Matrix* matrix))
+  MatrixTestAPIMatcher(bool (*checker)(const math::ComplexMatrix* matrix),
+                       uintt (*getter)(const math::ComplexMatrix* matrix))
       : m_getter(getter), m_checker(checker) {}
 
-  virtual bool MatchAndExplain(math::Matrix* matrix,
+  virtual bool MatchAndExplain(math::ComplexMatrix* matrix,
                                MatchResultListener* listener) const {
     bool is = (*m_checker)(matrix);
     if (!is) {
@@ -275,26 +275,26 @@ class BufferSumIsEqualMatcherSum : public BufferSumIsEqualMatcher<T> {
 };
 
 class MatrixContainsDiagonalValuesMatcher
-    : public MatcherInterface<math::Matrix*> {
-  math::Matrix* m_matrix;
+    : public MatcherInterface<math::ComplexMatrix*> {
+  math::ComplexMatrix* m_matrix;
   InfoType m_infoType;
 
-  Complex getComplex(math::Matrix* matrix, uintt index) const {
+  Complex getComplex(math::ComplexMatrix* matrix, uintt index) const {
     floatt re = 0, im = 0;
-    if (matrix->re.ptr) {
+    if (matrix->re.mem.ptr) {
       re = GetReIndex (matrix, index * gColumns (matrix) + index);
     }
-    if (matrix->im.ptr) {
+    if (matrix->im.mem.ptr) {
       im = GetImIndex (matrix, index * gColumns (matrix) + index);
     }
     return Complex(re, im);
   }
 
  public:
-  MatrixContainsDiagonalValuesMatcher(math::Matrix* matrix)
+  MatrixContainsDiagonalValuesMatcher(math::ComplexMatrix* matrix)
       : m_matrix(matrix) {}
 
-  virtual bool MatchAndExplain(math::Matrix* matrix,
+  virtual bool MatchAndExplain(math::ComplexMatrix* matrix,
                                MatchResultListener* listener) const {
     if (gColumns (matrix) != gColumns (m_matrix) &&
         gRows (matrix) != gRows (m_matrix)) {
@@ -316,10 +316,10 @@ class MatrixContainsDiagonalValuesMatcher
     return true;
   }
 
-  virtual void DescribeTo(::std::ostream* os) const { *os << "Matrix contains diagonal values."; }
+  virtual void DescribeTo(::std::ostream* os) const { *os << "ComplexMatrix contains diagonal values."; }
 
   virtual void DescribeNegationTo(::std::ostream* os) const {
-    *os << "Matrix does not contain diagonal values..";
+    *os << "ComplexMatrix does not contain diagonal values..";
   }
 };
 
@@ -363,14 +363,14 @@ class StringIsEqualMatcher
 
 };
 
-class MatrixIsUpperTriangularMatcher : public MatcherInterface<math::Matrix*> {
+class MatrixIsUpperTriangularMatcher : public MatcherInterface<math::ComplexMatrix*> {
 
   InfoType m_infoType;
 
   public:
     MatrixIsUpperTriangularMatcher(const InfoType& infoType = InfoType()) {}
 
-    virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const override
+    virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const override
     {
       std::vector<std::tuple<uintt, uintt, floatt>> pairs;
 
@@ -397,7 +397,7 @@ class MatrixIsUpperTriangularMatcher : public MatcherInterface<math::Matrix*> {
         {
           sstream << "(" << std::get<0>(p) << ", " << std::get<1>(p) << ", " << std::get<2>(p) << ")";
         }
-        (*listener) << "Matrix in not upper trinagular. Invalid entries: " << sstream.str();
+        (*listener) << "ComplexMatrix in not upper trinagular. Invalid entries: " << sstream.str();
       }
 
       return pairs.empty();
@@ -405,17 +405,17 @@ class MatrixIsUpperTriangularMatcher : public MatcherInterface<math::Matrix*> {
 
     virtual void DescribeTo(::std::ostream* os) const override
     {
-      *os << "Matrix is upper triangular.";
+      *os << "ComplexMatrix is upper triangular.";
     }
 
     virtual void DescribeNegationTo(::std::ostream* os) const override
     {
-      *os << "Matrix is not upper triangular.";
+      *os << "ComplexMatrix is not upper triangular.";
     }
 };
 
 template<typename CalcApi>
-class MatrixIsOrthogonalMatcher : public MatcherInterface<math::Matrix*>
+class MatrixIsOrthogonalMatcher : public MatcherInterface<math::ComplexMatrix*>
 {
 
   CalcApi& m_calcApi;
@@ -424,7 +424,7 @@ class MatrixIsOrthogonalMatcher : public MatcherInterface<math::Matrix*>
   public:
     MatrixIsOrthogonalMatcher (CalcApi& calcApi, const InfoType& infoType = InfoType()) : m_calcApi (calcApi), m_infoType (infoType) {}
 
-    virtual bool MatchAndExplain (math::Matrix* matrix, MatchResultListener* listener) const override
+    virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const override
     {
       oap::HostMatrixUPtr matrixT = oap::host::NewMatrixCopy (matrix);
       oap::HostMatrixUPtr M = oap::host::NewMatrixRef (matrix);
@@ -432,7 +432,7 @@ class MatrixIsOrthogonalMatcher : public MatcherInterface<math::Matrix*>
       m_calcApi.transpose (matrixT, matrix);
       m_calcApi.dotProduct (M, matrixT, matrix);
 
-      math::Matrix* diffmatrix = NULL;
+      math::ComplexMatrix* diffmatrix = NULL;
       bool isDiag = utils::IsDiagonalMatrix(*M, 1.f, m_infoType.getTolerance(), &diffmatrix);
       if (!isDiag)
       {
@@ -445,12 +445,12 @@ class MatrixIsOrthogonalMatcher : public MatcherInterface<math::Matrix*>
 
     virtual void DescribeTo(::std::ostream* os) const override
     {
-      *os << "Matrix is orthogonal.";
+      *os << "ComplexMatrix is orthogonal.";
     }
 
     virtual void DescribeNegationTo(::std::ostream* os) const override
     {
-      *os << "Matrix is not orthogonal.";
+      *os << "ComplexMatrix is not orthogonal.";
     }
 };
 

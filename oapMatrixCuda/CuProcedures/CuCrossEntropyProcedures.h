@@ -24,7 +24,7 @@
 #include "Matrix.h"
 #include "MatrixAPI.h"
 
-__hostdeviceinline__ void cuda_crossEntropyRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdeviceinline__ void cuda_crossEntropyRe (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -38,19 +38,19 @@ __hostdeviceinline__ void cuda_crossEntropyRe (math::Matrix* output, math::Matri
   *GetRePtrIndex (output, index) = coutput;
 }
 
-__hostdeviceinline__ void cuda_crossEntropyIm (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdeviceinline__ void cuda_crossEntropyIm (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
-__hostdeviceinline__ void cuda_crossEntropyReal (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdeviceinline__ void cuda_crossEntropyReal (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
-__hostdeviceinline__ void CUDA_crossEntropyRe (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdeviceinline__ void CUDA_crossEntropyRe (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -58,7 +58,7 @@ __hostdeviceinline__ void CUDA_crossEntropyRe (math::Matrix* output, math::Matri
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_crossEntropyIm (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdeviceinline__ void CUDA_crossEntropyIm (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -66,7 +66,7 @@ __hostdeviceinline__ void CUDA_crossEntropyIm (math::Matrix* output, math::Matri
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_crossEntropyReal (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdeviceinline__ void CUDA_crossEntropyReal (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 
@@ -74,13 +74,13 @@ __hostdeviceinline__ void CUDA_crossEntropyReal (math::Matrix* output, math::Mat
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdeviceinline__ void CUDA_crossEntropy (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
 
   if (isre && isim)
   {

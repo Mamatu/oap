@@ -30,8 +30,8 @@ namespace oap
 {
 namespace cuda
 {
-  using TypeGetValueIdx = std::function<floatt (const math::Matrix*, uintt)>;
-  using TypeSetValueIdx = std::function<void (math::Matrix*, uintt, floatt)>;
+  using TypeGetValueIdx = std::function<floatt (const math::ComplexMatrix*, uintt)>;
+  using TypeSetValueIdx = std::function<void (math::ComplexMatrix*, uintt, floatt)>;
 
   class CudaMatrixApi : public oap::generic::MatrixApi<decltype(oap::cuda::GetMatrixInfo), TypeGetValueIdx, TypeSetValueIdx>
   {

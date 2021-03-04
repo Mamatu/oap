@@ -32,7 +32,7 @@ namespace oap
 namespace threads
 {
 
-__hostdeviceinline__ void GetIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
+__hostdeviceinline__ void GetIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::ComplexMatrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
 {
   switch (mapper->mode)
   {
@@ -53,7 +53,7 @@ __hostdeviceinline__ void GetIdx (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, 
   };
 }
 
-__hostdeviceinline__ bool GetIdxCheck (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
+__hostdeviceinline__ bool GetIdxCheck (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::ComplexMatrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
 {
   bool ret = false;
   switch (mapper->mode)
@@ -76,7 +76,7 @@ __hostdeviceinline__ bool GetIdxCheck (dim3 threadIdx, dim3 blockIdx, dim3 block
   return ret;
 }
 
-__hostdeviceinline__ void GetPos (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
+__hostdeviceinline__ void GetPos (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::ComplexMatrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
 {
   switch (mapper->mode)
   {
@@ -94,7 +94,7 @@ __hostdeviceinline__ void GetPos (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, 
   };
 }
 
-__hostdeviceinline__ bool GetPosCheck (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::Matrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
+__hostdeviceinline__ bool GetPosCheck (dim3 threadIdx, dim3 blockIdx, dim3 blockDim, dim3 gridDim, uintt out[2], const math::ComplexMatrix* const* arg, const ThreadsMapperS* mapper, uintt argIdx)
 {
   bool ret = false;
   switch (mapper->mode)

@@ -28,17 +28,17 @@ namespace oap
 NetworkHostApi::~NetworkHostApi()
 {}
 
-void NetworkHostApi::setReValue (math::Matrix* matrix, uintt c, uintt r, floatt v)
+void NetworkHostApi::setReValue (math::ComplexMatrix* matrix, uintt c, uintt r, floatt v)
 {
   oap::host::SetReValue (matrix, c, r, v);
 }
 
-void NetworkHostApi::setHostWeights (Layer& layer, math::Matrix* weights)
+void NetworkHostApi::setHostWeights (Layer& layer, math::ComplexMatrix* weights)
 {
   oap::host::setHostWeights (layer, weights);
 }
 
-math::MatrixInfo NetworkHostApi::getMatrixInfo (const math::Matrix* matrix) const
+math::MatrixInfo NetworkHostApi::getMatrixInfo (const math::ComplexMatrix* matrix) const
 {
   return oap::host::GetMatrixInfo (matrix);
 }
@@ -73,37 +73,37 @@ Layer* NetworkHostApi::createLayer (uintt neurons, bool hasBias, uintt samplesCo
   return new oap::HostLayer (neurons, hasBias, samplesCount, activation);
 }
 
-void NetworkHostApi::copyKernelMatrixToKernelMatrix (math::Matrix* dst, const math::Matrix* src)
+void NetworkHostApi::copyKernelMatrixToKernelMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src)
 {
   oap::host::CopyHostMatrixToHostMatrix (dst, src);
 }
 
-void NetworkHostApi::copyKernelMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
+void NetworkHostApi::copyKernelMatrixToHostMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src)
 {
   oap::host::CopyHostMatrixToHostMatrix (dst, src);
 }
 
-void NetworkHostApi::copyHostMatrixToKernelMatrix (math::Matrix* dst, const math::Matrix* src)
+void NetworkHostApi::copyHostMatrixToKernelMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src)
 {
   oap::host::CopyHostMatrixToHostMatrix (dst, src);
 }
 
-void NetworkHostApi::deleteKernelMatrix (const math::Matrix* matrix)
+void NetworkHostApi::deleteKernelMatrix (const math::ComplexMatrix* matrix)
 {
   oap::host::DeleteMatrix (matrix);
 }
 
-math::Matrix* NetworkHostApi::newKernelReMatrix (uintt columns, uintt rows)
+math::ComplexMatrix* NetworkHostApi::newKernelReMatrix (uintt columns, uintt rows)
 {
   return oap::host::NewReMatrix (columns, rows);
 }
 
-math::Matrix* NetworkHostApi::newKernelMatrixHostRef (const math::Matrix* matrix)
+math::ComplexMatrix* NetworkHostApi::newKernelMatrixHostRef (const math::ComplexMatrix* matrix)
 {
   return oap::host::NewMatrixRef (matrix);
 }
 
-math::Matrix* NetworkHostApi::newKernelMatrixKernelRef (const math::Matrix* matrix)
+math::ComplexMatrix* NetworkHostApi::newKernelMatrixKernelRef (const math::ComplexMatrix* matrix)
 {
   return oap::host::NewMatrixRef (matrix);
 }
@@ -115,7 +115,7 @@ void NetworkHostApi::connectLayers (oap::Layer* previous, oap::Layer* layer)
 }
 */
 
-math::Matrix* NetworkHostApi::newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::Matrix* matrix)
+math::ComplexMatrix* NetworkHostApi::newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)
 {
   return oap::host::NewSharedSubMatrix (mdim, matrix);
 }
@@ -125,7 +125,7 @@ oap::Memory NetworkHostApi::newKernelMemory (const oap::MemoryDim& dim)
   return oap::host::NewMemory (dim);
 }
 
-math::Matrix* NetworkHostApi::newKernelMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+math::ComplexMatrix* NetworkHostApi::newKernelMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
 {
   return oap::host::NewHostMatrixFromMatrixInfo (minfo);
 }

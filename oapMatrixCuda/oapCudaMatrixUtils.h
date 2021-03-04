@@ -38,73 +38,73 @@ namespace oap
 namespace cuda
 {
 
-math::Matrix* NewDeviceMatrix (uintt columns, uintt rows);
-math::Matrix* NewDeviceMatrixWithValue (uintt columns, uintt rows, floatt v);
-math::Matrix* NewDeviceReMatrixWithValue (uintt columns, uintt rows, floatt v);
-math::Matrix* NewDeviceImMatrixWithValue (uintt columns, uintt rows, floatt v);
+math::ComplexMatrix* NewDeviceMatrix (uintt columns, uintt rows);
+math::ComplexMatrix* NewDeviceMatrixWithValue (uintt columns, uintt rows, floatt v);
+math::ComplexMatrix* NewDeviceReMatrixWithValue (uintt columns, uintt rows, floatt v);
+math::ComplexMatrix* NewDeviceImMatrixWithValue (uintt columns, uintt rows, floatt v);
 
-math::Matrix* NewDeviceMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt v);
-math::Matrix* NewDeviceMatrixWithValue (const math::MatrixInfo& minfo, floatt v);
+math::ComplexMatrix* NewDeviceMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt v);
+math::ComplexMatrix* NewDeviceMatrixWithValue (const math::MatrixInfo& minfo, floatt v);
 
 #if 0
-math::Matrix* NewShareDeviceMatrix(uintt columns, uintt rows, math::Matrix* src);
+math::ComplexMatrix* NewShareDeviceMatrix(uintt columns, uintt rows, math::ComplexMatrix* src);
 #endif
 
-math::Matrix* NewDeviceMatrixHostRef(const math::Matrix* hostMatrix);
+math::ComplexMatrix* NewDeviceMatrixHostRef(const math::ComplexMatrix* hostMatrix);
 
-math::Matrix* NewDeviceMatrixDeviceRef(const math::Matrix* deviceMatrix);
+math::ComplexMatrix* NewDeviceMatrixDeviceRef(const math::ComplexMatrix* deviceMatrix);
 
-math::Matrix* NewDeviceMatrix(const std::string& matrixStr);
+math::ComplexMatrix* NewDeviceMatrix(const std::string& matrixStr);
 
-math::Matrix* NewDeviceMatrix(const math::MatrixInfo& minfo);
+math::ComplexMatrix* NewDeviceMatrix(const math::MatrixInfo& minfo);
 
-inline math::Matrix* NewDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+inline math::ComplexMatrix* NewDeviceMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
 {
   return NewDeviceMatrix (minfo);
 }
 
-math::Matrix* NewDeviceMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
-math::Matrix* NewDeviceReMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& memory, const oap::MemoryLoc& loc);
-math::Matrix* NewDeviceImMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& memory, const oap::MemoryLoc& loc);
+math::ComplexMatrix* NewDeviceMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& rememory, const oap::MemoryLoc& reloc, oap::Memory& immemory, const oap::MemoryLoc& imloc);
+math::ComplexMatrix* NewDeviceReMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& memory, const oap::MemoryLoc& loc);
+math::ComplexMatrix* NewDeviceImMatrixFromMemory (uintt columns, uintt rows, const oap::Memory& memory, const oap::MemoryLoc& loc);
 
-uintt GetColumns(const math::Matrix* dMatrix);
+uintt GetColumns(const math::ComplexMatrix* dMatrix);
 
-uintt GetRows(const math::Matrix* dMatrix);
+uintt GetRows(const math::ComplexMatrix* dMatrix);
 
-math::Matrix GetRefHostMatrix (const math::Matrix* dMatrix);
-oap::MemoryRegion GetReMemoryRegion (const math::Matrix* dMatrix);
-oap::Memory GetReMemory (const math::Matrix* dMatrix);
-oap::MemoryRegion GetImMemoryRegion (const math::Matrix* dMatrix);
-oap::Memory GetImMemory (const math::Matrix* dMatrix);
+math::ComplexMatrix GetRefHostMatrix (const math::ComplexMatrix* dMatrix);
+oap::MemoryRegion GetReMemoryRegion (const math::ComplexMatrix* dMatrix);
+oap::Memory GetReMemory (const math::ComplexMatrix* dMatrix);
+oap::MemoryRegion GetImMemoryRegion (const math::ComplexMatrix* dMatrix);
+oap::Memory GetImMemory (const math::ComplexMatrix* dMatrix);
 
-floatt* GetReValuesPtr (const math::Matrix* dMatrix);
-floatt* GetImValuesPtr (const math::Matrix* dMatrix);
+floatt* GetReValuesPtr (const math::ComplexMatrix* dMatrix);
+floatt* GetImValuesPtr (const math::ComplexMatrix* dMatrix);
 
-math::Matrix* NewDeviceMatrixCopyOfHostMatrix(const math::Matrix* hostMatrix);
+math::ComplexMatrix* NewDeviceMatrixCopyOfHostMatrix(const math::ComplexMatrix* hostMatrix);
 
-math::Matrix* NewDeviceMatrix(const math::Matrix* hostMatrix, uintt columns, uintt rows);
+math::ComplexMatrix* NewDeviceMatrix(const math::ComplexMatrix* hostMatrix, uintt columns, uintt rows);
 
-math::Matrix* NewDeviceMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows);
+math::ComplexMatrix* NewDeviceMatrix(bool allocRe, bool allocIm, uintt columns, uintt rows);
 
-inline math::Matrix* NewKernelMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows)
+inline math::ComplexMatrix* NewKernelMatrix (bool allocRe, bool allocIm, uintt columns, uintt rows)
 {
   return NewDeviceMatrix (allocRe, allocIm, columns, rows);
 }
 
-math::Matrix* NewDeviceReMatrix(uintt columns, uintt rows);
+math::ComplexMatrix* NewDeviceReMatrix(uintt columns, uintt rows);
 
-math::Matrix* NewDeviceImMatrix(uintt columns, uintt rows);
+math::ComplexMatrix* NewDeviceImMatrix(uintt columns, uintt rows);
 
-math::Matrix* NewHostMatrixCopyOfDeviceMatrix(const math::Matrix* matrix);
+math::ComplexMatrix* NewHostMatrixCopyOfDeviceMatrix(const math::ComplexMatrix* matrix);
 
-void DeleteDeviceMatrix(const math::Matrix* deviceMatrix);
+void DeleteDeviceMatrix(const math::ComplexMatrix* deviceMatrix);
 
 template<typename Matrices>
 void deleteDeviceMatrices(const Matrices& matrices)
 {
   for (uintt idx = 0; idx < matrices.size(); ++idx)
   {
-    const math::Matrix* matrix = matrices[idx];
+    const math::ComplexMatrix* matrix = matrices[idx];
     DeleteDeviceMatrix (matrix);
   }
 }
@@ -114,21 +114,21 @@ void deleteDeviceMatrices(const Matrices& matrices)
  * @param dst - host matrix
  * @param src - device matrix
  */
-void CopyDeviceMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src);
+void CopyDeviceMatrixToHostMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src);
 
 /**
  * @brief copies host matrix to device matrix - copy host to device - matrices must have the same columns and rows
  * @param dst - host matrix
  * @param src - device matrix
  */
-void CopyHostMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src);
+void CopyHostMatrixToDeviceMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src);
 
 /**
  * @brief copies device matrix to device matrix - copy device to device - matrices must have the same columns and rows
  * @param dst - host matrix
  * @param src - device matrix
  */
-void CopyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src);
+void CopyDeviceMatrixToDeviceMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src);
 
 /**
  * @brief copies davice matrix to host matrix - copy device to host - matrices must have the same product of columns and rows
@@ -136,7 +136,7 @@ void CopyDeviceMatrixToDeviceMatrix (math::Matrix* dst, const math::Matrix* src)
  * @param dst - host matrix
  * @param src - device matrix
  */
-void CopyDeviceToHost(math::Matrix* dst, const math::Matrix* src);
+void CopyDeviceToHost(math::ComplexMatrix* dst, const math::ComplexMatrix* src);
 
 /**
  * @brief copies host matrix to device matrix - copy device to host - matrices must have the same product of columns and rows
@@ -144,7 +144,7 @@ void CopyDeviceToHost(math::Matrix* dst, const math::Matrix* src);
  * @param dst - host matrix
  * @param src - device matrix
  */
-void CopyHostToDevice(math::Matrix* dst, const math::Matrix* src);
+void CopyHostToDevice(math::ComplexMatrix* dst, const math::ComplexMatrix* src);
 
 /**
  * @brief copies device matri to device matrix - copy device to host - matrices must have the same product of columns and rows
@@ -152,43 +152,43 @@ void CopyHostToDevice(math::Matrix* dst, const math::Matrix* src);
  * @param dst - host matrix
  * @param src - device matrix
  */
-void CopyDeviceToDevice(math::Matrix* dst, const math::Matrix* src);
+void CopyDeviceToDevice(math::ComplexMatrix* dst, const math::ComplexMatrix* src);
 
-void CopyDeviceMatrixToHostMatrixEx (math::Matrix* dst, const oap::MemoryLoc& loc, const math::Matrix* src, const oap::MemoryRegion& reg);
+void CopyDeviceMatrixToHostMatrixEx (math::ComplexMatrix* dst, const oap::MemoryLoc& loc, const math::ComplexMatrix* src, const oap::MemoryRegion& reg);
 
-void CopyHostMatrixToDeviceMatrixEx (math::Matrix* dst, const oap::MemoryLoc& loc, const math::Matrix* src, const oap::MemoryRegion& reg);
+void CopyHostMatrixToDeviceMatrixEx (math::ComplexMatrix* dst, const oap::MemoryLoc& loc, const math::ComplexMatrix* src, const oap::MemoryRegion& reg);
 
-void CopyDeviceMatrixToDeviceMatrixEx (math::Matrix* dst, const oap::MemoryLoc& loc, const math::Matrix* src, const oap::MemoryRegion& reg);
+void CopyDeviceMatrixToDeviceMatrixEx (math::ComplexMatrix* dst, const oap::MemoryLoc& loc, const math::ComplexMatrix* src, const oap::MemoryRegion& reg);
 
-void SetMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
-void SetReMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
-void SetImMatrix(math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row);
+void SetMatrix(math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt column, uintt row);
+void SetReMatrix(math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt column, uintt row);
+void SetImMatrix(math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt column, uintt row);
 
-std::pair<floatt, floatt> GetDiagonal (const math::Matrix* matrix, uintt index);
-floatt GetReDiagonal (const math::Matrix* matrix, uintt index);
-floatt GetImDiagonal (const math::Matrix* matrix, uintt index);
+std::pair<floatt, floatt> GetDiagonal (const math::ComplexMatrix* matrix, uintt index);
+floatt GetReDiagonal (const math::ComplexMatrix* matrix, uintt index);
+floatt GetImDiagonal (const math::ComplexMatrix* matrix, uintt index);
 
-void SetZeroRow (const math::Matrix* matrix, uintt index, bool re = true, bool im = true);
-void SetReZeroRow (const math::Matrix* matrix, uintt index);
-void SetImZeroRow (const math::Matrix* matrix, uintt index);
+void SetZeroRow (const math::ComplexMatrix* matrix, uintt index, bool re = true, bool im = true);
+void SetReZeroRow (const math::ComplexMatrix* matrix, uintt index);
+void SetImZeroRow (const math::ComplexMatrix* matrix, uintt index);
 
-void SetValueToMatrix (math::Matrix* matrix, floatt re, floatt im);
-void SetValueToReMatrix (math::Matrix* matrix, floatt v);
-void SetValueToImMatrix (math::Matrix* matrix, floatt v);
+void SetValueToMatrix (math::ComplexMatrix* matrix, floatt re, floatt im);
+void SetValueToReMatrix (math::ComplexMatrix* matrix, floatt v);
+void SetValueToImMatrix (math::ComplexMatrix* matrix, floatt v);
 
-void SetZeroMatrix (math::Matrix* matrix);
-void SetZeroReMatrix (math::Matrix* matrix);
-void SetZeroImMatrix (math::Matrix* matrix);
+void SetZeroMatrix (math::ComplexMatrix* matrix);
+void SetZeroReMatrix (math::ComplexMatrix* matrix);
+void SetZeroImMatrix (math::ComplexMatrix* matrix);
 
 MatrixEx** NewDeviceMatrixEx(uintt count);
 
-void CopyHostArrayToDeviceMatrix (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
-void CopyHostArrayToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
-void CopyHostArrayToDeviceImMatrix (math::Matrix* matrix, const floatt* buffer, size_t length);
+void CopyHostArrayToDeviceMatrix (math::ComplexMatrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
+void CopyHostArrayToDeviceReMatrix (math::ComplexMatrix* matrix, const floatt* buffer, size_t length);
+void CopyHostArrayToDeviceImMatrix (math::ComplexMatrix* matrix, const floatt* buffer, size_t length);
 
-void CopyHostArrayToDeviceMatrixBuffer (math::Matrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
-void CopyHostArrayToDeviceReMatrixBuffer (math::Matrix* matrix, const floatt* buffer, size_t length);
-void CopyHostArrayToDeviceImMatrixBuffer (math::Matrix* matrix, const floatt* buffer, size_t length);
+void CopyHostArrayToDeviceMatrixBuffer (math::ComplexMatrix* matrix, const floatt* rebuffer, const floatt* imbuffer, size_t length);
+void CopyHostArrayToDeviceReMatrixBuffer (math::ComplexMatrix* matrix, const floatt* buffer, size_t length);
+void CopyHostArrayToDeviceImMatrixBuffer (math::ComplexMatrix* matrix, const floatt* buffer, size_t length);
 
 void DeleteDeviceMatrixEx(MatrixEx** matrixEx);
 
@@ -203,10 +203,10 @@ MatrixEx* NewDeviceMatrixExCopy(const MatrixEx& hostMatrixEx);
 
 void DeleteDeviceMatrixEx(MatrixEx* matrixEx);
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix,
+void PrintMatrix(const std::string& text, const math::ComplexMatrix* matrix,
                  floatt zeroLimit = 0);
 
-void PrintMatrix(const math::Matrix* matrix);
+void PrintMatrix(const math::ComplexMatrix* matrix);
 
 inline void ToHost (void* dst, const void* src, size_t size)
 {
@@ -218,49 +218,49 @@ inline void TransferToHost (void* dst, const void* src, uintt size)
   memcpy (dst, src, size);
 }
 
-void SetReValue(math::Matrix* matrix, uintt column, uintt row, floatt value);
-void SetReValue(math::Matrix* matrix, uintt index, floatt value);
+void SetReValue(math::ComplexMatrix* matrix, uintt column, uintt row, floatt value);
+void SetReValue(math::ComplexMatrix* matrix, uintt index, floatt value);
 
-void SetImValue(math::Matrix* matrix, uintt column, uintt row, floatt value);
-void SetImValue(math::Matrix* matrix, uintt index, floatt value);
+void SetImValue(math::ComplexMatrix* matrix, uintt column, uintt row, floatt value);
+void SetImValue(math::ComplexMatrix* matrix, uintt index, floatt value);
 
-void SetValue(math::Matrix* matrix, uintt column, uintt row, floatt revalue, floatt imvalue);
+void SetValue(math::ComplexMatrix* matrix, uintt column, uintt row, floatt revalue, floatt imvalue);
 
-void SetValue(math::Matrix* matrix, uintt index, floatt revalue, floatt imvalue);
+void SetValue(math::ComplexMatrix* matrix, uintt index, floatt revalue, floatt imvalue);
 
-math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
+math::MatrixInfo GetMatrixInfo(const math::ComplexMatrix* devMatrix);
 
-bool IsCudaMatrix(const math::Matrix* devMatrix);
+bool IsCudaMatrix(const math::ComplexMatrix* devMatrix);
 
-inline bool IsDeviceMatrix(const math::Matrix* devMatrix)
+inline bool IsDeviceMatrix(const math::ComplexMatrix* devMatrix)
 {
 	return IsCudaMatrix (devMatrix);
 }
 
-void ToString (std::string& str, const math::Matrix* devMatrix);
+void ToString (std::string& str, const math::ComplexMatrix* devMatrix);
 
-inline std::string GetMatrixStr (const math::Matrix* devMatrix)
+inline std::string GetMatrixStr (const math::ComplexMatrix* devMatrix)
 {
   std::string str;
   ToString (str, devMatrix);
   return str;
 }
 
-inline std::string to_string (const math::Matrix* devMatrix)
+inline std::string to_string (const math::ComplexMatrix* devMatrix)
 {
   return GetMatrixStr (devMatrix);
 }
 
-void PrintMatrixInfo(const std::string& msg, const math::Matrix* devMatrix);
+void PrintMatrixInfo(const std::string& msg, const math::ComplexMatrix* devMatrix);
 
-bool WriteMatrix(const std::string& path, const math::Matrix* devMatrix);
+bool WriteMatrix(const std::string& path, const math::ComplexMatrix* devMatrix);
 
-math::Matrix* ReadMatrix(const std::string& path);
+math::ComplexMatrix* ReadMatrix(const std::string& path);
 
-void SaveMatrix (const math::Matrix* matrix, utils::ByteBuffer& buffer);
+void SaveMatrix (const math::ComplexMatrix* matrix, utils::ByteBuffer& buffer);
 void SaveMatrixInfo (const math::MatrixInfo& minfo, utils::ByteBuffer& buffer);
 
-math::Matrix* LoadMatrix (const utils::ByteBuffer& buffer);
+math::ComplexMatrix* LoadMatrix (const utils::ByteBuffer& buffer);
 math::MatrixInfo LoadMatrixInfo (const utils::ByteBuffer& buffer);
 
 template<typename MatricesLine>
@@ -269,24 +269,24 @@ oap::ThreadsMapper createThreadsMapper (const std::vector<MatricesLine>& matrice
   return oap::threads::createThreadsMapper (matrices, oap::cuda::GetRefHostMatrix, CudaUtils::Malloc, CudaUtils::CopyHostToDevice, CudaUtils::Free, algo);
 }
 
-oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::Matrix*>>& matrices, oap::threads::ThreadsMapperAlgo algo);
+oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::ComplexMatrix*>>& matrices, oap::threads::ThreadsMapperAlgo algo);
 
-void CopyDeviceReMatrixToHostBuffer (floatt* buffer, uintt length, const math::Matrix* matrix);
-void CopyHostBufferToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length);
-void CopyDeviceBufferToDeviceReMatrix (math::Matrix* matrix, const floatt* buffer, uintt length);
+void CopyDeviceReMatrixToHostBuffer (floatt* buffer, uintt length, const math::ComplexMatrix* matrix);
+void CopyHostBufferToDeviceReMatrix (math::ComplexMatrix* matrix, const floatt* buffer, uintt length);
+void CopyDeviceBufferToDeviceReMatrix (math::ComplexMatrix* matrix, const floatt* buffer, uintt length);
 
-std::string to_carraystr(const math::Matrix* matrix);
-std::string to_carraystr(const std::vector<math::Matrix*>& matrices);
+std::string to_carraystr(const math::ComplexMatrix* matrix);
+std::string to_carraystr(const std::vector<math::ComplexMatrix*>& matrices);
 
-math::Matrix* NewDeviceReMatrixCopyOfArray(uintt columns, uintt rows, floatt* array);
+math::ComplexMatrix* NewDeviceReMatrixCopyOfArray(uintt columns, uintt rows, floatt* array);
 
-std::vector<math::Matrix*> NewDeviceMatrices (const std::vector<math::MatrixInfo>& minfos);
-std::vector<math::Matrix*> NewDeviceMatrices (const math::MatrixInfo& minfo, uintt count);
-std::vector<math::Matrix*> NewDeviceMatricesCopyOfArray(const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays);
-std::vector<math::Matrix*> NewDeviceMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays);
+std::vector<math::ComplexMatrix*> NewDeviceMatrices (const std::vector<math::MatrixInfo>& minfos);
+std::vector<math::ComplexMatrix*> NewDeviceMatrices (const math::MatrixInfo& minfo, uintt count);
+std::vector<math::ComplexMatrix*> NewDeviceMatricesCopyOfArray(const std::vector<math::MatrixInfo>& minfos, const std::vector<std::vector<floatt>>& arrays);
+std::vector<math::ComplexMatrix*> NewDeviceMatricesCopyOfArray(const math::MatrixInfo& minfo, const std::vector<std::vector<floatt>>& arrays);
 
-math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::Matrix* matrix);
-math::Matrix* NewDeviceSharedSubMatrix (const math::MatrixDim& dim, const math::Matrix* matrix);
+math::ComplexMatrix* NewDeviceSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& dim, const math::ComplexMatrix* matrix);
+math::ComplexMatrix* NewDeviceSharedSubMatrix (const math::MatrixDim& dim, const math::ComplexMatrix* matrix);
 
 }
 }

@@ -39,17 +39,17 @@ __hostdeviceinline__ void cuda_ga_mLinearFunc (floatt* output, floatt value)
   (*output) =  (*output) * 1;
 }
 
-__hostdeviceinline__ void cuda_genericApi_linear (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_linear (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_ga_linearFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_dlinear (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_dlinear (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_ga_dlinearFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_multiplyDLinear (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_multiplyDLinear (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_ga_mLinearFunc, mapper);
 }
