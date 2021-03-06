@@ -27,7 +27,7 @@
 #include "HostInfoCreator.h"
 
 #include "oapHostMatrixUtils.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 #include "MatrixPrinter.h"
 #include "Utils.h"

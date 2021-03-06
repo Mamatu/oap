@@ -25,7 +25,7 @@
 #include "GenericProceduresApi.h"
 
 #include "oapHostMatrixUtils.h"
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 
 class OapConvolutionTests : public testing::Test {

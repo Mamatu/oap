@@ -28,8 +28,8 @@
 #include "oapHostMemoryApi.h"
 #include "oapCudaMemoryApi.h"
 
-#include "oapHostMatrixPtr.h"
-#include "oapDeviceMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
 #include "oapFuncTests.h"
 
 #include <vector>

@@ -24,8 +24,8 @@
 #include <math.h>
 
 #include "Logger.h"
-#include "oapHostMatrixUPtr.h"
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 #include "ThreadsMapper.h"
 #include "Logger.h"

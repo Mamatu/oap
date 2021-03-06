@@ -30,8 +30,8 @@
 
 #include "KernelExecutor.h"
 
-#include "oapHostMatrixPtr.h"
-#include "oapDeviceMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
 
 class OapSumTests : public testing::Test {
  public:

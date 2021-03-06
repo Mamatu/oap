@@ -2,8 +2,8 @@
 #include "MatchersUtils.h"
 #include "HostKernel.h"
 
-#include "oapHostMatrixPtr.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 #include "oapDotProductTests_Data_1.h"
 #include "oapDotProductTests_Data_2.h"

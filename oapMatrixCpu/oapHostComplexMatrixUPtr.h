@@ -30,7 +30,7 @@ namespace oap {
   /**
    * @brief Unique pointer for host matrix type
    *
-   * Examples of use: oapHostTests/oapHostMatrixUPtrTests.cpp
+   * Examples of use: oapHostTests/oapHostComplexMatrixUPtrTests.cpp
    */
   class HostMatrixUPtr : public oap::MatrixUniquePtr {
     public:
@@ -46,7 +46,7 @@ namespace oap {
    * This class creates its own matrices array which contains copied pointers.
    * If array was allocated dynamically must be deallocated.
    *
-   * Examples of use: oapHostTests/oapHostMatrixUPtrTests.cpp
+   * Examples of use: oapHostTests/oapHostComplexMatrixUPtrTests.cpp
    */
   class HostMatricesUPtr : public oap::MatricesUniquePtr {
     public:

@@ -26,8 +26,8 @@
 
 #include "KernelExecutor.h"
 
-#include "oapDeviceMatrixPtr.h"
-#include "oapDeviceMatrixUPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
 
 
 class OapDeviceMatrixUPtrTests : public testing::Test {

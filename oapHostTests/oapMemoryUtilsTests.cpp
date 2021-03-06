@@ -25,7 +25,7 @@
 #include "Matrix.h"
 #include "oapMemoryUtils.h"
 #include "oapHostMemoryApi.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 namespace host {
 namespace qrtest1 {

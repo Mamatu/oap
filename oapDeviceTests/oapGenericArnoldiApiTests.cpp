@@ -26,8 +26,8 @@
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 
-#include "oapHostMatrixPtr.h"
-#include "oapDeviceMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
 
 #include "MatchersUtils.h"
 #include "CudaMatchersUtils.h"

@@ -28,7 +28,7 @@
 
 #include "oapHostMatrixUtils.h"
 
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 #include "MatrixParser.h"
 #include "ReferencesCounter.h"

@@ -27,7 +27,7 @@
 #include "HostProcedures.h"
 
 #include "oapHostMatrixUtils.h"
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 class OapCrossEntropyTests : public testing::Test {
  public:

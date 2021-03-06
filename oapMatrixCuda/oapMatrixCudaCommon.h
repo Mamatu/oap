@@ -1,8 +1,8 @@
 #ifndef OAP_MATRIX_CUDA_COMMON_H
 #define OAP_MATRIX_CUDA_COMMON_H
 
-#include "oapDeviceMatrixPtr.h"
-#include "oapDeviceMatrixUPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 

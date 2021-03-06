@@ -5,7 +5,7 @@
 #include "IEigenCalculator.h"
 #include "DeviceImagesLoader.h"
 
-#include "oapDeviceMatrixPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
 
 #include "Outcome.h"
 

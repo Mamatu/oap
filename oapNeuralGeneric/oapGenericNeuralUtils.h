@@ -31,7 +31,7 @@
 #include "oapRandomGenerator.h"
 #include "MatrixAPI.h"
 
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 #include "oapMatrixRandomGenerator.h"
 #include "oapGenericNeuralApi.h"
 
