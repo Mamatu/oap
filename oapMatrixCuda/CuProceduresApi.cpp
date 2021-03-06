@@ -575,7 +575,7 @@ void CuProceduresApi::linear (math::ComplexMatrix* output, math::ComplexMatrix* 
   auto minfo = oap::cuda::GetMatrixInfo (output);
   math::MatrixInfo minfo1 (minfo.isRe, minfo.isIm, dim[0], dim[1]);
 
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrix (minfo1);
+  oap::DeviceComplexMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrix (minfo1);
 
   PRINT_CUMATRIX(dmatrix.get());
   oap::cuda::CopyDeviceToDevice (dmatrix, matrix);
@@ -589,7 +589,7 @@ void CuProceduresApi::linear (math::ComplexMatrix* output, math::ComplexMatrix* 
 
 void CuProceduresApi::dlinear (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
-  oap::HostMatrixUPtr hmatrix = oap::host::NewMatrixWithValue (oap::cuda::GetMatrixInfo(output), 1.f);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewMatrixWithValue (oap::cuda::GetMatrixInfo(output), 1.f);
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
 }
 
@@ -598,7 +598,7 @@ void CuProceduresApi::dlinear (math::ComplexMatrix* output, math::ComplexMatrix*
   auto minfo = oap::cuda::GetMatrixInfo (output);
   math::MatrixInfo minfo1 (minfo.isRe, minfo.isIm, dim[0], dim[1]);
 
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrix (minfo1);
+  oap::DeviceComplexMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrix (minfo1);
 
   oap::cuda::SetMatrix (output, dmatrix, 0, 0);
 }
@@ -812,7 +812,7 @@ floatt CuProceduresApi::stddv (const math::ComplexMatrix* matrix, floatt mean)
 
   auto minfo = oap::cuda::GetMatrixInfo (matrix);
 
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
+  oap::DeviceComplexMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (dmatrix, matrix);
 
   this->add (dmatrix.get (), dmatrix.get (), -mean);

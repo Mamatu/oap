@@ -236,8 +236,8 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
     network->setExpected (testHExpected, ArgType::HOST, testHandler);
     network->setExpected (trainingHExpected, ArgType::HOST, trainingHandler);
 
-    oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
-    oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+    oap::HostComplexMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
+    oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
     oap::nutils::iterateNetwork (*network, [&rg, &getMatrixInfo, &nga](oap::Layer& current, const oap::Layer& next)
     {

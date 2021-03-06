@@ -68,7 +68,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_1)
   size_t counts = oap::nutils::getElementsCount(vec);
   EXPECT_EQ(6, counts);
 
-  oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = hmatrix.get();
 
   oap::nutils::copyToInputs_oneMatrix (layer, vec, oap::host::CopyHostBufferToReMatrix);
@@ -93,7 +93,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_2)
   size_t counts = oap::nutils::getElementsCount(vec);
   EXPECT_EQ(12, counts);
 
-  oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = hmatrix.get();
 
   oap::nutils::copyToInputs_oneMatrix (layer, vec, oap::host::CopyHostBufferToReMatrix);
@@ -118,7 +118,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_3)
   size_t counts = oap::nutils::getElementsCount(vec);
   EXPECT_EQ(24, counts);
 
-  oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = hmatrix.get();
 
   oap::nutils::copyToInputs_oneMatrix (layer, vec, oap::host::CopyHostBufferToReMatrix);

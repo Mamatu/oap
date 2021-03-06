@@ -63,13 +63,13 @@ TEST_F(OapConvolutionTests, Test_0)
     1,
   };
 
-  oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
-  oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (1, 1, paramArray);
-  oap::HostMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (1, 1, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (1, 1, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (1, 1, kernelArray);
 
-  oap::DeviceMatrixUPtr doutcome = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (outcome);
-  oap::DeviceMatrixUPtr dparam = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (param);
-  oap::DeviceMatrixUPtr dkernel = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (kernel);
+  oap::DeviceComplexMatrixUPtr doutcome = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (outcome);
+  oap::DeviceComplexMatrixUPtr dparam = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (param);
+  oap::DeviceComplexMatrixUPtr dkernel = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (kernel);
 
   calcApi->convolve (doutcome, dparam, dkernel);
 
@@ -94,13 +94,13 @@ TEST_F(OapConvolutionTests, Test_1)
     0, 1
   };
 
-  oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
-  oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (2, 2, paramArray);
-  oap::HostMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (2, 2, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (2, 2, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (2, 2, kernelArray);
 
-  oap::DeviceMatrixUPtr doutcome = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (outcome);
-  oap::DeviceMatrixUPtr dparam = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (param);
-  oap::DeviceMatrixUPtr dkernel = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (kernel);
+  oap::DeviceComplexMatrixUPtr doutcome = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (outcome);
+  oap::DeviceComplexMatrixUPtr dparam = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (param);
+  oap::DeviceComplexMatrixUPtr dkernel = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (kernel);
 
   calcApi->convolve (doutcome, dparam, dkernel);
 
@@ -129,13 +129,13 @@ TEST_F(OapConvolutionTests, Test_2)
     1, 0, 1
   };
 
-  oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
-  oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);
-  oap::HostMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (3, 3, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (3, 3, kernelArray);
 
-  oap::DeviceMatrixUPtr doutcome = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (outcome);
-  oap::DeviceMatrixUPtr dparam = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (param);
-  oap::DeviceMatrixUPtr dkernel = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (kernel);
+  oap::DeviceComplexMatrixUPtr doutcome = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (outcome);
+  oap::DeviceComplexMatrixUPtr dparam = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (param);
+  oap::DeviceComplexMatrixUPtr dkernel = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (kernel);
 
   calcApi->convolve (doutcome, dparam, dkernel);
 

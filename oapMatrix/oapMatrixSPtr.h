@@ -30,9 +30,9 @@ namespace oap
 {
 namespace stdlib
 {
-  using MatrixSharedPtr = ::std::shared_ptr<math::ComplexMatrix>;
+  using ComplexMatrixSharedPtr = ::std::shared_ptr<math::ComplexMatrix>;
 
-  using MatricesSharedPtr = ::std::shared_ptr<math::ComplexMatrix*>;
+  using ComplexMatricesSharedPtr = ::std::shared_ptr<math::ComplexMatrix*>;
 
   using MatrixUniquePtr = ::std::unique_ptr<math::ComplexMatrix, deleters::MatrixDeleterWrapper>;
 
@@ -69,7 +69,7 @@ namespace stdlib
 
       void reset (Type* t, bool bDeallocate = true)
       {
-        reset::reset<stdlib::MatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr, bDeallocate, t);
+        reset::reset<stdlib::ComplexMatrixSharedPtr, stdlib::MatrixUniquePtr> (m_stdMatrixPtr, bDeallocate, t);
       }
 
       Type* get() const
@@ -133,14 +133,14 @@ namespace stdlib
       {
         using ArrayPtr = smartptr_utils::ArrayPtr<ArrayType>;
 
-        auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::ComplexMatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
 
         ArrayPtr array = smartptr_utils::makeArray<Container, ArrayType, Allocator> (matrices);
-        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array.ptr);
+        reset::reset<stdlib::ComplexMatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array.ptr);
 
         size_t newCount = array.count;
 
-        auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::ComplexMatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
         ndeleter.setCount (newCount);
       }
 
@@ -149,25 +149,25 @@ namespace stdlib
       {
         using ArrayPtr = smartptr_utils::ArrayPtr<ArrayType>;
 
-        auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::ComplexMatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
 
         ArrayPtr array = smartptr_utils::makeArray<Container, ArrayType>(matrices);
-        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array.ptr);
+        reset::reset<stdlib::ComplexMatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array.ptr);
 
         size_t newCount = array.count;
 
-        auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::ComplexMatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
         ndeleter.setCount (newCount);
       }
 
       void reset (ArrayType* t, size_t count)
       {
-        auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        auto& deleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::ComplexMatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
         ArrayType* array = smartptr_utils::makeArray<ArrayType> (t, count);
 
-        reset::reset<stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array);
+        reset::reset<stdlib::ComplexMatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr, deleter, array);
 
-        auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::MatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
+        auto& ndeleter = deleters::get_deleter<deleters::MatricesDeleter, stdlib::ComplexMatricesSharedPtr, stdlib::MatricesUniquePtr> (m_stdMatrixPtr);
         ndeleter.setCount (count);
       }
 
@@ -184,9 +184,9 @@ namespace stdlib
 namespace oap
 {
 
-using MatrixSharedPtr = MatrixSPtr<stdlib::MatrixSharedPtr>;
+using ComplexMatrixSharedPtr = MatrixSPtr<stdlib::ComplexMatrixSharedPtr>;
 
-using MatricesSharedPtr = MatricesSPtr<stdlib::MatricesSharedPtr>;
+using ComplexMatricesSharedPtr = MatricesSPtr<stdlib::ComplexMatricesSharedPtr>;
 
 using MatrixUniquePtr = MatrixSPtr<stdlib::MatrixUniquePtr>;
 

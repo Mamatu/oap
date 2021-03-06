@@ -154,8 +154,8 @@ void plotCoords2D /*= [&network, &houtput, &hinput]*/ (const std::string& path, 
   };
 
   std::vector<CoordXY> coords;
-  //oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
-  //oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+  //oap::HostComplexMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
+  //oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
   for (floatt x = std::get<0>(xRange); x < std::get<1>(xRange); x += std::get<2>(xRange))
   {

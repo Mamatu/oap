@@ -49,10 +49,10 @@ class OapRecToSquareApiTests : public testing::Test
 
   void checkSub (oap::RecToSquareApi& rtsApi, uintt index, uintt length, uintt expectedColumns, uintt expectedRows, floatt expectedValue)
   {
-    oap::DeviceMatrixPtr deviceSub = rtsApi.createDeviceSubMatrix (index, length);
+    oap::DeviceComplexMatrixPtr deviceSub = rtsApi.createDeviceSubMatrix (index, length);
     auto dinfo = oap::cuda::GetMatrixInfo (deviceSub);
 
-    oap::HostMatrixUPtr hostSub = oap::host::NewMatrix (dinfo);
+    oap::HostComplexMatrixUPtr hostSub = oap::host::NewMatrix (dinfo);
 
     EXPECT_EQ(expectedColumns, dinfo.columns ());
     EXPECT_EQ(expectedRows, dinfo.rows ());

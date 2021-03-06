@@ -41,9 +41,9 @@ void test (const std::vector<floatt>& revalues, const std::vector<floatt>& imval
 
   size_t length = columns * rows;
 
-  oap::HostMatrixUPtr dmatrix = nullptr;
-  oap::HostMatrixUPtr dmatrix1 = nullptr;
-  oap::HostMatrixUPtr hmatrix = nullptr;
+  oap::HostComplexMatrixUPtr dmatrix = nullptr;
+  oap::HostComplexMatrixUPtr dmatrix1 = nullptr;
+  oap::HostComplexMatrixUPtr hmatrix = nullptr;
 
   if (!revalues.empty() && !imvalues.empty())
   {

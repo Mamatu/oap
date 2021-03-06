@@ -311,7 +311,7 @@ void CuHArnoldi::initVvector_rand()
     values [idx] = values[idx] / length;
   }
 
-  oap::HostMatrixPtr matrixPtr = oap::host::NewMatrix (vinfo);
+  oap::HostComplexMatrixPtr matrixPtr = oap::host::NewMatrix (vinfo);
   oap::host::SetReValuesToMatrix (matrixPtr, values);
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_v, matrixPtr);
 

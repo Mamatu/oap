@@ -118,7 +118,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_1)
 
   for (uintt idx = 0; idx < outputs.size(); ++idx)
   {
-    oap::HostMatrixPtr matrix = oap::host::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
+    oap::HostComplexMatrixPtr matrix = oap::host::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
     EXPECT_THAT (matrix.get(), oap::cuda::MatrixIsEqualHK (outputs[idx]));
   }
 
@@ -191,7 +191,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_2)
 
   for (uintt idx = 0; idx < outputs.size(); ++idx)
   {
-    //oap::HostMatrixPtr matrix = oap::host::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
+    //oap::HostComplexMatrixPtr matrix = oap::host::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
     //EXPECT_THAT (matrix.get(), oap::cuda::MatrixIsEqualHK (outputs[idx]));
   }
 

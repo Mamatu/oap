@@ -51,8 +51,8 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_1)
   std::vector<math::ComplexMatrix*> outputs = {output};
   std::vector<math::ComplexMatrix*> params = {param};
 
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixWithValue (1, 1, 0.);
-  oap::HostMatrixUPtr param1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixWithValue (1, 1, 0.);
+  oap::HostComplexMatrixUPtr param1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
 
   hp.v2_sigmoid (outputs, params);
   hp.sigmoid (output1, param1);
@@ -76,8 +76,8 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_2)
   std::vector<math::ComplexMatrix*> outputs = {output, output1};
   std::vector<math::ComplexMatrix*> params = {param, param1};
 
-  oap::HostMatrixUPtr output_ = oap::host::NewReMatrixWithValue (1, 1, 0.);
-  oap::HostMatrixUPtr param_ = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr output_ = oap::host::NewReMatrixWithValue (1, 1, 0.);
+  oap::HostComplexMatrixUPtr param_ = oap::host::NewReMatrixWithValue (1, 1, 2.);
 
   hp.v2_sigmoid (outputs, params);
   hp.sigmoid (output_, param_);
@@ -101,8 +101,8 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_3)
   std::vector<math::ComplexMatrix*> outputs = {output, output1};
   std::vector<math::ComplexMatrix*> params = {param, param1};
 
-  oap::HostMatrixUPtr output_ = oap::host::NewReMatrixWithValue (4, 4, 0.);
-  oap::HostMatrixUPtr param_ = oap::host::NewReMatrixWithValue (4, 4, 2.);
+  oap::HostComplexMatrixUPtr output_ = oap::host::NewReMatrixWithValue (4, 4, 0.);
+  oap::HostComplexMatrixUPtr param_ = oap::host::NewReMatrixWithValue (4, 4, 2.);
 
   hp.v2_sigmoid (outputs, params);
   hp.sigmoid (output_, param_);
@@ -118,8 +118,8 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_4)
 {
   oap::HostProcedures hp;
 
-  oap::HostMatrixUPtr output = oap::host::NewReMatrixWithValue (1, 4, 0.);
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixWithValue (1, 4, 0.);
+  oap::HostComplexMatrixUPtr output = oap::host::NewReMatrixWithValue (1, 4, 0.);
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixWithValue (1, 4, 0.);
 
   math::ComplexMatrix* suboutput = oap::host::NewSharedSubMatrix ({0, 0}, {1, 3}, output);
   math::ComplexMatrix* suboutput1 = oap::host::NewSharedSubMatrix ({0, 0}, {1, 3}, output1);
@@ -128,8 +128,8 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_4)
   std::vector<math::ComplexMatrix*> outputs = {suboutput, suboutput1};
   std::vector<math::ComplexMatrix*> params = {param, param1};
 
-  oap::HostMatrixUPtr output_ = oap::host::NewReMatrixWithValue (1, 4, 0.);
-  oap::HostMatrixUPtr param_ = oap::host::NewReMatrixWithValue (1, 4, 2.);
+  oap::HostComplexMatrixUPtr output_ = oap::host::NewReMatrixWithValue (1, 4, 0.);
+  oap::HostComplexMatrixUPtr param_ = oap::host::NewReMatrixWithValue (1, 4, 2.);
 
   hp.v2_sigmoid (outputs, params);
   hp.sigmoid (output_, param_);

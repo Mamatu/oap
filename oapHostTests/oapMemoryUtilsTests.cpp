@@ -335,11 +335,11 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_16)
 {
   oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 0.);
 
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
 
-  oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
-  oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
+  oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
   std::vector<math::ComplexMatrix*> outputs = {output1, output2};
 

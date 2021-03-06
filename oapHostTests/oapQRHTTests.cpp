@@ -73,30 +73,30 @@ TEST_F(OapQRHTTests, Test_1)
     0.0000,    0.0000,    0.6280,    0.7782,
   };
 
-  oap::HostMatrixPtr Q = oap::host::NewReMatrix (4, 4);
-  oap::HostMatrixPtr R = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr Q = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr R = oap::host::NewReMatrix (4, 4);
 
-  oap::HostMatrixPtr expectedR = oap::host::NewReMatrixCopyOfArray (4, 4, r_expected);
-  oap::HostMatrixPtr expectedQ = oap::host::NewReMatrixCopyOfArray (4, 4, q_expected);
+  oap::HostComplexMatrixPtr expectedR = oap::host::NewReMatrixCopyOfArray (4, 4, r_expected);
+  oap::HostComplexMatrixPtr expectedQ = oap::host::NewReMatrixCopyOfArray (4, 4, q_expected);
 
-  oap::HostMatrixPtr A1 = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr A1 = oap::host::NewReMatrix (4, 4);
   hp.dotProduct (A1, expectedQ, expectedR);
 
-  oap::HostMatrixPtr A = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_init_m_unwanted);
+  oap::HostComplexMatrixPtr A = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_init_m_unwanted);
 
   PRINT_MATRIX(A.get());
 
   EXPECT_THAT (A1.get(), MatrixIsEqual(A.get(), 0.001)); 
 
-  oap::HostMatrixPtr V = oap::host::NewReMatrix (1, 4);
+  oap::HostComplexMatrixPtr V = oap::host::NewReMatrix (1, 4);
 
-  oap::HostMatrixPtr VT = oap::host::NewReMatrix (4, 1);
-  oap::HostMatrixPtr VVT = oap::host::NewReMatrix (4, 4);
-  oap::HostMatrixPtr P = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr VT = oap::host::NewReMatrix (4, 1);
+  oap::HostComplexMatrixPtr VVT = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr P = oap::host::NewReMatrix (4, 4);
 
   hp.QRHT (Q, R, A, V, VT, P, VVT);
 
-  oap::HostMatrixPtr A2 = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr A2 = oap::host::NewReMatrix (4, 4);
   hp.dotProduct (A2, Q, R);
   EXPECT_THAT (A2.get(), MatrixIsEqual(A.get(), 0.001)); 
 
@@ -135,20 +135,20 @@ TEST_F(OapQRHTTests, Test_2)
     0, 0, -6
   };
 
-  oap::HostMatrixPtr Q = oap::host::NewReMatrix (3, 3);
-  oap::HostMatrixPtr R = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr Q = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr R = oap::host::NewReMatrix (3, 3);
 
-  oap::HostMatrixPtr expectedQ = oap::host::NewReMatrixCopyOfArray (3, 3, q_expected);
-  oap::HostMatrixPtr expectedR = oap::host::NewReMatrixCopyOfArray (3, 3, r_expected);
+  oap::HostComplexMatrixPtr expectedQ = oap::host::NewReMatrixCopyOfArray (3, 3, q_expected);
+  oap::HostComplexMatrixPtr expectedR = oap::host::NewReMatrixCopyOfArray (3, 3, r_expected);
 
-  oap::HostMatrixPtr A = oap::host::NewReMatrixCopyOfArray (3, 3, h_init);
+  oap::HostComplexMatrixPtr A = oap::host::NewReMatrixCopyOfArray (3, 3, h_init);
 
-  oap::HostMatrixPtr V = oap::host::NewReMatrix (1, 3);
+  oap::HostComplexMatrixPtr V = oap::host::NewReMatrix (1, 3);
   PRINT_MATRIX(V.get());
 
-  oap::HostMatrixPtr VT = oap::host::NewReMatrix (3, 1);
-  oap::HostMatrixPtr VVT = oap::host::NewReMatrix (3, 3);
-  oap::HostMatrixPtr P = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr VT = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr VVT = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr P = oap::host::NewReMatrix (3, 3);
 
   PRINT_MATRIX(A.get());
   hp.QRHT (Q, R, A, V, VT, P, VVT);

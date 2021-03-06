@@ -119,11 +119,11 @@ class ArnoldiOperations {
       debugAssert("Invalid eigenvectors type.");
     }
 
-    oap::HostMatrixUPtr refMatrix = oap::host::NewMatrix(matrix, gColumns (matrix), partSize);
+    oap::HostComplexMatrixUPtr refMatrix = oap::host::NewMatrix(matrix, gColumns (matrix), partSize);
 
     oap::host::CopyMatrix(refMatrix, matrix);
 
-    oap::DeviceMatrixUPtr drefMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(refMatrix);
+    oap::DeviceComplexMatrixUPtr drefMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(refMatrix);
 
     math::MatrixInfo info = oap::host::GetMatrixInfo(refMatrix);
 
@@ -132,12 +132,12 @@ class ArnoldiOperations {
 
     matrixrows = partSize;
 
-    oap::DeviceMatrixUPtr matrix1 = oap::cuda::NewDeviceReMatrix(matrixrows, matrixcolumns);
+    oap::DeviceComplexMatrixUPtr matrix1 = oap::cuda::NewDeviceReMatrix(matrixrows, matrixcolumns);
 
-    oap::DeviceMatrixUPtr leftMatrix = oap::cuda::NewDeviceReMatrix(matrixrows, matrixrows);
-    oap::DeviceMatrixUPtr rightMatrix = oap::cuda::NewDeviceReMatrix(matrixrows, matrixrows);
+    oap::DeviceComplexMatrixUPtr leftMatrix = oap::cuda::NewDeviceReMatrix(matrixrows, matrixrows);
+    oap::DeviceComplexMatrixUPtr rightMatrix = oap::cuda::NewDeviceReMatrix(matrixrows, matrixrows);
 
-    oap::DeviceMatrixUPtr vectorT = oap::cuda::NewDeviceReMatrix(vectorrows, 1);
+    oap::DeviceComplexMatrixUPtr vectorT = oap::cuda::NewDeviceReMatrix(vectorrows, 1);
 
     cuProceduresApi.transpose(matrix1, drefMatrix);
     cuProceduresApi.transpose(vectorT, dvector);
@@ -148,8 +148,8 @@ class ArnoldiOperations {
     cuProceduresApi.dotProduct(rightMatrix, dvector, vectorT);
     bool compareResult = cuProceduresApi.compare(leftMatrix, rightMatrix);
 
-    oap::HostMatrixUPtr hleftMatrix = oap::host::NewReMatrix(oap::cuda::GetColumns(leftMatrix), oap::cuda::GetRows(leftMatrix));
-    oap::HostMatrixUPtr hrightMatrix = oap::host::NewReMatrix(oap::cuda::GetColumns(rightMatrix), oap::cuda::GetRows(rightMatrix));
+    oap::HostComplexMatrixUPtr hleftMatrix = oap::host::NewReMatrix(oap::cuda::GetColumns(leftMatrix), oap::cuda::GetRows(leftMatrix));
+    oap::HostComplexMatrixUPtr hrightMatrix = oap::host::NewReMatrix(oap::cuda::GetColumns(rightMatrix), oap::cuda::GetRows(rightMatrix));
 
     oap::cuda::CopyDeviceMatrixToHostMatrix(hrightMatrix, rightMatrix);
     oap::cuda::CopyDeviceMatrixToHostMatrix(hleftMatrix, leftMatrix);

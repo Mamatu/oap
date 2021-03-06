@@ -41,9 +41,9 @@ void test (const std::vector<floatt>& revalues, const std::vector<floatt>& imval
 
   size_t length = columns * rows;
 
-  oap::DeviceMatrixUPtr dmatrix = nullptr;
-  oap::DeviceMatrixUPtr dmatrix1 = nullptr;
-  oap::HostMatrixUPtr hmatrix = nullptr;
+  oap::DeviceComplexMatrixUPtr dmatrix = nullptr;
+  oap::DeviceComplexMatrixUPtr dmatrix1 = nullptr;
+  oap::HostComplexMatrixUPtr hmatrix = nullptr;
 
   floatt nan = std::numeric_limits<floatt>::quiet_NaN();
   std::vector<floatt> nanvalues (columns * rows, nan);

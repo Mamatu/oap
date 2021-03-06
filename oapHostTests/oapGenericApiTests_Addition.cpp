@@ -50,11 +50,11 @@ TEST_F(OapGenericApiTests_Addition, Test_1)
   oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 1}, 0.);
 
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
 
-  oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
 
-  oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
+  oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
   
   std::vector<math::ComplexMatrix*> outputs = {output1};
   hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1}), std::vector<math::ComplexMatrix*>({matrix2}));
@@ -82,14 +82,14 @@ TEST_F(OapGenericApiTests_Addition, Test_2)
   memory3.ptr[0] = 1;
   memory3.ptr[1] = 2;
 
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory1, {0, 0});
-  oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory1, {1, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory1, {0, 0});
+  oap::HostComplexMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory1, {1, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {0, 0});
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {1, 0});
+  oap::HostComplexMatrixUPtr matrix11 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {0, 0});
+  oap::HostComplexMatrixUPtr matrix12 = oap::host::NewReMatrixFromMemory (1, 1, memory2, {1, 0});
 
-  oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixFromMemory (1, 1, memory3, {0, 0});
-  oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (1, 1, memory3, {1, 0});
+  oap::HostComplexMatrixUPtr matrix21 = oap::host::NewReMatrixFromMemory (1, 1, memory3, {0, 0});
+  oap::HostComplexMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (1, 1, memory3, {1, 0});
 
   std::vector<math::ComplexMatrix*> outputs = {output1, output2};
   hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix11, matrix12}), std::vector<math::ComplexMatrix*>({matrix21, matrix22}));
@@ -123,13 +123,13 @@ TEST_F(OapGenericApiTests_Addition, Test_3)
   oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 0.);
 
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (1, 1, 2.);
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (1, 1, 1.);
+  oap::HostComplexMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
-  oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
+  oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
   std::vector<math::ComplexMatrix*> outputs = {output1, output2};
   hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix11, matrix12}), std::vector<math::ComplexMatrix*>({matrix2, matrix2}));
@@ -160,14 +160,14 @@ TEST_F(OapGenericApiTests_Addition, Test_4)
   oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({4, 1}, 1.);
 
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (1, 1, 2.);
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (1, 1, 1.);
+  oap::HostComplexMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
-  oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixFromMemory (1, 1, memory, {2, 0});
-  oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (1, 1, memory, {3, 0});
+  oap::HostComplexMatrixUPtr matrix21 = oap::host::NewReMatrixFromMemory (1, 1, memory, {2, 0});
+  oap::HostComplexMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (1, 1, memory, {3, 0});
 
   std::vector<math::ComplexMatrix*> outputs = {output1, output2};
   hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix11, matrix12}), std::vector<math::ComplexMatrix*>({matrix21, matrix22}));
@@ -198,14 +198,14 @@ TEST_F(OapGenericApiTests_Addition, Test_5)
   oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({10, 10}, 0.);
 
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (3, 3, memory, {0, 0});
-  oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (3, 3, memory, {4, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (3, 3, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (3, 3, memory, {4, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (3, 3, 2.);
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (3, 3, 1.);
+  oap::HostComplexMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (3, 3, 2.);
+  oap::HostComplexMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (3, 3, 1.);
 
-  oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixWithValue (3, 3, 2.);
-  oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (3, 3, 1.);
+  oap::HostComplexMatrixUPtr matrix21 = oap::host::NewReMatrixWithValue (3, 3, 2.);
+  oap::HostComplexMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (3, 3, 1.);
 
   std::vector<math::ComplexMatrix*> outputs = {output1, output2};
   hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix11, matrix12}), std::vector<math::ComplexMatrix*>({matrix21, matrix22}));
@@ -254,14 +254,14 @@ TEST_F(OapGenericApiTests_Addition, Test_6)
   memory1.ptr[14] = 3.;
   memory1.ptr[15] = 3.;
 
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (3, 3, memory, {0, 0});
-  oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (2, 2, memory, {4, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (3, 3, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (2, 2, memory, {4, 0});
 
-  oap::HostMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (3, 3, 2.);
-  oap::HostMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (2, 2, 1.);
+  oap::HostComplexMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (3, 3, 2.);
+  oap::HostComplexMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (2, 2, 1.);
 
-  oap::HostMatrixUPtr matrix21 = oap::host::NewReMatrixFromMemory (3, 3, memory1, {0, 0});
-  oap::HostMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (2, 2, memory1, {4, 0});
+  oap::HostComplexMatrixUPtr matrix21 = oap::host::NewReMatrixFromMemory (3, 3, memory1, {0, 0});
+  oap::HostComplexMatrixUPtr matrix22 = oap::host::NewReMatrixFromMemory (2, 2, memory1, {4, 0});
 
   std::vector<math::ComplexMatrix*> outputs = {output1, output2};
   hp.v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix11, matrix12}), std::vector<math::ComplexMatrix*>({matrix21, matrix22}));
