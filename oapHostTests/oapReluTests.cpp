@@ -25,7 +25,7 @@
 
 #include "oapHostMatrixUtils.h"
 
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 #include "oapFuncTests.h"
 
 using namespace ::testing;

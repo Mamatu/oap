@@ -20,8 +20,8 @@
 #include <gtest/gtest.h>
 #include <iterator>
 
-#include "oapHostMatrixPtr.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 #include "oapHostLayer.h"
 #include "oapGenericNeuralUtils.h"
 

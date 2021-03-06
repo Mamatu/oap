@@ -26,8 +26,8 @@
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
 
-#include "oapHostMatrixUPtr.h"
-#include "oapDeviceMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
 
 #include "RecToSquareApi.h"
 

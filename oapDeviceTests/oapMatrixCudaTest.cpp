@@ -26,10 +26,10 @@
 #include "oapCudaMatrixUtils.h"
 #include "KernelExecutor.h"
 
-#include "oapHostMatrixPtr.h"
-#include "oapHostMatrixUPtr.h"
-#include "oapDeviceMatrixPtr.h"
-#include "oapDeviceMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
 #include "oapCudaMemoryApi.h"
 #include "oapHostMemoryApi.h"
 

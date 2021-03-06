@@ -22,7 +22,7 @@
 #include <math.h>
 #include "gtest/gtest.h"
 #include "oapHostMatrixUtils.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 #include "oapHostMemoryApi.h"
 #include "oapThreadsMapperApi.h"
 

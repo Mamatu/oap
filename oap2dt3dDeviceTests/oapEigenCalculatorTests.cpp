@@ -28,8 +28,8 @@
 #include "ArnoldiProceduresImpl.h"
 #include "oapCudaMatrixUtils.h"
 #include "CuProceduresApi.h"
-#include "oapDeviceMatrixUPtr.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 #include <memory>
 

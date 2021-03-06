@@ -28,9 +28,9 @@
 #include "CuProceduresApi.h"
 #include "MultiMatricesCuProcedures.h"
 
-#include "oapHostMatrixPtr.h"
-#include "oapHostMatrixUPtr.h"
-#include "oapDeviceMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
 
 #include "oapNetwork.h"
 

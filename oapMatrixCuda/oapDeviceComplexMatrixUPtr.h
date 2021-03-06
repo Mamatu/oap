@@ -30,7 +30,7 @@ namespace oap {
   /**
    * @brief Unique pointer for cuda matrix type
    *
-   * Examples of use: oapDeviceTests/oapDeviceMatrixUPtrTests.cpp
+   * Examples of use: oapDeviceTests/oapDeviceComplexMatrixUPtrTests.cpp
    */
   class DeviceMatrixUPtr : public oap::MatrixUniquePtr {
     public:
@@ -46,7 +46,7 @@ namespace oap {
    * This class creates its own matrices array which contains copied pointers.
    * If array was allocated dynamically must be deallocated.
    *
-   * Examples of use: oapDeviceTests/oapDeviceMatrixUPtrTests.cpp
+   * Examples of use: oapDeviceTests/oapDeviceComplexMatrixUPtrTests.cpp
    */
   class DeviceMatricesUPtr : public oap::MatricesUniquePtr {
     public:

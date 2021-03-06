@@ -23,7 +23,7 @@
 #include "DeviceImagesLoader.h"
 #include "KernelExecutor.h"
 #include "oapCudaMatrixUtils.h"
-#include "oapDeviceMatrixUPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
 
 #include "PngFile.h"
 #include "CuProceduresApi.h"

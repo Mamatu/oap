@@ -27,7 +27,7 @@
 #include "oapGenericAllocApi.h"
 
 #include "oapHostMatrixUtils.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 #include "oapProcedures.h"
 
 #include "oapNetworkGenericApi.h"

@@ -35,8 +35,8 @@
 #include "MatchersUtils.h"
 #include "MathOperationsCpu.h"
 
-#include "oapDeviceMatrixPtr.h"
-#include "oapHostMatrixPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 #include "CMatrixDataCollector.h"
 #include "InfoType.h"

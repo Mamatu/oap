@@ -29,7 +29,7 @@
 #include "oapGenericMatrixApi.h"
 #include "oapCudaMemoryApi.h"
 
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 #include "GenericCoreApi.h"
 
 #include "MatricesList.h"

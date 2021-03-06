@@ -22,7 +22,7 @@
 
 #include "HostProcedures.h"
 #include "MatchersUtils.h"
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 class OapQRHTTests : public testing::Test {
  public:

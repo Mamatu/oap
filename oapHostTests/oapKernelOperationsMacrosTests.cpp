@@ -22,7 +22,7 @@
 #include "MatrixInfo.h"
 #include "MatrixAPI.h"
 #include "GenericProceduresApi.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 class OapKernelOperationsMacrosTests : public testing::Test {
  public:
