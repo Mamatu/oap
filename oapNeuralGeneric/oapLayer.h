@@ -44,7 +44,7 @@ class Layer
   }
 
   public:
-    using Matrices = std::vector<math::Matrix*>;
+    using Matrices = std::vector<math::ComplexMatrix*>;
 
     Layer (uintt neuronsCount, uintt biasesCount, uintt samplesCount, Activation activation);
     virtual ~Layer();
@@ -100,18 +100,18 @@ class Layer
     virtual math::MatrixInfo getOutputsInfo () const = 0;
     virtual math::MatrixInfo getInputsInfo () const = 0;
 
-    virtual void getOutputs (math::Matrix* matrix, ArgType type) const = 0;
-    virtual void getHostWeights (math::Matrix* output) = 0;
+    virtual void getOutputs (math::ComplexMatrix* matrix, ArgType type) const = 0;
+    virtual void getHostWeights (math::ComplexMatrix* output) = 0;
 
-    virtual void setHostInputs (const math::Matrix* hInputs) = 0;
-    virtual void setDeviceInputs (const math::Matrix* dInputs) = 0;
+    virtual void setHostInputs (const math::ComplexMatrix* hInputs) = 0;
+    virtual void setDeviceInputs (const math::ComplexMatrix* dInputs) = 0;
 
     virtual math::MatrixInfo getWeightsInfo () const = 0;
 
     virtual void printHostWeights (bool newLine) const = 0;
 
-    virtual void setHostWeights (math::Matrix* weights) = 0;
-    virtual void setDeviceWeights (math::Matrix* weights) = 0;
+    virtual void setHostWeights (math::ComplexMatrix* weights) = 0;
+    virtual void setDeviceWeights (math::ComplexMatrix* weights) = 0;
 
     Matrices& getSums() { return m_sums; }
     Matrices& getSumsWB() { return m_sums_wb; }

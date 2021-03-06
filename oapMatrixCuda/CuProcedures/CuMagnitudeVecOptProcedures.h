@@ -27,7 +27,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_magnitudeOptRealVec(floatt* sum, math::Matrix* matrix1,
+__hostdevice__ void CUDA_magnitudeOptRealVec(floatt* sum, math::ComplexMatrix* matrix1,
     uintt column, floatt* buffer)
 {
   HOST_INIT();
@@ -51,7 +51,7 @@ __hostdevice__ void CUDA_magnitudeOptRealVec(floatt* sum, math::Matrix* matrix1,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_magnitudeOptReVec(floatt* sum, math::Matrix* matrix1,
+__hostdevice__ void CUDA_magnitudeOptReVec(floatt* sum, math::ComplexMatrix* matrix1,
     uintt column, floatt* buffer)
 {
   HOST_INIT();
@@ -75,7 +75,7 @@ __hostdevice__ void CUDA_magnitudeOptReVec(floatt* sum, math::Matrix* matrix1,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_magnitudeOptImVec(floatt* sum, math::Matrix* matrix1,
+__hostdevice__ void CUDA_magnitudeOptImVec(floatt* sum, math::ComplexMatrix* matrix1,
     uintt column, floatt* buffer)
 {
   HOST_INIT();
@@ -99,12 +99,12 @@ __hostdevice__ void CUDA_magnitudeOptImVec(floatt* sum, math::Matrix* matrix1,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_magnitudeOptVec(floatt* sum, math::Matrix* matrix1,
+__hostdevice__ void CUDA_magnitudeOptVec(floatt* sum, math::ComplexMatrix* matrix1,
     uintt column, floatt* buffer)
 {
   HOST_INIT();
-  bool isre = matrix1->re.ptr != NULL;
-  bool isim = matrix1->im.ptr != NULL;
+  bool isre = matrix1->re.mem.ptr != NULL;
+  bool isim = matrix1->im.mem.ptr != NULL;
   if (isre && isim)
   {
     CUDA_magnitudeOptRealVec(sum, matrix1, column, buffer);
@@ -122,7 +122,7 @@ __hostdevice__ void CUDA_magnitudeOptVec(floatt* sum, math::Matrix* matrix1,
 /*********************************************************************************************/
 
 __hostdevice__ void CUDA_magnitudeOptRealVecEx(floatt* sum,
-    math::Matrix* matrix1,
+    math::ComplexMatrix* matrix1,
     uintt column, uintt row1,
     uintt row2, floatt* buffer)
 {
@@ -147,7 +147,7 @@ __hostdevice__ void CUDA_magnitudeOptRealVecEx(floatt* sum,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_magnitudeOptReVecEx(floatt* sum, math::Matrix* matrix1,
+__hostdevice__ void CUDA_magnitudeOptReVecEx(floatt* sum, math::ComplexMatrix* matrix1,
     uintt column, uintt row1,
     uintt row2, floatt* buffer)
 {
@@ -172,7 +172,7 @@ __hostdevice__ void CUDA_magnitudeOptReVecEx(floatt* sum, math::Matrix* matrix1,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_magnitudeOptImVecEx(floatt* sum, math::Matrix* matrix1,
+__hostdevice__ void CUDA_magnitudeOptImVecEx(floatt* sum, math::ComplexMatrix* matrix1,
     uintt column, uintt row1,
     uintt row2, floatt* buffer)
 {
@@ -226,13 +226,13 @@ __hostdevice__ void CUDA_getSgn(floatt* output, floatt x)
   }
 }
 
-__hostdevice__ void CUDA_magnitudeOptVecEx(floatt* sum, math::Matrix* matrix1,
+__hostdevice__ void CUDA_magnitudeOptVecEx(floatt* sum, math::ComplexMatrix* matrix1,
     uintt column, uintt row1, uintt row2,
     floatt* buffer)
 {
   HOST_INIT();
-  bool isre = matrix1->re.ptr != NULL;
-  bool isim = matrix1->im.ptr != NULL;
+  bool isre = matrix1->re.mem.ptr != NULL;
+  bool isim = matrix1->im.mem.ptr != NULL;
   if (isre && isim)
   {
     CUDA_magnitudeOptRealVecEx(sum, matrix1, column, row1, row2, buffer);

@@ -28,16 +28,16 @@
 class EigenPair {
   private:
     Complex m_evalue;
-    const math::Matrix* m_matrix;
+    const math::ComplexMatrix* m_matrix;
     uint m_index;
   public:
 
-    EigenPair (floatt revalue, const math::Matrix* matrix = nullptr, uint index = 0) :
+    EigenPair (floatt revalue, const math::ComplexMatrix* matrix = nullptr, uint index = 0) :
       m_evalue(revalue), m_matrix(matrix), m_index(index)
     {
     }
 
-    EigenPair(const Complex& evalue, const math::Matrix* matrix, uint index = 0) :
+    EigenPair(const Complex& evalue, const math::ComplexMatrix* matrix, uint index = 0) :
       m_evalue(evalue), m_matrix(matrix), m_index(index)
     {}
 
@@ -50,7 +50,7 @@ class EigenPair {
     floatt re() const { return m_evalue.re; }
     floatt im() const { return m_evalue.im; }
 
-    const math::Matrix* getMatrix() const { return m_matrix; }
+    const math::ComplexMatrix* getMatrix() const { return m_matrix; }
 
     uint getIndex() const { return  m_index; }
 };

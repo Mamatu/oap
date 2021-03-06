@@ -29,7 +29,7 @@
 #include "../CuCreateProcedures.h"
 #include "../CuDotProductSpecificProcedures.h"
 
-__hostdevice__ void cuda_GenericApi_transposeRe (math::Matrix** outputs, math::Matrix* const* params0, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_transposeRe (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params0, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -39,8 +39,8 @@ __hostdevice__ void cuda_GenericApi_transposeRe (math::Matrix** outputs, math::M
  
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param1 = params0[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param1 = params0[oidxs[0]];
    
     const uintt columns1 = GetColumns (param1);
     const uintt offset = columns1;
@@ -48,14 +48,14 @@ __hostdevice__ void cuda_GenericApi_transposeRe (math::Matrix** outputs, math::M
     const uintt x = oidxs[1];
     const uintt y = oidxs[2];
   
-    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, y, x);
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re.mem, param1->re.reg, y, x);
   
-    output->re.ptr[index] = param1->re.ptr[idx1];
+    output->re.mem.ptr[index] = param1->re.mem.ptr[idx1];
   }
 }
 
-__hostdevice__ void cuda_GenericApi_transposeIm (math::Matrix** outputs, math::Matrix* const* params0, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_transposeIm (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params0, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -65,8 +65,8 @@ __hostdevice__ void cuda_GenericApi_transposeIm (math::Matrix** outputs, math::M
  
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param1 = params0[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param1 = params0[oidxs[0]];
    
     const uintt columns1 = GetColumns (param1);
     const uintt offset = columns1;
@@ -74,14 +74,14 @@ __hostdevice__ void cuda_GenericApi_transposeIm (math::Matrix** outputs, math::M
     const uintt x = oidxs[1];
     const uintt y = oidxs[2];
   
-    uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
-    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, y, x);
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
+    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im.mem, param1->im.reg, y, x);
   
-    output->re.ptr[index] = param1->re.ptr[idx1];
+    output->re.mem.ptr[index] = param1->re.mem.ptr[idx1];
   }
 }
 
-__hostdevice__ void cuda_GenericApi_transposeReal (math::Matrix** outputs, math::Matrix* const* params0, oap::ThreadsMapperS* mapper)
+__hostdevice__ void cuda_GenericApi_transposeReal (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params0, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -91,8 +91,8 @@ __hostdevice__ void cuda_GenericApi_transposeReal (math::Matrix** outputs, math:
  
   if (inrange)
   {
-    math::Matrix* output = outputs[oidxs[0]];
-    math::Matrix* param1 = params0[oidxs[0]];
+    math::ComplexMatrix* output = outputs[oidxs[0]];
+    math::ComplexMatrix* param1 = params0[oidxs[0]];
    
     const uintt columns1 = GetColumns (param1);
     const uintt offset = columns1;
@@ -101,21 +101,21 @@ __hostdevice__ void cuda_GenericApi_transposeReal (math::Matrix** outputs, math:
     const uintt y = oidxs[2];
   
     {
-    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re, output->reReg, x, y);
-    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re, param1->reReg, y, x);
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->re.mem, output->re.reg, x, y);
+    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->re.mem, param1->re.reg, y, x);
   
-    output->re.ptr[index] = param1->re.ptr[idx1];
+    output->re.mem.ptr[index] = param1->re.mem.ptr[idx1];
     }
     {
-    uintt index = oap::common::GetMemIdxFromMatrixPos (output->im, output->imReg, x, y);
-    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im, param1->imReg, y, x);
+    uintt index = oap::common::GetMemIdxFromMatrixPos (output->im.mem, output->im.reg, x, y);
+    uintt idx1 = oap::common::GetMemIdxFromMatrixPos (param1->im.mem, param1->im.reg, y, x);
   
-    output->re.ptr[index] = param1->re.ptr[idx1];
+    output->re.mem.ptr[index] = param1->re.mem.ptr[idx1];
     }
   }
 }
 
-__hostdevice__ void CUDA_GenericApi_transposeRe (math::Matrix** output, math::Matrix* const* params0, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_transposeRe (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
  
@@ -123,7 +123,7 @@ __hostdevice__ void CUDA_GenericApi_transposeRe (math::Matrix** output, math::Ma
   threads_sync();
 }
 
-__hostdevice__ void CUDA_GenericApi_transposeIm (math::Matrix** output, math::Matrix* const* params0, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_transposeIm (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
  
@@ -131,7 +131,7 @@ __hostdevice__ void CUDA_GenericApi_transposeIm (math::Matrix** output, math::Ma
   threads_sync();
 }
 
-__hostdevice__ void CUDA_GenericApi_transposeReal (math::Matrix** output, math::Matrix* const* params0, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_transposeReal (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
  
@@ -139,13 +139,13 @@ __hostdevice__ void CUDA_GenericApi_transposeReal (math::Matrix** output, math::
   threads_sync();
 }
 
-__hostdevice__ void CUDA_GenericApi_Transpose (math::Matrix** output, math::Matrix* const* params0, oap::ThreadsMapperS* mapper)
+__hostdevice__ void CUDA_GenericApi_Transpose (math::ComplexMatrix** output, math::ComplexMatrix* const* params0, oap::ThreadsMapperS* mapper)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
  
-  bool isRe = output[0]->re.ptr != NULL;
-  bool isIm = output[0]->im.ptr != NULL;
+  bool isRe = output[0]->re.mem.ptr != NULL;
+  bool isIm = output[0]->im.mem.ptr != NULL;
  
   if (isRe && isIm)
   {

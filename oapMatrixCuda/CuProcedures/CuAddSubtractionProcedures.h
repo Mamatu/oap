@@ -24,9 +24,9 @@
 #include "Matrix.h"
 #include "MatrixAPI.h"
 
-__hostdeviceinline__ void cuda_addSubstractReMatrices(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   math::Matrix* params1) {
+__hostdeviceinline__ void cuda_addSubstractReMatrices(math::ComplexMatrix* output,
+                                                   math::ComplexMatrix* params0,
+                                                   math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -35,9 +35,9 @@ __hostdeviceinline__ void cuda_addSubstractReMatrices(math::Matrix* output,
   *GetRePtrIndex (output, index) += GetReIndex (params0, index) - GetReIndex (params1, index);
 }
 
-__hostdeviceinline__ void cuda_addSubstractImMatrices(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   math::Matrix* params1) {
+__hostdeviceinline__ void cuda_addSubstractImMatrices(math::ComplexMatrix* output,
+                                                   math::ComplexMatrix* params0,
+                                                   math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -46,9 +46,9 @@ __hostdeviceinline__ void cuda_addSubstractImMatrices(math::Matrix* output,
   *GetImPtrIndex (output, index) += GetImIndex (params0, index) - GetImIndex (params1, index);
 }
 
-__hostdeviceinline__ void cuda_addSubstractRealMatrices(math::Matrix* output,
-                                                     math::Matrix* params0,
-                                                     math::Matrix* params1) {
+__hostdeviceinline__ void cuda_addSubstractRealMatrices(math::ComplexMatrix* output,
+                                                     math::ComplexMatrix* params0,
+                                                     math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -63,41 +63,41 @@ __hostdeviceinline__ void cuda_addSubstractRealMatrices(math::Matrix* output,
   }
 }
 
-__hostdeviceinline__ void CUDA_addSubstractReMatrices(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_addSubstractReMatrices(math::ComplexMatrix* output,
+                                                   math::ComplexMatrix* params0,
+                                                   math::ComplexMatrix* params1) {
   HOST_INIT();
 
   CUDA_addSubstractReMatrices(output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_addSubstractImMatrices(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_addSubstractImMatrices(math::ComplexMatrix* output,
+                                                   math::ComplexMatrix* params0,
+                                                   math::ComplexMatrix* params1) {
   HOST_INIT();
 
   cuda_addSubstractImMatrices(output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_addSubstractRealMatrices(math::Matrix* output,
-                                                     math::Matrix* params0,
-                                                     math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_addSubstractRealMatrices(math::ComplexMatrix* output,
+                                                     math::ComplexMatrix* params0,
+                                                     math::ComplexMatrix* params1) {
   HOST_INIT();
 
   cuda_addSubstractRealMatrices(output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_addSubstractMatrices(math::Matrix* output,
-                                                 math::Matrix* params0,
-                                                 math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_addSubstractMatrices(math::ComplexMatrix* output,
+                                                 math::ComplexMatrix* params0,
+                                                 math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
   bool isInRange =
       threadIndexX < gColumns (output) && threadIndexY < gRows (output);
   if (isre && isim && isInRange) {

@@ -25,8 +25,8 @@
 #include "MatrixAPI.h"
 #include "Logger.h"
 
-__hostdevice__ void CUDAKernel_setVector (math::Matrix* V, uintt column,
-                                          math::Matrix* v, uintt length)
+__hostdevice__ void CUDAKernel_setVector (math::ComplexMatrix* V, uintt column,
+                                          math::ComplexMatrix* v, uintt length)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -35,11 +35,11 @@ __hostdevice__ void CUDAKernel_setVector (math::Matrix* V, uintt column,
   {
     uintt index1 = threadIndexY * gColumns (V) + column + threadIndexX;
     uintt index2 = threadIndexY * gColumns (v) + threadIndexX;
-    if (V->re.ptr != NULL && v->re.ptr != NULL)
+    if (V->re.mem.ptr != NULL && v->re.mem.ptr != NULL)
     {
       *GetRePtrIndex (V, index1) = GetReIndex (v, index2);
     }
-    if (V->im.ptr != NULL && v->im.ptr != NULL)
+    if (V->im.mem.ptr != NULL && v->im.mem.ptr != NULL)
     {
       *GetImPtrIndex (V, index1) = GetImIndex (v, index2);
     }
@@ -47,8 +47,8 @@ __hostdevice__ void CUDAKernel_setVector (math::Matrix* V, uintt column,
   threads_sync();
 }
 
-__hostdevice__ void CUDAKernel_getVector (math::Matrix* v, uintt length,
-                                          math::Matrix* V, uintt column)
+__hostdevice__ void CUDAKernel_getVector (math::ComplexMatrix* v, uintt length,
+                                          math::ComplexMatrix* V, uintt column)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -57,11 +57,11 @@ __hostdevice__ void CUDAKernel_getVector (math::Matrix* v, uintt length,
   {
     uintt index1 = threadIndexY * gColumns (V) + column + threadIndexX;
     uintt index2 = threadIndexY * gColumns (v) + threadIndexX;
-    if (V->re.ptr != NULL && v->re.ptr != NULL)
+    if (V->re.mem.ptr != NULL && v->re.mem.ptr != NULL)
     {
       *GetRePtrIndex (v, index2) = GetReIndex (V, index1);
     }
-    if (V->im.ptr != NULL && v->im.ptr != NULL)
+    if (V->im.mem.ptr != NULL && v->im.mem.ptr != NULL)
     {
       *GetImPtrIndex (v, index2) = GetImIndex (V, index1);
     }
@@ -69,8 +69,8 @@ __hostdevice__ void CUDAKernel_getVector (math::Matrix* v, uintt length,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_setVector (math::Matrix* V, uintt column,
-                                    math::Matrix* v, uintt length)
+__hostdevice__ void CUDA_setVector (math::ComplexMatrix* V, uintt column,
+                                    math::ComplexMatrix* v, uintt length)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -79,11 +79,11 @@ __hostdevice__ void CUDA_setVector (math::Matrix* V, uintt column,
   {
     uintt index1 = threadIndexY * gColumns (V) + threadIndexX;
     uintt index2 = threadIndexY * gColumns (v) + (threadIndexX - column);
-    if (V->re.ptr != NULL && v->re.ptr != NULL)
+    if (V->re.mem.ptr != NULL && v->re.mem.ptr != NULL)
     {
       *GetRePtrIndex (V, index1) = GetReIndex (v, index2);
     }
-    if (V->im.ptr != NULL && v->im.ptr != NULL)
+    if (V->im.mem.ptr != NULL && v->im.mem.ptr != NULL)
     {
       *GetImPtrIndex (V, index1) = GetImIndex (v, index2);
     }
@@ -91,8 +91,8 @@ __hostdevice__ void CUDA_setVector (math::Matrix* V, uintt column,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_getVector (math::Matrix* v, uintt length,
-                                    math::Matrix* V, uintt column)
+__hostdevice__ void CUDA_getVector (math::ComplexMatrix* v, uintt length,
+                                    math::ComplexMatrix* V, uintt column)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -107,11 +107,11 @@ __hostdevice__ void CUDA_getVector (math::Matrix* v, uintt length,
     debugAssert (index2 < gColumns (v) * gRows (v));
 #endif
 
-    if (V->re.ptr != NULL && v->re.ptr != NULL)
+    if (V->re.mem.ptr != NULL && v->re.mem.ptr != NULL)
     {
       *GetRePtrIndex (v, index2) = GetReIndex (V, index1);
     }
-    if (V->im.ptr != NULL && v->im.ptr != NULL)
+    if (V->im.mem.ptr != NULL && v->im.mem.ptr != NULL)
     {
       *GetImPtrIndex (v, index2) = GetImIndex (V, index1);
     }

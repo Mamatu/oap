@@ -69,7 +69,7 @@ namespace test_api
   };
 
   template<typename Conversion>
-  void checkWeights (const std::vector<Conversion>& conversions, const math::Matrix* weights, const std::vector<size_t>& idxsToCheck,
+  void checkWeights (const std::vector<Conversion>& conversions, const math::ComplexMatrix* weights, const std::vector<size_t>& idxsToCheck,
                     const CheckWeightsInfo& cwInfo,
                     CheckCallback&& callback = std::move(defaultCheck))
   {
@@ -83,12 +83,12 @@ namespace test_api
     }
   }
 
-  void checkWeights (const std::vector<floatt>& conversions, const math::Matrix* weights, const std::vector<size_t>& idxsToCheck,
+  void checkWeights (const std::vector<floatt>& conversions, const math::ComplexMatrix* weights, const std::vector<size_t>& idxsToCheck,
                     const CheckWeightsInfo& cwInfo,
                     CheckCallback&& callback = std::move(defaultCheck));
 
   template<typename Conversion, typename Callback = decltype(defaultCheck)>
-  void checkWeights (const std::vector<Conversion>& conversions, const math::Matrix* weights,
+  void checkWeights (const std::vector<Conversion>& conversions, const math::ComplexMatrix* weights,
                     CheckCallback&& callback = std::move(defaultCheck))
   {
     for (size_t idx = 0; idx < conversions.size(); ++idx)

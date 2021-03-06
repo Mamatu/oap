@@ -36,11 +36,11 @@
 namespace oap
 {
 
-//#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "Matrix is nullptr.");
+//#define CHECK_MATRIX(m) throwExceptionMsg (m != NULL, "ComplexMatrix is nullptr.");
 
 class SubtractionImpl : public HostKernel {
  public:
-  SubtractionImpl(math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+  SubtractionImpl(math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2)
       : m_output(output), m_param1(param1), m_param2(param2) {}
 
   virtual ~SubtractionImpl() {}
@@ -54,15 +54,15 @@ class SubtractionImpl : public HostKernel {
                         const dim3& threadIdx, const dim3& blockIdx) {}
 
  private:
-  math::Matrix* m_output;
-  math::Matrix* m_param1;
-  math::Matrix* m_param2;
+  math::ComplexMatrix* m_output;
+  math::ComplexMatrix* m_param1;
+  math::ComplexMatrix* m_param2;
 };
 
 class DotProductImpl : public HostKernel {
  public:
-  DotProductImpl(math::Matrix* output, math::Matrix* param1,
-                 math::Matrix* param2)
+  DotProductImpl(math::ComplexMatrix* output, math::ComplexMatrix* param1,
+                 math::ComplexMatrix* param2)
       : m_output(output), m_param1(param1), m_param2(param2) {}
 
   virtual ~DotProductImpl() {}
@@ -76,14 +76,14 @@ class DotProductImpl : public HostKernel {
                         const dim3& threadIdx, const dim3& blockIdx) {}
 
  private:
-  math::Matrix* m_output;
-  math::Matrix* m_param1;
-  math::Matrix* m_param2;
+  math::ComplexMatrix* m_output;
+  math::ComplexMatrix* m_param1;
+  math::ComplexMatrix* m_param2;
 };
 
 class CompareImpl : public HostKernel {
  public:
-  CompareImpl(math::Matrix* param1, math::Matrix* param2)
+  CompareImpl(math::ComplexMatrix* param1, math::ComplexMatrix* param2)
       : m_param1(param1), m_param2(param2), m_buffer(NULL), m_sums(NULL) {}
 
   virtual ~CompareImpl() {
@@ -126,8 +126,8 @@ class CompareImpl : public HostKernel {
   }
 
  private:
-  math::Matrix* m_param1;
-  math::Matrix* m_param2;
+  math::ComplexMatrix* m_param1;
+  math::ComplexMatrix* m_param2;
   floatt* m_buffer;
   floatt* m_sums;
   size_t m_bufferLength;
@@ -136,7 +136,7 @@ class CompareImpl : public HostKernel {
 
 class TransposeImpl : public HostKernel {
  public:
-  TransposeImpl(math::Matrix* output, math::Matrix* param)
+  TransposeImpl(math::ComplexMatrix* output, math::ComplexMatrix* param)
       : m_output(output), m_param(param) {}
 
   virtual ~TransposeImpl() {}
@@ -152,11 +152,11 @@ class TransposeImpl : public HostKernel {
   virtual void onSetDims(const dim3& gridDim, const dim3& blockDim) {}
 
  private:
-  math::Matrix* m_output;
-  math::Matrix* m_param;
+  math::ComplexMatrix* m_output;
+  math::ComplexMatrix* m_param;
 };
 
-void HostProcedures::prepare (math::Matrix* matrix, HostKernel& hostKernel)
+void HostProcedures::prepare (math::ComplexMatrix* matrix, HostKernel& hostKernel)
 {
   const uint columns = gColumns (matrix);
   const uint rows = gRows (matrix);
@@ -187,7 +187,7 @@ void HostProcedures::setMaxThreadsPerBlock (uintt threadsPerBlock)
   m_maxThreadsPerBlock = threadsPerBlock;
 }
 
-bool HostProcedures::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
+bool HostProcedures::compare(math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2) {
   if (gColumns (matrix1) != gColumns (matrix2) || gRows (matrix1) != gRows (matrix2)) {
     return false;
   }
@@ -198,352 +198,352 @@ bool HostProcedures::compare(math::Matrix* matrix1, math::Matrix* matrix2) {
   return sums == gRows (matrix1) * gColumns (matrix1);
 }
 
-bool HostProcedures::isEqual(math::Matrix* matrix1, math::Matrix* matrix2) {
+bool HostProcedures::isEqual(math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2) {
   return compare(matrix1, matrix2);
 }
 
-void HostProcedures::subtract(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+void HostProcedures::subtract(math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2)
 {
   SubtractionImpl subtractionImpl(output, matrix1, matrix2);
   prepare(output, subtractionImpl);
   subtractionImpl.executeKernelAsync();
 }
 
-void HostProcedures::dotProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+void HostProcedures::dotProduct (math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2)
 {
   oap::generic::dotProduct (output, matrix1, matrix2, &m_kernel, m_bmApi, [](){});
 }
 
-void HostProcedures::dotProductShared (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+void HostProcedures::dotProductShared (math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2)
 {
   oap::generic::dotProductShared (output, matrix1, matrix2, &m_kernel, m_bmApi, [](){});
 }
 
-void HostProcedures::dotProductPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2)
+void HostProcedures::dotProductPeriodic (math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2)
 {
   oap::generic::dotProductPeriodic (output, matrix1, matrix2, &m_kernel, m_bmApi, [](){},
                   m_createKernelArray);
 }
 
-void HostProcedures::dotProductDimPeriodic (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, oap::generic::Dim32 dim, uintt periodicRows)
+void HostProcedures::dotProductDimPeriodic (math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2, oap::generic::Dim32 dim, uintt periodicRows)
 {
   oap::generic::dotProductDimPeriodic (output, matrix1, matrix2, dim, periodicRows, &m_kernel, m_bmApi, [](){}, m_createKernelArray);
 }
 
-void HostProcedures::dotProduct(math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, oap::generic::Dim32 dim)
+void HostProcedures::dotProduct(math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2, oap::generic::Dim32 dim)
 {
   oap::generic::dotProduct (output, matrix1, matrix2, dim, &m_kernel, m_bmApi, [](){}, m_createKernelArray);
 }
 
-void HostProcedures::transpose(math::Matrix* output, math::Matrix* matrix) {
+void HostProcedures::transpose(math::ComplexMatrix* output, math::ComplexMatrix* matrix) {
   TransposeImpl transposeImpl(output, matrix);
   prepare(output, transposeImpl);
   transposeImpl.executeKernelAsync();
 }
 
-void HostProcedures::tanh(math::Matrix* output, math::Matrix* matrix)
+void HostProcedures::tanh(math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
 
   oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, bapi, true, [](){});
 }
 
-void HostProcedures::sigmoid (math::Matrix* output, math::Matrix* matrix)
+void HostProcedures::sigmoid (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_Sigmoid", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix)
+void HostProcedures::linear (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   oap::host::CopyHostMatrixToHostMatrix (output, matrix);
 }
 
-void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix)
+void HostProcedures::sin (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_Sin", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::prelu (math::Matrix* output, math::Matrix* matrix)
+void HostProcedures::prelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_PRelu", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::relu (math::Matrix* output, math::Matrix* matrix)
+void HostProcedures::relu (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_Relu", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::softplus (math::Matrix* output, math::Matrix* matrix)
+void HostProcedures::softplus (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_Softplus", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::dprelu (math::Matrix* output, math::Matrix* matrix)
+void HostProcedures::dprelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_DPRelu", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::drelu (math::Matrix* output, math::Matrix* matrix)
+void HostProcedures::drelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_DRelu", output, matrix, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::dprelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::dprelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_DPReluDim", output, matrix, dim);
 }
 
-void HostProcedures::drelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::drelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_DReluDim", output, matrix, dim);
 }
 
-void HostProcedures::dprelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::dprelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_DPReluDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::drelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::drelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_DReluDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::_funcDim (const std::string& kname, math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::_funcDim (const std::string& kname, math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   oap::generic::executeKernel1Arg (kname, output, matrix, dim, &m_kernel, m_bmApi, true, [](){},
                                   m_createKernelArray);
 }
 
-void HostProcedures::tanh(math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::tanh(math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_TanhDim", output, matrix, dim);
 }
 
-void HostProcedures::sigmoid (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::sigmoid (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_SigmoidDim", output, matrix, dim);
 }
 
-void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::linear (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   debugAssert ("Not supported yet" == nullptr);
 }
 
-void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::sin (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_SinDim", output, matrix, dim);
 }
 
-void HostProcedures::prelu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::prelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_PReluDim", output, matrix, dim);
 }
 
-void HostProcedures::relu (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::relu (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_ReluDim", output, matrix, dim);
 }
 
-void HostProcedures::softplus (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim2 dim)
+void HostProcedures::softplus (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_SoftplusDim", output, matrix, dim);
 }
 
-void HostProcedures::_funcDimPeriodic (const std::string& kname, math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::_funcDimPeriodic (const std::string& kname, math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   oap::generic::funcDimPeriodic (kname, output, matrix, dim, &m_kernel, m_bmApi, [](){},
                                   m_createKernelArray);
 }
 
-void HostProcedures::tanh (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::tanh (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_TanhDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::sigmoid (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::sigmoid (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_SigmoidDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::linear (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::linear (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   debugAssert ("Not supported yet" == nullptr);
   //_funcDimPeriodic ("CUDAKernel_LinearDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::sin (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::sin (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_SinDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::prelu(math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::prelu(math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_PReluDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::relu(math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::relu(math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_ReluDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::softplus (math::Matrix* output, math::Matrix* matrix, oap::generic::Dim22 dim)
+void HostProcedures::softplus (math::ComplexMatrix* output, math::ComplexMatrix* matrix, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_SoftplusDimPeriodic", output, matrix, dim);
 }
 
-void HostProcedures::crossEntropy (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+void HostProcedures::crossEntropy (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
 
   oap::generic::crossEntropy (output, params0, params1, &m_kernel, bapi);
 }
 
-void HostProcedures::tensorProduct (math::Matrix* output, math::Matrix* matrix1, math::Matrix* matrix2, oap::generic::Dim32 dim)
+void HostProcedures::tensorProduct (math::ComplexMatrix* output, math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2, oap::generic::Dim32 dim)
 {
   oap::generic::tensorProduct (output, matrix1, matrix2, dim, &m_kernel, m_bmApi, [](){}, m_createKernelArray);
 }
 
-void HostProcedures::QRHT (math::Matrix* Q, math::Matrix* R, math::Matrix* A, math::Matrix* V, math::Matrix* VT, math::Matrix* P, math::Matrix* VVT)
+void HostProcedures::QRHT (math::ComplexMatrix* Q, math::ComplexMatrix* R, math::ComplexMatrix* A, math::ComplexMatrix* V, math::ComplexMatrix* VT, math::ComplexMatrix* P, math::ComplexMatrix* VVT)
 {
   oap::generic::qrDecomposition_HT (Q, R, A, V, VT, P, VVT, &m_kernel, *this, oap::host::GetMatrixInfo, [](){});
 }
 
-void HostProcedures::setIdentity (math::Matrix* matrix)
+void HostProcedures::setIdentity (math::ComplexMatrix* matrix)
 {
   oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
 
-void HostProcedures::setVector (math::Matrix* V, uintt column, math::Matrix* v, uintt length)
+void HostProcedures::setVector (math::ComplexMatrix* V, uintt column, math::ComplexMatrix* v, uintt length)
 {
   oap::generic::setVector (V, column, v, length, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
 
-void HostProcedures::getVector (math::Matrix* vector, uintt length, math::Matrix* matrix, uintt column)
+void HostProcedures::getVector (math::ComplexMatrix* vector, uintt length, math::ComplexMatrix* matrix, uintt column)
 {
   oap::generic::getVector (vector, length, matrix, column, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
 
-void HostProcedures::getVector (math::Matrix* vector, math::Matrix* matrix, uintt column)
+void HostProcedures::getVector (math::ComplexMatrix* vector, math::ComplexMatrix* matrix, uintt column)
 {
   oap::generic::getVector (vector, matrix, column, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
 
-void HostProcedures::convolve (math::Matrix* output, const math::Matrix* param, const math::Matrix* kernel)
+void HostProcedures::convolve (math::ComplexMatrix* output, const math::ComplexMatrix* param, const math::ComplexMatrix* kernel)
 {
   oap::generic::convolve (output, param, kernel, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
 
-void HostProcedures::poolAverage (math::Matrix* output, const math::Matrix* matrix, const math::MatrixDim& kernel)
+void HostProcedures::poolAverage (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, const math::MatrixDim& kernel)
 {
   oap::generic::poolAverage (output, matrix, kernel, &m_kernel, oap::host::GetMatrixInfo, [](){}, m_createKernelArray);
 }
 
-void HostProcedures::dsigmoid (math::Matrix* output, math::Matrix* input)
+void HostProcedures::dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_DRelu", output, input, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::dlinear (math::Matrix* output, math::Matrix* input)
+void HostProcedures::dlinear (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_DLinear", output, input, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::dtanh (math::Matrix* output, math::Matrix* input)
+void HostProcedures::dtanh (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_DTanh", output, input, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::dsin (math::Matrix* output, math::Matrix* input)
+void HostProcedures::dsin (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_DSin", output, input, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::dsoftplus (math::Matrix* output, math::Matrix* input)
+void HostProcedures::dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix* input)
 {
   oap::generic::executeKernel1Arg ("CUDAKernel_DSoftplus", output, input, &m_kernel, m_bmApi, true, [](){});
 }
 
-void HostProcedures::dsigmoid (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+void HostProcedures::dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_DSigmoid", output, input, dim);
 }
 
-void HostProcedures::dlinear (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+void HostProcedures::dlinear (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_DLinear", output, input, dim);
 }
 
-void HostProcedures::dtanh (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+void HostProcedures::dtanh (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_DTanh", output, input, dim);
 }
 
-void HostProcedures::dsin (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+void HostProcedures::dsin (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_DSin", output, input, dim);
 }
 
-void HostProcedures::dsoftplus (math::Matrix* output, math::Matrix* input, oap::generic::Dim2 dim)
+void HostProcedures::dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim2 dim)
 {
   _funcDim ("CUDAKernel_DSoftplus", output, input, dim);
 }
 
-void HostProcedures::dsigmoid (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+void HostProcedures::dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_DSigmoid", output, input, dim);
 }
 
-void HostProcedures::dlinear (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+void HostProcedures::dlinear (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_DLinear", output, input, dim);
 }
 
-void HostProcedures::dtanh (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+void HostProcedures::dtanh (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_DTanh", output, input, dim);
 }
 
-void HostProcedures::dsin (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+void HostProcedures::dsin (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_DSin", output, input, dim);
 }
 
-void HostProcedures::dsoftplus (math::Matrix* output, math::Matrix* input, oap::generic::Dim22 dim)
+void HostProcedures::dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix* input, oap::generic::Dim22 dim)
 {
   _funcDimPeriodic ("CUDAKernel_DSoftplus", output, input, dim);
 }
 
-void HostProcedures::hadamardProductVec (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+void HostProcedures::hadamardProductVec (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2)
 {
   oap::generic::hadamardProductVec (output, param1, param2, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
 
-void HostProcedures::add (math::Matrix* output, math::Matrix* param1, math::Matrix* param2)
+void HostProcedures::add (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2)
 {
   oap::generic::add (output, param1, param2, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
 
-void HostProcedures::multiplyReConstant (math::Matrix* output, math::Matrix* param1, floatt re)
+void HostProcedures::multiplyReConstant (math::ComplexMatrix* output, math::ComplexMatrix* param1, floatt re)
 {
   oap::generic::multiplyReConst (output, param1, re, &m_kernel, oap::host::GetMatrixInfo, [](){});
 }
 
-/*void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::Matrix* params0)
+/*void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::ComplexMatrix* params0)
 {
   oap::host::HostBuffer<floatt> m_hsumsReBuffer;
   oap::host::HostBuffer<floatt> m_dsumsReBuffer;
   oap::host::HostBuffer<floatt> m_hsumsImBuffer;
   oap::host::HostBuffer<floatt> m_dsumsImBuffer;
 
-  using GetAddressType = std::function<floatt*(const math::Matrix*)>;
+  using GetAddressType = std::function<floatt*(const math::ComplexMatrix*)>;
   using GetAddressTypeRef = GetAddressType&;
 
-  GetAddressType getReValues = [](const math::Matrix* matrix) -> floatt*
+  GetAddressType getReValues = [](const math::ComplexMatrix* matrix) -> floatt*
   {
     return gReValues (matrix);
   };
 
-  GetAddressType getImValues = [](const math::Matrix* matrix) -> floatt*
+  GetAddressType getImValues = [](const math::ComplexMatrix* matrix) -> floatt*
   {
     return gImValues (matrix);
   };
@@ -557,13 +557,13 @@ void HostProcedures::multiplyReConstant (math::Matrix* output, math::Matrix* par
   oap::generic::sum (reoutput, imoutput, params0, &m_kernel, sumApi, sumBuffers);
 }*/
 
-void HostProcedures::sum (floatt& reoutput, floatt& imoutput, const math::Matrix* param)
+void HostProcedures::sum (floatt& reoutput, floatt& imoutput, const math::ComplexMatrix* param)
 {
   //m_cuStatus = 
   oap::generic::sum (reoutput, imoutput, param, &m_kernel, oap::host::GetMatrixInfo, oap::host::GetRefHostMatrix, memcpy, m_hsumsReBuffer, m_hsumsImBuffer, m_dsumsReBuffer, m_dsumsImBuffer);
 }
 
-void HostProcedures::setZeroMatrix (math::Matrix* param)
+void HostProcedures::setZeroMatrix (math::ComplexMatrix* param)
 {
   oap::host::SetZeroMatrix (param);
 }

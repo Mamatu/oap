@@ -29,17 +29,17 @@ namespace oap
 NetworkCudaApi::~NetworkCudaApi()
 {}
 
-void NetworkCudaApi::setReValue (math::Matrix* matrix, uintt c, uintt r, floatt v)
+void NetworkCudaApi::setReValue (math::ComplexMatrix* matrix, uintt c, uintt r, floatt v)
 {
   oap::cuda::SetReValue (matrix, c, r, v);
 }
 
-void NetworkCudaApi::setHostWeights (Layer& layer, math::Matrix* weights)
+void NetworkCudaApi::setHostWeights (Layer& layer, math::ComplexMatrix* weights)
 {
   oap::device::setHostWeights (layer, weights);
 }
 
-math::MatrixInfo NetworkCudaApi::getMatrixInfo (const math::Matrix* matrix) const
+math::MatrixInfo NetworkCudaApi::getMatrixInfo (const math::ComplexMatrix* matrix) const
 {
   return oap::cuda::GetMatrixInfo (matrix);
 }
@@ -74,37 +74,37 @@ Layer* NetworkCudaApi::createLayer (uintt neurons, bool hasBias, uintt samplesCo
   return new oap::DeviceLayer (neurons, hasBias ? 1 : 0, samplesCount, activation);
 }
 
-void NetworkCudaApi::copyKernelMatrixToKernelMatrix (math::Matrix* dst, const math::Matrix* src)
+void NetworkCudaApi::copyKernelMatrixToKernelMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src)
 {
   oap::cuda::CopyDeviceMatrixToDeviceMatrix (dst, src);
 }
 
-void NetworkCudaApi::copyKernelMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
+void NetworkCudaApi::copyKernelMatrixToHostMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src)
 {
   oap::cuda::CopyDeviceMatrixToHostMatrix (dst, src);
 }
 
-void NetworkCudaApi::copyHostMatrixToKernelMatrix (math::Matrix* dst, const math::Matrix* src)
+void NetworkCudaApi::copyHostMatrixToKernelMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src)
 {
   oap::cuda::CopyHostMatrixToDeviceMatrix (dst, src);
 }
 
-void NetworkCudaApi::deleteKernelMatrix (const math::Matrix* matrix)
+void NetworkCudaApi::deleteKernelMatrix (const math::ComplexMatrix* matrix)
 {
   oap::cuda::DeleteDeviceMatrix (matrix);
 }
 
-math::Matrix* NetworkCudaApi::newKernelReMatrix (uintt columns, uintt rows)
+math::ComplexMatrix* NetworkCudaApi::newKernelReMatrix (uintt columns, uintt rows)
 {
   return oap::cuda::NewDeviceReMatrix (columns, rows);
 }
 
-math::Matrix* NetworkCudaApi::newKernelMatrixHostRef (const math::Matrix* matrix)
+math::ComplexMatrix* NetworkCudaApi::newKernelMatrixHostRef (const math::ComplexMatrix* matrix)
 {
   return oap::cuda::NewDeviceMatrixHostRef (matrix);
 }
 
-math::Matrix* NetworkCudaApi::newKernelMatrixKernelRef (const math::Matrix* matrix)
+math::ComplexMatrix* NetworkCudaApi::newKernelMatrixKernelRef (const math::ComplexMatrix* matrix)
 {
   return oap::cuda::NewDeviceMatrixDeviceRef (matrix);
 }
@@ -114,7 +114,7 @@ void NetworkCudaApi::connectLayers (oap::Layer* previous, oap::Layer* layer)
   oap::generic::connectLayers<Layer, oap::alloc::cuda::AllocWeightsApi>(previous, layer);
 }
 */
-math::Matrix* NetworkCudaApi::newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::Matrix* matrix)
+math::ComplexMatrix* NetworkCudaApi::newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)
 {
   return oap::cuda::NewDeviceSharedSubMatrix (mdim, matrix);
 }
@@ -124,7 +124,7 @@ oap::Memory NetworkCudaApi::newKernelMemory (const oap::MemoryDim& dim)
   return oap::cuda::NewMemory (dim); 
 }
 
-math::Matrix* NetworkCudaApi::newKernelMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+math::ComplexMatrix* NetworkCudaApi::newKernelMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
 {
   return oap::cuda::NewDeviceMatrixFromMatrixInfo (minfo);
 }

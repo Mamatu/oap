@@ -57,7 +57,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
       class MultiplyFunc {
        public:
-        static void multiply (math::Matrix* w, math::Matrix* v, oap::CuProceduresApi& cuProceduresApi,
+        static void multiply (math::ComplexMatrix* w, math::ComplexMatrix* v, oap::CuProceduresApi& cuProceduresApi,
                               void* userData, oap::VecMultiplicationType mt)
         {
           if (mt == oap::VecMultiplicationType::TYPE_WV) {
@@ -100,12 +100,12 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     }
 
     void triangularityTest(const std::string& matrixStr) {
-      math::Matrix* matrix = oap::host::NewMatrix(matrixStr);
+      math::ComplexMatrix* matrix = oap::host::NewMatrix(matrixStr);
       triangularityTest(matrix);
       oap::host::DeleteMatrix(matrix);
     }
 
-    void triangularityTest(const math::Matrix* matrix) {
+    void triangularityTest(const math::ComplexMatrix* matrix) {
       floatt limit = 0.001;
       for (int fa = 0; fa < gColumns (matrix) - 1; ++fa) {
         floatt value = GetRe (matrix, fa + 1, fa);
@@ -123,13 +123,13 @@ TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
   oap::ACTestData data("data/data1");
   data.load();
 
-  bool isre = data.refW->re.ptr != NULL;
-  bool isim = data.refW->im.ptr != NULL;
+  bool isre = data.refW->re.mem.ptr != NULL;
+  bool isim = data.refW->im.mem.ptr != NULL;
 
   uintt columns = gColumns (data.refW);
   uintt rows = gRows (data.refW);
 
-  math::Matrix* dmatrix = oap::cuda::NewDeviceMatrix(isre, isim, columns, rows);
+  math::ComplexMatrix* dmatrix = oap::cuda::NewDeviceMatrix(isre, isim, columns, rows);
 
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, data.refW);
 

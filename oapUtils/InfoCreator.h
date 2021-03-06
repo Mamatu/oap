@@ -25,12 +25,12 @@
 
 class InfoCreator;
 
-typedef std::pair<floatt, uintt> (InfoCreator::*ICMethod)(math::Matrix*) const;
+typedef std::pair<floatt, uintt> (InfoCreator::*ICMethod)(math::ComplexMatrix*) const;
 
 class InfoCreator {
  private:
-  math::Matrix* m_expected;
-  math::Matrix* m_output;
+  math::ComplexMatrix* m_expected;
+  math::ComplexMatrix* m_output;
 
   std::string m_info;
   InfoType m_infoType;
@@ -39,8 +39,8 @@ class InfoCreator {
   InfoCreator();
   virtual ~InfoCreator();
 
-  void setExpected(math::Matrix* expected);
-  void setOutput(math::Matrix* output);
+  void setExpected(math::ComplexMatrix* expected);
+  void setOutput(math::ComplexMatrix* output);
 
   void setInfoType(const InfoType& infoType);
   void getInfo(std::string& output) const;
@@ -52,54 +52,54 @@ class InfoCreator {
     ComplexInternal(bool isValid);
   };
 
-  virtual math::Matrix* getExpectedMatrix() const;
-  virtual math::Matrix* getOutputMatrix() const;
+  virtual math::ComplexMatrix* getExpectedMatrix() const;
+  virtual math::ComplexMatrix* getOutputMatrix() const;
 
   virtual void onSetInfoTypeCallback(const InfoType& infoType);
-  virtual void onSetExpectedCallback(math::Matrix* expected);
-  virtual void onSetOutputCallback(math::Matrix* output);
+  virtual void onSetExpectedCallback(math::ComplexMatrix* expected);
+  virtual void onSetOutputCallback(math::ComplexMatrix* output);
 
-  virtual void getString(std::string& output, math::Matrix* matrix) const = 0;
+  virtual void getString(std::string& output, math::ComplexMatrix* matrix) const = 0;
 
-  virtual void getMean(floatt& re, floatt& im, math::Matrix* matrix) const = 0;
+  virtual void getMean(floatt& re, floatt& im, math::ComplexMatrix* matrix) const = 0;
 
-  virtual bool compare(math::Matrix* matrix1, math::Matrix* matrix2,
-                       floatt tolerance, math::Matrix** diffMatrix) const = 0;
+  virtual bool compare(math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+                       floatt tolerance, math::ComplexMatrix** diffMatrix) const = 0;
 
-  virtual bool compareValues(math::Matrix* matrix1, math::Matrix* matrix2,
-                             floatt tolerance, math::Matrix** diffMatrix) const = 0;
+  virtual bool compareValues(math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+                             floatt tolerance, math::ComplexMatrix** diffMatrix) const = 0;
 
-  virtual void destroyMatrix(math::Matrix* diffMatrix) const = 0;
+  virtual void destroyMatrix(math::ComplexMatrix* diffMatrix) const = 0;
 
-  virtual bool isRe(math::Matrix* matrix) const = 0;
+  virtual bool isRe(math::ComplexMatrix* matrix) const = 0;
 
-  virtual bool isIm(math::Matrix* matrix) const = 0;
+  virtual bool isIm(math::ComplexMatrix* matrix) const = 0;
   virtual std::pair<floatt, uintt> getLargestReValue(
-      math::Matrix* matrix) const = 0;
+      math::ComplexMatrix* matrix) const = 0;
   virtual std::pair<floatt, uintt> getLargestImValue(
-      math::Matrix* matrix) const = 0;
+      math::ComplexMatrix* matrix) const = 0;
 
   virtual std::pair<floatt, uintt> getSmallestReValue(
-      math::Matrix* matrix) const = 0;
+      math::ComplexMatrix* matrix) const = 0;
   virtual std::pair<floatt, uintt> getSmallestImValue(
-      math::Matrix* matrix) const = 0;
+      math::ComplexMatrix* matrix) const = 0;
 
  private:
   void getSLInfo(std::string& outputStr, const std::string& label,
                  ICMethod methodre, ICMethod methodim,
-                 math::Matrix* diffmatrix) const;
+                 math::ComplexMatrix* diffmatrix) const;
 
   void createInfo(std::string& output, const InfoType& infoType,
-                  math::Matrix* diffmatrix) const;
+                  math::ComplexMatrix* diffmatrix) const;
 
  public:
   void printMatrix(std::string& output, const std::string& message,
-                   math::Matrix* matrix) const;
+                   math::ComplexMatrix* matrix) const;
 
-  bool printMeans(std::string& output, math::Matrix* diffmatrix) const;
+  bool printMeans(std::string& output, math::ComplexMatrix* diffmatrix) const;
 
   void printMean(std::string& output, const std::string& message,
-                 math::Matrix* matrix) const;
+                 math::ComplexMatrix* matrix) const;
 
   bool isEqual(floatt tolerance);
   bool hasValues(floatt tolerance);

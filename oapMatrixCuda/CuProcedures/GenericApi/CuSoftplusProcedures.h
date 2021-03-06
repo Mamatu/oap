@@ -39,17 +39,17 @@ __hostdeviceinline__ void cuda_genericApi_multiplyDSoftplusFunc (floatt* output,
   (*output) =  (*output) / (1. + expf (-value));
 }
 
-__hostdeviceinline__ void cuda_genericApi_softplus (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_softplus (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_genericApi_softplusFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_dsoftplus (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_dsoftplus (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_genericApi_dsoftplusFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_multiplyDSoftplus (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_multiplyDSoftplus (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_genericApi_multiplyDSoftplusFunc, mapper);
 }

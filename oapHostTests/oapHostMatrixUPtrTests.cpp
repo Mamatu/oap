@@ -44,7 +44,7 @@ TEST_F(OapHostMatrixUPtrTests, MemLeakUPtrTest)
 
 TEST_F(OapHostMatrixUPtrTests, MemLeakUPtrsTest)
 {
-  std::vector<math::Matrix*> vec = {
+  std::vector<math::ComplexMatrix*> vec = {
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10)
@@ -63,16 +63,16 @@ TEST_F(OapHostMatrixUPtrTests, ResetUPtrTest)
 TEST_F(OapHostMatrixUPtrTests, NotDeallocationTest)
 {
   {
-    math::Matrix* rptr = oap::host::NewReMatrix (10, 10);
+    math::ComplexMatrix* rptr = oap::host::NewReMatrix (10, 10);
     {
       oap::HostMatrixUPtr ptr (rptr, false); // it will be not deallocated
     }
     oap::host::DeleteMatrix (rptr);
   }
   {
-    math::Matrix* rptr = oap::host::NewReMatrix (10, 10);
+    math::ComplexMatrix* rptr = oap::host::NewReMatrix (10, 10);
     {
-      math::Matrix* rptr1 = oap::host::NewMatrix (10, 10);
+      math::ComplexMatrix* rptr1 = oap::host::NewMatrix (10, 10);
 
       oap::HostMatrixUPtr ptr (rptr, false); // it will be not deallocated
 
@@ -81,11 +81,11 @@ TEST_F(OapHostMatrixUPtrTests, NotDeallocationTest)
     oap::host::DeleteMatrix (rptr);
   }
   {
-    math::Matrix* rptr = oap::host::NewReMatrix (10, 10);
-    math::Matrix* rptr2 = oap::host::NewImMatrix (100, 100);
-    math::Matrix* rptr3 = oap::host::NewMatrix (100, 101);
+    math::ComplexMatrix* rptr = oap::host::NewReMatrix (10, 10);
+    math::ComplexMatrix* rptr2 = oap::host::NewImMatrix (100, 100);
+    math::ComplexMatrix* rptr3 = oap::host::NewMatrix (100, 101);
     {
-      math::Matrix* rptr1 = oap::host::NewMatrix (100, 10);
+      math::ComplexMatrix* rptr1 = oap::host::NewMatrix (100, 10);
 
       oap::HostMatrixUPtr ptr (rptr, false); // it will be not deallocated
 
@@ -100,30 +100,30 @@ TEST_F(OapHostMatrixUPtrTests, NotDeallocationTest)
 
 TEST_F(OapHostMatrixUPtrTests, ResetUPtrsTest)
 {
-  std::vector<math::Matrix*> vec = {
+  std::vector<math::ComplexMatrix*> vec = {
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10)
   };
 
-  std::vector<math::Matrix*> vec1 = {
+  std::vector<math::ComplexMatrix*> vec1 = {
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10)
   };
 
-  std::initializer_list<math::Matrix*> list = {
+  std::initializer_list<math::ComplexMatrix*> list = {
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10)
   };
 
-  math::Matrix** array = new math::Matrix*[2]; 
+  math::ComplexMatrix** array = new math::ComplexMatrix*[2]; 
   array[0] = oap::host::NewReMatrix(10, 125);
   array[1] = oap::host::NewReMatrix(10, 13);
 
-  math::Matrix* array1[3] =
+  math::ComplexMatrix* array1[3] =
   {
     oap::host::NewReMatrix(10, 125),
     oap::host::NewImMatrix (10, 13),
@@ -142,7 +142,7 @@ TEST_F(OapHostMatrixUPtrTests, ResetUPtrsTest)
 TEST_F(OapHostMatrixUPtrTests, InitializationUPtrsTest)
 {
   {
-    std::vector<math::Matrix*> vec = {
+    std::vector<math::ComplexMatrix*> vec = {
       oap::host::NewReMatrix(10, 10),
       oap::host::NewReMatrix(10, 10),
       oap::host::NewReMatrix(10, 10)
@@ -157,7 +157,7 @@ TEST_F(OapHostMatrixUPtrTests, InitializationUPtrsTest)
   }
 
   {
-    std::vector<math::Matrix*> vec = {
+    std::vector<math::ComplexMatrix*> vec = {
       oap::host::NewReMatrix(10, 13),
       oap::host::NewReMatrix(10, 14),
       oap::host::NewReMatrix(10, 15)
@@ -172,7 +172,7 @@ TEST_F(OapHostMatrixUPtrTests, InitializationUPtrsTest)
   }
 
   {
-    std::list<math::Matrix*> list = {
+    std::list<math::ComplexMatrix*> list = {
       oap::host::NewReMatrix(10, 10),
       oap::host::NewReMatrix(10, 10),
       oap::host::NewReMatrix(10, 10),
@@ -190,7 +190,7 @@ TEST_F(OapHostMatrixUPtrTests, InitializationUPtrsTest)
   }
 
   {
-    math::Matrix** array =  new math::Matrix*[2];
+    math::ComplexMatrix** array =  new math::ComplexMatrix*[2];
     array[0] = oap::host::NewReMatrix(10, 125);
     array[1] = oap::host::NewImMatrix (10, 13);
 
@@ -203,7 +203,7 @@ TEST_F(OapHostMatrixUPtrTests, InitializationUPtrsTest)
   }
 
   {
-    math::Matrix** array =  new math::Matrix*[2];
+    math::ComplexMatrix** array =  new math::ComplexMatrix*[2];
     array[0] = oap::host::NewReMatrix(10, 125);
     array[1] = oap::host::NewImMatrix (10, 13);
 
@@ -216,7 +216,7 @@ TEST_F(OapHostMatrixUPtrTests, InitializationUPtrsTest)
   }
 
   {
-    math::Matrix* array [3] =
+    math::ComplexMatrix* array [3] =
     {
       oap::host::NewReMatrix(10, 125),
       oap::host::NewImMatrix (10, 13),
@@ -231,7 +231,7 @@ TEST_F(OapHostMatrixUPtrTests, InitializationUPtrsTest)
   }
 
   {
-    math::Matrix* array [3] =
+    math::ComplexMatrix* array [3] =
     {
       oap::host::NewReMatrix(10, 125),
       oap::host::NewImMatrix (10, 13),
@@ -259,13 +259,13 @@ TEST_F(OapHostMatrixUPtrTests, AssignmentUPtrTest)
 
 TEST_F(OapHostMatrixUPtrTests, AssignmentUPtrsTest)
 {
-  std::vector<math::Matrix*> vec = {
+  std::vector<math::ComplexMatrix*> vec = {
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10)
   };
 
-  std::vector<math::Matrix*> vec1 = {
+  std::vector<math::ComplexMatrix*> vec1 = {
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),

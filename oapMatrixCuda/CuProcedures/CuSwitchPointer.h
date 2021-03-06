@@ -24,9 +24,9 @@
 
 #include "CuCore.h"
 
-__hostdeviceinline__ void CUDA_switchPointer(math::Matrix** a, math::Matrix** b) {
+__hostdeviceinline__ void CUDA_switchPointer(math::ComplexMatrix** a, math::ComplexMatrix** b) {
   HOST_INIT();
-  math::Matrix* temp = *b;
+  math::ComplexMatrix* temp = *b;
   *b = *a;
   *a = temp;
   threads_sync();

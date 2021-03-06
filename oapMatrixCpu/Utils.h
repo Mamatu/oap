@@ -38,34 +38,34 @@ class Compare {
 
   virtual bool rule(const floatt& arg1, const floatt& arg2) = 0;
 
-  bool compare(math::Matrix* matrix, floatt d);
+  bool compare(math::ComplexMatrix* matrix, floatt d);
 };
 
-math::Matrix* create(const math::Matrix& arg);
+math::ComplexMatrix* create(const math::ComplexMatrix& arg);
 
 bool AlmostEquals(floatt a, floatt b);
 
 bool AlmostEquals(floatt a, floatt b, floatt epsilon);
 
-void diff(math::Matrix* output, math::Matrix* m1, math::Matrix* m2);
+void diff(math::ComplexMatrix* output, math::ComplexMatrix* m1, math::ComplexMatrix* m2);
 
-bool IsEqual (const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff = NULL);
+bool IsEqual (const math::ComplexMatrix& m1, const math::ComplexMatrix& m2, floatt tolerance, math::ComplexMatrix** diff = NULL);
 
-bool HasValues (const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff = NULL);
+bool HasValues (const math::ComplexMatrix& m1, const math::ComplexMatrix& m2, floatt tolerance, math::ComplexMatrix** diff = NULL);
 
-bool IsIdentityMatrix(const math::Matrix& m1, floatt tolerance, math::Matrix** diff);
+bool IsIdentityMatrix(const math::ComplexMatrix& m1, floatt tolerance, math::ComplexMatrix** diff);
 
-bool IsDiagonalMatrix (const math::Matrix& m1, floatt value, floatt tolerance, math::Matrix** diff);
+bool IsDiagonalMatrix (const math::ComplexMatrix& m1, floatt value, floatt tolerance, math::ComplexMatrix** diff);
 
-bool IsIdentityMatrix (const math::Matrix& m1, floatt tolerance);
+bool IsIdentityMatrix (const math::ComplexMatrix& m1, floatt tolerance);
 
-bool IsDiagonalMatrix (const math::Matrix& m1, floatt value, floatt tolerance);
+bool IsDiagonalMatrix (const math::ComplexMatrix& m1, floatt value, floatt tolerance);
 
 bool isEqual(const MatrixEx& matrixEx, const uintt* buffer);
 
-bool areEqual(math::Matrix* matrix, floatt value);
+bool areEqual(math::ComplexMatrix* matrix, floatt value);
 
-bool areNotEqual(math::Matrix* matrix, floatt value);
+bool areNotEqual(math::ComplexMatrix* matrix, floatt value);
 
 typedef std::pair<size_t, size_t> Range;
 

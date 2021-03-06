@@ -23,9 +23,9 @@
 #include "CuCore.h"
 #include "Matrix.h"
 
-__hostdeviceinline__ void cuda_subtractReMatrices(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   math::Matrix* params1) {
+__hostdeviceinline__ void cuda_subtractReMatrices(math::ComplexMatrix* output,
+                                                   math::ComplexMatrix* params0,
+                                                   math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -34,9 +34,9 @@ __hostdeviceinline__ void cuda_subtractReMatrices(math::Matrix* output,
   gReValues (output)[index] = gReValues (params0)[index] - gReValues (params1)[index];
 }
 
-__hostdeviceinline__ void cuda_subtractImMatrices(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   math::Matrix* params1) {
+__hostdeviceinline__ void cuda_subtractImMatrices(math::ComplexMatrix* output,
+                                                   math::ComplexMatrix* params0,
+                                                   math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -45,9 +45,9 @@ __hostdeviceinline__ void cuda_subtractImMatrices(math::Matrix* output,
   gImValues (output)[index] = gImValues (params0)[index] - gImValues (params1)[index];
 }
 
-__hostdeviceinline__ void cuda_subtractRealMatrices(math::Matrix* output,
-                                                     math::Matrix* params0,
-                                                     math::Matrix* params1) {
+__hostdeviceinline__ void cuda_subtractRealMatrices(math::ComplexMatrix* output,
+                                                     math::ComplexMatrix* params0,
+                                                     math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
@@ -62,36 +62,36 @@ __hostdeviceinline__ void cuda_subtractRealMatrices(math::Matrix* output,
   }
 }
 
-__hostdeviceinline__ void CUDA_subtractReMatrices(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_subtractReMatrices(math::ComplexMatrix* output,
+                                                   math::ComplexMatrix* params0,
+                                                   math::ComplexMatrix* params1) {
   HOST_INIT();
 
   CUDA_subtractReMatrices(output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_subtractImMatrices(math::Matrix* output,
-                                                   math::Matrix* params0,
-                                                   math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_subtractImMatrices(math::ComplexMatrix* output,
+                                                   math::ComplexMatrix* params0,
+                                                   math::ComplexMatrix* params1) {
   HOST_INIT();
 
   cuda_subtractImMatrices(output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_subtractRealMatrices(math::Matrix* output,
-                                                     math::Matrix* params0,
-                                                     math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_subtractRealMatrices(math::ComplexMatrix* output,
+                                                     math::ComplexMatrix* params0,
+                                                     math::ComplexMatrix* params1) {
   HOST_INIT();
 
   cuda_subtractRealMatrices(output, params0, params1);
   threads_sync();
 }
 
-__hostdeviceinline__ void CUDA_subtractMatrices(math::Matrix* output,
-                                                 math::Matrix* params0,
-                                                 math::Matrix* params1) {
+__hostdeviceinline__ void CUDA_subtractMatrices(math::ComplexMatrix* output,
+                                                 math::ComplexMatrix* params0,
+                                                 math::ComplexMatrix* params1) {
   HOST_INIT();
   THREAD_INDICES_INIT();
 

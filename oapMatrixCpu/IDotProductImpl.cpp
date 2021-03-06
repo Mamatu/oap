@@ -23,10 +23,10 @@
 #include "oapHostMatrixUtils.h"        
 namespace math {
 
-Status IDotProductOperation::beforeExecution(math::Matrix* output,
-    math::Matrix* matrix1, math::Matrix* matrix2,
-    bool(*copy)(math::Matrix* src, math::Matrix* dst, math::IMathOperation* thiz),
-    bool(*isNotNull)(math::Matrix* matrix),
+Status IDotProductOperation::beforeExecution(math::ComplexMatrix* output,
+    math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+    bool(*copy)(math::ComplexMatrix* src, math::ComplexMatrix* dst, math::IMathOperation* thiz),
+    bool(*isNotNull)(math::ComplexMatrix* matrix),
     IDotProductOperation::ExecutionPath& executionPath) {
     Status status = STATUS_OK;
     //MatrixUtils* matrixUtils = m_module->getMatrixUtils();

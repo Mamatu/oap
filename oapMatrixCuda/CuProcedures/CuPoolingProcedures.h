@@ -46,7 +46,7 @@ __hostdeviceinline__ uintt GetPoolColumns (const PoolDims& dims)
   return dims.columns;
 }
 
-__hostdevice__ void cuda_poolAverageRe (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
+__hostdevice__ void cuda_poolAverageRe (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -71,19 +71,19 @@ __hostdevice__ void cuda_poolAverageRe (math::Matrix* output, const math::Matrix
   }
 }
 
-__hostdevice__ void cuda_poolAverageIm (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
+__hostdevice__ void cuda_poolAverageIm (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
-__hostdevice__ void cuda_poolAverageReal (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
+__hostdevice__ void cuda_poolAverageReal (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
-__hostdevice__ void CUDA_poolAverageRe (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
+__hostdevice__ void CUDA_poolAverageRe (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
 
@@ -91,7 +91,7 @@ __hostdevice__ void CUDA_poolAverageRe (math::Matrix* output, const math::Matrix
   threads_sync();
 }
 
-__hostdevice__ void CUDA_poolAverageIm (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
+__hostdevice__ void CUDA_poolAverageIm (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
 
@@ -99,7 +99,7 @@ __hostdevice__ void CUDA_poolAverageIm (math::Matrix* output, const math::Matrix
   threads_sync();
 }
 
-__hostdevice__ void CUDA_poolAverageReal (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
+__hostdevice__ void CUDA_poolAverageReal (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
 
@@ -107,7 +107,7 @@ __hostdevice__ void CUDA_poolAverageReal (math::Matrix* output, const math::Matr
   threads_sync();
 }
 
-__hostdevice__ void CUDA_poolAverage (math::Matrix* output, const math::Matrix* matrix, uintt kernel_dims[2], floatt* cache)
+__hostdevice__ void CUDA_poolAverage (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, uintt kernel_dims[2], floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -115,8 +115,8 @@ __hostdevice__ void CUDA_poolAverage (math::Matrix* output, const math::Matrix* 
   PoolDims paramDims = {gColumns (matrix), gRows (matrix)};
   PoolDims kernelDims = {kernel_dims[0], kernel_dims[1]};
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
   bool isInRange = threadIndexX < KEROPER_POOLING_CALCULATE_CACHE_COLUMNS (paramDims, kernelDims, GetPoolColumns, GetPoolRows) && threadIndexY < KEROPER_POOLING_CALCULATE_CACHE_ROWS (paramDims, kernelDims, GetPoolRows);
   if (isre && isim && isInRange)
   {
@@ -132,7 +132,7 @@ __hostdevice__ void CUDA_poolAverage (math::Matrix* output, const math::Matrix* 
   }
 }
 
-__hostdevice__ void CudaKernel_poolAverage (math::Matrix* output, const math::Matrix* matrix, uintt* ex)
+__hostdevice__ void CudaKernel_poolAverage (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, uintt* ex)
 {
   uintt kernel_dims[2] = {ex[0], ex[1]};
   floatt* cache = NULL;

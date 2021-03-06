@@ -67,8 +67,8 @@ TEST_F(OapApiVer2Tests_Addition, SimpleAdd)
   oap::DeviceMatrixUPtr matrix1 = oap::cuda::NewDeviceReMatrixWithValue (3, 3, 2.);
   oap::DeviceMatrixUPtr matrix2 = oap::cuda::NewDeviceReMatrixWithValue (3, 3, 1.);
 
-  std::vector<math::Matrix*> outputs = {output1, output2};
-  m_cuApi->v2_add (outputs, std::vector<math::Matrix*>({matrix1, matrix2}), 1.f);
+  std::vector<math::ComplexMatrix*> outputs = {output1, output2};
+  m_cuApi->v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1, matrix2}), 1.f);
   
   oap::HostMatrixUPtr output1h = oap::host::NewReMatrixWithValue (3, 3, 0);
   oap::HostMatrixUPtr output2h = oap::host::NewReMatrixWithValue (3, 3, 0);
@@ -92,8 +92,8 @@ TEST_F(OapApiVer2Tests_Addition, SimpleAdd)
 
   oap::cuda::CopyDeviceToHost (hmemory, memory);
 
-  std::vector<floatt> actual1 (output1h->re.ptr, output1h->re.ptr + 9);
-  std::vector<floatt> actual2 (output2h->re.ptr, output2h->re.ptr + 9);
+  std::vector<floatt> actual1 (output1h->re.mem.ptr, output1h->re.mem.ptr + 9);
+  std::vector<floatt> actual2 (output2h->re.mem.ptr, output2h->re.mem.ptr + 9);
 
   std::vector<floatt> memVec;
   oap::to_vector (memVec, hmemory);

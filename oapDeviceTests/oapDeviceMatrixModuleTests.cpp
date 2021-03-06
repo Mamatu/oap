@@ -35,11 +35,11 @@ class OapDeviceMatrixModuleTests : public testing::Test {
   void setSubMatrixTest(uintt columns, uintt rows, float value,
                         uintt subcolumns, uint subrows, floatt subvalue,
                         uintt column, uintt row) {
-    math::Matrix* hmatrix = oap::host::NewMatrixWithValue (true, true, columns, rows, value);
-    math::Matrix* dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hmatrix);
+    math::ComplexMatrix* hmatrix = oap::host::NewMatrixWithValue (true, true, columns, rows, value);
+    math::ComplexMatrix* dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hmatrix);
 
-    math::Matrix* hsubmatrix = oap::host::NewMatrixWithValue (true, true, subcolumns, subrows, subvalue);
-    math::Matrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hsubmatrix);
+    math::ComplexMatrix* hsubmatrix = oap::host::NewMatrixWithValue (true, true, subcolumns, subrows, subvalue);
+    math::ComplexMatrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hsubmatrix);
 
     oap::cuda::SetMatrix(dmatrix, dsubmatrix, column, row);
     oap::cuda::CopyDeviceMatrixToHostMatrix(hmatrix, dmatrix);
@@ -64,7 +64,7 @@ class OapDeviceMatrixModuleTests : public testing::Test {
 TEST_F(OapDeviceMatrixModuleTests, GetColumnsTest) {
   uintt columns = 15;
   uintt rows = 10;
-  math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, columns, rows);
+  math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix(true, true, columns, rows);
   uintt expected = oap::cuda::GetColumns(matrix);
   uintt tested = oap::cuda::GetColumns(matrix);
   EXPECT_EQ(expected, tested);
@@ -75,7 +75,7 @@ TEST_F(OapDeviceMatrixModuleTests, GetColumnsTest) {
 TEST_F(OapDeviceMatrixModuleTests, GetRowsTest) {
   uintt columns = 15;
   uintt rows = 10;
-  math::Matrix* matrix = oap::cuda::NewDeviceMatrix(true, true, columns, rows);
+  math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix(true, true, columns, rows);
   uintt expected = oap::cuda::GetRows(matrix);
   uintt tested = oap::cuda::GetRows(matrix);
   EXPECT_EQ(expected, tested);
@@ -133,23 +133,23 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
 
   std::string path = oap::utils::Config::getFileInTmp("device_tests/test_file");
 
-  math::Matrix* m1 = oap::host::NewMatrixWithValue (true, true, columns, rows, 0);
+  math::ComplexMatrix* m1 = oap::host::NewMatrixWithValue (true, true, columns, rows, 0);
 
   for (int fa = 0; fa < columns * rows; ++fa) {
     *GetRePtrIndex (m1, fa) = fa;
     *GetImPtrIndex (m1, fa) = fa;
   }
 
-  math::Matrix* d1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(m1);
+  math::ComplexMatrix* d1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(m1);
 
   bool status = oap::cuda::WriteMatrix(path, d1);
 
   EXPECT_TRUE(status);
 
   if (status) {
-    math::Matrix* d2 = oap::cuda::ReadMatrix(path);
+    math::ComplexMatrix* d2 = oap::cuda::ReadMatrix(path);
 
-    math::Matrix* m2 = oap::host::NewMatrix(oap::cuda::GetMatrixInfo(d2));
+    math::ComplexMatrix* m2 = oap::host::NewMatrix(oap::cuda::GetMatrixInfo(d2));
     oap::cuda::CopyDeviceMatrixToHostMatrix(m2, d2);
 
     EXPECT_EQ(gColumns (m2), gColumns (m1));
@@ -171,57 +171,57 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
 
 TEST_F(OapDeviceMatrixModuleTests, GetValuesPtrTest_1)
 {
-  math::Matrix* matrix = oap::cuda::NewDeviceReMatrix (1, 2);
+  math::ComplexMatrix* matrix = oap::cuda::NewDeviceReMatrix (1, 2);
 
-  math::Matrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
+  math::ComplexMatrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
 
   floatt* revaluesPtr = oap::cuda::GetReValuesPtr (matrix);
   floatt* imvaluesPtr = oap::cuda::GetImValuesPtr (matrix);
 
-  EXPECT_EQ(revaluesPtr, refmatrix.re.ptr);
-  EXPECT_EQ(imvaluesPtr, refmatrix.im.ptr);
+  EXPECT_EQ(revaluesPtr, refmatrix.re.mem.ptr);
+  EXPECT_EQ(imvaluesPtr, refmatrix.im.mem.ptr);
   EXPECT_EQ(revaluesPtr, oap::cuda::GetReValuesPtr (matrix));
   EXPECT_EQ(imvaluesPtr, oap::cuda::GetImValuesPtr (matrix));
-  EXPECT_NE(nullptr, refmatrix.re.ptr);
-  EXPECT_EQ(nullptr, refmatrix.im.ptr);
+  EXPECT_NE(nullptr, refmatrix.re.mem.ptr);
+  EXPECT_EQ(nullptr, refmatrix.im.mem.ptr);
 
   oap::cuda::DeleteDeviceMatrix (matrix);
 }
 
 TEST_F(OapDeviceMatrixModuleTests, GetValuesPtrTest_2)
 {
-  math::Matrix* matrix = oap::cuda::NewDeviceMatrix (1, 2);
+  math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix (1, 2);
 
-  math::Matrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
+  math::ComplexMatrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
 
   floatt* revaluesPtr = oap::cuda::GetReValuesPtr (matrix);
   floatt* imvaluesPtr = oap::cuda::GetImValuesPtr (matrix);
 
-  EXPECT_EQ(revaluesPtr, refmatrix.re.ptr);
-  EXPECT_EQ(imvaluesPtr, refmatrix.im.ptr);
+  EXPECT_EQ(revaluesPtr, refmatrix.re.mem.ptr);
+  EXPECT_EQ(imvaluesPtr, refmatrix.im.mem.ptr);
   EXPECT_EQ(revaluesPtr, oap::cuda::GetReValuesPtr (matrix));
   EXPECT_EQ(imvaluesPtr, oap::cuda::GetImValuesPtr (matrix));
-  EXPECT_NE(nullptr, refmatrix.re.ptr);
-  EXPECT_NE(nullptr, refmatrix.im.ptr);
+  EXPECT_NE(nullptr, refmatrix.re.mem.ptr);
+  EXPECT_NE(nullptr, refmatrix.im.mem.ptr);
 
   oap::cuda::DeleteDeviceMatrix (matrix);
 }
 
 TEST_F(OapDeviceMatrixModuleTests, GetValuesPtrTest_3)
 {
-  math::Matrix* matrix = oap::cuda::NewDeviceImMatrix (1, 2);
+  math::ComplexMatrix* matrix = oap::cuda::NewDeviceImMatrix (1, 2);
 
-  math::Matrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
+  math::ComplexMatrix refmatrix = oap::cuda::GetRefHostMatrix (matrix);
 
   floatt* revaluesPtr = oap::cuda::GetReValuesPtr (matrix);
   floatt* imvaluesPtr = oap::cuda::GetImValuesPtr (matrix);
 
-  EXPECT_EQ(revaluesPtr, refmatrix.re.ptr);
-  EXPECT_EQ(imvaluesPtr, refmatrix.im.ptr);
+  EXPECT_EQ(revaluesPtr, refmatrix.re.mem.ptr);
+  EXPECT_EQ(imvaluesPtr, refmatrix.im.mem.ptr);
   EXPECT_EQ(revaluesPtr, oap::cuda::GetReValuesPtr (matrix));
   EXPECT_EQ(imvaluesPtr, oap::cuda::GetImValuesPtr (matrix));
-  EXPECT_EQ(nullptr, refmatrix.re.ptr);
-  EXPECT_NE(nullptr, refmatrix.im.ptr);
+  EXPECT_EQ(nullptr, refmatrix.re.mem.ptr);
+  EXPECT_NE(nullptr, refmatrix.im.mem.ptr);
 
   oap::cuda::DeleteDeviceMatrix (matrix);
 }

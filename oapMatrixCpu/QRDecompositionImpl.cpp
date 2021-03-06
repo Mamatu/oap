@@ -24,15 +24,15 @@
 #include <math.h>
 namespace math {
 
-inline void switchPointer(math::Matrix*& a, math::Matrix*& b) {
-    math::Matrix* temp = b;
+inline void switchPointer(math::ComplexMatrix*& a, math::ComplexMatrix*& b) {
+    math::ComplexMatrix* temp = b;
     b = a;
     a = temp;
 }
 
-inline void QRDecompositionCpu::prepareGMatrix(math::Matrix* A,
+inline void QRDecompositionCpu::prepareGMatrix(math::ComplexMatrix* A,
     uintt column, uintt row,
-    math::Matrix* G) {
+    math::ComplexMatrix* G) {
     oap::host::SetIdentityMatrix(G);
     oap::host::SetIdentityMatrix(m_GT);
     floatt reg = 0;
@@ -76,12 +76,12 @@ inline void QRDecompositionCpu::prepareGMatrix(math::Matrix* A,
 void QRDecompositionCpu::execute() {
     dotProduct.setThreadsCount(this->m_threadsCount);
     transpose.setThreadsCount(this->m_threadsCount);
-    math::Matrix* A = this->m_matrix;
-    math::Matrix* Q = this->m_output1;
-    math::Matrix* R = this->m_output2;
+    math::ComplexMatrix* A = this->m_matrix;
+    math::ComplexMatrix* Q = this->m_output1;
+    math::ComplexMatrix* R = this->m_output2;
 
-    math::Matrix* tR1 = NULL;
-    math::Matrix* tQ1 = NULL;
+    math::ComplexMatrix* tR1 = NULL;
+    math::ComplexMatrix* tQ1 = NULL;
 
     if (m_R1 != NULL && gRows (m_R1) != gRows (R) &&
         gColumns (m_R1) != gColumns (R)) {

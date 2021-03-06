@@ -24,7 +24,7 @@
 #include "Matrix.h"
 #include "CuPReluProcedures.h"
 
-__hostdeviceinline__ void cuda_preluDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_preluDim (math::ComplexMatrix* omatrix, math::ComplexMatrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -38,7 +38,7 @@ __hostdeviceinline__ void cuda_preluDim (math::Matrix* omatrix, math::Matrix* im
   }
 }
 
-__hostdeviceinline__ void cuda_dpreluDim (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_dpreluDim (math::ComplexMatrix* omatrix, math::ComplexMatrix* imatrix, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -52,7 +52,7 @@ __hostdeviceinline__ void cuda_dpreluDim (math::Matrix* omatrix, math::Matrix* i
   }
 }
 
-__hostdeviceinline__ void cuda_preluDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_preluDimPeriodic (math::ComplexMatrix* omatrix, math::ComplexMatrix* imatrix, uintt* ex)
 {
   bool isInRange = cuda_inRangePD(omatrix, ex);
   floatt alpha = 0.01;
@@ -63,7 +63,7 @@ __hostdeviceinline__ void cuda_preluDimPeriodic (math::Matrix* omatrix, math::Ma
   }
 }
 
-__hostdeviceinline__ void cuda_dpreluDimPeriodic (math::Matrix* omatrix, math::Matrix* imatrix, uintt* ex)
+__hostdeviceinline__ void cuda_dpreluDimPeriodic (math::ComplexMatrix* omatrix, math::ComplexMatrix* imatrix, uintt* ex)
 {
   bool isInRange = cuda_inRangePD(omatrix, ex);
   floatt alpha = 0.01;

@@ -24,7 +24,7 @@
 
 #include \ "CuQRProcedures.h"
 
-__hostdeviceinline__ floatt cuda_CalcDetDiagonalSumRe(const math::Matrix* r) {
+__hostdeviceinline__ floatt cuda_CalcDetDiagonalSumRe(const math::ComplexMatrix* r) {
   HOST_INIT();
   floatt det = 0.f;
   for (uintt fa = 0; fa < r->columns; ++fa) {
@@ -39,7 +39,7 @@ __hostdeviceinline__ floatt cuda_CalcDetDiagonalSumRe(const math::Matrix* r) {
   return det;
 }
 
-__hostdeviceinline__ floatt cuda_CalcDetDiagonalSumIm(const math::Matrix* r) {
+__hostdeviceinline__ floatt cuda_CalcDetDiagonalSumIm(const math::ComplexMatrix* r) {
   HOST_INIT();
   floatt det = 0.f;
   for (uintt fa = 0; fa < r->columns; ++fa) {
@@ -54,7 +54,7 @@ __hostdeviceinline__ floatt cuda_CalcDetDiagonalSumIm(const math::Matrix* r) {
   return det;
 }
 
-__hostdeviceinline__ floatt cuda_CalcDetDiagonalSum(const math::Matrix* r) {
+__hostdeviceinline__ floatt cuda_CalcDetDiagonalSum(const math::ComplexMatrix* r) {
   HOST_INIT();
   floatt det = 0;
   floatt sumre = 0.f;
@@ -71,13 +71,13 @@ __hostdeviceinline__ floatt cuda_CalcDetDiagonalSum(const math::Matrix* r) {
   return det;
 }
 
-__hostdevice__ void CUDA_Det(floatt* det, math::Matrix* A, math::Matrix* aux1,
-                             math::Matrix* aux2, math::Matrix* aux3,
-                             math::Matrix* aux4, , math::Matrix* aux5, ,
-                             math::Matrix* aux6) {
+__hostdevice__ void CUDA_Det(floatt* det, math::ComplexMatrix* A, math::ComplexMatrix* aux1,
+                             math::ComplexMatrix* aux2, math::ComplexMatrix* aux3,
+                             math::ComplexMatrix* aux4, , math::ComplexMatrix* aux5, ,
+                             math::ComplexMatrix* aux6) {
   HOST_INIT();
-  const math::Matrix* q = aux1;
-  const math::Matrix* r = aux2;
+  const math::ComplexMatrix* q = aux1;
+  const math::ComplexMatrix* r = aux2;
 
   threads_sync();
 }

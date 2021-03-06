@@ -25,7 +25,7 @@
 #include "MatrixAPI.h"
 
 __hostdevice__ void
-cuda_tensorProductReDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+cuda_tensorProductReDim (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -50,21 +50,21 @@ cuda_tensorProductReDim (math::Matrix* output, math::Matrix* params0, math::Matr
 }
 
 __hostdevice__ void
-cuda_tensorProductImDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+cuda_tensorProductImDim (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
 __hostdevice__ void
-cuda_tensorProductRealDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+cuda_tensorProductRealDim (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
 __hostdevice__ void
-CUDA_tensorProductReDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+CUDA_tensorProductReDim (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt* ex)
 {
   HOST_INIT();
 
@@ -73,7 +73,7 @@ CUDA_tensorProductReDim (math::Matrix* output, math::Matrix* params0, math::Matr
 }
 
 __hostdevice__ void
-CUDA_tensorProductImDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+CUDA_tensorProductImDim (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt* ex)
 {
   HOST_INIT();
 
@@ -82,7 +82,7 @@ CUDA_tensorProductImDim (math::Matrix* output, math::Matrix* params0, math::Matr
 }
 
 __hostdevice__ void
-CUDA_tensorProductRealDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+CUDA_tensorProductRealDim (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt* ex)
 {
   HOST_INIT();
 
@@ -91,13 +91,13 @@ CUDA_tensorProductRealDim (math::Matrix* output, math::Matrix* params0, math::Ma
 }
 
 __hostdevice__ void
-CUDA_tensorProductDim (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, uintt* ex)
+CUDA_tensorProductDim (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, uintt* ex)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
   bool isInRange = threadIndexX < ex[0] && threadIndexY < ex[1];
 
   if (isre && isim && isInRange)

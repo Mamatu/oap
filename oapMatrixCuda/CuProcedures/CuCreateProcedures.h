@@ -29,62 +29,62 @@
 
 #include "oapAssertion.h"
 
-#define CuM_InitMatrix(m) m.re = {NULL, {0, 0}}; m.im = {NULL, {0, 0}}; m.reReg = {{0, 0}, {0, 0}}; m.imReg = {{0, 0}, {0, 0}};
+#define CuM_InitMatrix(m) m.re.mem = {NULL, {0, 0}}; m.im.mem = {NULL, {0, 0}}; m.re.reg = {{0, 0}, {0, 0}}; m.im.reg = {{0, 0}, {0, 0}};
 
 struct MatrixOffset
 {
-  math::Matrix matrix;
+  math::ComplexMatrix matrix;
   floatt* buffer;
 };
 
-__hostdeviceinline__ MatrixOffset CUDA_createGenericMatrixCopy (bool isRe, bool isIm, uintt columns, uintt rows, floatt* buffer, const math::Matrix* matrix, const MatrixEx& matrixEx)
+__hostdeviceinline__ MatrixOffset CUDA_createGenericMatrixCopy (bool isRe, bool isIm, uintt columns, uintt rows, floatt* buffer, const math::ComplexMatrix* matrix, const MatrixEx& matrixEx)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  debugAssert (!isRe || isRe == (matrix->re.ptr != NULL));
-  debugAssert (!isIm || isIm == (matrix->im.ptr != NULL));
+  debugAssert (!isRe || isRe == (matrix->re.mem.ptr != NULL));
+  debugAssert (!isIm || isIm == (matrix->im.mem.ptr != NULL));
   debugAssert (columns == matrixEx.columns);
   debugAssert (rows == matrixEx.rows);
 
-  math::Matrix oMatrix;
+  math::ComplexMatrix oMatrix;
 
   oMatrix.dim.columns = columns;
   oMatrix.dim.rows = rows;
 
-  oMatrix.re.ptr = NULL; 
-  oMatrix.re.dims.width = 0; 
-  oMatrix.re.dims.height = 0; 
+  oMatrix.re.mem.ptr = NULL; 
+  oMatrix.re.mem.dims.width = 0; 
+  oMatrix.re.mem.dims.height = 0; 
 
-  oMatrix.reReg.loc.x = 0;
-  oMatrix.reReg.loc.y = 0;
-  oMatrix.reReg.dims.width = 0;
-  oMatrix.reReg.dims.height = 0;
+  oMatrix.re.reg.loc.x = 0;
+  oMatrix.re.reg.loc.y = 0;
+  oMatrix.re.reg.dims.width = 0;
+  oMatrix.re.reg.dims.height = 0;
 
-  oMatrix.im.ptr = NULL; 
-  oMatrix.im.dims.width = 0; 
-  oMatrix.im.dims.height = 0; 
+  oMatrix.im.mem.ptr = NULL; 
+  oMatrix.im.mem.dims.width = 0; 
+  oMatrix.im.mem.dims.height = 0; 
 
-  oMatrix.imReg.loc.x = 0;
-  oMatrix.imReg.loc.y = 0;
-  oMatrix.imReg.dims.width = 0;
-  oMatrix.imReg.dims.height = 0;
+  oMatrix.im.reg.loc.x = 0;
+  oMatrix.im.reg.loc.y = 0;
+  oMatrix.im.reg.dims.width = 0;
+  oMatrix.im.reg.dims.height = 0;
 
   uintt offset = 0;
 
   if (isRe)
   {
-    oMatrix.re.ptr = &buffer[offset];
-    oMatrix.re.dims.width = columns;
-    oMatrix.re.dims.height = rows;
+    oMatrix.re.mem.ptr = &buffer[offset];
+    oMatrix.re.mem.dims.width = columns;
+    oMatrix.re.mem.dims.height = rows;
     offset += rows * columns;
   }
 
   if (isIm)
   {
-    oMatrix.im.ptr = (floatt*)&buffer[offset];
-    oMatrix.im.dims.width = columns;
-    oMatrix.im.dims.height = rows;
+    oMatrix.im.mem.ptr = (floatt*)&buffer[offset];
+    oMatrix.im.mem.dims.width = columns;
+    oMatrix.im.mem.dims.height = rows;
     offset += rows * columns;
   }
 
@@ -93,25 +93,25 @@ __hostdeviceinline__ MatrixOffset CUDA_createGenericMatrixCopy (bool isRe, bool 
   return {oMatrix, &buffer[offset]};
 }
 
-__hostdeviceinline__ MatrixOffset CUDA_createReMatrixCopy (floatt* buffer, const math::Matrix* matrix, const MatrixEx& matrixEx)
+__hostdeviceinline__ MatrixOffset CUDA_createReMatrixCopy (floatt* buffer, const math::ComplexMatrix* matrix, const MatrixEx& matrixEx)
 {
   return CUDA_createGenericMatrixCopy (true, false, matrixEx.columns, matrixEx.rows, buffer, matrix, matrixEx);
 }
 
-__hostdeviceinline__ MatrixOffset CUDA_createImMatrixCopy (floatt* buffer, const math::Matrix* matrix, const MatrixEx& matrixEx)
+__hostdeviceinline__ MatrixOffset CUDA_createImMatrixCopy (floatt* buffer, const math::ComplexMatrix* matrix, const MatrixEx& matrixEx)
 {
   return CUDA_createGenericMatrixCopy (false, true, matrixEx.columns, matrixEx.rows, buffer, matrix, matrixEx);
 }
 
-__hostdeviceinline__ MatrixOffset CUDA_createRealMatrixCopy (floatt* buffer, const math::Matrix* matrix, const MatrixEx& matrixEx)
+__hostdeviceinline__ MatrixOffset CUDA_createRealMatrixCopy (floatt* buffer, const math::ComplexMatrix* matrix, const MatrixEx& matrixEx)
 {
   return CUDA_createGenericMatrixCopy (true, true, matrixEx.columns, matrixEx.rows, buffer, matrix, matrixEx);
 }
 
-__hostdeviceinline__ MatrixOffset CUDA_createMatrixCopy (floatt* buffer, const math::Matrix* matrix, const MatrixEx& matrixEx)
+__hostdeviceinline__ MatrixOffset CUDA_createMatrixCopy (floatt* buffer, const math::ComplexMatrix* matrix, const MatrixEx& matrixEx)
 {
-  const bool isRe = matrix->re.ptr != NULL;
-  const bool isIm = matrix->im.ptr != NULL;
+  const bool isRe = matrix->re.mem.ptr != NULL;
+  const bool isIm = matrix->im.mem.ptr != NULL;
 
   if (isRe && isIm)
   {

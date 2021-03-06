@@ -32,30 +32,30 @@
 #include "InfoType.h"
 #include "oapHostMatrixUtils.h"
 
-inline Matcher<math::Matrix*> MatrixIsEqual(math::Matrix* matrix, const InfoType& infoType = InfoType())
+inline Matcher<math::ComplexMatrix*> MatrixIsEqual(math::ComplexMatrix* matrix, const InfoType& infoType = InfoType())
 {
   return MakeMatcher(new MatrixIsEqualMatcher(matrix, infoType));
 }
 
-inline Matcher<math::Matrix*> MatrixHasValues (math::Matrix* matrix, const InfoType& infoType = InfoType())
+inline Matcher<math::ComplexMatrix*> MatrixHasValues (math::ComplexMatrix* matrix, const InfoType& infoType = InfoType())
 {
   return MakeMatcher(new MatrixHasValuesMatcher(matrix, infoType));
 }
 
-inline Matcher<math::Matrix*> MatrixContainsDiagonalValues (math::Matrix* matrix)
+inline Matcher<math::ComplexMatrix*> MatrixContainsDiagonalValues (math::ComplexMatrix* matrix)
 {
   return MakeMatcher(new MatrixContainsDiagonalValuesMatcher(matrix));
 }
 
-inline Matcher<math::Matrix*> MatrixIsDiagonal(floatt value, const InfoType& infoType = InfoType()) {
+inline Matcher<math::ComplexMatrix*> MatrixIsDiagonal(floatt value, const InfoType& infoType = InfoType()) {
   return MakeMatcher(new MatrixIsDiagonalMatcher(value, infoType));
 }
 
-inline Matcher<math::Matrix*> MatrixIsIdentity(const InfoType& infoType = InfoType()) {
+inline Matcher<math::ComplexMatrix*> MatrixIsIdentity(const InfoType& infoType = InfoType()) {
   return MakeMatcher(new MatrixIsIdentityMatcher (infoType));
 }
 
-inline Matcher<math::Matrix*> MatrixHasValues(floatt value) {
+inline Matcher<math::ComplexMatrix*> MatrixHasValues(floatt value) {
   return MakeMatcher(new MatrixValuesAreEqualMatcher(value));
 }
 
@@ -98,13 +98,13 @@ inline Matcher<std::string> StringIsEqual(const std::string& str2, const std::st
       new StringIsEqualMatcher(str2, path1, path2));
 }
 
-inline Matcher<math::Matrix*> MatrixIsUpperTriangular (const InfoType& infoType = InfoType())
+inline Matcher<math::ComplexMatrix*> MatrixIsUpperTriangular (const InfoType& infoType = InfoType())
 {
   return MakeMatcher(new MatrixIsUpperTriangularMatcher (infoType));
 }
 
 template <typename CalcApi>
-Matcher<math::Matrix*> MatrixIsOrthogonal (CalcApi& calcApi, const InfoType& infoType = InfoType())
+Matcher<math::ComplexMatrix*> MatrixIsOrthogonal (CalcApi& calcApi, const InfoType& infoType = InfoType())
 {
   return MakeMatcher(new MatrixIsOrthogonalMatcher<CalcApi> (calcApi, infoType));
 }

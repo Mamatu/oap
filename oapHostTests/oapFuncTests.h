@@ -78,17 +78,17 @@ void test (const std::vector<floatt>& revalues, const std::vector<floatt>& imval
 template<typename Func>
 void test_defaultExpected (const std::vector<floatt>& revalues, const std::vector<floatt>& imvalues, size_t columns, size_t rows, Func&& func, const std::vector<floatt>& expected_revalues, const std::vector<floatt>& expected_imvalues)
 {
-  test (revalues, imvalues, columns, rows, func, [&expected_revalues, &expected_imvalues](const math::Matrix* hmatrix)
+  test (revalues, imvalues, columns, rows, func, [&expected_revalues, &expected_imvalues](const math::ComplexMatrix* hmatrix)
   {
-    if (hmatrix->re.ptr)
+    if (hmatrix->re.mem.ptr)
     {
-      std::vector<floatt> reVs (hmatrix->re.ptr, hmatrix->re.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
+      std::vector<floatt> reVs (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
       ASSERT_EQ(expected_revalues, reVs);
     }
 
-    if (hmatrix->im.ptr)
+    if (hmatrix->im.mem.ptr)
     {
-      std::vector<floatt> imVs (hmatrix->im.ptr, hmatrix->im.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
+      std::vector<floatt> imVs (hmatrix->im.mem.ptr, hmatrix->im.mem.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
       ASSERT_EQ(expected_imvalues, imVs);
     }
   });
@@ -97,17 +97,17 @@ void test_defaultExpected (const std::vector<floatt>& revalues, const std::vecto
 template<typename Func>
 void test_getVectors (const std::vector<floatt>& revalues, const std::vector<floatt>& imvalues, size_t columns, size_t rows, Func&& func, std::vector<floatt>& o_revalues, std::vector<floatt>& o_imvalues)
 {
-  test (revalues, imvalues, columns, rows, func, [&o_revalues, &o_imvalues](const math::Matrix* hmatrix)
+  test (revalues, imvalues, columns, rows, func, [&o_revalues, &o_imvalues](const math::ComplexMatrix* hmatrix)
   {
-    if (hmatrix->re.ptr)
+    if (hmatrix->re.mem.ptr)
     {
-      std::vector<floatt> reVs (hmatrix->re.ptr, hmatrix->re.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
+      std::vector<floatt> reVs (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
       o_revalues = std::move (reVs);
     }
 
-    if (hmatrix->im.ptr)
+    if (hmatrix->im.mem.ptr)
     {
-      std::vector<floatt> imVs (hmatrix->im.ptr, hmatrix->im.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
+      std::vector<floatt> imVs (hmatrix->im.mem.ptr, hmatrix->im.mem.ptr + (gColumns (hmatrix) * gRows (hmatrix)));
       o_imvalues = std::move (imVs);
     }
   });

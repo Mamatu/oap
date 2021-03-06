@@ -107,14 +107,14 @@ oap::Memory GetMemory (const oap::Memory* cumem)
   return mem;
 }
 
-oap::Memory GetReMemory (const math::Matrix* matrix)
+oap::Memory GetReMemory (const math::ComplexMatrix* matrix)
 {
-  return GetMemory (&(matrix->re));
+  return GetMemory (&(matrix->re.mem));
 }
 
-oap::Memory GetImMemory (const math::Matrix* matrix)
+oap::Memory GetImMemory (const math::ComplexMatrix* matrix)
 {
-  return GetMemory (&(matrix->im));
+  return GetMemory (&(matrix->im.mem));
 }
 
 oap::MemoryRegion GetMemoryRegion (const oap::MemoryRegion* cureg)
@@ -124,14 +124,14 @@ oap::MemoryRegion GetMemoryRegion (const oap::MemoryRegion* cureg)
   return reg;
 }
 
-oap::MemoryRegion GetReMemoryRegion (const math::Matrix* matrix)
+oap::MemoryRegion GetReMemoryRegion (const math::ComplexMatrix* matrix)
 {
-  return GetMemoryRegion (&(matrix->reReg));
+  return GetMemoryRegion (&(matrix->re.reg));
 }
 
-oap::MemoryRegion GetImMemoryRegion (const math::Matrix* matrix)
+oap::MemoryRegion GetImMemoryRegion (const math::ComplexMatrix* matrix)
 {
-  return GetMemoryRegion (&(matrix->imReg));
+  return GetMemoryRegion (&(matrix->im.reg));
 }
 
 CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx)
@@ -173,7 +173,7 @@ void CopyHtoD(CUdeviceptr devPtr, void* hostPtr, size_t size) {
 }
 
 #if 0
-math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix)
+math::MatrixInfo GetMatrixInfo(const math::ComplexMatrix* devMatrix)
 {
   uintt columns = CudaUtils::GetColumns(devMatrix);
   uintt rows = CudaUtils::GetRows(devMatrix);
@@ -215,7 +215,7 @@ void MoveDeviceToDevice (void* dst, const void* src, uintt size)
   freeDeviceMem (tempPtr);
 }
 
-void SetReValue(math::Matrix* m, uintt index, floatt value)
+void SetReValue(math::ComplexMatrix* m, uintt index, floatt value)
 {
   using namespace oap::utils;
   oap::MemoryRegion regMem = CudaUtils::GetReMemoryRegion (m);
@@ -228,7 +228,7 @@ void SetReValue(math::Matrix* m, uintt index, floatt value)
   oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
-floatt GetReValue(const math::Matrix* m, uintt index)
+floatt GetReValue(const math::ComplexMatrix* m, uintt index)
 {
   using namespace oap::utils;
 
@@ -245,7 +245,7 @@ floatt GetReValue(const math::Matrix* m, uintt index)
   return v;
 }
 
-void SetImValue(math::Matrix* m, uintt index, floatt value)
+void SetImValue(math::ComplexMatrix* m, uintt index, floatt value)
 {
   using namespace oap::utils;
   oap::MemoryRegion regMem = CudaUtils::GetImMemoryRegion (m);
@@ -258,7 +258,7 @@ void SetImValue(math::Matrix* m, uintt index, floatt value)
   oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
-floatt GetImValue(const math::Matrix* m, uintt index)
+floatt GetImValue(const math::ComplexMatrix* m, uintt index)
 {
   using namespace oap::utils;
 
@@ -276,18 +276,18 @@ floatt GetImValue(const math::Matrix* m, uintt index)
 }
 
 #if 0
-floatt GetReDiagonal(math::Matrix* m, uintt index)
+floatt GetReDiagonal(math::ComplexMatrix* m, uintt index)
 {
   uintt columns = GetColumns(m);
   return GetReValue(m, index * columns + index);
 }
 
-floatt GetImDiagonal(math::Matrix* m, uintt index) {
+floatt GetImDiagonal(math::ComplexMatrix* m, uintt index) {
   uintt columns = GetColumns(m);
   return GetImValue(m, index * columns + index);
 }
 
-void SetZeroMatrix(math::Matrix* matrix, bool re, bool im) {
+void SetZeroMatrix(math::ComplexMatrix* matrix, bool re, bool im) {
   floatt* rearray = GetReValues(matrix);
   floatt* imarray = GetImValues(matrix);
   uintt columns = GetColumns(matrix);
@@ -301,7 +301,7 @@ void SetZeroMatrix(math::Matrix* matrix, bool re, bool im) {
   }
 }
 
-void SetZeroRow(math::Matrix* matrix, uintt index, bool re, bool im) {
+void SetZeroRow(math::ComplexMatrix* matrix, uintt index, bool re, bool im) {
   floatt* rearray = GetReValues(matrix);
   floatt* imarray = GetImValues(matrix);
   uintt columns = GetColumns(matrix);
@@ -316,7 +316,7 @@ void SetZeroRow(math::Matrix* matrix, uintt index, bool re, bool im) {
   }
 }
 #endif
-void GetMatrixStr(std::string& output, math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
+void GetMatrixStr(std::string& output, math::ComplexMatrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
 {
   matrixUtils::PrintArgs args;
 
@@ -328,7 +328,7 @@ void GetMatrixStr(std::string& output, math::Matrix* matrix, floatt zeroLimit, b
                oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
 }
 
-void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
+void PrintMatrix(FILE* stream, const math::ComplexMatrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
 {
   matrixUtils::PrintArgs args;
 
@@ -343,12 +343,12 @@ void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit, boo
   fprintf(stream, "%s CUDA \n", output.c_str());
 }
 
-void PrintMatrix(const math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
+void PrintMatrix(const math::ComplexMatrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
 {
   PrintMatrix("", matrix, zeroLimit, repeats, sectionSeparator);
 }
 
-void PrintMatrix(const std::string& text, const math::Matrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
+void PrintMatrix(const std::string& text, const math::ComplexMatrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
 {
   matrixUtils::PrintArgs args;
 

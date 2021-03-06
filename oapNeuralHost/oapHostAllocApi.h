@@ -34,17 +34,17 @@ namespace host
 {
 namespace
 {
-  inline math::Matrix* _newHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
+  inline math::ComplexMatrix* _newHostMatrixFromMatrixInfo (const math::MatrixInfo& minfo)
   {
     return oap::host::NewHostMatrixFromMatrixInfo (minfo);
   }
 
-  inline math::Matrix* _newHostMatrixRef (const math::Matrix* matrix)
+  inline math::ComplexMatrix* _newHostMatrixRef (const math::ComplexMatrix* matrix)
   {
     return oap::host::NewMatrixRef (matrix);
   }
 
-  inline math::Matrix* _newHostSharedSubMatrix (const math::MatrixDim& mdim, const math::Matrix* matrix)
+  inline math::ComplexMatrix* _newHostSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)
   {
     return oap::host::NewSharedSubMatrix (mdim, matrix);
   }

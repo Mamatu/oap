@@ -22,8 +22,8 @@
 
 namespace math {
 
-    Status IDeterminantOperation::prepare(floatt* output, math::Matrix* matrix,
-            bool(*isNotNull)(math::Matrix* matrix),
+    Status IDeterminantOperation::prepare(floatt* output, math::ComplexMatrix* matrix,
+            bool(*isNotNull)(math::ComplexMatrix* matrix),
             ExecutionPath& executionPath) {
         if (isNotNull(matrix) == true) {
             executionPath = EXECUTION_NORMAL;

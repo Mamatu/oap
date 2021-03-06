@@ -120,7 +120,7 @@ TEST_F(OapImagesLoaderTests, Matrix4x4FromImage) {
 
     oap::ImagesLoader dataLoader(images, true);
 
-    math::Matrix* matrix = dataLoader.createMatrix();
+    math::ComplexMatrix* matrix = dataLoader.createMatrix();
 
     EXPECT_EQ(4, gColumns (matrix));
     EXPECT_EQ(4, gRows (matrix));

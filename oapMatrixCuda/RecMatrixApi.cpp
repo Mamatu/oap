@@ -32,7 +32,7 @@ math::MatrixInfo RecMatrixApi::getMatrixInfo () const
   return oap::host::GetMatrixInfo (m_recHostMatrix);
 }
 
-RecMatrixApi::RecMatrixApi (const math::Matrix* recHostMatrix, const bool deallocate) :
+RecMatrixApi::RecMatrixApi (const math::ComplexMatrix* recHostMatrix, const bool deallocate) :
   m_recHostMatrix (recHostMatrix), m_deallocate (deallocate)
 {}
 
@@ -44,33 +44,33 @@ RecMatrixApi::~RecMatrixApi ()
   }
 }
 
-math::Matrix* RecMatrixApi::createDeviceMatrix ()
+math::ComplexMatrix* RecMatrixApi::createDeviceMatrix ()
 {
   auto minfo = getMatrixInfo ();
-  math::Matrix* matrix = oap::cuda::NewDeviceMatrix (minfo);
+  math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix (minfo);
   return getDeviceMatrix (matrix);
 }
 
-math::Matrix* RecMatrixApi::getDeviceMatrix (math::Matrix* dmatrix)
+math::ComplexMatrix* RecMatrixApi::getDeviceMatrix (math::ComplexMatrix* dmatrix)
 {
   oap::cuda::CopyHostMatrixToDeviceMatrix (dmatrix, m_recHostMatrix);
   return dmatrix;
 }
 
-math::Matrix* RecMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::Matrix* dmatrix)
+math::ComplexMatrix* RecMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::ComplexMatrix* dmatrix)
 {
   auto minfo = getMatrixInfo ();
-  math::Matrix* subMatrix = getHostSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);
+  math::ComplexMatrix* subMatrix = getHostSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dmatrix, subMatrix);
   return dmatrix;
 }
 
-const math::Matrix* RecMatrixApi::getHostMatrix () const
+const math::ComplexMatrix* RecMatrixApi::getHostMatrix () const
 {
   return m_recHostMatrix;
 }
 
-math::Matrix* RecMatrixApi::getHostSubMatrix (uintt cindex, uintt rindex, uintt clength, uintt rlength)
+math::ComplexMatrix* RecMatrixApi::getHostSubMatrix (uintt cindex, uintt rindex, uintt clength, uintt rlength)
 {
   m_recSubHostMatrix = (oap::host::NewSubMatrix (m_recHostMatrix, cindex, rindex, clength, rlength));
   return m_recSubHostMatrix.get ();

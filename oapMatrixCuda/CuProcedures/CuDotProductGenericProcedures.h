@@ -48,7 +48,7 @@
 
 #define maux_getOffset(exs) exs[1].columns
 
-__hostdeviceinline__ void cuda_generic_dotProductReExOffset (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3], uintt _offset)
+__hostdeviceinline__ void cuda_generic_dotProductReExOffset (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, const MatrixEx exs[3], uintt _offset)
 {
   HOST_INIT();
   floatt re = 0;
@@ -66,7 +66,7 @@ __hostdeviceinline__ void cuda_generic_dotProductReExOffset (math::Matrix* outpu
   *GetRePtrIndex (output, oidx) = re;
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductImExOffset (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3], uintt _offset)
+__hostdeviceinline__ void cuda_generic_dotProductImExOffset (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, const MatrixEx exs[3], uintt _offset)
 {
   HOST_INIT();
   floatt im = 0;
@@ -84,12 +84,12 @@ __hostdeviceinline__ void cuda_generic_dotProductImExOffset (math::Matrix* outpu
   *GetImPtrIndex (output, oidx) = im;
 }
 
-__hostdeviceinline__ void printMatrix (const math::Matrix* matrix)
+__hostdeviceinline__ void printMatrix (const math::ComplexMatrix* matrix)
 {
   printf ("matrix = %p columns = %u rows = %u \n", matrix, gColumns (matrix), gRows (matrix));
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductRealExOffset (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3], uintt _offset)
+__hostdeviceinline__ void cuda_generic_dotProductRealExOffset (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, const MatrixEx exs[3], uintt _offset)
 {
   HOST_INIT();
   floatt re = 0;
@@ -112,22 +112,22 @@ __hostdeviceinline__ void cuda_generic_dotProductRealExOffset (math::Matrix* out
   *GetImPtrIndex (output, oidx) = im;
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductReEx (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3])
+__hostdeviceinline__ void cuda_generic_dotProductReEx (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, const MatrixEx exs[3])
 {
   cuda_generic_dotProductReExOffset (output, matrix1, matrix2, exs, gColumns (matrix1));
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductImEx (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3])
+__hostdeviceinline__ void cuda_generic_dotProductImEx (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, const MatrixEx exs[3])
 {
   cuda_generic_dotProductImExOffset (output, matrix1, matrix2, exs, gColumns (matrix1));
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductRealEx (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3])
+__hostdeviceinline__ void cuda_generic_dotProductRealEx (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, const MatrixEx exs[3])
 {
   cuda_generic_dotProductRealExOffset (output, matrix1, matrix2, exs, gColumns (matrix1));
 }
 
-__hostdeviceinline__ void cuda_generic_addDotProductReEx (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3])
+__hostdeviceinline__ void cuda_generic_addDotProductReEx (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, const MatrixEx exs[3])
 {
   HOST_INIT();
   floatt re = 0;
@@ -145,7 +145,7 @@ __hostdeviceinline__ void cuda_generic_addDotProductReEx (math::Matrix* output, 
   *GetRePtrIndex (output, oidx) += re;
 }
 
-__hostdeviceinline__ void cuda_generic_addDotProductImEx (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3])
+__hostdeviceinline__ void cuda_generic_addDotProductImEx (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, const MatrixEx exs[3])
 {
   HOST_INIT();
   floatt im = 0;
@@ -163,7 +163,7 @@ __hostdeviceinline__ void cuda_generic_addDotProductImEx (math::Matrix* output, 
   *GetImPtrIndex (output, oidx) += im;
 }
 
-__hostdeviceinline__ void cuda_generic_addDotProductRealEx (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, const MatrixEx exs[3])
+__hostdeviceinline__ void cuda_generic_addDotProductRealEx (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, const MatrixEx exs[3])
 {
   HOST_INIT();
 
@@ -184,7 +184,7 @@ __hostdeviceinline__ void cuda_generic_addDotProductRealEx (math::Matrix* output
   *GetImPtrIndex (output, oidx) += im;
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductRe (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, uintt offset)
+__hostdeviceinline__ void cuda_generic_dotProductRe (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, uintt offset)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -198,7 +198,7 @@ __hostdeviceinline__ void cuda_generic_dotProductRe (math::Matrix* output, const
   cuda_generic_dotProductReEx (output, matrix1, matrix2, exs);
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductIm (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, uintt offset)
+__hostdeviceinline__ void cuda_generic_dotProductIm (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, uintt offset)
 {
   HOST_INIT();
 
@@ -211,7 +211,7 @@ __hostdeviceinline__ void cuda_generic_dotProductIm (math::Matrix* output, const
   cuda_generic_dotProductImEx (output, matrix1, matrix2, exs);
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductReal (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, uintt offset)
+__hostdeviceinline__ void cuda_generic_dotProductReal (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, uintt offset)
 {
   HOST_INIT();
 
@@ -224,7 +224,7 @@ __hostdeviceinline__ void cuda_generic_dotProductReal (math::Matrix* output, con
   cuda_generic_dotProductRealEx (output, matrix1, matrix2, exs);
 }
 
-__hostdevice__ void CUDA_generic_dotProductRe (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2)
+__hostdevice__ void CUDA_generic_dotProductRe (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2)
 {
   HOST_INIT();
 
@@ -234,7 +234,7 @@ __hostdevice__ void CUDA_generic_dotProductRe (math::Matrix* output, const math:
   threads_sync();
 }
 
-__hostdevice__ void CUDA_generic_dotProductIm (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2)
+__hostdevice__ void CUDA_generic_dotProductIm (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2)
 {
   HOST_INIT();
 
@@ -244,7 +244,7 @@ __hostdevice__ void CUDA_generic_dotProductIm (math::Matrix* output, const math:
   threads_sync();
 }
 
-__hostdevice__ void CUDA_generic_dotProductReal (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2)
+__hostdevice__ void CUDA_generic_dotProductReal (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2)
 {
   HOST_INIT();
 
@@ -254,12 +254,12 @@ __hostdevice__ void CUDA_generic_dotProductReal (math::Matrix* output, const mat
   threads_sync();
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductExOffset (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, MatrixEx exs[3], uintt offset, bool inRange)
+__hostdeviceinline__ void cuda_generic_dotProductExOffset (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, MatrixEx exs[3], uintt offset, bool inRange)
 {
   HOST_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
 
   if (inRange)
   {
@@ -278,13 +278,13 @@ __hostdeviceinline__ void cuda_generic_dotProductExOffset (math::Matrix* output,
   }
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductUserThreads (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, uintt t0[2], uintt t1[2], uintt offset, bool inRange)
+__hostdeviceinline__ void cuda_generic_dotProductUserThreads (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, uintt t0[2], uintt t1[2], uintt offset, bool inRange)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
 
   MatrixEx exs[3];
   cuAux_initMatrixExs (exs, output, matrix1, matrix2);
@@ -319,7 +319,7 @@ __hostdeviceinline__ void cuda_generic_dotProductUserThreads (math::Matrix* outp
   }
 }
 
-__hostdeviceinline__ void cuda_generic_dotProductInRange (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2, uintt offset, bool inRange)
+__hostdeviceinline__ void cuda_generic_dotProductInRange (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2, uintt offset, bool inRange)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -330,7 +330,7 @@ __hostdeviceinline__ void cuda_generic_dotProductInRange (math::Matrix* output, 
   cuda_generic_dotProductUserThreads (output, matrix1, matrix2, t0, t1, offset, inRange);
 }
 
-__hostdeviceinline__ void cuda_generic_dotProduct (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2)
+__hostdeviceinline__ void cuda_generic_dotProduct (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -340,7 +340,7 @@ __hostdeviceinline__ void cuda_generic_dotProduct (math::Matrix* output, const m
   cuda_generic_dotProductInRange (output, matrix1, matrix2, gColumns (matrix1), inRange);
 }
 
-__hostdevice__ void CUDA_generic_dotProduct (math::Matrix* output, const math::Matrix* matrix1, const math::Matrix* matrix2)
+__hostdevice__ void CUDA_generic_dotProduct (math::ComplexMatrix* output, const math::ComplexMatrix* matrix1, const math::ComplexMatrix* matrix2)
 {
   cuda_generic_dotProduct (output, matrix1, matrix2);
   threads_sync ();

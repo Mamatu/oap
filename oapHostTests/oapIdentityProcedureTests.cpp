@@ -36,7 +36,7 @@ class OapIdentityProcedureTests : public OapCudaStub {
 class IdentityStubImpl : public HostKernel {
   uintt m_columns;
   uintt m_rows;
-  math::Matrix* m_matrix;
+  math::ComplexMatrix* m_matrix;
 
  public:
   IdentityStubImpl(uintt columns, uintt rows)
@@ -54,7 +54,7 @@ class IdentityStubImpl : public HostKernel {
     CUDA_SetIdentityReMatrix(m_matrix);
   }
 
-  math::Matrix* getMatrix() const { return m_matrix; }
+  math::ComplexMatrix* getMatrix() const { return m_matrix; }
 };
 
 TEST_F(OapIdentityProcedureTests, Test1) {

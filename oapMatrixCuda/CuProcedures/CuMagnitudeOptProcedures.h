@@ -27,7 +27,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_magnitudeOptRealMatrix (floatt* sum, math::Matrix* matrix1, floatt* buffer)
+__hostdevice__ void CUDA_magnitudeOptRealMatrix (floatt* sum, math::ComplexMatrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
   uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1));
@@ -49,7 +49,7 @@ __hostdevice__ void CUDA_magnitudeOptRealMatrix (floatt* sum, math::Matrix* matr
   }
 }
 
-__hostdevice__ void CUDA_magnitudeOptReMatrix (floatt* sum, math::Matrix* matrix1, floatt* buffer)
+__hostdevice__ void CUDA_magnitudeOptReMatrix (floatt* sum, math::ComplexMatrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
   uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1));
@@ -71,7 +71,7 @@ __hostdevice__ void CUDA_magnitudeOptReMatrix (floatt* sum, math::Matrix* matrix
   }
 }
 
-__hostdevice__ void CUDA_magnitudeOptImMatrix (floatt* sum, math::Matrix* matrix1, floatt* buffer)
+__hostdevice__ void CUDA_magnitudeOptImMatrix (floatt* sum, math::ComplexMatrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
   uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, gColumns (matrix1));
@@ -93,11 +93,11 @@ __hostdevice__ void CUDA_magnitudeOptImMatrix (floatt* sum, math::Matrix* matrix
   }
 }
 
-__hostdevice__ void CUDA_magnitudeOpt (floatt* sum, math::Matrix* matrix1, floatt* buffer)
+__hostdevice__ void CUDA_magnitudeOpt (floatt* sum, math::ComplexMatrix* matrix1, floatt* buffer)
 {
   HOST_INIT();
-  bool isre = matrix1->re.ptr != NULL;
-  bool isim = matrix1->im.ptr != NULL;
+  bool isre = matrix1->re.mem.ptr != NULL;
+  bool isim = matrix1->im.mem.ptr != NULL;
   if (isre && isim)
   {
     CUDA_magnitudeOptRealMatrix(sum, matrix1, buffer);
@@ -112,12 +112,12 @@ __hostdevice__ void CUDA_magnitudeOpt (floatt* sum, math::Matrix* matrix1, float
   }
 }
 
-__hostdevice__ floatt CUDA_calcMagnitudeOptEx (math::Matrix* matrix1, floatt* buffer, uintt column, uintt row, uintt columns, uintt rows)
+__hostdevice__ floatt CUDA_calcMagnitudeOptEx (math::ComplexMatrix* matrix1, floatt* buffer, uintt column, uintt row, uintt columns, uintt rows)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
-  bool isre = matrix1->re.ptr != NULL;
-  bool isim = matrix1->im.ptr != NULL;
+  bool isre = matrix1->re.mem.ptr != NULL;
+  bool isim = matrix1->im.mem.ptr != NULL;
 
   uintt xlength = aux_GetLength(blockIdx.x, blockDim.x, columns);
   uintt ylength = aux_GetLength(blockIdx.y, blockDim.y, rows);
@@ -153,7 +153,7 @@ __hostdevice__ floatt CUDA_calcMagnitudeOptEx (math::Matrix* matrix1, floatt* bu
   return sum;
 }
 
-__hostdevice__ void CUDA_magnitudeOptEx (floatt* sum, math::Matrix* matrix1, floatt* buffer, uintt column, uintt row, uintt columns, uintt rows)
+__hostdevice__ void CUDA_magnitudeOptEx (floatt* sum, math::ComplexMatrix* matrix1, floatt* buffer, uintt column, uintt row, uintt columns, uintt rows)
 {
   HOST_INIT();
 

@@ -30,13 +30,13 @@ const char* ID_COLUMNS = "columns";
 const char* ID_ROWS = "rows";
 const char* ID_LENGTH = "length";
 
-MatrixRange::MatrixRange(const math::Matrix* matrix)
+MatrixRange::MatrixRange(const math::ComplexMatrix* matrix)
     : Range(0, gColumns (matrix), 0, gRows (matrix)), m_matrix(matrix) {}
 
-MatrixRange::MatrixRange(const math::Matrix* matrix, const Range& range)
+MatrixRange::MatrixRange(const math::ComplexMatrix* matrix, const Range& range)
     : Range(range), m_matrix(matrix) {}
 
-MatrixRange::MatrixRange(const math::Matrix* matrix, uintt bcolumn,
+MatrixRange::MatrixRange(const math::ComplexMatrix* matrix, uintt bcolumn,
                          uintt columns, uintt brow, uintt rows)
     : Range(bcolumn, columns, brow, rows), m_matrix(matrix) {}
 
@@ -46,7 +46,7 @@ bool MatrixRange::isReValues() const { return gReValues (m_matrix) != NULL; }
 
 bool MatrixRange::isImValues() const { return gImValues (m_matrix) != NULL; }
 
-const math::Matrix* MatrixRange::getMatrix() const { return m_matrix; }
+const math::ComplexMatrix* MatrixRange::getMatrix() const { return m_matrix; }
 
 uintt MatrixRange::getEColumn() const {
   return std::min(m_bcolumn + m_columns, gColumns (m_matrix));
@@ -65,7 +65,7 @@ void MatrixRange::getImSubArrays(SubArrays<floatt>& subArrays) const {
 }
 
 void MatrixRange::getSubArrays(SubArrays<floatt>& subArrays, floatt* array,
-                               const math::Matrix* matrix) const {
+                               const math::ComplexMatrix* matrix) const {
   for (uintt fa = m_brow; fa < m_rows; ++fa) {
     uintt bindex = m_bcolumn + (m_brow + fa) * gColumns (matrix);
     subArrays.push_back(std::make_pair(&array[bindex], m_columns));

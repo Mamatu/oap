@@ -46,7 +46,7 @@ __hostdeviceinline__ bool cuda_calc (uintt& output, uintt blockLength, uintt len
   return cont;
 }
 
-__hostdeviceinline__ void cuda_createExsForDotProduct (MatrixEx exs[3], uintt matrixIdxX, uintt matrixIdxY, uintt idx, const math::Matrix* output, const math::Matrix* params0, const math::Matrix* params1)
+__hostdeviceinline__ void cuda_createExsForDotProduct (MatrixEx exs[3], uintt matrixIdxX, uintt matrixIdxY, uintt idx, const math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -70,7 +70,7 @@ __hostdeviceinline__ void cuda_createExsForDotProduct (MatrixEx exs[3], uintt ma
   cuda_calc (exs[2].rows, h, gRows (params1), idx);
 }
 
-__hostdeviceinline__ bool cuda_createExsForCopy (MatrixEx exs[3], uintt idx, const math::Matrix* params0, const math::Matrix* params1)
+__hostdeviceinline__ bool cuda_createExsForCopy (MatrixEx exs[3], uintt idx, const math::ComplexMatrix* params0, const math::ComplexMatrix* params1)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -92,14 +92,14 @@ __hostdeviceinline__ bool cuda_createExsForCopy (MatrixEx exs[3], uintt idx, con
   return cont1;
 }
 
-__hostdevice__ void CUDA_dotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1, floatt* sharedMemory)
+__hostdevice__ void CUDA_dotProductShared (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1, floatt* sharedMemory)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
   bool inRange = threadIndexX < gColumns (output) && threadIndexY < gRows (output);
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
 
 
   const uintt w = blockDim.x;
@@ -118,8 +118,8 @@ __hostdevice__ void CUDA_dotProductShared (math::Matrix* output, math::Matrix* p
     MatrixOffset matrixOffset0 = CUDA_createMatrixCopy (sharedMemory, params0, cexs[1]);
     MatrixOffset matrixOffset1 = CUDA_createMatrixCopy (matrixOffset0.buffer, params1, cexs[2]);
 
-    const math::Matrix& sharedParams0 = matrixOffset0.matrix;
-    const math::Matrix& sharedParams1 = matrixOffset1.matrix;
+    const math::ComplexMatrix& sharedParams0 = matrixOffset0.matrix;
+    const math::ComplexMatrix& sharedParams1 = matrixOffset1.matrix;
 
     if (inRange)
     {
@@ -165,7 +165,7 @@ __hostdevice__ void CUDA_dotProductShared (math::Matrix* output, math::Matrix* p
   }
 }
 
-__hostdevice__ void CUDAKernel_dotProductShared (math::Matrix* output, math::Matrix* params0, math::Matrix* params1)
+__hostdevice__ void CUDAKernel_dotProductShared (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
   HOST_INIT();
 

@@ -56,7 +56,7 @@ inline void Free (void* ptr)
 }
 
 #if 0
-math::MatrixInfo GetMatrixInfo(const math::Matrix* devMatrix);
+math::MatrixInfo GetMatrixInfo(const math::ComplexMatrix* devMatrix);
 #endif
 
 void CopyHostToDevice(void* dst, const void* src, uintt size);
@@ -68,21 +68,21 @@ void MoveDeviceToDevice(void* dst, const void* src, uintt size);
 
 void ToHost (void* dst, const void* src, size_t length);
 
-oap::MemoryRegion* GetReMemoryRegionPtr (const math::Matrix* matrix);
-oap::MemoryRegion* GetImMemoryRegionPtr (const math::Matrix* matrix);
+oap::MemoryRegion* GetReMemoryRegionPtr (const math::ComplexMatrix* matrix);
+oap::MemoryRegion* GetImMemoryRegionPtr (const math::ComplexMatrix* matrix);
 
-oap::Memory GetMemory (const math::Matrix* matrix, oap::Memory* cuptr);
+oap::Memory GetMemory (const math::ComplexMatrix* matrix, oap::Memory* cuptr);
 
-oap::Memory GetReMemory (const math::Matrix* matrix);
-oap::Memory GetImMemory (const math::Matrix* matrix);
+oap::Memory GetReMemory (const math::ComplexMatrix* matrix);
+oap::Memory GetImMemory (const math::ComplexMatrix* matrix);
 
-oap::MemoryRegion GetMemoryRegion (const math::Matrix* matrix, oap::MemoryRegion* cuptr);
+oap::MemoryRegion GetMemoryRegion (const math::ComplexMatrix* matrix, oap::MemoryRegion* cuptr);
 
-oap::MemoryRegion GetReMemoryRegion (const math::Matrix* matrix);
-oap::MemoryRegion GetImMemoryRegion (const math::Matrix* matrix);
+oap::MemoryRegion GetReMemoryRegion (const math::ComplexMatrix* matrix);
+oap::MemoryRegion GetImMemoryRegion (const math::ComplexMatrix* matrix);
 
-//uintt GetColumns(const math::Matrix* matrix);
-//uintt GetRows(const math::Matrix* matrix);
+//uintt GetColumns(const math::ComplexMatrix* matrix);
+//uintt GetRows(const math::ComplexMatrix* matrix);
 
 CUdeviceptr GetBColumnAddress(const MatrixEx* matrixEx);
 CUdeviceptr GetColumnsAddress(const MatrixEx* matrixEx);
@@ -101,26 +101,26 @@ CUdeviceptr SetImMatrixToNull(CUdeviceptr devicePtrMatrix);
 
 void SetVariables(CUdeviceptr devicePtrMatrix, uintt columns, uintt rows);
 
-void SetReValue (math::Matrix* m, uintt index, floatt value);
-floatt GetReValue (const math::Matrix* m, uintt index);
+void SetReValue (math::ComplexMatrix* m, uintt index, floatt value);
+floatt GetReValue (const math::ComplexMatrix* m, uintt index);
 
-void SetImValue (math::Matrix* m, uintt index, floatt value);
-floatt GetImValue (const math::Matrix* m, uintt index);
+void SetImValue (math::ComplexMatrix* m, uintt index, floatt value);
+floatt GetImValue (const math::ComplexMatrix* m, uintt index);
 
 #if 0
-floatt GetReDiagonal(math::Matrix* m, uintt index);
-floatt GetImDiagonal(math::Matrix* m, uintt index);
+floatt GetReDiagonal(math::ComplexMatrix* m, uintt index);
+floatt GetImDiagonal(math::ComplexMatrix* m, uintt index);
 
-void SetZeroMatrix(math::Matrix* matrix, bool re = true, bool im = true);
-void SetZeroRow(math::Matrix* matrix, uintt index, bool re = true, bool im = true);
+void SetZeroMatrix(math::ComplexMatrix* matrix, bool re = true, bool im = true);
+void SetZeroRow(math::ComplexMatrix* matrix, uintt index, bool re = true, bool im = true);
 #endif
-void GetMatrixStr(std::string& output, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
+void GetMatrixStr(std::string& output, const math::ComplexMatrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 
-void PrintMatrix(FILE* stream, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
+void PrintMatrix(FILE* stream, const math::ComplexMatrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 
-void PrintMatrix(const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
+void PrintMatrix(const math::ComplexMatrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 
-void PrintMatrix(const std::string& output, const math::Matrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
+void PrintMatrix(const std::string& output, const math::ComplexMatrix* matrix, floatt zeroLimit = 0, bool repeats = false, const std::string& sectionSeparator = "|\n");
 
 }
 

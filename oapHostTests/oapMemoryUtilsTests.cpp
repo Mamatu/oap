@@ -341,11 +341,11 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_16)
   oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
   oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
 
-  std::vector<math::Matrix*> outputs = {output1, output2};
+  std::vector<math::ComplexMatrix*> outputs = {output1, output2};
 
-  std::vector<std::vector<math::Matrix*>> matricesArgs = {{output1, matrix1}, {output2, matrix2}};
+  std::vector<std::vector<math::ComplexMatrix*>> matricesArgs = {{output1, matrix1}, {output2, matrix2}};
   std::vector<math::MatrixInfo> matrixInfos = {oap::host::GetMatrixInfo (output1), oap::host::GetMatrixInfo (output2)};
-  std::vector<std::vector<math::Matrix>> matrixRefs =
+  std::vector<std::vector<math::ComplexMatrix>> matrixRefs =
   {
     {oap::host::GetRefHostMatrix (matricesArgs[0][0]), oap::host::GetRefHostMatrix (matricesArgs[0][1])},
     {oap::host::GetRefHostMatrix (matricesArgs[1][0]), oap::host::GetRefHostMatrix (matricesArgs[1][1])},
@@ -366,7 +366,7 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_16)
 
         for (uintt argidx = 0; argidx < arglen; ++argidx)
         {
-          indecies.push_back (oap::common::GetMemIdxFromMatrixIdx (matrixRefs[index][argidx].re, matrixRefs[index][argidx].reReg, matrixIdx));
+          indecies.push_back (oap::common::GetMemIdxFromMatrixIdx (matrixRefs[index][argidx].re.mem, matrixRefs[index][argidx].re.reg, matrixIdx));
         }
 
         matrixIdx = matrixIdx + 1;
@@ -386,9 +386,9 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_16)
 
 TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_17)
 {
-  std::vector<std::vector<math::Matrix*>> matricesArgs;
+  std::vector<std::vector<math::ComplexMatrix*>> matricesArgs;
   std::vector<math::MatrixInfo> matrixInfos;
-  std::vector<std::vector<math::Matrix>> matrixRefs;
+  std::vector<std::vector<math::ComplexMatrix>> matrixRefs;
   for (uintt idx = 0; idx < 134; ++idx)
   {
     matricesArgs.push_back ({oap::host::NewReMatrix(1,1)});
@@ -411,7 +411,7 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_17)
 
         for (uintt argidx = 0; argidx < arglen; ++argidx)
         {
-          indecies.push_back (oap::common::GetMemIdxFromMatrixIdx (matrixRefs[index][argidx].re, matrixRefs[index][argidx].reReg, matrixIdx));
+          indecies.push_back (oap::common::GetMemIdxFromMatrixIdx (matrixRefs[index][argidx].re.mem, matrixRefs[index][argidx].re.reg, matrixIdx));
         }
 
         matrixIdx = matrixIdx + 1;

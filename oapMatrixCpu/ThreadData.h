@@ -43,18 +43,18 @@ public:
             m_subrows = 0;
         }
 
-        SubMatrix& operator=(math::Matrix* matrix) {
+        SubMatrix& operator=(math::ComplexMatrix* matrix) {
             m_matrix = matrix;
             m_subcolumns = gColumns (matrix);
             m_subrows = gRows (matrix);
             return *this;
         }
 
-        math::Matrix* operator->() const {
+        math::ComplexMatrix* operator->() const {
             return m_matrix;
         }
 
-        math::Matrix* m_matrix;
+        math::ComplexMatrix* m_matrix;
         uintt m_subrows;
         uintt m_subcolumns;
     };

@@ -28,7 +28,7 @@
 #include "CuDotProductSpecificProcedures.h"
 #include "CuSwitchPointer.h"
 
-__hostdevice__ void CUDA_invertMatrix (math::Matrix* AI, math::Matrix* A, math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3)
+__hostdevice__ void CUDA_invertMatrix (math::ComplexMatrix* AI, math::ComplexMatrix* A, math::ComplexMatrix* aux1, math::ComplexMatrix* aux2, math::ComplexMatrix* aux3)
 {
   HOST_INIT();
 

@@ -29,11 +29,11 @@ class OapTransposeTests : public testing::Test
 
 TEST_F(OapTransposeTests, DeviceNoTransposeTest)
 {
-  math::Matrix* hostMatrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
-  math::Matrix* hostMatrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
+  math::ComplexMatrix* hostMatrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
+  math::ComplexMatrix* hostMatrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
 
-  math::Matrix* dMatrix = oap::cuda::NewDeviceReMatrix(1000, 1);
-  math::Matrix* dMatrixT = oap::cuda::NewDeviceReMatrix(1, 1000);
+  math::ComplexMatrix* dMatrix = oap::cuda::NewDeviceReMatrix(1000, 1);
+  math::ComplexMatrix* dMatrixT = oap::cuda::NewDeviceReMatrix(1, 1000);
 
   oap::cuda::CopyHostMatrixToDeviceMatrix(dMatrix, hostMatrix);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dMatrixT, hostMatrixT);
@@ -51,11 +51,11 @@ TEST_F(OapTransposeTests, DeviceNoTransposeTest)
 
 TEST_F(OapTransposeTests, DeviceTransposeTest)
 {
-  math::Matrix* hostMatrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
-  math::Matrix* hostMatrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
+  math::ComplexMatrix* hostMatrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
+  math::ComplexMatrix* hostMatrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
 
-  math::Matrix* dMatrix = oap::cuda::NewDeviceReMatrix(1000, 1);
-  math::Matrix* dMatrixT = oap::cuda::NewDeviceReMatrix(1, 1000);
+  math::ComplexMatrix* dMatrix = oap::cuda::NewDeviceReMatrix(1000, 1);
+  math::ComplexMatrix* dMatrixT = oap::cuda::NewDeviceReMatrix(1, 1000);
 
   oap::cuda::CopyHostMatrixToDeviceMatrix(dMatrix, hostMatrix);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dMatrixT, hostMatrixT);

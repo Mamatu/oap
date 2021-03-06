@@ -78,7 +78,7 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_1)
 
   oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
 
-  std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + vec.size());
+  std::vector<floatt> output (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + vec.size());
   std::vector<floatt> expectedOutput = {0, 1, 2, 3, 4, 5};
 
   EXPECT_EQ (expectedOutput, output);
@@ -105,7 +105,7 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_2)
 
   oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
 
-  std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
+  std::vector<floatt> output (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
 
   EXPECT_EQ (expectedOutput, output);
@@ -132,7 +132,7 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_3)
 
   oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
 
-  std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
+  std::vector<floatt> output (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 6, 7, 4, 4, 8, 2, 5, 5, 0, 0};
 
   EXPECT_EQ (expectedOutput, output);

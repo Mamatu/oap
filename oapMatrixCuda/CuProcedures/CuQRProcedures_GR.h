@@ -32,8 +32,8 @@
 #include "CuSubtractionProcedures.h"
 #include "CuSwitchPointer.h"
 
-__hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
-                                        uintt row, math::Matrix* G, uintt tx,
+__hostdevice__ void CUDA_prepareGMatrix(math::ComplexMatrix* A, uintt column,
+                                        uintt row, math::ComplexMatrix* G, uintt tx,
                                         uintt ty) {
   HOST_INIT();
   CUDA_SetIdentityMatrix(G);
@@ -71,11 +71,11 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
     floatt is = 0;
     floatt c = 0;
     floatt ic = 0;
-    if (A->re.ptr != NULL) {
+    if (A->re.mem.ptr != NULL) {
       s = GetRe(A, column, row);
       c = GetRe(A, column, column);
     }
-    if (A->im.ptr != NULL) {
+    if (A->im.mem.ptr != NULL) {
       is = GetIm(A, column, row);
       ic = GetIm(A, column, column);
     }
@@ -84,13 +84,13 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
     ic = ic / r;
     s = s / r;
     is = is / r;
-    if (G->re.ptr != NULL) {
+    if (G->re.mem.ptr != NULL) {
       SetRe(G, column, row, -s);
       SetRe(G, column, column, c);
       SetRe(G, row, row, c);
       SetRe(G, row, column, s);
     }
-    if (G->im.ptr != NULL) {
+    if (G->im.mem.ptr != NULL) {
       SetIm(G, column, row, -is);
       SetIm(G, column, column, ic);
       SetIm(G, row, row, ic);
@@ -100,14 +100,14 @@ __hostdevice__ void CUDA_prepareGMatrix(math::Matrix* A, uintt column,
   threads_sync();
 }
 
-__hostdevice__ void CUDA_QRGR(math::Matrix* Q, math::Matrix* R, math::Matrix* A,
-                              math::Matrix* Q1, math::Matrix* R1,
-                              math::Matrix* G, math::Matrix* GT) {
+__hostdevice__ void CUDA_QRGR(math::ComplexMatrix* Q, math::ComplexMatrix* R, math::ComplexMatrix* A,
+                              math::ComplexMatrix* Q1, math::ComplexMatrix* R1,
+                              math::ComplexMatrix* G, math::ComplexMatrix* GT) {
   HOST_INIT();
   uintt tx = blockIdx.x * blockDim.x + threadIdx.x;
   uintt ty = blockIdx.y * blockDim.y + threadIdx.y;
-  math::Matrix* rQ = Q;
-  math::Matrix* rR = R;
+  math::ComplexMatrix* rQ = Q;
+  math::ComplexMatrix* rR = R;
 
   CUDA_copyMatrix(R1, A);
 

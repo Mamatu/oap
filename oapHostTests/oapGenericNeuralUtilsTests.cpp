@@ -73,7 +73,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_1)
 
   oap::nutils::copyToInputs_oneMatrix (layer, vec, oap::host::CopyHostBufferToReMatrix);
 
-  std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + vec.size());
+  std::vector<floatt> output (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + vec.size());
   std::vector<floatt> expectedOutput = {0, 1, 2, 3, 4, 5};
 
   EXPECT_EQ (expectedOutput, output);
@@ -98,7 +98,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_2)
 
   oap::nutils::copyToInputs_oneMatrix (layer, vec, oap::host::CopyHostBufferToReMatrix);
 
-  std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
+  std::vector<floatt> output (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
 
   EXPECT_EQ (expectedOutput, output);
@@ -123,7 +123,7 @@ TEST_F(OapGenericNeuralUtilsTests, CopyIntoTest_3)
 
   oap::nutils::copyToInputs_oneMatrix (layer, vec, oap::host::CopyHostBufferToReMatrix);
 
-  std::vector<floatt> output (hmatrix->re.ptr, hmatrix->re.ptr + ((counts / vec.size()) * vec.size()));
+  std::vector<floatt> output (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 6, 7, 4, 4, 8, 2, 5, 5, 0, 0};
 
   EXPECT_EQ (expectedOutput, output);
@@ -135,22 +135,22 @@ TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_1)
 {
   class NetworkStructureImpl
   {
-    std::vector<math::Matrix*> m_expected;
+    std::vector<math::ComplexMatrix*> m_expected;
     public:
       ~NetworkStructureImpl ()
       {
-        for (math::Matrix* matrix : m_expected)
+        for (math::ComplexMatrix* matrix : m_expected)
         {
           oap::host::DeleteMatrix (matrix);
         }
       }
 
-      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
+      void setExpected (const std::vector<math::ComplexMatrix*>& expected, ArgType argType, LHandler handler = 0)
       {
         m_expected = expected;
       }
 
-      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      std::vector<math::ComplexMatrix*> getExpected (LHandler handler = 0) const
       {
         return m_expected;
       }
@@ -167,7 +167,7 @@ TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_1)
 
   oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::host::CopyHostBufferToReMatrix);
 
-  std::vector<math::Matrix*> output = network.getExpected();
+  std::vector<math::ComplexMatrix*> output = network.getExpected();
 
   std::vector<floatt> actualOutput = oap::nutils::convertToFloattBuffer (output, oap::host::GetMatrixInfo, oap::host::CopyReMatrixToHostBuffer);
   std::vector<floatt> expectedOutput = {0, 1, 2, 3, 4, 5};
@@ -179,22 +179,22 @@ TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_2)
 {
   class NetworkStructureImpl
   {
-    std::vector<math::Matrix*> m_expected;
+    std::vector<math::ComplexMatrix*> m_expected;
     public:
       ~NetworkStructureImpl ()
       {
-        for (math::Matrix* matrix : m_expected)
+        for (math::ComplexMatrix* matrix : m_expected)
         {
           oap::host::DeleteMatrix (matrix);
         }
       }
 
-      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
+      void setExpected (const std::vector<math::ComplexMatrix*>& expected, ArgType argType, LHandler handler = 0)
       {
         m_expected = expected;
       }
 
-      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      std::vector<math::ComplexMatrix*> getExpected (LHandler handler = 0) const
       {
         return m_expected;
       }
@@ -211,7 +211,7 @@ TEST_F(OapGenericNeuralUtilsTests, CreateExpectedVector_2)
 
   oap::nutils::createExpectedOutput (&network, 0, vec, ArgType::HOST, oap::host::NewHostReMatrix, oap::host::CopyHostBufferToReMatrix);
 
-  std::vector<math::Matrix*> output = network.getExpected();
+  std::vector<math::ComplexMatrix*> output = network.getExpected();
 
   std::vector<floatt> actualOutput = oap::nutils::convertToFloattBuffer (output, oap::host::GetMatrixInfo, oap::host::CopyReMatrixToHostBuffer);
   std::vector<floatt> expectedOutput = {0, 1, 1, 2, 2, 3, 3, 5, 4, 8, 5, 9};
@@ -223,22 +223,22 @@ TEST_F(OapGenericNeuralUtilsTests, ConvertToMatrices_1)
 {
   class NetworkStructureImpl
   {
-    std::vector<math::Matrix*> m_expected;
+    std::vector<math::ComplexMatrix*> m_expected;
     public:
       ~NetworkStructureImpl ()
       {
-        for (math::Matrix* matrix : m_expected)
+        for (math::ComplexMatrix* matrix : m_expected)
         {
           oap::host::DeleteMatrix (matrix);
         }
       }
 
-      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
+      void setExpected (const std::vector<math::ComplexMatrix*>& expected, ArgType argType, LHandler handler = 0)
       {
         m_expected = expected;
       }
 
-      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      std::vector<math::ComplexMatrix*> getExpected (LHandler handler = 0) const
       {
         return m_expected;
       }
@@ -251,31 +251,31 @@ TEST_F(OapGenericNeuralUtilsTests, ConvertToMatrices_1)
   auto expected = network.getExpected();
 
   EXPECT_EQ(1, expected.size());
-  EXPECT_EQ(1, expected[0]->re.dims.width);
-  EXPECT_EQ(1, expected[0]->re.dims.height);
-  EXPECT_EQ(0.f, expected[0]->re.ptr[0]);
+  EXPECT_EQ(1, expected[0]->re.mem.dims.width);
+  EXPECT_EQ(1, expected[0]->re.mem.dims.height);
+  EXPECT_EQ(0.f, expected[0]->re.mem.ptr[0]);
 }
 
 TEST_F(OapGenericNeuralUtilsTests, ConvertToMatrices_2)
 {
   class NetworkStructureImpl
   {
-    std::vector<math::Matrix*> m_expected;
+    std::vector<math::ComplexMatrix*> m_expected;
     public:
       ~NetworkStructureImpl ()
       {
-        for (math::Matrix* matrix : m_expected)
+        for (math::ComplexMatrix* matrix : m_expected)
         {
           oap::host::DeleteMatrix (matrix);
         }
       }
 
-      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
+      void setExpected (const std::vector<math::ComplexMatrix*>& expected, ArgType argType, LHandler handler = 0)
       {
         m_expected = expected;
       }
 
-      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      std::vector<math::ComplexMatrix*> getExpected (LHandler handler = 0) const
       {
         return m_expected;
       }
@@ -289,39 +289,39 @@ TEST_F(OapGenericNeuralUtilsTests, ConvertToMatrices_2)
 
   EXPECT_EQ(3, expected.size());
 
-  EXPECT_EQ(1, expected[0]->re.dims.width);
-  EXPECT_EQ(1, expected[0]->re.dims.height);
-  EXPECT_EQ(0.f, expected[0]->re.ptr[0]);
+  EXPECT_EQ(1, expected[0]->re.mem.dims.width);
+  EXPECT_EQ(1, expected[0]->re.mem.dims.height);
+  EXPECT_EQ(0.f, expected[0]->re.mem.ptr[0]);
 
-  EXPECT_EQ(1, expected[1]->re.dims.width);
-  EXPECT_EQ(1, expected[1]->re.dims.height);
-  EXPECT_EQ(1.f, expected[1]->re.ptr[0]);
+  EXPECT_EQ(1, expected[1]->re.mem.dims.width);
+  EXPECT_EQ(1, expected[1]->re.mem.dims.height);
+  EXPECT_EQ(1.f, expected[1]->re.mem.ptr[0]);
 
-  EXPECT_EQ(1, expected[2]->re.dims.width);
-  EXPECT_EQ(1, expected[2]->re.dims.height);
-  EXPECT_EQ(2.f, expected[2]->re.ptr[0]);
+  EXPECT_EQ(1, expected[2]->re.mem.dims.width);
+  EXPECT_EQ(1, expected[2]->re.mem.dims.height);
+  EXPECT_EQ(2.f, expected[2]->re.mem.ptr[0]);
 }
 
 TEST_F(OapGenericNeuralUtilsTests, ConvertToMatrices_3)
 {
   class NetworkStructureImpl
   {
-    std::vector<math::Matrix*> m_expected;
+    std::vector<math::ComplexMatrix*> m_expected;
     public:
       ~NetworkStructureImpl ()
       {
-        for (math::Matrix* matrix : m_expected)
+        for (math::ComplexMatrix* matrix : m_expected)
         {
           oap::host::DeleteMatrix (matrix);
         }
       }
 
-      void setExpected (const std::vector<math::Matrix*>& expected, ArgType argType, LHandler handler = 0)
+      void setExpected (const std::vector<math::ComplexMatrix*>& expected, ArgType argType, LHandler handler = 0)
       {
         m_expected = expected;
       }
 
-      std::vector<math::Matrix*> getExpected (LHandler handler = 0) const
+      std::vector<math::ComplexMatrix*> getExpected (LHandler handler = 0) const
       {
         return m_expected;
       }
@@ -335,19 +335,19 @@ TEST_F(OapGenericNeuralUtilsTests, ConvertToMatrices_3)
 
   EXPECT_EQ(2, expected.size());
 
-  EXPECT_EQ(1, expected[0]->re.dims.width);
-  EXPECT_EQ(1, expected[0]->re.dims.height);
-  EXPECT_EQ(0.f, expected[0]->re.ptr[0]);
+  EXPECT_EQ(1, expected[0]->re.mem.dims.width);
+  EXPECT_EQ(1, expected[0]->re.mem.dims.height);
+  EXPECT_EQ(0.f, expected[0]->re.mem.ptr[0]);
 
-  EXPECT_EQ(1, expected[1]->re.dims.width);
-  EXPECT_EQ(2, expected[1]->re.dims.height);
-  EXPECT_EQ(1.f, expected[1]->re.ptr[0]);
-  EXPECT_EQ(2.f, expected[1]->re.ptr[1]);
+  EXPECT_EQ(1, expected[1]->re.mem.dims.width);
+  EXPECT_EQ(2, expected[1]->re.mem.dims.height);
+  EXPECT_EQ(1.f, expected[1]->re.mem.ptr[0]);
+  EXPECT_EQ(2.f, expected[1]->re.mem.ptr[1]);
 }
 
 TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_1)
 {
-  std::vector<math::Matrix*> matrices = {oap::host::NewReMatrixWithValue (1, 1, 1.f)};
+  std::vector<math::ComplexMatrix*> matrices = {oap::host::NewReMatrixWithValue (1, 1, 1.f)};
   std::vector<floatt> actualOutput = oap::nutils::convertToFloattBuffer (matrices, oap::host::GetMatrixInfo, oap::host::CopyReMatrixToHostBuffer);
 
   EXPECT_EQ(1, actualOutput.size());
@@ -357,7 +357,7 @@ TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_1)
 
 TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_2)
 {
-  std::vector<math::Matrix*> matrices = {oap::host::NewReMatrixWithValue (1, 1, 1.f), oap::host::NewReMatrixWithValue (1, 1, 2.f)};
+  std::vector<math::ComplexMatrix*> matrices = {oap::host::NewReMatrixWithValue (1, 1, 1.f), oap::host::NewReMatrixWithValue (1, 1, 2.f)};
   std::vector<floatt> actualOutput = oap::nutils::convertToFloattBuffer (matrices, oap::host::GetMatrixInfo, oap::host::CopyReMatrixToHostBuffer);
 
   EXPECT_EQ(2, actualOutput.size());
@@ -372,7 +372,7 @@ TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_2)
 
 TEST_F(OapGenericNeuralUtilsTests, ConvertToFloattBuffer_3)
 {
-  std::vector<math::Matrix*> matrices =
+  std::vector<math::ComplexMatrix*> matrices =
   {
     oap::host::NewReMatrixWithValue (1, 1, 0.f),
     oap::host::NewReMatrixWithValue (1, 1, 1.f),

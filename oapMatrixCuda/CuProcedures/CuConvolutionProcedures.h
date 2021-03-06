@@ -43,7 +43,7 @@
  * Cache:
  *  |P11*K11 P12*K12 P21*K21 P22*K22 P12*K11 P13*K12 P22*K21 P23*K22 P13*K11 P14*K12 P23*K21 P24*K22 ...|
  */
-__hostdevice__ void cuda_convolveRe (math::Matrix* output, const math::Matrix* params0, const math::Matrix* kernel, floatt* cache)
+__hostdevice__ void cuda_convolveRe (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* kernel, floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
@@ -64,19 +64,19 @@ __hostdevice__ void cuda_convolveRe (math::Matrix* output, const math::Matrix* p
   }
 }
 
-__hostdevice__ void cuda_convolveIm (math::Matrix* output, const math::Matrix* params0, const math::Matrix* kernel, floatt* cache)
+__hostdevice__ void cuda_convolveIm (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* kernel, floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
-__hostdevice__ void cuda_convolveReal(math::Matrix* output, const math::Matrix* params0, const math::Matrix* kernel, floatt* cache)
+__hostdevice__ void cuda_convolveReal(math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* kernel, floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 }
 
-__hostdevice__ void CUDA_convolveRe(math::Matrix* output, const math::Matrix* params0, const math::Matrix* kernel, floatt* cache)
+__hostdevice__ void CUDA_convolveRe(math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* kernel, floatt* cache)
 {
   HOST_INIT();
 
@@ -84,7 +84,7 @@ __hostdevice__ void CUDA_convolveRe(math::Matrix* output, const math::Matrix* pa
   threads_sync();
 }
 
-__hostdevice__ void CUDA_convolveIm(math::Matrix* output, const math::Matrix* params0, const math::Matrix* kernel, floatt* cache)
+__hostdevice__ void CUDA_convolveIm(math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* kernel, floatt* cache)
 {
   HOST_INIT();
 
@@ -92,7 +92,7 @@ __hostdevice__ void CUDA_convolveIm(math::Matrix* output, const math::Matrix* pa
   threads_sync();
 }
 
-__hostdevice__ void CUDA_convolveReal(math::Matrix* output, const math::Matrix* params0, const math::Matrix* kernel, floatt* cache)
+__hostdevice__ void CUDA_convolveReal(math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* kernel, floatt* cache)
 {
   HOST_INIT();
 
@@ -100,13 +100,13 @@ __hostdevice__ void CUDA_convolveReal(math::Matrix* output, const math::Matrix* 
   threads_sync();
 }
 
-__hostdevice__ void CUDA_convolve (math::Matrix* output, const math::Matrix* params0, const math::Matrix* kernel, floatt* cache)
+__hostdevice__ void CUDA_convolve (math::ComplexMatrix* output, const math::ComplexMatrix* params0, const math::ComplexMatrix* kernel, floatt* cache)
 {
   HOST_INIT();
   THREAD_INDICES_INIT();
 
-  bool isre = output->re.ptr != NULL;
-  bool isim = output->im.ptr != NULL;
+  bool isre = output->re.mem.ptr != NULL;
+  bool isim = output->im.mem.ptr != NULL;
   bool isInRange = threadIndexX < KEROPER_CONVOLUTION_CALCULATE_CACHE_COLUMNS (params0, kernel, gColumns, gRows) && threadIndexY < KEROPER_CONVOLUTION_CALCULATE_CACHE_ROWS (params0, kernel, gRows);
   if (isre && isim && isInRange)
   {
@@ -122,7 +122,7 @@ __hostdevice__ void CUDA_convolve (math::Matrix* output, const math::Matrix* par
   }
 }
 
-__hostdevice__ void CudaKernel_convolve (math::Matrix* output, const math::Matrix* matrix, const math::Matrix* kernel)
+__hostdevice__ void CudaKernel_convolve (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, const math::ComplexMatrix* kernel)
 {
   floatt* cache = NULL;
   HOST_INIT_SHARED (floatt, cache);

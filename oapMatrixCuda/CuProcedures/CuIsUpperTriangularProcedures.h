@@ -29,7 +29,7 @@
 #define MIN_VALUE 0.001
 
 /*@mamatu todo optimalization */
-__hostdevice__ int CUDA_isUpperRealTriangular(math::Matrix* matrix) {
+__hostdevice__ int CUDA_isUpperRealTriangular(math::ComplexMatrix* matrix) {
   HOST_INIT();
   uintt index = 0;
   int count = gColumns (matrix) - 1;
@@ -46,7 +46,7 @@ __hostdevice__ int CUDA_isUpperRealTriangular(math::Matrix* matrix) {
 }
 
 /*@mamatu todo optimalization */
-__hostdevice__ int CUDA_isUpperReTriangular(math::Matrix* matrix) {
+__hostdevice__ int CUDA_isUpperReTriangular(math::ComplexMatrix* matrix) {
   HOST_INIT();
   uintt index = 0;
   int count = gColumns (matrix) - 1;
@@ -61,7 +61,7 @@ __hostdevice__ int CUDA_isUpperReTriangular(math::Matrix* matrix) {
 }
 
 /*@mamatu todo optimalization */
-__hostdevice__ int CUDA_isUpperImTriangular(math::Matrix* matrix) {
+__hostdevice__ int CUDA_isUpperImTriangular(math::ComplexMatrix* matrix) {
   HOST_INIT();
   uintt index = 0;
   int count = gColumns (matrix) - 1;
@@ -75,10 +75,10 @@ __hostdevice__ int CUDA_isUpperImTriangular(math::Matrix* matrix) {
   return index == count;
 }
 
-__hostdevice__ int CUDA_isUpperTriangular(math::Matrix* matrix) {
+__hostdevice__ int CUDA_isUpperTriangular(math::ComplexMatrix* matrix) {
   HOST_INIT();
-  bool isre = matrix->re.ptr != NULL;
-  bool isim = matrix->im.ptr != NULL;
+  bool isre = matrix->re.mem.ptr != NULL;
+  bool isim = matrix->im.mem.ptr != NULL;
   if (isre && isim) {
     return CUDA_isUpperRealTriangular(matrix);
   } else if (isre) {

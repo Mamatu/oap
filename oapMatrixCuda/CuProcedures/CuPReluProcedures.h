@@ -38,22 +38,22 @@ __hostdevice__ void cuda_dpreluFunc (floatt* output, floatt value, void* ud)
   //cuda_debug ("value = %f", value);
 }
 
-__hostdeviceinline__ void cuda_prelu_alpha (math::Matrix* output, math::Matrix* matrix, floatt alpha)
+__hostdeviceinline__ void cuda_prelu_alpha (math::ComplexMatrix* output, math::ComplexMatrix* matrix, floatt alpha)
 {
   cuda_func_userData (output, matrix, cuda_preluFunc, &alpha);
 }
 
-__hostdeviceinline__ void cuda_dprelu_alpha (math::Matrix* output, math::Matrix* matrix, floatt alpha)
+__hostdeviceinline__ void cuda_dprelu_alpha (math::ComplexMatrix* output, math::ComplexMatrix* matrix, floatt alpha)
 {
   cuda_func_userData (output, matrix, cuda_dpreluFunc, &alpha);
 }
 
-__hostdeviceinline__ void cuda_prelu (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_prelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   cuda_prelu_alpha (output, matrix, 0.01);
 }
 
-__hostdeviceinline__ void cuda_dprelu (math::Matrix* output, math::Matrix* matrix)
+__hostdeviceinline__ void cuda_dprelu (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
   cuda_dprelu_alpha (output, matrix, 0.01);
 }

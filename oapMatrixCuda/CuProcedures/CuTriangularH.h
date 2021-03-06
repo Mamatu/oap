@@ -29,9 +29,9 @@
 #define CUDA_calcUTMatrix_STEPS 10000
 
 __hostdevice__ void CUDA_calcUTMatrix_GR(
-    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
-    math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+    math::ComplexMatrix* H, math::ComplexMatrix* Q, math::ComplexMatrix* R,
+    math::ComplexMatrix* aux1, math::ComplexMatrix* aux2, math::ComplexMatrix* aux3,
+    math::ComplexMatrix* aux4, math::ComplexMatrix* aux5, math::ComplexMatrix* aux6)
 {
   HOST_INIT();
 
@@ -59,9 +59,9 @@ __hostdevice__ void CUDA_calcUTMatrix_GR(
 }
 
 __hostdevice__ void CUDA_calcUTMatrixStep_GR(
-    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* aux3,
-    math::Matrix* aux4, math::Matrix* aux5, math::Matrix* aux6)
+    math::ComplexMatrix* H, math::ComplexMatrix* Q, math::ComplexMatrix* R,
+    math::ComplexMatrix* aux1, math::ComplexMatrix* aux2, math::ComplexMatrix* aux3,
+    math::ComplexMatrix* aux4, math::ComplexMatrix* aux5, math::ComplexMatrix* aux6)
 {
   HOST_INIT();
 
@@ -79,9 +79,9 @@ __hostdevice__ void CUDA_calcUTMatrixStep_GR(
 }
 
 __hostdevice__ void CUDAKernel_calcUTMatrix_HR(
-    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* V,
-    math::Matrix* VT, math::Matrix* P, math::Matrix* VVT, floatt* sharedBuffer)
+    math::ComplexMatrix* H, math::ComplexMatrix* Q, math::ComplexMatrix* R,
+    math::ComplexMatrix* aux1, math::ComplexMatrix* aux2, math::ComplexMatrix* V,
+    math::ComplexMatrix* VT, math::ComplexMatrix* P, math::ComplexMatrix* VVT, floatt* sharedBuffer)
 {
   HOST_INIT();
 
@@ -109,9 +109,9 @@ __hostdevice__ void CUDAKernel_calcUTMatrix_HR(
 }
 
 __hostdevice__ void CUDA_calcUTMatrixStep_HR(
-    math::Matrix* H, math::Matrix* Q, math::Matrix* R,
-    math::Matrix* aux1, math::Matrix* aux2, math::Matrix* V,
-    math::Matrix* VT, math::Matrix* P, math::Matrix* VVT, floatt* sharedBuffer)
+    math::ComplexMatrix* H, math::ComplexMatrix* Q, math::ComplexMatrix* R,
+    math::ComplexMatrix* aux1, math::ComplexMatrix* aux2, math::ComplexMatrix* V,
+    math::ComplexMatrix* VT, math::ComplexMatrix* P, math::ComplexMatrix* VVT, floatt* sharedBuffer)
 {
   HOST_INIT();
 

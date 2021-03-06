@@ -37,7 +37,7 @@
 #include "oapHostMatrixUtils.h"
 #include "CuProcedures/CuKernelOperationsMacros.h"
 
-#define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "Matrix is nullptr.");
+#define CHECK_MATRIX(m) debugAssertMsg (m != NULL, "ComplexMatrix is nullptr.");
 
 namespace oap
 {

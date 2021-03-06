@@ -71,11 +71,11 @@ oap::HostMatrixPtr getImageMatrix (const std::string& imagePath)
   size_t height = png.getOutputHeight().getl();
 
   oap::HostMatrixUPtr imageMatrix = oap::host::NewReMatrix (width, height);
-  //math::Matrix* imageMatrix = oap::host::NewReMatrix (width, height);
-  png.getFloattVector(imageMatrix->re.ptr);
+  //math::ComplexMatrix* imageMatrix = oap::host::NewReMatrix (width, height);
+  png.getFloattVector(imageMatrix->re.mem.ptr);
 
   oap::HostMatrixPtr input = oap::host::NewReMatrix (1, width * height);
-  //math::Matrix* input = oap::host::NewReMatrix (1, width * height);
+  //math::ComplexMatrix* input = oap::host::NewReMatrix (1, width * height);
 
   oap::host::CopyReBuffer (input, imageMatrix);
 
@@ -135,9 +135,9 @@ Context* init (const std::vector<std::pair<std::string, int>>& dataSet)
 
 void runTraining (Context* ctx, floatt learningRate, int repeats)
 {
-  auto runTest = [&](math::Matrix* matrix, size_t idx)
+  auto runTest = [&](math::ComplexMatrix* matrix, size_t idx)
   {
-    math::Matrix* eoutput = oap::host::NewReMatrix (10, 1);
+    math::ComplexMatrix* eoutput = oap::host::NewReMatrix (10, 1);
     auto pair = ctx->dataSet[idx];
 
     if (pair.second > -1)

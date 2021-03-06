@@ -29,7 +29,7 @@
 #include "Matrix.h"
 #include "MatrixEx.h"
 
-__hostdevice__ void CUDA_sumReal (floatt* sumBuffers[2], math::Matrix* matrix1, floatt* buffers[2])
+__hostdevice__ void CUDA_sumReal (floatt* sumBuffers[2], math::ComplexMatrix* matrix1, floatt* buffers[2])
 {
   HOST_INIT();
 
@@ -55,7 +55,7 @@ __hostdevice__ void CUDA_sumReal (floatt* sumBuffers[2], math::Matrix* matrix1, 
   }
 }
 
-__hostdevice__ void CUDA_sumRe (floatt* sumBuffers[2], math::Matrix* matrix1, floatt* buffers[2])
+__hostdevice__ void CUDA_sumRe (floatt* sumBuffers[2], math::ComplexMatrix* matrix1, floatt* buffers[2])
 {
   HOST_INIT();
 
@@ -82,7 +82,7 @@ __hostdevice__ void CUDA_sumRe (floatt* sumBuffers[2], math::Matrix* matrix1, fl
   }
 }
 
-__hostdevice__ void CUDA_sumIm (floatt* sumBuffers[2], math::Matrix* matrix1, floatt* buffers[2])
+__hostdevice__ void CUDA_sumIm (floatt* sumBuffers[2], math::ComplexMatrix* matrix1, floatt* buffers[2])
 {
   HOST_INIT();
 
@@ -107,7 +107,7 @@ __hostdevice__ void CUDA_sumIm (floatt* sumBuffers[2], math::Matrix* matrix1, fl
   }
 }
 
-__hostdevice__ void CUDA_sumShared (floatt* rebuffer, floatt* imbuffer, math::Matrix* matrix1)
+__hostdevice__ void CUDA_sumShared (floatt* rebuffer, floatt* imbuffer, math::ComplexMatrix* matrix1)
 {
   HOST_INIT();
 
@@ -118,8 +118,8 @@ __hostdevice__ void CUDA_sumShared (floatt* rebuffer, floatt* imbuffer, math::Ma
 
   HOST_INIT_SHARED(floatt, sbuffers);
 
-  bool isre = matrix1->re.ptr != NULL;
-  bool isim = matrix1->im.ptr != NULL;
+  bool isre = matrix1->re.mem.ptr != NULL;
+  bool isim = matrix1->im.mem.ptr != NULL;
   if (isre && isim)
   {
     buffers[0] = &sbuffers[0];

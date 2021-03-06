@@ -44,8 +44,8 @@ __hostdevice__ void cuda_CompareBuffer(floatt* buffer, uint sharedIndex,
   }
 }
 
-__hostdevice__ void cuda_CompareRealOpt(floatt* buffer, math::Matrix* m1,
-                                        math::Matrix* m2, uint sharedIndex,
+__hostdevice__ void cuda_CompareRealOpt(floatt* buffer, math::ComplexMatrix* m1,
+                                        math::ComplexMatrix* m2, uint sharedIndex,
                                         uint xlength) {
   HOST_INIT();
   uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
@@ -56,8 +56,8 @@ __hostdevice__ void cuda_CompareRealOpt(floatt* buffer, math::Matrix* m1,
   }
 }
 
-__hostdevice__ void cuda_CompareReOpt(floatt* buffer, math::Matrix* m1,
-                                      math::Matrix* m2, uint sharedIndex,
+__hostdevice__ void cuda_CompareReOpt(floatt* buffer, math::ComplexMatrix* m1,
+                                      math::ComplexMatrix* m2, uint sharedIndex,
                                       uint xlength) {
   HOST_INIT();
   uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);
@@ -68,8 +68,8 @@ __hostdevice__ void cuda_CompareReOpt(floatt* buffer, math::Matrix* m1,
   }
 }
 
-__hostdevice__ void cuda_CompareImOpt(floatt* buffer, math::Matrix* m1,
-                                      math::Matrix* m2, uint sharedIndex,
+__hostdevice__ void cuda_CompareImOpt(floatt* buffer, math::ComplexMatrix* m1,
+                                      math::ComplexMatrix* m2, uint sharedIndex,
                                       uint xlength) {
   HOST_INIT();
   uintt row = GetMatrixRow(threadIdx, blockIdx, blockDim);

@@ -46,11 +46,11 @@ class OapSumTests : public testing::Test {
     oap::HostMatrixPtr hmatrix = newMatrix (columns, rows, 0);
     for (size_t idx = 0; idx < columns * rows; ++idx)
     {
-      if (hmatrix->re.ptr != nullptr)
+      if (hmatrix->re.mem.ptr != nullptr)
       {
         *GetRePtrIndex (hmatrix, idx) = getValue(idx);
       }
-      if (hmatrix->im.ptr != nullptr)
+      if (hmatrix->im.mem.ptr != nullptr)
       {
         *GetImPtrIndex (hmatrix, idx) = getValue(idx);
       }

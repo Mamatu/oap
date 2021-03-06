@@ -165,10 +165,10 @@ class ACTestData
   }
 
   void load() {
-    loadBlock(m_vredir, refV->re.ptr, m_counter);
-    loadBlock(m_vimdir, refV->im.ptr, m_counter);
-    loadBlock(m_wredir, refW->re.ptr, m_counter);
-    loadBlock(m_wimdir, refW->im.ptr, m_counter);
+    loadBlock(m_vredir, refV->re.mem.ptr, m_counter);
+    loadBlock(m_vimdir, refV->im.mem.ptr, m_counter);
+    loadBlock(m_wredir, refW->re.mem.ptr, m_counter);
+    loadBlock(m_wimdir, refW->im.mem.ptr, m_counter);
     ++m_counter;
   }
 
@@ -178,10 +178,10 @@ class ACTestData
 
   void printCounter() const { printf("Counter = %d \n", m_counter); }
 
-  math::Matrix* refV;
-  math::Matrix* hostV;
-  math::Matrix* refW;
-  math::Matrix* hostW;
+  math::ComplexMatrix* refV;
+  math::ComplexMatrix* hostV;
+  math::ComplexMatrix* refW;
+  math::ComplexMatrix* hostW;
 };
 }
 

@@ -43,17 +43,17 @@ __hostdeviceinline__ void cuda_genericApi_mDSigmoidFunc (floatt* output, floatt 
   (*output) =  (*output) * sv * (1.f  - sv);
 }
 
-__hostdeviceinline__ void cuda_genericApi_sigmoid (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_sigmoid (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_genericApi_sigmoidFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_dsigmoid (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_dsigmoid (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_genericApi_dsigmoidFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_multiplyDSigmoid (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_multiplyDSigmoid (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_genericApi_mDSigmoidFunc, mapper);
 }

@@ -75,7 +75,7 @@ class OapCompareTests : public OapCudaStub {
     return (xlength * factor + rest) * ylength;
   }
 
-  static int getExpectedResult(math::Matrix* matrix, const dim3& gridDim,
+  static int getExpectedResult(math::ComplexMatrix* matrix, const dim3& gridDim,
                                const dim3& blockIdx, const dim3& blockDim,
                                const AlgoVersion& algoVersion) {
     return getExpectedResult(gColumns (matrix), gRows (matrix), gridDim, blockIdx,
@@ -85,7 +85,7 @@ class OapCompareTests : public OapCudaStub {
 
 class CompareStubImpl : public HostKernel {
  public:
-  math::Matrix* m_matrix;
+  math::ComplexMatrix* m_matrix;
 
   floatt* m_buffer;
   floatt* m_sums;

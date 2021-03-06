@@ -50,9 +50,9 @@ enum class InitVVectorType
 namespace generic {
 
 namespace {
-inline void aux_swapPointers(math::Matrix** a, math::Matrix** b)
+inline void aux_swapPointers(math::ComplexMatrix** a, math::ComplexMatrix** b)
 {
-   math::Matrix* temp = *b;
+   math::ComplexMatrix* temp = *b;
   *b = *a;
   *a = temp;
 }
@@ -104,23 +104,23 @@ void iram_fVplusfq(Arnoldi& ar, uintt k, Api& api, GetReValue&& getReValue, GetI
 namespace
 {
 template<typename Api>
-void _qr (math::Matrix* Q, math::Matrix* R, math::Matrix* H, const math::MatrixInfo& hinfo, oap::generic::MatricesContext& context, const std::string& memType, Api& api, QRType qrtype)
+void _qr (math::ComplexMatrix* Q, math::ComplexMatrix* R, math::ComplexMatrix* H, const math::MatrixInfo& hinfo, oap::generic::MatricesContext& context, const std::string& memType, Api& api, QRType qrtype)
 {
    auto getter = context.getter();
   if (qrtype == QRType::QRGR)
   {
-    math::Matrix* aux_Q = getter.useMatrix (hinfo, memType);
-    math::Matrix* aux_R = getter.useMatrix (hinfo, memType);
-    math::Matrix* aux_G = getter.useMatrix (hinfo, memType);
-    math::Matrix* aux_GT = getter.useMatrix (hinfo, memType);
+    math::ComplexMatrix* aux_Q = getter.useMatrix (hinfo, memType);
+    math::ComplexMatrix* aux_R = getter.useMatrix (hinfo, memType);
+    math::ComplexMatrix* aux_G = getter.useMatrix (hinfo, memType);
+    math::ComplexMatrix* aux_GT = getter.useMatrix (hinfo, memType);
     api.QRGR (Q, R, H, aux_Q, aux_R, aux_G, aux_GT);
   }
   else if (qrtype == QRType::QRHT)
   {
-    math::Matrix* aux_V = getter.useMatrix (hinfo.isRe, hinfo.isIm, 1, hinfo.rows(), memType);
-    math::Matrix* aux_VT = getter.useMatrix (hinfo.isRe, hinfo.isIm, hinfo.columns(), 1, memType);
-    math::Matrix* aux_P = getter.useMatrix (hinfo, memType);
-    math::Matrix* aux_VVT = getter.useMatrix (hinfo, memType);
+    math::ComplexMatrix* aux_V = getter.useMatrix (hinfo.isRe, hinfo.isIm, 1, hinfo.rows(), memType);
+    math::ComplexMatrix* aux_VT = getter.useMatrix (hinfo.isRe, hinfo.isIm, hinfo.columns(), 1, memType);
+    math::ComplexMatrix* aux_P = getter.useMatrix (hinfo, memType);
+    math::ComplexMatrix* aux_VVT = getter.useMatrix (hinfo, memType);
     api.QRHT (Q, R, H, aux_V, aux_VT, aux_P, aux_VVT);
   }
 }
@@ -141,9 +141,9 @@ namespace iram_singleShiftedQRIteration
 
 struct InOutArgs
 {
-  math::Matrix* Q;
-  math::Matrix* R;
-  math::Matrix* H;
+  math::ComplexMatrix* Q;
+  math::ComplexMatrix* R;
+  math::ComplexMatrix* H;
 };
 
 struct InArgs
@@ -157,7 +157,7 @@ template<typename Api>
 void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm, Api& api, size_t idx, oap::QRType qrtype)
 {
   auto getter = cm.getter ();
-  math::Matrix* aux_HI = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_HI = getter.useMatrix (iargs.hinfo, iargs.memType);
 
   api.setDiagonal (aux_HI, iargs.unwanted[idx].re(), iargs.unwanted[idx].im());
   api.subtract (aux_HI, io.H, aux_HI);
@@ -171,8 +171,8 @@ namespace iram_shiftedQRIterations
 
 struct InOutArgs
 {
-  math::Matrix* Q;
-  math::Matrix* H;
+  math::ComplexMatrix* Q;
+  math::ComplexMatrix* H;
 };
 
 struct InArgs
@@ -188,16 +188,16 @@ void proc (InOutArgs& io, const InArgs& iargs, oap::generic::MatricesContext& cm
   //debugAssert (!ar.m_unwanted.empty());
   auto getter = cm.getter ();
 
-  math::Matrix* aux_QJ = getter.useMatrix (iargs.hinfo, iargs.memType);
-  math::Matrix* aux_QT = getter.useMatrix (iargs.hinfo, iargs.memType);
-  math::Matrix* aux_HO = getter.useMatrix (iargs.hinfo, iargs.memType);
-  math::Matrix* aux_Q1 = getter.useMatrix (iargs.hinfo, iargs.memType);
-  math::Matrix* aux_R = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_QJ = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_QT = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_HO = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_Q1 = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_R = getter.useMatrix (iargs.hinfo, iargs.memType);
 
   api.setIdentity (aux_Q1);
   api.setIdentity (aux_QJ);
 
-  math::Matrix* ioQ = io.Q;
+  math::ComplexMatrix* ioQ = io.Q;
 
   oap::generic::iram_singleShiftedQRIteration::InOutArgs io1;
   io1.Q = aux_Q1;
@@ -229,8 +229,8 @@ namespace iram_calcTriangularH_Host
 
 struct InOutArgs
 {
-  math::Matrix* H;
-  math::Matrix* Q;
+  math::ComplexMatrix* H;
+  math::ComplexMatrix* Q;
 };
 
 struct InArgs
@@ -248,13 +248,13 @@ void proc (InOutArgs& io, const InArgs& iargs, CalcApi& capi, CopyKernelMatrixTo
   bool status = false;
   auto getter1 = iargs.context.getter ();
 
-  math::Matrix* aux_Q = getter1.useMatrix (iargs.thInfo, iargs.memType);
-  math::Matrix* aux_Q1 = getter1.useMatrix (iargs.thInfo, iargs.memType);
+  math::ComplexMatrix* aux_Q = getter1.useMatrix (iargs.thInfo, iargs.memType);
+  math::ComplexMatrix* aux_Q1 = getter1.useMatrix (iargs.thInfo, iargs.memType);
 
-  math::Matrix* aux_R = getter1.useMatrix (iargs.thInfo, iargs.memType);
+  math::ComplexMatrix* aux_R = getter1.useMatrix (iargs.thInfo, iargs.memType);
 
   capi.setIdentity (aux_Q);
-  math::Matrix* ioQ = io.Q;
+  math::ComplexMatrix* ioQ = io.Q;
 
   status = capi.isUpperTriangular (io.H);
 
@@ -278,8 +278,8 @@ namespace iram_calcTriangularH_Generic
 
 struct InOutArgs
 {
-  math::Matrix* H;
-  math::Matrix* Q;
+  math::ComplexMatrix* H;
+  math::ComplexMatrix* Q;
 };
 
 struct InArgs
@@ -294,15 +294,15 @@ void proc (InOutArgs& io, const InArgs& iargs, CalcApi& capi)
 {
   auto getter = iargs.context.getter();
 
-  math::Matrix* aux_R = getter.useMatrix (iargs.hinfo, iargs.memType);
-  math::Matrix* aux_R1 = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_R = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_R1 = getter.useMatrix (iargs.hinfo, iargs.memType);
 
-  math::Matrix* aux_Q = getter.useMatrix (iargs.hinfo, iargs.memType);
-  math::Matrix* aux_Q1 = getter.useMatrix (iargs.hinfo, iargs.memType);
-  math::Matrix* aux_Q2 = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_Q = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_Q1 = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_Q2 = getter.useMatrix (iargs.hinfo, iargs.memType);
 
-  math::Matrix* aux_G = getter.useMatrix (iargs.hinfo, iargs.memType);
-  math::Matrix* aux_GT = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_G = getter.useMatrix (iargs.hinfo, iargs.memType);
+  math::ComplexMatrix* aux_GT = getter.useMatrix (iargs.hinfo, iargs.memType);
 
   capi.calcTriangularH (io.H, io.Q, aux_R, aux_Q, aux_Q1, aux_Q2, aux_R1, aux_G, aux_GT);
 }

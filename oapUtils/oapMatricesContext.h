@@ -35,8 +35,8 @@ class MatricesContext
 {
   private:
 
-    using Allocator = std::function<math::Matrix*(const math::MatrixInfo& minfo)>;
-    using Deallocator = std::function<void(const math::Matrix*)>;
+    using Allocator = std::function<math::ComplexMatrix*(const math::MatrixInfo& minfo)>;
+    using Deallocator = std::function<void(const math::ComplexMatrix*)>;
     
     struct MemType
     {
@@ -47,7 +47,7 @@ class MatricesContext
 
     struct MapEntry
     {
-      math::Matrix* matrix;
+      math::ComplexMatrix* matrix;
       bool isUsed;
       std::string memTypeName;
     };
@@ -72,7 +72,7 @@ class MatricesContext
     {
       private:
         MatricesContext& m_context;
-        std::set<math::Matrix*> m_matricesSet;
+        std::set<math::ComplexMatrix*> m_matricesSet;
 
         Getter() = delete;
 
@@ -81,9 +81,9 @@ class MatricesContext
 
       public:
 
-        inline math::Matrix* useMatrix (const math::MatrixInfo& minfo, const std::string& memTypeName)
+        inline math::ComplexMatrix* useMatrix (const math::MatrixInfo& minfo, const std::string& memTypeName)
         {
-          math::Matrix* matrix = m_context.useMatrix (minfo, memTypeName);
+          math::ComplexMatrix* matrix = m_context.useMatrix (minfo, memTypeName);
 
           const auto& pair = m_matricesSet.insert (matrix);
           debugAssert (pair.second);
@@ -91,7 +91,7 @@ class MatricesContext
           return  matrix;
         }
 
-        inline math::Matrix* useMatrix (bool isRe, bool isIm, uintt columns, uintt rows, const std::string& memTypeName)
+        inline math::ComplexMatrix* useMatrix (bool isRe, bool isIm, uintt columns, uintt rows, const std::string& memTypeName)
         {
           return useMatrix (math::MatrixInfo (isRe, isIm, columns, rows), memTypeName);
         }
@@ -116,15 +116,15 @@ class MatricesContext
       return Getter (*this);
     }
 
-    inline math::Matrix* useMatrix (bool isRe, bool isIm, uintt columns, uintt rows, const std::string& memTypeName)
+    inline math::ComplexMatrix* useMatrix (bool isRe, bool isIm, uintt columns, uintt rows, const std::string& memTypeName)
     {
       math::MatrixInfo minfo (isRe, isIm, columns, rows);
       return useMatrix (minfo, memTypeName);
     }
 
-    inline math::Matrix* useMatrix (const math::MatrixInfo& minfo, const std::string& memTypeName)
+    inline math::ComplexMatrix* useMatrix (const math::MatrixInfo& minfo, const std::string& memTypeName)
     {
-      math::Matrix* matrix = nullptr;
+      math::ComplexMatrix* matrix = nullptr;
       auto range = m_matrices.equal_range (minfo);
 
       for (auto it = range.first; it != range.second; ++it)
@@ -185,7 +185,7 @@ class MatricesContext
       NONE
     };
 
-    inline UsedT isUsed (const math::Matrix* matrix) const
+    inline UsedT isUsed (const math::ComplexMatrix* matrix) const
     {
       for (auto& kv : m_matrices)
       {
@@ -194,7 +194,7 @@ class MatricesContext
           return kv.second.isUsed ? TRUE : FALSE;
         }
       }
-      debugAssertMsg (false, "Matrix is not registed in this MatrixPool: %p", matrix);
+      debugAssertMsg (false, "ComplexMatrix is not registed in this MatrixPool: %p", matrix);
       return NONE;
     }
 

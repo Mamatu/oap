@@ -24,22 +24,22 @@
 namespace math {
 
     void ExpOperationCpu::execute() {
-        math::Matrix* matrix1 = this->m_matrix;
+        math::ComplexMatrix* matrix1 = this->m_matrix;
         //MatrixAllocator& matrixAllocator = *m_module->getMatrixAllocator();
         //MatrixCopier& matrixCopier = *m_module->getMatrixCopier();
-        math::Matrix* matrix2 = oap::host::NewMatrixCopy(matrix1);
-        math::Matrix* matrix3 = oap::host::NewMatrixCopy(matrix1);
-        math::Matrix* matrix4 = oap::host::NewMatrixCopy(matrix1);
+        math::ComplexMatrix* matrix2 = oap::host::NewMatrixCopy(matrix1);
+        math::ComplexMatrix* matrix3 = oap::host::NewMatrixCopy(matrix1);
+        math::ComplexMatrix* matrix4 = oap::host::NewMatrixCopy(matrix1);
         floatt factorial = 1;
-        math::Matrix* m1 = matrix1;
-        math::Matrix* m2 = matrix2;
-        math::Matrix* m3 = matrix3;
-        math::Matrix* m4 = matrix4;
+        math::ComplexMatrix* m1 = matrix1;
+        math::ComplexMatrix* m2 = matrix2;
+        math::ComplexMatrix* m3 = matrix3;
+        math::ComplexMatrix* m4 = matrix4;
         oap::host::CopyMatrix(this->m_output, matrix1);
         serieLimit = 10;
         for (uintt fa = 2; fa<this->serieLimit; ++fa) {
-            math::Matrix* mo = fa % 2 == 0 ? m3 : m2;
-            math::Matrix* mp = fa % 2 == 0 ? m2 : m3;
+            math::ComplexMatrix* mo = fa % 2 == 0 ? m3 : m2;
+            math::ComplexMatrix* mp = fa % 2 == 0 ? m2 : m3;
             this->dotProduct.setOutputMatrix(mo);
             this->dotProduct.setMatrix1(mp);
             this->dotProduct.setMatrix2(m1);

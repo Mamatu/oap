@@ -69,7 +69,7 @@ inline void initDims (uintt dims[2][2][2], const math::MatrixInfo& minfo)
 }
 
 template<typename GetMatrixInfo>
-void initDims (uintt dims[2][2][2], const math::Matrix* matrix, GetMatrixInfo&& getMatrixInfo)
+void initDims (uintt dims[2][2][2], const math::ComplexMatrix* matrix, GetMatrixInfo&& getMatrixInfo)
 {
   initDims (dims, getMatrixInfo (matrix));
 }
@@ -149,7 +149,7 @@ inline math::MatrixInfo check_CopyMatrixToMatrixDims (const math::MatrixInfo& ds
  *
  */
 template<typename Memcpy, typename MatrixMemoryApi>
-void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& memcpy, Memcpy&& memmove, MatrixMemoryApi& dstApi, MatrixMemoryApi& srcApi, bool check = true)
+void copyMatrixToMatrix (math::ComplexMatrix* dst, const math::ComplexMatrix* src, Memcpy&& memcpy, Memcpy&& memmove, MatrixMemoryApi& dstApi, MatrixMemoryApi& srcApi, bool check = true)
 {
   math::MatrixInfo minfo;
   math::MatrixInfo dstInfo = dstApi.getMatrixInfo (dst);
@@ -194,7 +194,7 @@ void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& me
     oap::MemoryRegion region;
   };
 
-  auto getMatrixData = [&getRawPointer, &getMemoryRegion, &getDims] (const math::Matrix* matrix, oap::Memory* const* memPPtr, oap::MemoryRegion* const* regPPtr, MatrixMemoryApi& api)
+  auto getMatrixData = [&getRawPointer, &getMemoryRegion, &getDims] (const math::ComplexMatrix* matrix, oap::Memory* const* memPPtr, oap::MemoryRegion* const* regPPtr, MatrixMemoryApi& api)
   {
     oap::Memory* memory = nullptr;
     api.transferValueToHost (&memory, memPPtr, sizeof (oap::Memory*));
@@ -210,14 +210,14 @@ void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& me
     return data;
   };
 
-  auto getReMatrixData = [&](const math::Matrix* matrix, MatrixMemoryApi& api)
+  auto getReMatrixData = [&](const math::ComplexMatrix* matrix, MatrixMemoryApi& api)
   {
-    return getMatrixData (matrix, &(matrix->re), &(matrix->reReg), api);
+    return getMatrixData (matrix, &(matrix->re.mem), &(matrix->re.reg), api);
   };
 
-  auto getImMatrixData = [&](const math::Matrix* matrix, MatrixMemoryApi& api)
+  auto getImMatrixData = [&](const math::ComplexMatrix* matrix, MatrixMemoryApi& api)
   {
-    return getMatrixData (matrix, &(matrix->im), &(matrix->imReg), api);
+    return getMatrixData (matrix, &(matrix->im.mem), &(matrix->im.reg), api);
   };
 
   if (minfo.isRe)
@@ -237,7 +237,7 @@ void copyMatrixToMatrix (math::Matrix* dst, const math::Matrix* src, Memcpy&& me
 
 namespace
 {
-inline void printCustomMatrix (std::string& output, const math::Matrix* matrix, const matrixUtils::PrintArgs& args, const math::MatrixInfo& minfo)
+inline void printCustomMatrix (std::string& output, const math::ComplexMatrix* matrix, const matrixUtils::PrintArgs& args, const math::MatrixInfo& minfo)
 {
   uintt columns = minfo.columns ();
   uintt rows = minfo.rows ();
@@ -257,7 +257,7 @@ inline void printCustomMatrix (std::string& output, const math::Matrix* matrix, 
 }
 
 template<typename GetMatrixInfo>
-void printMatrix (std::string& output, const math::Matrix* matrix, const matrixUtils::PrintArgs& args, GetMatrixInfo&& getMatrixInfo)
+void printMatrix (std::string& output, const math::ComplexMatrix* matrix, const matrixUtils::PrintArgs& args, GetMatrixInfo&& getMatrixInfo)
 {
   math::MatrixInfo minfo = getMatrixInfo (matrix);
 
@@ -265,12 +265,12 @@ void printMatrix (std::string& output, const math::Matrix* matrix, const matrixU
 }
 
 template<typename GetMatrixInfo, typename NewMatrix, typename DeleteMatrix, typename CopyMatrixToMatrix>
-void printMatrix (std::string& output, const math::Matrix* matrix, const matrixUtils::PrintArgs& args,
+void printMatrix (std::string& output, const math::ComplexMatrix* matrix, const matrixUtils::PrintArgs& args,
                   GetMatrixInfo&& getMatrixInfo, NewMatrix&& newMatrix, DeleteMatrix&& deleteMatrix, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
   math::MatrixInfo minfo = getMatrixInfo(matrix);
 
-  math::Matrix* hmatrix = newMatrix (minfo);
+  math::ComplexMatrix* hmatrix = newMatrix (minfo);
   copyMatrixToMatrix (hmatrix, matrix);
 
   oap::generic::printCustomMatrix (output, hmatrix, args, minfo);
@@ -279,7 +279,7 @@ void printMatrix (std::string& output, const math::Matrix* matrix, const matrixU
 }
 
 template<typename GetMemory, typename GetMemoryRegion, typename Memcpy>
-void setMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt row, GetMemory&& getMemory, GetMemoryRegion&& getMemoryRegion, Memcpy&& memcpy, Memcpy&& memmove)
+void setMatrix (math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt column, uintt row, GetMemory&& getMemory, GetMemoryRegion&& getMemoryRegion, Memcpy&& memcpy, Memcpy&& memmove)
 {
   oap::Memory hmem = getMemory (matrix);
   oap::Memory hmem1 = getMemory (matrix1);
@@ -297,9 +297,9 @@ void setMatrix (math::Matrix* matrix, math::Matrix* matrix1, uintt column, uintt
 }
 
 template<typename GetRefMatrix, typename GetMemory, typename GetRegion, typename Memcpy>
-floatt getDiagonal(const math::Matrix* matrix, uintt index, GetRefMatrix&& getRefMatrix, GetMemory&& getMemory, GetRegion&& getRegion, Memcpy&& memcpy, Memcpy&& memmove)
+floatt getDiagonal(const math::ComplexMatrix* matrix, uintt index, GetRefMatrix&& getRefMatrix, GetMemory&& getMemory, GetRegion&& getRegion, Memcpy&& gmemcpy, Memcpy&& memmove)
 {
-  math::Matrix hm = getRefMatrix (matrix);
+  math::ComplexMatrix hm = getRefMatrix (matrix);
 
   oapAssert (hm.dim.columns == hm.dim.rows);
 
@@ -311,7 +311,7 @@ floatt getDiagonal(const math::Matrix* matrix, uintt index, GetRefMatrix&& getRe
   if (memory.ptr)
   {
     oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (memory, region, {index, index});
-    oap::generic::copy (&v, {1, 1}, {0, 0}, memory.ptr, memory.dims, {loc, {1, 1}}, memcpy, memmove);
+    oap::generic::copy (&v, {1, 1}, {0, 0}, memory.ptr, memory.dims, {loc, {1, 1}}, gmemcpy, memmove);
   }
 
   return v;

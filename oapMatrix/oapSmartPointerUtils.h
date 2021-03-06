@@ -32,7 +32,7 @@
 namespace deleters
 {
 
-using MatrixDeleter = std::function<void(const math::Matrix*)>;
+using MatrixDeleter = std::function<void(const math::ComplexMatrix*)>;
 
 class MatrixDeleterWrapper
 {
@@ -51,7 +51,7 @@ class MatrixDeleterWrapper
       m_bDeallocate = bDeallocate;
     }
 
-    MatrixDeleterWrapper& operator() (math::Matrix* matrix)
+    MatrixDeleterWrapper& operator() (math::ComplexMatrix* matrix)
     {
       if (m_bDeallocate)
       {
@@ -70,7 +70,7 @@ class MatricesDeleter
     MatricesDeleter (size_t count, deleters::MatrixDeleter deleter) : 
       m_count(count), m_deleter(deleter) {}
 
-    MatricesDeleter& operator() (math::Matrix** matrices)
+    MatricesDeleter& operator() (math::ComplexMatrix** matrices)
     {
       for (size_t idx = 0; idx < m_count; ++idx)
       {

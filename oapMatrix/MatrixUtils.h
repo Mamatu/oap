@@ -45,15 +45,15 @@ class SubArrays : public std::vector<std::pair<T*, uintt> > {};
 
 class MatrixRange : public Range {
  protected:
-  const math::Matrix* m_matrix;
+  const math::ComplexMatrix* m_matrix;
 
   void getSubArrays(SubArrays<floatt>& subArrays, floatt* array,
-                    const math::Matrix* matrix) const;
+                    const math::ComplexMatrix* matrix) const;
 
  public:
-  MatrixRange(const math::Matrix* matrix);
-  MatrixRange(const math::Matrix* matrix, const Range& range);
-  MatrixRange(const math::Matrix* matrix, uintt bcolumn, uintt columns,
+  MatrixRange(const math::ComplexMatrix* matrix);
+  MatrixRange(const math::ComplexMatrix* matrix, const Range& range);
+  MatrixRange(const math::ComplexMatrix* matrix, uintt bcolumn, uintt columns,
               uintt brow, uintt rows);
 
   virtual ~MatrixRange();
@@ -64,7 +64,7 @@ class MatrixRange : public Range {
   virtual uintt getEColumn() const;
   virtual uintt getERow() const;
 
-  const math::Matrix* getMatrix() const;
+  const math::ComplexMatrix* getMatrix() const;
 
   void getReSubArrays(SubArrays<floatt>& subArrays) const;
   void getImSubArrays(SubArrays<floatt>& subArrays) const;
@@ -126,7 +126,7 @@ class PrintArgs
 
     void setReImSeparator (const std::string& _postRe, const std::string& _preIm);
 
-    inline void prepareSection (const math::Matrix* matrix)
+    inline void prepareSection (const math::ComplexMatrix* matrix)
     {
       section.length = gColumns (matrix);
     }

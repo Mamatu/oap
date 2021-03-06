@@ -40,22 +40,22 @@ math::MatrixInfo DeviceLayer::getInputsInfo () const
   return oap::device::getInputsInfo (*this);
 }
 
-void DeviceLayer::getOutputs (math::Matrix* matrix, ArgType type) const
+void DeviceLayer::getOutputs (math::ComplexMatrix* matrix, ArgType type) const
 {
   return oap::device::getOutputs (*this, matrix, type);
 }
 
-void DeviceLayer::getHostWeights (math::Matrix* output)
+void DeviceLayer::getHostWeights (math::ComplexMatrix* output)
 {
   oap::cuda::CopyDeviceMatrixToHostMatrix (output, getBPMatrices()->m_weights);
 }
 
-void DeviceLayer::setHostInputs(const math::Matrix* hInputs)
+void DeviceLayer::setHostInputs(const math::ComplexMatrix* hInputs)
 {
   oap::device::setHostInputs (*this, hInputs);
 }
 
-void DeviceLayer::setDeviceInputs(const math::Matrix* dInputs)
+void DeviceLayer::setDeviceInputs(const math::ComplexMatrix* dInputs)
 {
   oap::device::setDeviceInputs (*this, dInputs);
 }
@@ -70,12 +70,12 @@ void DeviceLayer::printHostWeights (bool newLine) const
   oap::generic::printHostWeights (*this, newLine, oap::cuda::CopyDeviceMatrixToHostMatrix);
 }
 
-void DeviceLayer::setHostWeights (math::Matrix* weights)
+void DeviceLayer::setHostWeights (math::ComplexMatrix* weights)
 {
   oap::device::setHostWeights (*this, weights);
 }
 
-void DeviceLayer::setDeviceWeights (math::Matrix* weights)
+void DeviceLayer::setDeviceWeights (math::ComplexMatrix* weights)
 {
   oap::device::setDeviceWeights (*this, weights);
 }

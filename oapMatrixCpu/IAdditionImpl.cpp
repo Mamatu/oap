@@ -45,9 +45,9 @@ namespace math {
         return status;
     }
 
-    Status IAdditionOperation::beforeExecution(math::Matrix* output,
-            math::Matrix* matrix1, math::Matrix* matrix2,
-            bool(*HasInstance)(math::Matrix* matrix),
+    Status IAdditionOperation::beforeExecution(math::ComplexMatrix* output,
+            math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+            bool(*HasInstance)(math::ComplexMatrix* matrix),
             IAdditionOperation::ExecutionPath& executionPath) {
         Status status = STATUS_OK;
         //MatrixUtils* matrixUtils = m_module->getMatrixUtils();

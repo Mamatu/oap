@@ -42,10 +42,10 @@ namespace aia {
 template<typename MatricesLine, typename GetRefHostMatrix, typename Malloc, typename Memcpy, typename Free>
 ThreadsMapper getThreadsMapper (const std::vector<MatricesLine>& matricesArgs, GetRefHostMatrix&& getRefHostMatrix, Malloc&& malloc, Memcpy&& memcpy, Free&& free)
 {
-  auto createBuffer = [](std::vector<uintt>& indecies, const math::Matrix& matrix, uintt lineIndex, uintt /*argIdx*/, uintt matrixIdx)
+  auto createBuffer = [](std::vector<uintt>& indecies, const math::ComplexMatrix& matrix, uintt lineIndex, uintt /*argIdx*/, uintt matrixIdx)
   {
     indecies.push_back (lineIndex);
-    indecies.push_back (oap::common::GetMemIdxFromMatrixIdx (matrix.re, matrix.reReg, matrixIdx));
+    indecies.push_back (oap::common::GetMemIdxFromMatrixIdx (matrix.re.mem, matrix.re.reg, matrixIdx));
   };
 
   return oap::common::getThreadsMapper (matricesArgs, getRefHostMatrix, malloc, memcpy, free, createBuffer, AIA_INDECIES_COUNT, OAP_THREADS_MAPPER_MODE__AIA);

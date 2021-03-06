@@ -32,163 +32,163 @@
 
 #include "oapMemoryPrimitives.h"
 
-__hostdeviceinline__ uintt gMemoryWidth (const math::Matrix* matrix)
+__hostdeviceinline__ uintt gMemoryWidth (const math::ComplexMatrix* matrix)
 {
-  if (matrix->re.ptr)
+  if (matrix->re.mem.ptr)
   {
-    return matrix->re.dims.width;
+    return matrix->re.mem.dims.width;
   }
-  if (matrix->im.ptr)
+  if (matrix->im.mem.ptr)
   {
-    return matrix->im.dims.width;
+    return matrix->im.mem.dims.width;
   }
   return 0;
 }
 
-__hostdeviceinline__ uintt gMemoryHeight (const math::Matrix* matrix)
+__hostdeviceinline__ uintt gMemoryHeight (const math::ComplexMatrix* matrix)
 {
-  if (matrix->re.ptr)
+  if (matrix->re.mem.ptr)
   {
-    return matrix->re.dims.height;
+    return matrix->re.mem.dims.height;
   }
-  if (matrix->im.ptr)
+  if (matrix->im.mem.ptr)
   {
-    return matrix->im.dims.height;
+    return matrix->im.mem.dims.height;
   }
   return 0;
 }
 
-__hostdeviceinline__ uintt gMemoryColumns (const math::Matrix* matrix)
+__hostdeviceinline__ uintt gMemoryColumns (const math::ComplexMatrix* matrix)
 {
   return gMemoryWidth (matrix);
 }
 
-__hostdeviceinline__ uintt gMemoryRows (const math::Matrix* matrix)
+__hostdeviceinline__ uintt gMemoryRows (const math::ComplexMatrix* matrix)
 {
   return gMemoryHeight (matrix);
 }
 
-__hostdeviceinline__ uintt gMemoryLength (const math::Matrix* matrix)
+__hostdeviceinline__ uintt gMemoryLength (const math::ComplexMatrix* matrix)
 {
   return gMemoryWidth (matrix) * gMemoryHeight (matrix);
 }
 
 
-__hostdeviceinline__ uintt gColumns (const math::Matrix* matrix)
+__hostdeviceinline__ uintt gColumns (const math::ComplexMatrix* matrix)
 {
   return matrix->dim.columns;
 }
 
-__hostdeviceinline__ uintt gRows (const math::Matrix* matrix)
+__hostdeviceinline__ uintt gRows (const math::ComplexMatrix* matrix)
 {
   return matrix->dim.rows;
 }
 
-__hostdeviceinline__ uintt GetColumns (const math::Matrix* matrix)
+__hostdeviceinline__ uintt GetColumns (const math::ComplexMatrix* matrix)
 {
   return gColumns (matrix);
 }
 
-__hostdeviceinline__ uintt GetRows (const math::Matrix* matrix)
+__hostdeviceinline__ uintt GetRows (const math::ComplexMatrix* matrix)
 {
   return gRows (matrix);
 }
 
-__hostdeviceinline__ floatt* gReValues (const math::Matrix* matrix)
+__hostdeviceinline__ floatt* gReValues (const math::ComplexMatrix* matrix)
 {
   if (matrix != NULL)
   {
-    return matrix->re.ptr;
+    return matrix->re.mem.ptr;
   }
   return NULL;
 }
 
-__hostdeviceinline__ floatt* gImValues (const math::Matrix* matrix)
+__hostdeviceinline__ floatt* gImValues (const math::ComplexMatrix* matrix)
 {
   if (matrix != NULL)
   {
-    return matrix->im.ptr;
+    return matrix->im.mem.ptr;
   }
   return NULL;
 }
 
-__hostdeviceinline__ math::MatrixDim convertToMatrixDim (const math::Matrix* matrix)
+__hostdeviceinline__ math::MatrixDim convertToMatrixDim (const math::ComplexMatrix* matrix)
 {
   math::MatrixDim dim = {gColumns (matrix), gRows (matrix)};
   return dim;
 }
 
-__hostdeviceinline__ void SetRe(math::Matrix* m, uintt c, uintt r, floatt v)
+__hostdeviceinline__ void SetRe(math::ComplexMatrix* m, uintt c, uintt r, floatt v)
 {
-  oap::common::SetValue (m->re, m->reReg, c, r, v);
+  oap::common::SetValue (m->re.mem, m->re.reg, c, r, v);
 }
 
-__hostdeviceinline__ void SetReIdx (math::Matrix* m, uintt idx, floatt v)
+__hostdeviceinline__ void SetReIdx (math::ComplexMatrix* m, uintt idx, floatt v)
 {
-  oap::common::SetValueRegionIdx (m->re, m->reReg, idx, v);
+  oap::common::SetValueRegionIdx (m->re.mem, m->re.reg, idx, v);
 }
 
-__hostdeviceinline__ floatt GetRe(const math::Matrix* m, uintt c, uintt r)
+__hostdeviceinline__ floatt GetRe(const math::ComplexMatrix* m, uintt c, uintt r)
 {
   debugAssert (c + r * gColumns (m) < gRows (m) * gColumns (m));
-  return oap::common::GetValue (m->re, m->reReg, c, r);
+  return oap::common::GetValue (m->re.mem, m->re.reg, c, r);
 }
 
-__hostdeviceinline__ floatt GetReIdx(const math::Matrix* m, uintt index) {
-  return oap::common::GetValueRegionIdx (m->re, m->reReg, index);
+__hostdeviceinline__ floatt GetReIdx(const math::ComplexMatrix* m, uintt index) {
+  return oap::common::GetValueRegionIdx (m->re.mem, m->re.reg, index);
 }
 
-__hostdeviceinline__ floatt GetReIndex(const math::Matrix* m, uintt index) {
+__hostdeviceinline__ floatt GetReIndex(const math::ComplexMatrix* m, uintt index) {
   return GetReIdx (m, index);
 }
 
-__hostdeviceinline__ floatt* GetRePtr(const math::Matrix* m, uintt c, uintt r)
+__hostdeviceinline__ floatt* GetRePtr(const math::ComplexMatrix* m, uintt c, uintt r)
 {
   debugAssert (c + r * gColumns (m) < gRows (m) * gColumns (m));
-  return oap::common::GetPtr (m->re, m->reReg, c, r);
+  return oap::common::GetPtr (m->re.mem, m->re.reg, c, r);
 }
 
-__hostdeviceinline__ floatt* GetRePtrIdx(const math::Matrix* m, uintt index) {
-  return oap::common::GetPtrRegionIdx (m->re, m->reReg, index);
+__hostdeviceinline__ floatt* GetRePtrIdx(const math::ComplexMatrix* m, uintt index) {
+  return oap::common::GetPtrRegionIdx (m->re.mem, m->re.reg, index);
 }
 
-__hostdeviceinline__ floatt* GetRePtrIndex(const math::Matrix* m, uintt index) {
+__hostdeviceinline__ floatt* GetRePtrIndex(const math::ComplexMatrix* m, uintt index) {
   return GetRePtrIdx (m, index);
 }
 
-__hostdeviceinline__ void SetIm(math::Matrix* m, uintt c, uintt r, floatt v) {
-  oap::common::SetValue (m->im, m->imReg, c, r, v);
+__hostdeviceinline__ void SetIm(math::ComplexMatrix* m, uintt c, uintt r, floatt v) {
+  oap::common::SetValue (m->im.mem, m->im.reg, c, r, v);
 }
 
-__hostdeviceinline__ void SetImIdx (math::Matrix* m, uintt idx, floatt v)
+__hostdeviceinline__ void SetImIdx (math::ComplexMatrix* m, uintt idx, floatt v)
 {
-  oap::common::SetValueRegionIdx (m->im, m->imReg, idx, v);
+  oap::common::SetValueRegionIdx (m->im.mem, m->im.reg, idx, v);
 }
 
-__hostdeviceinline__ floatt GetIm(const math::Matrix* m, uintt c, uintt r) {
+__hostdeviceinline__ floatt GetIm(const math::ComplexMatrix* m, uintt c, uintt r) {
   debugAssert (c + r * gColumns (m) < gRows (m) * gColumns (m));
-  return oap::common::GetValue (m->im, m->imReg, c, r);
+  return oap::common::GetValue (m->im.mem, m->im.reg, c, r);
 }
 
-__hostdeviceinline__ floatt GetImIdx(const math::Matrix* m, uintt index) {
-  return oap::common::GetValueRegionIdx (m->im, m->imReg, index);
+__hostdeviceinline__ floatt GetImIdx(const math::ComplexMatrix* m, uintt index) {
+  return oap::common::GetValueRegionIdx (m->im.mem, m->im.reg, index);
 }
 
-__hostdeviceinline__ floatt GetImIndex(const math::Matrix* m, uintt index) {
+__hostdeviceinline__ floatt GetImIndex(const math::ComplexMatrix* m, uintt index) {
   return GetImIdx (m, index);
 }
 
-__hostdeviceinline__ floatt* GetImPtr(const math::Matrix* m, uintt c, uintt r)
+__hostdeviceinline__ floatt* GetImPtr(const math::ComplexMatrix* m, uintt c, uintt r)
 {
   debugAssert (c + r * gColumns (m) < gRows (m) * gColumns (m));
-  return oap::common::GetPtr (m->im, m->imReg, c, r);
+  return oap::common::GetPtr (m->im.mem, m->im.reg, c, r);
 }
 
-__hostdeviceinline__ floatt* GetImPtrIdx(const math::Matrix* m, uintt index) {
-  return oap::common::GetPtrRegionIdx (m->im, m->imReg, index);
+__hostdeviceinline__ floatt* GetImPtrIdx(const math::ComplexMatrix* m, uintt index) {
+  return oap::common::GetPtrRegionIdx (m->im.mem, m->im.reg, index);
 }
 
-__hostdeviceinline__ floatt* GetImPtrIndex(const math::Matrix* m, uintt index) {
+__hostdeviceinline__ floatt* GetImPtrIndex(const math::ComplexMatrix* m, uintt index) {
   return GetImPtrIdx (m, index);
 }
 
@@ -198,40 +198,40 @@ __hostdeviceinline__ MatrixEx ConvertToMatrixEx (const oap::MemoryRegion& reg)
   return mex;
 }
 
-__hostdeviceinline__ oap::MemoryLoc GetReMatrixMemoryLoc (const math::Matrix* m)
+__hostdeviceinline__ oap::MemoryLoc GetReMatrixMemoryLoc (const math::ComplexMatrix* m)
 {
-  if (oap::common::isRegion (m->reReg))
+  if (oap::common::isRegion (m->re.reg))
   {
-    return m->reReg.loc;
+    return m->re.reg.loc;
   }
   return {0, 0};
 }
 
-__hostdeviceinline__ oap::MemoryLoc GetImMatrixMemoryLoc (const math::Matrix* m)
+__hostdeviceinline__ oap::MemoryLoc GetImMatrixMemoryLoc (const math::ComplexMatrix* m)
 {
-  if (oap::common::isRegion (m->imReg))
+  if (oap::common::isRegion (m->im.reg))
   {
-    return m->imReg.loc;
+    return m->im.reg.loc;
   }
   return {0, 0};
 }
 
-__hostdeviceinline__ oap::MemoryRegion GetReMatrixMemoryRegion (const math::Matrix* m)
+__hostdeviceinline__ oap::MemoryRegion GetReMatrixMemoryRegion (const math::ComplexMatrix* m)
 {
-  if (oap::common::isRegion (m->reReg))
+  if (oap::common::isRegion (m->re.reg))
   {
-    return m->reReg;
+    return m->re.reg;
   }
-  return {{0, 0}, m->re.dims};
+  return {{0, 0}, m->re.mem.dims};
 }
 
-__hostdeviceinline__ oap::MemoryRegion GetImMatrixMemoryRegion (const math::Matrix* m)
+__hostdeviceinline__ oap::MemoryRegion GetImMatrixMemoryRegion (const math::ComplexMatrix* m)
 {
-  if (oap::common::isRegion (m->imReg))
+  if (oap::common::isRegion (m->im.reg))
   {
-    return m->imReg;
+    return m->im.reg;
   }
-  return {{0, 0}, m->im.dims};
+  return {{0, 0}, m->im.mem.dims};
 }
 
 __hostdeviceinline__ oap::MemoryRegion MergeRegions (const oap::MemoryRegion* region, const oap::MemoryRegion* in)
@@ -242,7 +242,7 @@ __hostdeviceinline__ oap::MemoryRegion MergeRegions (const oap::MemoryRegion* re
   return reg;
 }
 
-__hostdeviceinline__ oap::MemoryRegion GetReMatrixMemoryRegion (const math::Matrix* m, const oap::MemoryRegion* region)
+__hostdeviceinline__ oap::MemoryRegion GetReMatrixMemoryRegion (const math::ComplexMatrix* m, const oap::MemoryRegion* region)
 {
   oap::MemoryRegion matrixRegion = GetReMatrixMemoryRegion (m);
   if (region)
@@ -252,7 +252,7 @@ __hostdeviceinline__ oap::MemoryRegion GetReMatrixMemoryRegion (const math::Matr
   return matrixRegion;
 }
 
-__hostdeviceinline__ oap::MemoryRegion GetImMatrixMemoryRegion (const math::Matrix* m, const oap::MemoryRegion* region)
+__hostdeviceinline__ oap::MemoryRegion GetImMatrixMemoryRegion (const math::ComplexMatrix* m, const oap::MemoryRegion* region)
 {
   oap::MemoryRegion matrixRegion = GetImMatrixMemoryRegion (m);
   if (region)
@@ -262,7 +262,7 @@ __hostdeviceinline__ oap::MemoryRegion GetImMatrixMemoryRegion (const math::Matr
   return matrixRegion;
 }
 
-__hostdeviceinline__ oap::MemoryLoc GetReMatrixMemoryLoc (const math::Matrix* m, const oap::MemoryLoc* loc)
+__hostdeviceinline__ oap::MemoryLoc GetReMatrixMemoryLoc (const math::ComplexMatrix* m, const oap::MemoryLoc* loc)
 {
   oap::MemoryLoc matrixLoc = GetReMatrixMemoryLoc (m);
   if (loc)
@@ -275,7 +275,7 @@ __hostdeviceinline__ oap::MemoryLoc GetReMatrixMemoryLoc (const math::Matrix* m,
   return matrixLoc;
 }
 
-__hostdeviceinline__ oap::MemoryLoc GetImMatrixMemoryLoc (const math::Matrix* m, const oap::MemoryLoc* loc)
+__hostdeviceinline__ oap::MemoryLoc GetImMatrixMemoryLoc (const math::ComplexMatrix* m, const oap::MemoryLoc* loc)
 {
   oap::MemoryLoc matrixLoc = GetImMatrixMemoryLoc (m);
   if (loc)
@@ -311,11 +311,11 @@ __hostdeviceinline__ oap::MemoryRegion GetRefMemoryRegion (const oap::Memory& me
 }
 
 
-__hostdeviceinline__ void Reset(math::Matrix* m) {}
+__hostdeviceinline__ void Reset(math::ComplexMatrix* m) {}
 
-__hostdeviceinline__ void Push(math::Matrix* m) {}
+__hostdeviceinline__ void Push(math::ComplexMatrix* m) {}
 
-__hostdeviceinline__ void Pop(math::Matrix* m) {}
+__hostdeviceinline__ void Pop(math::ComplexMatrix* m) {}
 
 
 #endif  // MATRIXAPI_H

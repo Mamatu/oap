@@ -66,7 +66,7 @@ void PrintMatrix(std::string& output, const MatrixRange& matrixRange, const Prin
   output = sstream.str();
 }
 
-void PrintMatrix(std::string& output, const math::Matrix* matrix, const PrintArgs& args)
+void PrintMatrix(std::string& output, const math::ComplexMatrix* matrix, const PrintArgs& args)
 {
   const floatt zrr = args.zrr;
   const bool repeats = args.repeats;

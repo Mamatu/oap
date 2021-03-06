@@ -69,11 +69,11 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
 
   auto generateInputHostMatrix = [](const Coordinates& coords)
   {
-    std::vector<math::Matrix*> matrices;
+    std::vector<math::ComplexMatrix*> matrices;
 
     for (size_t idx = 0; idx < coords.size(); ++idx)
     {
-      math::Matrix* hinput = oap::host::NewReMatrix (1, 3);
+      math::ComplexMatrix* hinput = oap::host::NewReMatrix (1, 3);
       const auto& coord = coords[idx];
       *GetRePtrIndex (hinput, 0) = coord.getX();
       *GetRePtrIndex (hinput, 1) = coord.getY();
@@ -86,11 +86,11 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
 
   auto generateOutputHostMatrix = [](uintt count, uintt rows = 1)
   {
-    std::vector<math::Matrix*> matrices;
+    std::vector<math::ComplexMatrix*> matrices;
 
     for (size_t idx = 0; idx < count; ++idx)
     {
-      math::Matrix* houtput = oap::host::NewReMatrix (1, rows);
+      math::ComplexMatrix* houtput = oap::host::NewReMatrix (1, rows);
       matrices.push_back (houtput);
     }
 
@@ -99,11 +99,11 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
 
   auto generateExpectedHostMatrix = [](const Coordinates& coords)
   {
-    std::vector<math::Matrix*> matrices;
+    std::vector<math::ComplexMatrix*> matrices;
 
     for (size_t idx = 0; idx < coords.size(); ++idx)
     {
-      math::Matrix* hexpected = oap::host::NewReMatrix (1, 1);
+      math::ComplexMatrix* hexpected = oap::host::NewReMatrix (1, 1);
       const auto& coord = coords[idx];
       *GetRePtrIndex (hexpected, 0) = coord.getPreciseLabel();
       matrices.push_back (hexpected);
@@ -167,14 +167,14 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
   size_t batchSize = 7;
 
   {
-    std::vector<math::Matrix*> testHInputs = generateInputHostMatrix (testData);
-    std::vector<math::Matrix*> trainingHInputs = generateInputHostMatrix (trainingData);
+    std::vector<math::ComplexMatrix*> testHInputs = generateInputHostMatrix (testData);
+    std::vector<math::ComplexMatrix*> trainingHInputs = generateInputHostMatrix (trainingData);
 
-    std::vector<math::Matrix*> testHOutputs = generateOutputHostMatrix (testData.size());
-    std::vector<math::Matrix*> trainingHOutputs = generateOutputHostMatrix (trainingData.size());
+    std::vector<math::ComplexMatrix*> testHOutputs = generateOutputHostMatrix (testData.size());
+    std::vector<math::ComplexMatrix*> trainingHOutputs = generateOutputHostMatrix (trainingData.size());
 
-    std::vector<math::Matrix*> testHExpected = generateExpectedHostMatrix (testData);
-    std::vector<math::Matrix*> trainingHExpected = generateExpectedHostMatrix (trainingData);
+    std::vector<math::ComplexMatrix*> testHExpected = generateExpectedHostMatrix (testData);
+    std::vector<math::ComplexMatrix*> trainingHExpected = generateExpectedHostMatrix (trainingData);
 
     std::unique_ptr<oap::Network> network (new oap::Network(singleApi, multiApi, nga, false));
 
@@ -185,13 +185,13 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
 
     auto createMMLayer = [&network] (LHandler handler, uintt startIdx, const Coordinates& coords, uintt length)
     {
-      std::vector<math::Matrix*> hinputs;
-      std::vector<math::Matrix*> houtputs;
+      std::vector<math::ComplexMatrix*> hinputs;
+      std::vector<math::ComplexMatrix*> houtputs;
       for (uintt idx = startIdx; idx < startIdx + length; ++idx)
       {
         const auto& coordinate = coords[idx];
-        math::Matrix* hinput = oap::host::NewReMatrix (1, 3);
-        math::Matrix* houtput = oap::host::NewReMatrix (1, 1);
+        math::ComplexMatrix* hinput = oap::host::NewReMatrix (1, 3);
+        math::ComplexMatrix* houtput = oap::host::NewReMatrix (1, 1);
         *GetRePtrIndex (hinput, 0) = coordinate.getX();
         *GetRePtrIndex (hinput, 1) = coordinate.getY();
         *GetRePtrIndex (houtput, 0) = coordinate.getPreciseLabel();
@@ -243,7 +243,7 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
     {
       oap::utils::MatrixRandomGenerator mrg (&rg);
       mrg.setFilter (oap::nutils::BiasesFilter<oap::Layer> (current, next, [&getMatrixInfo](const oap::Layer& layer) { return oap::generic::getWeightsInfo(layer, getMatrixInfo); }));
-      oap::nutils::initRandomWeights (current, next, getMatrixInfo, [&nga](math::Matrix* dst, const math::Matrix* src){ nga->copyHostMatrixToKernelMatrix(dst, src); }, mrg);
+      oap::nutils::initRandomWeights (current, next, getMatrixInfo, [&nga](math::ComplexMatrix* dst, const math::ComplexMatrix* src){ nga->copyHostMatrixToKernelMatrix(dst, src); }, mrg);
     });
 
     auto forwardPropagationFP = [&network] (FPHandler handler)
@@ -252,7 +252,7 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
       network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST, handler);
     };
 
-    auto calculateCoordsError = [&forwardPropagationFP, &network](const Coordinates& coords, FPHandler handler, std::vector<math::Matrix*>& hostMatrix, Coordinates* output = nullptr)
+    auto calculateCoordsError = [&forwardPropagationFP, &network](const Coordinates& coords, FPHandler handler, std::vector<math::ComplexMatrix*>& hostMatrix, Coordinates* output = nullptr)
     {
       std::vector<Coordinate> pcoords;
       forwardPropagationFP (handler);
@@ -273,7 +273,7 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
       return error;
     };
 
-    auto calculateCoordsErrorPlot = [&calculateCoordsError, fileType](const Coordinates& coords, FPHandler handler, std::vector<math::Matrix*>& hostMatrix, const std::string& path)
+    auto calculateCoordsErrorPlot = [&calculateCoordsError, fileType](const Coordinates& coords, FPHandler handler, std::vector<math::ComplexMatrix*>& hostMatrix, const std::string& path)
     {
       Coordinates pcoords;
       floatt output = calculateCoordsError (coords, handler, hostMatrix, &pcoords);

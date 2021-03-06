@@ -43,17 +43,17 @@ __hostdeviceinline__ void cuda_ga_mDTanhFunc (floatt* output, floatt value)
   (*output) =  (*output) * (1.f  - th * th);
 }
 
-__hostdeviceinline__ void cuda_genericApi_tanh (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_tanh (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_ga_tanhFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_dtanh (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_dtanh (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_ga_dtanhFunc, mapper);
 }
 
-__hostdeviceinline__ void cuda_genericApi_multiplyDTanh (math::Matrix** outputs, math::Matrix* const* params, oap::ThreadsMapperS* mapper)
+__hostdeviceinline__ void cuda_genericApi_multiplyDTanh (math::ComplexMatrix** outputs, math::ComplexMatrix* const* params, oap::ThreadsMapperS* mapper)
 {
   cuda_func (outputs, params, cuda_ga_mDTanhFunc, mapper);
 }

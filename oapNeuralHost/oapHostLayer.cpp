@@ -37,22 +37,22 @@ math::MatrixInfo HostLayer::getInputsInfo () const
   return oap::host::getInputsInfo (*this);
 }
 
-void HostLayer::getOutputs (math::Matrix* matrix, ArgType type) const
+void HostLayer::getOutputs (math::ComplexMatrix* matrix, ArgType type) const
 {
   return oap::host::getOutputs (*this, matrix, type);
 }
 
-void HostLayer::getHostWeights (math::Matrix* output)
+void HostLayer::getHostWeights (math::ComplexMatrix* output)
 {
   oap::host::CopyHostMatrixToHostMatrix (output, this->getBPMatrices()->m_weights);
 }
 
-void HostLayer::setHostInputs(const math::Matrix* hInputs)
+void HostLayer::setHostInputs(const math::ComplexMatrix* hInputs)
 {
   oap::host::setHostInputs (*this, hInputs);
 }
 
-void HostLayer::setDeviceInputs(const math::Matrix* dInputs)
+void HostLayer::setDeviceInputs(const math::ComplexMatrix* dInputs)
 {
   oap::host::setDeviceInputs (*this, dInputs);
 }
@@ -67,12 +67,12 @@ void HostLayer::printHostWeights (bool newLine) const
   oap::generic::printHostWeights (*this, newLine, oap::host::CopyHostMatrixToHostMatrix);
 }
 
-void HostLayer::setHostWeights (math::Matrix* weights)
+void HostLayer::setHostWeights (math::ComplexMatrix* weights)
 {
   oap::host::setHostWeights (*this, weights);
 }
 
-void HostLayer::setDeviceWeights (math::Matrix* weights)
+void HostLayer::setDeviceWeights (math::ComplexMatrix* weights)
 {
   oap::host::setDeviceWeights (*this, weights);
 }

@@ -27,17 +27,17 @@
 
 void HostInfoCreator::setInfoTypeCallback(const InfoType& infoType) {}
 
-void HostInfoCreator::setExpectedCallback(math::Matrix* expected) {}
+void HostInfoCreator::setExpectedCallback(math::ComplexMatrix* expected) {}
 
-void HostInfoCreator::setOutputCallback(math::Matrix* output) {}
+void HostInfoCreator::setOutputCallback(math::ComplexMatrix* output) {}
 
-void HostInfoCreator::getString(std::string& output, math::Matrix* matrix) const
+void HostInfoCreator::getString(std::string& output, math::ComplexMatrix* matrix) const
 {
   matrixUtils::PrintMatrix(output, matrix, matrixUtils::PrintArgs());
 }
 
 void HostInfoCreator::getMean(floatt& re, floatt& im,
-                              math::Matrix* matrix) const {
+                              math::ComplexMatrix* matrix) const {
   if (gReValues (matrix)) {
     re = utils::getMean(gReValues (matrix), gColumns (matrix) * gRows (matrix), -1.);
   }
@@ -46,46 +46,46 @@ void HostInfoCreator::getMean(floatt& re, floatt& im,
   }
 }
 
-bool HostInfoCreator::compare(math::Matrix* matrix1, math::Matrix* matrix2,
-                              floatt tolerance, math::Matrix** diffMatrix) const {
+bool HostInfoCreator::compare(math::ComplexMatrix* matrix1, math::ComplexMatrix* matrix2,
+                              floatt tolerance, math::ComplexMatrix** diffMatrix) const {
   return utils::IsEqual(*matrix1, *matrix2, tolerance, diffMatrix);
 }
 
-bool HostInfoCreator::compareValues(math::Matrix* matrix1,
-                                    math::Matrix* matrix2,
+bool HostInfoCreator::compareValues(math::ComplexMatrix* matrix1,
+                                    math::ComplexMatrix* matrix2,
                                     floatt tolerance,
-                                    math::Matrix** diffMatrix) const {
+                                    math::ComplexMatrix** diffMatrix) const {
   return utils::HasValues(*matrix1, *matrix2, tolerance, diffMatrix);
 }
 
-void HostInfoCreator::destroyMatrix(math::Matrix* diffMatrix) const {
+void HostInfoCreator::destroyMatrix(math::ComplexMatrix* diffMatrix) const {
   oap::host::DeleteMatrix(diffMatrix);
 }
 
-bool HostInfoCreator::isRe(math::Matrix* matrix) const {
+bool HostInfoCreator::isRe(math::ComplexMatrix* matrix) const {
   return gReValues (matrix) != NULL;
 }
 
-bool HostInfoCreator::isIm(math::Matrix* matrix) const {
+bool HostInfoCreator::isIm(math::ComplexMatrix* matrix) const {
   return gImValues (matrix) != NULL;
 }
 
 std::pair<floatt, uintt> HostInfoCreator::getLargestReValue(
-    math::Matrix* matrix) const {
+    math::ComplexMatrix* matrix) const {
   return utils::getLargest(gReValues (matrix), gColumns (matrix) * gRows (matrix));
 }
 
 std::pair<floatt, uintt> HostInfoCreator::getLargestImValue(
-    math::Matrix* matrix) const {
+    math::ComplexMatrix* matrix) const {
   return utils::getLargest(gImValues (matrix), gColumns (matrix) * gRows (matrix));
 }
 
 std::pair<floatt, uintt> HostInfoCreator::getSmallestReValue(
-    math::Matrix* matrix) const {
+    math::ComplexMatrix* matrix) const {
   return utils::getSmallest(gReValues (matrix), gColumns (matrix) * gRows (matrix));
 }
 
 std::pair<floatt, uintt> HostInfoCreator::getSmallestImValue(
-    math::Matrix* matrix) const {
+    math::ComplexMatrix* matrix) const {
   return utils::getSmallest(gImValues (matrix), gColumns (matrix) * gRows (matrix));
 }

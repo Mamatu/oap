@@ -27,7 +27,7 @@ Compare::Compare() {}
 
 Compare::~Compare() {}
 
-bool Compare::compare(math::Matrix* matrix, floatt d) {
+bool Compare::compare(math::ComplexMatrix* matrix, floatt d) {
   if (NULL == matrix) {
     return false;
   }
@@ -40,7 +40,7 @@ bool Compare::compare(math::Matrix* matrix, floatt d) {
   return true;
 }
 
-math::Matrix* create(const math::Matrix& arg)
+math::ComplexMatrix* create(const math::ComplexMatrix& arg)
 {
   return oap::host::NewMatrix(gReValues (&arg) != NULL, gImValues (&arg) != NULL, gColumns (&arg), gRows (&arg));
 }
@@ -53,7 +53,7 @@ bool AlmostEquals(floatt a, floatt b, floatt epsilon) {
   return fabs(a - b) < epsilon;
 }
 
-void diff(math::Matrix* output, math::Matrix* m1, math::Matrix* m2) {
+void diff(math::ComplexMatrix* output, math::ComplexMatrix* m1, math::ComplexMatrix* m2) {
   for (uintt fa = 0; fa < gColumns (output); ++fa) {
     for (uintt fb = 0; fb < gRows (output); ++fb) {
       uintt index = fa + fb * gColumns (m1);
@@ -67,14 +67,14 @@ void diff(math::Matrix* output, math::Matrix* m1, math::Matrix* m2) {
   }
 }
 
-bool IsEqual(const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff) {
+bool IsEqual(const math::ComplexMatrix& m1, const math::ComplexMatrix& m2, floatt tolerance, math::ComplexMatrix** diff) {
   if (gColumns (&m1) != gColumns (&m2) || gRows (&m1) != gRows (&m2)) {
     return false;
   }
   return HasValues(m1, m2, tolerance, diff);
 }
 
-bool HasValues(const math::Matrix& m1, const math::Matrix& m2, floatt tolerance, math::Matrix** diff) {
+bool HasValues(const math::ComplexMatrix& m1, const math::ComplexMatrix& m2, floatt tolerance, math::ComplexMatrix** diff) {
   if (diff != NULL) {
     (*diff) = NULL;
   }
@@ -118,30 +118,30 @@ bool HasValues(const math::Matrix& m1, const math::Matrix& m2, floatt tolerance,
   return status;
 }
 
-bool IsIdentityMatrix(const math::Matrix& m1, floatt tolerance, math::Matrix** diff)
+bool IsIdentityMatrix(const math::ComplexMatrix& m1, floatt tolerance, math::ComplexMatrix** diff)
 {
-  math::Matrix* matrix = oap::host::NewMatrixRef (&m1);
+  math::ComplexMatrix* matrix = oap::host::NewMatrixRef (&m1);
   oap::host::SetIdentity(matrix);
   bool isequal = IsEqual(m1, *matrix, tolerance, diff);
   oap::host::DeleteMatrix(matrix);
   return isequal;
 }
 
-bool IsDiagonalMatrix(const math::Matrix& m1, floatt value, floatt tolerance, math::Matrix** diff)
+bool IsDiagonalMatrix(const math::ComplexMatrix& m1, floatt value, floatt tolerance, math::ComplexMatrix** diff)
 {
-  math::Matrix* matrix = oap::host::NewMatrixRef (&m1);
+  math::ComplexMatrix* matrix = oap::host::NewMatrixRef (&m1);
   oap::host::SetDiagonalMatrix(matrix, value);
   bool isequal = IsEqual(m1, *matrix, tolerance, diff);
   oap::host::DeleteMatrix(matrix);
   return isequal;
 }
 
-bool IsIdentityMatrix (const math::Matrix& m1, floatt tolerance)
+bool IsIdentityMatrix (const math::ComplexMatrix& m1, floatt tolerance)
 {
   return IsIdentityMatrix (m1, tolerance, NULL);
 }
 
-bool IsDiagonalMatrix (const math::Matrix& m1, floatt value, floatt tolerance)
+bool IsDiagonalMatrix (const math::ComplexMatrix& m1, floatt value, floatt tolerance)
 {
   return IsDiagonalMatrix (m1, value, tolerance, NULL);
 }
@@ -154,7 +154,7 @@ bool isEqual(const MatrixEx& matrixEx, const uintt* buffer) {
   return false;
 }
 
-bool areEqual(math::Matrix* matrix, floatt value) {
+bool areEqual(math::ComplexMatrix* matrix, floatt value) {
   class CompareImpl : public Compare {
    public:
     bool rule(const floatt& arg1, const floatt& arg2) { return arg1 == arg2; }
@@ -163,7 +163,7 @@ bool areEqual(math::Matrix* matrix, floatt value) {
   return compareImpl.compare(matrix, value);
 }
 
-bool areNotEqual(math::Matrix* matrix, floatt value) {
+bool areNotEqual(math::ComplexMatrix* matrix, floatt value) {
   class CompareImpl : public Compare {
    public:
     bool rule(const floatt& arg1, const floatt& arg2) { return arg1 != arg2; }
