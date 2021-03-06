@@ -31,8 +31,8 @@ namespace test_api
     oap::Layer* flS = network->getLayer (0, handler);
     oap::Layer* llS = network->getLayer (network->getLayersCount() - 1, handler);
 
-    oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, flS->getRowsCount ());
-    oap::HostMatrixPtr hexpected = oap::host::NewReMatrix (1, llS->getRowsCount ());
+    oap::HostComplexMatrixPtr hinputs = oap::host::NewReMatrix (1, flS->getRowsCount ());
+    oap::HostComplexMatrixPtr hexpected = oap::host::NewReMatrix (1, llS->getRowsCount ());
 
     for (size_t idx = 0; idx < batch.size(); ++idx)
     {
@@ -139,7 +139,7 @@ namespace test_api
   }
 
   void testError (oap::Network* network, const Points& points, floatt expectedLoss,
-                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput, const ExtraParams& ep)
+                  oap::HostComplexMatrixPtr hinputs, oap::HostComplexMatrixPtr houtput, const ExtraParams& ep)
   {
     for (const auto& p : points)
     {
@@ -181,8 +181,8 @@ namespace test_api
   void testStep (TestMode& testMode, oap::Network* network,
                  const Steps& steps, size_t stepIdx,
                  const WeightsLayers& weightsLayers,
-                 oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
-                 const std::vector<oap::HostMatrixPtr>& weightsMatrices,
+                 oap::HostComplexMatrixPtr hinputs, oap::HostComplexMatrixPtr houtput,
+                 const std::vector<oap::HostComplexMatrixPtr>& weightsMatrices,
                  const IdxsToCheck& idxToChecks,
                  const ExtraParams& ep)
   {
@@ -326,8 +326,8 @@ namespace test_api
   void testSteps (TestMode& testMode, oap::Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
-                  oap::HostMatrixPtr hinputs,
-                  oap::HostMatrixPtr houtput,
+                  oap::HostComplexMatrixPtr hinputs,
+                  oap::HostComplexMatrixPtr houtput,
                   const IdxsToCheck& idxToChecks,
                   const ExtraParams& ep)
   {
@@ -373,13 +373,13 @@ namespace test_api
 
     size_t initWeightsIdx = 0;//calculateWIdx (stepsRange.first, steps);
 
-    std::vector<oap::HostMatrixPtr> weightsMatrices;
+    std::vector<oap::HostComplexMatrixPtr> weightsMatrices;
 
     for (size_t lidx = 0; lidx < network->getLayersCount() - 1; ++lidx)
     {
       oap::Layer* layer = network->getLayer(lidx);
 
-      oap::HostMatrixPtr weightsMatrix = oap::host::NewMatrix (layer->getWeightsInfo());
+      oap::HostComplexMatrixPtr weightsMatrix = oap::host::NewMatrix (layer->getWeightsInfo());
       oap::host::SetReValuesToMatrix (weightsMatrix, weightsLayers[lidx][initWeightsIdx]);
 
       layer->setHostWeights (weightsMatrix);
@@ -406,8 +406,8 @@ namespace test_api
                   const IdxsToCheck& idxToChecks,
                   const ExtraParams& ep)
   {
-    oap::HostMatrixPtr hinputs = oap::host::NewMatrix (network->getInputInfo());
-    oap::HostMatrixPtr houtput = oap::host::NewMatrix (network->getOutputInfo());
+    oap::HostComplexMatrixPtr hinputs = oap::host::NewMatrix (network->getInputInfo());
+    oap::HostComplexMatrixPtr houtput = oap::host::NewMatrix (network->getOutputInfo());
 
     ASSERT_NO_FATAL_FAILURE(
     testSteps (testMode, network, weightsLayers, steps, hinputs, houtput, idxToChecks, ep));

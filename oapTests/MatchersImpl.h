@@ -426,8 +426,8 @@ class MatrixIsOrthogonalMatcher : public MatcherInterface<math::ComplexMatrix*>
 
     virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const override
     {
-      oap::HostMatrixUPtr matrixT = oap::host::NewMatrixCopy (matrix);
-      oap::HostMatrixUPtr M = oap::host::NewMatrixRef (matrix);
+      oap::HostComplexMatrixUPtr matrixT = oap::host::NewMatrixCopy (matrix);
+      oap::HostComplexMatrixUPtr M = oap::host::NewMatrixRef (matrix);
 
       m_calcApi.transpose (matrixT, matrix);
       m_calcApi.dotProduct (M, matrixT, matrix);

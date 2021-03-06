@@ -363,9 +363,9 @@ class BiasesFilter final
 };
 
 template<typename LayerT, typename MatrixRandomGenerator>
-oap::HostMatrixUPtr createRandomMatrix (LayerT& layer, const math::MatrixInfo& minfo, MatrixRandomGenerator&& mrg)
+oap::HostComplexMatrixUPtr createRandomMatrix (LayerT& layer, const math::MatrixInfo& minfo, MatrixRandomGenerator&& mrg)
 {
-  oap::HostMatrixUPtr randomMatrix = oap::host::NewReMatrix (minfo.columns(), minfo.rows());
+  oap::HostComplexMatrixUPtr randomMatrix = oap::host::NewReMatrix (minfo.columns(), minfo.rows());
 
   for (uintt c = 0; c < minfo.columns(); ++c)
   {

@@ -34,7 +34,7 @@ void MainAPExecutor::destroy()
 
 struct UserData
 {
-  oap::DeviceMatrixPtr value;
+  oap::DeviceComplexMatrixPtr value;
   DeviceImagesLoader* dataLoader;
   oap::RecToSquareApi* rtsApi;
 };
@@ -152,7 +152,7 @@ std::shared_ptr<Outcome> MainAPExecutor::run(ArnUtils::Type type)
 
   math::MatrixInfo matrixInfo = m_eigenCalc->getMatrixInfo();
 
-  oap::HostMatricesPtr evectors = oap::HostMatricesPtr(wanted);
+  oap::HostComplexMatricesPtr evectors = oap::HostComplexMatricesPtr(wanted);
 
   for (uint idx = 0; idx < wanted; ++idx)
   {

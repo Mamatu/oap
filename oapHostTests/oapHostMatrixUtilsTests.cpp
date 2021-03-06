@@ -56,8 +56,8 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_1)
   const uintt columns = 11;
   const uintt rows = 15;
 
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostComplexMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostComplexMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   uintt dims[2][2][2];
   oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
@@ -72,8 +72,8 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_2)
   const uintt columns = 11;
   const uintt rows = 15;
 
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostComplexMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostComplexMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   uintt dims[2][2][2];
   oap::generic::initDims (dims, m2, oap::host::GetMatrixInfo);
@@ -91,9 +91,9 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_2)
 
 TEST_F(OapHostMatrixUtilsTests, SubCopyTest_3)
 {
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
-  oap::HostMatrixPtr expected = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostComplexMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostComplexMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostComplexMatrixPtr expected = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   std::vector<floatt> expectedValues =
   {
@@ -125,9 +125,9 @@ TEST_F(OapHostMatrixUtilsTests, SubCopyTest_3)
 
 TEST_F(OapHostMatrixUtilsTests, SubCopyTest_4)
 {
-  oap::HostMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
-  oap::HostMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
-  oap::HostMatrixPtr expected = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostComplexMatrixPtr m1 = oap::host::NewReMatrixWithValue (15, 15, 1);
+  oap::HostComplexMatrixPtr m2 = oap::host::NewReMatrixWithValue (5, 6, 0);
+  oap::HostComplexMatrixPtr expected = oap::host::NewReMatrixWithValue (5, 6, 0);
 
   std::vector<floatt> expectedValues =
   {
@@ -260,9 +260,9 @@ TEST_F(OapHostMatrixUtilsTests, NewSubMatrixTests)
   };
 
   {
-    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
+    oap::HostComplexMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
-    oap::HostMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 2, 2);
+    oap::HostComplexMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 2, 2);
     EXPECT_EQ(11, GetReIndex (submatrix, 0));
     EXPECT_EQ(12, GetReIndex (submatrix, 1));
     EXPECT_EQ(21, GetReIndex (submatrix, 2));
@@ -272,9 +272,9 @@ TEST_F(OapHostMatrixUtilsTests, NewSubMatrixTests)
   }
 
   {
-    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
+    oap::HostComplexMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
-    oap::HostMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 6, 6);
+    oap::HostComplexMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 6, 6);
     EXPECT_EQ(11, GetReIndex (submatrix, 0));
     EXPECT_EQ(12, GetReIndex (submatrix, 1));
     EXPECT_EQ(13, GetReIndex (submatrix, 2));
@@ -286,9 +286,9 @@ TEST_F(OapHostMatrixUtilsTests, NewSubMatrixTests)
   }
 
   {
-    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
+    oap::HostComplexMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
-    oap::HostMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 0, 0, 4, 4);
+    oap::HostComplexMatrixUPtr submatrix = oap::host::NewSubMatrix (matrix, 0, 0, 4, 4);
 
     EXPECT_EQ(0, oap::host::GetReValue(submatrix, 0, 0));
     EXPECT_EQ(1, oap::host::GetReValue(submatrix, 1, 0));
@@ -327,7 +327,7 @@ TEST_F(OapHostMatrixUtilsTests, GetSubMatrixTest)
   };
 
   {
-    oap::HostMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
+    oap::HostComplexMatrixUPtr matrix = oap::host::NewReMatrix(4, 4);
     initMatrix (matrix);
     math::ComplexMatrix* submatrix = oap::host::NewSubMatrix (matrix, 1, 1, 2, 2);
 
@@ -391,7 +391,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroRow_1)
 {
   const uintt rows = 10;
   const uintt columns = 10;
-  oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroRow (hostMatrix.get(), 0);
 
@@ -418,7 +418,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroRow_2)
 {
   const uintt rows = 10;
   const uintt columns = 10;
-  oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroRow (hostMatrix, 1);
 
@@ -445,7 +445,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_1)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroMatrix (hostMatrix);
 
@@ -465,7 +465,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_2)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroMatrix (hostMatrix);
 
@@ -485,7 +485,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_3)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroMatrix (hostMatrix);
 
@@ -505,7 +505,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_4)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroReMatrix (hostMatrix);
 
@@ -525,7 +525,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_5)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroImMatrix (hostMatrix);
 
@@ -546,7 +546,7 @@ TEST_F(OapHostMatrixUtilsTests, GetDiagonal_1)
   const uintt rows = 4;
   const uintt columns = 4;
 
-  oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
   for (uintt x = 0; x < 4; ++x)
   {
     for (uintt y = 0; y < 4; ++y)
@@ -569,7 +569,7 @@ TEST_F(OapHostMatrixUtilsTests, GetDiagonal_2)
   const uintt rows = 6;
   const uintt columns = 6;
 
-  oap::HostMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 10.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 10.f);
   for (uintt x = 0; x < 6; ++x)
   {
     for (uintt y = 0; y < 6; ++y)

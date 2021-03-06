@@ -49,9 +49,9 @@ TEST_F(OapCrossEntropyTests, CrossEntropyTest1)
 {
   oap::HostProcedures cuApi;
 
-  oap::HostMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 0.2);
-  oap::HostMatrixPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 0.2);
-  oap::HostMatrixPtr output = oap::host::NewReMatrixWithValue (1, 1, 0);
+  oap::HostComplexMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 0.2);
+  oap::HostComplexMatrixPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 0.2);
+  oap::HostComplexMatrixPtr output = oap::host::NewReMatrixWithValue (1, 1, 0);
 
   cuApi.crossEntropy (output.get(), matrix1, matrix2);
 
@@ -62,9 +62,9 @@ TEST_F(OapCrossEntropyTests, CrossEntropyTest2)
 {
   oap::HostProcedures cuApi;
 
-  oap::HostMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (1, 10, 0);
-  oap::HostMatrixPtr matrix2 = oap::host::NewReMatrixWithValue (1, 10, 0);
-  oap::HostMatrixPtr output = oap::host::NewReMatrixWithValue (1, 10, 0);
+  oap::HostComplexMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (1, 10, 0);
+  oap::HostComplexMatrixPtr matrix2 = oap::host::NewReMatrixWithValue (1, 10, 0);
+  oap::HostComplexMatrixPtr output = oap::host::NewReMatrixWithValue (1, 10, 0);
 
   auto getValue = [](size_t idx, size_t max)
   {

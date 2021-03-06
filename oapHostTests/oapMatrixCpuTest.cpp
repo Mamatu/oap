@@ -56,10 +56,10 @@ TEST_F(OapMatrixTests, SubMultiplication1) {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
-    oap::HostMatrixUPtr output = oap::host::NewReMatrixWithValue (10, 10, 0);
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (10, 10, 1);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrixWithValue (10, 10, 0);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
+    oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (10, 10, 1);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
     mo.setSubColumns(5);
     mo.setSubRows(5);
     mo.setThreadsCount(m_threadsCount);
@@ -85,10 +85,10 @@ TEST_F(OapMatrixTests, Addition) {
         0, 0, 2, 0,
         0, 0, 0, 2
     };
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(4, 4, array);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(4, 4, array);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(4, 4, outputArray);
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(4, 4);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(4, 4, array);
+    oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(4, 4, array);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(4, 4, outputArray);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(4, 4);
     math::AdditionOperationCpu additionOperation;
     additionOperation.setThreadsCount(m_threadsCount);
     additionOperation.setOutputMatrix(output);
@@ -108,10 +108,10 @@ TEST_F(OapMatrixTests, Subtraction) {
         0, 0, 0, 0,
         0, 0, 0, 0,
         0, 0, 0, 0};
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(4, 4, array);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(4, 4, array);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(4, 4, outputArray);
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(4, 4);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(4, 4, array);
+    oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(4, 4, array);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(4, 4, outputArray);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(4, 4);
     math::SubstracionOperationCpu subtractionOperation;
     subtractionOperation.setThreadsCount(m_threadsCount);
     subtractionOperation.setOutputMatrix(output);
@@ -138,10 +138,10 @@ TEST_F(OapMatrixTests, Addition1) {
       0, 0, 0, 0,
       0, 0, 0, 0
     };
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(4, 4, array);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(4, 4, array);
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(4, 4);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(4, 4, outputArray);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(4, 4, array);
+    oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(4, 4, array);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(4, 4);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(4, 4, outputArray);
     math::MathOperationsCpu mo;
     mo.setThreadsCount(m_threadsCount);
     mo.setSubColumns(2);
@@ -178,10 +178,10 @@ TEST_F(OapMatrixTests, Multiplication) {
         0, 3, 0, 0, 0
     };
 
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(5, 5, array);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(5, 5, array1);
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(5, 5);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(5, 5, outputArray);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(5, 5, array);
+    oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(5, 5, array1);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(5, 5);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(5, 5, outputArray);
     math::DotProductOperationCpu multiplicationOperation;
     multiplicationOperation.setThreadsCount(m_threadsCount);
     multiplicationOperation.setOutputMatrix(output);
@@ -214,10 +214,10 @@ TEST_F(OapMatrixTests, Diagonalization) {
         -1, 0, 0,
         2, 1, 2};
 
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(3, 3, array2);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(3, 3, array3);
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(3, 3);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrix(3, 3);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(3, 3, array2);
+    oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(3, 3, array3);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(3, 3);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrix(3, 3);
     math::DiagonalizationOperationCpu diagonalizationOperation;
     diagonalizationOperation.setThreadsCount(m_threadsCount);
     diagonalizationOperation.setOutputMatrix(output);
@@ -245,10 +245,10 @@ TEST_F(OapMatrixTests, TensorProduct) {
         0, 0, 1, 0,
         0, 0, 0, 1
     };
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(2, 2, array);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(2, 2, array1);
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(4, 4);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(4, 4, outputArray);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixCopy(2, 2, array);
+    oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixCopy(2, 2, array1);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(4, 4);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(4, 4, outputArray);
     math::TensorProductOperationCpu tpOperation;
     tpOperation.setThreadsCount(m_threadsCount);
     tpOperation.setOutputMatrix(output);
@@ -273,10 +273,10 @@ TEST_F(OapMatrixTests, Multiplication1) {
         20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
         20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
     };
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (10, 10, 2);
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(10, 10);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
+    oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (10, 10, 2);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(10, 10);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
     mo.setThreadsCount(m_threadsCount);
     mo.multiply(output, matrix1, matrix2);
 
@@ -298,11 +298,11 @@ TEST_F(OapMatrixTests, MultiplicationConst) {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
     };
 
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
-    oap::HostMatrixUPtr matrix2 = NULL;
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
+    oap::HostComplexMatrixUPtr matrix2 = NULL;
     floatt m2 = 2.f;
-    oap::HostMatrixUPtr output = oap::host::NewReMatrix(10, 10);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(10, 10);
     mo.setThreadsCount(m_threadsCount);
     mo.multiply(output, matrix1, &m2);
 
@@ -312,11 +312,11 @@ TEST_F(OapMatrixTests, MultiplicationConst) {
 TEST_F(OapMatrixTests, SubMultiplication) {
 
     math::MathOperationsCpu mo;
-    oap::HostMatrixUPtr output = oap::host::NewReMatrixWithValue (10, 10, 0);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixWithValue (10, 10, 0);
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrixWithValue (10, 10, 0);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixWithValue (10, 10, 0);
     *GetRePtrIndex (eq_output, 0) = 10;
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
-    oap::HostMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (10, 10, 1);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
+    oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (10, 10, 1);
     mo.setSubRows(1);
     mo.setSubColumns(1);
     mo.setThreadsCount(m_threadsCount);
@@ -341,10 +341,10 @@ TEST_F(OapMatrixTests, Transpose) {
         0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
         0.000000, 0.000000, 0.000000, 0.000000, 0.000000
     };
-    oap::HostMatrixUPtr output = oap::host::NewReMatrixWithValue (5, 10, 0);
-    oap::HostMatrixUPtr eq_output = oap::host::NewReMatrixCopy(5, 10, outputArray);
-    oap::HostMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 5, 1);
-    oap::HostMatrixUPtr matrix2 = NULL;
+    oap::HostComplexMatrixUPtr output = oap::host::NewReMatrixWithValue (5, 10, 0);
+    oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(5, 10, outputArray);
+    oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 5, 1);
+    oap::HostComplexMatrixUPtr matrix2 = NULL;
     mo.setSubRows(4);
     mo.setThreadsCount(m_threadsCount);
     mo.transpose(output, matrix1);

@@ -42,7 +42,7 @@
 #include "InfoType.h"
 
 using GetValue = std::function<floatt(size_t xy)>;
-using HostMatrixPtrs = std::vector<oap::HostMatrixPtr>;
+using HostComplexMatrixPtrs = std::vector<oap::HostComplexMatrixPtr>;
 
 class OapArnoldiPackageMatricesTests : public testing::Test {
   public:
@@ -85,8 +85,8 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     static bool check(floatt reevalue, floatt imevalue, math::ComplexMatrix* vector, uint index, uint max, void* userData) {
       CheckUserData* checkUserData = static_cast<CheckUserData*>(userData);
 
-      oap::HostMatrixPtr eigenvectors = checkUserData->eigenvectors;
-      oap::HostMatrixPtr tmpVector = checkUserData->tmpVector;
+      oap::HostComplexMatrixPtr eigenvectors = checkUserData->eigenvectors;
+      oap::HostComplexMatrixPtr tmpVector = checkUserData->tmpVector;
 
       const std::vector<EigenPair>* eigenPairs = checkUserData->eigenPairs;
 
@@ -98,9 +98,9 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       return true;
     }
 
-    oap::HostMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
+    oap::HostComplexMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
     {
-        oap::HostMatrixPtr hmatrix = oap::host::NewMatrixWithValue (size, size, 0);
+        oap::HostComplexMatrixPtr hmatrix = oap::host::NewMatrixWithValue (size, size, 0);
 
         for (size_t xy = 0; xy < size; ++xy) {
           *GetRePtr (hmatrix, xy, xy) = getValue (xy);
@@ -109,11 +109,11 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         return hmatrix;
     }
 
-    oap::HostMatrixPtr loadSMSMatrix(const std::string& dir) {
+    oap::HostComplexMatrixPtr loadSMSMatrix(const std::string& dir) {
       return oap::host::ReadMatrix(dir + "/smsmatrix.matrix");
     }
 
-    oap::HostMatrixPtr loadEigenvaluesMatrix(const std::string& dir) {
+    oap::HostComplexMatrixPtr loadEigenvaluesMatrix(const std::string& dir) {
       return oap::host::ReadMatrix(dir + "/eigenvalues.matrix");
     }
 
@@ -128,17 +128,17 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       return output;
     }
 
-    oap::HostMatrixPtr loadEigenvector(const std::string& dir, uint index) {
+    oap::HostComplexMatrixPtr loadEigenvector(const std::string& dir, uint index) {
       std::string filename = "eigenvector.matrix";
       filename += std::to_string(index);
       return oap::host::ReadMatrix(dir + "/" + filename);
     }
 
-    HostMatrixPtrs loadMatrices(const std::string& dir) {
-      HostMatrixPtrs ptrs;
+    HostComplexMatrixPtrs loadMatrices(const std::string& dir) {
+      HostComplexMatrixPtrs ptrs;
 
-      oap::HostMatrixPtr smsMatrix = loadSMSMatrix(dir);
-      oap::HostMatrixPtr eigenvalues = loadEigenvaluesMatrix(dir);
+      oap::HostComplexMatrixPtr smsMatrix = loadSMSMatrix(dir);
+      oap::HostComplexMatrixPtr eigenvalues = loadEigenvaluesMatrix(dir);
 
       ptrs.push_back(smsMatrix);
       ptrs.push_back(eigenvalues);
@@ -151,19 +151,19 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
     }
 
     struct UserData {
-      oap::HostMatrixPtr hmatrix;
-      oap::HostMatrixPtr hvectorT;
-      oap::DeviceMatrixPtr dvectorT;
-      oap::DeviceMatrixPtr dvalue;
+      oap::HostComplexMatrixPtr hmatrix;
+      oap::HostComplexMatrixPtr hvectorT;
+      oap::DeviceComplexMatrixPtr dvectorT;
+      oap::DeviceComplexMatrixPtr dvalue;
     };
 
     struct CheckUserData {
       const std::vector<EigenPair>* eigenPairs;
-      oap::HostMatrixPtr eigenvectors;
-      oap::HostMatrixPtr tmpVector;
+      oap::HostComplexMatrixPtr eigenvectors;
+      oap::HostComplexMatrixPtr tmpVector;
     };
 
-    void runMatrixTest(oap::HostMatrixPtr hmatrix, const std::vector<EigenPair>& eigenPairs, uint hdim, floatt tolerance)
+    void runMatrixTest(oap::HostComplexMatrixPtr hmatrix, const std::vector<EigenPair>& eigenPairs, uint hdim, floatt tolerance)
     {
       logInfoLongTest();
 
@@ -200,7 +200,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         revectors.push_back(oap::host::NewReMatrix(1, gRows (hmatrix)));
       }
 
-      oap::HostMatricesPtr revectorsPtr = oap::makeHostMatricesPtr(revectors);
+      oap::HostComplexMatricesPtr revectorsPtr = oap::makeHostComplexMatricesPtr(revectors);
 
       m_arnoldiCuda->setOutputsEigenvalues(revalues.get(), NULL);
       m_arnoldiCuda->setOutputsEigenvectors(revectorsPtr);
@@ -233,7 +233,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       double* smsmatrix = data_matrices[index];
       double* eigenvalues = data_eigenvalues[index];
 
-      oap::HostMatrixPtr hmatrix = oap::host::NewMatrixCopy<double>(columns, rows, smsmatrix, NULL);
+      oap::HostComplexMatrixPtr hmatrix = oap::host::NewMatrixCopy<double>(columns, rows, smsmatrix, NULL);
 
       std::vector<double> ev(eigenvalues, eigenvalues + columns);
       std::vector<EigenPair> eigenPairs;

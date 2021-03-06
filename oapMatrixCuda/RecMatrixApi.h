@@ -31,7 +31,7 @@ class RecMatrixApi final
     const math::ComplexMatrix* m_recHostMatrix;
     const bool m_deallocate;
 
-    oap::HostMatrixPtr m_recSubHostMatrix;
+    oap::HostComplexMatrixPtr m_recSubHostMatrix;
 
   public:
     RecMatrixApi (const math::ComplexMatrix* recHostMatrix, const bool deallocate);

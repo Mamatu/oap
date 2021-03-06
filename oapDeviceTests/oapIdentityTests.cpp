@@ -63,11 +63,11 @@ class OapIndentityTests : public testing::Test
 
   void test_Indentity (const NewMatrix& newDMatrix, const NewMatrix& newHMatrix, const GetValue& getReValue, const GetValue& getImValue)
   {
-    oap::DeviceMatrixPtr doutput = newDMatrix (1, 10);
-    oap::HostMatrixPtr houtput = newHMatrix (1, 10);
+    oap::DeviceComplexMatrixPtr doutput = newDMatrix (1, 10);
+    oap::HostComplexMatrixPtr houtput = newHMatrix (1, 10);
 
-    oap::DeviceMatrixPtr dinput = newDMatrix (1, 10);
-    oap::HostMatrixPtr hinput = newHMatrix (1, 10);
+    oap::DeviceComplexMatrixPtr dinput = newDMatrix (1, 10);
+    oap::HostComplexMatrixPtr hinput = newHMatrix (1, 10);
 
     oap::cuda::CopyHostMatrixToDeviceMatrix (doutput, houtput);
 
@@ -216,11 +216,11 @@ TEST_F(OapIndentityTests, IndentityDerivativeReTest)
     return 1.f;
   };
 
-  oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceReMatrix (1, 10);
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 10);
+  oap::DeviceComplexMatrixPtr doutput = oap::cuda::NewDeviceReMatrix (1, 10);
+  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 10);
 
-  oap::DeviceMatrixPtr dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
-  oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 10);
+  oap::DeviceComplexMatrixPtr dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
+  oap::HostComplexMatrixPtr hinput = oap::host::NewReMatrix (1, 10);
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
@@ -248,11 +248,11 @@ TEST_F(OapIndentityTests, MultiplyIndentityDerivativeReTest)
     return input * identity(x) * (1.f - identity(x));
   };
 
-  oap::DeviceMatrixPtr doutput = oap::cuda::NewDeviceReMatrix (1, 10);
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 10);
+  oap::DeviceComplexMatrixPtr doutput = oap::cuda::NewDeviceReMatrix (1, 10);
+  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 10);
 
-  oap::DeviceMatrixPtr dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
-  oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 10);
+  oap::DeviceComplexMatrixPtr dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
+  oap::HostComplexMatrixPtr hinput = oap::host::NewReMatrix (1, 10);
 
   for (size_t idx = 0; idx < 10; ++idx)
   {

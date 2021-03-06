@@ -91,8 +91,8 @@ class OapNeuralTests_TinyTests : public testing::Test
           neurons = neurons + 1;
         }
 
-        oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
-        oap::HostMatrixUPtr expected = oap::host::NewReMatrix(1, 1);
+        oap::HostComplexMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
+        oap::HostComplexMatrixUPtr expected = oap::host::NewReMatrix(1, 1);
         *GetRePtrIndex (inputs, 0) = a1;
         *GetRePtrIndex (inputs, 1) = a2;
 
@@ -115,7 +115,7 @@ class OapNeuralTests_TinyTests : public testing::Test
           neurons = neurons + 1;
         }
 
-        oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
+        oap::HostComplexMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
         *GetRePtrIndex (inputs, 0) = a1;
         *GetRePtrIndex (inputs, 1) = a2;
 
@@ -146,8 +146,8 @@ class OapNeuralTests_TinyTests : public testing::Test
 
     network->setLearningRate (1);
 
-    oap::HostMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
-    oap::HostMatrixUPtr hinputs = oap::host::NewReMatrix (1, 2);
+    oap::HostComplexMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
+    oap::HostComplexMatrixUPtr hinputs = oap::host::NewReMatrix (1, 2);
 
     floatt hw_1 = w_1;
     floatt hw_2 = w_2;
@@ -174,11 +174,11 @@ class OapNeuralTests_TinyTests : public testing::Test
 
     network->setLearningRate (1);
 
-    oap::HostMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
-    oap::HostMatrixUPtr io = oap::host::NewReMatrix (1, 2);
-    oap::HostMatrixUPtr io1 = oap::host::NewReMatrix (1, 1);
-    oap::HostMatrixUPtr e1 = oap::host::NewReMatrix (1, 1);
-    oap::DeviceMatrixUPtr de1 = oap::cuda::NewDeviceReMatrix(1, 1);
+    oap::HostComplexMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
+    oap::HostComplexMatrixUPtr io = oap::host::NewReMatrix (1, 2);
+    oap::HostComplexMatrixUPtr io1 = oap::host::NewReMatrix (1, 1);
+    oap::HostComplexMatrixUPtr e1 = oap::host::NewReMatrix (1, 1);
+    oap::DeviceComplexMatrixUPtr de1 = oap::cuda::NewDeviceReMatrix(1, 1);
 
     floatt hw_1 = w_1;
     floatt hw_2 = w_2;

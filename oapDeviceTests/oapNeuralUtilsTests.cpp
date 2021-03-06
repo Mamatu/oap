@@ -71,12 +71,12 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_1)
   size_t counts = oap::nutils::getElementsCount(vec);
   EXPECT_EQ(6, counts);
 
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrix (1, counts);
+  oap::DeviceComplexMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = dmatrix.get();
 
   oap::nutils::copyToInputs_oneMatrix (layer, vec, ArgType::HOST);
 
-  oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
+  oap::HostComplexMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
 
   std::vector<floatt> output (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + vec.size());
   std::vector<floatt> expectedOutput = {0, 1, 2, 3, 4, 5};
@@ -98,12 +98,12 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_2)
   size_t counts = oap::nutils::getElementsCount(vec);
   EXPECT_EQ(12, counts);
 
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrix (1, counts);
+  oap::DeviceComplexMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = dmatrix.get();
 
   oap::nutils::copyToInputs_oneMatrix (layer, vec, ArgType::HOST);
 
-  oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
+  oap::HostComplexMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
 
   std::vector<floatt> output (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
@@ -125,12 +125,12 @@ TEST_F(OapNeuralUtilsTests, CopyIntoTest_3)
   size_t counts = oap::nutils::getElementsCount(vec);
   EXPECT_EQ(24, counts);
 
-  oap::DeviceMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrix (1, counts);
+  oap::DeviceComplexMatrixUPtr dmatrix = oap::cuda::NewDeviceReMatrix (1, counts);
   layer->getFPMatrices()->m_inputs = dmatrix.get();
 
   oap::nutils::copyToInputs_oneMatrix (layer, vec, ArgType::HOST);
 
-  oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
+  oap::HostComplexMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (dmatrix.get ());
 
   std::vector<floatt> output (hmatrix->re.mem.ptr, hmatrix->re.mem.ptr + ((counts / vec.size()) * vec.size()));
   std::vector<floatt> expectedOutput = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 6, 7, 4, 4, 8, 2, 5, 5, 0, 0};

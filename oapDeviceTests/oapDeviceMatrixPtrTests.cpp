@@ -30,7 +30,7 @@
 #include "oapDeviceComplexMatrixUPtr.h"
 
 
-class OapDeviceMatrixPtrTests : public testing::Test {
+class OapDeviceComplexMatrixPtrTests : public testing::Test {
   public:
     virtual void SetUp()
     {
@@ -43,12 +43,12 @@ class OapDeviceMatrixPtrTests : public testing::Test {
     }
 };
 
-TEST_F(OapDeviceMatrixPtrTests, MemLeakPtrTest)
+TEST_F(OapDeviceComplexMatrixPtrTests, MemLeakPtrTest)
 {
-  oap::DeviceMatrixPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
+  oap::DeviceComplexMatrixPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
 }
 
-TEST_F(OapDeviceMatrixPtrTests, MemLeakPtrsTest)
+TEST_F(OapDeviceComplexMatrixPtrTests, MemLeakPtrsTest)
 {
   std::vector<math::ComplexMatrix*> vec = {
     oap::cuda::NewDeviceReMatrix(10, 10),
@@ -56,10 +56,10 @@ TEST_F(OapDeviceMatrixPtrTests, MemLeakPtrsTest)
     oap::cuda::NewDeviceReMatrix(10, 10)
   };
 
-  oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr(vec);
+  oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr(vec);
 }
 
-TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
+TEST_F(OapDeviceComplexMatrixPtrTests, InitializationPtrsTest)
 {
   {
     std::vector<math::ComplexMatrix*> vec = {
@@ -68,7 +68,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
       oap::cuda::NewDeviceReMatrix(10, 10)
     };
 
-    oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (vec);
+    oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr (vec);
 
     for (size_t idx = 0; idx < vec.size(); ++idx)
     {
@@ -83,7 +83,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
       oap::cuda::NewDeviceReMatrix(10, 15)
     };
 
-    oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (vec);
+    oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr (vec);
 
     for (size_t idx = 0; idx < vec.size(); ++idx)
     {
@@ -100,7 +100,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
       oap::cuda::NewDeviceReMatrix(10, 100)
     };
 
-    oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (list);
+    oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr (list);
 
     size_t idx = 0;
     for (auto it = list.cbegin(); it != list.cend(); ++idx, ++it)
@@ -114,7 +114,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
     array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
     array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
 
-    oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (array, 2);
+    oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr (array, 2);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);
@@ -127,7 +127,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
     array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
     array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
 
-    oap::DeviceMatricesPtr ptr (array, 2);
+    oap::DeviceComplexMatricesPtr ptr (array, 2);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);
@@ -143,7 +143,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
       oap::cuda::NewDeviceMatrix (105, 13)
     };
 
-    oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (array, 3);
+    oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr (array, 3);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);
@@ -158,7 +158,7 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
       oap::cuda::NewDeviceMatrix (105, 13)
     };
 
-    oap::DeviceMatricesPtr ptr (array, 3);
+    oap::DeviceComplexMatricesPtr ptr (array, 3);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);
@@ -166,14 +166,14 @@ TEST_F(OapDeviceMatrixPtrTests, InitializationPtrsTest)
   }
 }
 
-TEST_F(OapDeviceMatrixPtrTests, ResetPtrTest)
+TEST_F(OapDeviceComplexMatrixPtrTests, ResetPtrTest)
 {
-  oap::DeviceMatrixPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
+  oap::DeviceComplexMatrixPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
 
   ptr.reset (oap::cuda::NewDeviceMatrix(11, 11));
 }
 
-TEST_F(OapDeviceMatrixPtrTests, ResetPtrsTest)
+TEST_F(OapDeviceComplexMatrixPtrTests, ResetPtrsTest)
 {
   std::vector<math::ComplexMatrix*> vec = {
     oap::cuda::NewDeviceReMatrix(10, 10),
@@ -206,7 +206,7 @@ TEST_F(OapDeviceMatrixPtrTests, ResetPtrsTest)
     oap::cuda::NewDeviceMatrix (110, 25),
   };
 
-  oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (vec);
+  oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr (vec);
   ptr.reset (vec1);
   ptr.reset (list);
   ptr.reset (array, 2);
@@ -215,18 +215,18 @@ TEST_F(OapDeviceMatrixPtrTests, ResetPtrsTest)
   delete[] array;
 }
 
-TEST_F(OapDeviceMatrixPtrTests, AssignmentPtrTest)
+TEST_F(OapDeviceComplexMatrixPtrTests, AssignmentPtrTest)
 {
-  oap::DeviceMatrixPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
+  oap::DeviceComplexMatrixPtr ptr = oap::cuda::NewDeviceReMatrix (10, 10);
 
   ptr = oap::cuda::NewDeviceMatrix(11, 11);
 
-  oap::DeviceMatrixPtr ptr1 = oap::cuda::NewDeviceReMatrix (15, 15);
+  oap::DeviceComplexMatrixPtr ptr1 = oap::cuda::NewDeviceReMatrix (15, 15);
 
   ptr = ptr1;
 }
 
-TEST_F(OapDeviceMatrixPtrTests, AssignmentPtrsTest)
+TEST_F(OapDeviceComplexMatrixPtrTests, AssignmentPtrsTest)
 {
   std::vector<math::ComplexMatrix*> vec = {
     oap::cuda::NewDeviceReMatrix(10, 10),
@@ -241,6 +241,6 @@ TEST_F(OapDeviceMatrixPtrTests, AssignmentPtrsTest)
     oap::cuda::NewDeviceReMatrix(10, 10)
   };
 
-  oap::DeviceMatricesPtr ptr = oap::makeDeviceMatricesPtr (vec);
-  ptr = oap::makeDeviceMatricesPtr (vec1);
+  oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr (vec);
+  ptr = oap::makeDeviceComplexMatricesPtr (vec1);
 }

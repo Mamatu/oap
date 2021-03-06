@@ -302,7 +302,7 @@ void printHostWeights (const LayerT& layer, bool newLine, CopyKernelMatrixToMatr
   }
   else
   {
-    oap::HostMatrixUPtr matrix = oap::host::NewHostMatrixFromMatrixInfo (layer.getWeightsInfo());
+    oap::HostComplexMatrixUPtr matrix = oap::host::NewHostMatrixFromMatrixInfo (layer.getWeightsInfo());
     copyKernelMatrixToMatrix (matrix.get(), layer.getBPMatrices()->m_weights);
 
     oap::host::ToString (matrixStr, matrix.get());

@@ -32,12 +32,12 @@ namespace oap {
    *
    * Examples of use: oapDeviceTests/oapDeviceComplexMatrixPtrTests.cpp
    */
-  class DeviceMatrixPtr : public oap::MatrixSharedPtr {
+  class DeviceComplexMatrixPtr : public oap::ComplexMatrixSharedPtr {
     public:
-      DeviceMatrixPtr(math::ComplexMatrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix,
-      [this](const math::ComplexMatrix* matrix) { logTrace("Destroy: DeviceMatrixPtr = %p matrix = %p", this, matrix); oap::cuda::DeleteDeviceMatrix(matrix); })
+      DeviceComplexMatrixPtr(math::ComplexMatrix* matrix = nullptr) : oap::ComplexMatrixSharedPtr(matrix,
+      [this](const math::ComplexMatrix* matrix) { logTrace("Destroy: DeviceComplexMatrixPtr = %p matrix = %p", this, matrix); oap::cuda::DeleteDeviceMatrix(matrix); })
       {
-        logTrace("Create: DeviceMatrixPtr = %p matrix = %p", this, matrix);
+        logTrace("Create: DeviceComplexMatrixPtr = %p matrix = %p", this, matrix);
       }
   };
 
@@ -49,34 +49,34 @@ namespace oap {
    *
    * Examples of use: oapDeviceTests/oapDeviceComplexMatrixPtrTests.cpp
    */
-  class DeviceMatricesPtr : public oap::MatricesSharedPtr {
+  class DeviceComplexMatricesPtr : public oap::ComplexMatricesSharedPtr {
     public:
-      DeviceMatricesPtr(math::ComplexMatrix** matrices, unsigned int count) :
-        oap::MatricesSharedPtr (matrices, count, oap::cuda::DeleteDeviceMatrix) {}
+      DeviceComplexMatricesPtr(math::ComplexMatrix** matrices, unsigned int count) :
+        oap::ComplexMatricesSharedPtr (matrices, count, oap::cuda::DeleteDeviceMatrix) {}
 
-      DeviceMatricesPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
-        oap::MatricesSharedPtr (matrices, oap::cuda::DeleteDeviceMatrix) {}
+      DeviceComplexMatricesPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
+        oap::ComplexMatricesSharedPtr (matrices, oap::cuda::DeleteDeviceMatrix) {}
 
     private:
-      DeviceMatricesPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
-        oap::MatricesSharedPtr (matrices, count, oap::cuda::DeleteDeviceMatrix, bCopyArray) {}
+      DeviceComplexMatricesPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
+        oap::ComplexMatricesSharedPtr (matrices, count, oap::cuda::DeleteDeviceMatrix, bCopyArray) {}
 
       template<class SmartPtr, template<typename, typename> class Container, typename T>
       friend SmartPtr smartptr_utils::makeSmartPtr(const Container<T, std::allocator<T> >& container);
   };
 
   template<template<typename, typename> class Container>
-  DeviceMatricesPtr makeDeviceMatricesPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
-    return smartptr_utils::makeSmartPtr<DeviceMatricesPtr>(matrices);
+  DeviceComplexMatricesPtr makeDeviceComplexMatricesPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
+    return smartptr_utils::makeSmartPtr<DeviceComplexMatricesPtr>(matrices);
   }
 
   template<template<typename> class Container>
-  DeviceMatricesPtr makeDeviceMatricesPtr(const Container<math::ComplexMatrix*>& matrices) {
-    return smartptr_utils::makeSmartPtr<DeviceMatricesPtr>(matrices);
+  DeviceComplexMatricesPtr makeDeviceComplexMatricesPtr(const Container<math::ComplexMatrix*>& matrices) {
+    return smartptr_utils::makeSmartPtr<DeviceComplexMatricesPtr>(matrices);
   }
 
-  inline DeviceMatricesPtr makeDeviceMatricesPtr(math::ComplexMatrix** array, size_t count) {
-    return smartptr_utils::makeSmartPtr<DeviceMatricesPtr>(array, count);
+  inline DeviceComplexMatricesPtr makeDeviceComplexMatricesPtr(math::ComplexMatrix** array, size_t count) {
+    return smartptr_utils::makeSmartPtr<DeviceComplexMatricesPtr>(array, count);
   }
 }
 

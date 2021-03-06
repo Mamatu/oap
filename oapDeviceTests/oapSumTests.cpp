@@ -51,8 +51,8 @@ class OapSumTests : public testing::Test {
   void test (size_t columns, size_t rows, const std::function<int(int)> getValue, const std::function<void(int,int)>& compare)
   {
     size_t expected = 0;
-    oap::HostMatrixPtr hmatrix = oap::host::NewReMatrix (columns, rows);
-    oap::DeviceMatrixPtr dmatrix = oap::cuda::NewDeviceReMatrix (columns, rows);
+    oap::HostComplexMatrixPtr hmatrix = oap::host::NewReMatrix (columns, rows);
+    oap::DeviceComplexMatrixPtr dmatrix = oap::cuda::NewDeviceReMatrix (columns, rows);
     for (size_t idx = 0; idx < columns * rows; ++idx)
     {
       *GetRePtrIndex (hmatrix, idx) = getValue(idx);

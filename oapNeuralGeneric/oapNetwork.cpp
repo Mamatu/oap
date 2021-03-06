@@ -244,7 +244,7 @@ LHandler Network::createGenericFPLayer (LayerType ltype, const Network::GenericF
   return registerHandler(std::move (fplayers));
 }
 
-oap::HostMatrixUPtr Network::run (const math::ComplexMatrix* inputs, ArgType argType, oap::ErrorType errorType)
+oap::HostComplexMatrixUPtr Network::run (const math::ComplexMatrix* inputs, ArgType argType, oap::ErrorType errorType)
 {
   Layer* layer = m_layers[0].front();
 
@@ -273,7 +273,7 @@ oap::HostMatrixUPtr Network::run (const math::ComplexMatrix* inputs, ArgType arg
   math::ComplexMatrix* output = oap::host::NewReMatrix (1, llayer->getTotalNeuronsCount());
   m_nga->copyKernelMatrixToHostMatrix (output, llayer->getFPMatrices()->m_inputs);
 
-  return oap::HostMatrixUPtr (output);
+  return oap::HostComplexMatrixUPtr (output);
 }
 
 void Network::setHostInputs (math::ComplexMatrix* inputs, uintt index)
@@ -542,7 +542,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
 
   if (m_layers[handler][0]->getSamplesCount() == 1 || getType(handler) == LayerType::ONE_MATRIX)
   {
-    oap::HostMatrixPtr hmatrix = oap::host::NewReMatrix (1, layer->getRowsCount());
+    oap::HostComplexMatrixPtr hmatrix = oap::host::NewReMatrix (1, layer->getRowsCount());
     oap::generic::getErrors (hmatrix, *layer, *m_singleApi, m_expectedOutputs[handler][0], errorType,
         [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src){ m_nga->copyKernelMatrixToHostMatrix (dst, src); });
     for (uintt idx = 0; idx < gRows (hmatrix); ++idx)
@@ -951,7 +951,7 @@ void Network::printLayersInputs () const
     {
       FPMatrices* fpm = getLayer(idx)->getFPMatrices (fpidx);
       auto minfo = m_nga->getMatrixInfo (fpm->m_inputs);
-      oap::HostMatrixPtr hm = oap::host::NewHostMatrixFromMatrixInfo (minfo);
+      oap::HostComplexMatrixPtr hm = oap::host::NewHostMatrixFromMatrixInfo (minfo);
       m_nga->copyKernelMatrixToHostMatrix (hm.get(), fpm->m_inputs);
       std::string str;
       oap::host::ToString (str, hm.get());

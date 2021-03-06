@@ -13,7 +13,7 @@ namespace oap
 class Outcome
 {
   public:
-    Outcome(const std::vector<floatt>& revalues, const std::vector<floatt> errors, const oap::MatricesSharedPtr& evectors) :
+    Outcome(const std::vector<floatt>& revalues, const std::vector<floatt> errors, const oap::ComplexMatricesSharedPtr& evectors) :
       m_revalues(revalues),
       m_errors(errors),
       m_evectors(evectors)
@@ -40,7 +40,7 @@ class Outcome
   private:
     std::vector<floatt> m_revalues;
     std::vector<floatt> m_errors;
-    oap::MatricesSharedPtr m_evectors;
+    oap::ComplexMatricesSharedPtr m_evectors;
     std::function<void()> m_deleter;
 };
 

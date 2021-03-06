@@ -37,7 +37,7 @@ class OapThreadsMapperApiTests : public testing::Test
 #if 0
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_1)
 {
-  oap::HostMatrixUPtr m1 = oap::host::NewMatrix (1, 1);
+  oap::HostComplexMatrixUPtr m1 = oap::host::NewMatrix (1, 1);
   std::vector<math::ComplexMatrix*> matrices = {m1};
   auto mapper = oap::threads::createThreadsMapper (matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
@@ -54,8 +54,8 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_1)
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_2)
 {
   oap::Memory memory = oap::host::NewMemoryWithValues ({3, 2}, 0.);
-  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (2, 2, memory, {1, 0});
+  oap::HostComplexMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (2, 2, memory, {1, 0});
   std::vector<math::ComplexMatrix*> matrices = {m1, m2};
   auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
@@ -80,9 +80,9 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_3)
 {
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 6}, 0.);
 
-  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (1, 2, memory, {0, 1});
-  oap::HostMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (1, 3, memory, {0, 3});
+  oap::HostComplexMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (1, 2, memory, {0, 1});
+  oap::HostComplexMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (1, 3, memory, {0, 3});
 
   std::vector<math::ComplexMatrix*> matrices = {m1, m2, m3};
   auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
@@ -107,9 +107,9 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_4)
 {
   oap::Memory memory = oap::host::NewMemoryWithValues ({6, 1}, 0.);
 
-  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (2, 1, memory, {1, 0});
-  oap::HostMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (3, 1, memory, {3, 0});
+  oap::HostComplexMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (2, 1, memory, {1, 0});
+  oap::HostComplexMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (3, 1, memory, {3, 0});
   std::vector<math::ComplexMatrix*> matrices = {m1, m2, m3};
   auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
@@ -133,9 +133,9 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_5)
 {
   oap::Memory memory = oap::host::NewMemoryWithValues ({6, 1}, 0.);
 
-  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (2, 1, memory, {1, 0});
-  oap::HostMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (3, 2, memory, {3, 0});
+  oap::HostComplexMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (2, 1, memory, {1, 0});
+  oap::HostComplexMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (3, 2, memory, {3, 0});
   std::vector<math::ComplexMatrix*> matrices = {m1, m2, m3};
   auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
@@ -158,9 +158,9 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_5)
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_6)
 {
   oap::Memory memory = oap::host::NewMemoryWithValues ({5, 2}, 0.);
-  oap::HostMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (1, 2, memory, {1, 0});
-  oap::HostMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (3, 2, memory, {2, 0});
+  oap::HostComplexMatrixUPtr m1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr m2 = oap::host::NewReMatrixFromMemory (1, 2, memory, {1, 0});
+  oap::HostComplexMatrixUPtr m3 = oap::host::NewReMatrixFromMemory (3, 2, memory, {2, 0});
   std::vector<math::ComplexMatrix*> matrices = {m1, m2, m3};
   auto mapper = oap::threads::createThreadsMapper(matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 
@@ -182,8 +182,8 @@ TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_6)
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_7)
 {
   oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 0.);
-  oap::HostMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
 
   std::vector<math::ComplexMatrix*> matrices = {output1, output2};
 

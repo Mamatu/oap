@@ -43,7 +43,7 @@ class OapSumTests : public testing::Test {
     oap::HostProcedures cuApi (maxThreadsPerBlock);
 
     size_t expected = 0;
-    oap::HostMatrixPtr hmatrix = newMatrix (columns, rows, 0);
+    oap::HostComplexMatrixPtr hmatrix = newMatrix (columns, rows, 0);
     for (size_t idx = 0; idx < columns * rows; ++idx)
     {
       if (hmatrix->re.mem.ptr != nullptr)

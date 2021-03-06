@@ -40,7 +40,7 @@ class MatrixValuesAreEqualMatcher : public ::MatrixValuesAreEqualMatcher
 
   virtual bool MatchAndExplain(math::ComplexMatrix* matrix, MatchResultListener* listener) const override
   {
-    oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
+    oap::HostComplexMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixValuesAreEqualMatcher::MatchAndExplain (hmatrix.get(), listener);
   }
 };
@@ -54,7 +54,7 @@ class MatrixIsEqualMatcherKH : public ::MatrixIsEqualMatcher
 
   virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const override
   {
-    oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
+    oap::HostComplexMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixIsEqualMatcher::MatchAndExplain (hmatrix.get (), listener);
   }
 };
@@ -91,7 +91,7 @@ class MatrixIsEqualMatcherKK : public ::MatrixIsEqualMatcher
 
   virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const override
   {
-    oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
+    oap::HostComplexMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixIsEqualMatcher::MatchAndExplain (hmatrix.get(), listener);
   }
 };
@@ -105,7 +105,7 @@ class MatrixHasValuesMatcher : public ::MatrixHasValuesMatcher
 
   virtual bool MatchAndExplain (math::ComplexMatrix* matrix, MatchResultListener* listener) const
   {
-    oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
+    oap::HostComplexMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixHasValuesMatcher::MatchAndExplain (hmatrix.get (), listener);
   }
 };
@@ -117,7 +117,7 @@ class MatrixIsDiagonalMatcher : public ::MatrixIsDiagonalMatcher
 
   virtual bool MatchAndExplain(math::ComplexMatrix* matrix, MatchResultListener* listener) const override
   {
-    oap::HostMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
+    oap::HostComplexMatrixUPtr hmatrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (matrix);
     return ::MatrixIsDiagonalMatcher::MatchAndExplain (hmatrix.get(), listener);
   }
 };
