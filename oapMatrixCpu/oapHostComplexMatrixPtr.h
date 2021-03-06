@@ -32,12 +32,12 @@ namespace oap {
    *
    * Examples of use: oapHostTests/oapHostComplexMatrixPtrTests.cpp
    */
-  class HostMatrixPtr : public oap::MatrixSharedPtr {
+  class HostComplexMatrixPtr : public oap::ComplexMatrixSharedPtr {
     public:
-      HostMatrixPtr(math::ComplexMatrix* matrix = nullptr) : oap::MatrixSharedPtr(matrix,
-        [this](const math::ComplexMatrix* matrix) { logTrace("Destroy: HostMatrixPtr = %p matrix = %p", this, matrix); oap::host::DeleteMatrix(matrix); })
+      HostComplexMatrixPtr(math::ComplexMatrix* matrix = nullptr) : oap::ComplexMatrixSharedPtr(matrix,
+        [this](const math::ComplexMatrix* matrix) { logTrace("Destroy: HostComplexMatrixPtr = %p matrix = %p", this, matrix); oap::host::DeleteMatrix(matrix); })
       {
-        logTrace("Create: HostMatrixPtr = %p matrix = %p", this, matrix);
+        logTrace("Create: HostComplexMatrixPtr = %p matrix = %p", this, matrix);
       }
   };
 
@@ -49,37 +49,37 @@ namespace oap {
    *
    * Examples of use: oapHostTests/oapHostComplexMatrixPtrTests.cpp
    */
-  class HostMatricesPtr : public oap::MatricesSharedPtr {
+  class HostComplexMatricesPtr : public oap::ComplexMatricesSharedPtr {
     public:
-      HostMatricesPtr(math::ComplexMatrix** matrices, unsigned int count) :
-        oap::MatricesSharedPtr (matrices, count, oap::host::DeleteMatrix) {}
+      HostComplexMatricesPtr(math::ComplexMatrix** matrices, unsigned int count) :
+        oap::ComplexMatricesSharedPtr (matrices, count, oap::host::DeleteMatrix) {}
 
-      HostMatricesPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
-        oap::MatricesSharedPtr (matrices, oap::host::DeleteMatrix) {}
+      HostComplexMatricesPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
+        oap::ComplexMatricesSharedPtr (matrices, oap::host::DeleteMatrix) {}
 
-      HostMatricesPtr(size_t count) :
-        oap::MatricesSharedPtr (count, oap::host::DeleteMatrix) {}
+      HostComplexMatricesPtr(size_t count) :
+        oap::ComplexMatricesSharedPtr (count, oap::host::DeleteMatrix) {}
 
     private:
-      HostMatricesPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
-        oap::MatricesSharedPtr (matrices, count, oap::host::DeleteMatrix, bCopyArray) {}
+      HostComplexMatricesPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
+        oap::ComplexMatricesSharedPtr (matrices, count, oap::host::DeleteMatrix, bCopyArray) {}
 
       template<class SmartPtr, template<typename, typename> class Container, typename T>
       friend SmartPtr smartptr_utils::makeSmartPtr(const Container<T, std::allocator<T> >& container);
   };
 
   template<template<typename, typename> class Container>
-  HostMatricesPtr makeHostMatricesPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
-    return smartptr_utils::makeSmartPtr<HostMatricesPtr>(matrices);
+  HostComplexMatricesPtr makeHostComplexMatricesPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
+    return smartptr_utils::makeSmartPtr<HostComplexMatricesPtr>(matrices);
   }
 
   template<template<typename> class Container>
-  HostMatricesPtr makeHostMatricesPtr(const Container<math::ComplexMatrix*>& matrices) {
-    return smartptr_utils::makeSmartPtr<HostMatricesPtr>(matrices);
+  HostComplexMatricesPtr makeHostComplexMatricesPtr(const Container<math::ComplexMatrix*>& matrices) {
+    return smartptr_utils::makeSmartPtr<HostComplexMatricesPtr>(matrices);
   }
 
-  inline HostMatricesPtr makeHostMatricesPtr(math::ComplexMatrix** array, size_t count) {
-    return smartptr_utils::makeSmartPtr<HostMatricesPtr>(array, count);
+  inline HostComplexMatricesPtr makeHostComplexMatricesPtr(math::ComplexMatrix** array, size_t count) {
+    return smartptr_utils::makeSmartPtr<HostComplexMatricesPtr>(array, count);
   }
 }
 

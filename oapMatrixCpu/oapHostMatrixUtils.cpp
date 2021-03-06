@@ -968,14 +968,14 @@ math::ComplexMatrix* ReadMatrix (const std::string& path)
 
 math::ComplexMatrix* ReadRowVector (const std::string& path, size_t index)
 {
-  oap::HostMatrixUPtr matrix = ReadMatrix (path);
+  oap::HostComplexMatrixUPtr matrix = ReadMatrix (path);
   math::ComplexMatrix* subMatrix = oap::host::NewSubMatrix (matrix, 0, index, gColumns (matrix), 1);
   return subMatrix;
 }
 
 math::ComplexMatrix* ReadColumnVector (const std::string& path, size_t index)
 {
-  oap::HostMatrixUPtr matrix = ReadMatrix (path);
+  oap::HostComplexMatrixUPtr matrix = ReadMatrix (path);
   math::ComplexMatrix* subMatrix = oap::host::NewSubMatrix (matrix, index, 0, 1, gRows (matrix));
   return subMatrix;
 }
@@ -1382,7 +1382,7 @@ void SetValueToReMatrix (math::ComplexMatrix* matrix, floatt v)
   if (hm.re.mem.ptr)
   {
     auto minfo = GetMatrixInfo (matrix);
-    oap::HostMatrixUPtr uptr = oap::host::NewReMatrixWithValue (minfo.columns(), minfo.rows(), v);
+    oap::HostComplexMatrixUPtr uptr = oap::host::NewReMatrixWithValue (minfo.columns(), minfo.rows(), v);
 
     oap::MemoryLoc loc = GetReMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetReMatrixMemoryRegion (uptr);
@@ -1399,7 +1399,7 @@ void SetValueToImMatrix (math::ComplexMatrix* matrix, floatt v)
   if (hm.im.mem.ptr)
   {
     auto minfo = GetMatrixInfo (matrix);
-    oap::HostMatrixUPtr uptr = oap::host::NewImMatrixWithValue (minfo.columns(), minfo.rows(), v);
+    oap::HostComplexMatrixUPtr uptr = oap::host::NewImMatrixWithValue (minfo.columns(), minfo.rows(), v);
 
     oap::MemoryLoc loc = GetImMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetImMatrixMemoryRegion (uptr);

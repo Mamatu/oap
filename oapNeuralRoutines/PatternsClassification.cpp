@@ -100,8 +100,8 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     network->createLayer (layerSize);
   }
 
-  oap::HostMatrixPtr input = oap::host::NewReMatrixWithValue (1, args.networkLayers.front(), 0);
-  oap::HostMatrixPtr eoutput = oap::host::NewReMatrixWithValue (1, args.networkLayers.back(), 0);
+  oap::HostComplexMatrixPtr input = oap::host::NewReMatrixWithValue (1, args.networkLayers.front(), 0);
+  oap::HostComplexMatrixPtr eoutput = oap::host::NewReMatrixWithValue (1, args.networkLayers.back(), 0);
 
   network->setLearningRate (0.001);
 
@@ -140,7 +140,7 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     logInfo ("error = %f", error);
   }
 
-  auto invokeCallback = [&args](const oap::HostMatrixUPtr& matrix, const oap::PatternsClassificationParser::Args::OutputCallback& callback)
+  auto invokeCallback = [&args](const oap::HostComplexMatrixUPtr& matrix, const oap::PatternsClassificationParser::Args::OutputCallback& callback)
   {
     std::vector<floatt> vec;
     for (size_t idx = 0; idx < args.networkLayers.size(); ++idx)

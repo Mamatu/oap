@@ -54,9 +54,9 @@ TEST_F(OapConvolutionTests, Test_0)
 
   oap::HostProcedures calcApi;
 
-  oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
-  oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (1, 1, paramArray);
-  oap::HostMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (1, 1, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (1, 1, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (1, 1, kernelArray);
 
   calcApi.convolve (outcome, param, kernel);
 
@@ -81,9 +81,9 @@ TEST_F(OapConvolutionTests, Test_1)
 
   oap::HostProcedures calcApi;
 
-  oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
-  oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (2, 2, paramArray);
-  oap::HostMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (2, 2, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (2, 2, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (2, 2, kernelArray);
 
   calcApi.convolve (outcome, param, kernel);
 
@@ -112,9 +112,9 @@ TEST_F(OapConvolutionTests, Test_2)
 
   oap::HostProcedures calcApi;
 
-  oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (2, 2);
-  oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (3, 3, paramArray);
-  oap::HostMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (2, 2, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (2, 2);
+  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (3, 3, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (2, 2, kernelArray);
 
   calcApi.convolve (outcome, param, kernel);
 
@@ -143,9 +143,9 @@ TEST_F(OapConvolutionTests, Test_3)
 
   oap::HostProcedures calcApi;
 
-  oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
-  oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);
-  oap::HostMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (3, 3, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (3, 3, kernelArray);
 
   auto pinfo = oap::host::GetMatrixInfo (param);
   auto kinfo = oap::host::GetMatrixInfo (kernel);

@@ -97,8 +97,8 @@ class OapLogicalFunctionsTests : public testing::Test
         neurons = neurons + 1;
       }
 
-      oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
-      oap::HostMatrixUPtr expected = oap::host::NewReMatrix(1, 1);
+      oap::HostComplexMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
+      oap::HostComplexMatrixUPtr expected = oap::host::NewReMatrix(1, 1);
       *GetRePtrIndex (inputs, 0) = a1;
       *GetRePtrIndex (inputs, 1) = a2;
 
@@ -121,7 +121,7 @@ class OapLogicalFunctionsTests : public testing::Test
         neurons = neurons + 1;
       }
 
-      oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
+      oap::HostComplexMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
       *GetRePtrIndex (inputs, 0) = a1;
       *GetRePtrIndex (inputs, 1) = a2;
 

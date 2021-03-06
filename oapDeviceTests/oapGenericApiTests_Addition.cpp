@@ -61,17 +61,17 @@ TEST_F(OapApiVer2Tests_Addition, SimpleAdd)
   oap::Memory hmemory = oap::host::NewMemoryWithValues ({10, 10}, 0.);
 
   oap::MemoryLoc loc = {0, 0};
-  oap::DeviceMatrixUPtr output1 = oap::cuda::NewDeviceReMatrixFromMemory (3, 3, memory, {0, 0});
-  oap::DeviceMatrixUPtr output2 = oap::cuda::NewDeviceReMatrixFromMemory (3, 3, memory, {4, 0});
+  oap::DeviceComplexMatrixUPtr output1 = oap::cuda::NewDeviceReMatrixFromMemory (3, 3, memory, {0, 0});
+  oap::DeviceComplexMatrixUPtr output2 = oap::cuda::NewDeviceReMatrixFromMemory (3, 3, memory, {4, 0});
 
-  oap::DeviceMatrixUPtr matrix1 = oap::cuda::NewDeviceReMatrixWithValue (3, 3, 2.);
-  oap::DeviceMatrixUPtr matrix2 = oap::cuda::NewDeviceReMatrixWithValue (3, 3, 1.);
+  oap::DeviceComplexMatrixUPtr matrix1 = oap::cuda::NewDeviceReMatrixWithValue (3, 3, 2.);
+  oap::DeviceComplexMatrixUPtr matrix2 = oap::cuda::NewDeviceReMatrixWithValue (3, 3, 1.);
 
   std::vector<math::ComplexMatrix*> outputs = {output1, output2};
   m_cuApi->v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1, matrix2}), 1.f);
   
-  oap::HostMatrixUPtr output1h = oap::host::NewReMatrixWithValue (3, 3, 0);
-  oap::HostMatrixUPtr output2h = oap::host::NewReMatrixWithValue (3, 3, 0);
+  oap::HostComplexMatrixUPtr output1h = oap::host::NewReMatrixWithValue (3, 3, 0);
+  oap::HostComplexMatrixUPtr output2h = oap::host::NewReMatrixWithValue (3, 3, 0);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (output1h, output1);
   oap::cuda::CopyDeviceMatrixToHostMatrix (output2h, output2);

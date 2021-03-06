@@ -74,7 +74,7 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
 
   auto generateInputHostMatrix = [](const Coordinates& coords)
   {
-    oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, coords.size() * 3);
+    oap::HostComplexMatrixPtr hinput = oap::host::NewReMatrix (1, coords.size() * 3);
 
     for (size_t idx = 0; idx < coords.size(); ++idx)
     {
@@ -89,7 +89,7 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
 
   auto generateExpectedHostMatrix = [](const Coordinates& coords)
   {
-    oap::HostMatrixPtr hexpected = oap::host::NewReMatrix (1, coords.size());
+    oap::HostComplexMatrixPtr hexpected = oap::host::NewReMatrix (1, coords.size());
 
     for (size_t idx = 0; idx < coords.size(); ++idx)
     {
@@ -155,14 +155,14 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
   size_t batchSize = 7;
 
   {
-    oap::HostMatrixPtr testHInputs = generateInputHostMatrix (testData);
-    oap::HostMatrixPtr trainingHInputs = generateInputHostMatrix (trainingData);
+    oap::HostComplexMatrixPtr testHInputs = generateInputHostMatrix (testData);
+    oap::HostComplexMatrixPtr trainingHInputs = generateInputHostMatrix (trainingData);
 
-    oap::HostMatrixPtr testHOutputs = oap::host::NewReMatrix (1, testData.size());
-    oap::HostMatrixPtr trainingHOutputs = oap::host::NewReMatrix (1, trainingData.size());
+    oap::HostComplexMatrixPtr testHOutputs = oap::host::NewReMatrix (1, testData.size());
+    oap::HostComplexMatrixPtr trainingHOutputs = oap::host::NewReMatrix (1, trainingData.size());
 
-    oap::HostMatrixPtr testHExpected = generateExpectedHostMatrix (testData);
-    oap::HostMatrixPtr trainingHExpected = generateExpectedHostMatrix (trainingData);
+    oap::HostComplexMatrixPtr testHExpected = generateExpectedHostMatrix (testData);
+    oap::HostComplexMatrixPtr trainingHExpected = generateExpectedHostMatrix (trainingData);
 
     std::unique_ptr<Network> network (new Network (singleApi, multiApi, nga, false));
 
@@ -187,8 +187,8 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
     network->setExpected (testHExpected, ArgType::HOST, testHandler);
     network->setExpected (trainingHExpected, ArgType::HOST, trainingHandler);
 
-    oap::HostMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
-    oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+    oap::HostComplexMatrixPtr hinput = oap::host::NewReMatrix (1, 3);
+    oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
     auto forwardPropagation = [&hinput, &houtput, &network] (const Coordinate& coordinate)
     {
@@ -209,7 +209,7 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
       network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST, handler);
     };
 
-    auto calculateCoordsError = [&forwardPropagationFP, &network](const Coordinates& coords, FPHandler handler, oap::HostMatrixPtr hostMatrix, Coordinates* output = nullptr)
+    auto calculateCoordsError = [&forwardPropagationFP, &network](const Coordinates& coords, FPHandler handler, oap::HostComplexMatrixPtr hostMatrix, Coordinates* output = nullptr)
     {
       std::vector<Coordinate> pcoords;
       forwardPropagationFP (handler);
@@ -230,7 +230,7 @@ void runPointsClassification (uintt seed, oap::generic::SingleMatrixProcedures* 
       return error;
     };
 
-    auto calculateCoordsErrorPlot = [&calculateCoordsError, fileType](const Coordinates& coords, FPHandler handler, oap::HostMatrixPtr hostMatrix, const std::string& path)
+    auto calculateCoordsErrorPlot = [&calculateCoordsError, fileType](const Coordinates& coords, FPHandler handler, oap::HostComplexMatrixPtr hostMatrix, const std::string& path)
     {
       Coordinates pcoords;
       floatt output = calculateCoordsError (coords, handler, hostMatrix, &pcoords);

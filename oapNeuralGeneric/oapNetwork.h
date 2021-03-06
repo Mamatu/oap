@@ -68,7 +68,7 @@ public:
   LHandler createSharedFPLayer (const std::vector<LHandler>& handlers, LayerType ltype = LayerType::ONE_MATRIX);
   LHandler createSharedFPLayer (const std::vector<std::vector<FPMatrices*>>& fpmatrices, LayerType ltype = LayerType::ONE_MATRIX);
 
-  oap::HostMatrixUPtr run (const math::ComplexMatrix* hostInputs, ArgType argType, oap::ErrorType errorType);
+  oap::HostComplexMatrixUPtr run (const math::ComplexMatrix* hostInputs, ArgType argType, oap::ErrorType errorType);
   void setHostInputs (math::ComplexMatrix* inputs, uintt index);
 
   void setInputs (math::ComplexMatrix* inputs, ArgType argType, LHandler handler = 0);

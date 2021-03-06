@@ -70,13 +70,13 @@ TEST_F(OapDeviceImagesLoaderTests, SquareMatrixAllocationTest)
 
   math::MatrixInfo minfo = smatrix.getMatrixInfo ();
 
-  oap::DeviceMatrixUPtr submatrix = smatrix.createDeviceSubMatrix (0, 1);
-  oap::DeviceMatrixUPtr rowVector = smatrix.createDeviceRowVector (0);
+  oap::DeviceComplexMatrixUPtr submatrix = smatrix.createDeviceSubMatrix (0, 1);
+  oap::DeviceComplexMatrixUPtr rowVector = smatrix.createDeviceRowVector (0);
   {
-    oap::DeviceMatrixUPtr submatrix1 = smatrix.createDeviceSubMatrix (0, 100);
-    oap::DeviceMatrixUPtr submatrix2 = smatrix.createDeviceSubMatrix (1, 100);
-    oap::DeviceMatrixUPtr submatrix3 = smatrix.createDeviceSubMatrix (2, 100);
-    oap::DeviceMatrixUPtr submatrix4 = smatrix.createDeviceSubMatrix (3, 100);
+    oap::DeviceComplexMatrixUPtr submatrix1 = smatrix.createDeviceSubMatrix (0, 100);
+    oap::DeviceComplexMatrixUPtr submatrix2 = smatrix.createDeviceSubMatrix (1, 100);
+    oap::DeviceComplexMatrixUPtr submatrix3 = smatrix.createDeviceSubMatrix (2, 100);
+    oap::DeviceComplexMatrixUPtr submatrix4 = smatrix.createDeviceSubMatrix (3, 100);
     EXPECT_THROW(smatrix.createDeviceSubMatrix (100000, 100), std::runtime_error);
   }
 /*
@@ -90,7 +90,7 @@ TEST_F(OapDeviceImagesLoaderTests, SquareMatrixAllocationTest)
   }
 
   {
-    oap::DeviceMatrixUPtr submatrix1 = smatrix.getDeviceSubMatrix (0, 100, nullptr);
+    oap::DeviceComplexMatrixUPtr submatrix1 = smatrix.getDeviceSubMatrix (0, 100, nullptr);
     EXPECT_TRUE (submatrix1.get() != nullptr);
     EXPECT_EQ (100, oap::cuda::GetRows(submatrix1));
     EXPECT_EQ (oap::cuda::GetRows(submatrix1), oap::cuda::GetRows(submatrix1));
@@ -98,7 +98,7 @@ TEST_F(OapDeviceImagesLoaderTests, SquareMatrixAllocationTest)
   }
 
   {
-    oap::DeviceMatrixUPtr vec = smatrix.getDeviceRowVector (0, nullptr);
+    oap::DeviceComplexMatrixUPtr vec = smatrix.getDeviceRowVector (0, nullptr);
     EXPECT_TRUE (vec.get() != nullptr);
     EXPECT_EQ (1, oap::cuda::GetRows(vec));
     EXPECT_EQ (oap::cuda::GetRows(vec), oap::cuda::GetRows(vec));

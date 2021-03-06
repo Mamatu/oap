@@ -32,9 +32,9 @@ namespace oap {
    *
    * Examples of use: oapDeviceTests/oapDeviceComplexMatrixUPtrTests.cpp
    */
-  class DeviceMatrixUPtr : public oap::MatrixUniquePtr {
+  class DeviceComplexMatrixUPtr : public oap::MatrixUniquePtr {
     public:
-      DeviceMatrixUPtr(math::ComplexMatrix* matrix = nullptr, bool bDeallocate = true) :
+      DeviceComplexMatrixUPtr(math::ComplexMatrix* matrix = nullptr, bool bDeallocate = true) :
         oap::MatrixUniquePtr(matrix, oap::cuda::DeleteDeviceMatrix, bDeallocate)
       {
       }
@@ -48,16 +48,16 @@ namespace oap {
    *
    * Examples of use: oapDeviceTests/oapDeviceComplexMatrixUPtrTests.cpp
    */
-  class DeviceMatricesUPtr : public oap::MatricesUniquePtr {
+  class DeviceComplexMatricesUPtr : public oap::MatricesUniquePtr {
     public:
-      DeviceMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count) :
+      DeviceComplexMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count) :
         oap::MatricesUniquePtr(matrices, count, oap::cuda::DeleteDeviceMatrix) {}
 
-      DeviceMatricesUPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
+      DeviceComplexMatricesUPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
         oap::MatricesUniquePtr(matrices, oap::cuda::DeleteDeviceMatrix) {}
 
     private:
-      DeviceMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
+      DeviceComplexMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
         oap::MatricesUniquePtr (matrices, count, oap::cuda::DeleteDeviceMatrix, bCopyArray) {}
 
       template<class SmartPtr, template<typename, typename> class Container, typename T>
@@ -65,17 +65,17 @@ namespace oap {
   };
 
   template<template<typename, typename> class Container>
-  DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
-    return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(matrices);
+  DeviceComplexMatricesUPtr makeDeviceComplexMatricesUPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
+    return smartptr_utils::makeSmartPtr<DeviceComplexMatricesUPtr>(matrices);
   }
 
   template<template<typename> class Container>
-  DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::ComplexMatrix*>& matrices) {
-    return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(matrices);
+  DeviceComplexMatricesUPtr makeDeviceComplexMatricesUPtr(const Container<math::ComplexMatrix*>& matrices) {
+    return smartptr_utils::makeSmartPtr<DeviceComplexMatricesUPtr>(matrices);
   }
 
-  inline DeviceMatricesUPtr makeDeviceMatricesUPtr(math::ComplexMatrix** array, size_t count) {
-    return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(array, count);
+  inline DeviceComplexMatricesUPtr makeDeviceComplexMatricesUPtr(math::ComplexMatrix** array, size_t count) {
+    return smartptr_utils::makeSmartPtr<DeviceComplexMatricesUPtr>(array, count);
   }
 }
 

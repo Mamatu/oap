@@ -61,7 +61,7 @@ std::string getImagesPath()
   return dataPath;
 }
 
-oap::HostMatrixPtr getImageMatrix (const std::string& imagePath)
+oap::HostComplexMatrixPtr getImageMatrix (const std::string& imagePath)
 {
   oap::PngFile png(imagePath, false);
   png.open();
@@ -70,11 +70,11 @@ oap::HostMatrixPtr getImageMatrix (const std::string& imagePath)
   size_t width = png.getOutputWidth().getl();
   size_t height = png.getOutputHeight().getl();
 
-  oap::HostMatrixUPtr imageMatrix = oap::host::NewReMatrix (width, height);
+  oap::HostComplexMatrixUPtr imageMatrix = oap::host::NewReMatrix (width, height);
   //math::ComplexMatrix* imageMatrix = oap::host::NewReMatrix (width, height);
   png.getFloattVector(imageMatrix->re.mem.ptr);
 
-  oap::HostMatrixPtr input = oap::host::NewReMatrix (1, width * height);
+  oap::HostComplexMatrixPtr input = oap::host::NewReMatrix (1, width * height);
   //math::ComplexMatrix* input = oap::host::NewReMatrix (1, width * height);
 
   oap::host::CopyReBuffer (input, imageMatrix);
@@ -86,7 +86,7 @@ class Context final
 {
   public:
     Network* network = nullptr;
-    std::vector<oap::HostMatrixPtr> matrices;
+    std::vector<oap::HostComplexMatrixPtr> matrices;
     std::vector<std::pair<std::string, int>> dataSet;
 
     ~Context ()
@@ -120,7 +120,7 @@ Context* init (const std::vector<std::pair<std::string, int>>& dataSet)
 
   for (size_t idx = 0; idx < dataSet.size(); ++idx)
   {
-    oap::HostMatrixPtr imatrix = getImageMatrixFromIdx (idx);
+    oap::HostComplexMatrixPtr imatrix = getImageMatrixFromIdx (idx);
 
     if (ctx->network == nullptr)
     {
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
 
   auto run = [&](const std::string& image)
   {
-    oap::HostMatrixPtr imatrix = getImageMatrix (dataPath + image);
+    oap::HostComplexMatrixPtr imatrix = getImageMatrix (dataPath + image);
     auto output = ctx->network->run (imatrix.get(), ArgType::HOST, oap::ErrorType::ROOT_MEAN_SQUARE_ERROR);
     oap::host::PrintMatrix ("output = ", output.get ());
   };

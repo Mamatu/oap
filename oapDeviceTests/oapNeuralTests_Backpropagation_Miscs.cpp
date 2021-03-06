@@ -62,8 +62,8 @@ TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_2)
 
     ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
 
-    oap::HostMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
-    oap::HostMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+    oap::HostComplexMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
+    oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
 
     auto checkErrors = [&hinputs, &houtput, &network](floatt expected, const std::vector<std::pair<std::pair<floatt, floatt>, floatt>>& points)
     {

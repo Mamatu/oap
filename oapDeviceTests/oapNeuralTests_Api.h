@@ -112,7 +112,7 @@ namespace test_api
   };
 
   void testError (oap::Network* network, const Points& points, floatt expectedLoss,
-                  oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
+                  oap::HostComplexMatrixPtr hinputs, oap::HostComplexMatrixPtr houtput,
                   const ExtraParams& extraParams = ExtraParams());
 
   size_t calculateWIdx (size_t initStepIdx, const Steps& steps);
@@ -120,16 +120,16 @@ namespace test_api
   void testStep (TestMode& testMode, oap::Network* network,
                  const Steps& steps, size_t stepIdx,
                  const WeightsLayers& weightsLayers,
-                 oap::HostMatrixPtr hinputs, oap::HostMatrixPtr houtput,
-                 const std::vector<oap::HostMatrixPtr>& weightsMatrices,
+                 oap::HostComplexMatrixPtr hinputs, oap::HostComplexMatrixPtr houtput,
+                 const std::vector<oap::HostComplexMatrixPtr>& weightsMatrices,
                  const IdxsToCheck& idxToChecks,
                  const ExtraParams& extraParams = ExtraParams());
 
   void testSteps (TestMode& testMode, oap::Network* network,
                   const WeightsLayers& weightsLayers,
                   const Steps& steps,
-                  oap::HostMatrixPtr hinputs,
-                  oap::HostMatrixPtr houtput,
+                  oap::HostComplexMatrixPtr hinputs,
+                  oap::HostComplexMatrixPtr houtput,
                   const IdxsToCheck& idxToChecks,
                   const ExtraParams& extraParams = ExtraParams());
 

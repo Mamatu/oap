@@ -71,7 +71,7 @@ std::tuple<oap::Memory, oap::MemoryRegion> allocPart (bool alloc, uintt columns,
 
 void initWithZero (math::ComplexMatrix* matrix, bool allocRe, bool allocIm, uintt columns, uintt rows) 
 {
-  oap::HostMatrixUPtr hmatrix = oap::host::NewMatrixWithValue (allocRe, allocIm, columns, rows, 0);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewMatrixWithValue (allocRe, allocIm, columns, rows, 0);
   oap::cuda::CopyHostMatrixToDeviceMatrix (matrix, hmatrix);
 }
 
@@ -198,7 +198,7 @@ math::ComplexMatrix* NewDeviceMatrix(const std::string& matrixStr)
 math::ComplexMatrix* NewDeviceMatrixWithValue (uintt columns, uintt rows, floatt v)
 {
   math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix (columns, rows);
-  oap::HostMatrixUPtr hmptr = oap::host::NewMatrixWithValue (columns, rows, v);
+  oap::HostComplexMatrixUPtr hmptr = oap::host::NewMatrixWithValue (columns, rows, v);
   oap::cuda::CopyHostMatrixToDeviceMatrix (matrix, hmptr.get());
   return matrix;
 }
@@ -206,7 +206,7 @@ math::ComplexMatrix* NewDeviceMatrixWithValue (uintt columns, uintt rows, floatt
 math::ComplexMatrix* NewDeviceReMatrixWithValue (uintt columns, uintt rows, floatt v)
 {
   math::ComplexMatrix* matrix = oap::cuda::NewDeviceReMatrix (columns, rows);
-  oap::HostMatrixUPtr hmptr = oap::host::NewReMatrixWithValue (columns, rows, v);
+  oap::HostComplexMatrixUPtr hmptr = oap::host::NewReMatrixWithValue (columns, rows, v);
   oap::cuda::CopyHostMatrixToDeviceMatrix (matrix, hmptr.get());
   return matrix;
 }
@@ -214,7 +214,7 @@ math::ComplexMatrix* NewDeviceReMatrixWithValue (uintt columns, uintt rows, floa
 math::ComplexMatrix* NewDeviceImMatrixWithValue (uintt columns, uintt rows, floatt v)
 {
   math::ComplexMatrix* matrix = oap::cuda::NewDeviceImMatrix (columns, rows);
-  oap::HostMatrixUPtr hmptr = oap::host::NewImMatrixWithValue (columns, rows, v);
+  oap::HostComplexMatrixUPtr hmptr = oap::host::NewImMatrixWithValue (columns, rows, v);
   oap::cuda::CopyHostMatrixToDeviceMatrix (matrix, hmptr.get());
   return matrix;
 }
@@ -642,7 +642,7 @@ void SetValueToReMatrix (math::ComplexMatrix* matrix, floatt v)
   if (hm.re.mem.ptr)
   {
     auto minfo = GetMatrixInfo (matrix);
-    oap::HostMatrixUPtr uptr = oap::host::NewReMatrixWithValue (minfo.columns(), minfo.rows(), v);
+    oap::HostComplexMatrixUPtr uptr = oap::host::NewReMatrixWithValue (minfo.columns(), minfo.rows(), v);
 
     oap::MemoryLoc loc = GetReMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetReMatrixMemoryRegion (uptr);
@@ -659,7 +659,7 @@ void SetValueToImMatrix (math::ComplexMatrix* matrix, floatt v)
   if (hm.im.mem.ptr)
   {
     auto minfo = GetMatrixInfo (matrix);
-    oap::HostMatrixUPtr uptr = oap::host::NewImMatrixWithValue (minfo.columns(), minfo.rows(), v);
+    oap::HostComplexMatrixUPtr uptr = oap::host::NewImMatrixWithValue (minfo.columns(), minfo.rows(), v);
 
     oap::MemoryLoc loc = GetImMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetImMatrixMemoryRegion (uptr);
@@ -889,7 +889,7 @@ void ToString (std::string& str, const math::ComplexMatrix* devMatrix)
     str = "nullptr";
     return;
   }
-  oap::HostMatrixUPtr ptr = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (devMatrix);
+  oap::HostComplexMatrixUPtr ptr = oap::cuda::NewHostMatrixCopyOfDeviceMatrix (devMatrix);
   oap::host::ToString (str, ptr);
 }
 
@@ -937,7 +937,7 @@ void SaveMatrix (const math::ComplexMatrix* matrix, utils::ByteBuffer& buffer)
   auto minfo = oap::cuda::GetMatrixInfo (matrix);
   SaveMatrixInfo (minfo, buffer);
 
-  oap::HostMatrixUPtr hmatrix = oap::host::NewMatrix (minfo);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewMatrix (minfo);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, matrix);
 
@@ -954,7 +954,7 @@ void SaveMatrix (const math::ComplexMatrix* matrix, utils::ByteBuffer& buffer)
 
 math::ComplexMatrix* LoadMatrix (const utils::ByteBuffer& buffer)
 {
-  oap::HostMatrixUPtr hmatrix = oap::host::LoadMatrix (buffer);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::LoadMatrix (buffer);
 
   if (!hmatrix)
   {
@@ -1038,7 +1038,7 @@ void CopyDeviceBufferToDeviceReMatrix (math::ComplexMatrix* matrix, const floatt
 
 std::string to_carraystr(const math::ComplexMatrix* matrix)
 {
-  oap::HostMatrixUPtr hmatrix = oap::host::NewHostMatrixFromMatrixInfo (oap::cuda::GetMatrixInfo (matrix));
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewHostMatrixFromMatrixInfo (oap::cuda::GetMatrixInfo (matrix));
   oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, matrix);
   return oap::host::to_carraystr (hmatrix);
 }
@@ -1061,7 +1061,7 @@ std::string to_carraystr(const std::vector<math::ComplexMatrix*>& matrices)
 
 math::ComplexMatrix* NewDeviceReMatrixCopyOfArray(uintt columns, uintt rows, floatt* array)
 {
-  oap::HostMatrixUPtr hmatrix = oap::host::NewReMatrixCopyOfArray (columns, rows, array);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewReMatrixCopyOfArray (columns, rows, array);
   math::ComplexMatrix* dmatrix = oap::cuda::NewDeviceReMatrix (columns, rows);
   oap::cuda::CopyHostMatrixToDeviceMatrix (dmatrix, hmatrix);
   return dmatrix;

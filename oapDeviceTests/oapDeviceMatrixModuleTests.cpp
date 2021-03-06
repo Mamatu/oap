@@ -85,7 +85,7 @@ TEST_F(OapDeviceMatrixModuleTests, GetRowsTest) {
 
 TEST_F(OapDeviceMatrixModuleTests, GetRowsGetColumns)
 {
-  oap::DeviceMatrixUPtr matrix = oap::cuda::NewDeviceMatrix (10, 20);
+  oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrix (10, 20);
   EXPECT_EQ(20, oap::cuda::GetRows (matrix));
   EXPECT_EQ(10, oap::cuda::GetColumns (matrix));
 }

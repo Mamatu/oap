@@ -22,11 +22,11 @@ TEST_F(OapTensorProductTests, Test_1)
 {
   using namespace oapTensorProduct_Data::Test_1;
 
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(1, 2);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(1, 1);
+  oap::HostComplexMatrixPtr hostM1 = oap::host::NewReMatrix(1, 2);
+  oap::HostComplexMatrixPtr hostM2 = oap::host::NewReMatrix(1, 1);
 
-  oap::HostMatrixPtr ehoutput = oap::host::NewReMatrix(1, 2);
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix(1, 2);
+  oap::HostComplexMatrixPtr ehoutput = oap::host::NewReMatrix(1, 2);
+  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix(1, 2);
 
   oap::host::CopyArrayToReMatrix (ehoutput, t_outputValues);
   oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
@@ -49,11 +49,11 @@ TEST_F(OapTensorProductTests, Test_2)
 {
   using namespace oapTensorProduct_Data::Test_1;
 
-  oap::HostMatrixPtr hostM1 = oap::host::NewReMatrix(2, 1);
-  oap::HostMatrixPtr hostM2 = oap::host::NewReMatrix(1, 1);
+  oap::HostComplexMatrixPtr hostM1 = oap::host::NewReMatrix(2, 1);
+  oap::HostComplexMatrixPtr hostM2 = oap::host::NewReMatrix(1, 1);
 
-  oap::HostMatrixPtr ehoutput = oap::host::NewReMatrix(2, 1);
-  oap::HostMatrixPtr houtput = oap::host::NewReMatrix(2, 1);
+  oap::HostComplexMatrixPtr ehoutput = oap::host::NewReMatrix(2, 1);
+  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix(2, 1);
 
   oap::host::CopyArrayToReMatrix (ehoutput, t_outputValues);
   oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);

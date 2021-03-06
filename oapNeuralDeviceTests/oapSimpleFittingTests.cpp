@@ -113,8 +113,8 @@ class OapSimpleFittingTests : public testing::Test
       return sum / (errors.size());
     };
 
-    oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, inputNeurons);
-    oap::HostMatrixUPtr expected = oap::host::NewReMatrix(1, 1);
+    oap::HostComplexMatrixUPtr inputs = oap::host::NewReMatrix(1, inputNeurons);
+    oap::HostComplexMatrixUPtr expected = oap::host::NewReMatrix(1, 1);
 
     for (size_t idx = 0; idx < 10000 && cont; ++idx)
     {
@@ -140,7 +140,7 @@ class OapSimpleFittingTests : public testing::Test
         network->forwardPropagation();
         network->accumulateErrors (oap::ErrorType::MEAN_SQUARE_ERROR, CalculationType::HOST);
         network->backPropagation ();
-        oap::HostMatrixUPtr houtputs = network->getHostOutputs ();
+        oap::HostComplexMatrixUPtr houtputs = network->getHostOutputs ();
 
         errors[randomIdx] = network->calculateError (oap::ErrorType::MEAN_SQUARE_ERROR);
         ioData[randomIdx] = std::make_tuple (input, GetReIndex (houtputs, 0), eoutput);
@@ -201,8 +201,8 @@ TEST_F(OapSimpleFittingTests, SinFitting_Test)
   const floatt limit = 0.00000000001;
   fit (std::make_pair(network, true), limit, [limit](floatt error, oap::Network* network){ if (error < 0.00000000005) { network->setLearningRate(0.01); } },fSin);
 
-  oap::HostMatrixUPtr inputs = oap::host::NewReMatrix(1, 2);
-  oap::HostMatrixUPtr output = oap::host::NewReMatrix(1, 1);
+  oap::HostComplexMatrixUPtr inputs = oap::host::NewReMatrix(1, 2);
+  oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(1, 1);
 
   for (floatt fidx = -10; fidx < 10; fidx += 0.1)
   {

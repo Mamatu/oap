@@ -434,9 +434,9 @@ TEST_F(OapKernelOperationsMacrosTests, ConvolutionCreateCacheTest)
     1, 0, 1
   };
 
-  oap::HostMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
-  oap::HostMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);
-  oap::HostMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (3, 3, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (3, 3, kernelArray);
 
   auto pinfo = oap::host::GetMatrixInfo (param);
   auto kinfo = oap::host::GetMatrixInfo (kernel);
