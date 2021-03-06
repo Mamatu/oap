@@ -20,7 +20,7 @@
 #include "RecToSquareApi.h"
 
 #include "oapCudaMatrixUtils.h"
-#include "oapDeviceMatrixUPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
 
 #include "CuProceduresApi.h"
 

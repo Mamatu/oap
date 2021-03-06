@@ -28,9 +28,9 @@
 
 #include "KernelExecutor.h"
 
-#include "oapHostMatrixPtr.h"
-#include "oapDeviceMatrixPtr.h"
-#include "oapDeviceMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
 
 #include "matrix6.h"
 

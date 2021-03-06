@@ -23,8 +23,8 @@
 #include "oapLayer.h"
 #include "oapProcedures.h"
 #include "oapNetworkGenericApi.h"
-#include "oapHostMatrixPtr.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 enum class LayerType { ONE_MATRIX, MULTI_MATRICES };
 

@@ -24,7 +24,7 @@
 
 #include "oapHostMatrixUtils.h"
 
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 namespace oap
 {

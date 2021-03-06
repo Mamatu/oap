@@ -22,7 +22,7 @@
 
 #include "MatchersImpl.h"
 #include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 using ::testing::PrintToString;
 using ::testing::MakeMatcher;

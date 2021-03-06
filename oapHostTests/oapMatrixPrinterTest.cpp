@@ -27,7 +27,7 @@
 #include "MatrixUtils.h"
 #include "MatrixPrinter.h"
 
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 class OapMatrixPrinterTests : public testing::Test {
  public:

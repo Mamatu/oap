@@ -20,7 +20,7 @@
 #include "oapCudaMatrixUtils.h"
 #include "oapHostMatrixUtils.h"
 
-#include "oapDeviceMatrixUPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
 #include "Config.h"
 
 #include "KernelExecutor.h"

@@ -26,8 +26,8 @@
 #include "oapHostMatrixUtils.h"
 #include "oapCudaMatrixUtils.h"
 
-#include "oapHostMatrixPtr.h"
-#include "oapDeviceMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
 #include "oapFuncTests.h"
 
 using namespace ::testing;

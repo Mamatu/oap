@@ -2,8 +2,8 @@
 #include "MatchersUtils.h"
 #include "Config.h"
 
-#include "oapHostMatrixUPtr.h"
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 #include <functional>
 
 class OapHostMatrixUtilsTests : public testing::Test {

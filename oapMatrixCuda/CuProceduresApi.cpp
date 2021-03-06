@@ -26,10 +26,10 @@
 #include "Logger.h"
 #include "HostMatrixKernels.h"
 
-#include "oapDeviceMatrixUPtr.h"
-#include "oapDeviceMatrixPtr.h"
-#include "oapHostMatrixUPtr.h"
-#include "oapHostMatrixPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapDeviceComplexMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 #include "ThreadsMapper.h"
 #include "oapCudaMatrixUtils.h"

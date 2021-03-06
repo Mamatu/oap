@@ -21,7 +21,7 @@
 #define OAP_RECMATRIXAPI_H
 
 #include "Matrix.h"
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 namespace oap
 {

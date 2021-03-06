@@ -25,7 +25,7 @@
 #include "HostProcedures.h"
 
 #include "oapHostMatrixUtils.h"
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 #include "CuProcedures/CuSumUtils.h"
 

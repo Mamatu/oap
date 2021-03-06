@@ -23,8 +23,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "oapHostMatrixPtr.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 #include <list>
 

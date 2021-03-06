@@ -3,7 +3,7 @@
 #include "HostKernel.h"
 #include "HostProcedures.h"
 
-#include "oapHostMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.h"
 
 #include "oapTensorProductTests_Data_1.h"
 

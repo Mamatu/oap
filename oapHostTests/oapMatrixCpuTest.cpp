@@ -25,7 +25,7 @@
 #include "MatchersUtils.h"
 #include "oapHostMatrixUtils.h"
 #include "MathOperationsCpu.h"
-#include "oapHostMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.h"
 
 
 class OapMatrixTests : public testing::Test {

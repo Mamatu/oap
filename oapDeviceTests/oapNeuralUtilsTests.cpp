@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include <iterator>
 
-#include "oapDeviceMatrixUPtr.h"
+#include "oapDeviceComplexMatrixUPtr.h"
 
 #include "oapHostLayer.h"
 #include "KernelExecutor.h"
