@@ -62,9 +62,9 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
 
       oap::generic::iram_executeInit (ca, hp, multiply);
 
-      oap::generic::deallocStage1 (ca, oap::host::DeleteMatrix);
-      oap::generic::deallocStage2 (ca, oap::host::DeleteMatrix, oap::host::DeleteMatrix);
-      oap::generic::deallocStage3 (ca, oap::host::DeleteMatrix);
+      oap::generic::deallocStage1 (ca, oap::host::DeleteComplexMatrix);
+      oap::generic::deallocStage2 (ca, oap::host::DeleteComplexMatrix, oap::host::DeleteComplexMatrix);
+      oap::generic::deallocStage3 (ca, oap::host::DeleteComplexMatrix);
     }
 };
 

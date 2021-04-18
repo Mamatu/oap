@@ -50,7 +50,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, MemLeakUPtrsTest)
     oap::host::NewReMatrix(10, 10)
   };
 
-  oap::HostComplexMatricesUPtr ptr = oap::makeHostComplexMatricesUPtr(vec);
+  oap::HostComplexMatricesUPtr ptr = (oap::HostComplexMatricesUPtr::make(vec));
 }
 
 TEST_F(OapHostComplexMatrixUPtrTests, ResetUPtrTest)
@@ -130,7 +130,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, ResetUPtrsTest)
     oap::host::NewMatrix (105, 13)
   };
 
-  oap::HostComplexMatricesUPtr ptr = oap::makeHostComplexMatricesUPtr (vec);
+  oap::HostComplexMatricesUPtr ptr = oap::HostComplexMatricesUPtr::make (vec);
   ptr.reset (vec1);
   ptr.reset (list);
   ptr.reset (array, 2);
@@ -148,7 +148,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, InitializationUPtrsTest)
       oap::host::NewReMatrix(10, 10)
     };
 
-    oap::HostComplexMatricesUPtr ptr = oap::makeHostComplexMatricesUPtr (vec);
+    oap::HostComplexMatricesUPtr ptr = oap::HostComplexMatricesUPtr::make (vec);
 
     for (size_t idx = 0; idx < vec.size(); ++idx)
     {
@@ -163,7 +163,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, InitializationUPtrsTest)
       oap::host::NewReMatrix(10, 15)
     };
 
-    oap::HostComplexMatricesUPtr ptr = oap::makeHostComplexMatricesUPtr (vec);
+    oap::HostComplexMatricesUPtr ptr = oap::HostComplexMatricesUPtr::make (vec);
 
     for (size_t idx = 0; idx < vec.size(); ++idx)
     {
@@ -180,7 +180,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, InitializationUPtrsTest)
       oap::host::NewReMatrix(10, 100)
     };
 
-    oap::HostComplexMatricesUPtr ptr = oap::makeHostComplexMatricesUPtr (list);
+    oap::HostComplexMatricesUPtr ptr = oap::HostComplexMatricesUPtr::make (list);
 
     size_t idx = 0;
     for (auto it = list.cbegin(); it != list.cend(); ++idx, ++it)
@@ -194,11 +194,13 @@ TEST_F(OapHostComplexMatrixUPtrTests, InitializationUPtrsTest)
     array[0] = oap::host::NewReMatrix(10, 125);
     array[1] = oap::host::NewImMatrix (10, 13);
 
-    oap::HostComplexMatricesUPtr ptr = oap::makeHostComplexMatricesUPtr (array, 2);
+    oap::HostComplexMatricesUPtr ptr (array, 2, false);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);
 
+    oap::host::DeleteComplexMatrix(array[0]);
+    oap::host::DeleteComplexMatrix(array[1]);
     delete[] array;
   }
 
@@ -223,7 +225,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, InitializationUPtrsTest)
       oap::host::NewMatrix (105, 13)
     };
 
-    oap::HostComplexMatricesUPtr ptr = oap::makeHostComplexMatricesUPtr (array, 3);
+    oap::HostComplexMatricesUPtr ptr (array, 3);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);
@@ -272,7 +274,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, AssignmentUPtrsTest)
     oap::host::NewMatrix(11, 10)
   };
 
-  oap::HostComplexMatricesUPtr ptr = oap::makeHostComplexMatricesUPtr (vec);
-  ptr = oap::makeHostComplexMatricesUPtr (vec1);
+  oap::HostComplexMatricesUPtr ptr = oap::HostComplexMatricesUPtr::make (vec);
+  ptr = oap::HostComplexMatricesUPtr::make (vec1);
 }
 

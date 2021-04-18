@@ -96,12 +96,12 @@ UserData AllocationList<T, UserData, ToString>::remove (const T object)
     if (it != m_deletedMap.end ())
     {
       debugError ("Double deallocation in %s: object = %p %s", m_id.c_str(), object, to_string (it->second).c_str());
-      debugAssert (false);
+      debugAssert ("Double deallocation" != nullptr);
     }
     else
     {
       debugError ("Not found in %s: object = %p", m_id.c_str(), object);
-      debugAssert (false);
+      debugAssert ("Object not found" != nullptr);
     }
   }
   return userData;

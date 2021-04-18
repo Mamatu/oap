@@ -300,7 +300,7 @@ TEST_F(OapMatrixTests, MultiplicationConst) {
 
     oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(10, 10, outputArray);
     oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 10, 1);
-    oap::HostComplexMatrixUPtr matrix2 = NULL;
+    oap::HostComplexMatrixUPtr matrix2 = nullptr;
     floatt m2 = 2.f;
     oap::HostComplexMatrixUPtr output = oap::host::NewReMatrix(10, 10);
     mo.setThreadsCount(m_threadsCount);
@@ -344,7 +344,7 @@ TEST_F(OapMatrixTests, Transpose) {
     oap::HostComplexMatrixUPtr output = oap::host::NewReMatrixWithValue (5, 10, 0);
     oap::HostComplexMatrixUPtr eq_output = oap::host::NewReMatrixCopy(5, 10, outputArray);
     oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (10, 5, 1);
-    oap::HostComplexMatrixUPtr matrix2 = NULL;
+    oap::HostComplexMatrixUPtr matrix2 = nullptr;
     mo.setSubRows(4);
     mo.setThreadsCount(m_threadsCount);
     mo.transpose(output, matrix1);
