@@ -56,7 +56,7 @@ TEST_F(OapDeviceComplexMatrixUPtrTests, MemLeakUPtrsTest)
     oap::cuda::NewDeviceReMatrix(10, 10)
   };
 
-  oap::DeviceComplexMatricesUPtr ptr = oap::makeDeviceComplexMatricesUPtr(vec);
+  oap::DeviceComplexMatricesUPtr ptr = oap::DeviceComplexMatricesUPtr::make (vec);
 }
 
 TEST_F(OapDeviceComplexMatrixUPtrTests, InitializationUPtrsTest)
@@ -68,7 +68,7 @@ TEST_F(OapDeviceComplexMatrixUPtrTests, InitializationUPtrsTest)
       oap::cuda::NewDeviceReMatrix(10, 10)
     };
 
-    oap::DeviceComplexMatricesUPtr ptr = oap::makeDeviceComplexMatricesUPtr (vec);
+    oap::DeviceComplexMatricesUPtr ptr = oap::DeviceComplexMatricesUPtr::make (vec);
 
     for (size_t idx = 0; idx < vec.size(); ++idx)
     {
@@ -83,7 +83,7 @@ TEST_F(OapDeviceComplexMatrixUPtrTests, InitializationUPtrsTest)
       oap::cuda::NewDeviceReMatrix(10, 15)
     };
 
-    oap::DeviceComplexMatricesUPtr ptr = oap::makeDeviceComplexMatricesUPtr (vec);
+    oap::DeviceComplexMatricesUPtr ptr = oap::DeviceComplexMatricesUPtr::make (vec);
 
     for (size_t idx = 0; idx < vec.size(); ++idx)
     {
@@ -100,7 +100,7 @@ TEST_F(OapDeviceComplexMatrixUPtrTests, InitializationUPtrsTest)
       oap::cuda::NewDeviceReMatrix(10, 100)
     };
 
-    oap::DeviceComplexMatricesUPtr ptr = oap::makeDeviceComplexMatricesUPtr (list);
+    oap::DeviceComplexMatricesUPtr ptr = oap::DeviceComplexMatricesUPtr::make (list);
 
     size_t idx = 0;
     for (auto it = list.cbegin(); it != list.cend(); ++idx, ++it)
@@ -243,7 +243,7 @@ TEST_F(OapDeviceComplexMatrixUPtrTests, ResetUPtrsTest)
     oap::cuda::NewDeviceMatrix (110, 25),
   };
 
-  oap::DeviceComplexMatricesUPtr ptr = oap::makeDeviceComplexMatricesUPtr (vec);
+  oap::DeviceComplexMatricesUPtr ptr = oap::DeviceComplexMatricesUPtr::make (vec);
   ptr.reset (vec1);
   ptr.reset (list);
   ptr.reset (array, 2);
@@ -277,7 +277,7 @@ TEST_F(OapDeviceComplexMatrixUPtrTests, AssignmentUPtrsTest)
     oap::cuda::NewDeviceMatrix(11, 10)
   };
 
-  oap::DeviceComplexMatricesUPtr ptr = oap::makeDeviceComplexMatricesUPtr (vec);
-  ptr = oap::makeDeviceComplexMatricesUPtr (vec1);
+  oap::DeviceComplexMatricesUPtr ptr = oap::DeviceComplexMatricesUPtr::make (vec);
+  ptr = oap::DeviceComplexMatricesUPtr::make (vec1);
 }
 

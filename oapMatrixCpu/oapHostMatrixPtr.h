@@ -76,26 +76,17 @@ class HostMatricesPtr : public oap::MatricesSharedPtr {
       oap::MatricesSharedPtr (count, [this](oap::math::Matrix** matrices, size_t count) {host::DeleteMatricesWrapper<oap::math::Matrix>(matrices, count, this);}, deallocate)
     {}
 
+    template<typename Container>
+    static HostMatricesPtr make (const Container& container, bool deallocate = true) {
+      return MatricesSPtrWrapper::make<HostMatricesPtr> (container, deallocate);
+    }
+
     virtual ~HostMatricesPtr () = default;
 
     operator math::Matrix**() const {
       return this->get();
     }
 };
-
-template<template<typename, typename> class Container>
-HostMatricesPtr makeHostMatricesPtr(const Container<math::Matrix*, std::allocator<math::Matrix*> >& matrices) {
-  return smartptr_utils::makeSmartPtr<HostMatricesPtr>(matrices);
-}
-
-template<template<typename> class Container>
-HostMatricesPtr makeHostMatricesPtr(const Container<math::Matrix*>& matrices) {
-  return smartptr_utils::makeSmartPtr<HostMatricesPtr>(matrices);
-}
-
-inline HostMatricesPtr makeHostMatricesPtr(oap::math::Matrix** array, size_t count) {
-  return smartptr_utils::makeSmartPtr<HostMatricesPtr, oap::math::Matrix*>(array, count);
-}
 
 }
 #endif

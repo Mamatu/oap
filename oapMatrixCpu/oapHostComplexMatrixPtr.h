@@ -87,16 +87,6 @@ class HostComplexMatricesPtr : public ComplexMatricesSharedPtr {
     }
 };
 
-template<template<typename, typename> class Container>
-HostComplexMatricesPtr makeHostComplexMatricesPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
-  return smartptr_utils::makeSmartPtr<HostComplexMatricesPtr>(matrices);
-}
-
-template<template<typename> class Container>
-HostComplexMatricesPtr makeHostComplexMatricesPtr(const Container<math::ComplexMatrix*>& matrices) {
-  return smartptr_utils::makeSmartPtr<HostComplexMatricesPtr>(matrices);
-}
-
 }
 
 #endif

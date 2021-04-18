@@ -75,6 +75,11 @@ class DeviceComplexMatricesPtr : public oap::ComplexMatricesSharedPtr {
       oap::ComplexMatricesSharedPtr (count, [this](oap::math::ComplexMatrix** matrices, size_t count) {device::DeleteMatricesWrapper<oap::math::ComplexMatrix> (matrices, count, this);}, deallocate)
     {}
 
+    template<typename Container>
+    static DeviceComplexMatricesPtr make (const Container& container, bool deallocate = true) {
+      return MatricesSPtrWrapper::make<DeviceComplexMatricesPtr> (container, deallocate);
+    }
+
     virtual ~DeviceComplexMatricesPtr () = default;
 
     operator math::ComplexMatrix**() const {
@@ -82,19 +87,6 @@ class DeviceComplexMatricesPtr : public oap::ComplexMatricesSharedPtr {
     }
 };
 
-template<template<typename, typename> class Container>
-DeviceComplexMatricesPtr makeDeviceComplexMatricesPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
-  return smartptr_utils::makeSmartPtr<DeviceComplexMatricesPtr>(matrices);
-}
-
-template<template<typename> class Container>
-DeviceComplexMatricesPtr makeDeviceComplexMatricesPtr(const Container<math::ComplexMatrix*>& matrices) {
-  return smartptr_utils::makeSmartPtr<DeviceComplexMatricesPtr>(matrices);
-}
-
-//inline DeviceComplexMatricesPtr makeDeviceComplexMatricesPtr(oap::math::ComplexMatrix** array, size_t count) {
-//  return smartptr_utils::makeSmartPtr<DeviceComplexMatricesPtr, oap::math::ComplexMatrix*>(array, count);
-//}
 }
 
 #endif

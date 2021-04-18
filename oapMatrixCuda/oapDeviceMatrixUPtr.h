@@ -75,27 +75,17 @@ class DeviceMatricesUPtr : public oap::MatricesUniquePtr {
       oap::MatricesUniquePtr (count, [this](oap::math::Matrix** matrices, size_t count) {device::DeleteMatricesWrapper<oap::math::Matrix> (matrices, count, this);}, deallocate)
     {}
 
+    template<typename Container>
+    static DeviceMatricesUPtr make (const Container& container, bool deallocate = true) {
+      return MatricesSPtrWrapper::make<DeviceMatricesUPtr> (container, deallocate);
+    }
+
     virtual ~DeviceMatricesUPtr () = default;
 
     operator math::Matrix**() const {
       return this->get();
     }
 };
-
-template<template<typename, typename> class Container>
-DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::Matrix*, std::allocator<math::Matrix*> >& matrices) {
-  return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(matrices);
-}
-
-template<template<typename> class Container>
-DeviceMatricesUPtr makeDeviceMatricesUPtr(const Container<math::Matrix*>& matrices) {
-  return smartptr_utils::makeSmartPtr<DeviceMatricesUPtr>(matrices);
-}
-
-//inline DeviceMatricesUPtr makeDeviceMatricesUPtr(oap::math::Matrix** array, size_t count) {
-//  return smartptr_utils::makeSmartUPtr<DeviceMatricesUPtr, oap::math::Matrix*>(array, count);
-//}
-
 
 }
 

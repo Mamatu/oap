@@ -84,16 +84,6 @@ namespace oap {
         return this->get();
       }
   };
-
-  template<template<typename, typename> class Container>
-  HostComplexMatricesUPtr makeHostComplexMatricesUPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
-    return smartptr_utils::makeSmartPtr<HostComplexMatricesUPtr>(matrices);
-  }
-
-  template<template<typename> class Container>
-  HostComplexMatricesUPtr makeHostComplexMatricesUPtr(const Container<math::ComplexMatrix*>& matrices) {
-    return smartptr_utils::makeSmartPtr<HostComplexMatricesUPtr>(matrices);
-  }
 }
 
 #endif
