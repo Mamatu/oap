@@ -114,7 +114,7 @@ TEST_F(OapDeviceComplexMatrixUPtrTests, InitializationUPtrsTest)
     array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
     array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
 
-    oap::DeviceComplexMatricesUPtr ptr = oap::makeDeviceComplexMatricesUPtr (array, 2);
+    oap::DeviceComplexMatricesUPtr ptr (array, 2);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);
@@ -143,7 +143,7 @@ TEST_F(OapDeviceComplexMatrixUPtrTests, InitializationUPtrsTest)
       oap::cuda::NewDeviceMatrix (105, 13)
     };
 
-    oap::DeviceComplexMatricesUPtr ptr = oap::makeDeviceComplexMatricesUPtr (array, 3);
+    oap::DeviceComplexMatricesUPtr ptr (array, 3);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);
@@ -173,7 +173,7 @@ TEST_F(OapDeviceComplexMatrixUPtrTests, ResetUPtrTest)
   ptr.reset (oap::cuda::NewDeviceMatrix(11, 11));
 }
 
-TEST_F(OapDeviceComplexMatrixUPtrTests, NotDeallocationTest)
+TEST_F(OapDeviceComplexMatrixUPtrTests, DISABLED_NotDeallocationTest)
 {
   {
     math::ComplexMatrix* rptr = oap::cuda::NewDeviceReMatrix (10, 10);

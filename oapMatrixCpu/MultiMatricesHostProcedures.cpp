@@ -28,7 +28,6 @@
 #include "oapHostComplexMatrixPtr.h"
 
 #include "ThreadsMapper.h"
-#include "Logger.h"
 
 namespace oap
 {

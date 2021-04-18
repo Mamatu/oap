@@ -114,7 +114,7 @@ TEST_F(OapDeviceComplexMatrixPtrTests, InitializationPtrsTest)
     array[0] = oap::cuda::NewDeviceReMatrix(10, 125);
     array[1] = oap::cuda::NewDeviceImMatrix (10, 13);
 
-    oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr (array, 2);
+    oap::DeviceComplexMatricesPtr ptr (array, 2);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);
@@ -143,7 +143,7 @@ TEST_F(OapDeviceComplexMatrixPtrTests, InitializationPtrsTest)
       oap::cuda::NewDeviceMatrix (105, 13)
     };
 
-    oap::DeviceComplexMatricesPtr ptr = oap::makeDeviceComplexMatricesPtr (array, 3);
+    oap::DeviceComplexMatricesPtr ptr (array, 3);
 
     EXPECT_EQ (array[0], ptr[0]);
     EXPECT_EQ (array[1], ptr[1]);

@@ -99,6 +99,10 @@ math::ComplexMatrix* NewHostMatrixCopyOfDeviceMatrix(const math::ComplexMatrix* 
 
 void DeleteDeviceMatrix(const math::ComplexMatrix* deviceMatrix);
 
+void DeleteDeviceComplexMatrix(const math::ComplexMatrix* deviceMatrix);
+
+void DeleteDeviceMatrix(const math::Matrix* matrix);
+
 template<typename Matrices>
 void deleteDeviceMatrices(const Matrices& matrices)
 {

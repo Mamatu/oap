@@ -286,6 +286,10 @@ math::ComplexMatrix* NewImMatrixCopy(uint columns, uint rows, T* imArray)
  */
 void DeleteMatrix(const math::ComplexMatrix* matrix);
 
+void DeleteComplexMatrix(const math::ComplexMatrix* matrix);
+
+void DeleteMatrix(const math::Matrix* matrix);
+
 template<typename Matrices>
 void deleteMatrices(const Matrices& matrices)
 {

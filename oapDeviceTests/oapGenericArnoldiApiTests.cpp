@@ -142,7 +142,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
   oap::CuProceduresApi cuApi;
 
   oap::generic::MatricesContext cm;
-  cm.registerMemType ("CUDA", oap::cuda::NewDeviceMatrixFromMatrixInfo, oap::cuda::DeleteDeviceMatrix);
+  cm.registerMemType ("CUDA", oap::cuda::NewDeviceMatrixFromMatrixInfo, oap::cuda::DeleteDeviceComplexMatrix);
 
   math::MatrixInfo hinfo = oap::cuda::GetMatrixInfo (ca.m_H);
 
@@ -193,9 +193,9 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
   EXPECT_THAT (hostQ.get(), MatrixIsOrthogonal (hp));
   EXPECT_THAT (hostR.get(), MatrixIsUpperTriangular ());
 
-  oap::generic::deallocStage1 (ca, oap::cuda::DeleteDeviceMatrix);
-  oap::generic::deallocStage2 (ca, oap::cuda::DeleteDeviceMatrix, oap::host::DeleteMatrix);
-  oap::generic::deallocStage3 (ca, oap::cuda::DeleteDeviceMatrix);
+  oap::generic::deallocStage1 (ca, oap::cuda::DeleteDeviceComplexMatrix);
+  oap::generic::deallocStage2 (ca, oap::cuda::DeleteDeviceComplexMatrix, oap::host::DeleteComplexMatrix);
+  oap::generic::deallocStage3 (ca, oap::cuda::DeleteDeviceComplexMatrix);
 }
 
 TEST_F(OapGenericArnoldiApiTests, QR_Test_2)

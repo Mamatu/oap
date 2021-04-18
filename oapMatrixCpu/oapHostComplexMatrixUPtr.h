@@ -17,54 +17,72 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_HOSTMATRIXUPTR_H
-#define OAP_HOSTMATRIXUPTR_H
+#ifndef OAP_HOST_COMPLEX_MATRIX_UPTR_H
+#define OAP_HOST_COMPLEX_MATRIX_UPTR_H
 
-#include "oapHostMatrixUtils.h"
-#include "Math.h"
-
-#include "oapMatrixSPtr.h"
+#include "oapHostSmartPtr.h"
 
 namespace oap {
-
   /**
-   * @brief Unique pointer for host matrix type
+   * @brief unique pointer for host matrix type
    *
-   * Examples of use: oapHostTests/oapHostComplexMatrixUPtrTests.cpp
+   * examples of use: oaphosttests/oapHostComplexMatrixUPtrtests.cpp
    */
-  class HostComplexMatrixUPtr : public oap::MatrixUniquePtr {
+  class HostComplexMatrixUPtr : public oap::ComplexMatrixUniquePtr {
     public:
-      HostComplexMatrixUPtr (math::ComplexMatrix* matrix, bool bDeallocate = true) :
-        oap::MatrixUniquePtr (matrix, oap::host::DeleteMatrix, bDeallocate)
-      {
+      HostComplexMatrixUPtr(HostComplexMatrixUPtr&& orig) = default;
+      HostComplexMatrixUPtr(const HostComplexMatrixUPtr& orig) = default;
+      HostComplexMatrixUPtr& operator=(HostComplexMatrixUPtr&& orig) = default;
+      HostComplexMatrixUPtr& operator=(const HostComplexMatrixUPtr& orig) = default;
+
+      HostComplexMatrixUPtr (math::ComplexMatrix* matrix = nullptr, bool deallocate = true) :
+        oap::ComplexMatrixUniquePtr (matrix, [this](const oap::math::ComplexMatrix* matrix) { host::DeleteMatrixWrapper (matrix, this); }, deallocate)
+      {}
+
+      virtual ~HostComplexMatrixUPtr () = default;
+
+      operator math::ComplexMatrix*() const {
+        return this->get();
       }
   };
 
   /**
-   * @brief Unique pointer which points into array of host matrix pointers
+   * @brief unique pointer which points into array of host matrix pointers
    *
-   * This class creates its own matrices array which contains copied pointers.
-   * If array was allocated dynamically must be deallocated.
+   * this class creates its own matrices array which contains copied pointers.
+   * if array was allocated dynamically must be deallocated.
    *
-   * Examples of use: oapHostTests/oapHostComplexMatrixUPtrTests.cpp
+   * examples of use: oaphosttests/oapHostComplexMatrixUPtrtests.cpp
    */
-  class HostComplexMatricesUPtr : public oap::MatricesUniquePtr {
+  class HostComplexMatricesUPtr : public oap::ComplexMatricesUniquePtr {
     public:
-      HostComplexMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count) :
-        oap::MatricesUniquePtr(matrices, count, oap::host::DeleteMatrix) {}
+      HostComplexMatricesUPtr(HostComplexMatricesUPtr&& orig) = default;
+      HostComplexMatricesUPtr(const HostComplexMatricesUPtr& orig) = default;
+      HostComplexMatricesUPtr& operator=(HostComplexMatricesUPtr&& orig) = default;
+      HostComplexMatricesUPtr& operator=(const HostComplexMatricesUPtr& orig) = default;
 
-      HostComplexMatricesUPtr(size_t count) :
-        oap::MatricesUniquePtr(count, oap::host::DeleteMatrix) {}
+      template<typename Container>
+      static HostComplexMatricesUPtr make (const Container& container) {
+        return oap::ComplexMatricesUniquePtr::make<HostComplexMatricesUPtr> (container);
+      }
 
-      HostComplexMatricesUPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
-        oap::MatricesUniquePtr(matrices, oap::host::DeleteMatrix) {}
+      HostComplexMatricesUPtr(oap::math::ComplexMatrix** matrices, size_t count, bool deallocate = true) :
+        oap::ComplexMatricesUniquePtr (matrices, count, [this] (oap::math::ComplexMatrix** matrices, size_t count) { host::DeleteMatricesWrapper<math::ComplexMatrix>(matrices, count, this); }, deallocate)
+      {}
 
-    private:
-      HostComplexMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
-        oap::MatricesUniquePtr (matrices, count, oap::host::DeleteMatrix, bCopyArray) {}
+      HostComplexMatricesUPtr(std::initializer_list<oap::math::ComplexMatrix*> matrices, bool deallocate = true) :
+        oap::ComplexMatricesUniquePtr (matrices, [this] (oap::math::ComplexMatrix** matrices, size_t count) { host::DeleteMatricesWrapper<math::ComplexMatrix>(matrices, count, this); }, deallocate)
+      {}
 
-      template<class SmartPtr, template<typename, typename> class Container, typename T>
-      friend SmartPtr smartptr_utils::makeSmartPtr(const Container<T, std::allocator<T> >& container);
+      HostComplexMatricesUPtr(size_t count, bool deallocate = true) :
+        oap::ComplexMatricesUniquePtr (count, [this] (oap::math::ComplexMatrix** matrices, size_t count) { host::DeleteMatricesWrapper<math::ComplexMatrix>(matrices, count, this); }, deallocate)
+      {}
+
+      virtual ~HostComplexMatricesUPtr () = default;
+
+      operator math::ComplexMatrix**() const {
+        return this->get();
+      }
   };
 
   template<template<typename, typename> class Container>
@@ -75,10 +93,6 @@ namespace oap {
   template<template<typename> class Container>
   HostComplexMatricesUPtr makeHostComplexMatricesUPtr(const Container<math::ComplexMatrix*>& matrices) {
     return smartptr_utils::makeSmartPtr<HostComplexMatricesUPtr>(matrices);
-  }
-
-  inline HostComplexMatricesUPtr makeHostComplexMatricesUPtr(math::ComplexMatrix** array, size_t count) {
-    return smartptr_utils::makeSmartPtr<HostComplexMatricesUPtr>(array, count);
   }
 }
 

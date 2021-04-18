@@ -370,6 +370,16 @@ void DeleteMatrix(const math::ComplexMatrix* matrix)
   }
 }
 
+void DeleteComplexMatrix(const math::ComplexMatrix* matrix)
+{
+  DeleteMatrix (matrix);
+}
+
+void DeleteMatrix(const math::Matrix* matrix)
+{
+  abort();
+}
+
 floatt GetReValue(const math::ComplexMatrix* matrix, uintt column, uintt row)
 {
   if (gReValues (matrix) == nullptr)

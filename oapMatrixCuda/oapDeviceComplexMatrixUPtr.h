@@ -17,66 +17,85 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OAP_DEVICEMATRIXUPTR_H
-#define OAP_DEVICEMATRIXUPTR_H
+#ifndef OAP_DEVICE_COMPLEX_MATRIX_UPTR_H
+#define OAP_DEVICE_COMPLEX_MATRIX_UPTR_H
 
-#include "Math.h"
-#include "oapCudaMatrixUtils.h"
+#include "oapDeviceSmartPtr.h"
 
-#include "oapMatrixSPtr.h"
+namespace oap
+{
+/**
+ * @brief unique pointer for host matrix type
+ *
+ * examples of use: oaphosttests/oapDeviceComplexMatrixUPtrtests.cpp
+ */
+class DeviceComplexMatrixUPtr : public oap::ComplexMatrixUniquePtr
+{
+  public:
+    DeviceComplexMatrixUPtr(DeviceComplexMatrixUPtr&& orig) = default;
+    DeviceComplexMatrixUPtr(const DeviceComplexMatrixUPtr& orig) = default;
+    DeviceComplexMatrixUPtr& operator=(DeviceComplexMatrixUPtr&& orig) = default;
+    DeviceComplexMatrixUPtr& operator=(const DeviceComplexMatrixUPtr& orig) = default;
 
-namespace oap {
+    DeviceComplexMatrixUPtr (math::ComplexMatrix* matrix = nullptr, bool deallocate = true) :
+      oap::ComplexMatrixUniquePtr (matrix, [this](const oap::math::ComplexMatrix* matrix) { device::DeleteMatrixWrapper<oap::math::ComplexMatrix> (matrix, this); }, deallocate)
+    {}
 
-  /**
-   * @brief Unique pointer for cuda matrix type
-   *
-   * Examples of use: oapDeviceTests/oapDeviceComplexMatrixUPtrTests.cpp
-   */
-  class DeviceComplexMatrixUPtr : public oap::MatrixUniquePtr {
-    public:
-      DeviceComplexMatrixUPtr(math::ComplexMatrix* matrix = nullptr, bool bDeallocate = true) :
-        oap::MatrixUniquePtr(matrix, oap::cuda::DeleteDeviceMatrix, bDeallocate)
-      {
-      }
-  };
+    virtual ~DeviceComplexMatrixUPtr () = default;
 
-  /**
-   * @brief Unique pointer which points into array of cuda matrix pointers
-   *
-   * This class creates its own matrices array which contains copied pointers.
-   * If array was allocated dynamically must be deallocated.
-   *
-   * Examples of use: oapDeviceTests/oapDeviceComplexMatrixUPtrTests.cpp
-   */
-  class DeviceComplexMatricesUPtr : public oap::MatricesUniquePtr {
-    public:
-      DeviceComplexMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count) :
-        oap::MatricesUniquePtr(matrices, count, oap::cuda::DeleteDeviceMatrix) {}
+    operator math::ComplexMatrix*() const {
+      return this->get();
+    }
+};
 
-      DeviceComplexMatricesUPtr(std::initializer_list<math::ComplexMatrix*> matrices) :
-        oap::MatricesUniquePtr(matrices, oap::cuda::DeleteDeviceMatrix) {}
+/**
+ * @brief unique pointer which points into array of host matrix pointers
+ *
+ * this class creates its own matrices array which contains copied pointers.
+ * if array was allocated dynamically must be deallocated.
+ *
+ * examples of use: oaphosttests/oapDeviceComplexMatrixUPtrtests.cpp
+ */
+class DeviceComplexMatricesUPtr : public oap::ComplexMatricesUniquePtr {
+  public:
 
-    private:
-      DeviceComplexMatricesUPtr(math::ComplexMatrix** matrices, unsigned int count, bool bCopyArray) :
-        oap::MatricesUniquePtr (matrices, count, oap::cuda::DeleteDeviceMatrix, bCopyArray) {}
+    DeviceComplexMatricesUPtr(DeviceComplexMatricesUPtr&& orig) = default;
+    DeviceComplexMatricesUPtr(const DeviceComplexMatricesUPtr& orig) = default;
+    DeviceComplexMatricesUPtr& operator=(DeviceComplexMatricesUPtr&& orig) = default;
+    DeviceComplexMatricesUPtr& operator=(const DeviceComplexMatricesUPtr& orig) = default;
 
-      template<class SmartPtr, template<typename, typename> class Container, typename T>
-      friend SmartPtr smartptr_utils::makeSmartPtr(const Container<T, std::allocator<T> >& container);
-  };
+    DeviceComplexMatricesUPtr(oap::math::ComplexMatrix** matrices, size_t count, bool deallocate = true) :
+      oap::ComplexMatricesUniquePtr (matrices, count, [this](oap::math::ComplexMatrix** matrices, size_t count) {device::DeleteMatricesWrapper<oap::math::ComplexMatrix> (matrices, count, this);}, deallocate)
+    {}
 
-  template<template<typename, typename> class Container>
-  DeviceComplexMatricesUPtr makeDeviceComplexMatricesUPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
-    return smartptr_utils::makeSmartPtr<DeviceComplexMatricesUPtr>(matrices);
-  }
+    DeviceComplexMatricesUPtr(std::initializer_list<oap::math::ComplexMatrix*> matrices, bool deallocate = true) :
+      oap::ComplexMatricesUniquePtr (matrices, [this](oap::math::ComplexMatrix** matrices, size_t count) {device::DeleteMatricesWrapper<oap::math::ComplexMatrix> (matrices, count, this);}, deallocate)
+    {}
 
-  template<template<typename> class Container>
-  DeviceComplexMatricesUPtr makeDeviceComplexMatricesUPtr(const Container<math::ComplexMatrix*>& matrices) {
-    return smartptr_utils::makeSmartPtr<DeviceComplexMatricesUPtr>(matrices);
-  }
+    DeviceComplexMatricesUPtr(size_t count, bool deallocate = true) :
+      oap::ComplexMatricesUniquePtr (count, [this](oap::math::ComplexMatrix** matrices, size_t count) {device::DeleteMatricesWrapper<oap::math::ComplexMatrix> (matrices, count, this);}, deallocate)
+    {}
 
-  inline DeviceComplexMatricesUPtr makeDeviceComplexMatricesUPtr(math::ComplexMatrix** array, size_t count) {
-    return smartptr_utils::makeSmartPtr<DeviceComplexMatricesUPtr>(array, count);
-  }
+    virtual ~DeviceComplexMatricesUPtr () = default;
+
+    operator math::ComplexMatrix**() const {
+      return this->get();
+    }
+};
+
+template<template<typename, typename> class Container>
+DeviceComplexMatricesUPtr makeDeviceComplexMatricesUPtr(const Container<math::ComplexMatrix*, std::allocator<math::ComplexMatrix*> >& matrices) {
+  return smartptr_utils::makeSmartPtr<DeviceComplexMatricesUPtr>(matrices);
+}
+
+template<template<typename> class Container>
+DeviceComplexMatricesUPtr makeDeviceComplexMatricesUPtr(const Container<math::ComplexMatrix*>& matrices) {
+  return smartptr_utils::makeSmartPtr<DeviceComplexMatricesUPtr>(matrices);
+}
+
+//inline DeviceComplexMatricesUPtr makeDeviceComplexMatricesUPtr(oap::math::ComplexMatrix** array, size_t count) {
+//  return smartptr_utils::makeSmartPtr<DeviceComplexMatricesUPtr, oap::math::ComplexMatrix*>(array, count);
+//}
 }
 
 #endif
