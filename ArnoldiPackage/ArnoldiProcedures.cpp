@@ -54,8 +54,8 @@ CuHArnoldi::CuHArnoldi()
   traceFunction();
   m_calculateTriangularHPtr = NULL;
 
-  registerMemType ("HOST", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteMatrix);
-  registerMemType ("CUDA", oap::cuda::NewDeviceMatrixFromMatrixInfo, oap::cuda::DeleteDeviceMatrix);
+  registerMemType ("HOST", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteComplexMatrix);
+  registerMemType ("CUDA", oap::cuda::NewDeviceMatrixFromMatrixInfo, oap::cuda::DeleteDeviceComplexMatrix);
 }
 
 CuHArnoldi::~CuHArnoldi() {
@@ -634,19 +634,19 @@ void CuHArnoldi::alloc3(const math::MatrixInfo& matrixInfo, uint k)
 void CuHArnoldi::dealloc1()
 {
   traceFunction();
-  oap::generic::deallocStage1 (*this, oap::cuda::DeleteDeviceMatrix);
+  oap::generic::deallocStage1 (*this, oap::cuda::DeleteDeviceComplexMatrix);
 }
 
 void CuHArnoldi::dealloc2()
 {
   traceFunction();
-  oap::generic::deallocStage2 (*this, oap::cuda::DeleteDeviceMatrix, oap::host::DeleteMatrix);
+  oap::generic::deallocStage2 (*this, oap::cuda::DeleteDeviceComplexMatrix, oap::host::DeleteComplexMatrix);
 }
 
 void CuHArnoldi::dealloc3()
 {
   traceFunction();
-  oap::generic::deallocStage3 (*this, oap::cuda::DeleteDeviceMatrix);
+  oap::generic::deallocStage3 (*this, oap::cuda::DeleteDeviceComplexMatrix);
 }
 
 floatt CuHArnoldi::testOutcome(size_t index)

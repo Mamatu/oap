@@ -32,16 +32,20 @@
 namespace deleters
 {
 
-using MatrixDeleter = std::function<void(const math::ComplexMatrix*)>;
+using ComplexMatrixDeleter = std::function<void(const math::ComplexMatrix*)>;
 
+template<typename Matrix>
+using MatrixDeleter = std::function<void(const Matrix*)>;
+
+template<class Matrix>
 class MatrixDeleterWrapper
 {
   private:
     bool m_bDeallocate;
-    deleters::MatrixDeleter m_deleter;
+    deleters::MatrixDeleter<Matrix> m_deleter;
 
   public:
-    MatrixDeleterWrapper (bool bDeallocate = false, deleters::MatrixDeleter deleter = nullptr) :
+    MatrixDeleterWrapper (bool bDeallocate = false, deleters::MatrixDeleter<Matrix> deleter = nullptr) :
       m_bDeallocate (bDeallocate),
       m_deleter (deleter)
     {}
@@ -51,7 +55,7 @@ class MatrixDeleterWrapper
       m_bDeallocate = bDeallocate;
     }
 
-    MatrixDeleterWrapper& operator() (math::ComplexMatrix* matrix)
+    MatrixDeleterWrapper& operator() (Matrix* matrix)
     {
       if (m_bDeallocate)
       {
@@ -61,16 +65,17 @@ class MatrixDeleterWrapper
     }
 };
 
+template<typename MatrixT>
 class MatricesDeleter
 {
     size_t m_count;
-    MatrixDeleter m_deleter;
+    MatrixDeleter<MatrixT> m_deleter;
   
   public:
-    MatricesDeleter (size_t count, deleters::MatrixDeleter deleter) : 
+    MatricesDeleter (size_t count, deleters::MatrixDeleter<MatrixT> deleter) : 
       m_count(count), m_deleter(deleter) {}
 
-    MatricesDeleter& operator() (math::ComplexMatrix** matrices)
+    MatricesDeleter& operator() (MatrixT** matrices)
     {
       for (size_t idx = 0; idx < m_count; ++idx)
       {
@@ -180,7 +185,7 @@ class SharedPtrResetSetDeleter
 
     void reset (typename StdMatrixPtr::element_type* t)
     {
-      deleters::MatrixDeleterWrapper deleter = *std::get_deleter<deleters::MatrixDeleterWrapper> (m_stdMatrixPtr);
+      deleters::MatrixDeleterWrapper<StdMatrixPtr> deleter = *std::get_deleter<deleters::MatrixDeleterWrapper<StdMatrixPtr>> (m_stdMatrixPtr);
       deleter.setDeallocate (m_bDeallocate);
       m_stdMatrixPtr.reset (t, std::forward<decltype(deleter)> (deleter));
     }
@@ -277,7 +282,7 @@ namespace smartptr_utils
   SmartPtr makeSmartPtr(const Container<T, std::allocator<T> >& container)
   {
     T* array = smartptr_utils::makeArray(container);
-    return  SmartPtr (array, smartptr_utils::getElementsCount(container), false);
+    return  SmartPtr (array, smartptr_utils::getElementsCount(container));
   }
 
   template<class SmartPtr, typename T>

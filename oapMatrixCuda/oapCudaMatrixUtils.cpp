@@ -304,6 +304,16 @@ void DeleteDeviceMatrix(const math::ComplexMatrix* dMatrix)
   }
 }
 
+void DeleteDeviceComplexMatrix(const math::ComplexMatrix* deviceMatrix)
+{
+  DeleteDeviceMatrix (deviceMatrix);
+}
+
+void DeleteDeviceMatrix(const math::Matrix* matrix)
+{
+  abort();
+}
+
 uintt GetColumns(const math::ComplexMatrix* dMatrix)
 {
   debugAssert (dMatrix != nullptr);

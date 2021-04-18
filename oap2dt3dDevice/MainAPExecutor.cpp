@@ -152,7 +152,7 @@ std::shared_ptr<Outcome> MainAPExecutor::run(ArnUtils::Type type)
 
   math::MatrixInfo matrixInfo = m_eigenCalc->getMatrixInfo();
 
-  oap::HostComplexMatricesPtr evectors = oap::HostComplexMatricesPtr(wanted);
+  oap::HostComplexMatricesPtr evectors (wanted);
 
   for (uint idx = 0; idx < wanted; ++idx)
   {

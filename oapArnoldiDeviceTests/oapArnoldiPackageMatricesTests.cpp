@@ -200,7 +200,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         revectors.push_back(oap::host::NewReMatrix(1, gRows (hmatrix)));
       }
 
-      oap::HostComplexMatricesPtr revectorsPtr = oap::makeHostComplexMatricesPtr(revectors);
+      oap::HostComplexMatricesPtr revectorsPtr = oap::HostComplexMatricesPtr::make (revectors);
 
       m_arnoldiCuda->setOutputsEigenvalues(revalues.get(), NULL);
       m_arnoldiCuda->setOutputsEigenvectors(revectorsPtr);

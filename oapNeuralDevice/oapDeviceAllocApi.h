@@ -52,7 +52,7 @@ namespace
 
   using GenericAllocWeightsApi = oap::alloc::AllocWeightsApi<decltype(_newDeviceMatrixFromMatrixInfo), decltype(_newDeviceMatrixDeviceRef), decltype(_newDeviceMatrixFromMatrixInfo), decltype(oap::cuda::CopyHostMatrixToDeviceMatrix)>;
 
-  using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::cuda::DeleteDeviceMatrix), decltype(oap::host::DeleteMatrix)>;
+  using GenericDeallocLayerApi = oap::alloc::DeallocLayerApi<decltype(oap::cuda::DeleteDeviceComplexMatrix), decltype(oap::host::DeleteComplexMatrix)>;
 }
 
 namespace oap
