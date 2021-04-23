@@ -48,7 +48,7 @@ class NetworkHostApi : public oap::NetworkGenericApi
     virtual math::ComplexMatrix* newKernelMatrixHostRef (const math::ComplexMatrix* matrix) override;
     virtual math::ComplexMatrix* newKernelMatrixKernelRef (const math::ComplexMatrix* matrix) override;
     //virtual void connectLayers (oap::Layer* previous, oap::Layer* next) override;
-    virtual math::ComplexMatrix* newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix) override;
+    virtual math::ComplexMatrix* newKernelSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& mdim, const math::ComplexMatrix* matrix) override;
     virtual oap::Memory newKernelMemory (const oap::MemoryDim& dim) override;
     virtual math::ComplexMatrix* newKernelMatrixFromMatrixInfo (const math::MatrixInfo& minfo) override;
 };

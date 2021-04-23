@@ -114,7 +114,7 @@ void unregisterMemory (const oap::Memory& memory, Callback&& callback)
   }
 }
 #endif
-MatricesList g_matricesList ("MATRICES_HOST");
+ComplexMatricesList g_matricesList ("MATRICES_HOST");
 
 math::ComplexMatrix* allocMatrix (const math::ComplexMatrix& ref)
 {
@@ -1414,6 +1414,23 @@ void SetValueToImMatrix (math::ComplexMatrix* matrix, floatt v)
     oap::MemoryLoc loc = GetImMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetImMatrixMemoryRegion (uptr);
     oap::generic::copy (hm.im.mem.ptr, hm.im.mem.dims, loc, uptr->im.mem.ptr, uptr->im.mem.dims, reg, memcpy, memmove);
+  }
+}
+
+void SetValueToMatrix (math::ComplexMatrix* matrix, floatt v)
+{
+  using namespace oap::utils;
+
+  math::ComplexMatrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.re.mem.ptr)
+  {
+    auto minfo = GetMatrixInfo (matrix);
+    oap::HostComplexMatrixUPtr uptr = oap::host::NewReMatrixWithValue (minfo.columns(), minfo.rows(), v);
+
+    oap::MemoryLoc loc = GetReMatrixMemoryLoc (&hm);
+    oap::MemoryRegion reg = GetReMatrixMemoryRegion (uptr);
+    oap::generic::copy (hm.re.mem.ptr, hm.re.mem.dims, loc, uptr->re.mem.ptr, uptr->re.mem.dims, reg, memcpy, memmove);
   }
 }
 

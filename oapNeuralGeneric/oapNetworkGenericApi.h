@@ -50,7 +50,8 @@ class NetworkGenericApi
     virtual math::ComplexMatrix* newKernelMatrixHostRef (const math::ComplexMatrix* matrix) = 0;
     virtual math::ComplexMatrix* newKernelMatrixKernelRef (const math::ComplexMatrix* matrix) = 0;
     //virtual void connectLayers (oap::Layer* previous, oap::Layer* next) = 0;
-    virtual math::ComplexMatrix* newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix) = 0;
+    virtual math::ComplexMatrix* newKernelSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& mdim, const math::ComplexMatrix* matrix) = 0;
+    math::ComplexMatrix* newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix);
     virtual oap::Memory newKernelMemory (const oap::MemoryDim& dim) = 0;
     virtual math::ComplexMatrix* newKernelMatrixFromMatrixInfo (const math::MatrixInfo& minfo) = 0;
 };

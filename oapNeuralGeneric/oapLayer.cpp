@@ -78,6 +78,11 @@ FPMatrices* Layer::getFPMatrices (uintt idx) const
   return m_fpMatrices[idx];
 }
 
+math::ComplexMatrix* Layer::getErrorsMatrix() const
+{
+  return m_errorsMatrix;
+}
+
 uintt Layer::getBPMatricesCount () const
 {
   return m_bpMatrices.size();

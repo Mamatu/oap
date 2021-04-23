@@ -31,6 +31,7 @@
 
 using LHandler = uintt;
 using FPHandler = uintt;
+
 using NBPair = std::pair<uintt, uintt>;
 enum class LayerType { ONE_MATRIX, MULTI_MATRICES };
 

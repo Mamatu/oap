@@ -115,9 +115,9 @@ void NetworkHostApi::connectLayers (oap::Layer* previous, oap::Layer* layer)
 }
 */
 
-math::ComplexMatrix* NetworkHostApi::newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)
+math::ComplexMatrix* NetworkHostApi::newKernelSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)
 {
-  return oap::host::NewSharedSubMatrix (mdim, matrix);
+  return oap::host::NewSharedSubMatrix (loc, mdim, matrix);
 }
 
 oap::Memory NetworkHostApi::newKernelMemory (const oap::MemoryDim& dim)

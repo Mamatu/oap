@@ -683,6 +683,18 @@ void updateWeights(const Layers& layers, Api& api, floatt learningRate, uintt no
 }
 
 template<typename LayerT>
+math::ComplexMatrix* allocateCommonErrMatrix (const LayerT& layerRef, uintt samplesCount1, uintt samplesCount2, oap::NetworkGenericApi* nga)
+{
+  logAssert (samplesCount1 > 0);
+  logAssert (samplesCount2 > 0);
+  const uintt unitsCountWithBiases = layerRef.getTotalNeuronsCount ();
+  const uintt unitsCount = layerRef.getNeuronsCount ();
+
+  auto matrixInfo = math::MatrixInfo (true, false, 3 * samplesCount1, unitsCountWithBiases * samplesCount2);
+  return nga->newKernelMatrixFromMatrixInfo (matrixInfo);
+}
+
+template<typename LayerT>
 void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCount, oap::NetworkGenericApi* nga)
 {
   logTrace("");
@@ -693,6 +705,7 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
 
   fp.m_matricesInfo = math::MatrixInfo (true, false, 1, unitsCountWithBiases * samplesCount);
   fp.m_matricesInfo_wb = math::MatrixInfo (true, false, 1, unitsCount * samplesCount);
+  const math::MatrixDim mdim = {fp.m_matricesInfo.columns(), fp.m_matricesInfo.rows()};
   const math::MatrixDim mdim_wb = {fp.m_matricesInfo_wb.columns(), fp.m_matricesInfo_wb.rows()};
 
   fp.m_inputs = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
@@ -700,10 +713,25 @@ void allocateFPMatrices (FPMatrices& fp, const LayerT& layerRef, uintt samplesCo
   fp.m_sums = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
   fp.m_sums_wb = nga->newKernelSharedSubMatrix (mdim_wb, fp.m_sums);
 
-  fp.m_errors = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
+  //math::Matrix* errorsMatrix = getErrorsMatrix ();
+  //const math::MatrixLoc loc = getErrorsMatrixLoc ();
+  //const math::MatrixLoc loc1 = getErrorsMatrixLoc ();
+  //const math::MatrixLoc loc2 = getErrorsMatrixLoc ();
+
+  //if (errorsMatrix != nullptr)
+  //{
+  //  fp.m_errors = nga->newKernelSharedSubMatrix (loc, mdim, errorsMatrix);
+  //  fp.m_errorsAux = nga->newKernelSharedSubMatrix (loc1, mdim, errorsMatrix);
+  //  fp.m_errorsAcc = nga->newKernelSharedSubMatrix (loc2, mdim, errorsMatrix);
+  //}
+  //else
+  //{
+    fp.m_errors = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
+    fp.m_errorsAux = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
+    fp.m_errorsAcc = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
+  //}
+
   fp.m_errors_wb = nga->newKernelSharedSubMatrix (mdim_wb, fp.m_errors);
-  fp.m_errorsAux = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
-  fp.m_errorsAcc = nga->newKernelMatrixFromMatrixInfo (fp.m_matricesInfo);
 
   logTrace ("minfo = %s", std::to_string(fp.m_matricesInfo).c_str());
   logTrace ("fp.m_inputs = %p", fp.m_inputs);

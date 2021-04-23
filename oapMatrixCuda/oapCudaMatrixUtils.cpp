@@ -45,7 +45,7 @@ namespace cuda
 
 namespace
 {
-MatricesListExt<math::ComplexMatrix> g_matricesList ("MATRICES_CUDA");
+ComplexMatricesListExt<math::ComplexMatrix> g_matricesList ("COMPLEX_MATRICES_CUDA");
 
 void registerMatrix (math::ComplexMatrix* matrix, const math::ComplexMatrix& hostRefMatrix, const math::MatrixInfo& matrixInfo)
 {

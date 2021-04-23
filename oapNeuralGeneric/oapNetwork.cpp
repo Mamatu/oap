@@ -70,6 +70,29 @@ void Network::initTopology (const std::vector<uintt>& topology, const std::vecto
   m_isCreatedByNetworkTopology = true;
 }
 
+void Network::initInput (const oap::InputTopology& itopology)
+{
+  const auto& data = itopology.getData();
+  uintt lcount = data.getInputLayersCount ();
+  for (uintt idx = 0; idx < lcount; ++idx)
+  {
+    const auto& mstruct = data.getInputLayerMatrices (idx);
+    oapAssert (mstruct.size() > 0);
+    uintt samples = mstruct.size();
+    for (uintt idx = 0; idx < samples; ++idx)
+    {
+      /*if (args.fpmatrices.empty())
+      {
+        fpMatrices = oap::generic::allocateFPMatrices (*layer_fp, samplesCount.second, m_nga);
+      }
+      else
+      {
+        fpMatrices = oap::generic::allocateSharedFPMatrices (*layer_fp, args.fpmatrices[idx][idx1], m_nga);
+      }*/
+    }
+  }
+}
+
 Layer* Network::createLayer (uintt neurons, const Activation& activation, LayerType layerType)
 {
   oapAssert (!m_isCreatedByNetworkTopology);
@@ -80,6 +103,7 @@ Layer* Network::createLayer (uintt neurons, bool hasBias, const Activation& acti
 {
   oapAssert (!m_isCreatedByNetworkTopology);
   Layer* layer = m_nga->createLayer (neurons, hasBias, 1, activation);
+  math::ComplexMatrix* commonErrMatrix = oap::generic::allocateCommonErrMatrix (*layer, 1, 1, m_nga);
   FPMatrices* fpMatrices = oap::generic::allocateFPMatrices (*layer, 1, m_nga);
   oap::generic::initLayerBiases (*layer, [this](math::ComplexMatrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue (matrix, c, r, v); }, 1);
 
@@ -207,6 +231,9 @@ LHandler Network::createGenericFPLayer (LayerType ltype, const Network::GenericF
   for (uintt idx = 0; idx < getLayersCount(); ++idx)
   {
     Layer* layer_fp = m_nga->createLayer (getNeuronsCount(idx), getBiasesCount(idx), samples, getActivation(idx));
+    const uintt unitsCountWithBiases = layer_fp->getTotalNeuronsCount ();
+
+    math::ComplexMatrix* commonErrMatrix = oap::generic::allocateCommonErrMatrix (*layer_fp, samplesCount.first, samplesCount.second, m_nga);
     for (uintt idx1 = 0; idx1 < samplesCount.first; ++idx1)
     {
       FPMatrices* fpMatrices = nullptr;
@@ -979,12 +1006,19 @@ void Network::postStep ()
 
 void Network::resetErrors (Layer* layer)
 {
-  const uintt fplen = layer->getFPMatricesCount();
-  for (uintt fpidx = 0; fpidx < fplen; ++fpidx)
+  if (layer->getErrorsMatrix() != nullptr)
   {
-    m_singleApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errors);
-    m_singleApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errorsAcc);
-    m_singleApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errorsAux);
+    m_singleApi->setZeroMatrix (layer->getErrorsMatrix());
+  }
+  else
+  {
+    uintt fplen = layer->getFPMatricesCount();
+    for (uintt fpidx = 0; fpidx < fplen; ++fpidx)
+    {
+       m_singleApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errors);
+       m_singleApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errorsAcc);
+       m_singleApi->setZeroMatrix (layer->getFPMatrices(fpidx)->m_errorsAux);
+    }
   }
 }
 

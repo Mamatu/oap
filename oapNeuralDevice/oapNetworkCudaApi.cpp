@@ -114,9 +114,9 @@ void NetworkCudaApi::connectLayers (oap::Layer* previous, oap::Layer* layer)
   oap::generic::connectLayers<Layer, oap::alloc::cuda::AllocWeightsApi>(previous, layer);
 }
 */
-math::ComplexMatrix* NetworkCudaApi::newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)
+math::ComplexMatrix* NetworkCudaApi::newKernelSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)
 {
-  return oap::cuda::NewDeviceSharedSubMatrix (mdim, matrix);
+  return oap::cuda::NewDeviceSharedSubMatrix (loc, mdim, matrix);
 }
 
 oap::Memory NetworkCudaApi::newKernelMemory (const oap::MemoryDim& dim)

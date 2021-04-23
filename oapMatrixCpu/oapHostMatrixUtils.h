@@ -679,9 +679,13 @@ void SetValueToMatrix (math::ComplexMatrix* matrix, floatt re, floatt im);
 void SetValueToReMatrix (math::ComplexMatrix* matrix, floatt v);
 void SetValueToImMatrix (math::ComplexMatrix* matrix, floatt v);
 
+void SetValueToMatrix (math::Matrix* matrix, floatt v);
+
 void SetZeroMatrix (math::ComplexMatrix* matrix);
 void SetZeroReMatrix (math::ComplexMatrix* matrix);
 void SetZeroImMatrix (math::ComplexMatrix* matrix);
+
+void SetZeroMatrix (math::Matrix* matrix);
 
 /**
  * @brief Save matrix to file

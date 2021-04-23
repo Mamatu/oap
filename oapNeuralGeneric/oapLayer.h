@@ -58,6 +58,13 @@ class Layer
     BPMatrices* getBPMatrices (uintt idx = 0) const;
     FPMatrices* getFPMatrices (uintt idx = 0) const;
 
+    /**
+    * This matrix can contains m_errors, m_errorsAcc and m_errorsAux matrices from !ALL! FPMatrices.
+    * In the case if it is nullptr, m_errors, m_errorsAcc and m_errorsAux are separated matrices.
+    * Warning! It can be used to clear all matrices in layer in one invocation in postStep
+    */
+    math::ComplexMatrix* getErrorsMatrix() const;
+
     uintt getBPMatricesCount () const;
     uintt getFPMatricesCount () const;
 
@@ -150,6 +157,7 @@ class Layer
     Matrices m_weights1;
     Matrices m_weights2;
 
+    math::ComplexMatrix* m_errorsMatrix = nullptr;
     Layer* m_nextLayer = nullptr;
   protected:
     std::vector<FPMatrices*> m_fpMatrices;

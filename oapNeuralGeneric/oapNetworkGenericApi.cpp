@@ -21,6 +21,14 @@
 
 namespace oap
 {
+
 NetworkGenericApi::~NetworkGenericApi()
 {}
+
+math::ComplexMatrix* NetworkGenericApi::newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)
+{
+  math::MatrixLoc mloc = {0, 0};
+  return newKernelSharedSubMatrix (mloc, mdim, matrix);
+}
+
 }
