@@ -63,12 +63,12 @@ class OapQRTests : public OapCudaStub {
 
     QRGRStub(math::ComplexMatrix* matrix, math::ComplexMatrix* eq_q, math::ComplexMatrix* eq_r)
         : QRStub(matrix, eq_q, eq_r) {
-      m_q = oap::host::NewMatrixRef(eq_q);
-      m_r = oap::host::NewMatrixRef(eq_r);
-      m_temp1 = oap::host::NewMatrixRef(matrix);
-      m_temp2 = oap::host::NewMatrixRef(matrix);
-      m_temp3 = oap::host::NewMatrixRef(matrix);
-      m_temp4 = oap::host::NewMatrixRef(matrix);
+      m_q = oap::host::NewComplexMatrixRef(eq_q);
+      m_r = oap::host::NewComplexMatrixRef(eq_r);
+      m_temp1 = oap::host::NewComplexMatrixRef(matrix);
+      m_temp2 = oap::host::NewComplexMatrixRef(matrix);
+      m_temp3 = oap::host::NewComplexMatrixRef(matrix);
+      m_temp4 = oap::host::NewComplexMatrixRef(matrix);
       calculateDims(gColumns (m_matrix), gRows (m_matrix));
     }
 
@@ -109,7 +109,7 @@ class OapQRTests : public OapCudaStub {
 
   void ExpectThatQRIsA(QRStub* qrStub, math::ComplexMatrix* eq_matrix) {
     oap::HostProcedures hostProcedures;
-    math::ComplexMatrix* matrix = oap::host::NewMatrixRef(qrStub->getQ());
+    math::ComplexMatrix* matrix = oap::host::NewComplexMatrixRef(qrStub->getQ());
     hostProcedures.setMaxThreadsPerBlock (1024);
     hostProcedures.dotProduct(matrix, qrStub->getQ(), qrStub->getR());
     EXPECT_THAT(eq_matrix, MatrixIsEqual(matrix));
@@ -118,8 +118,8 @@ class OapQRTests : public OapCudaStub {
 
   void ExpectThatQIsUnitary(QRStub* qrStub) {
     oap::HostProcedures hostProcedures;
-    math::ComplexMatrix* QT = oap::host::NewMatrixCopy(qrStub->getQ());
-    math::ComplexMatrix* matrix = oap::host::NewMatrixRef(qrStub->getQ());
+    math::ComplexMatrix* QT = oap::host::NewComplexMatrixCopy(qrStub->getQ());
+    math::ComplexMatrix* matrix = oap::host::NewComplexMatrixRef(qrStub->getQ());
     hostProcedures.setMaxThreadsPerBlock (1024);
     hostProcedures.transpose(QT, qrStub->getQ());
     hostProcedures.dotProduct(matrix, QT, qrStub->getQ());
@@ -130,9 +130,9 @@ class OapQRTests : public OapCudaStub {
 
   void executeTest(const std::string& matrixStr, const std::string& qrefStr,
                    const std::string& rrefStr) {
-    math::ComplexMatrix* matrix = oap::host::NewMatrix(matrixStr);
-    math::ComplexMatrix* eq_q = oap::host::NewMatrix(qrefStr);
-    math::ComplexMatrix* eq_r = oap::host::NewMatrix(rrefStr);
+    math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(matrixStr);
+    math::ComplexMatrix* eq_q = oap::host::NewComplexMatrix(qrefStr);
+    math::ComplexMatrix* eq_r = oap::host::NewComplexMatrix(rrefStr);
 
     QRGRStub qrgrStub(matrix, eq_q, eq_r);
 

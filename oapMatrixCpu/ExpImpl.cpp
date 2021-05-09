@@ -27,9 +27,9 @@ namespace math {
         math::ComplexMatrix* matrix1 = this->m_matrix;
         //MatrixAllocator& matrixAllocator = *m_module->getMatrixAllocator();
         //MatrixCopier& matrixCopier = *m_module->getMatrixCopier();
-        math::ComplexMatrix* matrix2 = oap::host::NewMatrixCopy(matrix1);
-        math::ComplexMatrix* matrix3 = oap::host::NewMatrixCopy(matrix1);
-        math::ComplexMatrix* matrix4 = oap::host::NewMatrixCopy(matrix1);
+        math::ComplexMatrix* matrix2 = oap::host::NewComplexMatrixCopy(matrix1);
+        math::ComplexMatrix* matrix3 = oap::host::NewComplexMatrixCopy(matrix1);
+        math::ComplexMatrix* matrix4 = oap::host::NewComplexMatrixCopy(matrix1);
         floatt factorial = 1;
         math::ComplexMatrix* m1 = matrix1;
         math::ComplexMatrix* m2 = matrix2;

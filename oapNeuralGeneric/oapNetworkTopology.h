@@ -77,7 +77,7 @@ class InputTopology
     const Data& getData () const;
 
   private:
-    static oap::math::Matrix getMatrixRef(const math::MatrixInfo& minfo);
+    static oap::math::ComplexMatrix getMatrixRef(const math::MatrixInfo& minfo);
 
     Data m_data;
 };

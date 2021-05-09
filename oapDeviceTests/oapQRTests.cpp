@@ -54,7 +54,7 @@ class OapQRTests : public testing::Test {
     math::ComplexMatrix* tdq = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(q);
     math::ComplexMatrix* doutput = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(q);
     math::ComplexMatrix* doutput1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(q);
-    math::ComplexMatrix* houtput = oap::host::NewMatrixRef (q);
+    math::ComplexMatrix* houtput = oap::host::NewComplexMatrixRef (q);
 
     m_cuMatrix->transpose(tdq, dq);
     m_cuMatrix->dotProduct(doutput, tdq, dq);
@@ -70,12 +70,12 @@ class OapQRTests : public testing::Test {
 
   void executeTest(const std::string& qr1matrix, const std::string& qr1q,
                    const std::string& qr1r) {
-    math::ComplexMatrix* matrix = oap::host::NewMatrix(qr1matrix);
-    math::ComplexMatrix* hmatrix = oap::host::NewMatrixRef (matrix);
-    math::ComplexMatrix* hmatrix1 = oap::host::NewMatrixRef (matrix);
+    math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(qr1matrix);
+    math::ComplexMatrix* hmatrix = oap::host::NewComplexMatrixRef (matrix);
+    math::ComplexMatrix* hmatrix1 = oap::host::NewComplexMatrixRef (matrix);
 
-    math::ComplexMatrix* hrmatrix = oap::host::NewMatrixRef (matrix);
-    math::ComplexMatrix* hrmatrix1 = oap::host::NewMatrixRef (matrix);
+    math::ComplexMatrix* hrmatrix = oap::host::NewComplexMatrixRef (matrix);
+    math::ComplexMatrix* hrmatrix1 = oap::host::NewComplexMatrixRef (matrix);
 
     math::ComplexMatrix* temp1 = oap::cuda::NewDeviceMatrixHostRef(matrix);
     math::ComplexMatrix* temp2 = oap::cuda::NewDeviceMatrixHostRef(matrix);
@@ -84,12 +84,12 @@ class OapQRTests : public testing::Test {
     math::ComplexMatrix* dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(matrix);
     math::ComplexMatrix* drmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(matrix);
 
-    math::ComplexMatrix* eq_q = oap::host::NewMatrix(qr1q);
-    math::ComplexMatrix* q = oap::host::NewMatrixRef (eq_q);
+    math::ComplexMatrix* eq_q = oap::host::NewComplexMatrix(qr1q);
+    math::ComplexMatrix* q = oap::host::NewComplexMatrixRef (eq_q);
     math::ComplexMatrix* dq = oap::cuda::NewDeviceMatrixHostRef(q);
 
-    math::ComplexMatrix* eq_r = oap::host::NewMatrix(qr1r);
-    math::ComplexMatrix* r = oap::host::NewMatrixRef (eq_r);
+    math::ComplexMatrix* eq_r = oap::host::NewComplexMatrix(qr1r);
+    math::ComplexMatrix* r = oap::host::NewComplexMatrixRef (eq_r);
     math::ComplexMatrix* dr = oap::cuda::NewDeviceMatrixHostRef(r);
 
     m_cuMatrix->QRGR(dq, dr, dmatrix, temp1, temp2, temp3, temp4);

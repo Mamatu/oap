@@ -100,12 +100,12 @@ math::ComplexMatrix* NetworkHostApi::newKernelReMatrix (uintt columns, uintt row
 
 math::ComplexMatrix* NetworkHostApi::newKernelMatrixHostRef (const math::ComplexMatrix* matrix)
 {
-  return oap::host::NewMatrixRef (matrix);
+  return oap::host::NewComplexMatrixRef (matrix);
 }
 
 math::ComplexMatrix* NetworkHostApi::newKernelMatrixKernelRef (const math::ComplexMatrix* matrix)
 {
-  return oap::host::NewMatrixRef (matrix);
+  return oap::host::NewComplexMatrixRef (matrix);
 }
 
 /*

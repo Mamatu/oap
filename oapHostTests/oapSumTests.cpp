@@ -37,8 +37,8 @@ class OapSumTests : public testing::Test {
   {
   }
   
-  template<typename GetValue, typename Compare, typename NewMatrix>
-  void test (size_t columns, size_t rows, GetValue&& getValue, Compare&& compare, NewMatrix&& newMatrix, uint maxThreadsPerBlock = 1024)
+  template<typename GetValue, typename Compare, typename NewComplexMatrix>
+  void test (size_t columns, size_t rows, GetValue&& getValue, Compare&& compare, NewComplexMatrix&& newMatrix, uint maxThreadsPerBlock = 1024)
   {
     oap::HostProcedures cuApi (maxThreadsPerBlock);
 
@@ -73,7 +73,7 @@ TEST_F(OapSumTests, SumTest1)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -87,7 +87,7 @@ TEST_F(OapSumTests, SumTest2)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -101,7 +101,7 @@ TEST_F(OapSumTests, SumTest3)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -115,7 +115,7 @@ TEST_F(OapSumTests, SumTest4)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -129,7 +129,7 @@ TEST_F(OapSumTests, SumTest5)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -143,7 +143,7 @@ TEST_F(OapSumTests, SumTest6)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -157,7 +157,7 @@ TEST_F(OapSumTests, SumTest7)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -171,7 +171,7 @@ TEST_F(OapSumTests, SumTest8)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -185,7 +185,7 @@ TEST_F(OapSumTests, SumTest9)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -199,7 +199,7 @@ TEST_F(OapSumTests, SumTest10)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -213,7 +213,7 @@ TEST_F(OapSumTests, SumTest11)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -227,7 +227,7 @@ TEST_F(OapSumTests, SumTest12)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -241,7 +241,7 @@ TEST_F(OapSumTests, SumTest13)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -255,7 +255,7 @@ TEST_F(OapSumTests, SumTest14)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }
@@ -269,7 +269,7 @@ TEST_F(OapSumTests, SumTest15)
 
     auto newMatrix = [](uintt columns, uintt rows, floatt value)
     {
-      return oap::host::NewMatrixWithValue (columns, rows, value);
+      return oap::host::NewComplexMatrixWithValue (columns, rows, value);
     };
     test (c, r, [](int idx){ return 1; }, [](int expected, int reoutput, int imoutput){ EXPECT_EQ(expected, reoutput); EXPECT_EQ(expected, imoutput); }, newMatrix);
 }

@@ -85,6 +85,7 @@ floatt* allocateMem (const oap::MemoryDim& dims)
   const uintt length = dims.width * dims.height;
   floatt* buffer = static_cast<floatt*>(CudaUtils::AllocDeviceMem (length * sizeof (floatt)));
   g_memoryList.add (buffer, length);
+  logTrace ("CUDA %p", buffer);
   return buffer;
 }
 
@@ -92,16 +93,19 @@ void deallocateMem (const oap::Memory& memory)
 {
   CudaUtils::FreeDeviceMem (static_cast<const void*>(memory.ptr));
   g_memoryList.remove (memory.ptr);
+  logTrace ("CUDA %p", memory.ptr);
 }
 
 }
 
 oap::Memory NewMemory (const oap::MemoryDim& dims)
 {
+  logTraceS();
   return oap::generic::newMemory (dims, allocateMem, [](floatt* ptr)
     {
       g_memoryCounter.increase (ptr);
     });
+  logTraceE();
 }
 
 oap::Memory NewMemoryWithValues (const MemoryDim& dims, floatt value)

@@ -311,7 +311,7 @@ void CuHArnoldi::initVvector_rand()
     values [idx] = values[idx] / length;
   }
 
-  oap::HostComplexMatrixPtr matrixPtr = oap::host::NewMatrix (vinfo);
+  oap::HostComplexMatrixPtr matrixPtr = oap::host::NewComplexMatrix (vinfo);
   oap::host::SetReValuesToMatrix (matrixPtr, values);
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_v, matrixPtr);
 
@@ -619,7 +619,7 @@ void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uint k)
   traceFunction();
   auto newHostMatrix = [](bool isre, bool isim, uintt columns, uintt rows) -> math::ComplexMatrix*
   {
-    return oap::host::NewMatrix (isre, isim, columns, rows);
+    return oap::host::NewComplexMatrix (isre, isim, columns, rows);
   };
 
   oap::generic::allocStage2 (*this, matrixInfo, k, oap::cuda::NewKernelMatrix, newHostMatrix);

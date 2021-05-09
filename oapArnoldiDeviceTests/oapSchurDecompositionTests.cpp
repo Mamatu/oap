@@ -72,9 +72,9 @@ class OapSchurDecomposition : public testing::Test {
     math::ComplexMatrix* matrix7 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
     math::ComplexMatrix* matrix8 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
 
-    math::ComplexMatrix* eq_hostMatrix = oap::host::NewMatrix(eq_matrixStr);
-    math::ComplexMatrix* eq_initMatrix = oap::host::NewMatrix(matrixStr);
-    math::ComplexMatrix* hostMatrix = oap::host::NewMatrixRef(eq_hostMatrix);
+    math::ComplexMatrix* eq_hostMatrix = oap::host::NewComplexMatrix(eq_matrixStr);
+    math::ComplexMatrix* eq_initMatrix = oap::host::NewComplexMatrix(matrixStr);
+    math::ComplexMatrix* hostMatrix = oap::host::NewComplexMatrixRef(eq_hostMatrix);
 
     math::ComplexMatrix* H = matrix;
     math::ComplexMatrix* Q = matrix1;

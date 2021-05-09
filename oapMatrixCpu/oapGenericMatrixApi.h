@@ -264,9 +264,9 @@ void printMatrix (std::string& output, const math::ComplexMatrix* matrix, const 
   oap::generic::printCustomMatrix (output, matrix, args, minfo);
 }
 
-template<typename GetMatrixInfo, typename NewMatrix, typename DeleteMatrix, typename CopyMatrixToMatrix>
+template<typename GetMatrixInfo, typename NewComplexMatrix, typename DeleteMatrix, typename CopyMatrixToMatrix>
 void printMatrix (std::string& output, const math::ComplexMatrix* matrix, const matrixUtils::PrintArgs& args,
-                  GetMatrixInfo&& getMatrixInfo, NewMatrix&& newMatrix, DeleteMatrix&& deleteMatrix, CopyMatrixToMatrix&& copyMatrixToMatrix)
+                  GetMatrixInfo&& getMatrixInfo, NewComplexMatrix&& newMatrix, DeleteMatrix&& deleteMatrix, CopyMatrixToMatrix&& copyMatrixToMatrix)
 {
   math::MatrixInfo minfo = getMatrixInfo(matrix);
 

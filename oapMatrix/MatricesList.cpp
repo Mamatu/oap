@@ -19,6 +19,12 @@
 
 #include "MatricesList.h"
 
+MatricesList::MatricesList (const std::string& id) : AllocationList (id, [](const math::MatrixInfo& minfo) { return std::to_string (minfo);})
+{}
+
+MatricesList::~MatricesList ()
+{}
+
 ComplexMatricesList::ComplexMatricesList (const std::string& id) : AllocationList (id, [](const math::MatrixInfo& minfo) { return std::to_string (minfo);})
 {}
 

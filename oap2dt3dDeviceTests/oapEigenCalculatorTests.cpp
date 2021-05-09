@@ -119,7 +119,7 @@ class ArnoldiOperations {
       debugAssert("Invalid eigenvectors type.");
     }
 
-    oap::HostComplexMatrixUPtr refMatrix = oap::host::NewMatrix(matrix, gColumns (matrix), partSize);
+    oap::HostComplexMatrixUPtr refMatrix = oap::host::NewComplexMatrix(matrix, gColumns (matrix), partSize);
 
     oap::host::CopyMatrix(refMatrix, matrix);
 
@@ -291,7 +291,7 @@ class TestCuHArnoldiCallback : public CuHArnoldiCallback {
 
       math::ComplexMatrix** deviceMatrices = deviceEVectors.get();
       math::ComplexMatrix** hostMatrices = hostEVectors.get();
-      math::ComplexMatrix* hostMatrix = oap::host::NewMatrixRef (hostEVectors.get()[0]);
+      math::ComplexMatrix* hostMatrix = oap::host::NewComplexMatrixRef (hostEVectors.get()[0]);
       for (int fa = 0; fa < wantedEigensCount; ++fa) {
         oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, deviceMatrices[fa]);
         

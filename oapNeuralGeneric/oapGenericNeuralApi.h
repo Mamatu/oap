@@ -232,7 +232,7 @@ void derivativeFunc (MT output, MT input, Activation activation, Api& api, oap::
 template<typename LayerT, typename SetReValue>
 void initLayerBiases (LayerT& layer, SetReValue&& setReValue, uintt samples = 1)
 {
-  logTrace("");
+  logTraceS();
   if (layer.getBiasesCount() == 1)
   {
     uintt size = layer.getInputs().size();
@@ -248,6 +248,7 @@ void initLayerBiases (LayerT& layer, SetReValue&& setReValue, uintt samples = 1)
   {
     debugAssert ("Not supported yet" == nullptr);
   }
+  logTraceE();
 }
 
 template<typename Layers, typename SetReValue>

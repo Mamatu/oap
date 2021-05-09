@@ -71,7 +71,7 @@ std::tuple<oap::Memory, oap::MemoryRegion> allocPart (bool alloc, uintt columns,
 
 void initWithZero (math::ComplexMatrix* matrix, bool allocRe, bool allocIm, uintt columns, uintt rows) 
 {
-  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewMatrixWithValue (allocRe, allocIm, columns, rows, 0);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewComplexMatrixWithValue (allocRe, allocIm, columns, rows, 0);
   oap::cuda::CopyHostMatrixToDeviceMatrix (matrix, hmatrix);
 }
 
@@ -170,7 +170,7 @@ math::ComplexMatrix* NewHostMatrixCopyOfDeviceMatrix (const math::ComplexMatrix*
 {
   auto minfo = GetMatrixInfo (matrix);
 
-  math::ComplexMatrix* hostMatrix = oap::host::NewMatrix (minfo);
+  math::ComplexMatrix* hostMatrix = oap::host::NewComplexMatrix (minfo);
   oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, matrix);
 
   return hostMatrix;
@@ -189,7 +189,7 @@ math::ComplexMatrix* NewDeviceMatrixDeviceRef(const math::ComplexMatrix* deviceM
 
 math::ComplexMatrix* NewDeviceMatrix(const std::string& matrixStr)
 {
-  math::ComplexMatrix* host = oap::host::NewMatrix(matrixStr);
+  math::ComplexMatrix* host = oap::host::NewComplexMatrix(matrixStr);
   math::ComplexMatrix* device = NewDeviceMatrixCopyOfHostMatrix (host);
   oap::host::DeleteMatrix(host);
   return device;
@@ -198,7 +198,7 @@ math::ComplexMatrix* NewDeviceMatrix(const std::string& matrixStr)
 math::ComplexMatrix* NewDeviceMatrixWithValue (uintt columns, uintt rows, floatt v)
 {
   math::ComplexMatrix* matrix = oap::cuda::NewDeviceMatrix (columns, rows);
-  oap::HostComplexMatrixUPtr hmptr = oap::host::NewMatrixWithValue (columns, rows, v);
+  oap::HostComplexMatrixUPtr hmptr = oap::host::NewComplexMatrixWithValue (columns, rows, v);
   oap::cuda::CopyHostMatrixToDeviceMatrix (matrix, hmptr.get());
   return matrix;
 }
@@ -295,7 +295,7 @@ void DeleteDeviceMatrix(const math::ComplexMatrix* dMatrix)
 
     CudaUtils::FreeDeviceMem (dMatrix);
 
-    logTrace ("ComplexMatrix deallocation: %p", dMatrix);
+    logTrace ("ComplexMatrix deallocation: %p %p %p", dMatrix, hm1lvl.re.mem.ptr, hm1lvl.im.mem.ptr);
 
     if (pair.first.isInitialized ())
     {
@@ -921,7 +921,7 @@ math::ComplexMatrix* ReadMatrix(const std::string& path)
 bool WriteMatrix(const std::string& path, const math::ComplexMatrix* devMatrix)
 {
   math::MatrixInfo matrixInfo = oap::cuda::GetMatrixInfo(devMatrix);
-  math::ComplexMatrix* hostMatrix = oap::host::NewMatrix(matrixInfo);
+  math::ComplexMatrix* hostMatrix = oap::host::NewComplexMatrix(matrixInfo);
   oap::cuda::CopyDeviceMatrixToHostMatrix(hostMatrix, devMatrix);
   bool status = oap::host::WriteMatrix(path, hostMatrix);
   oap::host::DeleteMatrix(hostMatrix);
@@ -947,7 +947,7 @@ void SaveMatrix (const math::ComplexMatrix* matrix, utils::ByteBuffer& buffer)
   auto minfo = oap::cuda::GetMatrixInfo (matrix);
   SaveMatrixInfo (minfo, buffer);
 
-  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewMatrix (minfo);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewComplexMatrix (minfo);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (hmatrix, matrix);
 

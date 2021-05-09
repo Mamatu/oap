@@ -589,7 +589,7 @@ void CuProceduresApi::linear (math::ComplexMatrix* output, math::ComplexMatrix* 
 
 void CuProceduresApi::dlinear (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
-  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewMatrixWithValue (oap::cuda::GetMatrixInfo(output), 1.f);
+  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewComplexMatrixWithValue (oap::cuda::GetMatrixInfo(output), 1.f);
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
 }
 

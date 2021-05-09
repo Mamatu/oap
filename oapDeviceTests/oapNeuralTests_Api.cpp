@@ -379,7 +379,7 @@ namespace test_api
     {
       oap::Layer* layer = network->getLayer(lidx);
 
-      oap::HostComplexMatrixPtr weightsMatrix = oap::host::NewMatrix (layer->getWeightsInfo());
+      oap::HostComplexMatrixPtr weightsMatrix = oap::host::NewComplexMatrix (layer->getWeightsInfo());
       oap::host::SetReValuesToMatrix (weightsMatrix, weightsLayers[lidx][initWeightsIdx]);
 
       layer->setHostWeights (weightsMatrix);
@@ -406,8 +406,8 @@ namespace test_api
                   const IdxsToCheck& idxToChecks,
                   const ExtraParams& ep)
   {
-    oap::HostComplexMatrixPtr hinputs = oap::host::NewMatrix (network->getInputInfo());
-    oap::HostComplexMatrixPtr houtput = oap::host::NewMatrix (network->getOutputInfo());
+    oap::HostComplexMatrixPtr hinputs = oap::host::NewComplexMatrix (network->getInputInfo());
+    oap::HostComplexMatrixPtr houtput = oap::host::NewComplexMatrix (network->getOutputInfo());
 
     ASSERT_NO_FATAL_FAILURE(
     testSteps (testMode, network, weightsLayers, steps, hinputs, houtput, idxToChecks, ep));

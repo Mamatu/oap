@@ -51,8 +51,8 @@ namespace math {
                     m_r = NULL;
                 }
                 if (m_q == NULL) {
-                    m_q = oap::host::NewMatrixRef (m_matrix);
-                    m_r = oap::host::NewMatrixRef (m_matrix);
+                    m_q = oap::host::NewComplexMatrixRef (m_matrix);
+                    m_r = oap::host::NewComplexMatrixRef (m_matrix);
                 }
             }
         }

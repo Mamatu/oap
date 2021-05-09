@@ -108,22 +108,22 @@ LHandler InputTopology::addSharedVertical(uintt rows, uintt count, MHandler mhan
   return addSharedVertical (minfo, count, mhandler);
 }
 
-oap::math::Matrix InputTopology::getMatrixRef(const math::MatrixInfo& minfo)
+oap::math::ComplexMatrix InputTopology::getMatrixRef(const math::MatrixInfo& minfo)
 {
-  math::Matrix matrix;
-  matrix.re.dims = {0, 0};
-  matrix.im.dims = {0, 0};
+  math::ComplexMatrix matrix;
+  matrix.re.mem.dims = {0, 0};
+  matrix.im.mem.dims = {0, 0};
 
   if (minfo.isRe)
   {
-    matrix.re.dims = {minfo.columns(), minfo.rows()};
-    matrix.re.ptr = nullptr;
+    matrix.re.mem.dims = {minfo.columns(), minfo.rows()};
+    matrix.re.mem.ptr = nullptr;
   }
 
   if (minfo.isIm)
   {
-    matrix.im.dims = {minfo.columns(), minfo.rows()};
-    matrix.im.ptr = nullptr;
+    matrix.im.mem.dims = {minfo.columns(), minfo.rows()};
+    matrix.im.mem.ptr = nullptr;
   }
 
   return matrix;  

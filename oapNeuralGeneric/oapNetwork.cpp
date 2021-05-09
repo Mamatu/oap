@@ -103,7 +103,7 @@ Layer* Network::createLayer (uintt neurons, bool hasBias, const Activation& acti
 {
   oapAssert (!m_isCreatedByNetworkTopology);
   Layer* layer = m_nga->createLayer (neurons, hasBias, 1, activation);
-  math::ComplexMatrix* commonErrMatrix = oap::generic::allocateCommonErrMatrix (*layer, 1, 1, m_nga);
+  //math::ComplexMatrix* commonErrMatrix = oap::generic::allocateCommonErrMatrix (*layer, 1, 1, m_nga);
   FPMatrices* fpMatrices = oap::generic::allocateFPMatrices (*layer, 1, m_nga);
   oap::generic::initLayerBiases (*layer, [this](math::ComplexMatrix* matrix, uintt c, uintt r, floatt v) { m_nga->setReValue (matrix, c, r, v); }, 1);
 
@@ -233,7 +233,7 @@ LHandler Network::createGenericFPLayer (LayerType ltype, const Network::GenericF
     Layer* layer_fp = m_nga->createLayer (getNeuronsCount(idx), getBiasesCount(idx), samples, getActivation(idx));
     const uintt unitsCountWithBiases = layer_fp->getTotalNeuronsCount ();
 
-    math::ComplexMatrix* commonErrMatrix = oap::generic::allocateCommonErrMatrix (*layer_fp, samplesCount.first, samplesCount.second, m_nga);
+    //math::ComplexMatrix* commonErrMatrix = oap::generic::allocateCommonErrMatrix (*layer_fp, samplesCount.first, samplesCount.second, m_nga);
     for (uintt idx1 = 0; idx1 < samplesCount.first; ++idx1)
     {
       FPMatrices* fpMatrices = nullptr;
@@ -426,7 +426,7 @@ math::ComplexMatrix* Network::getHostOutputs () const
   Layer* llayer = m_layers[0].back();
   auto minfo = m_nga->getMatrixInfo (llayer->getFPMatrices()->m_inputs);
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrix (minfo);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrix (minfo);
   return getOutputs (matrix, ArgType::HOST);
 }
 

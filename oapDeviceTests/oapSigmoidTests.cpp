@@ -55,11 +55,11 @@ class OapSigmoidTests : public testing::Test
     oap::cuda::Context::Instance().destroy();
   }
 
-  using NewMatrix = std::function<math::ComplexMatrix*(uintt, uintt)>;
+  using NewComplexMatrix = std::function<math::ComplexMatrix*(uintt, uintt)>;
   using GetValue = std::function<floatt(const math::ComplexMatrix*, size_t)>;
 
 
-  void test_Sigmoid (const NewMatrix& newDMatrix, const NewMatrix& newHMatrix, const GetValue& getReValue, const GetValue& getImValue)
+  void test_Sigmoid (const NewComplexMatrix& newDMatrix, const NewComplexMatrix& newHMatrix, const GetValue& getReValue, const GetValue& getImValue)
   {
     oap::DeviceComplexMatrixPtr doutput = newDMatrix (1, 10);
     oap::HostComplexMatrixPtr houtput = newHMatrix (1, 10);
@@ -127,7 +127,7 @@ TEST_F(OapSigmoidTests, SigmoidReTest)
 
   auto newMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewMatrix (c, r);
+    return oap::host::NewComplexMatrix (c, r);
   };
 
   auto newReMatrix = [](uintt c, uintt r)
@@ -161,7 +161,7 @@ TEST_F(OapSigmoidTests, SigmoidImTest)
 
   auto newMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewMatrix (c, r);
+    return oap::host::NewComplexMatrix (c, r);
   };
 
   auto newReMatrix = [](uintt c, uintt r)
@@ -195,7 +195,7 @@ TEST_F(OapSigmoidTests, DISABLED_SigmoidRealTest)
 
   auto newMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewMatrix (c, r);
+    return oap::host::NewComplexMatrix (c, r);
   };
 
   auto newReMatrix = [](uintt c, uintt r)
