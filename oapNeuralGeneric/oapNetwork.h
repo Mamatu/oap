@@ -25,8 +25,7 @@
 #include "oapNetworkGenericApi.h"
 #include "oapHostComplexMatrixPtr.h"
 #include "oapHostComplexMatrixUPtr.h"
-
-enum class LayerType { ONE_MATRIX, MULTI_MATRICES };
+#include "oapNetworkTopology.h"
 
 namespace oap
 {
@@ -61,6 +60,7 @@ public:
   void initWeights (bool init);
 
   void initTopology (const std::vector<uintt>& topology, const std::vector<uintt>& biases, const std::vector<Activation>& activations);
+  void initInput (const oap::InputTopology& itopology);
 
   oap::Layer* createLayer (uintt neurons, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX);
   oap::Layer* createLayer (uintt neurons, bool addBias, const Activation& activation = Activation::SIGMOID, LayerType layerType = LayerType::ONE_MATRIX);
@@ -136,12 +136,6 @@ public:
 
   void printLayersWeights () const;
 
-  void postStep (Layer* layer);
-  void postStep ();
-
-  void resetErrors (Layer* layer);
-  void resetErrors ();
-  void resetErrorsVec ();
 
   template<typename Callback>
   void iterateLayers (Callback&& callback)
@@ -158,6 +152,13 @@ public:
   void setExpected (const std::vector<math::ComplexMatrix*>& expected, ArgType argType, LHandler handler = 0);
   Matrices getExpected (LHandler handler) const;
   void printLayersInputs () const;
+
+  void postStep (Layer* layer);
+  void postStep ();
+
+  void resetErrors (Layer* layer);
+  void resetErrors ();
+  void resetErrorsVec ();
 
 private:
   NetworkGenericApi* m_nga;
@@ -226,6 +227,8 @@ private:
   bool m_isCreatedByNetworkTopology = false;
   bool m_isCreatedByApi = false;
   bool m_initWeights = true;
+
+  std::map<Layer*, std::vector<math::Matrix*>> m_errMatrices;
 
   template<typename LayerT, typename AllocNeuronsApi>
   friend void allocateNeurons (LayerT& ls, uintt neuronsCount, uintt biasCount);

@@ -204,6 +204,17 @@ void CopyDeviceToDevice(void* dst, const void* src, uintt size) {
   cuMemcpyDtoD(dstPtr, srcPtr, size);
 }
 
+void MoveDeviceToDevice (void* dst, const void* src, uintt size)
+{
+  logTrace ("%s %p -> %p size = %u", __FUNCTION__, src, dst, size);
+  CUdeviceptr tempPtr = allocDeviceMem (size);
+  CUdeviceptr dstPtr = reinterpret_cast<CUdeviceptr>(dst);
+  CUdeviceptr srcPtr = reinterpret_cast<CUdeviceptr>(src);
+  cuMemcpyDtoD(tempPtr, srcPtr, size);
+  cuMemcpyDtoD(dstPtr, tempPtr, size);
+  freeDeviceMem (tempPtr);
+}
+
 void SetReValue(math::ComplexMatrix* m, uintt index, floatt value)
 {
   using namespace oap::utils;
@@ -214,7 +225,7 @@ void SetReValue(math::ComplexMatrix* m, uintt index, floatt value)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 floatt GetReValue(const math::ComplexMatrix* m, uintt index)
@@ -229,7 +240,7 @@ floatt GetReValue(const math::ComplexMatrix* m, uintt index)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
+  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 
   return v;
 }
@@ -244,7 +255,7 @@ void SetImValue(math::ComplexMatrix* m, uintt index, floatt value)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (mem.ptr, mem.dims, loc, &value, {1, 1}, {{0, 0}, {1, 1}}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 floatt GetImValue(const math::ComplexMatrix* m, uintt index)
@@ -259,7 +270,7 @@ floatt GetImValue(const math::ComplexMatrix* m, uintt index)
 
   loc = oap::common::ConvertIdxToMemoryLocRef (index, mem, regMem);
 
-  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost);
+  oap::generic::copy (&v, {1, 1}, {0, 0}, mem.ptr, mem.dims, {loc, {1, 1}}, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 
   return v;
 }

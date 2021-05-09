@@ -57,7 +57,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, ResetUPtrTest)
 {
   oap::HostComplexMatrixUPtr ptr = oap::host::NewReMatrix (10, 10);
 
-  ptr.reset (oap::host::NewMatrix(11, 11));
+  ptr.reset (oap::host::NewComplexMatrix(11, 11));
 }
 
 TEST_F(OapHostComplexMatrixUPtrTests, NotDeallocationTest)
@@ -72,7 +72,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, NotDeallocationTest)
   {
     math::ComplexMatrix* rptr = oap::host::NewReMatrix (10, 10);
     {
-      math::ComplexMatrix* rptr1 = oap::host::NewMatrix (10, 10);
+      math::ComplexMatrix* rptr1 = oap::host::NewComplexMatrix (10, 10);
 
       oap::HostComplexMatrixUPtr ptr (rptr, false); // it will be not deallocated
 
@@ -83,9 +83,9 @@ TEST_F(OapHostComplexMatrixUPtrTests, NotDeallocationTest)
   {
     math::ComplexMatrix* rptr = oap::host::NewReMatrix (10, 10);
     math::ComplexMatrix* rptr2 = oap::host::NewImMatrix (100, 100);
-    math::ComplexMatrix* rptr3 = oap::host::NewMatrix (100, 101);
+    math::ComplexMatrix* rptr3 = oap::host::NewComplexMatrix (100, 101);
     {
-      math::ComplexMatrix* rptr1 = oap::host::NewMatrix (100, 10);
+      math::ComplexMatrix* rptr1 = oap::host::NewComplexMatrix (100, 10);
 
       oap::HostComplexMatrixUPtr ptr (rptr, false); // it will be not deallocated
 
@@ -127,7 +127,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, ResetUPtrsTest)
   {
     oap::host::NewReMatrix(10, 125),
     oap::host::NewImMatrix (10, 13),
-    oap::host::NewMatrix (105, 13)
+    oap::host::NewComplexMatrix (105, 13)
   };
 
   oap::HostComplexMatricesUPtr ptr = oap::HostComplexMatricesUPtr::make (vec);
@@ -222,7 +222,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, InitializationUPtrsTest)
     {
       oap::host::NewReMatrix(10, 125),
       oap::host::NewImMatrix (10, 13),
-      oap::host::NewMatrix (105, 13)
+      oap::host::NewComplexMatrix (105, 13)
     };
 
     oap::HostComplexMatricesUPtr ptr (array, 3);
@@ -237,7 +237,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, InitializationUPtrsTest)
     {
       oap::host::NewReMatrix(10, 125),
       oap::host::NewImMatrix (10, 13),
-      oap::host::NewMatrix (105, 13)
+      oap::host::NewComplexMatrix (105, 13)
     };
 
     oap::HostComplexMatricesUPtr ptr (array, 3);
@@ -253,7 +253,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, AssignmentUPtrTest)
 {
   oap::HostComplexMatrixUPtr ptr = oap::host::NewReMatrix (10, 10);
 
-  ptr = oap::host::NewMatrix(11, 11);
+  ptr = oap::host::NewComplexMatrix(11, 11);
   oap::HostComplexMatrixUPtr ptr1 = oap::host::NewReMatrix (15, 15);
 
   ptr = std::move (ptr1);
@@ -271,7 +271,7 @@ TEST_F(OapHostComplexMatrixUPtrTests, AssignmentUPtrsTest)
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),
     oap::host::NewReMatrix(10, 10),
-    oap::host::NewMatrix(11, 10)
+    oap::host::NewComplexMatrix(11, 10)
   };
 
   oap::HostComplexMatricesUPtr ptr = oap::HostComplexMatricesUPtr::make (vec);

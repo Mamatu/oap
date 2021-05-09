@@ -123,7 +123,7 @@ TEST_F(OapMemoryGenericApiTests, CopyLinear_1)
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
   math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (10, 2, srcMem, {0, 2});
 
-  oap::generic::copy (dstMatrix->re.mem.ptr, dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.ptr, srcMatrix->re.mem.dims, srcMatrix->re.reg, memcpy);
+  oap::generic::copy (dstMatrix->re.mem.ptr, dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.ptr, srcMatrix->re.mem.dims, srcMatrix->re.reg, memcpy, memcpy);
 
   for (uintt x = 0; x < 10; ++x)
   {
@@ -155,7 +155,7 @@ TEST_F(OapMemoryGenericApiTests, CopyBlock_1)
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
   math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (5, 5, srcMem, {2, 2});
 
-  oap::generic::copy (dstMatrix->re.mem.ptr, dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.ptr, srcMatrix->re.mem.dims, srcMatrix->re.reg, memcpy);
+  oap::generic::copy (dstMatrix->re.mem.ptr, dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.ptr, srcMatrix->re.mem.dims, srcMatrix->re.reg, memcpy, memcpy);
 
   for (uintt x = 0; x < 10; ++x)
   {
@@ -187,7 +187,7 @@ TEST_F(OapMemoryGenericApiTests, CopyBlock_2)
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
   math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (2, 10, srcMem, {2, 0});
 
-  oap::generic::copy (dstMatrix->re.mem.ptr, dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.ptr, srcMatrix->re.mem.dims, srcMatrix->re.reg, memcpy);
+  oap::generic::copy (dstMatrix->re.mem.ptr, dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.ptr, srcMatrix->re.mem.dims, srcMatrix->re.reg, memcpy, memcpy);
 
   for (uintt x = 0; x < 10; ++x)
   {

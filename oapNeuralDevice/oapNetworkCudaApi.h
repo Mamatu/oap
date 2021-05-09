@@ -41,7 +41,7 @@ class NetworkCudaApi : public oap::NetworkGenericApi
     virtual math::ComplexMatrix* newKernelReMatrix (uintt columns, uintt rows) override;
     virtual math::ComplexMatrix* newKernelMatrixHostRef (const math::ComplexMatrix* matrix) override;
     virtual math::ComplexMatrix* newKernelMatrixKernelRef (const math::ComplexMatrix* matrix) override;
-    virtual math::ComplexMatrix* newKernelSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix) override;
+    virtual math::ComplexMatrix* newKernelSharedSubMatrix (const math::MatrixLoc& loc, const math::MatrixDim& mdim, const math::ComplexMatrix* matrix) override;
     virtual oap::Memory newKernelMemory (const oap::MemoryDim& dim) override;
     virtual math::ComplexMatrix* newKernelMatrixFromMatrixInfo (const math::MatrixInfo& minfo) override;
 };

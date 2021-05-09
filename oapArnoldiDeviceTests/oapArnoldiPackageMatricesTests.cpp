@@ -75,10 +75,10 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
         oap::cuda::CopyHostMatrixToDeviceMatrix (dvectorT, hvectorT);
         cuProceduresApi.dotProduct (dvalue, dvectorT, m_v);
         oap::cuda::SetReMatrix (m_w, dvalue, 0, idx);
-        PRINT_CUMATRIX(m_w);
-        PRINT_CUMATRIX(dvalue);
-        PRINT_CUMATRIX(dvectorT);
-        PRINT_CUMATRIX(m_v);
+        //PRINT_CUMATRIX(m_w);
+        //PRINT_CUMATRIX(dvalue);
+        //PRINT_CUMATRIX(dvectorT);
+        //PRINT_CUMATRIX(m_v);
       }
     }
 
@@ -100,7 +100,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
 
     oap::HostComplexMatrixPtr createSquareMatrix(size_t size, GetValue getValue)
     {
-        oap::HostComplexMatrixPtr hmatrix = oap::host::NewMatrixWithValue (size, size, 0);
+        oap::HostComplexMatrixPtr hmatrix = oap::host::NewComplexMatrixWithValue (size, size, 0);
 
         for (size_t xy = 0; xy < size; ++xy) {
           *GetRePtr (hmatrix, xy, xy) = getValue (xy);
@@ -233,7 +233,7 @@ class OapArnoldiPackageMatricesTests : public testing::Test {
       double* smsmatrix = data_matrices[index];
       double* eigenvalues = data_eigenvalues[index];
 
-      oap::HostComplexMatrixPtr hmatrix = oap::host::NewMatrixCopy<double>(columns, rows, smsmatrix, NULL);
+      oap::HostComplexMatrixPtr hmatrix = oap::host::NewComplexMatrixCopy<double>(columns, rows, smsmatrix, NULL);
 
       std::vector<double> ev(eigenvalues, eigenvalues + columns);
       std::vector<EigenPair> eigenPairs;

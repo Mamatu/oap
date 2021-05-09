@@ -100,7 +100,7 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     }
 
     void triangularityTest(const std::string& matrixStr) {
-      math::ComplexMatrix* matrix = oap::host::NewMatrix(matrixStr);
+      math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(matrixStr);
       triangularityTest(matrix);
       oap::host::DeleteMatrix(matrix);
     }
@@ -157,7 +157,7 @@ TEST_F(OapArnoldiPackageCallbackTests, TestData2Dim32x32) {
   executeArnoldiTest(-4.257104, "data/data2", 32);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, TestData2Dim64x64) {
+TEST_F(OapArnoldiPackageCallbackTests, DISABLED_TestData2Dim64x64) {
   executeArnoldiTest(-4.257104, "data/data2", 64, false);
 }
 
@@ -165,7 +165,7 @@ TEST_F(OapArnoldiPackageCallbackTests, TestData3Dim32x32) {
   executeArnoldiTest(-5.519614, "data/data3", 32);
 }
 
-TEST_F(OapArnoldiPackageCallbackTests, TestData3Dim64x64) {
+TEST_F(OapArnoldiPackageCallbackTests, DISABLED_TestData3Dim64x64) {
   executeArnoldiTest(-5.519614, "data/data3", 64, false);
 }
 

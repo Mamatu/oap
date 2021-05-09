@@ -213,7 +213,7 @@ void OapMagnitudeTests::executeMatrixMagnitudeTest(math::ComplexMatrix* matrix) 
 
 void OapMagnitudeTests::executeMatrixMagnitudeTest(floatt* hArray,
                                                     uintt columns, uintt rows) {
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, NULL);
   executeMatrixMagnitudeTest(matrix);
   oap::host::DeleteMatrix(matrix);
 }
@@ -275,7 +275,7 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsColumns1) {
 
   math::MathOperationsCpu mocpu;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   MagnitudeUtilsStubImpl magitudeStubImpl1(matrix, columns, rows,
                                            AlgoInfo::MATRIX_MAGNITUDE);
@@ -307,7 +307,7 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsBigData) {
 
   math::MathOperationsCpu mocpu;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, hArray);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, hArray);
 
   MagnitudeUtilsStubImpl magitudeUtilsStubImpl1(matrix, columns, rows,
                                                 AlgoInfo::MATRIX_MAGNITUDE);
@@ -340,7 +340,7 @@ TEST_F(OapMagnitudeTests, MagnitudeUtilsParsingBigData) {
       "4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats "
       "16384 times>] (length=16384)";
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrix(text);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(text);
 
   EXPECT_TRUE(matrix != NULL);
 
@@ -371,7 +371,7 @@ TEST_F(OapMagnitudeTests, MagnitudeParsingBigData) {
       "4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats "
       "16384 times>] (length=16384)";
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrix(text);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(text);
 
   EXPECT_TRUE(matrix != NULL);
 
@@ -394,7 +394,7 @@ TEST_F(OapMagnitudeTests, MagnitudeParsing1) {
       "(length=32) [0 <repeats "
       "32 times>] (length=16384)";
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrix(text);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(text);
 
   EXPECT_TRUE(matrix != NULL);
 
@@ -448,7 +448,7 @@ TEST_F(OapMagnitudeTests, VecMagnitude9x9) {
   int columns = 9;
   int rows = 9;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   executeVectorMagnitudeTest(matrix, 2, sqrt(9));
 
@@ -466,7 +466,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeShouldBeZero9x9) {
   int columns = 9;
   int rows = 9;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   executeVectorMagnitudeTest(matrix, 1, 0);
 
@@ -484,7 +484,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreased9x9) {
   int columns = 9;
   int rows = 9;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
 
@@ -509,7 +509,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreased8x8) {
   int columns = 8;
   int rows = 8;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
 
@@ -535,7 +535,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited9x9) {
   int columns = 9;
   int rows = 9;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
   floatt eq_output1 = 0;
@@ -560,7 +560,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited8x8) {
   int columns = 8;
   int rows = 8;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
   floatt eq_output1 = 0;
@@ -585,7 +585,7 @@ TEST_F(OapMagnitudeTests, VecMagnitudeIncreasedLimited8x8Ver1) {
   int columns = 8;
   int rows = 8;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(columns, rows, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(columns, rows, hArray, NULL);
 
   floatt eq_output = 0;
   floatt eq_output1 = 0;

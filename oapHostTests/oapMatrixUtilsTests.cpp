@@ -37,7 +37,7 @@ class OapMatrixUtilsTests : public testing::Test {
 };
 
 TEST_F(OapMatrixUtilsTests, SetGetValueTest) {
-  math::ComplexMatrix* matrix = oap::host::NewMatrixWithValue (5, 5, 0);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixWithValue (5, 5, 0);
   floatt expected = 2.5644654f;
   SetRe(matrix, 1, 1, expected);
   floatt value = GetRe(matrix, 1, 1);
@@ -48,7 +48,7 @@ TEST_F(OapMatrixUtilsTests, SetGetValueTest) {
 TEST_F(OapMatrixUtilsTests, SetAllValuesTest) {
   uintt columns = 5;
   uintt rows = 5;
-  math::ComplexMatrix* matrix = oap::host::NewMatrixWithValue (columns, rows, 0);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixWithValue (columns, rows, 0);
   floatt expected = 2.5644654f;
   for (uintt fa = 0; fa < columns; ++fa) {
     for (uintt fb = 0; fb < rows; ++fb) {
@@ -63,7 +63,7 @@ TEST_F(OapMatrixUtilsTests, SetAllValuesTest) {
 }
 
 TEST_F(OapMatrixUtilsTests, GetValuesTest) {
-  math::ComplexMatrix* matrix = oap::host::NewMatrix(host::qrtest1::matrix);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(host::qrtest1::matrix);
   EXPECT_EQ(4, GetRe(matrix, 0, 0));
   EXPECT_EQ(2, GetRe(matrix, 1, 0));
   EXPECT_EQ(4, GetReIndex(matrix, 0));
@@ -82,7 +82,7 @@ TEST_F(OapMatrixUtilsTests, GetValuesTest) {
 TEST_F(OapMatrixUtilsTests, PushPopTest) {
   uintt columns = 5;
   uintt rows = 5;
-  math::ComplexMatrix* matrix = oap::host::NewMatrixWithValue (columns, rows, 0);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixWithValue (columns, rows, 0);
   floatt expected = 2.5644654f;
   for (uintt fa = 0; fa < columns; ++fa) {
     for (uintt fb = 0; fb < rows; ++fb) {

@@ -42,7 +42,7 @@ class IdentityStubImpl : public HostKernel {
   IdentityStubImpl(uintt columns, uintt rows)
       : m_columns(columns), m_rows(rows) {
     calculateDims(columns, rows);
-    m_matrix = oap::host::NewMatrix(m_columns, m_rows);
+    m_matrix = oap::host::NewComplexMatrix(m_columns, m_rows);
   }
 
   virtual ~IdentityStubImpl() {

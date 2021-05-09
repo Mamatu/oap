@@ -356,9 +356,9 @@ void runPointsClassification_multiMatrices (uintt seed, oap::generic::SingleMatr
       }
       ++terrorCount;
     }
-    while (testError > 0.005 && terrorCount < 356);
+    while (testError > 0.005 && terrorCount < 360);
 
-    EXPECT_GE (356, terrorCount);
+    EXPECT_GE (357, terrorCount);
 
     //oap::pyplot::plotCoords2D ("/tmp/plot_plane_xy.py", std::make_tuple(-5, 5, 0.1), std::make_tuple(-5, 5, 0.1), getLabel, {"r*", "b*"});
     oap::host::deleteMatrices(testHInputs);

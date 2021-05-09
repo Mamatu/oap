@@ -408,7 +408,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest) {
 
   math::MathOperationsCpu mocpu;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(1, 10, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(1, 10, hArray, NULL);
   math::ComplexMatrix* dparam0 = oap::cuda::NewDeviceMatrix(true, false, 1, 10);
   oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
   floatt output;
@@ -435,7 +435,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest1) {
 
   math::MathOperationsCpu mocpu;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(1, 10, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(1, 10, hArray, NULL);
   math::ComplexMatrix* dparam0 = oap::cuda::NewDeviceMatrix(true, false, 1, 10);
   oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
   floatt doutput;
@@ -462,7 +462,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixTest2) {
 
   math::MathOperationsCpu mocpu;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(1, 10, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(1, 10, hArray, NULL);
   math::ComplexMatrix* dparam0 = oap::cuda::NewDeviceMatrix(true, false, 1, 10);
   oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, sizeof (hArray) / sizeof (floatt));
   floatt doutput;
@@ -492,7 +492,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeReMatrixBigDataTest) {
 
   math::MathOperationsCpu mocpu;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(1, length, hArray, NULL);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(1, length, hArray, NULL);
   math::ComplexMatrix* dparam0 = oap::cuda::NewDeviceMatrix(true, false, 1, length);
   oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, NULL, length);
   floatt doutput;
@@ -525,7 +525,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeRealMatrixBigDataTest) {
 
   math::MathOperationsCpu mocpu;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(1, length, hArray, hArray1);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(1, length, hArray, hArray1);
   math::ComplexMatrix* dparam0 = oap::cuda::NewDeviceMatrix(true, true, 1, length);
   oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, hArray1, length);
   floatt doutput = 100;
@@ -558,7 +558,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeRealMatrixBigDataTest1) {
 
   math::MathOperationsCpu mocpu;
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrixCopy<floatt>(1, length, hArray, hArray1);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixCopy<floatt>(1, length, hArray, hArray1);
   math::ComplexMatrix* dparam0 = oap::cuda::NewDeviceMatrix(true, true, 1, length);
   oap::cuda::CopyHostArrayToDeviceMatrix(dparam0, hArray, hArray1, length);
   floatt doutput = 1;
@@ -591,7 +591,7 @@ TEST_F(OapMatrixCudaTests, MagnitudeRealMatrixBigDataTest2) {
       "4095 times>, -0.25, 0 <repeats 8191 times>] (length=16384) [0 <repeats "
       "16384 times>] (length=16384)";
 
-  math::ComplexMatrix* matrix = oap::host::NewMatrix(text);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(text);
   math::ComplexMatrix* dmatrix = oap::cuda::NewDeviceMatrixHostRef(matrix);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, matrix);
 

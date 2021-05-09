@@ -114,7 +114,7 @@ void unregisterMemory (const oap::Memory& memory, Callback&& callback)
   }
 }
 #endif
-MatricesList g_matricesList ("MATRICES_HOST");
+ComplexMatricesList g_matricesList ("MATRICES_HOST");
 
 math::ComplexMatrix* allocMatrix (const math::ComplexMatrix& ref)
 {
@@ -161,12 +161,12 @@ math::ComplexMatrix* allocMatrix_AllocMemory (bool isre, bool isim, uintt column
 
 }
 
-math::ComplexMatrix* NewMatrixRef (const math::ComplexMatrix* matrix)
+math::ComplexMatrix* NewComplexMatrixRef (const math::ComplexMatrix* matrix)
 {
   math::ComplexMatrix* output = nullptr;
   if (gReValues (matrix) != nullptr && gImValues (matrix) != nullptr)
   {
-    output = NewMatrix(gColumns (matrix), gRows (matrix));
+    output = NewComplexMatrix(gColumns (matrix), gRows (matrix));
   }
   else if (gReValues (matrix) != nullptr)
   {
@@ -179,12 +179,12 @@ math::ComplexMatrix* NewMatrixRef (const math::ComplexMatrix* matrix)
   return output;
 }
 
-math::ComplexMatrix* NewMatrix(const math::ComplexMatrix* matrix, uintt columns, uintt rows)
+math::ComplexMatrix* NewComplexMatrix(const math::ComplexMatrix* matrix, uintt columns, uintt rows)
 {
   math::ComplexMatrix* output = nullptr;
   if (gReValues (matrix) != nullptr && gImValues (matrix) != nullptr)
   {
-    output = NewMatrix(columns, rows);
+    output = NewComplexMatrix(columns, rows);
   }
   else if (gReValues (matrix) != nullptr)
   {
@@ -197,9 +197,9 @@ math::ComplexMatrix* NewMatrix(const math::ComplexMatrix* matrix, uintt columns,
   return output;
 }
 
-math::ComplexMatrix* NewMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray)
+math::ComplexMatrix* NewComplexMatrixCopyOfArray (uintt columns, uintt rows, const floatt* rearray, const floatt* imarray)
 {
-  math::ComplexMatrix* matrix = NewMatrix (columns, rows);
+  math::ComplexMatrix* matrix = NewComplexMatrix (columns, rows);
   oap::host::CopyArrayToMatrix (matrix, rearray, imarray);
   return matrix;
 }
@@ -218,16 +218,16 @@ math::ComplexMatrix* NewImMatrixCopyOfArray (uintt columns, uintt rows, const fl
   return matrix;
 }
 
-math::ComplexMatrix* NewMatrix(const math::MatrixInfo& matrixInfo)
+math::ComplexMatrix* NewComplexMatrix(const math::MatrixInfo& matrixInfo)
 {
-  return NewMatrix(matrixInfo.isRe, matrixInfo.isIm, matrixInfo.columns (), matrixInfo.rows ());
+  return NewComplexMatrix(matrixInfo.isRe, matrixInfo.isIm, matrixInfo.columns (), matrixInfo.rows ());
 }
 
-math::ComplexMatrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows)
+math::ComplexMatrix* NewComplexMatrix (bool isre, bool isim, uintt columns, uintt rows)
 {
   if (isre && isim)
   {
-    return oap::host::NewMatrix(columns, rows);
+    return oap::host::NewComplexMatrix(columns, rows);
   }
   else if (isre)
   {
@@ -240,16 +240,16 @@ math::ComplexMatrix* NewMatrix (bool isre, bool isim, uintt columns, uintt rows)
   return nullptr;
 }
 
-math::ComplexMatrix* NewMatrixWithValue (const math::MatrixInfo& minfo, floatt value)
+math::ComplexMatrix* NewComplexMatrixWithValue (const math::MatrixInfo& minfo, floatt value)
 {
-  return oap::host::NewMatrixWithValue (minfo.isRe, minfo.isIm, minfo.columns (), minfo.rows (), value);
+  return oap::host::NewComplexMatrixWithValue (minfo.isRe, minfo.isIm, minfo.columns (), minfo.rows (), value);
 }
 
-math::ComplexMatrix* NewMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt value)
+math::ComplexMatrix* NewComplexMatrixWithValue (bool isre, bool isim, uintt columns, uintt rows, floatt value)
 {
   if (isre && isim)
   {
-    return oap::host::NewMatrixWithValue (columns, rows, value);
+    return oap::host::NewComplexMatrixWithValue (columns, rows, value);
   }
   else if (isre)
   {
@@ -262,7 +262,7 @@ math::ComplexMatrix* NewMatrixWithValue (bool isre, bool isim, uintt columns, ui
   return nullptr;
 }
 
-math::ComplexMatrix* NewMatrix (uintt columns, uintt rows)
+math::ComplexMatrix* NewComplexMatrix (uintt columns, uintt rows)
 {
   return allocMatrix_AllocMemory (true, true, columns, rows);
 }
@@ -277,7 +277,7 @@ math::ComplexMatrix* NewImMatrix (uintt columns, uintt rows)
   return allocMatrix_AllocMemory (false, true, columns, rows);
 }
 
-math::ComplexMatrix* NewMatrixWithValue (uintt columns, uintt rows, floatt value)
+math::ComplexMatrix* NewComplexMatrixWithValue (uintt columns, uintt rows, floatt value)
 {
   return allocMatrix_AllocMemory (true, true, columns, rows, value, value);
 }
@@ -292,7 +292,7 @@ math::ComplexMatrix* NewImMatrixWithValue (uintt columns, uintt rows, floatt val
   return allocMatrix_AllocMemory (false, true, columns, rows, value, value);
 }
 
-math::ComplexMatrix* NewMatrix (const std::string& text)
+math::ComplexMatrix* NewComplexMatrix (const std::string& text)
 {
   matrixUtils::Parser parser(text);
 
@@ -570,9 +570,9 @@ void CopyIm(math::ComplexMatrix* dst, const math::ComplexMatrix* src)
   }
 }
 
-math::ComplexMatrix* NewMatrixCopy(const math::ComplexMatrix* matrix)
+math::ComplexMatrix* NewComplexMatrixCopy(const math::ComplexMatrix* matrix)
 {
-  math::ComplexMatrix* output = oap::host::NewMatrixRef (matrix);
+  math::ComplexMatrix* output = oap::host::NewComplexMatrixRef (matrix);
   oap::host::CopyMatrix(output, matrix);
   return output;
 }
@@ -1049,7 +1049,7 @@ math::ComplexMatrix* NewSubMatrix (const math::ComplexMatrix* orig, uintt cindex
   clength = calculate (gColumns (orig), cindex, clength);
   rlength = calculate (gRows (orig), rindex, rlength);
 
-  math::ComplexMatrix* submatrix = oap::host::NewMatrix (orig, clength, rlength);
+  math::ComplexMatrix* submatrix = oap::host::NewComplexMatrix (orig, clength, rlength);
   copySubMatrix (submatrix, orig, cindex, rindex);
   return submatrix;
 }
@@ -1113,7 +1113,7 @@ math::ComplexMatrix* LoadMatrix (const utils::ByteBuffer& buffer)
   }
 
   math::MatrixInfo minfo = LoadMatrixInfo (buffer);
-  math::ComplexMatrix* matrix = NewMatrix (minfo);
+  math::ComplexMatrix* matrix = NewComplexMatrix (minfo);
 
   if (minfo.isRe)
   {
@@ -1264,12 +1264,12 @@ void SetMatrix(math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt 
 
 void SetReMatrix (math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt column, uintt row)
 {
-  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::ComplexMatrix* matrix) { return matrix->re.mem; }, [](math::ComplexMatrix* matrix) { return matrix->re.reg; }, memcpy);
+  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::ComplexMatrix* matrix) { return matrix->re.mem; }, [](math::ComplexMatrix* matrix) { return matrix->re.reg; }, memcpy, memmove);
 }
 
 void SetImMatrix (math::ComplexMatrix* matrix, math::ComplexMatrix* matrix1, uintt column, uintt row)
 {
-  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::ComplexMatrix* matrix) { return matrix->im.mem; }, [](math::ComplexMatrix* matrix) { return matrix->im.reg; }, memcpy);
+  oap::generic::setMatrix (matrix, matrix1, column, row, [](math::ComplexMatrix* matrix) { return matrix->im.mem; }, [](math::ComplexMatrix* matrix) { return matrix->im.reg; }, memcpy, memmove);
 }
 
 oap::ThreadsMapper CreateThreadsMapper (const std::vector<std::vector<math::ComplexMatrix*>>& matricesVec, oap::threads::ThreadsMapperAlgo algo)
@@ -1324,7 +1324,7 @@ inline math::ComplexMatrix* allocRealMatrix_FromMemory (oap::Memory& remem, cons
 
 }
 
-math::ComplexMatrix* NewMatrixFromMemory (uintt columns, uintt rows, oap::Memory& remem, const oap::MemoryLoc& reloc, oap::Memory& immem, const oap::MemoryLoc& imloc)
+math::ComplexMatrix* NewComplexMatrixFromMemory (uintt columns, uintt rows, oap::Memory& remem, const oap::MemoryLoc& reloc, oap::Memory& immem, const oap::MemoryLoc& imloc)
 {
   return allocRealMatrix_FromMemory (remem, {reloc, {columns, rows}}, immem, {imloc, {columns, rows}});
 }
@@ -1360,7 +1360,7 @@ void SetReZeroRow (const math::ComplexMatrix* matrix, uintt index)
     uintt columns = gColumns (&hm);
     std::vector<floatt> row(columns, 0.);
     oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.re.mem, hm.re.reg, {index, 0});
-    oap::generic::copy (hm.re.mem.ptr, hm.re.mem.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy);
+    oap::generic::copy (hm.re.mem.ptr, hm.re.mem.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy, memmove);
   }
 }
 
@@ -1373,7 +1373,7 @@ void SetImZeroRow (const math::ComplexMatrix* matrix, uintt index)
     uintt columns = gColumns (&hm);
     std::vector<floatt> row(columns, 0.);
     oap::MemoryLoc loc = oap::common::ConvertRegionLocToMemoryLoc (hm.im.mem, hm.im.reg, {index, 0});
-    oap::generic::copy (hm.im.mem.ptr, hm.im.mem.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy);
+    oap::generic::copy (hm.im.mem.ptr, hm.im.mem.dims, loc, row.data(), {1, columns}, {{0, 0}, {1, columns}}, memcpy, memmove);
   }
 }
 
@@ -1396,7 +1396,7 @@ void SetValueToReMatrix (math::ComplexMatrix* matrix, floatt v)
 
     oap::MemoryLoc loc = GetReMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetReMatrixMemoryRegion (uptr);
-    oap::generic::copy (hm.re.mem.ptr, hm.re.mem.dims, loc, uptr->re.mem.ptr, uptr->re.mem.dims, reg, memcpy);
+    oap::generic::copy (hm.re.mem.ptr, hm.re.mem.dims, loc, uptr->re.mem.ptr, uptr->re.mem.dims, reg, memcpy, memmove);
   }
 }
 
@@ -1413,7 +1413,24 @@ void SetValueToImMatrix (math::ComplexMatrix* matrix, floatt v)
 
     oap::MemoryLoc loc = GetImMatrixMemoryLoc (&hm);
     oap::MemoryRegion reg = GetImMatrixMemoryRegion (uptr);
-    oap::generic::copy (hm.im.mem.ptr, hm.im.mem.dims, loc, uptr->im.mem.ptr, uptr->im.mem.dims, reg, memcpy);
+    oap::generic::copy (hm.im.mem.ptr, hm.im.mem.dims, loc, uptr->im.mem.ptr, uptr->im.mem.dims, reg, memcpy, memmove);
+  }
+}
+
+void SetValueToMatrix (math::ComplexMatrix* matrix, floatt v)
+{
+  using namespace oap::utils;
+
+  math::ComplexMatrix hm = GetRefHostMatrix (matrix);
+
+  if (hm.re.mem.ptr)
+  {
+    auto minfo = GetMatrixInfo (matrix);
+    oap::HostComplexMatrixUPtr uptr = oap::host::NewReMatrixWithValue (minfo.columns(), minfo.rows(), v);
+
+    oap::MemoryLoc loc = GetReMatrixMemoryLoc (&hm);
+    oap::MemoryRegion reg = GetReMatrixMemoryRegion (uptr);
+    oap::generic::copy (hm.re.mem.ptr, hm.re.mem.dims, loc, uptr->re.mem.ptr, uptr->re.mem.dims, reg, memcpy, memmove);
   }
 }
 
@@ -1436,14 +1453,14 @@ floatt GetReDiagonal (const math::ComplexMatrix* matrix, uintt index)
 {
   return oap::generic::getDiagonal (matrix, index, oap::host::GetRefHostMatrix,
                                     [](const math::ComplexMatrix* matrix, const math::ComplexMatrix& ref){return matrix->re.mem;},
-                                    [](const math::ComplexMatrix* matrix, const math::ComplexMatrix& ref){return matrix->re.reg;}, memcpy);
+                                    [](const math::ComplexMatrix* matrix, const math::ComplexMatrix& ref){return matrix->re.reg;}, memcpy, memmove);
 }
 
 floatt GetImDiagonal (const math::ComplexMatrix* matrix, uintt index)
 {
   return oap::generic::getDiagonal (matrix, index, oap::host::GetRefHostMatrix,
                                     [](const math::ComplexMatrix* matrix, const math::ComplexMatrix& ref){return matrix->im.mem;},
-                                    [](const math::ComplexMatrix* matrix, const math::ComplexMatrix& ref){return matrix->im.reg;}, memcpy);
+                                    [](const math::ComplexMatrix* matrix, const math::ComplexMatrix& ref){return matrix->im.reg;}, memcpy, memmove);
 }
 
 void CopyReMatrixToHostBuffer (floatt* buffer, uintt length, const math::ComplexMatrix* matrix)
@@ -1526,7 +1543,7 @@ std::vector<math::ComplexMatrix*> NewMatricesCopyOfArray (const std::vector<math
     auto& minfo = minfos[idx];
     if (minfo.isRe && minfo.isIm)
     {
-      math::ComplexMatrix* matrix = NewMatrixCopyOfArray (minfo.columns(), minfo.rows(), arrays[idx].data(), arrays[idx].data());
+      math::ComplexMatrix* matrix = NewComplexMatrixCopyOfArray (minfo.columns(), minfo.rows(), arrays[idx].data(), arrays[idx].data());
       matrices.push_back (matrix);
     }
     else if(minfo.isRe)
@@ -1570,7 +1587,7 @@ math::ComplexMatrix* NewSharedSubMatrix (const math::MatrixLoc& loc, const math:
     oap::MemoryLoc reloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.re.mem, refmatrix.re.reg, {loc.x, loc.y});
     oap::MemoryLoc imloc = oap::common::ConvertRegionLocToMemoryLoc (refmatrix.im.mem, refmatrix.im.reg, {loc.x, loc.y});
 
-    output = oap::host::NewMatrixFromMemory (dim.columns, dim.rows, refmatrix.re.mem, reloc, refmatrix.im.mem, imloc);
+    output = oap::host::NewComplexMatrixFromMemory (dim.columns, dim.rows, refmatrix.re.mem, reloc, refmatrix.im.mem, imloc);
   }
   else if (minfo.isRe)
   {

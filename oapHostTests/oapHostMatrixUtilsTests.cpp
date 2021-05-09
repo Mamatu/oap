@@ -21,7 +21,7 @@ class OapHostMatrixUtilsTests : public testing::Test {
   static const std::string testfilepath;
 
   static math::ComplexMatrix* createMatrix(uintt columns, uintt rows, GetValue getValue) {
-    math::ComplexMatrix* m1 = oap::host::NewMatrixWithValue (true, true, columns, rows, 0);
+    math::ComplexMatrix* m1 = oap::host::NewComplexMatrixWithValue (true, true, columns, rows, 0);
 
     for (int idx1 = 0; idx1 < columns; ++idx1) {
       for (int idx2 = 0; idx2 < rows; ++idx2) {
@@ -391,7 +391,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroRow_1)
 {
   const uintt rows = 10;
   const uintt columns = 10;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroRow (hostMatrix.get(), 0);
 
@@ -418,7 +418,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroRow_2)
 {
   const uintt rows = 10;
   const uintt columns = 10;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroRow (hostMatrix, 1);
 
@@ -445,7 +445,7 @@ TEST_F(OapHostMatrixUtilsTests, SetZeroMatrix_1)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 1.f);
 
   oap::host::SetZeroMatrix (hostMatrix);
 

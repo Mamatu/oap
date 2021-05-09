@@ -85,6 +85,7 @@ floatt* allocateMem (const oap::MemoryDim& dims)
   const uintt length = dims.width * dims.height;
   floatt* buffer = static_cast<floatt*>(CudaUtils::AllocDeviceMem (length * sizeof (floatt)));
   g_memoryList.add (buffer, length);
+  logTrace ("CUDA %p", buffer);
   return buffer;
 }
 
@@ -92,16 +93,19 @@ void deallocateMem (const oap::Memory& memory)
 {
   CudaUtils::FreeDeviceMem (static_cast<const void*>(memory.ptr));
   g_memoryList.remove (memory.ptr);
+  logTrace ("CUDA %p", memory.ptr);
 }
 
 }
 
 oap::Memory NewMemory (const oap::MemoryDim& dims)
 {
+  logTraceS();
   return oap::generic::newMemory (dims, allocateMem, [](floatt* ptr)
     {
       g_memoryCounter.increase (ptr);
     });
+  logTraceE();
 }
 
 oap::Memory NewMemoryWithValues (const MemoryDim& dims, floatt value)
@@ -183,7 +187,7 @@ void CopyDeviceToDevice (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const o
   const auto& srcDims = oap::cuda::GetDims (src);
   auto* srcPtr = oap::cuda::GetRawMemory (src);
 
-  oap::generic::copy (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyDeviceToDevice);
+  oap::generic::copy (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyDeviceToDevice, CudaUtils::MoveDeviceToDevice);
 }
 
 void CopyDeviceToDevice (oap::Memory& dst, const oap::Memory& src)
@@ -194,7 +198,7 @@ void CopyDeviceToDevice (oap::Memory& dst, const oap::Memory& src)
   const auto& srcDims = oap::cuda::GetDims (src);
   auto* srcPtr = oap::cuda::GetRawMemory (src);
 
-  oap::generic::copy (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyDeviceToDevice);
+  oap::generic::copy (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyDeviceToDevice, CudaUtils::MoveDeviceToDevice);
 }
 
 void CopyHostToDevice (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg)
@@ -205,7 +209,7 @@ void CopyHostToDevice (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap
   const auto& srcDims = src.dims;
   auto* srcPtr = src.ptr;
 
-  oap::generic::copy (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 void CopyHostToDevice (oap::Memory& dst, const oap::Memory& src)
@@ -216,7 +220,7 @@ void CopyHostToDevice (oap::Memory& dst, const oap::Memory& src)
   const auto& srcDims = src.dims;
   auto* srcPtr = src.ptr;
 
-  oap::generic::copy (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyHostToDevice);
+  oap::generic::copy (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 void CopyDeviceToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg)
@@ -227,7 +231,7 @@ void CopyDeviceToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap
   const auto& srcDims = oap::cuda::GetDims (src);
   auto* srcPtr = oap::cuda::GetRawMemory (src);
 
-  oap::generic::copy (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyDeviceToHost);
+  oap::generic::copy (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 }
 
 void CopyDeviceToHost (oap::Memory& dst, const oap::Memory& src)
@@ -238,7 +242,7 @@ void CopyDeviceToHost (oap::Memory& dst, const oap::Memory& src)
   const auto& srcDims = oap::cuda::GetDims (src);
   auto* srcPtr = oap::cuda::GetRawMemory (src);
 
-  oap::generic::copy (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyDeviceToHost);
+  oap::generic::copy (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 }
 
 void CopyDeviceToDeviceLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg)
@@ -249,7 +253,7 @@ void CopyDeviceToDeviceLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, c
   const auto& srcDims = oap::cuda::GetDims (src);
   auto* srcPtr = oap::cuda::GetRawMemory (src);
 
-  oap::generic::copyLinear (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyDeviceToDevice);
+  oap::generic::copyLinear (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyDeviceToDevice, CudaUtils::MoveDeviceToDevice);
 }
 
 void CopyDeviceToDeviceLinear (oap::Memory& dst, const oap::Memory& src)
@@ -260,7 +264,7 @@ void CopyDeviceToDeviceLinear (oap::Memory& dst, const oap::Memory& src)
   const auto& srcDims = oap::cuda::GetDims (src);
   auto* srcPtr = oap::cuda::GetRawMemory (src);
 
-  oap::generic::copyLinear (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyDeviceToDevice);
+  oap::generic::copyLinear (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyDeviceToDevice, CudaUtils::MoveDeviceToDevice);
 }
 
 void CopyHostToDeviceLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg)
@@ -271,7 +275,7 @@ void CopyHostToDeviceLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, con
   const auto& srcDims = src.dims;
   auto* srcPtr = src.ptr;
 
-  oap::generic::copyLinear (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyHostToDevice);
+  oap::generic::copyLinear (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 void CopyHostToDeviceLinear (oap::Memory& dst, const oap::Memory& src)
@@ -282,7 +286,7 @@ void CopyHostToDeviceLinear (oap::Memory& dst, const oap::Memory& src)
   const auto& srcDims = src.dims;
   auto* srcPtr = src.ptr;
 
-  oap::generic::copyLinear (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyHostToDevice);
+  oap::generic::copyLinear (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 void CopyDeviceToHostLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::Memory& src, const oap::MemoryRegion& srcReg)
@@ -293,7 +297,7 @@ void CopyDeviceToHostLinear (oap::Memory& dst, const oap::MemoryLoc& dstLoc, con
   const auto& srcDims = oap::cuda::GetDims (src);
   auto* srcPtr = oap::cuda::GetRawMemory (src);
 
-  oap::generic::copyLinear (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyDeviceToHost);
+  oap::generic::copyLinear (dstPtr, dstDims, dstLoc, srcPtr, srcDims, srcReg, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 }
 
 void CopyDeviceToHostLinear (oap::Memory& dst, const oap::Memory& src)
@@ -304,22 +308,22 @@ void CopyDeviceToHostLinear (oap::Memory& dst, const oap::Memory& src)
   const auto& srcDims = oap::cuda::GetDims (src);
   auto* srcPtr = oap::cuda::GetRawMemory (src);
 
-  oap::generic::copyLinear (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyDeviceToHost);
+  oap::generic::copyLinear (dstPtr, dstDims, {0, 0}, srcPtr, srcDims, {{0, 0}, srcDims}, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 }
 
 void CopyDeviceToHostBuffer (floatt* buffer, uintt length, const oap::Memory& src, const oap::MemoryRegion& srcReg)
 {
-  oap::generic::copyMemoryRegionToBuffer (buffer, length, src.ptr, src.dims, srcReg, CudaUtils::CopyDeviceToHost);
+  oap::generic::copyMemoryRegionToBuffer (buffer, length, src.ptr, src.dims, srcReg, CudaUtils::CopyDeviceToHost, CudaUtils::CopyDeviceToHost);
 }
 
 void CopyHostBufferToDevice (oap::Memory& dst, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length)
 {
-  oap::generic::copyBufferToMemoryRegion (dst.ptr, dst.dims, dstReg, buffer, length, CudaUtils::CopyHostToDevice);
+  oap::generic::copyBufferToMemoryRegion (dst.ptr, dst.dims, dstReg, buffer, length, CudaUtils::CopyHostToDevice, CudaUtils::CopyHostToDevice);
 }
 
 void CopyDeviceBufferToDevice (oap::Memory& dst, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length)
 {
-  oap::generic::copyBufferToMemoryRegion (dst.ptr, dst.dims, dstReg, buffer, length, CudaUtils::CopyDeviceToDevice);
+  oap::generic::copyBufferToMemoryRegion (dst.ptr, dst.dims, dstReg, buffer, length, CudaUtils::CopyDeviceToDevice, CudaUtils::MoveDeviceToDevice);
 }
 }
 }

@@ -202,8 +202,8 @@ TEST_F(OapDotProductTests, Test_CustomDim_2)
 
 TEST_F(OapDotProductTests, BigDataTest_1)
 {
-  math::ComplexMatrix* Q = oap::host::NewMatrix(Qstr);
-  math::ComplexMatrix* QJ = oap::host::NewMatrix(QJstr);
+  math::ComplexMatrix* Q = oap::host::NewComplexMatrix(Qstr);
+  math::ComplexMatrix* QJ = oap::host::NewComplexMatrix(QJstr);
 
   math::ComplexMatrix* dQJ = oap::cuda::NewDeviceMatrixHostRef(QJ);
   math::ComplexMatrix* dQ = oap::cuda::NewDeviceMatrixHostRef(Q);

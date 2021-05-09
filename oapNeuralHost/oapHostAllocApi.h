@@ -41,7 +41,7 @@ namespace
 
   inline math::ComplexMatrix* _newHostMatrixRef (const math::ComplexMatrix* matrix)
   {
-    return oap::host::NewMatrixRef (matrix);
+    return oap::host::NewComplexMatrixRef (matrix);
   }
 
   inline math::ComplexMatrix* _newHostSharedSubMatrix (const math::MatrixDim& mdim, const math::ComplexMatrix* matrix)

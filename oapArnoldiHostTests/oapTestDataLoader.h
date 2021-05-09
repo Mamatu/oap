@@ -151,10 +151,10 @@ class ACTestData
 
     fclose(file);
 
-    refV = oap::host::NewMatrix(true, true, 1, m_elementsCount);
-    refW = oap::host::NewMatrix(true, true, 1, m_elementsCount);
-    hostV = oap::host::NewMatrix(true, true, 1, m_elementsCount);
-    hostW = oap::host::NewMatrix(true, true, 1, m_elementsCount);
+    refV = oap::host::NewComplexMatrix(true, true, 1, m_elementsCount);
+    refW = oap::host::NewComplexMatrix(true, true, 1, m_elementsCount);
+    hostV = oap::host::NewComplexMatrix(true, true, 1, m_elementsCount);
+    hostW = oap::host::NewComplexMatrix(true, true, 1, m_elementsCount);
   }
 
   virtual ~ACTestData() {

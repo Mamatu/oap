@@ -52,7 +52,7 @@ class OapRecToSquareApiTests : public testing::Test
     oap::DeviceComplexMatrixPtr deviceSub = rtsApi.createDeviceSubMatrix (index, length);
     auto dinfo = oap::cuda::GetMatrixInfo (deviceSub);
 
-    oap::HostComplexMatrixUPtr hostSub = oap::host::NewMatrix (dinfo);
+    oap::HostComplexMatrixUPtr hostSub = oap::host::NewComplexMatrix (dinfo);
 
     EXPECT_EQ(expectedColumns, dinfo.columns ());
     EXPECT_EQ(expectedRows, dinfo.rows ());

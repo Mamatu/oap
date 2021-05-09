@@ -1,1 +1,0 @@
-../makefile-cutest.mk

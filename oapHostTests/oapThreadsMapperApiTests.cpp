@@ -37,7 +37,7 @@ class OapThreadsMapperApiTests : public testing::Test
 #if 0
 TEST_F(OapThreadsMapperApiTests, GetThreadsMapperTest_1)
 {
-  oap::HostComplexMatrixUPtr m1 = oap::host::NewMatrix (1, 1);
+  oap::HostComplexMatrixUPtr m1 = oap::host::NewComplexMatrix (1, 1);
   std::vector<math::ComplexMatrix*> matrices = {m1};
   auto mapper = oap::threads::createThreadsMapper (matrices, oap::host::GetMatrixInfo, malloc, memcpy, free);
 

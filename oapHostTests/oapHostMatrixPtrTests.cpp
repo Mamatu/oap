@@ -57,7 +57,7 @@ TEST_F(OapHostComplexMatrixPtrTests, ResetPtrTest)
 {
   oap::HostComplexMatrixPtr ptr = oap::host::NewReMatrix (10, 10);
 
-  ptr.reset (oap::host::NewMatrix(11, 11));
+  ptr.reset (oap::host::NewComplexMatrix(11, 11));
 }
 
 TEST_F(OapHostComplexMatrixPtrTests, InitializationPtrsTest)
@@ -143,7 +143,7 @@ TEST_F(OapHostComplexMatrixPtrTests, InitializationPtrsTest)
     {
       oap::host::NewReMatrix(10, 125),
       oap::host::NewImMatrix (10, 13),
-      oap::host::NewMatrix (105, 13)
+      oap::host::NewComplexMatrix (105, 13)
     };
 
     oap::HostComplexMatricesPtr ptr (array, 3);
@@ -158,7 +158,7 @@ TEST_F(OapHostComplexMatrixPtrTests, InitializationPtrsTest)
     {
       oap::host::NewReMatrix(10, 125),
       oap::host::NewImMatrix (10, 13),
-      oap::host::NewMatrix (105, 13)
+      oap::host::NewComplexMatrix (105, 13)
     };
 
     oap::HostComplexMatricesPtr ptr (array, 3);
@@ -200,7 +200,7 @@ TEST_F(OapHostComplexMatrixPtrTests, ResetPtrsTest)
   {
     oap::host::NewReMatrix(10, 125),
     oap::host::NewImMatrix (10, 13),
-    oap::host::NewMatrix (105, 13)
+    oap::host::NewComplexMatrix (105, 13)
   };
 
   oap::HostComplexMatricesPtr ptr (oap::HostComplexMatricesPtr::make (vec));
@@ -218,7 +218,7 @@ TEST_F(OapHostComplexMatrixPtrTests, AssignmentPtrTest)
 {
   oap::HostComplexMatrixPtr ptr = oap::host::NewReMatrix (10, 10);
 
-  ptr = oap::host::NewMatrix(11, 11);
+  ptr = oap::host::NewComplexMatrix(11, 11);
 
   oap::HostComplexMatrixPtr ptr1 = oap::host::NewReMatrix (15, 15);
 

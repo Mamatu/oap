@@ -17,16 +17,28 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MatricesList.h"
+#ifndef OAP_HOST_MATRIX_API_H
+#define OAP_HOST_MATRIX_API_H
 
-MatricesList::MatricesList (const std::string& id) : AllocationList (id, [](const math::MatrixInfo& minfo) { return std::to_string (minfo);})
-{}
+#include "Matrix.h"
+#include "oapGenericMatrixApi.h"
 
-MatricesList::~MatricesList ()
-{}
+namespace oap
+{
+namespace host
+{
 
-ComplexMatricesList::ComplexMatricesList (const std::string& id) : AllocationList (id, [](const math::MatrixInfo& minfo) { return std::to_string (minfo);})
-{}
+void SetValueToMatrix (math::Matrix* matrix, floatt v);
+void SetZeroMatrix (math::Matrix* matrix);
 
-ComplexMatricesList::~ComplexMatricesList ()
-{}
+math::Matrix GetRefHostMatrix (const math::Matrix* matrix);
+math::MatrixInfo GetMatrixInfo (const math::Matrix* matrix);
+oap::MemoryLoc GetMatrixMemoryLoc (const math::Matrix* matrix);
+oap::MemoryRegion GetMatrixMemoryRegion (const math::Matrix* matrix);
+math::Matrix* NewMatrixWithValue (uintt columns, uintt rows, floatt value);
+math::Matrix* NewMatrix (uintt columns, uintt rows);
+
+}
+}
+
+#endif /* OAP_HOST_MATRIX_UTILS_H */

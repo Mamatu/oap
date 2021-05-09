@@ -42,7 +42,7 @@ bool Compare::compare(math::ComplexMatrix* matrix, floatt d) {
 
 math::ComplexMatrix* create(const math::ComplexMatrix& arg)
 {
-  return oap::host::NewMatrix(gReValues (&arg) != NULL, gImValues (&arg) != NULL, gColumns (&arg), gRows (&arg));
+  return oap::host::NewComplexMatrix(gReValues (&arg) != NULL, gImValues (&arg) != NULL, gColumns (&arg), gRows (&arg));
 }
 
 bool AlmostEquals(floatt a, floatt b) {
@@ -120,7 +120,7 @@ bool HasValues(const math::ComplexMatrix& m1, const math::ComplexMatrix& m2, flo
 
 bool IsIdentityMatrix(const math::ComplexMatrix& m1, floatt tolerance, math::ComplexMatrix** diff)
 {
-  math::ComplexMatrix* matrix = oap::host::NewMatrixRef (&m1);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixRef (&m1);
   oap::host::SetIdentity(matrix);
   bool isequal = IsEqual(m1, *matrix, tolerance, diff);
   oap::host::DeleteMatrix(matrix);
@@ -129,7 +129,7 @@ bool IsIdentityMatrix(const math::ComplexMatrix& m1, floatt tolerance, math::Com
 
 bool IsDiagonalMatrix(const math::ComplexMatrix& m1, floatt value, floatt tolerance, math::ComplexMatrix** diff)
 {
-  math::ComplexMatrix* matrix = oap::host::NewMatrixRef (&m1);
+  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixRef (&m1);
   oap::host::SetDiagonalMatrix(matrix, value);
   bool isequal = IsEqual(m1, *matrix, tolerance, diff);
   oap::host::DeleteMatrix(matrix);

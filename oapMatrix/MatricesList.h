@@ -28,14 +28,17 @@
 
 namespace
 {
-  using AllocationList = oap::AllocationList<const math::ComplexMatrix*, math::MatrixInfo, std::function<std::string(const math::MatrixInfo&)>>;
-
+  using ComplexAllocationList = oap::AllocationList<const math::ComplexMatrix*, math::MatrixInfo, std::function<std::string(const math::MatrixInfo&)>>;
+  using AllocationList = oap::AllocationList<const math::Matrix*, math::MatrixInfo, std::function<std::string(const math::MatrixInfo&)>>;
 
   template<typename ExtraUserData>
   using UserDataPair = std::pair<math::MatrixInfo, ExtraUserData>;
 
   template<typename ExtraUserData>
-  using AllocationListEx = oap::AllocationList<const math::ComplexMatrix*, UserDataPair<ExtraUserData>, std::function<std::string(const UserDataPair<ExtraUserData>&)>>;
+  using ComplexAllocationListEx = oap::AllocationList<const math::ComplexMatrix*, UserDataPair<ExtraUserData>, std::function<std::string(const UserDataPair<ExtraUserData>&)>>;
+
+  template<typename ExtraUserData>
+  using AllocationListEx = oap::AllocationList<const math::Matrix*, UserDataPair<ExtraUserData>, std::function<std::string(const UserDataPair<ExtraUserData>&)>>;
 }
 
 class MatricesList : public AllocationList
@@ -59,5 +62,28 @@ MatricesListExt<ExtraUserData>::MatricesListExt (const std::string& id) : Alloca
 
 template<typename ExtraUserData>
 MatricesListExt<ExtraUserData>::~MatricesListExt ()
+{}
+
+class ComplexMatricesList : public ComplexAllocationList
+{
+  public:
+    ComplexMatricesList (const std::string& id);
+    virtual ~ComplexMatricesList ();
+};
+
+template<typename ExtraUserData>
+class ComplexMatricesListExt : public ComplexAllocationListEx<ExtraUserData>
+{
+  public:
+    ComplexMatricesListExt (const std::string& id);
+    virtual ~ComplexMatricesListExt ();
+};
+
+template<typename ExtraUserData>
+ComplexMatricesListExt<ExtraUserData>::ComplexMatricesListExt (const std::string& id) : ComplexAllocationListEx<ExtraUserData> (id, [](const UserDataPair<ExtraUserData>& udp) { return std::to_string (udp.first);})
+{}
+
+template<typename ExtraUserData>
+ComplexMatricesListExt<ExtraUserData>::~ComplexMatricesListExt ()
 {}
 #endif

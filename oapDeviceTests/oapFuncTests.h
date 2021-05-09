@@ -54,7 +54,7 @@ void test (const std::vector<floatt>& revalues, const std::vector<floatt>& imval
     oap::cuda::CopyHostArrayToDeviceMatrix (dmatrix, revalues.data(), imvalues.data(), length);
     dmatrix1 = oap::cuda::NewDeviceMatrix (columns, rows);
     oap::cuda::CopyHostArrayToDeviceMatrix (dmatrix1, nanvalues.data(), nanvalues.data(), length);
-    hmatrix = oap::host::NewMatrix (columns, rows);
+    hmatrix = oap::host::NewComplexMatrix (columns, rows);
   }
   else if (!revalues.empty())
   {

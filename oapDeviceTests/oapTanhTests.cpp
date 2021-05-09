@@ -51,11 +51,11 @@ class OapTanhTests : public testing::Test
     oap::cuda::Context::Instance().destroy();
   }
 
-  using NewMatrix = std::function<math::ComplexMatrix*(uintt, uintt)>;
+  using NewComplexMatrix = std::function<math::ComplexMatrix*(uintt, uintt)>;
   using GetValue = std::function<floatt(const math::ComplexMatrix*, size_t)>;
 
 
-  void test_Tanh (const NewMatrix& newDMatrix, const NewMatrix& newHMatrix, const GetValue& getReValue, const GetValue& getImValue)
+  void test_Tanh (const NewComplexMatrix& newDMatrix, const NewComplexMatrix& newHMatrix, const GetValue& getReValue, const GetValue& getImValue)
   {
     oap::DeviceComplexMatrixPtr doutput = newDMatrix (1, 10);
     oap::HostComplexMatrixPtr houtput = newHMatrix (1, 10);
@@ -114,7 +114,7 @@ TEST_F(OapTanhTests, TanhReTest)
 
   auto newMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewMatrix (c, r);
+    return oap::host::NewComplexMatrix (c, r);
   };
 
   auto newReMatrix = [](uintt c, uintt r)
@@ -148,7 +148,7 @@ TEST_F(OapTanhTests, TanhImTest)
 
   auto newMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewMatrix (c, r);
+    return oap::host::NewComplexMatrix (c, r);
   };
 
   auto newReMatrix = [](uintt c, uintt r)
@@ -182,7 +182,7 @@ TEST_F(OapTanhTests, DISABLED_TanhRealTest)
 
   auto newMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewMatrix (c, r);
+    return oap::host::NewComplexMatrix (c, r);
   };
 
   auto newReMatrix = [](uintt c, uintt r)
