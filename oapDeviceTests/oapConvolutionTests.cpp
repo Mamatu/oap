@@ -19,18 +19,18 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "CuProceduresApi.h"
-#include "MathOperationsCpu.h"
+#include "MatchersUtils.hpp"
+#include "CuProceduresApi.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "KernelExecutor.h"
+#include "KernelExecutor.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixUPtr.hpp"
 
 
 class OapConvolutionTests : public testing::Test {
@@ -63,9 +63,9 @@ TEST_F(OapConvolutionTests, Test_0)
     1,
   };
 
-  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
-  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (1, 1, paramArray);
-  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (1, 1, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::chost::NewReMatrix (1, 1);
+  oap::HostComplexMatrixUPtr param = oap::chost::NewReMatrixCopyOfArray (1, 1, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::chost::NewReMatrixCopyOfArray (1, 1, kernelArray);
 
   oap::DeviceComplexMatrixUPtr doutcome = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (outcome);
   oap::DeviceComplexMatrixUPtr dparam = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (param);
@@ -94,9 +94,9 @@ TEST_F(OapConvolutionTests, Test_1)
     0, 1
   };
 
-  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
-  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (2, 2, paramArray);
-  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (2, 2, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::chost::NewReMatrix (1, 1);
+  oap::HostComplexMatrixUPtr param = oap::chost::NewReMatrixCopyOfArray (2, 2, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::chost::NewReMatrixCopyOfArray (2, 2, kernelArray);
 
   oap::DeviceComplexMatrixUPtr doutcome = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (outcome);
   oap::DeviceComplexMatrixUPtr dparam = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (param);
@@ -129,9 +129,9 @@ TEST_F(OapConvolutionTests, Test_2)
     1, 0, 1
   };
 
-  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
-  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);
-  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (3, 3, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::chost::NewReMatrix (3, 3);
+  oap::HostComplexMatrixUPtr param = oap::chost::NewReMatrixCopyOfArray (5, 5, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::chost::NewReMatrixCopyOfArray (3, 3, kernelArray);
 
   oap::DeviceComplexMatrixUPtr doutcome = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (outcome);
   oap::DeviceComplexMatrixUPtr dparam = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (param);

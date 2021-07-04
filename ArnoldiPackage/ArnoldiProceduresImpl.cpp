@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ArnoldiProceduresImpl.h"
+#include "ArnoldiProceduresImpl.hpp"
 
 CuHArnoldiCallbackBase::CuHArnoldiCallbackBase() : CuHArnoldi() {}
 

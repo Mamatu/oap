@@ -22,15 +22,15 @@
 #include <string.h>
 #include <vector>
 
-#include "oapCudaMatrixUtils.h"
-#include "oapCudaMemoryApi.h"
-#include "oapHostMatrixUtils.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapCudaMemoryApi.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
-#include "KernelExecutor.h"
-#include "MatrixUtils.h"
-#include "oapMemory_GenericApi.h"
-#include "oapMemory_CommonApi.h"
-#include "oapMemoryPrimitivesApi.h"
+#include "KernelExecutor.hpp"
+#include "MatrixUtils.hpp"
+#include "oapMemory_GenericApi.hpp"
+#include "oapMemory_CommonApi.hpp"
+#include "oapMemoryPrimitivesApi.hpp"
 
 namespace CudaUtils {
 
@@ -325,7 +325,7 @@ void GetMatrixStr(std::string& output, math::ComplexMatrix* matrix, floatt zeroL
   args.section.separator = sectionSeparator;
 
   oap::generic::printMatrix (output, matrix, args,
-               oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteComplexMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
+               oap::cuda::GetMatrixInfo, oap::chost::NewHostMatrixFromMatrixInfo, oap::chost::DeleteComplexMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
 }
 
 void PrintMatrix(FILE* stream, const math::ComplexMatrix* matrix, floatt zeroLimit, bool repeats, const std::string& sectionSeparator)
@@ -339,7 +339,7 @@ void PrintMatrix(FILE* stream, const math::ComplexMatrix* matrix, floatt zeroLim
   std::string output;
 
   oap::generic::printMatrix (output, matrix, args,
-               oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteComplexMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
+               oap::cuda::GetMatrixInfo, oap::chost::NewHostMatrixFromMatrixInfo, oap::chost::DeleteComplexMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
   fprintf(stream, "%s CUDA \n", output.c_str());
 }
 
@@ -359,7 +359,7 @@ void PrintMatrix(const std::string& text, const math::ComplexMatrix* matrix, flo
   std::string output;
 
   oap::generic::printMatrix (output, matrix, args,
-               oap::cuda::GetMatrixInfo, oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteComplexMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
+               oap::cuda::GetMatrixInfo, oap::chost::NewHostMatrixFromMatrixInfo, oap::chost::DeleteComplexMatrix, oap::cuda::CopyDeviceMatrixToHostMatrix);
   printf("%s %s CUDA \n", text.c_str(), output.c_str());
 }
 }

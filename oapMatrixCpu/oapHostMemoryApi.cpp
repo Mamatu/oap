@@ -19,15 +19,17 @@
 
 #include <string.h>
 
-#include "MatrixParser.h"
-#include "ReferencesCounter.h"
+#include "MatrixParser.hpp"
+#include "ReferencesCounter.hpp"
 
-#include "oapHostMemoryApi.h"
+#include "oapAssertion.hpp"
+#include "oapHostMemoryApi.hpp"
 
-#include "oapMemoryList.h"
-#include "oapMemoryPrimitives.h"
-#include "oapMemory_GenericApi.h"
-#include "oapMemoryCounter.h"
+#include "oapMemoryList.hpp"
+#include "oapMemory.hpp"
+#include "oapMemory_CommonApi.hpp"
+#include "oapMemory_GenericApi.hpp"
+#include "oapMemoryCounter.hpp"
 
 #define ReIsNotNULL(m) m->reValues != nullptr
 #define ImIsNotNULL(m) m->imValues != nullptr
@@ -162,6 +164,11 @@ void CopyHostToHost (oap::Memory& dst, const oap::MemoryLoc& dstLoc, const oap::
   oap::generic::copy (dst, dstLoc, src, srcReg, memcpy);
 }
 
+void CopyHostToHost (oap::Memory& dst, const oap::Memory& src, const oap::MemoryRegion& srcReg)
+{
+  oap::generic::copy (dst, {0, 0}, src, srcReg, memcpy);
+}
+
 void CopyHostToHost (oap::Memory& dst, const oap::Memory& src)
 {
   oap::generic::copy (dst, src, memcpy);
@@ -175,6 +182,12 @@ void CopyHostToHostBuffer (floatt* buffer, uintt length, const oap::Memory& src,
 void CopyHostBufferToHost (oap::Memory& dst, const oap::MemoryRegion& dstReg, const floatt* buffer, uintt length)
 {
   oap::generic::copyBufferToMemoryRegion (dst.ptr, dst.dims, dstReg, buffer, length, memcpy, memmove);
+}
+
+floatt GetValue(const oap::Memory& memory, const oap::MemoryRegion& reg, uintt x, uintt y)
+{
+  const uintt idx = oap::common::GetIdx (memory, reg, x, y);
+  return memory.ptr[idx];
 }
 
 }

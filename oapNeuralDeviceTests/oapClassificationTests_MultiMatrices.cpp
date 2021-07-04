@@ -17,11 +17,11 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PointsClassification_Test.h"
-#include "oapCudaMatrixUtils.h"
-#include "CuProceduresApi.h"
-#include "MultiMatricesCuProcedures.h"
-#include "oapNetworkCudaApi.h"
+#include "PointsClassification_Test.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "CuProceduresApi.hpp"
+#include "MultiMatricesCuProcedures.hpp"
+#include "oapNetworkCudaApi.hpp"
 
 class OapClassificationTests_MultiMatrices : public testing::Test
 {

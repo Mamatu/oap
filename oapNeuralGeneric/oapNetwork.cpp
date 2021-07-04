@@ -17,14 +17,14 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapNetwork.h"
-#include "oapGenericAllocApi.h"
-#include "oapGenericNeuralApi.h"
-#include "oapGenericAllocApi.h"
+#include "oapNetwork.hpp"
+#include "oapGenericAllocApi.hpp"
+#include "oapGenericNeuralApi.hpp"
+#include "oapGenericAllocApi.hpp"
 
-#include "oapGenericNeuralUtils.h"
+#include "oapGenericNeuralUtils.hpp"
 
-#include "oapLayer.h"
+#include "oapLayer.hpp"
 
 namespace oap
 {
@@ -297,7 +297,7 @@ oap::HostComplexMatrixUPtr Network::run (const math::ComplexMatrix* inputs, ArgT
 
   auto llayer = m_layers[0].back();
 
-  math::ComplexMatrix* output = oap::host::NewReMatrix (1, llayer->getTotalNeuronsCount());
+  math::ComplexMatrix* output = oap::chost::NewReMatrix (1, llayer->getTotalNeuronsCount());
   m_nga->copyKernelMatrixToHostMatrix (output, llayer->getFPMatrices()->m_inputs);
 
   return oap::HostComplexMatrixUPtr (output);
@@ -426,7 +426,7 @@ math::ComplexMatrix* Network::getHostOutputs () const
   Layer* llayer = m_layers[0].back();
   auto minfo = m_nga->getMatrixInfo (llayer->getFPMatrices()->m_inputs);
 
-  math::ComplexMatrix* matrix = oap::host::NewComplexMatrix (minfo);
+  math::ComplexMatrix* matrix = oap::chost::NewComplexMatrix (minfo);
   return getOutputs (matrix, ArgType::HOST);
 }
 
@@ -455,7 +455,7 @@ math::ComplexMatrix* Network::getErrors (ArgType type) const
     }
     case ArgType::HOST:
     {
-      math::ComplexMatrix* matrix = oap::host::NewReMatrix (1, last->getNeuronsCount());
+      math::ComplexMatrix* matrix = oap::chost::NewReMatrix (1, last->getNeuronsCount());
       m_nga->copyKernelMatrixToHostMatrix (matrix, fpMatrices->m_errors);
       return matrix;
     }
@@ -569,7 +569,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
 
   if (m_layers[handler][0]->getSamplesCount() == 1 || getType(handler) == LayerType::ONE_MATRIX)
   {
-    oap::HostComplexMatrixPtr hmatrix = oap::host::NewReMatrix (1, layer->getRowsCount());
+    oap::HostComplexMatrixPtr hmatrix = oap::chost::NewReMatrix (1, layer->getRowsCount());
     oap::generic::getErrors (hmatrix, *layer, *m_singleApi, m_expectedOutputs[handler][0], errorType,
         [this](math::ComplexMatrix* dst, const math::ComplexMatrix* src){ m_nga->copyKernelMatrixToHostMatrix (dst, src); });
     for (uintt idx = 0; idx < gRows (hmatrix); ++idx)
@@ -584,7 +584,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
     uintt size = m_expectedOutputs[handler].size();
     for (uintt idx = 0; idx < size; ++idx)
     {
-      math::ComplexMatrix* hmatrix = oap::host::NewReMatrix (1, layer->getTotalNeuronsCount());
+      math::ComplexMatrix* hmatrix = oap::chost::NewReMatrix (1, layer->getTotalNeuronsCount());
       hmatrices.push_back (hmatrix);
     }
     oap::generic::getErrors_multiMatrices (hmatrices, *layer, *m_multiApi, m_expectedOutputs[handler], errorType,
@@ -598,7 +598,7 @@ void Network::accumulateErrors (oap::ErrorType errorType, CalculationType calcTy
         m_errorsVec.push_back (v * v * 0.5);
       }
     }
-    oap::host::deleteMatrices (hmatrices);
+    oap::chost::deleteMatrices (hmatrices);
   }
 }
 
@@ -647,7 +647,7 @@ bool Network::train (math::ComplexMatrix* hostInputs, math::ComplexMatrix* expec
 
 bool Network::train (const Matrices& inputs, const Matrices& expectedOutputs, ArgType argType, oap::ErrorType errorType)
 {
-  Layer* layer = m_layers[0].front();
+  //Layer* layer = m_layers[0].front();
 
   setExpected (expectedOutputs, argType);
   setInputs (inputs, argType);
@@ -921,7 +921,7 @@ bool Network::shouldContinue (oap::ErrorType errorType)
 {
   if (m_icontroller != nullptr && m_icontroller->shouldCalculateError(m_step))
   {
-    Layer* llayer = m_layers[0].back();
+    //Layer* llayer = m_layers[0].back();
     floatt eValue = calculateError (errorType);
 
     m_icontroller->setError (eValue, errorType);
@@ -949,8 +949,8 @@ bool Network::operator== (const Network& network) const
 
   for (uintt idx = 0; idx < getLayersCount (); ++idx)
   {
-    Layer* layer = getLayer (idx);
-    Layer* layer1 = network.getLayer (idx);
+    //Layer* layer = getLayer (idx);
+    //Layer* layer1 = network.getLayer (idx);
     //if ((*layer) != (*layer1))
     //{
     //  return false;
@@ -978,10 +978,10 @@ void Network::printLayersInputs () const
     {
       FPMatrices* fpm = getLayer(idx)->getFPMatrices (fpidx);
       auto minfo = m_nga->getMatrixInfo (fpm->m_inputs);
-      oap::HostComplexMatrixPtr hm = oap::host::NewHostMatrixFromMatrixInfo (minfo);
+      oap::HostComplexMatrixPtr hm = oap::chost::NewHostMatrixFromMatrixInfo (minfo);
       m_nga->copyKernelMatrixToHostMatrix (hm.get(), fpm->m_inputs);
       std::string str;
-      oap::host::ToString (str, hm.get());
+      oap::chost::ToString (str, hm.get());
       printf ("%s\n", str.c_str());
     }
     //oap::device::printHostWeights (*getLayer(idx), true);

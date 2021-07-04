@@ -17,10 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HostKernel.h"
-#include "ThreadUtils.h"
-#include "ThreadsMapper.h"
-#include "Dim3.h"
+#include "HostKernel.hpp"
+#include "ThreadUtils.hpp"
+#include "ThreadsMapper.hpp"
+#include "Dim3.hpp"
 
 #include <memory>
 

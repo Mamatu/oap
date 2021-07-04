@@ -17,16 +17,16 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapTestDataLoader.h"
-#include "matrix1.h"
-#include "matrix2.h"
-#include "matrix3.h"
-#include "matrix4.h"
-#include "matrix5.h"
+#include "oapTestDataLoader.hpp"
+#include "matrix1.hpp"
+#include "matrix2.hpp"
+#include "matrix3.hpp"
+#include "matrix4.hpp"
+#include "matrix5.hpp"
 #include "gtest/gtest.h"
 
-#include "ArnoldiProceduresImpl.h"
-#include "MathOperationsCpu.h"
+#include "ArnoldiProceduresImpl.hpp"
+#include "oapEigen.hpp"
 
 class OapArnoldiPackageCallbackTests : public testing::Test {
   public:
@@ -100,9 +100,9 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
     }
 
     void triangularityTest(const std::string& matrixStr) {
-      math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(matrixStr);
+      math::ComplexMatrix* matrix = oap::chost::NewComplexMatrix(matrixStr);
       triangularityTest(matrix);
-      oap::host::DeleteMatrix(matrix);
+      oap::chost::DeleteMatrix(matrix);
     }
 
     void triangularityTest(const math::ComplexMatrix* matrix) {
@@ -139,8 +139,8 @@ TEST_F(OapArnoldiPackageCallbackTests, MagnitudeTest) {
   floatt doutput = -1;
   cuProceduresApi.magnitude(doutput, dmatrix);
 
-  math::MathOperationsCpu mocpu;
-  mocpu.magnitude(&output, data.refW);
+  //math::MathOperationsCpu mocpu;
+  //mocpu.magnitude(&output, data.refW);
 
   EXPECT_DOUBLE_EQ(3.25, output);
   EXPECT_DOUBLE_EQ(3.25, doutput);

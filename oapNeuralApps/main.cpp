@@ -23,8 +23,8 @@
 #include <thread>
 #include <functional>
 
-#include "Routine.h"
-#include "PatternsClassification.h"
+#include "Routine.hpp"
+#include "PatternsClassification.hpp"
 
 using Factory = std::function<oap::Routine*()>;
 

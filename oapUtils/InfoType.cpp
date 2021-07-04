@@ -19,7 +19,7 @@
 
 
 
-#include "InfoType.h"
+#include "InfoType.hpp"
 
 int InfoType::ELEMENTS = 1 << 0;
 int InfoType::MEAN = 1 << 1;

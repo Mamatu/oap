@@ -17,12 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HostKernelExecutor.h"
-#include "HostKernel.h"
+#include "HostKernelExecutor.hpp"
+#include "HostKernel.hpp"
 
-#include "CudaKernelsList.h"
+#include "CudaKernelsList.hpp"
 
-#include "Logger.h"
+#include "Logger.hpp"
 
 #include <map>
 #include <functional>

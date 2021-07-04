@@ -20,8 +20,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "Config.h"
-#include "HostBuffer.h"
+#include "Config.hpp"
+#include "HostBuffer.hpp"
 
 template<typename T>
 class TBuffer : public oap::utils::Buffer<T, oap::utils::HostMemUtl>

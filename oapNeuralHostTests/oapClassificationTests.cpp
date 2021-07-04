@@ -17,12 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PointsClassification_Test.h"
-#include "oapHostMatrixUtils.h"
+#include "PointsClassification_Test.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
-#include "HostProcedures.h"
-#include "MultiMatricesHostProcedures.h"
-#include "oapNetworkHostApi.h"
+#include "HostProcedures.hpp"
+#include "MultiMatricesHostProcedures.hpp"
+#include "oapNetworkHostApi.hpp"
 
 class OapClassificationTests : public testing::Test
 {
@@ -42,7 +42,7 @@ TEST_F(OapClassificationTests, RingDataTest)
   auto* singleApi = new oap::HostProcedures ();
   oap::MultiMatricesHostProcedures* multiApi = new oap::MultiMatricesHostProcedures (singleApi);
   auto* nha = new oap::NetworkHostApi ();
-  oap::runPointsClassification (123456789, singleApi, multiApi, nha, oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo);
+  oap::runPointsClassification (123456789, singleApi, multiApi, nha, oap::chost::CopyHostMatrixToHostMatrix, oap::chost::GetMatrixInfo);
 
   delete singleApi;
   delete multiApi;
@@ -54,7 +54,7 @@ TEST_F(OapClassificationTests, RingDataTest_MultiMatrices)
   auto* singleApi = new oap::HostProcedures ();
   oap::MultiMatricesHostProcedures* multiApi = new oap::MultiMatricesHostProcedures (singleApi);
   auto* nha = new oap::NetworkHostApi ();
-  oap::runPointsClassification_multiMatrices (123456789, singleApi, multiApi, nha, oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo);
+  oap::runPointsClassification_multiMatrices (123456789, singleApi, multiApi, nha, oap::chost::CopyHostMatrixToHostMatrix, oap::chost::GetMatrixInfo);
 
   delete singleApi;
   delete multiApi;

@@ -18,17 +18,17 @@
  */
 
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
-#include "oapFuncTests.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
+#include "oapFuncTests.hpp"
 
 using namespace ::testing;
 

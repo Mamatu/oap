@@ -23,8 +23,8 @@
 #include <stdio.h>
 #include <pthread.h>
 #include "gtest/gtest.h"
-#include "oapCudaMatrixUtils.h"
-#include "DeviceMatrixKernels.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "DeviceMatrixKernels.hpp"
 #include "gmock/gmock-generated-function-mockers.h"
 
 typedef std::pair<uintt, uintt> Index;

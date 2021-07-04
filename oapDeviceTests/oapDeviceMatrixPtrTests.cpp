@@ -24,10 +24,10 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "KernelExecutor.h"
+#include "KernelExecutor.hpp"
 
-#include "oapDeviceComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapDeviceComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixUPtr.hpp"
 
 
 class OapDeviceComplexMatrixPtrTests : public testing::Test {

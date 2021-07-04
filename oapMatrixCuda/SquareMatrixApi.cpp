@@ -17,12 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SquareMatrixApi.h"
+#include "SquareMatrixApi.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapDeviceComplexMatrixUPtr.hpp"
 
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
 namespace oap
 {
@@ -90,7 +90,7 @@ math::ComplexMatrix* SquareMatrixApi::getSubMatrix (uintt rindex, uintt rlength)
 
   math::ComplexMatrix* hmatrix = m_orig.getHostSubMatrix (0, rindex, minfo.m_matrixDim.columns, rlength);
 
-  minfo = oap::host::GetMatrixInfo (hmatrix);
+  minfo = oap::chost::GetMatrixInfo (hmatrix);
 
   if (!m_subMatrixInfo.isInitialized () || m_subMatrixInfo != minfo)
   {
@@ -158,7 +158,7 @@ math::ComplexMatrix* SquareMatrixApi::getDeviceMatrix (math::ComplexMatrix* dmat
 math::ComplexMatrix* SquareMatrixApi::getDeviceSubMatrix (uintt rindex, uintt rlength, math::ComplexMatrix* dmatrix)
 {
   debugFunc ();
-  auto minfo = m_orig.getMatrixInfo ();
+  //auto minfo = m_orig.getMatrixInfo ();
 
   math::ComplexMatrix* matrixT = getMatrixT ();
 

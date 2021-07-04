@@ -20,13 +20,13 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "Config.h"
-#include "Logger.h"
-#include "Exceptions.h"
-#include "PngFile.h"
-#include "BitmapUtils.h"
+#include "Config.hpp"
+#include "Logger.hpp"
+#include "Exceptions.hpp"
+#include "PngFile.hpp"
+#include "BitmapUtils.hpp"
 
-#include "LoadingExpectedData.h"
+#include "LoadingExpectedData.hpp"
 
 using namespace ::testing;
 

@@ -19,9 +19,9 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
+#include "MatchersUtils.hpp"
 
-#include "CuProcedures/CuMatrixIndexUtilsCommon.h"
+#include "CuProcedures/CuMatrixIndexUtilsCommon.hpp"
 
 class OapCuUtilsCommonTests : public testing::Test {
  public:

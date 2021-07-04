@@ -17,12 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ImagesLoader.h"
-#include "Exceptions.h"
-#include "PngFile.h"
-#include "Config.h"
+#include "ImagesLoader.hpp"
+#include "Exceptions.hpp"
+#include "PngFile.hpp"
+#include "Config.hpp"
 
-#include "oapHostMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
 
 #include <sstream>
 #include <functional>
@@ -53,14 +53,14 @@ math::ComplexMatrix* ImagesLoader::createMatrix(uintt index, uintt length)
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
 
-  math::ComplexMatrix* hostMatrix = oap::host::NewReMatrix(length, refLength);
+  math::ComplexMatrix* hostMatrix = oap::chost::NewReMatrix(length, refLength);
 
   try {
     for (size_t fa = index; fa < index + length; ++fa) {
       loadColumnVector(hostMatrix, fa, floatsvec, fa);
     }
   } catch (const oap::exceptions::NotIdenticalLengths&) {
-    oap::host::DeleteMatrix(hostMatrix);
+    oap::chost::DeleteMatrix(hostMatrix);
     cleanImageStuff();
     throw;
   }
@@ -71,7 +71,7 @@ math::ComplexMatrix* ImagesLoader::createMatrix(uintt index, uintt length)
 math::ComplexMatrix* ImagesLoader::createSubMatrix(uintt cindex, uintt rindex, uintt columns, uintt rows)
 {
   math::ComplexMatrix* matrix = createMatrix();
-  return oap::host::NewSubMatrix(matrix, cindex, rindex, columns, rows);
+  return oap::chost::NewSubMatrix(matrix, cindex, rindex, columns, rows);
 }
 
 math::ComplexMatrix* ImagesLoader::createColumnVector(size_t index) {
@@ -79,12 +79,12 @@ math::ComplexMatrix* ImagesLoader::createColumnVector(size_t index) {
   std::unique_ptr<floatt[]> floatsvecUPtr(new floatt[refLength]);
   floatt* floatsvec = floatsvecUPtr.get();
 
-  math::ComplexMatrix* hostMatrix = oap::host::NewReMatrix(1, refLength);
+  math::ComplexMatrix* hostMatrix = oap::chost::NewReMatrix(1, refLength);
 
   try {
     loadColumnVector(hostMatrix, 0, floatsvec, index);
   } catch (const oap::exceptions::NotIdenticalLengths&) {
-    oap::host::DeleteMatrix(hostMatrix);
+    oap::chost::DeleteMatrix(hostMatrix);
     cleanImageStuff();
     throw;
   }
@@ -95,7 +95,7 @@ math::ComplexMatrix* ImagesLoader::createColumnVector(size_t index) {
 math::ComplexMatrix* ImagesLoader::createRowVector(size_t index) {
   createDataMatrixFiles();
 
-  math::ComplexMatrix* matrix = oap::host::ReadRowVector(m_file, index);
+  math::ComplexMatrix* matrix = oap::chost::ReadRowVector(m_file, index);
   if (matrix == NULL) {
     throw oap::exceptions::TmpOapNotExist();
   }
@@ -161,7 +161,7 @@ void ImagesLoader::loadColumnVector(math::ComplexMatrix* matrix, size_t column, 
     it->freeBitmap();
   }
 
-  oap::host::SetReVector(matrix, column, vec, refLength);
+  oap::chost::SetReVector(matrix, column, vec, refLength);
 }
 
 void ImagesLoader::load() {
@@ -278,13 +278,13 @@ void ImagesLoader::createDataMatrixFiles() {
 
     filePath += std::to_string(getId());
 
-    bool status = oap::host::WriteMatrix(filePath, matrix);
+    bool status = oap::chost::WriteMatrix(filePath, matrix);
 
     if (status == true) {
       m_file = filePath;
     }
 
-    oap::host::DeleteMatrix(matrix);
+    oap::chost::DeleteMatrix(matrix);
   }
 }
 }

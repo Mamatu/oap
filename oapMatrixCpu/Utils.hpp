@@ -1,0 +1,170 @@
+/*
+ * Copyright 2016 - 2021 Marcin Matula
+ *
+ * This file is part of Oap.
+ *
+ * Oap is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Oap is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef UTILS_H
+#define UTILS_H
+
+#include "Dim3.hpp"
+
+#include <math.h>
+
+#include "Matrix.hpp"
+#include "MatrixUtils.hpp"
+#include "MatrixEx.hpp"
+
+namespace utils {
+
+class Compare {
+ public:
+  Compare();
+
+  virtual ~Compare();
+
+  virtual bool rule(const floatt& arg1, const floatt& arg2) = 0;
+
+  bool compare(math::ComplexMatrix* matrix, floatt d);
+};
+
+math::ComplexMatrix* create(const math::ComplexMatrix& arg);
+
+bool AlmostEquals(floatt a, floatt b);
+
+bool AlmostEquals(floatt a, floatt b, floatt epsilon);
+
+void diff(math::ComplexMatrix* output, math::ComplexMatrix* m1, math::ComplexMatrix* m2);
+
+bool IsEqual (const math::ComplexMatrix& m1, const math::ComplexMatrix& m2, floatt tolerance, math::ComplexMatrix** diff = NULL);
+
+bool HasValues (const math::ComplexMatrix& m1, const math::ComplexMatrix& m2, floatt tolerance, math::ComplexMatrix** diff = NULL);
+
+bool IsIdentityMatrix(const math::ComplexMatrix& m1, floatt tolerance, math::ComplexMatrix** diff);
+
+bool IsDiagonalMatrix (const math::ComplexMatrix& m1, floatt value, floatt tolerance, math::ComplexMatrix** diff);
+
+bool IsIdentityMatrix (const math::ComplexMatrix& m1, floatt tolerance);
+
+bool IsDiagonalMatrix (const math::ComplexMatrix& m1, floatt value, floatt tolerance);
+
+bool isEqual(const MatrixEx& matrixEx, const uintt* buffer);
+
+bool areEqual(math::ComplexMatrix* matrix, floatt value);
+
+bool areNotEqual(math::ComplexMatrix* matrix, floatt value);
+
+typedef std::pair<size_t, size_t> Range;
+
+template <typename T>
+class Ranges : public std::vector<std::pair<T, Range> > {};
+
+template <typename T>
+bool isMatched(T* array, size_t length, const Ranges<T>& matched, const Ranges<T>& notmatched)
+{
+  return false;
+}
+
+// template<typename T> typedef typename std::vector<std::pair<T, Range<T> > >
+// Ranges<T>;
+
+// template<typename T> bool isMatched(T* array, size_t length) {
+
+//}
+
+template <typename T>
+T getSum(T* buffer, size_t length, T bzfactor = 1) {
+  T output = 0;
+  for (uintt fa = 0; fa < length; ++fa) {
+    T v = buffer[fa];
+    if (v < 0) {
+      v = v * bzfactor;
+    }
+    output += v;
+  }
+  return output;
+}
+
+template <typename T>
+T getMean(T* buffer, size_t length, T bzfactor) {
+  T output = getSum(buffer, length, bzfactor);
+  return output / length;
+}
+
+template <typename T>
+std::pair<T, uintt> getLargest(T* buffer, size_t length) {
+  T max = buffer[0];
+  uintt index = 0;
+  for (uintt fa = 1; fa < length; ++fa) {
+    if (buffer[fa] > max) {
+      max = buffer[fa];
+      index = fa;
+    }
+  }
+  return std::make_pair(max, index);
+}
+
+template <typename T>
+std::pair<T, uintt> getSmallest(T* buffer, size_t length) {
+  T min = buffer[0];
+  uintt index = 0;
+  for (uintt fa = 1; fa < length; ++fa) {
+    if (buffer[fa] < min) {
+      min = buffer[fa];
+      index = fa;
+    }
+  }
+  return std::make_pair(min, index);
+}
+
+#ifndef OAP_CUDA_BUILD
+
+inline std::string gridDimToStr(const dim3& dim3) {
+  std::ostringstream s;
+  s << "gridDim = [" << dim3.x << ", " << dim3.y << ", " << dim3.z << "]";
+  return s.str();
+}
+
+inline std::string blockDimToStr(const dim3& dim3) {
+  std::ostringstream s;
+  s << "blockDim = [" << dim3.x << ", " << dim3.y << ", " << dim3.z << "]";
+  return s.str();
+}
+
+inline std::string blockIdxToStr(const dim3& dim3) {
+  std::ostringstream s;
+  s << "blockIdx = [" << dim3.x << ", " << dim3.y << ", " << dim3.z << "]";
+  return s.str();
+}
+
+inline std::string threadIdxToStr(const dim3& dim3) {
+  std::ostringstream s;
+  s << "threadIdx = [" << dim3.x << ", " << dim3.y << ", " << dim3.z << "]";
+  return s.str();
+}
+
+inline std::string cudaDimsToStr(const dim3& threadIdx) {
+  std::string output = " ";
+  output += threadIdxToStr(threadIdx) + " ";
+  // output += blockIdxToStr(blockIdx) + " ";
+  // output += blockDimToStr(blockDim) + " ";
+  // output += gridDimToStr(gridDim) + " ";
+  return output;
+}
+#endif
+}
+
+#endif /* UTILS_H */

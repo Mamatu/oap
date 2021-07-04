@@ -17,13 +17,13 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IEigenCalculator.h"
-#include "Exceptions.h"
-#include "oapHostMatrixUtils.h"
-#include "ArnoldiProceduresImpl.h"
+#include "IEigenCalculator.hpp"
+#include "Exceptions.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "ArnoldiProceduresImpl.hpp"
 
-#include "PngFile.h"
-#include "DeviceImagesLoader.h"
+#include "PngFile.hpp"
+#include "DeviceImagesLoader.hpp"
 
 namespace oap {
 

@@ -2,7 +2,7 @@
 #include <sstream>
 #include <functional>
 
-#include "PyPlot.h"
+#include "PyPlot.hpp"
 
 namespace oap { namespace pyplot {
 

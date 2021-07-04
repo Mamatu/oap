@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ThreadsMapper.h"
+#include "ThreadsMapper.hpp"
 #include <string.h>
 #include <vector>
 #include <math.h>

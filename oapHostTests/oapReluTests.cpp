@@ -18,15 +18,15 @@
  */
 
 #include "gtest/gtest.h"
-#include "HostProcedures.h"
+#include "HostProcedures.hpp"
 
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapFuncTests.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapFuncTests.hpp"
 
 using namespace ::testing;
 

@@ -20,16 +20,16 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "ByteBuffer.h"
-#include "CuProceduresApi.h"
-#include "Config.h"
-#include "CudaUtils.h"
+#include "ByteBuffer.hpp"
+#include "CuProceduresApi.hpp"
+#include "Config.hpp"
+#include "CudaUtils.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "oapHostComplexMatrixUPtr.h"
-#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapHostComplexMatrixUPtr.hpp"
+#include "oapDeviceComplexMatrixUPtr.hpp"
 
 using namespace ::testing;
 
@@ -55,7 +55,7 @@ TEST_F(OapCudaMatrixUtilsTests, SaveLoadMatrixToBuffer)
   size_t columns = 32;
   size_t rows = 16;
 
-  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewReMatrix (columns, rows);
+  oap::HostComplexMatrixUPtr hmatrix = oap::chost::NewReMatrix (columns, rows);
 
   for (size_t idx = 0; idx < columns * rows; ++idx)
   {
@@ -81,7 +81,7 @@ TEST_F(OapCudaMatrixUtilsTests, SaveLoadMatrixToFile)
   size_t columns = 32;
   size_t rows = 16;
 
-  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewReMatrix (columns, rows);
+  oap::HostComplexMatrixUPtr hmatrix = oap::chost::NewReMatrix (columns, rows);
   oap::DeviceComplexMatrixUPtr dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hmatrix);
 
   auto save = [&](math::ComplexMatrix* matrix)
@@ -108,7 +108,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixHostRefTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewComplexMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
     EXPECT_EQ (rows, oap::cuda::GetRows (matrix));
     EXPECT_EQ (columns, oap::cuda::GetColumns (matrix));
@@ -118,7 +118,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixHostRefTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewReMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
     EXPECT_EQ (rows, oap::cuda::GetRows (matrix));
     EXPECT_EQ (columns, oap::cuda::GetColumns (matrix));
@@ -128,7 +128,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixHostRefTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewImMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
     EXPECT_EQ (rows, oap::cuda::GetRows (matrix));
     EXPECT_EQ (columns, oap::cuda::GetColumns (matrix));
@@ -142,7 +142,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixDeviceRefTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewComplexMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
     oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrixDeviceRef(deviceMatrix);
     EXPECT_EQ (rows, oap::cuda::GetRows (matrix));
@@ -153,7 +153,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixDeviceRefTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewReMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
     oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrixDeviceRef(deviceMatrix);
     EXPECT_EQ (rows, oap::cuda::GetRows (matrix));
@@ -164,7 +164,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixDeviceRefTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewImMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixHostRef (hostMatrix);
     oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrixDeviceRef(deviceMatrix);
     EXPECT_EQ (rows, oap::cuda::GetRows (matrix));
@@ -179,7 +179,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixCopyOfHostMatrixTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewComplexMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
     EXPECT_EQ (rows, oap::cuda::GetRows (matrix));
     EXPECT_EQ (columns, oap::cuda::GetColumns (matrix));
@@ -189,7 +189,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixCopyOfHostMatrixTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewReMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
     EXPECT_EQ (rows, oap::cuda::GetRows (matrix));
     EXPECT_EQ (columns, oap::cuda::GetColumns (matrix));
@@ -199,7 +199,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewDeviceMatrixCopyOfHostMatrixTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewImMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr matrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
     EXPECT_EQ (rows, oap::cuda::GetRows (matrix));
     EXPECT_EQ (columns, oap::cuda::GetColumns (matrix));
@@ -213,7 +213,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewHostMatrixCopyOfDeviceMatrixTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewComplexMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
     oap::HostComplexMatrixUPtr matrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix(deviceMatrix);
     EXPECT_EQ (rows, gRows (matrix));
@@ -224,7 +224,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewHostMatrixCopyOfDeviceMatrixTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewReMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
     oap::HostComplexMatrixUPtr matrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix(deviceMatrix);
     EXPECT_EQ (rows, gRows (matrix));
@@ -235,7 +235,7 @@ TEST_F(OapCudaMatrixUtilsTests, NewHostMatrixCopyOfDeviceMatrixTest)
   {
     const uintt rows = 10;
     const uintt columns = 5;
-    oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 2.f);
+    oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewImMatrixWithValue (columns, rows, 2.f);
     oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
     oap::HostComplexMatrixUPtr matrix = oap::cuda::NewHostMatrixCopyOfDeviceMatrix(deviceMatrix);
     EXPECT_EQ (rows, gRows (matrix));
@@ -249,7 +249,7 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroRow_1)
 {
   const uintt rows = 10;
   const uintt columns = 10;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewComplexMatrixWithValue (columns, rows, 1.f);
   oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
 
   oap::cuda::SetZeroRow (deviceMatrix, 0);
@@ -272,14 +272,14 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroRow_1)
       }
     }
   }
-  printf ("%s\n", oap::host::to_string(hostMatrix.get()).c_str());
+  printf ("%s\n", oap::chost::to_string(hostMatrix.get()).c_str());
 }
 
 TEST_F(OapCudaMatrixUtilsTests, SetZeroRow_2)
 {
   const uintt rows = 10;
   const uintt columns = 10;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewComplexMatrixWithValue (columns, rows, 1.f);
   oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
 
   oap::cuda::SetZeroRow (deviceMatrix, 1);
@@ -302,14 +302,14 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroRow_2)
       }
     }
   }
-  printf ("%s\n", oap::host::to_string(hostMatrix.get()).c_str());
+  printf ("%s\n", oap::chost::to_string(hostMatrix.get()).c_str());
 }
 
 TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_1)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewComplexMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewComplexMatrixWithValue (columns, rows, 1.f);
   oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
 
   oap::cuda::SetZeroMatrix (deviceMatrix);
@@ -332,7 +332,7 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_2)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewReMatrixWithValue (columns, rows, 1.f);
   oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
 
   oap::cuda::SetZeroMatrix (deviceMatrix);
@@ -355,7 +355,7 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_3)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewImMatrixWithValue (columns, rows, 1.f);
   oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
 
   oap::cuda::SetZeroMatrix (deviceMatrix);
@@ -378,7 +378,7 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_4)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewReMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewReMatrixWithValue (columns, rows, 1.f);
   oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
 
   oap::cuda::SetZeroReMatrix (deviceMatrix);
@@ -401,7 +401,7 @@ TEST_F(OapCudaMatrixUtilsTests, SetZeroMatrix_5)
 {
   const uintt rows = 16384;
   const uintt columns = 32;
-  oap::HostComplexMatrixUPtr hostMatrix = oap::host::NewImMatrixWithValue (columns, rows, 1.f);
+  oap::HostComplexMatrixUPtr hostMatrix = oap::chost::NewImMatrixWithValue (columns, rows, 1.f);
   oap::DeviceComplexMatrixUPtr deviceMatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix (hostMatrix);
 
   oap::cuda::SetZeroImMatrix (deviceMatrix);

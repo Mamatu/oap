@@ -17,25 +17,25 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MultiMatricesCuProcedures.h"
+#include "MultiMatricesCuProcedures.hpp"
 
 #include <functional>
 #include <iterator>
 #include <math.h>
 
-#include "Logger.h"
-#include "HostMatrixKernels.h"
+#include "Logger.hpp"
+#include "HostMatrixKernels.hpp"
 
-#include "oapDeviceComplexMatrixUPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
-#include "oapHostComplexMatrixUPtr.h"
-#include "oapHostComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixUPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
+#include "oapHostComplexMatrixUPtr.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
 
-#include "ThreadsMapper.h"
-#include "oapCudaMatrixUtils.h"
+#include "ThreadsMapper.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "CudaCoreApi.h"
-#include "Logger.h"
+#include "CudaCoreApi.hpp"
+#include "Logger.hpp"
 
 namespace oap
 {

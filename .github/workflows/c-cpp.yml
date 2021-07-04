@@ -16,13 +16,13 @@ jobs:
     - name: sudo apt-get install libgtest-dev google-mock
       run: sudo apt-get install libgtest-dev google-mock
     - name: make and run tests in sanitizer mode
-      run: cd scripts && bash download_module_data.sh oapNeural && cd .. && mkdir build && cd build && cmake -DBUILD_PART=HOST -DBUILD_MODE=DEBUG_SANITIZER .. && make -j${OAP_BUILD_THREADS} && cd .. && ./build/oapHostTests/oapHostTests --gtest_shuffle && ./build/oapAppUtilsTests/oapAppUtilsTests --gtest_shuffle && ./build/oapNeuralRoutinesHostTests/oapNeuralRoutinesHostTests --gtest_shuffle && ./build/oapAppUtilsFuncTests/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadDigit0" && ./build/oapAppUtilsFuncTests/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadRow0"
+      run: cd scripts && bash download_module_data.sh oapNeural && cd .. && mkdir build && cd build && cmake -DBUILD_PART=HOST -DCMAKE_BUILD_MODE=DEBUG_SANITIZER .. && make -j${OAP_BUILD_THREADS} && cd .. && ./build/oapHostTests/oapHostTests --gtest_shuffle && ./build/oapAppUtilsTests/oapAppUtilsTests --gtest_shuffle && ./build/oapNeuralRoutinesHostTests/oapNeuralRoutinesHostTests --gtest_shuffle && ./build/oapAppUtilsFuncTests/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadDigit0" && ./build/oapAppUtilsFuncTests/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadRow0"
       env:
         OAP_GMOCK_PATH: /usr/src/gmock
         OAP_GTEST_PATH: /usr/src/gtest
         OAP_BUILD_THREADS: 4
     - name: make and run tests in release mode
-      run: rm -rf build && cd scripts && bash download_module_data.sh oapNeural && cd .. && mkdir build && cd build && cmake -DBUILD_PART=HOST -DBUILD_MODE=DEBUG_SANITIZER .. && make -j${OAP_BUILD_THREADS} && cd .. && ./build/oapHostTests/oapHostTests --gtest_shuffle && ./build/oapAppUtilsTests/oapAppUtilsTests --gtest_shuffle && ./build/oapNeuralRoutinesHostTests/oapNeuralRoutinesHostTests --gtest_shuffle && ./build/oapAppUtilsFuncTests/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadDigit0" && ./build/oapAppUtilsFuncTests/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadRow0"
+      run: rm -rf build && cd scripts && bash download_module_data.sh oapNeural && cd .. && mkdir build && cd build && cmake -DBUILD_PART=HOST -DCMAKE_BUILD_MODE=DEBUG_SANITIZER .. && make -j${OAP_BUILD_THREADS} && cd .. && ./build/oapHostTests/oapHostTests --gtest_shuffle && ./build/oapAppUtilsTests/oapAppUtilsTests --gtest_shuffle && ./build/oapNeuralRoutinesHostTests/oapNeuralRoutinesHostTests --gtest_shuffle && ./build/oapAppUtilsFuncTests/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadDigit0" && ./build/oapAppUtilsFuncTests/oapAppUtilsFuncTests --gtest_filter="OapPngFileTests.LoadRow0"
       env:
         OAP_GMOCK_PATH: /usr/src/gmock
         OAP_GTEST_PATH: /usr/src/gtest

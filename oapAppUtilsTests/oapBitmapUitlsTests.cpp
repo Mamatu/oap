@@ -19,7 +19,7 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "BitmapUtils.h"
+#include "BitmapUtils.hpp"
 
 using namespace ::testing;
 using namespace oap::bitmap;

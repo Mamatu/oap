@@ -1,4 +1,4 @@
-#include "oapMatrixRandomGenerator.h"
+#include "oapMatrixRandomGenerator.hpp"
 
 namespace oap
 {

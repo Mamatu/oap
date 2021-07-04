@@ -17,9 +17,9 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PngFile.h"
-#include "Exceptions.h"
-#include "Logger.h"
+#include "PngFile.hpp"
+#include "Exceptions.hpp"
+#include "Logger.hpp"
 
 #include <functional>
 #include <map>

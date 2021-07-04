@@ -17,25 +17,25 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
 #include <functional>
 #include <iterator>
 #include <math.h>
 
-#include "Logger.h"
-#include "HostMatrixKernels.h"
+#include "Logger.hpp"
+#include "HostMatrixKernels.hpp"
 
-#include "oapDeviceComplexMatrixUPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
-#include "oapHostComplexMatrixUPtr.h"
-#include "oapHostComplexMatrixPtr.h"
+#include "oapDeviceComplexMatrixUPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
+#include "oapHostComplexMatrixUPtr.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
 
-#include "ThreadsMapper.h"
-#include "oapCudaMatrixUtils.h"
+#include "ThreadsMapper.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "CudaCoreApi.h"
-#include "Logger.h"
+#include "CudaCoreApi.hpp"
+#include "Logger.hpp"
 
 namespace oap
 {
@@ -589,7 +589,7 @@ void CuProceduresApi::linear (math::ComplexMatrix* output, math::ComplexMatrix* 
 
 void CuProceduresApi::dlinear (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
-  oap::HostComplexMatrixUPtr hmatrix = oap::host::NewComplexMatrixWithValue (oap::cuda::GetMatrixInfo(output), 1.f);
+  oap::HostComplexMatrixUPtr hmatrix = oap::chost::NewComplexMatrixWithValue (oap::cuda::GetMatrixInfo(output), 1.f);
   oap::cuda::CopyHostMatrixToDeviceMatrix (output, hmatrix);
 }
 

@@ -17,10 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapNeuralTests_Api.h"
+#include "oapNeuralTests_Api.hpp"
 
-#include "oapNeuralTests_Data_1HL_1.h"
-#include "oapNeuralTests_Data_1HL_1_Test_2.h"
+#include "oapNeuralTests_Data_1HL_1.hpp"
+#include "oapNeuralTests_Data_1HL_1_Test_2.hpp"
 
 class OapNeuralTests_Backpropagation_1HL_1 : public testing::Test
 {

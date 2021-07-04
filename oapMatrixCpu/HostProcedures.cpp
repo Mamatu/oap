@@ -17,21 +17,21 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HostProcedures.h"
+#include "HostProcedures.hpp"
 
 #include <functional>
 
-#include "CuProcedures/CuCompareOptProcedures.h"
-#include "CuProcedures/CuSubtractionProcedures.h"
-#include "CuProcedures/CuDotProductSpecificProcedures.h"
-#include "CuProcedures/CuTransposeProcedures.h"
+#include "CuProcedures/CuCompareOptProcedures.hpp"
+#include "CuProcedures/CuSubtractionProcedures.hpp"
+#include "CuProcedures/CuDotProductSpecificProcedures.hpp"
+#include "CuProcedures/CuTransposeProcedures.hpp"
 
-#include "GenericValidationApi.h"
+#include "GenericValidationApi.hpp"
 
-#include "ThreadsMapper.h"
+#include "ThreadsMapper.hpp"
 
-#include "HostBuffer.h"
-#include "HostKernel.h"
+#include "HostBuffer.hpp"
+#include "HostKernel.hpp"
 
 namespace oap
 {
@@ -96,8 +96,8 @@ class CompareImpl : public HostKernel {
  protected:
   template <typename T>
   T getSum(T* buffer, size_t length) const {
-    T output;
-    for (uintt fa; fa < length; ++fa) {
+    T output = 0;
+    for (uintt fa = 0; fa < length; ++fa) {
       output += buffer[fa];
     }
     return output;
@@ -175,7 +175,7 @@ void HostProcedures::prepare(size_t w, size_t h, HostKernel& hostKernel) {
   hostKernel.setDims(m_blocks, m_threads);
 }
 
-HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_kernel(maxThreadsPerBlock), m_maxThreadsPerBlock (maxThreadsPerBlock), m_bmApi (oap::host::GetMatrixInfo),
+HostProcedures::HostProcedures(uint maxThreadsPerBlock) : m_maxThreadsPerBlock (maxThreadsPerBlock), m_kernel(maxThreadsPerBlock), m_bmApi (oap::chost::GetMatrixInfo),
 m_createKernelArray(std::bind(&HostProcedures::createKernelArray, this, std::placeholders::_1, std::placeholders::_2))
 {}
 
@@ -243,7 +243,7 @@ void HostProcedures::transpose(math::ComplexMatrix* output, math::ComplexMatrix*
 
 void HostProcedures::tanh(math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
-  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+  oap::generic::BasicMatrixApi<decltype(oap::chost::GetMatrixInfo)> bapi (oap::chost::GetMatrixInfo);
 
   oap::generic::executeKernel1Arg ("CUDAKernel_Tanh", output, matrix, &m_kernel, bapi, true, [](){});
 }
@@ -255,7 +255,7 @@ void HostProcedures::sigmoid (math::ComplexMatrix* output, math::ComplexMatrix* 
 
 void HostProcedures::linear (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
 {
-  oap::host::CopyHostMatrixToHostMatrix (output, matrix);
+  oap::chost::CopyHostMatrixToHostMatrix (output, matrix);
 }
 
 void HostProcedures::sin (math::ComplexMatrix* output, math::ComplexMatrix* matrix)
@@ -393,7 +393,7 @@ void HostProcedures::softplus (math::ComplexMatrix* output, math::ComplexMatrix*
 
 void HostProcedures::crossEntropy (math::ComplexMatrix* output, math::ComplexMatrix* params0, math::ComplexMatrix* params1)
 {
-  oap::generic::BasicMatrixApi<decltype(oap::host::GetMatrixInfo)> bapi (oap::host::GetMatrixInfo);
+  oap::generic::BasicMatrixApi<decltype(oap::chost::GetMatrixInfo)> bapi (oap::chost::GetMatrixInfo);
 
   oap::generic::crossEntropy (output, params0, params1, &m_kernel, bapi);
 }
@@ -405,37 +405,37 @@ void HostProcedures::tensorProduct (math::ComplexMatrix* output, math::ComplexMa
 
 void HostProcedures::QRHT (math::ComplexMatrix* Q, math::ComplexMatrix* R, math::ComplexMatrix* A, math::ComplexMatrix* V, math::ComplexMatrix* VT, math::ComplexMatrix* P, math::ComplexMatrix* VVT)
 {
-  oap::generic::qrDecomposition_HT (Q, R, A, V, VT, P, VVT, &m_kernel, *this, oap::host::GetMatrixInfo, [](){});
+  oap::generic::qrDecomposition_HT (Q, R, A, V, VT, P, VVT, &m_kernel, *this, oap::chost::GetMatrixInfo, [](){});
 }
 
 void HostProcedures::setIdentity (math::ComplexMatrix* matrix)
 {
-  oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::host::GetMatrixInfo, [](){});
+  oap::generic::setIdentityMatrix (matrix, &m_kernel, oap::chost::GetMatrixInfo, [](){});
 }
 
 void HostProcedures::setVector (math::ComplexMatrix* V, uintt column, math::ComplexMatrix* v, uintt length)
 {
-  oap::generic::setVector (V, column, v, length, &m_kernel, oap::host::GetMatrixInfo, [](){});
+  oap::generic::setVector (V, column, v, length, &m_kernel, oap::chost::GetMatrixInfo, [](){});
 }
 
 void HostProcedures::getVector (math::ComplexMatrix* vector, uintt length, math::ComplexMatrix* matrix, uintt column)
 {
-  oap::generic::getVector (vector, length, matrix, column, &m_kernel, oap::host::GetMatrixInfo, [](){});
+  oap::generic::getVector (vector, length, matrix, column, &m_kernel, oap::chost::GetMatrixInfo, [](){});
 }
 
 void HostProcedures::getVector (math::ComplexMatrix* vector, math::ComplexMatrix* matrix, uintt column)
 {
-  oap::generic::getVector (vector, matrix, column, &m_kernel, oap::host::GetMatrixInfo, [](){});
+  oap::generic::getVector (vector, matrix, column, &m_kernel, oap::chost::GetMatrixInfo, [](){});
 }
 
 void HostProcedures::convolve (math::ComplexMatrix* output, const math::ComplexMatrix* param, const math::ComplexMatrix* kernel)
 {
-  oap::generic::convolve (output, param, kernel, &m_kernel, oap::host::GetMatrixInfo, [](){});
+  oap::generic::convolve (output, param, kernel, &m_kernel, oap::chost::GetMatrixInfo, [](){});
 }
 
 void HostProcedures::poolAverage (math::ComplexMatrix* output, const math::ComplexMatrix* matrix, const math::MatrixDim& kernel)
 {
-  oap::generic::poolAverage (output, matrix, kernel, &m_kernel, oap::host::GetMatrixInfo, [](){}, m_createKernelArray);
+  oap::generic::poolAverage (output, matrix, kernel, &m_kernel, oap::chost::GetMatrixInfo, [](){}, m_createKernelArray);
 }
 
 void HostProcedures::dsigmoid (math::ComplexMatrix* output, math::ComplexMatrix* input)
@@ -515,17 +515,17 @@ void HostProcedures::dsoftplus (math::ComplexMatrix* output, math::ComplexMatrix
 
 void HostProcedures::hadamardProductVec (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2)
 {
-  oap::generic::hadamardProductVec (output, param1, param2, &m_kernel, oap::host::GetMatrixInfo, [](){});
+  oap::generic::hadamardProductVec (output, param1, param2, &m_kernel, oap::chost::GetMatrixInfo, [](){});
 }
 
 void HostProcedures::add (math::ComplexMatrix* output, math::ComplexMatrix* param1, math::ComplexMatrix* param2)
 {
-  oap::generic::add (output, param1, param2, &m_kernel, oap::host::GetMatrixInfo, [](){});
+  oap::generic::add (output, param1, param2, &m_kernel, oap::chost::GetMatrixInfo, [](){});
 }
 
 void HostProcedures::multiplyReConstant (math::ComplexMatrix* output, math::ComplexMatrix* param1, floatt re)
 {
-  oap::generic::multiplyReConst (output, param1, re, &m_kernel, oap::host::GetMatrixInfo, [](){});
+  oap::generic::multiplyReConst (output, param1, re, &m_kernel, oap::chost::GetMatrixInfo, [](){});
 }
 
 /*void HostProcedures::sum (floatt& reoutput, floatt& imoutput, math::ComplexMatrix* params0)
@@ -548,8 +548,8 @@ void HostProcedures::multiplyReConstant (math::ComplexMatrix* output, math::Comp
     return gImValues (matrix);
   };
 
-  oap::generic::SumApi<decltype(oap::host::GetMatrixInfo), decltype(memcpy), GetAddressTypeRef>
-  sumApi (oap::host::GetMatrixInfo, memcpy, getReValues, getImValues);
+  oap::generic::SumApi<decltype(oap::chost::GetMatrixInfo), decltype(memcpy), GetAddressTypeRef>
+  sumApi (oap::chost::GetMatrixInfo, memcpy, getReValues, getImValues);
 
   oap::generic::SumBuffers<oap::host::HostBuffer<floatt>, oap::host::HostBuffer<floatt>>
   sumBuffers (m_hsumsReBuffer, m_dsumsReBuffer, m_hsumsImBuffer, m_dsumsImBuffer);
@@ -560,11 +560,11 @@ void HostProcedures::multiplyReConstant (math::ComplexMatrix* output, math::Comp
 void HostProcedures::sum (floatt& reoutput, floatt& imoutput, const math::ComplexMatrix* param)
 {
   //m_cuStatus = 
-  oap::generic::sum (reoutput, imoutput, param, &m_kernel, oap::host::GetMatrixInfo, oap::host::GetRefHostMatrix, memcpy, m_hsumsReBuffer, m_hsumsImBuffer, m_dsumsReBuffer, m_dsumsImBuffer);
+  oap::generic::sum (reoutput, imoutput, param, &m_kernel, oap::chost::GetMatrixInfo, oap::chost::GetRefHostMatrix, memcpy, m_hsumsReBuffer, m_hsumsImBuffer, m_dsumsReBuffer, m_dsumsImBuffer);
 }
 
 void HostProcedures::setZeroMatrix (math::ComplexMatrix* param)
 {
-  oap::host::SetZeroMatrix (param);
+  oap::chost::SetZeroMatrix (param);
 }
 }

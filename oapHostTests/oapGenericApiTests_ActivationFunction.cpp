@@ -19,9 +19,9 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
-#include "oapHostMatrixUtils.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
 class oapGenericApiTests_ActivationFunction : public testing::Test {
  public:
@@ -46,13 +46,13 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_1)
   using namespace std::placeholders;
   oap::HostProcedures hp;
 
-  math::ComplexMatrix* output = oap::host::NewReMatrixWithValue (1, 1, 0.);
-  math::ComplexMatrix* param = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  math::ComplexMatrix* output = oap::chost::NewReMatrixWithValue (1, 1, 0.);
+  math::ComplexMatrix* param = oap::chost::NewReMatrixWithValue (1, 1, 2.);
   std::vector<math::ComplexMatrix*> outputs = {output};
   std::vector<math::ComplexMatrix*> params = {param};
 
-  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixWithValue (1, 1, 0.);
-  oap::HostComplexMatrixUPtr param1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr output1 = oap::chost::NewReMatrixWithValue (1, 1, 0.);
+  oap::HostComplexMatrixUPtr param1 = oap::chost::NewReMatrixWithValue (1, 1, 2.);
 
   hp.v2_sigmoid (outputs, params);
   hp.sigmoid (output1, param1);
@@ -60,8 +60,8 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_1)
   EXPECT_DOUBLE_EQ (sigmoid(param->re.mem.ptr[0]), output1->re.mem.ptr[0]);
   EXPECT_DOUBLE_EQ (output1->re.mem.ptr[0], output->re.mem.ptr[0]);
 
-  oap::host::deleteMatrices (outputs);
-  oap::host::deleteMatrices (params);
+  oap::chost::deleteMatrices (outputs);
+  oap::chost::deleteMatrices (params);
 }
 
 TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_2)
@@ -69,15 +69,15 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_2)
   using namespace std::placeholders;
   oap::HostProcedures hp;
 
-  math::ComplexMatrix* output = oap::host::NewReMatrixWithValue (1, 1, 0.);
-  math::ComplexMatrix* output1 = oap::host::NewReMatrixWithValue (1, 1, 0.);
-  math::ComplexMatrix* param = oap::host::NewReMatrixWithValue (1, 1, 2.);
-  math::ComplexMatrix* param1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  math::ComplexMatrix* output = oap::chost::NewReMatrixWithValue (1, 1, 0.);
+  math::ComplexMatrix* output1 = oap::chost::NewReMatrixWithValue (1, 1, 0.);
+  math::ComplexMatrix* param = oap::chost::NewReMatrixWithValue (1, 1, 2.);
+  math::ComplexMatrix* param1 = oap::chost::NewReMatrixWithValue (1, 1, 2.);
   std::vector<math::ComplexMatrix*> outputs = {output, output1};
   std::vector<math::ComplexMatrix*> params = {param, param1};
 
-  oap::HostComplexMatrixUPtr output_ = oap::host::NewReMatrixWithValue (1, 1, 0.);
-  oap::HostComplexMatrixUPtr param_ = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr output_ = oap::chost::NewReMatrixWithValue (1, 1, 0.);
+  oap::HostComplexMatrixUPtr param_ = oap::chost::NewReMatrixWithValue (1, 1, 2.);
 
   hp.v2_sigmoid (outputs, params);
   hp.sigmoid (output_, param_);
@@ -86,23 +86,23 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_2)
   EXPECT_DOUBLE_EQ (sigmoid(param->re.mem.ptr[0]), output_->re.mem.ptr[0]);
   EXPECT_DOUBLE_EQ (output_->re.mem.ptr[0], output->re.mem.ptr[0]);
 
-  oap::host::deleteMatrices (outputs);
-  oap::host::deleteMatrices (params);
+  oap::chost::deleteMatrices (outputs);
+  oap::chost::deleteMatrices (params);
 }
 
 TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_3)
 {
   oap::HostProcedures hp;
 
-  math::ComplexMatrix* output = oap::host::NewReMatrixWithValue (4, 4, 0.);
-  math::ComplexMatrix* output1 = oap::host::NewReMatrixWithValue (4, 4, 0.);
-  math::ComplexMatrix* param = oap::host::NewReMatrixWithValue (4, 4, 2.);
-  math::ComplexMatrix* param1 = oap::host::NewReMatrixWithValue (4, 4, 2.);
+  math::ComplexMatrix* output = oap::chost::NewReMatrixWithValue (4, 4, 0.);
+  math::ComplexMatrix* output1 = oap::chost::NewReMatrixWithValue (4, 4, 0.);
+  math::ComplexMatrix* param = oap::chost::NewReMatrixWithValue (4, 4, 2.);
+  math::ComplexMatrix* param1 = oap::chost::NewReMatrixWithValue (4, 4, 2.);
   std::vector<math::ComplexMatrix*> outputs = {output, output1};
   std::vector<math::ComplexMatrix*> params = {param, param1};
 
-  oap::HostComplexMatrixUPtr output_ = oap::host::NewReMatrixWithValue (4, 4, 0.);
-  oap::HostComplexMatrixUPtr param_ = oap::host::NewReMatrixWithValue (4, 4, 2.);
+  oap::HostComplexMatrixUPtr output_ = oap::chost::NewReMatrixWithValue (4, 4, 0.);
+  oap::HostComplexMatrixUPtr param_ = oap::chost::NewReMatrixWithValue (4, 4, 2.);
 
   hp.v2_sigmoid (outputs, params);
   hp.sigmoid (output_, param_);
@@ -110,26 +110,26 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_3)
   EXPECT_THAT(output1, MatrixHasValues (sigmoid(2)));
   EXPECT_THAT(output_.get(), MatrixHasValues (sigmoid(2)));
 
-  oap::host::deleteMatrices (outputs);
-  oap::host::deleteMatrices (params);
+  oap::chost::deleteMatrices (outputs);
+  oap::chost::deleteMatrices (params);
 }
 
 TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_4)
 {
   oap::HostProcedures hp;
 
-  oap::HostComplexMatrixUPtr output = oap::host::NewReMatrixWithValue (1, 4, 0.);
-  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixWithValue (1, 4, 0.);
+  oap::HostComplexMatrixUPtr output = oap::chost::NewReMatrixWithValue (1, 4, 0.);
+  oap::HostComplexMatrixUPtr output1 = oap::chost::NewReMatrixWithValue (1, 4, 0.);
 
-  math::ComplexMatrix* suboutput = oap::host::NewSharedSubMatrix ({0, 0}, {1, 3}, output);
-  math::ComplexMatrix* suboutput1 = oap::host::NewSharedSubMatrix ({0, 0}, {1, 3}, output1);
-  math::ComplexMatrix* param = oap::host::NewReMatrixWithValue (1, 3, 2.);
-  math::ComplexMatrix* param1 = oap::host::NewReMatrixWithValue (1, 3, 2.);
+  math::ComplexMatrix* suboutput = oap::chost::NewSharedSubMatrix ({0, 0}, {1, 3}, output);
+  math::ComplexMatrix* suboutput1 = oap::chost::NewSharedSubMatrix ({0, 0}, {1, 3}, output1);
+  math::ComplexMatrix* param = oap::chost::NewReMatrixWithValue (1, 3, 2.);
+  math::ComplexMatrix* param1 = oap::chost::NewReMatrixWithValue (1, 3, 2.);
   std::vector<math::ComplexMatrix*> outputs = {suboutput, suboutput1};
   std::vector<math::ComplexMatrix*> params = {param, param1};
 
-  oap::HostComplexMatrixUPtr output_ = oap::host::NewReMatrixWithValue (1, 4, 0.);
-  oap::HostComplexMatrixUPtr param_ = oap::host::NewReMatrixWithValue (1, 4, 2.);
+  oap::HostComplexMatrixUPtr output_ = oap::chost::NewReMatrixWithValue (1, 4, 0.);
+  oap::HostComplexMatrixUPtr param_ = oap::chost::NewReMatrixWithValue (1, 4, 2.);
 
   hp.v2_sigmoid (outputs, params);
   hp.sigmoid (output_, param_);
@@ -137,6 +137,6 @@ TEST_F(oapGenericApiTests_ActivationFunction, SigmoidTest_4)
   EXPECT_THAT(suboutput1, MatrixHasValues (sigmoid(2)));
   EXPECT_THAT(output_.get(), MatrixHasValues (sigmoid(2)));
 
-  oap::host::deleteMatrices (outputs);
-  oap::host::deleteMatrices (params);
+  oap::chost::deleteMatrices (outputs);
+  oap::chost::deleteMatrices (params);
 }

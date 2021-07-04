@@ -17,13 +17,13 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
-#include "oapDeviceComplexMatrixUPtr.h"
-#include "Config.h"
+#include "oapDeviceComplexMatrixUPtr.hpp"
+#include "Config.hpp"
 
-#include "KernelExecutor.h"
+#include "KernelExecutor.hpp"
 #include "gtest/gtest.h"
 
 class OapDeviceMatrixModuleTests : public testing::Test {
@@ -35,10 +35,10 @@ class OapDeviceMatrixModuleTests : public testing::Test {
   void setSubMatrixTest(uintt columns, uintt rows, float value,
                         uintt subcolumns, uint subrows, floatt subvalue,
                         uintt column, uintt row) {
-    math::ComplexMatrix* hmatrix = oap::host::NewComplexMatrixWithValue (true, true, columns, rows, value);
+    math::ComplexMatrix* hmatrix = oap::chost::NewComplexMatrixWithValue (true, true, columns, rows, value);
     math::ComplexMatrix* dmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hmatrix);
 
-    math::ComplexMatrix* hsubmatrix = oap::host::NewComplexMatrixWithValue (true, true, subcolumns, subrows, subvalue);
+    math::ComplexMatrix* hsubmatrix = oap::chost::NewComplexMatrixWithValue (true, true, subcolumns, subrows, subvalue);
     math::ComplexMatrix* dsubmatrix = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hsubmatrix);
 
     oap::cuda::SetMatrix(dmatrix, dsubmatrix, column, row);
@@ -56,8 +56,8 @@ class OapDeviceMatrixModuleTests : public testing::Test {
     oap::cuda::DeleteDeviceMatrix(dmatrix);
     oap::cuda::DeleteDeviceMatrix(dsubmatrix);
 
-    oap::host::DeleteMatrix(hmatrix);
-    oap::host::DeleteMatrix(hsubmatrix);
+    oap::chost::DeleteMatrix(hmatrix);
+    oap::chost::DeleteMatrix(hsubmatrix);
   }
 };
 
@@ -133,7 +133,7 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
 
   std::string path = oap::utils::Config::getFileInTmp("device_tests/test_file");
 
-  math::ComplexMatrix* m1 = oap::host::NewComplexMatrixWithValue (true, true, columns, rows, 0);
+  math::ComplexMatrix* m1 = oap::chost::NewComplexMatrixWithValue (true, true, columns, rows, 0);
 
   for (int fa = 0; fa < columns * rows; ++fa) {
     *GetRePtrIndex (m1, fa) = fa;
@@ -149,7 +149,7 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
   if (status) {
     math::ComplexMatrix* d2 = oap::cuda::ReadMatrix(path);
 
-    math::ComplexMatrix* m2 = oap::host::NewComplexMatrix(oap::cuda::GetMatrixInfo(d2));
+    math::ComplexMatrix* m2 = oap::chost::NewComplexMatrix(oap::cuda::GetMatrixInfo(d2));
     oap::cuda::CopyDeviceMatrixToHostMatrix(m2, d2);
 
     EXPECT_EQ(gColumns (m2), gColumns (m1));
@@ -162,10 +162,10 @@ TEST_F(OapDeviceMatrixModuleTests, WriteReadMatrix) {
       EXPECT_EQ(GetImIndex (m1, fa), GetImIndex (m2, fa));
     }
 
-    oap::host::DeleteMatrix(m2);
+    oap::chost::DeleteMatrix(m2);
     oap::cuda::DeleteDeviceMatrix(d2);
   }
-  oap::host::DeleteMatrix(m1);
+  oap::chost::DeleteMatrix(m1);
   oap::cuda::DeleteDeviceMatrix(d1);
 }
 

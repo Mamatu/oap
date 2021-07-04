@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InfoCreator.h"
-#include "MatrixUtils.h"
+#include "InfoCreator.hpp"
+#include "MatrixUtils.hpp"
 
 InfoCreator::InfoCreator() : m_expected(NULL), m_output(NULL) {}
 

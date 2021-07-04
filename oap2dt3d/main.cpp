@@ -20,11 +20,11 @@
 #include <stdlib.h>
 #include <string>
 
-#include "ImagesLoader.h"
-#include "PngFile.h"
+#include "ImagesLoader.hpp"
+#include "PngFile.hpp"
 
-#include "MainAPExecutor.h"
-#include "MainFourierExecutor.h"
+#include "MainAPExecutor.hpp"
+#include "MainFourierExecutor.hpp"
 
 int main()
 {
@@ -48,7 +48,7 @@ int main()
     printf("---------------------------------------\n");
     printf("wanted = %f \n", value);
     printf("error = %f \n", error);
-    oap::host::PrintMatrix("wantedEV = ", vec);
+    oap::chost::PrintMatrix("wantedEV = ", vec);
     printf("---------------------------------------\n");
   }
 

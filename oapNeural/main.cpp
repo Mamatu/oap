@@ -20,19 +20,19 @@
 #include <stdlib.h>
 #include <string>
 
-#include "Config.h"
-#include "PngFile.h"
-#include "oapCudaMatrixUtils.h"
+#include "Config.hpp"
+#include "PngFile.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "KernelExecutor.h"
-#include "CuProceduresApi.h"
-#include "MultiMatricesCuProcedures.h"
+#include "KernelExecutor.hpp"
+#include "CuProceduresApi.hpp"
+#include "MultiMatricesCuProcedures.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapHostComplexMatrixUPtr.h"
-#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapHostComplexMatrixUPtr.hpp"
+#include "oapDeviceComplexMatrixUPtr.hpp"
 
-#include "oapNetwork.h"
+#include "oapNetwork.hpp"
 
 #include <vector>
 #include <cmath>

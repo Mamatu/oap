@@ -22,8 +22,8 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "MatrixInfo.h"
+#include "MatchersUtils.hpp"
+#include "MatrixInfo.hpp"
 
 
 class OapMatrixInfoTests : public testing::Test {

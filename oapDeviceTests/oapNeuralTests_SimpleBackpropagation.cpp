@@ -19,19 +19,19 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
-#include "MultiMatricesCuProcedures.h"
-#include "KernelExecutor.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "CuProceduresApi.hpp"
+#include "MultiMatricesCuProcedures.hpp"
+#include "KernelExecutor.hpp"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
-#include "oapNetwork.h"
-#include "oapNetworkCudaApi.h"
-#include "oapFunctions.h"
-#include "PyPlot.h"
-#include "Config.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapNetwork.hpp"
+#include "oapNetworkCudaApi.hpp"
+#include "oapFunctions.hpp"
+#include "PyPlot.hpp"
+#include "Config.hpp"
 
 namespace
 {
@@ -79,17 +79,17 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
   oap::Layer* l1 = network->createLayer(2);
   oap::Layer* l2 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 1);
   *GetRePtrIndex (weights1to2, 0) = 1;
   *GetRePtrIndex (weights1to2, 1) = 1;
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
   *GetRePtrIndex (inputs, 0) = 1;
   *GetRePtrIndex (inputs, 1) = 1;
 
-  oap::HostComplexMatrixPtr outputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr outputs = oap::chost::NewReMatrix (1, 1);
   *GetRePtrIndex (outputs, 0) = sigmoid (2);
 
   network->setInputs (inputs, ArgType::HOST);
@@ -100,7 +100,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
   auto getLayerOutput = [](oap::Layer* layer)
   {
     auto minfo = layer->getOutputsInfo ();
-    oap::HostComplexMatrixPtr outputsL = oap::host::NewReMatrix (minfo.columns (), minfo.rows ());
+    oap::HostComplexMatrixPtr outputsL = oap::chost::NewReMatrix (minfo.columns (), minfo.rows ());
     layer->getOutputs (outputsL, ArgType::HOST);
     return outputsL;
   };
@@ -113,7 +113,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_1)
   EXPECT_DOUBLE_EQ (0, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
   network->updateWeights ();
 
-  oap::HostComplexMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
+  oap::HostComplexMatrixPtr bweights1to2 = oap::chost::NewReMatrix (2, 1);
   l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
@@ -127,17 +127,17 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
   oap::Layer* l1 = network->createLayer(2);
   oap::Layer* l2 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 1);
   *GetRePtrIndex (weights1to2, 0) = 1;
   *GetRePtrIndex (weights1to2, 1) = 1;
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
   *GetRePtrIndex (inputs, 0) = 1;
   *GetRePtrIndex (inputs, 1) = 1;
 
-  oap::HostComplexMatrixPtr outputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr outputs = oap::chost::NewReMatrix (1, 1);
   *GetRePtrIndex (outputs, 0) = sigmoid (2);
 
   network->setInputs (inputs, ArgType::HOST);
@@ -148,7 +148,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
   auto getLayerOutput = [](oap::Layer* layer)
   {
     auto minfo = layer->getOutputsInfo ();
-    oap::HostComplexMatrixPtr outputsL = oap::host::NewReMatrix (minfo.columns (), minfo.rows ());
+    oap::HostComplexMatrixPtr outputsL = oap::chost::NewReMatrix (minfo.columns (), minfo.rows ());
     layer->getOutputs (outputsL, ArgType::HOST);
     return outputsL;
   };
@@ -160,7 +160,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_2)
   network->backPropagation ();
   network->updateWeights ();
 
-  oap::HostComplexMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
+  oap::HostComplexMatrixPtr bweights1to2 = oap::chost::NewReMatrix (2, 1);
   l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
@@ -174,13 +174,13 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
   oap::Layer* l1 = network->createLayer(2);
   oap::Layer* l2 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 1);
   *GetRePtrIndex (weights1to2, 0) = 1;
   *GetRePtrIndex (weights1to2, 1) = 1;
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
 
   floatt input1 = 1;
   floatt input2 = 1;
@@ -188,7 +188,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
   *GetRePtrIndex (inputs, 0) = input1;
   *GetRePtrIndex (inputs, 1) = input2;
 
-  oap::HostComplexMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr expectedOutputs = oap::chost::NewReMatrix (1, 1);
   floatt error = 0.001;
   *GetRePtrIndex (expectedOutputs, 0) = sigmoid (2) + error;
 
@@ -208,7 +208,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_3)
 
   network->updateWeights ();
 
-  oap::HostComplexMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
+  oap::HostComplexMatrixPtr bweights1to2 = oap::chost::NewReMatrix (2, 1);
   l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (2) * input1, GetReIndex (bweights1to2, 0));
@@ -222,20 +222,20 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
   oap::Layer* l1 = network->createLayer(2);
   oap::Layer* l2 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 1);
   *GetRePtrIndex (weights1to2, 0) = 1;
   *GetRePtrIndex (weights1to2, 1) = 1;
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
 
   std::vector<floatt> inputsVec = {2, 1};
 
   *GetRePtrIndex (inputs, 0) = inputsVec[0];
   *GetRePtrIndex (inputs, 1) = inputsVec[1];
 
-  oap::HostComplexMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr expectedOutputs = oap::chost::NewReMatrix (1, 1);
   floatt error = 0.001;
   *GetRePtrIndex (expectedOutputs, 0) = sigmoid (3) + error;
 
@@ -254,7 +254,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_4)
   network->backPropagation ();
   network->updateWeights ();
 
-  oap::HostComplexMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 1);
+  oap::HostComplexMatrixPtr bweights1to2 = oap::chost::NewReMatrix (2, 1);
   l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1 + lr * error * oap::math::dsigmoid (3) * inputsVec[0], GetReIndex (bweights1to2, 0));
@@ -269,26 +269,26 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5)
   oap::Layer* l2 = network->createLayer(3);
   oap::Layer* l3 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 3);
 
-  oap::host::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
+  oap::chost::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (3, 1);
 
-  oap::host::SetReValuesToMatrix (weights2to3, {1,1,1});
+  oap::chost::SetReValuesToMatrix (weights2to3, {1,1,1});
 
   l2->setHostWeights (weights2to3);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
 
   std::vector<floatt> inputsVec = {1, 1};
 
   *GetRePtrIndex (inputs, 0) = inputsVec[0];
   *GetRePtrIndex (inputs, 1) = inputsVec[1];
 
-  oap::HostComplexMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr expectedOutputs = oap::chost::NewReMatrix (1, 1);
   *GetRePtrIndex (expectedOutputs, 0) = sigmoid (sigmoid (2) + sigmoid (2) + sigmoid (2));
 
   floatt lr = 0.01;
@@ -306,7 +306,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5)
   network->backPropagation ();
   network->updateWeights ();
 
-  oap::HostComplexMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr bweights1to2 = oap::chost::NewReMatrix (2, 3);
   l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
@@ -327,26 +327,26 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_1)
   oap::Layer* l2 = network->createLayer(3);
   oap::Layer* l3 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 3);
 
-  oap::host::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
+  oap::chost::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (3, 1);
 
-  oap::host::SetReValuesToMatrix (weights2to3, {1,1,1});
+  oap::chost::SetReValuesToMatrix (weights2to3, {1,1,1});
 
   l2->setHostWeights (weights2to3);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
 
   std::vector<floatt> inputsVec = {1, 1};
 
   *GetRePtrIndex (inputs, 0) = inputsVec[0];
   *GetRePtrIndex (inputs, 1) = inputsVec[1];
 
-  oap::HostComplexMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr expectedOutputs = oap::chost::NewReMatrix (1, 1);
   *GetRePtrIndex (expectedOutputs, 0) = sigmoid (sigmoid (2) + sigmoid (2) + sigmoid (2));
 
   floatt lr = 0.01;
@@ -368,7 +368,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_1)
   EXPECT_DOUBLE_EQ (0, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
   network->updateWeights ();
 
-  oap::HostComplexMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr bweights1to2 = oap::chost::NewReMatrix (2, 3);
   l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
@@ -389,23 +389,23 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_2)
   oap::Layer* l2 = network->createLayer(3);
   oap::Layer* l3 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 3);
 
-  oap::host::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
+  oap::chost::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (3, 1);
 
-  oap::host::SetReValuesToMatrix (weights2to3, {1,1,1});
+  oap::chost::SetReValuesToMatrix (weights2to3, {1,1,1});
 
   l2->setHostWeights (weights2to3);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
 
   std::vector<std::pair<floatt, floatt>> inputsVec = {{1, 1}, {2, 2}, {3, 3}};
 
-  oap::HostComplexMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr expectedOutputs = oap::chost::NewReMatrix (1, 1);
   std::vector<floatt> expectedOutputsVec;
   for (const auto& pair : inputsVec)
   {
@@ -438,7 +438,7 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_2)
   EXPECT_DOUBLE_EQ (0, network->calculateError (oap::ErrorType::ROOT_MEAN_SQUARE_ERROR));
   network->updateWeights ();
 
-  oap::HostComplexMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr bweights1to2 = oap::chost::NewReMatrix (2, 3);
   l1->getHostWeights (bweights1to2);
 
   EXPECT_DOUBLE_EQ (1, GetReIndex (bweights1to2, 0));
@@ -459,23 +459,23 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_5_Batch_3)
   oap::Layer* l2 = network->createLayer(3);
   oap::Layer* l3 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 3);
 
-  oap::host::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
+  oap::chost::SetReValuesToMatrix (weights1to2, {1,1,1,1,1,1});
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (3, 1);
 
-  oap::host::SetReValuesToMatrix (weights2to3, {1,1,1});
+  oap::chost::SetReValuesToMatrix (weights2to3, {1,1,1});
 
   l2->setHostWeights (weights2to3);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
 
   std::vector<std::pair<floatt, floatt>> inputsVec = {{1, 1}, {2, 2}, {3, 3}};
 
-  oap::HostComplexMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr expectedOutputs = oap::chost::NewReMatrix (1, 1);
   std::vector<floatt> expectedOutputsVec;
   for (const auto& pair : inputsVec)
   {
@@ -519,25 +519,25 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_7)
   oap::Layer* l2 = network->createLayer(3);
   oap::Layer* l3 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 3);
 
-  oap::host::SetReValuesToMatrix (weights1to2, {2, 1, 1, 1, 1, 1});
+  oap::chost::SetReValuesToMatrix (weights1to2, {2, 1, 1, 1, 1, 1});
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (3, 1);
 
-  oap::host::SetReValuesToMatrix(weights2to3, {1, 1, 1});
+  oap::chost::SetReValuesToMatrix(weights2to3, {1, 1, 1});
 
   l2->setHostWeights (weights2to3);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
 
   std::vector<floatt> inputsVec = {1, 1};
 
-  oap::host::SetReValuesToMatrix (inputs, inputsVec);
+  oap::chost::SetReValuesToMatrix (inputs, inputsVec);
 
-  oap::HostComplexMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr expectedOutputs = oap::chost::NewReMatrix (1, 1);
   floatt error = 0.001;
   *GetRePtrIndex (expectedOutputs, 0) = sigmoid (sigmoid (3) + sigmoid (2) + sigmoid (2)) + error;
 
@@ -556,10 +556,10 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_7)
   network->backPropagation ();
   network->updateWeights ();
 
-  oap::HostComplexMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr bweights1to2 = oap::chost::NewReMatrix (2, 3);
   l1->getHostWeights (bweights1to2);
 
-  oap::HostComplexMatrixPtr bweights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr bweights2to3 = oap::chost::NewReMatrix (3, 1);
   l2->getHostWeights (bweights2to3);
 
   floatt limit = 0.00001;
@@ -586,25 +586,25 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_8)
   oap::Layer* l2 = network->createLayer(3);
   oap::Layer* l3 = network->createLayer(1);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 3);
 
-  oap::host::SetReValuesToMatrix (weights1to2, {2, 1, 1, 1, 1, 1});
+  oap::chost::SetReValuesToMatrix (weights1to2, {2, 1, 1, 1, 1, 1});
 
   l1->setHostWeights (weights1to2);
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (3, 1);
 
-  oap::host::SetReValuesToMatrix(weights2to3, {1, 1, 1});
+  oap::chost::SetReValuesToMatrix(weights2to3, {1, 1, 1});
 
   l2->setHostWeights (weights2to3);
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
 
   std::vector<floatt> inputsVec = {1, 1};
 
-  oap::host::SetReValuesToMatrix (inputs, inputsVec);
+  oap::chost::SetReValuesToMatrix (inputs, inputsVec);
 
-  oap::HostComplexMatrixPtr expectedOutputs = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr expectedOutputs = oap::chost::NewReMatrix (1, 1);
   floatt error = 0.001;
   *GetRePtrIndex (expectedOutputs, 0) = sigmoid (sigmoid (3) + sigmoid (2) + sigmoid (2)) + error;
 
@@ -623,10 +623,10 @@ TEST_F(OapNeuralTests_SimpleBackpropagation, Test_8)
   network->backPropagation ();
   network->updateWeights ();
 
-  oap::HostComplexMatrixPtr bweights1to2 = oap::host::NewReMatrix (2, 3);
+  oap::HostComplexMatrixPtr bweights1to2 = oap::chost::NewReMatrix (2, 3);
   l1->getHostWeights (bweights1to2);
 
-  oap::HostComplexMatrixPtr bweights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr bweights2to3 = oap::chost::NewReMatrix (3, 1);
   l2->getHostWeights (bweights2to3);
 
   floatt limit = 0.00001;

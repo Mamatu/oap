@@ -17,9 +17,9 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DeviceMatrixKernels.h"
-#include "oapCudaMatrixUtils.h"
-#include "ThreadsMapper.h"
+#include "DeviceMatrixKernels.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "ThreadsMapper.hpp"
 
 void prepareDims(uintt w, uintt h, oap::cuda::Kernel& kernel) {
   uint blocks[2];

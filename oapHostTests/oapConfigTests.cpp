@@ -23,7 +23,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "Config.h"
+#include "Config.hpp"
 
 
 class OapConfigTests : public testing::Test {

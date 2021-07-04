@@ -17,13 +17,13 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HostInfoCreator.h"
+#include "HostInfoCreator.hpp"
 
-#include "MatrixPrinter.h"
+#include "MatrixPrinter.hpp"
 
-#include "oapHostMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
 
-#include "Utils.h"
+#include "Utils.hpp"
 
 void HostInfoCreator::setInfoTypeCallback(const InfoType& infoType) {}
 
@@ -59,7 +59,7 @@ bool HostInfoCreator::compareValues(math::ComplexMatrix* matrix1,
 }
 
 void HostInfoCreator::destroyMatrix(math::ComplexMatrix* diffMatrix) const {
-  oap::host::DeleteMatrix(diffMatrix);
+  oap::chost::DeleteMatrix(diffMatrix);
 }
 
 bool HostInfoCreator::isRe(math::ComplexMatrix* matrix) const {

@@ -1,20 +1,19 @@
 #include <random>
 #include <vector>
 
-#include "PatternsClassification.h"
+#include "PatternsClassification.hpp"
 
-#include "CuProceduresApi.h"
-#include "KernelExecutor.h"
-#include "MathOperationsCpu.h"
+#include "CuProceduresApi.hpp"
+#include "KernelExecutor.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
-#include "Controllers.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "Controllers.hpp"
 
-#include "Config.h"
-#include "MatrixAPI.h"
+#include "Config.hpp"
+#include "MatrixAPI.hpp"
 
-#include "ArgsParser.h"
+#include "ArgsParser.hpp"
 namespace oap
 {
 
@@ -100,8 +99,8 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
     network->createLayer (layerSize);
   }
 
-  oap::HostComplexMatrixPtr input = oap::host::NewReMatrixWithValue (1, args.networkLayers.front(), 0);
-  oap::HostComplexMatrixPtr eoutput = oap::host::NewReMatrixWithValue (1, args.networkLayers.back(), 0);
+  oap::HostComplexMatrixPtr input = oap::chost::NewReMatrixWithValue (1, args.networkLayers.front(), 0);
+  oap::HostComplexMatrixPtr eoutput = oap::chost::NewReMatrixWithValue (1, args.networkLayers.back(), 0);
 
   network->setLearningRate (0.001);
 
@@ -121,12 +120,12 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
   {
     if (dis(dre) >= 0.5)
     {
-      oap::host::CopyBuffer (input->re.mem.ptr, upatternA.get (), gColumns (input) * gRows (input));
+      oap::chost::CopyBuffer (input->re.mem.ptr, upatternA.get (), gColumns (input) * gRows (input));
       *GetRePtrIndex (eoutput, 0) = 1;
     }
     else
     {
-      oap::host::CopyBuffer (input->re.mem.ptr, upatternB.get (), gColumns (input) * gRows (input));
+      oap::chost::CopyBuffer (input->re.mem.ptr, upatternB.get (), gColumns (input) * gRows (input));
       *GetRePtrIndex (eoutput, 0) = 0;
     }
 
@@ -155,11 +154,11 @@ int PatternsClassification::run (const oap::PatternsClassificationParser::Args& 
 
   if (!m_bInterrupted)
   {
-    oap::host::CopyBuffer (input->re.mem.ptr, upatternA.get (), gColumns (input) * gRows (input));
+    oap::chost::CopyBuffer (input->re.mem.ptr, upatternA.get (), gColumns (input) * gRows (input));
     auto output1 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output1, args.m_onOutput1);
 
-    oap::host::CopyBuffer (input->re.mem.ptr, upatternB.get (), gColumns (input) * gRows (input));
+    oap::chost::CopyBuffer (input->re.mem.ptr, upatternB.get (), gColumns (input) * gRows (input));
     auto output2 = network->run (input, ArgType::HOST, errorType);
     invokeCallback (output2, args.m_onOutput2);
   }

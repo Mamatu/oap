@@ -18,11 +18,11 @@
  */
 
 #include "gtest/gtest.h"
-#include "CuProcedures/CuKernelOperationsMacros.h"
-#include "MatrixInfo.h"
-#include "MatrixAPI.h"
-#include "GenericProceduresApi.h"
-#include "oapHostComplexMatrixUPtr.h"
+#include "CuProcedures/CuKernelOperationsMacros.hpp"
+#include "MatrixInfo.hpp"
+#include "MatrixAPI.hpp"
+#include "GenericProceduresApi.hpp"
+#include "oapHostComplexMatrixUPtr.hpp"
 
 class OapKernelOperationsMacrosTests : public testing::Test {
  public:
@@ -434,12 +434,12 @@ TEST_F(OapKernelOperationsMacrosTests, ConvolutionCreateCacheTest)
     1, 0, 1
   };
 
-  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
-  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);
-  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (3, 3, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::chost::NewReMatrix (3, 3);
+  oap::HostComplexMatrixUPtr param = oap::chost::NewReMatrixCopyOfArray (5, 5, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::chost::NewReMatrixCopyOfArray (3, 3, kernelArray);
 
-  auto pinfo = oap::host::GetMatrixInfo (param);
-  auto kinfo = oap::host::GetMatrixInfo (kernel);
+  auto pinfo = oap::chost::GetMatrixInfo (param);
+  auto kinfo = oap::chost::GetMatrixInfo (kernel);
 
   uintt width = oap::generic::aux::convolve_cache_calculateWidth (pinfo, kinfo);
   uintt height = oap::generic::aux::convolve_cache_calculateHeight (pinfo, kinfo);

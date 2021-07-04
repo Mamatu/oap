@@ -20,12 +20,12 @@
 #include <gtest/gtest.h>
 #include <iterator>
 
-#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapDeviceComplexMatrixUPtr.hpp"
 
-#include "oapHostLayer.h"
-#include "KernelExecutor.h"
-#include "oapGenericNeuralUtils.h"
-#include "oapDeviceNeuralUtils.h"
+#include "oapHostLayer.hpp"
+#include "KernelExecutor.hpp"
+#include "oapGenericNeuralUtils.hpp"
+#include "oapDeviceNeuralUtils.hpp"
 
 class OapNeuralUtilsTests : public testing::Test
 {

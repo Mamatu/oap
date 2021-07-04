@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapHostMatrixApi.h"
+#include "oapHostMatrixApi.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -26,18 +26,18 @@
 #include <sstream>
 #include <vector>
 
-#include "oapGenericMatrixApi.h"
-#include "oapHostMemoryApi.h"
+#include "oapGenericMatrixApi.hpp"
+#include "oapHostMemoryApi.hpp"
 
-#include "oapHostMatrixUPtr.h"
+#include "oapHostMatrixUPtr.hpp"
 
-#include "MatrixParser.h"
-#include "ReferencesCounter.h"
+#include "MatrixParser.hpp"
+#include "ReferencesCounter.hpp"
 
-#include "GenericCoreApi.h"
+#include "GenericCoreApi.hpp"
 
-#include "MatricesList.h"
-#include "oapMemoryCounter.h"
+#include "MatricesList.hpp"
+#include "oapMemoryCounter.hpp"
 
 namespace oap
 {
@@ -103,6 +103,47 @@ math::Matrix* NewMatrix (uintt columns, uintt rows)
   matrix->reg.dims = {columns, rows};;
   matrix->mem = oap::host::NewMemory ({columns, rows});
   return matrix;
+}
+
+void DeleteMatrix (const math::Matrix* matrix)
+{
+  if (nullptr == matrix)
+  {
+    return;
+  }
+
+  auto minfo = g_matricesList.remove (matrix);
+
+  oap::host::DeleteMemory (matrix->mem);
+
+  delete matrix;
+
+  if (minfo.isInitialized ())
+  {
+    logTrace ("Deallocate: host matrix = %p %s", matrix, minfo.toString().c_str());
+  }
+  
+}
+
+uintt GetColumns (const math::Matrix* matrix)
+{
+  return matrix->reg.dims.width;
+}
+
+uintt GetRows (const math::Matrix* matrix)
+{
+  return matrix->reg.dims.height;
+}
+
+floatt GetValue (const math::Matrix* matrix, uintt column, uintt row)
+{
+  return oap::host::GetValue(matrix->mem, matrix->reg, column, row);
+}
+
+void CopyHostMatrixToHostMatrix (math::Matrix* dst, const math::Matrix* src)
+{
+  oapAssert(dst->reg.dims == src->reg.dims);
+  oap::host::CopyHostToHost(dst->mem, dst->reg.loc, src->mem, src->reg);
 }
 }
 }

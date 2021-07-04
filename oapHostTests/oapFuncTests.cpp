@@ -22,21 +22,21 @@
 #include <functional>
 
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
-#include "HostKernelExecutor.h"
-#include "HostProcedures.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
+#include "HostKernelExecutor.hpp"
+#include "HostProcedures.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapHostComplexMatrixPtr.h"
-#include "oapFunctions.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapFunctions.hpp"
 
 #include <functional>
 
-#define PRINT_FAIL_INFO() "output: " << oap::host::to_string(output)
+#define PRINT_FAIL_INFO() "output: " << oap::chost::to_string(output)
 
 class OapHostActivationTests : public testing::Test {
- public:
+public:
 
   virtual void SetUp()
   {
@@ -52,8 +52,8 @@ class OapHostActivationTests : public testing::Test {
   void test (KernelFunc&& kernelFunc, HostFunc&& hostFunc, size_t columns, size_t rows,
              ValueGenerator&& vgenerator = std::forward<ValueGenerator&&>(s_defaultValueGenerator))
   {
-    oap::HostComplexMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (columns, rows, 0);
-    oap::HostComplexMatrixPtr output = oap::host::NewReMatrixWithValue (columns, rows, 0);
+    oap::HostComplexMatrixPtr matrix1 = oap::chost::NewReMatrixWithValue (columns, rows, 0);
+    oap::HostComplexMatrixPtr output = oap::chost::NewReMatrixWithValue (columns, rows, 0);
 
     for (size_t idx = 0; idx < columns; ++idx)
     {
@@ -77,8 +77,8 @@ class OapHostActivationTests : public testing::Test {
   template<typename KernelFunc, typename HostFunc>
   void test_dim_1 (KernelFunc&& kernelFunc, HostFunc&& hostFunc)
   {
-    oap::HostComplexMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (2, 2, 1);
-    oap::HostComplexMatrixPtr output = oap::host::NewReMatrixWithValue (2, 2, 0);
+    oap::HostComplexMatrixPtr matrix1 = oap::chost::NewReMatrixWithValue (2, 2, 1);
+    oap::HostComplexMatrixPtr output = oap::chost::NewReMatrixWithValue (2, 2, 0);
 
     oap::generic::Dim2 dims {{1, 1}};
 
@@ -94,8 +94,8 @@ class OapHostActivationTests : public testing::Test {
   template<typename KernelFunc, typename HostFunc>
   void test_dim_2 (KernelFunc&& kernelFunc, HostFunc&& hostFunc)
   {
-    oap::HostComplexMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (3, 3, 1);
-    oap::HostComplexMatrixPtr output = oap::host::NewReMatrixWithValue (3, 3, 0);
+    oap::HostComplexMatrixPtr matrix1 = oap::chost::NewReMatrixWithValue (3, 3, 1);
+    oap::HostComplexMatrixPtr output = oap::chost::NewReMatrixWithValue (3, 3, 0);
 
     oap::generic::Dim2 dims {{2, 2}};
 
@@ -117,8 +117,8 @@ class OapHostActivationTests : public testing::Test {
   template<typename KernelFunc, typename HostFunc>
   void test_dim_periodic_1 (KernelFunc&& kernelFunc, HostFunc&& hostFunc)
   {
-    oap::HostComplexMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (2, 4, 1);
-    oap::HostComplexMatrixPtr output = oap::host::NewReMatrixWithValue (2, 4, 0);
+    oap::HostComplexMatrixPtr matrix1 = oap::chost::NewReMatrixWithValue (2, 4, 1);
+    oap::HostComplexMatrixPtr output = oap::chost::NewReMatrixWithValue (2, 4, 0);
 
     oap::generic::Dim22 dims =
     {{

@@ -20,7 +20,7 @@
 
 
 
-#include "ThreadsCpu.h"
+#include "ThreadsCpu.hpp"
 
 ThreadsCountProperty::ThreadsCountProperty() : m_threadsCount(1) {
 }

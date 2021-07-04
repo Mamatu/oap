@@ -17,11 +17,11 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Image.h"
+#include "Image.hpp"
 
 #include <memory>
 
-#include "Exceptions.h"
+#include "Exceptions.hpp"
 
 namespace oap
 {

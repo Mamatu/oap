@@ -22,8 +22,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "oapHostMemoryApi.h"
-#include "oapHostMatrixUtils.h"
+#include "oapHostMemoryApi.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
 class OapHostMemoryApiTests : public testing::Test {
 public:
@@ -128,10 +128,10 @@ TEST_F(OapHostMemoryApiTests, CopyTest_1)
 
 TEST_F(OapHostMemoryApiTests, CopyTest_2)
 {
-  math::ComplexMatrix* matrix1 = oap::host::NewReMatrixWithValue (1, 8, 0);
-  math::ComplexMatrix* matrix2 = oap::host::NewReMatrixWithValue (1, 1, 2.f);
+  math::ComplexMatrix* matrix1 = oap::chost::NewReMatrixWithValue (1, 8, 0);
+  math::ComplexMatrix* matrix2 = oap::chost::NewReMatrixWithValue (1, 1, 2.f);
 
-  oap::host::SetReMatrix (matrix1, matrix2, 0, 0);
+  oap::chost::SetReMatrix (matrix1, matrix2, 0, 0);
 
   EXPECT_EQ (2.f, oap::common::GetValue (matrix1->re.mem, oap::common::OAP_NONE_REGION(), 0, 0));
   EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re.mem, oap::common::OAP_NONE_REGION(), 0, 1));
@@ -142,7 +142,7 @@ TEST_F(OapHostMemoryApiTests, CopyTest_2)
   EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re.mem, oap::common::OAP_NONE_REGION(), 0, 6));
   EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re.mem, oap::common::OAP_NONE_REGION(), 0, 7));
 
-  oap::host::SetReMatrix (matrix1, matrix2, 0, 1);
+  oap::chost::SetReMatrix (matrix1, matrix2, 0, 1);
 
   EXPECT_EQ (2.f, oap::common::GetValue (matrix1->re.mem, oap::common::OAP_NONE_REGION(), 0, 0));
   EXPECT_EQ (2.f, oap::common::GetValue (matrix1->re.mem, oap::common::OAP_NONE_REGION(), 0, 1));
@@ -153,8 +153,8 @@ TEST_F(OapHostMemoryApiTests, CopyTest_2)
   EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re.mem, oap::common::OAP_NONE_REGION(), 0, 6));
   EXPECT_EQ (0.f, oap::common::GetValue (matrix1->re.mem, oap::common::OAP_NONE_REGION(), 0, 7));
 
-  oap::host::DeleteMatrix (matrix1);
-  oap::host::DeleteMatrix (matrix2);
+  oap::chost::DeleteMatrix (matrix1);
+  oap::chost::DeleteMatrix (matrix2);
 }
 
 TEST_F(OapHostMemoryApiTests, NewMemoryBulk_Test_1)

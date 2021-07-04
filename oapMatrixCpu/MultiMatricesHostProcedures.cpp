@@ -17,17 +17,17 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MultiMatricesHostProcedures.h"
+#include "MultiMatricesHostProcedures.hpp"
 
 #include <functional>
 #include <iterator>
 #include <math.h>
 
-#include "Logger.h"
-#include "oapHostComplexMatrixUPtr.h"
-#include "oapHostComplexMatrixPtr.h"
+#include "Logger.hpp"
+#include "oapHostComplexMatrixUPtr.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
 
-#include "ThreadsMapper.h"
+#include "ThreadsMapper.hpp"
 
 namespace oap
 {

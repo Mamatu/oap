@@ -19,15 +19,15 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
-#include "HostKernelExecutor.h"
-#include "HostProcedures.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
+#include "HostKernelExecutor.hpp"
+#include "HostProcedures.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
 
-#include "CuProcedures/CuSumUtils.h"
+#include "CuProcedures/CuSumUtils.hpp"
 
 class OapStepsSumValuesInScopeTests : public testing::Test
 {

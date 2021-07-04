@@ -1,4 +1,4 @@
-#include "PatternsClassificationHost.h"
+#include "PatternsClassificationHost.hpp"
 
 #include <memory>
 

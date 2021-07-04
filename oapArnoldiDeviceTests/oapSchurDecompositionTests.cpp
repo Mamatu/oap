@@ -17,20 +17,17 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
 #include "gtest/gtest.h"
 #include <string>
-#include "Matrix.h"
-#include "HostMatrixKernels.h"
-#include "DeviceMatrixKernels.h"
-#include "oapCudaMatrixUtils.h"
-#include "CuProceduresApi.h"
-#include "MatchersUtils.h"
-#include "schur1.h"
-#include "schur2.h"
-#include "schur3.h"
+#include "Matrix.hpp"
+#include "HostMatrixKernels.hpp"
+#include "DeviceMatrixKernels.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "CuProceduresApi.hpp"
+#include "MatchersUtils.hpp"
+#include "schur1.hpp"
+#include "schur2.hpp"
+#include "schur3.hpp"
 
 class OapSchurDecomposition : public testing::Test {
  public:
@@ -72,9 +69,9 @@ class OapSchurDecomposition : public testing::Test {
     math::ComplexMatrix* matrix7 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
     math::ComplexMatrix* matrix8 = oap::cuda::NewDeviceMatrixDeviceRef(matrix);
 
-    math::ComplexMatrix* eq_hostMatrix = oap::host::NewComplexMatrix(eq_matrixStr);
-    math::ComplexMatrix* eq_initMatrix = oap::host::NewComplexMatrix(matrixStr);
-    math::ComplexMatrix* hostMatrix = oap::host::NewComplexMatrixRef(eq_hostMatrix);
+    math::ComplexMatrix* eq_hostMatrix = oap::chost::NewComplexMatrix(eq_matrixStr);
+    math::ComplexMatrix* eq_initMatrix = oap::chost::NewComplexMatrix(matrixStr);
+    math::ComplexMatrix* hostMatrix = oap::chost::NewComplexMatrixRef(eq_hostMatrix);
 
     math::ComplexMatrix* H = matrix;
     math::ComplexMatrix* Q = matrix1;
@@ -99,9 +96,9 @@ class OapSchurDecomposition : public testing::Test {
     //executeTestQUQT(H, Q, QT, output1, output2, eq_initMatrix, hostMatrix,
     //                cuMatrix);
 
-    oap::host::DeleteMatrix(eq_hostMatrix);
-    oap::host::DeleteMatrix(eq_initMatrix);
-    oap::host::DeleteMatrix(hostMatrix);
+    oap::chost::DeleteMatrix(eq_hostMatrix);
+    oap::chost::DeleteMatrix(eq_initMatrix);
+    oap::chost::DeleteMatrix(hostMatrix);
     oap::cuda::DeleteDeviceMatrix(matrix);
     oap::cuda::DeleteDeviceMatrix(matrix1);
     oap::cuda::DeleteDeviceMatrix(matrix2);

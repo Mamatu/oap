@@ -1,13 +1,13 @@
-#include "MainAPExecutor.h"
+#include "MainAPExecutor.hpp"
 
-#include "IEigenCalculator.h"
-#include "DeviceImagesLoader.h"
+#include "IEigenCalculator.hpp"
+#include "DeviceImagesLoader.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
 
 namespace oap
 {
@@ -156,7 +156,7 @@ std::shared_ptr<Outcome> MainAPExecutor::run(ArnUtils::Type type)
 
   for (uint idx = 0; idx < wanted; ++idx)
   {
-    evectors[idx] = oap::host::NewReMatrix(1, matrixInfo.m_matrixDim.rows);
+    evectors[idx] = oap::chost::NewReMatrix(1, matrixInfo.m_matrixDim.rows);
   }
 
   m_eigenCalc->setEigenvaluesOutput(revalues.data());

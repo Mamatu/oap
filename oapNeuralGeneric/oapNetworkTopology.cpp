@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapNetworkTopology.h"
+#include "oapNetworkTopology.hpp"
 
 namespace oap
 {

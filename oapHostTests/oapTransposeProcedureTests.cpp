@@ -17,13 +17,13 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HostKernel.h"
-#include "oapCudaStub.h"
-#include "Matrix.h"
-#include "MatchersUtils.h"
-#include "MatrixEx.h"
-#include "oapHostMatrixUtils.h"
-#include "CuProcedures/CuTransposeProcedures.h"
+#include "HostKernel.hpp"
+#include "oapCudaStub.hpp"
+#include "Matrix.hpp"
+#include "MatchersUtils.hpp"
+#include "MatrixEx.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "CuProcedures/CuTransposeProcedures.hpp"
 
 class OapTransposeTests : public OapCudaStub {
  public:
@@ -53,8 +53,8 @@ class TransposeKernel : public HostKernel {
 };
 
 TEST_F(OapTransposeTests, TransposeVectorTest) {
-  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (1, 1000, 2);
-  math::ComplexMatrix* matrixT = oap::host::NewReMatrixWithValue (1000, 1, 0);
+  math::ComplexMatrix* matrix = oap::chost::NewReMatrixWithValue (1, 1000, 2);
+  math::ComplexMatrix* matrixT = oap::chost::NewReMatrixWithValue (1000, 1, 0);
 
   TransposeKernel transposeKernel(matrixT, matrix);
 
@@ -62,13 +62,13 @@ TEST_F(OapTransposeTests, TransposeVectorTest) {
 
   EXPECT_THAT(matrixT, MatrixHasValues(2));
 
-  oap::host::DeleteMatrix(matrix);
-  oap::host::DeleteMatrix(matrixT);
+  oap::chost::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrixT);
 }
 
 TEST_F(OapTransposeTests, TransposeConjVectorTest) {
-  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (1000, 1, 2);
-  math::ComplexMatrix* matrixT = oap::host::NewReMatrixWithValue (1, 1000, 0);
+  math::ComplexMatrix* matrix = oap::chost::NewReMatrixWithValue (1000, 1, 2);
+  math::ComplexMatrix* matrixT = oap::chost::NewReMatrixWithValue (1, 1000, 0);
 
   TransposeKernel transposeKernel(matrixT, matrix);
 
@@ -76,14 +76,14 @@ TEST_F(OapTransposeTests, TransposeConjVectorTest) {
 
   EXPECT_THAT(matrixT, MatrixHasValues(2));
 
-  oap::host::DeleteMatrix(matrix);
-  oap::host::DeleteMatrix(matrixT);
+  oap::chost::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrixT);
 }
 
 TEST_F(OapTransposeTests, TransposeVectorTest1) {
   uint length = 1000;
-  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (1, length, 1);
-  math::ComplexMatrix* matrixT = oap::host::NewReMatrixWithValue (length, 1, 5);
+  math::ComplexMatrix* matrix = oap::chost::NewReMatrixWithValue (1, length, 1);
+  math::ComplexMatrix* matrixT = oap::chost::NewReMatrixWithValue (length, 1, 5);
 
   for (int fa = 0; fa < length; ++fa) {
     SetRe(matrix, 0, fa, fa);
@@ -97,14 +97,14 @@ TEST_F(OapTransposeTests, TransposeVectorTest1) {
 
   EXPECT_THAT(matrixT, MatrixHasValues(matrix));
 
-  oap::host::DeleteMatrix(matrix);
-  oap::host::DeleteMatrix(matrixT);
+  oap::chost::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrixT);
 }
 
 TEST_F(OapTransposeTests, TransposeConjVectorTest1) {
   uint length = 1000;
-  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (length, 1, 2);
-  math::ComplexMatrix* matrixT = oap::host::NewReMatrixWithValue (1, length, 5);
+  math::ComplexMatrix* matrix = oap::chost::NewReMatrixWithValue (length, 1, 2);
+  math::ComplexMatrix* matrixT = oap::chost::NewReMatrixWithValue (1, length, 5);
 
   for (int fa = 0; fa < length; ++fa) {
     SetRe(matrix, fa, 0, fa);
@@ -118,6 +118,6 @@ TEST_F(OapTransposeTests, TransposeConjVectorTest1) {
 
   EXPECT_THAT(matrixT, MatrixHasValues(matrix));
 
-  oap::host::DeleteMatrix(matrix);
-  oap::host::DeleteMatrix(matrixT);
+  oap::chost::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrixT);
 }

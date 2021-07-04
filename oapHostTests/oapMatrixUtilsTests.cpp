@@ -20,9 +20,9 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "Matrix.h"
-#include "MatrixAPI.h"
-#include "oapHostMatrixUtils.h"
+#include "Matrix.hpp"
+#include "MatrixAPI.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
 namespace host {
 namespace qrtest1 {
@@ -37,18 +37,18 @@ class OapMatrixUtilsTests : public testing::Test {
 };
 
 TEST_F(OapMatrixUtilsTests, SetGetValueTest) {
-  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixWithValue (5, 5, 0);
+  math::ComplexMatrix* matrix = oap::chost::NewComplexMatrixWithValue (5, 5, 0);
   floatt expected = 2.5644654f;
   SetRe(matrix, 1, 1, expected);
   floatt value = GetRe(matrix, 1, 1);
   EXPECT_DOUBLE_EQ(expected, value);
-  oap::host::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMatrixUtilsTests, SetAllValuesTest) {
   uintt columns = 5;
   uintt rows = 5;
-  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixWithValue (columns, rows, 0);
+  math::ComplexMatrix* matrix = oap::chost::NewComplexMatrixWithValue (columns, rows, 0);
   floatt expected = 2.5644654f;
   for (uintt fa = 0; fa < columns; ++fa) {
     for (uintt fb = 0; fb < rows; ++fb) {
@@ -59,11 +59,11 @@ TEST_F(OapMatrixUtilsTests, SetAllValuesTest) {
   {
     EXPECT_EQ (expected, matrix->re.mem.ptr[fa]);
   }
-  oap::host::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix);
 }
 
 TEST_F(OapMatrixUtilsTests, GetValuesTest) {
-  math::ComplexMatrix* matrix = oap::host::NewComplexMatrix(host::qrtest1::matrix);
+  math::ComplexMatrix* matrix = oap::chost::NewComplexMatrix(host::qrtest1::matrix);
   EXPECT_EQ(4, GetRe(matrix, 0, 0));
   EXPECT_EQ(2, GetRe(matrix, 1, 0));
   EXPECT_EQ(4, GetReIndex(matrix, 0));
@@ -75,14 +75,14 @@ TEST_F(OapMatrixUtilsTests, GetValuesTest) {
   EXPECT_EQ(2, GetReIndex(matrix, 6));
   EXPECT_EQ(2, GetReIndex(matrix, 7));
   EXPECT_EQ(4, GetReIndex(matrix, 8));
-  oap::host::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix);
 }
 
 #if 0
 TEST_F(OapMatrixUtilsTests, PushPopTest) {
   uintt columns = 5;
   uintt rows = 5;
-  math::ComplexMatrix* matrix = oap::host::NewComplexMatrixWithValue (columns, rows, 0);
+  math::ComplexMatrix* matrix = oap::chost::NewComplexMatrixWithValue (columns, rows, 0);
   floatt expected = 2.5644654f;
   for (uintt fa = 0; fa < columns; ++fa) {
     for (uintt fb = 0; fb < rows; ++fb) {
@@ -98,6 +98,6 @@ TEST_F(OapMatrixUtilsTests, PushPopTest) {
   Pop(matrix);
   EXPECT_TRUE(test::wasSetAllRe(matrix));
   EXPECT_EQ(1, test::getStackLevels(matrix));
-  oap::host::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix);
 }
 #endif

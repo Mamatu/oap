@@ -19,19 +19,19 @@
 
 #include "gtest/gtest.h"
 
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapHostMemoryApi.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapHostMemoryApi.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapFuncTests.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapFuncTests.hpp"
 
 #include <vector>
 #include <iostream>
 
-#include "HostProcedures.h"
+#include "HostProcedures.hpp"
 
 using namespace ::testing;
 
@@ -50,11 +50,11 @@ TEST_F(OapGenericApiTests_DotProduct, Test_1)
   oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 1}, 0.);
 
-  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::chost::NewReMatrixFromMemory (1, 1, memory, {0, 0});
 
-  oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr matrix1 = oap::chost::NewReMatrixWithValue (1, 1, 2.);
 
-  oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
+  oap::HostComplexMatrixUPtr matrix2 = oap::chost::NewReMatrixWithValue (1, 1, 1.);
 
   std::vector<math::ComplexMatrix*> outputs = {output1};
   hp.v2_multiply (outputs, std::vector<math::ComplexMatrix*>({matrix1}), std::vector<math::ComplexMatrix*>({matrix2}));
@@ -78,14 +78,14 @@ TEST_F(OapGenericApiTests_DotProduct, Test_2)
   oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 2}, 0.);
 
-  oap::HostComplexMatrixUPtr output11 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostComplexMatrixUPtr output12 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 1});
+  oap::HostComplexMatrixUPtr output11 = oap::chost::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output12 = oap::chost::NewReMatrixFromMemory (1, 1, memory, {0, 1});
 
-  oap::HostComplexMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (1, 1, 4.);
-  oap::HostComplexMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (1, 1, 3.);
+  oap::HostComplexMatrixUPtr matrix11 = oap::chost::NewReMatrixWithValue (1, 1, 4.);
+  oap::HostComplexMatrixUPtr matrix12 = oap::chost::NewReMatrixWithValue (1, 1, 3.);
 
-  oap::HostComplexMatrixUPtr matrix21 = oap::host::NewReMatrixWithValue (1, 1, 4.);
-  oap::HostComplexMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (1, 1, 3.);
+  oap::HostComplexMatrixUPtr matrix21 = oap::chost::NewReMatrixWithValue (1, 1, 4.);
+  oap::HostComplexMatrixUPtr matrix22 = oap::chost::NewReMatrixWithValue (1, 1, 3.);
 
   std::vector<math::ComplexMatrix*> outputs = {output11, output12};
   std::vector<math::ComplexMatrix*> matrixs1 = {matrix11, matrix12};
@@ -118,14 +118,14 @@ TEST_F(OapGenericApiTests_DotProduct, Test_3)
   oap::HostProcedures hp;
   oap::Memory memory = oap::host::NewMemoryWithValues ({1, 2}, 0.);
 
-  oap::HostComplexMatrixUPtr output11 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostComplexMatrixUPtr output12 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 1});
+  oap::HostComplexMatrixUPtr output11 = oap::chost::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output12 = oap::chost::NewReMatrixFromMemory (1, 1, memory, {0, 1});
 
-  oap::HostComplexMatrixUPtr matrix11 = oap::host::NewReMatrixWithValue (1, 1, 4.);
-  oap::HostComplexMatrixUPtr matrix12 = oap::host::NewReMatrixWithValue (1, 1, 3.);
+  oap::HostComplexMatrixUPtr matrix11 = oap::chost::NewReMatrixWithValue (1, 1, 4.);
+  oap::HostComplexMatrixUPtr matrix12 = oap::chost::NewReMatrixWithValue (1, 1, 3.);
 
-  oap::HostComplexMatrixUPtr matrix21 = oap::host::NewReMatrixWithValue (1, 1, 4.);
-  oap::HostComplexMatrixUPtr matrix22 = oap::host::NewReMatrixWithValue (1, 1, 3.);
+  oap::HostComplexMatrixUPtr matrix21 = oap::chost::NewReMatrixWithValue (1, 1, 4.);
+  oap::HostComplexMatrixUPtr matrix22 = oap::chost::NewReMatrixWithValue (1, 1, 3.);
 
   std::vector<math::ComplexMatrix*> outputs = {output11, output12};
   std::vector<math::ComplexMatrix*> matrixs1 = {matrix11, matrix12};
@@ -181,13 +181,13 @@ TEST_F(OapGenericApiTests_DotProduct, Test_4)
 
   math::MatrixInfo minfo(true, false, 1, 3);
   math::MatrixInfo minfo1(true, false, 3, 3);
-  std::vector<math::ComplexMatrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
-  std::vector<math::ComplexMatrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
-  std::vector<math::ComplexMatrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
+  std::vector<math::ComplexMatrix*> outputs = oap::chost::NewMatrices (minfo, params1_raw.size());
+  std::vector<math::ComplexMatrix*> params1 = oap::chost::NewMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::ComplexMatrix*> params2 = oap::chost::NewMatricesCopyOfArray (minfo, params2_raw);
 
   hp.v2_multiply (outputs, params1, params2);
 
-  PRINT_MATRIX_CARRAY(outputs);
+  //PRINT_MATRIX_CARRAY(outputs);
 
   std::vector<std::vector<floatt>> expected_raw =
   {
@@ -212,13 +212,13 @@ TEST_F(OapGenericApiTests_DotProduct, Test_4)
 
   for (uintt idx = 0; idx < outputs.size(); ++idx)
   {
-    oap::HostComplexMatrixPtr matrix = oap::host::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
+    oap::HostComplexMatrixPtr matrix = oap::chost::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
     EXPECT_THAT (matrix.get(), MatrixIsEqual (outputs[idx]));
   }
 
-  oap::host::deleteMatrices (outputs);
-  oap::host::deleteMatrices (params1);
-  oap::host::deleteMatrices (params2);
+  oap::chost::deleteMatrices (outputs);
+  oap::chost::deleteMatrices (params1);
+  oap::chost::deleteMatrices (params2);
 }
 
 TEST_F(OapGenericApiTests_DotProduct, Test_5)
@@ -249,13 +249,11 @@ TEST_F(OapGenericApiTests_DotProduct, Test_5)
 
   math::MatrixInfo minfo(true, false, 1, 3);
   math::MatrixInfo minfo1(true, false, 3, 3);
-  std::vector<math::ComplexMatrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
-  std::vector<math::ComplexMatrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
-  std::vector<math::ComplexMatrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
+  std::vector<math::ComplexMatrix*> outputs = oap::chost::NewMatrices (minfo, params1_raw.size());
+  std::vector<math::ComplexMatrix*> params1 = oap::chost::NewMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::ComplexMatrix*> params2 = oap::chost::NewMatricesCopyOfArray (minfo, params2_raw);
 
   hp.v2_multiply (outputs, params1, params2);
-
-  PRINT_MATRIX_CARRAY(outputs);
 
   /*std::vector<std::vector<floatt>> expected_raw =
   {
@@ -268,9 +266,9 @@ TEST_F(OapGenericApiTests_DotProduct, Test_5)
     { 0.315650421, -0.001690069,  0.000000000}
   };*/
 
-  oap::host::deleteMatrices (outputs);
-  oap::host::deleteMatrices (params1);
-  oap::host::deleteMatrices (params2);
+  oap::chost::deleteMatrices (outputs);
+  oap::chost::deleteMatrices (params1);
+  oap::chost::deleteMatrices (params2);
 }
 
 TEST_F(OapGenericApiTests_DotProduct, Test_6)
@@ -302,23 +300,21 @@ TEST_F(OapGenericApiTests_DotProduct, Test_6)
   math::MatrixInfo minfo(true, false, 1, 4);
   math::MatrixDim mdim = {1, 3};
   math::MatrixInfo minfo1(true, false, 3, 3);
-  std::vector<math::ComplexMatrix*> outputs = oap::host::NewMatrices (minfo, params1_raw.size());
+  std::vector<math::ComplexMatrix*> outputs = oap::chost::NewMatrices (minfo, params1_raw.size());
   std::vector<math::ComplexMatrix*> outputs_wb;
   for (auto* matrix : outputs)
   {
-    outputs_wb.push_back (oap::host::NewSharedSubMatrix (mdim, matrix));
+    outputs_wb.push_back (oap::chost::NewSharedSubMatrix (mdim, matrix));
   }
-  std::vector<math::ComplexMatrix*> params1 = oap::host::NewMatricesCopyOfArray (minfo1, params1_raw);
-  std::vector<math::ComplexMatrix*> params2 = oap::host::NewMatricesCopyOfArray (minfo, params2_raw);
+  std::vector<math::ComplexMatrix*> params1 = oap::chost::NewMatricesCopyOfArray (minfo1, params1_raw);
+  std::vector<math::ComplexMatrix*> params2 = oap::chost::NewMatricesCopyOfArray (minfo, params2_raw);
   std::vector<math::ComplexMatrix*> params2_wb;
   for (auto* matrix : params2)
   {
-    params2_wb.push_back (oap::host::NewSharedSubMatrix (mdim, matrix));
+    params2_wb.push_back (oap::chost::NewSharedSubMatrix (mdim, matrix));
   }
 
   hp.v2_multiply (outputs_wb, params1, params2_wb);
-
-  PRINT_MATRIX_CARRAY(outputs);
 
   /*std::vector<std::vector<floatt>> expected_raw =
   {
@@ -331,9 +327,9 @@ TEST_F(OapGenericApiTests_DotProduct, Test_6)
     { 0.315650421, -0.001690069,  0.000000000}
   };*/
 
-  oap::host::deleteMatrices (outputs);
-  oap::host::deleteMatrices (outputs_wb);
-  oap::host::deleteMatrices (params1);
-  oap::host::deleteMatrices (params2);
-  oap::host::deleteMatrices (params2_wb);
+  oap::chost::deleteMatrices (outputs);
+  oap::chost::deleteMatrices (outputs_wb);
+  oap::chost::deleteMatrices (params1);
+  oap::chost::deleteMatrices (params2);
+  oap::chost::deleteMatrices (params2_wb);
 }

@@ -23,10 +23,10 @@
 #include <math.h>
 #include <cstring>
 
-#include "Logger.h"
-#include "KernelExecutor.h"
-#include "ThreadsMapper.h"
-#include "Config.h"
+#include "Logger.hpp"
+#include "KernelExecutor.hpp"
+#include "ThreadsMapper.hpp"
+#include "Config.hpp"
 
 #define printCuErrorStatus(status, cuResult)                                   \
   if (cuResult != 0) {                                                         \

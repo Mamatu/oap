@@ -21,16 +21,16 @@
 #include <ctgmath>
 
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
 
 using namespace ::testing;
 
@@ -120,17 +120,17 @@ TEST_F(OapIndentityTests, IndentityReTest)
 
   auto newMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewComplexMatrix (c, r);
+    return oap::chost::NewComplexMatrix (c, r);
   };
 
   auto newReMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewReMatrix (c, r);
+    return oap::chost::NewReMatrix (c, r);
   };
 
   auto newImMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewImMatrix (c, r);
+    return oap::chost::NewImMatrix (c, r);
   };
 
   auto newDeviceMatrix = [](uintt c, uintt r)
@@ -154,17 +154,17 @@ TEST_F(OapIndentityTests, IndentityImTest)
 
   auto newMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewComplexMatrix (c, r);
+    return oap::chost::NewComplexMatrix (c, r);
   };
 
   auto newReMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewReMatrix (c, r);
+    return oap::chost::NewReMatrix (c, r);
   };
 
   auto newImMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewImMatrix (c, r);
+    return oap::chost::NewImMatrix (c, r);
   };
 
   auto newDeviceMatrix = [](uintt c, uintt r)
@@ -188,17 +188,17 @@ TEST_F(OapIndentityTests, DISABLED_IndentityRealTest)
 
   auto newMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewComplexMatrix (c, r);
+    return oap::chost::NewComplexMatrix (c, r);
   };
 
   auto newReMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewReMatrix (c, r);
+    return oap::chost::NewReMatrix (c, r);
   };
 
   auto newImMatrix = [](uintt c, uintt r)
   {
-    return oap::host::NewImMatrix (c, r);
+    return oap::chost::NewImMatrix (c, r);
   };
 
   auto newDeviceMatrix = [](uintt c, uintt r)
@@ -217,10 +217,10 @@ TEST_F(OapIndentityTests, IndentityDerivativeReTest)
   };
 
   oap::DeviceComplexMatrixPtr doutput = oap::cuda::NewDeviceReMatrix (1, 10);
-  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 10);
+  oap::HostComplexMatrixPtr houtput = oap::chost::NewReMatrix (1, 10);
 
   oap::DeviceComplexMatrixPtr dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
-  oap::HostComplexMatrixPtr hinput = oap::host::NewReMatrix (1, 10);
+  oap::HostComplexMatrixPtr hinput = oap::chost::NewReMatrix (1, 10);
 
   for (size_t idx = 0; idx < 10; ++idx)
   {
@@ -249,10 +249,10 @@ TEST_F(OapIndentityTests, MultiplyIndentityDerivativeReTest)
   };
 
   oap::DeviceComplexMatrixPtr doutput = oap::cuda::NewDeviceReMatrix (1, 10);
-  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 10);
+  oap::HostComplexMatrixPtr houtput = oap::chost::NewReMatrix (1, 10);
 
   oap::DeviceComplexMatrixPtr dinput = oap::cuda::NewDeviceMatrixDeviceRef (doutput);
-  oap::HostComplexMatrixPtr hinput = oap::host::NewReMatrix (1, 10);
+  oap::HostComplexMatrixPtr hinput = oap::chost::NewReMatrix (1, 10);
 
   for (size_t idx = 0; idx < 10; ++idx)
   {

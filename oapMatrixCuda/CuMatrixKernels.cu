@@ -1,5 +1,5 @@
-#include "CuMatrixProcedures.h"
-#include "CuMatrixUtils.h"
+#include "CuMatrixProcedures.hpp"
+#include "CuMatrixUtils.hpp"
 
 extern "C" __global__ void CUDAKernel_AddDotProductRe(math::ComplexMatrix* output,
                                                    math::ComplexMatrix* params0,

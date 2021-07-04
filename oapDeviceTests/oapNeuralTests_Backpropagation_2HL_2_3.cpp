@@ -17,9 +17,9 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapNeuralTests_Api.h"
+#include "oapNeuralTests_Api.hpp"
 
-#include "oapNeuralTests_Data_2HL_2_3.h"
+#include "oapNeuralTests_Data_2HL_2_3.hpp"
 
 
 class OapNeuralTests_Backpropagation_2HL_2_3 : public testing::Test

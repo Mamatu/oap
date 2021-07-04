@@ -1,11 +1,11 @@
-#include "oapHostMatrixUtils.h"
-#include "MatchersUtils.h"
-#include "HostKernel.h"
-#include "HostProcedures.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "MatchersUtils.hpp"
+#include "HostKernel.hpp"
+#include "HostProcedures.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.hpp"
 
-#include "oapTensorProductTests_Data_1.h"
+#include "oapTensorProductTests_Data_1.hpp"
 
 class OapTensorProductTests : public testing::Test {
  public:
@@ -22,15 +22,15 @@ TEST_F(OapTensorProductTests, Test_1)
 {
   using namespace oapTensorProduct_Data::Test_1;
 
-  oap::HostComplexMatrixPtr hostM1 = oap::host::NewReMatrix(1, 2);
-  oap::HostComplexMatrixPtr hostM2 = oap::host::NewReMatrix(1, 1);
+  oap::HostComplexMatrixPtr hostM1 = oap::chost::NewReMatrix(1, 2);
+  oap::HostComplexMatrixPtr hostM2 = oap::chost::NewReMatrix(1, 1);
 
-  oap::HostComplexMatrixPtr ehoutput = oap::host::NewReMatrix(1, 2);
-  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix(1, 2);
+  oap::HostComplexMatrixPtr ehoutput = oap::chost::NewReMatrix(1, 2);
+  oap::HostComplexMatrixPtr houtput = oap::chost::NewReMatrix(1, 2);
 
-  oap::host::CopyArrayToReMatrix (ehoutput, t_outputValues);
-  oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
-  oap::host::CopyArrayToReMatrix (hostM2, t_reValues2);
+  oap::chost::CopyArrayToReMatrix (ehoutput, t_outputValues);
+  oap::chost::CopyArrayToReMatrix (hostM1, t_reValues1);
+  oap::chost::CopyArrayToReMatrix (hostM2, t_reValues2);
 
   oap::HostProcedures hp;
   oap::generic::Dim32 dims
@@ -49,15 +49,15 @@ TEST_F(OapTensorProductTests, Test_2)
 {
   using namespace oapTensorProduct_Data::Test_1;
 
-  oap::HostComplexMatrixPtr hostM1 = oap::host::NewReMatrix(2, 1);
-  oap::HostComplexMatrixPtr hostM2 = oap::host::NewReMatrix(1, 1);
+  oap::HostComplexMatrixPtr hostM1 = oap::chost::NewReMatrix(2, 1);
+  oap::HostComplexMatrixPtr hostM2 = oap::chost::NewReMatrix(1, 1);
 
-  oap::HostComplexMatrixPtr ehoutput = oap::host::NewReMatrix(2, 1);
-  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix(2, 1);
+  oap::HostComplexMatrixPtr ehoutput = oap::chost::NewReMatrix(2, 1);
+  oap::HostComplexMatrixPtr houtput = oap::chost::NewReMatrix(2, 1);
 
-  oap::host::CopyArrayToReMatrix (ehoutput, t_outputValues);
-  oap::host::CopyArrayToReMatrix (hostM1, t_reValues1);
-  oap::host::CopyArrayToReMatrix (hostM2, t_reValues2);
+  oap::chost::CopyArrayToReMatrix (ehoutput, t_outputValues);
+  oap::chost::CopyArrayToReMatrix (hostM1, t_reValues1);
+  oap::chost::CopyArrayToReMatrix (hostM2, t_reValues2);
 
   oap::HostProcedures hp;
   oap::generic::Dim32 dims

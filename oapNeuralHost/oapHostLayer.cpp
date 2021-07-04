@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapHostLayer.h"
+#include "oapHostLayer.hpp"
 
 namespace oap
 {
@@ -29,7 +29,7 @@ HostLayer::~HostLayer()
 
 math::MatrixInfo HostLayer::getOutputsInfo () const
 {
-  return oap::generic::getOutputsInfo (*this, oap::host::GetMatrixInfo);
+  return oap::generic::getOutputsInfo (*this, oap::chost::GetMatrixInfo);
 }
 
 math::MatrixInfo HostLayer::getInputsInfo () const
@@ -44,7 +44,7 @@ void HostLayer::getOutputs (math::ComplexMatrix* matrix, ArgType type) const
 
 void HostLayer::getHostWeights (math::ComplexMatrix* output)
 {
-  oap::host::CopyHostMatrixToHostMatrix (output, this->getBPMatrices()->m_weights);
+  oap::chost::CopyHostMatrixToHostMatrix (output, this->getBPMatrices()->m_weights);
 }
 
 void HostLayer::setHostInputs(const math::ComplexMatrix* hInputs)
@@ -59,12 +59,12 @@ void HostLayer::setDeviceInputs(const math::ComplexMatrix* dInputs)
 
 math::MatrixInfo HostLayer::getWeightsInfo () const
 {
-  return oap::host::GetMatrixInfo (this->getBPMatrices()->m_weights);
+  return oap::chost::GetMatrixInfo (this->getBPMatrices()->m_weights);
 }
 
 void HostLayer::printHostWeights (bool newLine) const
 {
-  oap::generic::printHostWeights (*this, newLine, oap::host::CopyHostMatrixToHostMatrix);
+  oap::generic::printHostWeights (*this, newLine, oap::chost::CopyHostMatrixToHostMatrix);
 }
 
 void HostLayer::setHostWeights (math::ComplexMatrix* weights)

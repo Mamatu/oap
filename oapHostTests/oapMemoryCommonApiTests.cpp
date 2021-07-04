@@ -22,7 +22,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "oapMemory_CommonApi.h"
+#include "oapMemory_CommonApi.hpp"
 
 class OapMemoryCommonApiTests : public testing::Test {
 public:

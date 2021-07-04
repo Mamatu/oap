@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "gtest/gtest.h"
-#include "ThreadsMapper.h"
+#include "ThreadsMapper.hpp"
 
 class OapThreadsMapperTests : public testing::Test
 {
