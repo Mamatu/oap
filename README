@@ -27,6 +27,13 @@ Compile only host part of project:
 $ make TARGET_ARCH=HOST
 
 
+#### EIGEN ####
+For computation on cpu is required eigen 3 library. To install it use:
+'''
+cd scripts
+bash install_eigen.sh
+'''
+
 #### MACROS ####
 
 OAP_TESTS_PLOT - plot data into python file in tests scope (can influence on time of tests execution)
