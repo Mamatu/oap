@@ -123,7 +123,7 @@ include_directories (oapTestsData)
 include_directories (oapQRTestSamples)
 include_directories (oapCMatrixDataTests)
 include_directories (oapDeviceTestsData)
-include_directories (./3rd-party/include/eigen3)
+include_directories (./3rd-party/include)
 
 
 if("${BUILD_PART}" STREQUAL "ALL")
