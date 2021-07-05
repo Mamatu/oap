@@ -19,7 +19,7 @@
 
 
 
-#include "Dim3.h"
+#include "Dim3.hpp"
 
 #ifndef OAP_CUDA_BUILD
 

@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
+#include "Exceptions.hpp"
 #include <sstream>
 
 namespace oap {

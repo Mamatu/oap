@@ -20,18 +20,18 @@
 #include <string>
 #include "gtest/gtest.h"
 
-#include "MatchersUtils.h"
+#include "MatchersUtils.hpp"
 
-#include "CuProceduresApi.h"
-#include "MathOperationsCpu.h"
+#include "CuProceduresApi.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "KernelExecutor.h"
+#include "KernelExecutor.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
 
 class OapSumTests : public testing::Test {
  public:
@@ -51,7 +51,7 @@ class OapSumTests : public testing::Test {
   void test (size_t columns, size_t rows, const std::function<int(int)> getValue, const std::function<void(int,int)>& compare)
   {
     size_t expected = 0;
-    oap::HostComplexMatrixPtr hmatrix = oap::host::NewReMatrix (columns, rows);
+    oap::HostComplexMatrixPtr hmatrix = oap::chost::NewReMatrix (columns, rows);
     oap::DeviceComplexMatrixPtr dmatrix = oap::cuda::NewDeviceReMatrix (columns, rows);
     for (size_t idx = 0; idx < columns * rows; ++idx)
     {

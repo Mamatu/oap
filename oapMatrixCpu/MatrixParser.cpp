@@ -1,4 +1,4 @@
-#include "MatrixParser.h"
+#include "MatrixParser.hpp"
 #include <algorithm>
 
 namespace matrixUtils

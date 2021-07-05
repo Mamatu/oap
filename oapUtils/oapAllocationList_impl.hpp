@@ -20,8 +20,8 @@
 #ifndef OAP_ALLOCATION_LIST__IMPL_H
 #define OAP_ALLOCATION_LIST__IMPL_H
 
-#include "oapAllocationList.h"
-#include "Logger.h"
+#include "oapAllocationList.hpp"
+#include "Logger.hpp"
 
 namespace oap
 {

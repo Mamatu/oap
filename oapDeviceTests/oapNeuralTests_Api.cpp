@@ -17,11 +17,11 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapNeuralTests_Api.h"
-#include "oapNetwork.h"
-#include "oapDeviceLayer.h"
-#include "oapNetworkCudaApi.h"
-#include "MultiMatricesCuProcedures.h"
+#include "oapNeuralTests_Api.hpp"
+#include "oapNetwork.hpp"
+#include "oapDeviceLayer.hpp"
+#include "oapNetworkCudaApi.hpp"
+#include "MultiMatricesCuProcedures.hpp"
 
 namespace test_api
 {
@@ -31,8 +31,8 @@ namespace test_api
     oap::Layer* flS = network->getLayer (0, handler);
     oap::Layer* llS = network->getLayer (network->getLayersCount() - 1, handler);
 
-    oap::HostComplexMatrixPtr hinputs = oap::host::NewReMatrix (1, flS->getRowsCount ());
-    oap::HostComplexMatrixPtr hexpected = oap::host::NewReMatrix (1, llS->getRowsCount ());
+    oap::HostComplexMatrixPtr hinputs = oap::chost::NewReMatrix (1, flS->getRowsCount ());
+    oap::HostComplexMatrixPtr hexpected = oap::chost::NewReMatrix (1, llS->getRowsCount ());
 
     for (size_t idx = 0; idx < batch.size(); ++idx)
     {
@@ -379,8 +379,8 @@ namespace test_api
     {
       oap::Layer* layer = network->getLayer(lidx);
 
-      oap::HostComplexMatrixPtr weightsMatrix = oap::host::NewComplexMatrix (layer->getWeightsInfo());
-      oap::host::SetReValuesToMatrix (weightsMatrix, weightsLayers[lidx][initWeightsIdx]);
+      oap::HostComplexMatrixPtr weightsMatrix = oap::chost::NewComplexMatrix (layer->getWeightsInfo());
+      oap::chost::SetReValuesToMatrix (weightsMatrix, weightsLayers[lidx][initWeightsIdx]);
 
       layer->setHostWeights (weightsMatrix);
       weightsMatrices.push_back (weightsMatrix);
@@ -406,8 +406,8 @@ namespace test_api
                   const IdxsToCheck& idxToChecks,
                   const ExtraParams& ep)
   {
-    oap::HostComplexMatrixPtr hinputs = oap::host::NewComplexMatrix (network->getInputInfo());
-    oap::HostComplexMatrixPtr houtput = oap::host::NewComplexMatrix (network->getOutputInfo());
+    oap::HostComplexMatrixPtr hinputs = oap::chost::NewComplexMatrix (network->getInputInfo());
+    oap::HostComplexMatrixPtr houtput = oap::chost::NewComplexMatrix (network->getOutputInfo());
 
     ASSERT_NO_FATAL_FAILURE(
     testSteps (testMode, network, weightsLayers, steps, hinputs, houtput, idxToChecks, ep));

@@ -21,23 +21,23 @@
 #include <tuple>
 
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
-#include "KernelExecutor.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "CuProceduresApi.hpp"
+#include "KernelExecutor.hpp"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
-#include "oapNetwork.h"
-#include "oapFunctions.h"
-#include "PyPlot.h"
-#include "Config.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapNetwork.hpp"
+#include "oapFunctions.hpp"
+#include "PyPlot.hpp"
+#include "Config.hpp"
 
-#include "oapNeuralTests_Api.h"
+#include "oapNeuralTests_Api.hpp"
 
-#include "oapNeuralTests_Data_2HL_1_1.h"
-#include "oapNeuralTests_Data_2HL_1_1_Test_2.h"
-#include "oapNeuralTests_Data_2HL_1_1_Test_3.h"
+#include "oapNeuralTests_Data_2HL_1_1.hpp"
+#include "oapNeuralTests_Data_2HL_1_1_Test_2.hpp"
+#include "oapNeuralTests_Data_2HL_1_1_Test_3.hpp"
 
 class OapNeuralTests_Backpropagation_2HL_1_1 : public testing::Test
 {

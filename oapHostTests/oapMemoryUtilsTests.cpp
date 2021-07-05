@@ -22,10 +22,10 @@
 
 #include <iostream>
 
-#include "Matrix.h"
-#include "oapMemoryUtils.h"
-#include "oapHostMemoryApi.h"
-#include "oapHostComplexMatrixUPtr.h"
+#include "Matrix.hpp"
+#include "oapMemoryUtils.hpp"
+#include "oapHostMemoryApi.hpp"
+#include "oapHostComplexMatrixUPtr.hpp"
 
 namespace host {
 namespace qrtest1 {
@@ -335,20 +335,20 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_16)
 {
   oap::Memory memory = oap::host::NewMemoryWithValues ({2, 1}, 0.);
 
-  oap::HostComplexMatrixUPtr output1 = oap::host::NewReMatrixFromMemory (1, 1, memory, {0, 0});
-  oap::HostComplexMatrixUPtr output2 = oap::host::NewReMatrixFromMemory (1, 1, memory, {1, 0});
+  oap::HostComplexMatrixUPtr output1 = oap::chost::NewReMatrixFromMemory (1, 1, memory, {0, 0});
+  oap::HostComplexMatrixUPtr output2 = oap::chost::NewReMatrixFromMemory (1, 1, memory, {1, 0});
 
-  oap::HostComplexMatrixUPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 2.);
-  oap::HostComplexMatrixUPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 1.);
+  oap::HostComplexMatrixUPtr matrix1 = oap::chost::NewReMatrixWithValue (1, 1, 2.);
+  oap::HostComplexMatrixUPtr matrix2 = oap::chost::NewReMatrixWithValue (1, 1, 1.);
 
   std::vector<math::ComplexMatrix*> outputs = {output1, output2};
 
   std::vector<std::vector<math::ComplexMatrix*>> matricesArgs = {{output1, matrix1}, {output2, matrix2}};
-  std::vector<math::MatrixInfo> matrixInfos = {oap::host::GetMatrixInfo (output1), oap::host::GetMatrixInfo (output2)};
+  std::vector<math::MatrixInfo> matrixInfos = {oap::chost::GetMatrixInfo (output1), oap::chost::GetMatrixInfo (output2)};
   std::vector<std::vector<math::ComplexMatrix>> matrixRefs =
   {
-    {oap::host::GetRefHostMatrix (matricesArgs[0][0]), oap::host::GetRefHostMatrix (matricesArgs[0][1])},
-    {oap::host::GetRefHostMatrix (matricesArgs[1][0]), oap::host::GetRefHostMatrix (matricesArgs[1][1])},
+    {oap::chost::GetRefHostMatrix (matricesArgs[0][0]), oap::chost::GetRefHostMatrix (matricesArgs[0][1])},
+    {oap::chost::GetRefHostMatrix (matricesArgs[1][0]), oap::chost::GetRefHostMatrix (matricesArgs[1][1])},
   };
 
   std::map<uintt, uintt> matrixIdxCounter;
@@ -391,9 +391,9 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_17)
   std::vector<std::vector<math::ComplexMatrix>> matrixRefs;
   for (uintt idx = 0; idx < 134; ++idx)
   {
-    matricesArgs.push_back ({oap::host::NewReMatrix(1,1)});
-    matrixInfos.push_back (oap::host::GetMatrixInfo(matricesArgs.back().back()));
-    matrixRefs.push_back({oap::host::GetRefHostMatrix (matricesArgs.back().back())});
+    matricesArgs.push_back ({oap::chost::NewReMatrix(1,1)});
+    matrixInfos.push_back (oap::chost::GetMatrixInfo(matricesArgs.back().back()));
+    matrixRefs.push_back({oap::chost::GetRefHostMatrix (matricesArgs.back().back())});
   }
 
   std::map<uintt, uintt> matrixIdxCounter;
@@ -426,6 +426,6 @@ TEST_F(OapMemoryUtilsTests, CreateThreadsBlocksTest_17)
 
   for (const auto& vec : matricesArgs)
   {
-    oap::host::deleteMatrices (vec);
+    oap::chost::deleteMatrices (vec);
   }
 }

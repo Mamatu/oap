@@ -20,7 +20,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "PatternsClassificationHost.h"
+#include "PatternsClassificationHost.hpp"
 
 using namespace ::testing;
 

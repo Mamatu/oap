@@ -19,17 +19,17 @@
 
 #include <string.h>
 
-#include "MatrixParser.h"
-#include "ReferencesCounter.h"
+#include "MatrixParser.hpp"
+#include "ReferencesCounter.hpp"
 
-#include "oapCudaMemoryApi.h"
+#include "oapCudaMemoryApi.hpp"
 
-#include "oapMemoryList.h"
-#include "oapMemoryPrimitives.h"
-#include "oapMemory_GenericApi.h"
-#include "oapMemoryCounter.h"
+#include "oapMemoryList.hpp"
+#include "oapMemory.hpp"
+#include "oapMemory_GenericApi.hpp"
+#include "oapMemoryCounter.hpp"
 
-#include "CudaUtils.h"
+#include "CudaUtils.hpp"
 
 #define ReIsNotNULL(m) m->reValues != nullptr
 #define ImIsNotNULL(m) m->imValues != nullptr

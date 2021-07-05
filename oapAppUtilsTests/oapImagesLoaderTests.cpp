@@ -18,13 +18,13 @@
  */
 
 #include "gtest/gtest.h"
-#include "ImagesLoader.h"
-#include "Matrix.h"
-#include "oapHostMatrixUtils.h"
-#include "MatrixAPI.h"
+#include "ImagesLoader.hpp"
+#include "Matrix.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "MatrixAPI.hpp"
 
-#include "ImageMock.h"
-#include "PngFileMock.h"
+#include "ImageMock.hpp"
+#include "PngFileMock.hpp"
 
 using namespace ::testing;
 
@@ -131,7 +131,7 @@ TEST_F(OapImagesLoaderTests, Matrix4x4FromImage) {
         EXPECT_EQ(1, value);
       }
     }
-    oap::host::DeleteMatrix(matrix);
+    oap::chost::DeleteMatrix(matrix);
   } catch (const std::exception& ex) {
     debugException(ex);
   }

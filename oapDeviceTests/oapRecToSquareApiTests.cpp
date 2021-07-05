@@ -18,18 +18,18 @@
  */
 
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "oapHostComplexMatrixUPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
+#include "oapHostComplexMatrixUPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
 
-#include "RecToSquareApi.h"
+#include "RecToSquareApi.hpp"
 
 using namespace ::testing;
 
@@ -52,7 +52,7 @@ class OapRecToSquareApiTests : public testing::Test
     oap::DeviceComplexMatrixPtr deviceSub = rtsApi.createDeviceSubMatrix (index, length);
     auto dinfo = oap::cuda::GetMatrixInfo (deviceSub);
 
-    oap::HostComplexMatrixUPtr hostSub = oap::host::NewComplexMatrix (dinfo);
+    oap::HostComplexMatrixUPtr hostSub = oap::chost::NewComplexMatrix (dinfo);
 
     EXPECT_EQ(expectedColumns, dinfo.columns ());
     EXPECT_EQ(expectedRows, dinfo.rows ());
@@ -65,7 +65,7 @@ class OapRecToSquareApiTests : public testing::Test
 
 TEST_F(OapRecToSquareApiTests, Test25x5RecMatrix)
 {
-  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (5, 25, 1);
+  math::ComplexMatrix* matrix = oap::chost::NewReMatrixWithValue (5, 25, 1);
 
   oap::RecToSquareApi rtsApi (matrix, true);
   auto minfo = rtsApi.getMatrixInfo();
@@ -86,7 +86,7 @@ TEST_F(OapRecToSquareApiTests, Test25x5RecMatrix)
 
 TEST_F(OapRecToSquareApiTests, Test11x6RecMatrix)
 {
-  math::ComplexMatrix* matrix = oap::host::NewReMatrixWithValue (6, 11, 1);
+  math::ComplexMatrix* matrix = oap::chost::NewReMatrixWithValue (6, 11, 1);
 
   oap::RecToSquareApi rtsApi (matrix, true);
   auto minfo = rtsApi.getMatrixInfo();

@@ -20,20 +20,20 @@
 #include <string>
 #include <random>
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
-#include "MultiMatricesCuProcedures.h"
-#include "KernelExecutor.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "CuProceduresApi.hpp"
+#include "MultiMatricesCuProcedures.hpp"
+#include "KernelExecutor.hpp"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapDeviceComplexMatrixUPtr.h"
-#include "oapHostMatrixUtils.h"
-#include "oapNetwork.h"
-#include "oapNetworkCudaApi.h"
-#include "oapFunctions.h"
-#include "PyPlot.h"
-#include "Config.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapDeviceComplexMatrixUPtr.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapNetwork.hpp"
+#include "oapNetworkCudaApi.hpp"
+#include "oapFunctions.hpp"
+#include "PyPlot.hpp"
+#include "Config.hpp"
 
 namespace
 {
@@ -91,8 +91,8 @@ class OapNeuralTests_TinyTests : public testing::Test
           neurons = neurons + 1;
         }
 
-        oap::HostComplexMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
-        oap::HostComplexMatrixUPtr expected = oap::host::NewReMatrix(1, 1);
+        oap::HostComplexMatrixUPtr inputs = oap::chost::NewReMatrix(1, neurons);
+        oap::HostComplexMatrixUPtr expected = oap::chost::NewReMatrix(1, 1);
         *GetRePtrIndex (inputs, 0) = a1;
         *GetRePtrIndex (inputs, 1) = a2;
 
@@ -115,7 +115,7 @@ class OapNeuralTests_TinyTests : public testing::Test
           neurons = neurons + 1;
         }
 
-        oap::HostComplexMatrixUPtr inputs = oap::host::NewReMatrix(1, neurons);
+        oap::HostComplexMatrixUPtr inputs = oap::chost::NewReMatrix(1, neurons);
         *GetRePtrIndex (inputs, 0) = a1;
         *GetRePtrIndex (inputs, 1) = a2;
 
@@ -146,8 +146,8 @@ class OapNeuralTests_TinyTests : public testing::Test
 
     network->setLearningRate (1);
 
-    oap::HostComplexMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
-    oap::HostComplexMatrixUPtr hinputs = oap::host::NewReMatrix (1, 2);
+    oap::HostComplexMatrixUPtr hw = oap::chost::NewReMatrix (2, 1);
+    oap::HostComplexMatrixUPtr hinputs = oap::chost::NewReMatrix (1, 2);
 
     floatt hw_1 = w_1;
     floatt hw_2 = w_2;
@@ -174,10 +174,10 @@ class OapNeuralTests_TinyTests : public testing::Test
 
     network->setLearningRate (1);
 
-    oap::HostComplexMatrixUPtr hw = oap::host::NewReMatrix (2, 1);
-    oap::HostComplexMatrixUPtr io = oap::host::NewReMatrix (1, 2);
-    oap::HostComplexMatrixUPtr io1 = oap::host::NewReMatrix (1, 1);
-    oap::HostComplexMatrixUPtr e1 = oap::host::NewReMatrix (1, 1);
+    oap::HostComplexMatrixUPtr hw = oap::chost::NewReMatrix (2, 1);
+    oap::HostComplexMatrixUPtr io = oap::chost::NewReMatrix (1, 2);
+    oap::HostComplexMatrixUPtr io1 = oap::chost::NewReMatrix (1, 1);
+    oap::HostComplexMatrixUPtr e1 = oap::chost::NewReMatrix (1, 1);
     oap::DeviceComplexMatrixUPtr de1 = oap::cuda::NewDeviceReMatrix(1, 1);
 
     floatt hw_1 = w_1;

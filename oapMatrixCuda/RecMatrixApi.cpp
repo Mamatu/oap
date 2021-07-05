@@ -17,19 +17,19 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RecMatrixApi.h"
+#include "RecMatrixApi.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapDeviceComplexMatrixUPtr.hpp"
 
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
 namespace oap
 {
 
 math::MatrixInfo RecMatrixApi::getMatrixInfo () const
 {
-  return oap::host::GetMatrixInfo (m_recHostMatrix);
+  return oap::chost::GetMatrixInfo (m_recHostMatrix);
 }
 
 RecMatrixApi::RecMatrixApi (const math::ComplexMatrix* recHostMatrix, const bool deallocate) :
@@ -40,7 +40,7 @@ RecMatrixApi::~RecMatrixApi ()
 {
   if (m_deallocate)
   {
-    oap::host::DeleteMatrix (m_recHostMatrix);
+    oap::chost::DeleteMatrix (m_recHostMatrix);
   }
 }
 
@@ -72,7 +72,7 @@ const math::ComplexMatrix* RecMatrixApi::getHostMatrix () const
 
 math::ComplexMatrix* RecMatrixApi::getHostSubMatrix (uintt cindex, uintt rindex, uintt clength, uintt rlength)
 {
-  m_recSubHostMatrix = (oap::host::NewSubMatrix (m_recHostMatrix, cindex, rindex, clength, rlength));
+  m_recSubHostMatrix = (oap::chost::NewSubMatrix (m_recHostMatrix, cindex, rindex, clength, rlength));
   return m_recSubHostMatrix.get ();
 }
 

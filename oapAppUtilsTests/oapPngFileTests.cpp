@@ -19,11 +19,11 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "PngFile.h"
-#include "Exceptions.h"
+#include "PngFile.hpp"
+#include "Exceptions.hpp"
 
-#include "Logger.h"
-#include "Config.h"
+#include "Logger.hpp"
+#include "Config.hpp"
 
 using namespace ::testing;
 

@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapHostKernelThread.h"
-#include "oapHostKernelThread.h"
+#include "oapHostKernelThread.hpp"
+#include "oapHostKernelThread.hpp"
 
 namespace oap
 {

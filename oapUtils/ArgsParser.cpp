@@ -17,9 +17,9 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ArgsParser.h"
+#include "ArgsParser.hpp"
 
-#include "Logger.h"
+#include "Logger.hpp"
 
 namespace oap
 {

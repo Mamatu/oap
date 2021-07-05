@@ -20,10 +20,10 @@
 #ifndef OAP_LAYER_IMPL_H
 #define OAP_LAYER_IMPL_H
 
-#include "oapLayer.h"
+#include "oapLayer.hpp"
 
 #include <list>
-#include "MatrixAPI.h"
+#include "MatrixAPI.hpp"
 
 namespace oap
 {

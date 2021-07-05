@@ -23,11 +23,11 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "CuProceduresApi.h"
-#include "MultiMatricesCuProcedures.h"
-#include "oapNetworkCudaApi.h"
+#include "CuProceduresApi.hpp"
+#include "MultiMatricesCuProcedures.hpp"
+#include "oapNetworkCudaApi.hpp"
 
-#include "Controllers.h"
+#include "Controllers.hpp"
 
 #if 0
 using ErrorCallback = std::function<void(floatt error, oap::Network* network)>;

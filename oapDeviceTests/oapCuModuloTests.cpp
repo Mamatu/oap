@@ -20,18 +20,18 @@
 #include <string>
 #include "gtest/gtest.h"
 
-#include "MatchersUtils.h"
+#include "MatchersUtils.hpp"
 
-#include "CuProceduresApi.h"
-#include "MathOperationsCpu.h"
+#include "CuProceduresApi.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
 
-#include "KernelExecutor.h"
+#include "KernelExecutor.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
 
 class OapModuloTests : public testing::Test {
  public:

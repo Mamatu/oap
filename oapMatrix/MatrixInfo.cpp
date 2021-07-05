@@ -1,5 +1,5 @@
-#include "MatrixInfo.h"
-#include "MatrixAPI.h"
+#include "MatrixInfo.hpp"
+#include "MatrixAPI.hpp"
 
 namespace math
 {

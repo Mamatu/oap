@@ -19,20 +19,20 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "KernelExecutor.h"
+#include "KernelExecutor.hpp"
 
-#include "oapCuHArnoldiS.h"
-#include "oapGenericArnoldiApi.h"
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
+#include "oapCuHArnoldiS.hpp"
+#include "oapGenericArnoldiApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
 
-#include "MatchersUtils.h"
-#include "CudaMatchersUtils.h"
+#include "MatchersUtils.hpp"
+#include "CudaMatchersUtils.hpp"
 
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
 class OapGenericArnoldiApiTests : public testing::Test {
  public:
@@ -115,25 +115,23 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
   uint length = sizeof(h_expected_init) / sizeof(h_expected_init[0]);
 
 
-  oap::HostComplexMatrixPtr hexpectedInit = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_init);
-  oap::HostComplexMatrixPtr hexpectedInitMUnwanted = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_init_m_unwanted);
+  oap::HostComplexMatrixPtr hexpectedInit = oap::chost::NewReMatrixCopyOfArray (4, 4, h_expected_init);
+  oap::HostComplexMatrixPtr hexpectedInitMUnwanted = oap::chost::NewReMatrixCopyOfArray (4, 4, h_expected_init_m_unwanted);
 
-  PRINT_MATRIX(hexpectedInitMUnwanted.get());
+  oap::HostComplexMatrixPtr hexpected1 = oap::chost::NewReMatrixCopyOfArray (4, 4, h_expected_1);
+  oap::HostComplexMatrixPtr hexpected1MUnwanted = oap::chost::NewReMatrixCopyOfArray (4, 4, h_expected_1_m_unwanted);
+  oap::HostComplexMatrixPtr hexpected1MUnwantedPUnwanted = oap::chost::NewReMatrixCopyOfArray (4, 4, h_expected_1_m_unwanted_p_unwanted);
 
-  oap::HostComplexMatrixPtr hexpected1 = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_1);
-  oap::HostComplexMatrixPtr hexpected1MUnwanted = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_1_m_unwanted);
-  oap::HostComplexMatrixPtr hexpected1MUnwantedPUnwanted = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_1_m_unwanted_p_unwanted);
+  oap::HostComplexMatrixPtr qexpected = oap::chost::NewReMatrixCopyOfArray (4, 4, q_expected);
 
-  oap::HostComplexMatrixPtr qexpected = oap::host::NewReMatrixCopyOfArray (4, 4, q_expected);
-
-  oap::HostComplexMatrixPtr rexpected = oap::host::NewReMatrixCopyOfArray (4, 4, r_expected);
+  oap::HostComplexMatrixPtr rexpected = oap::chost::NewReMatrixCopyOfArray (4, 4, r_expected);
 
   oap::generic::CuHArnoldiS ca;
 
   math::MatrixInfo matrixInfo (true, false, 4, 4);
 
   oap::generic::allocStage1 (ca, matrixInfo, oap::cuda::NewKernelMatrix);
-  oap::generic::allocStage2 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix, oap::host::NewHostMatrix);
+  oap::generic::allocStage2 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix, oap::chost::NewHostMatrix);
   oap::generic::allocStage3 (ca, matrixInfo, 4, oap::cuda::NewKernelMatrix, qrtype);
 
   oap::cuda::CopyHostArrayToDeviceReMatrix (ca.m_H, h_expected_init, length);
@@ -183,8 +181,8 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
   //EXPECT_THAT (hexpected1MUnwantedPUnwanted.get(), oap::cuda::MatrixIsEqualHK (ca.m_H));
   //EXPECT_THAT (hexpected1MUnwantedPUnwanted.get(), MatrixIsEqual (hexpected1.get(), 0.01));
 
-  oap::HostComplexMatrixPtr hostR = oap::host::NewReMatrix (4, 4);
-  oap::HostComplexMatrixPtr hostQ = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr hostR = oap::chost::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr hostQ = oap::chost::NewReMatrix (4, 4);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostQ.get(), ca.m_Q1);
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostR.get(), ca.m_R1);
@@ -194,7 +192,7 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_1)
   EXPECT_THAT (hostR.get(), MatrixIsUpperTriangular ());
 
   oap::generic::deallocStage1 (ca, oap::cuda::DeleteDeviceComplexMatrix);
-  oap::generic::deallocStage2 (ca, oap::cuda::DeleteDeviceComplexMatrix, oap::host::DeleteComplexMatrix);
+  oap::generic::deallocStage2 (ca, oap::cuda::DeleteDeviceComplexMatrix, oap::chost::DeleteComplexMatrix);
   oap::generic::deallocStage3 (ca, oap::cuda::DeleteDeviceComplexMatrix);
 }
 
@@ -232,11 +230,11 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_2)
   oap::DeviceComplexMatrixPtr aux3 = oap::cuda::NewDeviceReMatrix (3, 3);
   oap::DeviceComplexMatrixPtr aux4 = oap::cuda::NewDeviceReMatrix (3, 3);
 
-  oap::HostComplexMatrixPtr qexpected = oap::host::NewReMatrix (3, 3);
-  oap::host::CopyArrayToReMatrix (qexpected, q_expected);
+  oap::HostComplexMatrixPtr qexpected = oap::chost::NewReMatrix (3, 3);
+  oap::chost::CopyArrayToReMatrix (qexpected, q_expected);
 
-  oap::HostComplexMatrixPtr rexpected = oap::host::NewReMatrix (3, 3);
-  oap::host::CopyArrayToReMatrix (rexpected, r_expected);
+  oap::HostComplexMatrixPtr rexpected = oap::chost::NewReMatrix (3, 3);
+  oap::chost::CopyArrayToReMatrix (rexpected, r_expected);
 
   oap::cuda::CopyHostArrayToDeviceReMatrix (H, values, length);
 
@@ -248,14 +246,12 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_2)
   //EXPECT_THAT (rexpected.get(), oap::cuda::MatrixIsEqualHK (R.get()));
   EXPECT_THAT (H1.get(), oap::cuda::MatrixIsEqualKK (H.get(), 0.01));
 
-  oap::HostComplexMatrixPtr hostR = oap::host::NewReMatrix (3, 3);
-  oap::HostComplexMatrixPtr hostQ = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr hostR = oap::chost::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr hostQ = oap::chost::NewReMatrix (3, 3);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostQ.get(), Q.get());
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostR.get(), R.get());
 
-  PRINT_MATRIX(hostQ.get());
-  PRINT_MATRIX(hostR.get());
   oap::HostProcedures hp;
   EXPECT_THAT (hostQ.get(), MatrixIsOrthogonal (hp));
   EXPECT_THAT (hostR.get(), MatrixIsUpperTriangular ());
@@ -300,14 +296,14 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
   oap::DeviceComplexMatrixPtr aux3 = oap::cuda::NewDeviceReMatrix (2, 2);
   oap::DeviceComplexMatrixPtr aux4 = oap::cuda::NewDeviceReMatrix (2, 2);
 
-  oap::HostComplexMatrixPtr qexpected = oap::host::NewReMatrix (2, 2);
-  oap::host::CopyArrayToReMatrix (qexpected, q_expected);
+  oap::HostComplexMatrixPtr qexpected = oap::chost::NewReMatrix (2, 2);
+  oap::chost::CopyArrayToReMatrix (qexpected, q_expected);
 
-  oap::HostComplexMatrixPtr rexpected = oap::host::NewReMatrix (2, 2);
-  oap::host::CopyArrayToReMatrix (rexpected, r_expected);
+  oap::HostComplexMatrixPtr rexpected = oap::chost::NewReMatrix (2, 2);
+  oap::chost::CopyArrayToReMatrix (rexpected, r_expected);
 
-  oap::HostComplexMatrixPtr hexpected = oap::host::NewReMatrix (2, 2);
-  oap::host::CopyArrayToReMatrix (hexpected, h_expected);
+  oap::HostComplexMatrixPtr hexpected = oap::chost::NewReMatrix (2, 2);
+  oap::chost::CopyArrayToReMatrix (hexpected, h_expected);
 
   oap::cuda::CopyHostArrayToDeviceReMatrix (H, values, length);
 
@@ -321,8 +317,8 @@ TEST_F(OapGenericArnoldiApiTests, QR_Test_3)
   cuApi.dotProduct (H1, Q, R);
   EXPECT_THAT (H.get(), oap::cuda::MatrixIsEqualKK (H1.get(), 0.01));
 
-  oap::HostComplexMatrixPtr hostR = oap::host::NewReMatrix (2, 2);
-  oap::HostComplexMatrixPtr hostQ = oap::host::NewReMatrix (2, 2);
+  oap::HostComplexMatrixPtr hostR = oap::chost::NewReMatrix (2, 2);
+  oap::HostComplexMatrixPtr hostQ = oap::chost::NewReMatrix (2, 2);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostQ.get(), Q.get());
   oap::cuda::CopyDeviceMatrixToHostMatrix (hostR.get(), R.get());

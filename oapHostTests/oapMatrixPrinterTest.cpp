@@ -22,12 +22,12 @@
 #include <math.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-//#include "gmock/gmock_link_test.h"
+//#include "gmock/gmock_link_test.hpp"
 
-#include "MatrixUtils.h"
-#include "MatrixPrinter.h"
+#include "MatrixUtils.hpp"
+#include "MatrixPrinter.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixPtr.hpp"
 
 class OapMatrixPrinterTests : public testing::Test {
  public:
@@ -40,7 +40,7 @@ class OapMatrixPrinterTests : public testing::Test {
 
 TEST_F(OapMatrixPrinterTests, TestRe1x1WithZero)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, false, 1, 1);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, false, 1, 1);
   std::string str;
 
   matrixUtils::PrintArgs printArgs;
@@ -53,7 +53,7 @@ TEST_F(OapMatrixPrinterTests, TestRe1x1WithZero)
 
 TEST_F(OapMatrixPrinterTests, TestRe1x10WithZero)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, false, 1, 10);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, false, 1, 10);
   std::string str;
 
   matrixUtils::PrintArgs printArgs;
@@ -66,7 +66,7 @@ TEST_F(OapMatrixPrinterTests, TestRe1x10WithZero)
 
 TEST_F(OapMatrixPrinterTests, TestRe10x1WithZero)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, false, 10, 1);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, false, 10, 1);
   std::string str;
 
   matrixUtils::PrintArgs printArgs;
@@ -79,7 +79,7 @@ TEST_F(OapMatrixPrinterTests, TestRe10x1WithZero)
 
 TEST_F(OapMatrixPrinterTests, TestRe10x10WithZero)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, false, 10, 10);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, false, 10, 10);
   std::string str;
 
   matrixUtils::PrintArgs printArgs;
@@ -92,7 +92,7 @@ TEST_F(OapMatrixPrinterTests, TestRe10x10WithZero)
 
 TEST_F(OapMatrixPrinterTests, TestIm1x1WithZero)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(false, true, 1, 1);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(false, true, 1, 1);
   std::string str;
 
   matrixUtils::PrintArgs printArgs;
@@ -105,7 +105,7 @@ TEST_F(OapMatrixPrinterTests, TestIm1x1WithZero)
 
 TEST_F(OapMatrixPrinterTests, TestIm1x10WithZero)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(false, true, 1, 10);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(false, true, 1, 10);
   std::string str;
 
   matrixUtils::PrintArgs printArgs;
@@ -118,7 +118,7 @@ TEST_F(OapMatrixPrinterTests, TestIm1x10WithZero)
 
 TEST_F(OapMatrixPrinterTests, TestIm1x5WithZeroNoRepeats)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(false, true, 1, 5);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(false, true, 1, 5);
   std::string str;
 
   matrixUtils::PrintArgs printArgs (0, true);
@@ -131,7 +131,7 @@ TEST_F(OapMatrixPrinterTests, TestIm1x5WithZeroNoRepeats)
 
 TEST_F(OapMatrixPrinterTests, TestIm10x1WithZero)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(false, true, 10, 1);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(false, true, 10, 1);
   std::string str;
 
   matrixUtils::PrintArgs printArgs;
@@ -144,7 +144,7 @@ TEST_F(OapMatrixPrinterTests, TestIm10x1WithZero)
 
 TEST_F(OapMatrixPrinterTests, TestIm10x10WithZero)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(false, true, 10, 10);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(false, true, 10, 10);
   std::string str;
 
   matrixUtils::PrintArgs printArgs;
@@ -157,7 +157,7 @@ TEST_F(OapMatrixPrinterTests, TestIm10x10WithZero)
 
 TEST_F(OapMatrixPrinterTests, Test5x1)
 {
-  oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, true, 5, 1);
+  oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, true, 5, 1);
   
   for (size_t idx = 0; idx < 5; ++idx)
   {
@@ -178,7 +178,7 @@ TEST_F(OapMatrixPrinterTests, Test5x1)
 TEST_F(OapMatrixPrinterTests, PrintArgsTests)
 {
   {
-    oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, true, 5, 2);
+    oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, true, 5, 2);
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
@@ -195,7 +195,7 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     printf("%s\n", str.c_str());
   }
   {
-    oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, true, 5, 2);
+    oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, true, 5, 2);
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
@@ -212,7 +212,7 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     printf("%s\n", str.c_str());
   }
   {
-    oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, true, 5, 2);
+    oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, true, 5, 2);
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
@@ -229,7 +229,7 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     printf("%s\n", str.c_str());
   }
   {
-    oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, true, 5, 2);
+    oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, true, 5, 2);
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
@@ -246,7 +246,7 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     printf("%s\n", str.c_str());
   }
   {
-    oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(true, false, 5, 2);
+    oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(true, false, 5, 2);
 
     for (size_t idx = 0; idx < 10; ++idx)
     {
@@ -262,7 +262,7 @@ TEST_F(OapMatrixPrinterTests, PrintArgsTests)
     printf("%s\n", str.c_str());
   }
   {
-    oap::HostComplexMatrixPtr matrix = oap::host::NewComplexMatrix(false, true, 5, 2);
+    oap::HostComplexMatrixPtr matrix = oap::chost::NewComplexMatrix(false, true, 5, 2);
 
     for (size_t idx = 0; idx < 10; ++idx)
     {

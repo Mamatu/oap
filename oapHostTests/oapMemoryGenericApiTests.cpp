@@ -22,9 +22,9 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "oapMemory_GenericApi.h"
-#include "oapHostMemoryApi.h"
-#include "oapHostMatrixUtils.h"
+#include "oapMemory_GenericApi.hpp"
+#include "oapHostMemoryApi.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
 class OapMemoryGenericApiTests : public testing::Test {
 public:
@@ -50,16 +50,16 @@ TEST_F(OapMemoryGenericApiTests, RecognizeMemoryType_1)
 TEST_F(OapMemoryGenericApiTests, RecognizeMemoryType_2)
 {
   oap::Memory dstMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* dstMatrix = oap::host::NewReMatrixFromMemory (10, 10, dstMem, {0, 0});
+  math::ComplexMatrix* dstMatrix = oap::chost::NewReMatrixFromMemory (10, 10, dstMem, {0, 0});
 
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (10, 10, srcMem, {0, 0});
+  math::ComplexMatrix* srcMatrix = oap::chost::NewReMatrixFromMemory (10, 10, srcMem, {0, 0});
 
   EXPECT_TRUE (oap::generic::isLinearMemory (dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.dims, srcMatrix->re.reg));
   EXPECT_FALSE (oap::generic::isBlockMemory (dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.dims, srcMatrix->re.reg));
 
-  oap::host::DeleteMatrix (dstMatrix);
-  oap::host::DeleteMatrix (srcMatrix);
+  oap::chost::DeleteMatrix (dstMatrix);
+  oap::chost::DeleteMatrix (srcMatrix);
   oap::host::DeleteMemory (dstMem);
   oap::host::DeleteMemory (srcMem);
 }
@@ -67,16 +67,16 @@ TEST_F(OapMemoryGenericApiTests, RecognizeMemoryType_2)
 TEST_F(OapMemoryGenericApiTests, RecognizeMemoryType_3)
 {
   oap::Memory dstMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* dstMatrix = oap::host::NewReMatrixFromMemory (10, 2, dstMem, {0, 1});
+  math::ComplexMatrix* dstMatrix = oap::chost::NewReMatrixFromMemory (10, 2, dstMem, {0, 1});
 
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (10, 2, srcMem, {0, 2});
+  math::ComplexMatrix* srcMatrix = oap::chost::NewReMatrixFromMemory (10, 2, srcMem, {0, 2});
 
   EXPECT_TRUE (oap::generic::isLinearMemory (dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.dims, srcMatrix->re.reg));
   EXPECT_FALSE (oap::generic::isBlockMemory (dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.dims, srcMatrix->re.reg));
 
-  oap::host::DeleteMatrix (dstMatrix);
-  oap::host::DeleteMatrix (srcMatrix);
+  oap::chost::DeleteMatrix (dstMatrix);
+  oap::chost::DeleteMatrix (srcMatrix);
   oap::host::DeleteMemory (dstMem);
   oap::host::DeleteMemory (srcMem);
 }
@@ -84,16 +84,16 @@ TEST_F(OapMemoryGenericApiTests, RecognizeMemoryType_3)
 TEST_F(OapMemoryGenericApiTests, RecognizeMemoryType_4)
 {
   oap::Memory dstMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* dstMatrix = oap::host::NewReMatrixFromMemory (2, 10, dstMem, {1, 0});
+  math::ComplexMatrix* dstMatrix = oap::chost::NewReMatrixFromMemory (2, 10, dstMem, {1, 0});
 
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (2, 10, srcMem, {2, 0});
+  math::ComplexMatrix* srcMatrix = oap::chost::NewReMatrixFromMemory (2, 10, srcMem, {2, 0});
 
   EXPECT_FALSE (oap::generic::isLinearMemory (dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.dims, srcMatrix->re.reg));
   EXPECT_TRUE (oap::generic::isBlockMemory (dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.dims, srcMatrix->re.reg));
 
-  oap::host::DeleteMatrix (dstMatrix);
-  oap::host::DeleteMatrix (srcMatrix);
+  oap::chost::DeleteMatrix (dstMatrix);
+  oap::chost::DeleteMatrix (srcMatrix);
   oap::host::DeleteMemory (dstMem);
   oap::host::DeleteMemory (srcMem);
 }
@@ -101,16 +101,16 @@ TEST_F(OapMemoryGenericApiTests, RecognizeMemoryType_4)
 TEST_F(OapMemoryGenericApiTests, RecognizeMemoryType_5)
 {
   oap::Memory dstMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* dstMatrix = oap::host::NewReMatrixFromMemory (5, 5, dstMem, {1, 1});
+  math::ComplexMatrix* dstMatrix = oap::chost::NewReMatrixFromMemory (5, 5, dstMem, {1, 1});
 
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (5, 5, srcMem, {2, 2});
+  math::ComplexMatrix* srcMatrix = oap::chost::NewReMatrixFromMemory (5, 5, srcMem, {2, 2});
 
   EXPECT_FALSE (oap::generic::isLinearMemory (dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.dims, srcMatrix->re.reg));
   EXPECT_TRUE (oap::generic::isBlockMemory (dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.dims, srcMatrix->re.reg));
 
-  oap::host::DeleteMatrix (dstMatrix);
-  oap::host::DeleteMatrix (srcMatrix);
+  oap::chost::DeleteMatrix (dstMatrix);
+  oap::chost::DeleteMatrix (srcMatrix);
   oap::host::DeleteMemory (dstMem);
   oap::host::DeleteMemory (srcMem);
 }
@@ -118,10 +118,10 @@ TEST_F(OapMemoryGenericApiTests, RecognizeMemoryType_5)
 TEST_F(OapMemoryGenericApiTests, CopyLinear_1)
 {
   oap::Memory dstMem = oap::host::NewMemoryWithValues ({10, 10}, 0.);
-  math::ComplexMatrix* dstMatrix = oap::host::NewReMatrixFromMemory (10, 2, dstMem, {0, 1});
+  math::ComplexMatrix* dstMatrix = oap::chost::NewReMatrixFromMemory (10, 2, dstMem, {0, 1});
 
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (10, 2, srcMem, {0, 2});
+  math::ComplexMatrix* srcMatrix = oap::chost::NewReMatrixFromMemory (10, 2, srcMem, {0, 2});
 
   oap::generic::copy (dstMatrix->re.mem.ptr, dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.ptr, srcMatrix->re.mem.dims, srcMatrix->re.reg, memcpy, memcpy);
 
@@ -141,8 +141,8 @@ TEST_F(OapMemoryGenericApiTests, CopyLinear_1)
     }
   }
 
-  oap::host::DeleteMatrix (dstMatrix);
-  oap::host::DeleteMatrix (srcMatrix);
+  oap::chost::DeleteMatrix (dstMatrix);
+  oap::chost::DeleteMatrix (srcMatrix);
   oap::host::DeleteMemory (dstMem);
   oap::host::DeleteMemory (srcMem);
 }
@@ -150,10 +150,10 @@ TEST_F(OapMemoryGenericApiTests, CopyLinear_1)
 TEST_F(OapMemoryGenericApiTests, CopyBlock_1)
 {
   oap::Memory dstMem = oap::host::NewMemoryWithValues ({10, 10}, 0.);
-  math::ComplexMatrix* dstMatrix = oap::host::NewReMatrixFromMemory (5, 5, dstMem, {1, 1});
+  math::ComplexMatrix* dstMatrix = oap::chost::NewReMatrixFromMemory (5, 5, dstMem, {1, 1});
 
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (5, 5, srcMem, {2, 2});
+  math::ComplexMatrix* srcMatrix = oap::chost::NewReMatrixFromMemory (5, 5, srcMem, {2, 2});
 
   oap::generic::copy (dstMatrix->re.mem.ptr, dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.ptr, srcMatrix->re.mem.dims, srcMatrix->re.reg, memcpy, memcpy);
 
@@ -173,8 +173,8 @@ TEST_F(OapMemoryGenericApiTests, CopyBlock_1)
     }
   }
 
-  oap::host::DeleteMatrix (dstMatrix);
-  oap::host::DeleteMatrix (srcMatrix);
+  oap::chost::DeleteMatrix (dstMatrix);
+  oap::chost::DeleteMatrix (srcMatrix);
   oap::host::DeleteMemory (dstMem);
   oap::host::DeleteMemory (srcMem);
 }
@@ -182,10 +182,10 @@ TEST_F(OapMemoryGenericApiTests, CopyBlock_1)
 TEST_F(OapMemoryGenericApiTests, CopyBlock_2)
 {
   oap::Memory dstMem = oap::host::NewMemoryWithValues ({10, 10}, 0.);
-  math::ComplexMatrix* dstMatrix = oap::host::NewReMatrixFromMemory (2, 10, dstMem, {1, 0});
+  math::ComplexMatrix* dstMatrix = oap::chost::NewReMatrixFromMemory (2, 10, dstMem, {1, 0});
 
   oap::Memory srcMem = oap::host::NewMemoryWithValues ({10, 10}, 1.);
-  math::ComplexMatrix* srcMatrix = oap::host::NewReMatrixFromMemory (2, 10, srcMem, {2, 0});
+  math::ComplexMatrix* srcMatrix = oap::chost::NewReMatrixFromMemory (2, 10, srcMem, {2, 0});
 
   oap::generic::copy (dstMatrix->re.mem.ptr, dstMatrix->re.mem.dims, dstMatrix->re.reg.loc, srcMatrix->re.mem.ptr, srcMatrix->re.mem.dims, srcMatrix->re.reg, memcpy, memcpy);
 
@@ -206,8 +206,8 @@ TEST_F(OapMemoryGenericApiTests, CopyBlock_2)
   }
 
 
-  oap::host::DeleteMatrix (dstMatrix);
-  oap::host::DeleteMatrix (srcMatrix);
+  oap::chost::DeleteMatrix (dstMatrix);
+  oap::chost::DeleteMatrix (srcMatrix);
   oap::host::DeleteMemory (dstMem);
   oap::host::DeleteMemory (srcMem);
 }

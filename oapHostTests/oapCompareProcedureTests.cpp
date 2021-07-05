@@ -20,12 +20,12 @@
 
 #include <string>
 
-#include "MatchersUtils.h"
-#include "oapCudaStub.h"
-#include "MathOperationsCpu.h"
-#include "oapHostMatrixUtils.h"
-#include "CuProcedures/CuCompareUtils.h"
-#include "CuProcedures/CuCompareUtils2.h"
+#include "MatchersUtils.hpp"
+#include "oapCudaStub.hpp"
+#include "oapEigen.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "CuProcedures/CuCompareUtils.hpp"
+#include "CuProcedures/CuCompareUtils2.hpp"
 
 const int ct = 32;
 
@@ -97,7 +97,7 @@ class CompareStubImpl : public HostKernel {
 
   CompareStubImpl(uint columns, uint rows, AlgoVersion::Type algoVersion)
       : m_algoVersion(algoVersion) {
-    m_matrix = oap::host::NewReMatrixWithValue (columns, rows, 0);
+    m_matrix = oap::chost::NewReMatrixWithValue (columns, rows, 0);
     calculateDims(columns / m_algoVersion.getFactor(), rows);
     m_bufferLength = blockDim.x * blockDim.y;
     m_sumsLength = gridDim.x * gridDim.y;
@@ -108,7 +108,7 @@ class CompareStubImpl : public HostKernel {
   }
 
   virtual ~CompareStubImpl() {
-    oap::host::DeleteMatrix(m_matrix);
+    oap::chost::DeleteMatrix(m_matrix);
     delete[] m_buffer;
     delete[] m_sums;
   }

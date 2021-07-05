@@ -17,10 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapNeuralTests_Api.h"
+#include "oapNeuralTests_Api.hpp"
 
-#include "oapNeuralTests_Data_Miscs.h"
-#include "oapNeuralTests_Data_Miscs_1.h"
+#include "oapNeuralTests_Data_Miscs.hpp"
+#include "oapNeuralTests_Data_Miscs_1.hpp"
 
 class OapNeuralTests_Backpropagation_Miscs : public testing::Test
 {
@@ -62,8 +62,8 @@ TEST_F(OapNeuralTests_Backpropagation_Miscs, Test_2)
 
     ASSERT_EQ (test_api::TestMode::NORMAL, testMode);
 
-    oap::HostComplexMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
-    oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+    oap::HostComplexMatrixPtr hinputs = oap::chost::NewReMatrix (1, 3);
+    oap::HostComplexMatrixPtr houtput = oap::chost::NewReMatrix (1, 1);
 
     auto checkErrors = [&hinputs, &houtput, &network](floatt expected, const std::vector<std::pair<std::pair<floatt, floatt>, floatt>>& points)
     {

@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapTestDataLoader.h"
+#include "oapTestDataLoader.hpp"
 #include "gtest/gtest.h"
 
 class OapArnoldiPackageCallbackTests : public testing::Test {
@@ -41,14 +41,14 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
         if (mt == oap::VecMultiplicationType::TYPE_WV) {
           oap::ACTestData* data = userPair.first;
           data->load();
-          oap::host::CopyHostMatrixToHostMatrix(data->hostV, v);
+          oap::chost::CopyHostMatrixToHostMatrix(data->hostV, v);
           if (userPair.second) {
             ASSERT_THAT(data->hostV,
                         MatrixIsEqual(
                             data->refV,
                             InfoType(InfoType::MEAN | InfoType::LARGEST_DIFF)));
           }
-          oap::host::CopyHostMatrixToHostMatrix(w, data->refW);
+          oap::chost::CopyHostMatrixToHostMatrix(w, data->refW);
         }
       };
 
@@ -56,15 +56,15 @@ class OapArnoldiPackageCallbackTests : public testing::Test {
       oap::HostProcedures hp;
       math::MatrixInfo matrixInfo (true, true, data.getElementsCount(), data.getElementsCount());
 
-      oap::generic::allocStage1 (ca, matrixInfo, oap::host::NewHostMatrix);
-      oap::generic::allocStage2 (ca, matrixInfo, 32, oap::host::NewHostMatrix, oap::host::NewHostMatrix);
-      oap::generic::allocStage3 (ca, matrixInfo, 32, oap::host::NewHostMatrix, oap::QRType::QRGR);
+      oap::generic::allocStage1 (ca, matrixInfo, oap::chost::NewHostMatrix);
+      oap::generic::allocStage2 (ca, matrixInfo, 32, oap::chost::NewHostMatrix, oap::chost::NewHostMatrix);
+      oap::generic::allocStage3 (ca, matrixInfo, 32, oap::chost::NewHostMatrix, oap::QRType::QRGR);
 
       oap::generic::iram_executeInit (ca, hp, multiply);
 
-      oap::generic::deallocStage1 (ca, oap::host::DeleteComplexMatrix);
-      oap::generic::deallocStage2 (ca, oap::host::DeleteComplexMatrix, oap::host::DeleteComplexMatrix);
-      oap::generic::deallocStage3 (ca, oap::host::DeleteComplexMatrix);
+      oap::generic::deallocStage1 (ca, oap::chost::DeleteComplexMatrix);
+      oap::generic::deallocStage2 (ca, oap::chost::DeleteComplexMatrix, oap::chost::DeleteComplexMatrix);
+      oap::generic::deallocStage3 (ca, oap::chost::DeleteComplexMatrix);
     }
 };
 

@@ -17,9 +17,9 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IKernelExecutor.h"
+#include "IKernelExecutor.hpp"
 
-#include "ThreadsMapper.h"
+#include "ThreadsMapper.hpp"
 
 namespace oap
 {

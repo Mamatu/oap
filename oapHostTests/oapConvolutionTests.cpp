@@ -19,13 +19,12 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "HostProcedures.h"
-#include "MathOperationsCpu.h"
-#include "GenericProceduresApi.h"
+#include "MatchersUtils.hpp"
+#include "HostProcedures.hpp"
+#include "GenericProceduresApi.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
 
 
 class OapConvolutionTests : public testing::Test {
@@ -54,9 +53,9 @@ TEST_F(OapConvolutionTests, Test_0)
 
   oap::HostProcedures calcApi;
 
-  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
-  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (1, 1, paramArray);
-  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (1, 1, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::chost::NewReMatrix (1, 1);
+  oap::HostComplexMatrixUPtr param = oap::chost::NewReMatrixCopyOfArray (1, 1, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::chost::NewReMatrixCopyOfArray (1, 1, kernelArray);
 
   calcApi.convolve (outcome, param, kernel);
 
@@ -81,9 +80,9 @@ TEST_F(OapConvolutionTests, Test_1)
 
   oap::HostProcedures calcApi;
 
-  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (1, 1);
-  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (2, 2, paramArray);
-  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (2, 2, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::chost::NewReMatrix (1, 1);
+  oap::HostComplexMatrixUPtr param = oap::chost::NewReMatrixCopyOfArray (2, 2, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::chost::NewReMatrixCopyOfArray (2, 2, kernelArray);
 
   calcApi.convolve (outcome, param, kernel);
 
@@ -112,9 +111,9 @@ TEST_F(OapConvolutionTests, Test_2)
 
   oap::HostProcedures calcApi;
 
-  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (2, 2);
-  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (3, 3, paramArray);
-  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (2, 2, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::chost::NewReMatrix (2, 2);
+  oap::HostComplexMatrixUPtr param = oap::chost::NewReMatrixCopyOfArray (3, 3, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::chost::NewReMatrixCopyOfArray (2, 2, kernelArray);
 
   calcApi.convolve (outcome, param, kernel);
 
@@ -143,12 +142,12 @@ TEST_F(OapConvolutionTests, Test_3)
 
   oap::HostProcedures calcApi;
 
-  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (3, 3);
-  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (5, 5, paramArray);
-  oap::HostComplexMatrixUPtr kernel = oap::host::NewReMatrixCopyOfArray (3, 3, kernelArray);
+  oap::HostComplexMatrixUPtr outcome = oap::chost::NewReMatrix (3, 3);
+  oap::HostComplexMatrixUPtr param = oap::chost::NewReMatrixCopyOfArray (5, 5, paramArray);
+  oap::HostComplexMatrixUPtr kernel = oap::chost::NewReMatrixCopyOfArray (3, 3, kernelArray);
 
-  auto pinfo = oap::host::GetMatrixInfo (param);
-  auto kinfo = oap::host::GetMatrixInfo (kernel);
+  auto pinfo = oap::chost::GetMatrixInfo (param);
+  auto kinfo = oap::chost::GetMatrixInfo (kernel);
 
   uintt width = oap::generic::aux::convolve_cache_calculateWidth (pinfo, kinfo);
   uintt height = oap::generic::aux::convolve_cache_calculateHeight (pinfo, kinfo);

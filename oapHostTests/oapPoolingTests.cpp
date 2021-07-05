@@ -19,13 +19,13 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "HostProcedures.h"
-#include "MathOperationsCpu.h"
-#include "GenericProceduresApi.h"
+#include "MatchersUtils.hpp"
+#include "HostProcedures.hpp"
+#include "oapEigen.hpp"
+#include "GenericProceduresApi.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
 
 
 class OapPoolingTests : public testing::Test {
@@ -52,8 +52,8 @@ TEST_F(OapPoolingTests, AverageTest)
 
   oap::HostProcedures calcApi;
 
-  oap::HostComplexMatrixUPtr outcome = oap::host::NewReMatrix (2, 2);
-  oap::HostComplexMatrixUPtr param = oap::host::NewReMatrixCopyOfArray (4, 4, paramArray);
+  oap::HostComplexMatrixUPtr outcome = oap::chost::NewReMatrix (2, 2);
+  oap::HostComplexMatrixUPtr param = oap::chost::NewReMatrixCopyOfArray (4, 4, paramArray);
 
   calcApi.poolAverage (outcome, param, {2, 2});
 

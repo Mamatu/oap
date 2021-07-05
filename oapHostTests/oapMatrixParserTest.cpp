@@ -21,9 +21,9 @@
 #include <stdio.h>
 #include <math.h>
 #include "gtest/gtest.h"
-#include "MatrixUtils.h"
-#include "MatrixParser.h"
-#include "parsertest1.h"
+#include "MatrixUtils.hpp"
+#include "MatrixParser.hpp"
+#include "parsertest1.hpp"
 
 namespace samples {
 

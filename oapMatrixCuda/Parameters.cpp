@@ -20,7 +20,7 @@
 
 
 
-#include "Parameters.h"
+#include "Parameters.hpp"
 
 Parameters::Parameters(bool isThreadsCount, bool isSerieLimit) {
     this->serieLimit.isAvailable = isSerieLimit;

@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapMemoryPrimitivesApi.h"
-#include "oapMemoryUtils.h"
+#include "oapMemoryPrimitivesApi.hpp"
+#include "oapMemoryUtils.hpp"
 
 namespace std
 {

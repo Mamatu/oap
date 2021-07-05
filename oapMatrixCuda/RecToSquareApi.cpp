@@ -17,12 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RecToSquareApi.h"
+#include "RecToSquareApi.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapDeviceComplexMatrixUPtr.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapDeviceComplexMatrixUPtr.hpp"
 
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
 namespace oap
 {

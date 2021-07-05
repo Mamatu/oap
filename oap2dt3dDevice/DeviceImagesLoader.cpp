@@ -17,10 +17,10 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DeviceImagesLoader.h"
+#include "DeviceImagesLoader.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
 namespace oap {
 DeviceImagesLoader::DeviceImagesLoader(const Images& images, bool dealocateImages,
@@ -32,14 +32,14 @@ DeviceImagesLoader::~DeviceImagesLoader() {}
 math::ComplexMatrix* DeviceImagesLoader::createDeviceMatrix() {
   math::ComplexMatrix* host = createMatrix();
   math::ComplexMatrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
-  oap::host::DeleteMatrix(host);
+  oap::chost::DeleteMatrix(host);
   return device;
 }
 
 math::ComplexMatrix* DeviceImagesLoader::createDeviceRowVector(size_t index) {
   math::ComplexMatrix* host = createRowVector(index);
   math::ComplexMatrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
-  oap::host::DeleteMatrix(host);
+  oap::chost::DeleteMatrix(host);
   return device;
 }
 
@@ -47,14 +47,14 @@ math::ComplexMatrix* DeviceImagesLoader::getDeviceRowVector(size_t index, math::
 {
   math::ComplexMatrix* host = createRowVector(index);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, host);
-  oap::host::DeleteMatrix(host);
+  oap::chost::DeleteMatrix(host);
   return dmatrix;
 }
 
 math::ComplexMatrix* DeviceImagesLoader::createDeviceColumnVector(size_t index) {
   math::ComplexMatrix* host = createColumnVector(index);
   math::ComplexMatrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
-  oap::host::DeleteMatrix(host);
+  oap::chost::DeleteMatrix(host);
   return device;
 }
 
@@ -62,7 +62,7 @@ math::ComplexMatrix* DeviceImagesLoader::getDeviceColumnVector(size_t index, mat
 {
   math::ComplexMatrix* host = createColumnVector(index);
   oap::cuda::CopyHostMatrixToDeviceMatrix(dmatrix, host);
-  oap::host::DeleteMatrix(host);
+  oap::chost::DeleteMatrix(host);
   return dmatrix;
 }
 
@@ -70,7 +70,7 @@ math::ComplexMatrix* DeviceImagesLoader::createDeviceSubMatrix(uintt cindex, uin
 {
   math::ComplexMatrix* host = createSubMatrix (cindex, rindex, columns, rows);
   math::ComplexMatrix* device = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(host);
-  oap::host::DeleteMatrix(host);
+  oap::chost::DeleteMatrix(host);
   return device;
 }
 
@@ -88,7 +88,7 @@ math::ComplexMatrix* DeviceImagesLoader::getDeviceSubMatrix(uintt cindex, uintt 
   }
 
   oap::cuda::CopyHostMatrixToDeviceMatrix (dmatrix, host);
-  oap::host::DeleteMatrix(host);
+  oap::chost::DeleteMatrix(host);
 
   return dmatrix;
 }

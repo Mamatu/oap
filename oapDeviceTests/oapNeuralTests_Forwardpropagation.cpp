@@ -19,21 +19,21 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
-#include "MultiMatricesCuProcedures.h"
-#include "KernelExecutor.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "CuProceduresApi.hpp"
+#include "MultiMatricesCuProcedures.hpp"
+#include "KernelExecutor.hpp"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
-#include "oapNetwork.h"
-#include "oapNetworkCudaApi.h"
-#include "oapFunctions.h"
-#include "PyPlot.h"
-#include "Config.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapNetwork.hpp"
+#include "oapNetworkCudaApi.hpp"
+#include "oapFunctions.hpp"
+#include "PyPlot.hpp"
+#include "Config.hpp"
 
-#include "oapExpectedOutputs_ForwardPropagation_PyPlotCoords.h"
+#include "oapExpectedOutputs_ForwardPropagation_PyPlotCoords.hpp"
 
 namespace
 {
@@ -80,7 +80,7 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
   oap::Layer* l2 = network->createLayer(3, true, Activation::TANH);
   oap::Layer* l3 = network->createLayer(1, Activation::TANH);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (3, 3);
   *GetRePtrIndex (weights1to2, 0) = -1;
   *GetRePtrIndex (weights1to2, 3) = 0.53;
   *GetRePtrIndex (weights1to2, 6) = 0.33;
@@ -93,7 +93,7 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
   *GetRePtrIndex (weights1to2, 5) = 1.8;
   *GetRePtrIndex (weights1to2, 8) = 1.8;
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (4, 1);
   *GetRePtrIndex (weights2to3, 0) = 4.7;
   *GetRePtrIndex (weights2to3, 1) = 4.7;
   *GetRePtrIndex (weights2to3, 2) = 4.7;
@@ -102,8 +102,8 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation)
   l1->setHostWeights (weights1to2);
   l2->setHostWeights (weights2to3);
 
-  oap::HostComplexMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
-  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr hinputs = oap::chost::NewReMatrix (1, 3);
+  oap::HostComplexMatrixPtr houtput = oap::chost::NewReMatrix (1, 1);
 
   size_t idx = 0;
   auto getLabelIdx = [&hinputs, &houtput, this, &idx] (floatt x, floatt y)
@@ -151,7 +151,7 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parall
   oap::Layer* l2 = network->createLayer(3, true, Activation::TANH);
   oap::Layer* l3 = network->createLayer(1, Activation::TANH);
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (3, 3);
   *GetRePtrIndex (weights1to2, 0) = -1;
   *GetRePtrIndex (weights1to2, 3) = 0.53;
   *GetRePtrIndex (weights1to2, 6) = 0.33;
@@ -164,7 +164,7 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parall
   *GetRePtrIndex (weights1to2, 5) = 1.8;
   *GetRePtrIndex (weights1to2, 8) = 1.8;
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (4, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (4, 1);
   *GetRePtrIndex (weights2to3, 0) = 4.7;
   *GetRePtrIndex (weights2to3, 1) = 4.7;
   *GetRePtrIndex (weights2to3, 2) = 4.7;
@@ -173,8 +173,8 @@ TEST_F(OapNeuralTests_Forwardpropagation, ForwardPropagation_PyPlotCoords_Parall
   l1->setHostWeights (weights1to2);
   l2->setHostWeights (weights2to3);
 
-  oap::HostComplexMatrixPtr hinputs = oap::host::NewReMatrix (1, 3);
-  oap::HostComplexMatrixPtr houtput = oap::host::NewReMatrix (1, 1);
+  oap::HostComplexMatrixPtr hinputs = oap::chost::NewReMatrix (1, 3);
+  oap::HostComplexMatrixPtr houtput = oap::chost::NewReMatrix (1, 1);
 
   size_t idx = 0;
   auto getLabelIdx = [&hinputs, &houtput, this, &idx] (floatt x, floatt y)

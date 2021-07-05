@@ -21,13 +21,12 @@
 #include <cmath>
 
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
-#include "HostKernelExecutor.h"
-#include "HostProcedures.h"
+#include "MatchersUtils.hpp"
+#include "HostKernelExecutor.hpp"
+#include "HostProcedures.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapHostComplexMatrixPtr.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
 
 class OapCrossEntropyTests : public testing::Test {
  public:
@@ -49,9 +48,9 @@ TEST_F(OapCrossEntropyTests, CrossEntropyTest1)
 {
   oap::HostProcedures cuApi;
 
-  oap::HostComplexMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (1, 1, 0.2);
-  oap::HostComplexMatrixPtr matrix2 = oap::host::NewReMatrixWithValue (1, 1, 0.2);
-  oap::HostComplexMatrixPtr output = oap::host::NewReMatrixWithValue (1, 1, 0);
+  oap::HostComplexMatrixPtr matrix1 = oap::chost::NewReMatrixWithValue (1, 1, 0.2);
+  oap::HostComplexMatrixPtr matrix2 = oap::chost::NewReMatrixWithValue (1, 1, 0.2);
+  oap::HostComplexMatrixPtr output = oap::chost::NewReMatrixWithValue (1, 1, 0);
 
   cuApi.crossEntropy (output.get(), matrix1, matrix2);
 
@@ -62,9 +61,9 @@ TEST_F(OapCrossEntropyTests, CrossEntropyTest2)
 {
   oap::HostProcedures cuApi;
 
-  oap::HostComplexMatrixPtr matrix1 = oap::host::NewReMatrixWithValue (1, 10, 0);
-  oap::HostComplexMatrixPtr matrix2 = oap::host::NewReMatrixWithValue (1, 10, 0);
-  oap::HostComplexMatrixPtr output = oap::host::NewReMatrixWithValue (1, 10, 0);
+  oap::HostComplexMatrixPtr matrix1 = oap::chost::NewReMatrixWithValue (1, 10, 0);
+  oap::HostComplexMatrixPtr matrix2 = oap::chost::NewReMatrixWithValue (1, 10, 0);
+  oap::HostComplexMatrixPtr output = oap::chost::NewReMatrixWithValue (1, 10, 0);
 
   auto getValue = [](size_t idx, size_t max)
   {

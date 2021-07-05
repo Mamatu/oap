@@ -18,21 +18,21 @@
  */
 
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMemoryApi.h"
-#include "oapCudaMemoryApi.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostMemoryApi.hpp"
+#include "oapCudaMemoryApi.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
-#include "oapFuncTests.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
+#include "oapFuncTests.hpp"
 
-#include "CudaMatchersUtils.h"
+#include "CudaMatchersUtils.hpp"
 
 using namespace ::testing;
 
@@ -118,7 +118,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_1)
 
   for (uintt idx = 0; idx < outputs.size(); ++idx)
   {
-    oap::HostComplexMatrixPtr matrix = oap::host::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
+    oap::HostComplexMatrixPtr matrix = oap::chost::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
     EXPECT_THAT (matrix.get(), oap::cuda::MatrixIsEqualHK (outputs[idx]));
   }
 
@@ -191,7 +191,7 @@ TEST_F(OapGenericApiTests_DotProduct, Test_2)
 
   for (uintt idx = 0; idx < outputs.size(); ++idx)
   {
-    //oap::HostComplexMatrixPtr matrix = oap::host::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
+    //oap::HostComplexMatrixPtr matrix = oap::chost::NewReMatrixCopyOfArray (1, 3, expected_raw[idx].data());
     //EXPECT_THAT (matrix.get(), oap::cuda::MatrixIsEqualHK (outputs[idx]));
   }
 

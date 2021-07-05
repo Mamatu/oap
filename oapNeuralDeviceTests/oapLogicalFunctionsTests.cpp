@@ -21,20 +21,20 @@
 #include <random>
 
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
-#include "MultiMatricesCuProcedures.h"
-#include "KernelExecutor.h"
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "CuProceduresApi.hpp"
+#include "MultiMatricesCuProcedures.hpp"
+#include "KernelExecutor.hpp"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMatrixUtils.h"
-#include "oapNetwork.h"
-#include "oapNetworkCudaApi.h"
-#include "Controllers.h"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapNetwork.hpp"
+#include "oapNetworkCudaApi.hpp"
+#include "Controllers.hpp"
 
-#include "PngFile.h"
-#include "Config.h"
+#include "PngFile.hpp"
+#include "Config.hpp"
 
 /*
 class NetworkT : public oap::Network

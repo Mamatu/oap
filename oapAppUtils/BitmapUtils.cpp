@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BitmapUtils.h"
+#include "BitmapUtils.hpp"
 
 #include <algorithm>
 

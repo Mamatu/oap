@@ -19,12 +19,12 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "CuProceduresApi.h"
-#include "MathOperationsCpu.h"
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
-#include "KernelExecutor.h"
+#include "MatchersUtils.hpp"
+#include "CuProceduresApi.hpp"
+#include "oapEigen.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "KernelExecutor.hpp"
 
 class OapCompareCudaTests : public testing::Test {
 public:
@@ -47,8 +47,8 @@ public:
         if (output != NULL && eq_output != NULL) {
             EXPECT_THAT(output, MatrixIsEqual(eq_output));
         }
-        oap::host::DeleteMatrix(output);
-        oap::host::DeleteMatrix(eq_output);
+        oap::chost::DeleteMatrix(output);
+        oap::chost::DeleteMatrix(eq_output);
         oap::cuda::Context::Instance().destroy();
     }
 };

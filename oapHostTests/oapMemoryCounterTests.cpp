@@ -18,7 +18,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "oapMemoryCounter.h"
+#include "oapMemoryCounter.hpp"
 
 class OapMemoryCounterTests : public testing::Test
 {

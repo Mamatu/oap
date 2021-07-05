@@ -20,9 +20,9 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "HostProcedures.h"
-#include "MatchersUtils.h"
-#include "oapHostComplexMatrixPtr.h"
+#include "HostProcedures.hpp"
+#include "MatchersUtils.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
 
 class OapQRHTTests : public testing::Test {
  public:
@@ -73,30 +73,28 @@ TEST_F(OapQRHTTests, Test_1)
     0.0000,    0.0000,    0.6280,    0.7782,
   };
 
-  oap::HostComplexMatrixPtr Q = oap::host::NewReMatrix (4, 4);
-  oap::HostComplexMatrixPtr R = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr Q = oap::chost::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr R = oap::chost::NewReMatrix (4, 4);
 
-  oap::HostComplexMatrixPtr expectedR = oap::host::NewReMatrixCopyOfArray (4, 4, r_expected);
-  oap::HostComplexMatrixPtr expectedQ = oap::host::NewReMatrixCopyOfArray (4, 4, q_expected);
+  oap::HostComplexMatrixPtr expectedR = oap::chost::NewReMatrixCopyOfArray (4, 4, r_expected);
+  oap::HostComplexMatrixPtr expectedQ = oap::chost::NewReMatrixCopyOfArray (4, 4, q_expected);
 
-  oap::HostComplexMatrixPtr A1 = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr A1 = oap::chost::NewReMatrix (4, 4);
   hp.dotProduct (A1, expectedQ, expectedR);
 
-  oap::HostComplexMatrixPtr A = oap::host::NewReMatrixCopyOfArray (4, 4, h_expected_init_m_unwanted);
-
-  PRINT_MATRIX(A.get());
+  oap::HostComplexMatrixPtr A = oap::chost::NewReMatrixCopyOfArray (4, 4, h_expected_init_m_unwanted);
 
   EXPECT_THAT (A1.get(), MatrixIsEqual(A.get(), 0.001)); 
 
-  oap::HostComplexMatrixPtr V = oap::host::NewReMatrix (1, 4);
+  oap::HostComplexMatrixPtr V = oap::chost::NewReMatrix (1, 4);
 
-  oap::HostComplexMatrixPtr VT = oap::host::NewReMatrix (4, 1);
-  oap::HostComplexMatrixPtr VVT = oap::host::NewReMatrix (4, 4);
-  oap::HostComplexMatrixPtr P = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr VT = oap::chost::NewReMatrix (4, 1);
+  oap::HostComplexMatrixPtr VVT = oap::chost::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr P = oap::chost::NewReMatrix (4, 4);
 
   hp.QRHT (Q, R, A, V, VT, P, VVT);
 
-  oap::HostComplexMatrixPtr A2 = oap::host::NewReMatrix (4, 4);
+  oap::HostComplexMatrixPtr A2 = oap::chost::NewReMatrix (4, 4);
   hp.dotProduct (A2, Q, R);
   EXPECT_THAT (A2.get(), MatrixIsEqual(A.get(), 0.001)); 
 
@@ -105,7 +103,6 @@ TEST_F(OapQRHTTests, Test_1)
   EXPECT_THAT (expectedQ.get(), MatrixIsEqual(Q.get())); 
 #endif
 
-  PRINT_MATRIX(A.get());
   EXPECT_THAT (Q.get(), MatrixIsOrthogonal (hp)); 
   EXPECT_THAT (R.get(), MatrixIsUpperTriangular ()); 
 }
@@ -135,22 +132,20 @@ TEST_F(OapQRHTTests, Test_2)
     0, 0, -6
   };
 
-  oap::HostComplexMatrixPtr Q = oap::host::NewReMatrix (3, 3);
-  oap::HostComplexMatrixPtr R = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr Q = oap::chost::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr R = oap::chost::NewReMatrix (3, 3);
 
-  oap::HostComplexMatrixPtr expectedQ = oap::host::NewReMatrixCopyOfArray (3, 3, q_expected);
-  oap::HostComplexMatrixPtr expectedR = oap::host::NewReMatrixCopyOfArray (3, 3, r_expected);
+  oap::HostComplexMatrixPtr expectedQ = oap::chost::NewReMatrixCopyOfArray (3, 3, q_expected);
+  oap::HostComplexMatrixPtr expectedR = oap::chost::NewReMatrixCopyOfArray (3, 3, r_expected);
 
-  oap::HostComplexMatrixPtr A = oap::host::NewReMatrixCopyOfArray (3, 3, h_init);
+  oap::HostComplexMatrixPtr A = oap::chost::NewReMatrixCopyOfArray (3, 3, h_init);
 
-  oap::HostComplexMatrixPtr V = oap::host::NewReMatrix (1, 3);
-  PRINT_MATRIX(V.get());
+  oap::HostComplexMatrixPtr V = oap::chost::NewReMatrix (1, 3);
 
-  oap::HostComplexMatrixPtr VT = oap::host::NewReMatrix (3, 1);
-  oap::HostComplexMatrixPtr VVT = oap::host::NewReMatrix (3, 3);
-  oap::HostComplexMatrixPtr P = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr VT = oap::chost::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr VVT = oap::chost::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr P = oap::chost::NewReMatrix (3, 3);
 
-  PRINT_MATRIX(A.get());
   hp.QRHT (Q, R, A, V, VT, P, VVT);
 
 #if 0 
@@ -160,6 +155,5 @@ TEST_F(OapQRHTTests, Test_2)
 
   EXPECT_THAT (Q.get(), MatrixIsOrthogonal (hp)); 
   EXPECT_THAT (R.get(), MatrixIsUpperTriangular ()); 
-  PRINT_MATRIX(A.get());
 }
 

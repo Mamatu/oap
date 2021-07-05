@@ -19,12 +19,12 @@
 
 #include <string>
 #include "gtest/gtest.h"
-#include "MatchersUtils.h"
-#include "CuProceduresApi.h"
-#include "MathOperationsCpu.h"
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
-#include "KernelExecutor.h"
+#include "MatchersUtils.hpp"
+#include "CuProceduresApi.hpp"
+#include "oapEigen.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "KernelExecutor.hpp"
 
 class OapTensorProductTests : public testing::Test {
  public:
@@ -44,13 +44,13 @@ class OapTensorProductTests : public testing::Test {
 
 TEST_F(OapTensorProductTests, InitTest)
 {
-  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 1);
-  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 1);
+  math::ComplexMatrix* hostM1 = oap::chost::NewReMatrixWithValue (4, 4, 1);
+  math::ComplexMatrix* hostM2 = oap::chost::NewReMatrixWithValue (4, 4, 1);
 
   math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
   math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(16, 16);
-  math::ComplexMatrix* houtput = oap::host::NewReMatrix(16, 16);
+  math::ComplexMatrix* houtput = oap::chost::NewReMatrix(16, 16);
 
   //EXPECT_THROW(cuMatrix->tensorProduct (nullptr, dM1, dM2), std::runtime_error);
   //EXPECT_THROW(cuMatrix->tensorProduct (doutput, nullptr, dM2), std::runtime_error);
@@ -60,20 +60,20 @@ TEST_F(OapTensorProductTests, InitTest)
   oap::cuda::DeleteDeviceMatrix(doutput);
   oap::cuda::DeleteDeviceMatrix(dM1);
   oap::cuda::DeleteDeviceMatrix(dM2);
-  oap::host::DeleteMatrix(houtput);
-  oap::host::DeleteMatrix(hostM1);
-  oap::host::DeleteMatrix(hostM2);
+  oap::chost::DeleteMatrix(houtput);
+  oap::chost::DeleteMatrix(hostM1);
+  oap::chost::DeleteMatrix(hostM2);
 }
 
 TEST_F(OapTensorProductTests, Test1)
 {
-  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 1);
-  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 1);
+  math::ComplexMatrix* hostM1 = oap::chost::NewReMatrixWithValue (4, 4, 1);
+  math::ComplexMatrix* hostM2 = oap::chost::NewReMatrixWithValue (4, 4, 1);
 
   math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
   math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(16, 16);
-  math::ComplexMatrix* houtput = oap::host::NewReMatrix(16, 16);
+  math::ComplexMatrix* houtput = oap::chost::NewReMatrix(16, 16);
 
   cuMatrix->tensorProduct (doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
@@ -83,20 +83,20 @@ TEST_F(OapTensorProductTests, Test1)
   oap::cuda::DeleteDeviceMatrix(doutput);
   oap::cuda::DeleteDeviceMatrix(dM1);
   oap::cuda::DeleteDeviceMatrix(dM2);
-  oap::host::DeleteMatrix(houtput);
-  oap::host::DeleteMatrix(hostM1);
-  oap::host::DeleteMatrix(hostM2);
+  oap::chost::DeleteMatrix(houtput);
+  oap::chost::DeleteMatrix(hostM1);
+  oap::chost::DeleteMatrix(hostM2);
 }
 
 TEST_F(OapTensorProductTests, Test2)
 {
-  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (4, 4, 2);
-  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (4, 4, 3);
+  math::ComplexMatrix* hostM1 = oap::chost::NewReMatrixWithValue (4, 4, 2);
+  math::ComplexMatrix* hostM2 = oap::chost::NewReMatrixWithValue (4, 4, 3);
 
   math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
   math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(16, 16);
-  math::ComplexMatrix* houtput = oap::host::NewReMatrix(16, 16);
+  math::ComplexMatrix* houtput = oap::chost::NewReMatrix(16, 16);
 
   cuMatrix->tensorProduct (doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
@@ -106,9 +106,9 @@ TEST_F(OapTensorProductTests, Test2)
   oap::cuda::DeleteDeviceMatrix(doutput);
   oap::cuda::DeleteDeviceMatrix(dM1);
   oap::cuda::DeleteDeviceMatrix(dM2);
-  oap::host::DeleteMatrix(houtput);
-  oap::host::DeleteMatrix(hostM1);
-  oap::host::DeleteMatrix(hostM2);
+  oap::chost::DeleteMatrix(houtput);
+  oap::chost::DeleteMatrix(hostM1);
+  oap::chost::DeleteMatrix(hostM2);
 }
 
 TEST_F(OapTensorProductTests, Test3)
@@ -118,13 +118,13 @@ TEST_F(OapTensorProductTests, Test3)
   uintt r2 = 7;
   uintt c2 = 6;
 
-  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (c1, r1, 1);
-  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (c2, r2, 1);
+  math::ComplexMatrix* hostM1 = oap::chost::NewReMatrixWithValue (c1, r1, 1);
+  math::ComplexMatrix* hostM2 = oap::chost::NewReMatrixWithValue (c2, r2, 1);
 
   math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
   math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(c1*c2, r1*r2);
-  math::ComplexMatrix* houtput = oap::host::NewReMatrix(c1*c2, r1*r2);
+  math::ComplexMatrix* houtput = oap::chost::NewReMatrix(c1*c2, r1*r2);
 
   cuMatrix->tensorProduct (doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
@@ -134,9 +134,9 @@ TEST_F(OapTensorProductTests, Test3)
   oap::cuda::DeleteDeviceMatrix(doutput);
   oap::cuda::DeleteDeviceMatrix(dM1);
   oap::cuda::DeleteDeviceMatrix(dM2);
-  oap::host::DeleteMatrix(houtput);
-  oap::host::DeleteMatrix(hostM1);
-  oap::host::DeleteMatrix(hostM2);
+  oap::chost::DeleteMatrix(houtput);
+  oap::chost::DeleteMatrix(hostM1);
+  oap::chost::DeleteMatrix(hostM2);
 }
 
 TEST_F(OapTensorProductTests, Test4)
@@ -146,13 +146,13 @@ TEST_F(OapTensorProductTests, Test4)
   uintt r2 = 7;
   uintt c2 = 6;
 
-  math::ComplexMatrix* hostM1 = oap::host::NewReMatrixWithValue (c1, r1, 2);
-  math::ComplexMatrix* hostM2 = oap::host::NewReMatrixWithValue (c2, r2, 3);
+  math::ComplexMatrix* hostM1 = oap::chost::NewReMatrixWithValue (c1, r1, 2);
+  math::ComplexMatrix* hostM2 = oap::chost::NewReMatrixWithValue (c2, r2, 3);
 
   math::ComplexMatrix* dM1 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM1);
   math::ComplexMatrix* dM2 = oap::cuda::NewDeviceMatrixCopyOfHostMatrix(hostM2);
   math::ComplexMatrix* doutput = oap::cuda::NewDeviceReMatrix(c1*c2, r1*r2);
-  math::ComplexMatrix* houtput = oap::host::NewReMatrix(c1*c2, r1*r2);
+  math::ComplexMatrix* houtput = oap::chost::NewReMatrix(c1*c2, r1*r2);
 
   cuMatrix->tensorProduct (doutput, dM1, dM2);
   oap::cuda::CopyDeviceMatrixToHostMatrix(houtput, doutput);
@@ -162,8 +162,8 @@ TEST_F(OapTensorProductTests, Test4)
   oap::cuda::DeleteDeviceMatrix(doutput);
   oap::cuda::DeleteDeviceMatrix(dM1);
   oap::cuda::DeleteDeviceMatrix(dM2);
-  oap::host::DeleteMatrix(houtput);
-  oap::host::DeleteMatrix(hostM1);
-  oap::host::DeleteMatrix(hostM2);
+  oap::chost::DeleteMatrix(houtput);
+  oap::chost::DeleteMatrix(hostM1);
+  oap::chost::DeleteMatrix(hostM2);
 }
 

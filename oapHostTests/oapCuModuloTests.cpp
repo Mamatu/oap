@@ -18,7 +18,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "CuProcedures/CuMathUtils.h"
+#include "CuProcedures/CuMathUtils.hpp"
 
 class OapCuModuloTests : public testing::Test {
  public:

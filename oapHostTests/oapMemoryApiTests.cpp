@@ -18,7 +18,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "oapHostMemoryApi.h"
+#include "oapHostMemoryApi.hpp"
 
 class OapMemoryApiTests : public testing::Test
 {

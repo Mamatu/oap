@@ -18,13 +18,13 @@
  */
 
 #include "gtest/gtest.h"
-#include "ImagesLoader.h"
-#include "oapHostMatrixUtils.h"
-#include "PngFile.h"
+#include "ImagesLoader.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "PngFile.hpp"
 
-#include "MatchersUtils.h"
+#include "MatchersUtils.hpp"
 
-#include "Config.h"
+#include "Config.hpp"
 
 using namespace ::testing;
 
@@ -123,7 +123,7 @@ TEST_F(OapImagesLoaderTests, CreateMatrixFromGreenScreenNoFrugalMode)
 
   EXPECT_THAT(matrix, MatrixHasValues(expected));
 
-  oap::host::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix);
 }
 
 TEST_F(OapImagesLoaderTests, CreateMatrixFromGreenScreenFrugalMode)
@@ -134,13 +134,13 @@ TEST_F(OapImagesLoaderTests, CreateMatrixFromGreenScreenFrugalMode)
 
   EXPECT_THAT(matrix, MatrixHasValues(expected));
 
-  oap::host::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix);
 }
 
 TEST_F(OapImagesLoaderTests, CreateMatrixFromMonkeyScreen)
 {
   math::ComplexMatrix* matrix = createMatrix("monkey.png", 1000);
-  oap::host::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix);
 }
 
 TEST_F(OapImagesLoaderTests, LoadMonkeyImagesAndCreateMatrix)
@@ -163,7 +163,7 @@ TEST_F(OapImagesLoaderTests, LoadMonkeyImagesAndCreateMatrix)
     throw;
   });
 
-  oap::host::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix);
 
   delete dataloader;
 }
@@ -206,7 +206,7 @@ TEST_F(OapImagesLoaderTests, LoadMonkeyImagesCreateMatrix)
     throw;
   });
 
-  oap::host::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix);
 
   delete dataloader;
 }
@@ -270,7 +270,7 @@ class ImagesLoaderTest : public oap::ImagesLoader
     {
       EXPECT_THAT(columnVecs[fa], Not(MatrixIsEqual(columnVecs[fa + 1])))
           << "Actual: Columns vectors are equal: " << fa << ", " << fa + 1
-          << " ComplexMatrix =" << oap::host::GetMatrixStr(columnVecs[fa]);
+          << " ComplexMatrix =" << oap::chost::GetMatrixStr(columnVecs[fa]);
     }
 
     for (int fa = 0; fa < imagesCount; ++fa)
@@ -282,7 +282,7 @@ class ImagesLoaderTest : public oap::ImagesLoader
     {
       for (int fa = 0; fa < vec.size(); ++fa)
       {
-        oap::host::DeleteMatrix(vec[fa]);
+        oap::chost::DeleteMatrix(vec[fa]);
       }
     };
 

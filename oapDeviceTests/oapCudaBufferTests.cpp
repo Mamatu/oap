@@ -20,9 +20,9 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "Config.h"
-#include "CudaBuffer.h"
-#include "KernelExecutor.h"
+#include "Config.hpp"
+#include "CudaBuffer.hpp"
+#include "KernelExecutor.hpp"
 
 template<typename T>
 class TBuffer : public oap::utils::Buffer<T, oap::cuda::HtoDMemUtl>

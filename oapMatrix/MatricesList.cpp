@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MatricesList.h"
+#include "MatricesList.hpp"
 
 MatricesList::MatricesList (const std::string& id) : AllocationList (id, [](const math::MatrixInfo& minfo) { return std::to_string (minfo);})
 {}

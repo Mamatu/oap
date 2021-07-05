@@ -17,11 +17,11 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapNetworkCudaApi.h"
-#include "oapDeviceNeuralApi.h"
-#include "oapDeviceAllocApi.h"
-#include "oapDeviceLayer.h"
-#include "oapGenericNeuralApi.h"
+#include "oapNetworkCudaApi.hpp"
+#include "oapDeviceNeuralApi.hpp"
+#include "oapDeviceAllocApi.hpp"
+#include "oapDeviceLayer.hpp"
+#include "oapGenericNeuralApi.hpp"
 
 namespace oap
 {

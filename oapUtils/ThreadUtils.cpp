@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ThreadUtils.h"
+#include "ThreadUtils.hpp"
 
 namespace oap {
 namespace thread

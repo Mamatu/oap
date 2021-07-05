@@ -19,13 +19,13 @@
 
 
 
-#include "MatrixTestAPI.h"
-#include "MatrixAPI.h"
+#include "MatrixTestAPI.hpp"
+#include "MatrixAPI.hpp"
 
 #include <map>
 #include <stack>
 #include <stdlib.h>
-#include "ThreadUtils.h"
+#include "ThreadUtils.hpp"
 
 enum Type { Re, Im };
 

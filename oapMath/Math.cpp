@@ -20,7 +20,7 @@
 
 
 #include <string.h>
-#include "Math.h"
+#include "Math.hpp"
 
 namespace math {
 

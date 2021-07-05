@@ -17,12 +17,12 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MatrixUtils.h"
+#include "MatrixUtils.hpp"
 #include <algorithm>
 #include <locale>
 #include <math.h>
 #include <stdlib.h>
-#include <Logger.h>
+#include <Logger.hpp>
 
 namespace matrixUtils {
 

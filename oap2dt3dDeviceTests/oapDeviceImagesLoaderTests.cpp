@@ -20,13 +20,13 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "DeviceImagesLoader.h"
-#include "KernelExecutor.h"
-#include "oapCudaMatrixUtils.h"
-#include "oapDeviceComplexMatrixUPtr.h"
+#include "DeviceImagesLoader.hpp"
+#include "KernelExecutor.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapDeviceComplexMatrixUPtr.hpp"
 
-#include "PngFile.h"
-#include "CuProceduresApi.h"
+#include "PngFile.hpp"
+#include "CuProceduresApi.hpp"
 
 #include <memory>
 
@@ -57,8 +57,8 @@ TEST_F(OapDeviceImagesLoaderTests, LoadImagesAllocDeallocTest)
   EXPECT_EQ(gRows (matrix), drows);
   EXPECT_EQ(gColumns (matrix), dcolumns);
 
-  oap::host::DeleteMatrix(matrix);
-  oap::host::DeleteMatrix(matrix1);
+  oap::chost::DeleteMatrix(matrix);
+  oap::chost::DeleteMatrix(matrix1);
   oap::cuda::DeleteDeviceMatrix(dmatrix);
 }
 

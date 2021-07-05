@@ -17,7 +17,7 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapMemoryList.h"
+#include "oapMemoryList.hpp"
 
 MemoryList::MemoryList (const std::string& id) : oap::AllocationList<floatt*, size_t, std::function<std::string(size_t)>>(id, [](size_t s) { return std::to_string(s); })
 {}

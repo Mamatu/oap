@@ -20,11 +20,11 @@
 
 #include <string>
 
-#include "MatchersUtils.h"
-#include "oapCudaStub.h"
-#include "MathOperationsCpu.h"
-#include "oapHostMatrixUtils.h"
-#include "CuProcedures/CuIdentityProcedures.h"
+#include "MatchersUtils.hpp"
+#include "oapCudaStub.hpp"
+#include "oapEigen.hpp"
+#include "oapHostComplexMatrixApi.hpp"
+#include "CuProcedures/CuIdentityProcedures.hpp"
 
 class OapIdentityProcedureTests : public OapCudaStub {
  public:
@@ -42,12 +42,12 @@ class IdentityStubImpl : public HostKernel {
   IdentityStubImpl(uintt columns, uintt rows)
       : m_columns(columns), m_rows(rows) {
     calculateDims(columns, rows);
-    m_matrix = oap::host::NewComplexMatrix(m_columns, m_rows);
+    m_matrix = oap::chost::NewComplexMatrix(m_columns, m_rows);
   }
 
   virtual ~IdentityStubImpl() {
     test::reset(m_matrix);
-    oap::host::DeleteMatrix(m_matrix);
+    oap::chost::DeleteMatrix(m_matrix);
   }
 
   void execute(const dim3& threadIdx, const dim3& blockIdx) {

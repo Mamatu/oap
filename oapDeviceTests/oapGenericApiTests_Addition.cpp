@@ -18,19 +18,19 @@
  */
 
 #include "gtest/gtest.h"
-#include "CuProceduresApi.h"
+#include "CuProceduresApi.hpp"
 
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapCudaMatrixUtils.h"
-#include "oapHostMemoryApi.h"
-#include "oapCudaMemoryApi.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapHostMemoryApi.hpp"
+#include "oapCudaMemoryApi.hpp"
 
-#include "oapHostComplexMatrixPtr.h"
-#include "oapDeviceComplexMatrixPtr.h"
-#include "oapFuncTests.h"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapDeviceComplexMatrixPtr.hpp"
+#include "oapFuncTests.hpp"
 
 #include <vector>
 #include <iostream>
@@ -60,7 +60,6 @@ TEST_F(OapApiVer2Tests_Addition, SimpleAdd)
   oap::Memory memory = oap::cuda::NewMemoryWithValues ({10, 10}, 0.);
   oap::Memory hmemory = oap::host::NewMemoryWithValues ({10, 10}, 0.);
 
-  oap::MemoryLoc loc = {0, 0};
   oap::DeviceComplexMatrixUPtr output1 = oap::cuda::NewDeviceReMatrixFromMemory (3, 3, memory, {0, 0});
   oap::DeviceComplexMatrixUPtr output2 = oap::cuda::NewDeviceReMatrixFromMemory (3, 3, memory, {4, 0});
 
@@ -70,8 +69,8 @@ TEST_F(OapApiVer2Tests_Addition, SimpleAdd)
   std::vector<math::ComplexMatrix*> outputs = {output1, output2};
   m_cuApi->v2_add (outputs, std::vector<math::ComplexMatrix*>({matrix1, matrix2}), 1.f);
   
-  oap::HostComplexMatrixUPtr output1h = oap::host::NewReMatrixWithValue (3, 3, 0);
-  oap::HostComplexMatrixUPtr output2h = oap::host::NewReMatrixWithValue (3, 3, 0);
+  oap::HostComplexMatrixUPtr output1h = oap::chost::NewReMatrixWithValue (3, 3, 0);
+  oap::HostComplexMatrixUPtr output2h = oap::chost::NewReMatrixWithValue (3, 3, 0);
 
   oap::cuda::CopyDeviceMatrixToHostMatrix (output1h, output1);
   oap::cuda::CopyDeviceMatrixToHostMatrix (output2h, output2);

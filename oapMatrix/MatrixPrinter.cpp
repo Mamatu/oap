@@ -1,4 +1,4 @@
-#include "MatrixPrinter.h"
+#include "MatrixPrinter.hpp"
 
 namespace matrixUtils
 {

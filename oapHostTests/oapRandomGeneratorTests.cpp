@@ -20,8 +20,8 @@
 #include <string>
 #include "gtest/gtest.h"
 
-#include "oapRandomGenerator.h"
-#include "oapMatrixRandomGenerator.h"
+#include "oapRandomGenerator.hpp"
+#include "oapMatrixRandomGenerator.hpp"
 
 class OapRandomGeneratorTests : public testing::Test {
  public:

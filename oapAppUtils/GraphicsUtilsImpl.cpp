@@ -17,8 +17,8 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GraphicUtils.h"
-#include "GraphicsUtilsImpl.h"
+#include "GraphicUtils.hpp"
+#include "GraphicsUtilsImpl.hpp"
 
 namespace oap
 {

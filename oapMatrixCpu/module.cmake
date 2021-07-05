@@ -8,4 +8,4 @@ list(APPEND DEPS oapMatrix)
 list(APPEND DEPS oapMemory)
 list(APPEND DEPS oapUtils)
 
-set(EXTRA_LIBS )
+set(EXTRA_LIBS)

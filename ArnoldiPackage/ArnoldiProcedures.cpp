@@ -22,18 +22,20 @@
 #include <math.h>
 #include <random>
 
-#include "ArnoldiProcedures.h"
-#include "oapCudaMatrixUtils.h"
-#include "DeviceMatrixKernels.h"
-#include "HostMatrixKernels.h"
-#include "oapHostMatrixUtils.h"
+#include "ArnoldiProcedures.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "DeviceMatrixKernels.hpp"
+#include "HostMatrixKernels.hpp"
+#include "oapHostComplexMatrixApi.hpp"
 
 const char* kernelsFiles[] = {"liboapMatrixCuda.cubin", NULL};
 
 const floatt g_tolerance = 0.00001f;
 
 CuHArnoldi::CuHArnoldi()
-    : m_wasAllocated(false),
+    : m_previousFValue(200000),
+      m_FValue(0),
+      m_wasAllocated(false),
       m_k(0),
       m_rho(1. / 3.14),
       m_blimit(g_tolerance),
@@ -43,8 +45,6 @@ CuHArnoldi::CuHArnoldi()
       m_tolerance(g_tolerance),
       m_checksCounter(0),
       m_triangularHProcedureType (ArnUtils::CALC_IN_HOST),
-      m_FValue(0),
-      m_previousFValue(200000),
       m_outputType(ArnUtils::UNDEFINED),
       m_reoevalues(NULL),
       m_imoevalues(NULL),
@@ -54,7 +54,7 @@ CuHArnoldi::CuHArnoldi()
   traceFunction();
   m_calculateTriangularHPtr = NULL;
 
-  registerMemType ("HOST", oap::host::NewHostMatrixFromMatrixInfo, oap::host::DeleteComplexMatrix);
+  registerMemType ("HOST", oap::chost::NewHostMatrixFromMatrixInfo, oap::chost::DeleteComplexMatrix);
   registerMemType ("CUDA", oap::cuda::NewDeviceMatrixFromMatrixInfo, oap::cuda::DeleteDeviceComplexMatrix);
 }
 
@@ -268,7 +268,7 @@ void CuHArnoldi::getEigenvector(math::ComplexMatrix* vector, uint index)
 
   if (m_outputType == ArnUtils::HOST)
   {
-    oap::host::GetVector(vector, m_hostV, index);
+    oap::chost::GetVector(vector, m_hostV, index);
   }
   else if (m_outputType == ArnUtils::DEVICE)
   {
@@ -311,8 +311,8 @@ void CuHArnoldi::initVvector_rand()
     values [idx] = values[idx] / length;
   }
 
-  oap::HostComplexMatrixPtr matrixPtr = oap::host::NewComplexMatrix (vinfo);
-  oap::host::SetReValuesToMatrix (matrixPtr, values);
+  oap::HostComplexMatrixPtr matrixPtr = oap::chost::NewComplexMatrix (vinfo);
+  oap::chost::SetReValuesToMatrix (matrixPtr, values);
   oap::cuda::CopyHostMatrixToDeviceMatrix (m_v, matrixPtr);
 
   m_cuApi.setVector (m_V, 0, m_v, vinfo.rows());
@@ -619,7 +619,7 @@ void CuHArnoldi::alloc2(const math::MatrixInfo& matrixInfo, uint k)
   traceFunction();
   auto newHostMatrix = [](bool isre, bool isim, uintt columns, uintt rows) -> math::ComplexMatrix*
   {
-    return oap::host::NewComplexMatrix (isre, isim, columns, rows);
+    return oap::chost::NewComplexMatrix (isre, isim, columns, rows);
   };
 
   oap::generic::allocStage2 (*this, matrixInfo, k, oap::cuda::NewKernelMatrix, newHostMatrix);
@@ -640,7 +640,7 @@ void CuHArnoldi::dealloc1()
 void CuHArnoldi::dealloc2()
 {
   traceFunction();
-  oap::generic::deallocStage2 (*this, oap::cuda::DeleteDeviceComplexMatrix, oap::host::DeleteComplexMatrix);
+  oap::generic::deallocStage2 (*this, oap::cuda::DeleteDeviceComplexMatrix, oap::chost::DeleteComplexMatrix);
 }
 
 void CuHArnoldi::dealloc3()

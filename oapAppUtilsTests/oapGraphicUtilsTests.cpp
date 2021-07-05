@@ -19,8 +19,8 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "GraphicUtils.h"
-#include "Exceptions.h"
+#include "GraphicUtils.hpp"
+#include "Exceptions.hpp"
 
 using namespace ::testing;
 

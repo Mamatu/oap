@@ -19,12 +19,12 @@
 
 #include "gtest/gtest.h"
 
-#include "MatchersUtils.h"
-#include "MathOperationsCpu.h"
+#include "MatchersUtils.hpp"
+#include "oapEigen.hpp"
 
-#include "oapHostMatrixUtils.h"
-#include "oapHostComplexMatrixPtr.h"
-#include "oapFuncTests.h"
+#include "oapHostComplexMatrixApi.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapFuncTests.hpp"
 
 using namespace ::testing;
 

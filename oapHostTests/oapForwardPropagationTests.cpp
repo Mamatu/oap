@@ -24,14 +24,14 @@
 #include "gtest/gtest.h"
 
 
-#include "oapGenericNeuralApi.h"
-#include "oapGenericAllocApi.h"
+#include "oapGenericNeuralApi.hpp"
+#include "oapGenericAllocApi.hpp"
 
-#include "HostProcedures.h"
-#include "oapHostComplexMatrixPtr.h"
-#include "oapLayer.h"
+#include "HostProcedures.hpp"
+#include "oapHostComplexMatrixPtr.hpp"
+#include "oapLayer.hpp"
 
-#include "oapFunctions.h"
+#include "oapFunctions.hpp"
 #if 0
 class OapForwardPropagationTests : public testing::Test {
 public:
@@ -84,7 +84,7 @@ std::vector<oap::HostComplexMatrixPtr> runForwardPropagation (const std::vector<
   for (size_t idx = 0; idx < ns.size() - 1; ++idx)
   {
     oap::generic::connectLayers<MockLayer, oap::alloc::host::AllocWeightsApi>(layers[idx], layers[idx + 1]);
-    oap::generic::setHostWeights (*layers[idx], weights[idx].get(), oap::host::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
+    oap::generic::setHostWeights (*layers[idx], weights[idx].get(), oap::chost::CopyHostMatrixToHostMatrix, oap::host::GetMatrixInfo, oap::host::GetMatrixInfo);
   }
 
   for (uintt idx = 0; idx < ns[0]; ++idx)
@@ -97,9 +97,9 @@ std::vector<oap::HostComplexMatrixPtr> runForwardPropagation (const std::vector<
 
   auto getLayerOutput = [](MockLayer* layer)
   {
-    auto minfo = oap::generic::getOutputsInfo (*layer, oap::host::GetMatrixInfo);
-    oap::HostComplexMatrixPtr outputsL = oap::host::NewReMatrix (minfo.columns (), minfo.rows ());
-    oap::generic::getOutputs (outputsL, *layer, oap::host::CopyHostMatrixToHostMatrix);
+    auto minfo = oap::generic::getOutputsInfo (*layer, oap::chost::GetMatrixInfo);
+    oap::HostComplexMatrixPtr outputsL = oap::chost::NewReMatrix (minfo.columns (), minfo.rows ());
+    oap::generic::getOutputs (outputsL, *layer, oap::chost::CopyHostMatrixToHostMatrix);
     return outputsL;
   };
 
@@ -118,7 +118,7 @@ TEST_F(OapForwardPropagationTests, Test_1)
 {
   using namespace oap::math;
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (3, 3);
   *GetRePtrIndex (weights1to2, 0) = 4;
   *GetRePtrIndex (weights1to2, 3) = 3;
   *GetRePtrIndex (weights1to2, 6) = 2;
@@ -131,7 +131,7 @@ TEST_F(OapForwardPropagationTests, Test_1)
   *GetRePtrIndex (weights1to2, 5) = 1;
   *GetRePtrIndex (weights1to2, 8) = 1;
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (3, 1);
   *GetRePtrIndex (weights2to3, 0) = 1;
   *GetRePtrIndex (weights2to3, 1) = 1;
   *GetRePtrIndex (weights2to3, 2) = 1;
@@ -151,7 +151,7 @@ TEST_F(OapForwardPropagationTests, Test_2)
 {
   using namespace oap::math;
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (3, 3);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (3, 3);
   *GetRePtrIndex (weights1to2, 0) = 1;
   *GetRePtrIndex (weights1to2, 3) = 1;
   *GetRePtrIndex (weights1to2, 6) = 1;
@@ -164,12 +164,12 @@ TEST_F(OapForwardPropagationTests, Test_2)
   *GetRePtrIndex (weights1to2, 5) = 1;
   *GetRePtrIndex (weights1to2, 8) = 1;
 
-  oap::HostComplexMatrixPtr weights2to3 = oap::host::NewReMatrix (3, 1);
+  oap::HostComplexMatrixPtr weights2to3 = oap::chost::NewReMatrix (3, 1);
   *GetRePtrIndex (weights2to3, 0) = 1;
   *GetRePtrIndex (weights2to3, 1) = 1;
   *GetRePtrIndex (weights2to3, 2) = 1;
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 3);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 3);
   *GetRePtrIndex (inputs, 0) = 1;
   *GetRePtrIndex (inputs, 1) = 1;
   *GetRePtrIndex (inputs, 2) = 1;
@@ -185,11 +185,11 @@ TEST_F(OapForwardPropagationTests, Test_3)
 {
   using namespace oap::math;
 
-  oap::HostComplexMatrixPtr weights1to2 = oap::host::NewReMatrix (2, 1);
+  oap::HostComplexMatrixPtr weights1to2 = oap::chost::NewReMatrix (2, 1);
   *GetRePtrIndex (weights1to2, 0) = 1;
   *GetRePtrIndex (weights1to2, 1) = 1;
 
-  oap::HostComplexMatrixPtr inputs = oap::host::NewReMatrix (1, 2);
+  oap::HostComplexMatrixPtr inputs = oap::chost::NewReMatrix (1, 2);
   *GetRePtrIndex (inputs, 0) = 1;
   *GetRePtrIndex (inputs, 1) = 1;
 
@@ -199,5 +199,4 @@ TEST_F(OapForwardPropagationTests, Test_3)
 
   EXPECT_DOUBLE_EQ (sigmoid (2), GetReIndex (outputsL, 0));
 }
-
 #endif

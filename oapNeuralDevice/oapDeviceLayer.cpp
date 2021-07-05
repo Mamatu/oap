@@ -17,9 +17,9 @@
  * along with Oap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "oapDeviceLayer.h"
-#include "oapCudaMatrixUtils.h"
-#include "oapDeviceNeuralApi.h"
+#include "oapDeviceLayer.hpp"
+#include "oapCudaMatrixUtils.hpp"
+#include "oapDeviceNeuralApi.hpp"
 
 namespace oap
 {
